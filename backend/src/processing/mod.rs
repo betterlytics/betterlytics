@@ -11,6 +11,7 @@ use std::sync::Arc;
 use crate::bot_detection;
 use woothee::parser::Parser;
 use once_cell::sync::Lazy;
+use url;
 
 static USER_AGENT_PARSER: Lazy<Parser> = Lazy::new(|| Parser::new());
 
@@ -34,6 +35,7 @@ pub struct ProcessedEvent {
     pub site_id: String,
     pub visitor_fingerprint: String,
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Stripped URL without query parameters
     pub url: String,
     pub referrer: Option<String>,
     pub user_agent: String,
@@ -57,7 +59,7 @@ impl EventProcessor {
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
         let site_id = event.raw.site_id.clone();
         let timestamp = chrono::DateTime::from_timestamp(event.raw.timestamp as i64, 0).unwrap_or_else(|| chrono::Utc::now());
-        let url = event.raw.url.clone();
+        let url = self.strip_url_query_params(&event.raw.url.clone());
         let referrer = event.raw.referrer.clone();
         let user_agent = event.raw.user_agent.clone();
 
@@ -73,7 +75,7 @@ impl EventProcessor {
             site_id: site_id.clone(),
             visitor_fingerprint: String::new(),
             timestamp: timestamp.clone(),
-            url: url.clone(),
+            url,
             referrer: referrer.clone(),
             user_agent: user_agent.clone(),
         };
@@ -125,6 +127,17 @@ impl EventProcessor {
 
         debug!("Processed event finished!");
         Ok(())
+    }
+
+    /// Strip query parameters from URL but keep fragment - we might wanna consider storing fragments separately
+    fn strip_url_query_params(&self, url: &str) -> String {
+        if let Ok(parsed_url) = url::Url::parse(url) {
+            let mut clean = parsed_url.clone();
+            clean.set_query(None);
+            clean.to_string()
+        } else {
+            url.to_string()
+        }
     }
 
     /// Get geolocation data for the IP

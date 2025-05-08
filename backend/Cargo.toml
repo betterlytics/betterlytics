@@ -47,6 +47,7 @@ bytes = "1.10.1"
 
 # Regex
 regex = "1.10"
+url = "2.5.0"
 
 # Hashing
 sha2 = "0.10"
