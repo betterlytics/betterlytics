@@ -1,8 +1,8 @@
 'use client';
 
 import React, { ElementType, ComponentPropsWithoutRef } from 'react';
-import { useLocalization } from '@/hooks/useLocalization';
 import { LocalizationKeys } from '@/types/i18n';
+import { useTranslation } from 'react-i18next';
 
 type LocalizedTextProps<T extends ElementType = 'span'> = {
   k: LocalizationKeys;
@@ -16,7 +16,7 @@ export function LocalizedText<T extends ElementType = 'span'>({
   options,
   ...props
 }: LocalizedTextProps<T>) {
-  const { l } = useLocalization();
+  const { t } = useTranslation();
   const TextComponent = as || 'span';
-  return <TextComponent {...props}>{l(k, options)}</TextComponent>;
+  return <TextComponent {...props}>{t(k, options)}</TextComponent>;
 }
