@@ -1,2 +1,8 @@
-   packages:
-     - 'better-analytics-dashboard'
+packages:
+  - better-analytics-dashboard
+
+ignoredBuiltDependencies:
+  - '@tailwindcss/oxide'
+
+onlyBuiltDependencies:
+  - core-js
