@@ -8,7 +8,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
-import { FlagIcon } from './FlagIcon';
+import { FlagIcon } from '@/components/FlagIcon';
 import { AvailableLocales, LOCALE_TO_ALPHA2, LOCALES } from '@/locale';
 import i18n from 'i18next';
 

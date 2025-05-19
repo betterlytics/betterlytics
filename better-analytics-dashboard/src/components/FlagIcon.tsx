@@ -28,7 +28,6 @@ export function FlagIcon({ alpha2, height = 20, className, style, ...props }: Fl
   );
 
   if (!FlagComponent) {
-    // Render fallback spinner if no flag found
     return spinner;
   }
 
