@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LayoutDashboard, FileText, Smartphone, CircleDot, Globe, Link2 } from "lucide-react";
+import { LocaleSelect } from "./locale/LocaleSelect";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
@@ -38,6 +39,7 @@ export default function Sidebar() {
           ))}
         </ul>
       </nav>
+      <LocaleSelect className="mt-auto ml-auto" />
     </aside>
   );
 } 

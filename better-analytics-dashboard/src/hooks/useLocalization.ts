@@ -1,19 +1,16 @@
 "use client";
 
-import { useTranslation, UseTranslationOptions, UseTranslationResponse } from "react-i18next";
-import type { Namespace, TFunction, i18n as I18nType } from "i18next";
+import { useTranslation, UseTranslationOptions } from "react-i18next";
+import type { Namespace, i18n as I18nType, TOptions } from "i18next";
+import { LocalizationKeys } from "@/types/i18n";
 
 let isDebugI18n: boolean | null = null;
 
 /**
  * Checks if the i18n debug mode is enabled via URL query parameter `?debug_18n=true`.
- * 
- * Note: This runs only on the client-side because it accesses `window.location`.
- *       On server-side renders, it returns `false`.
- * 
  * Uses a module-level cache to avoid repeated parsing.
  * 
- * @returns {boolean} `true` if debug mode is enabled, otherwise `false`.
+ * @returns {boolean} `true` if debug-mode is enabled, otherwise `false`.
  */
 function getIsDebugI18n(): boolean {
   if (isDebugI18n !== null) return isDebugI18n;
@@ -21,6 +18,12 @@ function getIsDebugI18n(): boolean {
   isDebugI18n = new URLSearchParams(window.location.search).get("debug_18n") === "true";
   return isDebugI18n;
 }
+
+// Restrict keys to LocalizationKeys, to get auto-completion when using `t` function
+type TypedTFunction = <TKey extends LocalizationKeys>(
+  key: TKey,
+  options?: TOptions
+) => string;
 
 /**
  * Custom hook wrapping react-i18next's `useTranslation` to provide:
@@ -36,28 +39,25 @@ function getIsDebugI18n(): boolean {
  * @returns {UseTranslationResponse<Ns, KPrefix>} Tuple with `[t, i18n, ready]` and named properties, where `t` respects debug mode
  */
 export function useLocalization<
-  Ns extends Namespace = "translation",
+  Ns extends Namespace = 'translation',
   KPrefix extends string | undefined = undefined
 >(
   ns?: Ns,
   options?: UseTranslationOptions<KPrefix>
-): UseTranslationResponse<Ns, KPrefix> {
+): [TypedTFunction, I18nType, boolean] {
   const { t: baseT, i18n, ready } = useTranslation(ns, options);
 
   const isDebug = getIsDebugI18n();
 
-  const t: TFunction<Ns, KPrefix> = ((...args: Parameters<typeof baseT>) => {
-    const [key] = args;
-
+  const t: TypedTFunction = ((key: LocalizationKeys, opts?: TOptions) => {
     if (isDebug) {
       if (Array.isArray(key)) {
-        return key.join(", ") as ReturnType<typeof baseT>;
+        return key.join(', ');
       }
-      return (typeof key === "string" ? key : "") as ReturnType<typeof baseT>;
+      return typeof key === 'string' ? key : '';
     }
+    return baseT(key as string, opts);
+  }) as TypedTFunction;
 
-    return baseT(...args);
-  }) as TFunction<Ns, KPrefix>;
-
-  return [t, i18n, ready] as UseTranslationResponse<Ns, KPrefix>;
+  return [t, i18n, ready];
 }

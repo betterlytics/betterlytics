@@ -3,11 +3,12 @@
 import React, { ElementType, ComponentPropsWithoutRef } from 'react';
 import { LocalizationKeys } from '@/types/i18n';
 import { useLocalization } from '@/hooks/useLocalization';
+import { TOptions } from 'i18next';
 
 type LocaleTextProps<T extends ElementType = 'span'> = {
   k: LocalizationKeys;
   as?: T;
-  options?: Record<string, unknown>;
+  options?: TOptions; 
 } & ComponentPropsWithoutRef<T>;
 
 export function LocaleText<T extends ElementType = 'span'>({
@@ -16,7 +17,7 @@ export function LocaleText<T extends ElementType = 'span'>({
   options,
   ...props
 }: LocaleTextProps<T>) {
-  const { t } = useLocalization();
+  const [ t ] = useLocalization();
   const TextComponent = as || 'span';
   return <TextComponent {...props}>{t(k, options)}</TextComponent>;
 }

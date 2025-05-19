@@ -12,6 +12,8 @@ import { fetchDeviceTypeBreakdownAction } from "@/app/actions/devices";
 import { fetchSummaryStatsAction, fetchTopPagesAction } from "@/app/actions/overview";
 import { useTimeRangeContext } from "@/contexts/TimeRangeContextProvider";
 import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from "@/utils/granularityRanges";
+import { useLocalization } from "@/hooks/useLocalization";
+import { LocaleText } from "@/components/locale/LocaleText";
 
 export default function DashboardPageClient() {
   const { range, setRange } = useTimeRangeContext();
@@ -34,6 +36,8 @@ export default function DashboardPageClient() {
     queryKey: ['deviceTypeBreakdown', 'default-site', startDate, endDate],
     queryFn: () => fetchDeviceTypeBreakdownAction('default-site', startDate, endDate),
   });
+  
+  const [ t ] = useLocalization();
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -64,24 +68,24 @@ export default function DashboardPageClient() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <SummaryCard
-            title="Unique Visitors"
+            title={t('dashboard.summary.uniqueVisitors')}
             value={summaryLoading ? '...' : summary?.uniqueVisitors?.toLocaleString() ?? '0'}
             changeText=""
             changeColor="text-green-600"
           />
           <SummaryCard
-            title="Total Pageviews"
+            title={t('dashboard.summary.totalPageViews')}
             value={summaryLoading ? '...' : summary?.pageviews?.toLocaleString() ?? '0'}
             changeText=""
             changeColor="text-red-600"
           />
           <SummaryCard
-            title="Bounce Rate"
+            title={t('dashboard.summary.bounceRate')}
             value={summaryLoading ? '...' : summary?.bounceRate !== undefined ? `${summary.bounceRate}%` : '0%'}
             changeText=""
           />
           <SummaryCard
-            title="Avg. Visit Duration"
+            title={t('dashboard.summary.avgVisitDuration')}
             value={summaryLoading ? '...' : formatDuration(summary?.avgVisitDuration ?? 0)}
             changeText=""
             changeColor="text-green-600"
@@ -93,10 +97,10 @@ export default function DashboardPageClient() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
-            {topPagesLoading ? <div>Loading...</div> : <TopPagesTable pages={topPages ?? []} />}
+            {topPagesLoading ? <LocaleText k="misc.loading" /> : <TopPagesTable pages={topPages ?? []} />}
           </div>
           <div>
-            {deviceBreakdownLoading ? <div>Loading...</div> : <DeviceTypePieChart breakdown={deviceBreakdown ?? []} />}
+            {deviceBreakdownLoading ? <LocaleText k="misc.loading" /> : <DeviceTypePieChart breakdown={deviceBreakdown ?? []} />}
           </div>
         </div>
       </div>
