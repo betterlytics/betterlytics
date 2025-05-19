@@ -1,5 +1,5 @@
 import SignOutButton from "@/components/SignOutButton";
-import { LocaleText } from "@/components/locale/LocalizedText";
+import { LocaleText } from "@/components/locale/LocaleText";
 import { LocaleSelect } from "./locale/LocaleSelect";
 
 export default function Topbar() {

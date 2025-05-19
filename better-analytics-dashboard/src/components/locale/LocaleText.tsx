@@ -2,7 +2,7 @@
 
 import React, { ElementType, ComponentPropsWithoutRef } from 'react';
 import { LocalizationKeys } from '@/types/i18n';
-import { useTranslation } from 'react-i18next';
+import { useLocalization } from '@/hooks/useLocalization';
 
 type LocaleTextProps<T extends ElementType = 'span'> = {
   k: LocalizationKeys;
@@ -16,7 +16,7 @@ export function LocaleText<T extends ElementType = 'span'>({
   options,
   ...props
 }: LocaleTextProps<T>) {
-  const { t } = useTranslation();
+  const { t } = useLocalization();
   const TextComponent = as || 'span';
   return <TextComponent {...props}>{t(k, options)}</TextComponent>;
 }
