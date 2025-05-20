@@ -7,8 +7,8 @@ import { GeoVisitorSchema } from '@/entities/geography';
 // Schema for validating the input parameters
 const queryParamsSchema = z.object({
   siteId: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
+  startDate: z.date(),
+  endDate: z.date(),
 });
 
 const worldMapResponseSchema = z.object({

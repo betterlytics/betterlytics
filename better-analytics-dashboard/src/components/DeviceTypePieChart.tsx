@@ -16,9 +16,9 @@ export default function DeviceTypePieChart({ breakdown }: DeviceTypePieChartProp
   }));
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-      <h2 className="text-lg font-bold text-gray-900 mb-1 w-full">Devices</h2>
-      <p className="text-sm text-gray-500 mb-4 w-full">Visitors by device type</p>
+    <div>
+      <h2 className="text-lg font-bold text-foreground mb-1 w-full">Devices</h2>
+      <p className="text-sm text-muted-foreground mb-4 w-full">Visitors by device type</p>
       <div className="w-full flex flex-col items-center">
         <ResponsiveContainer width={220} height={180}>
           <PieChart>
@@ -45,8 +45,8 @@ export default function DeviceTypePieChart({ breakdown }: DeviceTypePieChartProp
           {data.map((entry) => (
             <div key={entry.device_type} className="flex items-center gap-1 text-sm">
               <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></span>
-              <span className="font-medium text-gray-700">{entry.label}</span>
-              <span className="text-gray-500">{entry.percent}%</span>
+              <span className="font-medium text-foreground">{entry.label}</span>
+              <span className="text-muted-foreground">{entry.percent}%</span>
             </div>
           ))}
         </div>

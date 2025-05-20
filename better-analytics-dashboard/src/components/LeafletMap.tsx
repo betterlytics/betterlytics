@@ -37,7 +37,7 @@ const LeafletMap = ({ visitorData, maxVisitors }: LeafletMapProps) => {
   const colorScale = useMemo(() => {
     return scaleLinear<string>()
       .domain([0, calculatedMaxVisitors])
-      .range(['#0f0f0f', '#08519c'])
+      .range(['var(--color-secondary)', 'var(--color-primary)'])
   }, [calculatedMaxVisitors])
 
   // Load GeoJSON data
@@ -77,7 +77,7 @@ const LeafletMap = ({ visitorData, maxVisitors }: LeafletMapProps) => {
       fillColor: colorScale(visitors),
       weight: 0.5,
       opacity: 1,
-      color: '#ffffff',
+      color: 'var(--color-border)',
       fillOpacity: visitors > 0 ? 0.8 : 0.6
     }
   }
@@ -104,14 +104,17 @@ const LeafletMap = ({ visitorData, maxVisitors }: LeafletMapProps) => {
   return (
     <div style={{ height: '100%', width: '100%', position: 'relative' }}>
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
-          <div>Loading map data...</div>
+        <div className="absolute inset-0 flex items-center justify-center bg-background/70 z-10">
+          <div className="flex flex-col items-center">
+            <div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin mb-2"></div>
+            <p className="text-foreground">Loading map data...</p>
+          </div>
         </div>
       )}
       
       <style jsx global>{`
         .leaflet-container {
-          background-color: #ffffff;
+          background-color: var(--color-background);
         }
       `}</style>
       
@@ -139,17 +142,14 @@ const LeafletMap = ({ visitorData, maxVisitors }: LeafletMapProps) => {
       </MapContainer>
       
       {/* Legend in bottom left corner displaying color gradient of visitors */}
-      <div className="info-legend" style={{ position: 'absolute', bottom: 10, left: 10, zIndex: 1000, backgroundColor: 'white', padding: '10px', borderRadius: '5px', boxShadow: '0 0 15px rgba(0,0,0,0.1)' }}>
-        <h4>Visitors</h4>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.75rem', marginRight: '4px' }}>0</span>
-          <div style={{ 
-            width: '100px', 
-            height: '8px', 
-            background: `linear-gradient(to right, #0f0f0f, #08519c)`,
-            borderRadius: '4px',
+      <div className="info-legend bg-card border border-border p-2.5 rounded-md shadow absolute bottom-2.5 left-2.5 z-[1000]">
+        <h4 className="text-foreground font-medium mb-1.5">Visitors</h4>
+        <div className="flex items-center">
+          <span className="text-xs text-muted-foreground mr-1">0</span>
+          <div className="w-24 h-2 rounded" style={{ 
+            background: `linear-gradient(to right, var(--color-secondary), var(--color-primary))`
           }}></div>
-          <span style={{ fontSize: '0.75rem', marginLeft: '4px' }}>{calculatedMaxVisitors.toLocaleString()}</span>
+          <span className="text-xs text-muted-foreground ml-1">{calculatedMaxVisitors.toLocaleString()}</span>
         </div>
       </div>
     </div>

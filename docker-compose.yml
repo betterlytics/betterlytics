@@ -7,10 +7,40 @@ services:
       - "8123:8123"  # HTTP interface - access /play for testing
       - "9000:9000"  # Native interface
     command: ["clickhouse-server", "--", "--listen_host=0.0.0.0"]
+    volumes:
+      - ./data/clickhouse/:/var/lib/clickhouse/
     ulimits:
       nofile:
         soft: 262144
         hard: 262144
+  
+  dashboard_database:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    networks:
+      - postgres-network
+    volumes:
+      - ./data/postgres/:/var/lib/postgresql/data/
+  
+  dashboard_pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 5433:80
+    env_file:
+      - .env
+    depends_on:
+      - dashboard_database
+    networks:
+      - postgres-network
+    volumes:
+      - ./data/pgadmin/:/var/lib/pgadmin/
+
+networks: 
+  postgres-network:
+    driver: bridge
 
 volumes:
   clickhouse_data:

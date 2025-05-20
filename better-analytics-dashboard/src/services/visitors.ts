@@ -10,13 +10,13 @@ import { toDateTimeString, toDateString } from '@/utils/dateFormatters';
 import { SummaryStatsSchema } from '@/entities/stats';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 
-export async function getUniqueVisitorsForSite(siteId: string, startDate: string, endDate: string, granularity: GranularityRangeValues) {
+export async function getUniqueVisitorsForSite(siteId: string, startDate: Date, endDate: Date, granularity: GranularityRangeValues) {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
   return getUniqueVisitors(siteId, formattedStart, formattedEnd, granularity);
 }
 
-export async function getSummaryStatsForSite(siteId: string, startDate: string, endDate: string) {
+export async function getSummaryStatsForSite(siteId: string, startDate: Date, endDate: Date) {
   const [uniqueVisitors, pageviews, sessionMetrics] = await Promise.all([
     getTotalUniqueVisitors(siteId, toDateString(startDate), toDateString(endDate)),
     getTotalPageviews(siteId, toDateTimeString(startDate), toDateTimeString(endDate)),

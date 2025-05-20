@@ -10,8 +10,8 @@ import { useFragmentedGranularityTimeSeriesLineChart } from '@/hooks/useFragment
 
 interface PageviewsChartProps {
   siteId: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   granularity: GranularityRangeValues;
 }
 
@@ -40,10 +40,10 @@ export default function PageviewsChart({ siteId, startDate, endDate, granularity
   if (data.length === 0) return <div>No data available.</div>;
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div>
       <div className="mb-2">
-        <h2 className="text-lg font-bold text-gray-900">Pageviews</h2>
-        <p className="text-sm text-gray-500">Total pageviews over time</p>
+        <h2 className="text-lg font-bold text-foreground">Pageviews</h2>
+        <p className="text-sm text-muted-foreground">Total pageviews over time</p>
       </div>
       <div className="w-full h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -55,15 +55,16 @@ export default function PageviewsChart({ siteId, startDate, endDate, granularity
               domain={["dataMin", "dataMax"]}
               scale={scale}
               tickFormatter={timeFormat("%b %d")}
-              tick={{ textAnchor: "middle", fill: '#64748b', fontSize: 12 }}
+              tick={{ textAnchor: "middle", fill: 'var(--muted-foreground)', fontSize: 12 }}
               axisLine={false} tickLine={false}
             />
-            <YAxis allowDecimals={false} tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} width={48} />
+            <YAxis allowDecimals={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} axisLine={false} tickLine={false} width={48} />
             <Tooltip
               labelFormatter={tooltipLabelFormatter}
               formatter={(value) => [value, "Total views"]}
+              contentStyle={{ backgroundColor: 'var(--popover)', color: 'var(--popover-foreground)', borderColor: 'var(--border)' }}
             />
-            <Line type="monotone" dataKey="views" stroke={`#a78bfa`} strokeWidth={3} dot={false} />
+            <Line type="monotone" dataKey="views" stroke="var(--chart-2)" strokeWidth={3} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

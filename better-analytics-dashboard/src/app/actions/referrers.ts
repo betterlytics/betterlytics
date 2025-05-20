@@ -7,7 +7,7 @@ import { checkAuth } from '@/lib/auth-actions';
 /**
  * Fetches the referrer distribution data for a site
  */
-export async function fetchReferrerSourceAggregationDataForSite(siteId: string, startDate: string, endDate: string) {
+export async function fetchReferrerSourceAggregationDataForSite(siteId: string, startDate: Date, endDate: Date) {
   await checkAuth();
 
   try {
@@ -24,8 +24,8 @@ export async function fetchReferrerSourceAggregationDataForSite(siteId: string, 
  */
 export async function fetchReferrerTrafficTrendBySourceDataForSite(
   siteId: string, 
-  startDate: string, 
-  endDate: string,
+  startDate: Date, 
+  endDate: Date,
   granularity: GranularityRangeValues
 ) {
   await checkAuth();
@@ -42,7 +42,7 @@ export async function fetchReferrerTrafficTrendBySourceDataForSite(
 /**
  * Fetches the summary data for referrers including total count, traffic and bounce rate
  */
-export async function fetchReferrerSummaryDataForSite(siteId: string, startDate: string, endDate: string) {
+export async function fetchReferrerSummaryDataForSite(siteId: string, startDate: Date, endDate: Date) {
   await checkAuth();
 
   try {
@@ -57,7 +57,7 @@ export async function fetchReferrerSummaryDataForSite(siteId: string, startDate:
 /**
  * Fetches detailed referrer data for table display
  */
-export async function fetchReferrerTableDataForSite(siteId: string, startDate: string, endDate: string, limit = 100) {
+export async function fetchReferrerTableDataForSite(siteId: string, startDate: Date, endDate: Date, limit = 100) {
   await checkAuth();
   
   try {

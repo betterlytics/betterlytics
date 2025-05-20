@@ -62,3 +62,6 @@ Thumbs.db
 /nextjs/public/
 /nextjs/static/
 node_modules
+
+# Docker volumnes
+/data/

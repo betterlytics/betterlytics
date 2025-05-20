@@ -1,15 +1,16 @@
 'server-only';
 
-import { getDeviceTypeBreakdown, getBrowserBreakdown, getOperatingSystemBreakdown } from '@/repositories/clickhouse/devices';
+import { getDeviceTypeBreakdown, getBrowserBreakdown, getOperatingSystemBreakdown, getDeviceUsageTrend } from '@/repositories/clickhouse/devices';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { DeviceType, BrowserInfo, BrowserStats, BrowserStatsSchema, DeviceSummary, DeviceSummarySchema, OperatingSystemInfo } from '@/entities/devices';
+import { DeviceType, BrowserInfo, BrowserStats, BrowserStatsSchema, DeviceSummary, DeviceSummarySchema, OperatingSystemInfo, OperatingSystemStats, OperatingSystemStatsSchema, DeviceUsageTrendRow, DeviceUsageTrendRowSchema } from '@/entities/devices';
 import { getDeviceLabel } from '@/constants/deviceTypes';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
 
-export async function getDeviceTypeBreakdownForSite(siteId: string, startDate: string, endDate: string): Promise<DeviceType[]> {
+export async function getDeviceTypeBreakdownForSite(siteId: string, startDate: Date, endDate: Date): Promise<DeviceType[]> {
   return getDeviceTypeBreakdown(siteId, toDateTimeString(startDate), toDateTimeString(endDate));
 }
 
-export async function getDeviceSummaryForSite(siteId: string, startDate: string, endDate: string): Promise<DeviceSummary> {
+export async function getDeviceSummaryForSite(siteId: string, startDate: Date, endDate: Date): Promise<DeviceSummary> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
@@ -36,7 +37,7 @@ export async function getDeviceSummaryForSite(siteId: string, startDate: string,
   return DeviceSummarySchema.parse(summary);
 }
 
-export async function getBrowserBreakdownForSite(siteId: string, startDate: string, endDate: string): Promise<BrowserStats[]> {
+export async function getBrowserBreakdownForSite(siteId: string, startDate: Date, endDate: Date): Promise<BrowserStats[]> {
   const browserData = await getBrowserBreakdown(siteId, toDateTimeString(startDate), toDateTimeString(endDate));
   
   // Calculate total visitors for percentage calculation
@@ -45,10 +46,33 @@ export async function getBrowserBreakdownForSite(siteId: string, startDate: stri
   const statsWithPercentages = browserData.map(item => ({
     browser: item.browser,
     visitors: item.visitors,
-    percentage: Math.round((item.visitors / totalVisitors) * 100)
+    percentage: totalVisitors > 0 ? Math.round((item.visitors / totalVisitors) * 100) : 0
   }));
   
   return BrowserStatsSchema.array().parse(statsWithPercentages);
+}
+
+export async function getOperatingSystemBreakdownForSite(siteId: string, startDate: Date, endDate: Date): Promise<OperatingSystemStats[]> {
+  const osData = await getOperatingSystemBreakdown(siteId, toDateTimeString(startDate), toDateTimeString(endDate));
+  
+  const totalVisitors = osData.reduce((sum, item) => sum + item.visitors, 0);
+  
+  const statsWithPercentages = osData.map(item => ({
+    os: item.os,
+    visitors: item.visitors,
+    percentage: totalVisitors > 0 ? Math.round((item.visitors / totalVisitors) * 100) : 0
+  }));
+  
+  return OperatingSystemStatsSchema.array().parse(statsWithPercentages);
+}
+
+export async function getDeviceUsageTrendForSite(
+  siteId: string, 
+  startDate: Date, 
+  endDate: Date,
+  granularity: GranularityRangeValues
+): Promise<DeviceUsageTrendRow[]> {
+  return getDeviceUsageTrend(siteId, toDateTimeString(startDate), toDateTimeString(endDate), granularity);
 }
 
 // Helper to find top item and calculate percentage from a breakdown list

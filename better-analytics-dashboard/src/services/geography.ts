@@ -7,8 +7,8 @@ import { GeoVisitor } from '@/entities/geography';
  */
 export async function fetchVisitorsByGeography(
   siteId: string, 
-  startDate: string, 
-  endDate: string
+  startDate: Date, 
+  endDate: Date
 ): Promise<GeoVisitor[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);

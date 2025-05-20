@@ -1,0 +1,30 @@
+// Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model Site {
+  id String @id @default(cuid())
+  siteId String @unique
+
+  Funnel Funnel[]
+}
+
+model Funnel {
+  id String @id @default(cuid())
+
+  name    String
+  
+  pages   String[]
+
+  site    Site @relation(fields: [siteId], references: [siteId], onDelete: Cascade)
+  siteId  String
+}
+

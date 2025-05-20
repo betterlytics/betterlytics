@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import SummaryCard from "@/components/SummaryCard";
 import ReferrerDistributionChart from '@/components/charts/ReferrerDistributionChart';
 import ReferrerTrafficTrendChart from '@/components/charts/ReferrerTrafficTrendChart';
 import ReferrerTable from '@/components/charts/ReferrerTable';
+import TimeRangeSelector from "@/components/TimeRangeSelector";
 import { 
   fetchReferrerSourceAggregationDataForSite, 
   fetchReferrerSummaryDataForSite,
@@ -18,8 +19,6 @@ import {
   ReferrerTrafficBySourceRow 
 } from "@/entities/referrers";
 import { useTimeRangeContext } from "@/contexts/TimeRangeContextProvider";
-import { TIME_RANGE_PRESETS, getRangeForValue, TimeRangeValue } from "@/utils/timeRanges";
-import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from "@/utils/granularityRanges";
 import { formatPercentage } from "@/utils/formatters";
 
 export default function ReferrersClient() {
@@ -28,10 +27,8 @@ export default function ReferrersClient() {
   const [summaryData, setSummaryData] = useState<ReferrerSummary | undefined>(undefined);
   const [tableData, setTableData] = useState<ReferrerTableRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const { range, setRange } = useTimeRangeContext();
-  const [granularity, setGranularity] = useState<GranularityRangeValues>("day");
-  const { startDate, endDate } = useMemo(() => getRangeForValue(range), [range]);
-
+  const { granularity, startDate, endDate } = useTimeRangeContext();
+  
   const siteId = 'default-site';
 
   useEffect(() => {
@@ -57,39 +54,18 @@ export default function ReferrersClient() {
     }
     
     loadData();
-  }, [startDate, endDate, granularity]);
+  }, [startDate, endDate, granularity, siteId]);
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Referrers</h1>
-            <p className="text-sm text-gray-500">Analytics and insights for your website</p>
+            <h1 className="text-2xl font-bold text-foreground mb-1">Referrers</h1>
+            <p className="text-sm text-muted-foreground">Analytics and insights for your website</p>
           </div>
           <div className="flex gap-4">
-            <div className="relative inline-block text-left">
-              <select
-                className="border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={range}
-                onChange={e => setRange(e.target.value as TimeRangeValue)}
-              >
-                {TIME_RANGE_PRESETS.map(r => (
-                  <option key={r.value} value={r.value}>{r.label}</option>
-                ))}
-              </select>
-            </div>
-            <div className="relative inline-block text-left">
-              <select
-                className="border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={granularity}
-                onChange={e => setGranularity(e.target.value as GranularityRangeValues)}
-              >
-                {GRANULARITY_RANGE_PRESETS.map(r => (
-                  <option key={r.value} value={r.value}>{r.label}</option>
-                ))}
-              </select>
-            </div>
+            <TimeRangeSelector />
           </div>
         </div>
         
@@ -114,22 +90,22 @@ export default function ReferrersClient() {
         
         {/* Charts */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-lg p-4 shadow">
-            <div className="font-medium mb-2 text-gray-700">Referrer Distribution</div>
-            <p className="text-xs text-gray-500 mb-4">Traffic sources by category</p>
+          <div className="bg-card rounded-lg p-4 shadow border border-border">
+            <div className="font-medium mb-2 text-foreground">Referrer Distribution</div>
+            <p className="text-xs text-muted-foreground mb-4">Traffic sources by category</p>
             <ReferrerDistributionChart data={distributionData} loading={loading} />
           </div>
-          <div className="bg-white rounded-lg p-4 shadow">
-            <div className="font-medium mb-2 text-gray-700">Referral Traffic Trends</div>
-            <p className="text-xs text-gray-500 mb-4">Traffic by source over time</p>
+          <div className="bg-card rounded-lg p-4 shadow border border-border">
+            <div className="font-medium mb-2 text-foreground">Referral Traffic Trends</div>
+            <p className="text-xs text-muted-foreground mb-4">Traffic by source over time</p>
             <ReferrerTrafficTrendChart data={trendBySourceData} loading={loading} />
           </div>
         </div>
         
         {/* Referrer Table */}
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="font-medium mb-2 text-gray-700">Referrer Details</div>
-          <p className="text-xs text-gray-500 mb-4">Detailed breakdown of traffic sources</p>
+        <div className="bg-card rounded-lg p-4 shadow border border-border">
+          <div className="font-medium mb-2 text-foreground">Referrer Details</div>
+          <p className="text-xs text-muted-foreground mb-4">Detailed breakdown of traffic sources</p>
           <ReferrerTable data={tableData} loading={loading} />
         </div>
       </div>

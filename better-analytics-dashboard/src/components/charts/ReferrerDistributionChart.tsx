@@ -14,8 +14,8 @@ interface ReferrerDistributionChartProps {
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 shadow-lg rounded-md border border-gray-200">
-        <p className="text-sm text-gray-700">{`${payload[0].name}: ${payload[0].value}%`}</p>
+      <div className="bg-card p-2 shadow-lg rounded-md border border-border">
+        <p className="text-sm text-foreground">{`${payload[0].name}: ${payload[0].value}%`}</p>
       </div>
     );
   }
@@ -43,8 +43,8 @@ export default function ReferrerDistributionChart({ data, loading = false }: Ref
     return (
       <div className="flex items-center justify-center h-[300px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-          <p className="text-gray-500">Loading data...</p>
+          <div className="w-10 h-10 border-4 border-accent border-t-primary rounded-full animate-spin"></div>
+          <p className="text-muted-foreground">Loading data...</p>
         </div>
       </div>
     );
@@ -54,8 +54,8 @@ export default function ReferrerDistributionChart({ data, loading = false }: Ref
     return (
       <div className="flex items-center justify-center h-[300px]">
         <div className="text-center">
-          <p className="text-gray-500 mb-1">No data available</p>
-          <p className="text-sm text-gray-400">Try selecting a different time range</p>
+          <p className="text-muted-foreground mb-1">No data available</p>
+          <p className="text-sm text-muted-foreground/70">Try selecting a different time range</p>
         </div>
       </div>
     );

@@ -39,10 +39,10 @@ const getSortedReferrerSources = (
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 shadow-lg rounded-md border border-gray-200">
-        <p className="text-xs text-gray-500">{format(new Date(label), 'MMM dd, yyyy HH:mm')}</p>
+      <div className="bg-card p-2 shadow-lg rounded-md border border-border">
+        <p className="text-xs text-muted-foreground">{format(new Date(label), 'MMM dd, yyyy HH:mm')}</p>
         {payload.map((entry: any, index: number) => (
-          <p key={`tooltip-${index}`} className="text-sm text-gray-700" style={{ color: entry.color }}>
+          <p key={`tooltip-${index}`} className="text-sm" style={{ color: entry.color }}>
             {`${entry.name.charAt(0).toUpperCase() + entry.name.slice(1)}: ${entry.value.toLocaleString()}`}
           </p>
         ))}
@@ -104,8 +104,8 @@ export default function ReferrerTrafficTrendChart({ data, loading = false }: Ref
     return (
       <div className="flex items-center justify-center h-[300px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-          <p className="text-sm text-gray-500">Loading data...</p>
+          <div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin"></div>
+          <p className="text-sm text-muted-foreground">Loading data...</p>
         </div>
       </div>
     );
@@ -115,8 +115,8 @@ export default function ReferrerTrafficTrendChart({ data, loading = false }: Ref
     return (
       <div className="flex items-center justify-center h-[300px]">
         <div className="text-center">
-          <p className="text-gray-500 mb-1">No trend data available</p>
-          <p className="text-xs text-gray-400">Try adjusting the time range or filters</p>
+          <p className="text-muted-foreground mb-1">No trend data available</p>
+          <p className="text-xs text-muted-foreground/70">Try adjusting the time range or filters</p>
         </div>
       </div>
     );
@@ -126,7 +126,7 @@ export default function ReferrerTrafficTrendChart({ data, loading = false }: Ref
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
           <XAxis 
             dataKey="date" 
             tickLine={false} 

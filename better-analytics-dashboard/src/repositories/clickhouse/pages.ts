@@ -247,4 +247,39 @@ export async function getPageDetailMetrics(
   };
 
   return PageAnalyticsSchema.parse(mappedResult);
+}
+
+export async function getPageTrafficTimeSeries(
+  siteId: string,
+  path: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  granularity: GranularityRangeValues
+): Promise<TotalPageViewsRow[]> {
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+
+  const query = `
+    SELECT
+      ${granularityFunc}(timestamp) as date,
+      count() as views
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND url = {path:String}
+      AND event_type = 'pageview' 
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+    GROUP BY date
+    ORDER BY date ASC
+    LIMIT 10080
+  `;
+
+  const result = await clickhouse.query(query, {
+    params: {
+      site_id: siteId,
+      path: path,
+      start_date: startDate,
+      end_date: endDate,
+    },
+  }).toPromise() as unknown[];
+
+  return result.map(row => TotalPageViewRowSchema.parse(row));
 } 

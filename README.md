@@ -24,36 +24,42 @@ Create a copy of the `.env.example` file in root and rename it to `.env` and adj
 
 Then create a copy of the `.env.example` file in `backend` and rename it to `.env` and adjust environment variables accordingly - most can be left as is.
 
-Lastly, create a copy of the `.env.example` file in `better-analytics-dashboard` folder and rename it to `.env.local` and adjust environment variables accordingly - most can be left as is.
+Lastly, create a copy of the `.env.example` file in `better-analytics-dashboard` folder and rename it to `.env` and adjust environment variables accordingly - most can be left as is.
 
-### 3. Start ClickHouse database
+### 3. Start Docker containers
 
 ```bash
-docker-compose up -d
+pnpm run compose
 ```
 
-This will start a ClickHouse instance with:
-- HTTP interface on port 8123
-- Native interface on port 9000
-- Data persisted in `./data/clickhouse`
+This will:
+- start a ClickHouse instance with:
+  - HTTP interface on port 8123
+  - Native interface on port 9000
+  - Data persisted in `./data/clickhouse`
+- start a Postgres instance with:
+  - HTTP interface on port 5432
+  - Data persisted in `./data/postgres`
+- start a PGAdmin instance with:
+  - HTTP interface on port 5433
+  - Data persisted in `./data/pgadmin`
+- run migrations for ClickHouse & Postgres
+- generate the Prisma client for dashboard
+- seed Postgres to quickly get up an running with basics
 
-### 4. Run Database Migrations
+### 4. Install dependencies
 
 ```bash
 pnpm install
-pnpm migrate
 ```
 
 This will:
 - Install all dependencies
-- Create the necessary database and tables
-- Set up materialized views for analytics
 
 ### 5. Start the Backend Server
 
 ```bash
-cd backend
-cargo run
+pnpm run backend
 ```
 
 The Rust server will:
@@ -65,7 +71,7 @@ The Rust server will:
 ### 6. Start the Dashboard
 
 ```bash
-pnpm dev
+pnpm run dashboard
 ```
 
 The dashboard will:

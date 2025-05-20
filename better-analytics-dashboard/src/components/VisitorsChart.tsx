@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchUniqueVisitorsAction } from '@/app/actions/overview';
 import { DailyUniqueVisitorsRow } from "@/entities/visitors";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { getGroupingForRange, TimeGrouping } from '@/utils/timeRanges';
+import { TimeGrouping } from '@/utils/timeRanges';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { useMemo } from 'react';
 import { useFragmentedGranularityTimeSeriesLineChart } from '@/hooks/useFragmentedGranularityTimeSeriesLineChart';
@@ -11,8 +11,8 @@ import { timeFormat } from 'd3-time-format';
 
 interface VisitorsChartProps {
   siteId: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   granularity: GranularityRangeValues;
 }
 
@@ -41,10 +41,10 @@ export default function VisitorsChart({ siteId, startDate, endDate, granularity 
   if (data.length === 0) return <div>No data available.</div>;
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="rounded-lg">
       <div className="mb-2">
-        <h2 className="text-lg font-bold text-gray-900">Visitors</h2>
-        <p className="text-sm text-gray-500">Unique visitors over time</p>
+        <h2 className="text-lg font-bold text-foreground">Visitors</h2>
+        <p className="text-sm text-muted-foreground">Unique visitors over time</p>
       </div>
       <div className="w-full h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -55,16 +55,17 @@ export default function VisitorsChart({ siteId, startDate, endDate, granularity 
               ticks={ticks}
               domain={["dataMin", "dataMax"]}
               scale={scale}
-              tick={{ fill: '#64748b', fontSize: 12 }}
+              tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
               tickFormatter={timeFormat("%b %d")}
               axisLine={false} tickLine={false}
             />
-            <YAxis allowDecimals={false} tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} width={48} />
+            <YAxis allowDecimals={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} axisLine={false} tickLine={false} width={48} />
             <Tooltip
               labelFormatter={tooltipLabelFormatter}
               formatter={(value) => [value, "Unique visitors"]}
+              contentStyle={{ backgroundColor: 'var(--popover)', color: 'var(--popover-foreground)', borderColor: 'var(--border)' }}
             />
-            <Line type="monotone" dataKey="unique_visitors" stroke="#06b6d4" strokeWidth={3} dot={false} />
+            <Line type="monotone" dataKey="unique_visitors" stroke="var(--chart-1)" strokeWidth={3} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

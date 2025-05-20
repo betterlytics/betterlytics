@@ -1,5 +1,3 @@
-import { subDays, subMonths, startOfDay, endOfDay } from 'date-fns';
-
 export type GranularityRangeValues = 'minute' | 'hour' | 'day';
 
 export interface GranularityRangePreset {

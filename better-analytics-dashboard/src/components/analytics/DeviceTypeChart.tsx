@@ -12,7 +12,14 @@ interface DeviceTypeChartProps {
 
 export default function DeviceTypeChart({ data, isLoading }: DeviceTypeChartProps) {
   if (isLoading) {
-    return <div className="h-48 flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="h-48 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   const chartData = useMemo(() => {
@@ -52,8 +59,8 @@ export default function DeviceTypeChart({ data, isLoading }: DeviceTypeChartProp
         {chartData.map((entry) => (
           <div key={entry.label} className="flex items-center gap-1 text-sm">
             <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></span>
-            <span className="font-medium text-gray-700">{entry.label}</span>
-            <span className="text-gray-500">{entry.percent}%</span>
+            <span className="font-medium text-foreground">{entry.label}</span>
+            <span className="text-muted-foreground">{entry.percent}%</span>
           </div>
         ))}
       </div>

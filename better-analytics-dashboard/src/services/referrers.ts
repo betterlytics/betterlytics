@@ -10,8 +10,8 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
  */
 export async function getReferrerSourceAggregationDataForSite(
   siteId: string, 
-  startDate: string, 
-  endDate: string
+  startDate: Date,
+  endDate: Date
 ): Promise<ReferrerSourceAggregation[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
@@ -24,8 +24,8 @@ export async function getReferrerSourceAggregationDataForSite(
  */
 export async function getReferrerTrafficTrendBySourceDataForSite(
   siteId: string,
-  startDate: string,
-  endDate: string,
+  startDate: Date,
+  endDate: Date,
   granularity: GranularityRangeValues
 ): Promise<ReferrerTrafficBySourceRow[]> {
   const formattedStart = toDateTimeString(startDate);
@@ -39,8 +39,8 @@ export async function getReferrerTrafficTrendBySourceDataForSite(
  */
 export async function getReferrerSummaryDataForSite(
   siteId: string,
-  startDate: string,
-  endDate: string
+  startDate: Date,
+  endDate: Date
 ): Promise<ReferrerSummary> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
@@ -62,8 +62,8 @@ export async function getReferrerSummaryDataForSite(
  */
 export async function getReferrerTableDataForSite(
   siteId: string,
-  startDate: string,
-  endDate: string,
+  startDate: Date,
+  endDate: Date,
   limit = 100
 ): Promise<ReferrerTableRow[]> {
   const formattedStart = toDateTimeString(startDate);

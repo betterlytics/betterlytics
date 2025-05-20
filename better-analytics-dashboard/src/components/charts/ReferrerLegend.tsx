@@ -1,16 +1,12 @@
 'use client';
 
 import React from 'react';
-import { formatPercentage } from '@/utils/formatters';
+import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
 
 interface ReferrerLegendProps {
   payload?: any[];
   showPercentage?: boolean;
 }
-
-const capitalizeFirstLetter = (string: string): string => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
 
 // Common legend component that can be used by all referrer charts
 export default function ReferrerLegend({ payload, showPercentage = false }: ReferrerLegendProps) {
@@ -19,7 +15,7 @@ export default function ReferrerLegend({ payload, showPercentage = false }: Refe
   }
   
   return (
-    <ul className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 mt-4 text-xs text-gray-700">
+    <ul className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 mt-4 text-xs text-foreground">
       {payload.map((entry: any, index: number) => {
 
         let displayValue: string;

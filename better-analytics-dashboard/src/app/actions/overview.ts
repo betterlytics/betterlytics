@@ -9,32 +9,32 @@ import { getUniqueVisitorsForSite } from "@/services/visitors";
 import { checkAuth } from "@/lib/auth-actions";
 import { GranularityRangeValues } from "@/utils/granularityRanges";
 
-export async function fetchTotalPageViewsAction(siteId: string, startDate: string, endDate: string, granularity: GranularityRangeValues): Promise<TotalPageViewsRow[]> {
+export async function fetchTotalPageViewsAction(siteId: string, startDate: Date, endDate: Date, granularity: GranularityRangeValues): Promise<TotalPageViewsRow[]> {
   await checkAuth();
   return getTotalPageViewsForSite(siteId, startDate, endDate, granularity);
 }
 
-export async function fetchPageViewsAction(siteId: string, startDate: string, endDate: string, granularity: GranularityRangeValues): Promise<DailyPageViewRow[]> {
+export async function fetchPageViewsAction(siteId: string, startDate: Date, endDate: Date, granularity: GranularityRangeValues): Promise<DailyPageViewRow[]> {
   await checkAuth();
   return getPageViewsForSite(siteId, startDate, endDate, granularity);
 }
 
-export async function fetchUniqueVisitorsAction(siteId: string, startDate: string, endDate: string, granularity: GranularityRangeValues): Promise<DailyUniqueVisitorsRow[]> {
+export async function fetchUniqueVisitorsAction(siteId: string, startDate: Date, endDate: Date, granularity: GranularityRangeValues): Promise<DailyUniqueVisitorsRow[]> {
   await checkAuth();
   return getUniqueVisitorsForSite(siteId, startDate, endDate, granularity);
 }
 
-export async function fetchSummaryStatsAction(siteId: string, startDate: string, endDate: string) {
+export async function fetchSummaryStatsAction(siteId: string, startDate: Date, endDate: Date) {
   await checkAuth();
   return getSummaryStatsForSite(siteId, startDate, endDate);
 }
 
-export async function fetchTopPagesAction(siteId: string, startDate: string, endDate: string, limit: number) {
+export async function fetchTopPagesAction(siteId: string, startDate: Date, endDate: Date, limit: number) {
   await checkAuth();
   return getTopPagesForSite(siteId, startDate, endDate, limit);
 }
 
-export async function fetchDeviceTypeBreakdownAction(siteId: string, startDate: string, endDate: string) {
+export async function fetchDeviceTypeBreakdownAction(siteId: string, startDate: Date, endDate: Date) {
   await checkAuth();
   return getDeviceTypeBreakdownForSite(siteId, startDate, endDate);
 }

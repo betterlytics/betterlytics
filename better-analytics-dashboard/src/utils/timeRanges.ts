@@ -1,12 +1,12 @@
 import { subDays, subMonths, startOfDay, endOfDay } from 'date-fns';
 
-export type TimeRangeValue = '24h' | '7d' | '28d' | '3mo';
+export type TimeRangeValue = '24h' | '7d' | '28d' | '3mo' | 'custom';
 export type TimeGrouping = 'minute' | 'hour' | 'day';
 
 export interface TimeRangePreset {
   label: string;
   value: TimeRangeValue;
-  getRange: () => { startDate: string; endDate: string };
+  getRange: () => { startDate: Date; endDate: Date };
 }
 
 export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
@@ -16,7 +16,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const end = new Date();
       const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-      return { startDate: start.toISOString(), endDate: end.toISOString() };
+      return { startDate: start, endDate: end };
     },
   },
   {
@@ -25,7 +25,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const end = endOfDay(new Date());
       const start = startOfDay(subDays(end, 6));
-      return { startDate: start.toISOString(), endDate: end.toISOString() };
+      return { startDate: start, endDate: end };
     },
   },
   {
@@ -34,7 +34,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const end = endOfDay(new Date());
       const start = startOfDay(subDays(end, 27));
-      return { startDate: start.toISOString(), endDate: end.toISOString() };
+      return { startDate: start, endDate: end };
     },
   },
   {
@@ -43,18 +43,21 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const end = endOfDay(new Date());
       const start = startOfDay(subMonths(end, 3));
-      return { startDate: start.toISOString(), endDate: end.toISOString() };
+      return { startDate: start, endDate: end };
     },
   },
 ];
 
-export function getRangeForValue(value: TimeRangeValue): { startDate: string; endDate: string } {
+export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>): { startDate: Date; endDate: Date } {
   const preset = TIME_RANGE_PRESETS.find(p => p.value === value);
-  return preset ? preset.getRange() : TIME_RANGE_PRESETS[1].getRange();
+  if (!preset) {
+    return TIME_RANGE_PRESETS.find(p => p.value === '7d')!.getRange();
+  }
+  return preset.getRange();
 }
 
-export function getGroupingForRange(startDate: string, endDate: string): TimeGrouping {
-  const diff = new Date(endDate).getTime() - new Date(startDate).getTime();
+export function getGroupingForRange(startDate: Date, endDate: Date): TimeGrouping {
+  const diff = endDate.getTime() - startDate.getTime();
   if (diff <= 60 * 60 * 1000) return 'minute';
   if (diff <= 24 * 60 * 60 * 1000) return 'hour';
   return 'day';

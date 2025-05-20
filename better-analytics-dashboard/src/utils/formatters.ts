@@ -27,3 +27,12 @@ export function formatNumber(num: number, decimalPlaces = 1): string {
 export function formatPercentage(num: number, decimalPlaces = 1): string {
   return `${num.toFixed(decimalPlaces)}%`;
 }
+
+/**
+ * Capitalize the first letter of a string
+ * @param string The string to capitalize
+ * @returns The string with the first letter capitalized
+ */
+export function capitalizeFirstLetter(string: string): string {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

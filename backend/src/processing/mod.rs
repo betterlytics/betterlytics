@@ -20,6 +20,10 @@ pub struct ProcessedEvent {
     pub event: AnalyticsEvent,
     /// Sessionization - new sessions are created if the user has not generated any events in over 30 minutes
     pub session_id: String,
+    /// Contains the domain of the URL (e.g. "example.com" or "subdomain.example.com")
+    pub domain: Option<String>,
+    /// Contains only the path of the URL (e.g. "/path/to/page" or "/")
+    pub url: String,
     /// Detected bot status
     pub is_bot: bool,
     /// Geolocation data - Planning to use ip-api.com or maxmind to get this data
@@ -34,7 +38,6 @@ pub struct ProcessedEvent {
     pub site_id: String,
     pub visitor_fingerprint: String,
     pub timestamp: chrono::DateTime<chrono::Utc>,
-    pub url: String,
     /// Parsed referrer information
     pub referrer_info: ReferrerInfo,
     /// Parsed campaign parameters
@@ -66,11 +69,8 @@ impl EventProcessor {
         let referrer = event.raw.referrer.clone();
         let user_agent = event.raw.user_agent.clone();
 
-        let url_path = self.extract_path_from_url(&raw_url);
-        debug!("Extracted path '{}' from URL '{}'", url_path, raw_url);
-
-        let processed_referrer = referrer.as_ref()
-            .and_then(|r| if r.is_empty() { None } else { Some(self.extract_path_from_url(r)) });
+        let (domain, path) = self.extract_domain_and_path_from_url(&raw_url);
+        debug!("Extracted domain '{:?}' and path '{}' from URL '{}'", domain, path, raw_url);
 
         let mut processed = ProcessedEvent {
             event: event.clone(),
@@ -85,7 +85,8 @@ impl EventProcessor {
             site_id: site_id.clone(),
             visitor_fingerprint: String::new(),
             timestamp: timestamp.clone(),
-            url: url_path,
+            domain,
+            url: path,
             referrer_info: ReferrerInfo::default(),
             user_agent: user_agent.clone(),
             campaign_info: CampaignInfo::default(),
@@ -151,23 +152,26 @@ impl EventProcessor {
         Ok(())
     }
 
-    /// Extract just the path component from a URL
-    fn extract_path_from_url(&self, url_str: &str) -> String {
+    /// Extract domain and path from a URL string.
+    fn extract_domain_and_path_from_url(&self, url_str: &str) -> (Option<String>, String) {
         match Url::parse(url_str) {
             Ok(url) => {
-                let path = url.path();
-                if path.is_empty() {
+                let domain = url.domain().map(|d| d.to_string());
+                let path = if url.path().is_empty() {
                     "/".to_string()
                 } else {
-                    path.to_string()
-                }
+                    url.path().to_string()
+                };
+                (domain, path)
             },
             Err(_) => {
-                // If URL parsing fails, check if it might be just a path
+                // Since we get URLs from window.location.href, this should never happen
+                // But we'll try to handle it gracefully by treating the entire string as a path
+                debug!("Failed to parse URL '{}', treating as path-only", url_str);
                 if url_str.starts_with('/') {
-                    url_str.to_string()
+                    (None, url_str.to_string())
                 } else {
-                    format!("/{}", url_str)
+                    (None, format!("/{}", url_str))
                 }
             }
         }
@@ -215,9 +219,6 @@ impl EventProcessor {
             
             // Extract OS information
             processed.os = Some(result.os.to_string());
-            
-            // Extract device type
-            processed.device_type = Some(result.category.to_string());
             
             debug!(
                 "User agent parsed: browser={:?}, version={:?}, os={:?}, device_type={:?}",
