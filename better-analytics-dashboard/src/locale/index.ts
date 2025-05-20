@@ -10,7 +10,7 @@ export type AvailableLocales = keyof typeof dictionaries;
 export type MessageSchema = typeof en;
 export const DEFAULT_LOCALE: AvailableLocales = 'en' as const;
 export const LOCALES = Object.keys(dictionaries) as AvailableLocales[];
-export const LOCALE_TO_ALPHA2: Record<string, string> = {
+export const LOCALE_TO_ALPHA2 = {
   en: 'GB',
   da: 'DK',
 } satisfies Record<AvailableLocales, string>;
