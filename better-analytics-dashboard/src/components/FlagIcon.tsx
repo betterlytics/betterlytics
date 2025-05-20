@@ -1,6 +1,3 @@
-'use client';
-
-import { cn } from '@/lib/utils';
 import React from 'react';
 import * as Flags from 'country-flag-icons/react/3x2';
 
