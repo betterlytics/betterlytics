@@ -5,9 +5,9 @@ type FlagIconProps = {
   countryCode: keyof typeof Flags;
 } & Flags.ElementAttributes<Flags.HTMLSVGElement>;
 
-export function FlagIcon({ countryCode, ...props }: FlagIconProps) {
+function FlagIconComponent({ countryCode, ...props }: FlagIconProps) {
   const FlagComponent = Flags[countryCode];
-  return (
-    <FlagComponent {...props} />
-  );
+  return <FlagComponent {...props} />;
 }
+
+export const FlagIcon = React.memo(FlagIconComponent);
