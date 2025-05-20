@@ -26,17 +26,18 @@ type TypedTFunction = <TKey extends LocalizationKeys>(
 ) => string;
 
 /**
- * Custom hook wrapping react-i18next's `useTranslation` to provide:
- *  - Type-safe access to translation function `t`
- *  - Access to i18n instance and readiness flag
- *  - Debug feature: if URL contains `?debug_18n=true`, returns keys instead of translated strings
- * 
- * @template Ns Namespace type or array of namespaces (default: "translation")
- * @template KPrefix Optional key prefix (default: undefined)
- * 
- * @param {Ns} [ns] Namespace(s) to load translations from
- * @param {UseTranslationOptions<KPrefix>} [options] Options passed to react-i18next's `useTranslation`
- * @returns {UseTranslationResponse<Ns, KPrefix>} Tuple with `[t, i18n, ready]` and named properties, where `t` respects debug mode
+ * A typed wrapper around `useTranslation` from react-i18next.
+ *
+ * Features:
+ * - Strongly typed translation function `t`
+ * - Access to `i18n` instance and `ready` status
+ * - Debug mode: when `?debug_18n=true` is in the URL, `t` returns keys instead of translations
+ *
+ * @template Ns Translation namespace(s), default: "translation"
+ * @template KPrefix Key prefix for type-safe keys, optional
+ * @param ns - Namespace(s) to load
+ * @param options - Options passed to `useTranslation`
+ * @returns Tuple `[t, i18n, ready]` where `t` respects debug mode
  */
 export function useLocalization<
   Ns extends Namespace = 'translation',
