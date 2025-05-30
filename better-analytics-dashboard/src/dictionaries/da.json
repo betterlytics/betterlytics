@@ -1,0 +1,15 @@
+{
+  "dashboard": {
+    "client": {
+      "Unique visitors": "Unikke besøgende",
+      "Total pageviews": "Samlede sidevisninger",
+      "bounceRate": "Afvisningsprocent",
+      "avgVisitDuration": "Gennemsnitlig besøgstid"
+    }
+  },
+  "misc": {
+    "loading": "Indlæser...",
+    "error": "Der opstod en fejl",
+    "app": "Applikation"
+  }
+}

@@ -5,11 +5,13 @@ import BASidebar from "@/components/sidebar/BASidebar";
 import { DashboardProvider } from "./DashboardProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import BAMobileSidebarTrigger from "@/components/sidebar/BAMobileSidebarTrigger";
+import DictionaryProvider from '@/contexts/DictionaryContextProvider';
+import { getDictionaryByDashboardId } from '@/app/actions/dictionary';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
   children: React.ReactNode;
-}
+};
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
   const session = await getServerSession(authOptions);
@@ -19,18 +21,21 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   }
 
   const { dashboardId } = await params;
+  const dictionary = await getDictionaryByDashboardId(dashboardId);
 
   return (
     <DashboardProvider>
-      <SidebarProvider>
-        <BASidebar dashboardId={dashboardId} />
-        <BAMobileSidebarTrigger />
-        <div className="flex min-h-screen bg-background w-full">
-          <main className="flex-1 flex flex-col">
-            <div className="flex-1">{children}</div>
-          </main>
-        </div>
-      </SidebarProvider>
+      <DictionaryProvider dictionary={dictionary}>
+        <SidebarProvider>
+          <BASidebar dashboardId={dashboardId} />
+          <BAMobileSidebarTrigger />
+          <div className='bg-background flex min-h-screen w-full'>
+            <main className='flex flex-1 flex-col'>
+              <div className='flex-1'>{children}</div>
+            </main>
+          </div>
+        </SidebarProvider>
+      </DictionaryProvider>
     </DashboardProvider>
   );
-} 
+}

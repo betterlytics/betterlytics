@@ -1,21 +1,25 @@
 "use client";
 
 import Link from 'next/link';
-import { Moon, Settings as SettingsIcon, X } from 'lucide-react';
-import { Switch } from "@/components/ui/switch";
+import { Globe, Settings as SettingsIcon, X } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useState } from 'react';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { LanguageSelect } from './sidebar/LanguageSelect';
+import { useSettings } from '@/contexts/SettingsProvider';
+import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/dictionaries/dictionaries';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 interface SettingsPopoverProps {
   onClose: () => void;
 }
 
 export default function SettingsPopover({ onClose }: SettingsPopoverProps) {
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const dashboardId = useDashboardId();
 
+  const { settings, setSettings }= useSettings(); 
+
+  
   return (
     <div className="w-72 bg-popover shadow-lg rounded-md border border-border text-popover-foreground">
       <div className="flex items-center justify-between p-3 border-b border-border">
@@ -26,27 +30,17 @@ export default function SettingsPopover({ onClose }: SettingsPopoverProps) {
       </div>
 
       <div className="p-3 space-y-4">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="dark-theme-toggle" className="flex items-center gap-2 cursor-pointer">
-            <Moon size={16} className="text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">Dark Theme</span>
-          </Label>
-          <Switch 
-            id="dark-theme-toggle"
-            checked={isDarkTheme} 
-            onCheckedChange={setIsDarkTheme} 
-          />
-        </div>
+        <ThemeSwitcher />
 
         <div className="flex items-center justify-between">
-          <Label htmlFor="dark-theme-toggle" className="flex items-center gap-2 cursor-pointer">
-            <Moon size={16} className="text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">Dark Theme</span>
+          <Label htmlFor="language-select" className="flex items-center gap-2 cursor-pointer poiner-events-none">
+            <Globe size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">Language</span>
           </Label>
-          <Switch 
-            id="dark-theme-toggle"
-            checked={isDarkTheme} 
-            onCheckedChange={setIsDarkTheme} 
+          <LanguageSelect 
+            id="language-select"
+            onUpdate={(language: SupportedLanguages) => setSettings({ language: language })} 
+            value={settings?.language || DEFAULT_LANGUAGE} 
           />
         </div>
       </div>

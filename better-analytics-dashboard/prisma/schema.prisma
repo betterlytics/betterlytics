@@ -117,6 +117,9 @@ model DashboardSettings {
   // Alert Settings
   alertsEnabled Boolean @default(false)
   alertsThreshold Int @default(1000) // Threshold for traffic alerts
+
+  // Language Settings
+  language String @default("en")
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

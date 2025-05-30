@@ -1,3 +1,11 @@
-   packages:
-     - 'backend'
-     - 'better-analytics-dashboard'
+packages:
+  - backend
+  - better-analytics-dashboard
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - bcrypt
+  - esbuild
+  - prisma
+  - unrs-resolver

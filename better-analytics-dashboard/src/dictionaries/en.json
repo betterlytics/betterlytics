@@ -1,0 +1,15 @@
+{
+  "dashboard": {
+    "client": {
+      "Unique visitors": "Unique Visitors",
+      "Total pageviews": "Total Page Views",
+      "bounceRate": "Bounce Rate",
+      "avgVisitDuration": "Avg. Visit Duration"
+    }
+  },
+  "misc": {
+    "loading": "Loading...",
+    "error": "Error",
+    "app": "Application"
+  }
+}

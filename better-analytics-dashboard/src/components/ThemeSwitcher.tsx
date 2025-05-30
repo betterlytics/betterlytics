@@ -2,32 +2,35 @@
 
 import { useTheme } from "next-themes"
 import { Sun, Moon } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export function ThemeSwitcher() {
-  const [mounted, setMounted] = useState(false)
-  const { theme, setTheme } = useTheme()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    // Return a placeholder with the same dimensions to avoid layout shift when the button is not mounted
-    return <div className="w-[18px] h-[18px]" />
+  const { theme, setTheme } = useTheme();
+  const [isDark, setIsDark] = useState(Boolean(theme && theme === 'dark'));
+  
+  const onToggle = (isDark: boolean) => {
+    setIsDark(isDark);
+    setTheme(isDark ? 'dark' : 'light');
   }
 
   return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-1 rounded-md hover:bg-accent"
-      aria-label="Toggle theme"
-    >
-      {theme === "dark" ? (
-        <Sun size={18} className="text-primary" />
-      ) : (
-        <Moon size={18} className="text-muted-foreground" />
-      )}
-    </button>
+    <div className="flex items-center justify-between">
+      <Label htmlFor="dark-theme-toggle" className="flex items-center gap-2 cursor-pointer">
+        {isDark ? 
+          <Moon size={16} className="text-muted-foreground" />
+          : <Sun size={16} className="text-muted-foreground" />
+        }
+        <span className="text-sm font-medium text-foreground">
+          {isDark ? 'Dark Theme' : 'Light Theme'} 
+        </span>
+      </Label>
+      <Switch 
+        id="dark-theme-toggle"
+        checked={isDark} 
+        onCheckedChange={onToggle} 
+      />
+    </div>
   )
 } 

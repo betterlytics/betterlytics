@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import { Monitor } from "lucide-react";
 import { DashboardSettingsUpdate } from "@/entities/settings";
 import { TIME_RANGE_PRESETS } from "@/utils/timeRanges";
 import SettingsCard from "./SettingsCard";
+import { LanguageSelect } from '../sidebar/LanguageSelect';
 
 type DisplaySettingsProps = {
   formData: DashboardSettingsUpdate;
@@ -63,4 +64,4 @@ export default function DisplaySettings({ formData, onUpdate }: DisplaySettingsP
       </div>
     </SettingsCard>
   );
-} 
+}
