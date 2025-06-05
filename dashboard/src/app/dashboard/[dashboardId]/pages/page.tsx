@@ -22,10 +22,10 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, queryFilters } = await BAFilterSearchParams.decodeFromParams(searchParams);
 
-  const summaryStatsPromise = fetchSummaryStatsAction(dashboardId, startDate, endDate, []);
-  const pageAnalyticsPromise = fetchPageAnalyticsAction(dashboardId, startDate, endDate, []);
+  const summaryStatsPromise = fetchSummaryStatsAction(dashboardId, startDate, endDate, queryFilters);
+  const pageAnalyticsPromise = fetchPageAnalyticsAction(dashboardId, startDate, endDate, queryFilters);
 
   return (
     <div className='min-h-screen'>
