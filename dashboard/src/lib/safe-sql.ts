@@ -10,14 +10,14 @@
  *   FROM analytics.events
  *   WHERE site_id = ${SQL.String({ siteId })}
  * `;
- * 
- * // Use it to query with 
+ *
+ * // Use it to query with
  * const result = await clickhouse.query(
  *   taggedSql,
  *   { params: taggedParams }
  * );
  * ```
- * 
+ *
  * You can easily mix it with regular variables.\
  * This way, you don't have to do everything using the custom functions.
  * ```ts
@@ -28,7 +28,7 @@
  *   WHERE site_id = ${String({ siteId })}
  *     AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
  * `;
- * 
+ *
  * // Use it to query with - remeber to add custom variables to params
  * const result = await clickhouse.query(
  *   taggedSql,
@@ -41,30 +41,33 @@
  *     }
  *   }
  * );
- * 
+ *
  * You can also use list helpers like `SQL.AND([])` or `SQL.SEPARATOR([])`.\
  * So if you map over a list of filters, for instance:
  * ```ts
  * const siteFilters = sites
  *   .map((site, index) => SQL.String({ [`site_${index}`]: site }))
  *   .map((site) => safeSql`site_id = ${site}`);
- * 
+ *
  * // Create the SQL from sub-tags
  * const { taggedSql, taggedParams } = safeSql`
  *   SELECT uniq(visitor_id)
  *   FROM analytics.events
  *   WHERE ${SQL.OR(siteFilters)};
  * `;
- * 
+ *
  * // Use it to query with - remeber to add custom variables to params
  * const result = await clickhouse.query(
  *   taggedSql,
  *   { params: taggedParams }
  * );
  */
-export function safeSql<T extends SQLTaggedExpression[]>(template: TemplateStringsArray, ...variables: T): SQLTaggedExpression {
-  return template
-    .reduce((acc, current, index) => {
+export function safeSql<T extends SQLTaggedExpression[]>(
+  template: TemplateStringsArray,
+  ...variables: T
+): SQLTaggedExpression {
+  return template.reduce(
+    (acc, current, index) => {
       const taggedSql = `${acc.taggedSql}${current}`;
       const variable = variables[index];
 
@@ -72,82 +75,79 @@ export function safeSql<T extends SQLTaggedExpression[]>(template: TemplateStrin
       if (!variable) {
         return { ...acc, taggedSql };
       }
-      
+
       return {
         taggedSql: `${taggedSql}${variable.taggedSql}`,
         taggedParams: {
           ...acc.taggedParams,
-          ...variable.taggedParams
-        }
-      }
-    }, { taggedSql: "", taggedParams: {} as Record<string, unknown> });
+          ...variable.taggedParams,
+        },
+      };
+    },
+    { taggedSql: '', taggedParams: {} as Record<string, unknown> },
+  );
 }
 
 export const SQL = {
   // "Primitives"
-  String: asType<string>("String"),
-  UInt32: asType<number>("UInt32"),
-  DateTime: asType<string>("DateTime"),
-  UInt32Array: asType<Array<number>>("Array(UInt32)"),
+  String: asType<string>('String'),
+  UInt32: asType<number>('UInt32'),
+  DateTime: asType<string>('DateTime'),
+  UInt32Array: asType<Array<number>>('Array(UInt32)'),
 
   /**
    * WARNING - THIS WILL FORCE INJECT THE GIVEN STRING INTO THE FINAL SQL. USE WITH GREAT CARE.\
    * ZOD VALIDATE BEFORE USING THIS TO PREVENT SQL INJECTION.\
-   * Note - remember to add "extras" manually, such as quotation marks around strings, etc. 
+   * Note - remember to add "extras" manually, such as quotation marks around strings, etc.
    */
-  _Unsafe: unsafeAsRawSQL(),
+  Unsafe: unsafeAsRawSQL(),
 
   // List helpers
-  AND: asJoin(" AND "),
-  OR: asJoin(" OR "),
-  SEPARATOR: asJoin(", ")
+  AND: asJoin(' AND '),
+  OR: asJoin(' OR '),
+  SEPARATOR: asJoin(', '),
 } as const;
 
 function asJoin(kind: string): (expressions: SQLTaggedExpression[]) => SQLTaggedExpression {
   return (expressions: SQLTaggedExpression[]) => {
-    
-    const taggedSql = expressions
-      .map((expression) => expression.taggedSql)
-      .join(kind);
+    const taggedSql = expressions.map((expression) => expression.taggedSql).join(kind);
 
-    const taggedParams = expressions
-      .reduce(
-        (acc, curr) => ({ ...acc, ...curr.taggedParams }),
-        {} as SQLTaggedExpression['taggedParams']
-      );
-    
-    return { taggedSql, taggedParams};
-  }
+    const taggedParams = expressions.reduce(
+      (acc, curr) => ({ ...acc, ...curr.taggedParams }),
+      {} as SQLTaggedExpression['taggedParams'],
+    );
 
+    return { taggedSql, taggedParams };
+  };
 }
 
 function asType<T>(kind: string): (variable: SQLVariable<T>) => SQLTaggedExpression {
   return (variable) => {
-    const [ name ] = Object.keys(variable);
+    const [name] = Object.keys(variable);
     const expression = variable[name];
 
     const taggedSql = `{${name}:${kind}}`;
     return {
       taggedSql,
       taggedParams: {
-        [name]: expression
-      }
-    }
-  }
+        [name]: expression,
+      },
+    };
+  };
 }
 
 function unsafeAsRawSQL(): (unsafeSql: string) => SQLTaggedExpression {
   return (unsafeSql) => {
     return {
       taggedSql: unsafeSql,
-      taggedParams: {}
-    }
-  }
+      taggedParams: {},
+    };
+  };
 }
 
 type SQLVariable<T> = {
   [param: string]: T;
-}
+};
 
 type SQLTaggedExpression = {
   taggedSql: string;

@@ -1,5 +1,5 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from "@/types/dates";
+import { DateTimeString } from '@/types/dates';
 import {
   RawCampaignData,
   RawCampaignDataArraySchema,
@@ -14,16 +14,16 @@ import {
   RawCampaignTermBreakdownItem,
   RawCampaignTermBreakdownArraySchema,
   RawCampaignLandingPagePerformanceItem,
-  RawCampaignLandingPagePerformanceArraySchema
-} from "@/entities/campaign";
+  RawCampaignLandingPagePerformanceArraySchema,
+} from '@/entities/campaign';
 import { safeSql, SQL } from '@/lib/safe-sql';
 
 const UTM_DIMENSION_ALIASES = {
-  'utm_campaign': 'utm_campaign_name',
-  'utm_source': 'source',
-  'utm_medium': 'medium',
-  'utm_content': 'content',
-  'utm_term': 'term',
+  utm_campaign: 'utm_campaign_name',
+  utm_source: 'source',
+  utm_medium: 'medium',
+  utm_content: 'content',
+  utm_term: 'term',
 } as const;
 
 type ValidUTMDimension = keyof typeof UTM_DIMENSION_ALIASES;
@@ -32,13 +32,13 @@ async function getCampaignBreakdownByUTMDimension(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
-  utmDimension: ValidUTMDimension
+  utmDimension: ValidUTMDimension,
 ): Promise<unknown[]> {
   const dimensionAlias = UTM_DIMENSION_ALIASES[utmDimension];
 
   const query = safeSql`
     SELECT
-      s.${SQL._Unsafe(utmDimension)} AS ${SQL._Unsafe(dimensionAlias)},
+      s.${SQL.Unsafe(utmDimension)} AS ${SQL.Unsafe(dimensionAlias)},
       COUNT(DISTINCT s.visitor_id) AS total_visitors,
       COUNT(DISTINCT IF(s.session_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
       COUNT(DISTINCT s.session_id) AS total_sessions,
@@ -48,7 +48,7 @@ async function getCampaignBreakdownByUTMDimension(
       SELECT
         visitor_id,
         session_id,
-        ${SQL._Unsafe(utmDimension)},
+        ${SQL.Unsafe(utmDimension)},
         dateDiff('second', MIN(timestamp), MAX(timestamp)) AS session_duration_seconds,
         COUNT(*) AS session_pageviews
       FROM analytics.events
@@ -56,99 +56,76 @@ async function getCampaignBreakdownByUTMDimension(
         AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
         AND event_type = 1
         AND utm_campaign != ''
-        AND ${SQL._Unsafe(utmDimension)} != ''
-      GROUP BY visitor_id, session_id, ${SQL._Unsafe(utmDimension)}
+        AND ${SQL.Unsafe(utmDimension)} != ''
+      GROUP BY visitor_id, session_id, ${SQL.Unsafe(utmDimension)}
     ) s
-    GROUP BY s.${SQL._Unsafe(utmDimension)}
+    GROUP BY s.${SQL.Unsafe(utmDimension)}
     ORDER BY total_visitors DESC
   `;
 
-  const resultSet = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      siteId: siteId,
-      startDate: startDate,
-      endDate: endDate,
-    },
-  }).toPromise();
-  
+  const resultSet = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId: siteId,
+        startDate: startDate,
+        endDate: endDate,
+      },
+    })
+    .toPromise();
+
   return resultSet;
 }
 
 export async function getCampaignPerformanceData(
   siteId: string,
   startDate: DateTimeString,
-  endDate: DateTimeString
+  endDate: DateTimeString,
 ): Promise<RawCampaignData[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(
-    siteId,
-    startDate,
-    endDate,
-    'utm_campaign'
-  );
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_campaign');
   return RawCampaignDataArraySchema.parse(rawData);
 }
 
 export async function getCampaignSourceBreakdownData(
   siteId: string,
   startDate: DateTimeString,
-  endDate: DateTimeString
+  endDate: DateTimeString,
 ): Promise<RawCampaignSourceBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(
-    siteId,
-    startDate,
-    endDate,
-    'utm_source'
-  );
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_source');
   return RawCampaignSourceBreakdownArraySchema.parse(rawData);
 }
 
 export async function getCampaignMediumBreakdownData(
   siteId: string,
   startDate: DateTimeString,
-  endDate: DateTimeString
+  endDate: DateTimeString,
 ): Promise<RawCampaignMediumBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(
-    siteId,
-    startDate,
-    endDate,
-    'utm_medium'
-  );
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_medium');
   return RawCampaignMediumBreakdownArraySchema.parse(rawData);
 }
 
 export async function getCampaignContentBreakdownData(
   siteId: string,
   startDate: DateTimeString,
-  endDate: DateTimeString
+  endDate: DateTimeString,
 ): Promise<RawCampaignContentBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(
-    siteId,
-    startDate,
-    endDate,
-    'utm_content'
-  );
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_content');
   return RawCampaignContentBreakdownArraySchema.parse(rawData);
 }
 
 export async function getCampaignTermBreakdownData(
   siteId: string,
   startDate: DateTimeString,
-  endDate: DateTimeString
+  endDate: DateTimeString,
 ): Promise<RawCampaignTermBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(
-    siteId,
-    startDate,
-    endDate,
-    'utm_term'
-  );
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_term');
   return RawCampaignTermBreakdownArraySchema.parse(rawData);
 }
 
 export async function getCampaignLandingPagePerformanceData(
   siteId: string,
   startDate: DateTimeString,
-  endDate: DateTimeString
+  endDate: DateTimeString,
 ): Promise<RawCampaignLandingPagePerformanceItem[]> {
   const query = safeSql`
     SELECT
@@ -179,22 +156,24 @@ export async function getCampaignLandingPagePerformanceData(
     ORDER BY s.utm_campaign ASC, total_visitors DESC
   `;
 
-  const resultSet = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      siteId: siteId,
-      startDate: startDate,
-      endDate: endDate,
-    },
-  }).toPromise();
-  
+  const resultSet = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId: siteId,
+        startDate: startDate,
+        endDate: endDate,
+      },
+    })
+    .toPromise();
+
   return RawCampaignLandingPagePerformanceArraySchema.parse(resultSet);
 }
 
 export async function getCampaignVisitorTrendData(
   siteId: string,
   startDate: DateTimeString,
-  endDate: DateTimeString
+  endDate: DateTimeString,
 ): Promise<CampaignTrendRow[]> {
   const query = safeSql`
     SELECT
@@ -209,14 +188,16 @@ export async function getCampaignVisitorTrendData(
     ORDER BY event_date ASC, utm_campaign ASC
   `;
 
-  const resultSet = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      siteId: siteId,
-      startDate: startDate,
-      endDate: endDate,
-    },
-  }).toPromise();
+  const resultSet = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId: siteId,
+        startDate: startDate,
+        endDate: endDate,
+      },
+    })
+    .toPromise();
 
   return CampaignTrendRowArraySchema.parse(resultSet);
-} 
+}
