@@ -3,6 +3,10 @@
 import { useMemo } from 'react';
 import InteractiveChart from '@/components/InteractiveChart';
 import { formatDuration } from '@/utils/dateFormatters';
+import { formatPercentage } from '@/utils/formatters';
+import { DailyUniqueVisitorsRow } from '@/entities/visitors';
+import { TotalPageViewsRow } from '@/entities/pageviews';
+import { DailySessionMetricsRow } from '@/entities/sessionMetrics';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -28,7 +32,7 @@ const metricConfigs: Record<ActiveMetric, MetricConfig> = {
     title: 'Bounce Rate',
     valueField: 'bounce_rate',
     color: 'var(--chart-3)',
-    formatValue: (value: number) => `${value}%`,
+    formatValue: (value: number) => formatPercentage(value),
   },
   avgDuration: {
     title: 'Average Visit Duration',
@@ -40,9 +44,13 @@ const metricConfigs: Record<ActiveMetric, MetricConfig> = {
 
 type OverviewChartSectionProps = {
   activeMetric: ActiveMetric;
-  visitorsData: any[];
-  pageviewsData: any[];
-  sessionMetricsData: any[];
+  visitorsData: DailyUniqueVisitorsRow[];
+  pageviewsData: TotalPageViewsRow[];
+  sessionMetricsData: DailySessionMetricsRow[];
+  comparisonVisitorsData?: DailyUniqueVisitorsRow[];
+  comparisonPageviewsData?: TotalPageViewsRow[];
+  comparisonSessionMetricsData?: DailySessionMetricsRow[];
+  showComparison?: boolean;
 };
 
 export default function OverviewChartSection({
@@ -50,23 +58,32 @@ export default function OverviewChartSection({
   visitorsData,
   pageviewsData,
   sessionMetricsData,
+  comparisonVisitorsData,
+  comparisonPageviewsData,
+  comparisonSessionMetricsData,
+  showComparison = false,
 }: OverviewChartSectionProps) {
-  const chartData = useMemo(() => {
-    switch (activeMetric) {
-      case 'visitors':
-        return visitorsData || [];
-      case 'pageviews':
-        return pageviewsData || [];
-      case 'bounceRate':
-        return sessionMetricsData || [];
-      case 'avgDuration':
-        return sessionMetricsData || [];
-      default:
-        return [];
-    }
-  }, [activeMetric, visitorsData, pageviewsData, sessionMetricsData]);
+  const getDataForMetric = useMemo(() => {
+    const dataMap = {
+      visitors: { current: visitorsData, comparison: comparisonVisitorsData },
+      pageviews: { current: pageviewsData, comparison: comparisonPageviewsData },
+      bounceRate: { current: sessionMetricsData, comparison: comparisonSessionMetricsData },
+      avgDuration: { current: sessionMetricsData, comparison: comparisonSessionMetricsData },
+    };
+    return dataMap[activeMetric];
+  }, [
+    activeMetric,
+    visitorsData,
+    pageviewsData,
+    sessionMetricsData,
+    comparisonVisitorsData,
+    comparisonPageviewsData,
+    comparisonSessionMetricsData,
+  ]);
 
-  const currentMetricConfig = useMemo(() => metricConfigs[activeMetric], [activeMetric]);
+  const chartData = getDataForMetric.current || [];
+  const comparisonChartData = showComparison ? getDataForMetric.comparison || [] : undefined;
+  const currentMetricConfig = metricConfigs[activeMetric];
 
   return (
     <InteractiveChart
@@ -75,6 +92,9 @@ export default function OverviewChartSection({
       valueField={currentMetricConfig.valueField}
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
+      comparisonData={comparisonChartData}
+      comparisonValueField={currentMetricConfig.valueField}
+      showComparison={showComparison && !!comparisonChartData}
     />
   );
 }

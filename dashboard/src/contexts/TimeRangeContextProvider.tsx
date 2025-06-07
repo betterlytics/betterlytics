@@ -9,11 +9,10 @@ type TimeRangeContextProps = {
   setPeriod: (startDate: Date, endDate: Date) => void;
   granularity: GranularityRangeValues;
   setGranularity: Dispatch<SetStateAction<GranularityRangeValues>>;
-  compareEnabled: boolean;
-  setCompareEnabled: Dispatch<SetStateAction<boolean>>;
   compareStartDate?: Date;
   compareEndDate?: Date;
   setCompareDateRange: (startDate: Date, endDate: Date) => void;
+  clearComparison: () => void;
 };
 
 const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRangeContextProps);
@@ -28,7 +27,6 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
   const [endDate, setEndDate] = React.useState<Date>(initialRangeDetails.endDate);
 
   const [granularity, setGranularity] = React.useState<GranularityRangeValues>('day');
-  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(false);
   const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(undefined);
   const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(undefined);
 
@@ -42,6 +40,11 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
     setCompareEndDate(endOfDay(ceDate));
   }, []);
 
+  const clearComparison = useCallback(() => {
+    setCompareStartDate(undefined);
+    setCompareEndDate(undefined);
+  }, []);
+
   return (
     <TimeRangeContext.Provider
       value={{
@@ -50,11 +53,10 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         setPeriod,
         granularity,
         setGranularity,
-        compareEnabled,
-        setCompareEnabled,
         compareStartDate,
         compareEndDate,
         setCompareDateRange: handleSetCompareDateRange,
+        clearComparison,
       }}
     >
       {children}

@@ -1,9 +1,9 @@
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { useQueryFiltersContext } from "@/contexts/QueryFiltersContextProvider";
-import { useTimeRangeContext } from "@/contexts/TimeRangeContextProvider";
-import { useUserJourneyFilter } from "@/contexts/UserJourneyFilterContextProvider";
+import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 
 const URL_PARAM_NAME = 'filters';
 
@@ -12,7 +12,16 @@ export function useSyncURLFilters() {
   const searchParams = useSearchParams();
 
   const { queryFilters, setQueryFilters } = useQueryFiltersContext();
-  const { startDate, endDate, granularity, setPeriod, setGranularity } = useTimeRangeContext();
+  const {
+    startDate,
+    endDate,
+    granularity,
+    setPeriod,
+    setGranularity,
+    compareStartDate,
+    compareEndDate,
+    setCompareDateRange,
+  } = useTimeRangeContext();
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
 
   useEffect(() => {
@@ -37,34 +46,49 @@ export function useSyncURLFilters() {
             setNumberOfJourneys(filters.userJourney.numberOfJourneys);
           }
         }
+        if (filters.compareStartDate && filters.compareEndDate) {
+          setCompareDateRange(filters.compareStartDate, filters.compareEndDate);
+        }
       }
-    } catch(error) {
-      console.error("Failed to set filters:", error);
+    } catch (error) {
+      console.error('Failed to set filters:', error);
     }
   }, []);
 
   useEffect(() => {
     try {
       const params = new URLSearchParams(searchParams.toString());
-            
-      const encodedFilters = BAFilterSearchParams.encode({
+
+      const filtersToEncode = {
         queryFilters,
         startDate,
         endDate,
         granularity,
+        compareStartDate: compareStartDate && compareEndDate ? compareStartDate : undefined,
+        compareEndDate: compareStartDate && compareEndDate ? compareEndDate : undefined,
         userJourney: {
           numberOfSteps,
-          numberOfJourneys
-        }
-      });
-      
+          numberOfJourneys,
+        },
+      };
+
+      const encodedFilters = BAFilterSearchParams.encode(filtersToEncode);
+
       params.set(URL_PARAM_NAME, encodedFilters);
-      
+
       router.replace(`?${params.toString()}`);
       router.refresh();
-
-    } catch(error) {
-      console.error("Failed to add filters:", error)
+    } catch (error) {
+      console.error('Failed to add filters:', error);
     }
-  }, [queryFilters, startDate, endDate, granularity, numberOfSteps, numberOfJourneys]);
+  }, [
+    queryFilters,
+    startDate,
+    endDate,
+    granularity,
+    compareStartDate,
+    compareEndDate,
+    numberOfSteps,
+    numberOfJourneys,
+  ]);
 }
