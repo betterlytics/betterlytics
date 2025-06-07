@@ -1,17 +1,14 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
-import { QueryFilter } from '@/entities/filter';
-import { generateTempId } from '@/utils/temporaryId';
-
-type DashboardQueryFilter = QueryFilter & {
-  id: string;
-};
+import React, { type Dispatch, type SetStateAction, useCallback, useState } from 'react';
+import { type QueryFilter } from '@/entities/filter';
+import { type QueryFilterWithId, useInstantLocalQueryFilters } from '@/hooks/use-instant-local-query-filters';
 
 type QueryFiltersContextProps = {
-  queryFilters: DashboardQueryFilter[];
+  queryFilters: QueryFilterWithId[];
   addQueryFilter: Dispatch<QueryFilter>;
+  addEmptyQueryFilter: Dispatch<void>;
   removeQueryFilter: Dispatch<string>;
-  updateQueryFilter: Dispatch<DashboardQueryFilter>;
-  setQueryFilters: Dispatch<SetStateAction<DashboardQueryFilter[]>>;
+  updateQueryFilter: Dispatch<QueryFilterWithId>;
+  setQueryFilters: Dispatch<SetStateAction<QueryFilterWithId[]>>;
 };
 
 const QueryFiltersContext = React.createContext<QueryFiltersContextProps>({} as QueryFiltersContextProps);
@@ -21,45 +18,9 @@ type QueryFiltersContextProviderProps = {
 };
 
 export function QueryFiltersContextProvider({ children }: QueryFiltersContextProviderProps) {
-  const [queryFilters, setQueryFilters] = useState<DashboardQueryFilter[]>([]);
+  const localQueryFilters = useInstantLocalQueryFilters();
 
-  const addQueryFilter = useCallback(
-    (queryFilter: QueryFilter) => {
-      const filter = {
-        ...queryFilter,
-        id: generateTempId(),
-      };
-      setQueryFilters((filters) => [...filters, filter]);
-    },
-    [setQueryFilters],
-  );
-
-  const removeQueryFilter = useCallback((id: string) => {
-    setQueryFilters((filters) => filters.filter((filter) => filter.id !== id));
-  }, []);
-
-  const updateQueryFilter = useCallback((queryFilter: DashboardQueryFilter) => {
-    setQueryFilters((filters) =>
-      filters.with(
-        filters.findIndex((filter) => filter.id === queryFilter.id),
-        queryFilter,
-      ),
-    );
-  }, []);
-
-  return (
-    <QueryFiltersContext.Provider
-      value={{
-        queryFilters,
-        addQueryFilter,
-        removeQueryFilter,
-        updateQueryFilter,
-        setQueryFilters,
-      }}
-    >
-      {children}
-    </QueryFiltersContext.Provider>
-  );
+  return <QueryFiltersContext.Provider value={localQueryFilters}>{children}</QueryFiltersContext.Provider>;
 }
 
 export function useQueryFiltersContext() {

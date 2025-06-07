@@ -7,13 +7,13 @@ import FunnelsListSection from './FunnelsListSection';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { Skeleton } from '@/components/ui/skeleton';
+import { OpenProvider } from '@/contexts/OpenContextProvider';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
 };
 
-export default async function FunnelsPage({ params, searchParams }: FunnelsPageParams) {
+export default async function FunnelsPage({ params }: FunnelsPageParams) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -24,8 +24,8 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   const funnelsPromise = fetchFunnelsAction(dashboardId);
 
   return (
-    <div className='min-h-screen'>
-      <div className='space-y-6 p-6'>
+    <div className='min-h-screen space-y-6 p-6'>
+      <OpenProvider>
         <div className='flex flex-col justify-between gap-y-4 xl:flex-row xl:items-center'>
           <div>
             <h1 className='text-foreground mb-1 text-2xl font-bold'>Funnels</h1>
@@ -59,7 +59,7 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
         >
           <FunnelsListSection funnelsPromise={funnelsPromise} dashboardId={dashboardId} />
         </Suspense>
-      </div>
+      </OpenProvider>
     </div>
   );
 }

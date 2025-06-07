@@ -1,17 +1,17 @@
-import { CreateFunnel, Funnel, FunnelSchema } from "@/entities/funnels";
-import prisma from "@/lib/postgres";
+import { CreateFunnel, Funnel, FunnelSchema } from '@/entities/funnels';
+import prisma from '@/lib/postgres';
 
 export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Funnel[]> {
   const funnels = await prisma.funnel.findMany({
-    where: { dashboardId: dashboardCUID }
+    where: { dashboardId: dashboardCUID },
   });
 
-  return funnels.map((funnel: Funnel) => FunnelSchema.parse(funnel));
+  return funnels.map((funnel) => FunnelSchema.parse(funnel));
 }
 
 export async function getFunnelById(id: string): Promise<Funnel | null> {
   const funnel = await prisma.funnel.findUnique({
-    where: { id }
+    where: { id },
   });
   if (funnel === null) {
     return null;
@@ -21,13 +21,7 @@ export async function getFunnelById(id: string): Promise<Funnel | null> {
 
 export async function createFunnel(funnelData: CreateFunnel): Promise<Funnel> {
   const createdFunnel = await prisma.funnel.create({
-    data: {
-      name: funnelData.name,
-      pages: funnelData.pages,
-      dashboardId: funnelData.dashboardId,
-      isStrict: funnelData.isStrict
-    }
+    data: funnelData,
   });
   return FunnelSchema.parse(createdFunnel);
 }
-
