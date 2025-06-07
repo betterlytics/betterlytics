@@ -1,4 +1,25 @@
-import { z } from "zod";
+import { z } from 'zod';
+
+// Domain validation schema (example.com)
+export const domainValidation = z
+  .string()
+  .min(1, 'Domain is required')
+  .transform((domain) => {
+    // Clean the domain: remove protocol and www
+    return domain
+      .trim()
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '');
+  })
+  .refine((domain) => domain.includes('.'), { message: 'Domain must include an extension (e.g., example.com)' })
+  .refine(
+    (domain) => {
+      const domainRegex =
+        /^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)+$/;
+      return domainRegex.test(domain);
+    },
+    { message: 'Please enter a valid domain format' },
+  );
 
 export const DashboardSchema = z.object({
   id: z.string(),
@@ -10,13 +31,13 @@ export const DashboardSchema = z.object({
 
 export const DashboardWriteSchema = z.object({
   siteId: z.string(),
-  domain: z.string(),
+  domain: domainValidation,
   userId: z.string(),
 });
 
 export const DashboardFindByUserSchema = z.object({
   userId: z.string(),
-  dashboardId: z.string()
+  dashboardId: z.string(),
 });
 
 export const DashboardUserSchema = z.object({
@@ -24,10 +45,10 @@ export const DashboardUserSchema = z.object({
   dashboardId: z.string(),
   id: z.string(),
   role: z.string(),
-  isDefault: z.boolean()
-})
+  isDefault: z.boolean(),
+});
 
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardWriteData = z.infer<typeof DashboardWriteSchema>;
-export type DashboardFindByUserData = z.infer<typeof DashboardFindByUserSchema>; 
+export type DashboardFindByUserData = z.infer<typeof DashboardFindByUserSchema>;
 export type DashboardUser = z.infer<typeof DashboardUserSchema>;

@@ -1,4 +1,4 @@
-import prisma from "@/lib/postgres";
+import prisma from '@/lib/postgres';
 import {
   Dashboard,
   DashboardFindByUserData,
@@ -8,12 +8,10 @@ import {
   DashboardUserSchema,
   DashboardWriteData,
   DashboardWriteSchema,
-} from "@/entities/dashboard";
-import { DEFAULT_DASHBOARD_SETTINGS } from "@/entities/dashboardSettings";
+} from '@/entities/dashboard';
+import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboardSettings';
 
-export async function findDashboardById(
-  dashboardId: string
-): Promise<Dashboard> {
+export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
     const prismaDashboard = await prisma.dashboard.findFirst({
       where: { id: dashboardId },
@@ -21,14 +19,12 @@ export async function findDashboardById(
 
     return DashboardSchema.parse(prismaDashboard);
   } catch {
-    console.error("Error while finding dashboard relation");
-    throw new Error("Failed to find user dashboard");
+    console.error('Error while finding dashboard relation');
+    throw new Error('Failed to find user dashboard');
   }
 }
 
-export async function findUserDashboard(
-  data: DashboardFindByUserData
-): Promise<DashboardUser> {
+export async function findUserDashboard(data: DashboardFindByUserData): Promise<DashboardUser> {
   try {
     const validatedData = DashboardFindByUserSchema.parse(data);
 
@@ -41,14 +37,12 @@ export async function findUserDashboard(
 
     return DashboardUserSchema.parse(prismaUserDashboard);
   } catch {
-    console.error("Error while finding dashboard relation");
-    throw new Error("Failed to find user dashboard");
+    console.error('Error while finding dashboard relation');
+    throw new Error('Failed to find user dashboard');
   }
 }
 
-export async function findFirstUserDashboard(
-  userId: string
-): Promise<Dashboard | null> {
+export async function findFirstUserDashboard(userId: string): Promise<Dashboard | null> {
   try {
     const prismaUserDashboard = await prisma.userDashboard.findFirst({
       where: {
@@ -73,16 +67,35 @@ export async function findFirstUserDashboard(
     return DashboardSchema.parse(prismaDashboard);
   } catch {
     console.error("Error while finding user's first dashboard");
-    throw new Error("Faild to find dashboard");
+    throw new Error('Faild to find dashboard');
   }
 }
 
-export async function createDashboard(
-  data: DashboardWriteData
-): Promise<Dashboard> {
+export async function findAllUserDashboards(userId: string): Promise<Dashboard[]> {
+  try {
+    const prismaUserDashboards = await prisma.userDashboard.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        dashboard: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return prismaUserDashboards.map((userDashboard) => DashboardSchema.parse(userDashboard.dashboard));
+  } catch (error) {
+    console.error("Error while finding user's dashboards:", error);
+    throw new Error('Failed to find user dashboards');
+  }
+}
+
+export async function createDashboard(data: DashboardWriteData): Promise<Dashboard> {
   try {
     const validatedData = DashboardWriteSchema.parse(data);
-    
+
     const prismaDashboard = await prisma.dashboard.create({
       data: {
         domain: validatedData.domain,
@@ -90,7 +103,7 @@ export async function createDashboard(
         userAccess: {
           create: {
             userId: validatedData.userId,
-            role: "admin",
+            role: 'admin',
           },
         },
         settings: {
@@ -103,7 +116,7 @@ export async function createDashboard(
 
     return DashboardSchema.parse(prismaDashboard);
   } catch (error) {
-    console.error("Error creating dashboard:", error);
-    throw new Error("Failed to create dashboard.");
+    console.error('Error creating dashboard:', error);
+    throw new Error('Failed to create dashboard.');
   }
 }

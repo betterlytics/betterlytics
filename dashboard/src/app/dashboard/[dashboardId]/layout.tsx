@@ -8,6 +8,8 @@ import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger'
 import { TrackingScript } from './TrackingScript';
 import { fetchSiteId } from '@/app/actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { IntegrationManager } from './IntegrationManager';
+import { Suspense } from 'react';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -42,6 +44,10 @@ export default async function DashboardLayout({ children, params }: DashboardLay
         <main className='bg-background w-full max-w-svw overflow-x-hidden'>{children}</main>
         {/* Conditionally render tracking script based on server-side feature flag */}
         {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
+
+        <Suspense>
+          <IntegrationManager />
+        </Suspense>
       </SidebarProvider>
     </DashboardProvider>
   );

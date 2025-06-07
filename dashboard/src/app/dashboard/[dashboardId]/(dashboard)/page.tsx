@@ -22,6 +22,7 @@ import {
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { NoDataBanner } from '@/app/dashboard/[dashboardId]/NoDataBanner';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -62,6 +63,10 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     <div className='min-h-screen'>
       <div className='space-y-6 p-6'>
         <DashboardFilters />
+
+        <Suspense>
+          <NoDataBanner />
+        </Suspense>
 
         <Suspense
           fallback={

@@ -1,18 +1,11 @@
-import { redirect } from "next/navigation";
-import { getAuthSession } from "@/auth/auth-actions";
-import { getFirstUserDashboard } from "../actions";
+import { redirect } from 'next/navigation';
+import { getFirstUserDashboardAction } from '../actions/dashboard';
 
 export default async function DashboardPage() {
-  const session = await getAuthSession();
-
-  if (!session) {
-    redirect("/");
-  }
-
-  const dashboard = await getFirstUserDashboard();
+  const dashboard = await getFirstUserDashboardAction();
 
   if (dashboard === null) {
-    redirect(`/create`);
+    redirect(`/dashboards`);
   }
 
   redirect(`/dashboard/${dashboard.id}`);

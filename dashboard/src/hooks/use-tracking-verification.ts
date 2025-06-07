@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { useDashboardId } from "./use-dashboard-id";
-import { verifyTrackingInstallation } from "@/app/actions";
-import { toast } from "sonner";
+import { useState, useEffect, useCallback } from 'react';
+import { useDashboardId } from './use-dashboard-id';
+import { verifyTrackingInstallation } from '@/app/actions';
+import { toast } from 'sonner';
 
 export function useTrackingVerification() {
   const dashboardId = useDashboardId();
@@ -30,7 +30,7 @@ export function useTrackingVerification() {
 
   const verify = useCallback(async () => {
     if (!dashboardId) {
-      toast.error("Dashboard ID not found");
+      toast.error('Dashboard ID not found');
       return false;
     }
 
@@ -41,14 +41,14 @@ export function useTrackingVerification() {
       setIsVerified(result);
 
       if (result) {
-        toast.success("Tracking verified successfully!");
+        toast.success('Tracking verified successfully!');
       } else {
-        toast.info("No data received yet - visit your website to generate some events");
+        toast.info('No data received yet - visit your website to generate some events');
       }
 
       return result;
     } catch {
-      toast.error("Failed to verify tracking status");
+      toast.error('Failed to verify tracking status');
       return false;
     } finally {
       setIsVerifying(false);
@@ -57,7 +57,8 @@ export function useTrackingVerification() {
 
   return {
     isVerified: isVerified === true,
+    isLoading: isVerified === null,
     isVerifying,
     verify,
   };
-} 
+}
