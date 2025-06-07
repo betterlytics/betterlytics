@@ -1,30 +1,20 @@
 version: "3.8"
 
 services:
-  static:
-    image: nginx:alpine
-    container_name: static
-    hostname: static
-    volumes:
-      - ./static:/usr/share/nginx/html:ro
-    restart: unless-stopped
-    ports:
-      - 3006:80
-
   backend:
     build:
       context: ./backend
       dockerfile: ./Dockerfile
     restart: unless-stopped
     container_name: backend
-    ports:
-      - 3001:3001
+    hostname: backend
     env_file:
-      - .env.production
+      - .env
     depends_on:
       init:
         condition: service_completed_successfully
     networks:
+      - proxy_network
       - clickhouse_network
 
   dashboard:
@@ -41,15 +31,15 @@ services:
         CLICKHOUSE_DASHBOARD_PASSWORD: ${CLICKHOUSE_DASHBOARD_PASSWORD}
         ENABLE_DASHBOARD_TRACKING: ${ENABLE_DASHBOARD_TRACKING:-false}
     env_file:
-      - .env.production
+      - .env
     restart: unless-stopped
     container_name: dashboard
-    ports:
-      - 3000:3000
+    hostname: dashboard
     depends_on:
       init:
         condition: service_completed_successfully
     networks:
+      - proxy_network
       - postgres_network
       - clickhouse_network
 
@@ -60,7 +50,7 @@ services:
     hostname: clickhouse
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     volumes:
       - clickhouse_prod_data:/var/lib/clickhouse/
       - clickhouse_prod_users:/etc/clickhouse-server/users.d/
@@ -86,7 +76,7 @@ services:
     hostname: postgres
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data/
     healthcheck:
@@ -102,7 +92,7 @@ services:
     container_name: init
     hostname: init
     env_file:
-      - .env.production
+      - .env
     volumes:
       - ./package.json:/app/package.json:ro
       - ./migrations:/app/migrations:ro
@@ -130,11 +120,29 @@ services:
       - postgres_network
       - clickhouse_network
 
+  proxy:
+    build:
+      context: ./proxy
+      dockerfile: ./Dockerfile
+    container_name: proxy
+    hostname: proxy
+    volumes:
+      - ./static:/usr/share/nginx/html:ro
+      - /etc/letsencrypt:/etc/letsencrypt
+      - ./ssl/certbot:/var/www/certbot
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - proxy_network
+
 volumes:
   clickhouse_prod_data:
   clickhouse_prod_users:
   postgres_prod_data:
 
 networks:
+  proxy_network:
   postgres_network:
   clickhouse_network:

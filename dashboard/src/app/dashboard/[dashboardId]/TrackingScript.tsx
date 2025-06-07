@@ -12,6 +12,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.async = true;
     script.src = 'http://localhost:3006/analytics.js';
     script.setAttribute('data-site-id', siteId);
+    script.setAttribute('data-server-url', 'http://localhost:3001');
     document.head.appendChild(script);
 
     return () => {

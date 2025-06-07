@@ -1,10 +1,10 @@
 version: "3.8"
 
 services:
-  static:
+  proxy:
     image: nginx:alpine
-    container_name: static
-    hostname: static
+    container_name: proxy
+    hostname: proxy
     volumes:
       - ./static:/usr/share/nginx/html:ro
     ports:

@@ -5,9 +5,14 @@
     document.currentScript ||
     document.querySelector('script[src*="analytics.js"]');
   var siteId = script.getAttribute("data-site-id");
+  var serverUrl = script.getAttribute("data-server-url");
 
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
+  }
+
+  if (!serverUrl) {
+    return console.error("Betterlytics: data-server-url attribute missing");
   }
 
   // Track current path for SPA navigation
@@ -31,7 +36,7 @@
     })(userAgent + screenResolution);
 
     // Send tracking data
-    fetch("http://localhost:3001/track", {
+    fetch(`${serverUrl}/track`, {
       method: "POST",
       keepalive: true,
       headers: {
