@@ -35,7 +35,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     redirect('/');
   }
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, queryFilters } =
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
@@ -54,6 +54,15 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     fetchSessionMetricsAction(dashboardId, startDate, endDate, granularity, queryFilters),
   ]);
 
+  const comparisonPromise =
+    compareStartDate && compareEndDate
+      ? Promise.all([
+          fetchUniqueVisitorsAction(dashboardId, compareStartDate, compareEndDate, granularity, queryFilters),
+          fetchTotalPageViewsAction(dashboardId, compareStartDate, compareEndDate, granularity, queryFilters),
+          fetchSessionMetricsAction(dashboardId, compareStartDate, compareEndDate, granularity, queryFilters),
+        ])
+      : undefined;
+
   const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, startDate, endDate, queryFilters);
   const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(dashboardId, startDate, endDate, 10);
   const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, startDate, endDate, queryFilters);
@@ -71,7 +80,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
             </div>
           }
         >
-          <SummaryAndChartSection data={summaryAndChartPromise} />
+          <SummaryAndChartSection data={summaryAndChartPromise} comparisonData={comparisonPromise} />
         </Suspense>
 
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
