@@ -1,6 +1,6 @@
 'use server';
 
-import { type Funnel, CreateFunnelSchema, FunnelDetails } from '@/entities/funnels';
+import { type Funnel, CreateFunnelSchema, type FunnelDetails, type FunnelPreview } from '@/entities/funnels';
 import {
   createFunnelForDashboard,
   getFunnelDetailsById,
@@ -8,16 +8,19 @@ import {
   getFunnelsByDashboardId,
 } from '@/services/funnels';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/authContext';
+import { type AuthContext } from '@/entities/authContext';
+import { type QueryFilter } from '@/entities/filter';
+import { revalidatePath } from 'next/cache';
 
 export const postFunnelAction = withDashboardAuthContext(
-  async (ctx: AuthContext, name: string, pages: string[], isStrict: boolean): Promise<Funnel> => {
+  async (ctx: AuthContext, name: string, queryFilters: QueryFilter[], isStrict: boolean): Promise<Funnel> => {
     const funnel = CreateFunnelSchema.parse({
       dashboardId: ctx.dashboardId,
       name,
-      pages,
+      queryFilters,
       isStrict,
     });
+    revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
     return createFunnelForDashboard(funnel);
   },
 );
@@ -38,7 +41,7 @@ export const fetchFunnelsAction = withDashboardAuthContext(async (ctx: AuthConte
 });
 
 export const fetchFunnelPreviewAction = withDashboardAuthContext(
-  async (ctx: AuthContext, funnelName: string, pages: string[], isStrict: boolean): Promise<FunnelDetails> => {
-    return getFunnelPreviewData(ctx.siteId, funnelName, pages, isStrict);
+  async (ctx: AuthContext, queryFilters: QueryFilter[], isStrict: boolean): Promise<FunnelPreview> => {
+    return getFunnelPreviewData(ctx.siteId, queryFilters, isStrict);
   },
 );
