@@ -43,6 +43,16 @@ services:
       - postgres_network
       - clickhouse_network
 
+  docs:
+    build:
+      context: ./docs
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    container_name: docs
+    hostname: docs
+    networks:
+      - proxy_network
+
   clickhouse:
     image: clickhouse/clickhouse-server:latest
     user: 101:101
@@ -137,6 +147,8 @@ services:
       backend:
         condition: service_started
       dashboard:
+        condition: service_started
+      docs:
         condition: service_started
     ports:
       - 80:80

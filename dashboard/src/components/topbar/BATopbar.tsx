@@ -16,7 +16,6 @@ import { Settings, LogOut, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import Logo from '@/components/logo';
-import LogoText from '@/components/logo-text';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
 
 export default function BATopbar() {
@@ -45,8 +44,7 @@ export default function BATopbar() {
         <div className='container flex h-14 items-center justify-between px-4'>
           <div className='flex items-center space-x-2'>
             <Link href='/' className='flex items-center space-x-2'>
-              <Logo variant='icon' width={24} height={24} priority />
-              <LogoText size='md' />
+              <Logo variant='icon' showText textSize='md' priority />
             </Link>
           </div>
 

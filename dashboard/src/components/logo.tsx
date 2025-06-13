@@ -11,9 +11,23 @@ interface LogoProps {
   width?: number;
   height?: number;
   priority?: boolean;
+  showText?: boolean;
+  textSize?: 'sm' | 'md' | 'lg' | 'xl';
+  textPlacement?: 'right' | 'left' | 'bottom' | 'top';
+  spacing?: 'tight' | 'normal' | 'loose';
 }
 
-export default function Logo({ variant = 'simple', className, width, height, priority = false }: LogoProps) {
+export default function Logo({
+  variant = 'simple',
+  className,
+  width,
+  height,
+  priority = false,
+  showText = false,
+  textSize = 'md',
+  textPlacement = 'right',
+  spacing = 'normal',
+}: LogoProps) {
   const [mounted, setMounted] = useState(false);
   const { theme, systemTheme } = useTheme();
 
@@ -21,7 +35,6 @@ export default function Logo({ variant = 'simple', className, width, height, pri
     setMounted(true);
   }, []);
 
-  // Default to light theme until mounted to prevent hydration mismatch
   const currentTheme = mounted ? (theme === 'system' ? systemTheme : theme) : 'light';
   const isDark = currentTheme === 'dark';
 
@@ -40,6 +53,26 @@ export default function Logo({ variant = 'simple', className, width, height, pri
     },
   };
 
+  const textSizeClasses = {
+    sm: 'text-lg font-bold',
+    md: 'text-xl font-bold',
+    lg: 'text-2xl font-bold',
+    xl: 'text-3xl font-bold',
+  };
+
+  const spacingClasses = {
+    tight: 'gap-1',
+    normal: 'gap-2',
+    loose: 'gap-4',
+  };
+
+  const placementClasses = {
+    right: 'flex-row items-center',
+    left: 'flex-row-reverse items-center',
+    bottom: 'flex-col items-center',
+    top: 'flex-col-reverse items-center',
+  };
+
   const defaultDimensions = {
     simple: { width: 32, height: 32 },
     full: { width: 150, height: 40 },
@@ -52,14 +85,29 @@ export default function Logo({ variant = 'simple', className, width, height, pri
     height: height || defaultDimensions[variant].height,
   };
 
-  return (
+  const logoImage = (
     <Image
       src={logoSrc}
       alt='Betterlytics'
       width={dimensions.width}
       height={dimensions.height}
       priority={priority}
-      className={cn('object-contain', className)}
+      className='object-contain'
     />
+  );
+
+  if (!showText) {
+    return <div className={cn('inline-block', className)}>{logoImage}</div>;
+  }
+
+  const logoText = showText && (
+    <span className={cn(textSizeClasses[textSize], 'text-foreground')}>Betterlytics</span>
+  );
+
+  return (
+    <div className={cn('flex', placementClasses[textPlacement], spacingClasses[spacing], className)}>
+      {logoImage}
+      {logoText}
+    </div>
   );
 }

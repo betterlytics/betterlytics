@@ -1,5 +1,4 @@
 import Logo from '@/components/logo';
-import LogoText from '@/components/logo-text';
 import Link from 'next/link';
 
 export function Footer() {
@@ -8,9 +7,8 @@ export function Footer() {
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='grid gap-8 md:grid-cols-4'>
           <div>
-            <div className='mb-4 flex items-center space-x-2'>
-              <Logo />
-              <LogoText size='lg' />
+            <div className='mb-4'>
+              <Logo variant='simple' showText textSize='lg' priority />
             </div>
             <p className='text-muted-foreground text-sm'>
               Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.

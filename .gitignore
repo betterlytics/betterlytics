@@ -47,10 +47,6 @@ Thumbs.db
 *.out
 *.app
 
-# Documentation
-/doc/
-/docs/
-
 # Temporary files
 *.tmp
 *.temp

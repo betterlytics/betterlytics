@@ -4,6 +4,7 @@
   "scripts": {
     "backend": "pnpm --filter backend dev",
     "dashboard": "pnpm --filter dashboard dev",
+    "docs": "pnpm --filter docs dev",
     "build": "pnpm --filter dashboard build",
     "start": "pnpm --filter dashboard start",
     "compose": "docker compose up -d && pnpm run migrate && pnpm run generate",
