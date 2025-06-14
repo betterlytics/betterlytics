@@ -1,15 +1,41 @@
 <clickhouse>
+  <!-- Logging setup -->
   <logger>
-    <level>debug</level>
+    <level>notice</level>
+    <console>false</console>
+
     <log>/var/log/clickhouse-server/clickhouse-server.log</log>
     <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
     <size>500M</size>
     <count>3</count>
   </logger>
+
+  <trace_log remove="remove" />
+  <text_log remove="remove" />
+  <metric_log remove="remove" />
+  <asynchronous_metric_log remove="remove" />
+  
+  <!-- Display setup -->
   <display_name>ch-1S_1K</display_name>
+  
+  <!-- IP & Port setup -->
   <listen_host>0.0.0.0</listen_host>
   <http_port>8123</http_port>
   <tcp_port>9000</tcp_port>
+
+  <!-- Optimize for less than recommended 16GB of memory -->
+  <profile>
+    <default>
+      <mark_cache_size>536870912</mark_cache_size>
+      <max_threads>1</max_threads>
+      <max_block_size>8192</max_block_size>
+      <max_download_threads>1</max_download_threads>
+      <input_format_parallel_parsing>0</input_format_parallel_parsing>
+      <output_format_parallel_formatting>0</output_format_parallel_formatting>
+    </default>
+  </profile>
+  
+  <!-- User settings -->
   <user_directories>
     <local_directory>
       <path>/etc/clickhouse-server/users.d/</path>

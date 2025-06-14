@@ -1,8 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { MapContainer, GeoJSON } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useEffect, useState, useMemo, use } from 'react';
 import { scaleLinear } from 'd3-scale';
 import 'leaflet/dist/leaflet.css';
 import dynamic from 'next/dynamic';
@@ -25,7 +23,6 @@ const geoJsonOptions = {
 const WORLD_GEOJSON_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
 
 // To limit how far users can pan
-const MAX_WORLD_BOUNDS = L.latLngBounds(L.latLng(-100, -220), L.latLng(100, 220));
 
 const LeafletMap = ({
   visitorData,
@@ -34,10 +31,15 @@ const LeafletMap = ({
   showLegend = true,
   initialZoom,
 }: LeafletMapProps) => {
+  const { MapContainer, GeoJSON } = use(import('react-leaflet'));
+  const L = use(import('leaflet'));
+
   const [worldGeoJson, setWorldGeoJson] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
+
+  const MAX_WORLD_BOUNDS = useMemo(() => L.latLngBounds(L.latLng(-100, -220), L.latLng(100, 220)), []);
 
   // Create a simple placeholder color scale - from dark to blue
   const colorScale = useMemo(() => {

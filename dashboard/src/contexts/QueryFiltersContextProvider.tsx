@@ -4,7 +4,7 @@ import { useQueryFilters } from '@/hooks/use-query-filters';
 
 type QueryFiltersContextProps = {
   queryFilters: QueryFilter[];
-  addQueryFilter: Dispatch<QueryFilter>;
+  addQueryFilter: Dispatch<QueryFilter | Omit<QueryFilter, 'id'>>;
   addEmptyQueryFilter: Dispatch<void>;
   removeQueryFilter: Dispatch<string>;
   updateQueryFilter: Dispatch<QueryFilter>;
