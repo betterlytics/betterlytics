@@ -6,6 +6,8 @@ type Filters = {
   startDate: Date;
   endDate: Date;
   granularity: GranularityRangeValues;
+  compareStartDate?: Date;
+  compareEndDate?: Date;
   userJourney: {
     numberOfSteps: number;
     numberOfJourneys: number;
@@ -18,6 +20,8 @@ function getDefaultFilters(): Filters {
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     endDate: new Date(Date.now()),
     granularity: 'day',
+    compareStartDate: undefined,
+    compareEndDate: undefined,
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
@@ -41,10 +45,12 @@ function decode(base64: string): Filters {
     ...withDefaults,
     startDate: new Date(withDefaults.startDate),
     endDate: new Date(withDefaults.endDate),
+    compareStartDate: withDefaults.compareStartDate ? new Date(withDefaults.compareStartDate) : undefined,
+    compareEndDate: withDefaults.compareEndDate ? new Date(withDefaults.compareEndDate) : undefined,
   };
 }
 
-async function decodeFromParams(paramsPromise: Promise<{ filters: string }>) {
+async function decodeFromParams(paramsPromise: Promise<{ filters: string }>): Promise<Filters> {
   const { filters } = await paramsPromise;
 
   if (!filters) {
