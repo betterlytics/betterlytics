@@ -4,14 +4,17 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Shield, AlertTriangle, Loader2, Save } from 'lucide-react';
+import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt } from 'lucide-react';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import { toast } from 'sonner';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
 import UserSecuritySettings from '@/components/userSettings/UserSecuritySettings';
 import UserDangerZoneSettings from '@/components/userSettings/UserDangerZoneSettings';
+import UserUsageSettings from '@/components/userSettings/UserUsageSettings';
+import UserBillingHistory from '@/components/userSettings/UserBillingHistory';
 import { Spinner } from '../ui/spinner';
+import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -25,7 +28,9 @@ interface UserSettingsTabConfig {
   component: React.ComponentType<{
     formData: UserSettingsUpdate;
     onUpdate: (updates: Partial<UserSettingsUpdate>) => void;
+    onCloseDialog?: () => void;
   }>;
+  disabled?: boolean;
 }
 
 const USER_SETTINGS_TABS: UserSettingsTabConfig[] = [
@@ -34,6 +39,20 @@ const USER_SETTINGS_TABS: UserSettingsTabConfig[] = [
     label: 'Preferences',
     icon: Settings,
     component: UserPreferencesSettings,
+  },
+  {
+    id: 'usage',
+    label: 'Usage',
+    icon: BarChart3,
+    component: UserUsageSettings,
+    disabled: !isClientFeatureEnabled('enableBilling'),
+  },
+  {
+    id: 'billing',
+    label: 'Billing',
+    icon: Receipt,
+    component: UserBillingHistory,
+    disabled: !isClientFeatureEnabled('enableBilling'),
   },
   {
     id: 'security',
@@ -51,7 +70,8 @@ const USER_SETTINGS_TABS: UserSettingsTabConfig[] = [
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, saveSettings } = useUserSettings();
-  const [activeTab, setActiveTab] = useState(USER_SETTINGS_TABS[0].id);
+  const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
+  const [activeTab, setActiveTab] = useState(availableTabs[0].id);
   const [formData, setFormData] = useState<UserSettingsUpdate>({});
 
   useEffect(() => {
@@ -72,6 +92,10 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     } else {
       toast.error('Failed to save settings. Please try again.');
     }
+  };
+
+  const handleCloseDialog = () => {
+    onOpenChange(false);
   };
 
   if (isLoading) {
@@ -108,8 +132,8 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-          <TabsList className={`grid w-full grid-cols-${USER_SETTINGS_TABS.length}`}>
-            {USER_SETTINGS_TABS.map((tab) => {
+          <TabsList className={`grid w-full grid-cols-${availableTabs.length}`}>
+            {availableTabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger key={tab.id} value={tab.id} className='flex items-center gap-2'>
@@ -120,11 +144,11 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
             })}
           </TabsList>
 
-          {USER_SETTINGS_TABS.map((tab) => {
+          {availableTabs.map((tab) => {
             const Component = tab.component;
             return (
               <TabsContent key={tab.id} value={tab.id} className='mt-6'>
-                <Component formData={formData} onUpdate={handleUpdate} />
+                <Component formData={formData} onUpdate={handleUpdate} onCloseDialog={handleCloseDialog} />
               </TabsContent>
             );
           })}

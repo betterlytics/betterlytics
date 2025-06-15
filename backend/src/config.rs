@@ -17,6 +17,8 @@ pub struct Config {
     pub geoip_db_path: PathBuf,
     pub geoip_update_interval: Duration,
     pub data_retention_days: i32,
+    // Billing configuration
+    pub enable_billing: bool,
 }
 
 impl Config {
@@ -59,6 +61,10 @@ impl Config {
                 .unwrap_or_else(|_| "365".to_string())
                 .parse()
                 .unwrap_or(365),
+            // Billing configuration
+            enable_billing: env::var("ENABLE_BILLING")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
         }
     }
 } 

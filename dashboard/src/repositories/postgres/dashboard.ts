@@ -120,3 +120,21 @@ export async function createDashboard(data: DashboardWriteData): Promise<Dashboa
     throw new Error('Failed to create dashboard.');
   }
 }
+
+export async function getUserSiteIds(userId: string): Promise<string[]> {
+  try {
+    const dashboards = await prisma.userDashboard.findMany({
+      where: { userId },
+      include: {
+        dashboard: {
+          select: { siteId: true },
+        },
+      },
+    });
+
+    return dashboards.map((userDashboard) => userDashboard.dashboard.siteId);
+  } catch (error) {
+    console.error('Failed to get user site IDs:', error);
+    return [];
+  }
+}

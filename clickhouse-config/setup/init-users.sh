@@ -12,7 +12,7 @@ clickhouse-client --query="CREATE ROLE dashboard_role;"
 clickhouse-client --query="CREATE ROLE backend_role;"
 
 # Grant privileges to roles
-clickhouse-client --query="GRANT SELECT ON analytics.*, INSERT ON analytics.*, ALTER ON analytics.*, SELECT ON system.databases, SELECT ON system.tables TO backend_role;"
+clickhouse-client --query="GRANT SELECT ON analytics.*, INSERT ON analytics.*, ALTER ON analytics.*, CREATE VIEW ON analytics.*, SELECT ON system.databases, SELECT ON system.tables TO backend_role;"
 clickhouse-client --query="GRANT SELECT ON analytics.* TO dashboard_role;"
 
 # Assign roles to users
