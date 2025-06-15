@@ -36,7 +36,7 @@
     })(userAgent + screenResolution);
 
     // Send tracking data
-    fetch(`${serverUrl}/track`, {
+    fetch(serverUrl, {
       method: "POST",
       keepalive: true,
       headers: {
