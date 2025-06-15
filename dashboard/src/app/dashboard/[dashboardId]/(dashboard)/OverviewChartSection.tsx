@@ -3,6 +3,11 @@
 import { useMemo } from 'react';
 import InteractiveChart from '@/components/InteractiveChart';
 import { formatDuration } from '@/utils/dateFormatters';
+import {
+  type fetchSessionMetricsAction,
+  type fetchTotalPageViewsAction,
+  type fetchUniqueVisitorsAction,
+} from '@/app/actions';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -40,9 +45,9 @@ const metricConfigs: Record<ActiveMetric, MetricConfig> = {
 
 type OverviewChartSectionProps = {
   activeMetric: ActiveMetric;
-  visitorsData: any[];
-  pageviewsData: any[];
-  sessionMetricsData: any[];
+  visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>;
+  pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>;
+  sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>;
 };
 
 export default function OverviewChartSection({

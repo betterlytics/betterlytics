@@ -3,7 +3,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tool
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface ChartDataPoint {
-  date: string;
+  date: string | number;
   [key: string]: string | number;
 }
 

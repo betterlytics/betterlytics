@@ -1,24 +1,28 @@
-"use server";
+'use server';
 
-import { DailyUniqueVisitorsRow } from "@/entities/visitors";
-import { DailyPageViewRow, TotalPageViewsRow } from "@/entities/pageviews";
-import { DailySessionMetricsRow } from "@/entities/sessionMetrics";
-import { TopPageRow, TopEntryPageRow, TopExitPageRow, PageAnalyticsCombined, PageAnalyticsCombinedSchema } from "@/entities/pages";
+import { DailySessionMetricsRow } from '@/entities/sessionMetrics';
 import {
-  getPageViewsForSite,
+  TopPageRow,
+  TopEntryPageRow,
+  TopExitPageRow,
+  PageAnalyticsCombined,
+  PageAnalyticsCombinedSchema,
+} from '@/entities/pages';
+import {
   getTopPagesForSite,
   getTotalPageViewsForSite,
   getTopEntryPagesForSite,
   getTopExitPagesForSite,
-} from "@/services/pages";
-import { getSummaryStatsWithChartsForSite } from "@/services/visitors";
-import { getUniqueVisitorsForSite } from "@/services/visitors";
-import { GranularityRangeValues } from "@/utils/granularityRanges";
-import { QueryFilter } from "@/entities/filter";
-import { withDashboardAuthContext } from "@/auth/auth-actions";
-import { AuthContext } from "@/entities/authContext";
-import { getSessionMetrics } from "@/repositories/clickhouse";
-import { toDateTimeString } from "@/utils/dateFormatters";
+} from '@/services/pages';
+import { getSummaryStatsWithChartsForSite } from '@/services/visitors';
+import { getUniqueVisitorsForSite } from '@/services/visitors';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { QueryFilter } from '@/entities/filter';
+import { withDashboardAuthContext } from '@/auth/auth-actions';
+import { AuthContext } from '@/entities/authContext';
+import { getSessionMetrics } from '@/repositories/clickhouse';
+import { toDateTimeString } from '@/utils/dateFormatters';
+import { fromFragmentedGranularityTimeSeriesToLineChartAreaChart } from '@/utils/fragmentedGranulatiryTimeSeriesAreaChart';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
   async (
@@ -26,27 +30,15 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[]
-  ): Promise<TotalPageViewsRow[]> => {
-    return getTotalPageViewsForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
+    queryFilters: QueryFilter[],
+  ) => {
+    const data = await getTotalPageViewsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    return fromFragmentedGranularityTimeSeriesToLineChartAreaChart({
+      data,
       granularity,
-      queryFilters
-    );
-  }
-);
-
-export const fetchPageViewsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues
-  ): Promise<DailyPageViewRow[]> => {
-    return getPageViewsForSite(ctx.siteId, startDate, endDate, granularity);
-  }
+      dataKey: 'views',
+    });
+  },
 );
 
 export const fetchUniqueVisitorsAction = withDashboardAuthContext(
@@ -55,28 +47,22 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[]
-  ): Promise<DailyUniqueVisitorsRow[]> => {
-    return getUniqueVisitorsForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
+    queryFilters: QueryFilter[],
+  ) => {
+    const data = await getUniqueVisitorsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    return fromFragmentedGranularityTimeSeriesToLineChartAreaChart({
+      data,
       granularity,
-      queryFilters
-    );
-  }
+      dataKey: 'unique_visitors',
+    });
+  },
 );
 
 // Enhanced summary stats action that includes chart data
 export const fetchSummaryStatsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[]
-  ) => {
+  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
     return getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
-  }
+  },
 );
 
 export const fetchTopPagesAction = withDashboardAuthContext(
@@ -85,16 +71,10 @@ export const fetchTopPagesAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     limit: number,
-    queryFilters: QueryFilter[]
+    queryFilters: QueryFilter[],
   ): Promise<TopPageRow[]> => {
-    return getTopPagesForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      limit,
-      queryFilters
-    );
-  }
+    return getTopPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters);
+  },
 );
 
 export const fetchSessionMetricsAction = withDashboardAuthContext(
@@ -103,16 +83,16 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[]
+    queryFilters: QueryFilter[],
   ): Promise<DailySessionMetricsRow[]> => {
     return getSessionMetrics(
       ctx.siteId,
       toDateTimeString(startDate),
       toDateTimeString(endDate),
       granularity,
-      queryFilters
+      queryFilters,
     );
-  }
+  },
 );
 
 export const fetchTopEntryPagesAction = withDashboardAuthContext(
@@ -121,16 +101,10 @@ export const fetchTopEntryPagesAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     limit: number,
-    queryFilters: QueryFilter[]
+    queryFilters: QueryFilter[],
   ): Promise<TopEntryPageRow[]> => {
-    return getTopEntryPagesForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      limit,
-      queryFilters
-    );
-  }
+    return getTopEntryPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters);
+  },
 );
 
 export const fetchTopExitPagesAction = withDashboardAuthContext(
@@ -139,16 +113,10 @@ export const fetchTopExitPagesAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     limit: number,
-    queryFilters: QueryFilter[]
+    queryFilters: QueryFilter[],
   ): Promise<TopExitPageRow[]> => {
-    return getTopExitPagesForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      limit,
-      queryFilters
-    );
-  }
+    return getTopExitPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters);
+  },
 );
 
 export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
@@ -157,7 +125,7 @@ export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     limit: number = 5,
-    queryFilters: QueryFilter[]
+    queryFilters: QueryFilter[],
   ): Promise<PageAnalyticsCombined> => {
     const [topPages, topEntryPages, topExitPages] = await Promise.all([
       getTopPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
@@ -170,5 +138,5 @@ export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
       topEntryPages,
       topExitPages,
     });
-  }
+  },
 );
