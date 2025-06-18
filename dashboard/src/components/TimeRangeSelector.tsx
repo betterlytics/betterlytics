@@ -1,43 +1,47 @@
 'use client';
 
-import { useTimeRangeContext } from "@/contexts/TimeRangeContextProvider";
-import { TIME_RANGE_PRESETS, TimeRangeValue, getDateRangeForTimePresets } from "@/utils/timeRanges";
-import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from "@/utils/granularityRanges";
-import React, { useState, useMemo, useEffect } from "react";
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { TIME_RANGE_PRESETS, TimeRangeValue, getDateRangeForTimePresets } from '@/utils/timeRanges';
+import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from '@/utils/granularityRanges';
+import React, { useState, useMemo, useEffect } from 'react';
 import { format, addDays, differenceInCalendarDays } from 'date-fns';
-import { CalendarIcon, ChevronDownIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
-export default function TimeRangeSelector({ className = "" }: { className?: string }) {
+export default function TimeRangeSelector({ className = '' }: { className?: string }) {
   const {
     startDate,
     endDate,
     setPeriod,
     granularity,
     setGranularity,
-    compareEnabled,
-    setCompareEnabled,
     compareStartDate,
     compareEndDate,
     setCompareDateRange,
+    clearComparison,
   } = useTimeRangeContext();
+
+  const compareEnabled = !!(compareStartDate && compareEndDate);
 
   const currentActivePreset = useMemo<TimeRangeValue>(() => {
     if (!startDate || !endDate) {
-      return 'custom'; 
+      return 'custom';
     }
     for (const preset of TIME_RANGE_PRESETS) {
       if (preset.value === 'custom') continue;
       const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(preset.value);
-      if (presetStart && presetEnd &&
-          startDate.getTime() === presetStart.getTime() &&
-          endDate.getTime() === presetEnd.getTime()) {
+      if (
+        presetStart &&
+        presetEnd &&
+        startDate.getTime() === presetStart.getTime() &&
+        endDate.getTime() === presetEnd.getTime()
+      ) {
         return preset.value;
       }
     }
@@ -52,7 +56,7 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
 
   const [tempRange, setTempRange] = useState<TimeRangeValue>(currentActivePreset);
   const [tempGranularity, setTempGranularity] = useState<GranularityRangeValues>(granularity);
-  
+
   const [tempCustomStart, setTempCustomStart] = useState<Date | undefined>(startDate);
   const [tempCustomEnd, setTempCustomEnd] = useState<Date | undefined>(endDate);
   const [tempCompare, setTempCompare] = useState<boolean>(compareEnabled);
@@ -107,7 +111,7 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
 
   const handleApply = () => {
     setGranularity(tempGranularity);
-    setCompareEnabled(tempCompare);
+
     if (tempRange === 'custom' && tempCustomStart && tempCustomEnd) {
       setPeriod(tempCustomStart, tempCustomEnd);
     } else if (tempRange !== 'custom') {
@@ -116,32 +120,36 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
         setPeriod(presetStart, presetEnd);
       }
     }
+
     if (tempCompare && tempCompareStartDate && tempCompareEndDate) {
       setCompareDateRange(tempCompareStartDate, tempCompareEndDate);
+    } else {
+      clearComparison();
     }
+
     setIsPopoverOpen(false);
   };
 
   const handleQuickSelect = (value: TimeRangeValue) => {
     setTempRange(value);
     if (value !== 'custom') {
-        const { startDate: presetStartDate, endDate: presetEndDate } = getDateRangeForTimePresets(value);
-        setTempCustomStart(presetStartDate);
-        setTempCustomEnd(presetEndDate);
+      const { startDate: presetStartDate, endDate: presetEndDate } = getDateRangeForTimePresets(value);
+      setTempCustomStart(presetStartDate);
+      setTempCustomEnd(presetEndDate);
     }
   };
-  
+
   const handleStartDateSelect = (date: Date | undefined) => {
     if (!date) return;
     setTempCustomStart(date);
-    setTempRange('custom'); 
+    setTempRange('custom');
     setIsStartDatePopoverOpen(false);
   };
 
   const handleEndDateSelect = (date: Date | undefined) => {
     if (!date) return;
     setTempCustomEnd(date);
-    setTempRange('custom'); 
+    setTempRange('custom');
     setIsEndDatePopoverOpen(false);
   };
 
@@ -149,7 +157,7 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
     if (!date) return;
     setTempCompareStartDate(date);
     if (tempMainPeriodDurationDays !== null) {
-      setTempCompareEndDate(addDays(date, tempMainPeriodDurationDays -1 ));
+      setTempCompareEndDate(addDays(date, tempMainPeriodDurationDays - 1));
     }
     setIsCompareStartDatePopoverOpen(false);
   };
@@ -158,7 +166,7 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
     if (!date) return;
     setTempCompareEndDate(date);
     if (tempMainPeriodDurationDays !== null) {
-      setTempCompareStartDate(addDays(date, -(tempMainPeriodDurationDays -1)));
+      setTempCompareStartDate(addDays(date, -(tempMainPeriodDurationDays - 1)));
     }
     setIsCompareEndDatePopoverOpen(false);
   };
@@ -167,7 +175,7 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
     if (currentActivePreset === 'custom' && startDate && endDate) {
       return `${format(startDate, 'P')} - ${format(endDate, 'P')}`;
     }
-    const preset = TIME_RANGE_PRESETS.find(p => p.value === currentActivePreset);
+    const preset = TIME_RANGE_PRESETS.find((p) => p.value === currentActivePreset);
     return preset ? preset.label : 'Date Range';
   };
 
@@ -175,27 +183,28 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
     <Popover open={isPopoverOpen} onOpenChange={handlePopoverOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
-          role="combobox"
-          className={cn("min-w-[200px] justify-between shadow-sm", className)}
+          variant='outline'
+          role='combobox'
+          className={cn('min-w-[200px] justify-between shadow-sm', className)}
         >
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4" />
+          <div className='flex items-center gap-2'>
+            <CalendarIcon className='h-4 w-4' />
             <span>{displayRangeLabel()}</span>
           </div>
-          <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} /> 
+          <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-6 space-y-6 z-[1002]" align="end">
+
+      <PopoverContent className='z-[1002] w-96 space-y-6 p-6' align='end'>
         <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Quick select</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {TIME_RANGE_PRESETS.filter(p => p.value !== 'custom').map((preset) => (
+          <h3 className='mb-2 text-sm font-medium text-gray-500'>Quick select</h3>
+          <div className='grid grid-cols-2 gap-2'>
+            {TIME_RANGE_PRESETS.filter((p) => p.value !== 'custom').map((preset) => (
               <Button
                 key={preset.value}
-                variant={tempRange === preset.value ? "default" : "outline"}
+                variant={tempRange === preset.value ? 'default' : 'outline'}
                 onClick={() => handleQuickSelect(preset.value)}
-                className="w-full text-left justify-start"
+                className='w-full justify-start text-left'
               >
                 {preset.label}
               </Button>
@@ -204,42 +213,42 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Granularity</h3>
-          <div className="flex gap-2 flex-wrap">
+          <h3 className='mb-2 text-sm font-medium text-gray-500'>Granularity</h3>
+          <div className='flex flex-wrap gap-2'>
             {GRANULARITY_RANGE_PRESETS.map((gran) => (
               <Button
                 key={gran.value}
-                variant={tempGranularity === gran.value ? "default" : "outline"}
+                variant={tempGranularity === gran.value ? 'default' : 'outline'}
                 onClick={() => setTempGranularity(gran.value)}
-                className="flex-1"
+                className='flex-1'
               >
-                {gran.label} 
+                {gran.label}
               </Button>
             )).reverse()}
           </div>
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Current period</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label htmlFor="startDateInput">Start date</Label>
+          <h3 className='mb-2 text-sm font-medium text-gray-500'>Main period</h3>
+          <div className='grid grid-cols-2 gap-4'>
+            <div className='space-y-1'>
+              <Label htmlFor='startDateInput'>Start date</Label>
               <Popover open={isStartDatePopoverOpen} onOpenChange={setIsStartDatePopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={"outline"}
+                    variant={'outline'}
                     className={cn(
-                      "w-full justify-start text-left font-normal truncate",
-                      !tempCustomStart && "text-muted-foreground"
+                      'w-full justify-start truncate text-left font-normal',
+                      !tempCustomStart && 'text-muted-foreground',
                     )}
                   >
-                    <CalendarIcon className="h-4 w-4" />
-                    {tempCustomStart ? format(tempCustomStart, "PPP") : <span>Pick a date</span>}
+                    <CalendarIcon className='h-4 w-4' />
+                    {tempCustomStart ? format(tempCustomStart, 'PPP') : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className='w-auto p-0' align='start'>
                   <Calendar
-                    mode="single"
+                    mode='single'
                     selected={tempCustomStart}
                     onSelect={handleStartDateSelect}
                     initialFocus
@@ -247,67 +256,65 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="endDateInput">End date</Label>
+
+            <div className='space-y-1'>
+              <Label htmlFor='endDateInput'>End date</Label>
               <Popover open={isEndDatePopoverOpen} onOpenChange={setIsEndDatePopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={"outline"}
+                    variant={'outline'}
                     className={cn(
-                      "w-full justify-start text-left font-normal truncate",
-                      !tempCustomEnd && "text-muted-foreground"
+                      'w-full justify-start truncate text-left font-normal',
+                      !tempCustomEnd && 'text-muted-foreground',
                     )}
                   >
-                    <CalendarIcon className="h-4 w-4" />
-                    {tempCustomEnd ? format(tempCustomEnd, "PPP") : <span>Pick a date</span>}
+                    <CalendarIcon className='h-4 w-4' />
+                    {tempCustomEnd ? format(tempCustomEnd, 'PPP') : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={tempCustomEnd}
-                    onSelect={handleEndDateSelect}
-                    initialFocus
-                  />
+                <PopoverContent className='w-auto p-0' align='start'>
+                  <Calendar mode='single' selected={tempCustomEnd} onSelect={handleEndDateSelect} initialFocus />
                 </PopoverContent>
               </Popover>
             </div>
           </div>
         </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="comparePeriodCheckbox" 
+
+        <div className='flex items-center space-x-2'>
+          <Checkbox
+            id='comparePeriodCheckbox'
             checked={tempCompare}
             onCheckedChange={(checked) => setTempCompare(checked as boolean)}
           />
-          <Label htmlFor="comparePeriodCheckbox" className="text-sm font-normal text-gray-700">Compare with previous period</Label>
+          <Label htmlFor='comparePeriodCheckbox' className='text-sm font-normal text-gray-700'>
+            Compare with previous period
+          </Label>
         </div>
 
         {tempCompare && (
           <>
-            <Separator className="my-4" />
+            <Separator className='my-4' />
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Compare to period</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="compareStartDateInput">Start date</Label>
+              <h3 className='mb-2 text-sm font-medium text-gray-500'>Compare to period</h3>
+              <div className='grid grid-cols-2 gap-4'>
+                <div className='space-y-1'>
+                  <Label htmlFor='compareStartDateInput'>Start date</Label>
                   <Popover open={isCompareStartDatePopoverOpen} onOpenChange={setIsCompareStartDatePopoverOpen}>
                     <PopoverTrigger asChild>
                       <Button
-                        variant={"outline"}
+                        variant={'outline'}
                         className={cn(
-                          "w-full justify-start text-left font-normal truncate",
-                          !tempCompareStartDate && "text-muted-foreground"
+                          'w-full justify-start truncate text-left font-normal',
+                          !tempCompareStartDate && 'text-muted-foreground',
                         )}
                       >
-                        <CalendarIcon className="h-4 w-4" />
-                        {tempCompareStartDate ? format(tempCompareStartDate, "PPP") : <span>Pick a date</span>}
+                        <CalendarIcon className='h-4 w-4' />
+                        {tempCompareStartDate ? format(tempCompareStartDate, 'PPP') : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className='w-auto p-0' align='start'>
                       <Calendar
-                        mode="single"
+                        mode='single'
                         selected={tempCompareStartDate}
                         onSelect={handleCompareStartDateSelect}
                         initialFocus
@@ -315,24 +322,25 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="compareEndDateInput">End date</Label>
+
+                <div className='space-y-1'>
+                  <Label htmlFor='compareEndDateInput'>End date</Label>
                   <Popover open={isCompareEndDatePopoverOpen} onOpenChange={setIsCompareEndDatePopoverOpen}>
                     <PopoverTrigger asChild>
                       <Button
-                        variant={"outline"}
+                        variant={'outline'}
                         className={cn(
-                          "w-full justify-start text-left font-normal truncate",
-                          !tempCompareEndDate && "text-muted-foreground"
+                          'w-full justify-start truncate text-left font-normal',
+                          !tempCompareEndDate && 'text-muted-foreground',
                         )}
                       >
-                        <CalendarIcon className="h-4 w-4" />
-                        {tempCompareEndDate ? format(tempCompareEndDate, "PPP") : <span>Pick a date</span>}
+                        <CalendarIcon className='h-4 w-4' />
+                        {tempCompareEndDate ? format(tempCompareEndDate, 'PPP') : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className='w-auto p-0' align='start'>
                       <Calendar
-                        mode="single"
+                        mode='single'
                         selected={tempCompareEndDate}
                         onSelect={handleCompareEndDateSelect}
                         initialFocus
@@ -345,13 +353,11 @@ export default function TimeRangeSelector({ className = "" }: { className?: stri
           </>
         )}
 
-        <Separator className="my-4" />
-        <div className="flex justify-end">
-          <Button onClick={handleApply}>
-            Apply
-          </Button>
+        <Separator className='my-4' />
+        <div className='flex justify-end'>
+          <Button onClick={handleApply}>Apply</Button>
         </div>
       </PopoverContent>
     </Popover>
   );
-} 
+}

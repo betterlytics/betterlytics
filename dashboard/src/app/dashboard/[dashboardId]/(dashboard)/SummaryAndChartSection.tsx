@@ -21,10 +21,19 @@ type SummaryAndChartSectionProps = {
       sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>,
     ]
   >;
+  comparisonData?: Promise<
+    [
+      comparisonVisitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>,
+      comparisonPageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>,
+      comparisonSessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>,
+    ]
+  >;
 };
 
-export default function SummaryAndChartSection({ data }: SummaryAndChartSectionProps) {
+export default function SummaryAndChartSection({ data, comparisonData }: SummaryAndChartSectionProps) {
   const [summary, visitorsData, pageviewsData, sessionMetricsData] = use(data);
+  const comparisonResults = comparisonData ? use(comparisonData) : undefined;
+  const [comparisonVisitorsData, comparisonPageviewsData, comparisonSessionMetricsData] = comparisonResults || [];
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
 
   const handleMetricChange = useCallback((metric: string) => {
@@ -79,6 +88,10 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
         visitorsData={visitorsData}
         pageviewsData={pageviewsData}
         sessionMetricsData={sessionMetricsData}
+        comparisonVisitorsData={comparisonVisitorsData}
+        comparisonPageviewsData={comparisonPageviewsData}
+        comparisonSessionMetricsData={comparisonSessionMetricsData}
+        showComparison={!!comparisonResults}
       />
     </div>
   );
