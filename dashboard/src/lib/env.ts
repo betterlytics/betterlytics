@@ -22,6 +22,17 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
+  ENABLE_EMAILS: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((val) => val === 'true'),
+  MAILER_SEND_API_TOKEN: z.string().optional().default(''),
+  ENABLE_MAIL_PREVIEW_PAGE: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((val) => val === 'true'),
 });
 
 export const env = envSchema.parse(process.env);

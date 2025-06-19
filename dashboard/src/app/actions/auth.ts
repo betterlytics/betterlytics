@@ -3,6 +3,7 @@
 import { RegisterUserData, RegisterUserSchema } from '@/entities/user';
 import { registerNewUser } from '@/services/auth.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { sendWelcomeEmail } from '@/services/email/mail.service';
 
 export async function registerUserAction(registrationData: RegisterUserData) {
   if (!isFeatureEnabled('enableRegistration')) {
@@ -11,7 +12,18 @@ export async function registerUserAction(registrationData: RegisterUserData) {
 
   try {
     const validatedData = RegisterUserSchema.parse(registrationData);
-    return await registerNewUser(validatedData);
+    const newUser = await registerNewUser(validatedData);
+
+    try {
+      await sendWelcomeEmail({
+        to: newUser.email!,
+        userName: newUser.name || newUser.email!.split('@')[0],
+      });
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+    }
+
+    return newUser;
   } catch (error) {
     console.error('Registration error:', error);
     if (error instanceof Error) {

@@ -130,9 +130,9 @@ export default function TermsPage() {
                   <h4 className='text-foreground mb-2 font-semibold'>Billing</h4>
                   <p className='text-muted-foreground text-sm'>
                     You can use our free tier indefinitely within the monthly event limits. For higher usage, you
-                    need to upgrade to a paid plan and pay in advance. If you exceed your free tier limits without
-                    upgrading, your tracking will be paused until the next month or until you upgrade. If paid
-                    accounts become overdue, we will freeze the account until payment is made.
+                    need to upgrade to a paid plan and pay in advance. If you exceed plan limits without upgrading,
+                    you risk losing excess data. If paid accounts become overdue, we will freeze the account until
+                    payment is made.
                   </p>
                 </div>
 
