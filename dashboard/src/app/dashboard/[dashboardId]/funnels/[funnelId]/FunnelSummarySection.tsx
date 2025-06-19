@@ -1,7 +1,7 @@
 import { use, useMemo } from 'react';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { ArrowRight } from 'lucide-react';
-import { analyzeFunnel } from '../analytics';
+import { analyzeFunnel } from '@/lib/analytics';
 import { fetchFunnelDetailsAction } from '@/app/actions';
 import { formatPercentage } from '@/utils/formatters';
 
@@ -30,8 +30,8 @@ export default function FunnelSummarySection({ funnelPromise }: FunnelSummarySec
       title: 'Biggest drop-off',
       value: (
         <span className='flex overflow-hidden overflow-x-auto text-sm text-ellipsis'>
-          {funnelData.biggestDropOff.pageStep[0]} <ArrowRight className='mx-1 max-w-[1rem] min-w-[1rem]' />{' '}
-          {funnelData.biggestDropOff.pageStep[1]}
+          {funnelData.biggestDropOff.step[0]} <ArrowRight className='mx-1 max-w-[1rem] min-w-[1rem]' />{' '}
+          {funnelData.biggestDropOff.step[1]}
         </span>
       ),
     },

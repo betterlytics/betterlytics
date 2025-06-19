@@ -1,6 +1,13 @@
 'server-only';
 
-import { type Funnel, type CreateFunnel, FunnelDetails, FunnelDetailsSchema } from '@/entities/funnels';
+import {
+  type Funnel,
+  type CreateFunnel,
+  type FunnelDetails,
+  FunnelDetailsSchema,
+  FunnelPreview,
+  FunnelPreviewSchema,
+} from '@/entities/funnels';
 import * as PostgresFunnelRepository from '@/repositories/postgres/funnels';
 import * as ClickhouseFunnelRepository from '@/repositories/clickhouse/funnels';
 import { type QueryFilter } from '@/entities/filter';
@@ -14,7 +21,7 @@ export async function getFunnelsByDashboardId(dashboardId: string, siteId: strin
     funnels.map(async (funnel: Funnel) =>
       FunnelDetailsSchema.parse({
         ...funnel,
-        visitors: await ClickhouseFunnelRepository.getFunnelDetails(siteId, funnel.pages, funnel.isStrict),
+        visitors: await ClickhouseFunnelRepository.getFunnelDetails(siteId, funnel.queryFilters, funnel.isStrict),
       }),
     ),
   );
@@ -28,7 +35,7 @@ export async function getFunnelDetailsById(siteId: string, funnelId: string): Pr
     return null;
   }
 
-  const visitors = await ClickhouseFunnelRepository.getFunnelDetails(siteId, funnel.pages, funnel.isStrict);
+  const visitors = await ClickhouseFunnelRepository.getFunnelDetails(siteId, funnel.queryFilters, funnel.isStrict);
 
   return FunnelDetailsSchema.parse({
     ...funnel,
@@ -43,28 +50,22 @@ export async function createFunnelForDashboard(funnel: CreateFunnel): Promise<Fu
 
 export async function getFunnelPreviewData(
   siteId: string,
-  funnelName: string,
-  pages: string[],
+  queryFilters: QueryFilter[],
   isStrict: boolean,
-): Promise<FunnelDetails> {
+): Promise<FunnelPreview> {
   const endDate = endOfHour(new Date());
   const startDate = subHours(endDate, 24);
-  const queryFilters: QueryFilter[] = [];
 
   const visitors = await ClickhouseFunnelRepository.getFunnelDetails(
     siteId,
-    pages,
+    queryFilters,
     isStrict,
     toDateTimeString(startDate),
     toDateTimeString(endDate),
-    queryFilters,
   );
 
-  return FunnelDetailsSchema.parse({
-    id: 'cmbb2vpw00004uzmwb4t3cdpw',
-    dashboardId: 'cmbb2vpw00004uzmwb4t3cdpw',
-    name: funnelName,
-    pages,
+  return FunnelPreviewSchema.parse({
+    queryFilters,
     visitors,
     isStrict,
   });

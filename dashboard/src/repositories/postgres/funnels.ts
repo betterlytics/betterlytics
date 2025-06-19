@@ -21,12 +21,7 @@ export async function getFunnelById(id: string): Promise<Funnel | null> {
 
 export async function createFunnel(funnelData: CreateFunnel): Promise<Funnel> {
   const createdFunnel = await prisma.funnel.create({
-    data: {
-      name: funnelData.name,
-      pages: funnelData.pages,
-      dashboardId: funnelData.dashboardId,
-      isStrict: funnelData.isStrict,
-    },
+    data: funnelData,
   });
   return FunnelSchema.parse(createdFunnel);
 }
