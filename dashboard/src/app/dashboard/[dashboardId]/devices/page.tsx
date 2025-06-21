@@ -29,11 +29,18 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, queryFilters } =
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
   const deviceSummaryPromise = fetchDeviceSummaryAction(dashboardId, startDate, endDate, queryFilters);
-  const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(dashboardId, startDate, endDate, queryFilters);
+  const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
   const browserStatsPromise = fetchBrowserBreakdownAction(dashboardId, startDate, endDate, queryFilters);
   const osStatsPromise = fetchOperatingSystemBreakdownAction(dashboardId, startDate, endDate, queryFilters);
   const deviceUsageTrendPromise = fetchDeviceUsageTrendAction(
@@ -42,6 +49,8 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     endDate,
     granularity,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
 
   return (

@@ -1,3 +1,4 @@
+import { subDays } from 'date-fns';
 import { QueryFilter } from '@/entities/filter';
 import { GranularityRangeValues, getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
 
@@ -10,18 +11,27 @@ type Filters = {
     numberOfSteps: number;
     numberOfJourneys: number;
   };
+  compareEnabled?: boolean;
+  compareStartDate?: Date;
+  compareEndDate?: Date;
 };
 
 function getDefaultFilters(): Filters {
+  const now = Date.now();
+  const oneWeekAgo = subDays(now, 6);
+  const oneFortnightAgo = subDays(oneWeekAgo, 7);
   return {
     queryFilters: [],
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    endDate: new Date(Date.now()),
+    startDate: new Date(oneWeekAgo),
+    endDate: new Date(now),
     granularity: 'day',
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
+    compareEnabled: true,
+    compareStartDate: new Date(oneFortnightAgo),
+    compareEndDate: new Date(oneWeekAgo),
   };
 }
 
@@ -41,6 +51,11 @@ function decode(base64: string): Filters {
   const startDate = new Date(withDefaults.startDate);
   const endDate = new Date(withDefaults.endDate);
 
+  if (!withDefaults.compareEnabled) {
+    withDefaults.compareStartDate = undefined;
+    withDefaults.compareEndDate = undefined;
+  }
+
   const allowedGranularities = getAllowedGranularities(startDate, endDate);
   const validGranularity = getValidGranularityFallback(withDefaults.granularity, allowedGranularities);
 
@@ -48,6 +63,8 @@ function decode(base64: string): Filters {
     ...withDefaults,
     startDate,
     endDate,
+    compareStartDate: withDefaults.compareStartDate ? new Date(withDefaults.compareStartDate) : undefined,
+    compareEndDate: withDefaults.compareEndDate ? new Date(withDefaults.compareEndDate) : undefined,
     granularity: validGranularity,
   };
 }
@@ -66,4 +83,5 @@ export const BAFilterSearchParams = {
   encode,
   decode,
   decodeFromParams,
+  getDefaultFilters,
 };

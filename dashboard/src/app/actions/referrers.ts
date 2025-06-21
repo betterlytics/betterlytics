@@ -20,15 +20,39 @@ import {
   TrafficSourcesCombinedSchema,
 } from '@/entities/referrers';
 import { QueryFilter } from '@/entities/filter';
+import { toPieChart } from '@/presenters/toPieChart';
 
 /**
  * Fetches the referrer distribution data for a site
  */
 export const fetchReferrerSourceAggregationDataForSite = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    queryFilters: QueryFilter[],
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
     try {
       const data = await getReferrerSourceAggregationDataForSite(ctx.siteId, startDate, endDate, queryFilters);
-      return { data };
+      const compare =
+        compareStartDate &&
+        compareEndDate &&
+        (await getReferrerSourceAggregationDataForSite(
+          ctx.siteId,
+          compareStartDate,
+          compareEndDate,
+          queryFilters,
+        ));
+      return {
+        data: toPieChart({
+          data,
+          key: 'referrer_source',
+          dataKey: 'visitorCount',
+          compare,
+        }),
+      };
     } catch (error) {
       console.error('Error fetching referrer distribution:', error);
       throw error;
@@ -82,9 +106,21 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
  * Fetches detailed referrer data for table display
  */
 export const fetchReferrerTableDataForSite = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[], limit: number = 100) => {
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    queryFilters: QueryFilter[],
+    limit: number = 100,
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
     try {
       const data = await getReferrerTableDataForSite(ctx.siteId, startDate, endDate, queryFilters, limit);
+      const compare =
+        compareStartDate &&
+        compareEndDate &&
+        (await getReferrerTableDataForSite(ctx.siteId, startDate, endDate, queryFilters, limit));
       return { data };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);

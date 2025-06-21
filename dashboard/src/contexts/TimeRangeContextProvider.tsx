@@ -32,7 +32,7 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
   const [endDate, setEndDate] = React.useState<Date>(initialRangeDetails.endDate);
 
   const [granularity, setGranularity] = React.useState<GranularityRangeValues>('day');
-  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(false);
+  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(true);
   const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(undefined);
   const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(undefined);
 

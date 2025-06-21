@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { TIME_RANGE_PRESETS, TimeRangeValue, getDateRangeForTimePresets } from '@/utils/timeRanges';
 import {
@@ -8,7 +9,6 @@ import {
   GRANULARITY_RANGE_PRESETS,
   GranularityRangeValues,
 } from '@/utils/granularityRanges';
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { format, addDays, differenceInCalendarDays } from 'date-fns';
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,8 +43,8 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
       if (
         presetStart &&
         presetEnd &&
-        startDate.getTime() === presetStart.getTime() &&
-        endDate.getTime() === presetEnd.getTime()
+        differenceInCalendarDays(startDate, presetStart) === 0 &&
+        differenceInCalendarDays(endDate, presetEnd) === 0
       ) {
         return preset.value;
       }
@@ -332,7 +332,7 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
             checked={tempCompare}
             onCheckedChange={(checked) => setTempCompare(checked as boolean)}
           />
-          <Label htmlFor='comparePeriodCheckbox' className='text-sm font-normal text-gray-700'>
+          <Label htmlFor='comparePeriodCheckbox' className='text-sm font-normal'>
             Compare with previous period
           </Label>
         </div>

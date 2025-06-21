@@ -28,7 +28,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, queryFilters } =
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
   const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(
@@ -42,6 +42,8 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     startDate,
     endDate,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
   const trendPromise = fetchReferrerTrafficTrendBySourceDataForSite(
     dashboardId,
@@ -50,7 +52,15 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     granularity,
     queryFilters,
   );
-  const tablePromise = fetchReferrerTableDataForSite(dashboardId, startDate, endDate, queryFilters, 100);
+  const tablePromise = fetchReferrerTableDataForSite(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    100,
+    compareStartDate,
+    compareEndDate,
+  );
 
   return (
     <div className='min-h-screen'>

@@ -3,6 +3,12 @@
 import { useMemo } from 'react';
 import InteractiveChart from '@/components/InteractiveChart';
 import { formatDuration } from '@/utils/dateFormatters';
+import {
+  type fetchSessionMetricsAction,
+  type fetchTotalPageViewsAction,
+  type fetchUniqueVisitorsAction,
+} from '@/app/actions';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -40,9 +46,9 @@ const metricConfigs: Record<ActiveMetric, MetricConfig> = {
 
 type OverviewChartSectionProps = {
   activeMetric: ActiveMetric;
-  visitorsData: any[];
-  pageviewsData: any[];
-  sessionMetricsData: any[];
+  visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>;
+  pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>;
+  sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>;
 };
 
 export default function OverviewChartSection({
@@ -54,27 +60,28 @@ export default function OverviewChartSection({
   const chartData = useMemo(() => {
     switch (activeMetric) {
       case 'visitors':
-        return visitorsData || [];
+        return visitorsData;
       case 'pageviews':
-        return pageviewsData || [];
+        return pageviewsData;
       case 'bounceRate':
-        return sessionMetricsData || [];
+        return sessionMetricsData.bounceRate;
       case 'avgDuration':
-        return sessionMetricsData || [];
+        return sessionMetricsData.avgVisitDuration;
       default:
         return [];
     }
   }, [activeMetric, visitorsData, pageviewsData, sessionMetricsData]);
 
   const currentMetricConfig = useMemo(() => metricConfigs[activeMetric], [activeMetric]);
+  const { granularity } = useTimeRangeContext();
 
   return (
     <InteractiveChart
       title={currentMetricConfig.title}
       data={chartData}
-      valueField={currentMetricConfig.valueField}
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
+      granularity={granularity}
     />
   );
 }
