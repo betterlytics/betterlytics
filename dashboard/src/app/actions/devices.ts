@@ -21,6 +21,7 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
+import { toStackedChart } from '@/presenters/toStackedChart';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -108,7 +109,30 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
-  ): Promise<DeviceUsageTrendRow[]> => {
-    return getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+
+    const compare =
+      compareStartDate &&
+      compareEndDate &&
+      (await getDeviceUsageTrendForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
+
+    return toStackedChart({
+      data,
+      key: 'device_type',
+      dataKey: 'count',
+      granularity,
+      compare,
+      dateRange: {
+        start: startDate,
+        end: endDate,
+      },
+      compareDateRange: {
+        start: compareStartDate,
+        end: compareEndDate,
+      },
+    });
   },
 );
