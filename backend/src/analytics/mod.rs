@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, UNIX_EPOCH};
 use nanoid::nanoid;
 
 mod fingerprint;
@@ -26,34 +25,6 @@ pub struct RawTrackingEvent {
     pub screen_resolution: String,
     /// Timestamp of the event
     pub timestamp: u64,
-}
-
-impl RawTrackingEvent {
-    pub fn new(
-        site_id: String,
-        url: String,
-        referrer: Option<String>,
-        user_agent: String,
-        screen_resolution: String,
-        event_name: String,
-        is_custom_event: bool,
-        properties: String
-    ) -> Self {
-        Self {
-            site_id,
-            url,
-            referrer,
-            user_agent,
-            event_name,
-            is_custom_event,
-            properties,
-            screen_resolution,
-            timestamp: SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
-        }
-    }
 }
 
 /// The main analytics event type that includes server-side data

@@ -58,7 +58,7 @@ async fn main() {
     db.validate_schema().await.expect("Invalid database schema");
     let db = Arc::new(db);
 
-    let (processor, mut processed_rx) = EventProcessor::new(db.clone(), geoip_service);
+    let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
     let db_clone = db.clone();

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "nextra-theme-docs";
+import { getAssetPath } from "@/lib/constants";
 
 interface LogoProps {
   variant?: "simple" | "full" | "icon";
@@ -37,16 +38,16 @@ export default function Logo({
 
   const logoSources = {
     simple: {
-      dark: "/betterlytics-logo-light-simple.svg",
-      light: "/betterlytics-logo-dark-simple.svg",
+      dark: getAssetPath("/betterlytics-logo-light-simple.svg"),
+      light: getAssetPath("/betterlytics-logo-dark-simple.svg"),
     },
     full: {
-      dark: "/logo-light-svg-full.svg",
-      light: "/logo-dark-svg-full.svg",
+      dark: getAssetPath("/logo-light-svg-full.svg"),
+      light: getAssetPath("/logo-dark-svg-full.svg"),
     },
     icon: {
-      dark: "/images/favicon-light.svg",
-      light: "/images/favicon-dark.svg",
+      dark: getAssetPath("/images/favicon-light.svg"),
+      light: getAssetPath("/images/favicon-dark.svg"),
     },
   };
 

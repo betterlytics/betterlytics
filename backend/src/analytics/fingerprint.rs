@@ -1,7 +1,6 @@
 use std::net::IpAddr;
 use chrono::{Utc, Datelike};
 use md5::Digest;
-use regex::Regex;
 use sha2::Sha256;
 
 /// Anonymize IP address by removing last octet
@@ -24,55 +23,39 @@ fn anonymize_ip(ip: &str) -> Option<String> {
     }
 }
 
-/// Bucket screen resolution into small/medium/large
-fn bucket_screen_resolution(resolution: &str) -> String {
-    if let Some((w, _h)) = resolution.split_once('x') {
-        if let Ok(width) = w.trim().parse::<u32>() {
-            match width {
-                0..=767 => "small".to_string(),
-                768..=1023 => "medium".to_string(),
-                _ => "large".to_string(),
-            }
-        } else {
-            "unknown".to_string()
-        }
-    } else {
-        "unknown".to_string()
-    }
-}
-
-/// Extract basic browser name from user agent
-fn extract_browser_name(user_agent: &str) -> String {
-    let browser_regex = Regex::new(r"(?i)(chrome|safari|firefox|edge|opera)").unwrap();
-    if let Some(caps) = browser_regex.captures(user_agent) {
-        caps[1].to_lowercase()
-    } else {
-        "unknown".to_string()
-    }
-}
-
 /// Generate a daily salt based on the current date
 fn generate_daily_salt() -> String {
     let now = Utc::now();
     format!("{}-{}-{}", now.year(), now.month(), now.day())
 }
 
-/// Generate a fingerprint for a visitor based on anonymized IP, screen resolution, user agent, and daily rotating salt
-pub fn generate_fingerprint(ip: &str, screen_resolution: &str, user_agent: &str) -> String {
+/// Uses: anonymized IP + device type + browser family + major version + OS family + daily salt
+pub fn generate_fingerprint(
+    ip: &str, 
+    device_type: Option<&str>,
+    browser: Option<&str>,
+    browser_version: Option<&str>, 
+    os: Option<&str>
+) -> String {
     let anonymized_ip = anonymize_ip(ip).unwrap_or_else(|| "unknown".to_string());
-    let resolution_bucket = bucket_screen_resolution(screen_resolution);
-    let browser_name = extract_browser_name(user_agent);
+    let device_category = device_type.unwrap_or("unknown").to_lowercase();
+    let browser_family = browser.unwrap_or("unknown").to_lowercase();
+    let browser_major_version = browser_version.unwrap_or("unknown").to_string();
+    let os_family = os.unwrap_or("unknown").to_lowercase();
+    
     let daily_salt = generate_daily_salt();
     
     let mut hasher = Sha256::new();
     hasher.update(format!(
-        "{}{}{}{}",
+        "{}:{}:{}:{}:{}:{}",
         anonymized_ip,
-        resolution_bucket,
-        browser_name,
+        device_category,
+        browser_family,
+        browser_major_version,
+        os_family,
         daily_salt
     ));
     
     let result = hasher.finalize();
     format!("{:x}", result)
-} 
+}

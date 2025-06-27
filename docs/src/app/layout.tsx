@@ -6,6 +6,7 @@ import "./globals.css";
 import { Metadata } from "next";
 import Image from "next/image";
 import { Footer } from "./components/footer";
+import { getAssetPath } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Betterlytics Docs",
@@ -13,12 +14,12 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/favicon-dark.svg",
+        url: getAssetPath("/images/favicon-dark.svg"),
         media: "(prefers-color-scheme: light)",
         type: "image/svg+xml",
       },
       {
-        url: "/images/favicon-light.svg",
+        url: getAssetPath("/images/favicon-light.svg"),
         media: "(prefers-color-scheme: dark)",
         type: "image/svg+xml",
       },
@@ -30,7 +31,7 @@ const navbar = (
   <Navbar
     logo={
       <Image
-        src={"/images/favicon-dark.svg"}
+        src={getAssetPath("/images/favicon-dark.svg")}
         alt="Betterlytics"
         width={32}
         height={32}

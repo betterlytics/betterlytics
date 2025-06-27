@@ -2,7 +2,6 @@ use anyhow::Result;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
 use crate::analytics::{AnalyticsEvent, generate_fingerprint};
-use crate::db::SharedDatabase;
 use crate::geoip::GeoIpService;
 use crate::session;
 use crate::bot_detection;
@@ -46,15 +45,14 @@ pub struct ProcessedEvent {
 
 /// Event processor that handles real-time processing
 pub struct EventProcessor {
-    db: SharedDatabase,
     event_tx: mpsc::Sender<ProcessedEvent>,
     geoip_service: GeoIpService,
 }
 
 impl EventProcessor {
-    pub fn new(db: SharedDatabase, geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
+    pub fn new(geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
         let (event_tx, event_rx) = mpsc::channel(100_000);
-        (Self { db, event_tx, geoip_service }, event_rx)
+        (Self { event_tx, geoip_service }, event_rx)
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -111,10 +109,20 @@ impl EventProcessor {
             error!("Failed to get geolocation: {}", e);
         }
 
+        if let Err(e) = self.detect_device_type_from_resolution(&mut processed).await {
+            error!("Failed to detect device type from resolution: {}", e);
+        }
+        
+        if let Err(e) = self.parse_user_agent(&mut processed).await {
+            error!("Failed to parse user agent: {}", e);
+        }
+
         processed.visitor_fingerprint = generate_fingerprint(
             &processed.event.ip_address,
-            &processed.event.raw.screen_resolution,
-            &processed.event.raw.user_agent,
+            processed.device_type.as_deref(),
+            processed.browser.as_deref(),
+            processed.browser_version.as_deref(),
+            processed.os.as_deref(),
         );
 
         let session_id_result = session::get_or_create_session_id(
@@ -132,14 +140,6 @@ impl EventProcessor {
 
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);
-
-        if let Err(e) = self.detect_device_type_from_resolution(&mut processed).await {
-            error!("Failed to detect device type from resolution: {}", e);
-        }
-        
-        if let Err(e) = self.parse_user_agent(&mut processed).await {
-            error!("Failed to parse user agent: {}", e);
-        }
 
         if let Err(e) = self.event_tx.send(processed).await {
             error!("Failed to send processed event: {}", e);
