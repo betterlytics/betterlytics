@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { Plus, Lock } from 'lucide-react';
 import { createDashboardAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
 import { domainValidation } from '@/entities/dashboard';
@@ -94,9 +95,22 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
     </Button>
   );
 
+  const triggerElement = !dashboardStats.canCreateMore ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className='inline-block'>{createButton}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>You've reached your dashboard limit. Upgrade your plan to create more dashboards.</p>
+      </TooltipContent>
+    </Tooltip>
+  ) : (
+    createButton
+  );
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{createButton}</DialogTrigger>
+      <DialogTrigger asChild>{triggerElement}</DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
           <DialogTitle>Create New Dashboard</DialogTitle>
