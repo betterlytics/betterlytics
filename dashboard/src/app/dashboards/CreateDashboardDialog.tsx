@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useTransition, useMemo, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
@@ -14,16 +14,22 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
-import { createDashboardAction } from '@/app/actions/dashboard';
+import { Plus, Lock } from 'lucide-react';
+import { createDashboardAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
 import { domainValidation } from '@/entities/dashboard';
 
-export function CreateDashboardDialog() {
+interface CreateDashboardDialogProps {
+  dashboardStatsPromise: ReturnType<typeof getUserDashboardStatsAction>;
+}
+
+export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboardDialogProps) {
   const [open, setOpen] = useState(false);
   const [domain, setDomain] = useState<string>('');
   const [validationError, setValidationError] = useState<string>('');
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  const dashboardStats = use(dashboardStatsPromise);
 
   const isFormValid = useMemo(() => {
     if (!domain.trim()) return false;
@@ -57,7 +63,6 @@ export function CreateDashboardDialog() {
 
         router.push(`/dashboard/${newDashboard.id}?showIntegration=true`);
       } catch (err) {
-        console.error(err);
         toast.error('Failed to create dashboard.');
       }
     });
@@ -73,14 +78,25 @@ export function CreateDashboardDialog() {
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant='outline' className='gap-2'>
+  const createButton = (
+    <Button variant='outline' className='gap-2' disabled={!dashboardStats.canCreateMore}>
+      {dashboardStats.canCreateMore ? (
+        <>
           <Plus className='h-4 w-4' />
           Create Dashboard
-        </Button>
-      </DialogTrigger>
+        </>
+      ) : (
+        <>
+          <Lock className='h-4 w-4' />
+          Create Dashboard
+        </>
+      )}
+    </Button>
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{createButton}</DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
           <DialogTitle>Create New Dashboard</DialogTitle>

@@ -184,7 +184,7 @@ export const EVENT_RANGES = [
 ] as const;
 
 export type EventRange = (typeof EVENT_RANGES)[number];
-export type TierName = 'growth' | 'professional';
+export type TierName = 'growth' | 'professional' | 'enterprise';
 
 export function getTierConfigFromLookupKey(lookupKey: string): { tier: TierName; eventLimit: number } {
   for (const range of EVENT_RANGES) {
@@ -197,4 +197,14 @@ export function getTierConfigFromLookupKey(lookupKey: string): { tier: TierName;
   }
 
   throw new Error(`Unknown price lookup key: ${lookupKey}`);
+}
+
+export const DASHBOARD_LIMITS = {
+  growth: 1,
+  professional: 50,
+  enterprise: 9999,
+} as const;
+
+export function getDashboardLimitForTier(tier: TierName): number {
+  return DASHBOARD_LIMITS[tier];
 }

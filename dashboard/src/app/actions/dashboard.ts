@@ -2,7 +2,7 @@
 
 import { Dashboard } from '@/entities/dashboard';
 import { withUserAuth, withDashboardAuthContext } from '@/auth/auth-actions';
-import { createNewDashboard, getAllUserDashboards } from '@/services/dashboard';
+import { createNewDashboard, getAllUserDashboards, getUserDashboardStats } from '@/services/dashboard';
 import { findFirstUserDashboard, findDashboardById } from '@/repositories/postgres/dashboard';
 import { User } from 'next-auth';
 import { AuthContext } from '@/entities/authContext';
@@ -21,4 +21,8 @@ export const getAllUserDashboardsAction = withUserAuth(async (user: User): Promi
 
 export const getCurrentDashboardAction = withDashboardAuthContext(async (ctx: AuthContext): Promise<Dashboard> => {
   return findDashboardById(ctx.dashboardId);
+});
+
+export const getUserDashboardStatsAction = withUserAuth(async (user: User) => {
+  return getUserDashboardStats(user.id);
 });
