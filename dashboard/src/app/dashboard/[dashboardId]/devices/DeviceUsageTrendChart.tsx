@@ -15,7 +15,7 @@ import { getDeviceColor } from '@/utils/deviceColors';
 import { DeviceIcon } from '@/components/icons';
 import { format } from 'date-fns';
 import { capitalizeFirstLetter } from '@/utils/formatters';
-import { ChartTooltip } from '@/components/charts/ChartTooltip';
+import { sortByDate } from '@/utils/dateHelpers';
 
 interface DeviceUsageTrendChartProps {
   data?: DeviceUsageTrendRow[];
@@ -105,7 +105,7 @@ const prepareChartData = (
     }
   });
 
-  return Object.values(dataByDate).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  return sortByDate(Object.values(dataByDate) as Array<{ date: string } & Record<string, number>>);
 };
 
 export default function DeviceUsageTrendChart({ data }: DeviceUsageTrendChartProps) {

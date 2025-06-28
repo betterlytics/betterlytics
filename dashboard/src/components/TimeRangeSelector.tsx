@@ -31,6 +31,7 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
     compareStartDate,
     compareEndDate,
     setCompareDateRange,
+    userTimezone,
   } = useTimeRangeContext();
 
   const currentActivePreset = useMemo<TimeRangeValue>(() => {
@@ -39,7 +40,10 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
     }
     for (const preset of TIME_RANGE_PRESETS) {
       if (preset.value === 'custom') continue;
-      const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(preset.value);
+      const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(
+        preset.value,
+        userTimezone,
+      );
       if (
         presetStart &&
         presetEnd &&
@@ -50,7 +54,7 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
       }
     }
     return 'custom';
-  }, [startDate, endDate]);
+  }, [startDate, endDate, userTimezone]);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isStartDatePopoverOpen, setIsStartDatePopoverOpen] = useState(false);
@@ -71,7 +75,10 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
     if (!isPopoverOpen) {
       setTempRange(currentActivePreset);
       if (currentActivePreset !== 'custom') {
-        const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(currentActivePreset);
+        const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(
+          currentActivePreset,
+          userTimezone,
+        );
         setTempCustomStart(presetStart);
         setTempCustomEnd(presetEnd);
       } else {
@@ -79,24 +86,24 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
         setTempCustomEnd(endDate);
       }
     }
-  }, [currentActivePreset, isPopoverOpen, startDate, endDate]);
+  }, [currentActivePreset, isPopoverOpen, startDate, endDate, userTimezone]);
 
   const tempMainPeriodDurationDays = useMemo(() => {
     if (tempRange === 'custom' && tempCustomStart && tempCustomEnd) {
       return differenceInCalendarDays(tempCustomEnd, tempCustomStart) + 1;
     }
     if (tempRange !== 'custom') {
-      const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(tempRange);
+      const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(tempRange, userTimezone);
       if (presetStart && presetEnd) {
         return differenceInCalendarDays(presetEnd, presetStart) + 1;
       }
     }
     return null;
-  }, [tempRange, tempCustomStart, tempCustomEnd]);
+  }, [tempRange, tempCustomStart, tempCustomEnd, userTimezone]);
 
   const allowedGranularities = useMemo((): GranularityRangeValues[] => {
     if (tempRange !== 'custom') {
-      const { startDate, endDate } = getDateRangeForTimePresets(tempRange);
+      const { startDate, endDate } = getDateRangeForTimePresets(tempRange, userTimezone);
       return getAllowedGranularities(startDate, endDate);
     }
 
@@ -105,7 +112,7 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
     }
 
     return ['day']; // Should never happen
-  }, [tempRange, tempCustomStart, tempCustomEnd]);
+  }, [tempRange, tempCustomStart, tempCustomEnd, userTimezone]);
 
   const isGranularityAllowed = useCallback(
     (granularity: GranularityRangeValues) => {
@@ -146,7 +153,7 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
     if (tempRange === 'custom' && tempCustomStart && tempCustomEnd) {
       setPeriod(tempCustomStart, tempCustomEnd);
     } else if (tempRange !== 'custom') {
-      const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(tempRange);
+      const { startDate: presetStart, endDate: presetEnd } = getDateRangeForTimePresets(tempRange, userTimezone);
       if (presetStart && presetEnd) {
         setPeriod(presetStart, presetEnd);
       }
@@ -160,7 +167,10 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
   const handleQuickSelect = (value: TimeRangeValue) => {
     setTempRange(value);
     if (value !== 'custom') {
-      const { startDate: presetStartDate, endDate: presetEndDate } = getDateRangeForTimePresets(value);
+      const { startDate: presetStartDate, endDate: presetEndDate } = getDateRangeForTimePresets(
+        value,
+        userTimezone,
+      );
       setTempCustomStart(presetStartDate);
       setTempCustomEnd(presetEndDate);
     }

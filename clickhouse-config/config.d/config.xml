@@ -35,6 +35,8 @@
     </default>
   </profile>
   
+  <timezone>UTC</timezone>
+
   <!-- User settings -->
   <user_directories>
     <local_directory>

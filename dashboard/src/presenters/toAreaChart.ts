@@ -1,5 +1,6 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { getDateKey } from '@/utils/dateHelpers';
 
 const IntervalFunctions = {
   day: utcDay,
@@ -25,11 +26,43 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
   };
 };
 
+function normalizeIterationRange(dateRange: { start: Date; end: Date }, granularity: GranularityRangeValues) {
+  if (granularity === 'day') {
+    const startUTC = new Date(
+      Date.UTC(
+        dateRange.start.getUTCFullYear(),
+        dateRange.start.getUTCMonth(),
+        dateRange.start.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
+
+    const endUTC = new Date(
+      Date.UTC(
+        dateRange.end.getUTCFullYear(),
+        dateRange.end.getUTCMonth(),
+        dateRange.end.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
+
+    return { start: startUTC, end: endUTC };
+  }
+
+  return dateRange;
+}
+
 function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRange }: ToAreaChartProps<K>) {
   // Map date to value
   const groupedData = data.reduce(
     (group, row) => {
-      const key = new Date(row.date).valueOf().toString();
+      const key = getDateKey(row.date);
       return { ...group, [key]: row[dataKey] };
     },
     {} as Record<string, number>,
@@ -37,15 +70,22 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
 
   const chartData = [];
 
+  // Normalize iteration range to match ClickHouse aggregation
+  const iterationRange = normalizeIterationRange(dateRange, granularity);
+
   // Find the time interval of input based on specified granularity
   const intervalFunc = IntervalFunctions[granularity];
-  // Iterate through each potential time frame
-  for (let time = dateRange.start; time <= dateRange.end; time = intervalFunc.offset(time, 1)) {
+
+  let iterationCount = 0;
+  for (let time = iterationRange.start; time <= iterationRange.end; time = intervalFunc.offset(time, 1)) {
+    iterationCount++;
     const key = time.valueOf().toString();
+    const value = groupedData[key] ?? 0;
+
     // Add entry - either with data from group or default value of 0
     chartData.push({
       date: +key,
-      value: [groupedData[key] ?? 0],
+      value: [value],
     });
   }
 

@@ -15,6 +15,7 @@ import { getReferrerColor } from '@/utils/referrerColors';
 import { useMemo } from 'react';
 import { format } from 'date-fns';
 import ReferrerLegend from './ReferrerLegend';
+import { sortByDate } from '@/utils/dateHelpers';
 
 interface ReferrerTrafficTrendChartProps {
   data?: ReferrerTrafficBySourceRow[];
@@ -92,7 +93,7 @@ const prepareChartData = (
     }
   });
 
-  return Object.values(dataByDate).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  return sortByDate(Object.values(dataByDate) as Array<{ date: string } & Record<string, number>>);
 };
 
 export default function ReferrerTrafficTrendChart({ data }: ReferrerTrafficTrendChartProps) {
