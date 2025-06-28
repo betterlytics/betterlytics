@@ -42,7 +42,9 @@ const navbar = (
     projectLink="https://github.com/betterlytics/betterlytics"
     chatLink="https://discord.gg/vwqSvPn6sP"
   >
-    <a href="https://betterlytics.io">To Dashboard</a>
+    <a href="https://betterlytics.io/dashboards" title="To Dashboard">
+      To Dashboard
+    </a>
   </Navbar>
 );
 
