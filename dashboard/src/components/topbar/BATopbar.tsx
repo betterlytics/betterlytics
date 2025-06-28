@@ -88,10 +88,10 @@ export default function BATopbar() {
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem asChild className='cursor-pointer'>
-                      <Link href='/docs'>
+                      <a href='/docs' title='Complete Betterlytics Documentation'>
                         <ExternalLink className='mr-2 h-4 w-4' />
                         <span>Documentation</span>
-                      </Link>
+                      </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
                       <LogOut className='mr-2 h-4 w-4' />

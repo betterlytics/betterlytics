@@ -43,9 +43,13 @@ export function Footer() {
             <h3 className='mb-4 font-semibold'>Resources</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
               <li>
-                <Link href='/docs' className='hover:text-foreground transition-colors'>
+                <a
+                  href='/docs'
+                  title='Complete Betterlytics Documentation'
+                  className='hover:text-foreground transition-colors'
+                >
                   Documentation
-                </Link>
+                </a>
               </li>
               <li>
                 <Link href='#pricing' className='hover:text-foreground transition-colors'>

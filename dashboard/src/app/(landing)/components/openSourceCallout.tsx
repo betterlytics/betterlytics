@@ -23,7 +23,9 @@ export function OpenSourceCallout() {
               </a>
             </Button>
             <Button size='lg' variant='outline' asChild>
-              <Link href='/docs'>View Documentation</Link>
+              <a href='/docs' title='Complete Betterlytics Documentation'>
+                View Documentation
+              </a>
             </Button>
           </div>
         </div>

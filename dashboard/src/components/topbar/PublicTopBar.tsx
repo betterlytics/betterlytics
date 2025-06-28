@@ -39,12 +39,13 @@ export default function PublicTopBar() {
           </div>
 
           <nav className='hidden items-center space-x-6 md:flex'>
-            <Link
+            <a
               href='/docs'
+              title='Complete Betterlytics Documentation'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
               Documentation
-            </Link>
+            </a>
             <Link
               href='#pricing'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
@@ -88,13 +89,14 @@ export default function PublicTopBar() {
               >
                 Pricing
               </Link>
-              <Link
+              <a
                 href='/docs'
                 onClick={closeMobileMenu}
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                title='Complete Betterlytics Documentation'
               >
                 Documentation
-              </Link>
+              </a>
 
               <div className='border-t pt-3'>
                 {session ? (

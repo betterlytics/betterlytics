@@ -62,7 +62,9 @@ export function IntegrationSection() {
 
         <div className='mt-12 text-center'>
           <Button size='lg' className='mb-4' asChild>
-            <Link href='/docs'>View Integration Guide</Link>
+            <a href='/docs' title='Betterlytics Integration Guide'>
+              View Integration Guide
+            </a>
           </Button>
           <p className='text-muted-foreground text-sm'>
             Detailed installation instructions for all platforms and frameworks

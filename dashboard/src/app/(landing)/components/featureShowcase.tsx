@@ -36,7 +36,9 @@ export function FeatureShowcase() {
 
         <div className='mt-8 flex justify-center'>
           <Button variant='outline' size='lg'>
-            <Link href='/docs'>Explore All Features</Link>
+            <a href='/docs' title='Complete Betterlytics Documentation'>
+              Explore All Features
+            </a>
             <ChevronRight className='ml-2 h-4 w-4' />
           </Button>
         </div>

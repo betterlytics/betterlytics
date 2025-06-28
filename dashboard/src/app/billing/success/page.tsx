@@ -57,9 +57,13 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                 <li>Your increased event limits are effective immediately</li>
                 <li>Access your billing details in User Settings</li>
                 <li>
-                  <Link href='/docs' className='text-primary font-medium hover:underline'>
+                  <a
+                    href='/docs'
+                    title='Complete Betterlytics Documentation'
+                    className='text-primary font-medium hover:underline'
+                  >
                     Check out our documentation
-                  </Link>{' '}
+                  </a>{' '}
                   to get the most out of Betterlytics
                 </li>
               </ul>

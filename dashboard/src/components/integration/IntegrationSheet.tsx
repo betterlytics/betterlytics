@@ -323,24 +323,24 @@ export default App;
                       </CardDescription>
                     </CardHeader>
                     <CardContent className='space-y-2'>
-                      <Link
+                      <a
                         href='/docs'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> Documentation
-                      </Link>
-                      <Link
+                      </a>
+                      <a
                         href='/docs/troubleshooting'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> Troubleshooting
-                      </Link>
-                      <Link
+                      </a>
+                      <a
                         href='/contact'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> Contact Support
-                      </Link>
+                      </a>
                     </CardContent>
                   </Card>
                 </div>

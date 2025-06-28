@@ -56,12 +56,13 @@ export function Footer() {
             <h3 className="mb-4 font-semibold">Resources</h3>
             <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
-                <Link
+                <a
                   href="/docs"
                   className="hover:text-foreground transition-colors"
+                  title="Complete Betterlytics Documentation"
                 >
                   Documentation
-                </Link>
+                </a>
               </li>
               <li>
                 <Link
