@@ -50,7 +50,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
   const allDashboardsPromise = getAllUserDashboardsAction();
 
   return (
-    <Sidebar variant='floating' collapsible='icon' className='top-14 !z-1100 h-[calc(100vh-3.5rem)]'>
+    <Sidebar variant='sidebar' collapsible='icon' className='top-14 !z-1100 h-[calc(100vh-3.5rem)] border-t'>
       <SidebarHeader className='bg-background rounded-t-xl pt-2'></SidebarHeader>
       <SidebarContent className='bg-background !z-1100 overflow-x-hidden pl-1'>
         <SidebarGroup className='z-600'>

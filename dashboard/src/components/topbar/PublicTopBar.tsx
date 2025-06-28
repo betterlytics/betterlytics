@@ -30,7 +30,7 @@ export default function PublicTopBar() {
 
   return (
     <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
-      <div className='container px-4'>
+      <div className='mx-auto max-w-7xl px-8'>
         <div className='flex h-14 items-center justify-between'>
           <div className='flex items-center space-x-2'>
             <Link href='/' className='flex items-center space-x-2' onClick={closeMobileMenu}>
