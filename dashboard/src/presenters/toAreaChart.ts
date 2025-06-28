@@ -28,29 +28,8 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
 
 function normalizeIterationRange(dateRange: { start: Date; end: Date }, granularity: GranularityRangeValues) {
   if (granularity === 'day') {
-    const startUTC = new Date(
-      Date.UTC(
-        dateRange.start.getUTCFullYear(),
-        dateRange.start.getUTCMonth(),
-        dateRange.start.getUTCDate(),
-        0,
-        0,
-        0,
-        0,
-      ),
-    );
-
-    const endUTC = new Date(
-      Date.UTC(
-        dateRange.end.getUTCFullYear(),
-        dateRange.end.getUTCMonth(),
-        dateRange.end.getUTCDate(),
-        0,
-        0,
-        0,
-        0,
-      ),
-    );
+    const startUTC = utcDay(dateRange.start);
+    const endUTC = utcDay(dateRange.end);
 
     return { start: startUTC, end: endUTC };
   }
@@ -76,9 +55,7 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
   // Find the time interval of input based on specified granularity
   const intervalFunc = IntervalFunctions[granularity];
 
-  let iterationCount = 0;
   for (let time = iterationRange.start; time <= iterationRange.end; time = intervalFunc.offset(time, 1)) {
-    iterationCount++;
     const key = time.valueOf().toString();
     const value = groupedData[key] ?? 0;
 
