@@ -45,7 +45,7 @@ export function PricingComponent({
 
   return (
     <div className={className}>
-      <div className='mx-1 mb-8 grid grid-cols-5 items-end justify-center gap-6'>
+      <div className='mb-8 grid grid-cols-5 items-end justify-center gap-6'>
         <div className='col-span-5 col-start-1 lg:col-span-3 lg:col-start-2'>
           <PricingSlider
             currentRange={currentRange}
