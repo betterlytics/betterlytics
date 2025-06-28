@@ -8,7 +8,6 @@ type FunnelExplanationProps = {
   color: 'blue' | 'green' | 'purple';
 };
 function FunnelExplanation({ title, description, color }: FunnelExplanationProps) {
-  console.log(color && `bg-${color}-500/20`);
   return (
     <div className='flex items-start gap-3'>
       <div
