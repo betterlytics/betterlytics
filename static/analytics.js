@@ -59,8 +59,18 @@
     });
   }
 
+  var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
+
+  window.betterlytics = (eventName, eventProps = {}) =>
+    trackEvent(eventName, true, eventProps);
+
+  // DEPRECATED: Remains temporarily for backwards compatibility
   window.baEvent = (eventName, eventProps = {}) =>
     trackEvent(eventName, true, eventProps);
+
+  for (var i = 0; i < queuedEvents.length; i++) {
+    window.betterlytics.apply(this, queuedEvents[i]);
+  }
 
   // Track initial page view
   trackEvent("pageview");
