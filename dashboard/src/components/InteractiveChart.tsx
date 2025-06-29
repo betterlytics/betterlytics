@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { timeFormat } from 'd3-time-format';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { formatDateInUserTimezone, type UTCDate } from '@/utils/timezoneHelpers';
 
 interface ChartDataPoint {
   date: string | number;
@@ -16,12 +17,22 @@ interface InteractiveChartProps {
   color: string;
   formatValue?: (value: number) => string;
   granularity?: GranularityRangeValues;
+  userTimezone?: string;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
-  ({ title, data, color, formatValue, granularity }) => {
-    const timeFormatter =
-      granularity === undefined || granularity === 'day' ? timeFormat('%b %d') : timeFormat('%b %d - %H:%M');
+  ({ title, data, color, formatValue, granularity, userTimezone = 'UTC' }) => {
+    // Create timezone-aware formatters
+    const createTimezoneFormatter = (format: string) => (timestamp: any) => {
+      const date = new Date(Number(timestamp)) as UTCDate;
+      return formatDateInUserTimezone(date, userTimezone, (d) => timeFormat(format)(d));
+    };
+
+    const timeFormatter = granularity === undefined || granularity === 'day' 
+      ? createTimezoneFormatter('%b %d')
+      : createTimezoneFormatter('%b %d - %H:%M');
+    
+    const axisFormatter = createTimezoneFormatter('%b %d');
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -45,7 +56,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   tickLine={false}
                   axisLine={false}
                   className='text-muted-foreground'
-                  tickFormatter={timeFormat('%b %d')}
+                  tickFormatter={axisFormatter}
                   minTickGap={100}
                 />
                 <YAxis

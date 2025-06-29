@@ -1,19 +1,20 @@
 import { subDays } from 'date-fns';
 import { QueryFilter } from '@/entities/filter';
 import { GranularityRangeValues, getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
+import { UTCDate } from './timezoneHelpers';
 
 type Filters = {
   queryFilters: (QueryFilter & { id: string })[];
-  startDate: Date;
-  endDate: Date;
+  startDate: UTCDate;
+  endDate: UTCDate;
   granularity: GranularityRangeValues;
   userJourney: {
     numberOfSteps: number;
     numberOfJourneys: number;
   };
   compareEnabled?: boolean;
-  compareStartDate?: Date;
-  compareEndDate?: Date;
+  compareStartDate?: UTCDate;
+  compareEndDate?: UTCDate;
 };
 
 function getDefaultFilters(): Filters {
@@ -22,16 +23,16 @@ function getDefaultFilters(): Filters {
   const oneFortnightAgo = subDays(oneWeekAgo, 7);
   return {
     queryFilters: [],
-    startDate: new Date(oneWeekAgo),
-    endDate: new Date(now),
+    startDate: new Date(oneWeekAgo) as UTCDate,
+    endDate: new Date(now) as UTCDate,
     granularity: 'day',
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
     compareEnabled: true,
-    compareStartDate: new Date(oneFortnightAgo),
-    compareEndDate: new Date(oneWeekAgo),
+    compareStartDate: new Date(oneFortnightAgo) as UTCDate,
+    compareEndDate: new Date(oneWeekAgo) as UTCDate,
   };
 }
 
@@ -48,8 +49,8 @@ function decode(base64: string): Filters {
     ...decoded,
   };
 
-  const startDate = new Date(withDefaults.startDate);
-  const endDate = new Date(withDefaults.endDate);
+  const startDate = new Date(withDefaults.startDate) as UTCDate;
+  const endDate = new Date(withDefaults.endDate) as UTCDate;
 
   if (!withDefaults.compareEnabled) {
     withDefaults.compareStartDate = undefined;
@@ -63,8 +64,10 @@ function decode(base64: string): Filters {
     ...withDefaults,
     startDate,
     endDate,
-    compareStartDate: withDefaults.compareStartDate ? new Date(withDefaults.compareStartDate) : undefined,
-    compareEndDate: withDefaults.compareEndDate ? new Date(withDefaults.compareEndDate) : undefined,
+    compareStartDate: withDefaults.compareStartDate
+      ? (new Date(withDefaults.compareStartDate) as UTCDate)
+      : undefined,
+    compareEndDate: withDefaults.compareEndDate ? (new Date(withDefaults.compareEndDate) as UTCDate) : undefined,
     granularity: validGranularity,
   };
 }

@@ -1,0 +1,54 @@
+'use client';
+
+import React from 'react';
+import { DatePicker } from './DatePicker';
+
+interface DateRangeSectionProps {
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+  onStartDateSelect: (date: Date | undefined) => void;
+  onEndDateSelect: (date: Date | undefined) => void;
+  userTimezone?: string;
+}
+
+export function DateRangeSection({ 
+  startDate, 
+  endDate, 
+  onStartDateSelect, 
+  onEndDateSelect,
+  userTimezone
+}: DateRangeSectionProps) {
+  return (
+    <div>
+      <h3 className='mb-2 text-sm font-medium text-gray-500'>Current period</h3>
+      <div className='grid grid-cols-2 gap-4'>
+        <DatePicker
+          label='Start date'
+          date={startDate}
+          onDateSelect={onStartDateSelect}
+          disabled={(date) => {
+            if (endDate && date > endDate) {
+              return true;
+            }
+            return date > new Date();
+          }}
+          id='startDateInput'
+          userTimezone={userTimezone}
+        />
+        <DatePicker
+          label='End date'
+          date={endDate}
+          onDateSelect={onEndDateSelect}
+          disabled={(date) => {
+            if (startDate && date < startDate) {
+              return true;
+            }
+            return date > new Date();
+          }}
+          id='endDateInput'
+          userTimezone={userTimezone}
+        />
+      </div>
+    </div>
+  );
+}

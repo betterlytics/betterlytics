@@ -21,6 +21,7 @@ import {
 } from '@/app/actions';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
+import { getUserSettingsAction } from '@/app/actions/userSettings';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { NoDataBanner } from '@/app/dashboard/[dashboardId]/NoDataBanner';
 
@@ -39,6 +40,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
+  const userSettings = await getUserSettingsAction();
+  const userTimezone = userSettings.timezone || 'UTC';
+
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
     dashboardId,
     startDate,
@@ -56,6 +60,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
+      userTimezone,
       compareStartDate,
       compareEndDate,
     ),
@@ -65,6 +70,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
+      userTimezone,
       compareStartDate,
       compareEndDate,
     ),
@@ -74,6 +80,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
+      userTimezone,
       compareStartDate,
       compareEndDate,
     ),

@@ -37,7 +37,7 @@ export async function getTotalPageViews(
 
   const query = safeSql`
     SELECT
-      ${granularityFunc}(timestamp) as date,
+      ${granularityFunc('timestamp', startDate)} as date,
       count() as views
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -71,7 +71,7 @@ export async function getPageViews(
 
   const query = safeSql`
     SELECT
-      ${granularityFunc}(timestamp) as date,
+      ${granularityFunc('timestamp', startDate)} as date,
       url,
       count() as views
     FROM analytics.events
@@ -321,7 +321,7 @@ export async function getPageTrafficTimeSeries(
 
   const query = safeSql`
     SELECT
-      ${granularityFunc}(timestamp) as date,
+      ${granularityFunc('timestamp', startDate)} as date,
       count() as views
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -680,7 +680,7 @@ export async function getDailyAverageTimeOnPage(
           session_id,
           url,
           timestamp,
-          ${granularityFunc}(timestamp) as date,
+          ${granularityFunc('timestamp', startDate)} as date,
           leadInFrame(timestamp) OVER (
               PARTITION BY site_id, session_id 
               ORDER BY timestamp 
@@ -736,7 +736,7 @@ export async function getDailyBounceRate(
         SELECT 
           session_id,
           timestamp,
-          ${granularityFunc}(timestamp) as event_date
+          ${granularityFunc('timestamp', startDate)} as event_date
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview' 

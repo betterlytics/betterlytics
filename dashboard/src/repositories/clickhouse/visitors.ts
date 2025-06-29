@@ -19,7 +19,7 @@ export async function getUniqueVisitors(
 
   const query = safeSql`
     SELECT
-      ${granularityFunc}(timestamp) as date,
+      ${granularityFunc('timestamp', startDate)} as date,
       uniq(session_id) as unique_visitors
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -86,7 +86,7 @@ export async function getSessionMetrics(
     WITH session_data AS (
       SELECT
         session_id,
-        ${granularityFunc}(timestamp) as date,
+        ${granularityFunc('timestamp', startDate)} as date,
         count() as page_count,
         if(count() > 1,
           dateDiff('second', min(timestamp), max(timestamp)),

@@ -9,6 +9,7 @@ import {
   type fetchUniqueVisitorsAction,
 } from '@/app/actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useUserTimezone } from '@/hooks/use-user-timezone';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -74,6 +75,7 @@ export default function OverviewChartSection({
 
   const currentMetricConfig = useMemo(() => metricConfigs[activeMetric], [activeMetric]);
   const { granularity } = useTimeRangeContext();
+  const userTimezone = useUserTimezone();
 
   return (
     <InteractiveChart
@@ -82,6 +84,7 @@ export default function OverviewChartSection({
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
       granularity={granularity}
+      userTimezone={userTimezone}
     />
   );
 }

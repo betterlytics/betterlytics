@@ -1,5 +1,5 @@
 import { subDays, subMonths } from 'date-fns';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { createTimezoneHelper, UTCDate } from './timezoneHelpers';
 
 export type TimeRangeValue = '24h' | '7d' | '28d' | '3mo' | 'custom';
 export type TimeGrouping = 'minute' | 'hour' | 'day';
@@ -7,19 +7,7 @@ export type TimeGrouping = 'minute' | 'hour' | 'day';
 export interface TimeRangePreset {
   label: string;
   value: TimeRangeValue;
-  getRange: (userTimezone?: string) => { startDate: Date; endDate: Date };
-}
-
-function startOfDayInTimezone(date: Date, timezone: string): Date {
-  const zonedDate = toZonedTime(date, timezone);
-  const startOfDay = new Date(zonedDate.getFullYear(), zonedDate.getMonth(), zonedDate.getDate(), 0, 0, 0, 0);
-  return fromZonedTime(startOfDay, timezone);
-}
-
-function endOfDayInTimezone(date: Date, timezone: string): Date {
-  const zonedDate = toZonedTime(date, timezone);
-  const endOfDay = new Date(zonedDate.getFullYear(), zonedDate.getMonth(), zonedDate.getDate(), 23, 59, 59, 999);
-  return fromZonedTime(endOfDay, timezone);
+  getRange: (userTimezone?: string) => { startDate: UTCDate; endDate: UTCDate };
 }
 
 export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
@@ -27,19 +15,19 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Last 24 hours',
     value: '24h',
     getRange: (userTimezone = 'UTC') => {
-      const now = new Date();
-      const end = endOfDayInTimezone(now, userTimezone);
-      const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-      return { startDate: start, endDate: end };
+      const now = new Date() as UTCDate;
+      const start = new Date(now.getTime() - 24 * 60 * 60 * 1000) as UTCDate;
+      return { startDate: start, endDate: now };
     },
   },
   {
     label: 'Last 7 days',
     value: '7d',
     getRange: (userTimezone = 'UTC') => {
-      const now = new Date();
-      const end = endOfDayInTimezone(now, userTimezone);
-      const start = startOfDayInTimezone(subDays(now, 6), userTimezone);
+      const helper = createTimezoneHelper(userTimezone);
+      const yesterday = subDays(new Date(), 1) as UTCDate;
+      const end = helper.endOfDayInUserTimezone(yesterday);
+      const start = helper.startOfDayInUserTimezone(subDays(yesterday, 6));
       return { startDate: start, endDate: end };
     },
   },
@@ -47,9 +35,10 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Last 28 days',
     value: '28d',
     getRange: (userTimezone = 'UTC') => {
-      const now = new Date();
-      const end = endOfDayInTimezone(now, userTimezone);
-      const start = startOfDayInTimezone(subDays(now, 27), userTimezone);
+      const helper = createTimezoneHelper(userTimezone);
+      const yesterday = subDays(new Date(), 1) as UTCDate;
+      const end = helper.endOfDayInUserTimezone(yesterday);
+      const start = helper.startOfDayInUserTimezone(subDays(yesterday, 27));
       return { startDate: start, endDate: end };
     },
   },
@@ -57,9 +46,10 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Last 3 months',
     value: '3mo',
     getRange: (userTimezone = 'UTC') => {
-      const now = new Date();
-      const end = endOfDayInTimezone(now, userTimezone);
-      const start = startOfDayInTimezone(subMonths(now, 3), userTimezone);
+      const helper = createTimezoneHelper(userTimezone);
+      const yesterday = subDays(new Date(), 1) as UTCDate;
+      const end = helper.endOfDayInUserTimezone(yesterday);
+      const start = helper.startOfDayInUserTimezone(subMonths(yesterday, 3));
       return { startDate: start, endDate: end };
     },
   },
@@ -69,8 +59,8 @@ export function getDateRangeForTimePresets(
   value: Omit<TimeRangeValue, 'custom'>,
   userTimezone?: string,
 ): {
-  startDate: Date;
-  endDate: Date;
+  startDate: UTCDate;
+  endDate: UTCDate;
 } {
   const preset = TIME_RANGE_PRESETS.find((p) => p.value === value);
   if (!preset) {
@@ -85,5 +75,3 @@ export function getGroupingForRange(startDate: Date, endDate: Date): TimeGroupin
   if (diff <= 24 * 60 * 60 * 1000) return 'hour';
   return 'day';
 }
-
-export { startOfDayInTimezone, endOfDayInTimezone };
