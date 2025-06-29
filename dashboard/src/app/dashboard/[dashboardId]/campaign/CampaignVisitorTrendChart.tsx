@@ -1,21 +1,27 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { PivotedCampaignVisitorTrendItem } from '@/entities/campaign';
+import React from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { getCampaignSourceColor } from '@/utils/campaignColors';
+import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
+import { type ComparisonMapping } from '@/types/charts';
+import { type GranularityRangeValues } from '@/utils/granularityRanges';
+import { format } from 'date-fns';
 
 interface CampaignVisitorTrendChartProps {
-  data: PivotedCampaignVisitorTrendItem[];
+  chartData: Array<{ date: number } & Record<string, number>>;
+  categories: string[];
+  comparisonMap?: ComparisonMapping[];
+  granularity?: GranularityRangeValues;
 }
 
-export default function CampaignVisitorTrendChart({ data }: CampaignVisitorTrendChartProps) {
-  const campaignKeys = useMemo(() => {
-    if (!data || data.length === 0) return [];
-    return Object.keys(data[0].campaignValues || {});
-  }, [data]);
-
-  if (!data || data.length === 0 || campaignKeys.length === 0) {
+export default function CampaignVisitorTrendChart({
+  chartData,
+  categories,
+  comparisonMap,
+  granularity,
+}: CampaignVisitorTrendChartProps) {
+  if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='bg-card border-border flex min-h-[350px] items-center justify-center rounded-lg border p-6 shadow'>
         <p className='text-muted-foreground'>No campaign visitor trend data available.</p>
@@ -29,24 +35,34 @@ export default function CampaignVisitorTrendChart({ data }: CampaignVisitorTrend
       <p className='text-muted-foreground mb-4 text-sm'>Visitor trends over time by campaign</p>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
-          <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray='3 3' />
-            <XAxis dataKey='date' tick={{ fontSize: 12 }} />
+            <XAxis
+              dataKey='date'
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 12 }}
+              tickMargin={10}
+              tickFormatter={(value) => format(new Date(value), 'MMM dd')}
+            />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip
-              contentStyle={{
-                fontSize: 12,
-                borderRadius: '4px',
-                backgroundColor: 'var(--background)',
-                borderColor: 'var(--border)',
-              }}
-              formatter={(value: number, name: string) => [value.toLocaleString(), name]}
+              content={(props) => (
+                <StackedAreaChartTooltip
+                  active={props.active}
+                  payload={props.payload}
+                  label={props.label}
+                  comparisonMap={comparisonMap}
+                  granularity={granularity}
+                  formatter={(value: number) => `${value.toLocaleString()} visitors`}
+                />
+              )}
             />
-            {campaignKeys.map((campaignName) => (
+            {categories.map((campaignName) => (
               <Area
                 key={campaignName}
                 type='monotone'
-                dataKey={`campaignValues.${campaignName}`}
+                dataKey={campaignName}
                 stackId='1'
                 stroke={getCampaignSourceColor(campaignName)}
                 fill={getCampaignSourceColor(campaignName)}
@@ -58,7 +74,7 @@ export default function CampaignVisitorTrendChart({ data }: CampaignVisitorTrend
         </ResponsiveContainer>
       </div>
       <div className='mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm'>
-        {campaignKeys.map((campaignName) => (
+        {categories.map((campaignName) => (
           <div key={campaignName} className='flex items-center'>
             <span
               className='mr-1.5 inline-block h-3 w-3 rounded-full'

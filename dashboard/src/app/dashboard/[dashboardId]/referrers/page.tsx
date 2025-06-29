@@ -51,6 +51,8 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     endDate,
     granularity,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
   const tablePromise = fetchReferrerTableDataForSite(
     dashboardId,

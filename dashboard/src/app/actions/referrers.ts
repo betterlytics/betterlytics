@@ -21,6 +21,7 @@ import {
 } from '@/entities/referrers';
 import { QueryFilter } from '@/entities/filter';
 import { toPieChart } from '@/presenters/toPieChart';
+import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
 
 /**
  * Fetches the referrer distribution data for a site
@@ -70,16 +71,44 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    compareStartDate?: Date,
+    compareEndDate?: Date,
   ) => {
     try {
-      const data = await getReferrerTrafficTrendBySourceDataForSite(
+      const rawData = await getReferrerTrafficTrendBySourceDataForSite(
         ctx.siteId,
         startDate,
         endDate,
         granularity,
         queryFilters,
       );
-      return { data };
+
+      const compareData =
+        compareStartDate &&
+        compareEndDate &&
+        (await getReferrerTrafficTrendBySourceDataForSite(
+          ctx.siteId,
+          compareStartDate,
+          compareEndDate,
+          granularity,
+          queryFilters,
+        ));
+
+      const sortedCategories = getSortedCategories(rawData, 'referrer_source', 'count');
+
+      const result = toStackedAreaChart({
+        data: rawData,
+        categoryKey: 'referrer_source',
+        valueKey: 'count',
+        categories: sortedCategories,
+        granularity,
+        dateRange: { start: startDate, end: endDate },
+        compare: compareData,
+        compareDateRange:
+          compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
+      });
+
+      return result;
     } catch (error) {
       console.error('Error fetching referrer traffic trend by source:', error);
       throw error;

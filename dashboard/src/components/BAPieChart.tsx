@@ -1,21 +1,6 @@
 import React from 'react';
-import {
-  ResponsiveContainer,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Line,
-  ComposedChart,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { timeFormat } from 'd3-time-format';
+import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { ChartTooltip } from './charts/ChartTooltip';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
 
 interface ChartDataPoint {

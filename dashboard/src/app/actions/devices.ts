@@ -21,6 +21,7 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
+import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -108,7 +109,30 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
-  ): Promise<DeviceUsageTrendRow[]> => {
-    return getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const rawData = await getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+
+    const compareData =
+      compareStartDate &&
+      compareEndDate &&
+      (await getDeviceUsageTrendForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
+
+    const sortedCategories = getSortedCategories(rawData, 'device_type', 'count');
+
+    const result = toStackedAreaChart({
+      data: rawData,
+      categoryKey: 'device_type',
+      valueKey: 'count',
+      categories: sortedCategories,
+      granularity,
+      dateRange: { start: startDate, end: endDate },
+      compare: compareData,
+      compareDateRange:
+        compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
+    });
+
+    return result;
   },
 );

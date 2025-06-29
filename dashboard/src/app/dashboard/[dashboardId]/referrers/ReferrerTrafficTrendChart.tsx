@@ -10,105 +10,27 @@ import {
   Tooltip as RechartsTooltip,
   Legend,
 } from 'recharts';
-import { ReferrerTrafficBySourceRow } from '@/entities/referrers';
 import { getReferrerColor } from '@/utils/referrerColors';
-import { useMemo } from 'react';
 import { format } from 'date-fns';
 import ReferrerLegend from './ReferrerLegend';
-import { sortByDate } from '@/utils/dateHelpers';
+import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
+import { type ComparisonMapping } from '@/types/charts';
+import { type GranularityRangeValues } from '@/utils/granularityRanges';
 
 interface ReferrerTrafficTrendChartProps {
-  data?: ReferrerTrafficBySourceRow[];
+  chartData: Array<{ date: number } & Record<string, number>>;
+  categories: string[];
+  comparisonMap?: ComparisonMapping[];
+  granularity?: GranularityRangeValues;
 }
 
-// Helper function to calculate total counts for each referrer source
-const calculateSourceTotals = (data: ReferrerTrafficBySourceRow[]): Record<string, number> => {
-  if (!data || data.length === 0) {
-    return {};
-  }
-  return data.reduce(
-    (acc, item) => {
-      acc[item.referrer_source] = (acc[item.referrer_source] || 0) + item.count;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-};
-
-// Helper function to get unique referrer sources sorted by their total counts (descending)
-const getSortedReferrerSources = (
-  data: ReferrerTrafficBySourceRow[],
-  sourceTotals: Record<string, number>,
-): string[] => {
-  if (!data || data.length === 0) {
-    return [];
-  }
-  return Array.from(new Set(data.map((item) => item.referrer_source))).sort(
-    (a, b) => (sourceTotals[b] || 0) - (sourceTotals[a] || 0),
-  );
-};
-
-// Custom tooltip for better display
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className='bg-card border-border rounded-md border p-2 shadow-lg'>
-        <p className='text-muted-foreground text-xs'>{format(new Date(label), 'MMM dd, yyyy HH:mm')}</p>
-        {payload.map((entry: any, index: number) => (
-          <p key={`tooltip-${index}`} className='text-sm' style={{ color: entry.color }}>
-            {`${entry.name.charAt(0).toUpperCase() + entry.name.slice(1)}: ${entry.value.toLocaleString()}`}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
-
-// Prepares raw data for the stacked area chart
-const prepareChartData = (
-  rawData: ReferrerTrafficBySourceRow[],
-  allSources: string[],
-): Array<Record<string, any>> => {
-  if (!rawData || rawData.length === 0 || !allSources || allSources.length === 0) {
-    return [];
-  }
-
-  const dataByDate: Record<string, Record<string, any>> = {};
-
-  rawData.forEach((item) => {
-    const { date } = item;
-    if (!dataByDate[date]) {
-      dataByDate[date] = { date };
-      allSources.forEach((source) => {
-        dataByDate[date][source] = 0;
-      });
-    }
-  });
-
-  rawData.forEach((item) => {
-    const { date, referrer_source, count } = item;
-    if (dataByDate[date]) {
-      dataByDate[date][referrer_source] = count;
-    }
-  });
-
-  return sortByDate(Object.values(dataByDate) as Array<{ date: string } & Record<string, number>>);
-};
-
-export default function ReferrerTrafficTrendChart({ data }: ReferrerTrafficTrendChartProps) {
-  const sourceTotals = useMemo(() => calculateSourceTotals(data!), [data]);
-
-  const referrerSources = useMemo(() => getSortedReferrerSources(data!, sourceTotals), [data, sourceTotals]);
-
-  const chartData = useMemo(() => {
-    if (!data || data.length === 0 || referrerSources.length === 0) {
-      return [];
-    }
-    return prepareChartData(data, referrerSources);
-  }, [data, referrerSources]);
-
-  if (!data || data.length === 0 || chartData.length === 0) {
+export default function ReferrerTrafficTrendChart({
+  chartData,
+  categories,
+  comparisonMap,
+  granularity,
+}: ReferrerTrafficTrendChartProps) {
+  if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
@@ -139,10 +61,21 @@ export default function ReferrerTrafficTrendChart({ data }: ReferrerTrafficTrend
             tickMargin={10}
             tickFormatter={(value) => value.toLocaleString()}
           />
-          <RechartsTooltip content={<CustomTooltip />} />
+          <RechartsTooltip
+            content={(props) => (
+              <StackedAreaChartTooltip
+                active={props.active}
+                payload={props.payload}
+                label={props.label}
+                comparisonMap={comparisonMap}
+                granularity={granularity}
+                formatter={(value: number) => `${value.toLocaleString()} visitors`}
+              />
+            )}
+          />
           <Legend content={<ReferrerLegend showPercentage={false} />} verticalAlign='bottom' />
 
-          {referrerSources.map((source) => (
+          {categories.map((source) => (
             <Area
               key={source}
               type='monotone'

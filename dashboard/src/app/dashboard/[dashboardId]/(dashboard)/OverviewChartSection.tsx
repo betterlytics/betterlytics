@@ -57,18 +57,24 @@ export default function OverviewChartSection({
   pageviewsData,
   sessionMetricsData,
 }: OverviewChartSectionProps) {
-  const chartData = useMemo(() => {
+  const { chartData, comparisonMap } = useMemo(() => {
     switch (activeMetric) {
       case 'visitors':
-        return visitorsData;
+        return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
       case 'pageviews':
-        return pageviewsData;
+        return { chartData: pageviewsData.data, comparisonMap: pageviewsData.comparisonMap };
       case 'bounceRate':
-        return sessionMetricsData.bounceRate;
+        return {
+          chartData: sessionMetricsData.bounceRate.data,
+          comparisonMap: sessionMetricsData.bounceRate.comparisonMap,
+        };
       case 'avgDuration':
-        return sessionMetricsData.avgVisitDuration;
+        return {
+          chartData: sessionMetricsData.avgVisitDuration.data,
+          comparisonMap: sessionMetricsData.avgVisitDuration.comparisonMap,
+        };
       default:
-        return [];
+        return { chartData: [], comparisonMap: undefined };
     }
   }, [activeMetric, visitorsData, pageviewsData, sessionMetricsData]);
 
@@ -82,6 +88,7 @@ export default function OverviewChartSection({
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
       granularity={granularity}
+      comparisonMap={comparisonMap}
     />
   );
 }
