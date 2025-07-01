@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { TimeRangeValue, getDateRangeForTimePresets } from '@/utils/timeRanges';
 import { GranularityRangeValues, getValidGranularityFallback } from '@/utils/granularityRanges';
+import { addSeconds, subMilliseconds, subSeconds } from 'date-fns';
 
 export type TempState = {
   range: TimeRangeValue;
@@ -40,8 +41,8 @@ export function useTimeRangeHandlers({
 
       const durationMs = endDate.getTime() - startDate.getTime();
 
-      const compareEnd = new Date(startDate.getTime() - 1_000);
-      const compareStart = new Date(compareEnd.getTime() - durationMs + 1_000);
+      const compareEnd = subSeconds(startDate, 1);
+      const compareStart = addSeconds(subMilliseconds(compareEnd, durationMs), 1);
 
       updateTempState({
         range: value,
@@ -94,7 +95,7 @@ export function useTimeRangeHandlers({
   const handleCompareStartDateSelect = useCallback(
     (date: Date | undefined) => {
       if (!date || !periodDurationDays) return;
-
+      console.log('Wait ??');
       // Calculate exact duration in milliseconds to preserve time
       const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;
       const compareEnd = new Date(date.getTime() + durationMs);
@@ -109,6 +110,7 @@ export function useTimeRangeHandlers({
   const handleCompareEndDateSelect = useCallback(
     (date: Date | undefined) => {
       if (!date || !periodDurationDays) return;
+      console.log('huh ??');
 
       // Calculate exact duration in milliseconds to preserve time
       const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;

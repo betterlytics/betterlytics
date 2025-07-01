@@ -61,10 +61,10 @@ function decode(base64: string): Filters {
 
   return {
     ...withDefaults,
-    startDate,
-    endDate,
-    compareStartDate: withDefaults.compareStartDate,
-    compareEndDate: withDefaults.compareEndDate,
+    startDate: startDate,
+    endDate: endDate,
+    compareStartDate: withDefaults.compareStartDate && new Date(withDefaults.compareStartDate),
+    compareEndDate: withDefaults.compareEndDate && new Date(withDefaults.compareEndDate),
     granularity: validGranularity,
   };
 }

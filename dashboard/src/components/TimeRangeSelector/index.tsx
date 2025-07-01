@@ -31,7 +31,7 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
 
   const handleApplyChanges = useCallback(
     (finalState: TempState) => {
-      const { granularity, compareEnabled, range, customStart, customEnd, compareStart, compareEnd } = finalState;
+      const { granularity, compareEnabled, customStart, customEnd, compareStart, compareEnd } = finalState;
 
       context.setGranularity(granularity);
       context.setCompareEnabled(compareEnabled);

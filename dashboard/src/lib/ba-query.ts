@@ -5,6 +5,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
+import { toClickHouseGridStartString } from '@/utils/dateFormatters';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -55,9 +56,9 @@ function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityR
   const interval = granularityIntervalMapper[granularity];
   const validatedInterval = GranularityIntervalSchema.parse(interval);
   return (column: z.infer<typeof DateColumnSchema>, date: DateTimeString) => {
-    console.log(date);
     const validatedColumn = DateColumnSchema.parse(column);
-    return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.DateTime({ granulairty_origin_date: date })} - INTERVAL 10 YEAR)`;
+    const alignedDate = toClickHouseGridStartString(date);
+    return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.DateTime({ granulairty_origin_date: alignedDate })} - INTERVAL 10 YEAR)`;
   };
 }
 
