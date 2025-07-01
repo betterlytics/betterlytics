@@ -8,22 +8,20 @@ import { Calendar } from '@/components/ui/calendar';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { formatDateInUserTimezone, TZDate } from '@/utils/timezoneHelpers';
 
 interface DatePickerProps {
   label: string;
-  date: TZDate | undefined;
-  onDateSelect: (date: TZDate | undefined) => void;
+  date: Date | undefined;
+  onDateSelect: (date: Date | undefined) => void;
   disabled?: (date: Date) => boolean;
   id?: string;
-  userTimezone?: string;
 }
 
-export function DatePicker({ label, date, onDateSelect, disabled, id, userTimezone = 'UTC' }: DatePickerProps) {
+export function DatePicker({ label, date, onDateSelect, disabled, id }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
-    onDateSelect(selectedDate as TZDate);
+    onDateSelect(selectedDate as Date);
     setIsOpen(false);
   };
 

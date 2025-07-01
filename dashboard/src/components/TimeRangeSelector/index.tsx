@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { TIME_RANGE_PRESETS, getDateRangeForTimePresets } from '@/utils/timeRanges';
-import { formatDateInUserTimezone, convertUserDatesToUTC } from '@/utils/timezoneHelpers';
+import { TIME_RANGE_PRESETS } from '@/utils/timeRanges';
 
 import { QuickSelectSection } from './QuickSelectSection';
 import { GranularitySection } from './GranularitySection';
@@ -38,21 +37,11 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
       context.setCompareEnabled(compareEnabled);
 
       if (customStart && customEnd) {
-        const { startDate: utcStart, endDate: utcEnd } = convertUserDatesToUTC(
-          customStart,
-          customEnd,
-          context.userTimezone,
-        );
-        context.setPeriod(utcStart, utcEnd);
+        context.setPeriod(customStart, customEnd);
       }
 
       if (compareEnabled && compareStart && compareEnd) {
-        const { startDate: utcCompareStart, endDate: utcCompareEnd } = convertUserDatesToUTC(
-          compareStart,
-          compareEnd,
-          context.userTimezone,
-        );
-        context.setCompareDateRange(utcCompareStart, utcCompareEnd);
+        context.setCompareDateRange(compareStart, compareEnd);
       }
     },
     [context],
@@ -72,7 +61,6 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
     updateTempState,
     allowedGranularities,
     periodDurationDays,
-    userTimezone: context.userTimezone,
     onApply: handleApplyChanges,
   });
 
@@ -90,12 +78,8 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
 
   const displayRangeLabel = () => {
     if (currentActivePreset === 'custom' && context.startDate && context.endDate) {
-      const startLabel = formatDateInUserTimezone(context.startDate, context.userTimezone, (date) =>
-        format(date, 'P'),
-      );
-      const endLabel = formatDateInUserTimezone(context.endDate, context.userTimezone, (date) =>
-        format(date, 'P'),
-      );
+      const startLabel = format(context.startDate, 'P');
+      const endLabel = format(context.endDate, 'P');
       return `${startLabel} - ${endLabel}`;
     }
     const preset = TIME_RANGE_PRESETS.find((p) => p.value === currentActivePreset);
@@ -131,7 +115,6 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
           endDate={tempState.customEnd}
           onStartDateSelect={handleStartDateSelect}
           onEndDateSelect={handleEndDateSelect}
-          userTimezone={context.userTimezone}
         />
 
         <ComparePeriodSection
@@ -141,7 +124,6 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
           compareEndDate={tempState.compareEnd}
           onCompareStartDateSelect={handleCompareStartDateSelect}
           onCompareEndDateSelect={handleCompareEndDateSelect}
-          userTimezone={context.userTimezone}
         />
 
         <Separator className='my-4' />

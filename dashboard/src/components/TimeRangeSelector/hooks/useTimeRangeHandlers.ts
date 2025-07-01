@@ -3,16 +3,15 @@
 import { useCallback } from 'react';
 import { TimeRangeValue, getDateRangeForTimePresets } from '@/utils/timeRanges';
 import { GranularityRangeValues, getValidGranularityFallback } from '@/utils/granularityRanges';
-import { type TZDate, UTCDate, createTimezoneHelper } from '@/utils/timezoneHelpers';
 
 export type TempState = {
   range: TimeRangeValue;
   granularity: GranularityRangeValues;
-  customStart: TZDate | undefined;
-  customEnd: TZDate | undefined;
+  customStart: Date | undefined;
+  customEnd: Date | undefined;
   compareEnabled: boolean;
-  compareStart: TZDate | undefined;
-  compareEnd: TZDate | undefined;
+  compareStart: Date | undefined;
+  compareEnd: Date | undefined;
 };
 
 interface UseTimeRangeHandlersProps {
@@ -20,7 +19,6 @@ interface UseTimeRangeHandlersProps {
   updateTempState: (updates: Partial<TempState>) => void;
   allowedGranularities: GranularityRangeValues[];
   periodDurationDays: number | null;
-  userTimezone: string;
   onApply: (tempState: TempState) => void;
 }
 
@@ -29,7 +27,6 @@ export function useTimeRangeHandlers({
   updateTempState,
   allowedGranularities,
   periodDurationDays,
-  userTimezone,
   onApply,
 }: UseTimeRangeHandlersProps) {
   const handleQuickSelect = useCallback(
@@ -39,32 +36,22 @@ export function useTimeRangeHandlers({
         return;
       }
 
-      // Get UTC dates from preset
-      const { startDate, endDate } = getDateRangeForTimePresets(value, userTimezone);
-
-      // Convert to user timezone for display in temp state
-      const helper = createTimezoneHelper(userTimezone);
-      const startTZ = helper.toUserTimezone(startDate);
-      const endTZ = helper.toUserTimezone(endDate);
+      const { startDate, endDate } = getDateRangeForTimePresets(value);
 
       const durationMs = endDate.getTime() - startDate.getTime();
 
-      const compareEnd = new Date(startDate.getTime() - 1_000) as UTCDate;
-      const compareStart = new Date(compareEnd.getTime() - durationMs + 1_000) as UTCDate;
-      const compareStartTZ = helper.toUserTimezone(compareStart);
-      const compareEndTZ = helper.toUserTimezone(compareEnd);
-
-      console.log(['', startDate, endDate, compareStart, compareEndTZ].join('\n'));
+      const compareEnd = new Date(startDate.getTime() - 1_000);
+      const compareStart = new Date(compareEnd.getTime() - durationMs + 1_000);
 
       updateTempState({
         range: value,
-        customStart: startTZ,
-        customEnd: endTZ,
-        compareStart: compareStartTZ,
-        compareEnd: compareEndTZ,
+        customStart: startDate,
+        customEnd: endDate,
+        compareStart: compareStart,
+        compareEnd: compareEnd,
       });
     },
-    [updateTempState, userTimezone, periodDurationDays],
+    [updateTempState, periodDurationDays],
   );
 
   const handleGranularitySelect = useCallback(
@@ -80,7 +67,7 @@ export function useTimeRangeHandlers({
       if (!date) return;
       updateTempState({
         range: 'custom',
-        customStart: date as TZDate,
+        customStart: date,
       });
     },
     [updateTempState],
@@ -91,7 +78,7 @@ export function useTimeRangeHandlers({
       if (!date) return;
       updateTempState({
         range: 'custom',
-        customEnd: date as TZDate,
+        customEnd: date,
       });
     },
     [updateTempState],
@@ -112,8 +99,8 @@ export function useTimeRangeHandlers({
       const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;
       const compareEnd = new Date(date.getTime() + durationMs);
       updateTempState({
-        compareStart: date as TZDate,
-        compareEnd: compareEnd as TZDate,
+        compareStart: date,
+        compareEnd: compareEnd,
       });
     },
     [updateTempState, periodDurationDays],
@@ -127,8 +114,8 @@ export function useTimeRangeHandlers({
       const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;
       const compareStart = new Date(date.getTime() - durationMs);
       updateTempState({
-        compareStart: compareStart as TZDate,
-        compareEnd: date as TZDate,
+        compareStart: compareStart,
+        compareEnd: date,
       });
     },
     [updateTempState, periodDurationDays],

@@ -65,7 +65,6 @@ model UserSettings {
   // Theme preferences
   theme String @default("system") // "light", "dark", "system"
   language String @default("en") // ISO language codes
-  timezone String @default("UTC")
   
   // Email preferences
   emailNotifications Boolean @default(true) // Sign up, login, password reset, reminders, alerts etc.

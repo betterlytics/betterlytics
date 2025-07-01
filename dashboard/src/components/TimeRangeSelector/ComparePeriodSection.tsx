@@ -5,16 +5,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { DatePicker } from './DatePicker';
-import type { TZDate } from '@/utils/timezoneHelpers';
 
 interface ComparePeriodSectionProps {
   compareEnabled: boolean;
   onCompareEnabledChange: (enabled: boolean) => void;
-  compareStartDate: TZDate | undefined;
-  compareEndDate: TZDate | undefined;
-  onCompareStartDateSelect: (date: TZDate | undefined) => void;
-  onCompareEndDateSelect: (date: TZDate | undefined) => void;
-  userTimezone?: string;
+  compareStartDate: Date | undefined;
+  compareEndDate: Date | undefined;
+  onCompareStartDateSelect: (date: Date | undefined) => void;
+  onCompareEndDateSelect: (date: Date | undefined) => void;
 }
 
 export function ComparePeriodSection({
@@ -24,7 +22,6 @@ export function ComparePeriodSection({
   compareEndDate,
   onCompareStartDateSelect,
   onCompareEndDateSelect,
-  userTimezone,
 }: ComparePeriodSectionProps) {
   return (
     <>
@@ -48,7 +45,7 @@ export function ComparePeriodSection({
               <DatePicker
                 label='Start date'
                 date={compareStartDate}
-                onDateSelect={(date) => onCompareStartDateSelect(date as TZDate)}
+                onDateSelect={(date) => onCompareStartDateSelect(date as Date)}
                 disabled={(date) => {
                   if (compareEndDate && date > compareEndDate) {
                     return true;
@@ -56,12 +53,11 @@ export function ComparePeriodSection({
                   return date > new Date();
                 }}
                 id='compareStartDateInput'
-                userTimezone={userTimezone}
               />
               <DatePicker
                 label='End date'
                 date={compareEndDate}
-                onDateSelect={(date) => onCompareEndDateSelect(date as TZDate)}
+                onDateSelect={(date) => onCompareEndDateSelect(date as Date)}
                 disabled={(date) => {
                   if (compareStartDate && date < compareStartDate) {
                     return true;
@@ -69,7 +65,6 @@ export function ComparePeriodSection({
                   return date > new Date();
                 }}
                 id='compareEndDateInput'
-                userTimezone={userTimezone}
               />
             </div>
           </div>

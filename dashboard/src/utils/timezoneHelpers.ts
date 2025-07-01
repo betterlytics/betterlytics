@@ -1,72 +1,38 @@
 import { startOfDay, endOfDay, startOfHour, endOfHour, startOfMinute, endOfMinute } from 'date-fns';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { GranularityRangeValues } from './granularityRanges';
-import { Branded } from './brand';
-
-export type UTCDate = Branded<Date, 'UTCDate'>;
-export type TZDate = Branded<Date, 'TZDate'>;
 
 /**
- * Timezone-aware date utilities for handling the conversion between user timezone / UTC
+ * Timezone-aware date utilities
  */
 export class TimezoneAwareDateHelper {
-  constructor(private userTimezone: string = 'UTC') {}
+  startOfDayInUserTimezone(date: Date): Date {
+    return startOfDay(date);
+  }
 
-  /**
-   * UTC --> User time
-   */
-  toUserTimezone(utcDate: UTCDate): TZDate {
-    return toZonedTime(utcDate, this.userTimezone) as TZDate;
+  endOfDayInUserTimezone(date: Date): Date {
+    return endOfDay(date);
+  }
+
+  startOfHourInUserTimezone(date: Date): Date {
+    return startOfHour(date);
+  }
+
+  endOfHourInUserTimezone(date: Date): Date {
+    return endOfHour(date);
+  }
+
+  startOfMinuteInUserTimezone(date: Date): Date {
+    return startOfMinute(date);
+  }
+
+  endOfMinuteInUserTimezone(date: Date): Date {
+    return endOfMinute(date);
   }
 
   /**
-   * User time --> UTC
+   * Get granularity start/end
    */
-  toUTC(userDate: TZDate): UTCDate {
-    return fromZonedTime(userDate, this.userTimezone) as UTCDate;
-  }
-
-  // Start / end of granularity of user timezone, returned as UTC
-  startOfDayInUserTimezone(date: UTCDate): UTCDate {
-    const userDate = this.toUserTimezone(date);
-    const startOfUserDay = startOfDay(userDate);
-    return this.toUTC(startOfUserDay);
-  }
-
-  endOfDayInUserTimezone(date: UTCDate): UTCDate {
-    const userDate = this.toUserTimezone(date);
-    const endOfUserDay = endOfDay(userDate);
-    return this.toUTC(endOfUserDay);
-  }
-
-  startOfHourInUserTimezone(date: UTCDate): UTCDate {
-    const userDate = this.toUserTimezone(date);
-    const startOfUserHour = startOfHour(userDate);
-    return this.toUTC(startOfUserHour);
-  }
-
-  endOfHourInUserTimezone(date: UTCDate): UTCDate {
-    const userDate = this.toUserTimezone(date);
-    const endOfUserHour = endOfHour(userDate);
-    return this.toUTC(endOfUserHour);
-  }
-
-  startOfMinuteInUserTimezone(date: UTCDate): UTCDate {
-    const userDate = this.toUserTimezone(date);
-    const startOfUserMinute = startOfMinute(userDate);
-    return this.toUTC(startOfUserMinute);
-  }
-
-  endOfMinuteInUserTimezone(date: UTCDate): UTCDate {
-    const userDate = this.toUserTimezone(date);
-    const endOfUserMinute = endOfMinute(userDate);
-    return this.toUTC(endOfUserMinute);
-  }
-
-  /**
-   * Get granularity start/end in UTC
-   */
-  getGranularityBoundaries(date: UTCDate, granularity: GranularityRangeValues): { start: UTCDate; end: UTCDate } {
+  getGranularityBoundaries(date: Date, granularity: GranularityRangeValues): { start: Date; end: Date } {
     switch (granularity) {
       case 'day':
         return {
@@ -93,10 +59,10 @@ export class TimezoneAwareDateHelper {
    * Useful for ensuring time ranges respect user's day/hour boundaries
    */
   getUserTimezoneBoundaries(
-    startDate: UTCDate,
-    endDate: UTCDate,
+    startDate: Date,
+    endDate: Date,
     granularity: GranularityRangeValues,
-  ): { start: UTCDate; end: UTCDate } {
+  ): { start: Date; end: Date } {
     const startBoundary = this.getGranularityBoundaries(startDate, granularity).start;
     const endBoundary = this.getGranularityBoundaries(endDate, granularity).end;
 
@@ -114,52 +80,6 @@ export class TimezoneAwareDateHelper {
 /**
  * Create a timezone helper for a specific user timezone
  */
-export function createTimezoneHelper(userTimezone: string): TimezoneAwareDateHelper {
-  return new TimezoneAwareDateHelper(userTimezone);
-}
-
-/**
- * Format a UTC date for display in user's timezone
- */
-export function formatDateInUserTimezone(
-  utcDate: UTCDate,
-  userTimezone: string,
-  formatter: (date: TZDate) => string,
-): string {
-  const helper = createTimezoneHelper(userTimezone);
-  const userDate = helper.toUserTimezone(utcDate);
-  return formatter(userDate);
-}
-
-/**
- * Convert user-input dates to UTC for backend queries
- * This is the main function TimeRangeSelector will use
- */
-export function convertUserDatesToUTC(
-  userStartDate: TZDate,
-  userEndDate: TZDate,
-  userTimezone: string,
-): { startDate: UTCDate; endDate: UTCDate } {
-  const helper = createTimezoneHelper(userTimezone);
-
-  return {
-    startDate: helper.toUTC(userStartDate),
-    endDate: helper.toUTC(userEndDate),
-  };
-}
-
-/**
- * Convert UTC dates from backend to user timezone for display
- */
-export function convertUTCDatesToUser(
-  utcStartDate: UTCDate,
-  utcEndDate: UTCDate,
-  userTimezone: string,
-): { startDate: TZDate; endDate: TZDate } {
-  const helper = createTimezoneHelper(userTimezone);
-
-  return {
-    startDate: helper.toUserTimezone(utcStartDate),
-    endDate: helper.toUserTimezone(utcEndDate),
-  };
+export function createTimezoneHelper(): TimezoneAwareDateHelper {
+  return new TimezoneAwareDateHelper();
 }

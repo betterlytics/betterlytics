@@ -10,7 +10,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
   useEffect(() => {
     const script = document.createElement('script');
     script.async = true;
-    script.src = `${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/analytics.js`;
+    script.src = `http://localhost:3006/analytics.js`;
     script.setAttribute('data-site-id', siteId);
     script.setAttribute('data-server-url', `${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track`);
     document.head.appendChild(script);

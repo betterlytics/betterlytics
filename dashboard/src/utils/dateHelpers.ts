@@ -1,7 +1,7 @@
 export function parseClickHouseDate(dateString: string): Date {
   // Force UTC interpretation by appending 'Z' if not already present
-  const utcDateString = dateString.includes('Z') ? dateString : `${dateString}Z`;
-  return new Date(utcDateString);
+  const DateString = dateString.includes('Z') ? dateString : `${dateString}Z`;
+  return new Date(DateString);
 }
 
 export function getDateKey(dateString: string): string {

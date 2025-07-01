@@ -21,18 +21,16 @@ import { AuthContext } from '@/entities/authContext';
 import { getSessionMetrics } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart } from '@/presenters/toAreaChart';
-import type { UTCDate } from '@/utils/timezoneHelpers';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: UTCDate,
-    endDate: UTCDate,
+    startDate: Date,
+    endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
-    userTimezone: string,
-    compareStartDate?: UTCDate,
-    compareEndDate?: UTCDate,
+    compareStartDate?: Date,
+    compareEndDate?: Date,
   ) => {
     const data = await getTotalPageViewsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
     const compare =
@@ -53,7 +51,6 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
-      userTimezone,
     });
   },
 );
@@ -61,13 +58,12 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
 export const fetchUniqueVisitorsAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: UTCDate,
-    endDate: UTCDate,
+    startDate: Date,
+    endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
-    userTimezone: string,
-    compareStartDate?: UTCDate,
-    compareEndDate?: UTCDate,
+    compareStartDate?: Date,
+    compareEndDate?: Date,
   ) => {
     const data = await getUniqueVisitorsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
     const compare =
@@ -87,7 +83,6 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
-      userTimezone,
     });
   },
 );
@@ -102,13 +97,12 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
 export const fetchSessionMetricsAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: UTCDate,
-    endDate: UTCDate,
+    startDate: Date,
+    endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
-    userTimezone: string,
-    compareStartDate?: UTCDate,
-    compareEndDate?: UTCDate,
+    compareStartDate?: Date,
+    compareEndDate?: Date,
   ) => {
     const data = await getSessionMetrics(
       ctx.siteId,
@@ -143,7 +137,6 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        userTimezone,
       }),
       bounceRate: toAreaChart({
         data,
@@ -158,7 +151,6 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        userTimezone,
       }),
     };
   },

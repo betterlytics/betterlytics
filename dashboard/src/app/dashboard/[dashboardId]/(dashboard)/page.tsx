@@ -40,9 +40,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
-  const userSettings = await getUserSettingsAction();
-  const userTimezone = userSettings.timezone || 'UTC';
-
+  console.log('Start date:\n', startDate, '\n', 'End date:', endDate);
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
     dashboardId,
     startDate,
@@ -60,7 +58,6 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
-      userTimezone,
       compareStartDate,
       compareEndDate,
     ),
@@ -70,7 +67,6 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
-      userTimezone,
       compareStartDate,
       compareEndDate,
     ),
@@ -80,7 +76,6 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
-      userTimezone,
       compareStartDate,
       compareEndDate,
     ),
