@@ -97,8 +97,7 @@ export function toAreaChart<K extends string>({
       end: Date;
     },
   });
-  console.log(data.length, compare.length);
-  console.log(chart.length, compareChart.length);
+
   if (chart.length !== compareChart.length) {
     return chart;
   }
