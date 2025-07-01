@@ -41,7 +41,7 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
   // Find the time interval of input based on specified granularity
   const intervalFunc = IntervalFunctions[granularity];
 
-  for (let time = dateRange.start; time <= dateRange.end; time = intervalFunc.offset(time, 1) as Date) {
+  for (let time = dateRange.start; time <= dateRange.end; time = intervalFunc.offset(time, 1)) {
     // Ensure the time boundary aligns with user timezone
     const key = time.valueOf().toString();
     const value = groupedData[key] ?? 0;

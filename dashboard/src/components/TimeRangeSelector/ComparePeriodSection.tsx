@@ -45,7 +45,7 @@ export function ComparePeriodSection({
               <DatePicker
                 label='Start date'
                 date={compareStartDate}
-                onDateSelect={(date) => onCompareStartDateSelect(date as Date)}
+                onDateSelect={(date) => onCompareStartDateSelect(date)}
                 disabled={(date) => {
                   if (compareEndDate && date > compareEndDate) {
                     return true;
@@ -57,7 +57,7 @@ export function ComparePeriodSection({
               <DatePicker
                 label='End date'
                 date={compareEndDate}
-                onDateSelect={(date) => onCompareEndDateSelect(date as Date)}
+                onDateSelect={(date) => onCompareEndDateSelect(date)}
                 disabled={(date) => {
                   if (compareStartDate && date < compareStartDate) {
                     return true;

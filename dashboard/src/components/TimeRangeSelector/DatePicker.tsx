@@ -21,7 +21,7 @@ export function DatePicker({ label, date, onDateSelect, disabled, id }: DatePick
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
-    onDateSelect(selectedDate as Date);
+    onDateSelect(selectedDate);
     setIsOpen(false);
   };
 

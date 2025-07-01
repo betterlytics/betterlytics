@@ -16,7 +16,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '24h',
     getRange: () => {
       const helper = createTimezoneHelper();
-      const now = new Date() as Date;
+      const now = new Date();
       const end = helper.endOfDayInUserTimezone(now);
       const start = helper.startOfDayInUserTimezone(addSeconds(subDays(now, 1), 1));
       return { startDate: start, endDate: end };
@@ -27,7 +27,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '7d',
     getRange: () => {
       const helper = createTimezoneHelper();
-      const yesterday = subDays(new Date(), 1) as Date;
+      const yesterday = subDays(new Date(), 1);
       const end = helper.endOfDayInUserTimezone(yesterday);
       const start = helper.startOfDayInUserTimezone(addSeconds(subDays(yesterday, 6), 1));
       return { startDate: start, endDate: end };
@@ -38,7 +38,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '28d',
     getRange: () => {
       const helper = createTimezoneHelper();
-      const yesterday = subDays(new Date(), 1) as Date;
+      const yesterday = subDays(new Date(), 1);
       const end = helper.endOfDayInUserTimezone(yesterday);
       const start = helper.startOfDayInUserTimezone(addSeconds(subDays(yesterday, 27), 1));
       return { startDate: start, endDate: end };
@@ -49,7 +49,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '3mo',
     getRange: () => {
       const helper = createTimezoneHelper();
-      const yesterday = subDays(new Date(), 1) as Date;
+      const yesterday = subDays(new Date(), 1);
       const end = helper.endOfDayInUserTimezone(yesterday);
       const start = helper.startOfDayInUserTimezone(addSeconds(subMonths(yesterday, 3), 1));
       return { startDate: start, endDate: end };

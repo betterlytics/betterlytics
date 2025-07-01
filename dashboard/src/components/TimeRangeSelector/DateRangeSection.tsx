@@ -23,7 +23,7 @@ export function DateRangeSection({
         <DatePicker
           label='Start date'
           date={startDate}
-          onDateSelect={(date) => onStartDateSelect(date as Date)}
+          onDateSelect={(date) => onStartDateSelect(date)}
           disabled={(date) => {
             if (endDate && date > endDate) {
               return true;
@@ -35,7 +35,7 @@ export function DateRangeSection({
         <DatePicker
           label='End date'
           date={endDate}
-          onDateSelect={(date) => onEndDateSelect(date as Date)}
+          onDateSelect={(date) => onEndDateSelect(date)}
           disabled={(date) => {
             if (startDate && date < startDate) {
               return true;

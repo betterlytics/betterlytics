@@ -17,21 +17,21 @@ type Filters = {
 };
 
 function getDefaultFilters(): Filters {
-  const now = Date.now();
+  const now = new Date();
   const oneWeekAgo = subDays(now, 6);
   const oneFortnightAgo = subDays(oneWeekAgo, 7);
   return {
     queryFilters: [],
-    startDate: new Date(oneWeekAgo) as Date,
-    endDate: new Date(now) as Date,
+    startDate: oneWeekAgo,
+    endDate: now,
     granularity: 'day',
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
     compareEnabled: true,
-    compareStartDate: new Date(oneFortnightAgo) as Date,
-    compareEndDate: new Date(oneWeekAgo) as Date,
+    compareStartDate: oneFortnightAgo,
+    compareEndDate: oneWeekAgo,
   };
 }
 
@@ -48,8 +48,8 @@ function decode(base64: string): Filters {
     ...decoded,
   };
 
-  const startDate = new Date(withDefaults.startDate) as Date;
-  const endDate = new Date(withDefaults.endDate) as Date;
+  const startDate = new Date(withDefaults.startDate);
+  const endDate = new Date(withDefaults.endDate);
 
   if (!withDefaults.compareEnabled) {
     withDefaults.compareStartDate = undefined;
@@ -63,10 +63,8 @@ function decode(base64: string): Filters {
     ...withDefaults,
     startDate,
     endDate,
-    compareStartDate: withDefaults.compareStartDate
-      ? (new Date(withDefaults.compareStartDate) as Date)
-      : undefined,
-    compareEndDate: withDefaults.compareEndDate ? (new Date(withDefaults.compareEndDate) as Date) : undefined,
+    compareStartDate: withDefaults.compareStartDate,
+    compareEndDate: withDefaults.compareEndDate,
     granularity: validGranularity,
   };
 }
