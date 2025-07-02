@@ -90,7 +90,6 @@ export function useTimeRangeHandlers({
   const handleCompareStartDateSelect = useCallback(
     (date: Date | undefined) => {
       if (!date || !periodDurationDays) return;
-      console.log('Wait ??');
       // Calculate exact duration in milliseconds to preserve time
       const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;
       const compareEnd = new Date(date.getTime() + durationMs);
@@ -105,7 +104,6 @@ export function useTimeRangeHandlers({
   const handleCompareEndDateSelect = useCallback(
     (date: Date | undefined) => {
       if (!date || !periodDurationDays) return;
-      console.log('huh ??');
 
       // Calculate exact duration in milliseconds to preserve time
       const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;

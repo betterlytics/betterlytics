@@ -26,17 +26,17 @@ type TimeRangeContextProviderProps = {
 };
 
 export function TimeRangeContextProvider({ children }: TimeRangeContextProviderProps) {
-  const initialRangeDetails = getDateRangeForTimePresets('7d');
+  const initialRangeDetails = getDateRangeForTimePresets('24h');
   const [startDate, setStartDate] = React.useState<Date>(initialRangeDetails.startDate);
   const [endDate, setEndDate] = React.useState<Date>(initialRangeDetails.endDate);
 
-  const [granularity, setGranularity] = React.useState<GranularityRangeValues>('day');
+  const [granularity, setGranularity] = React.useState<GranularityRangeValues>('hour');
   const [compareEnabled, setCompareEnabled] = React.useState<boolean>(false);
   const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(undefined);
   const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    const newRangeDetails = getDateRangeForTimePresets('7d');
+    const newRangeDetails = getDateRangeForTimePresets('24h');
     setStartDate(newRangeDetails.startDate);
     setEndDate(newRangeDetails.endDate);
   }, []);
