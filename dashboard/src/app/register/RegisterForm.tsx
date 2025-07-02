@@ -77,7 +77,7 @@ export default function RegisterForm() {
         </div>
       )}
       <div className='space-y-4'>
-        <div>
+        <div className='space-y-2'>
           <Label htmlFor='name'>Name (optional)</Label>
           <Input
             id='name'
@@ -89,7 +89,7 @@ export default function RegisterForm() {
             disabled={isPending}
           />
         </div>
-        <div>
+        <div className='space-y-2'>
           <Label htmlFor='email'>Email</Label>
           <Input
             id='email'
@@ -102,7 +102,7 @@ export default function RegisterForm() {
             disabled={isPending}
           />
         </div>
-        <div>
+        <div className='space-y-2'>
           <Label htmlFor='password'>Password</Label>
           <Input
             id='password'
@@ -115,7 +115,7 @@ export default function RegisterForm() {
             disabled={isPending}
           />
         </div>
-        <div>
+        <div className='space-y-2'>
           <Label htmlFor='confirmPassword'>Confirm Password</Label>
           <Input
             id='confirmPassword'
