@@ -1,4 +1,4 @@
-import { subDays, subMonths, addSeconds } from 'date-fns';
+import { subDays, subMonths, addSeconds, subSeconds, subMilliseconds } from 'date-fns';
 import { createTimezoneHelper } from './timezoneHelpers';
 
 export type TimeRangeValue = '24h' | '7d' | '28d' | '3mo' | 'custom';
@@ -55,18 +55,15 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
   },
 ];
 
-export function getDateRangeForTimePresets(
-  value: Omit<TimeRangeValue, 'custom'>,
-  userTimezone?: string,
-): {
+export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>): {
   startDate: Date;
   endDate: Date;
 } {
   const preset = TIME_RANGE_PRESETS.find((p) => p.value === value);
   if (!preset) {
-    return TIME_RANGE_PRESETS.find((p) => p.value === '7d')!.getRange(userTimezone);
+    return TIME_RANGE_PRESETS.find((p) => p.value === '7d')!.getRange();
   }
-  return preset.getRange(userTimezone);
+  return preset.getRange();
 }
 
 export function getGroupingForRange(startDate: Date, endDate: Date): TimeGrouping {
@@ -74,4 +71,18 @@ export function getGroupingForRange(startDate: Date, endDate: Date): TimeGroupin
   if (diff <= 60 * 60 * 1000) return 'minute';
   if (diff <= 24 * 60 * 60 * 1000) return 'hour';
   return 'day';
+}
+
+export function getCompareRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>) {
+  const { startDate, endDate } = getDateRangeForTimePresets(value);
+
+  const durationMs = endDate.getTime() - startDate.getTime();
+
+  const compareEnd = subSeconds(startDate, 1);
+  const compareStart = addSeconds(subMilliseconds(compareEnd, durationMs), 1);
+
+  return {
+    compareStart,
+    compareEnd,
+  };
 }

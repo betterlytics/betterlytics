@@ -21,7 +21,6 @@ import {
 } from '@/app/actions';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
-import { getUserSettingsAction } from '@/app/actions/userSettings';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { NoDataBanner } from '@/app/dashboard/[dashboardId]/NoDataBanner';
 

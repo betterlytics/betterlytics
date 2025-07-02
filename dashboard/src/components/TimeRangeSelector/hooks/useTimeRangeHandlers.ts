@@ -1,9 +1,8 @@
 'use client';
 
 import { useCallback } from 'react';
-import { TimeRangeValue, getDateRangeForTimePresets } from '@/utils/timeRanges';
+import { TimeRangeValue, getCompareRangeForTimePresets, getDateRangeForTimePresets } from '@/utils/timeRanges';
 import { GranularityRangeValues, getValidGranularityFallback } from '@/utils/granularityRanges';
-import { addSeconds, subMilliseconds, subSeconds } from 'date-fns';
 
 export type TempState = {
   range: TimeRangeValue;
@@ -38,11 +37,7 @@ export function useTimeRangeHandlers({
       }
 
       const { startDate, endDate } = getDateRangeForTimePresets(value);
-
-      const durationMs = endDate.getTime() - startDate.getTime();
-
-      const compareEnd = subSeconds(startDate, 1);
-      const compareStart = addSeconds(subMilliseconds(compareEnd, durationMs), 1);
+      const { compareStart, compareEnd } = getCompareRangeForTimePresets(value);
 
       updateTempState({
         range: value,

@@ -1,6 +1,6 @@
-import { subDays } from 'date-fns';
 import { QueryFilter } from '@/entities/filter';
 import { GranularityRangeValues, getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
+import { getCompareRangeForTimePresets, getDateRangeForTimePresets } from './timeRanges';
 
 type Filters = {
   queryFilters: (QueryFilter & { id: string })[];
@@ -17,21 +17,21 @@ type Filters = {
 };
 
 function getDefaultFilters(): Filters {
-  const now = new Date();
-  const oneWeekAgo = subDays(now, 6);
-  const oneFortnightAgo = subDays(oneWeekAgo, 7);
+  const { startDate, endDate } = getDateRangeForTimePresets('24h');
+  const { compareStart, compareEnd } = getCompareRangeForTimePresets('24h');
+
   return {
     queryFilters: [],
-    startDate: oneWeekAgo,
-    endDate: now,
-    granularity: 'day',
+    startDate,
+    endDate,
+    granularity: 'hour',
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
     compareEnabled: true,
-    compareStartDate: oneFortnightAgo,
-    compareEndDate: oneWeekAgo,
+    compareStartDate: compareStart,
+    compareEndDate: compareEnd,
   };
 }
 
