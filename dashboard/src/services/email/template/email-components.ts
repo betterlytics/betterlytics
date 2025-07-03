@@ -89,6 +89,13 @@ export function getEmailHeader(): string {
           margin: 24px 0;
           border-radius: 0 8px 8px 0;
         }
+        .warning-box {
+          background-color: #fefce8;
+          border-left: 4px solid #f59e0b;
+          padding: 20px;
+          margin: 24px 0;
+          border-radius: 0 8px 8px 0;
+        }
         .info-box {
           background-color: #eff6ff;
           border-left: 4px solid #2563eb;
