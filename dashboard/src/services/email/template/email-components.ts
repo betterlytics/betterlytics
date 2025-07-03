@@ -73,6 +73,8 @@ export function getEmailHeader(): string {
         .button-success:hover { background-color: #15803d; }
         .button-danger { background-color: #dc2626; }
         .button-danger:hover { background-color: #b91c1c; }
+        .button-warning { background-color: #f59e0b; }
+        .button-warning:hover { background-color: #d97706; }
         .alert-box { 
           background-color: #fef2f2; 
           border-left: 4px solid #dc2626; 
@@ -181,6 +183,9 @@ export function createInfoBox(content: string, type: 'info' | 'success' | 'warni
       break;
     case 'success':
       boxClass = 'success-box';
+      break;
+    case 'warning':
+      boxClass = 'warning-box';
       break;
     case 'error':
       boxClass = 'alert-box';
