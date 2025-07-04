@@ -82,9 +82,8 @@ betterlytics("product-view", {
 
 These properties let you answer questions like:
 
-- **What** was clicked? (`buttonText: "Get Started"`)
-- **Where** on the page? (`location: "header"`)
 - **Which** product? (`productId: "abc123"`)
+- **What** category? (`category: "electronics"`)
 - **How much** did it cost? (`price: 299.99`)
 - **From what source?** (`source: "search-results"`)
 
@@ -145,7 +144,7 @@ document.getElementById("signup-form").addEventListener("input", function () {
     this.setAttribute("data-started", "true");
     betterlytics("form-started", {
       formType: "signup",
-      source: window.location.pathname,
+      formSection: "newsletter",
     });
   }
 });
@@ -245,15 +244,26 @@ document.querySelectorAll(".add-to-cart").forEach((button) => {
   });
 });
 
-// Checkout steps
-function trackCheckoutStep(step, additionalData = {}) {
-  betterlytics("checkout-step", {
-    step: step,
-    ...additionalData,
+// Product wishlist actions
+document.querySelectorAll(".add-to-wishlist").forEach((button) => {
+  button.addEventListener("click", function () {
+    betterlytics("add-to-wishlist", {
+      productId: this.getAttribute("data-product-id"),
+      productName: this.getAttribute("data-product-name"),
+      price: parseFloat(this.getAttribute("data-price")),
+      category: this.getAttribute("data-category"),
+    });
+  });
+});
+
+// Product comparison
+function trackProductComparison(productIds) {
+  betterlytics("product-comparison", {
+    productCount: productIds.length,
+    productIds: productIds.join(","),
+    category: "electronics",
   });
 }
-
-// Usage: trackCheckoutStep('shipping-info', { method: 'express' });
 ```
 
 </details>
