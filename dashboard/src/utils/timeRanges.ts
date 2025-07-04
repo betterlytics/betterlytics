@@ -1,4 +1,4 @@
-import { subDays, subMonths, addSeconds, subSeconds, subMilliseconds, endOfDay, startOfDay } from 'date-fns';
+import { subDays, subMonths, subSeconds, subMilliseconds, endOfDay, startOfDay } from 'date-fns';
 
 export type TimeRangeValue = '24h' | '7d' | '28d' | '3mo' | 'custom';
 export type TimeGrouping = 'minute' | 'hour' | 'day';
