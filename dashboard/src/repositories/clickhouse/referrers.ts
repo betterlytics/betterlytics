@@ -314,7 +314,7 @@ export async function getDailyReferralSessions(
       uniq(session_id) as referralSessions
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND referrer_source != 'direct'
       AND referrer_source != 'internal'
       AND ${SQL.AND(filters)}
@@ -358,7 +358,7 @@ export async function getDailyReferralTrafficPercentage(
         uniqIf(session_id, referrer_source != 'direct' AND referrer_source != 'internal') as referralSessions
       FROM analytics.events
       WHERE site_id = {site_id:String}
-        AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
         AND ${SQL.AND(filters)}
       GROUP BY date
     )
@@ -408,7 +408,7 @@ export async function getDailyReferralSessionDuration(
         max(timestamp) - min(timestamp) as session_duration_seconds
       FROM analytics.events
       WHERE site_id = {site_id:String}
-        AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
         AND referrer_source != 'direct'
         AND referrer_source != 'internal'
         AND ${SQL.AND(filters)}

@@ -42,7 +42,7 @@ export async function getTotalPageViews(
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview' 
-      AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND ${SQL.AND(filters)}
     GROUP BY date
     ORDER BY date ASC, views DESC
@@ -77,7 +77,7 @@ export async function getPageViews(
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview' 
-      AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
     GROUP BY date, url
     ORDER BY date ASC, views DESC
     LIMIT 10080
@@ -93,30 +93,6 @@ export async function getPageViews(
     })
     .toPromise()) as unknown[];
   return result.map((row) => DailyPageViewRowSchema.parse(row));
-}
-
-export async function getTotalPageviews(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<number> {
-  const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const queryResponse = safeSql`
-    SELECT count() as pageviews
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND event_type = 'pageview' 
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
-  `;
-  const result = (await clickhouse
-    .query(queryResponse.taggedSql, {
-      params: { ...queryResponse.taggedParams, site_id: siteId, start: startDate, end: endDate },
-    })
-    .toPromise()) as any[];
-  return Number(result[0]?.pageviews ?? 0);
 }
 
 export async function getTopPages(
@@ -694,7 +670,7 @@ export async function getDailyAverageTimeOnPage(
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview' 
-          AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+          AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
           AND ${SQL.AND(filters)}
       )
     SELECT 
@@ -740,7 +716,7 @@ export async function getDailyBounceRate(
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview' 
-          AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+          AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
           AND ${SQL.AND(filters)}
       ),
       daily_sessions AS (

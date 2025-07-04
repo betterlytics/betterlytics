@@ -23,7 +23,7 @@ export async function getUniqueVisitors(
       uniq(session_id) as unique_visitors
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND date BETWEEN {start:DateTime} AND {end:DateTime}
+      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${SQL.AND(filters)}
     GROUP BY date
     ORDER BY date ASC

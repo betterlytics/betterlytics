@@ -51,9 +51,7 @@ export function useTimeRangeHandlers({
       const { compareStart, compareEnd } = getCompareRangeForTimePresets(value);
 
       const granularities = getAllowedGranularities(startDate, endDate);
-      console.log(tempState.granularity, granularities);
       const granularity = getValidGranularityFallback(tempState.granularity, granularities);
-      console.log('now:', granularity);
 
       if (value === '24h') {
         const granulatedStartDate = getDateWithGranularity(startDate, granularity);
