@@ -1,4 +1,14 @@
-import { subDays, subMonths, subSeconds, subMilliseconds, endOfDay, startOfDay } from 'date-fns';
+import {
+  subDays,
+  subMonths,
+  subSeconds,
+  subMilliseconds,
+  endOfDay,
+  startOfDay,
+  endOfHour,
+  endOfMinute,
+} from 'date-fns';
+import { GranularityRangeValues } from './granularityRanges';
 
 export type TimeRangeValue = '24h' | '7d' | '28d' | '3mo' | 'custom';
 export type TimeGrouping = 'minute' | 'hour' | 'day';
@@ -50,6 +60,23 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
 ];
+
+export function getDateWithTimeOfDay(date: Date, timeOfDayDate: Date) {
+  const hours = timeOfDayDate.getHours();
+  const minutes = timeOfDayDate.getMinutes();
+  const seconds = timeOfDayDate.getSeconds();
+  const milliseconds = timeOfDayDate.getMilliseconds();
+
+  const newDate = new Date(date);
+
+  newDate.setHours(hours, minutes, seconds, milliseconds);
+
+  return newDate;
+}
+
+export function getDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
+  return granularity === 'day' ? endOfDay(date) : granularity === 'hour' ? endOfHour(date) : endOfMinute(date);
+}
 
 export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>): {
   startDate: Date;

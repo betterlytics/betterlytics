@@ -22,11 +22,11 @@ export const GRANULARITY_RANGE_PRESETS: GranularityRangePreset[] = [
 
 export function getAllowedGranularities(startDate: Date, endDate: Date): GranularityRangeValues[] {
   const durationMs = endDate.getTime() - startDate.getTime();
-  const oneDayMs = 24 * 60 * 60 * 1000;
+  const oneDayMs = 48 * 60 * 60 * 1000;
   const oneWeekMs = 7 * oneDayMs;
 
   if (durationMs >= oneWeekMs) return ['day'];
-  if (durationMs <= oneDayMs) return ['day', 'hour', 'minute'];
+  if (durationMs <= oneDayMs) return ['hour', 'minute'];
   return ['day', 'hour'];
 }
 
@@ -40,6 +40,10 @@ export function getValidGranularityFallback(
 
   if (currentGranularity === 'minute') {
     return allowedGranularities.includes('hour') ? 'hour' : 'day';
+  }
+
+  if (currentGranularity === 'day') {
+    return allowedGranularities.includes('hour') ? 'hour' : 'minute';
   }
 
   return 'day';

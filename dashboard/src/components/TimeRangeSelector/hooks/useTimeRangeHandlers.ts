@@ -1,8 +1,19 @@
 'use client';
 
 import { useCallback } from 'react';
-import { TimeRangeValue, getCompareRangeForTimePresets, getDateRangeForTimePresets } from '@/utils/timeRanges';
-import { GranularityRangeValues, getValidGranularityFallback } from '@/utils/granularityRanges';
+import {
+  TimeRangeValue,
+  getCompareRangeForTimePresets,
+  getDateRangeForTimePresets,
+  getDateWithGranularity,
+  getDateWithTimeOfDay,
+} from '@/utils/timeRanges';
+import {
+  GranularityRangeValues,
+  getAllowedGranularities,
+  getValidGranularityFallback,
+} from '@/utils/granularityRanges';
+import { endOfDay, startOfDay } from 'date-fns';
 
 export type TempState = {
   range: TimeRangeValue;
@@ -39,8 +50,38 @@ export function useTimeRangeHandlers({
       const { startDate, endDate } = getDateRangeForTimePresets(value);
       const { compareStart, compareEnd } = getCompareRangeForTimePresets(value);
 
+      const granularities = getAllowedGranularities(startDate, endDate);
+      console.log(tempState.granularity, granularities);
+      const granularity = getValidGranularityFallback(tempState.granularity, granularities);
+      console.log('now:', granularity);
+
+      if (value === '24h') {
+        const granulatedStartDate = getDateWithGranularity(startDate, granularity);
+        const granulatedEndDate = getDateWithGranularity(endDate, granularity);
+
+        const granulatedCompareStart = getDateWithGranularity(
+          getDateWithTimeOfDay(compareStart, granulatedStartDate),
+          granularity,
+        );
+
+        const granulatedCompareEnd = getDateWithGranularity(
+          getDateWithTimeOfDay(compareEnd, granulatedEndDate),
+          granularity,
+        );
+
+        return updateTempState({
+          range: value,
+          granularity,
+          customStart: granulatedStartDate,
+          customEnd: granulatedEndDate,
+          compareStart: granulatedCompareStart,
+          compareEnd: granulatedCompareEnd,
+        });
+      }
+
       updateTempState({
         range: value,
+        granularity,
         customStart: startDate,
         customEnd: endDate,
         compareStart: compareStart,
@@ -63,7 +104,7 @@ export function useTimeRangeHandlers({
       if (!date) return;
       updateTempState({
         range: 'custom',
-        customStart: date,
+        customStart: startOfDay(date),
       });
     },
     [updateTempState],
@@ -74,7 +115,7 @@ export function useTimeRangeHandlers({
       if (!date) return;
       updateTempState({
         range: 'custom',
-        customEnd: date,
+        customEnd: endOfDay(date),
       });
     },
     [updateTempState],
@@ -89,13 +130,27 @@ export function useTimeRangeHandlers({
 
   const handleCompareStartDateSelect = useCallback(
     (date: Date | undefined) => {
-      if (!date || !periodDurationDays) return;
-      // Calculate exact duration in milliseconds to preserve time
-      const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;
-      const compareEnd = new Date(date.getTime() + durationMs);
+      if (!date || !tempState.customStart || !tempState.customEnd) {
+        return;
+      }
+
+      const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
+
+      if (tempState.range === '24h') {
+        const compareStart = getDateWithTimeOfDay(date, tempState.customStart);
+        const compareEnd = new Date(compareStart.getTime() + timeDifference);
+
+        return updateTempState({
+          compareStart,
+          compareEnd,
+        });
+      }
+
+      const compareStart = startOfDay(date);
+      const compareEnd = endOfDay(new Date(compareStart.getTime() + timeDifference));
       updateTempState({
-        compareStart: date,
-        compareEnd: compareEnd,
+        compareStart,
+        compareEnd,
       });
     },
     [updateTempState, periodDurationDays],
@@ -103,21 +158,33 @@ export function useTimeRangeHandlers({
 
   const handleCompareEndDateSelect = useCallback(
     (date: Date | undefined) => {
-      if (!date || !periodDurationDays) return;
+      if (!date || !tempState.customStart || !tempState.customEnd) {
+        return;
+      }
 
-      // Calculate exact duration in milliseconds to preserve time
-      const durationMs = periodDurationDays * 24 * 60 * 60 * 1000;
-      const compareStart = new Date(date.getTime() - durationMs);
+      const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
+
+      if (tempState.range === '24h') {
+        const compareEnd = getDateWithTimeOfDay(date, tempState.customEnd);
+        const compareStart = new Date(compareEnd.getTime() - timeDifference);
+
+        return updateTempState({
+          compareStart,
+          compareEnd,
+        });
+      }
+
+      const compareEnd = endOfDay(date);
+      const compareStart = startOfDay(new Date(compareEnd.getTime() - timeDifference));
       updateTempState({
-        compareStart: compareStart,
-        compareEnd: date,
+        compareStart,
+        compareEnd,
       });
     },
     [updateTempState, periodDurationDays],
   );
 
   const handleApply = useCallback(() => {
-    // Validate granularity before applying
     let finalGranularity = tempState.granularity;
     if (!allowedGranularities.includes(finalGranularity)) {
       finalGranularity = getValidGranularityFallback(finalGranularity, allowedGranularities);
