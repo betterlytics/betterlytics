@@ -17,6 +17,8 @@ import {
   RawCampaignLandingPagePerformanceArraySchema,
 } from '@/entities/campaign';
 import { safeSql, SQL } from '@/lib/safe-sql';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { BAQuery } from '@/lib/ba-query';
 
 const UTM_DIMENSION_ALIASES = {
   utm_campaign: 'utm_campaign_name',
@@ -174,18 +176,21 @@ export async function getCampaignVisitorTrendData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  granularity: GranularityRangeValues,
 ): Promise<CampaignTrendRow[]> {
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+
   const query = safeSql`
     SELECT
-      toDate(timestamp) AS event_date,
+      ${granularityFunc}(timestamp) AS date,
       utm_campaign,
       COUNT(DISTINCT visitor_id) AS visitors
     FROM analytics.events
     WHERE site_id = {siteId:String}
       AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
       AND utm_campaign != ''
-    GROUP BY event_date, utm_campaign
-    ORDER BY event_date ASC, utm_campaign ASC
+    GROUP BY date, utm_campaign
+    ORDER BY date ASC, utm_campaign ASC
   `;
 
   const resultSet = await clickhouse
