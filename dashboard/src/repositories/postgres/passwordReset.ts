@@ -1,5 +1,10 @@
 import prisma from '@/lib/postgres';
+import * as crypto from 'crypto';
 import { PasswordResetToken, PasswordResetTokenSchema } from '@/entities/passwordReset';
+
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
 
 export async function createPasswordResetToken(
   userId: string,
@@ -7,10 +12,12 @@ export async function createPasswordResetToken(
   expiresAt: Date,
 ): Promise<PasswordResetToken> {
   try {
+    const tokenHash = hashToken(token);
+
     const resetToken = await prisma.passwordResetToken.create({
       data: {
         userId,
-        token,
+        token: tokenHash,
         expires: expiresAt,
       },
     });
@@ -24,8 +31,10 @@ export async function createPasswordResetToken(
 
 export async function findPasswordResetToken(token: string): Promise<PasswordResetToken | null> {
   try {
+    const tokenHash = hashToken(token);
+
     const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { token },
+      where: { token: tokenHash },
     });
 
     if (!resetToken) return null;
@@ -39,8 +48,10 @@ export async function findPasswordResetToken(token: string): Promise<PasswordRes
 
 export async function deletePasswordResetToken(token: string) {
   try {
+    const tokenHash = hashToken(token);
+
     await prisma.passwordResetToken.delete({
-      where: { token },
+      where: { token: tokenHash },
     });
   } catch (error) {
     console.error(`Error deleting password reset token:`, error);
