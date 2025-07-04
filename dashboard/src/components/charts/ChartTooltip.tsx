@@ -40,13 +40,11 @@ export function ChartTooltip({
     ? Object.values(comparisonData.compareValues)[0]
     : ((payload[1]?.value || payload[0].payload.value[1]) as number);
 
-  const formattedLabel = name ? labelFormatter(name) : name;
-
   const hasComparison = previousValue !== undefined;
   const trendInfo = getTrendInfo(value, previousValue || 0, hasComparison);
   const { icon: TrendIcon, color: trendColor, bgColor: trendBgColor } = trendInfo;
 
-  const formattedDifference = formatDifference(value, previousValue || 0, formatter, hasComparison);
+  const formattedDifference = formatDifference(value, previousValue || 0, hasComparison, formatter);
   return (
     <div
       className={cn(
@@ -59,7 +57,7 @@ export function ChartTooltip({
         <div className='mb-1 flex items-center gap-2'>
           <div className='bg-primary h-2 w-2 rounded-full' style={{ background: labelColor }}></div>
           <span className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
-            {formattedLabel}
+            {labelFormatter(name)}
           </span>
         </div>
         {hasComparison && comparisonData && (

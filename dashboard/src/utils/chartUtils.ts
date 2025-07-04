@@ -8,7 +8,7 @@ export interface TrendInfo {
   bgColor: string;
 }
 
-export function getTrendInfo(current: number, previous: number, hasComparison: boolean = true): TrendInfo {
+export function getTrendInfo(current: number, previous: number, hasComparison: boolean): TrendInfo {
   if (!hasComparison || previous === 0) {
     return { icon: Minus, color: 'text-gray-400', bgColor: 'bg-gray-500/10' };
   }
@@ -26,8 +26,8 @@ export function getTrendInfo(current: number, previous: number, hasComparison: b
 export function formatDifference(
   current: number,
   previous: number,
+  hasComparison: boolean,
   formatter?: (value: number) => string,
-  hasComparison: boolean = true,
 ): string | null {
   if (!hasComparison || previous === 0) return null;
 

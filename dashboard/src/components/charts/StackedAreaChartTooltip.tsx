@@ -52,16 +52,13 @@ export function StackedAreaChartTooltip({
 
   const currentTotal = payload.reduce((sum: number, entry: PayloadEntry) => sum + getCurrentValue(entry), 0);
   const compareTotal = comparisonData
-    ? payload.reduce(
-        (sum: number, entry: PayloadEntry) => sum + (comparisonData.compareValues[entry.dataKey] || 0),
-        0,
-      )
+    ? payload.reduce((sum: number, entry: PayloadEntry) => sum + getCompareValue(entry), 0)
     : 0;
 
   const sortedPayload = [...payload].sort((a, b) => getCurrentValue(b) - getCurrentValue(a));
 
   const totalTrend = getTrendInfo(currentTotal, compareTotal, hasComparison);
-  const totalDifference = formatDifference(currentTotal, compareTotal, formatter, hasComparison);
+  const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter);
 
   return (
     <div className='animate-in zoom-in-95 border-border bg-popover/95 min-w-[220px] rounded-lg border p-4 shadow-xl backdrop-blur-sm'>
@@ -115,7 +112,7 @@ export function StackedAreaChartTooltip({
             const currentValue = getCurrentValue(entry);
             const compareValue = getCompareValue(entry);
             const trend = getTrendInfo(currentValue, compareValue, hasComparison);
-            const difference = formatDifference(currentValue, compareValue, formatter, hasComparison);
+            const difference = formatDifference(currentValue, compareValue, hasComparison, formatter);
 
             return (
               <div key={entry.dataKey || index} className='space-y-1'>
