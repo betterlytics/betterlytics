@@ -58,6 +58,8 @@ function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityR
   return (column: z.infer<typeof DateColumnSchema>, date: DateTimeString) => {
     const validatedColumn = DateColumnSchema.parse(column);
     const alignedDate = toClickHouseGridStartString(date);
+    // The "{DateTime} - INTERVAL 10 YEAR" is a "hack" to set the ClickHouse grid aligned origin prior to all points in the database
+    // If removed ClickHouse will throw an error stating that the origin must be before any data point
     return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.DateTime({ granulairty_origin_date: alignedDate })} - INTERVAL 10 YEAR)`;
   };
 }
