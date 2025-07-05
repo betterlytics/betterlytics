@@ -3,6 +3,8 @@ title: "Custom Events"
 description: "Track specific user interactions with custom events. Monitor button clicks, form submissions, downloads, and any custom behavior on your website."
 ---
 
+import { Callout } from "nextra/components";
+
 # Custom Events
 
 Track specific user interactions and behaviors beyond standard page views. Custom events help you understand how visitors engage with your content and achieve your business goals.
@@ -20,7 +22,427 @@ Custom events let you track specific actions users take on your website:
 
 ## Basic Event Tracking
 
-Coming soon...
+Once you've installed the Betterlytics tracking script, you can track custom events using the global `betterlytics()` function.
+
+### Handling Async Script Loading (Recommended)
+
+If you're loading the analytics script asynchronously (recommended for performance), add this small snippet **before** your analytics script to prevent timing issues:
+
+```html
+<script>
+  window.betterlytics =
+    window.betterlytics ||
+    function () {
+      (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+    };
+</script>
+<script
+  async
+  src="your-analytics.js"
+  data-site-id="123"
+  data-server-url="https://api.example.com/track"
+></script>
+```
+
+This ensures `betterlytics()` calls work immediately, even before the main script finishes loading.
+
+### Simple Event Tracking
+
+Here is what sending a custom event looks like:
+
+```javascript
+// Track a basic event
+betterlytics("button-click");
+
+// Track an event with properties
+betterlytics("newsletter-signup", {
+  source: "homepage",
+  newsletter: "weekly-digest",
+});
+```
+
+**The first argument** to the function ("button-click" or "newsletter-signup") is the name of your custom event that will be used to identify the event in your dashboard.
+
+**The second (optional) argument** is an object of event properties that provide extra content about the interaction.
+
+## Event Properties
+
+Custom event properties help you understand what happened, where, and why, turning raw events into meaningful insights.
+
+For example:
+
+```javascript
+betterlytics("product-view", {
+  productId: "abc123",
+  category: "electronics",
+  price: 299.99,
+  source: "search-results",
+});
+```
+
+These properties let you answer questions like:
+
+- **Which** product? (`productId: "abc123"`)
+- **What** category? (`category: "electronics"`)
+- **How much** did it cost? (`price: 299.99`)
+- **From what source?** (`source: "search-results"`)
+
+You can use this pattern to track any kind of user interaction: button clicks, form submissions, file downloads, feature usage, and more. These key-value pairs help you segment and analyze your data more effectively, enabling you to answer business questions and optimize user experience.
+
+### Property Guidelines
+
+- **Use descriptive property names** (e.g. `source`, `category`, `price`)
+- **Keep values simple** - strings, numbers, booleans work best
+- **Avoid deeply nested objects** - flat structures are easier to query
+- **Never include personally identifiable information (PII)**
+
+<Callout type="warning" emoji="⚠️">
+**What counts as PII?**
+
+Personally Identifiable Information (PII) includes any data that could identify a specific person, such as:
+
+- Names, emails, phone numbers
+- Addresses or precise locations
+- IP addresses or device IDs
+- Social security numbers, IDs
+- Account numbers or usernames
+
+</Callout>
+
+## Common Use Case Examples
+
+<details>
+<summary><strong>Button Clicks</strong> - Track CTA buttons, navigation, and interactive elements</summary>
+
+```javascript
+document.getElementById("cta-button").addEventListener("click", function () {
+  betterlytics("cta-click", {
+    buttonText: "Get Started",
+    location: "header",
+  });
+});
+```
+
+</details>
+
+<details>
+<summary><strong>Form Submissions</strong> - Track contact forms, newsletters, and signups</summary>
+
+```javascript
+document
+  .getElementById("contact-form")
+  .addEventListener("submit", function (e) {
+    betterlytics("form-submit", {
+      formType: "contact",
+      source: "contact-page",
+    });
+  });
+
+// Track form abandonment (user starts but doesn't submit)
+document.getElementById("signup-form").addEventListener("input", function () {
+  if (!this.hasAttribute("data-started")) {
+    this.setAttribute("data-started", "true");
+    betterlytics("form-started", {
+      formType: "signup",
+      formSection: "newsletter",
+    });
+  }
+});
+```
+
+</details>
+
+<details>
+<summary><strong>File Downloads</strong> - Track PDFs, images, documents, and media</summary>
+
+```javascript
+document.querySelectorAll('a[href$=".pdf"]').forEach((link) => {
+  link.addEventListener("click", function () {
+    betterlytics("file-download", {
+      fileName: this.getAttribute("href"),
+      fileType: "pdf",
+    });
+  });
+});
+
+// Track all downloadable file types
+const downloadableExtensions = [
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".zip",
+  ".jpg",
+  ".png",
+];
+document.querySelectorAll("a").forEach((link) => {
+  const href = link.getAttribute("href") || "";
+  if (downloadableExtensions.some((ext) => href.toLowerCase().endsWith(ext))) {
+    link.addEventListener("click", function () {
+      const extension = href.split(".").pop().toLowerCase();
+      betterlytics("file-download", {
+        fileName: href.split("/").pop(),
+        fileType: extension,
+        fileSize: this.getAttribute("data-size") || "unknown",
+      });
+    });
+  }
+});
+```
+
+</details>
+
+<details>
+<summary><strong>Video Interactions</strong> - Track play, pause, completion, and engagement</summary>
+
+```javascript
+const video = document.getElementById("promo-video");
+
+video.addEventListener("play", () => {
+  betterlytics("video-play", { videoId: "promo-video" });
+});
+
+video.addEventListener("ended", () => {
+  betterlytics("video-complete", { videoId: "promo-video" });
+});
+
+// Advanced video tracking with progress milestones
+let milestones = [25, 50, 75];
+video.addEventListener("timeupdate", function () {
+  const progress = Math.round((this.currentTime / this.duration) * 100);
+
+  milestones.forEach((milestone, index) => {
+    if (
+      progress >= milestone &&
+      !this.hasAttribute(`data-milestone-${milestone}`)
+    ) {
+      this.setAttribute(`data-milestone-${milestone}`, "true");
+      betterlytics("video-progress", {
+        videoId: this.id || "unnamed-video",
+        milestone: milestone,
+        duration: Math.round(this.duration),
+      });
+    }
+  });
+});
+```
+
+</details>
+
+<details>
+<summary><strong>E-commerce Actions</strong> - Track cart, checkout, and purchase events</summary>
+
+```javascript
+// Add to cart
+document.querySelectorAll(".add-to-cart").forEach((button) => {
+  button.addEventListener("click", function () {
+    betterlytics("add-to-cart", {
+      productId: this.getAttribute("data-product-id"),
+      productName: this.getAttribute("data-product-name"),
+      price: parseFloat(this.getAttribute("data-price")),
+      category: this.getAttribute("data-category"),
+    });
+  });
+});
+
+// Product wishlist actions
+document.querySelectorAll(".add-to-wishlist").forEach((button) => {
+  button.addEventListener("click", function () {
+    betterlytics("add-to-wishlist", {
+      productId: this.getAttribute("data-product-id"),
+      productName: this.getAttribute("data-product-name"),
+      price: parseFloat(this.getAttribute("data-price")),
+      category: this.getAttribute("data-category"),
+    });
+  });
+});
+
+// Product comparison
+function trackProductComparison(productIds) {
+  betterlytics("product-comparison", {
+    productCount: productIds.length,
+    productIds: productIds.join(","),
+    category: "electronics",
+  });
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Search & Navigation</strong> - Track searches, filters, and user journey</summary>
+
+```javascript
+// Search tracking
+document.getElementById("search-form").addEventListener("submit", function (e) {
+  const query = this.querySelector('input[type="search"]').value;
+  betterlytics("search", {
+    query: query,
+    resultsCount: document.querySelectorAll(".search-result").length,
+    source: "header-search",
+  });
+});
+```
+
+</details>
+
+## Framework-Specific Examples
+
+<details>
+<summary><strong>React</strong> - Component-based event tracking with hooks</summary>
+
+```jsx
+import { useEffect } from "react";
+
+function ProductPage({ productId }) {
+  useEffect(() => {
+    betterlytics("product-view", {
+      productId: productId,
+    });
+  }, [productId]);
+
+  const handleAddToCart = () => {
+    betterlytics("add-to-cart", {
+      productId: productId,
+      source: "product-page",
+    });
+  };
+
+  return (
+    <div>
+      <button onClick={handleAddToCart}>Add to Cart</button>
+    </div>
+  );
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Vue.js</strong> - Reactive event tracking</summary>
+
+```vue
+<template>
+  <button @click="trackClick">Get Started</button>
+</template>
+
+<script>
+export default {
+  methods: {
+    trackClick() {
+      betterlytics("cta-click", { component: "CTAButton" });
+    },
+  },
+};
+</script>
+```
+</details>
+
+<details>
+<summary><strong>Angular</strong> - Service-based event tracking with dependency injection</summary>
+
+```typescript
+// analytics.service.ts
+import { Injectable } from "@angular/core";
+
+declare global {
+  interface Window {
+    betterlytics: (eventName: string, eventProps?: Record<string, any>) => void;
+  }
+}
+
+@Injectable({
+  providedIn: "root",
+})
+export class AnalyticsService {
+  track(eventName: string, properties?: Record<string, any>) {
+    if (typeof window !== "undefined" && window.betterlytics) {
+      window.betterlytics(eventName, properties);
+    }
+  }
+}
+
+// component usage
+import { Component } from "@angular/core";
+import { AnalyticsService } from "./analytics.service";
+
+@Component({
+  selector: "app-product",
+  template: `<button (click)="addToCart()">Add to Cart</button>`,
+})
+export class ProductComponent {
+  constructor(private analytics: AnalyticsService) {}
+
+  addToCart() {
+    this.analytics.track("add-to-cart", {
+      productId: this.productId,
+      source: "product-page",
+    });
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Next.js</strong> - Component-rendered event tracking</summary>
+
+```tsx
+// app/product/[id]/page.tsx
+'use client';
+import { useEffect } from "react";
+
+export default function ProductPage({ params }: { params: { id: string } }) {
+  useEffect(() => {
+    betterlytics("page-view", {
+      pageType: "product",
+      productId: params.id,
+    });
+  }, [params.id]);
+
+  return <div>Product {params.id}</div>;
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Nuxt.js</strong> - Component-based event tracking</summary>
+```vue
+<template>
+  <button @click="trackPurchase">Complete Purchase</button>
+</template>
+
+<script setup>
+const trackPurchase = () => {
+  betterlytics("purchase", {
+    value: 99.99,
+    currency: "USD",
+    source: "checkout-page",
+  });
+};
+</script>
+```
+
+</details>
+
+## TypeScript Support
+
+For TypeScript projects, you can add type definitions by creating a `types/analytics.d.ts` file:
+
+```typescript
+declare global {
+  interface Window {
+    betterlytics: (eventName: string, eventProps?: Record<string, any>) => void;
+  }
+}
+
+declare function betterlytics(
+  eventName: string,
+  eventProps?: Record<string, any>
+): void;
+
+export {};
+```
 
 ---
 

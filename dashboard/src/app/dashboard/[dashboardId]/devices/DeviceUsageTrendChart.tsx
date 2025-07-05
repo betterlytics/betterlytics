@@ -9,16 +9,20 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
 } from 'recharts';
-import React, { useMemo } from 'react';
-import { DeviceUsageTrendRow } from '@/entities/devices';
+import React from 'react';
 import { getDeviceColor } from '@/utils/deviceColors';
 import { DeviceIcon } from '@/components/icons';
-import { format } from 'date-fns';
 import { capitalizeFirstLetter } from '@/utils/formatters';
-import { sortByDate } from '@/utils/dateHelpers';
+import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
+import { format } from 'date-fns';
+import { type ComparisonMapping } from '@/types/charts';
+import { type GranularityRangeValues } from '@/utils/granularityRanges';
 
 interface DeviceUsageTrendChartProps {
-  data?: DeviceUsageTrendRow[];
+  chartData: Array<{ date: number } & Record<string, number>>;
+  categories: string[];
+  comparisonMap?: ComparisonMapping[];
+  granularity?: GranularityRangeValues;
 }
 
 const CustomLegend = React.memo(({ deviceTypes }: { deviceTypes: string[] }) => (
@@ -38,92 +42,13 @@ const CustomLegend = React.memo(({ deviceTypes }: { deviceTypes: string[] }) => 
 
 CustomLegend.displayName = 'CustomLegend';
 
-const calculateDeviceTypeTotals = (data: DeviceUsageTrendRow[]): Record<string, number> => {
-  if (!data || data.length === 0) {
-    return {};
-  }
-  return data.reduce(
-    (acc, item) => {
-      acc[item.device_type] = (acc[item.device_type] || 0) + item.count;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-};
-
-const getSortedDeviceTypes = (data: DeviceUsageTrendRow[], deviceTypeTotals: Record<string, number>): string[] => {
-  if (!data || data.length === 0) {
-    return [];
-  }
-  return Array.from(new Set(data.map((item) => item.device_type))).sort(
-    (a, b) => (deviceTypeTotals[b] || 0) - (deviceTypeTotals[a] || 0),
-  );
-};
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className='rounded-md border border-gray-200 bg-white p-2 shadow-lg'>
-        <p className='text-xs text-gray-500'>{format(new Date(label), 'MMM dd, yyyy HH:mm')}</p>
-        {payload.map((entry: any) => (
-          <p key={entry.name} className='text-sm text-gray-700' style={{ color: entry.color }}>
-            {`${capitalizeFirstLetter(entry.name)}: ${entry.value.toLocaleString()}`}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
-
-CustomTooltip.displayName = 'CustomTooltip';
-
-const prepareChartData = (
-  rawData: DeviceUsageTrendRow[],
-  allDeviceTypes: string[],
-): Array<Record<string, any>> => {
-  if (!rawData || rawData.length === 0 || !allDeviceTypes || allDeviceTypes.length === 0) {
-    return [];
-  }
-
-  const dataByDate: Record<string, Record<string, any>> = {};
-
-  rawData.forEach((item) => {
-    const { date } = item;
-    if (!dataByDate[date]) {
-      dataByDate[date] = { date };
-      allDeviceTypes.forEach((deviceType) => {
-        dataByDate[date][deviceType] = 0;
-      });
-    }
-  });
-
-  rawData.forEach((item) => {
-    const { date, device_type, count } = item;
-    if (dataByDate[date]) {
-      dataByDate[date][device_type] = count;
-    }
-  });
-
-  return sortByDate(Object.values(dataByDate) as Array<{ date: string } & Record<string, number>>);
-};
-
-export default function DeviceUsageTrendChart({ data }: DeviceUsageTrendChartProps) {
-  const deviceTypeTotals = useMemo(() => calculateDeviceTypeTotals(data || []), [data]);
-
-  const sortedDeviceTypes = useMemo(
-    () => getSortedDeviceTypes(data || [], deviceTypeTotals),
-    [data, deviceTypeTotals],
-  );
-
-  const chartData = useMemo(() => {
-    if (!data || data.length === 0 || sortedDeviceTypes.length === 0) {
-      return [];
-    }
-    return prepareChartData(data, sortedDeviceTypes);
-  }, [data, sortedDeviceTypes]);
-
-  if (!data || data.length === 0 || chartData.length === 0) {
+export default function DeviceUsageTrendChart({
+  chartData,
+  categories,
+  comparisonMap,
+  granularity,
+}: DeviceUsageTrendChartProps) {
+  if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
@@ -155,9 +80,20 @@ export default function DeviceUsageTrendChart({ data }: DeviceUsageTrendChartPro
               tickMargin={10}
               tickFormatter={(val) => val.toLocaleString()}
             />
-            <RechartsTooltip content={<CustomTooltip />} />
+            <RechartsTooltip
+              content={(props) => (
+                <StackedAreaChartTooltip
+                  active={props.active}
+                  payload={props.payload}
+                  label={props.label}
+                  comparisonMap={comparisonMap}
+                  granularity={granularity}
+                  formatter={(value) => value.toLocaleString()}
+                />
+              )}
+            />
 
-            {sortedDeviceTypes.map((deviceType) => (
+            {categories.map((deviceType) => (
               <Area
                 key={deviceType}
                 type='monotone'
@@ -172,7 +108,7 @@ export default function DeviceUsageTrendChart({ data }: DeviceUsageTrendChartPro
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <CustomLegend deviceTypes={sortedDeviceTypes} />
+      <CustomLegend deviceTypes={categories} />
     </div>
   );
 }
