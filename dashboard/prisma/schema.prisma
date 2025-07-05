@@ -54,6 +54,7 @@ model User {
   dashboardAccess UserDashboard[]
   settings UserSettings?
   subscription Subscription?
+  passwordResetTokens PasswordResetToken[]
 }
 
 model UserSettings {
@@ -175,4 +176,16 @@ model Subscription {
   
   @@index([userId, status])
   @@index([currentPeriodStart, currentPeriodEnd])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expires   DateTime
+  createdAt DateTime @default(now())
+  
+  @@index([token])
+  @@index([userId])
 }
