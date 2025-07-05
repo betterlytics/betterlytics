@@ -1,10 +1,6 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
-import { getDateRangeForTimePresets } from '@/utils/timeRanges';
-import {
-  GranularityRangeValues,
-  getAllowedGranularities,
-  getValidGranularityFallback,
-} from '@/utils/granularityRanges';
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
 type TimeRangeContextProps = {
   startDate: Date;
@@ -26,20 +22,17 @@ type TimeRangeContextProviderProps = {
 };
 
 export function TimeRangeContextProvider({ children }: TimeRangeContextProviderProps) {
-  const initialRangeDetails = getDateRangeForTimePresets('24h');
-  const [startDate, setStartDate] = React.useState<Date>(initialRangeDetails.startDate);
-  const [endDate, setEndDate] = React.useState<Date>(initialRangeDetails.endDate);
+  const defaultFilters = useMemo(() => BAFilterSearchParams.getDefaultFilters(), []);
 
-  const [granularity, setGranularity] = React.useState<GranularityRangeValues>('hour');
-  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(false);
-  const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(undefined);
-  const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = React.useState<Date>(defaultFilters.startDate);
+  const [endDate, setEndDate] = React.useState<Date>(defaultFilters.endDate);
 
-  useEffect(() => {
-    const newRangeDetails = getDateRangeForTimePresets('24h');
-    setStartDate(newRangeDetails.startDate);
-    setEndDate(newRangeDetails.endDate);
-  }, []);
+  const [granularity, setGranularity] = React.useState<GranularityRangeValues>(defaultFilters.granularity);
+  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(Boolean(defaultFilters.compareEnabled));
+  const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(
+    defaultFilters.compareStartDate,
+  );
+  const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(defaultFilters.compareEndDate);
 
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
     setStartDate(newStartDate);
@@ -50,14 +43,6 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
     setCompareStartDate(csDate);
     setCompareEndDate(ceDate);
   }, []);
-
-  useEffect(() => {
-    const allowedGranularities = getAllowedGranularities(startDate, endDate);
-    if (!allowedGranularities.includes(granularity)) {
-      const validGranularity = getValidGranularityFallback(granularity, allowedGranularities);
-      setGranularity(validGranularity);
-    }
-  }, [startDate, endDate, granularity, setGranularity]);
 
   return (
     <TimeRangeContext.Provider

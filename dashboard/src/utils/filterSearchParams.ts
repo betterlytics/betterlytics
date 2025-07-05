@@ -1,6 +1,12 @@
 import { QueryFilter } from '@/entities/filter';
 import { GranularityRangeValues, getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
-import { getCompareRangeForTimePresets, getDateRangeForTimePresets } from './timeRanges';
+import {
+  getCompareRangeForTimePresets,
+  getDateRangeForTimePresets,
+  getDateWithTimeOfDay,
+  getEndDateWithGranularity,
+  getStartDateWithGranularity,
+} from './timeRanges';
 
 type Filters = {
   queryFilters: (QueryFilter & { id: string })[];
@@ -17,14 +23,20 @@ type Filters = {
 };
 
 function getDefaultFilters(): Filters {
-  const { startDate, endDate } = getDateRangeForTimePresets('24h');
-  const { compareStart, compareEnd } = getCompareRangeForTimePresets('24h');
+  const granularity = 'hour';
+  let { startDate, endDate } = getDateRangeForTimePresets('24h');
+  let { compareStart, compareEnd } = getCompareRangeForTimePresets('24h');
+
+  startDate = getStartDateWithGranularity(startDate, granularity);
+  endDate = getEndDateWithGranularity(endDate, granularity);
+  compareStart = getStartDateWithGranularity(getDateWithTimeOfDay(compareStart, startDate), granularity);
+  compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
 
   return {
     queryFilters: [],
     startDate,
     endDate,
-    granularity: 'hour',
+    granularity,
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,

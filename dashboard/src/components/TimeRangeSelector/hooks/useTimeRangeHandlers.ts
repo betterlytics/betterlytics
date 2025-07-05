@@ -5,8 +5,9 @@ import {
   TimeRangeValue,
   getCompareRangeForTimePresets,
   getDateRangeForTimePresets,
-  getDateWithGranularity,
   getDateWithTimeOfDay,
+  getEndDateWithGranularity,
+  getStartDateWithGranularity,
 } from '@/utils/timeRanges';
 import {
   GranularityRangeValues,
@@ -52,10 +53,10 @@ export function useTimeRangeHandlers({
       const granularity = getValidGranularityFallback(tempState.granularity, granularities);
 
       if (value === '24h') {
-        startDate = getDateWithGranularity(startDate, granularity);
-        endDate = getDateWithGranularity(endDate, granularity);
-        compareStart = getDateWithGranularity(getDateWithTimeOfDay(compareStart, startDate), granularity);
-        compareEnd = getDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
+        startDate = getStartDateWithGranularity(startDate, granularity);
+        endDate = getEndDateWithGranularity(endDate, granularity);
+        compareStart = getStartDateWithGranularity(getDateWithTimeOfDay(compareStart, startDate), granularity);
+        compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
       }
 
       updateTempState({

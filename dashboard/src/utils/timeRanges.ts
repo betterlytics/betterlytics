@@ -7,6 +7,8 @@ import {
   startOfDay,
   endOfHour,
   endOfMinute,
+  startOfHour,
+  startOfMinute,
 } from 'date-fns';
 import { GranularityRangeValues } from './granularityRanges';
 
@@ -74,7 +76,15 @@ export function getDateWithTimeOfDay(date: Date, timeOfDayDate: Date) {
   return newDate;
 }
 
-export function getDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
+export function getStartDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
+  return granularity === 'day'
+    ? startOfDay(date)
+    : granularity === 'hour'
+      ? startOfHour(date)
+      : startOfMinute(date);
+}
+
+export function getEndDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
   return granularity === 'day' ? endOfDay(date) : granularity === 'hour' ? endOfHour(date) : endOfMinute(date);
 }
 
