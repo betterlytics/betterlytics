@@ -47,34 +47,17 @@ export function useTimeRangeHandlers({
         return;
       }
 
-      const { startDate, endDate } = getDateRangeForTimePresets(value);
-      const { compareStart, compareEnd } = getCompareRangeForTimePresets(value);
+      let { startDate, endDate } = getDateRangeForTimePresets(value);
+      let { compareStart, compareEnd } = getCompareRangeForTimePresets(value);
 
       const granularities = getAllowedGranularities(startDate, endDate);
       const granularity = getValidGranularityFallback(tempState.granularity, granularities);
 
       if (value === '24h') {
-        const granulatedStartDate = getDateWithGranularity(startDate, granularity);
-        const granulatedEndDate = getDateWithGranularity(endDate, granularity);
-
-        const granulatedCompareStart = getDateWithGranularity(
-          getDateWithTimeOfDay(compareStart, granulatedStartDate),
-          granularity,
-        );
-
-        const granulatedCompareEnd = getDateWithGranularity(
-          getDateWithTimeOfDay(compareEnd, granulatedEndDate),
-          granularity,
-        );
-
-        return updateTempState({
-          range: value,
-          granularity,
-          customStart: granulatedStartDate,
-          customEnd: granulatedEndDate,
-          compareStart: granulatedCompareStart,
-          compareEnd: granulatedCompareEnd,
-        });
+        startDate = getDateWithGranularity(startDate, granularity);
+        endDate = getDateWithGranularity(endDate, granularity);
+        compareStart = getDateWithGranularity(getDateWithTimeOfDay(compareStart, startDate), granularity);
+        compareEnd = getDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
       }
 
       updateTempState({
@@ -134,18 +117,14 @@ export function useTimeRangeHandlers({
 
       const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
 
-      if (tempState.range === '24h') {
-        const compareStart = getDateWithTimeOfDay(date, tempState.customStart);
-        const compareEnd = new Date(compareStart.getTime() + timeDifference);
+      let compareStart = startOfDay(date);
+      let compareEnd = endOfDay(new Date(compareStart.getTime() + timeDifference));
 
-        return updateTempState({
-          compareStart,
-          compareEnd,
-        });
+      if (tempState.range === '24h') {
+        compareStart = getDateWithTimeOfDay(date, tempState.customStart);
+        compareEnd = new Date(compareStart.getTime() + timeDifference);
       }
 
-      const compareStart = startOfDay(date);
-      const compareEnd = endOfDay(new Date(compareStart.getTime() + timeDifference));
       updateTempState({
         compareStart,
         compareEnd,
@@ -162,18 +141,14 @@ export function useTimeRangeHandlers({
 
       const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
 
-      if (tempState.range === '24h') {
-        const compareEnd = getDateWithTimeOfDay(date, tempState.customEnd);
-        const compareStart = new Date(compareEnd.getTime() - timeDifference);
+      let compareEnd = endOfDay(date);
+      let compareStart = startOfDay(new Date(compareEnd.getTime() - timeDifference));
 
-        return updateTempState({
-          compareStart,
-          compareEnd,
-        });
+      if (tempState.range === '24h') {
+        compareEnd = getDateWithTimeOfDay(date, tempState.customEnd);
+        compareStart = new Date(compareEnd.getTime() - timeDifference);
       }
 
-      const compareEnd = endOfDay(date);
-      const compareStart = startOfDay(new Date(compareEnd.getTime() - timeDifference));
       updateTempState({
         compareStart,
         compareEnd,
