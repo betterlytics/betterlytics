@@ -40,17 +40,16 @@ export function useTimeRangeHandlers({
   onApply,
 }: UseTimeRangeHandlersProps) {
   const handleQuickSelect = useCallback(
-    (value: TimeRangeValue) => {
+    (value: TimeRangeValue, newGranularity?: GranularityRangeValues) => {
       if (value === 'custom') {
-        updateTempState({ range: value });
+        updateTempState({ range: value, granularity: newGranularity });
         return;
       }
-
       let { startDate, endDate } = getDateRangeForTimePresets(value);
       let { compareStart, compareEnd } = getCompareRangeForTimePresets(value);
 
       const granularities = getAllowedGranularities(startDate, endDate);
-      const granularity = getValidGranularityFallback(tempState.granularity, granularities);
+      const granularity = getValidGranularityFallback(newGranularity || tempState.granularity, granularities);
 
       if (value === '24h') {
         startDate = getStartDateWithGranularity(startDate, granularity);
@@ -74,9 +73,9 @@ export function useTimeRangeHandlers({
   const handleGranularitySelect = useCallback(
     (granularity: GranularityRangeValues) => {
       if (!allowedGranularities.includes(granularity)) return;
-      updateTempState({ granularity });
+      handleQuickSelect(tempState.range, granularity);
     },
-    [updateTempState, allowedGranularities],
+    [updateTempState, handleQuickSelect, allowedGranularities],
   );
 
   const handleStartDateSelect = useCallback(
