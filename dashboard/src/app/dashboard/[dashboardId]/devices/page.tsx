@@ -49,6 +49,8 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     endDate,
     granularity,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
 
   return (
