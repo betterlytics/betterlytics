@@ -55,3 +55,11 @@ export function defaultDateLabelFormatter(date: string | number, granularity?: G
 
   return timeFormat('%b %d - %H:%M')(new Date(date));
 }
+
+export function granularityDateFormmatter(granularity?: GranularityRangeValues) {
+  if (granularity === undefined || granularity === 'day') {
+    return timeFormat('%b %d');
+  }
+
+  return timeFormat('%b %d - %H:%M');
+}
