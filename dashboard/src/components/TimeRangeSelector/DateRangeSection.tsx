@@ -24,24 +24,14 @@ export function DateRangeSection({
           label='Start date'
           date={startDate}
           onDateSelect={(date) => onStartDateSelect(date)}
-          disabled={(date) => {
-            if (endDate && date > endDate) {
-              return true;
-            }
-            return date > new Date();
-          }}
+          disabled={(date) => date > new Date()}
           id='startDateInput'
         />
         <DatePicker
           label='End date'
           date={endDate}
           onDateSelect={(date) => onEndDateSelect(date)}
-          disabled={(date) => {
-            if (startDate && date < startDate) {
-              return true;
-            }
-            return date > new Date();
-          }}
+          disabled={(date) => date > new Date()}
           id='endDateInput'
         />
       </div>

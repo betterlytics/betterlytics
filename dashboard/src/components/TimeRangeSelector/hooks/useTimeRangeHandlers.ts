@@ -130,7 +130,7 @@ export function useTimeRangeHandlers({
         compareEnd,
       });
     },
-    [updateTempState],
+    [updateTempState, tempState],
   );
 
   const handleCompareEndDateSelect = useCallback(
@@ -154,7 +154,7 @@ export function useTimeRangeHandlers({
         compareEnd,
       });
     },
-    [updateTempState],
+    [updateTempState, tempState],
   );
 
   const handleApply = useCallback(() => {
@@ -170,6 +170,12 @@ export function useTimeRangeHandlers({
 
     onApply(finalState);
   }, [tempState, allowedGranularities, onApply]);
+
+  useEffect(() => {
+    updateTempState({
+      granularity: getValidGranularityFallback(tempState.granularity, allowedGranularities),
+    });
+  }, [tempState.granularity, allowedGranularities, updateTempState]);
 
   useEffect(() => {
     if (!tempState.compareEnabled || !tempState.customEnd || !tempState.customStart || !tempState.compareStart) {
