@@ -60,8 +60,6 @@ export function useSyncURLFilters() {
 
   useEffect(() => {
     try {
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
-
       const encodedFilters = BAFilterSearchParams.encode({
         queryFilters,
         startDate,
@@ -76,8 +74,8 @@ export function useSyncURLFilters() {
         compareEnabled: compareEnabled,
       });
 
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
       params.set(URL_PARAM_NAME, encodedFilters);
-
       router.replace(`?${params.toString()}`);
       router.refresh();
     } catch (error) {

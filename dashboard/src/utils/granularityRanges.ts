@@ -26,7 +26,7 @@ export function getAllowedGranularities(startDate: Date, endDate: Date): Granula
   const oneWeekMs = 7 * oneDayMs;
 
   if (durationMs >= oneWeekMs) return ['day'];
-  if (durationMs <= oneDayMs) return ['day', 'hour', 'minute'];
+  if (durationMs <= oneDayMs) return ['hour', 'minute'];
   return ['day', 'hour'];
 }
 
@@ -40,6 +40,10 @@ export function getValidGranularityFallback(
 
   if (currentGranularity === 'minute') {
     return allowedGranularities.includes('hour') ? 'hour' : 'day';
+  }
+
+  if (currentGranularity === 'day') {
+    return allowedGranularities.includes('hour') ? 'hour' : 'minute';
   }
 
   return 'day';

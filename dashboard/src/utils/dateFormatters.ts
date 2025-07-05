@@ -12,6 +12,21 @@ export function toDateTimeString(date: string | Date): DateTimeString {
   return d.toISOString().replace('T', ' ').slice(0, 19);
 }
 
+/**
+ * Formats date strings to Clickhouse datetime column format
+ * @param dateTime DateTimeString
+ * @returns DateTimeString
+ */
+export function toClickHouseGridStartString(dateTime: DateTimeString): DateTimeString {
+  if (dateTime.length != 19) {
+    return dateTime;
+  }
+  // The "seconds" need to be 0
+  // So "2025-06-30 15:53:12" --> "2025-06-30 15:53:00"
+  const dateMissingSeconds = dateTime.substring(0, 16);
+  return `${dateMissingSeconds}:00`;
+}
+
 // Helper function to format duration in a user-friendly way
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
