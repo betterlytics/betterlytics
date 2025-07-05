@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   TimeRangeValue,
   getCompareRangeForTimePresets,
@@ -29,7 +29,6 @@ interface UseTimeRangeHandlersProps {
   tempState: TempState;
   updateTempState: (updates: Partial<TempState>) => void;
   allowedGranularities: GranularityRangeValues[];
-  periodDurationDays: number | null;
   onApply: (tempState: TempState) => void;
 }
 
@@ -37,7 +36,6 @@ export function useTimeRangeHandlers({
   tempState,
   updateTempState,
   allowedGranularities,
-  periodDurationDays,
   onApply,
 }: UseTimeRangeHandlersProps) {
   const handleQuickSelect = useCallback(
@@ -69,7 +67,7 @@ export function useTimeRangeHandlers({
         compareEnd: compareEnd,
       });
     },
-    [updateTempState, periodDurationDays],
+    [updateTempState],
   );
 
   const handleGranularitySelect = useCallback(
@@ -86,9 +84,10 @@ export function useTimeRangeHandlers({
       updateTempState({
         range: 'custom',
         customStart: startOfDay(date),
+        customEnd: tempState.customEnd && endOfDay(tempState.customEnd),
       });
     },
-    [updateTempState],
+    [updateTempState, tempState.customEnd],
   );
 
   const handleEndDateSelect = useCallback(
@@ -97,9 +96,10 @@ export function useTimeRangeHandlers({
       updateTempState({
         range: 'custom',
         customEnd: endOfDay(date),
+        customStart: tempState.customStart && startOfDay(tempState.customStart),
       });
     },
-    [updateTempState],
+    [updateTempState, tempState.customStart],
   );
 
   const handleCompareEnabledChange = useCallback(
@@ -130,7 +130,7 @@ export function useTimeRangeHandlers({
         compareEnd,
       });
     },
-    [updateTempState, periodDurationDays],
+    [updateTempState],
   );
 
   const handleCompareEndDateSelect = useCallback(
@@ -154,7 +154,7 @@ export function useTimeRangeHandlers({
         compareEnd,
       });
     },
-    [updateTempState, periodDurationDays],
+    [updateTempState],
   );
 
   const handleApply = useCallback(() => {
@@ -170,6 +170,29 @@ export function useTimeRangeHandlers({
 
     onApply(finalState);
   }, [tempState, allowedGranularities, onApply]);
+
+  useEffect(() => {
+    if (!tempState.compareEnabled || !tempState.customEnd || !tempState.customStart || !tempState.compareStart) {
+      return;
+    }
+
+    const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
+
+    let compareStart = tempState.compareStart;
+
+    if (tempState.range !== '24h') {
+      compareStart = startOfDay(compareStart);
+    }
+
+    const compareEnd = new Date(compareStart.getTime() + timeDifference);
+
+    if (
+      tempState.compareStart.getTime() !== compareStart.getTime() ||
+      tempState.compareEnd?.getTime() !== compareEnd.getTime()
+    ) {
+      updateTempState({ compareStart, compareEnd });
+    }
+  }, [tempState, updateTempState]);
 
   return {
     handleQuickSelect,

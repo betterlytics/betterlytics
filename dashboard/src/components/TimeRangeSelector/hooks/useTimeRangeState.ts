@@ -82,23 +82,6 @@ export function useTimeRangeState() {
     return getAllowedGranularities(startDate, endDate);
   }, [tempState.range, tempState.customStart, tempState.customEnd]);
 
-  const periodDurationDays = useMemo(() => {
-    let startDate: Date | undefined;
-    let endDate: Date | undefined;
-
-    if (tempState.range === 'custom') {
-      startDate = tempState.customStart;
-      endDate = tempState.customEnd;
-    } else {
-      const range = getDateRangeForTimePresets(tempState.range);
-      startDate = range.startDate;
-      endDate = range.endDate;
-    }
-
-    if (!startDate || !endDate) return null;
-    return differenceInCalendarDays(endDate, startDate);
-  }, [tempState.range, tempState.customStart, tempState.customEnd]);
-
   const updateTempState = useCallback((updates: Partial<TempState>) => {
     setTempState((prev) => ({ ...prev, ...updates }));
   }, []);
@@ -115,7 +98,6 @@ export function useTimeRangeState() {
     // Temp state
     tempState,
     allowedGranularities,
-    periodDurationDays,
 
     // Actions
     updateTempState,

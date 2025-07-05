@@ -19,15 +19,8 @@ import { TempState, useTimeRangeHandlers } from './hooks/useTimeRangeHandlers';
 export function TimeRangeSelector({ className = '' }: { className?: string }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const {
-    context,
-    currentActivePreset,
-    tempState,
-    allowedGranularities,
-    periodDurationDays,
-    updateTempState,
-    resetTempState,
-  } = useTimeRangeState();
+  const { context, currentActivePreset, tempState, allowedGranularities, updateTempState, resetTempState } =
+    useTimeRangeState();
 
   const handleApplyChanges = useCallback(
     (finalState: TempState) => {
@@ -60,7 +53,6 @@ export function TimeRangeSelector({ className = '' }: { className?: string }) {
     tempState,
     updateTempState,
     allowedGranularities,
-    periodDurationDays,
     onApply: handleApplyChanges,
   });
 
