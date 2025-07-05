@@ -58,13 +58,14 @@ export function useTimeRangeHandlers({
         compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
       }
 
+      const compare = newGranularity ? {} : { compareStart, compareEnd };
+
       updateTempState({
         range: value,
         granularity,
         customStart: startDate,
         customEnd: endDate,
-        compareStart: compareStart,
-        compareEnd: compareEnd,
+        ...compare,
       });
     },
     [updateTempState],
