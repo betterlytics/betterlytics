@@ -27,11 +27,19 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, granularity, compareStartDate, compareEndDate } =
+    await BAFilterSearchParams.decodeFromParams(searchParams);
 
   const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
   const sourceBreakdownPromise = fetchCampaignSourceBreakdownAction(dashboardId, startDate, endDate);
-  const visitorTrendPromise = fetchCampaignVisitorTrendAction(dashboardId, startDate, endDate);
+  const visitorTrendPromise = fetchCampaignVisitorTrendAction(
+    dashboardId,
+    startDate,
+    endDate,
+    granularity,
+    compareStartDate,
+    compareEndDate,
+  );
   const mediumBreakdownPromise = fetchCampaignMediumBreakdownAction(dashboardId, startDate, endDate);
   const contentBreakdownPromise = fetchCampaignContentBreakdownAction(dashboardId, startDate, endDate);
   const termBreakdownPromise = fetchCampaignTermBreakdownAction(dashboardId, startDate, endDate);

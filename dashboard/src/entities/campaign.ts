@@ -107,13 +107,8 @@ export const CampaignLandingPagePerformanceItemSchema = z.object({
 
 const CampaignVisitorValuesSchema = z.record(z.string(), z.number().nonnegative());
 
-export const PivotedCampaignVisitorTrendItemSchema = z.object({
-  date: z.string(),
-  campaignValues: CampaignVisitorValuesSchema,
-});
-
 export const CampaignTrendRowSchema = z.object({
-  event_date: z.string(),
+  date: z.string(),
   utm_campaign: z.string(),
   visitors: z.number().int().nonnegative(),
 });
@@ -127,7 +122,6 @@ export type CampaignMediumBreakdownItem = z.infer<typeof CampaignMediumBreakdown
 export type RawCampaignContentBreakdownItem = z.infer<typeof RawCampaignContentBreakdownItemSchema>;
 export type CampaignContentBreakdownItem = z.infer<typeof CampaignContentBreakdownItemSchema>;
 export type CampaignTrendRow = z.infer<typeof CampaignTrendRowSchema>;
-export type PivotedCampaignVisitorTrendItem = z.infer<typeof PivotedCampaignVisitorTrendItemSchema>;
 export type RawCampaignTermBreakdownItem = z.infer<typeof RawCampaignTermBreakdownItemSchema>;
 export type CampaignTermBreakdownItem = z.infer<typeof CampaignTermBreakdownItemSchema>;
 export type RawCampaignLandingPagePerformanceItem = z.infer<typeof RawCampaignLandingPagePerformanceItemSchema>;
@@ -142,7 +136,6 @@ export const CampaignMediumBreakdownArraySchema = z.array(CampaignMediumBreakdow
 export const RawCampaignContentBreakdownArraySchema = z.array(RawCampaignContentBreakdownItemSchema);
 export const CampaignContentBreakdownArraySchema = z.array(CampaignContentBreakdownItemSchema);
 export const CampaignTrendRowArraySchema = z.array(CampaignTrendRowSchema);
-export const PivotedCampaignVisitorTrendArraySchema = z.array(PivotedCampaignVisitorTrendItemSchema);
 export const RawCampaignTermBreakdownArraySchema = z.array(RawCampaignTermBreakdownItemSchema);
 export const CampaignTermBreakdownArraySchema = z.array(CampaignTermBreakdownItemSchema);
 export const RawCampaignLandingPagePerformanceArraySchema = z.array(RawCampaignLandingPagePerformanceItemSchema);

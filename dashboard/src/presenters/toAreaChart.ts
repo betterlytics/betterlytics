@@ -1,6 +1,7 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { utcDay, utcHour, utcMinute } from 'd3-time';
 import { getDateKey } from '@/utils/dateHelpers';
+import { type ComparisonMapping } from '@/types/charts';
 
 const IntervalFunctions = {
   day: utcDay,
@@ -69,6 +70,11 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
   return chartData;
 }
 
+type AreaChartResult = {
+  data: Array<{ date: number; value: number[] }>;
+  comparisonMap?: ComparisonMapping[];
+};
+
 export function toAreaChart<K extends string>({
   dataKey,
   data,
@@ -76,7 +82,7 @@ export function toAreaChart<K extends string>({
   granularity,
   dateRange,
   compareDateRange,
-}: ToAreaChartProps<K>) {
+}: ToAreaChartProps<K>): AreaChartResult {
   const chart = dataToAreaChart({
     dataKey,
     data,
@@ -85,7 +91,7 @@ export function toAreaChart<K extends string>({
   });
 
   if (compare === undefined) {
-    return chart;
+    return { data: chart };
   }
 
   if (
@@ -107,11 +113,35 @@ export function toAreaChart<K extends string>({
   });
 
   if (chart.length !== compareChart.length) {
-    return chart;
+    return { data: chart };
   }
 
-  return chart.map((point, index) => ({
+  const chartData = chart.map((point, index) => ({
     date: point.date,
     value: [...point.value, ...compareChart[index].value],
   }));
+
+  const comparisonMap = createComparisonMap(chartData, compareChart, dataKey);
+
+  return {
+    data: chartData,
+    comparisonMap,
+  };
+}
+
+function createComparisonMap(
+  chartData: Array<{ date: number; value: number[] }>,
+  compareChartData: Array<{ date: number; value: number[] }>,
+  dataKey: string,
+) {
+  return chartData.map((currentPoint, index) => {
+    const comparePoint = compareChartData[index];
+
+    return {
+      currentDate: currentPoint.date,
+      compareDate: comparePoint.date,
+      currentValues: { [dataKey]: currentPoint.value[0] },
+      compareValues: { [dataKey]: comparePoint.value[0] },
+    };
+  });
 }

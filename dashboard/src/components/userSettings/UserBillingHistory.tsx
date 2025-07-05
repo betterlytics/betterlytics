@@ -34,11 +34,11 @@ export default function UserBillingHistory() {
   return (
     <SettingsCard
       icon={CreditCard}
-      title='Billing History'
+      title='Billing Portal'
       description='Manage your billing details and access your full billing history'
     >
       <div className='flex flex-col items-center justify-center py-4 text-center'>
-        <h3 className='mb-2 text-lg font-medium'>Access Billing History</h3>
+        <h3 className='mb-2 text-lg font-medium'>Access Billing Portal</h3>
         <p className='text-muted-foreground mb-6 text-sm'>
           View all past invoices, update payment methods, and manage your billing through Stripe&apos;s secure
           customer portal.
@@ -51,7 +51,7 @@ export default function UserBillingHistory() {
           </Button>
         ) : (
           <p className='text-muted-foreground text-sm'>
-            Billing history will be available once you upgrade to a paid plan.
+            Billing portal will be available once you upgrade to a paid plan.
           </p>
         )}
       </div>
