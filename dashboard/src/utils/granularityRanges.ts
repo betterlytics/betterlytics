@@ -24,9 +24,10 @@ export function getAllowedGranularities(startDate: Date, endDate: Date): Granula
   const durationMs = endDate.getTime() - startDate.getTime();
   const oneDayMs = 24 * 60 * 60 * 1000;
   const oneWeekMs = 7 * oneDayMs;
+  const twoDaysMs = 2 * oneDayMs;
 
   if (durationMs >= oneWeekMs) return ['day'];
-  if (durationMs <= oneDayMs) return ['hour', 'minute'];
+  if (durationMs <= twoDaysMs) return ['hour', 'minute'];
   return ['day', 'hour'];
 }
 
