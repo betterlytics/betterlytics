@@ -210,7 +210,7 @@ export default function TimeRangeSelector({ className = '' }: { className?: stri
 
   const displayRangeLabel = () => {
     if (currentActivePreset === 'custom' && startDate && endDate) {
-      return `${format(startDate, 'P')} - ${format(endDate, 'P')}`;
+      return `${format(startDate, 'dd/MM/yyyy')} - ${format(endDate, 'dd/MM/yyyy')}`;
     }
     const preset = TIME_RANGE_PRESETS.find((p) => p.value === currentActivePreset);
     return preset ? preset.label : 'Date Range';
