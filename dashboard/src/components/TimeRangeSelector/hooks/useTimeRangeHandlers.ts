@@ -179,6 +179,34 @@ export function useTimeRangeHandlers({
   }, [tempState.granularity, allowedGranularities, updateTempState]);
 
   useEffect(() => {
+    const customStart =
+      tempState.customStart && getStartDateWithGranularity(tempState.customStart, tempState.granularity);
+    const customEnd = tempState.customEnd && getEndDateWithGranularity(tempState.customEnd, tempState.granularity);
+
+    const compareStart =
+      tempState.compareStart &&
+      tempState.customStart &&
+      getStartDateWithGranularity(
+        getDateWithTimeOfDay(tempState.compareStart, tempState.customStart),
+        tempState.granularity,
+      );
+    const compareEnd =
+      tempState.compareEnd &&
+      tempState.customEnd &&
+      getEndDateWithGranularity(
+        getDateWithTimeOfDay(tempState.compareEnd, tempState.customEnd),
+        tempState.granularity,
+      );
+
+    updateTempState({
+      customStart,
+      customEnd,
+      compareStart,
+      compareEnd,
+    });
+  }, [tempState.granularity, updateTempState]);
+
+  useEffect(() => {
     if (!tempState.compareEnabled || !tempState.customEnd || !tempState.customStart || !tempState.compareStart) {
       return;
     }
