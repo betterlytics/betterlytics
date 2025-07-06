@@ -47,6 +47,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        run: pnpm --filter dashboard generate
+
       - name: TypeScript check
         run: cd dashboard && npx tsc --noEmit
 
@@ -92,7 +95,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: TypeScript check
-        run: pnpm --filter docs tsc --noEmit
+        run: cd docs && npx tsc --noEmit
 
       - name: Lint check
         run: pnpm --filter docs lint
