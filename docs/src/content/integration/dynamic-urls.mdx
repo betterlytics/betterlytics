@@ -7,7 +7,7 @@ import { Callout } from "nextra/components";
 
 # Dynamic URLs
 
-Normalize dynamic URLs containing user IDs, session tokens, or other variable parameters into consistent patterns. This improves privacy by removing identifying information and creates more meaningful analytics by grouping similar pages together.
+Normalize dynamic URLs containing user IDs, session tokens, or other variable parameters into consistent patterns. This improves privacy by removing identifying information, prevents accidental collection of personal data, and creates more meaningful analytics by grouping similar pages together.
 
 ## What Are Dynamic URLs?
 
@@ -20,6 +20,25 @@ Dynamic URLs contain variable segments that change based on user context, making
 - **Dashboard sections** - `/dashboard/user123/overview`, `/dashboard/user456/overview`
 
 Without normalization, each unique URL appears as a separate page in your analytics, making it impossible to see aggregate patterns.
+
+
+<Callout type="warning" emoji="">
+**Important: Avoid sensitive data in URLs**
+
+Never include sensitive or personally identifiable information (PII) in your URLs that could be tracked. This includes, but is not limited to:
+- **Personal identifiers**: email addresses, phone numbers, social security numbers
+- **Financial data**: credit card numbers, bank account details
+- **Authentication tokens**: passwords, API keys, session tokens
+- **Private information**: health records, personal documents
+
+Examples to avoid:
+- `/users/john.doe@email.com/profile`
+- `/checkout/card-4532123456789012`
+- `/reset-password/token-abc123xyz`
+
+Use dynamic URL normalization to mask any remaining identifiers in your URLs.
+</Callout>
+
 
 ## Basic URL Normalization
 
@@ -289,7 +308,7 @@ Verify your patterns work correctly by checking normalized URLs in your analytic
 - Monitor for unexpected normalizations
 - Adjust patterns based on actual usage
 
-### 4. Consider User Privacy
+### 4. Ensure User Privacy
 Use dynamic URLs to improve privacy by removing identifying information:
 
 ```html
