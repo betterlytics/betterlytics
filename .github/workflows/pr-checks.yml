@@ -187,8 +187,14 @@ jobs:
 
             const body = `## Tracking Script Size Report
 
-            **Raw Size**: ${baseSize} bytes (base) | ${prSize} bytes (pr) | ${sizeDiff} bytes
-            **Gzipped Size**: ${baseGzipSize} bytes (base) | ${prGzipSize} bytes (pr) | ${gzipDiff} bytes`;
+            **Raw Size**: 
+              | ${baseSize} bytes (base) 
+              | ${prSize} bytes (pr) 
+              | ${sizeDiff} bytes
+            **Gzipped Size**:
+              | ${baseGzipSize} bytes (base) 
+              | ${prGzipSize} bytes (pr) 
+              | ${gzipDiff} bytes`;
 
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
