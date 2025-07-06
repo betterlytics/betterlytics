@@ -114,11 +114,9 @@ services:
       - .env
     volumes:
       - ./package.json:/app/package.json:ro
-      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml:ro
       - ./migrations:/app/migrations:ro
       - ./scripts:/app/scripts:ro
       - ./dashboard/package.json:/app/dashboard/package.json:ro
-      - ./dashboard/pnpm-lock.yaml:/app/dashboard/pnpm-lock.yaml:ro
       - ./dashboard/prisma:/app/dashboard/prisma:ro
     command:
       - /bin/sh
@@ -127,10 +125,10 @@ services:
         apt-get update -y && apt-get install -y openssl
         npm install -g pnpm
         cd /app
-        pnpm install --frozen-lockfile
+        pnpm install
         pnpm run migrate-clickhouse
         cd ./dashboard
-        pnpm install --frozen-lockfile
+        pnpm install
         pnpm prisma migrate deploy
     depends_on:
       clickhouse:
