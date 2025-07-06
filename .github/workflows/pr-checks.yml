@@ -1,0 +1,218 @@
+name: PR Compilation Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      dashboard: ${{ steps.changes.outputs.dashboard }}
+      backend: ${{ steps.changes.outputs.backend }}
+      docs: ${{ steps.changes.outputs.docs }}
+      tracking-script: ${{ steps.changes.outputs.tracking-script }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            dashboard:
+              - 'dashboard/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+            backend:
+              - 'backend/**'
+            docs:
+              - 'docs/**'
+            tracking-script:
+              - 'static/analytics.js'
+
+  check-dashboard:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.dashboard == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.9.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter dashboard generate
+
+      - name: TypeScript check
+        run: cd dashboard && npx tsc --noEmit
+
+      - name: Lint check
+        run: pnpm --filter dashboard lint
+
+  check-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend
+
+      - name: Cargo check
+        run: cd backend && cargo check
+
+      - name: Cargo clippy # (|| true because clippy will block merges currently because we have a lot of warning, we should fix them and then remove || true)
+        run: cd backend && cargo clippy || true
+
+  check-docs:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.9.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check
+        run: cd docs && npx tsc --noEmit
+
+      - name: Lint check
+        run: pnpm --filter docs lint
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.9.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm run unit-tests
+
+  check-tracking-script-size:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.tracking-script == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history to compare with base branch
+
+      - name: Get base branch file
+        run: |
+          # Get the base branch version
+          git show origin/${{ github.base_ref }}:static/analytics.js > analytics-base.js
+
+          # Get current PR version
+          cp static/analytics.js analytics-pr.js
+
+          # Calculate sizes
+          echo "BASE_SIZE=$(wc -c < analytics-base.js)" >> $GITHUB_ENV
+          echo "PR_SIZE=$(wc -c < analytics-pr.js)" >> $GITHUB_ENV
+
+          # Calculate gzipped sizes
+          echo "BASE_GZIP_SIZE=$(gzip -c analytics-base.js | wc -c)" >> $GITHUB_ENV
+          echo "PR_GZIP_SIZE=$(gzip -c analytics-pr.js | wc -c)" >> $GITHUB_ENV
+
+      - name: Calculate size difference
+        run: |
+          # Calculate differences
+          SIZE_DIFF=$((PR_SIZE - BASE_SIZE))
+          GZIP_DIFF=$((PR_GZIP_SIZE - BASE_GZIP_SIZE))
+
+          # Format differences
+          if [ $SIZE_DIFF -gt 0 ]; then
+            SIZE_DIFF_TEXT="+$SIZE_DIFF"
+          else
+            SIZE_DIFF_TEXT="$SIZE_DIFF"
+          fi
+
+          if [ $GZIP_DIFF -gt 0 ]; then
+            GZIP_DIFF_TEXT="+$GZIP_DIFF"
+          else
+            GZIP_DIFF_TEXT="$GZIP_DIFF"
+          fi
+
+          echo "SIZE_DIFF_TEXT=$SIZE_DIFF_TEXT" >> $GITHUB_ENV
+          echo "GZIP_DIFF_TEXT=$GZIP_DIFF_TEXT" >> $GITHUB_ENV
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const baseSize = process.env.BASE_SIZE;
+            const prSize = process.env.PR_SIZE;
+            const baseGzipSize = process.env.BASE_GZIP_SIZE;
+            const prGzipSize = process.env.PR_GZIP_SIZE;
+            const sizeDiff = process.env.SIZE_DIFF_TEXT;
+            const gzipDiff = process.env.GZIP_DIFF_TEXT;
+
+            const body = `## Tracking Script Size Report
+
+            | Type         | Base Size (B)   | PR Size (B)     | Diff        |
+            |--------------|-----------------|-----------------|-------------|
+            | **Raw**      | ${baseSize}     | ${prSize}       | ${sizeDiff} |
+            | **Gzipped**  | ${baseGzipSize} | ${prGzipSize}   | ${gzipDiff} |`;
+
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const botComment = comments.data.find(comment => 
+              comment.user.login === 'github-actions[bot]' && 
+              comment.body.includes('## Tracking Script Size Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }

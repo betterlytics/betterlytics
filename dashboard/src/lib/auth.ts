@@ -1,18 +1,15 @@
-import type { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import {
-  verifyCredentials,
-  attemptAdminInitialization,
-} from "@/services/auth.service"
-import type { User } from "next-auth"
-import type { LoginUserData } from "@/entities/user"
+import type { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
+import type { User } from 'next-auth';
+import type { LoginUserData } from '@/entities/user';
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials.password) {
@@ -28,19 +25,19 @@ export const authOptions: NextAuthOptions = {
           }
 
           return await attemptAdminInitialization(email, password);
-          
         } catch (error) {
-          console.error("Authorization error:", error);
+          console.error('Authorization error:', error);
           return null;
         }
       },
     }),
   ],
   pages: {
-    signIn: "/signin",
+    signIn: '/signin',
+    error: '/signin',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
@@ -63,4 +60,4 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-} 
+};
