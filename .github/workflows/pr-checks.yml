@@ -187,14 +187,10 @@ jobs:
 
             const body = `## Tracking Script Size Report
 
-            **Raw Size**: 
-              | ${baseSize} bytes (base) 
-              | ${prSize} bytes (pr) 
-              | ${sizeDiff} bytes
-            **Gzipped Size**:
-              | ${baseGzipSize} bytes (base) 
-              | ${prGzipSize} bytes (pr) 
-              | ${gzipDiff} bytes`;
+            | Type         | Base Size (B)   | PR Size (B)     | Diff        |
+            |--------------|-----------------|-----------------|-------------|
+            | **Raw**      | ${baseSize}     | ${prSize}       | ${sizeDiff} |
+            | **Gzipped**  | ${baseGzipSize} | ${prGzipSize}   | ${gzipDiff} |`;
 
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
