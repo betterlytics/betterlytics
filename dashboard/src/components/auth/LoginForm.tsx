@@ -23,11 +23,11 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError('Invalid email or password. Please check your credentials and try again.');
         setIsLoading(false);
       }
     } catch {
-      setError('An error occurred during sign in');
+      setError('An error occurred during sign in. Please try again.');
       setIsLoading(false);
     }
   };
