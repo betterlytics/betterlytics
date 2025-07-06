@@ -33,15 +33,14 @@ interface UseTimeRangeHandlersProps {
   onApply: (tempState: TempState) => void;
 }
 
-function getDateRangeWithGranularity(range: TimeRangeValue, granularity: GranularityRangeValues) {
-  if (range === 'custom') {
-    return { startDate: undefined, endDate: undefined };
-  }
+function getDateRangeWithGranularity(
+  range: Exclude<TimeRangeValue, 'custom'>,
+  granularity: GranularityRangeValues,
+) {
+  const preset = getDateRangeForTimePresets(range);
 
-  let { startDate, endDate } = getDateRangeForTimePresets(range);
-
-  startDate = getStartDateWithGranularity(startDate, granularity);
-  endDate = getEndDateWithGranularity(endDate, granularity);
+  const startDate = getStartDateWithGranularity(preset.startDate, granularity);
+  const endDate = getEndDateWithGranularity(preset.endDate, granularity);
 
   return { startDate, endDate };
 }
@@ -53,13 +52,16 @@ function getCompareRangeWithGranularity(
   endDate: Date,
 ) {
   if (range === 'custom') {
-    return { compareStart: undefined, compareEnd: undefined };
+    return {};
   }
 
-  let { compareStart, compareEnd } = getCompareRangeForTimePresets(range);
+  const preset = getCompareRangeForTimePresets(range);
 
-  compareStart = getStartDateWithGranularity(getDateWithTimeOfDay(compareStart, startDate), granularity);
-  compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
+  const compareStart = getStartDateWithGranularity(
+    getDateWithTimeOfDay(preset.compareStart, startDate),
+    granularity,
+  );
+  const compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(preset.compareEnd, endDate), granularity);
 
   return { compareStart, compareEnd };
 }
@@ -77,28 +79,21 @@ export function useTimeRangeHandlers({
         return;
       }
 
-      const { startDate, endDate } = getDateRangeForTimePresets(value);
-      const granularities = getAllowedGranularities(startDate, endDate);
-      const granularity = getValidGranularityFallback(tempState.granularity, granularities);
+      const granularityRange = getDateRangeForTimePresets(value);
+      const granularity = getValidGranularityFallback(
+        tempState.granularity,
+        getAllowedGranularities(granularityRange.startDate, granularityRange.endDate),
+      );
 
-      const { startDate: adjustedStartDate, endDate: adjustedEndDate } = getDateRangeWithGranularity(
-        value,
-        granularity,
-      );
-      const { compareStart, compareEnd } = getCompareRangeWithGranularity(
-        value,
-        granularity,
-        adjustedStartDate!,
-        adjustedEndDate!,
-      );
+      const { startDate, endDate } = getDateRangeWithGranularity(value, granularity);
+      const compare = getCompareRangeWithGranularity(value, granularity, startDate, endDate);
 
       updateTempState({
         range: value,
         granularity,
-        customStart: adjustedStartDate,
-        customEnd: adjustedEndDate,
-        compareStart,
-        compareEnd,
+        customStart: startDate,
+        customEnd: endDate,
+        ...compare,
       });
     },
     [updateTempState, tempState.granularity],
