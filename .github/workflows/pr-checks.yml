@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
@@ -186,9 +190,29 @@ jobs:
             **Raw Size**: ${baseSize} bytes (base) | ${prSize} bytes (pr) | ${sizeDiff} bytes
             **Gzipped Size**: ${baseGzipSize} bytes (base) | ${prGzipSize} bytes (pr) | ${gzipDiff} bytes`;
 
-            github.rest.issues.createComment({
+            const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: body
             });
+
+            const botComment = comments.data.find(comment => 
+              comment.user.login === 'github-actions[bot]' && 
+              comment.body.includes('## Tracking Script Size Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
