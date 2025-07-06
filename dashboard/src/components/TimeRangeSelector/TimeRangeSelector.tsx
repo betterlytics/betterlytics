@@ -16,7 +16,13 @@ import { ComparePeriodSection } from './ComparePeriodSection';
 import { useTimeRangeState } from './hooks/useTimeRangeState';
 import { TempState, useTimeRangeHandlers } from './hooks/useTimeRangeHandlers';
 
-export function TimeRangeSelector({ className = '' }: { className?: string }) {
+export function TimeRangeSelector({
+  className = '',
+  showComparison = true,
+}: {
+  className?: string;
+  showComparison?: boolean;
+}) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const { context, currentActivePreset, tempState, allowedGranularities, updateTempState, resetTempState } =
@@ -109,14 +115,16 @@ export function TimeRangeSelector({ className = '' }: { className?: string }) {
           onEndDateSelect={handleEndDateSelect}
         />
 
-        <ComparePeriodSection
-          compareEnabled={tempState.compareEnabled}
-          onCompareEnabledChange={handleCompareEnabledChange}
-          compareStartDate={tempState.compareStart}
-          compareEndDate={tempState.compareEnd}
-          onCompareStartDateSelect={handleCompareStartDateSelect}
-          onCompareEndDateSelect={handleCompareEndDateSelect}
-        />
+        {showComparison && (
+          <ComparePeriodSection
+            compareEnabled={tempState.compareEnabled}
+            onCompareEnabledChange={handleCompareEnabledChange}
+            compareStartDate={tempState.compareStart}
+            compareEndDate={tempState.compareEnd}
+            onCompareStartDateSelect={handleCompareStartDateSelect}
+            onCompareEndDateSelect={handleCompareEndDateSelect}
+          />
+        )}
 
         <Separator className='my-4' />
         <div className='flex justify-end'>
