@@ -40,7 +40,7 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
           <h1 className='text-foreground mb-1 text-2xl font-bold'>User Journey</h1>
           <p className='text-muted-foreground text-sm'>Analytics and insights for your website</p>
         </div>
-        <DashboardFilters />
+        <DashboardFilters showComparison={false} />
       </div>
 
       <Suspense
