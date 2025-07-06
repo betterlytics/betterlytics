@@ -11,6 +11,7 @@ jobs:
       dashboard: ${{ steps.changes.outputs.dashboard }}
       backend: ${{ steps.changes.outputs.backend }}
       docs: ${{ steps.changes.outputs.docs }}
+      tracking-script: ${{ steps.changes.outputs.tracking-script }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -27,6 +28,8 @@ jobs:
               - 'Cargo.lock'
             docs:
               - 'docs/**'
+            tracking-script:
+              - 'static/analytics.js'
 
   check-dashboard:
     needs: detect-changes
@@ -119,3 +122,73 @@ jobs:
 
       - name: Run unit tests
         run: pnpm run unit-tests
+
+  check-tracking-script-size:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.tracking-script == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history to compare with base branch
+
+      - name: Get base branch file
+        run: |
+          # Get the base branch version
+          git show origin/${{ github.base_ref }}:static/analytics.js > analytics-base.js
+
+          # Get current PR version
+          cp static/analytics.js analytics-pr.js
+
+          # Calculate sizes
+          echo "BASE_SIZE=$(wc -c < analytics-base.js)" >> $GITHUB_ENV
+          echo "PR_SIZE=$(wc -c < analytics-pr.js)" >> $GITHUB_ENV
+
+          # Calculate gzipped sizes
+          echo "BASE_GZIP_SIZE=$(gzip -c analytics-base.js | wc -c)" >> $GITHUB_ENV
+          echo "PR_GZIP_SIZE=$(gzip -c analytics-pr.js | wc -c)" >> $GITHUB_ENV
+
+      - name: Calculate size difference
+        run: |
+          # Calculate differences
+          SIZE_DIFF=$((PR_SIZE - BASE_SIZE))
+          GZIP_DIFF=$((PR_GZIP_SIZE - BASE_GZIP_SIZE))
+
+          # Format differences
+          if [ $SIZE_DIFF -gt 0 ]; then
+            SIZE_DIFF_TEXT="+$SIZE_DIFF"
+          else
+            SIZE_DIFF_TEXT="$SIZE_DIFF"
+          fi
+
+          if [ $GZIP_DIFF -gt 0 ]; then
+            GZIP_DIFF_TEXT="+$GZIP_DIFF"
+          else
+            GZIP_DIFF_TEXT="$GZIP_DIFF"
+          fi
+
+          echo "SIZE_DIFF_TEXT=$SIZE_DIFF_TEXT" >> $GITHUB_ENV
+          echo "GZIP_DIFF_TEXT=$GZIP_DIFF_TEXT" >> $GITHUB_ENV
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const baseSize = process.env.BASE_SIZE;
+            const prSize = process.env.PR_SIZE;
+            const baseGzipSize = process.env.BASE_GZIP_SIZE;
+            const prGzipSize = process.env.PR_GZIP_SIZE;
+            const sizeDiff = process.env.SIZE_DIFF_TEXT;
+            const gzipDiff = process.env.GZIP_DIFF_TEXT;
+
+            const body = `## Tracking Script Size Report
+
+            **Raw Size**: ${baseSize} bytes (base) | ${prSize} bytes (pr) | ${sizeDiff} bytes
+            **Gzipped Size**: ${baseGzipSize} bytes (base) | ${prGzipSize} bytes (pr) | ${gzipDiff} bytes
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
