@@ -63,8 +63,8 @@ WORKDIR /app
 
 RUN pnpm install -g prisma
 
-COPY package*.json .
-RUN pnpm fetch --prod
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
 
 COPY ./prisma ./prisma
 
