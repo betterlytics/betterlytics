@@ -10,14 +10,13 @@
     script
       .getAttribute("data-dynamic-urls")
       ?.split(",")
-      .map((pattern) => pattern.trim())
-      .map(function (pattern) {
-        const regexPattern = pattern
-          .replace(/\*\*/g, "(.+)") // ** matches multiple segments
-          .replace(/\*/g, "([^/]+)"); // * matches single segment
+      .map(function (p) {
+        p = p.trim();
         return {
-          original: pattern,
-          regex: new RegExp(`^${regexPattern}`),
+          original: p,
+          regex: new RegExp(
+            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`
+          ),
         };
       }) ?? [];
 
@@ -32,19 +31,16 @@
   // Track current path for SPA navigation
   var currentPath = window.location.pathname;
 
-  // URL normalization function
-  function normalizeUrl(url) {
+  function normalize(url) {
     var urlObj = new URL(url);
     var pathname = urlObj.pathname;
-
     for (var i = 0; i < urlPatterns.length; i++) {
       var match = urlPatterns[i].regex.exec(pathname);
       if (match) {
-        var pattern = urlPatterns[i].original;
-        var remainingPath = pathname.slice(match[0].length);
-
-        var normalizedPath = `${pattern.replace(/\*\*/g, "*")}${remainingPath}`;
-
+        var normalizedPath = `${urlPatterns[i].original.replace(
+          /\*\*/g,
+          "*"
+        )}${pathname.slice(match[0].length)}`;
         return `${urlObj.origin}${normalizedPath}${urlObj.search}${urlObj.hash}`;
       }
     }
@@ -52,7 +48,7 @@
   }
 
   function trackEvent(eventName, isCustomEvent = false, properties = {}) {
-    var url = normalizeUrl(window.location.href);
+    var url = normalize(window.location.href);
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
