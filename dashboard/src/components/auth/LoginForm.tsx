@@ -1,35 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: true,
-        callbackUrl: '/dashboards',
-      });
+    startTransition(async () => {
+      try {
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: true,
+          callbackUrl: '/dashboards',
+        });
 
-      if (result?.error) {
-        setError('Invalid email or password');
-        setIsLoading(false);
+        if (result?.error) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        }
+      } catch {
+        setError('An error occurred during sign in. Please try again.');
       }
-    } catch {
-      setError('An error occurred during sign in');
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
@@ -78,10 +77,10 @@ export default function LoginForm() {
       <div>
         <button
           type='submit'
-          disabled={isLoading}
+          disabled={isPending}
           className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
         >
-          {isLoading ? 'Signing in...' : 'Sign in'}
+          {isPending ? 'Signing in...' : 'Sign in'}
         </button>
       </div>
 
