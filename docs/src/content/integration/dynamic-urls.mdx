@@ -1,0 +1,303 @@
+---
+title: "Dynamic URLs"
+description: "Normalize dynamic URLs for improved anonymization and consistent analytics grouping. Clean up user-specific IDs and route parameters for better privacy and more meaningful analytics."
+---
+
+import { Callout } from "nextra/components";
+
+# Dynamic URLs
+
+Normalize dynamic URLs containing user IDs, session tokens, or other variable parameters into consistent patterns. This improves privacy by removing identifying information and creates more meaningful analytics by grouping similar pages together.
+
+## What Are Dynamic URLs?
+
+Dynamic URLs contain variable segments that change based on user context, making them difficult to analyze collectively:
+
+- **User-specific pages** - `/users/john123/profile`, `/users/mary456/profile`
+- **Product pages** - `/products/abc-xyz/reviews`, `/products/def-789/reviews`  
+- **Content with IDs** - `/articles/12345/comments`, `/articles/67890/comments`
+- **Session-based URLs** - `/dashboard/sess_abc123/overview`, `/dashboard/sess_xyz789/overview`
+- **Dashboard sections** - `/dashboard/user123/overview`, `/dashboard/user456/overview`
+
+Without normalization, each unique URL appears as a separate page in your analytics, making it impossible to see aggregate patterns.
+
+## Basic URL Normalization
+
+Once you've installed the Betterlytics tracking script, you can normalize URLs using the `data-dynamic-urls` attribute.
+
+### Simple Wildcard Patterns
+
+Add URL patterns to your tracking script using comma-separated wildcard patterns:
+
+```html
+<script
+  async
+  src="your-analytics.js"
+  data-site-id="123"
+  data-server-url="https://api.example.com/track"
+  data-dynamic-urls="/users/*,/products/*,/articles/*"
+></script>
+```
+
+This configuration will:
+- Transform `/users/john123/profile` → `/users/*/profile`
+- Transform `/products/abc-xyz` → `/products/*`
+- Transform `/articles/12345/comments` → `/articles/*/comments`
+
+### Wildcard Types
+
+The dynamic URL feature supports two types of wildcards:
+
+#### Single Wildcard (`*`)
+Matches one URL segment and preserves the path structure:
+
+```html
+data-dynamic-urls="/users/*"
+```
+
+**Results:**
+- `/users/john123` → `/users/*`
+- `/users/john123/profile` → `/users/*/profile`
+- `/users/john123/settings/security` → `/users/*/settings/security`
+
+#### Double Wildcard (`**`)
+Matches multiple URL segments and flattens them to a single wildcard:
+
+```html
+data-dynamic-urls="/users/**"
+```
+
+**Results:**
+- `/users/john123` → `/users/*`
+- `/users/john123/profile` → `/users/*`
+- `/users/john123/settings/security` → `/users/*`
+
+## Advanced Pattern Matching
+
+### Multiple Wildcards
+
+You can use multiple wildcards in a single pattern to normalize complex URLs:
+
+```html
+data-dynamic-urls="/dashboard/*/users/*,/workspaces/*/projects/*"
+```
+
+**Results:**
+- `/dashboard/123/users/456` → `/dashboard/*/users/*`
+- `/dashboard/123/users/456/profile` → `/dashboard/*/users/*/profile`
+- `/workspaces/acme/projects/789` → `/workspaces/*/projects/*`
+
+### Mixed Wildcard Types
+
+Combine single and double wildcards for precise control:
+
+```html
+data-dynamic-urls="/users/*/posts/**,/admin/**/logs"
+```
+
+**Results:**
+- `/users/123/posts/456/comments` → `/users/*/posts/*`
+- `/users/123/posts/456/comments/789` → `/users/*/posts/*`
+- `/admin/super/user/logs` → `/admin/*/logs`
+- `/admin/super/user/system/logs` → `/admin/*/logs`
+
+
+<Callout type="warning" emoji="⚠️">
+**Pattern Order Matters**
+
+Patterns are evaluated in order. Place more specific patterns before general ones:
+
+```html
+<!-- Good: Specific before general -->
+data-dynamic-urls="/users/*/profile,/users/*"
+
+<!-- Avoid: General pattern matches everything first -->
+data-dynamic-urls="/users/*,/users/*/profile"
+```
+</Callout>
+
+## Common Use Cases
+
+<details>
+<summary><strong>User Profile Pages</strong> - Normalize user-specific URLs</summary>
+
+```html
+<!-- Normalize all user-related pages -->
+<script
+  async
+  src="your-analytics.js"
+  data-site-id="123"
+  data-server-url="https://api.example.com/track"
+  data-dynamic-urls="/users/*,/profiles/*,/accounts/*"
+></script>
+```
+
+**Before normalization:**
+- `/users/john123/profile` (1 unique visitor)
+- `/users/mary456/profile` (1 unique visitor)
+- `/users/alex789/profile` (1 unique visitor)
+
+**After normalization:**
+- `/users/*/profile` (3 total visitors)
+
+</details>
+
+<details>
+<summary><strong>E-commerce Product Pages</strong> - Group product variations</summary>
+
+```html
+<!-- Normalize product and category pages -->
+<script
+  async
+  src="your-analytics.js"
+  data-site-id="123"
+  data-server-url="https://api.example.com/track"
+  data-dynamic-urls="/products/*,/categories/*/products/*"
+></script>
+```
+
+**Results:**
+- `/products/iphone-15-pro` → `/products/*`
+- `/products/samsung-galaxy-s24` → `/products/*`
+- `/categories/electronics/products/laptop-123` → `/categories/*/products/*`
+
+</details>
+
+<details>
+<summary><strong>Dashboard Sections</strong> - Normalize dashboard and admin URLs</summary>
+
+```html
+<!-- Normalize dashboard and admin pages -->
+<script
+  async
+  src="your-analytics.js"
+  data-site-id="123"
+  data-server-url="https://api.example.com/track"
+  data-dynamic-urls="/dashboard/*/analytics,/admin/*/settings,/workspace/*/overview"
+></script>
+```
+
+**Results:**
+- `/dashboard/user123/analytics` → `/dashboard/*/analytics`
+- `/admin/company456/settings` → `/admin/*/settings`
+- `/workspace/team789/overview` → `/workspace/*/overview`
+
+</details>
+
+<details>
+<summary><strong>Content Management</strong> - Normalize CMS and blog URLs</summary>
+
+```html
+<!-- Normalize content pages -->
+<script
+  async
+  src="your-analytics.js"
+  data-site-id="123"
+  data-server-url="https://api.example.com/track"
+  data-dynamic-urls="/blog/*/posts/*,/cms/*/pages/**"
+></script>
+```
+
+**Results:**
+- `/blog/tech/posts/how-to-code` → `/blog/*/posts/*`
+- `/blog/lifestyle/posts/healthy-living` → `/blog/*/posts/*`
+- `/cms/admin/pages/complex/nested/structure` → `/cms/*/pages/*`
+
+</details>
+
+<details>
+<summary><strong>Multi-tenant Applications</strong> - Normalize tenant-specific URLs</summary>
+
+```html
+<!-- Normalize tenant and workspace URLs -->
+<script
+  async
+  src="your-analytics.js"
+  data-site-id="123"
+  data-server-url="https://api.example.com/track"
+  data-dynamic-urls="/workspaces/*,/tenants/*/dashboard/**"
+></script>
+```
+
+**Results:**
+- `/workspaces/acme-corp/projects` → `/workspaces/*/projects`
+- `/tenants/client-123/dashboard/analytics/reports` → `/tenants/*/dashboard/*`
+
+</details>
+
+## Privacy and UTM Parameters
+
+<Callout type="info" emoji="ℹ️">
+**UTM Parameters Are Preserved**
+
+Dynamic URL normalization only affects the path portion of URLs. Query parameters (including UTM parameters) are preserved for campaign tracking:
+
+- `/users/123?utm_source=google&utm_medium=cpc` → `/users/*?utm_source=google&utm_medium=cpc`
+</Callout>
+
+This ensures your marketing attribution remains intact while still normalizing the private path components.
+
+## Pattern Matching Rules
+
+### Case Sensitivity
+URL patterns are **case-sensitive**:
+- Pattern `/Users/*` will **not** match `/users/123`
+- Pattern `/users/*` will **not** match `/Users/123`
+
+### Exact Matching
+Patterns must match from the beginning of the path:
+- Pattern `/users/*` matches `/users/123` ✅
+- Pattern `/users/*` matches `/users/123/profile` ✅
+- Pattern `users/*` does **not** match `/users/123` ❌
+
+### Multiple Patterns
+When multiple patterns could match a URL, the **first matching pattern** is used:
+
+```html
+data-dynamic-urls="/users/*,/users/**"
+```
+
+For URL `/users/123/profile`:
+- First pattern `/users/*` matches → Result: `/users/*/profile`
+- Second pattern `/users/**` is ignored
+
+## Best Practices
+
+### 1. Start with Common Patterns
+Begin with the most common dynamic URL patterns in your application:
+
+```html
+<!-- Start with user and content pages -->
+data-dynamic-urls="/users/*,/posts/*,/products/*"
+```
+
+### 2. Use Specific Patterns
+Be as specific as possible to avoid over-normalization:
+
+```html
+<!-- Good: Specific to user profiles -->
+data-dynamic-urls="/users/*/profile,/users/*/settings"
+
+<!-- Avoid: Too broad, might normalize static pages -->
+data-dynamic-urls="/users/**"
+```
+
+### 3. Test Your Patterns
+Verify your patterns work correctly by checking normalized URLs in your analytics:
+
+- Test with real URLs from your application
+- Monitor for unexpected normalizations
+- Adjust patterns based on actual usage
+
+### 4. Consider User Privacy
+Use dynamic URLs to improve privacy by removing identifying information:
+
+```html
+<!-- Remove session IDs and user tokens -->
+data-dynamic-urls="/dashboard/*/overview,/profile/*/settings"
+```
+
+
+---
+
+_Questions about dynamic URLs? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!_
