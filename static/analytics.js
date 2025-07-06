@@ -35,6 +35,9 @@
       return Math.abs(hash).toString(16);
     })(userAgent + screenResolution);
 
+    // test
+    console.log("test");
+
     // Send tracking data
     fetch(serverUrl, {
       method: "POST",
