@@ -18,13 +18,20 @@ export async function getUniqueVisitors(
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
+    WITH first_visitor_appearances AS (
+      SELECT 
+        visitor_id,
+        min(timestamp) as custom_date
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND ${SQL.AND(filters)}
+      GROUP BY visitor_id
+    )
     SELECT
-      ${granularityFunc('timestamp', startDate)} as date,
-      uniq(session_id) as unique_visitors
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+      ${granularityFunc('custom_date', startDate)} as date,
+      uniq(visitor_id) as unique_visitors
+    FROM first_visitor_appearances
     GROUP BY date
     ORDER BY date ASC
     LIMIT 10080
@@ -52,7 +59,7 @@ export async function getTotalUniqueVisitors(
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
-    SELECT uniq(session_id) as unique_sessions
+    SELECT uniq(visitor_id) as unique_visitors
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -69,7 +76,7 @@ export async function getTotalUniqueVisitors(
       },
     })
     .toPromise()) as any[];
-  return Number(result[0]?.unique_sessions ?? 0);
+  return Number(result[0]?.unique_visitors ?? 0);
 }
 
 export async function getSessionMetrics(

@@ -46,7 +46,7 @@ const granularityIntervalMapper = {
   minute: GranularityIntervalSchema.enum['1 MINUTE'],
 };
 
-const DateColumnSchema = z.enum(['timestamp', 'date']);
+const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
 
 /**
  * Returns SQL function to be used for granularity.
