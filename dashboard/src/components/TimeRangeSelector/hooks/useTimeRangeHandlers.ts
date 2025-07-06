@@ -152,18 +152,8 @@ export function useTimeRangeHandlers({
 
   const handleCompareStartDateSelect = useCallback(
     (date: Date | undefined) => {
-      if (!date || !tempState.customStart || !tempState.customEnd) {
-        return;
-      }
-
-      const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
-
-      const compareStart = getDateWithTimeOfDay(date, tempState.customStart);
-      const compareEnd = new Date(compareStart.getTime() + timeDifference);
-
       updateTempState({
-        compareStart,
-        compareEnd,
+        compareStart: date,
       });
     },
     [updateTempState, tempState],
