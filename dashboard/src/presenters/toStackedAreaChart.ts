@@ -40,13 +40,11 @@ type StackedAreaChartResult = {
   comparisonMap?: ComparisonMapping[];
 };
 
-function normalizeIterationRange(dateRange: { start: Date; end: Date }, granularity: GranularityRangeValues) {
-  if (granularity === 'day') {
-    const startUTC = utcDay(dateRange.start);
-    const endUTC = utcDay(dateRange.end);
-    return { start: startUTC, end: endUTC };
-  }
-  return dateRange;
+function normalizeIterationRange(dateRange: { start: Date; end: Date }) {
+  return {
+    start: utcMinute(dateRange.start),
+    end: utcMinute(dateRange.end),
+  };
 }
 
 function pivotRawData<CategoryKey extends string, ValueKey extends string>(
@@ -88,7 +86,7 @@ function dataToStackedAreaChart<CategoryKey extends string, ValueKey extends str
 
   const chartData: ChartDataPoint[] = [];
 
-  const iterationRange = normalizeIterationRange(dateRange, granularity);
+  const iterationRange = normalizeIterationRange(dateRange);
 
   const intervalFunc = IntervalFunctions[granularity];
 
