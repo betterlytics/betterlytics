@@ -18,12 +18,14 @@ mod bot_detection;
 mod referrer;
 mod campaign;
 mod ua_parser;
+mod metrics;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use db::{Database, SharedDatabase};
 use processing::EventProcessor;
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
+use metrics::MetricsCollector;
 
 #[tokio::main]
 async fn main() {
@@ -58,6 +60,11 @@ async fn main() {
     db.validate_schema().await.expect("Invalid database schema");
     let db = Arc::new(db);
 
+    let metrics_collector = MetricsCollector::new()
+        .expect("Failed to initialize metrics collector")
+        .start_system_metrics_updater();
+    info!("Metrics collector started");
+
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
@@ -74,7 +81,8 @@ async fn main() {
         .route("/health", get(health_check))
         .route("/track", post(track_event))
         .route("/site-id", get(generate_site_id_handler))
-        .with_state((db, processor))
+        .route("/metrics", get(metrics_handler))
+        .with_state((db, processor, metrics_collector))
         .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
@@ -83,7 +91,7 @@ async fn main() {
 }
 
 async fn health_check(
-    State((db, _)): State<(SharedDatabase, Arc<EventProcessor>)>,
+    State((db, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Arc<MetricsCollector>)>,
 ) -> Result<impl IntoResponse, String> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
@@ -98,7 +106,7 @@ async fn health_check(
 }
 
 async fn track_event(
-    State((_db, processor)): State<(SharedDatabase, Arc<EventProcessor>)>,
+    State((_db, processor, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Arc<MetricsCollector>)>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
     Json(raw_event): Json<RawTrackingEvent>,
@@ -115,12 +123,29 @@ async fn track_event(
 
     let event = AnalyticsEvent::new(raw_event, parse_ip(headers).unwrap_or(addr.ip()).to_string());
 
+    let start_time = std::time::Instant::now();
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process event: {}", e);
         return Ok(StatusCode::OK);
     }
+    
+    let processing_duration = start_time.elapsed();
+    metrics.increment_events_processed();
+    metrics.record_processing_duration(processing_duration);
 
     Ok(StatusCode::OK)
+}
+
+async fn metrics_handler(
+    State((_, _, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Arc<MetricsCollector>)>,
+) -> impl IntoResponse {
+    match metrics.export_metrics() {
+        Ok(metrics_str) => (StatusCode::OK, metrics_str),
+        Err(e) => {
+            error!("Failed to export metrics: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to export metrics".to_string())
+        }
+    }
 }
 
 pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
