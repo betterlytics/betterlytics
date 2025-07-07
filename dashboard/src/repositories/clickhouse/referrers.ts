@@ -17,7 +17,7 @@ import {
   DailyReferralSessionDurationRowSchema,
 } from '@/entities/referrers';
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString, DateString } from '@/types/dates';
+import { DateTimeString } from '@/types/dates';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
@@ -300,8 +300,8 @@ export async function getTopReferrerSources(
  */
 export async function getDailyReferralSessions(
   siteId: string,
-  startDate: DateString,
-  endDate: DateString,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<DailyReferralSessionsRow[]> {
@@ -342,8 +342,8 @@ export async function getDailyReferralSessions(
  */
 export async function getDailyReferralTrafficPercentage(
   siteId: string,
-  startDate: DateString,
-  endDate: DateString,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<DailyReferralPercentageRow[]> {
@@ -392,8 +392,8 @@ export async function getDailyReferralTrafficPercentage(
  */
 export async function getDailyReferralSessionDuration(
   siteId: string,
-  startDate: DateString,
-  endDate: DateString,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<DailyReferralSessionDurationRow[]> {
