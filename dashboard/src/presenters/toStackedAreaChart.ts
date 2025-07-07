@@ -40,13 +40,6 @@ type StackedAreaChartResult = {
   comparisonMap?: ComparisonMapping[];
 };
 
-function normalizeIterationRange(dateRange: { start: Date; end: Date }) {
-  return {
-    start: utcMinute(dateRange.start),
-    end: utcMinute(dateRange.end),
-  };
-}
-
 function pivotRawData<CategoryKey extends string, ValueKey extends string>(
   data: RawStackedData<CategoryKey, ValueKey>,
   categoryKey: CategoryKey,
@@ -86,7 +79,10 @@ function dataToStackedAreaChart<CategoryKey extends string, ValueKey extends str
 
   const chartData: ChartDataPoint[] = [];
 
-  const iterationRange = normalizeIterationRange(dateRange);
+  const iterationRange = {
+    start: utcMinute(dateRange.start),
+    end: utcMinute(dateRange.end),
+  };
 
   const intervalFunc = IntervalFunctions[granularity];
 
