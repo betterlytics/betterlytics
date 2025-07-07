@@ -60,10 +60,16 @@ async fn main() {
     db.validate_schema().await.expect("Invalid database schema");
     let db = Arc::new(db);
 
-    let metrics_collector = MetricsCollector::new()
-        .expect("Failed to initialize metrics collector")
-        .start_system_metrics_updater();
-    info!("Metrics collector started");
+    let metrics_collector = if config.enable_monitoring {
+        let collector = MetricsCollector::new()
+            .expect("Failed to initialize metrics collector")
+            .start_system_metrics_updater();
+        info!("Metrics collector started");
+        Some(collector)
+    } else {
+        info!("Metrics collection disabled");
+        None
+    };
 
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
@@ -91,7 +97,7 @@ async fn main() {
 }
 
 async fn health_check(
-    State((db, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Arc<MetricsCollector>)>,
+    State((db, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>)>,
 ) -> Result<impl IntoResponse, String> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
@@ -106,7 +112,7 @@ async fn health_check(
 }
 
 async fn track_event(
-    State((_db, processor, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Arc<MetricsCollector>)>,
+    State((_db, processor, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>)>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
     Json(raw_event): Json<RawTrackingEvent>,
@@ -129,22 +135,29 @@ async fn track_event(
         return Ok(StatusCode::OK);
     }
     
-    let processing_duration = start_time.elapsed();
-    metrics.increment_events_processed();
-    metrics.record_processing_duration(processing_duration);
+    if let Some(metrics_collector) = metrics {
+        let processing_duration = start_time.elapsed();
+        metrics_collector.increment_events_processed();
+        metrics_collector.record_processing_duration(processing_duration);
+    }
 
     Ok(StatusCode::OK)
 }
 
 async fn metrics_handler(
-    State((_, _, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Arc<MetricsCollector>)>,
+    State((_, _, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>)>,
 ) -> impl IntoResponse {
-    match metrics.export_metrics() {
-        Ok(metrics_str) => (StatusCode::OK, metrics_str),
-        Err(e) => {
-            error!("Failed to export metrics: {}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to export metrics".to_string())
+    match metrics {
+        Some(metrics_collector) => {
+            match metrics_collector.export_metrics() {
+                Ok(metrics_str) => (StatusCode::OK, metrics_str),
+                Err(e) => {
+                    error!("Failed to export metrics: {}", e);
+                    (StatusCode::INTERNAL_SERVER_ERROR, "Failed to export metrics".to_string())
+                }
+            }
         }
+        None => (StatusCode::NOT_FOUND, "Metrics disabled".to_string())
     }
 }
 
