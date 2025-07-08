@@ -7,6 +7,8 @@ import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, Globe, Bell, Mail } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
+import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/types/language';
+import { LanguageSelect } from '@/components/language/LanguageSelect';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -62,15 +64,10 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
         <div className='space-y-4'>
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>Language</Label>
-            <Select value={formData.language || 'en'} onValueChange={(value) => onUpdate({ language: value })}>
-              <SelectTrigger className='w-32'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='en'>English</SelectItem>
-                <SelectItem value='da'>Dansk</SelectItem>
-              </SelectContent>
-            </Select>
+            <LanguageSelect
+              value={formData.language as SupportedLanguages || DEFAULT_LANGUAGE}
+              onUpdate={(language) => onUpdate({ language })}
+            />
           </div>
 
           <div className='flex items-center justify-between'>

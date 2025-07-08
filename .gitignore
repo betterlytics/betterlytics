@@ -65,3 +65,4 @@ node_modules
 
 # Pnpm lock
 pnpm-lock.yaml
+pnpm-workspace.yaml
