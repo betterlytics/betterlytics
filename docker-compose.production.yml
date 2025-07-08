@@ -150,8 +150,14 @@ services:
     volumes:
       - ./prometheus/prometheus.production.yml:/etc/prometheus/prometheus.yml
       - prometheus_prod_data:/prometheus_data
+    depends_on:
+      backend:
+        condition: service_started
+      dashboard:
+        condition: service_started
     networks:
       - monitoring_network
+      - grafana_prometheus_network
 
   grafana:
     image: grafana/grafana:latest
@@ -168,8 +174,11 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SECURITY_COOKIE_SECURE=true
       - GF_SECURITY_COOKIE_SAMESITE=strict
+    depends_on:
+      prometheus:
+        condition: service_started
     networks:
-      - monitoring_network
+      - grafana_prometheus_network
 
   proxy:
     build:
@@ -209,3 +218,4 @@ networks:
   postgres_network:
   clickhouse_network:
   monitoring_network:
+  grafana_prometheus_network:
