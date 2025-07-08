@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import {
-  ColumnDef,
-  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-  Row,
+  type ColumnDef,
+  type SortingState,
+  type Row,
+  type ColumnFiltersState,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowUp, ArrowDown } from 'lucide-react';
+import { Input } from './ui/input';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -20,6 +22,7 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState;
   className?: string;
   onRowClick?: (row: Row<TData>) => void;
+  searchColumn?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -28,81 +31,96 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
   className,
   onRowClick,
+  searchColumn,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
-
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting,
+      columnFilters,
     },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: setColumnFilters,
   });
 
   return (
-    <div className={`rounded-lg ${className || ''} overflow-hidden border border-gray-200 dark:border-slate-700`}>
-      <Table>
-        <TableHeader className='bg-gray-50 dark:bg-slate-800'>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className='border-b border-gray-200 dark:border-slate-700'>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className={`px-4 py-3 text-left text-sm font-medium text-slate-500 dark:text-slate-400 ${
-                    header.column.getCanSort()
-                      ? 'cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-slate-700'
-                      : ''
-                  }`}
-                  onClick={header.column.getToggleSortingHandler()}
-                >
-                  <div className='flex items-center'>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    {header.column.getIsSorted() && (
-                      <span className='ml-2'>
-                        {header.column.getIsSorted() === 'desc' ? (
-                          <ArrowDown className='h-4 w-4' />
-                        ) : (
-                          <ArrowUp className='h-4 w-4' />
-                        )}
-                      </span>
-                    )}
-                  </div>
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody className='divide-y divide-gray-200 bg-white dark:divide-slate-700 dark:bg-slate-900'>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className={`hover:bg-gray-50 dark:hover:bg-slate-800/50 ${onRowClick ? 'cursor-pointer' : ''}`}
-                onClick={() => onRowClick && onRowClick(row)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className='px-4 py-3 text-sm text-slate-700 dark:text-slate-300'>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+    <>
+      {searchColumn && (
+        <Input
+          placeholder={`Filter by ${searchColumn}...`}
+          value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ''}
+          onChange={(event) => table.getColumn(searchColumn)?.setFilterValue(event.target.value)}
+          className='mb-2 max-w-sm'
+        />
+      )}
+      <div
+        className={`rounded-lg ${className || ''} overflow-hidden border border-gray-200 dark:border-slate-700`}
+      >
+        <Table>
+          <TableHeader className='bg-gray-50 dark:bg-slate-800'>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className='border-b border-gray-200 dark:border-slate-700'>
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className={`px-4 py-3 text-left text-sm font-medium text-slate-500 dark:text-slate-400 ${
+                      header.column.getCanSort()
+                        ? 'cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-slate-700'
+                        : ''
+                    }`}
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
+                    <div className='flex items-center'>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.column.getIsSorted() && (
+                        <span className='ml-2'>
+                          {header.column.getIsSorted() === 'desc' ? (
+                            <ArrowDown className='h-4 w-4' />
+                          ) : (
+                            <ArrowUp className='h-4 w-4' />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
                 ))}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className='h-24 px-4 py-3 text-center text-gray-500 dark:text-slate-400'
-              >
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+            ))}
+          </TableHeader>
+          <TableBody className='divide-y divide-gray-200 bg-white dark:divide-slate-700 dark:bg-slate-900'>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className={`hover:bg-gray-50 dark:hover:bg-slate-800/50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                  onClick={() => onRowClick && onRowClick(row)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className='px-4 py-3 text-sm text-slate-700 dark:text-slate-300'>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 px-4 py-3 text-center text-gray-500 dark:text-slate-400'
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }

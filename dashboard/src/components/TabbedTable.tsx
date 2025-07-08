@@ -22,6 +22,7 @@ interface TabbedTableProps<TData> {
   defaultTab?: string;
   className?: string;
   headerActions?: ReactNode;
+  searchColumn?: string;
 }
 
 function TabbedTable<TData>({
@@ -31,6 +32,7 @@ function TabbedTable<TData>({
   defaultTab,
   className = '',
   headerActions,
+  searchColumn,
 }: TabbedTableProps<TData>) {
   const activeDefaultTab = defaultTab || tabs[0]?.key;
 
@@ -70,6 +72,7 @@ function TabbedTable<TData>({
                     columns={tab.columns}
                     data={tab.data}
                     defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
+                    searchColumn={searchColumn}
                   />
                 )}
               </div>
