@@ -138,3 +138,14 @@ export async function getUserSiteIds(userId: string): Promise<string[]> {
     return [];
   }
 }
+
+export async function deleteDashboard(dashboardId: string): Promise<void> {
+  try {
+    await prisma.dashboard.delete({
+      where: { id: dashboardId },
+    });
+  } catch (error) {
+    console.error(`Error deleting dashboard ${dashboardId}:`, error);
+    throw new Error(`Failed to delete dashboard ${dashboardId}.`);
+  }
+}
