@@ -1,42 +1,42 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const UserSettingsSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  
-  theme: z.enum(["light", "dark", "system"]),
-  language: z.string(),
-  timezone: z.string(),
-  
-  emailNotifications: z.boolean(),
-  marketingEmails: z.boolean(),
-  
-  createdAt: z.date(),
-  updatedAt: z.date(),
-}).strict();
+export const UserSettingsSchema = z
+  .object({
+    id: z.string(),
+    userId: z.string(),
 
-export const UserSettingsCreateSchema = z.object({
-  userId: z.string(),
-  theme: z.enum(["light", "dark", "system"]),
-  language: z.string(),
-  timezone: z.string(),
-  emailNotifications: z.boolean(),
-  marketingEmails: z.boolean(),
-}).strict();
+    theme: z.enum(['light', 'dark', 'system']),
+    language: z.string(),
+
+    emailNotifications: z.boolean(),
+    marketingEmails: z.boolean(),
+
+    createdAt: z.date(),
+    updatedAt: z.date(),
+  })
+  .strict();
+
+export const UserSettingsCreateSchema = z
+  .object({
+    userId: z.string(),
+    theme: z.enum(['light', 'dark', 'system']),
+    language: z.string(),
+    emailNotifications: z.boolean(),
+    marketingEmails: z.boolean(),
+  })
+  .strict();
 
 export const UserSettingsUpdateSchema = z.object({
-  theme: z.enum(["light", "dark", "system"]).optional(),
+  theme: z.enum(['light', 'dark', 'system']).optional(),
   language: z.string().optional(),
-  timezone: z.string().optional(),
   emailNotifications: z.boolean().optional(),
   marketingEmails: z.boolean().optional(),
 });
 
 // Default user settings matching database defaults
-export const DEFAULT_USER_SETTINGS: Omit<UserSettings, "id" | "userId" | "createdAt" | "updatedAt"> = {
-  theme: "system",
-  language: "en",
-  timezone: "UTC",
+export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
+  theme: 'system',
+  language: 'en',
   emailNotifications: true,
   marketingEmails: false,
 };

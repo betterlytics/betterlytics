@@ -9,13 +9,13 @@
 [![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
 
-[🚀 Quick Setup](#-quick-setup) • [📋 Prerequisites](#-prerequisites) • [🔧 Detailed Setup](#-detailed-setup) • [🐳 Docker](#-docker-setup)
+[Quick Setup](#-quick-setup) • [Prerequisites](#-prerequisites) • [Detailed Setup](#-detailed-setup) • [Docker](#-docker-setup)
 
 </div>
 
 ---
 
-## 🚀 Quick Setup
+## Quick Setup
 
 Get up and running in under 5 minutes:
 
@@ -23,7 +23,7 @@ Get up and running in under 5 minutes:
 <tr>
 <td width="50%" valign="top">
 
-### ⚡ Express Setup
+### Express Setup
 
 ```bash
 git clone https://github.com/betterlytics/betterlytics.git
@@ -36,18 +36,18 @@ pnpm run dashboard
 
 **That's it!** Your dashboard will be available at:
 
-- 📊 **Dashboard**: `http://localhost:3000`
-- 🔍 **ClickHouse**: `http://localhost:8123/play`
+- **Dashboard**: `http://localhost:3000`
+- **ClickHouse**: `http://localhost:8123/play`
 
 </td>
 <td width="50%" valign="top">
 
-### ✅ What This Does
+### What This Does
 
-- 🐳 **Starts Docker services** (ClickHouse, PostgreSQL)
-- 📦 **Installs dependencies** for all components
-- 🗃️ **Runs database migrations** automatically
-- 🚀 **Generates Prisma client** for the dashboard
+- **Starts Docker services** (ClickHouse, PostgreSQL)
+- **Installs dependencies** for all components
+- **Runs database migrations** automatically
+- **Generates Prisma client** for the dashboard
 
 **Next step**: Login to your dashboard using the login credentials defined in your dashboard/.env configuration file.
 
@@ -57,7 +57,7 @@ pnpm run dashboard
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have these tools installed:
 
@@ -65,7 +65,7 @@ Before you begin, ensure you have these tools installed:
 <tr>
 <td width="25%" align="center">
 
-### 🐳 Docker
+### Docker
 
 [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
@@ -77,7 +77,7 @@ Before you begin, ensure you have these tools installed:
 </td>
 <td width="25%" align="center">
 
-### 🟢 Node.js
+### Node.js
 
 [![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 
@@ -89,7 +89,7 @@ Before you begin, ensure you have these tools installed:
 </td>
 <td width="25%" align="center">
 
-### 🦀 Rust
+### Rust
 
 [![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 
@@ -101,7 +101,7 @@ Before you begin, ensure you have these tools installed:
 </td>
 <td width="25%" align="center">
 
-### 📦 pnpm
+### pnpm
 
 [![pnpm](https://img.shields.io/badge/pnpm-%234a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io/)
 
@@ -116,71 +116,37 @@ Before you begin, ensure you have these tools installed:
 
 ---
 
-## 🔧 Detailed Setup
+## Detailed Setup
 
-### 1️⃣ Clone & Navigate
+### 1. Clone & Navigate
 
 ```bash
 git clone https://github.com/betterlytics/betterlytics.git
 cd betterlytics
 ```
 
-### 2️⃣ Environment Configuration
-
-<table>
-<tr>
-<td width="33%" valign="top">
-
-#### 🌍 Root Environment
+### 2️. Environment Configuration
 
 ```bash
 cp .env.example .env
 ```
 
-**Contains**: Database URLs, general config
+> **Tip**: Default values work for local development. Only modify if you have specific requirements or are deploying locally for production use.
 
-</td>
-<td width="33%" valign="top">
-
-#### ⚙️ Backend Environment
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-**Contains**: Rust server config, API keys
-
-</td>
-<td width="33%" valign="top">
-
-#### 🎨 Dashboard Environment
-
-```bash
-cp dashboard/.env.example dashboard/.env
-```
-
-**Contains**: Next.js config, API endpoints
-
-</td>
-</tr>
-</table>
-
-> 💡 **Tip**: Default values work for local development. Only modify if you have specific requirements or are deploying locally for production use.
-
-### 3️⃣ Install Dependencies
+### 3️. Install Dependencies
 
 ```bash
 pnpm install
 ```
 
-### 4️⃣ Start Infrastructure
+### 4️. Start Infrastructure
 
 ```bash
 pnpm run compose
 ```
 
 <details>
-<summary><strong>🔍 What services start?</strong></summary>
+<summary><strong>What services start?</strong></summary>
 
 | Service        | Port       | Purpose            | Access                       |
 | -------------- | ---------- | ------------------ | ---------------------------- |
@@ -191,13 +157,13 @@ pnpm run compose
 
 </details>
 
-### 5️⃣ Start Backend Server
+### 5️. Start Backend Server
 
 ```bash
 pnpm run backend
 ```
 
-### 6️⃣ Start Dashboard
+### 6️. Start Dashboard
 
 ```bash
 pnpm run dashboard
@@ -205,27 +171,25 @@ pnpm run dashboard
 
 ---
 
-## 🐳 Docker Setup
+## Docker Setup
 
-### 🎯 Production-Ready Deployment
+### Production-Ready Deployment
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-#### 🚀 Express Docker Start
+#### Express Docker Start
 
 ```bash
 # Start all services
-pnpm super command TODO
+TODO
 ```
-
-**Perfect for**: Production deployments, CI/CD
 
 </td>
 <td width="50%" valign="top">
 
-#### 🔧 Development Mode
+#### Development Mode
 
 ```bash
 # Start with rebuild
@@ -234,8 +198,6 @@ pnpm run compose
 # Reset everything
 docker-compose down -v
 ```
-
-**Perfect for**: Development, testing, debugging
 
 </td>
 </tr>

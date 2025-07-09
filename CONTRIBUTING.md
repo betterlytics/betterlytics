@@ -9,24 +9,24 @@
 [![Pull Requests](https://img.shields.io/github/issues-pr/betterlytics/betterlytics.svg)](https://github.com/betterlytics/betterlytics/pulls)
 [![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-[🚀 Quick Start](#-quick-start) • [🛠️ Development](#️-development-workflow) • [🧪 Testing](#-testing) • [📝 Code Style](#-code-style) • [🔄 Pull Requests](#-pull-request-process) • [🐛 Issues](#-issue-guidelines-not-strictly-required-to-adhere-to-yet) • [🆘 Help](#-getting-help)
+[Quick Start](#-quick-start) • [Development](#️-development-workflow) • [Testing](#-testing) • [Code Style](#-code-style) • [Pull Requests](#-pull-request-process) • [Issues](#-issue-guidelines-not-strictly-required-to-adhere-to-yet) • [Help](#-getting-help)
 
 </div>
 
 ---
 
-## 🌟 Why Contribute?
+## Why Contribute?
 
-Betterlytics is more than just an analytics platform - it's a movement towards privacy-respecting web analytics. By contributing, you're helping to:
+Betterlytics is more than just an analytics platform - it's an effort towards privacy-respecting web analytics. By contributing, you're helping to:
 
-- 🔒 **Protect user privacy** across the web
-- 🚀 **Advance open source** analytics technology
-- 🌍 **Build a better internet** for everyone
-- 💡 **Learn cutting-edge** technologies (Rust, ClickHouse, React 19, Next.js 15, and more)
+- **Protect user privacy** across the web
+- **Advance open source** analytics technology
+- **Build a better internet** for everyone
+- **Learn cutting-edge** technologies (Rust, ClickHouse, React 19, Next.js 15, and more)
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 Get your development environment ready in minutes:
 
@@ -34,7 +34,7 @@ Get your development environment ready in minutes:
 <tr>
 <td width="50%" valign="top">
 
-### 🍴 Fork & Clone
+### Fork & Clone
 
 ```bash
 # Fork on GitHub, then clone your fork
@@ -48,12 +48,14 @@ git remote add upstream https://github.com/betterlytics/betterlytics.git
 </td>
 <td width="50%" valign="top">
 
-### ⚡ Setup & Run
+### Setup & Run
 
 ```bash
 # Install dependencies & start services
 pnpm install
 pnpm run compose
+
+cp .env.example .env
 
 # Start development servers
 pnpm run backend    # Port 3001
@@ -64,37 +66,37 @@ pnpm run dashboard  # Port 3000
 </tr>
 </table>
 
-**📖 Need detailed setup?** See our [Setup Guide](SETUP.md) for comprehensive instructions.
+**Need detailed setup?** See our [Setup Guide](SETUP.md) for comprehensive instructions.
 
 ---
 
-## 🛠️ Development Workflow
+## Development Workflow
 
-### 📋 Prerequisites
+### Prerequisites
 
 <table>
 <tr>
 <td width="20%" align="center">
 
-**🐳 Docker**
+**Docker**
 Required for databases
 
 </td>
 <td width="20%" align="center">
 
-**🟢 Node.js**
+**Node.js**
 v18+ for dashboard
 
 </td>
 <td width="20%" align="center">
 
-**🦀 Rust**
+**Rust**
 Latest stable
 
 </td>
 <td width="20%" align="center">
 
-**📦 pnpm**
+**pnpm**
 Package manager
 
 </td>
@@ -107,31 +109,33 @@ Version control
 </tr>
 </table>
 
-### 🏗️ Project Architecture
+### Project Architecture
 
 ```
 betterlytics/
-├── 🦀 backend/                 # Rust server (Axum + ClickHouse)
+├── backend/                 # Rust server (Axum + ClickHouse)
 │   ├── src/                   # Source code
 │   ├── Cargo.toml             # Dependencies
 │   └── .env.example           # Environment template
-├── ⚛️ dashboard/               # Next.js 15 + React 19 + Tailwind css
+├── dashboard/               # Next.js 15 + React 19 + Tailwind css
 │   ├── src/                   # Source code
 │   ├── package.json           # Dependencies
 │   └── .env.example           # Environment template
-├── 🗃️ migrations/              # Database migrations
-├── 🛠️ scripts/                # Build utilities
-├── 📄 static/                 # Tracking script
-└── 🐳 docker-compose.yml      # Services
+├── docs/                    # Nextra Documentation
+|   ├── src/content            # Markdown Pages for Docs
+├── migrations/              # Database migrations
+├── scripts/                # Build utilities
+├── static/                 # Tracking script
+└── docker-compose.yml      # Services
 ```
 
-### ⚡ Development Commands
+### Development Commands
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-#### 🚀 Quick Commands
+#### Quick Commands
 
 ```bash
 # Install dependencies
@@ -167,9 +171,9 @@ pnpm run perf-test
 
 ---
 
-## 🗃️ Database Development
+## Database Development
 
-### 📝 Creating Migrations
+### Creating Migrations
 
 #### Naming Convention
 
@@ -185,15 +189,15 @@ See existing migrations for examples on how to create migrations.
 
 ---
 
-## 🧪 Testing - WIP
+## Testing - WIP
 
-### 🎯 Testing Strategy
+### Testing Strategy
 
 <table>
 <tr>
 <td width="33%" valign="top">
 
-#### 🦀 Backend Tests
+#### Backend Tests
 
 ```bash
 # Run Rust tests
@@ -208,22 +212,7 @@ cargo tarpaulin
 </td>
 <td width="33%" valign="top">
 
-#### ⚛️ Frontend Tests
-
-```bash
-# Run React tests
-pnpm test:frontend
-
-# Watch mode
-pnpm test:watch
-```
-
-**Focus**: Components, user interactions, data flow
-
-</td>
-<td width="33%" valign="top">
-
-#### 🚀 Performance Tests
+#### Performance Tests
 
 ```bash
 # Load testing
@@ -236,7 +225,7 @@ pnpm run performance
 </tr>
 </table>
 
-### 📊 Performance Testing
+### Performance Testing
 
 Test the analytics ingestion performance:
 
@@ -255,142 +244,78 @@ pnpm run performance
 
 ---
 
-## 📝 Code Style
+## Code Style
 
-### 🦀 Rust Guidelines
+### Rust Guidelines
 
 - Follow [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
 - Use `cargo fmt` for formatting
 - Use `cargo clippy` for linting
 
-### ⚛️ TypeScript/React Guidelines
+### TypeScript/React Guidelines
 
 - Follow existing ESLint configuration
-- Use Prettier for formatting
+- Use Prettier for formatting (configured for project)
 - Prefer functional components with hooks
 - Use TypeScript strictly (no `any` types)
 
-### 📝 Commit Message Format
+### Commit Message Format
 
 Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 ```
-type(scope): description
+description
 
 [optional body]
 
 [optional footer]
 ```
 
-<table>
-<tr>
-<td width="50%" valign="top">
-
-#### 🏷️ Types
-
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `style`: Code style
-- `refactor`: Code refactoring
-- `test`: Tests
-- `chore`: Maintenance
-
-</td>
-<td width="50%" valign="top">
-
-#### ✨ Examples
+#### Examples
 
 ```
-feat(backend): add user session tracking
-fix(dashboard): resolve memory leak in real-time updates
-docs(readme): update installation instructions
-test(api): add integration tests for analytics endpoint
+Add user session tracking
+Resolve memory leak in real-time updates
+Update installation instructions
+Add integration tests for analytics endpoint
 ```
-
-</td>
-</tr>
-</table>
 
 ---
 
-## 🔄 Pull Request Process
+## Pull Request Process
 
-### 📋 Before Submitting
-
-<table>
-<tr>
-<td width="25%" align="center">
-
-**✅ Code Quality**
-
-- [ ] Follows style guidelines
-- [ ] Passes all tests
-- [ ] No linting errors
-
-</td>
-<td width="25%" align="center">
-
-**📚 Documentation**
-
-- [ ] Updates relevant docs
-- [ ] Adds code comments
-- [ ] Updates CHANGELOG
-
-</td>
-<td width="25%" align="center">
-
-**🧪 Testing**
-
-- [ ] Adds new tests
-- [ ] Maintains coverage
-- [ ] Manual testing done
-
-</td>
-<td width="25%" align="center">
-
-**🔍 Review Ready**
-
-- [ ] Clear description
-- [ ] Links related issues
-- [ ] Screenshots if UI
-
-</td>
-</tr>
-</table>
-
-### 📝 PR Template (Not strictly required to adhere to yet)
+### PR Template (Not strictly required to adhere to yet)
 
 ```markdown
-## 📋 Description
+## Description
 
 Brief description of changes and motivation
 
-## 🔄 Type of Change
+## Type of Change
 
-- [ ] 🐛 Bug fix
-- [ ] ✨ New feature
-- [ ] 💥 Breaking change
-- [ ] 📚 Documentation update
-- [ ] 🎨 Style/UI changes
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+- [ ] Style/UI changes
 
-## 🧪 Testing
+## Testing
 
 - [ ] Tests pass locally
 - [ ] Added new tests
 - [ ] Manual testing completed
 - [ ] Performance impact assessed
 
-## 📸 Screenshots (if applicable)
+## Screenshots (if applicable)
 
 Add screenshots for UI changes
 
-## 📝 Additional Notes
+## Additional Notes
 
 Any additional context or considerations
 ```
 
-### 🔍 Review Process
+### Review Process
 
 1. **Automated checks** must pass (CI/CD, linting, tests)
 2. **Code review** by at least one maintainer
@@ -400,7 +325,7 @@ Any additional context or considerations
 
 ---
 
-## 🐛 Issue Guidelines (Not strictly required to adhere to yet)
+## Issue Guidelines (Not strictly required to adhere to yet)
 
 ### Bug Reports
 
@@ -408,7 +333,7 @@ Any additional context or considerations
 <tr>
 <td width="50%" valign="top">
 
-#### 📋 Include This Information when applicable
+#### Include This Information when applicable
 
 - **Operating system** and version
 - **Browser** (for dashboard issues)
@@ -422,7 +347,7 @@ Any additional context or considerations
 </td>
 <td width="50%" valign="top">
 
-#### 🔍 Before Reporting
+#### Before Reporting
 
 - [ ] Search existing issues
 - [ ] Try latest version
@@ -448,13 +373,13 @@ Although any feature requests are welcome, and we'll gladly help refine the issu
 
 ---
 
-## 🆘 Getting Help
+## Getting Help
 
 <table>
 <tr>
 <td width="25%" align="center">
 
-### 💬 Discord
+### Discord
 
 [![Discord](https://img.shields.io/badge/Discord-Join-7289da.svg)](https://discord.gg/vwqSvPn6sP)
 
@@ -463,7 +388,7 @@ Real-time help and discussion
 </td>
 <td width="25%" align="center">
 
-### 🐛 GitHub Issues
+### GitHub Issues
 
 [![Issues](https://img.shields.io/badge/Issues-Report-red.svg)](https://github.com/betterlytics/betterlytics/issues)
 
@@ -472,7 +397,7 @@ Bug reports and feature requests
 </td>
 <td width="25%" align="center">
 
-### 💡 Discussions
+### Discussions
 
 [![Discussions](https://img.shields.io/badge/Discussions-Ask-blue.svg)](https://github.com/betterlytics/betterlytics/discussions)
 
@@ -481,7 +406,7 @@ Questions and ideas
 </td>
 <td width="25%" align="center">
 
-### 📧 Email
+### Email
 
 [![Email](https://img.shields.io/badge/Email-Security-orange.svg)](mailto:security@betterlytics.io)
 
@@ -493,9 +418,9 @@ Security issues only
 
 ---
 
-## 📚 Technical Resources
+## Technical Resources
 
-### ⚡ Performance Optimization
+### Performance Optimization
 
 - [ClickHouse Performance Optimization](https://www.highlight.io/blog/lw5-clickhouse-performance-optimization)
 - [ClickHouse Operations Overview](https://clickhouse.com/docs/operations/overview)
@@ -503,17 +428,17 @@ Security issues only
 - [Asynchronous Data Inserts in ClickHouse](https://clickhouse.com/blog/asynchronous-data-inserts-in-clickhouse)
 - [Data Batching for Optimal Performance](https://clickhouse.com/blog/asynchronous-data-inserts-in-clickhouse#data-needs-to-be-batched-for-optimal-performance)
 
-### 🔗 Integrations
+### Integrations
 
 - [ClickHouse Kafka Connect Sink](https://clickhouse.com/docs/integrations/kafka/clickhouse-kafka-connect-sink)
 
-### 🦀 Rust Development
+### Rust Development
 
 - [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
 - [Tokio Documentation](https://tokio.rs/)
 - [Axum Web Framework](https://docs.rs/axum/latest/axum/)
 
-### ⚛️ Frontend Development
+### Frontend Development
 
 - [Next.js 15 Documentation](https://nextjs.org/docs)
 - [React 19 Documentation](https://react.dev/)
@@ -521,11 +446,11 @@ Security issues only
 
 ---
 
-## 📜 Code of Conduct
+## Code of Conduct
 
 Please note that this project is released with a [Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
-## 📄 License
+## License
 
 By contributing to Betterlytics, you agree that your contributions will be licensed under the AGPL-3.0 license.
 

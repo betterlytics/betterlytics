@@ -27,18 +27,7 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
   };
 };
 
-function normalizeIterationRange(dateRange: { start: Date; end: Date }, granularity: GranularityRangeValues) {
-  if (granularity === 'day') {
-    const startUTC = utcDay(dateRange.start);
-    const endUTC = utcDay(dateRange.end);
-
-    return { start: startUTC, end: endUTC };
-  }
-
-  return dateRange;
-}
-
-function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRange }: ToAreaChartProps<K>) {
+function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRange }: DataToAreaChartProps<K>) {
   // Map date to value
   const groupedData = data.reduce(
     (group, row) => {
@@ -50,13 +39,16 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
 
   const chartData = [];
 
-  // Normalize iteration range to match ClickHouse aggregation
-  const iterationRange = normalizeIterationRange(dateRange, granularity);
-
   // Find the time interval of input based on specified granularity
   const intervalFunc = IntervalFunctions[granularity];
 
-  for (let time = iterationRange.start; time <= iterationRange.end; time = intervalFunc.offset(time, 1)) {
+  const { start, end } = {
+    start: utcMinute(dateRange.start),
+    end: utcMinute(dateRange.end),
+  };
+
+  for (let time = start; time <= end; time = intervalFunc.offset(time, 1)) {
+    // Ensure the time boundary aligns with user timezone
     const key = time.valueOf().toString();
     const value = groupedData[key] ?? 0;
 

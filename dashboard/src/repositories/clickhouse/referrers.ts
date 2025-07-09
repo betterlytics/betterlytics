@@ -17,7 +17,7 @@ import {
   DailyReferralSessionDurationRowSchema,
 } from '@/entities/referrers';
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString, DateString } from '@/types/dates';
+import { DateTimeString } from '@/types/dates';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
@@ -77,7 +77,7 @@ export async function getReferrerTrafficTrendBySource(
 
   const query = safeSql`
     SELECT 
-      ${granularityFunc}(timestamp) as date,
+      ${granularityFunc('timestamp', startDate)} as date,
       referrer_source,
       uniq(session_id) as count
     FROM analytics.events
@@ -300,8 +300,8 @@ export async function getTopReferrerSources(
  */
 export async function getDailyReferralSessions(
   siteId: string,
-  startDate: DateString,
-  endDate: DateString,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<DailyReferralSessionsRow[]> {
@@ -310,11 +310,11 @@ export async function getDailyReferralSessions(
 
   const query = safeSql`
     SELECT 
-      ${granularityFunc}(timestamp) as date,
+      ${granularityFunc('timestamp', startDate)} as date,
       uniq(session_id) as referralSessions
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND referrer_source != 'direct'
       AND referrer_source != 'internal'
       AND ${SQL.AND(filters)}
@@ -342,8 +342,8 @@ export async function getDailyReferralSessions(
  */
 export async function getDailyReferralTrafficPercentage(
   siteId: string,
-  startDate: DateString,
-  endDate: DateString,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<DailyReferralPercentageRow[]> {
@@ -353,12 +353,12 @@ export async function getDailyReferralTrafficPercentage(
   const query = safeSql`
     WITH daily_stats AS (
       SELECT 
-        ${granularityFunc}(timestamp) as date,
+        ${granularityFunc('timestamp', startDate)} as date,
         uniq(session_id) as totalSessions,
         uniqIf(session_id, referrer_source != 'direct' AND referrer_source != 'internal') as referralSessions
       FROM analytics.events
       WHERE site_id = {site_id:String}
-        AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
         AND ${SQL.AND(filters)}
       GROUP BY date
     )
@@ -392,8 +392,8 @@ export async function getDailyReferralTrafficPercentage(
  */
 export async function getDailyReferralSessionDuration(
   siteId: string,
-  startDate: DateString,
-  endDate: DateString,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<DailyReferralSessionDurationRow[]> {
@@ -403,12 +403,12 @@ export async function getDailyReferralSessionDuration(
   const query = safeSql`
     WITH session_durations AS (
       SELECT 
-        ${granularityFunc}(timestamp) as date,
+        ${granularityFunc('timestamp', startDate)} as date,
         session_id,
         max(timestamp) - min(timestamp) as session_duration_seconds
       FROM analytics.events
       WHERE site_id = {site_id:String}
-        AND date BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
         AND referrer_source != 'direct'
         AND referrer_source != 'internal'
         AND ${SQL.AND(filters)}

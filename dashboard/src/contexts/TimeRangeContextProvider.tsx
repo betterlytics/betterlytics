@@ -1,11 +1,6 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
-import { getDateRangeForTimePresets, startOfDayInTimezone, endOfDayInTimezone } from '@/utils/timeRanges';
-import {
-  GranularityRangeValues,
-  getAllowedGranularities,
-  getValidGranularityFallback,
-} from '@/utils/granularityRanges';
-import { useUserTimezone } from '@/hooks/use-user-timezone';
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
 type TimeRangeContextProps = {
   startDate: Date;
@@ -18,7 +13,6 @@ type TimeRangeContextProps = {
   compareStartDate?: Date;
   compareEndDate?: Date;
   setCompareDateRange: (startDate: Date, endDate: Date) => void;
-  userTimezone: string;
 };
 
 const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRangeContextProps);
@@ -28,45 +22,27 @@ type TimeRangeContextProviderProps = {
 };
 
 export function TimeRangeContextProvider({ children }: TimeRangeContextProviderProps) {
-  const userTimezone = useUserTimezone();
-  const initialRangeDetails = getDateRangeForTimePresets('7d', userTimezone);
-  const [startDate, setStartDate] = React.useState<Date>(initialRangeDetails.startDate);
-  const [endDate, setEndDate] = React.useState<Date>(initialRangeDetails.endDate);
+  const defaultFilters = useMemo(() => BAFilterSearchParams.getDefaultFilters(), []);
 
-  const [granularity, setGranularity] = React.useState<GranularityRangeValues>('day');
-  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(false);
-  const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(undefined);
-  const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = React.useState<Date>(defaultFilters.startDate);
+  const [endDate, setEndDate] = React.useState<Date>(defaultFilters.endDate);
 
-  useEffect(() => {
-    const newRangeDetails = getDateRangeForTimePresets('7d', userTimezone);
-    setStartDate(newRangeDetails.startDate);
-    setEndDate(newRangeDetails.endDate);
-  }, [userTimezone]);
-
-  const setPeriod = useCallback(
-    (newStartDate: Date, newEndDate: Date) => {
-      setStartDate(startOfDayInTimezone(newStartDate, userTimezone));
-      setEndDate(endOfDayInTimezone(newEndDate, userTimezone));
-    },
-    [userTimezone],
+  const [granularity, setGranularity] = React.useState<GranularityRangeValues>(defaultFilters.granularity);
+  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(Boolean(defaultFilters.compareEnabled));
+  const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(
+    defaultFilters.compareStartDate,
   );
+  const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(defaultFilters.compareEndDate);
 
-  const handleSetCompareDateRange = useCallback(
-    (csDate: Date, ceDate: Date) => {
-      setCompareStartDate(startOfDayInTimezone(csDate, userTimezone));
-      setCompareEndDate(endOfDayInTimezone(ceDate, userTimezone));
-    },
-    [userTimezone],
-  );
+  const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+  }, []);
 
-  useEffect(() => {
-    const allowedGranularities = getAllowedGranularities(startDate, endDate);
-    if (!allowedGranularities.includes(granularity)) {
-      const validGranularity = getValidGranularityFallback(granularity, allowedGranularities);
-      setGranularity(validGranularity);
-    }
-  }, [startDate, endDate, granularity, setGranularity]);
+  const handleSetCompareDateRange = useCallback((csDate: Date, ceDate: Date) => {
+    setCompareStartDate(csDate);
+    setCompareEndDate(ceDate);
+  }, []);
 
   return (
     <TimeRangeContext.Provider
@@ -81,7 +57,6 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         compareStartDate,
         compareEndDate,
         setCompareDateRange: handleSetCompareDateRange,
-        userTimezone,
       }}
     >
       {children}

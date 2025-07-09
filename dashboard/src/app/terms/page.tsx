@@ -272,7 +272,7 @@ export default function TermsPage() {
                   </li>
                   <li>
                     Do not attempt to send sensitive information (credit cards, personal data, etc.) through our
-                    service
+                    service, including in URL paths or query parameters.
                   </li>
                   <li>Maintain security of your account and immediately report any unauthorized access</li>
                 </ul>
