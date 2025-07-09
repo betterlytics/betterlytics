@@ -18,7 +18,7 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
         />
 
         <div className='absolute inset-0 z-10 flex items-center justify-between px-3'>
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2 max-w-[85%]'>
             {typeof index === 'number' && (
               <span className='text-foreground font-mono text-sm font-medium'>{index}.</span>
             )}
@@ -26,7 +26,7 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
             <span className='text-foreground truncate font-mono text-sm font-medium'>{value.value}</span>
           </div>
 
-          <div className='text-muted-foreground flex items-center gap-2 font-mono text-xs'>
+          <div className='absolute right-0 text-muted-foreground flex items-center gap-2 font-mono text-xs'>
             <span className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
               {formatPercentage(value.percentage)}
             </span>

@@ -15,8 +15,20 @@ function FlagIconComponent({
   const FlagComponent = Flags[countryCode];
 
   return (
-    <span title={countryName} style={{ display: 'inline-block' }}>
-      <FlagComponent {...props} />
+    <span 
+      title={countryName} 
+      style={{ 
+        display: 'inline-block', 
+      }}
+    >
+      <FlagComponent 
+        {...props} 
+        style={{ 
+          border: 'var(--popover-foreground) solid 0.1px',
+          height: 'fit-content',
+          width: '1em',
+        }
+      }/>
     </span>
   );
 }
