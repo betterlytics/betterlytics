@@ -3,7 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as React from 'react';
 
-import { FlagIcon, type FlagIconProps } from '@/components/icons/FlagIcon';
+import { type FlagIconProps } from '@/components/icons/FlagIcon';
 import { SupportedLanguages, SUPPORTED_LANGUAGES, LANGUAGE_TO_NAME } from '@/types/language';
 import { CountryDisplay } from './CountryDisplay';
 

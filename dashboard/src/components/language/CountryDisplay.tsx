@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { FlagIcon } from '@/components/icons/FlagIcon';
 import { FlagIconProps } from '@/components/icons/FlagIcon';
 import { getCountryName } from '@/utils/countryCodes';
