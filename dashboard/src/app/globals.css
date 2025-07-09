@@ -148,6 +148,14 @@
   html {
     scroll-behavior: smooth;
   }
+
+  [role="dialog"], [role="menu"] {
+    z-index: 1000 !important;
+  }
+
+  div[data-radix-popper-content-wrapper] {
+    z-index: 1001 !important;
+  }
 }
 
 @layer utilities {
