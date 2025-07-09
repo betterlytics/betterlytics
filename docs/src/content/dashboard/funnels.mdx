@@ -1,0 +1,210 @@
+---
+title: "Funnels"
+description: "Track user conversion paths and optimize your website's performance with powerful funnel analysis tools."
+---
+
+# Funnels
+
+Funnels help you understand how users move through your website and identify where they drop off in key conversion processes. Track everything from sign-up flows to checkout processes and optimize based on real user behavior.
+
+## What are Funnels?
+
+A funnel is a series of steps that track users through a specific journey on your website. Each step is defined by filters that determine what actions qualify as completing that step. Funnels show you:
+
+- How many users complete each step
+- Where users drop off most frequently
+- Your overall conversion rate
+- Performance trends over time
+
+<div style={{ textAlign: "center" }}>
+  ![Subscription Overview in user settings showing current usage
+  stats](/images/funnels/e-commerce-funnel.png)
+</div>
+
+## Creating a Funnel
+
+### Step-by-Step Guide
+
+1. Navigate to the Funnels section in your dashboard
+2. Click "Create Funnel" to open the funnel builder
+3. Give your funnel a descriptive name
+4. Add at least 2 steps using the filter builder
+5. Choose between normal or strict mode
+6. Save your funnel
+
+### Filter Options
+
+Each funnel step can be filtered by any of these criteria:
+
+**Page & Navigation**
+- **URL** - Specific page URLs
+
+**Device Information**
+- **Device** - Desktop, mobile, tablet
+
+**Geographic Data**
+- **Country** - User's country
+
+**Browser & System**
+- **Browser** - Chrome, Firefox, Safari, etc.
+- **Operating system** - User's operating system
+
+**Traffic Sources**
+- **Referrer source** - Direct, search, social, etc.
+- **Referrer name** - Specific source name
+- **Referrer term** - Search keywords
+- **Referrer URL** - Full referrer URL
+
+**Campaign Tracking**
+- **UTM source** - UTM source parameter
+- **UTM medium** - UTM medium parameter
+- **UTM campaign** - UTM campaign parameter
+- **UTM term** - UTM term parameter
+- **UTM content** - UTM content parameter
+
+**Custom Events**
+- **Type** - Page view or custom event
+- **Event** - Specific custom event names
+
+### Filter Operators
+
+- **is** - Exact match
+- **is not** - Exclude exact match
+
+### Wildcard Search
+
+You can use the asterisk (`*`) character as a wildcard in filter values to match partial text:
+
+- `*checkout` - Matches any value ending with "checkout"
+- `checkout*` - Matches any value starting with "checkout"
+- `*checkout*` - Matches any value containing "checkout"
+- `/product/*` - Matches any URL starting with "/product/"
+- `*mobile*` - Matches any value containing "mobile"
+
+**Examples:**
+- **URL is `/blog/*`** - Matches all blog post URLs like `/blog/post-1`, `/blog/category/tech`, etc.
+- **Browser is `*Chrome*`** - Matches "Chrome", "Google Chrome", "Chrome Mobile", etc.
+- **UTM source is `*facebook*`** - Matches "facebook", "facebook.com", "m.facebook.com", etc.
+
+### Example Funnel Steps
+
+**E-commerce Checkout Process:**
+1. URL is `/products*` (matches /products, /products/shoes, /products/electronics, etc.)
+2. URL is `/cart`
+3. URL is `/checkout*` (matches /checkout, /checkout/payment, /checkout/success, etc.)
+4. Event is `purchase_completed`
+
+**User Registration Flow:**
+1. URL is `/signup`
+2. URL is `/verify-email`
+3. Event is `account_activated`
+
+**Blog Engagement Funnel:**
+1. URL is `/blog/*` (matches any blog post)
+2. Event is `*subscribe*` (matches newsletter_subscribe, email_subscribe, etc.)
+3. URL is `/thank-you*` (matches various thank you pages)
+
+## Funnel Modes
+
+### Normal Mode (Default)
+
+Users must complete steps in order, but can visit other pages between funnel steps. This is more flexible and captures realistic user journeys where users might browse other content or navigate away and return before completing the next step.
+
+### Strict Mode
+
+Users must complete steps in exact sequential order without visiting any other pages in between. This provides more precise tracking of direct, linear user journeys and eliminates users who deviate from the exact path.
+
+
+## Understanding Funnel Data
+
+### Step Visualization
+
+Each step shows:
+- **Step number and description** - What the step filters for
+- **Visitor count and percentage** - How many users reached this step
+- **Progress bar** - Visual representation of completion rates
+- **Drop-off bar** - Visual representation of drop-off rate compared to the number of users on previous step
+
+
+### Key Metrics
+
+**Conversion Rate**
+- Overall percentage of users who complete the entire funnel
+- Calculated as (final step visitors / first step visitors) × 100
+
+**Drop-off Rate**
+- Percentage of users who leave between each step
+- Helps identify problematic steps in your flow
+
+**Visitor Counts**
+- Absolute numbers of users at each step
+- Useful for understanding traffic volume
+
+
+### Summary Cards
+
+**Overall Conversion Rate**
+- End-to-end completion percentage for the entire funnel
+
+**Total Visitors**
+- Number of users who entered the funnel (first step)
+
+**Total Completed**
+- Number of users who finished the funnel (last step)
+
+**Biggest Drop-off**
+- Step transition with the highest abandonment rate
+
+
+
+## Funnel Analysis Best Practices
+
+### Optimization Tips
+
+1. **Start with high-traffic pages** - Ensure your first step captures significant volume
+2. **Keep steps logical** - Each step should naturally follow the previous one
+3. **Monitor drop-off points** - Focus optimization efforts on the biggest drop-offs
+4. **Test different modes** - Try both normal and strict modes to see which provides better insights
+5. **Use time ranges** - Analyze performance over different periods to identify trends
+
+### Common Use Cases
+
+**E-commerce**
+- Product page → Cart → Checkout → Purchase
+- Landing page → Product page → Add to cart → Purchase
+
+**SaaS Sign-up**
+- Landing page → Sign-up form → Email verification → Onboarding complete
+
+**Content Engagement**
+- Blog post → Newsletter signup → Email click → Conversion
+
+**Mobile App Downloads**
+- Landing page → App store → Download → First launch
+
+## Troubleshooting
+
+### Low Conversion Rates
+
+- Check if steps are too restrictive
+- Verify that URLs match exactly (including query parameters)
+- Ensure custom events are firing correctly
+- Consider using normal mode instead of strict mode
+
+### No Data Showing
+
+- Verify that tracking is properly installed
+- Check that events are being recorded in your Events page
+- Ensure the time range includes periods with traffic
+- Confirm filter values match your actual data
+
+### Unexpected Drop-offs
+
+- Review the specific filter criteria for problem steps
+- Check if there are intermediate pages not captured in your funnel
+- Verify that custom events are triggering at the right time
+- Consider technical issues like slow page loads or errors
+
+---
+
+_Need help with funnel analysis? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for support!_
