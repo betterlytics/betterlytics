@@ -1,6 +1,5 @@
 import React from 'react';
-import { FlagIcon } from '@/components/icons/FlagIcon';
-import { FlagIconProps } from '@/components/icons/FlagIcon';
+import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { getCountryName } from '@/utils/countryCodes';
 
 type CountryDisplayProps = {
