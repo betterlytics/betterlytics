@@ -7,11 +7,11 @@ export type FlagIconProps = {
   countryName?: string; // Defaults to result of getCountryName
 } & Flags.ElementAttributes<Flags.HTMLSVGElement>;
 
-export const FlagIcon = React.memo(({
+function FlagIconComponent({
   countryCode,
   countryName = getCountryName(countryCode),
   ...props
-}: FlagIconProps) => {
+}: FlagIconProps) {
   const FlagComponent = Flags[countryCode];
 
   return (
@@ -19,4 +19,6 @@ export const FlagIcon = React.memo(({
       <FlagComponent {...props} />
     </span>
   );
-});
+}
+
+export const FlagIcon = React.memo(FlagIconComponent);
