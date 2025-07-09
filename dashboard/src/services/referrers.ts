@@ -12,7 +12,7 @@ import {
   getDailyReferralSessionDuration,
   getTopReferrerSource,
 } from '@/repositories/clickhouse';
-import { toDateTimeString, toDateString } from '@/utils/dateFormatters';
+import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   ReferrerSourceAggregation,
   ReferrerSummaryWithCharts,
@@ -135,27 +135,13 @@ export async function getReferrerSummaryWithChartsForSite(
 ): Promise<ReferrerSummaryWithCharts> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  const formattedDateStart = toDateString(startDate);
-  const formattedDateEnd = toDateString(endDate);
   const dailyGranularity: GranularityRangeValues = 'day';
 
   const [referralSessionsChartData, referralPercentageChartData, avgSessionDurationChartData, topReferrerSource] =
     await Promise.all([
-      getDailyReferralSessions(siteId, formattedDateStart, formattedDateEnd, dailyGranularity, queryFilters),
-      getDailyReferralTrafficPercentage(
-        siteId,
-        formattedDateStart,
-        formattedDateEnd,
-        dailyGranularity,
-        queryFilters,
-      ),
-      getDailyReferralSessionDuration(
-        siteId,
-        formattedDateStart,
-        formattedDateEnd,
-        dailyGranularity,
-        queryFilters,
-      ),
+      getDailyReferralSessions(siteId, formattedStart, formattedEnd, dailyGranularity, queryFilters),
+      getDailyReferralTrafficPercentage(siteId, formattedStart, formattedEnd, dailyGranularity, queryFilters),
+      getDailyReferralSessionDuration(siteId, formattedStart, formattedEnd, dailyGranularity, queryFilters),
       getTopReferrerSource(siteId, formattedStart, formattedEnd, queryFilters),
     ]);
 
