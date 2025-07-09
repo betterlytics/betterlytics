@@ -83,7 +83,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
               </div>
               <span className='text-muted-foreground text-xs'>Created {formattedDate}</span>
             </div>
-            <div className='flex w-8 justify-center' onClick={(e) => e.stopPropagation()}>
+            <div className='flex justify-center' onClick={(e) => e.stopPropagation()}>
               <Link
                 href={`/dashboard/${dashboard.id}/settings`}
                 className='hover:bg-muted inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
@@ -93,8 +93,12 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
               </Link>
               <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <AlertDialogTrigger asChild>
-                  <Button variant='destructive' size='sm' className='ml-2 cursor-pointer' title='Delete Dashboard'>
-                    <Trash2 className='h-4 w-4' />
+                  <Button
+                    variant='link'
+                    className='hover:bg-destructive/10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
+                    title='Delete Dashboard'
+                  >
+                    <Trash2 className='text-destructive h-4 w-4' />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
