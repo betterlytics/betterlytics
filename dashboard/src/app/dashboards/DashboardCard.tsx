@@ -2,24 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { startTransition, useState } from 'react';
-import { toast } from 'sonner';
-import { deleteDashboardAction } from '@/app/actions/dashboard';
 import { Dashboard } from '@/entities/dashboard';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Calendar, ExternalLink, Globe, Settings, Trash2 } from 'lucide-react';
+import { ExternalLink, Globe, Calendar, Settings } from 'lucide-react';
 
 interface DashboardCardProps {
   dashboard: Dashboard;
@@ -27,7 +12,6 @@ interface DashboardCardProps {
 
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const router = useRouter();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const formattedDate = dashboard.createdAt
     ? new Date(dashboard.createdAt).toLocaleDateString(undefined, {
@@ -39,19 +23,6 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
 
   const handleCardClick = () => {
     router.push(`/dashboard/${dashboard.id}`);
-  };
-
-  const handleDeleteDashboard = async () => {
-    startTransition(async () => {
-      try {
-        await deleteDashboardAction(dashboard.id);
-        toast.success('Dashboard deleted successfully');
-        router.refresh();
-      } catch (error) {
-        console.error('Failed to delete dashboard:', error);
-        toast.error('Failed to delete dashboard. Please try again.');
-      }
-    });
   };
 
   return (
@@ -83,46 +54,15 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
               </div>
               <span className='text-muted-foreground text-xs'>Created {formattedDate}</span>
             </div>
-            <div className='flex justify-center' onClick={(e) => e.stopPropagation()}>
+            <div className='flex w-8 justify-center'>
               <Link
                 href={`/dashboard/${dashboard.id}/settings`}
                 className='hover:bg-muted inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
                 title='Dashboard Settings'
+                onClick={(e) => e.stopPropagation()}
               >
                 <Settings className='text-muted-foreground h-4 w-4' />
               </Link>
-              <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant='link'
-                    className='hover:bg-destructive/10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
-                    title='Delete Dashboard'
-                  >
-                    <Trash2 className='text-destructive h-4 w-4' />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className='flex items-center gap-2'>
-                      <AlertTriangle className='text-destructive h-5 w-5' />
-                      Delete Dashboard
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete "{dashboard.domain}"? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteDashboard}
-                      className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                    >
-                      <Trash2 className='mr-2 h-4 w-4' />
-                      Delete Dashboard
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </div>
           </div>
         </CardContent>
