@@ -4,6 +4,8 @@ import { QueryFilter, QueryFilterSchema } from '@/entities/filter';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
+import { DateTimeString } from '@/types/dates';
+import { toClickHouseGridStartString } from '@/utils/dateFormatters';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -37,21 +39,29 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 // Utility for granularity
-const GranularitySchema = z.enum(['toStartOfDay', 'toStartOfHour', 'toStartOfMinute']);
-const granularityMapper = {
-  day: GranularitySchema.enum.toStartOfDay,
-  hour: GranularitySchema.enum.toStartOfHour,
-  minute: GranularitySchema.enum.toStartOfMinute,
-} as const;
+const GranularityIntervalSchema = z.enum(['1 DAY', '1 HOUR', '1 MINUTE']);
+const granularityIntervalMapper = {
+  day: GranularityIntervalSchema.enum['1 DAY'],
+  hour: GranularityIntervalSchema.enum['1 HOUR'],
+  minute: GranularityIntervalSchema.enum['1 MINUTE'],
+};
+
+const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
 
 /**
  * Returns SQL function to be used for granularity.
  * This will throw an exception if parameter is illegal
  */
 function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityRangeValues) {
-  const mappedGranularity = granularityMapper[granularity];
-  const validatedGranularity = GranularitySchema.parse(mappedGranularity);
-  return SQL.Unsafe(validatedGranularity);
+  const interval = granularityIntervalMapper[granularity];
+  const validatedInterval = GranularityIntervalSchema.parse(interval);
+  return (column: z.infer<typeof DateColumnSchema>, date: DateTimeString) => {
+    const validatedColumn = DateColumnSchema.parse(column);
+    const alignedDate = toClickHouseGridStartString(date);
+    // The "{DateTime} - INTERVAL 10 YEAR" is a "hack" to set the ClickHouse grid aligned origin prior to all points in the database
+    // If removed ClickHouse will throw an error stating that the origin must be before any data point
+    return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.DateTime({ granulairty_origin_date: alignedDate })} - INTERVAL 10 YEAR)`;
+  };
 }
 
 export const BAQuery = {

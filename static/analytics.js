@@ -1,11 +1,24 @@
 // Betterlytics - Privacy-focused, cookieless analytics
 (function () {
-  // Get the script element and required site ID
+  // Get the script element and required attributes
   var script =
     document.currentScript ||
     document.querySelector('script[src*="analytics.js"]');
   var siteId = script.getAttribute("data-site-id");
   var serverUrl = script.getAttribute("data-server-url");
+  var urlPatterns =
+    script
+      .getAttribute("data-dynamic-urls")
+      ?.split(",")
+      .map(function (p) {
+        p = p.trim();
+        return {
+          original: p,
+          regex: new RegExp(
+            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`
+          ),
+        };
+      }) ?? [];
 
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
@@ -18,8 +31,24 @@
   // Track current path for SPA navigation
   var currentPath = window.location.pathname;
 
+  function normalize(url) {
+    var urlObj = new URL(url);
+    var pathname = urlObj.pathname;
+    for (var i = 0; i < urlPatterns.length; i++) {
+      var match = urlPatterns[i].regex.exec(pathname);
+      if (match) {
+        var normalizedPath = `${urlPatterns[i].original.replace(
+          /\*\*/g,
+          "*"
+        )}${pathname.slice(match[0].length)}`;
+        return `${urlObj.origin}${normalizedPath}${urlObj.search}${urlObj.hash}`;
+      }
+    }
+    return url;
+  }
+
   function trackEvent(eventName, isCustomEvent = false, properties = {}) {
-    var url = window.location.href;
+    var url = normalize(window.location.href);
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;

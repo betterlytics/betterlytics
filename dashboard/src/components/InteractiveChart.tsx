@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ResponsiveContainer, Area, XAxis, YAxis, CartesianGrid, Tooltip, Line, ComposedChart } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { timeFormat } from 'd3-time-format';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
-import { defaultDateLabelFormatter } from '@/utils/chartUtils';
+import { defaultDateLabelFormatter, granularityDateFormmatter } from '@/utils/chartUtils';
 
 interface ChartDataPoint {
   date: string | number;
@@ -23,6 +22,7 @@ interface InteractiveChartProps {
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   ({ title, data, color, formatValue, granularity, comparisonMap }) => {
+    const axisFormatter = useMemo(() => granularityDateFormmatter(granularity), [granularity]);
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -46,7 +46,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   tickLine={false}
                   axisLine={false}
                   className='text-muted-foreground'
-                  tickFormatter={timeFormat('%b %d')}
+                  tickFormatter={axisFormatter}
                   minTickGap={100}
                 />
                 <YAxis

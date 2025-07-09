@@ -60,7 +60,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
         </div>
       </SettingsCard>
 
-      <SettingsCard icon={Globe} title='Localization' description='Set your language and timezone preferences'>
+      <SettingsCard icon={Globe} title='Localization' description='Set your language preferences'>
         <div className='space-y-4'>
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>Language</Label>
@@ -68,19 +68,6 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
               value={formData.language as SupportedLanguages || DEFAULT_LANGUAGE}
               onUpdate={(language) => onUpdate({ language })}
             />
-          </div>
-
-          <div className='flex items-center justify-between'>
-            <Label htmlFor='timezone'>Timezone</Label>
-            <Select value={formData.timezone || 'UTC'} onValueChange={(value) => onUpdate({ timezone: value })}>
-              <SelectTrigger className='w-40'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='UTC'>UTC</SelectItem>
-                <SelectItem value='Europe/Copenhagen'>Europe/Copenhagen (UTC+2)</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </SettingsCard>

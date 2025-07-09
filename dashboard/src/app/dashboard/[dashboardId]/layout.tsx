@@ -14,6 +14,7 @@ import UsageUpgradeBanner from '@/components/billing/UsageUpgradeBanner';
 import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
+import ScrollReset from '@/components/ScrollReset';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -49,6 +50,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
           <BASidebar dashboardId={dashboardId} />
           <BAMobileSidebarTrigger />
           <main className='bg-background w-full overflow-x-hidden'>
+            <ScrollReset />
             {billingEnabled && (
               <Suspense fallback={null}>
                 <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />

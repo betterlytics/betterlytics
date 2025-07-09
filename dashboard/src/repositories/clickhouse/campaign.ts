@@ -182,7 +182,7 @@ export async function getCampaignVisitorTrendData(
 
   const query = safeSql`
     SELECT
-      ${granularityFunc}(timestamp) AS date,
+      ${granularityFunc('timestamp', startDate)} AS date,
       utm_campaign,
       COUNT(DISTINCT visitor_id) AS visitors
     FROM analytics.events

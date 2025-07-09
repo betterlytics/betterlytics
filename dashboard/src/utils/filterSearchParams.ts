@@ -1,6 +1,12 @@
-import { subDays } from 'date-fns';
 import { QueryFilter } from '@/entities/filter';
 import { GranularityRangeValues, getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
+import {
+  getCompareRangeForTimePresets,
+  getDateRangeForTimePresets,
+  getDateWithTimeOfDay,
+  getEndDateWithGranularity,
+  getStartDateWithGranularity,
+} from './timeRanges';
 
 type Filters = {
   queryFilters: (QueryFilter & { id: string })[];
@@ -17,21 +23,27 @@ type Filters = {
 };
 
 function getDefaultFilters(): Filters {
-  const now = Date.now();
-  const oneWeekAgo = subDays(now, 6);
-  const oneFortnightAgo = subDays(oneWeekAgo, 7);
+  const granularity = 'hour';
+  let { startDate, endDate } = getDateRangeForTimePresets('24h');
+  let { compareStart, compareEnd } = getCompareRangeForTimePresets('24h');
+
+  startDate = getStartDateWithGranularity(startDate, granularity);
+  endDate = getEndDateWithGranularity(endDate, granularity);
+  compareStart = getStartDateWithGranularity(getDateWithTimeOfDay(compareStart, startDate), granularity);
+  compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
+
   return {
     queryFilters: [],
-    startDate: new Date(oneWeekAgo),
-    endDate: new Date(now),
-    granularity: 'day',
+    startDate,
+    endDate,
+    granularity,
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
     compareEnabled: true,
-    compareStartDate: new Date(oneFortnightAgo),
-    compareEndDate: new Date(oneWeekAgo),
+    compareStartDate: compareStart,
+    compareEndDate: compareEnd,
   };
 }
 
@@ -61,10 +73,10 @@ function decode(base64: string): Filters {
 
   return {
     ...withDefaults,
-    startDate,
-    endDate,
-    compareStartDate: withDefaults.compareStartDate ? new Date(withDefaults.compareStartDate) : undefined,
-    compareEndDate: withDefaults.compareEndDate ? new Date(withDefaults.compareEndDate) : undefined,
+    startDate: startDate,
+    endDate: endDate,
+    compareStartDate: withDefaults.compareStartDate && new Date(withDefaults.compareStartDate),
+    compareEndDate: withDefaults.compareEndDate && new Date(withDefaults.compareEndDate),
     granularity: validGranularity,
   };
 }

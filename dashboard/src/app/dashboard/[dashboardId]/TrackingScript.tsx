@@ -13,6 +13,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.src = `${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/analytics.js`;
     script.setAttribute('data-site-id', siteId);
     script.setAttribute('data-server-url', `${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track`);
+    script.setAttribute('data-dynamic-urls', '/dashboard/*');
     document.head.appendChild(script);
 
     return () => {

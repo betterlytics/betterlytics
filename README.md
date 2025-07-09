@@ -12,30 +12,30 @@
 
 [![ClickHouse](https://img.shields.io/badge/ClickHouse-FFCC01?style=flat&logo=clickhouse&logoColor=black)](https://clickhouse.com/) [![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 
-[🚀 Getting Started](#-getting-started) • [📸 Dashboard](#-dashboard-preview) • [⚡ Benchmarks](#-performance-benchmarks) • [🗺️ Roadmap](#️-roadmap) • [👥 Community](#-community)
+[Getting Started](#-getting-started) • [Dashboard](#-dashboard-preview) • [Benchmarks](#-performance-benchmarks) • [Roadmap](#️-roadmap) • [Community](#-community)
 
 </div>
 
 ---
 
-## 🌟 Why Betterlytics?
+## Why Betterlytics?
 
 Betterlytics is a **high-performance, privacy-first** analytics platform that puts you in control of your data. Built with modern technologies like Rust and ClickHouse, it delivers lightning-fast insights while respecting user privacy.
 
 **Our core principles:**
 
-- 🔒 **Privacy-First**: GDPR, CCPA, and PECR compliant with no third-party tracking
-- 🍪 **Cookieless**: No cookies required, respects user privacy
-- ⚡ **Lightning Fast**: Built on Rust and ClickHouse for maximum performance
-- 🎯 **Lightweight Tracking**: Minimal impact on your website's performance
-- 🔧 **Self-Hosted**: Complete control over your data and infrastructure
-- 📱 **Modern UI**: Beautiful, responsive dashboard built with Next.js 15 and React 19
-- 🚀 **Scalable**: Handles millions of events with ease
-- 🛠️ **Developer Friendly**: Easy to deploy, customize, and extend
+- **Privacy-First**: GDPR, CCPA, and PECR compliant with no third-party tracking
+- **Cookieless**: No cookies required, respects user privacy
+- **Lightning Fast**: Built on Rust and ClickHouse for maximum performance
+- **Lightweight Tracking**: Minimal impact on your website's performance
+- **Self-Hosted**: Complete control over your data and infrastructure
+- **Modern UI**: Beautiful, responsive dashboard built with Next.js 15 and React 19
+- **Scalable**: Handles millions of events with ease
+- **Developer Friendly**: Easy to deploy, customize, and extend
 
-### 🚀 Complete Feature Set
+### Complete Feature Set
 
-#### 📊 Core Analytics
+#### Core Analytics
 
 | Feature                        | Description                                               |
 | ------------------------------ | --------------------------------------------------------- |
@@ -49,7 +49,7 @@ Betterlytics is a **high-performance, privacy-first** analytics platform that pu
 | **Conversion Funnels**         | Track multi-step conversion processes and drop-off points |
 | **Custom Events**              | Track any custom interactions and business metrics        |
 
-#### 🛠️ Platform & Integration
+#### Platform & Integration
 
 | Feature                   | Description                                                           |
 | ------------------------- | --------------------------------------------------------------------- |
@@ -59,7 +59,7 @@ Betterlytics is a **high-performance, privacy-first** analytics platform that pu
 | **Easy Integration**      | Simple one-line script installation                                   |
 | **Performance Optimized** | Built on ClickHouse for sub-second query responses                    |
 
-## 🚀 Getting Started
+## Getting Started
 
 Choose the option that works best for you:
 
@@ -67,7 +67,7 @@ Choose the option that works best for you:
 <tr>
 <td width="50%" valign="top">
 
-### ☁️ Cloud Hosting (Recommended)
+### Cloud Hosting (Recommended)
 
 Get started instantly with our free managed cloud service:
 
@@ -86,7 +86,7 @@ Get started instantly with our free managed cloud service:
 </td>
 <td width="50%" valign="top">
 
-### 🏠 Self-Hosting
+### Self-Hosting
 
 Run Betterlytics on your own infrastructure for complete control and privacy.
 
@@ -99,7 +99,7 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 - ⚠️ **Your responsibility** - Server capacity, uptime, backups, loading times
 - ⚠️ **Infrastructure costs** - Server, CDN, backups, and associated costs
 
-📖 **[Setup Guide](SETUP.md#quick-setup)** | 🐳 **[Docker Setup](SETUP.md#docker-setup)** | 🛠️ **[Development](CONTRIBUTING.md)**
+**[Setup Guide](SETUP.md#quick-setup)** | **[Docker Setup](SETUP.md#docker-setup)** | **[Development](CONTRIBUTING.md)**
 
 </td>
 </tr>
@@ -107,7 +107,7 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 
 ---
 
-## 📸 Dashboard Preview
+## Dashboard Preview
 
 <div align="center">
 
@@ -139,7 +139,7 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 
 </div>
 
-## ⚡ Performance Benchmarks
+## Performance Benchmarks
 
 Betterlytics is built for speed. Here's how it performs:
 
@@ -168,10 +168,10 @@ Betterlytics is built for speed. Here's how it performs:
 - **Data Retention**: Unlimited (depends on storage)
 - **Geographic Distribution**: Multi-region support
 
-> 📊 **Benchmarks performed on**: 4-core CPU, 8GB RAM, SSD storage  
-> 🔄 **Last updated**: [Date to be added]
+> **Benchmarks performed on**: 1-core CPU, 4GB RAM, SSD storage
+> **Last updated**: 06-07-2025
 
-## 🗺️ Roadmap
+## Roadmap
 
 We're constantly working to improve Betterlytics. Here's what's coming next:
 
@@ -179,32 +179,32 @@ We're constantly working to improve Betterlytics. Here's what's coming next:
 <tr>
 <td width="50%" valign="top">
 
-### 🚧 In Development
+### In Development
 
-| Feature                  | Description                                             |
-| ------------------------ | ------------------------------------------------------- |
-| 🐳 **Docker Deployment** | One-command deployment with Docker Compose              |
-| 🔌 **REST API**          | Full API access for custom integrations and data export |
-| ☁️ **Cloud Hosting**     | Managed hosting option for easy deployment              |
+| Feature               | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| **Docker Deployment** | One-command deployment with Docker Compose              |
+| **REST API**          | Full API access for custom integrations and data export |
+| **Cloud Hosting**     | Managed hosting option for easy deployment              |
 
 </td>
 <td width="50%" valign="top">
 
-### 🎯 Planned Features
+### Planned Features
 
-| Feature                       | Description                                           |
-| ----------------------------- | ----------------------------------------------------- |
-| 🔔 **Alerts & Notifications** | Custom alerts for traffic spikes and anomalies        |
-| 📊 **Advanced Reporting**     | Scheduled reports and custom dashboards               |
-| 🔗 **Integrations**           | Connect with popular tools (Slack, Discord, Webhooks) |
-| 📈 **A/B Testing**            | Built-in experimentation platform                     |
-| 🤖 **AI Insights**            | Automated insights and recommendations                |
+| Feature                    | Description                                           |
+| -------------------------- | ----------------------------------------------------- |
+| **Alerts & Notifications** | Custom alerts for traffic spikes and anomalies        |
+| **Advanced Reporting**     | Scheduled reports and custom dashboards               |
+| **Integrations**           | Connect with popular tools (Slack, Discord, Webhooks) |
+| **A/B Testing**            | Built-in experimentation platform                     |
+| **AI Insights**            | Automated insights and recommendations                |
 
 </td>
 </tr>
 </table>
 
-## 💡 Ideas & Suggestions
+## Ideas & Suggestions
 
 Have an idea for Betterlytics? We'd love to hear it!
 
@@ -214,7 +214,7 @@ Have an idea for Betterlytics? We'd love to hear it!
 
 ---
 
-## 📄 License & Attribution
+## License & Attribution
 
 This project is licensed under the [AGPL-3.0 License](LICENSE).
 
@@ -224,11 +224,11 @@ Betterlytics includes components from other open source projects. See [THIRD-PAR
 
 ---
 
-## 👥 Community
+## Community
 
 Join our small community of developers and privacy advocates:
 
-- 💬 **[Discord](https://discord.gg/vwqSvPn6sP)** - Get help, share ideas, and connect with other users and developers
-- 🦋 **[Bluesky](https://bsky.app/profile/betterlytics.bsky.social)** - Follow us for updates and announcements
-- 🐛 **[GitHub Issues](https://github.com/betterlytics/betterlytics/issues)** - Report bugs and request features
-- 💡 **[GitHub Discussions](https://github.com/betterlytics/betterlytics/discussions)** - Ask questions and share feedback
+- **[Discord](https://discord.gg/vwqSvPn6sP)** - Get help, share ideas, and connect with other users and developers
+- **[Bluesky](https://bsky.app/profile/betterlytics.bsky.social)** - Follow us for updates and announcements
+- **[GitHub Issues](https://github.com/betterlytics/betterlytics/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/betterlytics/betterlytics/discussions)** - Ask questions and share feedback
