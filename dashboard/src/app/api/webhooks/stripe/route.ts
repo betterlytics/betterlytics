@@ -14,7 +14,6 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 export async function POST(req: NextRequest) {
   try {
     if (!isFeatureEnabled('enableBilling')) {
-      console.log('Billing is disabled, ignoring webhook');
       return NextResponse.json({ message: 'Billing is disabled' }, { status: 200 });
     }
 
