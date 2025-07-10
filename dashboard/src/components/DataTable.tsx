@@ -56,7 +56,7 @@ export function DataTable<TData, TValue>({
           placeholder={`Filter by ${searchColumn}...`}
           value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ''}
           onChange={(event) => table.getColumn(searchColumn)?.setFilterValue(event.target.value)}
-          className='mb-2 max-w-sm'
+          className='mt-1 mb-2 max-w-sm'
         />
       )}
       <div
