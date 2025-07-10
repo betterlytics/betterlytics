@@ -26,6 +26,10 @@ export const CreateUserSchema = z.object({
   role: z.enum(['admin', 'user']).nullable().optional(),
 });
 
+export const UpdateUserSchema = z.object({
+  name: z.string().nullable().optional(),
+});
+
 export const RegisterUserSchema = z.object({
   name: z.string().nullable().optional(),
   email: z.string().email('Please enter a valid email address'),
@@ -45,6 +49,7 @@ export const AuthenticatedUserSchema = UserSchema.extend({
 
 export type User = z.infer<typeof UserSchema>;
 export type CreateUserData = z.infer<typeof CreateUserSchema>;
+export type UpdateUserData = z.infer<typeof UpdateUserSchema>;
 export type RegisterUserData = z.infer<typeof RegisterUserSchema>;
 export type LoginUserData = z.infer<typeof LoginUserSchema>;
 export type AuthenticatedUser = z.infer<typeof AuthenticatedUserSchema>;
