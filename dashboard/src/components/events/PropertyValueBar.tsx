@@ -26,7 +26,7 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
             <span className='text-foreground truncate font-mono text-sm font-medium'>{value.value}</span>
           </div>
 
-          <div className='absolute right-0 text-muted-foreground flex items-center gap-2 font-mono text-xs'>
+          <div className='absolute right-[12px] text-muted-foreground flex items-center gap-2 font-mono text-xs'>
             <span className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
               {formatPercentage(value.percentage)}
             </span>

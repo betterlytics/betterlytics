@@ -39,9 +39,9 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
           label: 'World Map',
           data: [],
           emptyMessage: 'No world map data available',
-          customContent: topCountries ? (
+          customContent: worldMapData.visitorData ? (
             <div className='h-[280px] w-full'>
-              <LeafletMap visitorData={topCountries} showZoomControls={false} />
+              <LeafletMap visitorData={worldMapData.visitorData} showZoomControls={false} />
             </div>
           ) : (
             <div className='text-muted-foreground py-12 text-center'>No world map data available</div>
