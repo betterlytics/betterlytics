@@ -4,7 +4,6 @@ import LeafletMap from '@/components/LeafletMap';
 import { getWorldMapData } from "@/app/actions/geography";
 import { alpha3ToAlpha2Code, getCountryName } from "@/utils/countryCodes";
 import { use } from 'react';
-import { GeoVisitor } from '@/entities/geography';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 
 type GeographySectionProps = {
