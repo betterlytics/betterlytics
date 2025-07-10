@@ -50,7 +50,9 @@ export default function RegisterForm() {
             toast.success('Registration successful! Please sign in.');
             router.push('/signin');
           } else {
-            toast.success('Welcome! Your account has been created.');
+            toast.success(
+              'Welcome! Your account has been created. A verification email has been sent to your email address.',
+            );
             router.push('/dashboards');
           }
         } catch (error) {

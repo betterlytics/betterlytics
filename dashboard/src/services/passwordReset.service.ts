@@ -1,6 +1,5 @@
 'server-only';
 
-import * as crypto from 'crypto';
 import { ForgotPasswordData, ResetPasswordData } from '@/entities/passwordReset';
 import { findUserByEmail, updateUserPassword } from '@/repositories/postgres/user';
 import {
@@ -10,11 +9,12 @@ import {
   deleteUserPasswordResetTokens,
 } from '@/repositories/postgres/passwordReset';
 import { sendResetPasswordEmail } from '@/services/email/mail.service';
+import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 
 const TOKEN_EXPIRY_HOURS = 1;
 
 function generateResetToken(): string {
-  return crypto.randomBytes(32).toString('hex');
+  return generateSecureTokenNoSalt();
 }
 
 function getTokenExpiryDate(): Date {
