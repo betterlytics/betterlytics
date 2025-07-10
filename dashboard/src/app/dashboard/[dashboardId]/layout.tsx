@@ -57,11 +57,13 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                 <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
               </Suspense>
             )}
-            {session.user?.email && !session.user?.emailVerified && (
-              <div className='mx-auto max-w-7xl px-4 pt-4'>
-                <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
-              </div>
-            )}
+            {isFeatureEnabled('enableAccountVerification') &&
+              session.user?.email &&
+              !session.user?.emailVerified && (
+                <div className='mx-auto max-w-7xl px-4 pt-4'>
+                  <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
+                </div>
+              )}
             <div className='flex w-full justify-center'>{children}</div>
           </main>
           {/* Conditionally render tracking script based on server-side feature flag */}

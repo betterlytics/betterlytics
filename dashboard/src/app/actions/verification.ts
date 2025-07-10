@@ -24,9 +24,9 @@ export const verifyTrackingInstallation = withDashboardAuthContext(async (ctx: A
   }
 });
 
-export async function verifyEmailAction(formData: VerifyEmailData): Promise<VerificationResult> {
+export async function verifyEmailAction(data: VerifyEmailData): Promise<VerificationResult> {
   try {
-    const validatedData = VerifyEmailSchema.parse(formData);
+    const validatedData = VerifyEmailSchema.parse(data);
     return await verifyEmail(validatedData);
   } catch (error) {
     console.error('Verify email action error:', error);

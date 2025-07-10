@@ -41,6 +41,11 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
+  ENABLE_ACCOUNT_VERIFICATION: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((val) => val === 'true'),
 });
 
 export const env = envSchema.parse(process.env);

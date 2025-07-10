@@ -20,12 +20,18 @@ import {
 } from '@/entities/verification';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 import { addHours, addMinutes, subHours, isBefore, subMinutes } from 'date-fns';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 const VERIFICATION_URL_BASE = env.NEXT_PUBLIC_BASE_URL;
 const RESEND_COOLDOWN_MINUTES = 5;
 
 export async function sendVerificationEmail(data: SendVerificationEmailData): Promise<void> {
+  if (!isFeatureEnabled('enableAccountVerification')) {
+    console.warn('Account verification is disabled, skipping email send');
+    return;
+  }
+
   try {
     const validatedData = SendVerificationEmailSchema.parse(data);
     const { email } = validatedData;
@@ -65,6 +71,13 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
 }
 
 export async function verifyEmail(data: VerifyEmailData): Promise<VerificationResult> {
+  if (!isFeatureEnabled('enableAccountVerification')) {
+    return {
+      success: false,
+      error: 'Account verification is not enabled',
+    };
+  }
+
   try {
     const validatedData = VerifyEmailSchema.parse(data);
     const { token } = validatedData;

@@ -14,12 +14,14 @@ export async function registerUserAction(registrationData: RegisterUserData) {
     const validatedData = RegisterUserSchema.parse(registrationData);
     const newUser = await registerNewUser(validatedData);
 
-    try {
-      await sendVerificationEmail({
-        email: newUser.email,
-      });
-    } catch (emailError) {
-      console.error('Failed to send verification email:', emailError);
+    if (isFeatureEnabled('enableAccountVerification')) {
+      try {
+        await sendVerificationEmail({
+          email: newUser.email,
+        });
+      } catch (emailError) {
+        console.error('Failed to send verification email:', emailError);
+      }
     }
 
     return newUser;
