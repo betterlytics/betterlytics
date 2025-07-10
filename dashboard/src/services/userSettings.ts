@@ -1,5 +1,6 @@
 "server-only";
 
+import { UpdateUserData } from "@/entities/user";
 import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from "@/entities/userSettings";
 import * as UserSettingsRepository from "@/repositories/postgres/userSettings";
 import * as UserRepository from "@/repositories/postgres/user";
@@ -30,6 +31,17 @@ export async function updateUserSettings(
   } catch (error) {
     console.error("Error updating user settings:", error);
     throw new Error("Failed to update user settings");
+  }
+}
+
+export async function updateUser(userId: string, data: UpdateUserData): Promise<void> {
+  try {
+    await UserRepository.updateUser(userId, data);
+
+    console.log(`Successfully updated user ${userId}`);
+  } catch (error) {
+    console.error(`Error updating user ${userId}:`, error);
+    throw new Error("Failed to update user");
   }
 }
 
