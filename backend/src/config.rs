@@ -22,6 +22,8 @@ pub struct Config {
     pub data_retention_days: i32,
     // Billing configuration
     pub enable_billing: bool,
+    // Monitoring configuration
+    pub enable_monitoring: bool,
 }
 
 impl Config {
@@ -73,6 +75,10 @@ impl Config {
                 .unwrap_or(365),
             // Billing configuration
             enable_billing: env::var("ENABLE_BILLING")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
+            // Monitoring configuration
+            enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
         }

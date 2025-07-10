@@ -10,6 +10,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboardSettings';
 import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import DataDashboardSettings from '@/components/dashboardSettings/DashboardDataSettings';
+import DangerZoneDashboardSettings from '@/components/dashboardSettings/DashboardDangerZoneSettings';
 
 interface SettingsTabConfig {
   id: string;
@@ -42,6 +43,11 @@ const SETTINGS_TABS: SettingsTabConfig[] = [
     component: AlertDashboardSettings,
   },
   */
+  {
+    id: 'danger',
+    label: 'Danger Zone',
+    component: DangerZoneDashboardSettings,
+  },
 ];
 
 export default function SettingsSection() {
