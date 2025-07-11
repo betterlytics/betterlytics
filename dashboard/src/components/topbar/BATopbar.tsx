@@ -55,8 +55,12 @@ export default function BATopbar() {
                         {session.user?.name || 'User'}
                       </span>
                       <Avatar className='relative h-8 w-8'>
-                        <GravatarImage email={session.user?.email} alt={session.user?.name || 'User'} />
                         <User className='bg-muted text-muted-foreground size-full p-2' />
+                        <GravatarImage
+                          email={session.user?.email}
+                          alt={session.user?.name || 'User'}
+                          className='absolute'
+                        />
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
