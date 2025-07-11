@@ -4,8 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import * as React from 'react';
 
 import { type FlagIconProps } from '@/components/icons/FlagIcon';
-import { SupportedLanguages, SUPPORTED_LANGUAGES, LANGUAGE_TO_NAME } from '@/types/language';
-import { CountryDisplay } from './CountryDisplay';
+import { SupportedLanguages, SUPPORTED_LANGUAGES } from '@/dictionaries/dictionaries';
+import { CountryDisplay } from '@/components/language/CountryDisplay';
 
 type LanguageSelectProps = {
   onUpdate: React.Dispatch<SupportedLanguages>;
@@ -13,10 +13,10 @@ type LanguageSelectProps = {
   id?: string;
 };
 
-const LANGUAGE_TO_COUNTRYCODE = {
-  en: 'GB',
-  da: 'DK',
-} satisfies Record<SupportedLanguages, FlagIconProps['countryCode']>;
+const LANGUAGE = {
+  da: { name: 'Dansk', code: 'DK' },
+  en: { name: 'English', code: 'GB' },
+} satisfies Record<SupportedLanguages, { name: string, code: FlagIconProps['countryCode'] }>;
 
 export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelectProps) {
   return (
@@ -25,8 +25,8 @@ export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelect
         <SelectValue>
           {language && (
             <CountryDisplay
-              countryCode={LANGUAGE_TO_COUNTRYCODE[language]}
-              countryName={LANGUAGE_TO_NAME[language]}
+              countryCode={LANGUAGE[language].code}
+              countryName={LANGUAGE[language].name}
             />
           )}
         </SelectValue>
@@ -34,9 +34,9 @@ export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelect
       <SelectContent>
         {SUPPORTED_LANGUAGES.map((lang) => (
           <SelectItem key={lang} value={lang}>
-            <CountryDisplay 
-              countryCode={LANGUAGE_TO_COUNTRYCODE[lang]}
-              countryName={LANGUAGE_TO_NAME[lang]}
+            <CountryDisplay
+              countryCode={LANGUAGE[lang].code}
+              countryName={LANGUAGE[lang].name}
             />
           </SelectItem>
         ))}

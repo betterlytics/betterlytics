@@ -7,8 +7,10 @@ import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, Globe, Bell, Mail } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
-import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/types/language';
+import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/dictionaries/dictionaries';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
+import { useUserSettings } from '@/hooks/useUserSettings';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -17,6 +19,14 @@ interface UserPreferencesSettingsProps {
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
   const { theme, setTheme } = useTheme();
+  const { refreshSettings } = useUserSettings();
+  const { changeLanguage } = useDictionary();
+
+  const handleLocaleChange = async (newLocale: SupportedLanguages) => {
+    await changeLanguage(newLocale);
+    onUpdate({ language: newLocale });
+    await refreshSettings();
+  };
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
@@ -65,8 +75,8 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>Language</Label>
             <LanguageSelect
-              value={formData.language as SupportedLanguages || DEFAULT_LANGUAGE}
-              onUpdate={(language) => onUpdate({ language })}
+              value={(formData.language as SupportedLanguages) || DEFAULT_LANGUAGE}
+              onUpdate={handleLocaleChange}
             />
           </div>
         </div>

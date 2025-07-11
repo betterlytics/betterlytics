@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from '@/dictionaries/dictionaries';
 
 export const UserSettingsSchema = z
   .object({
@@ -6,7 +7,7 @@ export const UserSettingsSchema = z
     userId: z.string(),
 
     theme: z.enum(['light', 'dark', 'system']),
-    language: z.string(),
+    language: z.enum(SUPPORTED_LANGUAGES),
 
     emailNotifications: z.boolean(),
     marketingEmails: z.boolean(),
@@ -28,7 +29,7 @@ export const UserSettingsCreateSchema = z
 
 export const UserSettingsUpdateSchema = z.object({
   theme: z.enum(['light', 'dark', 'system']).optional(),
-  language: z.string().optional(),
+  language: z.enum(SUPPORTED_LANGUAGES).optional(),
   emailNotifications: z.boolean().optional(),
   marketingEmails: z.boolean().optional(),
 });
@@ -36,7 +37,7 @@ export const UserSettingsUpdateSchema = z.object({
 // Default user settings matching database defaults
 export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
   theme: 'system',
-  language: 'en',
+  language: DEFAULT_LANGUAGE,
   emailNotifications: true,
   marketingEmails: false,
 };

@@ -1,3 +1,4 @@
+import { SUPPORTED_LANGUAGES } from '@/dictionaries/dictionaries';
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -56,6 +57,10 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
+  DEFAULT_LANGUAGE: z
+    .enum(SUPPORTED_LANGUAGES)
+    .optional()
+    .default('en')
 });
 
 export const env = envSchema.parse(process.env);
