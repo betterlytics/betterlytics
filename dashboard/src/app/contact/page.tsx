@@ -48,7 +48,7 @@ const FAQ_ITEMS = [
   {
     question: "What's included in the free plan?",
     answer:
-      'The free self-hosted plan includes up to 10,000 tracked events, full dashboard access and community support. Perfect for getting started!',
+      'The free self-hosted plan includes up to 10,000 tracked events, full dashboard access and community support. Perfect for getting started! No credit card required, no strings attached.',
   },
   {
     question: 'How does the cloud hosting work?',
