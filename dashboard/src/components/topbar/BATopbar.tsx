@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { GravatarImage } from '@/components/ui/gravatar-image';
 import { Settings, LogOut, User, ExternalLink, LayoutDashboard, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import Logo from '@/components/logo';
@@ -54,6 +55,11 @@ export default function BATopbar() {
                         {session.user?.name || 'User'}
                       </span>
                       <Avatar className='h-8 w-8'>
+                        <GravatarImage
+                          email={session.user?.email}
+                          alt={session.user?.name || 'User'}
+                          onError={(e) => (e.target as HTMLImageElement).remove()}
+                        />
                         <AvatarFallback className='bg-muted text-muted-foreground'>
                           <User className='h-4 w-4' />
                         </AvatarFallback>
