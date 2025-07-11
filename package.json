@@ -7,7 +7,7 @@
     "docs": "pnpm --filter docs dev",
     "build": "pnpm --filter dashboard build",
     "start": "pnpm --filter dashboard start",
-    "compose": "docker compose up -d && pnpm run migrate && pnpm run generate",
+    "compose": "docker compose up -d --wait && pnpm run migrate && pnpm run generate",
     "compose-down": "docker compose down",
     "migrate": "pnpm run migrate-dashboard && pnpm run migrate-clickhouse",
     "migrate-dashboard": "pnpm --filter dashboard migrate",

@@ -9,9 +9,14 @@ import {
   handleSubscriptionUpdated,
 } from '@/services/webhookHandlers';
 import { env } from '@/lib/env';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function POST(req: NextRequest) {
   try {
+    if (!isFeatureEnabled('enableBilling')) {
+      return NextResponse.json({ message: 'Billing is disabled' }, { status: 200 });
+    }
+
     const body = await req.text();
     const headersList = await headers();
     const stripeSignature = headersList.get('stripe-signature');

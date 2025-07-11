@@ -47,6 +47,7 @@ export const authOptions: NextAuthOptions = {
         token.uid = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.emailVerified = user.emailVerified;
         token.role = user.role;
         token.emailVerified = user.emailVerified;
       } else if (trigger === 'update' && token.email) {
@@ -64,7 +65,6 @@ export const authOptions: NextAuthOptions = {
           // We keep existing token data if refresh fails
         }
       }
-
       return token;
     },
     async session({ session, token }) {
@@ -72,6 +72,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.uid;
         session.user.name = token.name;
         session.user.email = token.email;
+        session.user.emailVerified = token.emailVerified;
         session.user.role = token.role;
         session.user.emailVerified = token.emailVerified;
       }

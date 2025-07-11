@@ -27,6 +27,11 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
+  ENABLE_BILLING: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((val) => val === 'true'),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
   STRIPE_SECRET_KEY: z.string().optional().default(''),
   STRIPE_WEBHOOK_SECRET: z.string().optional().default(''),
@@ -42,6 +47,11 @@ const envSchema = z.object({
     .default('false')
     .transform((val) => val === 'true'),
   ENABLE_ACCOUNT_VERIFICATION: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((val) => val === 'true'),
+  ENABLE_MONITORING: z
     .enum(['true', 'false'])
     .optional()
     .default('false')
