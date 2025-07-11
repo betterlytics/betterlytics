@@ -5,7 +5,7 @@ import { scaleLinear } from 'd3-scale';
 import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
-import { LatLngBoundsExpression } from 'leaflet';
+import { LatLngBoundsExpression, LeafletMouseEvent } from 'leaflet';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -131,28 +131,23 @@ const LeafletMap = ({
     const name = feature.properties.name || feature.properties.NAME || 'Unknown';
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
 
+    const selectCountry = (e: LeafletMouseEvent) => {
+      if (selectedCountry !== featureId) {
+        layer.openPopup(e.latlng);  
+        setSelectedCountry(featureId || null);
+        layer.bringToFront();
+      }
+    }
+
     layer.bindPopup(`
       <div>
         <strong>${name}</strong><br/>
         Visitors: ${visitors}
       </div>
     `);
-
-    layer.on('mouseover', (e) => {
-      if (selectedCountry !== featureId) {
-        layer.openPopup(e.latlng);  
-        setSelectedCountry(featureId || null);
-        layer.bringToFront();
-      }
-    });
-  
-    layer.on('click', (e) => {
-      if (selectedCountry !== featureId) {
-        layer.openPopup(e.latlng);  
-        setSelectedCountry(featureId || null);
-        layer.bringToFront();
-      }
-    });
+    
+    layer.on('mouseover', selectCountry);
+    layer.on('click', selectCountry);
   
     layer.on('mouseout', () => {
       if (selectedCountry === featureId) {
