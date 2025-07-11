@@ -7,6 +7,7 @@ import {
   createResetPasswordEmailTemplate,
   createUsageAlertEmailTemplate,
   createFirstPaymentWelcomeEmailTemplate,
+  createEmailVerificationTemplate,
   getEmailHeader,
   getEmailFooter,
   getTextEmailFooter,
@@ -15,6 +16,7 @@ import { WelcomeEmailData } from '@/services/email/template/welcome-mail';
 import { ResetPasswordEmailData } from '@/services/email/template/reset-password-mail';
 import { UsageAlertEmailData } from '@/services/email/template/usage-alert-mail';
 import { FirstPaymentWelcomeEmailData } from '@/services/email/template/first-payment-welcome-mail';
+import { EmailVerificationData } from '@/services/email/template/email-verification-mail';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export interface EmailTemplate {
@@ -104,4 +106,8 @@ export async function sendUsageAlertEmail(data: UsageAlertEmailData): Promise<vo
 
 export async function sendFirstPaymentWelcomeEmail(data: FirstPaymentWelcomeEmailData): Promise<void> {
   await sendEmail(createFirstPaymentWelcomeEmailTemplate(data), data);
+}
+
+export async function sendEmailVerificationEmail(data: EmailVerificationData): Promise<void> {
+  await sendEmail(createEmailVerificationTemplate(data), data);
 }
