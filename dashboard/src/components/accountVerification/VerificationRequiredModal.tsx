@@ -46,8 +46,8 @@ export function VerificationRequiredModal({
       <DialogContent className='max-w-md'>
         <DialogHeader>
           <div className='mb-2 flex items-center gap-3'>
-            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-blue-100'>
-              <ShieldCheck className='h-5 w-5 text-blue-600' />
+            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50'>
+              <ShieldCheck className='h-5 w-5 text-blue-600 dark:text-blue-400' />
             </div>
             <div>
               <DialogTitle className='text-lg'>Email Verification Required</DialogTitle>
@@ -57,19 +57,19 @@ export function VerificationRequiredModal({
         </DialogHeader>
 
         <div className='space-y-4'>
-          <div className='rounded-lg bg-blue-50 p-4'>
-            <h3 className='mb-2 font-medium text-blue-900'>Why verify your email?</h3>
-            <ul className='space-y-1 text-sm text-blue-700'>
+          <div className='rounded-lg bg-blue-50 p-4 dark:bg-blue-950/50'>
+            <h3 className='mb-2 font-medium text-blue-900 dark:text-blue-100'>Why verify your email?</h3>
+            <ul className='space-y-1 text-sm text-blue-700 dark:text-blue-200'>
               <li className='flex items-start gap-2'>
-                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500' />
+                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
                 <span>Secure billing and payment confirmations</span>
               </li>
               <li className='flex items-start gap-2'>
-                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500' />
+                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
                 <span>Important account notifications and alerts</span>
               </li>
               <li className='flex items-start gap-2'>
-                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500' />
+                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
                 <span>Enhanced account security and recovery</span>
               </li>
             </ul>
@@ -88,7 +88,7 @@ export function VerificationRequiredModal({
               </Button>
             ) : (
               <div className='space-y-3'>
-                <div className='flex items-center justify-center gap-2 text-green-600'>
+                <div className='flex items-center justify-center gap-2 text-green-600 dark:text-green-400'>
                   <CheckCircle className='h-4 w-4' />
                   <span className='text-sm font-medium'>Verification email sent!</span>
                 </div>

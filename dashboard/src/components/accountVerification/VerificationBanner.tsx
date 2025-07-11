@@ -51,15 +51,19 @@ export function VerificationBanner({
   if (isDismissed) return null;
 
   return (
-    <div className={`rounded-lg border border-blue-200 bg-blue-50 p-4 ${className}`}>
+    <div
+      className={`rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/50 ${className}`}
+    >
       <div className='flex items-start gap-3'>
-        <AlertCircle className='mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600' />
+        <AlertCircle className='mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400' />
 
         <div className='min-w-0 flex-1'>
           <div className='flex items-start justify-between gap-2'>
             <div className='flex-1'>
-              <h3 className='text-sm font-medium text-blue-900'>Please verify your email address</h3>
-              <p className='mt-1 text-sm text-blue-700'>
+              <h3 className='text-sm font-medium text-blue-900 dark:text-blue-100'>
+                Please verify your email address
+              </h3>
+              <p className='mt-1 text-sm text-blue-700 dark:text-blue-200'>
                 Hi {getDisplayName(userName, email)}! We sent a verification email to{' '}
                 <span className='font-medium'>{email}</span>. Please click the link in the email to verify your
                 account.
@@ -71,7 +75,7 @@ export function VerificationBanner({
                 variant='ghost'
                 size='sm'
                 onClick={handleDismiss}
-                className='h-8 w-8 flex-shrink-0 p-0 text-blue-600 hover:text-blue-800'
+                className='h-8 w-8 flex-shrink-0 p-0 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200'
               >
                 <X className='h-4 w-4' />
                 <span className='sr-only'>Dismiss</span>
@@ -86,20 +90,20 @@ export function VerificationBanner({
                 size='sm'
                 onClick={handleResendVerification}
                 disabled={isPending}
-                className='flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100'
+                className='flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-900/50'
               >
                 <Mail className='h-4 w-4' />
                 {isPending ? 'Sending...' : 'Resend verification email'}
               </Button>
             ) : (
-              <div className='flex items-center gap-2 text-sm text-blue-600'>
+              <div className='flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400'>
                 <RotateCcw className='h-4 w-4' />
                 <span>Email sent! Please check your inbox.</span>
               </div>
             )}
           </div>
 
-          <p className='mt-2 text-xs text-blue-600'>
+          <p className='mt-2 text-xs text-blue-600 dark:text-blue-400'>
             Can't find the email? Check your spam folder or wait a few minutes for delivery.
           </p>
         </div>
