@@ -111,17 +111,16 @@ const LeafletMap = ({
     const featureId = getFeatureId(feature);
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const visitors = visitorEntry ? visitorEntry.visitors : 0;
-
     const isSelected = selectedCountry === featureId;
 
     const fillColor = colorScale(visitors);
-    const borderColor = borderColorScale(visitors);
-
+    const borderColor = isSelected ? BORDER_COLORS.SELECTED : borderColorScale(visitors);
+    
     return {
       fillColor,
       weight: isSelected ? 2.5 : (visitors ? 1.5 : 1),
       opacity: 1,
-      color: isSelected ? BORDER_COLORS.SELECTED : borderColor, // Orange if selected, green if hover
+      color: borderColor,
       fillOpacity: isSelected ? 1 : 0.8,
     };
   };
@@ -136,14 +135,13 @@ const LeafletMap = ({
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const name = feature.properties.name || feature.properties.NAME || 'Unknown';
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
-  
-    const tooltipContent = `
+
+    layer.bindPopup(`
       <div>
         <strong>${name}</strong><br/>
         Visitors: ${visitors}
       </div>
-    `;
-    layer.bindPopup(tooltipContent);
+    `);
 
     layer.on('mouseover', (e) => {
       if (selectedCountry !== featureId) {
@@ -169,8 +167,6 @@ const LeafletMap = ({
     });
   };
   
-  
-
   if (isLoading || !mapComponents || !worldGeoJson) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>

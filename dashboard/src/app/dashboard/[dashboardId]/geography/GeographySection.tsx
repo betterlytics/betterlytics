@@ -4,28 +4,10 @@ import { use } from 'react';
 import { getWorldMapData } from '@/app/actions/geography';
 import LeafletMap from '@/components/LeafletMap';
 import { alpha2ToAlpha3Code } from '@/utils/countryCodes';
-import { GeoVisitor } from '@/entities/geography';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapData>;
 };
-
-const mockGeographyData: GeoVisitor[] = [
-  { country_code: 'USA', visitors: 1247 },
-  { country_code: 'GBR', visitors: 892 },
-  { country_code: 'DNK', visitors: 743 },
-  { country_code: 'FRA', visitors: 621 },
-  { country_code: 'CAN', visitors: 534 },
-  { country_code: 'AUS', visitors: 398 },
-  { country_code: 'JPN', visitors: 287 },
-  { country_code: 'BRA', visitors: 234 },
-  { country_code: 'IND', visitors: 198 },
-  { country_code: 'ESP', visitors: 156 },
-  { country_code: 'ITA', visitors: 134 },
-  { country_code: 'NLD', visitors: 98 },
-  { country_code: 'SWE', visitors: 67 },
-  { country_code: 'NOR', visitors: 45 },
-];
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
   const mapData = use(worldMapPromise);
@@ -49,7 +31,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
   return (
     <>
       <div className='h-full w-full'>
-        <LeafletMap visitorData={mockGeographyData} maxVisitors={1247} showZoomControls={true} />
+        <LeafletMap visitorData={processedVisitorData} maxVisitors={mapData.maxVisitors} showZoomControls={true} />
       </div>
 
       {processedVisitorData.length === 0 && (
