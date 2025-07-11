@@ -5,7 +5,8 @@ import { scaleLinear } from 'd3-scale';
 import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
-import { LatLngBoundsExpression } from 'leaflet';
+import { LatLng, LatLngBoundsExpression, Tooltip, tooltip, TooltipOptions, DomEvent } from 'leaflet';
+import { useMap } from 'react-leaflet';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -32,6 +33,7 @@ const BORDER_COLORS = {
   NO_VISITORS: '#9ca3af', // Lighter gray for 0 visitors border
   HIGH_VISITORS: '#93c5fd', // Lighter version of light blue
   LOW_VISITORS: '#3b82f6', // Lighter version of dark blue
+  SELECTED: '#00e369',
 } as const;
 
 const LeafletMap = ({
@@ -48,6 +50,7 @@ const LeafletMap = ({
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
 
@@ -109,34 +112,64 @@ const LeafletMap = ({
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const visitors = visitorEntry ? visitorEntry.visitors : 0;
 
+    const isSelected = selectedCountry === featureId;
+
     const fillColor = colorScale(visitors);
     const borderColor = borderColorScale(visitors);
 
     return {
       fillColor,
-      weight: 1.3,
+      weight: isSelected ? 2.5 : (visitors ? 1.5 : 1),
       opacity: 1,
-      color: borderColor,
-      fillOpacity: 0.8,
+      color: isSelected ? BORDER_COLORS.SELECTED : borderColor, // Orange if selected, green if hover
+      fillOpacity: isSelected ? 1 : 0.8,
     };
   };
 
-  // Attached the popup shown when clicking on a country to the GeoJSON data
-  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Layer) => {
+  const onEachFeature = (
+    feature: Feature<Geometry, GeoJSON.GeoJsonProperties>,
+    layer: L.Polygon
+  ) => {
     if (!feature.properties) return;
-
+  
     const featureId = getFeatureId(feature);
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const name = feature.properties.name || feature.properties.NAME || 'Unknown';
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
-
-    layer.bindPopup(`
+  
+    const tooltipContent = `
       <div>
         <strong>${name}</strong><br/>
         Visitors: ${visitors}
       </div>
-    `);
+    `;
+    layer.bindPopup(tooltipContent);
+
+    layer.on('mouseover', (e) => {
+      if (selectedCountry !== featureId) {
+        layer.openPopup(e.latlng);  
+        setSelectedCountry(featureId || null);
+        layer.bringToFront();
+      }
+    });
+  
+    layer.on('click', (e) => {
+      if (selectedCountry !== featureId) {
+        layer.openPopup(e.latlng);  
+        setSelectedCountry(featureId || null);
+        layer.bringToFront();
+      }
+    });
+  
+    layer.on('mouseout', () => {
+      if (selectedCountry === featureId) {
+        layer.closePopup();
+        setSelectedCountry(null);
+      }
+    });
   };
+  
+  
 
   if (isLoading || !mapComponents || !worldGeoJson) {
     return (
@@ -156,6 +189,9 @@ const LeafletMap = ({
       <style jsx global>{`
         .leaflet-container {
           background-color: var(--color-card);
+        }
+        .leaflet-interactive:focus {
+          outline: none !important; /** Remove square around selection area */
         }
       `}</style>
 
