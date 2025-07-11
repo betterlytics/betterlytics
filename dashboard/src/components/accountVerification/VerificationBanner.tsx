@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { resendVerificationEmailAction } from '@/app/actions/verification';
 import { toast } from 'sonner';
 import { Mail, X, AlertCircle, RotateCcw } from 'lucide-react';
+import { getDisplayName } from '@/utils/userUtils';
 
 interface VerificationBannerProps {
   email: string;
@@ -22,12 +23,10 @@ export function VerificationBanner({
   className = '',
 }: VerificationBannerProps) {
   const [isPending, startTransition] = useTransition();
-  const [isResending, setIsResending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
   const handleResendVerification = async () => {
-    setIsResending(true);
     startTransition(async () => {
       try {
         const result = await resendVerificationEmailAction({ email });
@@ -40,8 +39,6 @@ export function VerificationBanner({
         }
       } catch (error) {
         toast.error('Failed to send verification email');
-      } finally {
-        setIsResending(false);
       }
     });
   };
@@ -53,8 +50,6 @@ export function VerificationBanner({
 
   if (isDismissed) return null;
 
-  const displayName = userName || email.split('@')[0];
-
   return (
     <div className={`rounded-lg border border-blue-200 bg-blue-50 p-4 ${className}`}>
       <div className='flex items-start gap-3'>
@@ -65,8 +60,9 @@ export function VerificationBanner({
             <div className='flex-1'>
               <h3 className='text-sm font-medium text-blue-900'>Please verify your email address</h3>
               <p className='mt-1 text-sm text-blue-700'>
-                Hi {displayName}! We sent a verification email to <span className='font-medium'>{email}</span>.{' '}
-                Please click the link in the email to verify your account.
+                Hi {getDisplayName(userName, email)}! We sent a verification email to{' '}
+                <span className='font-medium'>{email}</span>. Please click the link in the email to verify your
+                account.
               </p>
             </div>
 
@@ -89,11 +85,11 @@ export function VerificationBanner({
                 variant='outline'
                 size='sm'
                 onClick={handleResendVerification}
-                disabled={isPending || isResending}
+                disabled={isPending}
                 className='flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100'
               >
                 <Mail className='h-4 w-4' />
-                {isResending ? 'Sending...' : 'Resend verification email'}
+                {isPending ? 'Sending...' : 'Resend verification email'}
               </Button>
             ) : (
               <div className='flex items-center gap-2 text-sm text-blue-600'>

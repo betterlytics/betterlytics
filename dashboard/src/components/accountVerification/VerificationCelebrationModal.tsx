@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 interface VerificationCelebrationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userName?: string;
+  userName: string;
   autoCloseDelay?: number;
 }
 
@@ -48,8 +48,6 @@ export function VerificationCelebrationModal({
     setTimeout(() => onClose(), 200);
   };
 
-  const displayName = userName || 'there';
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
@@ -77,7 +75,7 @@ export function VerificationCelebrationModal({
                 showContent ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
               )}
             >
-              <h2 className='text-2xl font-bold text-blue-900'>Email Verified Successfully, {displayName}!</h2>
+              <h2 className='text-2xl font-bold text-blue-900'>Email Verified Successfully, {userName}!</h2>
 
               <div className='space-y-4 pt-2'>
                 <div className='text-sm font-medium text-blue-700'>

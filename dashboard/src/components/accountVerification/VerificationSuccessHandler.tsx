@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { VerificationCelebrationModal } from '@/components/accountVerification/VerificationCelebrationModal';
+import { getDisplayName } from '@/utils/userUtils';
 
 export function VerificationSuccessHandler() {
   const searchParams = useSearchParams();
@@ -30,7 +31,7 @@ export function VerificationSuccessHandler() {
     <VerificationCelebrationModal
       isOpen={showModal}
       onClose={handleClose}
-      userName={session?.user?.name || undefined}
+      userName={getDisplayName(session?.user?.name, session?.user?.email)}
     />
   );
 }

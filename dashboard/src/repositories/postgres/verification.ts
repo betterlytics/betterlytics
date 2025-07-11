@@ -1,12 +1,10 @@
 import prisma from '@/lib/postgres';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateVerificationTokenData, VerificationToken } from '@/entities/verification';
 
 export async function createVerificationToken(data: CreateVerificationTokenData): Promise<VerificationToken> {
   try {
     const verificationToken = await prisma.verificationRequest.create({
       data: {
-        id: uuidv4(),
         identifier: data.identifier,
         token: data.token,
         expires: data.expires,

@@ -10,6 +10,7 @@ import {
 } from '@/repositories/postgres/passwordReset';
 import { sendResetPasswordEmail } from '@/services/email/mail.service';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
+import { getDisplayName } from '@/utils/userUtils';
 
 const TOKEN_EXPIRY_HOURS = 1;
 
@@ -43,7 +44,7 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
       const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
       await sendResetPasswordEmail({
         to: user.email,
-        userName: user.name || user.email!.split('@')[0],
+        userName: getDisplayName(user.name, user.email),
         resetUrl,
         expirationTime: `${TOKEN_EXPIRY_HOURS} hour${TOKEN_EXPIRY_HOURS > 1 ? 's' : ''}`,
       });

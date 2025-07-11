@@ -45,7 +45,7 @@ export async function resendVerificationEmailAction(formData: SendVerificationEm
     const rateLimitCheck = await checkRateLimit(email);
 
     if (!rateLimitCheck.allowed && rateLimitCheck.nextAllowedAt) {
-      const waitTime = Math.ceil((rateLimitCheck.nextAllowedAt?.getTime() - Date.now()) / 60000);
+      const waitTime = Math.ceil((rateLimitCheck.nextAllowedAt.getTime() - Date.now()) / 60000);
       return {
         success: false,
         error: `Please wait ${waitTime} minutes before requesting another verification email.`,

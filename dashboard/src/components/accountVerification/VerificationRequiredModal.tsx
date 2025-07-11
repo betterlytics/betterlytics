@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { resendVerificationEmailAction } from '@/app/actions/verification';
 import { toast } from 'sonner';
 import { ShieldCheck, Mail, CheckCircle } from 'lucide-react';
+import { getDisplayName } from '@/utils/userUtils';
 
 interface VerificationRequiredModalProps {
   isOpen: boolean;
@@ -39,8 +40,6 @@ export function VerificationRequiredModal({
       }
     });
   };
-
-  const displayName = userName || userEmail.split('@')[0];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -78,8 +77,8 @@ export function VerificationRequiredModal({
 
           <div className='text-center'>
             <p className='text-muted-foreground mb-4 text-sm'>
-              Hi {displayName}, we need to verify your email address <strong>{userEmail}</strong> before you can
-              upgrade to a paid plan.
+              Hi {getDisplayName(userName, userEmail)}, we need to verify your email address{' '}
+              <strong>{userEmail}</strong> before you can upgrade to a paid plan.
             </p>
 
             {!emailSent ? (

@@ -19,8 +19,9 @@ import {
   VerificationResult,
 } from '@/entities/verification';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
-import { addHours, addMinutes, subHours, isBefore, subMinutes } from 'date-fns';
+import { addMinutes, isBefore, subMinutes } from 'date-fns';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { getDisplayName } from '@/utils/userUtils';
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 const VERIFICATION_URL_BASE = env.NEXT_PUBLIC_BASE_URL;
@@ -60,7 +61,7 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
 
     await sendEmailVerificationEmail({
       to: email,
-      userName: user.name || user.email.split('@')[0],
+      userName: getDisplayName(user.name, user.email),
       verificationToken: token,
       verificationUrl,
     });
@@ -147,12 +148,6 @@ export async function checkRateLimit(email: string): Promise<{ allowed: boolean;
     }
 
     const cooldownAgo = subMinutes(now, RESEND_COOLDOWN_MINUTES);
-    const tokenExpiryAgo = subHours(now, VERIFICATION_TOKEN_EXPIRY_HOURS);
-
-    if (isBefore(recentToken.createdAt, tokenExpiryAgo)) {
-      const nextAllowedAt = addHours(recentToken.createdAt, VERIFICATION_TOKEN_EXPIRY_HOURS);
-      return { allowed: false, nextAllowedAt };
-    }
 
     if (isBefore(recentToken.createdAt, cooldownAgo)) {
       return { allowed: true };
