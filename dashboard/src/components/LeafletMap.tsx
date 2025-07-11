@@ -129,7 +129,6 @@ const LeafletMap = ({
     layer: L.Polygon
   ) => {
     if (!feature.properties) return;
-  
     const featureId = getFeatureId(feature);
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const name = feature.properties.name || feature.properties.NAME || 'Unknown';
