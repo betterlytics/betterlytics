@@ -5,8 +5,7 @@ import { scaleLinear } from 'd3-scale';
 import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
-import { LatLng, LatLngBoundsExpression, Tooltip, tooltip, TooltipOptions, DomEvent } from 'leaflet';
-import { useMap } from 'react-leaflet';
+import { LatLngBoundsExpression } from 'leaflet';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
