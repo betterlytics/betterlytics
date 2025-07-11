@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { CheckCircle, CreditCard, ShieldCheck, ChartBar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,25 +20,20 @@ export function VerificationCelebrationModal({
   autoCloseDelay = 8000,
 }: VerificationCelebrationModalProps) {
   const [showContent, setShowContent] = useState(false);
-  const [progress, setProgress] = useState(100);
+  const [targetProgress, setTargetProgress] = useState('100%');
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => setShowContent(true), 100);
+      setTimeout(() => {
+        setShowContent(true);
+        setTargetProgress('0%');
+      }, 100);
 
-      const startTime = Date.now();
-      const interval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const remainingProgress = Math.max(0, 100 - (elapsed / autoCloseDelay) * 100);
-        setProgress(remainingProgress);
+      const timer = setTimeout(() => {
+        handleClose();
+      }, autoCloseDelay);
 
-        if (remainingProgress <= 0) {
-          clearInterval(interval);
-          handleClose();
-        }
-      }, 50);
-
-      return () => clearInterval(interval);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, autoCloseDelay]);
 
@@ -56,7 +50,15 @@ export function VerificationCelebrationModal({
       >
         <div className='relative overflow-hidden'>
           <div className='absolute top-0 right-0 left-0 px-6 pt-4'>
-            <Progress value={progress} className='h-1' color='var(--primary)' />
+            <div className='h-1 w-full overflow-hidden rounded-full bg-blue-200'>
+              <div
+                className='h-full rounded-full bg-blue-600 transition-all ease-linear'
+                style={{
+                  width: targetProgress,
+                  transitionDuration: `${autoCloseDelay}ms`,
+                }}
+              />
+            </div>
           </div>
 
           <div className='flex flex-col items-center px-6 py-8 pt-12 text-center'>
