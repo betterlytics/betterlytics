@@ -1,11 +1,11 @@
 export type GetGravatarUrlProps = {
   size?: number;
-  defaultImage?: string;
+  defaultImage?: 'blank';
 };
 
 export async function getGravatarUrl(
   email?: string,
-  { size = 128, defaultImage = '404' }: GetGravatarUrlProps = {},
+  { size = 128, defaultImage = 'blank' }: GetGravatarUrlProps = {},
 ): Promise<string | undefined> {
   if (!email) return;
 

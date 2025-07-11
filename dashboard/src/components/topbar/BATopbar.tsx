@@ -54,15 +54,9 @@ export default function BATopbar() {
                       <span className='text-foreground hidden text-sm font-medium sm:block'>
                         {session.user?.name || 'User'}
                       </span>
-                      <Avatar className='h-8 w-8'>
-                        <GravatarImage
-                          email={session.user?.email}
-                          alt={session.user?.name || 'User'}
-                          onError={(e) => (e.target as HTMLImageElement).remove()}
-                        />
-                        <AvatarFallback className='bg-muted text-muted-foreground'>
-                          <User className='h-4 w-4' />
-                        </AvatarFallback>
+                      <Avatar className='relative h-8 w-8'>
+                        <GravatarImage email={session.user?.email} alt={session.user?.name || 'User'} />
+                        <User className='bg-muted text-muted-foreground size-full p-2' />
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
