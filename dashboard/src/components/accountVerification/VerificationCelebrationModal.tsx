@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, CreditCard, ShieldCheck, ChartBar } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -77,7 +77,9 @@ export function VerificationCelebrationModal({
                 showContent ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
               )}
             >
-              <h2 className='text-2xl font-bold text-blue-900'>Email Verified Successfully, {userName}!</h2>
+              <DialogTitle asChild>
+                <h2 className='text-2xl font-bold text-blue-900'>Email Verified Successfully, {userName}!</h2>
+              </DialogTitle>
 
               <div className='space-y-4 pt-2'>
                 <div className='text-sm font-medium text-blue-700'>
