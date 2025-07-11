@@ -10,7 +10,7 @@ export async function getGravatarUrl(
   if (!email) return;
 
   const hashHex = await sha256Hex(email.trim().toLowerCase());
-  return `https://www.gravatar.com/avatar/${hashHex}?d=${defaultImage}&s=${size}`;
+  return `https://secure.gravatar.com/avatar/${hashHex}?d=${defaultImage}&s=${size}`;
 }
 
 async function sha256Hex(str: string): Promise<string> {
