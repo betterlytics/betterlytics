@@ -114,7 +114,7 @@ const LeafletMap = ({
 
     const fillColor = colorScale(visitors);
     const borderColor = isSelected ? BORDER_COLORS.SELECTED : borderColorScale(visitors);
-    
+
     return {
       fillColor,
       weight: isSelected ? 2.5 : (visitors ? 1.5 : 1),
@@ -124,10 +124,7 @@ const LeafletMap = ({
     };
   };
 
-  const onEachFeature = (
-    feature: Feature<Geometry, GeoJSON.GeoJsonProperties>,
-    layer: L.Polygon
-  ) => {
+  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
     if (!feature.properties) return;
     const featureId = getFeatureId(feature);
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
