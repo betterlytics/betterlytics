@@ -5,7 +5,7 @@ import { FeatureShowcase } from './components/featureShowcase';
 import { IntegrationSection } from './components/integrationSection';
 import { PricingSection } from './components/pricingSection';
 import { OpenSourceCallout } from './components/openSourceCallout';
-import { Footer } from './components/footer';
+import { Footer } from '@/components/footer/Footer';
 
 export const revalidate = 3600;
 
