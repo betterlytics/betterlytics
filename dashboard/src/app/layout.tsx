@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
+import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
@@ -34,6 +36,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' suppressHydrationWarning>
+      {env.ENABLE_APP_TRACKING && (
+        <head>
+          <Script
+            async
+            src={`${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
+            data-site-id={env.APP_TRACKING_SITE_ID}
+            data-server-url={`${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
+            data-dynamic-urls='/dashboard/*'
+          />
+        </head>
+      )}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <ConditionalTopBar />

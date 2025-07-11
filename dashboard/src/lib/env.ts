@@ -51,6 +51,11 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
+  ENABLE_APP_TRACKING: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((val) => val === 'true'),
+  APP_TRACKING_SITE_ID: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);
