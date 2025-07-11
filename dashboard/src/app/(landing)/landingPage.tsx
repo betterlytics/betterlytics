@@ -5,7 +5,6 @@ import { FeatureShowcase } from './components/featureShowcase';
 import { IntegrationSection } from './components/integrationSection';
 import { PricingSection } from './components/pricingSection';
 import { OpenSourceCallout } from './components/openSourceCallout';
-import { Footer } from './components/footer';
 
 export const revalidate = 3600;
 
@@ -19,7 +18,6 @@ export default function LandingPage() {
       <IntegrationSection />
       <PricingSection />
       <OpenSourceCallout />
-      <Footer />
     </div>
   );
 }
