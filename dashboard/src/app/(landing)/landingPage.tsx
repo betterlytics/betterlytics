@@ -19,7 +19,6 @@ export default function LandingPage() {
       <IntegrationSection />
       <PricingSection />
       <OpenSourceCallout />
-      <Footer />
     </div>
   );
 }
