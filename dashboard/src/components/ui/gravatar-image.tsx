@@ -1,19 +1,13 @@
 import { AvatarImage } from '@/components/ui/avatar';
-import { getGravatarUrl, GetGravatarUrlProps } from '@/lib/gravatar';
-import { useEffect, useState } from 'react';
+import { UseGravatarUrlProps, useGravatarUrl } from '@/hooks/use-gravatar-url';
 
 export type GravatarImageProps = {
   email?: string;
   alt?: string;
-  onError?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void;
-} & GetGravatarUrlProps;
+} & UseGravatarUrlProps &
+  React.ComponentProps<typeof AvatarImage>;
 
-export function GravatarImage({ email, alt, onError, size, defaultImage }: GravatarImageProps) {
-  const [src, setSrc] = useState<string>();
-
-  useEffect(() => {
-    getGravatarUrl(email, { size, defaultImage }).then(setSrc);
-  }, [email]);
-
-  return <AvatarImage src={src} alt={alt} onError={onError} />;
+export function GravatarImage({ email, alt, ...useGravatarUrlProps }: GravatarImageProps) {
+  const src = useGravatarUrl(email, useGravatarUrlProps);
+  return <AvatarImage src={src} alt={alt} />;
 }
