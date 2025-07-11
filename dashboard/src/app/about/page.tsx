@@ -101,6 +101,15 @@ export default function AboutPage() {
             This simplicity extends to your users too. They can focus on your content instead of being interrupted
             by privacy notices and consent forms. Better experience for everyone.
           </p>
+          <p className='text-muted-foreground mb-6 text-lg leading-relaxed'>
+            We're based in the European Union and all data processing occurs within EU boundaries. Your data never
+            leaves the EU, ensuring full compliance with GDPR requirements. For detailed information about how we
+            handle your data, see our{' '}
+            <Link href='/privacy' className='text-primary hover:underline'>
+              privacy policy
+            </Link>
+            .
+          </p>
         </section>
 
         <section className='mb-12'>
