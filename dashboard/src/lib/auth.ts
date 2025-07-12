@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
+import { findUserByEmail } from '@/repositories/postgres/user';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 
@@ -41,16 +42,28 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.uid = user.id;
         token.name = user.name;
         token.email = user.email;
         token.emailVerified = user.emailVerified;
         token.role = user.role;
-      }
-      if (trigger === 'update' && session) {
-        token.name = session.name;
+        token.emailVerified = user.emailVerified;
+      } else if (trigger === 'update' && token.email) {
+        try {
+          const freshUser = await findUserByEmail(token.email as string);
+          if (freshUser) {
+            token.uid = freshUser.id;
+            token.name = freshUser.name;
+            token.email = freshUser.email;
+            token.role = freshUser.role;
+            token.emailVerified = freshUser.emailVerified || null;
+          }
+        } catch (error) {
+          console.error('Error refreshing user data in JWT callback:', error);
+          // We keep existing token data if refresh fails
+        }
       }
       return token;
     },
@@ -61,6 +74,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.emailVerified = token.emailVerified;
         session.user.role = token.role;
+        session.user.emailVerified = token.emailVerified;
       }
       return session;
     },
