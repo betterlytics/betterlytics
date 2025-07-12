@@ -7,6 +7,7 @@ const envSchema = z.object({
   ADMIN_EMAIL: z.string().min(1),
   ADMIN_PASSWORD: z.string().min(1),
   NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
+  NEXT_PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
   ENABLE_DASHBOARD_TRACKING: z
     .enum(['true', 'false'])
     .optional()
@@ -56,6 +57,11 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
+  ENABLE_APP_TRACKING: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((val) => val === 'true'),
+  APP_TRACKING_SITE_ID: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);
