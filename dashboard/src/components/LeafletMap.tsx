@@ -53,6 +53,7 @@ const LeafletMap = ({
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
+
   const { dictionary, currentLanguage } = useDictionary();
 
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
@@ -225,7 +226,7 @@ const LeafletMap = ({
           {...geoJsonOptions}
         />
         {showLegend && (
-          <div className='info-legend bg-card border-border absolute right-5 bottom-10 rounded-md border p-2.5 shadow'>
+          <div className='info-legend bg-card border-border absolute right-2 bottom-2 rounded-md border p-2.5 shadow'>
             <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
             <div className='flex items-center'>
               <span className='text-muted-foreground mr-1 text-xs'>0</span>
