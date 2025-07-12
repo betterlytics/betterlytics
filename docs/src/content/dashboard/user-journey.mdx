@@ -1,0 +1,196 @@
+---
+title: "User Journey"
+description: "Visualize how visitors navigate through your website with interactive user journey diagrams showing the most common paths users take."
+---
+
+import { Callout } from "nextra/components";
+
+# User Journey Analysis
+
+The User Journey feature provides a visual representation of how visitors navigate through your website, showing the most common paths users take as they move from page to page. This helps you optimize your site's navigation flow based on real behavior patterns rather than assumptions.
+
+## Understanding User Journeys
+
+User journeys represent the sequential paths that visitors take through your website during their sessions. The feature tracks:
+
+- **Page sequences** - The exact order of pages visited
+- **Navigation patterns** - How users move between different sections
+- **Drop-off points** - Where users commonly exit your site
+- **Popular paths** - The most frequently traveled routes
+
+## Accessing User Journey Data
+
+Navigate to **Dashboard > User Journey** to view your user journey analysis.
+
+## Interactive Controls
+
+The User Journey page provides two main controls to customize your analysis:
+
+### Number of Steps
+Choose how many pages to include in each journey sequence:
+- **1 Step** - Shows individual page views (no navigation)
+- **2 Steps** - Shows page-to-page transitions (A → B)
+- **3 Steps** - Shows three-page sequences (A → B → C)
+- **4 Steps** - Shows four-page sequences (A → B → C → D)
+- **5 Steps** - Shows five-page sequences (A → B → C → D → E)
+
+### Number of Journeys
+Choose how many of the most popular journeys to display:
+- **Top 5** - Shows the 5 most common paths
+- **Top 10** - Shows the 10 most common paths
+- **Top 20** - Shows the 20 most common paths
+- **Top 50** - Shows the 50 most common paths
+- **Top 100** - Shows the 100 most common paths
+
+## Sankey Diagram Visualization
+
+The user journey data is displayed as an interactive Sankey diagram:
+
+
+<div style={{ textAlign: "center" }}>
+  ![User journey diagram](/images/dashboard/user-journey-diagram.png)
+</div>
+
+
+### Understanding the Diagram
+
+- **Nodes** (rectangles) represent individual pages at specific steps in the journey
+- **Links** (curved lines) represent transitions between pages
+- **Width** of links indicates the number of users who took that path
+- **Color coding**:
+  - **Blue nodes** - Starting pages (entry points)
+  - **Gray nodes** - Subsequent pages in the journey
+
+### Node Labels
+
+Each node displays:
+- **Page URL** - The path of the page (e.g., `/products`, `/about`)
+- **User Count** - Number of users who visited this page at this step
+
+### Interactive Features
+
+- **Link highlighting** - Hover over links to see source → target transitions
+- **Responsive design** - Automatically adjusts to screen size
+- **Horizontal scrolling** - Navigate wide diagrams on smaller screens
+
+### Data Processing
+- Journey data is based on actual user sessions
+- Paths are tracked in chronological order
+- Only complete sequences (up to the selected step count) are included
+- Duplicate paths are aggregated and counted
+
+## Interpreting Your Data
+
+### Common Patterns to Look For
+
+1. **Entry Points**
+   - Which pages do users typically start on?
+   - Are users entering through your intended landing pages?
+
+2. **Navigation Flow**
+   - Do users follow your expected navigation paths?
+   - Are there unexpected but popular routes?
+
+3. **Drop-off Points**
+   - Where do users commonly exit your site?
+   - Are there pages that consistently lose users?
+
+4. **Popular Sequences**
+   - What are the most common 2-3 page sequences?
+   - Which content flows work best?
+
+### Example Analysis
+
+If you see a journey like:
+```
+/home (100 users) → /products (60 users) → /checkout (20 users)
+```
+
+This tells you:
+- 100 users started on your homepage
+- 60% continued to the products page
+- Only a third of product viewers reached checkout
+- There's a significant drop-off between products and checkout
+
+## Use Cases
+
+### E-commerce Sites
+- Track shopping journeys from product discovery to purchase
+- Identify where users abandon their shopping process
+- Optimize product page flows and checkout funnels
+
+### Content Sites
+- Understand how users navigate between articles
+- Identify popular content sequences
+- Optimize internal linking and content recommendations
+
+### SaaS Applications
+- Track user onboarding flows
+- Identify where users get stuck during setup
+- Optimize feature discovery paths
+
+### Marketing Sites
+- Analyze conversion paths from landing pages
+- Understand how users explore your offerings
+- Optimize lead generation funnels
+
+## Dashboard Filters
+
+The User Journey analysis respects your dashboard filters:
+
+- **Time Range** - View journeys from specific time periods
+- **Query Filters** - Filter by specific criteria (URLs, countries, devices, etc.)
+
+All filters help you analyze journey patterns for specific user segments or time periods.
+
+## Best Practices
+
+### Getting Started
+1. **Start with 2-3 steps** - Most insights come from understanding immediate page transitions
+2. **Use Top 10-20 journeys** - Provides good coverage without overwhelming detail
+3. **Look for patterns** - Focus on the most common paths first
+
+### Advanced Analysis
+1. **Compare time periods** - How do journeys change seasonally or after site updates?
+2. **Segment by traffic source** - Do organic vs. paid users follow different paths?
+3. **Analyze by device** - Are mobile journeys different from desktop?
+
+### Optimization Insights
+1. **Improve drop-off points** - If users consistently exit at certain pages, investigate why
+2. **Enhance popular paths** - Make successful journeys even smoother
+3. **Fix broken flows** - Address unexpected navigation patterns
+
+## Troubleshooting
+
+### No Journey Data Available
+
+If you see "No journey data available for the selected criteria":
+
+1. **Check your time range** - Expand the date range to include more data
+2. **Verify page views** - Ensure you have sufficient traffic for the selected period
+3. **Review filters** - Remove restrictive filters that might limit data
+4. **Adjust step count** - Try fewer steps if you have limited session data
+
+### Limited Journey Options
+
+If you see fewer journeys than expected:
+
+1. **Consider your traffic volume** - Low traffic sites may have fewer distinct paths
+2. **Review step requirements** - Higher step counts need longer sessions
+3. **Check session duration** - Very short sessions may not create multi-step journeys
+
+### Performance Considerations
+
+The diagram automatically adjusts its height based on the number of nodes to prevent overlap. Very complex journeys (many nodes) may:
+- Take longer to load
+- Require horizontal scrolling
+- Benefit from reducing the number of journeys shown
+
+<Callout type="info">
+**Pro Tip**: Start your analysis with 2-3 steps and the top 10 journeys. This gives you the most actionable insights without overwhelming complexity. You can always increase the detail once you understand the basic patterns.
+</Callout>
+
+
+---
+
+_Questions about user journey analysis? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!_
