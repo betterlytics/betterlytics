@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { type RefObject, useEffect, useState } from 'react';
 import {
-  ColumnDef,
-  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
-  Row,
+  type ColumnDef,
+  type SortingState,
+  type Row,
+  type ColumnFiltersState,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowUp, ArrowDown } from 'lucide-react';
@@ -20,6 +21,7 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState;
   className?: string;
   onRowClick?: (row: Row<TData>) => void;
+  tableRef?: RefObject<ReturnType<typeof useReactTable<TData>> | null>;
 }
 
 export function DataTable<TData, TValue>({
@@ -28,20 +30,29 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
   className,
   onRowClick,
+  tableRef,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
-
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting,
+      columnFilters,
     },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: setColumnFilters,
   });
+
+  useEffect(() => {
+    if (tableRef) {
+      tableRef.current = table;
+    }
+  }, []);
 
   return (
     <div className={`rounded-lg ${className || ''} overflow-hidden border border-gray-200 dark:border-slate-700`}>
