@@ -6,6 +6,7 @@ interface SEOConfig {
   keywords: string[];
   path: string;
   imageAlt?: string;
+  structuredData?: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
 const BASE_URL = 'https://betterlytics.io';
@@ -75,6 +76,121 @@ export function generateSEO({ title, description, keywords, path, imageAlt }: SE
   };
 }
 
+// JSON-LD Structured Data generator
+export function generateStructuredData(
+  type: 'organization' | 'website' | 'webpage' | 'contact',
+  config: SEOConfig,
+) {
+  const fullUrl = `${BASE_URL}${config.path}`;
+
+  switch (type) {
+    case 'organization':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Betterlytics',
+        url: BASE_URL,
+        logo: `${BASE_URL}/betterlytics-logo-full-light.png`,
+        description:
+          'Privacy-first, cookieless, open-source web analytics platform that respects user privacy while delivering powerful insights.',
+        foundingDate: '2024',
+        sameAs: ['https://github.com/betterlytics/betterlytics'],
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'customer service',
+          email: 'hello@betterlytics.io',
+        },
+        address: {
+          '@type': 'PostalAddress',
+          addressCountry: 'DK',
+        },
+        areaServed: 'Worldwide',
+        knowsAbout: [
+          'Web Analytics',
+          'Privacy-First Analytics',
+          'GDPR Compliance',
+          'Cookieless Tracking',
+          'Open Source Software',
+        ],
+      };
+
+    case 'website':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Betterlytics',
+        url: BASE_URL,
+        description: 'Privacy-first, cookieless, open-source web analytics platform',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Betterlytics',
+          logo: `${BASE_URL}/betterlytics-logo-full-light.png`,
+        },
+      };
+
+    case 'webpage':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: config.title,
+        description: config.description,
+        url: fullUrl,
+        mainEntity: {
+          '@type': 'Organization',
+          name: 'Betterlytics',
+          url: BASE_URL,
+        },
+        breadcrumb: {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: BASE_URL,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: config.title,
+              item: fullUrl,
+            },
+          ],
+        },
+      };
+
+    case 'contact':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'ContactPage',
+        name: config.title,
+        description: config.description,
+        url: fullUrl,
+        mainEntity: {
+          '@type': 'Organization',
+          name: 'Betterlytics',
+          contactPoint: [
+            {
+              '@type': 'ContactPoint',
+              contactType: 'customer service',
+              email: 'hello@betterlytics.io',
+              availableLanguage: 'English',
+            },
+            {
+              '@type': 'ContactPoint',
+              contactType: 'technical support',
+              email: 'support@betterlytics.io',
+              availableLanguage: 'English',
+            },
+          ],
+        },
+      };
+
+    default:
+      return null;
+  }
+}
+
 export const SEO_CONFIGS = {
   landing: {
     title: 'Betterlytics | Simple, Cookieless, Privacy-Friendly Web Analytics',
@@ -93,6 +209,7 @@ export const SEO_CONFIGS = {
       'Betterlytics Analytics Platform',
     ] as string[],
     path: '/',
+    structuredData: 'website' as const,
   },
   contact: {
     title: 'Contact Us | Betterlytics',
@@ -109,6 +226,7 @@ export const SEO_CONFIGS = {
       'Betterlytics Contact Form',
     ] as string[],
     path: '/contact',
+    structuredData: 'contact' as const,
   },
   about: {
     title: 'About Betterlytics | Privacy-First Web Analytics',
@@ -126,6 +244,7 @@ export const SEO_CONFIGS = {
       'Analytics Without Cookies',
     ] as string[],
     path: '/about',
+    structuredData: 'webpage' as const,
   },
   privacy: {
     title: 'Privacy Policy | Betterlytics',
@@ -143,6 +262,7 @@ export const SEO_CONFIGS = {
       'Privacy-Focused Analytics',
     ] as string[],
     path: '/privacy',
+    structuredData: 'webpage' as const,
   },
   terms: {
     title: 'Terms of Service | Betterlytics',
@@ -159,6 +279,7 @@ export const SEO_CONFIGS = {
       'Legal Agreement Betterlytics',
     ] as string[],
     path: '/terms',
+    structuredData: 'webpage' as const,
   },
   dpa: {
     title: 'Data Processing Agreement | Betterlytics',
@@ -177,5 +298,6 @@ export const SEO_CONFIGS = {
       'web analytics GDPR',
     ] as string[],
     path: '/dpa',
+    structuredData: 'webpage' as const,
   },
 } as const;
