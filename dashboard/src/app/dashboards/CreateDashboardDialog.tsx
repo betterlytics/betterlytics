@@ -55,17 +55,19 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
     }
 
     startTransition(async () => {
-      try {
-        const newDashboard = await createDashboardAction(result.data);
-        toast.success('Dashboard created! Setting up integration...');
-        setOpen(false);
-        setDomain('');
-        setValidationError('');
+      const newDashboard = await createDashboardAction(result.data);
 
-        router.push(`/dashboard/${newDashboard.id}?showIntegration=true`);
-      } catch (err) {
+      if (!newDashboard.success) {
         toast.error('Failed to create dashboard.');
+        return;
       }
+
+      toast.success('Dashboard created! Setting up integration...');
+      setOpen(false);
+      setDomain('');
+      setValidationError('');
+
+      router.push(`/dashboard/${newDashboard.data.id}?showIntegration=true`);
     });
   };
 
@@ -79,9 +81,11 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
     }
   };
 
+  const canCreateMore = dashboardStats.success && dashboardStats.data.canCreateMore;
+
   const createButton = (
-    <Button variant='outline' className='gap-2' disabled={!dashboardStats.canCreateMore}>
-      {dashboardStats.canCreateMore ? (
+    <Button variant='outline' className='gap-2' disabled={!canCreateMore}>
+      {canCreateMore ? (
         <>
           <Plus className='h-4 w-4' />
           Create Dashboard
@@ -95,7 +99,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
     </Button>
   );
 
-  const triggerElement = dashboardStats.canCreateMore ? (
+  const triggerElement = canCreateMore ? (
     createButton
   ) : (
     <Tooltip>

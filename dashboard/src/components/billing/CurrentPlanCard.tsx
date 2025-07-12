@@ -25,8 +25,8 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
   const handleManageSubscription = async () => {
     try {
       const portalUrl = await createStripeCustomerPortalSession();
-      if (portalUrl) {
-        window.location.href = portalUrl;
+      if (portalUrl.success) {
+        window.location.href = portalUrl.data;
       } else {
         throw new Error('No customer portal URL received');
       }

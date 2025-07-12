@@ -32,8 +32,8 @@ export function CancelSubscriptionDialog({
   const handleCancelSubscription = async () => {
     try {
       const portalUrl = await createStripeCustomerPortalSessionForCancellation();
-      if (portalUrl) {
-        window.location.href = portalUrl;
+      if (portalUrl.success) {
+        window.location.href = portalUrl.data;
         onCloseDialog?.();
       } else {
         throw new Error('No customer portal URL received');
