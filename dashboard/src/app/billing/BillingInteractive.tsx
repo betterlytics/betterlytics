@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
 import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
 import { createStripeCheckoutSession, createStripeCustomerPortalSession } from '@/actions/stripe';
 import type { UserBillingData } from '@/entities/billing';
+import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
 
 interface BillingInteractiveProps {
   billingData: UserBillingData;
@@ -14,6 +16,8 @@ interface BillingInteractiveProps {
 
 export function BillingInteractive({ billingData }: BillingInteractiveProps) {
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   useEffect(() => {
     if (searchParams?.get('canceled') === 'true') {
@@ -27,6 +31,11 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
 
       if (validatedPlan.tier === 'enterprise') {
         toast.info('Please contact us for a custom plan');
+        return;
+      }
+
+      if (!session?.user?.emailVerified) {
+        setShowVerificationModal(true);
         return;
       }
 
@@ -64,6 +73,15 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
           <p className='text-muted-foreground text-sm'>Start with our free plan - no credit card required.</p>
         )}
       </div>
+
+      {session?.user?.email && (
+        <VerificationRequiredModal
+          isOpen={showVerificationModal}
+          onClose={() => setShowVerificationModal(false)}
+          userEmail={session.user.email}
+          userName={session.user.name || undefined}
+        />
+      )}
     </>
   );
 }

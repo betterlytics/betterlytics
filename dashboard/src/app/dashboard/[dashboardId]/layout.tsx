@@ -15,6 +15,7 @@ import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
 import ScrollReset from '@/components/ScrollReset';
+import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -56,6 +57,13 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                 <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
               </Suspense>
             )}
+            {isFeatureEnabled('enableAccountVerification') &&
+              session.user?.email &&
+              !session.user?.emailVerified && (
+                <div className='mx-auto max-w-7xl px-4 pt-4'>
+                  <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
+                </div>
+              )}
             <div className='flex w-full justify-center'>{children}</div>
           </main>
           {/* Conditionally render tracking script based on server-side feature flag */}
