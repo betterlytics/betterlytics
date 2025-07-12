@@ -1,13 +1,12 @@
-"use client";
+'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/LeafletMap';
-import { getWorldMapData } from "@/app/actions/geography";
-import { alpha3ToAlpha2Code, getCountryName } from "@/utils/countryCodes";
+import { getWorldMapDataAlpha3 } from '@/app/actions/geography';
+import { getCountryName, alpha3ToAlpha2Code } from '@/utils/countryCodes';
 import { use } from 'react';
-import { FlagIcon, FlagIconProps } from '@/components/icons';
 
 type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapData>;
+  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha3>;
 };
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
@@ -24,12 +23,11 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
           key: 'countries',
           label: 'Top Countries',
           data: topCountries.map((country) => {
-            const alpha2 = country.country_code ? alpha3ToAlpha2Code(country.country_code) : undefined;
-          
+            const alpha2Code = alpha3ToAlpha2Code(country.country_code) || country.country_code;
+
             return {
-              label: getCountryName(alpha2 ?? 'Localhost'),
+              label: getCountryName(alpha2Code),
               value: country.visitors,
-              icon: alpha2 ? <FlagIcon countryCode={alpha2 as FlagIconProps['countryCode']} /> : undefined,
             };
           }),
           emptyMessage: 'No country data available',
@@ -39,7 +37,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
           label: 'World Map',
           data: [],
           emptyMessage: 'No world map data available',
-          customContent: worldMapData.visitorData ? (
+          customContent: worldMapData ? (
             <div className='h-[280px] w-full'>
               <LeafletMap visitorData={worldMapData.visitorData} showZoomControls={false} />
             </div>
@@ -50,4 +48,4 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
       ]}
     />
   );
-} 
+}
