@@ -60,3 +60,7 @@ moka = { version = "0.12.10", features = ["sync"] }
 serde_repr = "0.1.20"
 strum_macros = "0.27.1"
 strum = "0.27.1"
+
+# Prometheus metrics  
+prometheus = "0.14.0"
+sysinfo = "0.35.2"

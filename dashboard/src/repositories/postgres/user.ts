@@ -7,6 +7,7 @@ import {
   CreateUserSchema,
   RegisterUserSchema,
   RegisterUserData,
+  UpdateUserData,
 } from '@/entities/user';
 
 const SALT_ROUNDS = 10;
@@ -55,13 +56,25 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
 
     return await createUser({
       email: validatedData.email,
-      name: validatedData.name || validatedData.email.split('@')[0],
+      name: validatedData.name,
       passwordHash,
       role: validatedData.role || 'admin',
     });
   } catch (error) {
     console.error('Error registering user:', error);
     throw error;
+  }
+}
+
+export async function updateUser(userId: string, data: UpdateUserData): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data,
+    });
+  } catch (error) {
+    console.error(`Error updating user ${userId}:`, error);
+    throw new Error(`Failed to update user ${userId}.`);
   }
 }
 

@@ -51,7 +51,7 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
   }, [isVerified]);
 
   const trackingScript = siteId
-    ? `<script async src="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/analytics.js" data-site-id="${siteId}" data-server-url="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`
+    ? `<script async src="${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${siteId}" data-server-url="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`
     : '';
 
   const handleVerifyInstallation = async () => {
@@ -91,7 +91,7 @@ export default function RootLayout({
       <head>
         <Script
           async
-          src="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/analytics.js"
+          src="${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
           data-site-id="${siteId}"
           data-server-url="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
         />
@@ -107,7 +107,7 @@ function App() {
   useEffect(() => {
     const script = document.createElement('script');
     script.async = true;
-    script.src = "${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/analytics.js";
+    script.src = "${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
     script.setAttribute('data-site-id', "${siteId}");
     script.setAttribute('data-server-url', "${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track")
     document.head.appendChild(script);

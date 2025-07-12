@@ -14,6 +14,7 @@ services:
     networks:
       - proxy_network
       - clickhouse_network
+      - monitoring_network
 
   dashboard:
     build:
@@ -28,6 +29,7 @@ services:
         CLICKHOUSE_DASHBOARD_USER: ${CLICKHOUSE_DASHBOARD_USER}
         CLICKHOUSE_DASHBOARD_PASSWORD: ${CLICKHOUSE_DASHBOARD_PASSWORD}
         NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT: ${NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}
+        NEXT_PUBLIC_ANALYTICS_BASE_URL: ${NEXT_PUBLIC_ANALYTICS_BASE_URL}
         ENABLE_DASHBOARD_TRACKING: ${ENABLE_DASHBOARD_TRACKING:-false}
         IS_CLOUD: ${IS_CLOUD}
         ENABLE_REGISTRATION: ${ENABLE_REGISTRATION}
@@ -51,6 +53,7 @@ services:
       - proxy_network
       - postgres_network
       - clickhouse_network
+      - monitoring_network
 
   docs:
     build:
@@ -139,6 +142,45 @@ services:
       - postgres_network
       - clickhouse_network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    hostname: prometheus
+    restart: unless-stopped
+    user: "65534:65534"
+    volumes:
+      - ./prometheus/prometheus.production.yml:/etc/prometheus/prometheus.yml
+      - prometheus_prod_data:/prometheus_data
+    depends_on:
+      backend:
+        condition: service_started
+      dashboard:
+        condition: service_started
+    networks:
+      - monitoring_network
+      - grafana_prometheus_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    hostname: grafana
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:3000"
+    volumes:
+      - grafana_prod_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_SECURITY_COOKIE_SAMESITE=strict
+    depends_on:
+      prometheus:
+        condition: service_started
+    networks:
+      - grafana_prometheus_network
+
   proxy:
     build:
       context: ./proxy
@@ -169,8 +211,12 @@ volumes:
   clickhouse_prod_data:
   clickhouse_prod_users:
   postgres_prod_data:
+  prometheus_prod_data:
+  grafana_prod_data:
 
 networks:
   proxy_network:
   postgres_network:
   clickhouse_network:
+  monitoring_network:
+  grafana_prometheus_network:
