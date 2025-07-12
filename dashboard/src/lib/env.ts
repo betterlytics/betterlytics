@@ -1,4 +1,4 @@
-import { SUPPORTED_LANGUAGES } from '@/dictionaries/dictionaries';
+import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 import { z } from 'zod';
 
 const envSchema = z.object({

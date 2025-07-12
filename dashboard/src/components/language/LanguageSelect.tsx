@@ -4,8 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import * as React from 'react';
 
 import { type FlagIconProps } from '@/components/icons/FlagIcon';
-import { SupportedLanguages, SUPPORTED_LANGUAGES } from '@/dictionaries/dictionaries';
+import { SupportedLanguages } from '@/dictionaries/dictionaries';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { SUPPORTED_LANGUAGES } from "@/constants/supportedLanguages";
 
 type LanguageSelectProps = {
   onUpdate: React.Dispatch<SupportedLanguages>;

@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from '@/dictionaries/dictionaries';
+// import { DEFAULT_LANGUAGE } from '@/dictionaries/dictionaries';
+import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 
 export const UserSettingsSchema = z
   .object({
@@ -37,7 +38,7 @@ export const UserSettingsUpdateSchema = z.object({
 // Default user settings matching database defaults
 export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
   theme: 'system',
-  language: DEFAULT_LANGUAGE,
+  language: 'en',
   emailNotifications: true,
   marketingEmails: false,
 };

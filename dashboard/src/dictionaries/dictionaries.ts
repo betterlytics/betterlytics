@@ -1,7 +1,3 @@
-import { env } from '@/lib/env';
-
-export const SUPPORTED_LANGUAGES = ['en', 'da'] as const;
-
 export const dictionaries = {
   en: () => import(`@/dictionaries/en.json`).then((module) => module.default),
   da: () => import('@/dictionaries/da.json').then((module) => module.default),
@@ -22,7 +18,7 @@ export type BADictionary = RawDictionary & {
 };
 
 export type SupportedLanguages = keyof typeof dictionaries;
-export const DEFAULT_LANGUAGE: SupportedLanguages = env.DEFAULT_LANGUAGE;
+export const DEFAULT_LANGUAGE: SupportedLanguages = process.env.DEFAULT_LANGUAGE as SupportedLanguages ?? 'en';
 
 function isLanguageSupported(language: string): language is SupportedLanguages {
   return language in dictionaries;
