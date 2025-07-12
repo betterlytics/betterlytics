@@ -76,8 +76,8 @@ export function TimeRangeSelector({
 
   const displayRangeLabel = () => {
     if (currentActivePreset === 'custom' && context.startDate && context.endDate) {
-      const startLabel = format(context.startDate, 'P');
-      const endLabel = format(context.endDate, 'P');
+      const startLabel = context.startDate.toLocaleDateString();
+      const endLabel = context.endDate.toLocaleDateString();
       return `${startLabel} - ${endLabel}`;
     }
     const preset = TIME_RANGE_PRESETS.find((p) => p.value === currentActivePreset);
@@ -99,7 +99,7 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='z-[1002] w-96 space-y-6 p-6' align='end'>
+      <PopoverContent className='w-96 space-y-6 p-6' align='end'>
         <QuickSelectSection selectedRange={tempState.range} onRangeSelect={handleQuickSelect} />
 
         <GranularitySection
