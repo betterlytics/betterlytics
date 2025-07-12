@@ -41,6 +41,7 @@ services:
         ENABLE_EMAILS: ${ENABLE_EMAILS}
         MAILER_SEND_API_TOKEN: ${MAILER_SEND_API_TOKEN}
         ENABLE_MAIL_PREVIEW_PAGE: ${ENABLE_MAIL_PREVIEW_PAGE}
+        DEFAULT_LANGUAGE: ${DEFAULT_LANGUAGE}
     env_file:
       - .env
     restart: unless-stopped

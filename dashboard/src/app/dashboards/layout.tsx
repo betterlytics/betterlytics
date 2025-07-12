@@ -1,15 +1,21 @@
 import BATopbar from '@/components/topbar/BATopbar';
+import DictionaryProvider from '@/contexts/DictionaryContextProvider';
+import { getDictionary } from '@/app/actions/dictionary';
 import { type ReactNode } from 'react';
 
 type DashboardsLayoutProps = {
   children: ReactNode;
 };
 
-export default function DashboardsLayout({ children }: DashboardsLayoutProps) {
+export default async function DashboardsLayout({ children }: DashboardsLayoutProps) {
+  const { dictionary, language } = await getDictionary();
+
   return (
-    <section className='h-full w-full'>
-      <BATopbar />
-      {children}
-    </section>
+    <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
+      <section className='h-full w-full'>
+        <BATopbar />
+        {children}
+      </section>
+    </DictionaryProvider>
   );
 }
