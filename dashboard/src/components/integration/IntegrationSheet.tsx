@@ -9,12 +9,12 @@ import { CheckCircle, Info, Clipboard, Check, Code, RefreshCw, Circle } from 'lu
 import { CodeBlock } from './CodeBlock';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSiteId } from '@/app/actions';
 import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import React from 'react';
+import { env } from '@/lib/env';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -51,7 +51,7 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
   }, [isVerified]);
 
   const trackingScript = siteId
-    ? `<script async src="${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${siteId}" data-server-url="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`
+    ? `<script async src="${env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${siteId}" data-server-url="${env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`
     : '';
 
   const handleVerifyInstallation = async () => {
@@ -91,9 +91,9 @@ export default function RootLayout({
       <head>
         <Script
           async
-          src="${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
+          src="${env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
           data-site-id="${siteId}"
-          data-server-url="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
+          data-server-url="${env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
         />
       </head>
       <body>{children}</body>
@@ -107,9 +107,9 @@ function App() {
   useEffect(() => {
     const script = document.createElement('script');
     script.async = true;
-    script.src = "${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
+    script.src = "${env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
     script.setAttribute('data-site-id', "${siteId}");
-    script.setAttribute('data-server-url', "${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track")
+    script.setAttribute('data-server-url', "${env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track")
     document.head.appendChild(script);
 
     return () => {
