@@ -1,0 +1,118 @@
+---
+title: "Geography Analytics - Betterlytics"
+description: "Visualize your website visitors' geographic distribution on an interactive world map to understand your global audience and optimize for regional markets."
+---
+
+import { Callout } from "nextra/components";
+
+# World Map Analytics
+
+The World Map provides a visual representation of where your website visitors are located around the world. This interactive map helps you understand your global audience distribution, identify key markets, and make data-driven decisions about international expansion, content localization, and regional marketing strategies.
+
+## Accessing the World Map
+
+Navigate to **Dashboard > Geography** to view your world map analytics data.
+
+## What the World Map Shows
+
+The world map displays **unique visitors** (not page views) by country, giving you insight into your actual audience reach rather than just activity volume. Each country is color-coded based on the number of unique visitors from that location during your selected time period.
+
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![World Map](/images/dashboard/world-map.png)
+</div>
+
+<Callout type="info">
+The map shows **unique visitors** - meaning each person is counted only once per country, regardless of how many pages they visited. This gives you a true picture of your geographic audience reach.
+
+See [Metrics Glossary](/dashboard/metrics-glossary) for more information on how unique visitors are calculated.
+</Callout>
+
+## Map Features
+
+### Interactive Country Data
+
+**Country Visualization:**
+- **Color-coded countries** - Each country is shaded based on visitor volume
+- **Blue gradient scale** - Lighter blue indicates higher visitor counts
+- **Gray countries** - Locations with no visitors appear in gray
+- **Hover information** - Click any country to see exact visitor numbers
+
+### Map Controls
+
+**Navigation:**
+- **Zoom controls** - Use the + and - buttons to zoom in and out or use the scroll wheel on your mouse
+- **Pan and drag** - Click and drag to move around the map
+- **Bounded view** - The map prevents excessive panning to maintain usability
+
+### Legend
+
+**Understanding the Scale:**
+- **Color legend** - Located in the bottom-right corner
+- **Gradient scale** - Shows the range from 0 visitors to your maximum
+- **Numeric range** - Displays actual visitor numbers for context
+
+## Data Accuracy and Sources
+
+### Geographic Detection
+
+**How Location is Determined:**
+- **IP-based geolocation** - Visitor location is determined from their IP address
+- **Country-level precision** - Data is aggregated at the country level
+- **GeoIP database** - Uses MaxMind GeoLite2 database for accurate location mapping
+
+### Data Considerations
+
+**VPN and Proxy Users:**
+- **Masked locations** - Users with VPNs may appear from different countries
+- **Business networks** - Corporate networks may show different locations
+- **Privacy tools** - Some privacy-focused browsers may affect location accuracy
+
+## Dashboard Filters
+
+The world map respects all dashboard filters, allowing you to segment and analyze your geographic data:
+
+- **Time Range** - View geographic distribution across different periods
+- **Query Filters** - Segment geographic data by device type, traffic source, or custom criteria
+- **Comparison Periods** - See how your geographic reach has changed over time
+
+## Interpreting Your Geographic Data
+
+### Audience Insights
+
+**High Concentration Markets:**
+- **Primary markets** - Countries with the highest visitor counts
+- **Market penetration** - Understanding your reach in key regions
+- **Seasonal patterns** - Geographic trends that change over time
+
+**Emerging Markets:**
+- **Growing regions** - Areas with increasing visitor counts
+- **Untapped potential** - Countries with low but growing traffic
+- **Expansion opportunities** - Markets worth targeting for growth
+
+### Regional Analysis
+
+**Content Localization Decisions:**
+- **Language priorities** - Which languages to translate content into
+- **Cultural adaptation** - Adjusting content for different markets
+- **Local regulations** - Understanding compliance requirements by region
+
+**Marketing Strategy:**
+- **Regional campaigns** - Targeting specific geographic areas
+- **Time zone considerations** - Scheduling content for optimal regional engagement
+- **Local partnerships** - Identifying regions for business development
+
+## Understanding Data Limitations
+
+<Callout type="warning">
+**Important Considerations:**
+
+- **IP-based location** - Location is determined by IP address, which may not reflect exact user location
+- **VPN usage** - Users with VPNs may appear from different countries than their actual location
+- **Business networks** - Corporate users may show the location of their company's network
+- **Mobile carriers** - Mobile traffic may show carrier network locations rather than exact user locations
+- **Privacy tools** - Some browsers and privacy tools may affect location accuracy
+</Callout>
+
+---
+
+*Questions about world map analytics? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!* 
