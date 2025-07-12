@@ -46,12 +46,6 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
   try {
     const validatedData = RegisterUserSchema.parse(data);
 
-    const existingUser = await findUserByEmail(validatedData.email);
-
-    if (existingUser) {
-      throw new Error(`User with email ${validatedData.email} already exists.`);
-    }
-
     const passwordHash = await bcrypt.hash(validatedData.password, SALT_ROUNDS);
 
     return await createUser({
