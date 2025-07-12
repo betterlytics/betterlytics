@@ -1,3 +1,4 @@
+import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -62,6 +63,10 @@ const envSchema = z.object({
     .default('false')
     .transform((val) => val === 'true'),
   APP_TRACKING_SITE_ID: z.string().optional(),
+  DEFAULT_LANGUAGE: z
+    .enum(SUPPORTED_LANGUAGES)
+    .optional()
+    .default('en'),
 });
 
 export const env = envSchema.parse(process.env);
