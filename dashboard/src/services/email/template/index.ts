@@ -15,6 +15,11 @@ export {
   generateFirstPaymentWelcomeEmailText,
 } from './first-payment-welcome-mail';
 export {
+  createEmailVerificationTemplate,
+  generateEmailVerificationContent,
+  generateEmailVerificationText,
+} from './email-verification-mail';
+export {
   getEmailHeader,
   getEmailFooter,
   getTextEmailFooter,

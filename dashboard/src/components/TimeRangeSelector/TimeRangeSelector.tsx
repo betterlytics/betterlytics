@@ -76,8 +76,8 @@ export function TimeRangeSelector({
 
   const displayRangeLabel = () => {
     if (currentActivePreset === 'custom' && context.startDate && context.endDate) {
-      const startLabel = format(context.startDate, 'P');
-      const endLabel = format(context.endDate, 'P');
+      const startLabel = context.startDate.toLocaleDateString();
+      const endLabel = context.endDate.toLocaleDateString();
       return `${startLabel} - ${endLabel}`;
     }
     const preset = TIME_RANGE_PRESETS.find((p) => p.value === currentActivePreset);
