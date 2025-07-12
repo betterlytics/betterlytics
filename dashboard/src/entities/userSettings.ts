@@ -1,5 +1,5 @@
 import { z } from 'zod';
-// import { DEFAULT_LANGUAGE } from '@/dictionaries/dictionaries';
+
 import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 
 export const UserSettingsSchema = z
