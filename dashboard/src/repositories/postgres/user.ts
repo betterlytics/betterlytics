@@ -56,7 +56,7 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
 
     return await createUser({
       email: validatedData.email,
-      name: validatedData.name || validatedData.email.split('@')[0],
+      name: validatedData.name,
       passwordHash,
       role: validatedData.role || 'admin',
     });

@@ -1,10 +1,12 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Table } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
+import { Input } from './ui/input';
+import { cn } from '@/lib/utils';
 
 interface TabDefinition<TData> {
   key: string;
@@ -22,6 +24,7 @@ interface TabbedTableProps<TData> {
   defaultTab?: string;
   className?: string;
   headerActions?: ReactNode;
+  searchColumn?: string;
 }
 
 function TabbedTable<TData>({
@@ -31,19 +34,28 @@ function TabbedTable<TData>({
   defaultTab,
   className = '',
   headerActions,
+  searchColumn,
 }: TabbedTableProps<TData>) {
   const activeDefaultTab = defaultTab || tabs[0]?.key;
+  const tableRef = useRef<Table<TData> | null>(null);
 
   return (
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='pb-0'>
-          <div className='flex flex-col items-center justify-between sm:flex-row'>
-            <div>
+          <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+            <div className={cn(searchColumn && 'sm:col-span-2')}>
               <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
               {description && <p className='text-muted-foreground text-sm'>{description}</p>}
             </div>
-            <div className='flex items-center gap-4'>
+            {searchColumn && (
+              <Input
+                placeholder={`Filter by ${searchColumn}...`}
+                onChange={(event) => tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)}
+                className='row-start-3 max-w-sm sm:row-start-2'
+              />
+            )}
+            <div className='flex items-center justify-center gap-4 sm:justify-end'>
               {headerActions && <div>{headerActions}</div>}
               <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
                 {tabs.map((tab) => (
@@ -70,6 +82,7 @@ function TabbedTable<TData>({
                     columns={tab.columns}
                     data={tab.data}
                     defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
+                    tableRef={tableRef}
                   />
                 )}
               </div>

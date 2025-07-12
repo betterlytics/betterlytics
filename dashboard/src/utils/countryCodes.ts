@@ -1,7 +1,10 @@
+import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/dictionaries/dictionaries';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
+import daLocale from 'i18n-iso-countries/langs/da.json';
 
 countries.registerLocale(enLocale);
+countries.registerLocale(daLocale);
 
 /**
  * Converts an ISO 3166-1 alpha-2 country code to alpha-3
@@ -24,9 +27,15 @@ export function alpha3ToAlpha2Code(alpha3: string): string | undefined {
 /**
  * Converts an ISO 3166-1 alpha-2 country code to country name
  * @param alpha2 The two-letter country code (e.g., 'DK')
+ * @param locale The language to retrieve the name for
+ * @param errorValue The value to show in-case there doesn't exist an entry for that locale
  * @returns The country name (e.g., 'Denmark') or 'Unknown' if not found
  */
-export function getCountryName(alpha2: string): string {
-  const name = countries.getName(alpha2.toUpperCase(), 'en');
-  return name || 'Unknown';
+export function getCountryName(
+  alpha2: string, 
+  locale: SupportedLanguages = DEFAULT_LANGUAGE, 
+  errorValue: string = 'Unknown'
+): string {
+  const name = countries.getName(alpha2.toUpperCase(), locale);
+  return name || errorValue;
 }

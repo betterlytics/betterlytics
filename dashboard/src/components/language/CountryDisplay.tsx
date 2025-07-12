@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { getCountryName } from '@/utils/countryCodes';
 import { cn } from '@/lib/utils';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type CountryDisplayProps = {
   countryCode: FlagIconProps['countryCode'];
@@ -11,9 +14,14 @@ type CountryDisplayProps = {
 
 export const CountryDisplay = ({ 
   countryCode, 
-  countryName = getCountryName(countryCode),
+  countryName,
   className,
 }: CountryDisplayProps) => {
+  if (!countryName) {
+    const { dictionary, currentLanguage } = useDictionary();
+    countryName = getCountryName(countryCode, currentLanguage, dictionary.misc.unknown);
+  }
+
   return (
     <div className={cn(className, 'm-0 flex items-center gap-2 p-0 overflow-hidden')}>
       <FlagIcon

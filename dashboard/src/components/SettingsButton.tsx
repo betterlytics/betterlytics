@@ -20,7 +20,7 @@ export default function SettingsButton() {
           Dashboard Settings
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='!z-1200 w-auto border-none p-0 shadow-lg' side='top' align='start'>
+      <PopoverContent className='w-auto border-none p-0 shadow-lg' side='top' align='start'>
         <SettingsPopover onClose={() => setIsPopoverOpen(false)} />
       </PopoverContent>
     </Popover>

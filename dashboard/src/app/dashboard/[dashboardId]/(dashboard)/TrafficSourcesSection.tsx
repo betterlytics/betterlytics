@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchTrafficSourcesCombinedAction } from "@/app/actions/referrers";
+import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { use } from 'react';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type TrafficSourcesSectionProps = {
   trafficSourcesCombinedPromise: ReturnType<typeof fetchTrafficSourcesCombinedAction>;
@@ -10,33 +11,37 @@ type TrafficSourcesSectionProps = {
 
 export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }: TrafficSourcesSectionProps) {
   const trafficSourcesCombined = use(trafficSourcesCombinedPromise);
+  const { dictionary } = useDictionary();
 
   return (
-    <MultiProgressTable 
-      title="Traffic Sources"
-      defaultTab="referrers"
+    <MultiProgressTable
+      title={dictionary.t('dashboard.sections.trafficSources')}
+      defaultTab='referrers'
       tabs={[
         {
-          key: "referrers",
-          label: "Referrers",
+          key: 'referrers',
+          label: dictionary.t('dashboard.tabs.referrers'),
           data: trafficSourcesCombined.topReferrerUrls
-            .filter(item => item.referrer_url && item.referrer_url.trim() !== '')
-            .map(item => ({ label: item.referrer_url, value: item.visits })),
-          emptyMessage: "No referrer data available"
+            .filter((item) => item.referrer_url && item.referrer_url.trim() !== '')
+            .map((item) => ({ label: item.referrer_url, value: item.visits })),
+          emptyMessage: dictionary.t('dashboard.emptyStates.noReferrerData'),
         },
         {
-          key: "sources",
-          label: "Sources", 
-          data: trafficSourcesCombined.topReferrerSources.map(item => ({ label: item.referrer_source, value: item.visits })),
-          emptyMessage: "No source data available"
+          key: 'sources',
+          label: dictionary.t('dashboard.tabs.sources'),
+          data: trafficSourcesCombined.topReferrerSources.map((item) => ({
+            label: item.referrer_source,
+            value: item.visits,
+          })),
+          emptyMessage: dictionary.t('dashboard.emptyStates.noSourceData'),
         },
         {
-          key: "channels",
-          label: "Channels",
-          data: trafficSourcesCombined.topChannels.map(item => ({ label: item.channel, value: item.visits })),
-          emptyMessage: "No channel data available"
-        }
+          key: 'channels',
+          label: dictionary.t('dashboard.tabs.channels'),
+          data: trafficSourcesCombined.topChannels.map((item) => ({ label: item.channel, value: item.visits })),
+          emptyMessage: dictionary.t('dashboard.emptyStates.noChannelData'),
+        },
       ]}
     />
   );
-} 
+}
