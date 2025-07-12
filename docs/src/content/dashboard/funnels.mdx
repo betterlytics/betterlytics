@@ -9,7 +9,7 @@ Funnels help you understand how users move through your website and identify whe
 
 ## What are Funnels?
 
-A funnel is a series of steps that track users through a specific journey on your website. Each step is defined by filters that determine what actions qualify as completing that step. Funnels show you:
+Funnels track users through a specific journey on your website. Each step is defined by filters that determine what actions qualify as completing that step. Funnels show you:
 
 - How many users complete each step
 - Where users drop off most frequently
@@ -17,15 +17,14 @@ A funnel is a series of steps that track users through a specific journey on you
 - Performance trends over time
 
 <div style={{ textAlign: "center" }}>
-  ![Subscription Overview in user settings showing current usage
-  stats](/images/funnels/e-commerce-funnel.png)
+  ![Funnel details of an E-Commerce funnel](/images/funnels/e-commerce-funnel.png)
 </div>
 
 ## Creating a Funnel
 
 ### Step-by-Step Guide
 
-1. Navigate to the Funnels section in your dashboard
+1. Go to Funnels in your dashboard
 2. Click "Create Funnel" to open the funnel builder
 3. Give your funnel a descriptive name
 4. Add at least 2 steps using the filter builder
@@ -64,7 +63,7 @@ Each funnel step can be filtered by any of these criteria:
 
 **Custom Events**
 - **Type** - Page view or custom event
-- **Event** - Specific custom event names
+- **Event** - Specific custom event names (see [Custom Events documentation](/docs/integration/custom-events))
 
 ### Filter Operators
 
@@ -75,16 +74,14 @@ Each funnel step can be filtered by any of these criteria:
 
 You can use the asterisk (`*`) character as a wildcard in filter values to match partial text:
 
-- `*checkout` - Matches any value ending with "checkout"
-- `checkout*` - Matches any value starting with "checkout"
-- `*checkout*` - Matches any value containing "checkout"
-- `/product/*` - Matches any URL starting with "/product/"
-- `*mobile*` - Matches any value containing "mobile"
-
-**Examples:**
-- **URL is `/blog/*`** - Matches all blog post URLs like `/blog/post-1`, `/blog/category/tech`, etc.
-- **Browser is `*Chrome*`** - Matches "Chrome", "Google Chrome", "Chrome Mobile", etc.
-- **UTM source is `*facebook*`** - Matches "facebook", "facebook.com", "m.facebook.com", etc.
+| Pattern | Matches | Example Results |
+|---------|---------|-----------------|
+| `*checkout` | Any value ending with "checkout" | "cart-checkout", "express-checkout" |
+| `checkout*` | Any value starting with "checkout" | "checkout-page", "checkout-success" |
+| `*checkout*` | Any value containing "checkout" | "pre-checkout", "checkout-form" |
+| `/blog/*` | Any URL starting with "/blog/" | "/blog/post-1", "/blog/category/tech" |
+| `*Chrome*` | Any browser containing "Chrome" | "Chrome", "Google Chrome", "Chrome Mobile" |
+| `*facebook*` | Any source containing "facebook" | "facebook", "facebook.com", "m.facebook.com" |
 
 ### Example Funnel Steps
 
@@ -114,6 +111,8 @@ Users must complete steps in order, but can visit other pages between funnel ste
 
 Users must complete steps in exact sequential order without visiting any other pages in between. This provides more precise tracking of direct, linear user journeys and eliminates users who deviate from the exact path.
 
+Strict mode is particularly useful when you need to track critical processes where deviations indicate problems or when measuring the effectiveness of a specific flow design. For example, in a SaaS onboarding process where users must complete account setup → tutorial → first project creation in sequence, strict mode helps identify if users are getting distracted or confused during the guided flow. If users frequently deviate to help pages or other areas, it signals that your onboarding needs clearer guidance or better UX design.
+
 
 ## Understanding Funnel Data
 
@@ -128,33 +127,12 @@ Each step shows:
 
 ### Key Metrics
 
-**Conversion Rate**
-- Overall percentage of users who complete the entire funnel
-- Calculated as (final step visitors / first step visitors) × 100
-
-**Drop-off Rate**
-- Percentage of users who leave between each step
-- Helps identify problematic steps in your flow
-
-**Visitor Counts**
-- Absolute numbers of users at each step
-- Useful for understanding traffic volume
+The **Conversion Rate** represents the overall percentage of users who complete the entire funnel, calculated as (final step visitors / first step visitors) × 100. This is your primary success metric. The **Drop-off Rate** shows the percentage of users who leave between each step, helping you identify problematic areas in your flow that need improvement. **Visitor Counts** provide the absolute numbers of users at each step, which is useful for understanding traffic volume and the scale of your optimization opportunities.
 
 
 ### Summary Cards
 
-**Overall Conversion Rate**
-- End-to-end completion percentage for the entire funnel
-
-**Total Visitors**
-- Number of users who entered the funnel (first step)
-
-**Total Completed**
-- Number of users who finished the funnel (last step)
-
-**Biggest Drop-off**
-- Step transition with the highest abandonment rate
-
+The summary cards provide key insights at a glance. The **Overall Conversion Rate** shows the end-to-end completion percentage for your entire funnel, giving you the most important metric for measuring success. **Total Visitors** displays how many users entered your funnel at the first step, while **Total Completed** shows how many made it all the way through to the final step. The **Biggest Drop-off** card highlights the step transition with the highest abandonment rate, helping you quickly identify where to focus your optimization efforts.
 
 
 ## Funnel Analysis Best Practices
@@ -166,45 +144,28 @@ Each step shows:
 3. **Monitor drop-off points** - Focus optimization efforts on the biggest drop-offs
 4. **Test different modes** - Try both normal and strict modes to see which provides better insights
 5. **Use time ranges** - Analyze performance over different periods to identify trends
-
-### Common Use Cases
-
-**E-commerce**
-- Product page → Cart → Checkout → Purchase
-- Landing page → Product page → Add to cart → Purchase
-
-**SaaS Sign-up**
-- Landing page → Sign-up form → Email verification → Onboarding complete
-
-**Content Engagement**
-- Blog post → Newsletter signup → Email click → Conversion
-
-**Mobile App Downloads**
-- Landing page → App store → Download → First launch
+6. **Add early filters for segmentation** - Include device type, country, or traffic source filters in your first step to analyze specific user segments (e.g., "Device type" "is" "Mobile" to track mobile-only conversion flows)
 
 ## Troubleshooting
 
-### Low Conversion Rates
-
+**Why are my conversion rates so low?**
 - Check if steps are too restrictive
 - Verify that URLs match exactly (including query parameters)
 - Ensure custom events are firing correctly
 - Consider using normal mode instead of strict mode
 
-### No Data Showing
-
+**Why is my funnel showing no data?**
 - Verify that tracking is properly installed
 - Check that events are being recorded in your Events page
 - Ensure the time range includes periods with traffic
 - Confirm filter values match your actual data
 
-### Unexpected Drop-offs
-
+**Why do I see unexpected drop-offs between steps?**
 - Review the specific filter criteria for problem steps
 - Check if there are intermediate pages not captured in your funnel
-- Verify that custom events are triggering at the right time
+- Verify that [custom events](/docs/integration/custom-events) are triggering at the right time
 - Consider technical issues like slow page loads or errors
 
 ---
 
-_Need help with funnel analysis? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for support!_
+_Need help with understanding and setting up funnels? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for support!_
