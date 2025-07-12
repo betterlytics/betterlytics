@@ -1,3 +1,4 @@
+import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { HeroSection } from './components/heroSection';
 import { FrameworkCompatibility } from './components/frameworkCompatibility';
 import { PrinciplesSection } from './components/principlesSection';
@@ -6,7 +7,7 @@ import { IntegrationSection } from './components/integrationSection';
 import { PricingSection } from './components/pricingSection';
 import { OpenSourceCallout } from './components/openSourceCallout';
 
-export const revalidate = 3600;
+export const metadata = generateSEO(SEO_CONFIGS.landing);
 
 export default function LandingPage() {
   return (

@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
@@ -7,6 +6,7 @@ import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
 import ConditionalFooter from '@/components/ConditionalFooter';
+import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,17 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
-  title: 'Betterlytics – Simple, Privacy-Friendly Website Analytics',
-  description:
-    'Betterlytics helps you track your website traffic with clean, real-time insights. No cookies, no bloat – just better analytics built for speed, privacy, and clarity.',
-  icons: {
-    icon: [
-      { url: '/images/favicon-dark.svg', media: '(prefers-color-scheme: light)', type: 'image/svg+xml' },
-      { url: '/images/favicon-light.svg', media: '(prefers-color-scheme: dark)', type: 'image/svg+xml' },
-    ],
-  },
-};
+export const metadata = generateSEO(SEO_CONFIGS.landing);
 
 export default function RootLayout({
   children,

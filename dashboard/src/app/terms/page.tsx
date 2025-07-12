@@ -1,12 +1,9 @@
-import { Metadata } from 'next';
+import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 
-export const metadata: Metadata = {
-  title: 'Terms of Service - Betterlytics',
-  description: 'Terms of service for Betterlytics - Privacy-focused web analytics service.',
-};
+export const metadata = generateSEO(SEO_CONFIGS.terms);
 
 export default function TermsPage() {
   if (!env.IS_CLOUD) {

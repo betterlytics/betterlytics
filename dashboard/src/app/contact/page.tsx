@@ -1,6 +1,9 @@
+import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
+
+export const metadata = generateSEO(SEO_CONFIGS.contact);
 
 const CONTACT_METHODS = [
   {

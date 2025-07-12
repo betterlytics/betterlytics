@@ -1,6 +1,9 @@
+import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata = generateSEO(SEO_CONFIGS.about);
 
 export default function AboutPage() {
   return (
