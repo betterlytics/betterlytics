@@ -172,7 +172,7 @@ const LeafletMap = ({
       }
     });
   };
-  
+
   if (isLoading || !mapComponents || !worldGeoJson) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
@@ -218,7 +218,7 @@ const LeafletMap = ({
         attributionControl={false}
       >
         <GeoJSON
-          key={JSON.stringify(visitorData.length)}
+          key={`${JSON.stringify(visitorData.length)}-${currentLanguage}`}
           data={worldGeoJson}
           style={styleGeoJson}
           onEachFeature={onEachFeature}
