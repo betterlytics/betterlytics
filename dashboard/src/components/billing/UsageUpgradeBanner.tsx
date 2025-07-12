@@ -6,20 +6,27 @@ import Link from 'next/link';
 import { use } from 'react';
 import type { UserBillingData } from '@/entities/billing';
 import { formatPercentage } from '@/utils/formatters';
+import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 
 interface UsageUpgradeBannerProps {
-  billingDataPromise: Promise<UserBillingData>;
+  billingDataPromise: Promise<ServerActionResponse<UserBillingData>>;
 }
 
 export default function UsageUpgradeBanner({ billingDataPromise }: UsageUpgradeBannerProps) {
   const billingData = use(billingDataPromise);
 
-  if (!billingData.usage.isOverLimit) {
+  if (!billingData.success) {
     return null;
   }
 
-  const overageEvents = billingData.usage.current - billingData.usage.limit;
-  const overagePercentage = (overageEvents / billingData.usage.limit) * 100;
+  const { usage, subscription } = billingData.data;
+
+  if (!usage.isOverLimit) {
+    return null;
+  }
+
+  const overageEvents = usage.current - usage.limit;
+  const overagePercentage = (overageEvents / usage.limit) * 100;
 
   return (
     <div className='w-full border-b border-red-600 bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-sm'>
@@ -30,9 +37,9 @@ export default function UsageUpgradeBanner({ billingDataPromise }: UsageUpgradeB
             <div className='flex flex-col text-sm sm:flex-row sm:items-center sm:gap-2'>
               <span className='font-medium'>Usage Limit Exceeded:</span>
               <span>
-                You&apos;ve used <strong>{billingData.usage.current.toLocaleString()}</strong> events out of your{' '}
-                <strong>{billingData.usage.limit.toLocaleString()}</strong> event limit (
-                {formatPercentage(overagePercentage)} over your {billingData.subscription.tier} plan).
+                You&apos;ve used <strong>{usage.current.toLocaleString()}</strong> events out of your{' '}
+                <strong>{usage.limit.toLocaleString()}</strong> event limit ({formatPercentage(overagePercentage)}{' '}
+                over your {subscription.tier} plan).
               </span>
               <span className='flex items-center gap-1 font-medium text-yellow-200'>
                 <AlertCircle className='h-3 w-3' />

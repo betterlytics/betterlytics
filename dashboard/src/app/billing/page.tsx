@@ -22,6 +22,10 @@ export default async function BillingPage() {
 
   const billingData = await getUserBillingData();
 
+  if (!billingData.success) {
+    throw new Error('Failed to get billing data');
+  }
+
   return (
     <div className='bg-background'>
       <BillingNavigationBanner />
@@ -43,10 +47,10 @@ export default async function BillingPage() {
         </div>
 
         <div className='mb-8'>
-          <CurrentPlanCard billingData={billingData} showManagementButtons={true} />
+          <CurrentPlanCard billingData={billingData.data} showManagementButtons={true} />
         </div>
 
-        <BillingInteractive billingData={billingData} />
+        <BillingInteractive billingData={billingData.data} />
 
         <div className='mt-10'>
           <BillingFAQGrid />
