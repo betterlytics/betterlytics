@@ -9,7 +9,6 @@ import { CheckCircle, Info, Clipboard, Check, Code, RefreshCw, Circle } from 'lu
 import { CodeBlock } from './CodeBlock';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSiteId } from '@/app/actions';

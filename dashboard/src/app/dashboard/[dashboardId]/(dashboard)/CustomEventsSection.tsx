@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchCustomEventsOverviewAction } from "@/app/actions/events";
+import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { use } from 'react';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type CustomEventsSectionProps = {
   customEventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
@@ -10,19 +11,20 @@ type CustomEventsSectionProps = {
 
 export default function CustomEventsSection({ customEventsPromise }: CustomEventsSectionProps) {
   const customEvents = use(customEventsPromise);
+  const { dictionary } = useDictionary();
 
   return (
-    <MultiProgressTable 
-      title="Custom Events"
-      defaultTab="events"
+    <MultiProgressTable
+      title={dictionary.t('dashboard.sections.customEvents')}
+      defaultTab='events'
       tabs={[
         {
-          key: "events",
-          label: "Events",
-          data: customEvents.map(event => ({ label: event.event_name, value: event.count })),
-          emptyMessage: "No custom events data available"
-        }
+          key: 'events',
+          label: dictionary.t('dashboard.tabs.events'),
+          data: customEvents.map((event) => ({ label: event.event_name, value: event.count })),
+          emptyMessage: dictionary.t('dashboard.emptyStates.noCustomEventsData'),
+        },
       ]}
     />
   );
-} 
+}

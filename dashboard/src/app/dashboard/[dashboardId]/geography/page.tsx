@@ -25,7 +25,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   const worldMapPromise = getWorldMapData(dashboardId, { startDate, endDate, queryFilters });
 
   return (
-    <div className='h-[calc(100svh-57px)] w-full'>
+    <div className='fixed inset-0 top-14 w-full'>
       <Suspense
         fallback={
           <div className='bg-background/70 flex h-full w-full flex-col items-center backdrop-blur-sm'>
@@ -37,7 +37,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
         <GeographySection worldMapPromise={worldMapPromise} />
       </Suspense>
 
-      <div className='absolute top-16 right-4 z-400'>
+      <div className='fixed top-16 right-4 z-30'>
         <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
           <DashboardFilters />
         </div>

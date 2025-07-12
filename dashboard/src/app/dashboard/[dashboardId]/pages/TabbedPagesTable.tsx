@@ -137,6 +137,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       description='Analytics for all tracked pages'
       tabs={tableTabs}
       defaultTab='all'
+      searchColumn='path'
     />
   );
 }
