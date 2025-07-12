@@ -6,6 +6,7 @@ import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
+import ConditionalFooter from '@/components/ConditionalFooter';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -51,6 +52,7 @@ export default function RootLayout({
         <Providers>
           <ConditionalTopBar />
           {children}
+          <ConditionalFooter />
         </Providers>
         <Toaster />
       </body>

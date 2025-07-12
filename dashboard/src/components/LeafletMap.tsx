@@ -180,7 +180,7 @@ const LeafletMap = ({
       </MapContainer>
 
       {showLegend && (
-        <div className='info-legend bg-card border-border absolute right-5 bottom-10 z-[1000] rounded-md border p-2.5 shadow'>
+        <div className='info-legend bg-card border-border absolute right-5 bottom-10 rounded-md border p-2.5 shadow'>
           <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
           <div className='flex items-center'>
             <span className='text-muted-foreground mr-1 text-xs'>0</span>
