@@ -13,10 +13,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
-  allDashboardsPromise: Promise<Dashboard[]>;
+  allDashboardsPromise: Promise<ServerActionResponse<Dashboard[]>>;
 }
 
 export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromise }: DashboardDropdownProps) {
@@ -31,6 +32,8 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
     setIsOpen(false);
     router.push(`/dashboard/${newDashboardId}`);
   };
+
+  const allDashboardsList = allDashboards.success ? allDashboards.data : [];
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -54,7 +57,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
         </div>
         <DropdownMenuSeparator />
 
-        {allDashboards.map((dashboard) => (
+        {allDashboardsList.map((dashboard) => (
           <DropdownMenuItem
             key={dashboard.id}
             onClick={() => handleDashboardSwitch(dashboard.id)}
