@@ -9,17 +9,11 @@ import { useSession } from 'next-auth/react';
 
 export function BAAvatar() {
   const { settings } = useUserSettings();
-  const avatarMode = useMemo(() => settings?.avatar || 'default', [settings?.avatar]);
+  const avatarMode = useMemo(() => settings?.avatar, [settings?.avatar]);
 
   return (
     <Avatar className='relative h-8 w-8'>
-      {avatarMode === 'default' ? (
-        <DefaultAvatar />
-      ) : avatarMode === 'gravatar' ? (
-        <GravatarAvatar />
-      ) : (
-        <DefaultAvatar />
-      )}
+      {avatarMode === 'gravatar' ? <GravatarAvatar /> : <DefaultAvatar />}
     </Avatar>
   );
 }
