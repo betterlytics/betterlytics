@@ -5,218 +5,212 @@ description: "Use powerful filtering tools to analyze specific segments of your 
 
 # Filtering
 
-Betterlytics provides comprehensive filtering capabilities across all dashboard pages, allowing you to analyze specific segments of your data and gain deeper insights into your website's performance. Filters help you focus on what matters most to your business.
+Betterlytics allows you to easily segment your audience to analyze and understand different trends. A segment is made up of one or more filters that help you focus on what matters most to your business.
 
-## Overview
+## What is filtering?
 
-Filters are applied consistently across all dashboard pages and affect all data displayed on that page. When you apply filters, you're essentially asking "Show me data for visitors who match these specific criteria."
+Filtering in Betterlytics lets you slice and dice your analytics data to focus on specific visitor segments. Want to see how mobile users from Germany interact with your blog? Or analyze the performance of your latest marketing campaign? Filters make this possible.
 
-<Skeleton />
+**Key benefits:**
+- **Focus on what matters** - Remove noise and analyze specific user segments
+- **Uncover hidden insights** - Discover patterns in specific visitor groups
+- **Optimize your strategy** - Make data-driven decisions based on targeted analysis
+- **Track campaign performance** - Measure the success of specific marketing efforts
 
-## How Filtering Works
+## How filtering works
 
-### Universal Application
+### Universal application across all pages
 
-Filters are applied to **all data** on the current dashboard page, including:
-- Visitor counts and unique visitor calculations
-- Page view metrics and page analytics
-- Session metrics (bounce rate, session duration)
-- Device and browser breakdowns
-- Geographic distributions
-- Referrer analysis
-- Custom event analytics
-- Time-series charts and trend analysis
+Filters are applied consistently across **all dashboard pages** and affect **all data** displayed on that page. When you apply filters, you're essentially asking "Show me data for visitors who match these specific criteria."
 
-### Consistent Interface
+Filters affect:
+- **Overview metrics** - Visitor counts, page views, session duration
+- **Traffic sources** - Referrer analysis and campaign tracking
+- **Page analytics** - Top pages, entry/exit pages, page performance
+- **Device insights** - Browser, OS, and device type breakdowns
+- **Geographic data** - Country and location distributions
+- **Custom events** - Event tracking and conversion analysis
+- **Time-series charts** - All trend analysis and historical data
 
-Every dashboard page (except Campaign) includes the same filtering interface:
-- **Filter button** in the top-right corner of each page
+### Consistent interface everywhere
+
+Every dashboard page includes the same filtering interface in the top-right corner of the page:
+- **Filter button** in the top-right corner
 - **Active filters** displayed as badges below the filter button
-- **Same filter options** available across all pages
+- **Same filter options** available across all dashboard pages
 
-<Skeleton />
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Filter button location and active filter badges](/images/dashboard/filter-button-location-and-active-filter-badges.png)
+</div>
 
-## Available Filters
+## Adding your first filter
 
-### Page & Navigation
+1. **Click the "Filters" button** on any dashboard page
+2. **Select "Add your first filter"** in the dropdown
+3. **Choose your filter criteria:**
+   - Select the **column** (e.g., Country, Device, URL)
+   - Choose the **operator** (is/is not)
+   - Enter the **value** to filter for
+4. **Click "Apply"** to activate the filter
+
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Step-by-step filter creation process](/images/dashboard/dashboard-filters.png)
+</div>
+
+## Available filter types
+
+### Page & Navigation Filters
 - **URL** - Filter by specific page URLs or URL patterns
+  - Example: `/blog/*` for all blog pages
+  - Example: `/product/*/checkout` for checkout pages
 
-### Device Information
-- **Device** - Desktop, mobile, tablet
+### Device & Technology Filters
+- **Device type** - Desktop, mobile, tablet
 - **Browser** - Chrome, Firefox, Safari, Edge, etc.
 - **Operating system** - Windows, macOS, iOS, Android, etc.
 
-### Geographic Data
-- **Country** - Filter by visitor's country
+### Geographic Filters
+- **Country** - Filter by visitor's country using country codes
+  - Example: `US` for United States
+  - Example: `DE` for Germany
 
-### Traffic Sources
+### Traffic Source Filters
 - **Referrer source** - Direct, search, social media, etc.
 - **Referrer name** - Specific source names like "Google", "Facebook"
 - **Referrer term** - Search keywords that brought users to your site
 - **Referrer URL** - Complete referrer URLs
 
-### Campaign Tracking
+### Campaign Tracking Filters
 - **UTM source** - UTM source parameter values
 - **UTM medium** - UTM medium parameter values
 - **UTM campaign** - UTM campaign parameter values
 - **UTM term** - UTM term parameter values
 - **UTM content** - UTM content parameter values
 
-### Custom Events
-- **Type** - Page views or custom events
-- **Event** - Specific custom event names
+### Custom Event Filters
+- **Event** - Specific custom event names you've set up
 
-## Filter Operators
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Filter dropdown showing all available filter types](/images/dashboard/dashboard-filters-dropdown.png)
+</div>
 
-### Basic Operators
+## Filter operators and matching
+
+### Basic operators
 - **is** - Exact match (case-insensitive)
 - **is not** - Exclude exact match (case-insensitive)
 
-### Wildcard Matching
+### Powerful wildcard matching
 
 Use the asterisk (`*`) character for flexible pattern matching:
 
-**Pattern Types:**
-- `*example` - Matches anything ending with "example"
-- `example*` - Matches anything starting with "example"
-- `*example*` - Matches anything containing "example"
+**Pattern types:**
+- `*example` - Matches anything **ending** with "example"
+- `example*` - Matches anything **starting** with "example"
+- `*example*` - Matches anything **containing** "example"
 
-**Common Examples:**
-- **URL is `/blog/*`** - All blog pages
-- **Browser is `*Chrome*`** - All Chrome variants
-- **UTM source is `*google*`** - All Google traffic sources
-- **Event is `*click*`** - All click-related events
+**Real-world examples:**
+- **URL is `/blog/*`** - All blog pages and subpages
+- **Browser is `*Chrome*`** - All Chrome variants (Chrome, Chrome Mobile, etc.)
+- **UTM source is `*google*`** - All Google traffic sources (google, google-ads, google-organic)
+- **Event is `*click*`** - All click-related events (button-click, link-click, etc.)
 
-<Skeleton />
+## Working with multiple filters
 
-## Using Filters
+### Combining filters with AND logic
 
-### Adding Filters
+All filters in Betterlytics use **AND logic** - visitors must match **ALL** applied filters to be included in the results.
 
-1. Click the **Filters** button on any dashboard page
-2. In the filter dropdown, click **Add your first filter** or **Add filter**
-3. Select the **column** you want to filter by
-4. Choose the **operator** (is/is not)
-5. Enter the **value** to filter for
-6. Click **Apply** to activate the filter
-
-### Managing Multiple Filters
-
-- **Add multiple filters** - Click "Add filter" to combine multiple criteria
-- **All filters use AND logic** - Visitors must match ALL filters to be included
-- **Remove filters** - Click the X button next to any filter in the dropdown
-- **Clear all filters** - Remove all filters and click Apply
-
-### Active Filter Display
-
-Applied filters are shown as badges below the filter button:
-- **Blue badges** show active filters
-- **Click any badge** to quickly remove that specific filter
-- **Hover over badges** to see full filter details
-
-<Skeleton />
-
-## Filter Examples
-
-### E-commerce Analysis
-**Mobile shoppers from the US:**
-- Device is `mobile`
+**Example combination:**
+- Device type is `mobile`
 - Country is `US`
-- URL is `/shop*`
+- URL is `/product/*`
 
-**Abandoned cart analysis:**
-- URL is `/cart`
-- Event is not `purchase_completed`
+This shows only mobile users from the US who visited product pages.
 
-### Content Performance
-**Blog engagement from search:**
-- URL is `/blog/*`
-- Referrer source is `search`
-- Referrer term is `*marketing*`
+### Managing multiple filters
 
-### Campaign Analysis
-**Facebook ad performance:**
-- UTM source is `facebook`
-- UTM medium is `cpc`
-- Device is not `desktop`
+- **Add more filters** - Click "Add filter" to combine multiple criteria
+- **Remove specific filters** - Click the Trash icon on the filter input row or the X on any filter badge
+- **Edit existing filters** - Click the filter button to modify criteria
+- **Cancel Changes** - Click the Cancel button to remove all changes you made to filters since the last Apply
+- **Apply Changes** - Click the Apply button to save your changes
 
-### Geographic Insights
-**European mobile users:**
-- Country is `DE` OR Country is `FR` OR Country is `UK`
-- Device is `mobile`
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Filter management interface with multiple filters](/images/dashboard/dashboard-filters-controls.png)
+</div>
 
-*Note: Use separate filters for each country as filters use AND logic*
+## Best practices and workflows
 
-## Best Practices
+### Effective filtering strategies
 
-### Effective Filtering Strategies
+1. **Start broad, then narrow down**
+   - Begin with one filter (e.g., Country is US)
+   - Add more specific criteria (Device type is mobile)
+   - Refine further as needed (URL is /product/*)
 
-1. **Start broad, then narrow** - Begin with one filter and add more specific criteria
-2. **Use wildcards effectively** - Leverage `*` for flexible pattern matching
-3. **Combine related filters** - Group filters that make sense together
-4. **Test filter combinations** - Experiment with different combinations to find insights
-5. **Save URLs** - Filtered views create shareable URLs for bookmarking
+2. **Use filters to answer specific questions**
+   - "How do mobile users behave differently?"
+   - "Which countries have the highest conversion rates?"
+   - "What's the performance of our latest campaign?"
 
-### Common Filter Patterns
+3. **Combine time ranges with filters**
+   - Apply filters first, then adjust time ranges
+   - Compare filtered segments across different periods
+   - Look for seasonal patterns in specific segments
 
-**Performance Analysis:**
-- Filter by device type to optimize for mobile/desktop
-- Filter by country to understand regional differences
-- Filter by referrer to analyze traffic source quality
+**Filter pattern examples:**
+- **Geographic analysis:** `Country is DE` + `Device type is mobile`
+- **Content performance:** `URL is /blog/*` + `Referrer source is social`
+- **Campaign optimization:** `UTM campaign is holiday-sale` + `Device type is not desktop`
 
-**Content Analysis:**
-- Filter by URL patterns to analyze section performance
-- Filter by custom events to track specific user actions
-- Filter by time ranges combined with content filters
+## Troubleshooting common issues
 
-**User Behavior:**
-- Filter by browser to identify technical issues
-- Filter by referrer terms to understand search intent
-- Filter by device + location for targeted insights
+### No data showing after applying filters
 
-## Filter Limitations
+**Check your filter values:**
+- Ensure values match your actual data exactly
+- Try using wildcards (`*`) if unsure of exact values
+- Verify country codes (use `US` not `United States`)
 
-### Current Restrictions
+**Verify your time range:**
+- Ensure your selected time range contains data for the filtered criteria
+- Some filters might not have data in shorter time periods
 
-- **Campaign page** does not support query filters (only time range filters)
-- **AND logic only** - All filters must match (no OR operations)
-- **No nested conditions** - Cannot create complex filter hierarchies
-- **Case-insensitive matching** - All text matching is case-insensitive
+**Test filters individually:**
+- Remove filters one by one to identify the problematic filter
+- Start with a single filter and add others gradually
 
-### Working with Limitations
+### Unexpected or confusing results
 
-**For OR conditions:**
-- Apply filters one at a time to analyze different segments
-- Use wildcards to capture multiple variations in one filter
-- Create separate filtered views for different conditions
+**Remember AND logic:**
+- All filters must match - there's no OR operation
+- `Country is US` AND `Country is DE` will show no results
+- Use separate filtered views for OR-like analysis
 
-**For complex analysis:**
-- Use multiple browser tabs with different filter combinations
-- Export data for external analysis when needed
-- Combine time range filters with query filters for deeper insights
+**Case-insensitive matching:**
+- All text matching is case-insensitive
+- `chrome` matches `Chrome` and `CHROME`
 
-## Troubleshooting
+**Verify wildcard placement:**
+- `*mobile*` is different from `mobile*`
+- Ensure asterisks are placed correctly in your patterns
 
-### No Data Showing
+## Getting help
 
-- **Check filter values** - Ensure values match your actual data exactly
-- **Try wildcards** - Use `*` if you're unsure of exact values
-- **Remove filters gradually** - Remove filters one by one to identify the issue
-- **Check time range** - Ensure your time range contains data for the filtered criteria
+### Common questions
 
-### Unexpected Results
+**Q: Can I save my filter combinations?**
+A: Yes, you can bookmark filtered dashboard URLs or share them with your team.
 
-- **Verify filter logic** - Remember all filters use AND logic
-- **Check case sensitivity** - Filters are case-insensitive
-- **Confirm wildcard usage** - Ensure `*` is placed correctly in your patterns
-- **Review active filters** - Double-check all applied filters in the dropdown
+**Q: Why don't my filter numbers add up?**
+A: Visitors can view multiple pages and trigger multiple events, so individual filter totals may exceed overall visitor counts.
 
-### Performance Issues
-
-- **Avoid overly broad wildcards** - `*` alone can be slow on large datasets
-- **Use specific time ranges** - Shorter time ranges with filters perform better
-- **Combine filters wisely** - More specific filters generally perform better
+**Q: Can I filter by date ranges?**
+A: Use the time range selector for date filtering - query filters focus on visitor and behavior attributes.
 
 ---
 
-_Questions about filtering? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!_
+*Effective filtering is key to unlocking insights in your analytics. Start with simple filters and gradually build more complex segments as you become comfortable with the system.*
+
+*If you have any questions, please contact us at [support@betterlytics.com](mailto:support@betterlytics.com) or join our [Discord community](https://discord.gg/vwqSvPn6sP).*
