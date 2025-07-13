@@ -1,0 +1,181 @@
+---
+title: "Events Page"
+description: "Learn how to view your tracked custom events in your Betterlytics dashboard to get more insights into your website visitors."
+---
+
+import { Callout } from "nextra/components";
+
+# Custom Events in Your Dashboard
+
+Once you've implemented custom event tracking on your website, you can view and analyze this data in your Betterlytics dashboard. This guide covers how to access and interpret your custom event data.
+
+<Callout type="info">
+**Need to implement custom events first?** If you haven't set up custom event tracking yet, start with our [Custom Events implementation guide](/integration/custom-events) to learn how to track button clicks, form submissions, and other user interactions.
+</Callout>
+
+## Accessing Your Custom Events
+
+### Events Page
+
+Navigate to **Dashboard > Events** to access the dedicated custom events page. This page provides two main views of your event data:
+
+1. **Event Details Table** - Summary statistics for each event type
+2. **Event Log** - Real-time feed of individual events as they occur
+
+Your main dashboard also includes a **Custom Events** section that shows a quick overview of your most frequent events.
+
+## Event Details Table
+
+The main events table displays summary statistics for each custom event type you've tracked:
+
+### Available Columns
+
+- **Event Name** - The name of your custom event (e.g., "button-click", "form-submit")
+- **Count** - Total number of times this event occurred
+- **Unique Users** - Number of different visitors who triggered this event
+- **Avg per User** - Average number of times each user triggered this event
+- **Last Seen** - When this event was last recorded
+- **Percentage** - What percentage of all events this represents
+
+### Viewing Event Properties
+
+When you click on an event in the table, it expands to show:
+
+- **Property names** - All custom properties you've sent with this event
+- **Property values** - The most common values for each property
+- **Value distribution** - Visual bars showing the relative frequency of each value
+
+For example, if you track a "category-card-click" event with properties like category names and category IDs, you'll see:
+- Which category cards are clicked most
+- The distribution of category IDs
+- The distribution of category names
+
+<div style={{ textAlign: "center" }}>
+  ![Event details table with category card click event](/images/dashboard/event-details-table.png)
+</div>
+
+## Event Log (Real-time Feed)
+
+The Event Log provides a continuously updating feed of events happening on your website, ideal for monitoring real-time activity.
+
+### What's Displayed
+
+Each event entry shows:
+- **Event name** and **timestamp**
+- **Visitor ID** (last 6 characters for privacy)
+- **Device type** (desktop, mobile, tablet)
+- **Browser** (Chrome, Firefox, etc.)
+- **Country code** (ISO Alpha-2 code)
+- **Page URL** where the event occurred
+- **Custom properties** (up to 3 properties displayed as badges)
+
+<div style={{ textAlign: "center" }}>
+  ![Event log live feed](/images/dashboard/event-log-live-feed.png)
+</div>
+
+The log refreshes automatically every 30 seconds to capture the latest events.
+It supports infinite scrolling, allowing you to browse historical activity.
+At the bottom of the log, a counter displays the total number of events recorded since logging began.
+
+## Dashboard Filters
+
+Use the standard dashboard filters to segment your custom events:
+
+- **Time Range** - View events from specific time periods
+- **Query Filters** - Filter by specific criteria (URLs, countries, etc.)
+
+All filters apply to both the Event Details Table and Event Log.
+
+## Understanding Your Data
+
+Gain deeper insights into how users interact with your website through event-level analysis.
+
+### Event Frequency Analysis
+
+The Event Details Table helps you understand:
+- **Which events are most popular** (highest count)
+- **Which events have the broadest reach** (highest unique users)
+- **Which events are most engaging** (highest avg per user)
+- **Event recency** (last seen timestamps)
+
+### User Behavior Insights
+
+The Event Log gives a live view into:
+- **Real-time user activity** on your website
+- **Device and browser patterns** for different events
+- **Geographic distribution** of event activity
+- **Which pages** generate the most events
+
+### Property Analysis
+
+When you expand events to view properties, you can see:
+- **Most common property values** for each event
+- **Distribution patterns** in your data
+- **Count of unique values** to gauge variability in your data
+
+## Common Use Cases
+
+### E-commerce Tracking
+
+For online stores, you might track:
+- `product-view` events with `category` and `price` properties
+- `add-to-cart` events with `product_id` and `quantity` properties
+- `checkout-step` events with `step` and `total` properties
+
+### Content Engagement
+
+For content sites, you might track:
+- `article-read` events with `category` and `reading_time` properties
+- `video-play` events with `video_id` and `duration` properties
+- `download` events with `file_type` and `file_name` properties
+
+### SaaS Applications
+
+For web applications, you might track:
+- `feature-used` events with `feature_name` and `user_plan` properties
+- `signup-step` events with `step` and `source` properties
+- `upgrade-click` events with `current_plan` and `target_plan` properties
+
+## Troubleshooting
+
+### Events Not Appearing
+
+If your events aren't showing in the dashboard:
+
+1. **Check your implementation** - Ensure the `betterlytics.event()` function is being called correctly
+2. **Verify event names** - Make sure event names match exactly between your code and dashboard
+3. **Check time range** - Expand the time range filter to see older events
+4. **Review browser console** - Look for JavaScript errors that might prevent events from firing
+
+### Low Event Counts
+
+If you see fewer events than expected:
+
+1. **Timing issues** - Events might be firing before the analytics script loads. In this case, see [Handling Async Script Loading](/integration/custom-events#handling-async-script-loading-recommended)
+2. **Conditional code** - Check if events are only firing under certain conditions
+3. **User behavior** - Events might be less frequent than anticipated
+
+### Missing Properties
+
+If event properties aren't showing:
+
+1. **Property format** - Ensure properties are passed as a simple object
+2. **Data types** - Use strings, numbers, or booleans for property values
+3. **Nested objects** - Avoid deeply nested objects as they may not display properly
+
+<Callout type="info">
+**Pro Tip**: The Event Log updates in real-time, making it perfect for testing your event implementation. Trigger events on your website and watch them appear in the log within 30 seconds.
+</Callout>
+
+## Data Retention
+
+Your custom event data is stored according to your plan's data retention policy. The dashboard shows:
+- **Real-time data** in the Event Log
+- **Aggregated summaries** in the Event Details Table
+- **Historical trends** based on your selected time range
+
+---
+
+**Related**: Learn how to [implement custom event tracking](/integration/custom-events) to start collecting the data you see in this dashboard.
+
+_Questions about viewing custom events? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!_
