@@ -2,9 +2,9 @@
 
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useMemo } from 'react';
-import { Avatar } from '../ui/avatar';
+import { Avatar } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
-import { GravatarImage } from '../ui/gravatar-image';
+import { GravatarImage } from '@/components/ui/gravatar-image';
 import { useSession } from 'next-auth/react';
 
 export function BAAvatar() {
