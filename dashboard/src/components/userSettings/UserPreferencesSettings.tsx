@@ -74,27 +74,34 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
           </Select>
         </div>
 
-        <div className='flex items-center justify-between'>
-          <Label htmlFor='avatar'>Avatar</Label>
-          <Select value={settings?.avatar} onValueChange={handleAvatarChange}>
-            <SelectTrigger className='w-32'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='default'>
-                <div className='flex items-center space-x-2'>
-                  <User className='h-4 w-4' />
-                  <span>None</span>
-                </div>
-              </SelectItem>
-              <SelectItem value='gravatar'>
-                <div className='flex items-center space-x-2'>
-                  <BookUser className='h-4 w-4' />
-                  <span>Gravatar</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+        <div>
+          <div className='flex items-center justify-between'>
+            <Label htmlFor='avatar'>Avatar</Label>
+            <Select value={settings?.avatar} onValueChange={handleAvatarChange}>
+              <SelectTrigger className='w-32'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='default'>
+                  <div className='flex items-center space-x-2'>
+                    <User className='h-4 w-4' />
+                    <span>None</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value='gravatar'>
+                  <div className='flex items-center space-x-2'>
+                    <BookUser className='h-4 w-4' />
+                    <span>Gravatar</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {settings?.avatar === 'gravatar' && (
+            <div className='text-muted-foreground text-xs'>
+              Note: Gravatar is a third-party library - by enabling it you agree to their terms and services
+            </div>
+          )}
         </div>
       </SettingsCard>
 
