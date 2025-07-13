@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
-import { Monitor, Moon, Sun, Globe, Bell, Mail } from 'lucide-react';
+import { Monitor, Moon, Sun, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
 import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/dictionaries/dictionaries';
@@ -19,7 +19,7 @@ interface UserPreferencesSettingsProps {
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
   const { theme, setTheme } = useTheme();
-  const { refreshSettings } = useUserSettings();
+  const { refreshSettings, settings, updateSetting } = useUserSettings();
   const { changeLanguage } = useDictionary();
 
   const handleLocaleChange = async (newLocale: SupportedLanguages) => {
@@ -31,6 +31,11 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
     onUpdate({ theme: newTheme as 'light' | 'dark' | 'system' });
+  };
+
+  const handleAvatarChange = (newAvatar: 'default' | 'gravatar') => {
+    updateSetting('avatar', newAvatar);
+    onUpdate({ avatar: newAvatar });
   };
 
   return (
@@ -63,6 +68,29 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
                 <div className='flex items-center space-x-2'>
                   <Monitor className='h-4 w-4' />
                   <span>System</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className='flex items-center justify-between'>
+          <Label htmlFor='avatar'>Avatar</Label>
+          <Select value={settings?.avatar} onValueChange={handleAvatarChange}>
+            <SelectTrigger className='w-32'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='default'>
+                <div className='flex items-center space-x-2'>
+                  <User className='h-4 w-4' />
+                  <span>None</span>
+                </div>
+              </SelectItem>
+              <SelectItem value='gravatar'>
+                <div className='flex items-center space-x-2'>
+                  <BookUser className='h-4 w-4' />
+                  <span>Gravatar</span>
                 </div>
               </SelectItem>
             </SelectContent>

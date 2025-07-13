@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useTransition, useMemo } from "react";
-import { getUserSettingsAction, updateUserSettingsAction } from "@/app/actions/userSettings";
-import { UserSettings, UserSettingsUpdate } from "@/entities/userSettings";
+import { useState, useEffect, useTransition, useMemo } from 'react';
+import { getUserSettingsAction, updateUserSettingsAction } from '@/app/actions/userSettings';
+import { UserSettings, UserSettingsUpdate } from '@/entities/userSettings';
 
 interface UseUserSettingsReturn {
   settings: UserSettings | null;
@@ -26,7 +26,7 @@ export function useUserSettings(): UseUserSettingsReturn {
       setSettings(userSettings);
       setPendingUpdates({});
     } catch (error) {
-      console.error("Failed to load user settings:", error);
+      console.error('Failed to load user settings:', error);
     } finally {
       setIsLoading(false);
     }
@@ -36,11 +36,8 @@ export function useUserSettings(): UseUserSettingsReturn {
     loadUserSettings();
   }, []);
 
-  const updateSetting = <K extends keyof UserSettingsUpdate>(
-    key: K, 
-    value: UserSettingsUpdate[K]
-  ) => {
-    setPendingUpdates(prev => ({ ...prev, [key]: value }));
+  const updateSetting = <K extends keyof UserSettingsUpdate>(key: K, value: UserSettingsUpdate[K]) => {
+    setPendingUpdates((prev) => ({ ...prev, [key]: value }));
   };
 
   const saveSettings = async (newSettings?: Partial<UserSettingsUpdate>): Promise<{ success: boolean }> => {
@@ -53,7 +50,7 @@ export function useUserSettings(): UseUserSettingsReturn {
           setPendingUpdates({});
           resolve({ success: true });
         } catch (error) {
-          console.error("Failed to save user settings:", error);
+          console.error('Failed to save user settings:', error);
           resolve({ success: false });
         }
       });
@@ -76,4 +73,4 @@ export function useUserSettings(): UseUserSettingsReturn {
     saveSettings,
     refreshSettings,
   };
-} 
+}
