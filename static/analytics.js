@@ -96,7 +96,7 @@
   };
 
   for (var i = 0; i < queuedEvents.length; i++) {
-    window.betterlytics.apply(this, queuedEvents[i]);
+    window.betterlytics.event.apply(this, queuedEvents[i]);
   }
 
   // Track initial page view
