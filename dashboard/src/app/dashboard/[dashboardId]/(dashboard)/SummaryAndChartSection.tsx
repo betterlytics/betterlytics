@@ -10,6 +10,7 @@ import {
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { betterlytics } from '@/lib/betterlytics';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -30,6 +31,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
   const { dictionary } = useDictionary();
 
   const handleMetricChange = useCallback((metric: string) => {
+    betterlytics.event('dashboard-overview-metric-change', { metric });
     setActiveMetric(metric as ActiveMetric);
   }, []);
 
