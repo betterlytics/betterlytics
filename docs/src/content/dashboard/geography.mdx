@@ -1,30 +1,33 @@
 ---
 title: "Geography Analytics - Betterlytics"
-description: "Visualize your website visitors' geographic distribution on an interactive world map to understand your global audience and optimize for regional markets."
+description: "Explore your visitors’ geographic distribution with an interactive world map. Gain insights into your global audience and make data-driven decisions for regional optimization."
 ---
 
 import { Callout } from "nextra/components";
 
 # World Map Analytics
 
-The World Map provides a visual representation of where your website visitors are located around the world. This interactive map helps you understand your global audience distribution, identify key markets, and make data-driven decisions about international expansion, content localization, and regional marketing strategies.
+The World Map provides a visual representation of where your website's visitors are located around the world. This interactive map helps you understand your global audience distribution, identify key markets, and make data-driven decisions about international expansion, content localization, and regional marketing strategies.
 
 ## Accessing the World Map
 
 Navigate to **Dashboard > Geography** to view your world map analytics data.
 
+A compact version of the world map is also available in the Dashboard Overview for a quick glance at visitor distribution.
+
 ## What the World Map Shows
 
-The world map displays **unique visitors** (not page views) by country, giving you insight into your actual audience reach rather than just activity volume. Each country is color-coded based on the number of unique visitors from that location during your selected time period.
+The World Map visualizes unique visitors (not page views) by country, helping you understand your true audience reach rather than just overall activity.
+Each country is color-coded based on the number of unique visitors from that location during the selected time period.
 
 <div style={{ textAlign: "center", margin: "20px 0" }}>
   ![World Map](/images/dashboard/world-map.png)
 </div>
 
 <Callout type="info">
-The map shows **unique visitors** - meaning each person is counted only once per country, regardless of how many pages they visited. This gives you a true picture of your geographic audience reach.
+The map shows **unique visitors** - each person is counted only once per country, no matter how many pages they viewed. This provides an accurate view of your geographic audience reach.
 
-See [Metrics Glossary](/dashboard/metrics-glossary) for more information on how unique visitors are calculated.
+See the [Metrics Glossary](/dashboard/metrics-glossary) for details on how unique visitors are calculated.
 </Callout>
 
 ## Map Features
@@ -58,7 +61,7 @@ See [Metrics Glossary](/dashboard/metrics-glossary) for more information on how 
 **How Location is Determined:**
 - **IP-based geolocation** - Visitor location is determined from their IP address
 - **Country-level precision** - Data is aggregated at the country level
-- **GeoIP database** - Uses MaxMind GeoLite2 database for accurate location mapping
+- **GeoIP database** - Uses [MaxMind GeoLite2](https://www.maxmind.com/en/geoip2-databases) database for accurate location mapping
 
 ### Data Considerations
 
