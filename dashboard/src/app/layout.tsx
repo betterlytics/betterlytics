@@ -41,8 +41,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' suppressHydrationWarning>
-      {env.ENABLE_APP_TRACKING && (
-        <head>
+      <head>
+        {env.ENABLE_APP_TRACKING && (
           <Script
             async
             src={`${env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
@@ -50,9 +50,7 @@ export default function RootLayout({
             data-server-url={`${env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
             data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*'
           />
-        </head>
-      )}
-      <head>
+        )}
         <script
           type='application/ld+json'
           dangerouslySetInnerHTML={{
