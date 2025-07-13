@@ -99,7 +99,13 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
           </div>
           {settings?.avatar === 'gravatar' && (
             <div className='text-muted-foreground text-xs'>
-              Note: Gravatar is a third-party library - by enabling it you agree to their terms and services
+              Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.
+              <br />
+              By enabling,{' '}
+              <a href='https://wordpress.com/tos/' className='underline'>
+                you agree to their terms
+              </a>
+              .
             </div>
           )}
         </div>
