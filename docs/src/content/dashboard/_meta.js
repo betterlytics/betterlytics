@@ -4,4 +4,5 @@ export default {
   geography: "Geography",
   "user-journey": "User Journey Page",
   devices: "Device Breakdown",
+  events: "Events Page",
 };
