@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchSiteId } from '@/app/actions';
 import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import React from 'react';
+import { Separator } from '@/components/ui/separator';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -66,6 +67,11 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
       toast.error('Failed to copy');
     }
   };
+
+  const nodeExample = `import betterlytics from "@betterlytics/tracker";
+
+betterlytics.init("${siteId}");
+`;
 
   const htmlExample = `<!DOCTYPE html>
 <html>
@@ -175,6 +181,21 @@ export default App;
                         </code>{' '}
                         section of your root layout or individual pages.
                       </CardDescription>
+                      <CardDescription className='text-muted-foreground text-sm'>
+                        Or install our{' '}
+                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
+                          <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
+                            npm
+                          </code>{' '}
+                        </a>
+                        package{' '}
+                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
+                          <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
+                            @betterlytics/tracker
+                          </code>
+                        </a>{' '}
+                        for easy setup for Node projects.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
@@ -211,7 +232,7 @@ export default App;
                     {siteId}
                   </div>
                 </div>
-
+                <Separator />
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='trackingScriptDisplay' className='text-muted-foreground text-sm font-medium'>
@@ -284,7 +305,34 @@ export default App;
                     <CodeBlock code={reactExample} language='javascript' />
                   </TabsContent>
                 </Tabs>
-
+                <Separator />
+                <div className='space-y-2'>
+                  <div className='mb-1 flex items-center justify-between'>
+                    <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
+                      Initialize using npm package
+                    </label>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className='text-muted-foreground hover:text-foreground h-8 gap-1.5 text-xs'
+                      onClick={() => handleCopy(siteId, 'siteId')}
+                    >
+                      {copiedIdentifier === 'siteId' ? (
+                        <>
+                          <Check className='h-3.5 w-3.5' />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Clipboard className='h-3.5 w-3.5' />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <CodeBlock code={nodeExample} language='javascript' />
+                </div>
+                <Separator />
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                   <Card className='bg-card border-border'>
                     <CardHeader>
