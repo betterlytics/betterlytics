@@ -20,8 +20,6 @@ const geoJsonOptions = {
   buffer: 2,
 };
 
-const WORLD_GEOJSON_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
-
 const MAP_COLORS = {
   NO_VISITORS: '#6b7280', // Gray for 0 visitors
   HIGH_VISITORS: '#60a5fa', // Light blue for high visitor counts
@@ -59,7 +57,7 @@ const LeafletMap = ({
         const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
           import('leaflet'),
           import('react-leaflet'),
-          fetch(WORLD_GEOJSON_URL),
+          fetch('/data/countries.geo.json'),
         ]);
 
         const world = await worldRes.json();
