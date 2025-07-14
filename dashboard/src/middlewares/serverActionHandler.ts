@@ -1,4 +1,5 @@
 import { UserException } from '@/lib/exceptions';
+import { unstable_rethrow } from 'next/navigation';
 
 /**
  * Type for the response from a wrapped server action
@@ -43,9 +44,7 @@ export function withServerAction<T, Args extends unknown[]>(handler: (...args: A
         data: result,
       };
     } catch (error) {
-      if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-        throw error;
-      }
+      unstable_rethrow(error);
 
       console.error('Server action error:', error);
 
