@@ -71,30 +71,6 @@ export function withServerAction<T, Args extends unknown[]>(handler: (...args: A
   };
 }
 
-/**
- * Wraps multiple server actions with consistent error handling
- *
- * @param handlers An object containing server action functions to wrap
- *
- * @example
- * async function createItemAction(data: ItemData): Promise<boolean> {}
- * async function updateItemAction(id: number, data: ItemData): Promise<updatedItemData> {}
- *
- * export const { createItem, updateItem } = withServerActions({
- *   createItem: createItemAction,
- *   updateItem: updateItemAction,
- * });
- */
-export function withServerActions<T extends ServerActionHandlers>(handlers: T): WrappedServerActions<T> {
-  const wrappedHandlers = {} as WrappedServerActions<T>;
-
-  for (const key of Object.keys(handlers) as Array<keyof T>) {
-    wrappedHandlers[key] = withServerAction(handlers[key]) as WrappedServerActions<T>[keyof T];
-  }
-
-  return wrappedHandlers;
-}
-
 function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
 }
