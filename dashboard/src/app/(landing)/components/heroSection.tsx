@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export function HeroSection() {
   return (
-    <section className='relative overflow-hidden py-20 sm:py-32'>
+    <section className='relative overflow-hidden h-screen py-20 sm:py-32'>
       <div className='absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/20 dark:from-blue-950/20 dark:via-transparent dark:to-purple-950/10' />
 
       <div className='absolute -top-40 -right-32 h-80 w-80 animate-pulse rounded-full bg-gradient-to-br from-blue-400/20 to-purple-600/20 blur-3xl' />

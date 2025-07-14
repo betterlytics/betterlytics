@@ -58,11 +58,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}>
         <Providers>
           <ConditionalTopBar />
-          {children}
-          <ConditionalFooter />
+          <div className="grow-1 flex flex-col justify-start overflow-y-auto border-box">
+            {children}
+            <ConditionalFooter />
+          </div>
         </Providers>
         <Toaster />
       </body>
