@@ -54,7 +54,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
           <SidebarProvider>
             <BASidebar dashboardId={dashboardId} />
             <BAMobileSidebarTrigger />
-            <main className='flex flex-col min-h-0 flex-1 bg-background w-full'>
+            <main className='flex flex-col min-h-0 flex-1 bg-background w-full pt-[56px]'>
               <ScrollReset />
               {billingEnabled && (
                 <Suspense fallback={null}>

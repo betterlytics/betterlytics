@@ -29,7 +29,7 @@ export default function PublicTopBar() {
   const isOnSignInPage = pathname === '/signin';
 
   return (
-    <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 w-full border-b backdrop-blur border-box shrink-0'>
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/50 backdrop-blur-md backdrop-saturate-150 w-full border-b border-border shrink-0 shadow-md shadow-black/5" >
       <div className='mx-auto max-w-7xl px-8'>
         <div className='flex h-14 items-center justify-between'>
           <div className='flex items-center space-x-2'>
