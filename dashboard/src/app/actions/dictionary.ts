@@ -4,12 +4,7 @@ import { getUserSettingsAction } from './userSettings';
 export async function getDictionary() {
   const result = await getUserSettingsAction();
 
-  let language = DEFAULT_LANGUAGE;
-
-  if (result.success) {
-    language = result.data.language;
-  }
-
+  const language = result.success ? result.data.language : DEFAULT_LANGUAGE;
   const effectiveLanguage = getEffectiveLanguage(language);
 
   return {
