@@ -187,11 +187,12 @@ services:
 
   proxy:
     build:
-      context: .
-      dockerfile: ./proxy/Dockerfile
+      context: ./proxy
+      dockerfile: ./Dockerfile
     container_name: proxy
     hostname: proxy
     volumes:
+      - ./static:/usr/share/nginx/html:ro
       - /etc/letsencrypt:/etc/letsencrypt
       - ./ssl/certbot:/var/www/certbot
     restart: unless-stopped
