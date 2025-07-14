@@ -44,6 +44,8 @@ export function withServerAction<T, Args extends unknown[]>(handler: (...args: A
         data: result,
       };
     } catch (error) {
+      // Required to rethrow internal nextjs errors
+      // https://nextjs.org/docs/app/api-reference/functions/unstable_rethrow
       unstable_rethrow(error);
 
       console.error('Server action error:', error);
