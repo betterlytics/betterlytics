@@ -8,6 +8,7 @@ import { BillingInteractive } from './BillingInteractive';
 import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
+import { toast } from 'sonner';
 
 export default async function BillingPage() {
   if (!isClientFeatureEnabled('enableBilling')) {
@@ -23,7 +24,8 @@ export default async function BillingPage() {
   const billingData = await getUserBillingData();
 
   if (!billingData.success) {
-    throw new Error('Failed to get billing data');
+    toast.error(billingData.error.message);
+    throw new Error(billingData.error.message);
   }
 
   return (
