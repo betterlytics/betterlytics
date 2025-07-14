@@ -309,7 +309,11 @@ export default App;
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
-                      Initialize using npm package
+                      Initialize using our{' '}
+                      <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
+                        npm
+                      </code>{' '}
+                      package
                     </label>
                     <Button
                       variant='ghost'
@@ -330,6 +334,26 @@ export default App;
                       )}
                     </Button>
                   </div>
+                  <Tabs defaultValue='npm' className='mb-2 w-full'>
+                    <TabsList className='bg-muted border-border mb-2 grid w-full grid-cols-4'>
+                      <TabsTrigger value='npm'>npm</TabsTrigger>
+                      <TabsTrigger value='pnpm'>pnpm</TabsTrigger>
+                      <TabsTrigger value='yarn'>yarn</TabsTrigger>
+                      <TabsTrigger value='bun'>bun</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value='npm'>
+                      <CodeBlock code='npm install @betterlytics/tracker' language='javascript' />
+                    </TabsContent>
+                    <TabsContent value='pnpm'>
+                      <CodeBlock code='pnpm add @betterlytics/tracker' language='javascript' />
+                    </TabsContent>
+                    <TabsContent value='yarn'>
+                      <CodeBlock code='yarn add @betterlytics/tracker' language='javascript' />
+                    </TabsContent>
+                    <TabsContent value='bun'>
+                      <CodeBlock code='bun add @betterlytics/tracker' language='javascript' />
+                    </TabsContent>
+                  </Tabs>
                   <CodeBlock code={nodeExample} language='javascript' />
                 </div>
                 <Separator />
