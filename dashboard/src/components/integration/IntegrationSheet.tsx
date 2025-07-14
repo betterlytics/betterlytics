@@ -342,16 +342,16 @@ export default App;
                       <TabsTrigger value='bun'>bun</TabsTrigger>
                     </TabsList>
                     <TabsContent value='npm'>
-                      <CodeBlock code='npm install @betterlytics/tracker' language='javascript' />
+                      <CodeBlock code='npm install @betterlytics/tracker' language='html' />
                     </TabsContent>
                     <TabsContent value='pnpm'>
-                      <CodeBlock code='pnpm add @betterlytics/tracker' language='javascript' />
+                      <CodeBlock code='pnpm add @betterlytics/tracker' language='html' />
                     </TabsContent>
                     <TabsContent value='yarn'>
-                      <CodeBlock code='yarn add @betterlytics/tracker' language='javascript' />
+                      <CodeBlock code='yarn add @betterlytics/tracker' language='html' />
                     </TabsContent>
                     <TabsContent value='bun'>
-                      <CodeBlock code='bun add @betterlytics/tracker' language='javascript' />
+                      <CodeBlock code='bun add @betterlytics/tracker' language='html' />
                     </TabsContent>
                   </Tabs>
                   <CodeBlock code={nodeExample} language='javascript' />
