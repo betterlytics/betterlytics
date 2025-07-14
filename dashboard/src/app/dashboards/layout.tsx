@@ -14,7 +14,7 @@ export default async function DashboardsLayout({ children }: DashboardsLayoutPro
     <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
       <section className='flex flex-col h-screen w-full'>
         <BATopbar />
-        <main>
+        <main className="pt-20">
           {children}
         </main>
       </section>
