@@ -31,8 +31,8 @@ export default function BATopbar() {
 
   return (
     <>
-      <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
-        <div className='mx-auto flex h-14 items-center justify-between px-8'>
+      <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 w-full backdrop-blur'>
+        <div className='mx-auto flex h-14 items-center justify-between px-8 border-border border-b'>
           <div className='flex items-center space-x-2'>
             <Link href='/dashboards' className='flex items-center space-x-2'>
               <Logo variant='icon' showText textSize='md' priority />

@@ -54,7 +54,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
           <SidebarProvider>
             <BASidebar dashboardId={dashboardId} />
             <BAMobileSidebarTrigger />
-            <main className='flex flex-col min-h-0 flex-1 bg-background w-full overflow-x-hidden overflow-y-auto'>
+            <main className='flex flex-col min-h-0 flex-1 bg-background w-full'>
               <ScrollReset />
               {billingEnabled && (
                 <Suspense fallback={null}>
@@ -68,7 +68,9 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                     <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
                   </div>
                 )}
-              <div className='flex flex-1 overflow-y-auto min-h-0 w-full justify-center'>{children}</div>
+              <div className='flex flex-col flex-1 overflow-y-auto min-h-0 w-full justify-start box-border'>
+                {children}
+              </div>
             </main>
             {/* Conditionally render tracking script based on server-side feature flag */}
             {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
