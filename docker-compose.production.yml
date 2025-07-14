@@ -81,6 +81,7 @@ services:
       - clickhouse_prod_users:/etc/clickhouse-server/users.d/
       - ./clickhouse-logs:/var/log/clickhouse-server/
       - ./clickhouse-config/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse-config/config.d/backup_disk.xml:/etc/clickhouse-server/config.d/backup_disk.xml
       - ./clickhouse-config/setup/:/docker-entrypoint-initdb.d/
     ulimits:
       nofile:
@@ -186,12 +187,11 @@ services:
 
   proxy:
     build:
-      context: ./proxy
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./proxy/Dockerfile
     container_name: proxy
     hostname: proxy
     volumes:
-      - ./static:/usr/share/nginx/html:ro
       - /etc/letsencrypt:/etc/letsencrypt
       - ./ssl/certbot:/var/www/certbot
     restart: unless-stopped
