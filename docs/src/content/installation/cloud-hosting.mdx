@@ -3,7 +3,7 @@ title: "Cloud Hosting"
 description: "Get started with Betterlytics cloud hosting in minutes with automatic scaling and maintenance."
 ---
 
-import { Callout } from "nextra/components";
+import { Callout, Tabs } from "nextra/components";
 
 # Cloud Hosting Setup
 
@@ -11,7 +11,7 @@ Get started with our hosted analytics service in under 60 seconds. No infrastruc
 
 ## Step 1: Create Your Account
 
-1. **Visit** [betterlytics.io/signup](https://betterlytics.io/register)
+1. **Visit** [betterlytics.io/register](https://betterlytics.io/register)
 2. **Sign up** with your email address
 3. **Complete** your profile setup
 
@@ -50,9 +50,30 @@ For modern JavaScript frameworks, you can use our official NPM package.
 
 You can install it using your favorite package manager:
 
-```bash
-npm install @betterlytics/tracker
-```
+<div style={{ marginBottom: '3rem' }}>
+  <Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
+    <Tabs.Tab>
+      ```bash
+      npm install @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+      ```bash
+      pnpm add @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+      ```bash
+      yarn add @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+      ```bash
+      bun add @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+  </Tabs>
+</div>
 
 Then initialize it in your app:
 
@@ -62,7 +83,7 @@ import betterlytics from "@betterlytics/tracker";
 betterlytics.init("your-site-id");
 ```
 
-This is ideal for SPAs or component-based frameworks where script tags don’t always play nice.
+This is ideal for SPAs or component-based frameworks where script tags don't always play nice.
 
 <Callout type="info">
 You can read more about the package and it's use-cases here <a href="https://www.npmjs.com/package/@betterlytics/tracker" className="underline">@betterlytics/tracker</a>
