@@ -172,3 +172,9 @@
 .leaflet-bottom {
   z-index: 0 !important;
 }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; 
+}
