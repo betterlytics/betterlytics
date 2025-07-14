@@ -22,11 +22,15 @@ Custom events let you track specific actions users take on your website:
 
 ## Basic Event Tracking
 
-Once you've installed the Betterlytics tracking script, you can track custom events using the global `betterlytics.event()` function.
+Once you've installed the Betterlytics tracking script or the `@betterlytics/tracker` npm package, you can track custom events using the global `betterlytics.event()` function.
 
 ### Handling Async Script Loading (Recommended)
 
-If you're loading the analytics script asynchronously (recommended for performance), add this small snippet **before** your analytics script to prevent timing issues:
+<Callout type="info">
+If you've installed the `@betterlytics/tracker` npm package, skip this step
+</Callout>
+
+If you're loading the analytics script asynchronously, and not using our npm package, add this small snippet **before** your analytics script to prevent timing issues:
 
 ```html
 <script>
