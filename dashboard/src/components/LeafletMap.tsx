@@ -253,6 +253,7 @@ const LeafletMap = ({
         />
         <MapBackgroundLayer
           worldGeoJson={worldGeoJson}
+          GeoJSON={GeoJSON}
           onSelect={() => setSelectedCountry(null)}
         />
       </MapContainer>

@@ -1,14 +1,14 @@
-import { useMap, GeoJSON } from 'react-leaflet';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { Feature, FeatureCollection, Polygon as GeoJsonPolygon, MultiPolygon, Polygon } from 'geojson';
-import { difference, multiPolygon, polygon, union } from '@turf/turf';
+import { difference, polygon, union } from '@turf/turf';
 
 interface BackgroundLayerProps {
   onSelect: () => void;
   worldGeoJson?: FeatureCollection; // Pass world countries GeoJSON as prop
+  GeoJSON: typeof import('react-leaflet').GeoJSON;
 }
 
-const MapBackgroundLayer = ({ onSelect, worldGeoJson }: BackgroundLayerProps) => {
+const MapBackgroundLayer = ({ onSelect, worldGeoJson, GeoJSON }: BackgroundLayerProps) => {
   const invertedBackground = useMemo(() => {
     if (!worldGeoJson) return null;
 
