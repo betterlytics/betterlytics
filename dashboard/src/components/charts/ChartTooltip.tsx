@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 interface ChartTooltipProps {
   payload?: {
@@ -26,6 +27,8 @@ export function ChartTooltip({
   className,
   comparisonMap,
 }: ChartTooltipProps) {
+  const { dictionary } = useDictionary();
+
   if (!active || !payload || !payload.length) {
     return null;
   }
@@ -61,18 +64,20 @@ export function ChartTooltip({
           </span>
         </div>
         {hasComparison && comparisonData && (
-          <div className='text-muted-foreground text-xs'>vs {labelFormatter(comparisonData.compareDate)}</div>
+          <div className='text-muted-foreground text-xs'>
+            {dictionary.charts.tooltip.vs} {labelFormatter(comparisonData.compareDate)}
+          </div>
         )}
       </div>
 
       <div className='mb-3'>
-        <div className='text-muted-foreground mb-1 text-xs'>Current Period</div>
+        <div className='text-muted-foreground mb-1 text-xs'>{dictionary.charts.tooltip.currentPeriod}</div>
         <div className='text-popover-foreground text-lg font-semibold'>{formatter ? formatter(value) : value}</div>
       </div>
 
       {previousValue !== undefined && (
         <div className='space-y-2'>
-          <div className='text-muted-foreground text-xs'>Previous Period</div>
+          <div className='text-muted-foreground text-xs'>{dictionary.charts.tooltip.previousPeriod}</div>
           <div className='flex items-center justify-between'>
             <span className='text-popover-foreground/80 text-sm'>
               {formatter ? formatter(previousValue) : previousValue}

@@ -34,6 +34,7 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
 
   const renderProgressList = useCallback((data: T[], emptyMessage: string) => {
     const maxVisitors = Math.max(...data.map((item) => item.value), 1);
+    const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
 
     if (data.length === 0) {
       return <div className='text-muted-foreground py-12 text-center'>{emptyMessage}</div>;
@@ -42,7 +43,8 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
     return (
       <div className='space-y-2'>
         {data.map((item, index) => {
-          const percentage = (item.value / maxVisitors) * 100;
+          const relativePercentage = (item.value / maxVisitors) * 100;
+          const percentage = (item.value / total) * 100;
 
           return (
             <div key={item.label} className='group relative'>
@@ -50,7 +52,8 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
                 value={{
                   value: item.label,
                   count: item.value,
-                  percentage: Math.max(percentage, 2),
+                  relativePercentage: Math.max(relativePercentage, 2),
+                  percentage: percentage,
                 }}
                 icon={item.icon}
                 index={index + 1}

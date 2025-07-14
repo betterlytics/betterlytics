@@ -4,11 +4,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
-import { Monitor, Moon, Sun, Globe, Bell, Mail } from 'lucide-react';
+import { Monitor, Moon, Sun, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
-import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/types/language';
+import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/dictionaries/dictionaries';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
+import { useUserSettings } from '@/hooks/useUserSettings';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -17,10 +19,23 @@ interface UserPreferencesSettingsProps {
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
   const { theme, setTheme } = useTheme();
+  const { refreshSettings, settings, updateSetting } = useUserSettings();
+  const { changeLanguage } = useDictionary();
+
+  const handleLocaleChange = async (newLocale: SupportedLanguages) => {
+    await changeLanguage(newLocale);
+    onUpdate({ language: newLocale });
+    await refreshSettings();
+  };
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
     onUpdate({ theme: newTheme as 'light' | 'dark' | 'system' });
+  };
+
+  const handleAvatarChange = (newAvatar: 'default' | 'gravatar') => {
+    updateSetting('avatar', newAvatar);
+    onUpdate({ avatar: newAvatar });
   };
 
   return (
@@ -58,6 +73,42 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             </SelectContent>
           </Select>
         </div>
+
+        <div>
+          <div className='flex items-center justify-between'>
+            <Label htmlFor='avatar'>Avatar</Label>
+            <Select value={settings?.avatar} onValueChange={handleAvatarChange}>
+              <SelectTrigger className='w-32'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='default'>
+                  <div className='flex items-center space-x-2'>
+                    <User className='h-4 w-4' />
+                    <span>None</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value='gravatar'>
+                  <div className='flex items-center space-x-2'>
+                    <BookUser className='h-4 w-4' />
+                    <span>Gravatar</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {settings?.avatar === 'gravatar' && (
+            <div className='text-muted-foreground text-xs'>
+              Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.
+              <br />
+              By enabling it,{' '}
+              <a href='https://wordpress.com/tos/' className='underline'>
+                you agree to their terms
+              </a>
+              .
+            </div>
+          )}
+        </div>
       </SettingsCard>
 
       <SettingsCard icon={Globe} title='Localization' description='Set your language preferences'>
@@ -65,8 +116,8 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>Language</Label>
             <LanguageSelect
-              value={formData.language as SupportedLanguages || DEFAULT_LANGUAGE}
-              onUpdate={(language) => onUpdate({ language })}
+              value={(formData.language as SupportedLanguages) || DEFAULT_LANGUAGE}
+              onUpdate={handleLocaleChange}
             />
           </div>
         </div>

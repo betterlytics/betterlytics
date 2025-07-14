@@ -20,8 +20,6 @@ const geoJsonOptions = {
   buffer: 2,
 };
 
-const WORLD_GEOJSON_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
-
 const MAP_COLORS = {
   NO_VISITORS: '#6b7280', // Gray for 0 visitors
   HIGH_VISITORS: '#60a5fa', // Light blue for high visitor counts
@@ -59,7 +57,7 @@ const LeafletMap = ({
         const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
           import('leaflet'),
           import('react-leaflet'),
-          fetch(WORLD_GEOJSON_URL),
+          fetch('/data/countries.geo.json'),
         ]);
 
         const world = await worldRes.json();
@@ -180,7 +178,7 @@ const LeafletMap = ({
       </MapContainer>
 
       {showLegend && (
-        <div className='info-legend bg-card border-border absolute right-5 bottom-10 z-[1000] rounded-md border p-2.5 shadow'>
+        <div className='info-legend bg-card border-border absolute right-5 bottom-10 rounded-md border p-2.5 shadow'>
           <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
           <div className='flex items-center'>
             <span className='text-muted-foreground mr-1 text-xs'>0</span>

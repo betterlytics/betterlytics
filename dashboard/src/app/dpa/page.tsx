@@ -1,12 +1,8 @@
-import { Metadata } from 'next';
+import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 
-export const metadata: Metadata = {
-  title: 'Data Processing Agreement - Betterlytics',
-  description:
-    'Data Processing Agreement for Betterlytics - Privacy-focused web analytics with anonymous data processing.',
-};
+export const metadata = generateSEO(SEO_CONFIGS.dpa);
 
 export default function DPAPage() {
   if (!env.IS_CLOUD) {

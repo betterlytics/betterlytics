@@ -51,7 +51,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align='start' className='z-[9999] w-56'>
+      <DropdownMenuContent align='start' className='w-56'>
         <div className='px-2 py-1.5'>
           <p className='text-muted-foreground text-xs font-medium'>Switch Dashboard</p>
         </div>

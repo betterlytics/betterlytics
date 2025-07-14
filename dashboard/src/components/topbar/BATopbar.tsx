@@ -11,12 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { GravatarImage } from '@/components/ui/gravatar-image';
-import { Settings, LogOut, User, ExternalLink, LayoutDashboard, CreditCard } from 'lucide-react';
+import { Settings, LogOut, ExternalLink, LayoutDashboard, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import Logo from '@/components/logo';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
+import { BAAvatar } from '../avatar/BAAvatar';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
@@ -54,14 +53,7 @@ export default function BATopbar() {
                       <span className='text-foreground hidden text-sm font-medium sm:block'>
                         {session.user?.name || 'User'}
                       </span>
-                      <Avatar className='relative h-8 w-8'>
-                        <User className='bg-muted text-muted-foreground size-full p-2' />
-                        <GravatarImage
-                          email={session.user?.email}
-                          alt={session.user?.name || 'User'}
-                          className='absolute'
-                        />
-                      </Avatar>
+                      <BAAvatar />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className='w-56' align='end' forceMount>
