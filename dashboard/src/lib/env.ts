@@ -9,6 +9,8 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string().min(1),
   NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
   NEXT_PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
+  NEXTAUTH_URL: z.string().url().optional(),
+  NEXTAUTH_SECRET: z.string().min(1),
   ENABLE_DASHBOARD_TRACKING: z
     .enum(['true', 'false'])
     .optional()
@@ -63,10 +65,7 @@ const envSchema = z.object({
     .default('false')
     .transform((val) => val === 'true'),
   APP_TRACKING_SITE_ID: z.string().optional(),
-  DEFAULT_LANGUAGE: z
-    .enum(SUPPORTED_LANGUAGES)
-    .optional()
-    .default('en'),
+  DEFAULT_LANGUAGE: z.enum(SUPPORTED_LANGUAGES).optional().default('en'),
 });
 
 export const env = envSchema.parse(process.env);

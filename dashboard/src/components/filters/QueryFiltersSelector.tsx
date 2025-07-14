@@ -55,7 +55,7 @@ export default function QueryFiltersSelector() {
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='z-500 w-[620px] max-w-[90svw] border py-4 shadow-2xl' align='end'>
+      <PopoverContent className='w-[620px] max-w-[90svw] border py-4 shadow-2xl' align='end'>
         {queryFilters.length > 0 || isFiltersModified ? (
           <div className='space-y-2'>
             <div className='space-y-3'>
