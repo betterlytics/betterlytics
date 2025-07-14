@@ -76,7 +76,7 @@ const USER_SETTINGS_TABS: UserSettingsTabConfig[] = [
 ];
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
-  const { settings, isLoading, isSaving, saveSettings } = useUserSettings();
+  const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
   const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
   const [formData, setFormData] = useState<UserSettingsUpdate>({});
@@ -97,7 +97,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
       toast.success('Settings saved successfully!');
       onOpenChange(false);
     } else {
-      toast.error('Failed to save settings. Please try again.');
+      toast.error(result.error || 'Failed to save settings. Please try again.');
     }
   };
 
@@ -112,6 +112,22 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <Spinner />
             <p className='text-muted-foreground text-sm'>Loading settings...</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (error) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='sm:max-w-[700px]'>
+          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
+            <AlertTriangle className='text-destructive h-8 w-8' />
+            <div className='text-center'>
+              <p className='text-destructive font-medium'>Failed to load settings</p>
+              <p className='text-muted-foreground mt-1 text-sm'>{error}</p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
