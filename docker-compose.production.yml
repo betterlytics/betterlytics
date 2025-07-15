@@ -101,8 +101,9 @@ services:
     image: altinity/clickhouse-backup:latest
     container_name: clickhouse-backup
     hostname: clickhouse-backup
-    restart: unless-stopped
+    restart: "no"
     environment:
+      - CLICKHOUSE_HOST=clickhouse
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
     volumes:
@@ -151,11 +152,6 @@ services:
         npm install -g pnpm
         cd /app
         pnpm install
-
-        # Create pre-migration backup
-        echo "Creating pre-migration backup..."
-        docker exec clickhouse-backup clickhouse-backup create "pre_migration_$(date +%Y%m%d_%H%M%S)" || echo "Backup failed, continuing..."
-
         # Run migrations
         pnpm run migrate-clickhouse
         cd ./dashboard
@@ -236,6 +232,27 @@ services:
       - 443:443
     networks:
       - proxy_network
+
+  backup-cron:
+    image: mcuadros/ofelia:latest
+    container_name: backup-cron
+    hostname: backup-cron
+    restart: unless-stopped
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./scripts:/scripts:ro
+    command: daemon --docker
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.backup-daily.schedule: "0 2 * * *"
+      ofelia.job-exec.backup-daily.command: "sh /scripts/backup.sh daily"
+      ofelia.job-exec.backup-weekly.schedule: "0 3 * * 0"
+      ofelia.job-exec.backup-weekly.command: "sh /scripts/backup.sh weekly"
+    networks:
+      - clickhouse_network
 
 volumes:
   clickhouse_prod_data:
