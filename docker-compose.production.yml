@@ -97,6 +97,23 @@ services:
     networks:
       - clickhouse_network
 
+  clickhouse-backup:
+    image: altinity/clickhouse-backup:latest
+    container_name: clickhouse-backup
+    hostname: clickhouse-backup
+    restart: unless-stopped
+    environment:
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    volumes:
+      - ./backups:/backups
+      - ./clickhouse-backup-config:/etc/clickhouse-backup
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - clickhouse_network
+
   postgres:
     image: postgres:latest
     container_name: postgres
@@ -134,6 +151,12 @@ services:
         npm install -g pnpm
         cd /app
         pnpm install
+
+        # Create pre-migration backup
+        echo "Creating pre-migration backup..."
+        docker exec clickhouse-backup clickhouse-backup create "pre_migration_$(date +%Y%m%d_%H%M%S)" || echo "Backup failed, continuing..."
+
+        # Run migrations
         pnpm run migrate-clickhouse
         cd ./dashboard
         pnpm install
@@ -143,6 +166,8 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      clickhouse-backup:
+        condition: service_started
     networks:
       - postgres_network
       - clickhouse_network

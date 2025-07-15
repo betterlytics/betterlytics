@@ -1,0 +1,28 @@
+general:
+  remote_storage: none
+  max_file_size: 10000000000 # 10 GB
+  disable_progress_bar: false
+  backups_to_keep_local: 7
+  log_level: info
+
+clickhouse:
+  host: clickhouse
+  port: 9000
+  username: "{{.CLICKHOUSE_USER}}"
+  password: "{{.CLICKHOUSE_PASSWORD}}"
+  database: default
+
+# Backup schedule (cron format) - Daily at 2 AM
+backup_schedule: "0 2 * * *"
+
+# What to include in backups
+schema:
+  databases:
+    - analytics
+
+# Local backup storage
+local:
+  path: /backups
+  keep_local: 7
+  compression: gzip
+  compression_level: 3
