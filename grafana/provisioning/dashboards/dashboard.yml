@@ -9,3 +9,10 @@ providers:
     editable: true
     options:
       path: /etc/grafana/provisioning/dashboards
+  - name: "Proxy logs"
+    folder: "Logs"
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /etc/grafana/provisioning/dashboards/proxy-logs.json
