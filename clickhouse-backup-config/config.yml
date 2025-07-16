@@ -11,3 +11,6 @@ clickhouse:
   port: 9000
   username: admin
   database: default
+
+restore:
+  restore_method: copy
