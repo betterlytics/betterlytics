@@ -8,8 +8,8 @@ general:
 clickhouse:
   host: clickhouse
   port: 9000
-  username: "{{.CLICKHOUSE_USER}}"
-  password: "{{.CLICKHOUSE_PASSWORD}}"
+  username: ""
+  password: ""
   database: default
 
 # Backup schedule (cron format) - Daily at 2 AM

@@ -102,10 +102,6 @@ services:
     container_name: clickhouse-backup
     hostname: clickhouse-backup
     restart: "no"
-    environment:
-      - CLICKHOUSE_HOST=clickhouse
-      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
-      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
     volumes:
       - ./backups:/backups
       - ./clickhouse-backup-config:/etc/clickhouse-backup
