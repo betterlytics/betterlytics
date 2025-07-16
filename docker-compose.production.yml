@@ -69,11 +69,11 @@ services:
       - proxy_network
 
   init-backups:
-    image: busybox
+    image: alpine:latest
     container_name: init-backups
     command:
       [
-        "sh",
+        "/bin/sh",
         "-c",
         "mkdir -p /backups && chown -R 101:101 /backups && chmod -R 770 /backups",
       ]
