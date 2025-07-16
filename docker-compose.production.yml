@@ -163,6 +163,29 @@ services:
       - monitoring_network
       - grafana_prometheus_network
 
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    hostname: promtail
+    restart: unless-stopped
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+    networks:
+      - grafana_loki_prom_network
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    hostname: loki
+    volumes:
+      - ./loki-data:/loki
+    command:
+      - -config.file=/etc/loki/local-config.yml
+    networks:
+      - grafana_loki_prom_network
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -183,6 +206,7 @@ services:
         condition: service_started
     networks:
       - grafana_prometheus_network
+      - grafana_loki_prom_network
 
   proxy:
     build:
@@ -223,3 +247,4 @@ networks:
   clickhouse_network:
   monitoring_network:
   grafana_prometheus_network:
+  grafana_loki_prom_network:
