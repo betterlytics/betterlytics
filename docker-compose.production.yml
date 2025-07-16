@@ -104,8 +104,12 @@ services:
     restart: "no"
     env_file:
       - .env
+    environment:
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
     volumes:
-      - ./backups:/backups
+      - ./backups:/var/lib/clickhouse/backup
       - ./clickhouse-backup-config:/etc/clickhouse-backup
       - clickhouse_prod_data:/var/lib/clickhouse
     depends_on:

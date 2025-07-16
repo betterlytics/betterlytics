@@ -10,18 +10,3 @@ clickhouse:
   host: clickhouse
   port: 9000
   database: default
-
-# Backup schedule (cron format) - Daily at 2 AM
-backup_schedule: "0 2 * * *"
-
-# What to include in backups
-schema:
-  databases:
-    - analytics
-
-# Local backup storage
-local:
-  path: /backups
-  keep_local: 7
-  compression: gzip
-  compression_level: 3
