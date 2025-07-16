@@ -83,7 +83,7 @@ services:
       - ./clickhouse-config/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
       - ./clickhouse-config/config.d/backup_disk.xml:/etc/clickhouse-server/config.d/backup_disk.xml
       - ./clickhouse-config/setup/:/docker-entrypoint-initdb.d/
-      - ./backups:/backups
+      - ./backups:/var/lib/clickhouse/backups
     ulimits:
       nofile:
         soft: 262144
