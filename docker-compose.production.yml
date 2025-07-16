@@ -83,7 +83,7 @@ services:
       - ./clickhouse-config/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
       - ./clickhouse-config/config.d/backup_disk.xml:/etc/clickhouse-server/config.d/backup_disk.xml
       - ./clickhouse-config/setup/:/docker-entrypoint-initdb.d/
-      - ./backups:/var/lib/clickhouse/backup
+        - clickhouse_backups:/var/lib/clickhouse/backup
     ulimits:
       nofile:
         soft: 262144
@@ -262,6 +262,7 @@ volumes:
   postgres_prod_data:
   prometheus_prod_data:
   grafana_prod_data:
+  clickhouse_backups:
 
 networks:
   proxy_network:
