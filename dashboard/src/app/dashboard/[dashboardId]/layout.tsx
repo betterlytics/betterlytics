@@ -68,7 +68,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                     <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
                   </div>
                 )}
-              <div className='flex flex-col flex-1 overflow-y-auto min-h-0 w-full justify-start box-border'>
+              <div className='scrollable-y'>
                 {children}
               </div>
             </main>

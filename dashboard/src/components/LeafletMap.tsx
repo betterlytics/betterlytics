@@ -14,7 +14,6 @@ interface LeafletMapProps {
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
-  className?: string;
 }
 
 const geoJsonOptions = {
@@ -40,7 +39,6 @@ const LeafletMap = ({
   showZoomControls,
   showLegend = true,
   initialZoom,
-  className, 
 }: LeafletMapProps) => {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,8 +83,7 @@ const LeafletMap = ({
 
   const MAX_WORLD_BOUNDS = useMemo(() => {
     if (!mapComponents?.L) return null;
-
-    return mapComponents.L.latLngBounds(mapComponents.L.latLng(-90, -180), mapComponents.L.latLng(90, 180));
+    return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
   }, [mapComponents]);
 
   const colorScale = useMemo(() => {
@@ -165,8 +162,7 @@ const LeafletMap = ({
 
       <MapContainer
         center={[20, 0]}
-        className={cn('h-full', className)}
-        style={{ width: '100%' }}
+        style={{ height: '100%', width: '100%' }}
         zoom={initialZoom || 2}
         zoomControl={showZoomControls}
         maxBounds={MAX_WORLD_BOUNDS as LatLngBoundsExpression}
@@ -175,7 +171,6 @@ const LeafletMap = ({
         maxZoom={7}
         attributionControl={false}
       >
-        {/* <ZoomControl position={'bottomright'}/> */}
         <GeoJSON
           key={JSON.stringify(visitorData.length)}
           data={worldGeoJson}

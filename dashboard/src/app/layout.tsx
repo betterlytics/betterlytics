@@ -61,7 +61,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}>
         <Providers>
           <ConditionalTopBar />
-          <div className="grow-1 flex flex-col justify-start overflow-y-auto border-box">
+          <div className="scrollable-y">
             {children}
             <ConditionalFooter />
           </div>
