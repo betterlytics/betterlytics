@@ -9,4 +9,5 @@ general:
 clickhouse:
   host: clickhouse
   port: 9000
+  username: admin
   database: default
