@@ -81,9 +81,7 @@ services:
       - clickhouse_prod_users:/etc/clickhouse-server/users.d/
       - ./clickhouse-logs:/var/log/clickhouse-server/
       - ./clickhouse-config/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
-      - ./clickhouse-config/config.d/backup_disk.xml:/etc/clickhouse-server/config.d/backup_disk.xml
       - ./clickhouse-config/setup/:/docker-entrypoint-initdb.d/
-      - ./backups:/var/lib/clickhouse/backup
     ulimits:
       nofile:
         soft: 262144
@@ -110,7 +108,6 @@ services:
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
     volumes:
       - ./clickhouse-backup-config:/etc/clickhouse-backup
-      - ./backups:/var/lib/clickhouse/backup
       - clickhouse_prod_data:/var/lib/clickhouse
     depends_on:
       clickhouse:
