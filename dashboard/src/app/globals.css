@@ -186,6 +186,7 @@ html, body {
   flex-grow: 1;
   overflow-y: auto;
   justify-content: flex-start;
+  align-items: center;
   box-sizing: border-box;
   min-height: 0;
 }
