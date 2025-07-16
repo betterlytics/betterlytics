@@ -181,8 +181,6 @@ services:
     hostname: loki
     volumes:
       - ./loki-data:/loki
-    command:
-      - -config.file=/etc/loki/local-config.yml
     networks:
       - grafana_loki_prom_network
 
