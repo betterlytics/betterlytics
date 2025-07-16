@@ -25,6 +25,9 @@ importers:
 
   dashboard:
     dependencies:
+      '@betterlytics/tracker':
+        specifier: ^0.1.4
+        version: 0.1.4
       '@iconify/react':
         specifier: ^6.0.0
         version: 6.0.0(react@19.1.0)
@@ -353,6 +356,10 @@ packages:
   '@babel/runtime@7.27.6':
     resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
     engines: {node: '>=6.9.0'}
+
+  '@betterlytics/tracker@0.1.4':
+    resolution: {integrity: sha512-hiYFE7vn/JA6xKRjgUHci8bvqRFJRMfIbVpNwkn1kE5Xd32v+PaNFrDL6oWj1nOFCZBN4zvmfRLr3ZGYsHcFzQ==}
+    engines: {node: '>=14.0.0'}
 
   '@braintree/sanitize-url@7.1.1':
     resolution: {integrity: sha512-i1L7noDNxtFyL5DmZafWy1wRVhGehQmzZaz1HiN5e7iylJMSZR7ekOV7NsIqa5qBldlLrsKv4HbgFUVlQrz8Mw==}
@@ -5234,6 +5241,8 @@ snapshots:
   '@antfu/utils@8.1.1': {}
 
   '@babel/runtime@7.27.6': {}
+
+  '@betterlytics/tracker@0.1.4': {}
 
   '@braintree/sanitize-url@7.1.1': {}
 
