@@ -102,9 +102,12 @@ services:
     container_name: clickhouse-backup
     hostname: clickhouse-backup
     restart: "no"
+    env_file:
+      - .env
     volumes:
       - ./backups:/backups
       - ./clickhouse-backup-config:/etc/clickhouse-backup
+      - clickhouse_prod_data:/var/lib/clickhouse
     depends_on:
       clickhouse:
         condition: service_healthy

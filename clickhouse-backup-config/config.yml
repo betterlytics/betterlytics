@@ -4,12 +4,11 @@ general:
   disable_progress_bar: false
   backups_to_keep_local: 7
   log_level: info
+  backups_to_keep_remote: 0
 
 clickhouse:
   host: clickhouse
   port: 9000
-  username: ""
-  password: ""
   database: default
 
 # Backup schedule (cron format) - Daily at 2 AM
