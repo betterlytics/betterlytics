@@ -110,6 +110,7 @@ services:
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
     volumes:
       - ./clickhouse-backup-config:/etc/clickhouse-backup
+      - ./backups:/var/lib/clickhouse/backup
       - clickhouse_prod_data:/var/lib/clickhouse
     depends_on:
       clickhouse:
