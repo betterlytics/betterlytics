@@ -34,7 +34,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   };
 
   return (
-    <div className='bg-background flex items-center justify-center min-h-screen w-full px-4 pb-12 sm:px-6 lg:px-8'>
+    <div className='bg-background flex min-h-screen w-full items-center justify-center px-4 pb-12 sm:px-6 lg:px-8'>
       <VerificationSuccessHandler />
 
       <div className='w-full max-w-md space-y-8'>

@@ -13,7 +13,7 @@ export default async function ForgotPasswordPage() {
   }
 
   return (
-    <div className='bg-background flex items-center justify-center min-h-screen px-4 pb-12 sm:px-6 lg:px-8'>
+    <div className='bg-background flex min-h-screen items-center justify-center px-4 pb-12 sm:px-6 lg:px-8'>
       <div className='w-full max-w-md space-y-8'>
         <div className='text-center'>
           <div className='mb-6 flex justify-center'>

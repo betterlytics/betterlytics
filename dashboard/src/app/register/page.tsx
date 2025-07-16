@@ -15,7 +15,7 @@ export default async function RegisterPage() {
 
   if (!isFeatureEnabled('enableRegistration')) {
     return (
-      <div className='bg-background flex items-center justify-center px-4 sm:px-6 lg:px-8 w-full'>
+      <div className='bg-background flex w-full items-center justify-center px-4 sm:px-6 lg:px-8'>
         <div className='w-full max-w-md space-y-8'>
           <div className='text-center'>
             <div className='mb-6 flex justify-center'>
@@ -37,7 +37,7 @@ export default async function RegisterPage() {
   }
 
   return (
-    <div className='bg-background flex items-center justify-center px-4 min-h-screen sm:px-6 lg:px-8 w-full'>
+    <div className='bg-background flex min-h-screen w-full items-center justify-center px-4 sm:px-6 lg:px-8'>
       <div className='w-full max-w-md space-y-8'>
         <div className='text-center'>
           <div className='mb-6 flex justify-center'>

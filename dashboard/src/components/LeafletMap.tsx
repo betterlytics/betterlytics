@@ -68,7 +68,7 @@ const LeafletMap = ({
           L: leafletModule.default,
           MapContainer: reactLeafletModule.MapContainer,
           GeoJSON: reactLeafletModule.GeoJSON,
-          ZoomControl: reactLeafletModule.ZoomControl
+          ZoomControl: reactLeafletModule.ZoomControl,
         });
         setWorldGeoJson(world);
       } catch (err) {
@@ -194,7 +194,6 @@ const LeafletMap = ({
           </div>
         )}
       </MapContainer>
-
     </div>
   );
 };

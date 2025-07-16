@@ -49,12 +49,12 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   return (
     <DashboardProvider>
       <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
-        <section className="flex flex-col h-screen">
+        <section className='h-screen w-full'>
           <BATopbar />
           <SidebarProvider>
             <BASidebar dashboardId={dashboardId} />
             <BAMobileSidebarTrigger />
-            <main className='flex flex-col min-h-0 flex-1 bg-background w-full pt-[56px]'>
+            <main className='bg-background flex min-h-0 w-full flex-1 flex-col pt-[56px]'>
               <ScrollReset />
               {billingEnabled && (
                 <Suspense fallback={null}>
@@ -68,9 +68,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                     <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
                   </div>
                 )}
-              <div className='scrollable-y'>
-                {children}
-              </div>
+              <div className='scrollable-y'>{children}</div>
             </main>
             {/* Conditionally render tracking script based on server-side feature flag */}
             {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}

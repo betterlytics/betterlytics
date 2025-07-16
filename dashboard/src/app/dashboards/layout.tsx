@@ -12,11 +12,9 @@ export default async function DashboardsLayout({ children }: DashboardsLayoutPro
 
   return (
     <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
-      <section className='flex flex-col h-screen w-full'>
+      <section className='h-screen w-full'>
         <BATopbar />
-        <main className="pt-20">
-          {children}
-        </main>
+        <main className='pt-20'>{children}</main>
       </section>
     </DictionaryProvider>
   );
