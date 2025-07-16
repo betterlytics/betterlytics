@@ -187,6 +187,5 @@ html, body {
   overflow-y: auto;
   justify-content: flex-start;
   box-sizing: border-box;
-  justify-content: flex-start;
   min-height: 0;
 }
