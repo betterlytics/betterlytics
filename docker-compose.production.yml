@@ -68,19 +68,6 @@ services:
     networks:
       - proxy_network
 
-  init-backups:
-    image: alpine:latest
-    container_name: init-backups
-    command:
-      [
-        "/bin/sh",
-        "-c",
-        "mkdir -p /backups && chown -R 101:101 /backups && chmod -R 770 /backups",
-      ]
-    volumes:
-      - ./backups:/backups
-    restart: "no"
-
   clickhouse:
     image: clickhouse/clickhouse-server:latest
     user: 101:101
@@ -107,9 +94,6 @@ services:
       timeout: 2s
       retries: 10
       start_period: 10s
-    depends_on:
-      init-backups:
-        condition: service_completed_successfully
     networks:
       - clickhouse_network
 
