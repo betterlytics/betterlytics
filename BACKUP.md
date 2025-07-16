@@ -37,3 +37,9 @@ docker stop clickhouse
 ./scripts/backup.sh restore [name]
 docker compose -f docker-compose.production.yml up clickhouse -d
 ```
+
+Copy to local folder:
+
+```bash
+docker cp clickhouse:/var/lib/clickhouse ./clickhouse_data_backup
+```
