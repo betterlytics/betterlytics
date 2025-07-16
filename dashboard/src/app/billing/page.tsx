@@ -8,6 +8,7 @@ import { BillingInteractive } from './BillingInteractive';
 import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
+import { toast } from 'sonner';
 
 export default async function BillingPage() {
   if (!isClientFeatureEnabled('enableBilling')) {
@@ -21,6 +22,11 @@ export default async function BillingPage() {
   }
 
   const billingData = await getUserBillingData();
+
+  if (!billingData.success) {
+    toast.error(billingData.error.message);
+    throw new Error(billingData.error.message);
+  }
 
   return (
     <div className='bg-background'>
@@ -43,10 +49,10 @@ export default async function BillingPage() {
         </div>
 
         <div className='mb-8'>
-          <CurrentPlanCard billingData={billingData} showManagementButtons={true} />
+          <CurrentPlanCard billingData={billingData.data} showManagementButtons={true} />
         </div>
 
-        <BillingInteractive billingData={billingData} />
+        <BillingInteractive billingData={billingData.data} />
 
         <div className='mt-10'>
           <BillingFAQGrid />

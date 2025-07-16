@@ -6,7 +6,7 @@ import type { User } from 'next-auth';
 import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/user';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthContext, AuthContextSchema } from '@/entities/authContext';
-import { isFeatureEnabled } from '@/lib/feature-flags';
+import { UserException } from '@/lib/exceptions';
 
 const SALT_ROUNDS = 10;
 
@@ -75,17 +75,14 @@ export async function attemptAdminInitialization(email: string, password: string
 }
 
 export async function registerNewUser(registrationData: RegisterUserData): Promise<User> {
-  if (!isFeatureEnabled('enableRegistration')) {
-    throw new Error('Registration is disabled');
+  const existingUser = await findUserByEmail(registrationData.email);
+
+  if (existingUser) {
+    throw new UserException(`User with that email already exists.`);
   }
 
-  try {
-    const newUser = await registerUser(registrationData);
-    return UserSchema.parse(newUser);
-  } catch (error) {
-    console.error('Error during user registration:', error);
-    throw error;
-  }
+  const newUser = await registerUser(registrationData);
+  return UserSchema.parse(newUser);
 }
 
 export async function authorizeUserDashboard(userId: string, dashboardId: string): Promise<AuthContext> {

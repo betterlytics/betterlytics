@@ -8,28 +8,34 @@ interface UseUserSettingsReturn {
   settings: UserSettings | null;
   isLoading: boolean;
   isSaving: boolean;
+  error: string | null;
   updateSetting: <K extends keyof UserSettingsUpdate>(key: K, value: UserSettingsUpdate[K]) => void;
-  saveSettings: (newSettings?: Partial<UserSettingsUpdate>) => Promise<{ success: boolean }>;
+  saveSettings: (newSettings?: Partial<UserSettingsUpdate>) => Promise<{ success: boolean; error?: string }>;
   refreshSettings: () => Promise<void>;
 }
 
 export function useUserSettings(): UseUserSettingsReturn {
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [pendingUpdates, setPendingUpdates] = useState<UserSettingsUpdate>({});
   const [isSaving, startTransition] = useTransition();
 
   const loadUserSettings = async () => {
-    try {
-      setIsLoading(true);
-      const userSettings = await getUserSettingsAction();
-      setSettings(userSettings);
+    setIsLoading(true);
+    setError(null);
+
+    const result = await getUserSettingsAction();
+
+    if (result.success) {
+      setSettings(result.data);
       setPendingUpdates({});
-    } catch (error) {
-      console.error('Failed to load user settings:', error);
-    } finally {
-      setIsLoading(false);
+    } else {
+      setError(result.error.message);
+      console.error('Failed to load user settings:', result.error);
     }
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -40,18 +46,21 @@ export function useUserSettings(): UseUserSettingsReturn {
     setPendingUpdates((prev) => ({ ...prev, [key]: value }));
   };
 
-  const saveSettings = async (newSettings?: Partial<UserSettingsUpdate>): Promise<{ success: boolean }> => {
+  const saveSettings = async (
+    newSettings?: Partial<UserSettingsUpdate>,
+  ): Promise<{ success: boolean; error?: string }> => {
     return new Promise((resolve) => {
       startTransition(async () => {
-        try {
-          const settingsToSave = newSettings || pendingUpdates;
-          const updatedSettings = await updateUserSettingsAction(settingsToSave);
-          setSettings(updatedSettings);
+        const settingsToSave = newSettings || pendingUpdates;
+        const result = await updateUserSettingsAction(settingsToSave);
+
+        if (result.success) {
+          setSettings(result.data);
           setPendingUpdates({});
           resolve({ success: true });
-        } catch (error) {
-          console.error('Failed to save user settings:', error);
-          resolve({ success: false });
+        } else {
+          console.error('Failed to save user settings:', result.error);
+          resolve({ success: false, error: result.error.message });
         }
       });
     });
@@ -69,6 +78,7 @@ export function useUserSettings(): UseUserSettingsReturn {
     settings: effectiveSettings,
     isLoading,
     isSaving,
+    error,
     updateSetting,
     saveSettings,
     refreshSettings,
