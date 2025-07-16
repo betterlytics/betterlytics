@@ -13,6 +13,29 @@ providers:
     folder: "Logs"
     type: file
     disableDeletion: false
-    updateIntervalSeconds: 10
     options:
       path: /etc/grafana/provisioning/dashboards/proxy-logs.json
+  - name: "Clickhouse logs"
+    folder: "Logs"
+    type: file
+    disableDeletion: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/clickhouse-logs.json
+  - name: "Postgres logs"
+    folder: "Logs"
+    type: file
+    disableDeletion: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/postgres-logs.json
+  - name: "Backend logs"
+    folder: "Logs"
+    type: file
+    disableDeletion: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/backend-logs.json
+  - name: "Dashboard logs"
+    folder: "Logs"
+    type: file
+    disableDeletion: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/dashboard-logs.json
