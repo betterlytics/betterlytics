@@ -163,7 +163,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Postgres Logs",
+  "title": "Dashboard Logs",
   "uid": "feb49056-f1e3-4cff-9d96-5a2f976975fc",
   "version": 2
 }
