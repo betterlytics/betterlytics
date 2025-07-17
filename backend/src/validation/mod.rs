@@ -239,15 +239,6 @@ impl EventValidator {
         format!("{:x}", hasher.finalize())[..16].to_string()
     }
 
-    /// Sanitize URL by removing query parameters and fragments
-    fn sanitize_url(&self, url: &str) -> String {
-        if let Ok(parsed) = Url::parse(url) {
-            format!("{}://{}{}", parsed.scheme(), parsed.host_str().unwrap_or("unknown"), parsed.path())
-        } else {
-            url.to_string()
-        }
-    }
-
     /// Sanitize string for safe logging (escape control characters and limit length)
     fn sanitize_and_truncate(&self, s: &str, max_len: usize) -> String {
       s.escape_debug().take(max_len).collect()
