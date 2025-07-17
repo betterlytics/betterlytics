@@ -2,7 +2,7 @@
   <!-- Logging setup -->
   <logger>
     <level>notice</level>
-    <console>false</console>
+    <console>true</console>
 
     <log>/var/log/clickhouse-server/clickhouse-server.log</log>
     <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
