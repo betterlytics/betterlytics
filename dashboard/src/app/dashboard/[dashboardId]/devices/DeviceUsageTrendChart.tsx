@@ -52,8 +52,8 @@ export default function DeviceUsageTrendChart({
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
-          <p className='mb-1 text-gray-500'>No device trend data available</p>
-          <p className='text-xs text-gray-400'>Try adjusting the time range or filters</p>
+          <p className='text-muted-foreground mb-1'>No trend data available</p>
+          <p className='text-muted-foreground/70 text-xs'>Try adjusting the time range or filters</p>
         </div>
       </div>
     );
