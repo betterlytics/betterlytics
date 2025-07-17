@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { scaleLinear } from 'd3-scale';
 import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
-import { LatLngBoundsExpression } from 'leaflet';
+import { LatLng, LatLngBoundsExpression, LeafletMouseEvent } from 'leaflet';
+import MapBackgroundLayer from '@/components/leaflet/MapBackgroundLayer';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -30,6 +31,7 @@ const BORDER_COLORS = {
   NO_VISITORS: '#9ca3af', // Lighter gray for 0 visitors border
   HIGH_VISITORS: '#93c5fd', // Lighter version of light blue
   LOW_VISITORS: '#3b82f6', // Lighter version of dark blue
+  SELECTED: '#00e369',
 } as const;
 
 const LeafletMap = ({
@@ -44,8 +46,9 @@ const LeafletMap = ({
   const [mapComponents, setMapComponents] = useState<{
     L: typeof import('leaflet');
     MapContainer: typeof import('react-leaflet').MapContainer;
-    GeoJSON: typeof import('react-leaflet').GeoJSON;
+    GeoJSON: typeof import('react-leaflet').GeoJSON
   } | null>(null);
+  
 
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
 
@@ -77,7 +80,7 @@ const LeafletMap = ({
 
     loadMapDependencies();
   }, []);
-
+  
   const MAX_WORLD_BOUNDS = useMemo(() => {
     if (!mapComponents?.L) return null;
     return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
@@ -102,40 +105,109 @@ const LeafletMap = ({
 
   const styleGeoJson = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties> | undefined) => {
     if (!feature) return {};
-
+  
     const featureId = getFeatureId(feature);
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const visitors = visitorEntry ? visitorEntry.visitors : 0;
-
-    const fillColor = colorScale(visitors);
-    const borderColor = borderColorScale(visitors);
-
+  
     return {
-      fillColor,
-      weight: 1.3,
-      opacity: 1,
-      color: borderColor,
+      fillColor: colorScale(visitors),
+      color: borderColorScale(visitors),
+      weight: visitors ? 1.5 : 1,
       fillOpacity: 0.8,
+      opacity: 1,
     };
   };
+    
+  const [selectedCountry, setSelectedCountry] = useState<{selectedAt: LatLng, code: string} | null>(null);
+  const selectedCountryRef = useRef<{ selectedAt: LatLng; code: string } | null>(null);
+  const featureLayersRef = useRef<Record<string, L.Layer>>({});
+  const previousSelectedCountryRef = useRef<{ selectedAt: LatLng; code: string } | null>(null);
+  
+  useEffect(() => {
+    const prev = previousSelectedCountryRef.current;
+    const curr = selectedCountry;
+  
+    // Exit early if nothing changed
+    if (prev?.code === curr?.code) return;
+  
+    // Update style of previous country
+    if (prev?.code && featureLayersRef.current[prev.code]) {
+      const layer = featureLayersRef.current[prev.code] as L.Path;
+      layer.closePopup();
+      const visitorEntry = visitorData.find((d) => d.country_code === prev.code);
+      const visitors = visitorEntry?.visitors ?? 0;
+      console.log("set style", visitorEntry?.country_code);
+      layer.setStyle({
+        fillColor: colorScale(visitors),
+        color: borderColorScale(visitors),
+        weight: visitors ? 1.5 : 1,
+        fillOpacity: 0.8,
+        opacity: 1,
+      });
+    }
+  
+    // Update style of new selected country
+    if (curr?.code && featureLayersRef.current[curr.code]) {
+      const layer = featureLayersRef.current[curr.code] as L.Path;
+      const visitorEntry = visitorData.find((d) => d.country_code === curr.code);
+      const visitors = visitorEntry?.visitors ?? 0;
+  
+      layer.setStyle({
+        fillColor: colorScale(visitors),
+        color: BORDER_COLORS.SELECTED,
+        weight: 2.5,
+        fillOpacity: 1,
+        opacity: 1,
+      });
+    }
+  
+    // Sync refs
+    selectedCountryRef.current = curr;
+    previousSelectedCountryRef.current = curr;
+  }, [selectedCountry]);
 
-  // Attached the popup shown when clicking on a country to the GeoJSON data
-  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Layer) => {
+  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
+
+    const featureId = getFeatureId(feature) ?? '0';
+    featureLayersRef.current[featureId] = layer;
     if (!feature.properties) return;
-
-    const featureId = getFeatureId(feature);
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const name = feature.properties.name || feature.properties.NAME || 'Unknown';
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
-
+  
+    // Bind popup content
     layer.bindPopup(`
       <div>
         <strong>${name}</strong><br/>
         Visitors: ${visitors}
       </div>
     `);
-  };
+  
+    const featureBounds = layer.getBounds();
+  
+    const selectCountry = (e: LeafletMouseEvent) => {
+      const currentSelected = selectedCountryRef.current;
+      
+      if (currentSelected?.code !== featureId) {
+        setSelectedCountry({ code: featureId, selectedAt: layer.getBounds().getCenter() });
+        layer.openPopup(e.latlng);
+        layer.bringToFront();
+      }
+    };
 
+    // Trigger on mouseover if inside bounds
+    layer.on('mouseover', (e: LeafletMouseEvent) => {
+      if (featureBounds.contains(e.latlng)) {
+        selectCountry(e);
+      }
+    });
+
+    // Also handle click to support touch devices or precise selection
+    layer.on('click', selectCountry);
+  };
+  
+  
   if (isLoading || !mapComponents || !worldGeoJson) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
@@ -155,8 +227,10 @@ const LeafletMap = ({
         .leaflet-container {
           background-color: var(--color-card);
         }
+        .leaflet-interactive:focus {
+          outline: none !important; /** Remove square around selection area */
+        }
       `}</style>
-
       <MapContainer
         center={[20, 0]}
         style={{ height: '100%', width: '100%' }}
@@ -174,6 +248,11 @@ const LeafletMap = ({
           style={styleGeoJson}
           onEachFeature={onEachFeature}
           {...geoJsonOptions}
+        />
+        <MapBackgroundLayer
+          worldGeoJson={worldGeoJson}
+          GeoJSON={GeoJSON}
+          onSelect={() => setSelectedCountry(null)}
         />
       </MapContainer>
 
