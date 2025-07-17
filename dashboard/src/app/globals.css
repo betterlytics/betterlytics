@@ -172,3 +172,23 @@
 .leaflet-bottom {
   z-index: 0 !important;
 }
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.scrollable-y {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+  overflow-y: auto;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 0;
+}

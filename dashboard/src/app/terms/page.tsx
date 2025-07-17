@@ -11,7 +11,7 @@ export default function TermsPage() {
   }
 
   return (
-    <div className='bg-background min-h-screen py-12'>
+    <div className='bg-background py-12'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
         <div className='bg-card border-border overflow-hidden rounded-lg border shadow-sm'>
           <div className='border-border border-b px-6 py-8'>
