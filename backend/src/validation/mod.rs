@@ -207,20 +207,14 @@ impl EventValidator {
         // Hash IP address for privacy
         let ip_hash = self.hash_ip_address(ip_address);
         
-        // Sanitize URL to remove query parameters and fragments
-        let sanitized_url = self.sanitize_url(&raw_event.url);
-        
-        // Truncate user agent to prevent logging extremely long/malicious strings
-        let sanitized_user_agent = self.truncate_string(&raw_event.user_agent, 100);
-        
         warn!(
             rejection_reason = self.get_rejection_reason(error),
-            site_id = %raw_event.site_id,
-            event_name = %raw_event.event_name,
+            site_id = %self.sanitize_and_truncate(&raw_event.site_id, 50),
+            event_name = %self.sanitize_and_truncate(&raw_event.event_name, 50),
             ip_hash = %ip_hash,
-            url_domain = %self.extract_domain(&raw_event.url),
-            url_path = %self.extract_path(&sanitized_url),
-            user_agent_prefix = %sanitized_user_agent,
+            url_domain = %self.sanitize_and_truncate(&self.extract_domain(&raw_event.url), 100),
+            url_path = %self.sanitize_and_truncate(&self.extract_path(&raw_event.url), 100),
+            user_agent_prefix = %self.sanitize_and_truncate(&raw_event.user_agent, 1000),
             properties_size = %raw_event.properties.len(),
             "Event rejected by validation"
         );
@@ -254,6 +248,11 @@ impl EventValidator {
         }
     }
 
+    /// Sanitize string for safe logging (escape control characters and limit length)
+    fn sanitize_and_truncate(&self, s: &str, max_len: usize) -> String {
+      s.escape_debug().take(max_len).collect()
+    }
+
     fn extract_domain(&self, url: &str) -> String {
         if let Ok(parsed) = Url::parse(url) {
             parsed.host_str().unwrap_or("unknown").to_string()
@@ -267,14 +266,6 @@ impl EventValidator {
             parsed.path().to_string()
         } else {
             "/".to_string()
-        }
-    }
-
-    fn truncate_string(&self, s: &str, max_len: usize) -> String {
-        if s.len() <= max_len {
-            s.to_string()
-        } else {
-            format!("{}...", &s[..max_len])
         }
     }
 }
