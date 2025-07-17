@@ -1,5 +1,5 @@
 use prometheus::{
-    Encoder, Gauge, Histogram, HistogramOpts, IntCounter, Opts, Registry, TextEncoder,
+    Encoder, Gauge, Histogram, HistogramOpts, IntCounter, IntCounterVec, Opts, Registry, TextEncoder,
 };
 use std::sync::Arc;
 use std::time::Duration;
@@ -21,6 +21,11 @@ pub struct MetricsCollector {
     process_memory_usage: Gauge,
     events_processed_total: IntCounter,
     events_processing_duration: Histogram,
+
+    // Event rejection and validation metrics
+    events_rejected_total: IntCounterVec,
+    rate_limit_exceeded_total: IntCounter,
+    validation_duration: Histogram,
 
     // System info
     system: Arc<RwLock<System>>,
@@ -65,6 +70,24 @@ impl MetricsCollector {
             "analytics_events_processing_duration_seconds",
             "Time spent processing analytics events"
         ))?;
+
+        let events_rejected_total = IntCounterVec::new(
+            Opts::new(
+                "analytics_events_rejected_total",
+                "Total number of analytics events rejected by validation"
+            ),
+            &["reason"]
+        )?;
+        
+        let rate_limit_exceeded_total = IntCounter::with_opts(Opts::new(
+            "analytics_rate_limit_exceeded_total",
+            "Total number of requests that exceeded rate limiting"
+        ))?;
+
+        let validation_duration = Histogram::with_opts(HistogramOpts::new(
+            "analytics_validation_duration_seconds",
+            "Time spent validating analytics events"
+        ))?;
         
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
@@ -73,6 +96,9 @@ impl MetricsCollector {
         registry.register(Box::new(process_memory_usage.clone()))?;
         registry.register(Box::new(events_processed_total.clone()))?;
         registry.register(Box::new(events_processing_duration.clone()))?;
+        registry.register(Box::new(events_rejected_total.clone()))?;
+        registry.register(Box::new(rate_limit_exceeded_total.clone()))?;
+        registry.register(Box::new(validation_duration.clone()))?;
         
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -89,6 +115,9 @@ impl MetricsCollector {
             process_memory_usage,
             events_processed_total,
             events_processing_duration,
+            events_rejected_total,
+            rate_limit_exceeded_total,
+            validation_duration,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -153,6 +182,18 @@ impl MetricsCollector {
     
     pub fn record_processing_duration(&self, duration: Duration) {
         self.events_processing_duration.observe(duration.as_secs_f64());
+    }
+
+    pub fn increment_events_rejected(&self, reason: &str) {
+        self.events_rejected_total.with_label_values(&[reason]).inc();
+    }
+
+    pub fn increment_rate_limit_exceeded(&self) {
+        self.rate_limit_exceeded_total.inc();
+    }
+
+    pub fn record_validation_duration(&self, duration: Duration) {
+        self.validation_duration.observe(duration.as_secs_f64());
     }
     
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {

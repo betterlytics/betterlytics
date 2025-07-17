@@ -1,10 +1,12 @@
 use axum::{
-    extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{get, post}, Json, Router
+    extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode, Request}, response::IntoResponse, routing::{get, post}, Json, Router, middleware
 };
 use std::sync::Arc;
 use std::{net::SocketAddr, net::IpAddr, str::FromStr};
 use tower_http::cors::CorsLayer;
-use tracing::{info, error};
+use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_governor::key_extractor::SmartIpKeyExtractor;
+use tracing::{info, error, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
@@ -19,6 +21,7 @@ mod referrer;
 mod campaign;
 mod ua_parser;
 mod metrics;
+mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use db::{Database, SharedDatabase};
@@ -26,6 +29,7 @@ use processing::EventProcessor;
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
+use validation::{EventValidator, ValidationConfig};
 
 #[tokio::main]
 async fn main() {
@@ -56,6 +60,9 @@ async fn main() {
 
     let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
 
+    let validation_config = ValidationConfig::default();
+    let validator = Arc::new(EventValidator::new(validation_config));
+
     let db = Database::new(config.clone()).await.expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
     let db = Arc::new(db);
@@ -83,12 +90,31 @@ async fn main() {
         }
     });
 
+    let rate_limit_config = Arc::new(
+        GovernorConfigBuilder::default()
+            .per_second(10)      // 10 requests per second per IP
+            .burst_size(30)      // Allow burst of 30 requests per IP
+            .key_extractor(SmartIpKeyExtractor)
+            .finish()
+            .unwrap(),
+    );
+
     let app = Router::new()
         .route("/health", get(health_check))
         .route("/track", post(track_event))
         .route("/site-id", get(generate_site_id_handler))
         .route("/metrics", get(metrics_handler))
-        .with_state((db, processor, metrics_collector))
+        .fallback(fallback_handler)
+        .layer(tower::ServiceBuilder::new()
+            .layer(middleware::from_fn_with_state(
+                metrics_collector.clone(),
+                rate_limit_metrics_middleware
+            ))
+            .layer(GovernorLayer {
+                config: rate_limit_config,
+            })
+        )
+        .with_state((db, processor, metrics_collector, validator))
         .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
@@ -97,7 +123,7 @@ async fn main() {
 }
 
 async fn health_check(
-    State((db, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>)>,
+    State((db, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>)>,
 ) -> Result<impl IntoResponse, String> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
@@ -112,26 +138,44 @@ async fn health_check(
 }
 
 async fn track_event(
-    State((_db, processor, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>)>,
+    State((_db, processor, metrics, validator)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>)>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
     Json(raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
-    if raw_event.site_id.is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "site_id is required".to_string()));
-    }
-    if raw_event.url.is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "url is required".to_string()));
-    }
-    if raw_event.event_name.is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "event name is required".to_string()));
-    }
-
-    let event = AnalyticsEvent::new(raw_event, parse_ip(headers).unwrap_or(addr.ip()).to_string());
-
     let start_time = std::time::Instant::now();
+    
+    let ip_address = parse_ip(headers).unwrap_or(addr.ip()).to_string();
+    
+    let validation_start = std::time::Instant::now();
+
+    // Validate and sanitize event
+    let validated_event = match validator.validate_event(raw_event, ip_address.clone()).await {
+        Ok(validated) => validated,
+        Err(e) => {
+            if let Some(metrics_collector) = &metrics {
+                metrics_collector.increment_events_rejected(&validator.get_rejection_reason(&e));
+            }
+            
+            warn!("Event validation failed: {}", e);
+            
+            let status = match &e {
+                validation::ValidationError::PayloadTooLarge(_) => StatusCode::PAYLOAD_TOO_LARGE,
+                _ => StatusCode::BAD_REQUEST,
+            };
+            
+            return Err((status, e.to_string()));
+        }
+    };
+    
+    if let Some(metrics_collector) = &metrics {
+        metrics_collector.record_validation_duration(validation_start.elapsed());
+    }
+
+    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
+
     if let Err(e) = processor.process_event(event).await {
-        error!("Failed to process event: {}", e);
+        error!("Failed to process validated event: {}", e);
         return Ok(StatusCode::OK);
     }
     
@@ -145,7 +189,7 @@ async fn track_event(
 }
 
 async fn metrics_handler(
-    State((_, _, metrics)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>)>,
+    State((_, _, metrics, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>)>,
 ) -> impl IntoResponse {
     match metrics {
         Some(metrics_collector) => {
@@ -159,6 +203,11 @@ async fn metrics_handler(
         }
         None => (StatusCode::NOT_FOUND, "Metrics disabled".to_string())
     }
+}
+
+async fn fallback_handler() -> impl IntoResponse {
+    warn!("Request to unknown route");
+    (StatusCode::NOT_FOUND, "Not found")
 }
 
 pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
@@ -179,4 +228,21 @@ pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
 /// Temporary endpoint to generate a site ID
 async fn generate_site_id_handler() -> impl IntoResponse {
     Json(generate_site_id())
+}
+
+/// Middleware to track rate limiting metrics
+async fn rate_limit_metrics_middleware(
+    State(metrics): State<Option<Arc<MetricsCollector>>>,
+    request: Request<axum::body::Body>,
+    next: middleware::Next,
+) -> axum::response::Response {
+    let response = next.run(request).await;
+    
+    if response.status() == StatusCode::TOO_MANY_REQUESTS {
+        if let Some(metrics_collector) = metrics {
+            metrics_collector.increment_rate_limit_exceeded();
+        }
+    }
+    
+    response
 }
