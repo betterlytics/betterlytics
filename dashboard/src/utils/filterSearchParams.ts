@@ -53,32 +53,37 @@ function encode(params: Filters): string {
 }
 
 function decode(base64: string): Filters {
-  const decodedJson = new TextDecoder().decode(Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)));
-  const decoded = JSON.parse(decodedJson) as Partial<Filters>;
-  const withDefaults = {
-    ...getDefaultFilters(),
-    ...decoded,
-  };
+  try {
+    const decodedJson = new TextDecoder().decode(Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)));
+    const decoded = JSON.parse(decodedJson) as Partial<Filters>;
+    const withDefaults = {
+      ...getDefaultFilters(),
+      ...decoded,
+    };
 
-  const startDate = new Date(withDefaults.startDate);
-  const endDate = new Date(withDefaults.endDate);
+    const startDate = new Date(withDefaults.startDate);
+    const endDate = new Date(withDefaults.endDate);
 
-  if (!withDefaults.compareEnabled) {
-    withDefaults.compareStartDate = undefined;
-    withDefaults.compareEndDate = undefined;
+    if (!withDefaults.compareEnabled) {
+      withDefaults.compareStartDate = undefined;
+      withDefaults.compareEndDate = undefined;
+    }
+
+    const allowedGranularities = getAllowedGranularities(startDate, endDate);
+    const validGranularity = getValidGranularityFallback(withDefaults.granularity, allowedGranularities);
+
+    return {
+      ...withDefaults,
+      startDate: startDate,
+      endDate: endDate,
+      compareStartDate: withDefaults.compareStartDate && new Date(withDefaults.compareStartDate),
+      compareEndDate: withDefaults.compareEndDate && new Date(withDefaults.compareEndDate),
+      granularity: validGranularity,
+    };
+  } catch (error) {
+    console.warn('Failed to decode filters from URL, using defaults:', error);
+    return getDefaultFilters();
   }
-
-  const allowedGranularities = getAllowedGranularities(startDate, endDate);
-  const validGranularity = getValidGranularityFallback(withDefaults.granularity, allowedGranularities);
-
-  return {
-    ...withDefaults,
-    startDate: startDate,
-    endDate: endDate,
-    compareStartDate: withDefaults.compareStartDate && new Date(withDefaults.compareStartDate),
-    compareEndDate: withDefaults.compareEndDate && new Date(withDefaults.compareEndDate),
-    granularity: validGranularity,
-  };
 }
 
 async function decodeFromParams(paramsPromise: Promise<{ filters: string }>) {
