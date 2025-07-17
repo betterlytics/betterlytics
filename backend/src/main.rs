@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::{net::SocketAddr, net::IpAddr, str::FromStr};
 use tower_http::cors::CorsLayer;
 use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_governor::key_extractor::SmartIpKeyExtractor;
 use tracing::{info, error, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -93,6 +94,7 @@ async fn main() {
         GovernorConfigBuilder::default()
             .per_second(10)      // 10 requests per second per IP
             .burst_size(30)      // Allow burst of 30 requests per IP
+            .key_extractor(SmartIpKeyExtractor)
             .finish()
             .unwrap(),
     );
