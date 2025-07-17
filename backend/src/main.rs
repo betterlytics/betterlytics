@@ -1,5 +1,5 @@
 use axum::{
-    extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{get, post}, Json, Router
+    extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode, Request}, response::IntoResponse, routing::{get, post}, Json, Router, middleware
 };
 use std::sync::Arc;
 use std::{net::SocketAddr, net::IpAddr, str::FromStr};
@@ -103,10 +103,16 @@ async fn main() {
         .route("/site-id", get(generate_site_id_handler))
         .route("/metrics", get(metrics_handler))
         .fallback(fallback_handler)
+        .layer(tower::ServiceBuilder::new()
+            .layer(middleware::from_fn_with_state(
+                metrics_collector.clone(),
+                rate_limit_metrics_middleware
+            ))
+            .layer(GovernorLayer {
+                config: rate_limit_config,
+            })
+        )
         .with_state((db, processor, metrics_collector, validator))
-        .layer(GovernorLayer {
-            config: rate_limit_config,
-        })
         .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
@@ -139,10 +145,16 @@ async fn track_event(
     
     let ip_address = parse_ip(headers).unwrap_or(addr.ip()).to_string();
     
+    let validation_start = std::time::Instant::now();
+
     // Validate and sanitize event
     let validated_event = match validator.validate_event(raw_event, ip_address.clone()).await {
         Ok(validated) => validated,
         Err(e) => {
+            if let Some(metrics_collector) = &metrics {
+                metrics_collector.increment_events_rejected(&validator.get_rejection_reason(&e));
+            }
+            
             warn!("Event validation failed: {}", e);
             
             let status = match &e {
@@ -153,6 +165,10 @@ async fn track_event(
             return Err((status, e.to_string()));
         }
     };
+    
+    if let Some(metrics_collector) = &metrics {
+        metrics_collector.record_validation_duration(validation_start.elapsed());
+    }
 
     let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
 
@@ -210,4 +226,21 @@ pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
 /// Temporary endpoint to generate a site ID
 async fn generate_site_id_handler() -> impl IntoResponse {
     Json(generate_site_id())
+}
+
+/// Middleware to track rate limiting metrics
+async fn rate_limit_metrics_middleware(
+    State(metrics): State<Option<Arc<MetricsCollector>>>,
+    request: Request<axum::body::Body>,
+    next: middleware::Next,
+) -> axum::response::Response {
+    let response = next.run(request).await;
+    
+    if response.status() == StatusCode::TOO_MANY_REQUESTS {
+        if let Some(metrics_collector) = metrics {
+            metrics_collector.increment_rate_limit_exceeded();
+        }
+    }
+    
+    response
 }

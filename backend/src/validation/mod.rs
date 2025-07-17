@@ -4,6 +4,8 @@ use std::net::IpAddr;
 use std::str::FromStr;
 use url::Url;
 use crate::analytics::RawTrackingEvent;
+use sha2::{Digest, Sha256};
+use tracing::warn;
 
 #[derive(Debug, Clone)]
 pub struct ValidationConfig {
@@ -68,9 +70,24 @@ impl EventValidator {
         raw_event: RawTrackingEvent,
         ip_address: String,
     ) -> Result<ValidatedTrackingEvent, ValidationError> {
-        self.validate_required_fields(&raw_event)?;
-        self.validate_payload_sizes(&raw_event)?;
-        self.validate_formats(&raw_event, &ip_address)?;
+        let result = self.validate_event_internal(&raw_event, &ip_address);
+        
+        // Log sanitized rejection details if validation fails
+        if let Err(ref error) = result {
+            self.log_sanitized_rejection(error, &raw_event, &ip_address);
+        }
+        
+        result
+    }
+
+    fn validate_event_internal(
+        &self,
+        raw_event: &RawTrackingEvent,
+        ip_address: &str,
+    ) -> Result<ValidatedTrackingEvent, ValidationError> {
+        self.validate_required_fields(raw_event)?;
+        self.validate_payload_sizes(raw_event)?;
+        self.validate_formats(raw_event, ip_address)?;
 
         // only present for custom events
         if !raw_event.properties.is_empty() {
@@ -78,8 +95,8 @@ impl EventValidator {
         }
 
         Ok(ValidatedTrackingEvent {
-            raw: raw_event,
-            ip_address,
+            raw: raw_event.clone(),
+            ip_address: ip_address.to_string(),
         })
     }
 
@@ -177,6 +194,87 @@ impl EventValidator {
         match serde_json::from_str::<serde_json::Value>(properties) {
             Ok(_) => Ok(()),
             Err(e) => Err(ValidationError::InvalidJson(format!("Invalid JSON: {}", e))),
+        }
+    }
+
+    /// Log sanitized rejection details for debugging
+    fn log_sanitized_rejection(
+        &self,
+        error: &ValidationError,
+        raw_event: &RawTrackingEvent,
+        ip_address: &str,
+    ) {
+        // Hash IP address for privacy
+        let ip_hash = self.hash_ip_address(ip_address);
+        
+        // Sanitize URL to remove query parameters and fragments
+        let sanitized_url = self.sanitize_url(&raw_event.url);
+        
+        // Truncate user agent to prevent logging extremely long/malicious strings
+        let sanitized_user_agent = self.truncate_string(&raw_event.user_agent, 100);
+        
+        warn!(
+            rejection_reason = self.get_rejection_reason(error),
+            site_id = %raw_event.site_id,
+            event_name = %raw_event.event_name,
+            ip_hash = %ip_hash,
+            url_domain = %self.extract_domain(&raw_event.url),
+            url_path = %self.extract_path(&sanitized_url),
+            user_agent_prefix = %sanitized_user_agent,
+            properties_size = %raw_event.properties.len(),
+            "Event rejected by validation"
+        );
+    }
+
+    pub fn get_rejection_reason(&self, error: &ValidationError) -> &'static str {
+        match error {
+            ValidationError::InvalidSiteId(_) => "invalid_site_id",
+            ValidationError::InvalidUrl(_) => "invalid_url",
+            ValidationError::InvalidEventName(_) => "invalid_event_name",
+            ValidationError::InvalidTimestamp(_) => "invalid_timestamp",
+            ValidationError::InvalidIpAddress(_) => "invalid_ip_address",
+            ValidationError::InvalidUserAgent(_) => "invalid_user_agent",
+            ValidationError::PayloadTooLarge(_) => "payload_too_large",
+            ValidationError::InvalidJson(_) => "invalid_json",
+        }
+    }
+
+    fn hash_ip_address(&self, ip: &str) -> String {
+        let mut hasher = Sha256::new();
+        hasher.update(ip.as_bytes());
+        format!("{:x}", hasher.finalize())[..16].to_string()
+    }
+
+    /// Sanitize URL by removing query parameters and fragments
+    fn sanitize_url(&self, url: &str) -> String {
+        if let Ok(parsed) = Url::parse(url) {
+            format!("{}://{}{}", parsed.scheme(), parsed.host_str().unwrap_or("unknown"), parsed.path())
+        } else {
+            url.to_string()
+        }
+    }
+
+    fn extract_domain(&self, url: &str) -> String {
+        if let Ok(parsed) = Url::parse(url) {
+            parsed.host_str().unwrap_or("unknown").to_string()
+        } else {
+            "unknown".to_string()
+        }
+    }
+
+    fn extract_path(&self, url: &str) -> String {
+        if let Ok(parsed) = Url::parse(url) {
+            parsed.path().to_string()
+        } else {
+            "/".to_string()
+        }
+    }
+
+    fn truncate_string(&self, s: &str, max_len: usize) -> String {
+        if s.len() <= max_len {
+            s.to_string()
+        } else {
+            format!("{}...", &s[..max_len])
         }
     }
 }
