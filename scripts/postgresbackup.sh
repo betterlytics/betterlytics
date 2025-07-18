@@ -15,7 +15,7 @@ BACKUP="$BACKUP_DIR/$BACKUP_NAME.backup"
 mkdir -p "$BACKUP_DIR"
 
 RED='\033[0;31m'
-NC='\033[0m' # No Color - if I don't add this then output remains red after the script is run
+NC='\033[0m'
 
 log_info() {
     echo "[INFO] $1"
