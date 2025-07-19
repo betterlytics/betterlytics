@@ -9,6 +9,9 @@ COMMAND="$1"
 BACKUP_NAME="${2:-$(date +%Y%m%d_%H%M%S)}"
 COMPOSE_FILE="docker-compose.production.yml"
 
+BACKUP_DIR="./clickhousebackups"
+mkdir -p "$BACKUP_DIR"
+
 RED='\033[0;31m'
 NC='\033[0m' # No Color - if I don't add this then output remains red after the script is run
 
@@ -24,6 +27,9 @@ create_backup() {
     log_info "Creating backup: $BACKUP_NAME"
     docker compose -f $COMPOSE_FILE run --rm clickhouse-backup create "$BACKUP_NAME"
     log_info "Backup created successfully!"
+    log_info "Copying backups..."
+    docker cp clickhouse:/var/lib/clickhouse/backup/. $BACKUP_DIR
+    log_info "Backup copied successfully!"
 }
 
 restore_backup() {
@@ -31,7 +37,8 @@ restore_backup() {
         log_error "Backup name is required for restore"
         exit 1
     fi
-    
+    log_info "Copying $BACKUP_NAME to ClickHouse"
+    docker cp $BACKUP_DIR/$BACKUP_NAME clickhouse:/var/lib/clickhouse/backup 
     log_info "Restoring backup: $BACKUP_NAME"
     docker compose -f $COMPOSE_FILE run --rm clickhouse-backup restore "$BACKUP_NAME"
     log_info "Backup restored successfully!"
