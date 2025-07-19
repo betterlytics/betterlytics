@@ -11,18 +11,25 @@ const DEFAULT_ARGS = {
   CUSTOM_EVENT_FREQUENCY: 0.2,
 }
 
+
 if (!args[0] || args[0].startsWith("--")) {
-  console.error("[Error] ❌ Missing SITE_ID.\nUsage: pnpm simulate \$SITE_ID \$FLAGS");
+  const WIDTH = 8;
+  const formatNumber = (num) => {
+    return typeof num === "number" && num % 1 !== 0
+      ? num.toFixed(1).padStart(WIDTH, " ")
+      : num.toString().padStart(WIDTH, " ");
+  };
+  console.error("[Error] ❌ Missing SITE_ID.\nUsage:");
   console.error(`
-    ------------------------------------------------------------------------------------------
-    | Flag           | Description                                              | Default         |
-    | -------------- | -------------------------------------------------------- | --------------- |
-    | '--events'     | Total number of events to simulate                       | ${DEFAULT_ARGS.NUMBER_OF_EVENTS}      |
-    | '--users'      | Number of unique simulated users                         | ${DEFAULT_ARGS.NUMBER_OF_USERS}      |
-    | '--days'       | Spread events over the past number of days               | ${DEFAULT_ARGS.SIMULATED_DAYS}       |
-    | '--batch-size' | Number of events sent per batch (concurrent POSTs)       | ${DEFAULT_ARGS.BATCH_SIZE}           |
-    | '--event-freq' | Fraction (0–1) of events that are custom (non-pageview)  | ${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} |
-    ------------------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------------------
+    | Flag           | Description                                              | Default  |
+    | -------------- | -------------------------------------------------------- | -------- |
+    | '--events'     | Total number of events to simulate                       | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_EVENTS)} |
+    | '--users'      | Number of unique simulated users                         | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_USERS)} |
+    | '--days'       | Spread events over the past number of days               | ${formatNumber(DEFAULT_ARGS.SIMULATED_DAYS)} |
+    | '--batch-size' | Number of events sent per batch (concurrent POSTs)       | ${formatNumber(DEFAULT_ARGS.BATCH_SIZE)} |
+    | '--event-freq' | Fraction (0–1) of events that are custom (non-pageview)  | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
+    ----------------------------------------------------------------------------------------
 
     Example usage:
     ./simulate-events "your-site-id" \\
