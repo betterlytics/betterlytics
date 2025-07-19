@@ -31,7 +31,7 @@ if (!args[0] || args[0].startsWith("--")) {
     | '--event-freq' | Fraction (0–1) of events that are custom (non-pageview)  | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
     ----------------------------------------------------------------------------------------
 
-    Example usage:
+    Example:
     ./simulate-events "your-site-id" \\
       --events=${DEFAULT_ARGS.NUMBER_OF_EVENTS} \\
       --users=${DEFAULT_ARGS.NUMBER_OF_USERS} \\
