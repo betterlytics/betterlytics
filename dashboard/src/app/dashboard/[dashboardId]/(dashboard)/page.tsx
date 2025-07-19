@@ -17,7 +17,7 @@ import {
   fetchSummaryStatsAction,
   fetchTotalPageViewsAction,
   fetchUniqueVisitorsAction,
-  getWorldMapData,
+  getWorldMapDataAlpha3,
 } from '@/app/actions';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
@@ -46,7 +46,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     5,
     queryFilters,
   );
-  const worldMapPromise = getWorldMapData(dashboardId, { startDate, endDate, queryFilters });
+  const worldMapPromise = getWorldMapDataAlpha3(dashboardId, { startDate, endDate, queryFilters });
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, startDate, endDate, queryFilters),

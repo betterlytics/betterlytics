@@ -31,13 +31,13 @@ export default function WorldMapCard() {
 
       <CardContent className='space-y-3'>
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
-          <LeafletMap
+          {/* <LeafletMap
             visitorData={mockGeographyData}
             showZoomControls={false}
             showLegend={false}
             initialZoom={1}
             maxVisitors={1247}
-          />
+          /> */}
         </div>
 
         <div className='border-border/60 border-t pt-3'>

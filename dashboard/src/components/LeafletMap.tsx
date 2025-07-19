@@ -1,11 +1,16 @@
 'use client';
 
+import { createRoot } from 'react-dom/client';
+import { CountryDisplay } from '@/components/language/CountryDisplay';
 import React, { useEffect, useState, useMemo } from 'react';
 import { scaleLinear } from 'd3-scale';
 import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
 import { LatLngBoundsExpression } from 'leaflet';
+import { FlagIconProps } from './icons';
+import { alpha3ToAlpha2Code, getCountryName } from "@/utils/countryCodes";
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -46,6 +51,8 @@ const LeafletMap = ({
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
+
+  const { dictionary, currentLanguage } = useDictionary();
 
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
 
@@ -119,21 +126,50 @@ const LeafletMap = ({
     };
   };
 
-  // Attached the popup shown when clicking on a country to the GeoJSON data
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Layer) => {
     if (!feature.properties) return;
-
     const featureId = getFeatureId(feature);
+    if (!featureId) return;
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
-    const name = feature.properties.name || feature.properties.NAME || 'Unknown';
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
-
-    layer.bindPopup(`
-      <div>
-        <strong>${name}</strong><br/>
-        Visitors: ${visitors}
-      </div>
-    `);
+    const ascii2 = alpha3ToAlpha2Code(featureId);
+    if (!ascii2) return;
+  
+    const popupNode = document.createElement('div');
+  
+    layer.bindPopup(popupNode, {
+      autoPan: true,
+      autoPanPadding: [20, 35], // Keep popup fully visible
+    });
+  
+    let root: any = null;
+  
+    layer.on('popupopen', (e) => {
+      if (e.popup && e.popup.getContent() === popupNode) {
+        if (!root) {
+          root = createRoot(popupNode);
+        }
+        root.render(
+          <div className="space-y-1">
+            <CountryDisplay
+              className="font-bold"
+              countryCode={ascii2 as FlagIconProps['countryCode']}
+              countryName={getCountryName(ascii2, currentLanguage, dictionary.misc.unknown)}
+            />
+            <div className="text-sm text-muted-foreground">
+              Visitors: {visitors}
+            </div>
+          </div>
+        );
+      }
+    });
+  
+    layer.on('popupclose', () => {
+      if (root) {
+        root.unmount();
+        root = null;
+      }
+    });
   };
 
   if (isLoading || !mapComponents || !worldGeoJson) {
@@ -148,12 +184,24 @@ const LeafletMap = ({
   }
 
   const { MapContainer, GeoJSON } = mapComponents;
-
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <style jsx global>{`
         .leaflet-container {
           background-color: var(--color-card);
+        }
+        .leaflet-popup-content-wrapper {
+          display: inline-block;
+          width: fit-content !important;
+        }
+        .leaflet-popup-tip-container {
+          left: 63px;  // place tip to the left to account for dynamic container width's
+        }
+        .leaflet-popup-content {
+          white-space: normal;
+          width: fit-content !important;
+          max-width: 50vw;
+          min-width: 80px; // Min-width ensure 'Visitors: x' stays on one row
         }
       `}</style>
 
@@ -169,29 +217,28 @@ const LeafletMap = ({
         attributionControl={false}
       >
         <GeoJSON
-          key={JSON.stringify(visitorData.length)}
+          key={`${JSON.stringify(visitorData.length)}-${currentLanguage}`}
           data={worldGeoJson}
           style={styleGeoJson}
           onEachFeature={onEachFeature}
           {...geoJsonOptions}
         />
-      </MapContainer>
-
-      {showLegend && (
-        <div className='info-legend bg-card border-border absolute right-5 bottom-10 rounded-md border p-2.5 shadow'>
-          <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
-          <div className='flex items-center'>
-            <span className='text-muted-foreground mr-1 text-xs'>0</span>
-            <div
-              className='h-2 w-24 rounded'
-              style={{
-                background: `linear-gradient(to right, ${MAP_COLORS.NO_VISITORS} 0%, ${MAP_COLORS.NO_VISITORS} 2%, ${MAP_COLORS.LOW_VISITORS} 3%, ${MAP_COLORS.HIGH_VISITORS} 100%)`,
-              }}
-            ></div>
-            <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
+        {showLegend && (
+          <div className='info-legend bg-card border-border absolute right-2 bottom-2 rounded-md border p-2.5 shadow'>
+            <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
+            <div className='flex items-center'>
+              <span className='text-muted-foreground mr-1 text-xs'>0</span>
+              <div
+                className='h-2 w-24 rounded'
+                style={{
+                  background: `linear-gradient(to right, ${MAP_COLORS.NO_VISITORS} 0%, ${MAP_COLORS.NO_VISITORS} 2%, ${MAP_COLORS.LOW_VISITORS} 3%, ${MAP_COLORS.HIGH_VISITORS} 100%)`,
+                }}
+              ></div>
+              <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </MapContainer>
     </div>
   );
 };
