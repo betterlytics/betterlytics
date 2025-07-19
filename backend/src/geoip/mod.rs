@@ -15,11 +15,13 @@ const READER_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(1200); // Che
 
 #[derive(Clone)]
 pub struct GeoIpService {
+    config: Arc<Config>,
     geoip_watch_rx: Arc<Mutex<GeoIpWatchRx>>,
     current_reader: Arc<RwLock<Option<Arc<Reader<Vec<u8>>>>>>,
     ip_cache: Cache<String, Option<String>>,
     last_reader_check: Arc<AtomicU64>,
 }
+
 
 impl GeoIpService {
     pub fn new(config: Arc<Config>, geoip_watch_rx: GeoIpWatchRx) -> Result<Self> {
@@ -66,6 +68,7 @@ impl GeoIpService {
             current_reader: Arc::new(RwLock::new(reader_to_use)),
             ip_cache: cache,
             last_reader_check: Arc::new(AtomicU64::new(now_secs)),
+            config: config.clone(), 
         })
     }
 
@@ -116,7 +119,8 @@ impl GeoIpService {
     }
 
     pub fn lookup_country_code(&self, ip_address: &str) -> Option<String> {
-        if ip_address == "127.0.0.1" || ip_address == "::1" {
+        if !self.config.enable_geolocation && (ip_address == "127.0.0.1" || ip_address == "::1") {
+            debug!("LocalHost hit for IP: {}", ip_address);
             return Some("Localhost".to_string());
         }
 
@@ -151,9 +155,8 @@ impl GeoIpService {
                 None
             }
         };
-
-        self.ip_cache.insert(ip_address.to_string(), result.clone());
         
+        self.ip_cache.insert(ip_address.to_string(), result.clone());
         result
     }
 }

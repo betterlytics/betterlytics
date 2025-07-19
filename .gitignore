@@ -36,6 +36,7 @@
 # System Files
 .DS_Store
 Thumbs.db
+/backend/assets/geoip/GeoLite2-Country.mmdb
 
 # Rust specific
 *.rlib
