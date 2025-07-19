@@ -1,7 +1,13 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback } from 'react';
-import { addTFunction, BADictionary, RawDictionary, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
+import {
+  addTFunction,
+  BADictionary,
+  RawDictionary,
+  loadDictionary,
+  SupportedLanguages,
+} from '@/dictionaries/dictionaries';
 
 interface DictionaryContextValue {
   dictionary: BADictionary;
@@ -13,17 +19,13 @@ interface DictionaryContextValue {
 const DictionaryContext = createContext<DictionaryContextValue | null>(null);
 
 type DictionaryProviderProps = {
-  dictionary: RawDictionary;
+  dictionary?: RawDictionary;
   initialLanguage: SupportedLanguages;
   children: React.ReactNode;
 };
 
-export default function DictionaryProvider({
-  dictionary: initialDictionary,
-  initialLanguage,
-  children,
-}: DictionaryProviderProps) {
-  const [dictionary, setDictionary] = useState(() => addTFunction(initialDictionary));
+export default function DictionaryProvider({ initialLanguage, children }: DictionaryProviderProps) {
+  const [dictionary, setDictionary] = useState(() => loadDictionary(initialLanguage));
   const [currentLanguage, setCurrentLanguage] = useState(initialLanguage);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,7 +35,7 @@ export default function DictionaryProvider({
 
       setIsLoading(true);
       try {
-        const newDictionary = await loadDictionary(language);
+        const newDictionary = loadDictionary(language);
         setDictionary(newDictionary);
         setCurrentLanguage(language);
       } catch (error) {
