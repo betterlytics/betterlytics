@@ -7,6 +7,7 @@ import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/e
 import { v4 as uuidv4 } from 'uuid';
 import { AuthContext, AuthContextSchema } from '@/entities/authContext';
 import { UserException } from '@/lib/exceptions';
+import { isValidTotp } from '@/services/totp.service';
 
 const SALT_ROUNDS = 10;
 
@@ -15,7 +16,7 @@ const SALT_ROUNDS = 10;
  * @returns User object or null if verification fails
  */
 export async function verifyCredentials(loginData: LoginUserData): Promise<User | null> {
-  const { email, password } = loginData;
+  const { email, password, totp } = loginData;
   const dbUser = await findUserByEmail(email);
 
   if (!dbUser || !dbUser.passwordHash) {
@@ -27,14 +28,28 @@ export async function verifyCredentials(loginData: LoginUserData): Promise<User 
     return null;
   }
 
+  let validatedUser;
   try {
-    return UserSchema.parse({
-      ...dbUser,
-    });
+    validatedUser = UserSchema.parse({ ...dbUser });
   } catch (error) {
     console.error('Error validating authenticated user data:', error);
     return null;
   }
+
+  if (!validatedUser.totpEnabled) {
+    return validatedUser;
+  }
+
+  if (!totp) {
+    throw new UserException('missing_otp');
+  }
+
+  const totpIsValid = isValidTotp(totp, validatedUser.totpSecret!);
+  if (!totpIsValid) {
+    throw new UserException('invalid_otp');
+  }
+
+  return validatedUser;
 }
 
 /**

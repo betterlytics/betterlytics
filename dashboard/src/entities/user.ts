@@ -15,6 +15,8 @@ export const UserSchema = z.object({
   role: z.enum(['admin', 'user']).nullable(),
   emailVerified: z.date().nullable().optional(),
   image: z.string().nullable().optional(),
+  totpEnabled: z.boolean().default(false),
+  totpSecret: z.string().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -28,6 +30,8 @@ export const CreateUserSchema = z.object({
 
 export const UpdateUserSchema = z.object({
   name: z.string().nullable().optional(),
+  totpEnabled: z.boolean().optional(),
+  totpSecret: z.string().nullable().optional(),
 });
 
 export const RegisterUserSchema = z.object({
@@ -40,6 +44,7 @@ export const RegisterUserSchema = z.object({
 export const LoginUserSchema = z.object({
   email: z.string().email(),
   password: z.string(),
+  totp: z.string().length(6).optional(),
 });
 
 export const AuthenticatedUserSchema = UserSchema.extend({
