@@ -55,7 +55,7 @@ export default function QueryFiltersSelector() {
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[620px] max-w-[90svw] border py-4 shadow-2xl' align='end'>
+      <PopoverContent className='w-[592px] max-w-[90svw] border py-4 shadow-2xl' align='end'>
         {queryFilters.length > 0 || isFiltersModified ? (
           <div className='space-y-2'>
             <div className='space-y-3'>
@@ -74,21 +74,21 @@ export default function QueryFiltersSelector() {
               )}
             </div>
             <Separator />
-            <div className='flex justify-between'>
-              <Button className='h-8 w-28' onClick={addEmptyQueryFilter} variant='outline'>
+            <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
+              <Button className='h-8 w-full md:w-28' onClick={addEmptyQueryFilter} variant='outline'>
                 Add filter
               </Button>
-              <div className='flex items-center justify-end gap-3'>
+              <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
                 <Button
-                  className='h-8 w-28'
-                  disabled={isFiltersModified === false}
+                  className='h-8 w-[48%] max-w-[110px]'
+                  disabled={!isFiltersModified}
                   onClick={cancelFilters}
                   variant={isFiltersModified ? 'destructive' : 'ghost'}
                 >
                   Cancel
                 </Button>
                 <Button
-                  className='h-8 w-28'
+                  className='h-8 w-[48%] max-w-[110px]'
                   disabled={isFiltersModified === false}
                   onClick={saveFilters}
                   variant={isFiltersModified ? 'default' : 'ghost'}
