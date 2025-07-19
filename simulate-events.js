@@ -3,11 +3,35 @@
  */
 const args = process.argv.slice(2);
 
+const DEFAULT_ARGS = {
+  NUMBER_OF_EVENTS: 4000,
+  NUMBER_OF_USERS: 2000,
+  SIMULATED_DAYS: 7,
+  BATCH_SIZE: 500,
+  CUSTOM_EVENT_FREQUENCY: 0.2,
+}
+
 if (!args[0] || args[0].startsWith("--")) {
-  console.error("[Error] ❌ Missing SITE_ID.\nUsage:");
-  console.error(
-    `./simulate-events "your-site-id" --events=100 --users=200 --days=30 --batch-size=1000 --event-freq=0.3`
-  );
+  console.error("[Error] ❌ Missing SITE_ID.\nUsage: pnpm simulate \$SITE_ID \$FLAGS");
+  console.error(`
+    ------------------------------------------------------------------------------------------
+    | Flag           | Description                                              | Default         |
+    | -------------- | -------------------------------------------------------- | --------------- |
+    | '--events'     | Total number of events to simulate                       | ${DEFAULT_ARGS.NUMBER_OF_EVENTS}      |
+    | '--users'      | Number of unique simulated users                         | ${DEFAULT_ARGS.NUMBER_OF_USERS}      |
+    | '--days'       | Spread events over the past number of days               | ${DEFAULT_ARGS.SIMULATED_DAYS}       |
+    | '--batch-size' | Number of events sent per batch (concurrent POSTs)       | ${DEFAULT_ARGS.BATCH_SIZE}           |
+    | '--event-freq' | Fraction (0–1) of events that are custom (non-pageview)  | ${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} |
+    ------------------------------------------------------------------------------------------
+
+    Example usage:
+    ./simulate-events "your-site-id" \\
+      --events=${DEFAULT_ARGS.NUMBER_OF_EVENTS} \\
+      --users=${DEFAULT_ARGS.NUMBER_OF_USERS} \\
+      --days=${DEFAULT_ARGS.SIMULATED_DAYS} \\
+      --batch-size=${DEFAULT_ARGS.BATCH_SIZE} \\
+      --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY}
+  `);
   process.exit(1);
 }
 
@@ -21,11 +45,11 @@ const getFlag = (name, fallback) => {
  */
 const SITE_ID = args[0];
 const TARGET_URL = "http://127.0.0.1:3001/track";
-const NUMBER_OF_EVENTS = getFlag("events", 8000);
-const NUMBER_OF_USERS = getFlag("users", 5000);
-const SIMULATED_DAYS = getFlag("days", 10);
-const BATCH_SIZE = getFlag("batch-size", 1000);
-const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", 0.2);
+const NUMBER_OF_EVENTS = getFlag("events", DEFAULT_ARGS.NUMBER_OF_EVENTS);
+const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
+const SIMULATED_DAYS = getFlag("days", DEFAULT_ARGS.SIMULATED_DAYS);
+const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
+const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
 
 const CUSTOM_EVENTS = [
   {
@@ -170,36 +194,20 @@ function* toBatches(array, batchSize) {
   }
 }
 
-const RETRY_LIMIT = 3;
-const BATCH_DELAY_MS = 500; // 500 ms delay between batches
-
-async function sendEvent(event, retries = 0) {
-  try {
-    const res = await fetch(TARGET_URL, {
-      method: "POST",
-      body: JSON.stringify(
-        Object.fromEntries(Object.entries(event).filter(([k]) => k !== "user_ip"))
-      ),
-      headers: {
-        "Content-Type": "application/json",
-        "X-Forwarded-For": event.user_ip,
-      },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  } catch (error) {
-    if (retries < RETRY_LIMIT) {
-      console.warn(`[!] Retry ${retries + 1} for event due to error: ${error.message}`);
-      return sendEvent(event, retries + 1);
-    } else {
-      console.error(`[✖] Failed to send event after ${RETRY_LIMIT} retries: ${error.message}`);
-    }
-  }
-}
-
 async function executeBatches(batches) {
   for (const batch of batches) {
-    await Promise.all(batch.map(sendEvent));
-    await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
+    await Promise.all(
+      batch.map((event) =>
+        fetch(TARGET_URL, {
+          method: "POST",
+          body: JSON.stringify(event),
+          headers: {
+            "Content-Type": "application/json",
+            "X-Forwarded-For": event.user_ip,
+          },
+        })
+      )
+    );
   }
 }
 
