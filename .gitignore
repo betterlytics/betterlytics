@@ -59,6 +59,9 @@ Thumbs.db
 /nextjs/static/
 node_modules
 
+# GeoLite
+/backend/assets/geoip/GeoLite2-Country.mmdb
+
 # Docker volumnes
 /data/
 /loki-data/
