@@ -1,4 +1,5 @@
 import prisma from '@/lib/postgres';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import {
   User,
@@ -12,18 +13,24 @@ import {
 
 const SALT_ROUNDS = 10;
 
+export async function findUserById(userId: string): Promise<User | null> {
+  return await findUserBy({ id: userId });
+}
+
 export async function findUserByEmail(email: string): Promise<User | null> {
+  return await findUserBy({ email });
+}
+
+async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
   try {
-    const prismaUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const prismaUser = await prisma.user.findUnique({ where });
 
     if (!prismaUser) return null;
 
     return UserSchema.parse(prismaUser);
   } catch (error) {
-    console.error(`Error finding user by email ${email}:`, error);
-    throw new Error(`Failed to find user by email ${email}.`);
+    console.error(`Error finding user by ${where}:`, error);
+    throw new Error(`Failed to find user by ${where}.`);
   }
 }
 

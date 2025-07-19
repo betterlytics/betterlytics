@@ -55,6 +55,9 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
+  TOTP_SECRET_ENCRYPTION_KEY: z
+    .string()
+    .length(32),
   ENABLE_MONITORING: z
     .enum(['true', 'false'])
     .optional()
