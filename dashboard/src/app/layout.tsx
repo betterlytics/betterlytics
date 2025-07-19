@@ -4,8 +4,6 @@ import './globals.css';
 import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
-import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
-import ConditionalFooter from '@/components/ConditionalFooter';
 import { generateSEO, SEO_CONFIGS, generateStructuredData } from '@/lib/seo';
 
 const geistSans = Geist({
@@ -60,9 +58,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          <ConditionalTopBar />
           {children}
-          <ConditionalFooter />
         </Providers>
         <Toaster />
       </body>

@@ -58,4 +58,56 @@ export default {
     da: 'Danish',
     en: 'English',
   },
+  public: {
+    signin: {
+      signInToYourAccount: 'Sign in to your account',
+      accessYourAnalyticsDashboard: 'Access your analytics dashboard',
+    },
+    topbar: {
+      toDashboard: 'Go to Dashboard',
+      getStarted: 'Get Started',
+      documentation: 'Documentation',
+      documentationTitle: 'Complete Betterlytics Documentation',
+      pricing: 'Pricing',
+    },
+    footer: {
+      description: "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
+      company: 'Company',
+      about: 'About',
+      contact: 'Contact',
+      privacyPolicy: 'Privacy Policy',
+      termsOfService: 'Terms of Service',
+      dataProcessingAgreement: 'Data Processing Agreement',
+      resources: 'Resources',
+      documentation: 'Documentation',
+      documentationTitle: 'Complete Betterlytics Documentation',
+      pricing: 'Pricing',
+      connect: 'Connect',
+      rightsReserved: '© 2025 Betterlytics. All rights reserved. Open source under AGPL-3.0 license.'
+    },
+    about: {
+      aboutUs: 'About Betterlytics',
+    },
+    contact: {
+      contactUs: 'Contact Us',
+    },
+    register: {
+      createYourAccount: 'Create your account',
+    },
+    dpa: {
+      title: 'Data Processing Agreement (DPA)',
+    },
+    terms: {
+      title: 'Betterlytics Terms of Service',
+    },
+    privacy: {
+      title: 'Betterlytics Privacy Policy',
+    },
+    forgotPassword: {
+      resetYourPassword: 'Reset your password',
+    },
+    resetPassword: {
+      requestNewPasswordLink: 'Request New Reset Link',
+    }
+  }
 };

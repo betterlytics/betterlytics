@@ -1,8 +1,11 @@
 import Logo from '@/components/logo';
 import Link from 'next/link';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
+import { loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
 
-export function Footer() {
+export function Footer({ language }: { language: SupportedLanguages }) {
+  const dict = loadDictionary(language);
+
   return (
     <footer className='border-border/40 border-t py-12'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
@@ -12,60 +15,60 @@ export function Footer() {
               <Logo variant='simple' showText textSize='lg' priority />
             </div>
             <p className='text-muted-foreground text-sm'>
-              Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.
+              {dict.public.footer.description}
             </p>
           </div>
           <div>
-            <h3 className='mb-4 font-semibold'>Company</h3>
+            <h3 className='mb-4 font-semibold'>{dict.public.footer.company}</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
               <li>
-                <Link href='/about' className='hover:text-foreground transition-colors'>
-                  About
+                <Link href={`/${language}/about`} className='hover:text-foreground transition-colors'>
+                  {dict.public.footer.about}
                 </Link>
               </li>
               <li>
-                <Link href='/contact' className='hover:text-foreground transition-colors'>
-                  Contact
+                <Link href={`/${language}/contact`} className='hover:text-foreground transition-colors'>
+                  {dict.public.footer.contact}
                 </Link>
               </li>
               <li>
-                <Link href='/privacy' className='hover:text-foreground transition-colors'>
-                  Privacy Policy
+                <Link href={`/${language}/privacy`} className='hover:text-foreground transition-colors'>
+                  {dict.public.footer.privacyPolicy}
                 </Link>
               </li>
               <li>
-                <Link href='/terms' className='hover:text-foreground transition-colors'>
-                  Terms of Service
+                <Link href={`/${language}/terms`} className='hover:text-foreground transition-colors'>
+                  {dict.public.footer.termsOfService}
                 </Link>
               </li>
               <li>
-                <Link href='/dpa' className='hover:text-foreground transition-colors'>
-                  Data Processing Agreement
+                <Link href={`/${language}/dpa`} className='hover:text-foreground transition-colors'>
+                  {dict.public.footer.dataProcessingAgreement}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className='mb-4 font-semibold'>Resources</h3>
+            <h3 className='mb-4 font-semibold'>{dict.public.footer.resources}</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
               <li>
                 <a
                   href='/docs'
-                  title='Complete Betterlytics Documentation'
+                  title={dict.public.footer.documentationTitle}
                   className='hover:text-foreground transition-colors'
                 >
-                  Documentation
+                  {dict.public.footer.documentation}
                 </a>
               </li>
               <li>
-                <Link href='/#pricing' className='hover:text-foreground transition-colors'>
-                  Pricing
+                <Link href={`/${language}/#pricing`} className='hover:text-foreground transition-colors'>
+                  {dict.public.footer.pricing}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className='mb-4 font-semibold'>Connect</h3>
+            <h3 className='mb-4 font-semibold'>{dict.public.footer.connect}</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
               <li>
                 <Link
@@ -105,7 +108,7 @@ export function Footer() {
         </div>
         <div className='border-border/40 mt-8 border-t pt-8 text-center'>
           <p className='text-muted-foreground text-sm'>
-            © 2025 Betterlytics. All rights reserved. Open source under AGPL-3.0 license.
+            {dict.public.footer.rightsReserved}
           </p>
         </div>
       </div>

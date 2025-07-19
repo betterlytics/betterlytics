@@ -1,20 +1,28 @@
 import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
+import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
 
 export const metadata = generateSEO(SEO_CONFIGS.privacy);
 
-export default function PrivacyPage() {
-  if (!env.IS_CLOUD) {
-    redirect('/');
-  }
+interface PrivacyPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function PrivacyPage({ params }: PrivacyPageProps) {
+  const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
+  const dict = loadDictionary(language);
+
+  // if (!env.IS_CLOUD) {
+  //   redirect(`/${language}`);
+  // }
 
   return (
     <div className='bg-background min-h-screen py-12'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
         <div className='bg-card border-border overflow-hidden rounded-lg border shadow-sm'>
           <div className='border-border border-b px-6 py-8'>
-            <h1 className='text-foreground text-3xl font-bold'>Betterlytics Privacy Policy</h1>
+            <h1 className='text-foreground text-3xl font-bold'>{dict.public.privacy.title}</h1>
             <p className='text-muted-foreground mt-2 text-lg'>
               Last updated:{' '}
               {new Date().toLocaleDateString('en-US', {

@@ -58,4 +58,56 @@ export default {
     da: 'Dansk',
     en: 'Engelsk',
   },
+  public: {
+    signin: {
+      signInToYourAccount: 'Log ind på din konto',
+      accessYourAnalyticsDashboard: 'Få adgang til dit analyse-dashboard',
+    },
+    topbar: {
+      toDashboard: 'Gå til Dashboard',
+      getStarted: 'Kom i gang',
+      documentation: 'Dokumentation',
+      documentationTitle: 'Komplet Betterlytics Dokumentation',
+      pricing: 'Abonnementer',
+    },
+    footer: {
+      description: "Privatlivsfokuseret webanalyse til det moderne web. GDPR-kompatibel, cookieless og open source.",
+      company: "Virksomhed",
+      about: "Om os",
+      contact: "Kontakt",
+      privacyPolicy: "Privatlivspolitik",
+      termsOfService: "Vilkår for brug",
+      dataProcessingAgreement: "Datahåndteringsaftale",
+      resources: "Ressourcer",
+      documentation: "Dokumentation",
+      documentationTitle: "Komplet Betterlytics-dokumentation",
+      pricing: "Planer og priser",
+      connect: "Forbind",
+      rightsReserved: '© 2025 Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licensen.'
+    },
+    about: {
+      aboutUs: 'Om Betterlytics',
+    },
+    contact: {
+      contactUs: 'Kontakt os',
+    },
+    register: {
+      createYourAccount: 'Opret din konto',
+    },
+    dpa: {
+      title: 'Datahåndteringsaftale (DPA)',
+    },
+    terms: {
+      title: 'Betterlytics Vilkår for brug',
+    },
+    privacy: {
+      title: 'Betterlytics Privatlivspolitik',
+    },
+    forgotPassword: {
+      resetYourPassword: 'Reset dit password',
+    },
+    resetPassword: {
+      requestNewPasswordLink: 'Anmod om nyt password link',
+    }
+  },
 };

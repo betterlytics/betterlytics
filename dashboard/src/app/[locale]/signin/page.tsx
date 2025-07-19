@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
+import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -13,9 +14,10 @@ interface SignInPageProps {
     callbackUrl?: string;
     verified?: string;
   }>;
+  params: Promise<{ locale: string }>;
 }
 
-export default async function SignInPage({ searchParams }: SignInPageProps) {
+export default async function SignInPage({ searchParams, params }: SignInPageProps) {
   const session = await getServerSession(authOptions);
   const registrationEnabled = isFeatureEnabled('enableRegistration');
   const { error } = await searchParams;
@@ -23,6 +25,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   if (session) {
     redirect('/dashboards');
   }
+
+  const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
+  const dict = loadDictionary(language);
 
   const getErrorMessage = (error: string) => {
     switch (error) {
@@ -42,8 +47,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           <div className='mb-6 flex justify-center'>
             <Logo variant='full' width={200} height={60} priority />
           </div>
-          <h2 className='text-foreground mt-6 text-2xl font-semibold'>Sign in to your account</h2>
-          <p className='text-muted-foreground mt-2 text-sm'>Access your analytics dashboard</p>
+          <h2 className='text-foreground mt-6 text-2xl font-semibold'>{dict.public.signin.signInToYourAccount}</h2>
+          <p className='text-muted-foreground mt-2 text-sm'>{dict.public.signin.accessYourAnalyticsDashboard}</p>
         </div>
         <div className='bg-card rounded-lg border p-8 shadow-sm'>
           {error && (

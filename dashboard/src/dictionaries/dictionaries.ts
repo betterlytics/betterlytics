@@ -25,7 +25,7 @@ export type BADictionary = RawDictionary & {
 export type SupportedLanguages = keyof typeof dictionaries;
 export const DEFAULT_LANGUAGE: SupportedLanguages = (process.env.DEFAULT_LANGUAGE as SupportedLanguages) ?? 'en';
 
-function isLanguageSupported(language: string): language is SupportedLanguages {
+export function isLanguageSupported(language: string): language is SupportedLanguages {
   return language in dictionaries;
 }
 

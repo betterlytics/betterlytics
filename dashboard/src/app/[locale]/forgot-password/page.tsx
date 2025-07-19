@@ -4,13 +4,20 @@ import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
+import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
 
-export default async function ForgotPasswordPage() {
-  const session = await getServerSession(authOptions);
+interface ForgotPasswordPageProps {
+  params: Promise<{ locale: string }>;
+}
 
-  if (session) {
-    redirect('/dashboards');
-  }
+export default async function ForgotPasswordPage({ params }: ForgotPasswordPageProps) {
+  // const session = await getServerSession(authOptions);
+  // if (session) {
+  //   redirect('/dashboards');
+  // }
+
+  const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
+  const dict = loadDictionary(language);
 
   return (
     <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
@@ -19,7 +26,9 @@ export default async function ForgotPasswordPage() {
           <div className='mb-6 flex justify-center'>
             <Logo variant='full' width={200} height={60} priority />
           </div>
-          <h2 className='text-foreground mt-6 text-2xl font-semibold'>Reset your password</h2>
+          <h2 className='text-foreground mt-6 text-2xl font-semibold'>
+            {dict.public.forgotPassword.resetYourPassword}
+          </h2>
           <p className='text-muted-foreground mt-2 text-sm'>
             Enter your email and we'll send you a password reset link
           </p>
@@ -29,7 +38,10 @@ export default async function ForgotPasswordPage() {
           <div className='mt-6 text-center'>
             <p className='text-muted-foreground text-sm'>
               Remember your password?{' '}
-              <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
+              <Link
+                href={`/${language}/signin`}
+                className='text-primary hover:text-primary/80 font-medium underline'
+              >
                 Back to Sign In
               </Link>
             </p>

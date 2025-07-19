@@ -1,192 +1,67 @@
 import { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
+import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = env.NEXT_PUBLIC_BASE_URL;
+  const lastModified = new Date();
 
-  return [
-    /****************** PUBLIC PAGES ******************/
-
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/signin`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.8,
-    },
-
-    // Legal pages
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/dpa`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-
-    /****************** DOCS ******************/
-
-    {
-      url: `${baseUrl}/docs`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-
-    // Installation section
-    {
-      url: `${baseUrl}/docs/installation`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/installation/cloud-hosting`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/installation/self-hosting`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-
-    // Integration section
-    {
-      url: `${baseUrl}/docs/integration/custom-events`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/integration/dynamic-urls`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-
-    // Dashboard section
-    {
-      url: `${baseUrl}/docs/dashboard`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/referrers`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/geography`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/user-journey`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/devices`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/events`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/funnels`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/metrics-glossary`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/dashboard/filtering`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-
-    // Pricing section
-    {
-      url: `${baseUrl}/docs/pricing`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/pricing/upgrading`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/pricing/changing-plans`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/pricing/managing-subscription`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/docs/pricing/cancellation`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
+  const localizedPaths = [
+    '', 
+    '/about',
+    '/contact',
+    '/register',
+    '/signin',
+    '/privacy',
+    '/terms',
+    '/dpa',
   ];
+
+  const docsPaths = [
+    '/docs',
+    '/docs/installation',
+    '/docs/installation/cloud-hosting',
+    '/docs/installation/self-hosting',
+    '/docs/integration/custom-events',
+    '/docs/integration/dynamic-urls',
+    '/docs/dashboard',
+    '/docs/dashboard/referrers',
+    '/docs/dashboard/geography',
+    '/docs/dashboard/user-journey',
+    '/docs/dashboard/devices',
+    '/docs/dashboard/events',
+    '/docs/dashboard/funnels',
+    '/docs/dashboard/metrics-glossary',
+    '/docs/dashboard/filtering',
+    '/docs/pricing',
+    '/docs/pricing/upgrading',
+    '/docs/pricing/changing-plans',
+    '/docs/pricing/managing-subscription',
+    '/docs/pricing/cancellation',
+  ];
+
+  const sitemap: MetadataRoute.Sitemap = [];
+
+  for (const lang of SUPPORTED_LANGUAGES) {
+    for (const path of localizedPaths) {
+      sitemap.push({
+        url: `${baseUrl}/${lang}${path}`,
+        lastModified,
+        changeFrequency: path === '' ? 'monthly' : 'yearly',
+        priority: path === '' ? 1 : 0.6,
+      });
+    }
+  }
+
+  // Add docs paths (not localized)
+  for (const path of docsPaths) {
+    sitemap.push({
+      url: `${baseUrl}${path}`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    });
+  }
+
+  return sitemap;
 }

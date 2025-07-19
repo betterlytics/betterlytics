@@ -5,11 +5,13 @@ import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 import { validateResetTokenAction } from '@/app/actions/passwordReset';
+import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
 
 interface ResetPasswordPageProps {
   searchParams: Promise<{
     token?: string;
   }>;
+  params: Promise<{ locale: string }>;
 }
 
 interface ResetPasswordLayoutProps {
@@ -35,7 +37,7 @@ function ResetPasswordLayout({ title, description, children }: ResetPasswordLayo
   );
 }
 
-export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+export default async function ResetPasswordPage({ searchParams, params }: ResetPasswordPageProps) {
   const session = await getServerSession(authOptions);
 
   if (session) {
@@ -43,6 +45,8 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
   }
 
   const { token } = await searchParams;
+  const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
+  const dict = loadDictionary(language);
 
   if (!token) {
     return (
@@ -52,8 +56,11 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
       >
         <div className='text-center'>
           <p className='text-muted-foreground mb-4 text-sm'>Please request a new password reset link.</p>
-          <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
-            Request New Reset Link
+          <Link
+            href={`/${language}/forgot-password`}
+            className='text-primary hover:text-primary/80 font-medium underline'
+          >
+            {dict.public.resetPassword.requestNewPasswordLink}
           </Link>
         </div>
       </ResetPasswordLayout>
@@ -72,8 +79,11 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
           <p className='text-muted-foreground mb-4 text-sm'>
             Password reset links expire after 1 hour for security reasons. Please request a new one.
           </p>
-          <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
-            Request New Reset Link
+          <Link
+            href={`/${language}/forgot-password`}
+            className='text-primary hover:text-primary/80 font-medium underline'
+          >
+            {dict.public.resetPassword.requestNewPasswordLink}
           </Link>
         </div>
       </ResetPasswordLayout>
@@ -86,7 +96,7 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
       <div className='mt-6 text-center'>
         <p className='text-muted-foreground text-sm'>
           Remember your password?{' '}
-          <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
+          <Link href={`${language}/signin`} className='text-primary hover:text-primary/80 font-medium underline'>
             Back to Sign In
           </Link>
         </p>
