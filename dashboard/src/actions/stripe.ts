@@ -7,6 +7,7 @@ import { User } from 'next-auth';
 import { env } from '@/lib/env';
 import { getUserSubscription } from '@/repositories/postgres/subscription';
 import { Stripe } from 'stripe';
+import { UserException } from '@/lib/exceptions';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
   try {
@@ -29,6 +30,10 @@ async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
 export const createStripeCheckoutSession = withUserAuth(async (user: User, planData: SelectedPlan) => {
   try {
     const validatedPlan = SelectedPlanSchema.parse(planData);
+
+    if (!user.emailVerified) {
+      throw new Error('Attempting to purchase with unverified email.');
+    }
 
     if (validatedPlan.price_cents === 0 && validatedPlan.tier === 'growth') {
       throw new Error('Free plans do not require checkout');
@@ -77,12 +82,16 @@ export const createStripeCheckoutSession = withUserAuth(async (user: User, planD
     return checkoutSession.url;
   } catch (error) {
     console.error('Failed to create Stripe checkout session:', error);
-    throw new Error('Failed to create checkout session. Please try again.');
+    throw new UserException('Failed to create checkout session. Please try again.');
   }
 });
 
 export const createStripeCustomerPortalSessionForCancellation = withUserAuth(async (user: User) => {
   try {
+    if (!user.emailVerified) {
+      throw new Error('Attempting to create customer portal session for cancellation with unverified email.');
+    }
+
     const subscription = await getUserSubscription(user.id);
 
     if (!subscription?.paymentCustomerId) {
@@ -127,12 +136,16 @@ export const createStripeCustomerPortalSessionForCancellation = withUserAuth(asy
     return portalSession.url;
   } catch (error) {
     console.error('Failed to create Stripe customer portal session for cancellation:', error);
-    throw new Error('Failed to access billing portal. Please try again.');
+    throw new UserException('Failed to access billing portal. Please try again.');
   }
 });
 
 export const createStripeCustomerPortalSession = withUserAuth(async (user: User, targetPlan?: SelectedPlan) => {
   try {
+    if (!user.emailVerified) {
+      throw new Error('Attempting to create customer portal session with unverified email.');
+    }
+
     const subscription = await getUserSubscription(user.id);
 
     if (!subscription?.paymentCustomerId) {
@@ -201,6 +214,6 @@ export const createStripeCustomerPortalSession = withUserAuth(async (user: User,
     return portalSession.url;
   } catch (error) {
     console.error('Failed to create Stripe customer portal session:', error);
-    throw new Error('Failed to access billing portal. Please try again.');
+    throw new UserException('Failed to access billing portal. Please try again.');
   }
 });

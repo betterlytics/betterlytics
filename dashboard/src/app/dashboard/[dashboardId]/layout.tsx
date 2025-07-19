@@ -15,6 +15,9 @@ import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
 import ScrollReset from '@/components/ScrollReset';
+import { getDictionary } from '@/app/actions/dictionary';
+import DictionaryProvider from '@/contexts/DictionaryContextProvider';
+import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -29,6 +32,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   }
 
   const { dashboardId } = await params;
+  const { dictionary, language } = await getDictionary();
 
   const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
   const billingEnabled = isClientFeatureEnabled('enableBilling');
@@ -44,28 +48,36 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
   return (
     <DashboardProvider>
-      <section>
-        <BATopbar />
-        <SidebarProvider>
-          <BASidebar dashboardId={dashboardId} />
-          <BAMobileSidebarTrigger />
-          <main className='bg-background w-full overflow-x-hidden'>
-            <ScrollReset />
-            {billingEnabled && (
-              <Suspense fallback={null}>
-                <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
-              </Suspense>
-            )}
-            <div className='flex w-full justify-center'>{children}</div>
-          </main>
-          {/* Conditionally render tracking script based on server-side feature flag */}
-          {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
-
-          <Suspense>
-            <IntegrationManager />
-          </Suspense>
-        </SidebarProvider>
-      </section>
+      <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
+        <section>
+          <BATopbar />
+          <SidebarProvider>
+            <BASidebar dashboardId={dashboardId} />
+            <BAMobileSidebarTrigger />
+            <main className='bg-background w-full overflow-x-hidden'>
+              <ScrollReset />
+              {billingEnabled && (
+                <Suspense fallback={null}>
+                  <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
+                </Suspense>
+              )}
+              {isFeatureEnabled('enableAccountVerification') &&
+                session.user?.email &&
+                !session.user?.emailVerified && (
+                  <div className='mx-auto max-w-7xl px-4 pt-4'>
+                    <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
+                  </div>
+                )}
+              <div className='flex w-full justify-center'>{children}</div>
+            </main>
+            {/* Conditionally render tracking script based on server-side feature flag */}
+            {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
+            <Suspense>
+              <IntegrationManager />
+            </Suspense>
+          </SidebarProvider>
+        </section>
+      </DictionaryProvider>
     </DashboardProvider>
   );
 }

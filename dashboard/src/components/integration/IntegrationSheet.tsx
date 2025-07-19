@@ -9,12 +9,12 @@ import { CheckCircle, Info, Clipboard, Check, Code, RefreshCw, Circle } from 'lu
 import { CodeBlock } from './CodeBlock';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSiteId } from '@/app/actions';
 import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import React from 'react';
+import { Separator } from '@/components/ui/separator';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -67,6 +67,11 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
       toast.error('Failed to copy');
     }
   };
+
+  const nodeExample = `import betterlytics from "@betterlytics/tracker";
+
+betterlytics.init("${siteId}");
+`;
 
   const htmlExample = `<!DOCTYPE html>
 <html>
@@ -176,6 +181,21 @@ export default App;
                         </code>{' '}
                         section of your root layout or individual pages.
                       </CardDescription>
+                      <CardDescription className='text-muted-foreground text-sm'>
+                        Or install our{' '}
+                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
+                          <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
+                            npm
+                          </code>{' '}
+                        </a>
+                        package{' '}
+                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
+                          <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
+                            @betterlytics/tracker
+                          </code>
+                        </a>{' '}
+                        for easy setup for Node projects.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
@@ -212,7 +232,7 @@ export default App;
                     {siteId}
                   </div>
                 </div>
-
+                <Separator />
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='trackingScriptDisplay' className='text-muted-foreground text-sm font-medium'>
@@ -285,7 +305,58 @@ export default App;
                     <CodeBlock code={reactExample} language='javascript' />
                   </TabsContent>
                 </Tabs>
-
+                <Separator />
+                <div className='space-y-2'>
+                  <div className='mb-1 flex items-center justify-between'>
+                    <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
+                      Initialize using our{' '}
+                      <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
+                        npm
+                      </code>{' '}
+                      package
+                    </label>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className='text-muted-foreground hover:text-foreground h-8 gap-1.5 text-xs'
+                      onClick={() => handleCopy(siteId, 'siteId')}
+                    >
+                      {copiedIdentifier === 'siteId' ? (
+                        <>
+                          <Check className='h-3.5 w-3.5' />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Clipboard className='h-3.5 w-3.5' />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <Tabs defaultValue='npm' className='mb-2 w-full'>
+                    <TabsList className='bg-muted border-border mb-2 grid w-full grid-cols-4'>
+                      <TabsTrigger value='npm'>npm</TabsTrigger>
+                      <TabsTrigger value='pnpm'>pnpm</TabsTrigger>
+                      <TabsTrigger value='yarn'>yarn</TabsTrigger>
+                      <TabsTrigger value='bun'>bun</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value='npm'>
+                      <CodeBlock code='npm install @betterlytics/tracker' language='html' />
+                    </TabsContent>
+                    <TabsContent value='pnpm'>
+                      <CodeBlock code='pnpm add @betterlytics/tracker' language='html' />
+                    </TabsContent>
+                    <TabsContent value='yarn'>
+                      <CodeBlock code='yarn add @betterlytics/tracker' language='html' />
+                    </TabsContent>
+                    <TabsContent value='bun'>
+                      <CodeBlock code='bun add @betterlytics/tracker' language='html' />
+                    </TabsContent>
+                  </Tabs>
+                  <CodeBlock code={nodeExample} language='javascript' />
+                </div>
+                <Separator />
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                   <Card className='bg-card border-border'>
                     <CardHeader>

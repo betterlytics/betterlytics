@@ -1,7 +1,7 @@
-import "next-auth";
-import "next-auth/jwt";
+import 'next-auth';
+import 'next-auth/jwt';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
@@ -10,7 +10,8 @@ declare module "next-auth" {
       emailVerified?: Date | null;
       image?: string | null;
       role: string | null;
-    }
+      emailVerified: Date | null;
+    };
   }
 
   interface User {
@@ -20,15 +21,17 @@ declare module "next-auth" {
     emailVerified?: Date | null;
     image?: string | null;
     role: string | null;
+    emailVerified: Date | null;
   }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     uid: string;
     name: string | null;
     email: string;
     emailVerified?: Date | null;
     role: string | null;
+    emailVerified: Date | null;
   }
-} 
+}

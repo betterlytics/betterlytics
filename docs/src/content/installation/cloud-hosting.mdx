@@ -3,13 +3,15 @@ title: "Cloud Hosting"
 description: "Get started with Betterlytics cloud hosting in minutes with automatic scaling and maintenance."
 ---
 
+import { Callout, Tabs } from "nextra/components";
+
 # Cloud Hosting Setup
 
 Get started with our hosted analytics service in under 60 seconds. No infrastructure management required!
 
 ## Step 1: Create Your Account
 
-1. **Visit** [betterlytics.io/signup](https://betterlytics.io/register)
+1. **Visit** [betterlytics.io/register](https://betterlytics.io/register)
 2. **Sign up** with your email address
 3. **Complete** your profile setup
 
@@ -23,9 +25,11 @@ Your dashboard will now be created and you'll be automatically redirected to the
 
 ## Step 3: Install Your Tracking Script
 
-Once your dashboard is created, **click the "Integration" button** in your dashboard to access your personalized setup guide. Here you'll find your unique Site ID and a copy-to-clipboard tracking script.
+Once your dashboard is created, **click the "Integration" button** in your dashboard to access your personalized setup guide. Here you'll find your unique Site ID and your preferred integration method.
 
-The integration guide will walk you through adding our lightweight tracking script (under 1KB) to your website's `<head>` section. The script will look like this:
+### Option 1: Use the Script Tag
+
+The integration guide will walk you through adding our lightweight tracking script to your website's `<head>` section. The script will look like this:
 
 ```html
 <script
@@ -36,7 +40,55 @@ The integration guide will walk you through adding our lightweight tracking scri
 ></script>
 ```
 
+This works great for plain HTML sites or if you want a no-code/low-code option.
+
 Follow the guide's platform-specific instructions for your tech stack (HTML, Next.js, React, etc.). The guide includes a real-time verification tool that will confirm when your installation is successful - you should see your first data appear within 1-2 minutes of installation.
+
+### Option 2: Use Our NPM Package (Recommended for React, Next.js, etc.)
+
+For modern JavaScript frameworks, you can use our official NPM package.
+
+You can install it using your favorite package manager:
+
+<div style={{ marginBottom: '3rem' }}>
+  <Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
+    <Tabs.Tab>
+      ```bash
+      npm install @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+      ```bash
+      pnpm add @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+      ```bash
+      yarn add @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+      ```bash
+      bun add @betterlytics/tracker
+      ```
+    </Tabs.Tab>
+  </Tabs>
+</div>
+
+Then initialize it in your app:
+
+```ts
+import betterlytics from "@betterlytics/tracker";
+
+betterlytics.init("your-site-id");
+```
+
+This is ideal for SPAs or component-based frameworks where script tags don't always play nice.
+
+<Callout type="info">
+You can read more about the package and it's use-cases here <a href="https://www.npmjs.com/package/@betterlytics/tracker" className="underline">@betterlytics/tracker</a>
+</Callout>
+
 
 ## What's Next?
 

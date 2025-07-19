@@ -37,24 +37,27 @@ export default function RegisterForm() {
       });
 
       startTransition(async () => {
-        try {
-          await registerUserAction(validatedData);
+        const result = await registerUserAction(validatedData);
 
-          const result = await signIn('credentials', {
-            email: validatedData.email,
-            password: validatedData.password,
-            redirect: false,
-          });
+        if (!result.success) {
+          setError(result.error.message);
+          return;
+        }
 
-          if (result?.error) {
-            toast.success('Registration successful! Please sign in.');
-            router.push('/signin');
-          } else {
-            toast.success('Welcome! Your account has been created.');
-            router.push('/dashboards');
-          }
-        } catch (error) {
-          setError(error instanceof Error ? error.message : 'Registration failed');
+        const signInResult = await signIn('credentials', {
+          email: validatedData.email,
+          password: validatedData.password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          toast.success('Registration successful! Please sign in.');
+          router.push('/signin');
+        } else {
+          toast.success(
+            'Welcome! Your account has been created. A verification email has been sent to your email address.',
+          );
+          router.push('/dashboards');
         }
       });
     } catch (error) {

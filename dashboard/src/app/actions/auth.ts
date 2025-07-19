@@ -3,35 +3,27 @@
 import { RegisterUserData, RegisterUserSchema } from '@/entities/user';
 import { registerNewUser } from '@/services/auth.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { sendWelcomeEmail } from '@/services/email/mail.service';
+import { sendVerificationEmail } from '@/services/verification.service';
+import { withServerAction } from '@/middlewares/serverActionHandler';
+import { UserException } from '@/lib/exceptions';
 
-export async function registerUserAction(registrationData: RegisterUserData) {
+export const registerUserAction = withServerAction(async (registrationData: RegisterUserData) => {
   if (!isFeatureEnabled('enableRegistration')) {
-    throw new Error('Registration is disabled');
+    throw new UserException('Registration is disabled');
   }
 
-  try {
-    const validatedData = RegisterUserSchema.parse(registrationData);
-    const newUser = await registerNewUser(validatedData);
+  const validatedData = RegisterUserSchema.parse(registrationData);
+  const newUser = await registerNewUser(validatedData);
 
+  if (isFeatureEnabled('enableAccountVerification')) {
     try {
-      await sendWelcomeEmail({
-        to: newUser.email!,
-        userName: newUser.name || newUser.email!.split('@')[0],
+      await sendVerificationEmail({
+        email: newUser.email,
       });
     } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
+      console.error('Failed to send verification email:', emailError);
     }
-
-    return newUser;
-  } catch (error) {
-    console.error('Registration error:', error);
-    if (error instanceof Error) {
-      if (error.message.includes('already exists')) {
-        throw new Error('A user with this email already exists');
-      }
-    }
-
-    throw new Error('Registration failed. Please try again.');
   }
-}
+
+  return newUser;
+});

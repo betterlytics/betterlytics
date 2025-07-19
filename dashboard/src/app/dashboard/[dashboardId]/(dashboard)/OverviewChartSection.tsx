@@ -9,6 +9,7 @@ import {
   type fetchUniqueVisitorsAction,
 } from '@/app/actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -19,44 +20,47 @@ interface MetricConfig {
   formatValue?: (value: number) => string;
 }
 
-const metricConfigs: Record<ActiveMetric, MetricConfig> = {
-  visitors: {
-    title: 'Unique Visitors',
-    valueField: 'unique_visitors',
-    color: 'var(--chart-1)',
-  },
-  pageviews: {
-    title: 'Total Pageviews',
-    valueField: 'views',
-    color: 'var(--chart-2)',
-  },
-  bounceRate: {
-    title: 'Bounce Rate',
-    valueField: 'bounce_rate',
-    color: 'var(--chart-3)',
-    formatValue: (value: number) => `${value}%`,
-  },
-  avgDuration: {
-    title: 'Average Visit Duration',
-    valueField: 'avg_visit_duration',
-    color: 'var(--chart-4)',
-    formatValue: (value: number) => formatDuration(value),
-  },
-};
-
-type OverviewChartSectionProps = {
-  activeMetric: ActiveMetric;
-  visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>;
-  pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>;
-  sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>;
-};
-
 export default function OverviewChartSection({
   activeMetric,
   visitorsData,
   pageviewsData,
   sessionMetricsData,
-}: OverviewChartSectionProps) {
+}: {
+  activeMetric: ActiveMetric;
+  visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>;
+  pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>;
+  sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>;
+}) {
+  const { dictionary } = useDictionary();
+
+  const metricConfigs: Record<ActiveMetric, MetricConfig> = useMemo(
+    () => ({
+      visitors: {
+        title: dictionary.dashboard.metrics.uniqueVisitors,
+        valueField: 'unique_visitors',
+        color: 'var(--chart-1)',
+      },
+      pageviews: {
+        title: dictionary.dashboard.metrics.totalPageviews,
+        valueField: 'views',
+        color: 'var(--chart-2)',
+      },
+      bounceRate: {
+        title: dictionary.dashboard.metrics.bounceRate,
+        valueField: 'bounce_rate',
+        color: 'var(--chart-3)',
+        formatValue: (value: number) => `${value}%`,
+      },
+      avgDuration: {
+        title: dictionary.dashboard.metrics.avgVisitDuration,
+        valueField: 'avg_visit_duration',
+        color: 'var(--chart-4)',
+        formatValue: (value: number) => formatDuration(value),
+      },
+    }),
+    [dictionary],
+  );
+
   const { chartData, comparisonMap } = useMemo(() => {
     switch (activeMetric) {
       case 'visitors':
@@ -78,7 +82,7 @@ export default function OverviewChartSection({
     }
   }, [activeMetric, visitorsData, pageviewsData, sessionMetricsData]);
 
-  const currentMetricConfig = useMemo(() => metricConfigs[activeMetric], [activeMetric]);
+  const currentMetricConfig = useMemo(() => metricConfigs[activeMetric], [activeMetric, metricConfigs]);
   const { granularity } = useTimeRangeContext();
 
   return (

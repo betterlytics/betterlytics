@@ -17,16 +17,15 @@ export function useBillingData(): UseBillingDataReturn {
   const [error, setError] = useState<string | null>(null);
 
   const fetchBillingData = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await getUserBillingData();
-      setBillingData(data);
-    } catch (err) {
-      setError('Failed to fetch billing data');
-    } finally {
-      setIsLoading(false);
+    setIsLoading(true);
+    setError(null);
+    const data = await getUserBillingData();
+    if (data.success) {
+      setBillingData(data.data);
+    } else {
+      setError(data.error.message);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {

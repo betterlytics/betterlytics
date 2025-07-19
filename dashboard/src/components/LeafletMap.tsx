@@ -9,7 +9,7 @@ import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
 import { LatLngBoundsExpression } from 'leaflet';
 import { FlagIconProps } from './icons';
-import { alpha3ToAlpha2Code } from "@/utils/countryCodes";
+import { alpha3ToAlpha2Code } from '@/utils/countryCodes';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -23,8 +23,6 @@ const geoJsonOptions = {
   updateWhenIdle: true,
   buffer: 2,
 };
-
-const WORLD_GEOJSON_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
 
 const MAP_COLORS = {
   NO_VISITORS: '#6b7280', // Gray for 0 visitors
@@ -63,7 +61,7 @@ const LeafletMap = ({
         const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
           import('leaflet'),
           import('react-leaflet'),
-          fetch(WORLD_GEOJSON_URL),
+          fetch('/data/countries.geo.json'),
         ]);
 
         const world = await worldRes.json();
@@ -133,35 +131,30 @@ const LeafletMap = ({
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
     const ascii2 = alpha3ToAlpha2Code(featureId);
     if (!ascii2) return;
-  
+
     const popupNode = document.createElement('div');
-  
+
     layer.bindPopup(popupNode, {
       autoPan: true,
       autoPanPadding: [20, 35], // Keep popup fully visible
     });
-  
+
     let root: any = null;
-  
+
     layer.on('popupopen', (e) => {
       if (e.popup && e.popup.getContent() === popupNode) {
         if (!root) {
           root = createRoot(popupNode);
         }
         root.render(
-          <div className="space-y-1">
-            <CountryDisplay
-              className="font-bold"
-              countryCode={ascii2 as FlagIconProps['countryCode']}
-            />
-            <div className="text-sm text-muted-foreground">
-              Visitors: {visitors}
-            </div>
-          </div>
+          <div className='space-y-1'>
+            <CountryDisplay className='font-bold' countryCode={ascii2 as FlagIconProps['countryCode']} />
+            <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
+          </div>,
         );
       }
     });
-  
+
     layer.on('popupclose', () => {
       if (root) {
         root.unmount();
@@ -169,7 +162,7 @@ const LeafletMap = ({
       }
     });
   };
-  
+
   if (isLoading || !mapComponents || !worldGeoJson) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
@@ -193,7 +186,7 @@ const LeafletMap = ({
           width: fit-content !important;
         }
         .leaflet-popup-tip-container {
-          left: 63px;  // place tip to the left to account for dynamic container width's
+          left: 63px; // place tip to the left to account for dynamic container width's
         }
         .leaflet-popup-content {
           white-space: normal;

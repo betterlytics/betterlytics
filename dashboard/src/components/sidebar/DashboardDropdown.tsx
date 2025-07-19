@@ -13,10 +13,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
-  allDashboardsPromise: Promise<Dashboard[]>;
+  allDashboardsPromise: Promise<ServerActionResponse<Dashboard[]>>;
 }
 
 export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromise }: DashboardDropdownProps) {
@@ -31,6 +32,8 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
     setIsOpen(false);
     router.push(`/dashboard/${newDashboardId}`);
   };
+
+  const allDashboardsList = allDashboards.success ? allDashboards.data : [];
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -48,13 +51,13 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align='start' className='z-[9999] w-56'>
+      <DropdownMenuContent align='start' className='w-56'>
         <div className='px-2 py-1.5'>
           <p className='text-muted-foreground text-xs font-medium'>Switch Dashboard</p>
         </div>
         <DropdownMenuSeparator />
 
-        {allDashboards.map((dashboard) => (
+        {allDashboardsList.map((dashboard) => (
           <DropdownMenuItem
             key={dashboard.id}
             onClick={() => handleDashboardSwitch(dashboard.id)}

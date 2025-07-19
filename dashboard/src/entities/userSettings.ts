@@ -1,12 +1,15 @@
 import { z } from 'zod';
 
+import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
+
 export const UserSettingsSchema = z
   .object({
     id: z.string(),
     userId: z.string(),
 
     theme: z.enum(['light', 'dark', 'system']),
-    language: z.string(),
+    language: z.enum(SUPPORTED_LANGUAGES),
+    avatar: z.enum(['default', 'gravatar']),
 
     emailNotifications: z.boolean(),
     marketingEmails: z.boolean(),
@@ -20,6 +23,7 @@ export const UserSettingsCreateSchema = z
   .object({
     userId: z.string(),
     theme: z.enum(['light', 'dark', 'system']),
+    avatar: z.enum(['default', 'gravatar']),
     language: z.string(),
     emailNotifications: z.boolean(),
     marketingEmails: z.boolean(),
@@ -28,7 +32,8 @@ export const UserSettingsCreateSchema = z
 
 export const UserSettingsUpdateSchema = z.object({
   theme: z.enum(['light', 'dark', 'system']).optional(),
-  language: z.string().optional(),
+  language: z.enum(SUPPORTED_LANGUAGES).optional(),
+  avatar: z.enum(['default', 'gravatar']).optional(),
   emailNotifications: z.boolean().optional(),
   marketingEmails: z.boolean().optional(),
 });
@@ -37,6 +42,7 @@ export const UserSettingsUpdateSchema = z.object({
 export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
   theme: 'system',
   language: 'en',
+  avatar: 'default',
   emailNotifications: true,
   marketingEmails: false,
 };
