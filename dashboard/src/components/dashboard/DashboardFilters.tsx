@@ -11,7 +11,7 @@ interface DashboardFiltersProps {
 export default function DashboardFilters({ showComparison = true }: DashboardFiltersProps) {
   return (
     <div className='space-y-2'>
-      <div className='flex flex-col justify-end gap-x-4 gap-y-1 md:flex-row'>
+      <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-1 md:flex-row'>
         <QueryFiltersSelector />
         <TimeRangeSelector showComparison={showComparison} />
       </div>
