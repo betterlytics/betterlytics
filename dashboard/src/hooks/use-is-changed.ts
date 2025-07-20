@@ -1,21 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 
 export default function useIsChanged<T extends Record<string, any>>(
   currentData: T | null | undefined,
   originalData: T | null | undefined,
 ): boolean {
-  const [isChanged, setIsChanged] = useState(false);
-
-  useEffect(() => {
+  return useMemo(() => {
     if (!originalData || !currentData) {
-      setIsChanged(false);
-      return;
+      return false;
     }
 
     const keys = Object.keys(currentData) as (keyof T)[];
-    const changes = keys.some((key) => currentData[key] !== originalData[key]);
-    setIsChanged(changes);
+    return keys.some((key) => currentData[key] !== originalData[key]);
   }, [currentData, originalData]);
-
-  return isChanged;
 }
