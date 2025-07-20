@@ -25,7 +25,7 @@ log_error() {
 
 create_backup() {
     log_info "Creating backup: $BACKUP_NAME"
-    docker compose -f $COMPOSE_FILE run --rm clickhouse-backup create "$BACKUP_NAME"
+    docker compose -f $COMPOSE_FILE run --rm --no-deps clickhouse-backup create "$BACKUP_NAME"
     log_info "Backup created successfully!"
     log_info "Copying backups..."
     docker cp clickhouse:/var/lib/clickhouse/backup/. $BACKUP_DIR
@@ -40,18 +40,18 @@ restore_backup() {
     log_info "Copying $BACKUP_NAME to ClickHouse"
     docker cp $BACKUP_DIR/$BACKUP_NAME clickhouse:/var/lib/clickhouse/backup 
     log_info "Restoring backup: $BACKUP_NAME"
-    docker compose -f $COMPOSE_FILE run --rm clickhouse-backup restore "$BACKUP_NAME"
+    docker compose -f $COMPOSE_FILE run --rm --no-deps clickhouse-backup restore "$BACKUP_NAME"
     log_info "Backup restored successfully!"
 }
 
 list_backups() {
     log_info "Available backups:"
-    docker compose -f $COMPOSE_FILE run --rm clickhouse-backup list
+    docker compose -f $COMPOSE_FILE run --rm --no-deps clickhouse-backup list
 }
 
 show_config() {
     log_info "Backup system status:"
-    docker compose -f $COMPOSE_FILE run --rm clickhouse-backup print-config
+    docker compose -f $COMPOSE_FILE run --rm --no-deps clickhouse-backup print-config
 }
 
 case "$COMMAND" in
