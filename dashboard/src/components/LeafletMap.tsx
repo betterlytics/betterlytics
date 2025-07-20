@@ -1,6 +1,5 @@
 'use client';
 
-import { createRoot } from 'react-dom/client';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
 import React, { useEffect, useState, useMemo } from 'react';
 import { scaleLinear } from 'd3-scale';
@@ -8,8 +7,9 @@ import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
 import { LatLngBoundsExpression } from 'leaflet';
+import { alpha3ToAlpha2Code, getCountryName } from '@/utils/countryCodes';
+import { createRoot } from 'react-dom/client';
 import { FlagIconProps } from './icons';
-import { alpha3ToAlpha2Code } from '@/utils/countryCodes';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -50,7 +50,6 @@ const LeafletMap = ({
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
-
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
 
   useEffect(() => {
@@ -125,42 +124,58 @@ const LeafletMap = ({
 
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Layer) => {
     if (!feature.properties) return;
+
     const featureId = getFeatureId(feature);
     if (!featureId) return;
+
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
     const ascii2 = alpha3ToAlpha2Code(featureId);
     if (!ascii2) return;
 
     const popupNode = document.createElement('div');
+    let root: ReturnType<typeof createRoot> | null = null;
 
     layer.bindPopup(popupNode, {
       autoPan: true,
-      autoPanPadding: [20, 35], // Keep popup fully visible
+      autoPanPadding: [20, 35],
     });
 
-    let root: any = null;
+    const renderPopup = () => {
+      if (!root) {
+        root = createRoot(popupNode);
+      }
+      root.render(
+        <div className='space-y-1'>
+          <CountryDisplay
+            className='font-bold'
+            countryCode={ascii2 as FlagIconProps['countryCode']}
+            countryName={getCountryName(ascii2)}
+          />
+          <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
+        </div>,
+      );
+    };
+
+    const cleanupPopup = () => {
+      layer.unbindPopup();
+
+      if (root) {
+        // Avoid unmounting during React render lifecycle
+        setTimeout(() => {
+          root?.unmount();
+          root = null;
+        }, 0);
+      }
+    };
 
     layer.on('popupopen', (e) => {
       if (e.popup && e.popup.getContent() === popupNode) {
-        if (!root) {
-          root = createRoot(popupNode);
-        }
-        root.render(
-          <div className='space-y-1'>
-            <CountryDisplay className='font-bold' countryCode={ascii2 as FlagIconProps['countryCode']} />
-            <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
-          </div>,
-        );
+        renderPopup();
       }
     });
 
-    layer.on('popupclose', () => {
-      if (root) {
-        root.unmount();
-        root = null;
-      }
-    });
+    layer.on('popupclose', cleanupPopup);
   };
 
   if (isLoading || !mapComponents || !worldGeoJson) {
