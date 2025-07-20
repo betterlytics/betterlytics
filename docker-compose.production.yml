@@ -256,30 +256,6 @@ services:
     networks:
       - proxy_network
 
-  backup-cron:
-    image: mcuadros/ofelia:latest
-    container_name: backup-cron
-    hostname: backup-cron
-    restart: unless-stopped
-    depends_on:
-      clickhouse:
-        condition: service_healthy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./scripts:/scripts:ro
-      - ./docker-compose.production.yml:/docker-compose.production.yml:ro
-    command: daemon --docker
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.backup-daily.schedule: "0 2 * * *"
-      ofelia.job-exec.backup-daily.command: "sh /scripts/backup.sh create daily"
-      ofelia.job-exec.backup-weekly.schedule: "0 3 * * 0"
-      ofelia.job-exec.backup-weekly.command: "sh /scripts/backup.sh create weekly"
-      ofelia.job-exec.backup-minute.schedule: "@every 1m"
-      ofelia.job-exec.backup-minute.command: "sh /scripts/backup.sh create minutely_$(date +%Y%m%d_%H%M%S)"
-    networks:
-      - clickhouse_network
-
 volumes:
   clickhouse_prod_data:
   clickhouse_prod_users:
