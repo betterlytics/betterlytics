@@ -267,6 +267,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./scripts:/scripts:ro
+      - ./docker-compose.production.yml:/docker-compose.production.yml:ro
     command: daemon --docker
     labels:
       ofelia.enabled: "true"
