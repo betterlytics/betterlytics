@@ -24,7 +24,6 @@ pub struct MetricsCollector {
 
     // Event rejection and validation metrics
     events_rejected_total: IntCounterVec,
-    rate_limit_exceeded_total: IntCounter,
     validation_duration: Histogram,
 
     // System info
@@ -79,10 +78,6 @@ impl MetricsCollector {
             &["reason"]
         )?;
         
-        let rate_limit_exceeded_total = IntCounter::with_opts(Opts::new(
-            "analytics_rate_limit_exceeded_total",
-            "Total number of requests that exceeded rate limiting"
-        ))?;
 
         let validation_duration = Histogram::with_opts(HistogramOpts::new(
             "analytics_validation_duration_seconds",
@@ -97,7 +92,6 @@ impl MetricsCollector {
         registry.register(Box::new(events_processed_total.clone()))?;
         registry.register(Box::new(events_processing_duration.clone()))?;
         registry.register(Box::new(events_rejected_total.clone()))?;
-        registry.register(Box::new(rate_limit_exceeded_total.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
         
         let mut system = System::new_all();
@@ -116,7 +110,6 @@ impl MetricsCollector {
             events_processed_total,
             events_processing_duration,
             events_rejected_total,
-            rate_limit_exceeded_total,
             validation_duration,
             system: Arc::new(RwLock::new(system)),
             current_pid,
@@ -186,10 +179,6 @@ impl MetricsCollector {
 
     pub fn increment_events_rejected(&self, reason: &str) {
         self.events_rejected_total.with_label_values(&[reason]).inc();
-    }
-
-    pub fn increment_rate_limit_exceeded(&self) {
-        self.rate_limit_exceeded_total.inc();
     }
 
     pub fn record_validation_duration(&self, duration: Duration) {

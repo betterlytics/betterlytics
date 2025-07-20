@@ -67,4 +67,3 @@ sysinfo = "0.35.2"
 
 # Validation and Rate Limiting
 validator = { version = "0.16", features = ["derive"] }
-tower_governor = "0.7.0"

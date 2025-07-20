@@ -1,11 +1,9 @@
 use axum::{
-    extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode, Request}, response::IntoResponse, routing::{get, post}, Json, Router, middleware
+    extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{get, post}, Json, Router
 };
 use std::sync::Arc;
 use std::{net::SocketAddr, net::IpAddr, str::FromStr};
 use tower_http::cors::CorsLayer;
-use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
-use tower_governor::key_extractor::SmartIpKeyExtractor;
 use tracing::{info, error, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -90,14 +88,6 @@ async fn main() {
         }
     });
 
-    let rate_limit_config = Arc::new(
-        GovernorConfigBuilder::default()
-            .per_second(10)      // 10 requests per second per IP
-            .burst_size(30)      // Allow burst of 30 requests per IP
-            .key_extractor(SmartIpKeyExtractor)
-            .finish()
-            .unwrap(),
-    );
 
     let app = Router::new()
         .route("/health", get(health_check))
@@ -105,15 +95,6 @@ async fn main() {
         .route("/site-id", get(generate_site_id_handler))
         .route("/metrics", get(metrics_handler))
         .fallback(fallback_handler)
-        .layer(tower::ServiceBuilder::new()
-            .layer(middleware::from_fn_with_state(
-                metrics_collector.clone(),
-                rate_limit_metrics_middleware
-            ))
-            .layer(GovernorLayer {
-                config: rate_limit_config,
-            })
-        )
         .with_state((db, processor, metrics_collector, validator))
         .layer(CorsLayer::permissive());
 
@@ -228,21 +209,4 @@ pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
 /// Temporary endpoint to generate a site ID
 async fn generate_site_id_handler() -> impl IntoResponse {
     Json(generate_site_id())
-}
-
-/// Middleware to track rate limiting metrics
-async fn rate_limit_metrics_middleware(
-    State(metrics): State<Option<Arc<MetricsCollector>>>,
-    request: Request<axum::body::Body>,
-    next: middleware::Next,
-) -> axum::response::Response {
-    let response = next.run(request).await;
-    
-    if response.status() == StatusCode::TOO_MANY_REQUESTS {
-        if let Some(metrics_collector) = metrics {
-            metrics_collector.increment_rate_limit_exceeded();
-        }
-    }
-    
-    response
 }
