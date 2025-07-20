@@ -4,7 +4,7 @@
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",
       "bounceRate": "Bounce Rate",
-      "avgVisitDuration": "{{average}} Visit Duration"
+      "avgVisitDuration": "Avg. Visit Duration"
     },
     "sections": {
       "topPages": "Top Pages",
@@ -52,8 +52,7 @@
   "misc": {
     "loading": "Loading...",
     "error": "Error",
-    "app": "Application",
-    "average": "Avg."
+    "app": "Application"
   },
   "languages": {
     "da": "Danish",

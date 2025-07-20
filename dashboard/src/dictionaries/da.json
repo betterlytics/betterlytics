@@ -4,7 +4,7 @@
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
       "bounceRate": "Afvisningsprocent",
-      "avgVisitDuration": "{{average}} besøgstid"
+      "avgVisitDuration": "Gennemsnitlig besøgstid"
     },
     "sections": {
       "topPages": "Top sider",
@@ -52,8 +52,7 @@
   "misc": {
     "loading": "Indlæser...",
     "error": "Der opstod en fejl",
-    "app": "Applikation",
-    "average": "Gennemsnitlig"
+    "app": "Applikation"
   },
   "languages": {
     "da": "Dansk",
