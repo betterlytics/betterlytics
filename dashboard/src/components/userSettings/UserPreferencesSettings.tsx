@@ -98,7 +98,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             </Select>
           </div>
           {settings?.avatar === 'gravatar' && (
-            <div className='text-muted-foreground text-xs'>
+            <div className='text-muted-foreground me-34 text-xs'>
               Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.
               <br />
               By enabling it,{' '}
