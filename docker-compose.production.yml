@@ -164,8 +164,6 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-      clickhouse-backup:
-        condition: service_started
     networks:
       - postgres_network
       - clickhouse_network
