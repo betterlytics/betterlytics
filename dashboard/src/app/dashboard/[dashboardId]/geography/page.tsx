@@ -36,12 +36,6 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
       >
         <GeographySection worldMapPromise={worldMapPromise} />
       </Suspense>
-
-      <div className='absolute top-0 right-0 z-30'>
-        <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
-          <DashboardFilters />
-        </div>
-      </div>
     </div>
   );
 }

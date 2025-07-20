@@ -14,7 +14,7 @@ export default function LandingPage() {
   return (
     <>
       <StructuredData config={SEO_CONFIGS.landing} />
-      <div className='bg-background text-foreground w-full'>
+      <div className='bg-background text-foreground'>
         <HeroSection />
         <FrameworkCompatibility />
         <PrinciplesSection />

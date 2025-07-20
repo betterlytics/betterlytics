@@ -178,7 +178,11 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+}
+
+main {
+  padding-top: 60px;
+  height: 100vh;
 }
 
 .scrollable-y {
