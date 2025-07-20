@@ -274,6 +274,8 @@ services:
       ofelia.job-exec.backup-daily.command: "sh /scripts/backup.sh daily"
       ofelia.job-exec.backup-weekly.schedule: "0 3 * * 0"
       ofelia.job-exec.backup-weekly.command: "sh /scripts/backup.sh weekly"
+      ofelia.job-exec.backup-minute.schedule: "@every 1m"
+      ofelia.job-exec.backup-minute.command: "sh /scripts/backup.sh minutely_$(date +%Y%m%d_%H%M%S)"
     networks:
       - clickhouse_network
 
