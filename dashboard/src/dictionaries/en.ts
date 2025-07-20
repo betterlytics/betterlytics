@@ -71,7 +71,7 @@ export default {
       pricing: 'Pricing',
     },
     footer: {
-      description: "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
+      description: 'Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.',
       company: 'Company',
       about: 'About',
       contact: 'Contact',
@@ -83,7 +83,7 @@ export default {
       documentationTitle: 'Complete Betterlytics Documentation',
       pricing: 'Pricing',
       connect: 'Connect',
-      rightsReserved: '© 2025 Betterlytics. All rights reserved. Open source under AGPL-3.0 license.'
+      rightsReserved: '© 2025 Betterlytics. All rights reserved. Open source under AGPL-3.0 license.',
     },
     about: {
       aboutUs: 'About Betterlytics',
@@ -99,6 +99,10 @@ export default {
     },
     terms: {
       title: 'Betterlytics Terms of Service',
+      lastUpdated: 'Last updated',
+      scopeTitle: 'Scope of These Terms',
+      scopeDescription:
+        'These Terms govern your access to and use of the Betterlytics services, including our website, dashboard, and any related services provided by Betterlytics.',
     },
     privacy: {
       title: 'Betterlytics Privacy Policy',
@@ -108,6 +112,6 @@ export default {
     },
     resetPassword: {
       requestNewPasswordLink: 'Request New Reset Link',
-    }
-  }
+    },
+  },
 };

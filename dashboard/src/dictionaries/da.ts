@@ -71,19 +71,20 @@ export default {
       pricing: 'Abonnementer',
     },
     footer: {
-      description: "Privatlivsfokuseret webanalyse til det moderne web. GDPR-kompatibel, cookieless og open source.",
-      company: "Virksomhed",
-      about: "Om os",
-      contact: "Kontakt",
-      privacyPolicy: "Privatlivspolitik",
-      termsOfService: "Vilkår for brug",
-      dataProcessingAgreement: "Datahåndteringsaftale",
-      resources: "Ressourcer",
-      documentation: "Dokumentation",
-      documentationTitle: "Komplet Betterlytics-dokumentation",
-      pricing: "Planer og priser",
-      connect: "Forbind",
-      rightsReserved: '© 2025 Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licensen.'
+      description:
+        'Privatlivsfokuseret webanalyse til det moderne web. GDPR-kompatibel, cookieless og open source.',
+      company: 'Virksomhed',
+      about: 'Om os',
+      contact: 'Kontakt',
+      privacyPolicy: 'Privatlivspolitik',
+      termsOfService: 'Vilkår for brug',
+      dataProcessingAgreement: 'Datahåndteringsaftale',
+      resources: 'Ressourcer',
+      documentation: 'Dokumentation',
+      documentationTitle: 'Komplet Betterlytics-dokumentation',
+      pricing: 'Planer og priser',
+      connect: 'Forbind',
+      rightsReserved: '© 2025 Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licensen.',
     },
     about: {
       aboutUs: 'Om Betterlytics',
@@ -99,6 +100,9 @@ export default {
     },
     terms: {
       title: 'Betterlytics Vilkår for brug',
+      lastUpdated: 'Senest opdateret:',
+      scopeTitle: 'MISSING',
+      scopeDescription: 'MISSING',
     },
     privacy: {
       title: 'Betterlytics Privatlivspolitik',
@@ -108,6 +112,6 @@ export default {
     },
     resetPassword: {
       requestNewPasswordLink: 'Anmod om nyt password link',
-    }
+    },
   },
 };

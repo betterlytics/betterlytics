@@ -44,6 +44,17 @@ export function loadDictionary(language: SupportedLanguages): BADictionary {
   }
 }
 
+export function languageToDateLocale(language: SupportedLanguages): Intl.LocalesArgument {
+  switch (language) {
+    case 'da':
+      return 'da-DK';
+    case 'en':
+      return 'en-GB';
+    default:
+      return 'en-GB';
+  }
+}
+
 export function addTFunction(dict: RawDictionary): BADictionary {
   return {
     ...dict,

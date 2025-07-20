@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
+import { toLocaleDateString } from '@/utils/dateFormatters';
 
 export const metadata = generateSEO(SEO_CONFIGS.terms);
 
@@ -14,9 +15,9 @@ export default async function TermsPage({ params }: TermsPageProps) {
   const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
   const dict = loadDictionary(language);
 
-  // if (!env.IS_CLOUD) {
-  //   redirect(`/${language}/`);
-  // }
+  if (!env.IS_CLOUD) {
+    redirect(`/${language}/`);
+  }
 
   return (
     <div className='bg-background min-h-screen py-12'>
@@ -25,12 +26,7 @@ export default async function TermsPage({ params }: TermsPageProps) {
           <div className='border-border border-b px-6 py-8'>
             <h1 className='text-foreground text-3xl font-bold'>{dict.public.terms.title}</h1>
             <p className='text-muted-foreground mt-2 text-lg'>
-              Last updated:{' '}
-              {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              {`${dict.public.terms.lastUpdated}: ${toLocaleDateString(new Date(), language)}`}
             </p>
           </div>
 

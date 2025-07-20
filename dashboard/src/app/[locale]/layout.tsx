@@ -11,7 +11,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
-  console.log('LocaleLayout: Using language:', language);
+
   return (
     <DictionaryProvider initialLanguage={language}>
       <PublicTopBar />
