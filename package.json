@@ -15,12 +15,7 @@
     "generate": "pnpm --filter dashboard generate",
     "simulate": "node simulate-events.js",
     "performance": "k6 run -e TARGET_URL=http://localhost:3001/track -e VUS=100 -e DURATION=30s k6-perf-test.js",
-    "unit-tests": "pnpm --filter dashboard unit-tests",
-    "backup": "chmod +x scripts/backup.sh && ./scripts/backup.sh",
-    "backup:create": "chmod +x scripts/backup.sh && ./scripts/backup.sh create",
-    "backup:restore": "chmod +x scripts/backup.sh && ./scripts/backup.sh restore",
-    "backup:list": "chmod +x scripts/backup.sh && ./scripts/backup.sh list",
-    "backup:status": "chmod +x scripts/backup.sh && ./scripts/backup.sh status"
+    "unit-tests": "pnpm --filter dashboard unit-tests"
   },
   "packageManager": "pnpm@10.9.0",
   "dependencies": {
