@@ -3,7 +3,7 @@
 set -e
 
 if [ -z "$CONNECTION_STRING" ]; then
-    log_error "Postgres connection string required - run like: CONNECTION_STRING='...' ./scripts/deploy.sh"
+    echo "[-] Postgres connection string required - run like: CONNECTION_STRING='...' ./scripts/deploy.sh"
     exit 1
 fi
 
