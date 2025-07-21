@@ -2,13 +2,15 @@
 
 import { useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
-
+  const { currentLanguage } = useDictionary();
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -85,7 +87,7 @@ export default function LoginForm() {
       </div>
 
       <div className='text-center'>
-        <a href='/forgot-password' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
+        <a href={`/${currentLanguage}/forgot-password`} className='text-primary hover:text-primary/80 text-sm font-medium underline'>
           Forgot your password?
         </a>
       </div>

@@ -3,16 +3,24 @@ import { StructuredData } from '@/components/StructuredData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
+import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
 
 export const metadata = generateSEO(SEO_CONFIGS.contact);
 
-export default function ContactPage() {
+interface ContactPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function ContactPage({ params }: ContactPageProps) {
+  const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
+  const dict = loadDictionary(language);
+
   return (
     <>
       <StructuredData config={SEO_CONFIGS.contact} />
       <div className='container mx-auto max-w-6xl px-4 py-8'>
         <div className='mb-12 text-center'>
-          <h1 className='mb-4 text-3xl font-bold tracking-tight'>Contact Us</h1>
+          <h1 className='mb-4 text-3xl font-bold tracking-tight'>{dict.public.contact.contactUs}</h1>
           <p className='text-muted-foreground text-xl'>
             Questions about Betterlytics? Need support with your analytics setup? Our team is ready to assist you.
           </p>

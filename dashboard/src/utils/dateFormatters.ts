@@ -1,3 +1,4 @@
+import { languageToDateLocale, SupportedLanguages } from '@/dictionaries/dictionaries';
 import { DateString, DateTimeString } from '@/types/dates';
 
 // Formats date strings to Clickhouse date column format
@@ -59,4 +60,12 @@ export function formatTimeAgo(date: Date): string {
   } else {
     return 'Recently';
   }
+}
+
+export function toLocaleDateString(date: Date, language: SupportedLanguages) {
+  return date.toLocaleDateString(languageToDateLocale(language), {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }

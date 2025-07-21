@@ -2,12 +2,21 @@ import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
+import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
+import { toLocaleDateString } from '@/utils/dateFormatters';
 
 export const metadata = generateSEO(SEO_CONFIGS.terms);
 
-export default function TermsPage() {
+interface TermsPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function TermsPage({ params }: TermsPageProps) {
+  const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
+  const dict = loadDictionary(language);
+
   if (!env.IS_CLOUD) {
-    redirect('/');
+    redirect(`/${language}/`);
   }
 
   return (
@@ -15,14 +24,9 @@ export default function TermsPage() {
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
         <div className='bg-card border-border overflow-hidden rounded-lg border shadow-sm'>
           <div className='border-border border-b px-6 py-8'>
-            <h1 className='text-foreground text-3xl font-bold'>Betterlytics Terms of Service</h1>
+            <h1 className='text-foreground text-3xl font-bold'>{dict.public.terms.title}</h1>
             <p className='text-muted-foreground mt-2 text-lg'>
-              Last updated:{' '}
-              {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              {`${dict.public.terms.lastUpdated}: ${toLocaleDateString(new Date(), language)}`}
             </p>
           </div>
 
@@ -245,7 +249,7 @@ export default function TermsPage() {
                   <p className='text-muted-foreground text-sm'>
                     For enterprise customers and GDPR compliance, our comprehensive Data Processing Agreement (DPA)
                     is available at{' '}
-                    <Link href='/dpa' className='text-primary hover:underline'>
+                    <Link href={`/${language}/dpa`} className='text-primary hover:underline'>
                       /dpa
                     </Link>
                     . The DPA forms part of these Terms of Service and governs how we process data on your behalf.

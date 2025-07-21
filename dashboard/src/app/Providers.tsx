@@ -5,6 +5,7 @@ import { SessionProvider } from 'next-auth/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/app/ThemeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import DictionaryProvider from '@/contexts/DictionaryContextProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -24,7 +25,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
-          <TooltipProvider>{children}</TooltipProvider>
+          <DictionaryProvider initialLanguage={'en'}>
+            <TooltipProvider>{children}</TooltipProvider>
+          </DictionaryProvider>
         </ThemeProvider>
       </SessionProvider>
     </QueryClientProvider>

@@ -1,20 +1,28 @@
 import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
+import { getEffectiveLanguage, loadDictionary, SupportedLanguages } from '@/dictionaries/dictionaries';
 
 export const metadata = generateSEO(SEO_CONFIGS.dpa);
 
-export default function DPAPage() {
-  if (!env.IS_CLOUD) {
-    redirect('/');
-  }
+interface DPAPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function DPAPage({ params }: DPAPageProps) {
+  const language: SupportedLanguages = getEffectiveLanguage((await params).locale);
+  const dict = loadDictionary(language);
+
+  // if (!env.IS_CLOUD) {
+  //   redirect(`/${language}/`);
+  // }
 
   return (
     <div className='bg-background min-h-screen py-12'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
         <div className='bg-card border-border overflow-hidden rounded-lg border shadow-sm'>
           <div className='border-border border-b px-6 py-8'>
-            <h1 className='text-foreground text-3xl font-bold'>Data Processing Agreement (DPA)</h1>
+            <h1 className='text-foreground text-3xl font-bold'>{dict.public.dpa.title}</h1>
             <p className='text-muted-foreground mt-2 text-lg'>
               Last updated:{' '}
               {new Date().toLocaleDateString('en-US', {
