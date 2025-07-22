@@ -5,7 +5,7 @@ use std::str::FromStr;
 use url::Url;
 use crate::analytics::RawTrackingEvent;
 use sha2::{Digest, Sha256};
-use tracing::{debug, warn};
+use tracing::warn;
 
 #[derive(Debug, Clone)]
 pub struct ValidationConfig {
@@ -171,8 +171,6 @@ impl EventValidator {
         // Validate timestamp is reasonable (config allows for some clock drift to account for packet latency)
         if let Some(event_time) = DateTime::from_timestamp(raw_event.timestamp as i64, 0) {
             let now = Utc::now();
-            debug!("now: {}", now);
-            debug!("event_time: {}", event_time);
             let drift = (event_time - now).num_seconds().abs();
             if drift > self.config.max_timestamp_drift_seconds {
                 return Err(ValidationError::InvalidTimestamp("Timestamp too far from current time".to_string()));
