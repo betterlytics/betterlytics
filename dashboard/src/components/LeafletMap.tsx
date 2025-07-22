@@ -1,5 +1,6 @@
 'use client';
 
+import { renderToString } from 'react-dom/server';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
 import React, { useEffect, useState, useMemo } from 'react';
 import { scaleLinear } from 'd3-scale';
@@ -8,7 +9,6 @@ import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
 import { LatLngBoundsExpression } from 'leaflet';
 import { alpha3ToAlpha2Code, getCountryName } from '@/utils/countryCodes';
-import { createRoot } from 'react-dom/client';
 import { FlagIconProps } from './icons';
 
 interface LeafletMapProps {
@@ -133,49 +133,28 @@ const LeafletMap = ({
     const ascii2 = alpha3ToAlpha2Code(featureId);
     if (!ascii2) return;
 
-    const popupNode = document.createElement('div');
-    let root: ReturnType<typeof createRoot> | null = null;
+    const popupHtml = renderToString(
+      <div className='space-y-1'>
+        <CountryDisplay
+          className='font-bold'
+          countryCode={ascii2 as FlagIconProps['countryCode']}
+          countryName={getCountryName(ascii2)}
+        />
+        <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
+      </div>,
+    );
 
-    layer.bindPopup(popupNode, {
+    layer.bindPopup(popupHtml, {
       autoPan: true,
-      autoPanPadding: [20, 35],
+      autoPanPadding: [25, 10],
+      offset: mapComponents?.L.point(0, 10),
     });
 
-    const renderPopup = () => {
-      if (!root) {
-        root = createRoot(popupNode);
-      }
-      root.render(
-        <div className='space-y-1'>
-          <CountryDisplay
-            className='font-bold'
-            countryCode={ascii2 as FlagIconProps['countryCode']}
-            countryName={getCountryName(ascii2)}
-          />
-          <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
-        </div>,
-      );
-    };
-
-    const cleanupPopup = () => {
-      layer.unbindPopup();
-
-      if (root) {
-        // Avoid unmounting during React render lifecycle
-        setTimeout(() => {
-          root?.unmount();
-          root = null;
-        }, 0);
-      }
-    };
-
-    layer.on('popupopen', (e) => {
-      if (e.popup && e.popup.getContent() === popupNode) {
-        renderPopup();
-      }
+    layer.on({
+      click: (e: L.LeafletMouseEvent) => {
+        layer.openPopup(e.latlng);
+      },
     });
-
-    layer.on('popupclose', cleanupPopup);
   };
 
   if (isLoading || !mapComponents || !worldGeoJson) {
@@ -199,9 +178,6 @@ const LeafletMap = ({
         .leaflet-popup-content-wrapper {
           display: inline-block;
           width: fit-content !important;
-        }
-        .leaflet-popup-tip-container {
-          left: 63px; // place tip to the left to account for dynamic container width's
         }
         .leaflet-popup-content {
           white-space: normal;

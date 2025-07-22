@@ -18,7 +18,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
       </div>
 
       {mapData.visitorData.length === 0 && (
-        <div className='absolute right-4 bottom-4 z-[1000] rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
+        <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
           <p className='text-sm text-amber-700'>No geographic data available for the selected period</p>
         </div>
       )}
