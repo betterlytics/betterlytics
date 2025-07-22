@@ -26,7 +26,6 @@ if (!args[0] || args[0].startsWith("--")) {
     | -------------- | -------------------------------------------------------- | -------- |
     | '--events'     | Total number of events to simulate                       | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_EVENTS)} |
     | '--users'      | Number of unique simulated users                         | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_USERS)} |
-    | '--days'       | Spread events over the past number of days               | ${formatNumber(DEFAULT_ARGS.SIMULATED_DAYS)} |
     | '--batch-size' | Number of events sent per batch (concurrent POSTs)       | ${formatNumber(DEFAULT_ARGS.BATCH_SIZE)} |
     | '--event-freq' | Fraction (0–1) of events that are custom (non-pageview)  | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
     ----------------------------------------------------------------------------------------
@@ -35,7 +34,6 @@ if (!args[0] || args[0].startsWith("--")) {
     ./simulate-events "your-site-id" \\
       --events=${DEFAULT_ARGS.NUMBER_OF_EVENTS} \\
       --users=${DEFAULT_ARGS.NUMBER_OF_USERS} \\
-      --days=${DEFAULT_ARGS.SIMULATED_DAYS} \\
       --batch-size=${DEFAULT_ARGS.BATCH_SIZE} \\
       --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY}
   `);
@@ -54,7 +52,7 @@ const SITE_ID = args[0];
 const TARGET_URL = "http://127.0.0.1:3001/track";
 const NUMBER_OF_EVENTS = getFlag("events", DEFAULT_ARGS.NUMBER_OF_EVENTS);
 const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
-const SIMULATED_DAYS = getFlag("days", DEFAULT_ARGS.SIMULATED_DAYS);
+const SIMULATED_DAYS = 0; /** Not supported on the backend for now */
 const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
 
@@ -176,12 +174,12 @@ function getExtraPayload(payload) {
 
 const events = new Array(NUMBER_OF_EVENTS)
   .fill(0)
-  .map((_) => 86400 * Math.floor(Math.random() * SIMULATED_DAYS))
-  .map((day) => day + 86400 * gaussianRand())
-  .map((stamp) => Math.floor(Date.now() / 1000 - stamp))
-  .sort()
-  .map((timestamp) => {
-    const user = users[Math.floor(users.length * Math.random())];
+  .map(() => {
+    const timestamp = SIMULATED_DAYS === 0
+      ? Math.floor(Date.now() / 1000)
+      : Math.floor(Date.now() / 1000 - (86400 * SIMULATED_DAYS * Math.random()));
+
+    const user = users[Math.floor(Math.random() * users.length)];
     return {
       timestamp,
       visitor_id: user.visitor_id,
@@ -189,6 +187,7 @@ const events = new Array(NUMBER_OF_EVENTS)
       screen_resolution: SCREEN_SIZES[Math.floor(Math.random() * SCREEN_SIZES.length)],
     };
   })
+  .sort((a, b) => a.timestamp - b.timestamp)
   .map((payload) => getExtraPayload(payload))
   .map((payload) => ({ ...BASE_PAYLOAD, ...payload }));
 

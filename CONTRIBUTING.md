@@ -227,9 +227,9 @@ pnpm run performance
 
 ### Simulating Analytics Events
 
-To simulate realistic event traffic for the dashboard with public IPs, use the provided script in `simulate-events.js`. 
+To simulate realistic event traffic for the dashboard with public IPs, use the provided script in `simulate-events.js`.
 It's necessary to add `ENABLE_GEOLOCATION=true`, and a valid `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY` pair to `.env`,
-to simulate global traffic. 
+to simulate global traffic.
 
 ```bash
 pnpm simulate $SITE_ID $FLAGS
@@ -239,11 +239,11 @@ pnpm simulate $SITE_ID $FLAGS
 | -------------- | -------------------------------------------------------- | ------- |
 | `--events`     | Total number of events to simulate                       | `4000`  |
 | `--users`      | Number of unique simulated users                         | `2000`  |
-| `--days`       | Spread events over the past number of days               | `7`     |
 | `--batch-size` | Number of events sent per batch (concurrent POSTs)       | `500`   |
 | `--event-freq` | Fraction (0–1) of events that are custom (non-pageview)  | `0.2`   |
 
 #### Usage examples
+
 ```bash
 # With default config
 pnpm simulate "betterlytics-md3brmol"
@@ -252,7 +252,6 @@ pnpm simulate "betterlytics-md3brmol"
 pnpm simulate "betterlytics-md3brmol" \
   --events=1000 \
   --users=200 \
-  --days=10 \
   --batch-size=1000 \
   --event-freq=0.3
 ```
