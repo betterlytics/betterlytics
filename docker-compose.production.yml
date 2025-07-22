@@ -95,6 +95,28 @@ services:
     networks:
       - clickhouse_network
 
+  clickhouse-backup:
+    image: altinity/clickhouse-backup:latest
+    container_name: clickhouse-backup
+    hostname: clickhouse-backup
+    restart: "no"
+    env_file:
+      - .env
+    profiles:
+      - backup
+    environment:
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    volumes:
+      - ./clickhouse-backup-config:/etc/clickhouse-backup
+      - clickhouse_prod_data:/var/lib/clickhouse
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - clickhouse_network
+
   postgres:
     image: postgres:latest
     container_name: postgres
@@ -132,6 +154,7 @@ services:
         npm install -g pnpm
         cd /app
         pnpm install
+        # Run migrations
         pnpm run migrate-clickhouse
         cd ./dashboard
         pnpm install
@@ -163,6 +186,28 @@ services:
       - monitoring_network
       - grafana_prometheus_network
 
+  promtail:
+    image: grafana/promtail:3.2.1
+    container_name: promtail
+    hostname: promtail
+    restart: unless-stopped
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - promtail_prod_data:/positions
+    networks:
+      - grafana_loki_prom_network
+
+  loki:
+    image: grafana/loki:1.4.1
+    container_name: loki
+    hostname: loki
+    volumes:
+      - ./loki-data:/loki
+    networks:
+      - grafana_loki_prom_network
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -183,6 +228,7 @@ services:
         condition: service_started
     networks:
       - grafana_prometheus_network
+      - grafana_loki_prom_network
 
   proxy:
     build:
@@ -214,6 +260,7 @@ volumes:
   clickhouse_prod_data:
   clickhouse_prod_users:
   postgres_prod_data:
+  promtail_prod_data:
   prometheus_prod_data:
   grafana_prod_data:
 
@@ -223,3 +270,4 @@ networks:
   clickhouse_network:
   monitoring_network:
   grafana_prometheus_network:
+  grafana_loki_prom_network:
