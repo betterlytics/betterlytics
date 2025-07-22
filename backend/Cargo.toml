@@ -64,6 +64,3 @@ strum = "0.27.1"
 # Prometheus metrics  
 prometheus = "0.14.0"
 sysinfo = "0.35.2"
-
-# Validation and Rate Limiting
-validator = { version = "0.16", features = ["derive"] }
