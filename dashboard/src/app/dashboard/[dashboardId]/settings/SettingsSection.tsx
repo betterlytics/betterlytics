@@ -11,6 +11,7 @@ import { updateDashboardSettingsAction } from '@/app/actions/dashboardSettings';
 import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import DataDashboardSettings from '@/components/dashboardSettings/DashboardDataSettings';
 import DangerZoneDashboardSettings from '@/components/dashboardSettings/DashboardDangerZoneSettings';
+import useIsChanged from '@/hooks/use-is-changed';
 
 interface SettingsTabConfig {
   id: string;
@@ -56,6 +57,7 @@ export default function SettingsSection() {
   const [formData, setFormData] = useState<DashboardSettingsUpdate>({});
   const [activeTab, setActiveTab] = useState(SETTINGS_TABS[0].id);
   const [isPendingSave, startTransitionSave] = useTransition();
+  const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
     if (settings) {
@@ -110,7 +112,7 @@ export default function SettingsSection() {
       })}
 
       <div className='flex justify-end border-t pt-6'>
-        <Button onClick={handleSave} disabled={isPendingSave}>
+        <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged}>
           {isPendingSave ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
           Save Changes
         </Button>
