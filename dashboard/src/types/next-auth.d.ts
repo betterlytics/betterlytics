@@ -10,7 +10,7 @@ declare module 'next-auth' {
       emailVerified?: Date | null;
       image?: string | null;
       role: string | null;
-      emailVerified: Date | null;
+      totpEnabled: boolean;
     };
   }
 
@@ -21,7 +21,7 @@ declare module 'next-auth' {
     emailVerified?: Date | null;
     image?: string | null;
     role: string | null;
-    emailVerified: Date | null;
+    totpEnabled: boolean;
   }
 }
 
@@ -32,6 +32,6 @@ declare module 'next-auth/jwt' {
     email: string;
     emailVerified?: Date | null;
     role: string | null;
-    emailVerified: Date | null;
+    totpEnabled: boolean;
   }
 }

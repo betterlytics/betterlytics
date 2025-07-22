@@ -49,6 +49,8 @@ model User {
   sessions      Session[]
 
   passwordHash String?
+  totpEnabled Boolean @default(false)
+  totpSecret String?
   role String?
   
   dashboardAccess UserDashboard[]
