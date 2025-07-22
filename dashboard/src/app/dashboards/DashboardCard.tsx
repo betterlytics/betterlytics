@@ -1,25 +1,21 @@
-'use client';
+'use client'; // Make sure this is at the top to indicate a client component
 
+import { useEffect, useState } from 'react'; // Add useState and useEffect
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dashboard } from '@/entities/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Globe, Calendar, Settings } from 'lucide-react';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import LazyDate from '@/components/LazyDate';
 
 interface DashboardCardProps {
   dashboard: Dashboard;
 }
 
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
+  const { dictionary } = useDictionary();
   const router = useRouter();
-
-  const formattedDate = dashboard.createdAt
-    ? new Date(dashboard.createdAt).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    : 'Unknown';
 
   const handleCardClick = () => {
     router.push(`/dashboard/${dashboard.id}`);
@@ -52,7 +48,13 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
               <div className='flex w-9 justify-center'>
                 <Calendar className='text-muted-foreground h-3 w-3' />
               </div>
-              <span className='text-muted-foreground text-xs'>Created {formattedDate}</span>
+              <span className='text-muted-foreground text-xs'>
+                {dictionary.misc.createdAt}{' '}
+                <LazyDate
+                  date={dashboard.createdAt}
+                  options={{ year: 'numeric', month: 'short', day: 'numeric' }}
+                />
+              </span>
             </div>
             <div className='flex w-8 justify-center'>
               <Link
