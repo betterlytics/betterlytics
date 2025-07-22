@@ -17,6 +17,7 @@ import UserBillingHistory from '@/components/userSettings/UserBillingHistory';
 import { Spinner } from '../ui/spinner';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
+import useIsChanged from '@/hooks/use-is-changed';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -82,6 +83,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
   const [formData, setFormData] = useState<UserSettingsUpdate>({});
   const { refreshSession } = useSessionRefresh();
+  const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
     if (settings) {
@@ -184,7 +186,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           <Button variant='outline' onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} disabled={isSaving || !isFormChanged}>
             {isSaving ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
