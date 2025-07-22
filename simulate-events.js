@@ -175,9 +175,12 @@ function getExtraPayload(payload) {
 const events = new Array(NUMBER_OF_EVENTS)
   .fill(0)
   .map(() => {
-    const timestamp = SIMULATED_DAYS === 0
-      ? Math.floor(Date.now() / 1000)
-      : Math.floor(Date.now() / 1000 - (86400 * SIMULATED_DAYS * Math.random()));
+    const daysAgo = SIMULATED_DAYS === 0
+      ? 0
+      : Math.floor(Math.random() * SIMULATED_DAYS) + gaussianRand(); // same logic
+
+    const secondsAgo = Math.floor(daysAgo * 86400);
+    const timestamp = Math.floor(Date.now() / 1000 - secondsAgo);
 
     const user = users[Math.floor(Math.random() * users.length)];
     return {
