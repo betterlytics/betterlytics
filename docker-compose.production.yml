@@ -95,6 +95,28 @@ services:
     networks:
       - clickhouse_network
 
+  clickhouse-backup:
+    image: altinity/clickhouse-backup:latest
+    container_name: clickhouse-backup
+    hostname: clickhouse-backup
+    restart: "no"
+    env_file:
+      - .env
+    profiles:
+      - backup
+    environment:
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    volumes:
+      - ./clickhouse-backup-config:/etc/clickhouse-backup
+      - clickhouse_prod_data:/var/lib/clickhouse
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - clickhouse_network
+
   postgres:
     image: postgres:latest
     container_name: postgres
@@ -132,6 +154,7 @@ services:
         npm install -g pnpm
         cd /app
         pnpm install
+        # Run migrations
         pnpm run migrate-clickhouse
         cd ./dashboard
         pnpm install
