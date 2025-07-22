@@ -1,6 +1,5 @@
-'use client'; // Make sure this is at the top to indicate a client component
+'use client';
 
-import { useEffect, useState } from 'react'; // Add useState and useEffect
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dashboard } from '@/entities/dashboard';
