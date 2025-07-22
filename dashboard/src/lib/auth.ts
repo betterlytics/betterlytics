@@ -4,6 +4,7 @@ import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.s
 import { findUserByEmail } from '@/repositories/postgres/user';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
+import { UserException } from '@/lib/exceptions';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -11,23 +12,26 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        totp: { label: '2FA code' },
       },
       async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials.password) {
           return null;
         }
 
-        const { email, password } = credentials;
-
         try {
-          const user = await verifyCredentials({ email, password } as LoginUserData);
+          const user = await verifyCredentials(credentials as LoginUserData);
           if (user) {
             return user;
           }
 
+          const { email, password } = credentials;
           return await attemptAdminInitialization(email, password);
         } catch (error) {
           console.error('Authorization error:', error);
+          if (isUserException(error)) {
+            throw error;
+          }
           return null;
         }
       },
@@ -49,7 +53,7 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.emailVerified = user.emailVerified;
         token.role = user.role;
-        token.emailVerified = user.emailVerified;
+        token.totpEnabled = user.totpEnabled;
       } else if (trigger === 'update' && token.email) {
         try {
           const freshUser = await findUserByEmail(token.email as string);
@@ -57,8 +61,9 @@ export const authOptions: NextAuthOptions = {
             token.uid = freshUser.id;
             token.name = freshUser.name;
             token.email = freshUser.email;
-            token.role = freshUser.role;
             token.emailVerified = freshUser.emailVerified || null;
+            token.role = freshUser.role;
+            token.totpEnabled = freshUser.totpEnabled;
           }
         } catch (error) {
           console.error('Error refreshing user data in JWT callback:', error);
@@ -74,9 +79,13 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.emailVerified = token.emailVerified;
         session.user.role = token.role;
-        session.user.emailVerified = token.emailVerified;
+        session.user.totpEnabled = token.totpEnabled;
       }
       return session;
     },
   },
 };
+
+function isUserException(error: unknown): error is UserException {
+  return error instanceof UserException;
+}

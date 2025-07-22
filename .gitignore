@@ -65,3 +65,7 @@ node_modules
 # Docker volumnes
 /data/
 /loki-data/
+
+# Backups
+/postgresbackups
+/clickhousebackups

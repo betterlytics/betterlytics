@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ZodError } from 'zod';
 import SettingsCard from '@/components/SettingsCard';
+import UserSecurityTotpSettings from '@/components/userSettings/UserSecurityTotpSettings';
 
 const INITIAL_PASSWORD_STATE: ChangePasswordData = {
   currentPassword: '',
@@ -204,6 +205,7 @@ export default function UserSecuritySettings() {
           </Button>
         </form>
       </SettingsCard>
+      <UserSecurityTotpSettings />
     </div>
   );
 }
