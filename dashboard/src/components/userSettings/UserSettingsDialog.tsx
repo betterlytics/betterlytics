@@ -16,6 +16,7 @@ import UserUsageSettings from '@/components/userSettings/UserUsageSettings';
 import UserBillingHistory from '@/components/userSettings/UserBillingHistory';
 import { Spinner } from '../ui/spinner';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
+import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import useIsChanged from '@/hooks/use-is-changed';
 
 interface UserSettingsDialogProps {
@@ -81,6 +82,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
   const [formData, setFormData] = useState<UserSettingsUpdate>({});
+  const { refreshSession } = useSessionRefresh();
   const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
@@ -96,6 +98,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   const handleSave = async () => {
     const result = await saveSettings(formData);
     if (result.success) {
+      await refreshSession();
       toast.success('Settings saved successfully!');
       onOpenChange(false);
     } else {
