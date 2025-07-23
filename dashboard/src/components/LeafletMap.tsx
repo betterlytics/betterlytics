@@ -108,6 +108,16 @@ const LeafletMap = ({
           max-width: 50vw;
           min-width: 80px; // Min-width ensure 'Visitors: x' stays on one row
         }
+        .leaflet-country-tooltip {
+          background: var(--color-card);
+          opacity: 1;
+          color: var(--color-foreground);
+          padding: 6px 10px;
+          font-size: 0.75rem;
+          white-space: nowrap;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          pointer-events: none;
+        }
       `}</style>
       <MapContainer
         center={[20, 0]}

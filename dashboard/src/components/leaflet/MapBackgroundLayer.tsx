@@ -14,17 +14,17 @@ const MapBackgroundLayer = ({ onSelect, worldGeoJson, GeoJSON }: BackgroundLayer
 
     const fullWorldPolygon = polygon([
       [
-        [-230, -120], // extend longitude 50 degrees left
-        [230, -120],  // extend longitude 50 degrees right
-        [230, 120],   // extend latitude 30 degrees top
-        [-230, 120],  // extend latitude 30 degrees bottom
-        [-230, -120]
+        [-230, -120],
+        [230, -120],
+        [230, 120],
+        [-230, 120],
+        [-230, -120],
       ],
     ]);
 
     const polygonFeatures: Feature<GeoJsonPolygon | MultiPolygon>[] = worldGeoJson.features.filter(
       (f): f is Feature<GeoJsonPolygon | MultiPolygon> =>
-        f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
+        f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon',
     );
 
     const polygonsCollection: FeatureCollection<GeoJsonPolygon | MultiPolygon> = {
@@ -44,7 +44,7 @@ const MapBackgroundLayer = ({ onSelect, worldGeoJson, GeoJSON }: BackgroundLayer
     return diff || fullWorldPolygon;
   }, [
     // Depend ONLY on the geometries, so we don't recompute if only properties change
-    JSON.stringify(worldGeoJson?.features.map(f => f.geometry))
+    JSON.stringify(worldGeoJson?.features.map((f) => f.geometry)),
   ]);
 
   if (!invertedBackground) return null;

@@ -62,7 +62,6 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, mapLib 
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const visitors = visitorEntry?.visitors ?? 0;
     const ascii2 = alpha3ToAlpha2Code(featureId);
-    const countryName = getCountryName(ascii2 || '');
 
     if (!ascii2) return;
 
@@ -78,9 +77,9 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, mapLib 
     );
 
     layer.bindTooltip(popupHtml, {
-      direction: 'top',
+      direction: 'auto',
       sticky: true,
-      offset: [0, -10],
+      offset: [0, 0],
       opacity: 0.95,
       className: 'leaflet-country-tooltip',
     });
@@ -99,9 +98,6 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, mapLib 
     layer.on({
       click: handleClick,
       mouseover: handleClick,
-      mousedown: (e: LeafletMouseEvent) => {
-        e.originalEvent.stopPropagation();
-      },
     });
   };
 
