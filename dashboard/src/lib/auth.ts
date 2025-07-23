@@ -1,5 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GithubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
 import { findUserByEmail } from '@/repositories/postgres/user';
 import type { User } from 'next-auth';
@@ -36,6 +38,21 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GithubProvider({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
+        },
+      },
+    }),
   ],
   pages: {
     signIn: '/signin',
@@ -47,6 +64,8 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, trigger }) {
+      console.log('Devleed ~ session, token -', token, user, trigger);
+
       if (user) {
         token.uid = user.id;
         token.name = user.name;
@@ -73,6 +92,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      console.log('Devleed ~ session, token -', session, token);
+
       if (session.user) {
         session.user.id = token.uid;
         session.user.name = token.name;

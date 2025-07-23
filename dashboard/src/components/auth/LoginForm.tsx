@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import OtpInput from '@/components/ui/otp-input';
@@ -26,6 +26,9 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const [isGooglePending, startGoogleTransition] = useTransition();
+  const [isGithubPending, startGithubTransition] = useTransition();
 
   useEffect(() => {
     if (isMobile) return;
@@ -78,6 +81,26 @@ export default function LoginForm() {
     });
   };
 
+  const handleOAuthLogin = useCallback(async (oauthProvider: 'google' | 'github') => {
+    setError('');
+
+    const transition = oauthProvider === 'github' ? startGithubTransition : startGoogleTransition;
+
+    transition(async () => {
+      try {
+        const result = await signIn(oauthProvider, {
+          callbackUrl: '/dashboards',
+        });
+
+        if (result?.url) {
+          router.push(result.url);
+        }
+      } catch {
+        setError('An error occurred during sign in. Please try again.');
+      }
+    });
+  }, []);
+
   return (
     <form id='login' className='space-y-6' onSubmit={handleSubmit}>
       {!isDialogOpen && <Error />}
@@ -126,6 +149,45 @@ export default function LoginForm() {
         </button>
       </div>
 
+      <div className='text-center'>
+        <a href='/forgot-password' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
+          Forgot your password?
+        </a>
+      </div>
+
+      <div className='relative my-6 flex items-center'>
+        <div className='border-border flex-grow border-t'></div>
+        <span className='text-muted-foreground mx-4 flex-shrink text-sm'>or</span>
+        <div className='border-border flex-grow border-t'></div>
+      </div>
+
+      <div className='space-y-3'>
+        {/* Google Login Button */}
+        <button
+          type='button'
+          onClick={() => handleOAuthLogin('google')}
+          className='flex w-full cursor-pointer items-center justify-center gap-3 border border-gray-400 bg-transparent px-6 py-2 text-sm font-medium text-white focus:ring-2 focus:ring-gray-500 focus:outline-none'
+        >
+          {/* Google G logo */}
+          <img width='24' height='24' src='https://img.icons8.com/fluency/48/google-logo.png' alt='google-logo' />
+
+          {isGooglePending ? 'Signing in...' : 'Continue with Google'}
+        </button>
+
+        {/* GitHub Login Button */}
+        <button
+          type='button'
+          onClick={() => handleOAuthLogin('github')}
+          className='flex w-full cursor-pointer items-center justify-center gap-3 border border-gray-400 bg-transparent px-6 py-2 text-sm font-medium text-white focus:ring-2 focus:ring-gray-500 focus:outline-none'
+        >
+          {/* GitHub Octocat logo */}
+          <svg className='h-5 w-5' viewBox='0 0 24 24' fill='currentColor'>
+            <path d='M12 0C5.37 0 0 5.38 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.263.82-.583 0-.287-.011-1.244-.017-2.444-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.089-.746.083-.731.083-.731 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.419-1.305.762-1.605-2.665-.303-5.466-1.334-5.466-5.93 0-1.31.47-2.383 1.236-3.223-.124-.303-.536-1.523.117-3.176 0 0 1.01-.323 3.3 1.23.956-.266 1.98-.399 3-.405 1.02.006 2.044.139 3 .405 2.29-1.553 3.3-1.23 3.3-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.912 1.235 3.223 0 4.61-2.803 5.625-5.475 5.92.43.372.814 1.102.814 2.222 0 1.605-.015 2.898-.015 3.293 0 .322.216.697.825.578C20.565 21.796 24 17.297 24 12c0-6.62-5.38-12-12-12z' />
+          </svg>
+          {isGithubPending ? 'Signing in...' : 'Continue with GitHub'}
+        </button>
+      </div>
+
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent className='max-h-[90vh] w-80 overflow-y-auto'>
           <AlertDialogHeader>
@@ -152,12 +214,6 @@ export default function LoginForm() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <div className='text-center'>
-        <a href='/forgot-password' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
-          Forgot your password?
-        </a>
-      </div>
     </form>
   );
 }
