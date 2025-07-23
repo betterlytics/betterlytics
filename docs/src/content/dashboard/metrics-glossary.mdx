@@ -1,0 +1,182 @@
+---
+title: "Metrics Glossary - Betterlytics"
+description: "Understand how all metrics in Betterlytics are calculated and defined, from sessions and unique visitors to bounce rates and conversion metrics."
+---
+
+import { Callout } from "nextra/components";
+
+# Metrics Glossary
+
+This guide explains how all metrics in your Betterlytics dashboard are calculated and defined. Understanding these definitions helps you interpret your data accurately and make informed decisions.
+
+## Core Visitor Metrics
+
+### Unique Visitors
+**Definition:** The number of distinct individuals who visited your website during the selected time period.
+
+**How it's calculated:**
+- Each visitor is identified by their unique digital fingerprint (based on device, browser, and network)
+- **Daily reset:** Visitor fingerprints change daily, so the same person counts as different visitors on different days
+- Counted based on their first visit during the time period
+- Bot traffic is automatically filtered out
+
+**Why daily reset?** This ensures accurate day-to-day visitor counts while protecting privacy. It means if someone visits on Monday and Tuesday, they count as 1 visitor on Monday and 1 visitor on Tuesday.
+
+<Callout type="info">
+**Interpreting unique visitors:** Focus on trends and patterns rather than absolute numbers. A steady increase in daily unique visitors indicates growing audience reach.
+</Callout>
+
+### Sessions
+**Definition:** A series of user interactions during a single visit to your website.
+
+**How it's calculated:**
+- A new session starts when someone first visits your site
+- **Session timeout:** After 30 minutes of inactivity, the next page view starts a new session
+- One visitor can have multiple sessions (e.g., morning visit + afternoon visit = 2 sessions)
+
+**Example:** If Sarah visits your homepage at 9 AM, reads 3 blog posts, then comes back at 2 PM to check your pricing, that's 2 sessions from 1 visitor.
+
+## Engagement Metrics
+
+### Bounce Rate
+**Definition:** The percentage of sessions where visitors viewed only one page before leaving.
+
+**How it's calculated:**
+```
+(Sessions with only 1 page view / Total sessions) × 100
+```
+
+### Average Time on Page
+**Definition:** The average amount of time visitors spend viewing a specific page.
+
+**How it's calculated:**
+- Measures time between loading one page and navigating to the next
+- Only counted when visitors navigate to another page
+- Exit pages (last page in session) don't have measurable time and are not included in the average time on page calculation to avoid skewing the results.
+
+**Limitations:**
+- Doesn't measure actual reading time
+- Single-page visits show 0 average time and are not included in the average time on page calculation.
+- Based on navigation behavior, not engagement depth
+
+## Page Analytics
+
+### Page Views
+**Definition:** The total number of times a page has been viewed.
+
+**What counts as a page view:**
+- Each page load
+- Back button navigation
+- Multiple visits to the same page
+
+### Entry Rate
+**Definition:** The percentage of sessions that started on this page.
+
+**How it's calculated:**
+```
+(Sessions starting on this page / Total sessions) × 100
+```
+
+### Exit Rate
+**Definition:** The percentage of sessions that ended on this page.
+
+**How it's calculated:**
+```
+(Sessions ending on this page / Total sessions) × 100
+```
+
+## Traffic Source Metrics
+
+### Referrer Sources
+**Definition:** How visitors found your website.
+
+**Source Types:**
+- **Direct:** Typed your URL, used bookmarks, or came from unknown sources
+- **Search:** Found you through search engines (Google, Bing, etc.)
+- **Social:** Clicked links from social media platforms
+- **Email:** Arrived from email campaigns
+- **Referral:** Clicked links from other websites
+
+## Custom Event Metrics
+
+### Custom Events
+**Definition:** Specific user interactions you track beyond page views (button clicks, form submissions, downloads, etc.).
+
+**Event Metrics:**
+- **Event Count:** Total number of times the event occurred
+- **Unique Users:** Number of different visitors who triggered the event
+- **Average per User:** How many times each user performed the action on average
+
+## Device and Browser Analytics
+
+### Device Types
+**Definition:** What devices visitors use to access your website.
+
+**Device Categories:**
+- **Mobile:** Smartphones (screen width < 576px)
+- **Tablet:** Tablet devices (576-991px)
+- **Laptop:** Laptop computers (992-1439px)
+- **Desktop:** Desktop computers (1440px+)
+
+### Browser and Operating System
+**Definition:** What browsers and operating systems your visitors use (the minor version of the browser is not included in the browser and operating system metrics for privacy reasons).
+
+## Data Quality and Accuracy
+
+### Bot Filtering
+**Definition:** Automatic removal of non-human traffic from your analytics.
+
+**What gets filtered:**
+- Search engine crawlers
+- Automated scrapers
+- Spam bots
+- Monitoring services
+
+### Data Retention
+**Definition:** How long your analytics data is stored and available for analysis.
+
+**Typical retention:** 365 days (can be configured based on your plan)
+
+---
+
+## Understanding Your Data
+
+<Callout type="tip">
+**Best Practices for Metric Interpretation:**
+
+1. **Look at trends:** Compare week-over-week or month-over-month changes rather than single-day numbers
+2. **Consider context:** Bounce rates and session duration vary greatly by industry and page purpose
+3. **Segment your audience:** Use filters to understand different user groups (mobile vs desktop, different traffic sources)
+4. **Set benchmarks:** Track your own historical performance rather than comparing to generic industry averages
+5. **Focus on business goals:** Track custom events that align with your actual business objectives
+</Callout>
+
+<Callout type="warning">
+**Important Notes:**
+
+- **Unique visitors reset daily:** The same person visiting on different days counts as different visitors
+- **Time measurements have limitations:** Exit pages and single-page sessions don't show time spent
+- **Perfect accuracy isn't possible:** Some automated traffic may pass through filters, and privacy tools can affect tracking
+- **Privacy-first approach:** No personally identifiable information is collected or stored
+</Callout>
+
+## Common Questions
+
+### Why don't my numbers match other analytics tools?
+Different tools define metrics differently. For example, some tools count sessions differently or use different bot filtering. Focus on trends within Betterlytics rather than comparing absolute numbers across platforms.
+
+### What's a "good" bounce rate?
+It depends on your page type:
+- **Landing pages:** 70-90% can be normal
+- **Blog posts:** 70-85% is typical
+- **Service pages:** 10-30% suggests good engagement
+- **Contact pages:** 70-90% is expected (people get info and leave)
+
+### How can I improve my metrics?
+- **Reduce bounce rate:** Improve page speed, match content to visitor intent, add clear navigation
+- **Increase pages per session:** Add related content suggestions, improve internal linking
+- **Boost engagement:** Create compelling calls-to-action, add interactive elements
+
+---
+
+*Have questions about interpreting your specific metrics? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!* 

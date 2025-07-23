@@ -13,8 +13,8 @@ export default function UserBillingHistory() {
   const handleViewBillingHistory = async () => {
     try {
       const portalUrl = await createStripeCustomerPortalSession();
-      if (portalUrl) {
-        window.open(portalUrl, '_blank');
+      if (portalUrl.success) {
+        window.open(portalUrl.data, '_blank');
       } else {
         throw new Error('No customer portal URL received');
       }

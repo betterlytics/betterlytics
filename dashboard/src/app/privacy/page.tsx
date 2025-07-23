@@ -1,11 +1,8 @@
-import { Metadata } from 'next';
+import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy - Betterlytics',
-  description: 'Privacy policy for Betterlytics - GDPR compliant, privacy-focused web analytics service.',
-};
+export const metadata = generateSEO(SEO_CONFIGS.privacy);
 
 export default function PrivacyPage() {
   if (!env.IS_CLOUD) {

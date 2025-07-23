@@ -41,8 +41,8 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
 
       if (billingData.isExistingPaidSubscriber) {
         const portalUrl = await createStripeCustomerPortalSession(validatedPlan);
-        if (portalUrl) {
-          window.location.href = portalUrl;
+        if (portalUrl.success) {
+          window.location.href = portalUrl.data;
         } else {
           throw new Error('No customer portal URL received');
         }
@@ -50,8 +50,8 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
       }
 
       const result = await createStripeCheckoutSession(validatedPlan);
-      if (result) {
-        window.location.href = result;
+      if (result.success) {
+        window.location.href = result.data;
       } else {
         throw new Error('No checkout URL received');
       }

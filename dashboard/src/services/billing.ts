@@ -3,6 +3,7 @@ import { getUserSiteIds } from '@/repositories/postgres/dashboard';
 import { getUserEventCountForPeriod } from '@/repositories/clickhouse/usage';
 import { toDateString } from '@/utils/dateFormatters';
 import { UserBillingDataSchema, type UsageData, type UserBillingData } from '@/entities/billing';
+import { UserException } from '@/lib/exceptions';
 
 export async function getUserBillingStats(userId: string): Promise<UserBillingData> {
   try {
@@ -40,7 +41,7 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
     });
   } catch (error) {
     console.error('Failed to get billing stats:', error);
-    throw new Error('Failed to get billing stats');
+    throw new UserException('Failed to get billing stats');
   }
 }
 

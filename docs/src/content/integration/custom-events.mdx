@@ -22,18 +22,23 @@ Custom events let you track specific actions users take on your website:
 
 ## Basic Event Tracking
 
-Once you've installed the Betterlytics tracking script, you can track custom events using the global `betterlytics()` function.
+Once you've installed the Betterlytics tracking script or the `@betterlytics/tracker` npm package, you can track custom events using the global `betterlytics.event()` function.
 
 ### Handling Async Script Loading (Recommended)
 
-If you're loading the analytics script asynchronously (recommended for performance), add this small snippet **before** your analytics script to prevent timing issues:
+<Callout type="info">
+If you've installed the `@betterlytics/tracker` npm package, skip this step
+</Callout>
+
+If you're loading the analytics script asynchronously, and not using our npm package, add this small snippet **before** your analytics script to prevent timing issues:
 
 ```html
 <script>
   window.betterlytics =
-    window.betterlytics ||
-    function () {
-      (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+    window.betterlytics || {
+      event: function () {
+        (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+      }
     };
 </script>
 <script
@@ -44,7 +49,7 @@ If you're loading the analytics script asynchronously (recommended for performan
 ></script>
 ```
 
-This ensures `betterlytics()` calls work immediately, even before the main script finishes loading.
+This ensures `betterlytics.event()` calls work immediately, even before the main script finishes loading.
 
 ### Simple Event Tracking
 
@@ -52,10 +57,10 @@ Here is what sending a custom event looks like:
 
 ```javascript
 // Track a basic event
-betterlytics("button-click");
+betterlytics.event("button-click");
 
 // Track an event with properties
-betterlytics("newsletter-signup", {
+betterlytics.event("newsletter-signup", {
   source: "homepage",
   newsletter: "weekly-digest",
 });
@@ -72,7 +77,7 @@ Custom event properties help you understand what happened, where, and why, turni
 For example:
 
 ```javascript
-betterlytics("product-view", {
+betterlytics.event("product-view", {
   productId: "abc123",
   category: "electronics",
   price: 299.99,
@@ -111,12 +116,16 @@ Personally Identifiable Information (PII) includes any data that could identify 
 
 ## Common Use Case Examples
 
+<Callout type="info">
+**Ready to view your custom events?** After setting up custom event tracking, check out our guide on using the [Events Dashboard](/dashboard/events) to view and analyze your data for insights into user behavior.
+</Callout>
+
 <details>
 <summary><strong>Button Clicks</strong> - Track CTA buttons, navigation, and interactive elements</summary>
 
 ```javascript
 document.getElementById("cta-button").addEventListener("click", function () {
-  betterlytics("cta-click", {
+  betterlytics.event("cta-click", {
     buttonText: "Get Started",
     location: "header",
   });
@@ -132,7 +141,7 @@ document.getElementById("cta-button").addEventListener("click", function () {
 document
   .getElementById("contact-form")
   .addEventListener("submit", function (e) {
-    betterlytics("form-submit", {
+    betterlytics.event("form-submit", {
       formType: "contact",
       source: "contact-page",
     });
@@ -142,7 +151,7 @@ document
 document.getElementById("signup-form").addEventListener("input", function () {
   if (!this.hasAttribute("data-started")) {
     this.setAttribute("data-started", "true");
-    betterlytics("form-started", {
+    betterlytics.event("form-started", {
       formType: "signup",
       formSection: "newsletter",
     });
@@ -158,7 +167,7 @@ document.getElementById("signup-form").addEventListener("input", function () {
 ```javascript
 document.querySelectorAll('a[href$=".pdf"]').forEach((link) => {
   link.addEventListener("click", function () {
-    betterlytics("file-download", {
+    betterlytics.event("file-download", {
       fileName: this.getAttribute("href"),
       fileType: "pdf",
     });
@@ -179,7 +188,7 @@ document.querySelectorAll("a").forEach((link) => {
   if (downloadableExtensions.some((ext) => href.toLowerCase().endsWith(ext))) {
     link.addEventListener("click", function () {
       const extension = href.split(".").pop().toLowerCase();
-      betterlytics("file-download", {
+      betterlytics.event("file-download", {
         fileName: href.split("/").pop(),
         fileType: extension,
         fileSize: this.getAttribute("data-size") || "unknown",
@@ -198,11 +207,11 @@ document.querySelectorAll("a").forEach((link) => {
 const video = document.getElementById("promo-video");
 
 video.addEventListener("play", () => {
-  betterlytics("video-play", { videoId: "promo-video" });
+  betterlytics.event("video-play", { videoId: "promo-video" });
 });
 
 video.addEventListener("ended", () => {
-  betterlytics("video-complete", { videoId: "promo-video" });
+  betterlytics.event("video-complete", { videoId: "promo-video" });
 });
 
 // Advanced video tracking with progress milestones
@@ -216,7 +225,7 @@ video.addEventListener("timeupdate", function () {
       !this.hasAttribute(`data-milestone-${milestone}`)
     ) {
       this.setAttribute(`data-milestone-${milestone}`, "true");
-      betterlytics("video-progress", {
+      betterlytics.event("video-progress", {
         videoId: this.id || "unnamed-video",
         milestone: milestone,
         duration: Math.round(this.duration),
@@ -235,7 +244,7 @@ video.addEventListener("timeupdate", function () {
 // Add to cart
 document.querySelectorAll(".add-to-cart").forEach((button) => {
   button.addEventListener("click", function () {
-    betterlytics("add-to-cart", {
+    betterlytics.event("add-to-cart", {
       productId: this.getAttribute("data-product-id"),
       productName: this.getAttribute("data-product-name"),
       price: parseFloat(this.getAttribute("data-price")),
@@ -247,7 +256,7 @@ document.querySelectorAll(".add-to-cart").forEach((button) => {
 // Product wishlist actions
 document.querySelectorAll(".add-to-wishlist").forEach((button) => {
   button.addEventListener("click", function () {
-    betterlytics("add-to-wishlist", {
+    betterlytics.event("add-to-wishlist", {
       productId: this.getAttribute("data-product-id"),
       productName: this.getAttribute("data-product-name"),
       price: parseFloat(this.getAttribute("data-price")),
@@ -258,7 +267,7 @@ document.querySelectorAll(".add-to-wishlist").forEach((button) => {
 
 // Product comparison
 function trackProductComparison(productIds) {
-  betterlytics("product-comparison", {
+  betterlytics.event("product-comparison", {
     productCount: productIds.length,
     productIds: productIds.join(","),
     category: "electronics",
@@ -275,7 +284,7 @@ function trackProductComparison(productIds) {
 // Search tracking
 document.getElementById("search-form").addEventListener("submit", function (e) {
   const query = this.querySelector('input[type="search"]').value;
-  betterlytics("search", {
+  betterlytics.event("search", {
     query: query,
     resultsCount: document.querySelectorAll(".search-result").length,
     source: "header-search",
@@ -295,13 +304,13 @@ import { useEffect } from "react";
 
 function ProductPage({ productId }) {
   useEffect(() => {
-    betterlytics("product-view", {
+    betterlytics.event("product-view", {
       productId: productId,
     });
   }, [productId]);
 
   const handleAddToCart = () => {
-    betterlytics("add-to-cart", {
+    betterlytics.event("add-to-cart", {
       productId: productId,
       source: "product-page",
     });
@@ -329,7 +338,7 @@ function ProductPage({ productId }) {
 export default {
   methods: {
     trackClick() {
-      betterlytics("cta-click", { component: "CTAButton" });
+      betterlytics.event("cta-click", { component: "CTAButton" });
     },
   },
 };
@@ -356,7 +365,7 @@ declare global {
 export class AnalyticsService {
   track(eventName: string, properties?: Record<string, any>) {
     if (typeof window !== "undefined" && window.betterlytics) {
-      window.betterlytics(eventName, properties);
+      window.betterlytics.event(eventName, properties);
     }
   }
 }
@@ -393,7 +402,7 @@ import { useEffect } from "react";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   useEffect(() => {
-    betterlytics("page-view", {
+    betterlytics.event("page-view", {
       pageType: "product",
       productId: params.id,
     });
@@ -414,7 +423,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
 <script setup>
 const trackPurchase = () => {
-  betterlytics("purchase", {
+  betterlytics.event("purchase", {
     value: 99.99,
     currency: "USD",
     source: "checkout-page",
@@ -436,7 +445,7 @@ declare global {
   }
 }
 
-declare function betterlytics(
+declare function betterlytics.event(
   eventName: string,
   eventProps?: Record<string, any>
 ): void;
@@ -445,5 +454,7 @@ export {};
 ```
 
 ---
+
+**Next Steps**: After implementing custom events, learn how to [view and analyze your event data](/dashboard/events) in your Betterlytics dashboard.
 
 _Questions about custom events? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!_

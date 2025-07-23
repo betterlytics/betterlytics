@@ -5,6 +5,7 @@ import { createDashboard, findFirstUserDashboard, findAllUserDashboards } from '
 import { getUserSubscription } from '@/repositories/postgres/subscription';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
+import { UserException } from '@/lib/exceptions';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
   await validateDashboardCreationLimit(userId);
@@ -16,10 +17,6 @@ export async function createNewDashboard(domain: string, userId: string): Promis
     siteId,
   };
   return createDashboard(dashboardData);
-}
-
-export async function getFirstUserDashboard(userId: string): Promise<Dashboard | null> {
-  return findFirstUserDashboard(userId);
 }
 
 export async function getAllUserDashboards(userId: string): Promise<Dashboard[]> {
@@ -36,7 +33,7 @@ export async function validateDashboardCreationLimit(userId: string): Promise<vo
   const dashboardLimit = getDashboardLimitForTier(subscription.tier);
 
   if (currentDashboards.length >= dashboardLimit) {
-    throw new Error(`Dashboard limit reached`);
+    throw new UserException(`Dashboard limit reached`);
   }
 }
 

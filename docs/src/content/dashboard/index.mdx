@@ -1,12 +1,193 @@
 ---
-title: "Dashboard Features"
-description: "Complete guide to your Betterlytics analytics dashboard - understand your data, track performance, and get insights about your website visitors."
+title: "Dashboard Overview - Betterlytics"
+description: "Understand your main dashboard page with key metrics, interactive charts, and summary tables that give you a complete view of your website's performance."
 ---
 
-# Dashboard Features
+import { Callout } from "nextra/components";
 
-Coming soon...
+# Dashboard Overview
+
+Your main dashboard page is the central hub for monitoring your website's performance. It provides a comprehensive overview of your key metrics through interactive charts and summary tables, giving you immediate insights into visitor behavior and website trends.
+
+## Main Dashboard Components
+
+When you first land on your dashboard, you'll see several key sections organized for maximum insight:
+
+### 1. Key Metrics Summary Cards
+
+At the top of your dashboard, four interactive metric cards display your most important KPIs:
+
+- **Unique Visitors** - The number of distinct visitors to your website
+- **Total Pageviews** - Total pages viewed across all sessions
+- **Bounce Rate** - Percentage of sessions with only one page view
+- **Average Visit Duration** - How long visitors typically stay on your site
+
+<Callout type="info">
+**Interactive Feature**: Click any summary card to display that metric in the main chart below. Each card shows a mini sparkline chart and changes the main visualization to focus on your selected metric.
+</Callout>
+
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Dashboard Overview Interactive Chart](/images/dashboard/dashboard-overview-interactive-chart.png)
+</div>
+
+### 2. Interactive Time-Series Chart
+
+The main chart, shown in the image above, dynamically displays your selected metric over time, with several interactive features:
+
+- **Responsive to Summary Cards** - Automatically updates when you click different metric cards
+- **Time Period Comparison** - Shows current vs. previous period data with dashed comparison lines
+- **Hover Details** - Detailed tooltips show exact values and percentage changes
+- **Flexible Time Ranges** - Adapts to your selected date range with appropriate granularity
+
+### 3. Summary Tables Overview
+
+Below the main chart, you'll find a collection of five summary tables that provide quick insights into different aspects of your website traffic:
+
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Dashboard Overview Summary Tables](/images/dashboard/dashboard-overview-summary-tables.png)
+</div>
+
+Each of the five summary tables (Top Pages, Geography, Devices Breakdown, Traffic Sources, and Custom Events) features its own set of tabs. 
+These tabs allow you to drill down into different aspects of the data within that category. 
+For example, under **Top Pages**, you can switch between Pages, Entry Pages, and Exit Pages. 
+Use the tabs at the top of each table to explore the specific insights available.
+
+#### Top Pages
+- **Pages**: Most visited pages ranked by unique visitors
+- **Entry Pages**: Common landing pages where visitors first arrive
+- **Exit Pages**: Pages where visitors most often leave your site
+
+#### Geography
+- **Countries**: Visitor breakdown by country with exact visitor counts
+- **World Map**: Interactive world map visualization showing global traffic distribution
+
+#### Devices Breakdown
+- **Browsers**: What browsers your visitors use (Chrome, Firefox, Safari, etc.)
+- **Devices**: Device types (Desktop, Mobile, Tablet)
+- **Operating Systems**: OS distribution (Windows, macOS, iOS, Android, etc.)
+
+#### Traffic Sources
+- **Referrers**: Specific websites that send traffic to you
+- **Sources**: Categorized traffic sources (Google, Facebook, direct, etc.)
+- **Channels**: Traffic channels (Organic Search, Social Media, Direct, etc.)
+
+#### Custom Events
+- **Events**: Your custom tracked events (button clicks, form submissions, etc.)
+
+<Callout type="tip">
+**Visual Design**: Each table uses progress bars to show relative values at a glance, making it easy to spot your top-performing pages, countries, or traffic sources without looking at exact numbers. Hover over the progress bars to see the exact numbers and percentage of total occurrences.
+</Callout>
+
+## How to Use Your Dashboard Overview
+
+1. **Start with the Summary Cards** - Get an immediate sense of your website's performance
+2. **Select Your Focus Metric** - Click any card to dive deeper into that specific metric
+3. **Analyze the Time Trends** - Use the main chart to spot patterns and changes over time
+4. **Scan the Summary Tables** - Quickly identify top performers and areas for optimization
+5. **Dive Deeper** - Click on any section title or use the sidebar to explore detailed analytics
+
+## Dashboard Filters
+
+All data on your overview page respects your dashboard filters:
+- **Time Range Selection** - Choose from presets or custom date ranges
+- **Comparison Periods** - Enable side-by-side period comparisons
+- **Query Filters** - Apply specific filters to focus on particular segments
+
+## Exploring Individual Sections
+
+While your overview page provides a comprehensive snapshot, each data category has its own dedicated section with much more detailed analysis:
+
+<DashboardSectionGrid>
+  <DashboardSectionCard
+    title="Geography"
+    href="/dashboard/geography"
+    description="Expanded geographic analysis with detailed country statistics and regional insights."
+    features={[
+      "Comprehensive country breakdowns",
+      "Regional traffic patterns", 
+      "Geographic targeting opportunities"
+    ]}
+  />
+
+  <DashboardSectionCard
+    title="Devices"
+    href="/dashboard/devices"
+    description="In-depth device, browser, and operating system analytics with usage trends."
+    features={[
+      "Device usage trends over time",
+      "Browser and OS compatibility insights",
+      "Mobile vs desktop performance"
+    ]}
+  />
+
+  <DashboardSectionCard
+    title="Referrers"
+    href="/dashboard/referrers"
+    description="Comprehensive traffic source analysis with referrer performance and channel insights."
+    features={[
+      "Detailed referrer source analysis",
+      "Traffic channel performance",
+      "Campaign attribution insights"
+    ]}
+  />
+
+  <DashboardSectionCard
+    title="User Journey"
+    href="/dashboard/user-journey"
+    description="Visualize visitor navigation paths through your website with interactive journey diagrams."
+    features={[
+      "Interactive Sankey diagrams",
+      "Navigation path optimization",
+      "Drop-off point identification"
+    ]}
+  />
+
+  <DashboardSectionCard
+    title="Events"
+    href="/dashboard/events"
+    description="Deep dive into custom event tracking with detailed logs and user interaction analysis."
+    features={[
+      "Real-time event log",
+      "Event property analysis",
+      "User interaction patterns"
+    ]}
+  />
+
+  <DashboardSectionCard
+    title="Funnels"
+    href="/dashboard/funnels"
+    description="Create and analyze conversion funnels to optimize your user journey."
+    features={[
+      "Conversion funnel creation",
+      "Step-by-step conversion analysis",
+      "Drop-off optimization insights"
+    ]}
+  />
+
+  <DashboardSectionCard
+    title="Metrics Glossary"
+    href="/dashboard/metrics-glossary"
+    description="Comprehensive guide to understanding all metrics and calculations used in your dashboard."
+    features={[
+      "Detailed metric definitions",
+      "Calculation explanations",
+      "Best practices for interpretation"
+    ]}
+  />
+</DashboardSectionGrid>
+
+## Getting Started
+
+1. **Explore Your Overview** - Start with the main dashboard to understand your overall performance
+2. **Select Key Metrics** - Click different summary cards to focus on specific metrics
+3. **Identify Trends** - Use the time-series chart to spot patterns and changes
+4. **Investigate Details** - Click on any section to dive deeper into specific areas
+5. **Use Filters** - Apply time ranges and filters to focus on specific periods or segments
+
+<Callout type="tip">
+**Tip**: Your overview page is designed to give you a complete picture at a glance. Each summary table shows just the top items, but clicking through to the detailed sections reveals much more comprehensive data and analysis tools.
+</Callout>
 
 ---
 
-_Questions about dashboard features? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!_
+_Questions about your dashboard? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!_

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const EventOccurrenceAggregate = z.object({
   event_name: z.string(),
@@ -17,6 +17,7 @@ export const RawEventPropertyDataArraySchema = z.array(RawEventPropertyDataSchem
 export const EventPropertyValueAggregateSchema = z.object({
   value: z.string(),
   count: z.number(),
+  relativePercentage: z.number(),
   percentage: z.number(),
 });
 

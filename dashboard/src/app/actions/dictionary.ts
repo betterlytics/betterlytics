@@ -1,8 +1,10 @@
-import { getDictionaryOrDefault, getEffectiveLanguage } from '@/dictionaries/dictionaries';
+import { DEFAULT_LANGUAGE, getDictionaryOrDefault, getEffectiveLanguage } from '@/dictionaries/dictionaries';
 import { getUserSettingsAction } from './userSettings';
 
 export async function getDictionary() {
-  const { language } = await getUserSettingsAction();
+  const result = await getUserSettingsAction();
+
+  const language = result.success ? result.data.language : DEFAULT_LANGUAGE;
   const effectiveLanguage = getEffectiveLanguage(language);
 
   return {

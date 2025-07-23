@@ -2,6 +2,7 @@
 
 import { Check, Loader2, User, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { User as SessionUser } from 'next-auth';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { ZodError } from 'zod';
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UpdateUserData, UpdateUserSchema } from '@/entities/user';
+import useIsChanged from '@/hooks/use-is-changed';
 
 export default function UserProfileSettings() {
   const [isPending, startTransition] = useTransition();
@@ -20,6 +22,7 @@ export default function UserProfileSettings() {
   const [emailVerified] = useState(session?.user?.emailVerified);
   const [user, setUser] = useState<UpdateUserData>();
   const [errors, setErrors] = useState<Partial<Record<keyof UpdateUserData, string>>>({});
+  const isFormChanged = useIsChanged({ name } as Partial<SessionUser>, session?.user);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,8 +60,6 @@ export default function UserProfileSettings() {
       name: name.trim(),
     }));
   }, [name]);
-
-  const isFormChanged = name !== session?.user?.name;
 
   return (
     <div className='space-y-6'>

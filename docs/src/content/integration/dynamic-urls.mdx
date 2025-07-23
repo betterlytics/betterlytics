@@ -63,6 +63,22 @@ This configuration will:
 - Transform `/products/abc-xyz` → `/products/*`
 - Transform `/articles/12345/comments` → `/articles/*/comments`
 
+<Callout type="info" emoji="📦">
+**Using the NPM Package**
+
+If you're using the Betterlytics npm package, you can configure dynamic URLs during initialization:
+
+```javascript
+import betterlytics from '@betterlytics/tracker';
+
+betterlytics.init("your-siteid", {
+  dynamicUrls: ["/users/*", "/products/*", "/articles/*"]
+});
+```
+
+This method provides the same functionality as the script tag approach but integrates seamlessly with your JavaScript application.
+</Callout>
+
 ### Wildcard Types
 
 The dynamic URL feature supports two types of wildcards:

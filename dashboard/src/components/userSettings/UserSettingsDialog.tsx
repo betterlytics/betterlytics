@@ -16,6 +16,7 @@ import UserUsageSettings from '@/components/userSettings/UserUsageSettings';
 import UserBillingHistory from '@/components/userSettings/UserBillingHistory';
 import { Spinner } from '../ui/spinner';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
+import useIsChanged from '@/hooks/use-is-changed';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -76,10 +77,11 @@ const USER_SETTINGS_TABS: UserSettingsTabConfig[] = [
 ];
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
-  const { settings, isLoading, isSaving, saveSettings } = useUserSettings();
+  const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
   const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
   const [formData, setFormData] = useState<UserSettingsUpdate>({});
+  const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
     if (settings) {
@@ -97,7 +99,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
       toast.success('Settings saved successfully!');
       onOpenChange(false);
     } else {
-      toast.error('Failed to save settings. Please try again.');
+      toast.error(result.error || 'Failed to save settings. Please try again.');
     }
   };
 
@@ -112,6 +114,22 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <Spinner />
             <p className='text-muted-foreground text-sm'>Loading settings...</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (error) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='sm:max-w-[700px]'>
+          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
+            <AlertTriangle className='text-destructive h-8 w-8' />
+            <div className='text-center'>
+              <p className='text-destructive font-medium'>Failed to load settings</p>
+              <p className='text-muted-foreground mt-1 text-sm'>{error}</p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -165,7 +183,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           <Button variant='outline' onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} disabled={isSaving || !isFormChanged}>
             {isSaving ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 import { type AuthContext } from '@/entities/authContext';
 import { authorizeUserDashboard } from '@/services/auth.service';
+import { withServerAction, type ServerActionResponse } from '@/middlewares/serverActionHandler';
 
 export async function getAuthSession(): Promise<Session | null> {
   const session = await getServerSession(authOptions);
@@ -51,14 +52,9 @@ type ActionRequiringUserId<Args extends Array<unknown>, Ret> = (user: User, ...a
 export function withUserAuth<Args extends Array<unknown> = unknown[], Ret = unknown>(
   action: ActionRequiringUserId<Args, Ret>,
 ) {
-  return async function (...args: Args): Promise<Awaited<Ret>> {
+  return withServerAction(async function (...args: Args): Promise<Awaited<Ret>> {
     const session = await requireAuth();
 
-    try {
-      return await action(session.user, ...args);
-    } catch (e) {
-      console.error('Error occurred in user action:', e);
-      throw new Error('An error occurred');
-    }
-  };
+    return await action(session.user, ...args);
+  });
 }
