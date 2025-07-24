@@ -26,24 +26,28 @@ export const postFunnelAction = withDashboardAuthContext(
   },
 );
 
-export const fetchFunnelDetailsAction = withDashboardAuthContext(async (ctx: AuthContext, funnelId: string) => {
-  const funnel = await getFunnelDetailsById(ctx.siteId, funnelId);
-  if (funnel === null) {
-    throw new Error('Funnel not found');
-  }
+export const fetchFunnelDetailsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, funnelId: string, startDate: Date, endDate: Date) => {
+    const funnel = await getFunnelDetailsById(ctx.siteId, funnelId, startDate, endDate);
+    if (funnel === null) {
+      throw new Error('Funnel not found');
+    }
 
-  return toFunnel(funnel);
-});
+    return toFunnel(funnel);
+  },
+);
 
-export const fetchFunnelsAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  const funnels = await getFunnelsByDashboardId(ctx.dashboardId, ctx.siteId);
+export const fetchFunnelsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, startDate: Date, endDate: Date) => {
+    const funnels = await getFunnelsByDashboardId(ctx.dashboardId, ctx.siteId, startDate, endDate);
 
-  return funnels.map((funnel) => ({
-    id: funnel.id,
-    stepCount: funnel.queryFilters.length,
-    ...toFunnel(funnel),
-  }));
-});
+    return funnels.map((funnel) => ({
+      id: funnel.id,
+      stepCount: funnel.queryFilters.length,
+      ...toFunnel(funnel),
+    }));
+  },
+);
 
 export const fetchFunnelPreviewAction = withDashboardAuthContext(
   async (ctx: AuthContext, queryFilters: QueryFilter[], isStrict: boolean) => {

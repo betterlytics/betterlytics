@@ -5,15 +5,16 @@ import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
 import FunnelsListSection from './FunnelsListSection';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
-import { Skeleton } from '@/components/ui/skeleton';
 import TimeRangeSelector from '@/components/TimeRangeSelector';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
+import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
+  searchParams: Promise<{ filters: string }>;
 };
 
-export default async function FunnelsPage({ params }: FunnelsPageParams) {
+export default async function FunnelsPage({ params, searchParams }: FunnelsPageParams) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -21,7 +22,8 @@ export default async function FunnelsPage({ params }: FunnelsPageParams) {
   }
 
   const { dashboardId } = await params;
-  const funnelsPromise = fetchFunnelsAction(dashboardId);
+  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
 
   return (
     <div className='container space-y-6 p-6'>
