@@ -6,7 +6,7 @@ import { Dashboard } from '@/entities/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Globe, Calendar, Settings } from 'lucide-react';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
-import LazyDate from '@/components/LazyDate';
+import { useFormattedDate } from '@/hooks/use-formatted-date';
 
 interface DashboardCardProps {
   dashboard: Dashboard;
@@ -15,6 +15,10 @@ interface DashboardCardProps {
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const { dictionary } = useDictionary();
   const router = useRouter();
+
+  const { formattedDate, loading: loadingDate } = useFormattedDate(dashboard.createdAt, {
+    options: { year: 'numeric', month: 'short', day: 'numeric' },
+  });
 
   const handleCardClick = () => {
     router.push(`/dashboard/${dashboard.id}`);
@@ -48,16 +52,13 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
                 <Calendar className='text-muted-foreground h-3 w-3' />
               </div>
               <span className='text-muted-foreground text-xs'>
-                <LazyDate
-                  date={dashboard.createdAt}
-                  options={{ year: 'numeric', month: 'short', day: 'numeric' }}
-                  formatted={(formattedDate) => (
-                    <>
-                      {`${dictionary.misc.created} `}
-                      <span className='text-foreground pl-0.5'>{formattedDate}</span>
-                    </>
-                  )}
-                />
+                {loadingDate ? (
+                  dictionary.misc.loading
+                ) : (
+                  <>
+                    {dictionary.misc.created} <span className='text-foreground'>{formattedDate}</span>
+                  </>
+                )}
               </span>
             </div>
             <div className='flex w-8 justify-center'>
