@@ -3,8 +3,6 @@ import { useDictionary } from '@/contexts/DictionaryContextProvider';
 import { interpolateReactTemplate } from '@/utils/reactTemplateStrings';
 import { useEffect, useMemo, useState } from 'react';
 
-type InterpolationMap = Record<string, React.ReactNode>;
-
 type LazyDateProps = {
   date?: Date;
   locales?: Intl.LocalesArgument;
