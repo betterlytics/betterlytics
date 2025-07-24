@@ -1,11 +1,11 @@
 'use client';
 
 import { use } from 'react';
-import { getWorldMapDataAlpha3 } from '@/app/actions/geography';
+import { getWorldMapData } from '@/app/actions/geography';
 import LeafletMap from '@/components/LeafletMap';
 
 type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha3>;
+  worldMapPromise: ReturnType<typeof getWorldMapData>;
 };
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {

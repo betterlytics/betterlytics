@@ -126,19 +126,18 @@ const LeafletMap = ({
     if (!feature.properties) return;
 
     const featureId = getFeatureId(feature);
+    console.log('featureID:', featureId);
     if (!featureId) return;
 
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
-    const ascii2 = alpha3ToAlpha2Code(featureId);
-    if (!ascii2) return;
 
     const popupHtml = renderToString(
       <div className='space-y-1'>
         <CountryDisplay
           className='font-bold'
-          countryCode={ascii2 as FlagIconProps['countryCode']}
-          countryName={getCountryName(ascii2)}
+          countryCode={featureId as FlagIconProps['countryCode']}
+          countryName={getCountryName(featureId)}
         />
         <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
       </div>,

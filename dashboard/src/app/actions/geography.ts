@@ -18,7 +18,7 @@ const queryParamsSchema = z.object({
 /**
  * Server action to fetch geographic visitor data for world map in Alpha-3 format
  */
-export const getWorldMapDataAlpha3 = withDashboardAuthContext(
+export const getWorldMapData = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     params: Omit<z.infer<typeof queryParamsSchema>, 'siteId'>,
@@ -36,7 +36,7 @@ export const getWorldMapDataAlpha3 = withDashboardAuthContext(
 
     try {
       const geoVisitors = await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters);
-      return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.ToAlpha3));
+      return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
     } catch (error) {
       console.error('Error fetching visitor map data:', error);
       throw new Error('Failed to fetch visitor map data');

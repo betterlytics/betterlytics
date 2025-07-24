@@ -1,20 +1,19 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/LeafletMap';
-import { getWorldMapDataAlpha3 } from '@/app/actions/geography';
+import { getWorldMapData } from '@/app/actions/geography';
 import { getCountryName, alpha3ToAlpha2Code } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha3>;
+  worldMapPromise: ReturnType<typeof getWorldMapData>;
 };
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
   const { dictionary } = useDictionary();
-
   const topCountries = worldMapData.visitorData.slice(0, 10) || [];
 
   return (
@@ -25,15 +24,11 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
         {
           key: 'countries',
           label: dictionary.t('dashboard.tabs.topCountries'),
-          data: topCountries.map((country) => {
-            const alpha2Code = alpha3ToAlpha2Code(country.country_code) || country.country_code;
-
-            return {
-              label: getCountryName(alpha2Code),
-              value: country.visitors,
-              icon: <FlagIcon countryCode={alpha2Code as FlagIconProps['countryCode']} />,
-            };
-          }),
+          data: topCountries.map((country) => ({
+            label: getCountryName(country.country_code),
+            value: country.visitors,
+            icon: <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />,
+          })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noCountryData'),
         },
         {
