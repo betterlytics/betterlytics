@@ -64,8 +64,6 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, trigger }) {
-      console.log('Devleed ~ session, token -', token, user, trigger);
-
       if (user) {
         token.uid = user.id;
         token.name = user.name;
@@ -92,8 +90,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log('Devleed ~ session, token -', session, token);
-
       if (session.user) {
         session.user.id = token.uid;
         session.user.name = token.name;
