@@ -1,24 +1,43 @@
 'use client';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
-import { useEffect, useState } from 'react';
+import { interpolateReactTemplate } from '@/utils/reactTemplateStrings';
+import { useEffect, useMemo, useState } from 'react';
 
-// To avoid hydration failed issues when printing date values
-export default function LazyDate({
-  date,
-  locales,
-  options,
-}: {
+type InterpolationMap = Record<string, React.ReactNode>;
+
+type LazyDateProps = {
   date?: Date;
   locales?: Intl.LocalesArgument;
   options?: Intl.DateTimeFormatOptions;
-}) {
+  formatted?:
+    | ((formattedDate: string) => React.ReactNode)
+    | [(formattedDate: string) => string, Record<string, React.ReactNode>];
+};
+
+export default function LazyDate({ date, locales, options, formatted }: LazyDateProps) {
   const { dictionary } = useDictionary();
-  const [formattedDate, setFormattedDate] = useState<string>('');
+  const [formattedDate, setFormattedDate] = useState<string>(dictionary.misc.loading);
 
-  // Not using useMemo here, because we need to delay the formatting until after the component has mounted
+  // Format date only after mount (useEffect instead of useMemo to avoid hydration mismatch)
   useEffect(() => {
-    setFormattedDate(date ? date.toLocaleDateString(locales, options) : dictionary.misc.unknown);
-  }, [date]);
+    const value = date ? date.toLocaleDateString(locales, options) : dictionary.misc.unknown;
+    setFormattedDate(value);
+  }, [date, locales, options, dictionary.misc.unknown]);
 
-  return <>{formattedDate || dictionary.misc.loading}</>;
+  if (typeof formatted === 'function') {
+    return <>{formatted(formattedDate)}</>;
+  }
+
+  if (Array.isArray(formatted)) {
+    let [templateOrFn, interpolations] = formatted;
+    const template = typeof templateOrFn === 'function' ? templateOrFn(formattedDate) : templateOrFn;
+
+    if (!('date' in interpolations)) {
+      interpolations = { ...interpolations, date: formattedDate };
+    }
+
+    return useMemo(() => interpolateReactTemplate(template, interpolations), [template, interpolations]);
+  }
+
+  return <>{formattedDate}</>;
 }

@@ -48,10 +48,15 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
                 <Calendar className='text-muted-foreground h-3 w-3' />
               </div>
               <span className='text-muted-foreground text-xs'>
-                {dictionary.misc.createdAt}{' '}
                 <LazyDate
                   date={dashboard.createdAt}
                   options={{ year: 'numeric', month: 'short', day: 'numeric' }}
+                  formatted={(formattedDate) => (
+                    <>
+                      {`${dictionary.misc.createdAt} `}
+                      <span className='text-foreground pl-0.5'>{formattedDate}</span>
+                    </>
+                  )}
                 />
               </span>
             </div>
