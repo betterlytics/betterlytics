@@ -23,14 +23,12 @@ export default function LazyDate({ date, locales, options, formatted }: LazyDate
   }, [date, locales, options, dictionary.misc.unknown]);
 
   const content: ReactNode = useMemo(() => {
-    // If formatted is a function, pass formattedDate into it
     if (typeof formatted === 'function') {
       return formatted(formattedDate);
     }
 
     if (Array.isArray(formatted)) {
       const [templateOrFn, rawInterpolations] = formatted;
-
       const template = typeof templateOrFn === 'function' ? templateOrFn(formattedDate) : templateOrFn;
 
       const interpolations = {
