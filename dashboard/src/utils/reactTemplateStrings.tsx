@@ -3,28 +3,14 @@ import { isValidElement } from 'react';
 /**
  * Interpolates a template string like "Created at {{date}}" with React nodes or strings.
  *
- * @param template - The string template with placeholders in the form {{key}}.
+ * @param template - The string template with placeholders in the form `{{key}}`.
  * @param interpolations - A mapping of keys to React nodes or strings to inject into the template.
- * @returns An array of React nodes representing the interpolated template.
+ * @returns A React node containing the full interpolated content wrapped in fragments and spans (safe for hydration).
  *
  * @example
  * interpolateReactTemplate("Created at {{date}}", {
  *   date: <strong>2023-01-01</strong>
  * });
- * // => ["Created at ", <strong>2023-01-01</strong>]
- */
-/**
- * Interpolates a template string like "Created at {{date}}" with React nodes or strings.
- *
- * @param template - The string template with placeholders in the form {{key}}.
- * @param interpolations - A mapping of keys to React nodes or strings to inject into the template.
- * @returns A single React node wrapping the full interpolated content (safe for hydration).
- *
- * @example
- * interpolateReactTemplate("Created at {{date}}", {
- *   date: <strong>2023-01-01</strong>
- * });
- * // => <span>Created at </span><strong>2023-01-01</strong>
  */
 export function interpolateReactTemplate(
   template: string,
