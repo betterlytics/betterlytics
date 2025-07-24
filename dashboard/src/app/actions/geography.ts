@@ -16,7 +16,7 @@ const queryParamsSchema = z.object({
 });
 
 /**
- * Server action to fetch geographic visitor data for world map in Alpha-3 format
+ * Server action to fetch geographic visitor data for world map in Alpha-2 format
  */
 export const getWorldMapData = withDashboardAuthContext(
   async (
