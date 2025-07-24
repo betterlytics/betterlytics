@@ -53,7 +53,7 @@
     "loading": "Indlæser...",
     "error": "Der opstod en fejl",
     "app": "Applikation",
-    "createdAt": "Oprettet",
+    "created": "Oprettet",
     "unknown": "Ukendt"
   },
   "languages": {

@@ -53,7 +53,7 @@
     "loading": "Loading...",
     "error": "Error",
     "app": "Application",
-    "createdAt": "Created",
+    "created": "Created",
     "unknown": "Unknown"
   },
   "languages": {

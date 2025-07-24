@@ -53,7 +53,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
                   options={{ year: 'numeric', month: 'short', day: 'numeric' }}
                   formatted={(formattedDate) => (
                     <>
-                      {`${dictionary.misc.createdAt} `}
+                      {`${dictionary.misc.created} `}
                       <span className='text-foreground pl-0.5'>{formattedDate}</span>
                     </>
                   )}
