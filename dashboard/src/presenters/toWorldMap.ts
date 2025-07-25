@@ -50,6 +50,7 @@ export function dataToWorldMap(data: GeoVisitor[], format: CountryCodeFormat): W
   };
 }
 
+//! TODO: Remove topcountries arg, and information - just pass this explicitly from the user
 /**
  * Generates mock visitor data per country.
  *
@@ -63,14 +64,14 @@ export function dataToWorldMap(data: GeoVisitor[], format: CountryCodeFormat): W
 export function mockGeographyData({
   visitedCountries = countriesWithFlagIcon,
   baseVisitors = 900,
-  topCountries = ['US', 'GB', 'GE'],
+  topCountries = ['US', 'GB', 'GE', 'CN'],
 }: {
   visitedCountries?: string[];
   baseVisitors?: number;
   topCountries?: string[];
 } = {}): GeoVisitor[] {
   return [
-    ...topCountries.map((country_code, i) => ({ country_code, visitors: baseVisitors + i * 17 })),
+    ...topCountries.map((country_code, i) => ({ country_code, visitors: baseVisitors + i * 17 })).reverse(),
     ...visitedCountries
       .map((country_code) => ({ country_code, visitors: hashString(country_code) % baseVisitors }))
       .sort((a, b) => b.visitors - a.visitors),

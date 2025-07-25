@@ -2,8 +2,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import LeafletMap from '@/components/LeafletMap';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS } from '@/constants/geographyData';
+import { alpha2ToAlpha3Code } from '@/utils/countryCodes';
 
 export default function WorldMapCard() {
+  const getLegendCountryRow = (firstIdx: number = 0, lastIdx?: number) => (
+    <div className='my-[6px] grid grid-cols-4 gap-x-[9px] px-0.5'>
+      {MOCK_WORLD_GEOVISITORS.slice(firstIdx, lastIdx)
+        // .reverse() // since we are using grid layout, we reverse the order to match left to right
+        .map((country) => (
+          <div className='space-between text-xxs flex w-full overflow-hidden pl-[2px]' key={country.country_code}>
+            <div className='flex items-center gap-0.75'>
+              <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />
+              <span className='font-medium'>{alpha2ToAlpha3Code(country.country_code)}</span>
+            </div>
+            <span className='text-muted-foreground ml-auto flex items-center'>{country.visitors}</span>
+          </div>
+        ))}
+    </div>
+  );
+
   return (
     <Card>
       <CardHeader className='pb-0'>
@@ -24,20 +41,13 @@ export default function WorldMapCard() {
           />
         </div>
 
-        <div className='border-border/60 border-t pt-3'>
-          <div className='flex items-center justify-between text-xs'>
-            <span className='text-muted-foreground'>Top Countries</span>
-            <div className='flex items-center gap-5'>
-              {MOCK_WORLD_GEOVISITORS.slice(0, 3).map((country) => (
-                <div key={country.country_code} className='flex items-center gap-1'>
-                  <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />
-                  <span className='text-xs font-medium'>
-                    {country.country_code}: {country.visitors}
-                  </span>
-                  <span className='bg-primary/60 inline-block h-2 w-2 rounded-full'></span>
-                </div>
-              ))}
-            </div>
+        <div className='flex items-center justify-between gap-0.5'>
+          <span className='text-muted-foreground max-w-16 pr-0.5 text-center text-xs'>Top Countries</span>
+
+          <div className='flex w-full flex-col'>
+            {getLegendCountryRow(0, 4)}
+            <div className='col-span-4 h-[0.1px] border-[0.5px] shadow' />
+            {getLegendCountryRow(4, 8)}
           </div>
         </div>
       </CardContent>
