@@ -1,14 +1,14 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/LeafletMap';
-import { getWorldMapData } from '@/app/actions/geography';
+import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import { getCountryName, alpha3ToAlpha2Code } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapData>;
+  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
 };
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {

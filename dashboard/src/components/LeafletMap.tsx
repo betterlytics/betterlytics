@@ -126,7 +126,6 @@ const LeafletMap = ({
     if (!feature.properties) return;
 
     const featureId = getFeatureId(feature);
-    console.log('featureID:', featureId);
     if (!featureId) return;
 
     const visitorEntry = visitorData.find((d) => d.country_code === featureId);

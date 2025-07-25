@@ -18,7 +18,7 @@ const queryParamsSchema = z.object({
 /**
  * Server action to fetch geographic visitor data for world map in Alpha-2 format
  */
-export const getWorldMapData = withDashboardAuthContext(
+export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     params: Omit<z.infer<typeof queryParamsSchema>, 'siteId'>,
