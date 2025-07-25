@@ -97,8 +97,16 @@ export const fetchOperatingSystemBreakdownAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     queryFilters: QueryFilter[],
-  ): Promise<OperatingSystemStats[]> => {
-    return getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters);
+    const compareData =
+      compareStartDate &&
+      compareEndDate &&
+      (await getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters));
+    const test = toDataTable({ data, compare: compareData, categoryKey: 'os' });
+    return test;
   },
 );
 
