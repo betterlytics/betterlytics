@@ -7,6 +7,7 @@ import { findUserByEmail } from '@/repositories/postgres/user';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
+import { env } from '@/lib/env';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -38,21 +39,33 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    GithubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: 'consent',
-          access_type: 'offline',
-          response_type: 'code',
-        },
-      },
-    }),
+
+    // Conditionally add GitHub provider
+    ...(env.GITHUB_ID && env.GITHUB_SECRET
+      ? [
+          GithubProvider({
+            clientId: env.GITHUB_ID,
+            clientSecret: env.GITHUB_SECRET,
+          }),
+        ]
+      : []),
+
+    // Conditionally add Google provider
+    ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+            authorization: {
+              params: {
+                prompt: 'consent',
+                access_type: 'offline',
+                response_type: 'code',
+              },
+            },
+          }),
+        ]
+      : []),
   ],
   pages: {
     signIn: '/signin',

@@ -67,10 +67,10 @@ const envSchema = z.object({
     .transform((val) => val === 'true'),
   APP_TRACKING_SITE_ID: z.string().optional(),
   DEFAULT_LANGUAGE: z.enum(SUPPORTED_LANGUAGES).optional().default('en'),
-  GITHUB_ID: z.string().default(''),
-  GITHUB_SECRET: z.string().default(''),
-  GOOGLE_CLIENT_ID: z.string().default(''),
-  GOOGLE_CLIENT_SECRET: z.string().default(''),
+  GITHUB_ID: z.string().optional().default(''),
+  GITHUB_SECRET: z.string().optional().default(''),
+  GOOGLE_CLIENT_ID: z.string().optional().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
 });
 
 export const env = envSchema.parse(process.env);
