@@ -39,7 +39,17 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
     {
       accessorKey: 'percentage',
       header: 'Percentage',
-      cell: ({ row }) => `${row.original.current.percentage}%`,
+      cell: ({ row }) => (
+        <div className='flex flex-col'>
+          <div>{`${row.original.current.percentage}%`}</div>
+          <TableTrendIndicator
+            current={row.original.current.percentage}
+            compare={row.original.compare?.percentage}
+            percentage={row.original.change?.percentage}
+            formatter={(val) => `${val}%`}
+          />
+        </div>
+      ),
     },
   ];
 
