@@ -23,7 +23,7 @@ function rowChange<D extends Record<string, unknown>>({ row, compareRow }: RowPr
 
     return {
       ...acc,
-      [key]: (100 * difference) / (compareValue || 1),
+      [key]: compareRow !== undefined ? (100 * difference) / (compareValue || 1) : undefined,
     };
   }, {} as D);
 }
