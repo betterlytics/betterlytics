@@ -42,7 +42,14 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     compareEndDate,
   );
   const browserStatsPromise = fetchBrowserBreakdownAction(dashboardId, startDate, endDate, queryFilters);
-  const osStatsPromise = fetchOperatingSystemBreakdownAction(dashboardId, startDate, endDate, queryFilters);
+  const osStatsPromise = fetchOperatingSystemBreakdownAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
   const deviceUsageTrendPromise = fetchDeviceUsageTrendAction(
     dashboardId,
     startDate,

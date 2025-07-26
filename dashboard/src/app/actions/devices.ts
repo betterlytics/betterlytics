@@ -8,11 +8,8 @@ import {
   getDeviceUsageTrendForSite,
 } from '@/services/devices';
 import {
-  DeviceType,
   BrowserStats,
   DeviceSummary,
-  OperatingSystemStats,
-  DeviceUsageTrendRow,
   DeviceBreakdownCombined,
   DeviceBreakdownCombinedSchema,
 } from '@/entities/devices';
@@ -22,6 +19,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
 import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { toDataTable } from '@/presenters/toDataTable';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -104,9 +102,9 @@ export const fetchOperatingSystemBreakdownAction = withDashboardAuthContext(
     const compareData =
       compareStartDate &&
       compareEndDate &&
-      (await getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters));
-    const test = toDataTable({ data, compare: compareData, categoryKey: 'os' });
-    return test;
+      (await getOperatingSystemBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+    return toDataTable({ data, compare: compareData, categoryKey: 'os' });
   },
 );
 

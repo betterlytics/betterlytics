@@ -35,7 +35,6 @@ export function BADataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  console.log(data);
   const table = useReactTable({
     data,
     columns,

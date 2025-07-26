@@ -1,10 +1,10 @@
 'use client';
 
-import { OperatingSystemStats } from '@/entities/devices';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { OSIcon } from '@/components/icons';
 import { fetchOperatingSystemBreakdownAction } from '@/app/actions/devices';
+import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 
 interface OperatingSystemTableProps {
   data: Awaited<ReturnType<typeof fetchOperatingSystemBreakdownAction>>;
@@ -16,24 +16,30 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
       accessorKey: 'os',
       header: 'Operating System',
       cell: ({ row }) => (
-        console.log(row),
-        (
-          <div className='flex items-center gap-2'>
-            <OSIcon name={row.original.os} className='h-4 w-4' />
-            <span>{row.original.os}</span>
-          </div>
-        )
+        <div className='flex items-center gap-2'>
+          <OSIcon name={row.original.os} className='h-4 w-4' />
+          <span>{row.original.os}</span>
+        </div>
       ),
     },
     {
       accessorKey: 'visitors',
       header: 'Visitors',
-      cell: ({ row }) => row.original.toLocaleString(),
+      cell: ({ row }) => (
+        <div className='flex flex-col'>
+          <div>{row.original.current.visitors.toLocaleString()}</div>
+          <TableTrendIndicator
+            current={row.original.current.visitors}
+            compare={row.original.compare?.visitors}
+            percentage={row.original.change?.visitors}
+          />
+        </div>
+      ),
     },
     {
       accessorKey: 'percentage',
       header: 'Percentage',
-      cell: ({ row }) => `${row.original.percentage}%`,
+      cell: ({ row }) => `${row.original.current.percentage}%`,
     },
   ];
 
