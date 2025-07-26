@@ -68,7 +68,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                     <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
                   </div>
                 )}
-              <div className='flex w-full justify-center'>{children}</div>
+              <div className='flex h-full w-full justify-center'>{children}</div>
             </main>
             {/* Conditionally render tracking script based on server-side feature flag */}
             {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}

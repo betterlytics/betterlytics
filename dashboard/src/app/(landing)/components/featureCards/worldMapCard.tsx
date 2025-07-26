@@ -2,14 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import LeafletMap from '@/components/LeafletMap';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS } from '@/constants/geographyData';
+import { GeoVisitor } from '@/entities/geography';
 
-const CountryRow = ({ country }: { country: (typeof MOCK_WORLD_GEOVISITORS)[number] }) => (
-  <div className='text-xxs flex overflow-hidden px-1.5 py-[6px]' key={country.country_code}>
+const CountryRow = ({ geoVisitor }: { geoVisitor: GeoVisitor }) => (
+  <div className='text-xxs flex px-1.5 py-2' key={geoVisitor.country_code}>
     <div className='flex items-center gap-0.75'>
-      <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />
-      <span className='font-medium'>{country.country_code}</span>
+      <FlagIcon countryCode={geoVisitor.country_code as FlagIconProps['countryCode']} />
+      <span className='font-medium'>{geoVisitor.country_code}</span>
     </div>
-    <span className='text-muted-foreground ml-1 flex items-center'>{country.visitors}</span>
+    <span className='text-muted-foreground ml-1 flex items-center'>{geoVisitor.visitors}</span>
   </div>
 );
 
@@ -24,7 +25,6 @@ export default function WorldMapCard() {
       </CardHeader>
 
       <CardContent className='space-y-4'>
-        {/* MAP */}
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
           <LeafletMap
             visitorData={MOCK_WORLD_GEOVISITORS}
@@ -39,8 +39,9 @@ export default function WorldMapCard() {
           <div className='flex items-center justify-between text-xs'>
             <span className='text-muted-foreground'>Top Countries</span>
             <div className='grid auto-cols-[70px] grid-flow-col justify-end overflow-hidden'>
-              <CountryRow country={MOCK_WORLD_GEOVISITORS[0]} />
-              <CountryRow country={MOCK_WORLD_GEOVISITORS[1]} />
+              {Array.from({ length: 2 }).map((_, i) => (
+                <CountryRow key={MOCK_WORLD_GEOVISITORS[i].country_code} geoVisitor={MOCK_WORLD_GEOVISITORS[i]} />
+              ))}
             </div>
           </div>
         </div>
