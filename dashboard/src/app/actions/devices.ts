@@ -19,7 +19,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
 import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
-import { toDataTable } from '@/presenters/toDataTable';
+import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -84,8 +84,16 @@ export const fetchBrowserBreakdownAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     queryFilters: QueryFilter[],
-  ): Promise<BrowserStats[]> => {
-    return getBrowserBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ): Promise<ToDataTable<'browser', BrowserStats>[]> => {
+    const data = await getBrowserBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters);
+    const compareData =
+      compareStartDate &&
+      compareEndDate &&
+      (await getBrowserBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+    return toDataTable({ data, compare: compareData, categoryKey: 'browser' });
   },
 );
 
