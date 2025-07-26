@@ -103,7 +103,7 @@ fn sanitize_referrer_url(referrer_url: &Url, is_search_engine: bool, search_para
         }
         
         let url_str = clean_url.to_string();
-        url_str.replace("http://", "")
+        normalize_url(&url_str)
     } else {
         // For all other URLs, strip query parameters and fragments
         let mut clean_url = referrer_url.clone();
@@ -111,7 +111,7 @@ fn sanitize_referrer_url(referrer_url: &Url, is_search_engine: bool, search_para
         clean_url.set_fragment(None);
         
         let url_str = clean_url.to_string();
-        url_str.replace("https://", "").replace("http://", "")
+        normalize_url(&url_str)
     }
 }
 
@@ -229,4 +229,20 @@ fn extract_search_term(url: &Url, param_names: &[String]) -> Option<String> {
         }
     }
     None
+}
+
+/// Strips protocol prefixes (http://, https://, www.) and trailing /
+fn normalize_url(url: &String) -> String {
+    let stripped_prefix_url = strip_protocol_prefixes(url);
+    strip_url_postfix_forwardslash(&stripped_prefix_url)
+}
+
+/// Strips protocol prefixes (http://, https://, www.) and trailing /
+fn strip_protocol_prefixes(url: &String) -> String {
+    url.replace("https://", "").replace("http://", "").replace("www.", "")
+}
+
+/// Strips protocol prefixes (http://, https://, www.) and trailing /
+fn strip_url_postfix_forwardslash(url: &str) -> String {
+    return url.strip_suffix("/").unwrap_or(url).to_string();
 }
