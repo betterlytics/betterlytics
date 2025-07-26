@@ -7,9 +7,10 @@ type ToDataTableProps<K extends string, D> = {
 type RowProps<D extends Record<string, unknown>> = {
   row: D;
   compareRow?: D;
+  enabled: boolean;
 };
 
-function rowChange<D extends Record<string, unknown>>({ row, compareRow }: RowProps<D>) {
+function rowChange<D extends Record<string, unknown>>({ row, compareRow, enabled }: RowProps<D>) {
   return Object.entries(row).reduce((acc, [key, value]) => {
     if (typeof value !== 'number') {
       return {
@@ -23,7 +24,7 @@ function rowChange<D extends Record<string, unknown>>({ row, compareRow }: RowPr
 
     return {
       ...acc,
-      [key]: compareRow !== undefined ? (100 * difference) / (compareValue || 1) : undefined,
+      [key]: enabled ? (100 * difference) / (compareValue || 1) : undefined,
     };
   }, {} as D);
 }
@@ -42,7 +43,7 @@ export function toDataTable<K extends string, D>({ categoryKey, data, compare }:
       [categoryKey]: row[categoryKey],
       current: row,
       compare: compareRow,
-      change: rowChange<Record<K, string> & D>({ row, compareRow }),
+      change: rowChange<Record<K, string> & D>({ row, compareRow, enabled: Boolean(compare) }),
     } as ToDataTableReturn<K, D>;
   });
 }
