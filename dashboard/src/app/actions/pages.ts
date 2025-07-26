@@ -14,6 +14,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
+import { toDataTable } from '@/presenters/toDataTable';
 
 export const fetchPageAnalyticsAction = withDashboardAuthContext(
   async (
@@ -21,8 +22,17 @@ export const fetchPageAnalyticsAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     queryFilters: QueryFilter[],
-  ): Promise<PageAnalytics[]> => {
-    return getPageAnalytics(ctx.siteId, startDate, endDate, queryFilters);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getPageAnalytics(ctx.siteId, startDate, endDate, queryFilters);
+
+    const compareData =
+      compareStartDate &&
+      compareEndDate &&
+      (await getPageAnalytics(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+    return toDataTable({ data, compare: compareData, categoryKey: 'path' });
   },
 );
 
@@ -38,8 +48,17 @@ export const fetchEntryPageAnalyticsAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     queryFilters: QueryFilter[],
-  ): Promise<PageAnalytics[]> => {
-    return getEntryPageAnalyticsForSite(ctx.siteId, startDate, endDate, queryFilters);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getEntryPageAnalyticsForSite(ctx.siteId, startDate, endDate, queryFilters);
+
+    const compareData =
+      compareStartDate &&
+      compareEndDate &&
+      (await getEntryPageAnalyticsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+    return toDataTable({ data, compare: compareData, categoryKey: 'path' });
   },
 );
 
@@ -49,8 +68,17 @@ export const fetchExitPageAnalyticsAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     queryFilters: QueryFilter[],
-  ): Promise<PageAnalytics[]> => {
-    return getExitPageAnalyticsForSite(ctx.siteId, startDate, endDate, queryFilters);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getExitPageAnalyticsForSite(ctx.siteId, startDate, endDate, queryFilters);
+
+    const compareData =
+      compareStartDate &&
+      compareEndDate &&
+      (await getExitPageAnalyticsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+    return toDataTable({ data, compare: compareData, categoryKey: 'path' });
   },
 );
 

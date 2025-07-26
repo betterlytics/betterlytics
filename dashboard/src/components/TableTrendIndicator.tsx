@@ -22,7 +22,7 @@ export function TableTrendIndicator({
 
   const difference = current - comparedData;
 
-  if (difference === 0) {
+  if (difference === 0 && current !== 0) {
     return (
       <div className='flex items-center gap-1 text-xs'>
         <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
