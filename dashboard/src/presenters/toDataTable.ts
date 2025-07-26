@@ -29,7 +29,7 @@ function rowChange<D extends Record<string, unknown>>({ row, compareRow, enabled
   }, {} as D);
 }
 
-type ToDataTableReturn<K extends string, D> = Record<K, string> & {
+export type ToDataTable<K extends string, D> = Record<K, string> & {
   current: D;
   compare?: D;
   change?: D;
@@ -44,6 +44,6 @@ export function toDataTable<K extends string, D>({ categoryKey, data, compare }:
       current: row,
       compare: compareRow,
       change: rowChange<Record<K, string> & D>({ row, compareRow, enabled: Boolean(compare) }),
-    } as ToDataTableReturn<K, D>;
+    } as ToDataTable<K, D>;
   });
 }
