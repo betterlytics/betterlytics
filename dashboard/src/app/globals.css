@@ -172,3 +172,15 @@
 .leaflet-bottom {
   z-index: 0 !important;
 }
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  padding-top: 60px; /** Topbar padding */
+  height: 100vh;
+}

@@ -4,6 +4,7 @@ import { use } from 'react';
 import { getWorldMapData } from '@/app/actions/geography';
 import LeafletMap from '@/components/LeafletMap';
 import { alpha2ToAlpha3Code } from '@/utils/countryCodes';
+import DashboardFilters from '@/components/dashboard/DashboardFilters';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapData>;

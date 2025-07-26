@@ -58,11 +58,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} overflow-y-auto antialiased`}>
         <Providers>
           <ConditionalTopBar />
-          {children}
-          <ConditionalFooter />
+          <div className='h-screen w-screen'>
+            {children}
+            <ConditionalFooter />
+          </div>
         </Providers>
         <Toaster />
       </body>

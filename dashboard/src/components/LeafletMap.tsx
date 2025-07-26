@@ -6,6 +6,8 @@ import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
 import { LatLngBoundsExpression } from 'leaflet';
+import { cn } from '@/lib/utils';
+import DashboardFilters from './dashboard/DashboardFilters';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -45,6 +47,7 @@ const LeafletMap = ({
     L: typeof import('leaflet');
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
+    ZoomControl: typeof import('react-leaflet').ZoomControl;
   } | null>(null);
 
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
@@ -66,6 +69,7 @@ const LeafletMap = ({
           L: leafletModule.default,
           MapContainer: reactLeafletModule.MapContainer,
           GeoJSON: reactLeafletModule.GeoJSON,
+          ZoomControl: reactLeafletModule.ZoomControl,
         });
         setWorldGeoJson(world);
       } catch (err) {
@@ -147,7 +151,7 @@ const LeafletMap = ({
     );
   }
 
-  const { MapContainer, GeoJSON } = mapComponents;
+  const { MapContainer, GeoJSON, ZoomControl } = mapComponents;
 
   return (
     <div style={{ height: '100%', width: '100%' }}>
@@ -161,7 +165,7 @@ const LeafletMap = ({
         center={[20, 0]}
         style={{ height: '100%', width: '100%' }}
         zoom={initialZoom || 2}
-        zoomControl={showZoomControls}
+        zoomControl={false}
         maxBounds={MAX_WORLD_BOUNDS as LatLngBoundsExpression}
         maxBoundsViscosity={0.5}
         minZoom={1}
@@ -175,23 +179,34 @@ const LeafletMap = ({
           onEachFeature={onEachFeature}
           {...geoJsonOptions}
         />
-      </MapContainer>
-
-      {showLegend && (
-        <div className='info-legend bg-card border-border absolute right-5 bottom-10 rounded-md border p-2.5 shadow'>
-          <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
-          <div className='flex items-center'>
-            <span className='text-muted-foreground mr-1 text-xs'>0</span>
-            <div
-              className='h-2 w-24 rounded'
-              style={{
-                background: `linear-gradient(to right, ${MAP_COLORS.NO_VISITORS} 0%, ${MAP_COLORS.NO_VISITORS} 2%, ${MAP_COLORS.LOW_VISITORS} 3%, ${MAP_COLORS.HIGH_VISITORS} 100%)`,
-              }}
-            ></div>
-            <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
+        {showZoomControls && (
+          <>
+            <div className='absolute top-0 left-[250px]'>
+              <ZoomControl position='topleft' />
+            </div>
+            <div className='absolute top-[10px] right-[10px] z-30'>
+              <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
+                <DashboardFilters />
+              </div>
+            </div>
+          </>
+        )}
+        {showLegend && (
+          <div className='info-legend bg-card border-border absolute right-[10px] bottom-[1.5%] rounded-md border p-2.5 shadow'>
+            <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
+            <div className='flex items-center'>
+              <span className='text-muted-foreground mr-1 text-xs'>0</span>
+              <div
+                className='h-2 w-24 rounded'
+                style={{
+                  background: `linear-gradient(to right, ${MAP_COLORS.NO_VISITORS} 0%, ${MAP_COLORS.NO_VISITORS} 2%, ${MAP_COLORS.LOW_VISITORS} 3%, ${MAP_COLORS.HIGH_VISITORS} 100%)`,
+                }}
+              ></div>
+              <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </MapContainer>
     </div>
   );
 };
