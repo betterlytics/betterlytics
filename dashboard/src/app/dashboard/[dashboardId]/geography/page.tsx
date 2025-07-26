@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
-import { getWorldMapData } from '@/app/actions/geography';
+import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import GeographySection from '@/app/dashboard/[dashboardId]/geography/GeographySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -22,10 +22,10 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   const { dashboardId } = await params;
   const { startDate, endDate, queryFilters } = await BAFilterSearchParams.decodeFromParams(searchParams);
 
-  const worldMapPromise = getWorldMapData(dashboardId, { startDate, endDate, queryFilters });
+  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
 
   return (
-    <div className='fixed inset-0 top-14 w-full'>
+    <div className='relative inset-0 h-[calc(100vh-58px)] w-full'>
       <Suspense
         fallback={
           <div className='bg-background/70 flex h-full w-full flex-col items-center backdrop-blur-sm'>
@@ -37,7 +37,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
         <GeographySection worldMapPromise={worldMapPromise} />
       </Suspense>
 
-      <div className='fixed top-16 right-4 z-30'>
+      <div className='absolute top-0 right-[1%] z-30'>
         <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
           <DashboardFilters />
         </div>
