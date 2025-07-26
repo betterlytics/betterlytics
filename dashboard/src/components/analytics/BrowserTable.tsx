@@ -13,7 +13,6 @@ interface BrowserTableProps {
 }
 
 export default function BrowserTable({ data }: BrowserTableProps) {
-  console.log(data);
   const columns: ColumnDef<ToDataTable<'browser', BrowserStats>>[] = [
     {
       accessorKey: 'browser',
