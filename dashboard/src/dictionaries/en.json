@@ -52,7 +52,9 @@
   "misc": {
     "loading": "Loading...",
     "error": "Error",
-    "app": "Application"
+    "app": "Application",
+    "created": "Created",
+    "unknown": "Unknown"
   },
   "languages": {
     "da": "Danish",

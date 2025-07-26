@@ -52,7 +52,9 @@
   "misc": {
     "loading": "Indlæser...",
     "error": "Der opstod en fejl",
-    "app": "Applikation"
+    "app": "Applikation",
+    "created": "Oprettet",
+    "unknown": "Ukendt"
   },
   "languages": {
     "da": "Dansk",
