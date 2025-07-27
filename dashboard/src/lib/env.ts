@@ -7,8 +7,8 @@ const envSchema = z.object({
   CLICKHOUSE_DASHBOARD_PASSWORD: z.string().min(1),
   ADMIN_EMAIL: z.string().min(1),
   ADMIN_PASSWORD: z.string().min(1),
-  NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
-  NEXT_PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
+  PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
+  PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
   NEXTAUTH_URL: z.string().url().optional(),
   NEXTAUTH_SECRET: z.string().min(1),
   ENABLE_DASHBOARD_TRACKING: z
@@ -21,8 +21,8 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
-  NEXT_PUBLIC_BASE_URL: z.string().optional().default('http://localhost:3000'),
-  NEXT_PUBLIC_IS_CLOUD: z
+  PUBLIC_BASE_URL: z.string().optional().default('http://localhost:3000'),
+  PUBLIC_IS_CLOUD: z
     .enum(['true', 'false'])
     .default('false')
     .transform((val) => val === 'true'),
@@ -36,7 +36,7 @@ const envSchema = z.object({
     .optional()
     .default('false')
     .transform((val) => val === 'true'),
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
+  PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
   STRIPE_SECRET_KEY: z.string().optional().default(''),
   STRIPE_WEBHOOK_SECRET: z.string().optional().default(''),
   ENABLE_EMAILS: z

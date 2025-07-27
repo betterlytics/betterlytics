@@ -2,8 +2,8 @@
 import { env } from '@/lib/env';
 
 export const PUBLIC_ENVIRONMENT_VARIABLES_KEYS = Object.keys(env).filter((key) =>
-  key.includes('NEXT_PUBLIC_'),
-) as readonly (keyof typeof env & `NEXT_PUBLIC_${string}`)[];
+  key.includes('PUBLIC_'),
+) as readonly (keyof typeof env & `PUBLIC_${string}`)[];
 
 export type PublicEnvironmentVariableKeys = (typeof PUBLIC_ENVIRONMENT_VARIABLES_KEYS)[number];
 

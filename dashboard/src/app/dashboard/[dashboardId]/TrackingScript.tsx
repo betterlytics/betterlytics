@@ -8,15 +8,14 @@ type TrackingScriptProps = {
 };
 
 export function TrackingScript({ siteId }: TrackingScriptProps) {
-  const { NEXT_PUBLIC_ANALYTICS_BASE_URL, NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT } =
-    usePublicEnvironmentVariablesContext();
+  const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
 
   useEffect(() => {
     const script = document.createElement('script');
     script.async = true;
-    script.src = `${NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js`;
+    script.src = `${PUBLIC_ANALYTICS_BASE_URL}/analytics.js`;
     script.setAttribute('data-site-id', siteId);
-    script.setAttribute('data-server-url', `${NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track`);
+    script.setAttribute('data-server-url', `${PUBLIC_TRACKING_SERVER_ENDPOINT}/track`);
     script.setAttribute('data-dynamic-urls', '/dashboard/*');
     document.head.appendChild(script);
 
@@ -25,7 +24,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
         document.head.removeChild(script);
       }
     };
-  }, [siteId, NEXT_PUBLIC_ANALYTICS_BASE_URL, NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT]);
+  }, [siteId, PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT]);
 
   return null;
 }

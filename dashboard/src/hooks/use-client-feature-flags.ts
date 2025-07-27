@@ -3,15 +3,15 @@ import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironme
 import { useCallback, useMemo } from 'react';
 
 export function useClientFeatureFlags() {
-  const { NEXT_PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
+  const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
 
   const featureFlags = useMemo(
     () =>
       ({
-        enableBilling: NEXT_PUBLIC_IS_CLOUD,
-        isCloud: NEXT_PUBLIC_IS_CLOUD,
+        enableBilling: PUBLIC_IS_CLOUD,
+        isCloud: PUBLIC_IS_CLOUD,
       }) as const,
-    [NEXT_PUBLIC_IS_CLOUD, NEXT_PUBLIC_IS_CLOUD],
+    [PUBLIC_IS_CLOUD, PUBLIC_IS_CLOUD],
   );
 
   const isFeatureFlagEnabled = useCallback(
