@@ -54,7 +54,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
           <SidebarProvider>
             <BASidebar dashboardId={dashboardId} />
             <BAMobileSidebarTrigger />
-            <main className='bg-background w-full overflow-x-hidden'>
+            <main className='bg-background w-full overflow-hidden'>
               <ScrollReset />
               {billingEnabled && (
                 <Suspense fallback={null}>
