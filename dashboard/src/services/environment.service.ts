@@ -1,15 +1,11 @@
 'server only';
 import { env } from '@/lib/env';
 
-export const PUBLIC_ENVIRONMENT_VARIABLES_KEYS = [
-  'NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT',
-  'NEXT_PUBLIC_ANALYTICS_BASE_URL',
-  'NEXT_PUBLIC_BASE_URL',
-  'NEXT_PUBLIC_IS_CLOUD',
-  'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
-] as const;
+export const PUBLIC_ENVIRONMENT_VARIABLES_KEYS = Object.keys(env).filter((key) =>
+  key.includes('NEXT_PUBLIC_'),
+) as readonly (keyof typeof env & `NEXT_PUBLIC_${string}`)[];
 
-type PublicEnvironmentVariableKeys = (typeof PUBLIC_ENVIRONMENT_VARIABLES_KEYS)[number];
+export type PublicEnvironmentVariableKeys = (typeof PUBLIC_ENVIRONMENT_VARIABLES_KEYS)[number];
 
 export type PublicEnvironmentVariables = {
   [K in PublicEnvironmentVariableKeys]: (typeof env)[K];
