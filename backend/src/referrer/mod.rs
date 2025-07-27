@@ -102,16 +102,20 @@ fn sanitize_referrer_url(referrer_url: &Url, is_search_engine: bool, search_para
             }
         }
         
-        let url_str = clean_url.to_string();
-        normalize_url(&url_str)
+        match normalize_url(&clean_url) {
+            Some(normalized) => normalized,
+            None => clean_url.to_string()
+        }
     } else {
         // For all other URLs, strip query parameters and fragments
         let mut clean_url = referrer_url.clone();
         clean_url.set_query(None);
         clean_url.set_fragment(None);
         
-        let url_str = clean_url.to_string();
-        normalize_url(&url_str)
+        match normalize_url(&clean_url) {
+            Some(normalized) => normalized,
+            None => clean_url.to_string()
+        }
     }
 }
 
@@ -232,17 +236,19 @@ fn extract_search_term(url: &Url, param_names: &[String]) -> Option<String> {
 }
 
 /// Strips protocol prefixes (http://, https://, www.) and trailing /
-fn normalize_url(url: &String) -> String {
-    let stripped_prefix_url = strip_protocol_prefixes(url);
-    strip_url_postfix_forwardslash(&stripped_prefix_url)
-}
+fn normalize_url(url: &Url) -> Option<String> {
 
-/// Strips protocol prefixes (http://, https://, www.) and trailing /
-fn strip_protocol_prefixes(url: &String) -> String {
-    url.replace("https://", "").replace("http://", "").replace("www.", "")
-}
+    let host = url.host_str()?.trim_start_matches("www.");
+    let mut normalized = String::from(host);
 
-/// Strips protocol prefixes (http://, https://, www.) and trailing /
-fn strip_url_postfix_forwardslash(url: &str) -> String {
-    return url.strip_suffix("/").unwrap_or(url).to_string();
+    if let Some(port) = url.port() {
+        normalized.push_str(&format!(":{}", port));
+    }
+
+    let path = url.path().trim_end_matches('/');
+    if !path.is_empty() && path != "/" {
+        normalized.push_str(path);
+    }
+
+    Some(normalized)
 }
