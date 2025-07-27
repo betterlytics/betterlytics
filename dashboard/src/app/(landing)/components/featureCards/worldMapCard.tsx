@@ -5,7 +5,7 @@ import { MOCK_WORLD_GEOVISITORS } from '@/constants/geographyData';
 import { GeoVisitor } from '@/entities/geography';
 
 const CountryRow = ({ geoVisitor }: { geoVisitor: GeoVisitor }) => (
-  <div className='text-xxs flex px-1.5 py-2' key={geoVisitor.country_code}>
+  <div className='flex px-1.5 py-2 text-xs' key={geoVisitor.country_code}>
     <div className='flex items-center gap-0.75'>
       <FlagIcon countryCode={geoVisitor.country_code as FlagIconProps['countryCode']} />
       <span className='font-medium'>{geoVisitor.country_code}</span>

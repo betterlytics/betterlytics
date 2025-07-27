@@ -132,13 +132,16 @@ const LeafletMap = ({
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
 
     const popupHtml = renderToString(
-      <div className='space-y-1'>
+      <div className='text-foreground space-y-1'>
         <CountryDisplay
           className='font-bold'
           countryCode={featureId as FlagIconProps['countryCode']}
           countryName={getCountryName(featureId)}
         />
-        <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
+        <div className='flex gap-1 text-sm text-nowrap'>
+          <div className='text-muted-foreground'>Visitors:</div>
+          <span className='text-foreground'>{visitors}</span>
+        </div>
       </div>,
     );
 
@@ -177,10 +180,15 @@ const LeafletMap = ({
           display: inline-block;
           width: fit-content !important;
         }
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+          background-color: var(--accent);
+          border: 1px solid var(--border);
+        }
         .leaflet-popup-content {
           white-space: normal;
           width: fit-content !important;
-          max-width: 50vw;
+          max-width: 180px;
           min-width: 100px; // Min-width ensure 'Visitors: x' stays on one row
         }
       `}</style>
