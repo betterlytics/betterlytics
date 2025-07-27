@@ -1,6 +1,6 @@
 'use server';
-import { getPublicEnvironmentVaraibles } from '@/services/environment.service';
+import { getPublicEnvironmentVariables } from '@/services/environment.service';
 
 export async function fetchPublicEnvironmentVariablesAction() {
-  return getPublicEnvironmentVaraibles();
+  return getPublicEnvironmentVariables();
 }
