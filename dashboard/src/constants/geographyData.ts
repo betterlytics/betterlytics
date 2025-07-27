@@ -6,7 +6,7 @@ export const MOCK_WORLD_GEOVISITORS: GeoVisitor[] = [
     visitors: 3412,
   },
   {
-    country_code: 'RO',
+    country_code: 'US',
     visitors: 3328,
   },
   {
@@ -678,7 +678,7 @@ export const MOCK_WORLD_GEOVISITORS: GeoVisitor[] = [
     visitors: 392,
   },
   {
-    country_code: 'US',
+    country_code: 'RO',
     visitors: 391,
   },
   {
