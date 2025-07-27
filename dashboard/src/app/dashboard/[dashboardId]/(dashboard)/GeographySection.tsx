@@ -2,7 +2,7 @@
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/LeafletMap';
 import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
-import { getCountryName, alpha3ToAlpha2Code } from '@/utils/countryCodes';
+import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';

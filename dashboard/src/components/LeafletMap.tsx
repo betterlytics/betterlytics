@@ -8,7 +8,7 @@ import 'leaflet/dist/leaflet.css';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
 import { LatLngBoundsExpression } from 'leaflet';
-import { alpha3ToAlpha2Code, getCountryName } from '@/utils/countryCodes';
+import { getCountryName } from '@/utils/countryCodes';
 import { FlagIconProps } from './icons';
 
 interface LeafletMapProps {
