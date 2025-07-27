@@ -181,7 +181,7 @@ const LeafletMap = ({
           white-space: normal;
           width: fit-content !important;
           max-width: 50vw;
-          min-width: 80px; // Min-width ensure 'Visitors: x' stays on one row
+          min-width: 100px; // Min-width ensure 'Visitors: x' stays on one row
         }
       `}</style>
 
