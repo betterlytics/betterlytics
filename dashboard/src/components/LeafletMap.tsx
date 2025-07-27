@@ -184,7 +184,7 @@ const LeafletMap = ({
         .leaflet-popup-tip {
           background-color: var(--card);
           border: 0.5px solid var(--border);
-          box-shadow: 0 1px 3px var(--color-sidebar-accent-foreground);
+          box-shadow: 0 0.5px 2px var(--color-sidebar-accent-foreground);
         }
         .leaflet-popup-content {
           white-space: normal;
