@@ -24,7 +24,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getDisplayName } from '@/utils/userUtils';
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
-const VERIFICATION_URL_BASE = env.NEXT_PUBLIC_BASE_URL;
+const VERIFICATION_URL_BASE = env.PUBLIC_BASE_URL;
 const RESEND_COOLDOWN_MINUTES = 5;
 
 export async function sendVerificationEmail(data: SendVerificationEmailData): Promise<void> {
