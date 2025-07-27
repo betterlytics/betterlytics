@@ -172,3 +172,8 @@
 .leaflet-bottom {
   z-index: 0 !important;
 }
+
+.text-xxs {
+  font-size: 11px;
+  line-height: var(--tw-leading, 11px);
+}
