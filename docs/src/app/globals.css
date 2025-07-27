@@ -88,8 +88,6 @@
   --sidebar-accent-foreground: oklch(0.3 0 0);
   --sidebar-border: oklch(93% 0 0);
   --sidebar-ring: oklch(74% 0.118 268.64);
-  
-  --flagicon-border: oklch(0.75 0.02 265 / 0.5); /* Semi-transparent muted border for flag icons */
 }
 
 .dark {
@@ -136,8 +134,6 @@
   --sidebar-accent-foreground: oklch(0.95 0.01 265);
   --sidebar-border: oklch(0.3 0.02 266);
   --sidebar-ring: oklch(50% 0.222 268.78); /* blue-800 */
-
-  --flagicon-border: oklch(0.75 0.02 265 / 0.5);
 }
 
 @layer base {

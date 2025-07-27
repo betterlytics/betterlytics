@@ -139,7 +139,7 @@
   --sidebar-border: oklch(0.3 0.02 266);
   --sidebar-ring: oklch(50% 0.222 268.78); /* blue-800 */
 
-  --flagicon-border: oklch(0.75 0.02 265 / 0.5); /* Semi-transparent muted border for flag icons */
+  --flagicon-border: oklch(0.75 0.02 265 / 0.5);
 }
 
 @layer base {

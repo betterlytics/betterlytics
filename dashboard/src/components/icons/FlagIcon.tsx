@@ -17,7 +17,7 @@ function FlagIconComponent({ countryCode, countryName = getCountryName(countryCo
         <HelpCircle
           size='1em'
           style={{
-            color: '#9ca3af',
+            color: 'var(--foreground)',
             height: '1em',
             width: 'fit-content',
           }}
