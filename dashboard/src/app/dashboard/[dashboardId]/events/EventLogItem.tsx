@@ -1,9 +1,9 @@
 import React from 'react';
-import { Globe, User, ExternalLink, Activity } from 'lucide-react';
+import { User, ExternalLink, Activity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { EventLogEntry } from '@/entities/events';
 import { formatTimeAgo } from '@/utils/dateFormatters';
-import { DeviceIcon, BrowserIcon } from '@/components/icons';
+import { DeviceIcon, BrowserIcon, FlagIcon, FlagIconProps } from '@/components/icons';
 
 const MAX_PROPERTIES_DISPLAY = 3;
 
@@ -102,9 +102,7 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
             )}
 
             {event.country_code && (
-              <MetadataItem icon={Globe}>
-                {' '}
-                {/* TODO: Add flag icon */}
+              <MetadataItem icon={<FlagIcon countryCode={event.country_code as FlagIconProps['countryCode']} />}>
                 <span className='font-medium uppercase'>{event.country_code}</span>
               </MetadataItem>
             )}
