@@ -1,18 +1,12 @@
 'use client';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { createFeatureFlags } from '@/lib/feature-flags-factory';
 import { useCallback, useMemo } from 'react';
 
 export function useClientFeatureFlags() {
-  const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
+  const env = usePublicEnvironmentVariablesContext();
 
-  const featureFlags = useMemo(
-    () =>
-      ({
-        enableBilling: PUBLIC_IS_CLOUD,
-        isCloud: PUBLIC_IS_CLOUD,
-      }) as const,
-    [PUBLIC_IS_CLOUD, PUBLIC_IS_CLOUD],
-  );
+  const featureFlags = useMemo(() => createFeatureFlags(env), [env]);
 
   const isFeatureFlagEnabled = useCallback(
     (flag: keyof typeof featureFlags) => {
