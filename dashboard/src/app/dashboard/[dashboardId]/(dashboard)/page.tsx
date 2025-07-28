@@ -45,6 +45,8 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     endDate,
     5,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
 
