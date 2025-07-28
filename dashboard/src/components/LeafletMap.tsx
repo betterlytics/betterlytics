@@ -17,6 +17,7 @@ interface LeafletMapProps {
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
+  size?: 'sm' | 'lg';
 }
 
 const geoJsonOptions = {
@@ -41,6 +42,7 @@ const LeafletMap = ({
   maxVisitors,
   showZoomControls,
   showLegend = true,
+  size = 'sm',
   initialZoom,
 }: LeafletMapProps) => {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
@@ -132,13 +134,16 @@ const LeafletMap = ({
     const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
 
     const popupHtml = renderToString(
-      <div className='space-y-1'>
+      <div className='text-foreground space-y-1'>
         <CountryDisplay
           className='font-bold'
           countryCode={featureId as FlagIconProps['countryCode']}
           countryName={getCountryName(featureId)}
         />
-        <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
+        <div className='flex gap-1 text-sm text-nowrap'>
+          <div className='text-muted-foreground'>Visitors:</div>
+          <span className='text-foreground'>{visitors}</span>
+        </div>
       </div>,
     );
 
@@ -177,10 +182,16 @@ const LeafletMap = ({
           display: inline-block;
           width: fit-content !important;
         }
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+          background-color: var(--card);
+          border: 0.5px solid var(--border);
+          box-shadow: 0 0.5px 2px var(--color-sidebar-accent-foreground);
+        }
         .leaflet-popup-content {
           white-space: normal;
           width: fit-content !important;
-          max-width: 50vw;
+          max-width: ${size === 'sm' ? '180px' : '40vw'};
           min-width: 100px; // Min-width ensure 'Visitors: x' stays on one row
         }
       `}</style>
