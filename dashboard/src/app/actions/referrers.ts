@@ -22,6 +22,7 @@ import {
 import { QueryFilter } from '@/entities/filter';
 import { toPieChart } from '@/presenters/toPieChart';
 import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { toDataTable } from '@/presenters/toDataTable';
 
 /**
  * Fetches the referrer distribution data for a site
@@ -150,7 +151,10 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
         compareStartDate &&
         compareEndDate &&
         (await getReferrerTableDataForSite(ctx.siteId, startDate, endDate, queryFilters, limit));
-      return { data };
+
+      return {
+        data: toDataTable({ data, compare, categoryKey: 'source_name' }),
+      };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);
       throw error;

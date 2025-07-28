@@ -1,18 +1,20 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { PageAnalytics } from '@/entities/pages';
-import { formatDuration } from '@/utils/dateFormatters';
 import { useMemo, useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { Button } from '@/components/ui/button';
 import { formatPercentage } from '@/utils/formatters';
 import TabbedTable, { TabDefinition } from '@/components/TabbedTable';
+import { fetchPageAnalyticsAction } from '@/app/actions/pages';
+import { TableCompareCell } from '@/components/TableCompareCell';
+import { TableTrendIndicator } from '@/components/TableTrendIndicator';
+import { formatDuration } from '@/utils/dateFormatters';
 
 interface TabbedPagesTableProps {
-  allPagesData: PageAnalytics[];
-  entryPagesData: PageAnalytics[];
-  exitPagesData: PageAnalytics[];
+  allPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
+  entryPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
+  exitPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
 }
 
 const formatPath = (path: string): string => {
@@ -33,12 +35,14 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     [addQueryFilter],
   );
 
-  const getBaseColumns = useCallback((): ColumnDef<PageAnalytics>[] => {
+  const getBaseColumns = useCallback((): ColumnDef<
+    Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]
+  >[] => {
     return [
       {
         accessorKey: 'path',
         header: 'Path',
-        cell: ({ row }: { row: { original: PageAnalytics } }) => {
+        cell: ({ row }) => {
           const path = formatPath(row.original.path);
           return (
             <Button
@@ -55,37 +59,62 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       {
         accessorKey: 'visitors',
         header: 'Visitors',
-        cell: ({ row }: { row: { original: PageAnalytics } }) => row.original.visitors.toLocaleString(),
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' />,
       },
       {
         accessorKey: 'pageviews',
         header: 'Pageviews',
-        cell: ({ row }: { row: { original: PageAnalytics } }) => row.original.pageviews.toLocaleString(),
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' />,
       },
       {
         accessorKey: 'bounceRate',
         header: 'Bounce Rate',
-        cell: ({ row }: { row: { original: PageAnalytics } }) => formatPercentage(row.original.bounceRate),
+        cell: ({ row }) => (
+          <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} />
+        ),
       },
       {
         accessorKey: 'avgTime',
         header: 'Avg. Time',
-        cell: ({ row }: { row: { original: PageAnalytics } }) => formatDuration(row.original.avgTime),
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} />,
       },
     ];
   }, [handlePathClick]);
 
-  const getTabSpecificColumns = useCallback((): Record<string, ColumnDef<PageAnalytics>> => {
+  const getTabSpecificColumns = useCallback((): Record<
+    string,
+    ColumnDef<Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]>
+  > => {
     return {
       entryRate: {
         accessorKey: 'entryRate',
         header: 'Entry Rate',
-        cell: ({ row }: { row: { original: PageAnalytics } }) => formatPercentage(row.original.entryRate ?? 0),
+        cell: ({ row }) => (
+          <div className='flex flex-col'>
+            <div>{formatPercentage(row.original.current.entryRate ?? 0)}</div>
+            <TableTrendIndicator
+              current={row.original.current.entryRate ?? 0}
+              compare={row.original.compare?.entryRate}
+              percentage={row.original.change?.entryRate}
+              formatter={formatPercentage}
+            />
+          </div>
+        ),
       },
       exitRate: {
         accessorKey: 'exitRate',
         header: 'Exit Rate',
-        cell: ({ row }: { row: { original: PageAnalytics } }) => formatPercentage(row.original.exitRate ?? 0),
+        cell: ({ row }) => (
+          <div className='flex flex-col'>
+            <div>{formatPercentage(row.original.current.exitRate ?? 0)}</div>
+            <TableTrendIndicator
+              current={row.original.current.exitRate ?? 0}
+              compare={row.original.compare?.exitRate}
+              percentage={row.original.change?.exitRate}
+              formatter={formatPercentage}
+            />
+          </div>
+        ),
       },
     };
   }, []);
@@ -104,7 +133,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     return [...base, specific.exitRate];
   }, [getBaseColumns, getTabSpecificColumns]);
 
-  const tableTabs: TabDefinition<PageAnalytics>[] = useMemo(
+  const tableTabs = useMemo(
     () => [
       {
         key: 'all',

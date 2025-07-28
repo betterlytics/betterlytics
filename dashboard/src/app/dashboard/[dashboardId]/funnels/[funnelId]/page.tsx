@@ -8,20 +8,24 @@ import FunnelSummarySection from './FunnelSummarySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { SummaryCardsSkeleton } from '@/components/skeleton';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
+import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
 type FunnelPageProps = {
   params: Promise<{ dashboardId: string; funnelId: string }>;
+  searchParams: Promise<{ filters: string }>;
 };
 
-export default async function FunnelPage({ params }: FunnelPageProps) {
+export default async function FunnelPage({ params, searchParams }: FunnelPageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect('/');
   }
 
+  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+
   const { dashboardId, funnelId } = await params;
-  const funnelPromise = fetchFunnelDetailsAction(dashboardId, funnelId);
+  const funnelPromise = fetchFunnelDetailsAction(dashboardId, funnelId, startDate, endDate);
 
   return (
     <div className='container space-y-6 p-6'>

@@ -5,7 +5,7 @@ import { renderToString } from 'react-dom/server';
 import { scaleLinear } from 'd3-scale';
 import { GeoVisitor } from '@/entities/geography';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { getCountryName, alpha3ToAlpha2Code } from '@/utils/countryCodes';
+import { getCountryName } from '@/utils/countryCodes';
 import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { FlagIconProps } from '@/components/icons';
 
@@ -16,7 +16,7 @@ interface UseLeafletFeaturesProps {
 }
 
 export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, mapLib }: UseLeafletFeaturesProps) {
-  const [selectedCountry, setSelectedCountry] = useState<{ selectedAt: LatLng; code: string } | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<{ selectedAt: LatLng; code: string, visitors: number } | null>(null);
   const selectedCountryRef = useRef<typeof selectedCountry>(null);
   const previousSelectedCountryRef = useRef<typeof selectedCountry>(null);
   const featureLayersRef = useRef<Record<string, L.Layer>>({});
@@ -56,48 +56,25 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, mapLib 
   };
 
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-    const featureId = getFeatureId(feature);
-    if (!featureId || !feature.properties) return;
-
-    const visitorEntry = visitorData.find((d) => d.country_code === featureId);
+    const alpha2 = getFeatureId(feature);
+    if (!alpha2) return;
+  
+    const visitorEntry = visitorData.find((d) => d.country_code === alpha2);
     const visitors = visitorEntry?.visitors ?? 0;
-    const ascii2 = alpha3ToAlpha2Code(featureId);
+    
+    featureLayersRef.current[alpha2] = layer;
 
-    if (!ascii2) return;
-
-    const popupHtml = renderToString(
-      <div className='space-y-1'>
-        <CountryDisplay
-          className='font-bold'
-          countryCode={ascii2 as FlagIconProps['countryCode']}
-          countryName={getCountryName(ascii2)}
-        />
-        <div className='text-muted-foreground text-sm'>Visitors: {visitors}</div>
-      </div>,
-    );
-
-    layer.bindTooltip(popupHtml, {
-      direction: 'auto',
-      sticky: true,
-      offset: [0, 0],
-      opacity: 0.95,
-      className: 'leaflet-country-tooltip',
-    });
-
-    const handleClick = (e: LeafletMouseEvent) => {
-      layer.openTooltip(e.latlng);
+    const handleSelect = (e: L.LeafletMouseEvent) => {
       setSelectedCountry({
-        code: featureId,
-        selectedAt: layer.getBounds().getCenter(),
+        code: alpha2,
+        selectedAt: e.latlng, // or layer.getBounds().getCenter() if you want center
+        visitors: visitors
       });
-      layer.bringToFront();
     };
-
-    featureLayersRef.current[featureId] = layer;
-
+  
     layer.on({
-      click: handleClick,
-      mouseover: handleClick,
+      mouseover: handleSelect,
+      click: handleSelect,
     });
   };
 

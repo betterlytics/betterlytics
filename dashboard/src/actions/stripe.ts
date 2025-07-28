@@ -65,8 +65,8 @@ export const createStripeCheckoutSession = withUserAuth(async (user: User, planD
         requestedCurrency: validatedPlan.currency,
         isInitialSubscription: 'true',
       },
-      success_url: `${env.NEXT_PUBLIC_BASE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${env.NEXT_PUBLIC_BASE_URL}/billing?canceled=true`,
+      success_url: `${env.PUBLIC_BASE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.PUBLIC_BASE_URL}/billing?canceled=true`,
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       /*automatic_tax: {
@@ -119,7 +119,7 @@ export const createStripeCustomerPortalSessionForCancellation = withUserAuth(asy
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: subscription.paymentCustomerId,
-      return_url: `${env.NEXT_PUBLIC_BASE_URL}/billing`,
+      return_url: `${env.PUBLIC_BASE_URL}/billing`,
       configuration: configuration.id,
       flow_data: {
         type: 'subscription_cancel',
@@ -189,7 +189,7 @@ export const createStripeCustomerPortalSession = withUserAuth(async (user: User,
 
     const sessionParams: Stripe.BillingPortal.SessionCreateParams = {
       customer: subscription.paymentCustomerId,
-      return_url: `${env.NEXT_PUBLIC_BASE_URL}/billing`,
+      return_url: `${env.PUBLIC_BASE_URL}/billing`,
     };
 
     if (configurationId) {

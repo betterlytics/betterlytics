@@ -1,11 +1,11 @@
 'use client';
 
 import { use } from 'react';
-import { getWorldMapDataAlpha3 } from '@/app/actions/geography';
+import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import LeafletMap from '@/components/LeafletMap';
 
 type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha3>;
+  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
 };
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
@@ -14,7 +14,12 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
   return (
     <>
       <div className='h-full w-full'>
-        <LeafletMap visitorData={mapData.visitorData} maxVisitors={mapData.maxVisitors} showZoomControls={true} />
+        <LeafletMap
+          visitorData={mapData.visitorData}
+          maxVisitors={mapData.maxVisitors}
+          showZoomControls={true}
+          size='lg'
+        />
       </div>
 
       {mapData.visitorData.length === 0 && (

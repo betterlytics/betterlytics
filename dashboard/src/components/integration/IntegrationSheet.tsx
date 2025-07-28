@@ -15,6 +15,7 @@ import { fetchSiteId } from '@/app/actions';
 import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
+import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -35,6 +36,8 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
     dataReceiving: false,
   });
 
+  const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
+
   const dashboardId = useDashboardId();
   const { isVerifying, isVerified, verify } = useTrackingVerification();
 
@@ -51,7 +54,7 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
   }, [isVerified]);
 
   const trackingScript = siteId
-    ? `<script async src="${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${siteId}" data-server-url="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`
+    ? `<script async src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${siteId}" data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`
     : '';
 
   const handleVerifyInstallation = async () => {
@@ -96,9 +99,9 @@ export default function RootLayout({
       <head>
         <Script
           async
-          src="${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
+          src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
           data-site-id="${siteId}"
-          data-server-url="${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
+          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
         />
       </head>
       <body>{children}</body>
@@ -112,9 +115,9 @@ function App() {
   useEffect(() => {
     const script = document.createElement('script');
     script.async = true;
-    script.src = "${process.env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
+    script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
     script.setAttribute('data-site-id', "${siteId}");
-    script.setAttribute('data-server-url', "${process.env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track")
+    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/track")
     document.head.appendChild(script);
 
     return () => {

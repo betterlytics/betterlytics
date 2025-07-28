@@ -28,7 +28,8 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } =
+    await BAFilterSearchParams.decodeFromParams(searchParams);
 
   const pagesSummaryWithChartsPromise = fetchPagesSummaryWithChartsAction(
     dashboardId,
@@ -36,9 +37,30 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
     endDate,
     queryFilters,
   );
-  const pageAnalyticsPromise = fetchPageAnalyticsAction(dashboardId, startDate, endDate, queryFilters);
-  const entryPageAnalyticsPromise = fetchEntryPageAnalyticsAction(dashboardId, startDate, endDate, queryFilters);
-  const exitPageAnalyticsPromise = fetchExitPageAnalyticsAction(dashboardId, startDate, endDate, queryFilters);
+  const pageAnalyticsPromise = fetchPageAnalyticsAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
+  const entryPageAnalyticsPromise = fetchEntryPageAnalyticsAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
+  const exitPageAnalyticsPromise = fetchExitPageAnalyticsAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
 
   return (
     <div className='container space-y-6 p-6'>

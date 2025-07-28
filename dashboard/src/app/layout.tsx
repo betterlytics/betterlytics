@@ -45,9 +45,9 @@ export default function RootLayout({
         {env.ENABLE_APP_TRACKING && (
           <Script
             async
-            src={`${env.NEXT_PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
+            src={`${env.PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
             data-site-id={env.APP_TRACKING_SITE_ID}
-            data-server-url={`${env.NEXT_PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
+            data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
             data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*'
           />
         )}

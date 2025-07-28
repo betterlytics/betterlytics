@@ -8,6 +8,8 @@ import { ReferrerTableRow } from '@/entities/referrers';
 import { getReferrerColor } from '@/utils/referrerColors';
 import { Globe, Link } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
+import { ToDataTable } from '@/presenters/toDataTable';
+import { TableCompareCell } from '@/components/TableCompareCell';
 
 export const ReferrerTab = {
   All: 'all',
@@ -38,26 +40,26 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 };
 
 interface ReferrerTableProps {
-  data?: ReferrerTableRow[];
+  data?: ToDataTable<'source_name', ReferrerTableRow>[];
 }
 
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
   const [activeTab, setActiveTab] = useState<ReferrerTabKey>(ReferrerTab.All);
 
-  const totalVisits = data.reduce((sum, row) => sum + row.visits, 0);
+  const totalVisits = data.reduce((sum, row) => sum + row.current.visits, 0);
 
   // Filter data based on active tab
   const filteredData = data.filter((row) => {
     if (activeTab === ReferrerTab.All) return true;
-    return row.source_type.toLowerCase() === activeTab.toLowerCase();
+    return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
   });
 
-  const columns: ColumnDef<ReferrerTableRow>[] = [
+  const columns: ColumnDef<ToDataTable<'source_name', ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
       header: 'Source',
       cell: ({ row }) => {
-        const data = row.original;
+        const data = row.original.current;
         return (
           <div className='font-medium'>
             <div className='flex items-center gap-2'>
@@ -79,21 +81,21 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     {
       accessorKey: 'source_type',
       header: 'Type',
-      cell: ({ row }) => <SourceTypeBadge type={row.original.source_type} />,
+      cell: ({ row }) => <SourceTypeBadge type={row.original.current.source_type} />,
     },
     {
       accessorKey: 'visits',
       header: 'Visits',
-      cell: ({ row }) => formatNumber(row.original.visits),
+      cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visits' formatter={formatNumber} />,
     },
     {
       id: 'percentage',
       header: 'Percentage',
-      accessorFn: (row: ReferrerTableRow) => {
+      accessorFn: (row) => {
         if (totalVisits === 0) {
           return 0;
         }
-        return (row.visits / totalVisits) * 100;
+        return (row.current.visits / totalVisits) * 100;
       },
       cell: ({ getValue }) => formatPercentage(getValue<number>()),
       enableSorting: true,
@@ -101,12 +103,16 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     {
       accessorKey: 'bounce_rate',
       header: 'Bounce Rate',
-      cell: ({ row }) => formatPercentage(row.original.bounce_rate),
+      cell: ({ row }) => (
+        <TableCompareCell row={row.original} dataKey='bounce_rate' formatter={formatPercentage} />
+      ),
     },
     {
       accessorKey: 'avg_visit_duration',
       header: 'Avg. Visit Duration',
-      cell: ({ row }) => formatDuration(row.original.avg_visit_duration),
+      cell: ({ row }) => (
+        <TableCompareCell row={row.original} dataKey='avg_visit_duration' formatter={formatDuration} />
+      ),
     },
   ];
 

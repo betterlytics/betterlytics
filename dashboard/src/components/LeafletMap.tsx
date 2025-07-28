@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
-import 'leaflet/dist/leaflet.css';
-import { GeoVisitor } from '@/entities/geography';
-import { LatLngBoundsExpression } from 'leaflet';
 import MapBackgroundLayer from '@/components/leaflet/MapBackgroundLayer';
-import { useLeafletFeatures } from '@/hooks/use-leaflet-features';
 import { MAP_VISITOR_COLORS } from '@/constants/mapColors';
+import { GeoVisitor } from '@/entities/geography';
+import { useLeafletFeatures } from '@/hooks/use-leaflet-features';
+import { LatLngBoundsExpression } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useMemo, useState } from 'react';
+import MapTooltip from './leaflet/MapTooltip';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -14,6 +15,7 @@ interface LeafletMapProps {
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
+  size?: 'sm' | 'lg';
 }
 
 const geoJsonOptions = {
@@ -26,6 +28,7 @@ const LeafletMap = ({
   maxVisitors,
   showZoomControls,
   showLegend = true,
+  size = 'sm',
   initialZoom,
 }: LeafletMapProps) => {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
@@ -36,7 +39,7 @@ const LeafletMap = ({
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
-  const { setSelectedCountry, styleGeoJson, onEachFeature } = useLeafletFeatures({
+  const { selectedCountry, setSelectedCountry, styleGeoJson, onEachFeature } = useLeafletFeatures({
     visitorData,
     calculatedMaxVisitors,
     mapLib: mapComponents?.L,
@@ -88,19 +91,18 @@ const LeafletMap = ({
   }
 
   const { MapContainer, GeoJSON } = mapComponents;
-
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <style jsx global>{`
+        .leaflet-tooltip, .leaflet-popup {
+          display: none !important;
+        }
+
         .leaflet-container {
           background-color: var(--color-card);
         }
         .leaflet-interactive:focus {
           outline: none !important; /** Remove square around selection area */
-        }
-        .leaflet-popup-content-wrapper {
-          display: inline-block;
-          width: fit-content !important;
         }
         .leaflet-popup-content {
           white-space: normal;
@@ -117,6 +119,18 @@ const LeafletMap = ({
           white-space: nowrap;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
           pointer-events: none;
+        }
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+          background-color: var(--card);
+          border: 0.5px solid var(--border);
+          box-shadow: 0 0.5px 2px var(--color-sidebar-accent-foreground);
+        }
+        .leaflet-popup-content {
+          white-space: normal;
+          width: fit-content !important;
+          max-width: ${size === 'sm' ? '180px' : '40vw'};
+          min-width: 100px; // Min-width ensure 'Visitors: x' stays on one row
         }
       `}</style>
       <MapContainer
@@ -142,25 +156,30 @@ const LeafletMap = ({
           GeoJSON={GeoJSON}
           onSelect={() => setSelectedCountry(null)}
         />
-      </MapContainer>
-
-      {showLegend && (
-        <div className='info-legend bg-card border-border absolute right-5 bottom-10 rounded-md border p-2.5 shadow'>
-          <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
-          <div className='flex items-center'>
-            <span className='text-muted-foreground mr-1 text-xs'>0</span>
-            <div
-              className='h-2 w-24 rounded'
-              style={{
-                background:
-                  `linear-gradient(to right, ${MAP_VISITOR_COLORS.NO_VISITORS} 0%, ${MAP_VISITOR_COLORS.NO_VISITORS} ` +
-                  `2%, ${MAP_VISITOR_COLORS.LOW_VISITORS} 3%, ${MAP_VISITOR_COLORS.HIGH_VISITORS} 100%)`,
-              }}
-            ></div>
-            <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
+        <MapTooltip
+          selectedCountry={
+            selectedCountry ? { 
+              code: selectedCountry.code,
+              visitors: selectedCountry.visitors
+            } : selectedCountry 
+          }
+        />
+        {showLegend && (
+          <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
+            <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
+            <div className='flex items-center'>
+              <span className='text-muted-foreground mr-1 text-xs'>0</span>
+              <div
+                className='h-2 w-24 rounded'
+                style={{
+                  background: `linear-gradient(to right, ${MAP_VISITOR_COLORS.NO_VISITORS} 0%, ${MAP_VISITOR_COLORS.NO_VISITORS} 2%, ${MAP_VISITOR_COLORS.LOW_VISITORS} 3%, ${MAP_VISITOR_COLORS.HIGH_VISITORS} 100%)`,
+                }}
+              ></div>
+              <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </MapContainer>
     </div>
   );
 };

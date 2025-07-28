@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,8 +15,9 @@ import UserDangerZoneSettings from '@/components/userSettings/UserDangerZoneSett
 import UserUsageSettings from '@/components/userSettings/UserUsageSettings';
 import UserBillingHistory from '@/components/userSettings/UserBillingHistory';
 import { Spinner } from '../ui/spinner';
-import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
+import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import useIsChanged from '@/hooks/use-is-changed';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -35,52 +36,58 @@ interface UserSettingsTabConfig {
   disabled?: boolean;
 }
 
-const USER_SETTINGS_TABS: UserSettingsTabConfig[] = [
-  {
-    id: 'profile',
-    label: 'Profile',
-    icon: User,
-    component: UserProfileSettings,
-  },
-  {
-    id: 'preferences',
-    label: 'Preferences',
-    icon: Settings,
-    component: UserPreferencesSettings,
-  },
-  {
-    id: 'usage',
-    label: 'Usage',
-    icon: BarChart3,
-    component: UserUsageSettings,
-    disabled: !isClientFeatureEnabled('enableBilling'),
-  },
-  {
-    id: 'billing',
-    label: 'Billing',
-    icon: Receipt,
-    component: UserBillingHistory,
-    disabled: !isClientFeatureEnabled('enableBilling'),
-  },
-  {
-    id: 'security',
-    label: 'Security',
-    icon: Shield,
-    component: UserSecuritySettings,
-  },
-  {
-    id: 'danger',
-    label: 'Danger Zone',
-    icon: AlertTriangle,
-    component: UserDangerZoneSettings,
-  },
-];
-
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
+
+  const USER_SETTINGS_TABS: UserSettingsTabConfig[] = useMemo(
+    () => [
+      {
+        id: 'profile',
+        label: 'Profile',
+        icon: User,
+        component: UserProfileSettings,
+      },
+      {
+        id: 'preferences',
+        label: 'Preferences',
+        icon: Settings,
+        component: UserPreferencesSettings,
+      },
+      {
+        id: 'usage',
+        label: 'Usage',
+        icon: BarChart3,
+        component: UserUsageSettings,
+        disabled: !isFeatureFlagEnabled('enableBilling'),
+      },
+      {
+        id: 'billing',
+        label: 'Billing',
+        icon: Receipt,
+        component: UserBillingHistory,
+        disabled: !isFeatureFlagEnabled('enableBilling'),
+      },
+      {
+        id: 'security',
+        label: 'Security',
+        icon: Shield,
+        component: UserSecuritySettings,
+      },
+      {
+        id: 'danger',
+        label: 'Danger Zone',
+        icon: AlertTriangle,
+        component: UserDangerZoneSettings,
+      },
+    ],
+    [isFeatureFlagEnabled],
+  );
+
   const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
   const [formData, setFormData] = useState<UserSettingsUpdate>({});
+  const { refreshSession } = useSessionRefresh();
   const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
@@ -96,6 +103,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   const handleSave = async () => {
     const result = await saveSettings(formData);
     if (result.success) {
+      await refreshSession();
       toast.success('Settings saved successfully!');
       onOpenChange(false);
     } else {
