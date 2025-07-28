@@ -13,7 +13,7 @@ datasource db {
 model Account {
   id                 String    @id @default(cuid())
   userId             String
-  type               String    @default("credentials")
+  type               String
   provider           String
   providerAccountId  String
   refresh_token      String?
