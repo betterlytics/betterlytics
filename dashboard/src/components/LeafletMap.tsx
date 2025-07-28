@@ -17,6 +17,7 @@ interface LeafletMapProps {
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
+  size?: 'sm' | 'lg';
 }
 
 const geoJsonOptions = {
@@ -41,6 +42,7 @@ const LeafletMap = ({
   maxVisitors,
   showZoomControls,
   showLegend = true,
+  size = 'sm',
   initialZoom,
 }: LeafletMapProps) => {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
@@ -189,7 +191,7 @@ const LeafletMap = ({
         .leaflet-popup-content {
           white-space: normal;
           width: fit-content !important;
-          max-width: 180px;
+          max-width: ${size === 'sm' ? '180px' : '40vw'};
           min-width: 100px; // Min-width ensure 'Visitors: x' stays on one row
         }
       `}</style>

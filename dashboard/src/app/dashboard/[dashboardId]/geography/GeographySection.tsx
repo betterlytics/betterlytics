@@ -14,7 +14,12 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
   return (
     <>
       <div className='h-full w-full'>
-        <LeafletMap visitorData={mapData.visitorData} maxVisitors={mapData.maxVisitors} showZoomControls={true} />
+        <LeafletMap
+          visitorData={mapData.visitorData}
+          maxVisitors={mapData.maxVisitors}
+          showZoomControls={true}
+          size='lg'
+        />
       </div>
 
       {mapData.visitorData.length === 0 && (
