@@ -39,10 +39,9 @@ const LeafletMap = ({
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
-  const { selectedCountry, setSelectedCountry, styleGeoJson, onEachFeature } = useLeafletFeatures({
+  const { selectedCountry, setSelectedCountry, onEachFeature } = useLeafletFeatures({
     visitorData,
     calculatedMaxVisitors,
-    mapLib: mapComponents?.L,
   });
 
   useEffect(() => {
@@ -94,43 +93,11 @@ const LeafletMap = ({
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <style jsx global>{`
-        .leaflet-tooltip, .leaflet-popup {
-          display: none !important;
-        }
-
         .leaflet-container {
           background-color: var(--color-card);
         }
         .leaflet-interactive:focus {
           outline: none !important; /** Remove square around selection area */
-        }
-        .leaflet-popup-content {
-          white-space: normal;
-          width: fit-content !important;
-          max-width: 50vw;
-          min-width: 80px; // Min-width ensure 'Visitors: x' stays on one row
-        }
-        .leaflet-country-tooltip {
-          background: var(--color-card);
-          opacity: 1;
-          color: var(--color-foreground);
-          padding: 6px 10px;
-          font-size: 0.75rem;
-          white-space: nowrap;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-          pointer-events: none;
-        }
-        .leaflet-popup-content-wrapper,
-        .leaflet-popup-tip {
-          background-color: var(--card);
-          border: 0.5px solid var(--border);
-          box-shadow: 0 0.5px 2px var(--color-sidebar-accent-foreground);
-        }
-        .leaflet-popup-content {
-          white-space: normal;
-          width: fit-content !important;
-          max-width: ${size === 'sm' ? '180px' : '40vw'};
-          min-width: 100px; // Min-width ensure 'Visitors: x' stays on one row
         }
       `}</style>
       <MapContainer
@@ -147,7 +114,6 @@ const LeafletMap = ({
         <GeoJSON
           key={JSON.stringify(visitorData.length)}
           data={worldGeoJson}
-          style={styleGeoJson}
           onEachFeature={onEachFeature}
           {...geoJsonOptions}
         />
@@ -163,6 +129,7 @@ const LeafletMap = ({
               visitors: selectedCountry.visitors
             } : selectedCountry 
           }
+          size={size}
         />
         {showLegend && (
           <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
