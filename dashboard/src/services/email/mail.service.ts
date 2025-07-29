@@ -18,6 +18,7 @@ import { UsageAlertEmailData } from '@/services/email/template/usage-alert-mail'
 import { FirstPaymentWelcomeEmailData } from '@/services/email/template/first-payment-welcome-mail';
 import { EmailVerificationData } from '@/services/email/template/email-verification-mail';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { lazyProxyCache } from '@/lib/lazy-cache';
 
 export interface EmailTemplate {
   subject: string;
@@ -34,8 +35,10 @@ export interface EmailData {
   replyToName?: string;
 }
 
-const mailerSend = new MailerSend({
-  apiKey: env.MAILER_SEND_API_TOKEN,
+const mailerSend = lazyProxyCache(() => {
+  return new MailerSend({
+    apiKey: env.MAILER_SEND_API_TOKEN,
+  });
 });
 
 const DEFAULT_SENDER = {

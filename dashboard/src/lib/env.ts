@@ -1,5 +1,6 @@
 import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 import { z } from 'zod';
+import { lazyProxyCache } from '@/lib/lazy-cache';
 
 const envSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
@@ -73,4 +74,4 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
 });
 
-export const env = envSchema.parse(process.env);
+export const env = lazyProxyCache(() => envSchema.parse(process.env));

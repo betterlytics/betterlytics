@@ -24,7 +24,6 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getDisplayName } from '@/utils/userUtils';
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
-const VERIFICATION_URL_BASE = env.PUBLIC_BASE_URL;
 const RESEND_COOLDOWN_MINUTES = 5;
 
 export async function sendVerificationEmail(data: SendVerificationEmailData): Promise<void> {
@@ -57,7 +56,7 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
       expires,
     });
 
-    const verificationUrl = `${VERIFICATION_URL_BASE}/verify-email?token=${token}`;
+    const verificationUrl = `${env.PUBLIC_BASE_URL}/verify-email?token=${token}`;
 
     await sendEmailVerificationEmail({
       to: email,
