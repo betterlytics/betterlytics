@@ -4,7 +4,7 @@ import { lazyCache } from '@/lib/lazy-cache';
 
 export type PublicEnvironmentVariableKeys = keyof ReturnType<typeof getEnv> & `PUBLIC_${string}`;
 export type PublicEnvironmentVariables = {
-  [K in 'PUBLIC_TRACKING_SERVER_ENDPOINT' | 'PUBLIC_ANALYTICS_BASE_URL']: ReturnType<typeof getEnv>[K];
+  [K in PublicEnvironmentVariableKeys]: ReturnType<typeof getEnv>[K];
 };
 
 const getPublicEnvironmentVariablesCache = lazyCache(() => {
