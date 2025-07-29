@@ -90,6 +90,7 @@ const LeafletMap = ({
   }
 
   const { MapContainer, GeoJSON } = mapComponents;
+  
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <style jsx global>{`

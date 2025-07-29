@@ -49,34 +49,34 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLe
 
       layer.setStyle(og_style);
 
+      const selectCountry = () => {
+        if (selectedCountry?.code === alpha2) return;
+        layer.bringToFront();
+        layer.setStyle({
+          ...og_style,
+          color: MAP_FEATURE_BORDER_COLORS.SELECTED,
+          weight: 2.5,
+          fillOpacity: 1,
+        });
+
+        setSelectedCountry({
+          code: alpha2,
+          visitors,
+        });
+      }
+
       const ele = layer.getElement();
       if (ele) {
         ele.setAttribute('aria-describedby', getTooltipId(alpha2));
       }
-
+      
       // Unbind built in tooltip and popup
       layer.unbindTooltip();
       layer.unbindPopup();
 
       layer.on({
-        mouseover: (e) => {
-          // Bring to front and apply hover highlight
-          if (selectedCountry?.code === alpha2) return;
-          layer.bringToFront();
-          layer.setStyle({
-            ...og_style,
-            color: MAP_FEATURE_BORDER_COLORS.SELECTED,
-            weight: 2.5,
-            fillOpacity: 1,
-          });
-
-          // Set hovered country data for tooltip
-          setSelectedCountry({
-            code: alpha2,
-            visitors,
-          });
-        },
-    
+        mouseover: selectCountry,
+        click: selectCountry,
         mouseout: () => {
           // Reset style and clear tooltip
           layer.setStyle(og_style);
