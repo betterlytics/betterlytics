@@ -1,6 +1,6 @@
 import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 import { z } from 'zod';
-import { lazyProxyCache } from '@/lib/lazy-cache';
+import { lazyCache, lazyProxyCache } from '@/lib/lazy-cache';
 
 const envSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
@@ -75,3 +75,4 @@ const envSchema = z.object({
 });
 
 export const env = lazyProxyCache(() => envSchema.parse(process.env));
+export const getEnv = lazyCache(() => envSchema.parse(process.env));

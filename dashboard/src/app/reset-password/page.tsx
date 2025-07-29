@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
@@ -36,7 +36,7 @@ function ResetPasswordLayout({ title, description, children }: ResetPasswordLayo
 }
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (session) {
     redirect('/dashboards');

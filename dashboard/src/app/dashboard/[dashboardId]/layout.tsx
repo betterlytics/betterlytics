@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import BASidebar from '@/components/sidebar/BASidebar';
 import { DashboardProvider } from './DashboardProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -27,7 +27,7 @@ type DashboardLayoutProps = {
 };
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/');

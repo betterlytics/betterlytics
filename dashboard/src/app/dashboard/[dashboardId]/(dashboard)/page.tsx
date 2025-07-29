@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { TableSkeleton, SummaryCardsSkeleton, ChartSkeleton } from '@/components/skeleton';
@@ -30,7 +30,7 @@ type DashboardPageParams = {
 };
 
 export default async function DashboardPage({ params, searchParams }: DashboardPageParams) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/');

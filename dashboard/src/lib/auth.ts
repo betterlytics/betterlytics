@@ -8,9 +8,9 @@ import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
-import { lazyProxyCache } from './lazy-cache';
+import { lazyCache } from '@/lib/lazy-cache';
 
-export const authOptions: NextAuthOptions = lazyProxyCache(() => {
+export const getAuthOptions = lazyCache((): NextAuthOptions => {
   return {
     providers: [
       CredentialsProvider({

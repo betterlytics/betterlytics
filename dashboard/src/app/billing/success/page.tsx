@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getServerSession } from 'next-auth';
 import { notFound, redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 
 interface SuccessPageProps {
@@ -18,7 +18,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
     return notFound();
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/signin');

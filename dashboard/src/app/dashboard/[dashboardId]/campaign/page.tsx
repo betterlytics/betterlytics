@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import {
   fetchCampaignPerformanceAction,
   fetchCampaignSourceBreakdownAction,
@@ -20,7 +20,7 @@ type CampaignPageParams = {
 };
 
 export default async function CampaignPage({ params, searchParams }: CampaignPageParams) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/');

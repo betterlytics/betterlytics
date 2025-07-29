@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/userJourney';
 import { Spinner } from '@/components/ui/spinner';
@@ -14,7 +14,7 @@ type UserJourneyPageParams = {
 };
 
 export default async function UserJourneyPage({ params, searchParams }: UserJourneyPageParams) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/');

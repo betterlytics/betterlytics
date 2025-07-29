@@ -1,5 +1,5 @@
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { verifyEmailAction } from '@/app/actions/verification';
 import Logo from '@/components/logo';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ interface VerifyEmailPageProps {
 }
 
 export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   const { token } = await searchParams;
 
   if (!token) {

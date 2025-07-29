@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import RegisterForm from '@/app/register/RegisterForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export default async function RegisterPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (session) {
     redirect('/dashboards');

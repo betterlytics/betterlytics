@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
 import FunnelsListSection from './FunnelsListSection';
@@ -15,7 +15,7 @@ type FunnelsPageParams = {
 };
 
 export default async function FunnelsPage({ params, searchParams }: FunnelsPageParams) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/');

@@ -1,22 +1,25 @@
 'server only';
-import { env } from '@/lib/env';
+import { getEnv } from '@/lib/env';
+import { lazyCache } from '@/lib/lazy-cache';
 
-export const PUBLIC_ENVIRONMENT_VARIABLES_KEYS = Object.keys(env).filter((key) =>
-  key.startsWith('PUBLIC_'),
-) as readonly (keyof typeof env & `PUBLIC_${string}`)[];
-
-export type PublicEnvironmentVariableKeys = (typeof PUBLIC_ENVIRONMENT_VARIABLES_KEYS)[number];
-
+export type PublicEnvironmentVariableKeys = keyof ReturnType<typeof getEnv> & `PUBLIC_${string}`;
 export type PublicEnvironmentVariables = {
-  [K in PublicEnvironmentVariableKeys]: (typeof env)[K];
+  [K in 'PUBLIC_TRACKING_SERVER_ENDPOINT' | 'PUBLIC_ANALYTICS_BASE_URL']: ReturnType<typeof getEnv>[K];
 };
 
-export function getPublicEnvironmentVariables() {
-  return PUBLIC_ENVIRONMENT_VARIABLES_KEYS.reduce(
+const getPublicEnvironmentVariablesCache = lazyCache(() => {
+  const env = getEnv();
+  const keys = Object.keys(env).filter((key) => key.startsWith('PUBLIC_')) as PublicEnvironmentVariableKeys[];
+
+  return keys.reduce(
     (vars, key) => ({
       ...vars,
       [key]: env[key],
     }),
     {} as PublicEnvironmentVariables,
   );
+});
+
+export function getPublicEnvironmentVariables() {
+  return getPublicEnvironmentVariablesCache();
 }

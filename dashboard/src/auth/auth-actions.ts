@@ -1,7 +1,7 @@
 'server only';
 
 import { getServerSession, User } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 import { type AuthContext } from '@/entities/authContext';
@@ -9,7 +9,7 @@ import { authorizeUserDashboard } from '@/services/auth.service';
 import { withServerAction, type ServerActionResponse } from '@/middlewares/serverActionHandler';
 
 export async function getAuthSession(): Promise<Session | null> {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   return session;
 }
 

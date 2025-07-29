@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import GeographySection from '@/app/dashboard/[dashboardId]/geography/GeographySection';
@@ -13,7 +13,7 @@ type GeographyPageParams = {
 };
 
 export default async function GeographyPage({ params, searchParams }: GeographyPageParams) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/');

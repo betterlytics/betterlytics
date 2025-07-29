@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { redirect, notFound } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import { getUserBillingData } from '@/actions/billing';
 import { BillingNavigationBanner } from './BillingNavigationBanner';
 import { BillingFAQGrid } from './BillingFAQGrid';
@@ -15,7 +15,7 @@ export default async function BillingPage() {
     return notFound();
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
 
   if (!session) {
     redirect('/signin');

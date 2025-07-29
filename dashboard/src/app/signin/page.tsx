@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { getAuthOptions } from '@/lib/auth';
 import LoginForm from '@/components/auth/LoginForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
@@ -16,7 +16,7 @@ interface SignInPageProps {
 }
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   const registrationEnabled = isFeatureEnabled('enableRegistration');
   const { error } = await searchParams;
 
