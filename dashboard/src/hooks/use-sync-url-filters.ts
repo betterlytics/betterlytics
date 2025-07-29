@@ -76,7 +76,7 @@ export function useSyncURLFilters() {
 
       const params = new URLSearchParams(searchParams?.toString() ?? '');
       params.set(URL_PARAM_NAME, encodedFilters);
-      router.replace(`?${params.toString()}`);
+      router.replace(`?${params.toString()}${window.location.hash}`);
     } catch (error) {
       console.error('Failed to add filters:', error);
     }
