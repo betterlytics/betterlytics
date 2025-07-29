@@ -1,8 +1,7 @@
 import { MetadataRoute } from 'next';
-import { env } from '@/lib/env';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = env.PUBLIC_BASE_URL;
+  const baseUrl = 'https://betterlytics.io';
 
   return {
     rules: [

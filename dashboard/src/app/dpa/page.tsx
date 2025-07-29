@@ -1,11 +1,11 @@
 import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
-import { env } from '@/lib/env';
+import { getEnv } from '@/lib/env';
 
 export const metadata = generateSEO(SEO_CONFIGS.dpa);
 
 export default function DPAPage() {
-  if (!env.IS_CLOUD) {
+  if (!getEnv().IS_CLOUD) {
     redirect('/');
   }
 

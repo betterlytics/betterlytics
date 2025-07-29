@@ -4,8 +4,8 @@ import LoginForm from '@/components/auth/LoginForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
+import { getEnv } from '@/lib/env';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -17,7 +17,7 @@ interface SignInPageProps {
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await getServerSession(getAuthOptions());
-  const registrationEnabled = isFeatureEnabled('enableRegistration');
+  const registrationEnabled = getEnv().ENABLE_REGISTRATION;
   const { error } = await searchParams;
 
   if (session) {

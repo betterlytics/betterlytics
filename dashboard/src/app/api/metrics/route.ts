@@ -1,14 +1,14 @@
 import { NextRequest } from 'next/server';
 import { collectDefaultMetrics, register } from 'prom-client';
 import { env } from '@/lib/env';
+import { lazyCache } from '@/lib/lazy-cache';
 
-let metricsInitialized = false;
-
-// Required to avoid issues with hot reloading registering metrics multiple times
-if (env.ENABLE_MONITORING && !metricsInitialized) {
-  collectDefaultMetrics({ register });
-  metricsInitialized = true;
-}
+const collectDefaultMetricsCache = lazyCache(() => {
+  if (process.env.ENABLE_MONITORING) {
+    collectDefaultMetrics({ register });
+  }
+  return true;
+});
 
 export async function GET(req: NextRequest) {
   if (!env.ENABLE_MONITORING) {
@@ -16,6 +16,8 @@ export async function GET(req: NextRequest) {
       status: 404,
     });
   }
+
+  collectDefaultMetricsCache();
 
   const contentType = register.contentType;
   const metrics = await register.metrics();

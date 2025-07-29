@@ -35,6 +35,8 @@ function ResetPasswordLayout({ title, description, children }: ResetPasswordLayo
   );
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
   const session = await getServerSession(getAuthOptions());
 
