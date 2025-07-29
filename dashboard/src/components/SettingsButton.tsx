@@ -3,10 +3,10 @@
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DashboardSettingsDialog from '@/components/dashboardSettings/DashboardSettingsDialog';
-import { useHashKey } from '@/hooks/use-hash-key';
+import { useSearchParamKey } from '@/hooks/use-search-param-key';
 
 export default function SettingsButton() {
-  const [showSettingsDialog, setShowSettingsDialog] = useHashKey('settings');
+  const [showSettingsDialog, setShowSettingsDialog] = useSearchParamKey('settings');
 
   return (
     <>
