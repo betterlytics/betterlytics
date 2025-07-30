@@ -29,32 +29,28 @@ export function getTooltipId(alpha2: string) {
 }
 
 const TooltipTipComponent = () => 
-  useMemo(() => (
-    <div className={cn(
-      "w-0 h-0 mt-[-8px] self-center",
-      "border-l-[14px] border-r-[14px] border-t-[16px]",
-      "border-l-transparent border-r-transparent border-t-card"
-    )} />
-  ), []);
+  <div className={cn(
+    "w-0 h-0 mt-[-8px] self-center",
+    "border-l-[14px] border-r-[14px] border-t-[16px]",
+    "border-l-transparent border-r-transparent border-t-card"
+  )} />
 const TooltipTip = React.memo(TooltipTipComponent);
 
-const TooltipContentComponent = ({ code, visitors, size }: TooltipContentProps) => useMemo(() => (
-    <div className={cn(
-      "space-y-1 p-2 rounded border border-border bg-card text-foreground shadow-md text-start",
-      size === 'sm' ? 'max-w-[200px]' : 'max-w-[40vw]'
-    )}>
-      <CountryDisplay
-        className="font-bold text-sm"
-        countryCode={code as FlagIconProps['countryCode']}
-        countryName={getCountryName(code)}
-      />
-      <div className="flex gap-1 text-sm whitespace-nowrap">
-        <span className="text-muted-foreground">Visitors:</span>
-        <span className="text-foreground">{visitors}</span>
-      </div>
+const TooltipContentComponent = ({ code, visitors, size }: TooltipContentProps) => 
+  <div className={cn(
+    "space-y-1 p-2 rounded border border-border bg-card text-foreground shadow-md text-start",
+    size === 'sm' ? 'max-w-[200px]' : 'max-w-[40vw]'
+  )}>
+    <CountryDisplay
+      className="font-bold text-sm"
+      countryCode={code as FlagIconProps['countryCode']}
+      countryName={getCountryName(code)}
+    />
+    <div className="flex gap-1 text-sm whitespace-nowrap">
+      <span className="text-muted-foreground">Visitors:</span>
+      <span className="text-foreground">{visitors}</span>
     </div>
-  ), [code, visitors, size]
-);
+  </div>
 const TooltipContent = React.memo(TooltipContentComponent);
 
 TooltipContent.displayName = 'TooltipContent';

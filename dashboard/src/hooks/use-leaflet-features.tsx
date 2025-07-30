@@ -10,8 +10,6 @@ interface UseLeafletFeaturesProps {
   calculatedMaxVisitors: number;
 }
 
-//! TODO Rename to something with selection
-//! Can we remove MapBackgroundLayer??
 const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) => feature?.id ? String(feature.id) : undefined;
 
 export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLeafletFeaturesProps) {
@@ -90,5 +88,4 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLe
     setSelectedCountry,
     onEachFeature,
   };
-
 }

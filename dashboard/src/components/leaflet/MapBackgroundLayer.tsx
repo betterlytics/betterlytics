@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
-import type { Feature, FeatureCollection, Polygon as GeoJsonPolygon, MultiPolygon, Polygon } from 'geojson';
-import { difference, polygon, union } from '@turf/turf';
+import React, { useMemo } from 'react';
+import type { Feature, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
+import difference from '@turf/difference';
+import union from '@turf/union';
 
 interface BackgroundLayerProps {
   onSelect: () => void;
@@ -8,26 +9,31 @@ interface BackgroundLayerProps {
   GeoJSON: typeof import('react-leaflet').GeoJSON;
 }
 
-const MapBackgroundLayer = ({ onSelect, worldGeoJson, GeoJSON }: BackgroundLayerProps) => {
+const MapBackgroundLayerComponent = ({ onSelect, worldGeoJson, GeoJSON }: BackgroundLayerProps) => {
   const invertedBackground = useMemo(() => {
     if (!worldGeoJson) return null;
+    
+    const fullWorldPolygon: Feature<Polygon> = {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [-230, -120],
+          [230, -120],
+          [230, 120],
+          [-230, 120],
+          [-230, -120],
+        ]],
+      },
+      properties: {},
+    };
 
-    const fullWorldPolygon = polygon([
-      [
-        [-230, -120],
-        [230, -120],
-        [230, 120],
-        [-230, 120],
-        [-230, -120],
-      ],
-    ]);
-
-    const polygonFeatures: Feature<GeoJsonPolygon | MultiPolygon>[] = worldGeoJson.features.filter(
-      (f): f is Feature<GeoJsonPolygon | MultiPolygon> =>
+    const polygonFeatures: Feature<Polygon | MultiPolygon>[] = worldGeoJson.features.filter(
+      (f): f is Feature<Polygon | MultiPolygon> =>
         f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon',
     );
 
-    const polygonsCollection: FeatureCollection<GeoJsonPolygon | MultiPolygon> = {
+    const polygonsCollection: FeatureCollection<Polygon | MultiPolygon> = {
       type: 'FeatureCollection',
       features: polygonFeatures,
     };
@@ -35,7 +41,7 @@ const MapBackgroundLayer = ({ onSelect, worldGeoJson, GeoJSON }: BackgroundLayer
     const unioned = union(polygonsCollection);
     if (!unioned) return fullWorldPolygon;
 
-    const featureCollection: FeatureCollection<GeoJsonPolygon | MultiPolygon> = {
+    const featureCollection: FeatureCollection<Polygon | MultiPolygon> = {
       type: 'FeatureCollection',
       features: [fullWorldPolygon, unioned],
     };
@@ -64,5 +70,5 @@ const MapBackgroundLayer = ({ onSelect, worldGeoJson, GeoJSON }: BackgroundLayer
     />
   );
 };
-
+const MapBackgroundLayer = React.memo(MapBackgroundLayerComponent);
 export default MapBackgroundLayer;
