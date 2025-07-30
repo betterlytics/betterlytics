@@ -4,8 +4,8 @@ import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS } from '@/constants/geographyData';
 import { GeoVisitor } from '@/entities/geography';
 
-const CountryRow = ({ geoVisitor }: { geoVisitor: GeoVisitor }) => (
-  <div className='text-xxs flex px-1.5 py-2' key={geoVisitor.country_code}>
+const CountryCol = ({ geoVisitor }: { geoVisitor: GeoVisitor }) => (
+  <div className='flex py-2 text-xs' key={geoVisitor.country_code}>
     <div className='flex items-center gap-0.75'>
       <FlagIcon countryCode={geoVisitor.country_code as FlagIconProps['countryCode']} />
       <span className='font-medium'>{geoVisitor.country_code}</span>
@@ -38,9 +38,9 @@ export default function WorldMapCard() {
         <div className='border-border/60 border-t pt-3'>
           <div className='flex items-center justify-between text-xs'>
             <span className='text-muted-foreground'>Top Countries</span>
-            <div className='grid auto-cols-[70px] grid-flow-col justify-end overflow-hidden'>
+            <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-1 overflow-hidden'>
               {Array.from({ length: 2 }).map((_, i) => (
-                <CountryRow key={MOCK_WORLD_GEOVISITORS[i].country_code} geoVisitor={MOCK_WORLD_GEOVISITORS[i]} />
+                <CountryCol key={MOCK_WORLD_GEOVISITORS[i].country_code} geoVisitor={MOCK_WORLD_GEOVISITORS[i]} />
               ))}
             </div>
           </div>
