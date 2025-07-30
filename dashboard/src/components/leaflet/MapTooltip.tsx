@@ -1,6 +1,5 @@
 import { useMap } from 'react-leaflet/hooks';
-import { useState, useEffect, useRef, useId } from 'react';
-import type * as L from 'leaflet';
+import { useEffect, useRef, useId } from 'react';
 import { CountryDisplay } from '../language/CountryDisplay';
 import { FlagIconProps } from '../icons';
 import { getCountryName } from '@/utils/countryCodes';
@@ -8,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { createPortal } from 'react-dom';
 import React from 'react';
 
-type CountryTooltipProps = {
+type MapTooltipProps = {
   selectedCountry: {
     code: string;
     visitors: number;
@@ -21,8 +20,6 @@ type TooltipContentProps = {
   visitors: number;
   size: 'sm' | 'lg';
 };
-
-type Coordinate = { x: number; y: number };
 
 export function getTooltipId(alpha2: string) {
   return `lltooltip-${alpha2}`;
@@ -62,57 +59,50 @@ const TooltipContent = React.memo(TooltipContentComponent);
 TooltipContent.displayName = 'TooltipContent';
 TooltipTip.displayName = 'TooltipTip';
 
-export default function CountryTooltip({ selectedCountry, size = 'sm' }: CountryTooltipProps) {
+export default function MapTooltip({ selectedCountry, size = 'sm' }: MapTooltipProps) {
   const map = useMap();
-  const [mousePos, setMousePos] = useState<Coordinate | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
   const tooltipId = useId();
+  const tooltipRef = useRef<HTMLElement | null>(null);
+  const latestMouseRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleMouseMove = (e: L.LeafletMouseEvent) => {
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+    const mapContainer = map.getContainer();
+    let animationFrame: number | null = null;
 
-      // Set mouse position just before the next repaint
-      animationFrameRef.current = requestAnimationFrame(() => {
-        const containerPoint = map.latLngToContainerPoint(e.latlng);
-        const mapContainer = map.getContainer();
-        const rect = mapContainer.getBoundingClientRect();
+    const onMouseMove = (e: MouseEvent) => {
+      latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
 
-        setMousePos({
-          x: containerPoint.x + rect.left,
-          y: containerPoint.y + rect.top,
+      if (selectedCountry && tooltipRef.current && animationFrame === null) {
+        animationFrame = requestAnimationFrame(() => {
+          tooltipRef.current!.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
+          animationFrame = null;
         });
-      });
-    };
-
-    map.on('mousemove', handleMouseMove);
-    return () => {
-      map.off('mousemove', handleMouseMove);
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
       }
-      setMousePos(null);
     };
-  }, [map]);
 
-  if (!selectedCountry || !mousePos) return null;
+    mapContainer.addEventListener('mousemove', onMouseMove);
+
+    if (selectedCountry && tooltipRef.current) {
+      tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
+    }
+
+    return () => {
+      mapContainer.removeEventListener('mousemove', onMouseMove);
+      if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+    };
+  }, [map, selectedCountry]);
+
+  if (!selectedCountry) return null;
 
   const { code, visitors } = selectedCountry;
 
-  // Use portal to lift component stage up for z-index
   return createPortal(
     <section
       id={tooltipId}
+      ref={tooltipRef}
       role='tooltip'
       aria-hidden={false}
-      className='pointer-events-none absolute z-[11] -translate-x-1/2 -translate-y-full transform'
-      style={{
-        top: mousePos.y - 2,
-        left: mousePos.x,
-        position: 'fixed',
-      }}
+      className='pointer-events-none fixed top-0 left-0 z-[11] will-change-transform'
     >
       <div
         className='mt-1 flex flex-col'

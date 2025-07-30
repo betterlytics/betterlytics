@@ -7,6 +7,7 @@ import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState } from 'react';
 import MapTooltip from './leaflet/MapTooltip';
+import MapBackgroundLayer from './leaflet/MapBackgroundLayer';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -121,17 +122,10 @@ const LeafletMap = ({
           onEachFeature={onEachFeature}
           {...geoJsonOptions}
         />
-        <GeoJSON
-          data={inverseWorldGeoJson}
-          style={{
-            fillColor: 'transparent',
-            color: 'transparent',
-            weight: 0,
-          }}
-          eventHandlers={{
-            click: () => setSelectedCountry(null),
-            mouseover: () => setSelectedCountry(null),
-          }}
+        <MapBackgroundLayer
+          GeoJSON={mapComponents.GeoJSON}
+          inverseWorldGeoJson={inverseWorldGeoJson}
+          onDeselect={() => setSelectedCountry(null)}
         />
         <MapTooltip
           selectedCountry={
