@@ -34,10 +34,10 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
 
           <div className='text-muted-foreground absolute right-[12px] flex gap-2 font-mono'>
             <span className='flex gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
-              <TrendIndicator percentage={value.trendPercentage} />
               {formatPercentage(value.percentage)}
             </span>
             <span>{value.count.toLocaleString()}</span>
+            <TrendIndicator percentage={value.trendPercentage} />
           </div>
         </div>
       </div>

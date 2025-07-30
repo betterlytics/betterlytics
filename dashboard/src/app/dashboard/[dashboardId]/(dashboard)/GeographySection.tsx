@@ -1,7 +1,7 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/LeafletMap';
-import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
+import type { getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
@@ -26,7 +26,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
           label: dictionary.t('dashboard.tabs.topCountries'),
           data: topCountries.map((country) => ({
             label: getCountryName(country.country_code),
-            value: country.visitors,
+            value: country.current.visitors,
             icon: <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />,
           })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noCountryData'),

@@ -7,11 +7,14 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
 import { worldMapResponseSchema } from '@/entities/geography';
+import { toDataTable } from '@/presenters/toDataTable';
 
 const queryParamsSchema = z.object({
   siteId: z.string(),
   startDate: z.date(),
   endDate: z.date(),
+  compareStartDate: z.date().optional(),
+  compareEndDate: z.date().optional(),
   queryFilters: QueryFilterSchema.array(),
 });
 
@@ -19,10 +22,7 @@ const queryParamsSchema = z.object({
  * Server action to fetch geographic visitor data for world map in Alpha-2 format
  */
 export const getWorldMapDataAlpha2 = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    params: Omit<z.infer<typeof queryParamsSchema>, 'siteId'>,
-  ): Promise<z.infer<typeof worldMapResponseSchema>> => {
+  async (ctx: AuthContext, params: Omit<z.infer<typeof queryParamsSchema>, 'siteId'>) => {
     const validatedParams = queryParamsSchema.safeParse({
       ...params,
       siteId: ctx.siteId,
@@ -32,11 +32,32 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
       throw new Error(`Invalid parameters: ${validatedParams.error.message}`);
     }
 
-    const { startDate, endDate, queryFilters } = validatedParams.data;
+    const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = validatedParams.data;
 
     try {
-      const geoVisitors = await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters);
-      return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
+      const geoVisitors = worldMapResponseSchema.parse(
+        dataToWorldMap(
+          await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters),
+          CountryCodeFormat.Original,
+        ),
+      );
+      const compareGeoVisitors =
+        compareStartDate &&
+        compareEndDate &&
+        worldMapResponseSchema.parse(
+          dataToWorldMap(
+            await fetchVisitorsByGeography(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
+            CountryCodeFormat.Original,
+          ),
+        );
+      return {
+        visitorData: toDataTable({
+          data: geoVisitors.visitorData,
+          compare: compareGeoVisitors?.visitorData,
+          categoryKey: 'country_code',
+        }),
+        maxVisitors: geoVisitors.maxVisitors,
+      };
     } catch (error) {
       console.error('Error fetching visitor map data:', error);
       throw new Error('Failed to fetch visitor map data');
