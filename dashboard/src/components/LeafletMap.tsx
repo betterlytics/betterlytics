@@ -1,15 +1,12 @@
 'use client';
 
-import { renderToString } from 'react-dom/server';
-import { CountryDisplay } from '@/components/language/CountryDisplay';
-import React, { useEffect, useState, useMemo } from 'react';
-import { scaleLinear } from 'd3-scale';
-import 'leaflet/dist/leaflet.css';
-import { Feature, Geometry } from 'geojson';
+import { MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { GeoVisitor } from '@/entities/geography';
-import { LatLngBoundsExpression } from 'leaflet';
-import { getCountryName } from '@/utils/countryCodes';
-import { FlagIconProps } from './icons';
+import { useLeafletFeatures } from '@/hooks/use-leaflet-features';
+import type { LatLngBoundsExpression } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useMemo, useState } from 'react';
+import MapTooltip from './leaflet/MapTooltip';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -25,18 +22,6 @@ const geoJsonOptions = {
   buffer: 2,
 };
 
-const MAP_COLORS = {
-  NO_VISITORS: '#6b7280', // Gray for 0 visitors
-  HIGH_VISITORS: '#60a5fa', // Light blue for high visitor counts
-  LOW_VISITORS: '#1e40af', // Dark blue for low visitor counts
-} as const;
-
-const BORDER_COLORS = {
-  NO_VISITORS: '#9ca3af', // Lighter gray for 0 visitors border
-  HIGH_VISITORS: '#93c5fd', // Lighter version of light blue
-  LOW_VISITORS: '#3b82f6', // Lighter version of dark blue
-} as const;
-
 const LeafletMap = ({
   visitorData,
   maxVisitors,
@@ -46,6 +31,7 @@ const LeafletMap = ({
   initialZoom,
 }: LeafletMapProps) => {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
+  const [inverseWorldGeoJson, setInverseWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mapComponents, setMapComponents] = useState<{
     L: typeof import('leaflet');
@@ -53,19 +39,25 @@ const LeafletMap = ({
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
+  const { selectedCountry, setSelectedCountry, onEachFeature } = useLeafletFeatures({
+    visitorData,
+    calculatedMaxVisitors,
+  });
 
   useEffect(() => {
     setIsLoading(true);
 
     const loadMapDependencies = async () => {
       try {
-        const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
+        const [leafletModule, reactLeafletModule, worldRes, inverseWorldRes] = await Promise.all([
           import('leaflet'),
           import('react-leaflet'),
           fetch('/data/countries.geo.json'),
+          fetch('/data/notcountries.geo.json'),
         ]);
 
         const world = await worldRes.json();
+        const inverseWorld = await inverseWorldRes.json();
 
         setMapComponents({
           L: leafletModule.default,
@@ -73,6 +65,7 @@ const LeafletMap = ({
           GeoJSON: reactLeafletModule.GeoJSON,
         });
         setWorldGeoJson(world);
+        setInverseWorldGeoJson(inverseWorld);
       } catch (err) {
         console.error('Error loading map dependencies:', err);
       } finally {
@@ -88,79 +81,7 @@ const LeafletMap = ({
     return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
   }, [mapComponents]);
 
-  const colorScale = useMemo(() => {
-    return scaleLinear<string>()
-      .domain([0, 1, calculatedMaxVisitors])
-      .range([MAP_COLORS.NO_VISITORS, MAP_COLORS.LOW_VISITORS, MAP_COLORS.HIGH_VISITORS]);
-  }, [calculatedMaxVisitors]);
-
-  const borderColorScale = useMemo(() => {
-    return scaleLinear<string>()
-      .domain([0, 1, calculatedMaxVisitors])
-      .range([BORDER_COLORS.NO_VISITORS, BORDER_COLORS.LOW_VISITORS, BORDER_COLORS.HIGH_VISITORS]);
-  }, [calculatedMaxVisitors]);
-
-  const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>): string | undefined => {
-    if (!feature || !feature.properties || !feature.id) return undefined;
-    return String(feature.id);
-  };
-
-  const styleGeoJson = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties> | undefined) => {
-    if (!feature) return {};
-
-    const featureId = getFeatureId(feature);
-    const visitorEntry = visitorData.find((d) => d.country_code === featureId);
-    const visitors = visitorEntry ? visitorEntry.visitors : 0;
-
-    const fillColor = colorScale(visitors);
-    const borderColor = borderColorScale(visitors);
-
-    return {
-      fillColor,
-      weight: 1.3,
-      opacity: 1,
-      color: borderColor,
-      fillOpacity: 0.8,
-    };
-  };
-
-  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Layer) => {
-    if (!feature.properties) return;
-
-    const featureId = getFeatureId(feature);
-    if (!featureId) return;
-
-    const visitorEntry = visitorData.find((d) => d.country_code === featureId);
-    const visitors = visitorEntry ? visitorEntry.visitors.toLocaleString() : '0';
-
-    const popupHtml = renderToString(
-      <div className='text-foreground space-y-1'>
-        <CountryDisplay
-          className='font-bold'
-          countryCode={featureId as FlagIconProps['countryCode']}
-          countryName={getCountryName(featureId)}
-        />
-        <div className='flex gap-1 text-sm text-nowrap'>
-          <div className='text-muted-foreground'>Visitors:</div>
-          <span className='text-foreground'>{visitors}</span>
-        </div>
-      </div>,
-    );
-
-    layer.bindPopup(popupHtml, {
-      autoPan: true,
-      autoPanPadding: [25, 10],
-      offset: mapComponents?.L.point(0, 10),
-    });
-
-    layer.on({
-      click: (e: L.LeafletMouseEvent) => {
-        layer.openPopup(e.latlng);
-      },
-    });
-  };
-
-  if (isLoading || !mapComponents || !worldGeoJson) {
+  if (isLoading || !mapComponents || !worldGeoJson || !inverseWorldGeoJson) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
@@ -172,30 +93,17 @@ const LeafletMap = ({
   }
 
   const { MapContainer, GeoJSON } = mapComponents;
+
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <style jsx global>{`
         .leaflet-container {
           background-color: var(--color-card);
         }
-        .leaflet-popup-content-wrapper {
-          display: inline-block;
-          width: fit-content !important;
-        }
-        .leaflet-popup-content-wrapper,
-        .leaflet-popup-tip {
-          background-color: var(--card);
-          border: 0.5px solid var(--border);
-          box-shadow: 0 0.5px 2px var(--color-sidebar-accent-foreground);
-        }
-        .leaflet-popup-content {
-          white-space: normal;
-          width: fit-content !important;
-          max-width: ${size === 'sm' ? '180px' : '40vw'};
-          min-width: 100px; // Min-width ensure 'Visitors: x' stays on one row
+        .leaflet-interactive:focus {
+          outline: none !important; /** Remove square around selection area */
         }
       `}</style>
-
       <MapContainer
         center={[20, 0]}
         style={{ height: '100%', width: '100%' }}
@@ -210,9 +118,31 @@ const LeafletMap = ({
         <GeoJSON
           key={JSON.stringify(visitorData.length)}
           data={worldGeoJson}
-          style={styleGeoJson}
           onEachFeature={onEachFeature}
           {...geoJsonOptions}
+        />
+        <GeoJSON
+          data={inverseWorldGeoJson}
+          style={{
+            fillColor: 'transparent',
+            color: 'transparent',
+            weight: 0,
+          }}
+          eventHandlers={{
+            click: () => setSelectedCountry(null),
+            mouseover: () => setSelectedCountry(null),
+          }}
+        />
+        <MapTooltip
+          selectedCountry={
+            selectedCountry
+              ? {
+                  code: selectedCountry.code,
+                  visitors: selectedCountry.visitors,
+                }
+              : selectedCountry
+          }
+          size={size}
         />
         {showLegend && (
           <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
@@ -222,7 +152,7 @@ const LeafletMap = ({
               <div
                 className='h-2 w-24 rounded'
                 style={{
-                  background: `linear-gradient(to right, ${MAP_COLORS.NO_VISITORS} 0%, ${MAP_COLORS.NO_VISITORS} 2%, ${MAP_COLORS.LOW_VISITORS} 3%, ${MAP_COLORS.HIGH_VISITORS} 100%)`,
+                  background: `linear-gradient(to right, ${MAP_VISITOR_COLORS.NO_VISITORS} 0%, ${MAP_VISITOR_COLORS.NO_VISITORS} 2%, ${MAP_VISITOR_COLORS.LOW_VISITORS} 3%, ${MAP_VISITOR_COLORS.HIGH_VISITORS} 100%)`,
                 }}
               ></div>
               <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
