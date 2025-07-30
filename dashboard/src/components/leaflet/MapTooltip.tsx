@@ -107,7 +107,7 @@ export default function CountryTooltip({ selectedCountry, size = 'sm' }: Country
       id={tooltipId}
       role='tooltip'
       aria-hidden={false}
-      className='pointer-events-none absolute z-[9] -translate-x-1/2 -translate-y-full transform'
+      className='pointer-events-none absolute z-[11] -translate-x-1/2 -translate-y-full transform'
       style={{
         top: mousePos.y - 2,
         left: mousePos.x,

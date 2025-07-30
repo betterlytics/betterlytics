@@ -25,7 +25,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
 
   return (
-    <div className='absolute inset-0 h-full w-full'>
+    <div className='fixed inset-0 top-14 w-full'>
       <Suspense
         fallback={
           <div className='bg-background/70 flex h-full w-full flex-col items-center backdrop-blur-sm'>

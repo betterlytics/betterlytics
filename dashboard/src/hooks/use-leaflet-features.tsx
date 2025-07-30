@@ -10,10 +10,11 @@ interface UseLeafletFeaturesProps {
   calculatedMaxVisitors: number;
 }
 
-const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) => feature?.id ? String(feature.id) : undefined;
+const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
+  feature?.id ? String(feature.id) : undefined;
 
 export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLeafletFeaturesProps) {
-  const [selectedCountry, setSelectedCountry] = useState<{ code: string, visitors: number } | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<{ code: string; visitors: number } | null>(null);
 
   const colorScale = useMemo(() => {
     return scaleLinear<string>()
@@ -32,56 +33,55 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLe
   }, [calculatedMaxVisitors]);
 
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-      const alpha2 = getFeatureId(feature);
-      if (!alpha2) return;
-    
-      const visitorEntry = visitorData.find((d) => d.country_code === alpha2);
-      const visitors = visitorEntry?.visitors ?? 0;
-      const og_style = {
-        fillColor: colorScale(visitors),
-        color: featureBorderColorScale(visitors),
-        weight: visitors ? 1.5 : 1,
-        fillOpacity: 0.8,
-        opacity: 1,
-      };
+    const alpha2 = getFeatureId(feature);
+    if (!alpha2) return;
 
-      layer.setStyle(og_style);
+    const visitorEntry = visitorData.find((d) => d.country_code === alpha2);
+    const visitors = visitorEntry?.visitors ?? 0;
+    const og_style = {
+      fillColor: colorScale(visitors),
+      color: featureBorderColorScale(visitors),
+      weight: visitors ? 1.5 : 1,
+      fillOpacity: 0.8,
+      opacity: 1,
+    };
 
-      const selectCountry = () => {
-        if (selectedCountry?.code === alpha2) return;
-        layer.bringToFront();
-        layer.setStyle({
-          ...og_style,
-          color: MAP_FEATURE_BORDER_COLORS.SELECTED,
-          weight: 2.5,
-          fillOpacity: 1,
-        });
+    layer.setStyle(og_style);
 
-        setSelectedCountry({
-          code: alpha2,
-          visitors,
-        });
-      }
-
-      const ele = layer.getElement();
-      if (ele) {
-        ele.setAttribute('aria-describedby', getTooltipId(alpha2));
-      }
-      
-      // Unbind built in tooltip and popup
-      layer.unbindTooltip();
-      layer.unbindPopup();
-
-      layer.on({
-        mouseover: selectCountry,
-        click: selectCountry,
-        mouseout: () => {
-          // Reset style and clear tooltip
-          layer.setStyle(og_style);
-          setSelectedCountry(null);
-        },
+    const selectCountry = () => {
+      if (selectedCountry?.code === alpha2) return;
+      layer.bringToFront();
+      layer.setStyle({
+        ...og_style,
+        color: MAP_FEATURE_BORDER_COLORS.SELECTED,
+        weight: 2.5,
+        fillOpacity: 1,
       });
+
+      setSelectedCountry({
+        code: alpha2,
+        visitors,
+      });
+    };
+
+    const ele = layer.getElement();
+    if (ele) {
+      ele.setAttribute('aria-describedby', getTooltipId(alpha2));
     }
+
+    // Unbind built in tooltip and popup
+    layer.unbindTooltip();
+    layer.unbindPopup();
+
+    layer.on({
+      mouseover: selectCountry,
+      click: selectCountry,
+      mouseout: () => {
+        layer.setStyle(og_style);
+        setSelectedCountry(null);
+      },
+    });
+  };
 
   return {
     selectedCountry,
