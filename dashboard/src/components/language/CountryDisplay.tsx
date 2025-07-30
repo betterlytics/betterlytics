@@ -19,7 +19,7 @@ export const CountryDisplay = ({
       <FlagIcon
         countryCode={countryCode} 
         countryName={countryName}
-        className='flex-shrink-0 aspect-[3/2] w-auto!' 
+        className='flex-shrink-0' 
       />
       <span className='truncate max-w-full'>{countryName}</span>
     </div>
