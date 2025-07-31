@@ -13,9 +13,8 @@ const TrendIndicator = React.memo(({ percentage }: TrendIndicatorProps) => {
 
   if (percentage === 0) {
     return (
-      <div className='flex items-center gap-1'>
+      <div className='flex items-center'>
         <Minus className='h-3 w-3' />
-        <span>0%</span>
       </div>
     );
   }

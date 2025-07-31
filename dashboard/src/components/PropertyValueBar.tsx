@@ -1,6 +1,7 @@
 import { formatPercentage } from '@/utils/formatters';
 import { Progress } from '@/components/ui/progress';
-import { TrendIndicator } from './TrendIndicator';
+import { TrendIndicator } from '@/components/TrendIndicator';
+import { TrendPercentage } from '@/components/TrendPercentage';
 
 type PropertyValue = {
   value: string;
@@ -26,16 +27,21 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
         />
 
         <div className='absolute inset-0 z-10 flex items-center justify-between px-3'>
-          <div className='flex max-w-[85%] items-center gap-2'>
+          <div className='flex max-w-[85%] items-center gap-2 truncate'>
             {typeof index === 'number' && <span className='text-foreground font-mono font-medium'>{index}.</span>}
             {icon && <span className='flex-shrink-0'>{icon}</span>}
             <span className='text-foreground truncate font-mono font-medium'>{value.value}</span>
           </div>
 
-          <div className='text-muted-foreground absolute right-[12px] flex gap-2 font-mono'>
-            <span className='flex gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
-              {formatPercentage(value.percentage)}
-            </span>
+          <div className='text-muted-foreground flex gap-2 font-mono'>
+            <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
+              <div className='hidden gap-1 transition-all transition-discrete duration-200 group-hover:flex'>
+                <span>
+                  (<TrendPercentage percentage={value.trendPercentage} />)
+                </span>
+                {formatPercentage(value.percentage)}
+              </div>
+            </div>
             <span>{value.count.toLocaleString()}</span>
             <TrendIndicator percentage={value.trendPercentage} />
           </div>
@@ -44,3 +50,9 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
     </div>
   );
 }
+
+<div className='flex'>
+  <div>This is some text</div>
+  <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>show on hover</div>
+  <div>some icon</div>
+</div>;
