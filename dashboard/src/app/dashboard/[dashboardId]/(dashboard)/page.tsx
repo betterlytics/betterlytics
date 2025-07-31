@@ -89,7 +89,14 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     ),
   ]);
 
-  const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, startDate, endDate, queryFilters);
+  const devicePromise = fetchDeviceBreakdownCombinedAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
   const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(
     dashboardId,
     startDate,
