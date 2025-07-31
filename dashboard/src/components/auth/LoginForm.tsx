@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {
   AlertDialog,
@@ -18,7 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { getProviders } from 'next-auth/react';
 
 export default function LoginForm() {
-  const router = useRouter();
+  const router = useBARouter();
   const isMobile = useIsMobile();
   const totpInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState('');

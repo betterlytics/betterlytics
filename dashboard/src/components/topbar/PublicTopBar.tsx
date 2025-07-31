@@ -3,14 +3,15 @@
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
+import { usePathname } from 'next/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
 export default function PublicTopBar() {
   const { data: session, status } = useSession();
-  const router = useRouter();
+  const router = useBARouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
