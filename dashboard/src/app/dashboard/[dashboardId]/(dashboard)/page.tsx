@@ -17,6 +17,7 @@ import {
   fetchSummaryStatsAction,
   fetchTotalPageViewsAction,
   fetchUniqueVisitorsAction,
+  getTopCountryVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
@@ -49,6 +50,13 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     compareEndDate,
   );
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
+  const topCountriesPromise = getTopCountryVisitsAction(dashboardId, {
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  });
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, startDate, endDate, queryFilters),
@@ -115,7 +123,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} />
+          <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} />
         </Suspense>
       </div>
 
