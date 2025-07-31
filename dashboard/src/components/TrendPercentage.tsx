@@ -4,9 +4,10 @@ import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
 
 type TrendPercentageProps = {
   percentage?: number;
+  withParenthesis?: boolean;
 };
 
-const TrendPercentage = React.memo(({ percentage }: TrendPercentageProps) => {
+const TrendPercentage = React.memo(({ percentage, withParenthesis }: TrendPercentageProps) => {
   if (percentage === undefined) {
     return null;
   }
@@ -21,8 +22,9 @@ const TrendPercentage = React.memo(({ percentage }: TrendPercentageProps) => {
 
   return (
     <span className={cn(color)}>
+      {withParenthesis && '('}
       {sign}
-      {Math.abs(percentage).toFixed(1)}%
+      {Math.abs(percentage).toFixed(1)}%{withParenthesis && ')'}
     </span>
   );
 });

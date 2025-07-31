@@ -37,7 +37,7 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
             <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
               <div className='hidden gap-1 transition-all transition-discrete duration-200 group-hover:flex'>
                 <span>
-                  (<TrendPercentage percentage={value.trendPercentage} />)
+                  <TrendPercentage percentage={value.trendPercentage} withParenthesis />
                 </span>
                 {formatPercentage(value.percentage)}
               </div>
