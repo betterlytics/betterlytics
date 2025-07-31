@@ -106,7 +106,14 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     compareStartDate,
     compareEndDate,
   );
-  const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, startDate, endDate, queryFilters);
+  const customEventsPromise = fetchCustomEventsOverviewAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
 
   return (
     <div className='container space-y-6 p-6'>
