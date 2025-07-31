@@ -31,14 +31,14 @@ import { DashboardDropdown } from './DashboardDropdown';
 
 const navItems = [
   { name: 'Overview', href: '', icon: <LayoutDashboard size={18} /> },
-  { name: 'Pages', href: 'pages', icon: <FileText size={18} /> },
-  { name: 'Referrers', href: 'referrers', icon: <Link2 size={18} /> },
-  { name: 'Geography', href: 'geography', icon: <Globe size={18} /> },
-  { name: 'User Journey', href: 'user-journey', icon: <Route size={18} /> },
-  { name: 'Funnels', href: 'funnels', icon: <Funnel size={18} /> },
-  { name: 'Devices', href: 'devices', icon: <Smartphone size={18} /> },
-  { name: 'Campaigns', href: 'campaign', icon: <DollarSign size={18} /> },
-  { name: 'Events', href: 'events', icon: <CircleDot size={18} /> },
+  { name: 'Pages', href: '/pages', icon: <FileText size={18} /> },
+  { name: 'Referrers', href: '/referrers', icon: <Link2 size={18} /> },
+  { name: 'Geography', href: '/geography', icon: <Globe size={18} /> },
+  { name: 'User Journey', href: '/user-journey', icon: <Route size={18} /> },
+  { name: 'Funnels', href: '/funnels', icon: <Funnel size={18} /> },
+  { name: 'Devices', href: '/devices', icon: <Smartphone size={18} /> },
+  { name: 'Campaigns', href: '/campaign', icon: <DollarSign size={18} /> },
+  { name: 'Events', href: '/events', icon: <CircleDot size={18} /> },
 ];
 
 type BASidebarProps = {
@@ -80,7 +80,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>
-                    <FilterPreservingLink href={`/dashboard/${dashboardId}/${item.href}`}>
+                    <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
                       <span>{item.icon}</span>
                       <span>{item.name}</span>
                     </FilterPreservingLink>
