@@ -96,6 +96,8 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     endDate,
     queryFilters,
     10,
+    compareStartDate,
+    compareEndDate,
   );
   const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, startDate, endDate, queryFilters);
 
