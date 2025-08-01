@@ -9,17 +9,46 @@ import {
 } from './timeRanges';
 
 type Filters = {
-  queryFilters: (QueryFilter & { id: string })[];
+  granularity: GranularityRangeValues;
   startDate: Date;
   endDate: Date;
-  granularity: GranularityRangeValues;
+  compareEnabled?: boolean;
+  compareStartDate?: Date;
+  compareEndDate?: Date;
+  queryFilters: (QueryFilter & { id: string })[];
   userJourney: {
     numberOfSteps: number;
     numberOfJourneys: number;
   };
-  compareEnabled?: boolean;
-  compareStartDate?: Date;
-  compareEndDate?: Date;
+};
+
+type Encoders = {
+  [K in keyof Filters]: (value: any) => string;
+};
+type Decoders = {
+  [K in keyof Filters]: (value: string) => any;
+};
+
+const encoders: Encoders = {
+  queryFilters: (value) => JSON.stringify(value),
+  granularity: (value) => value,
+  userJourney: (value) => JSON.stringify(value),
+  startDate: (value) => value.valueOf(),
+  endDate: (value) => value.valueOf(),
+  compareEnabled: (value) => JSON.stringify(value),
+  compareStartDate: (value) => value?.valueOf(),
+  compareEndDate: (value) => value?.valueOf(),
+};
+
+const decoders: Decoders = {
+  queryFilters: (value) => JSON.parse(value),
+  granularity: (value) => value,
+  userJourney: (value) => JSON.parse(value),
+  startDate: (value) => new Date(value),
+  endDate: (value) => new Date(value),
+  compareEnabled: (value) => JSON.parse(value),
+  compareStartDate: (value) => value,
+  compareEndDate: (value) => value,
 };
 
 function getDefaultFilters(): Filters {
@@ -33,23 +62,35 @@ function getDefaultFilters(): Filters {
   compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
 
   return {
-    queryFilters: [],
+    granularity,
     startDate,
     endDate,
-    granularity,
+    compareEnabled: true,
+    compareStartDate: compareStart,
+    compareEndDate: compareEnd,
+    queryFilters: [],
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
-    compareEnabled: true,
-    compareStartDate: compareStart,
-    compareEndDate: compareEnd,
   };
 }
 
-function encode(params: Filters): string {
-  const json = JSON.stringify(params);
-  return btoa(String.fromCharCode(...new TextEncoder().encode(json)));
+function encode(params: Filters): URLSearchParams {
+  const queryParams = Object.entries(params)
+    .filter(([key, value]) => key !== undefined && value !== undefined)
+    .map(([key, value]) => {
+      const encoder = encoders[key as keyof Filters];
+
+      if (encoder === undefined) {
+        throw `No encoder found for ${key}`;
+      }
+
+      return `${key}-${encoder(value)}`;
+    })
+    .join('_');
+
+  return new URLSearchParams([['filters', queryParams]]);
 }
 
 function decode(base64: string): Filters {

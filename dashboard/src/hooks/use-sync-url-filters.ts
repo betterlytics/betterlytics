@@ -74,9 +74,9 @@ export function useSyncURLFilters() {
         compareEnabled: compareEnabled,
       });
 
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
-      params.set(URL_PARAM_NAME, encodedFilters);
-      router.replace(`?${params.toString()}`);
+      // const params = new URLSearchParams(searchParams?.toString() ?? '');
+      // params.set(URL_PARAM_NAME, encodedFilters);
+      router.replace(`?${encodedFilters.toString()}`);
     } catch (error) {
       console.error('Failed to add filters:', error);
     }
