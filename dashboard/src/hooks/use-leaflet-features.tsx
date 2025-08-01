@@ -1,9 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { renderToString } from 'react-dom/server';
 import { Feature, Geometry } from 'geojson';
 import { scaleLinear } from 'd3-scale';
 import { GeoVisitor } from '@/entities/geography';
 import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
-import { getTooltipId } from '@/components/leaflet/MapTooltip';
+import { getTooltipId } from '@/components/leaflet/tooltip/MapStickyTooltip';
+import { useIsMobile } from './use-mobile';
+import { MapTooltip } from '@/components/leaflet/tooltip';
 
 interface UseLeafletFeaturesProps {
   visitorData: GeoVisitor[];
@@ -13,8 +16,15 @@ interface UseLeafletFeaturesProps {
 const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
   feature?.id ? String(feature.id) : undefined;
 
+type LeafletVisitor = {
+  geoVisitor: GeoVisitor;
+  layer: L.Polygon;
+};
+
 export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLeafletFeaturesProps) {
-  const [selectedCountry, setSelectedCountry] = useState<{ code: string; visitors: number } | null>(null);
+  const [visitor, setVisitor] = useState<LeafletVisitor | undefined>();
+  const [prvVisitor, setPrvVisitor] = useState<LeafletVisitor>();
+  const isMobile = useIsMobile();
 
   const colorScale = useMemo(() => {
     return scaleLinear<string>()
@@ -32,60 +42,99 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLe
       ]);
   }, [calculatedMaxVisitors]);
 
-  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-    const alpha2 = getFeatureId(feature);
-    if (!alpha2) return;
-
-    const visitorEntry = visitorData.find((d) => d.country_code === alpha2);
-    const visitors = visitorEntry?.visitors ?? 0;
-    const og_style = {
+  const originalStyle = useCallback(
+    (visitors: number) => ({
       fillColor: colorScale(visitors),
       color: featureBorderColorScale(visitors),
       weight: visitors ? 1.5 : 1,
       fillOpacity: 0.8,
       opacity: 1,
-    };
+    }),
+    [featureBorderColorScale, colorScale],
+  );
 
-    layer.setStyle(og_style);
+  const selectedStyle = useCallback(
+    (visitors: number) => ({
+      ...originalStyle(visitors),
+      color: MAP_FEATURE_BORDER_COLORS.SELECTED,
+      weight: 2.5,
+      fillOpacity: 1,
+    }),
+    [MAP_FEATURE_BORDER_COLORS, originalStyle],
+  );
 
-    const selectCountry = () => {
-      if (selectedCountry?.code === alpha2) return;
-      layer.bringToFront();
-      layer.setStyle({
-        ...og_style,
-        color: MAP_FEATURE_BORDER_COLORS.SELECTED,
-        weight: 2.5,
-        fillOpacity: 1,
-      });
+  const selectFeature = (geoVisitor: GeoVisitor, layer: L.Polygon) => {
+    console.log('Selecting: ', geoVisitor, ` current:${visitor?.geoVisitor} prv:${prvVisitor?.geoVisitor}`);
+    if (geoVisitor?.country_code === visitor?.geoVisitor.country_code) return;
+    layer.bringToFront();
+    layer.setStyle(selectedStyle(geoVisitor.visitors));
+    setPrvVisitor(visitor);
+    setVisitor({ geoVisitor: geoVisitor, layer });
+  };
 
-      setSelectedCountry({
-        code: alpha2,
-        visitors,
-      });
-    };
+  const mobileFeatureHandler = (geoVisitor: GeoVisitor | undefined, layer: L.Polygon) => {
+    if (!geoVisitor) return;
+    const popupHtml = renderToString(<MapTooltip geoVisitor={visitor?.geoVisitor} size={'sm'} />);
 
-    const ele = layer.getElement();
-    if (ele) {
-      ele.setAttribute('aria-describedby', getTooltipId(alpha2));
+    layer.bindPopup(popupHtml, {
+      autoPan: true,
+      autoPanPadding: [25, 10],
+    });
+
+    layer.on({
+      click: (e: L.LeafletMouseEvent) => {
+        console.log('Mobile click!!');
+        if (geoVisitor?.country_code === visitor?.geoVisitor.country_code) return;
+
+        if (prvVisitor) {
+          console.log('Have prv visitor!!');
+        }
+        prvVisitor?.layer.bringToBack();
+        prvVisitor?.layer?.setStyle(originalStyle(geoVisitor.visitors));
+        prvVisitor?.layer?.closePopup();
+        layer.openPopup(e.latlng);
+
+        selectFeature(geoVisitor, layer);
+      },
+    });
+  };
+
+  const desktopFeatureHandler = (geoVisitor: GeoVisitor | undefined, layer: L.Polygon) => {
+    console.log('Using desktop feature handler!!');
+    if (!geoVisitor) return;
+
+    const element = layer.getElement();
+    if (element) {
+      element.setAttribute('aria-describedby', getTooltipId(geoVisitor.country_code));
     }
+
+    layer.on({
+      mouseover: () => {
+        selectFeature(geoVisitor, layer);
+      },
+      mouseout: () => {
+        layer.setStyle(originalStyle(geoVisitor.visitors));
+        setVisitor(undefined);
+      },
+    });
+  };
+
+  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
+    const alpha2 = getFeatureId(feature);
+    if (!alpha2) return;
+    const visitorEntry = visitorData.find((d) => d.country_code === alpha2);
+    if (visitorEntry) layer.setStyle(originalStyle(visitorEntry?.visitors));
 
     // Unbind built in tooltip and popup
     layer.unbindTooltip();
     layer.unbindPopup();
 
-    layer.on({
-      mouseover: selectCountry,
-      click: selectCountry,
-      mouseout: () => {
-        layer.setStyle(og_style);
-        setSelectedCountry(null);
-      },
-    });
+    return isMobile ? desktopFeatureHandler(visitorEntry, layer) : mobileFeatureHandler(visitorEntry, layer);
   };
 
   return {
-    selectedCountry,
-    setSelectedCountry,
+    visitor: visitor,
+    setVisitor: setVisitor,
     onEachFeature,
   };
 }

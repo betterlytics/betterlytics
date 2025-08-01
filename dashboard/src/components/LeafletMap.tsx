@@ -6,8 +6,9 @@ import { useLeafletFeatures } from '@/hooks/use-leaflet-features';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState } from 'react';
-import MapTooltip from './leaflet/MapTooltip';
-import MapBackgroundLayer from './leaflet/MapBackgroundLayer';
+import MapBackgroundLayer from '@/components/leaflet/MapBackgroundLayer';
+import MapStickyTooltip from '@/components/leaflet/tooltip/MapStickyTooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -34,13 +35,14 @@ const LeafletMap = ({
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [inverseWorldGeoJson, setInverseWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useIsMobile();
   const [mapComponents, setMapComponents] = useState<{
     L: typeof import('leaflet');
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
-  const { selectedCountry, setSelectedCountry, onEachFeature } = useLeafletFeatures({
+  const { visitor, setVisitor, onEachFeature } = useLeafletFeatures({
     visitorData,
     calculatedMaxVisitors,
   });
@@ -125,19 +127,12 @@ const LeafletMap = ({
         <MapBackgroundLayer
           GeoJSON={mapComponents.GeoJSON}
           inverseWorldGeoJson={inverseWorldGeoJson}
-          onDeselect={() => setSelectedCountry(null)}
+          eventHandlers={{
+            mouseover: !isMobile ? () => setVisitor(undefined) : undefined,
+            click: isMobile ? () => setVisitor(undefined) : undefined,
+          }}
         />
-        <MapTooltip
-          selectedCountry={
-            selectedCountry
-              ? {
-                  code: selectedCountry.code,
-                  visitors: selectedCountry.visitors,
-                }
-              : selectedCountry
-          }
-          size={size}
-        />
+        <MapStickyTooltip geoVisitor={visitor?.geoVisitor} size={size} />
         {showLegend && (
           <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
             <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
