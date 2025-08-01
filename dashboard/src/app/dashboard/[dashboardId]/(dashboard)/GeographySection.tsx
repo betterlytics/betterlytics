@@ -29,6 +29,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
             label: getCountryName(country.country_code),
             value: country.current.visitors,
             trendPercentage: country.change?.visitors,
+            comparisonValue: country.compare?.visitors,
             icon: <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />,
           })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noCountryData'),

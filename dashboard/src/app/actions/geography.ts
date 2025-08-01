@@ -47,9 +47,13 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   },
 );
 
+const topCountriesQueryParamsSchema = queryParamsSchema.extend({
+  numberOfCountries: z.number().optional(),
+});
+
 export const getTopCountryVisitsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, params: Omit<z.infer<typeof queryParamsSchema>, 'siteId'>) => {
-    const validatedParams = queryParamsSchema.safeParse({
+  async (ctx: AuthContext, params: Omit<z.infer<typeof topCountriesQueryParamsSchema>, 'siteId'>) => {
+    const validatedParams = topCountriesQueryParamsSchema.safeParse({
       ...params,
       siteId: ctx.siteId,
     });
@@ -58,31 +62,29 @@ export const getTopCountryVisitsAction = withDashboardAuthContext(
       throw new Error(`Invalid parameters: ${validatedParams.error.message}`);
     }
 
-    const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = validatedParams.data;
+    const {
+      startDate,
+      endDate,
+      queryFilters,
+      compareStartDate,
+      compareEndDate,
+      numberOfCountries = 10,
+    } = validatedParams.data;
 
     try {
-      const geoVisitors = worldMapResponseSchema
-        .parse(
-          dataToWorldMap(
-            await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters),
-            CountryCodeFormat.Original,
-          ),
-        )
-        .visitorData.slice(0, 10);
+      const geoVisitors = (await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters)).slice(
+        0,
+        numberOfCountries,
+      );
 
       const topCountries = geoVisitors.map((row) => row.country_code);
 
       const compareGeoVisitors =
         compareStartDate &&
         compareEndDate &&
-        worldMapResponseSchema
-          .parse(
-            dataToWorldMap(
-              await fetchVisitorsByGeography(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
-              CountryCodeFormat.Original,
-            ),
-          )
-          .visitorData.filter((row) => topCountries.includes(row.country_code));
+        (await fetchVisitorsByGeography(ctx.siteId, compareStartDate, compareEndDate, queryFilters)).filter(
+          (row) => topCountries.includes(row.country_code),
+        );
       return toDataTable({
         data: geoVisitors,
         compare: compareGeoVisitors,

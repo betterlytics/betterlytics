@@ -9,6 +9,7 @@ interface ProgressBarData {
   label: string;
   value: number;
   trendPercentage?: number;
+  comparisonValue?: number;
   icon?: React.ReactElement;
 }
 
@@ -56,6 +57,7 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
                   relativePercentage: Math.max(relativePercentage, 2),
                   percentage: percentage,
                   trendPercentage: item.trendPercentage,
+                  comparisonValue: item.comparisonValue,
                 }}
                 icon={item.icon}
                 index={index + 1}

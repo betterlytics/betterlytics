@@ -9,6 +9,7 @@ type PropertyValue = {
   relativePercentage: number;
   percentage: number;
   trendPercentage?: number;
+  comparisonValue?: number;
 };
 
 interface PropertyValueBarProps {
@@ -36,14 +37,16 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
           <div className='text-muted-foreground flex gap-2 font-mono'>
             <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
               <div className='hidden gap-1 transition-all transition-discrete duration-200 group-hover:flex'>
-                <span>
-                  <TrendPercentage percentage={value.trendPercentage} withParenthesis />
-                </span>
+                {value.comparisonValue && (
+                  <span>
+                    <TrendPercentage percentage={value.trendPercentage} withParenthesis />
+                  </span>
+                )}
                 {formatPercentage(value.percentage)}
               </div>
             </div>
             <span>{value.count.toLocaleString()}</span>
-            <TrendIndicator percentage={value.trendPercentage} />
+            {value.comparisonValue && <TrendIndicator percentage={value.trendPercentage} />}
           </div>
         </div>
       </div>

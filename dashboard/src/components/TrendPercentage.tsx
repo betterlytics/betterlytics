@@ -20,11 +20,14 @@ const TrendPercentage = React.memo(({ percentage, withParenthesis }: TrendPercen
   const sign = isPositive ? '+' : '-';
   const color = isPositive ? 'text-green-400' : 'text-red-400';
 
+  const absValue = Math.abs(percentage);
+  const formatted = absValue % 1 ? absValue.toFixed(1) : absValue.toFixed(0);
+
   return (
     <span className={cn(color)}>
       {withParenthesis && '('}
       {sign}
-      {Math.abs(percentage).toFixed(1)}%{withParenthesis && ')'}
+      {formatted}%{withParenthesis && ')'}
     </span>
   );
 });

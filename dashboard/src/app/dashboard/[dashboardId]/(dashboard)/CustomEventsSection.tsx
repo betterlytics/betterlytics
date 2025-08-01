@@ -25,6 +25,7 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
             label: event.event_name,
             value: event.current.count,
             trendPercentage: event.change?.count,
+            comparisonValue: event.compare?.count,
           })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noCustomEventsData'),
         },
