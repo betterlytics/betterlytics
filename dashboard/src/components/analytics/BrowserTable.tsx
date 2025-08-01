@@ -28,11 +28,13 @@ export default function BrowserTable({ data }: BrowserTableProps) {
       accessorKey: 'visitors',
       header: 'Visitors',
       cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' />,
+      accessorFn: (row) => row.current.visitors,
     },
     {
       accessorKey: 'percentage',
       header: 'Percentage',
       cell: ({ row }) => <TableCompareCell row={row.original} dataKey='percentage' formatter={formatPercentage} />,
+      accessorFn: (row) => row.current.percentage,
     },
   ];
 
