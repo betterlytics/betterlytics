@@ -1,5 +1,6 @@
 'use client';
 
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useState, useEffect, useTransition } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -51,7 +52,12 @@ const SETTINGS_TABS: SettingsTabConfig[] = [
   },
 ];
 
-export default function SettingsSection() {
+interface DashboardSettingsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function DashboardSettingsDialog({ open, onOpenChange }: DashboardSettingsDialogProps) {
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
   const [formData, setFormData] = useState<DashboardSettingsUpdate>({});
@@ -75,6 +81,7 @@ export default function SettingsSection() {
         await updateDashboardSettingsAction(dashboardId, formData);
         await refreshSettings();
         toast.success('Settings saved successfully');
+        onOpenChange(false);
       } catch {
         toast.error('Failed to save settings');
       }
@@ -93,30 +100,42 @@ export default function SettingsSection() {
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-6'>
-      <TabsList className={`grid w-full grid-cols-${SETTINGS_TABS.length}`}>
-        {SETTINGS_TABS.map((tab) => (
-          <TabsTrigger key={tab.id} value={tab.id}>
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='max-h-[80vh] overflow-y-auto sm:max-w-[700px]'>
+        <DialogHeader>
+          <DialogTitle>Dashboard Settings</DialogTitle>
+          <DialogDescription>Configure your dashboard preferences and data collection settings.</DialogDescription>
+        </DialogHeader>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-6'>
+          <TabsList className={`grid w-full grid-cols-${SETTINGS_TABS.length}`}>
+            {SETTINGS_TABS.map((tab) => (
+              <TabsTrigger key={tab.id} value={tab.id}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-      {SETTINGS_TABS.map((tab) => {
-        const Component = tab.component;
-        return (
-          <TabsContent key={tab.id} value={tab.id}>
-            <Component formData={formData} onUpdate={handleUpdate} />
-          </TabsContent>
-        );
-      })}
+          {SETTINGS_TABS.map((tab) => {
+            const Component = tab.component;
+            return (
+              <TabsContent key={tab.id} value={tab.id}>
+                <Component formData={formData} onUpdate={handleUpdate} />
+              </TabsContent>
+            );
+          })}
 
-      <div className='flex justify-end border-t pt-6'>
-        <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged}>
-          {isPendingSave ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Save className='mr-2 h-4 w-4' />}
-          Save Changes
-        </Button>
-      </div>
-    </Tabs>
+          <div className='flex justify-end border-t pt-6'>
+            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged}>
+              {isPendingSave ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <Save className='mr-2 h-4 w-4' />
+              )}
+              Save Changes
+            </Button>
+          </div>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 }
