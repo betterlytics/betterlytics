@@ -16,6 +16,7 @@ import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import ExternalLink from '@/components/ExternalLink';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -186,17 +187,17 @@ export default App;
                       </CardDescription>
                       <CardDescription className='text-muted-foreground text-sm'>
                         Or install our{' '}
-                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
+                        <ExternalLink href='https://www.npmjs.com/package/@betterlytics/tracker'>
                           <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
                             npm
                           </code>{' '}
-                        </a>
+                        </ExternalLink>
                         package{' '}
-                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
+                        <ExternalLink href='https://www.npmjs.com/package/@betterlytics/tracker'>
                           <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
                             @betterlytics/tracker
                           </code>
-                        </a>{' '}
+                        </ExternalLink>{' '}
                         for easy setup for Node projects.
                       </CardDescription>
                     </div>
@@ -397,24 +398,24 @@ export default App;
                       </CardDescription>
                     </CardHeader>
                     <CardContent className='space-y-2'>
-                      <a
+                      <ExternalLink
                         href='/docs'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> Documentation
-                      </a>
-                      <a
+                      </ExternalLink>
+                      <ExternalLink
                         href='/docs/troubleshooting'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> Troubleshooting
-                      </a>
-                      <a
+                      </ExternalLink>
+                      <ExternalLink
                         href='/contact'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> Contact Support
-                      </a>
+                      </ExternalLink>
                     </CardContent>
                   </Card>
                 </div>

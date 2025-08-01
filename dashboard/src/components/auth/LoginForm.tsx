@@ -16,6 +16,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getProviders } from 'next-auth/react';
+import ExternalLink from '@/components/ExternalLink';
 
 export default function LoginForm() {
   const router = useBARouter();
@@ -157,9 +158,12 @@ export default function LoginForm() {
       </div>
 
       <div className='text-center'>
-        <a href='/forgot-password' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
+        <ExternalLink
+          href='/forgot-password'
+          className='text-primary hover:text-primary/80 text-sm font-medium underline'
+        >
           Forgot your password?
-        </a>
+        </ExternalLink>
       </div>
 
       {providers?.google || providers?.github ? (

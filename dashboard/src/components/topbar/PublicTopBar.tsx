@@ -8,13 +8,13 @@ import { usePathname } from 'next/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import ExternalLink from '@/components/ExternalLink';
 
 export default function PublicTopBar() {
   const { data: session, status } = useSession();
   const router = useBARouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const handleSignIn = () => {
     router.push('/signin');
   };
@@ -32,7 +32,7 @@ export default function PublicTopBar() {
   return (
     <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
       <div className='mx-auto max-w-7xl px-8'>
-        <div className='flex h-14 items-center justify-between'>
+        <div className='flex h-(--topbar-height) items-center justify-between'>
           <div className='flex items-center space-x-2'>
             <Link href='/' className='flex items-center space-x-2' onClick={closeMobileMenu}>
               <Logo variant='icon' showText textSize='md' priority />
@@ -40,13 +40,13 @@ export default function PublicTopBar() {
           </div>
 
           <nav className='hidden items-center space-x-6 md:flex'>
-            <a
+            <ExternalLink
               href='/docs'
               title='Complete Betterlytics Documentation'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
               Documentation
-            </a>
+            </ExternalLink>
             <Link
               href='#pricing'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
@@ -90,14 +90,14 @@ export default function PublicTopBar() {
               >
                 Pricing
               </Link>
-              <a
+              <ExternalLink
                 href='/docs'
                 onClick={closeMobileMenu}
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
                 title='Complete Betterlytics Documentation'
               >
                 Documentation
-              </a>
+              </ExternalLink>
 
               <div className='border-t pt-3'>
                 {session ? (

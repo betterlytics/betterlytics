@@ -60,7 +60,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <NextTopLoader color='var(--primary)' height={4} />
+        <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
         <Providers>
           <ConditionalTopBar />
           {children}
