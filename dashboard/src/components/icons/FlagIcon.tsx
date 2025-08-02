@@ -33,7 +33,7 @@ function FlagIconComponent({ countryCode, countryName = getCountryName(countryCo
         style={{
           border: 'var(--flagicon-border) solid 0.5px',
           height: '1em',
-          width: 'fit-content',
+          aspectRatio: '3/2',
         }}
       />
     </span>

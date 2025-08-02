@@ -87,6 +87,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
       accessorKey: 'visits',
       header: 'Visits',
       cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visits' formatter={formatNumber} />,
+      accessorFn: (row) => row.current.visits,
     },
     {
       id: 'percentage',
@@ -106,6 +107,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
       cell: ({ row }) => (
         <TableCompareCell row={row.original} dataKey='bounce_rate' formatter={formatPercentage} />
       ),
+      accessorFn: (row) => row.current.bounce_rate,
     },
     {
       accessorKey: 'avg_visit_duration',
@@ -113,6 +115,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
       cell: ({ row }) => (
         <TableCompareCell row={row.original} dataKey='avg_visit_duration' formatter={formatDuration} />
       ),
+      accessorFn: (row) => row.current.avg_visit_duration,
     },
   ];
 
