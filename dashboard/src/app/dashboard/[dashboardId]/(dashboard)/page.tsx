@@ -17,6 +17,7 @@ import {
   fetchSummaryStatsAction,
   fetchTotalPageViewsAction,
   fetchUniqueVisitorsAction,
+  getTopCountryVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
@@ -45,8 +46,17 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     endDate,
     5,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
+  const topCountriesPromise = getTopCountryVisitsAction(dashboardId, {
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  });
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, startDate, endDate, queryFilters),
@@ -79,15 +89,31 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     ),
   ]);
 
-  const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, startDate, endDate, queryFilters);
+  const devicePromise = fetchDeviceBreakdownCombinedAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
   const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(
     dashboardId,
     startDate,
     endDate,
     queryFilters,
     10,
+    compareStartDate,
+    compareEndDate,
   );
-  const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, startDate, endDate, queryFilters);
+  const customEventsPromise = fetchCustomEventsOverviewAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
 
   return (
     <div className='container space-y-6 p-6'>
@@ -113,7 +139,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} />
+          <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} />
         </Suspense>
       </div>
 

@@ -3,11 +3,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PropertyValueBar } from '@/components/events/PropertyValueBar';
+import { PropertyValueBar } from '@/components/PropertyValueBar';
 
 interface ProgressBarData {
   label: string;
   value: number;
+  trendPercentage?: number;
+  comparisonValue?: number;
   icon?: React.ReactElement;
 }
 
@@ -54,6 +56,8 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
                   count: item.value,
                   relativePercentage: Math.max(relativePercentage, 2),
                   percentage: percentage,
+                  trendPercentage: item.trendPercentage,
+                  comparisonValue: item.comparisonValue,
                 }}
                 icon={item.icon}
                 index={index + 1}
@@ -109,7 +113,7 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className='px-3 md:px-6'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           {tabsContent}
         </Tabs>

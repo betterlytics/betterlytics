@@ -20,19 +20,34 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
         {
           key: 'pages',
           label: dictionary.t('dashboard.tabs.pages'),
-          data: pageAnalyticsCombined.topPages.map((page) => ({ label: page.url, value: page.visitors })),
+          data: pageAnalyticsCombined.topPages.map((page) => ({
+            label: page.url,
+            value: page.current.visitors,
+            trendPercentage: page.change?.visitors,
+            comparisonValue: page.compare?.visitors,
+          })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noPageData'),
         },
         {
           key: 'entry',
           label: dictionary.t('dashboard.tabs.entryPages'),
-          data: pageAnalyticsCombined.topEntryPages.map((page) => ({ label: page.url, value: page.visitors })),
+          data: pageAnalyticsCombined.topEntryPages.map((page) => ({
+            label: page.url,
+            value: page.current.visitors,
+            trendPercentage: page.change?.visitors,
+            comparisonValue: page.compare?.visitors,
+          })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noEntryPagesData'),
         },
         {
           key: 'exit',
           label: dictionary.t('dashboard.tabs.exitPages'),
-          data: pageAnalyticsCombined.topExitPages.map((page) => ({ label: page.url, value: page.visitors })),
+          data: pageAnalyticsCombined.topExitPages.map((page) => ({
+            label: page.url,
+            value: page.current.visitors,
+            trendPercentage: page.change?.visitors,
+            comparisonValue: page.compare?.visitors,
+          })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noExitPagesData'),
         },
       ]}

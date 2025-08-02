@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { EventPropertyAnalytics } from "@/entities/events";
-import { PropertyValueBar } from './PropertyValueBar';
+import { EventPropertyAnalytics } from '@/entities/events';
+import { PropertyValueBar } from '@/components/PropertyValueBar';
 import { cn } from '@/lib/utils';
 
 interface PropertyRowProps {
@@ -11,50 +11,48 @@ interface PropertyRowProps {
 
 export function PropertyRow({ property, isExpanded, onToggle }: PropertyRowProps) {
   const hasValues = property.topValues.length > 0;
-  
+
   return (
-    <div className="space-y-3 relative">
-      <div 
+    <div className='relative space-y-3'>
+      <div
         className={cn(
-          "flex items-center gap-3 py-2 px-3 rounded cursor-pointer transition-all duration-200",
-          isExpanded ? "bg-background/30" : "hover:bg-background/25"
+          'flex cursor-pointer items-center gap-3 rounded px-3 py-2 transition-all duration-200',
+          isExpanded ? 'bg-background/30' : 'hover:bg-background/25',
         )}
         onClick={(e) => {
           e.stopPropagation();
           onToggle();
         }}
       >
-        <div className="w-4 h-4 flex items-center justify-center">
+        <div className='flex h-4 w-4 items-center justify-center'>
           {hasValues ? (
             isExpanded ? (
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200" />
+              <ChevronDown className='text-muted-foreground h-3.5 w-3.5 transition-transform duration-200' />
             ) : (
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200" />
+              <ChevronRight className='text-muted-foreground h-3.5 w-3.5 transition-transform duration-200' />
             )
           ) : (
-            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+            <div className='bg-muted-foreground/50 h-1.5 w-1.5 rounded-full' />
           )}
         </div>
-        
-        <div className="flex-1 flex items-center justify-between min-w-0">
-          <span className="font-medium text-foreground text-sm">
-            {property.propertyName}
-          </span>
+
+        <div className='flex min-w-0 flex-1 items-center justify-between'>
+          <span className='text-foreground text-sm font-medium'>{property.propertyName}</span>
         </div>
       </div>
 
       {isExpanded && hasValues && (
         <>
           {/* Connecting border */}
-          <div className="absolute left-[1.15rem] top-10 bottom-0 w-px bg-border/80" />
-          
-          <div className="ml-7 space-y-2">
+          <div className='bg-border/80 absolute top-10 bottom-0 left-[1.15rem] w-px' />
+
+          <div className='ml-7 space-y-2'>
             {property.topValues.map((value, index) => (
               <PropertyValueBar key={index} value={value} />
             ))}
-            
+
             {property.uniqueValueCount > property.topValues.length && (
-              <div className="flex items-center gap-2 py-1.5 px-3 text-xs text-muted-foreground">
+              <div className='text-muted-foreground flex items-center gap-2 px-3 py-1.5 text-xs'>
                 <span>+{property.uniqueValueCount - property.topValues.length} more</span>
               </div>
             )}
@@ -63,4 +61,4 @@ export function PropertyRow({ property, isExpanded, onToggle }: PropertyRowProps
       )}
     </div>
   );
-} 
+}

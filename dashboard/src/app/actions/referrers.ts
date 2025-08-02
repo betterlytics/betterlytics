@@ -12,13 +12,7 @@ import {
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
-import {
-  TopReferrerUrl,
-  TopChannel,
-  TopReferrerSource,
-  TrafficSourcesCombined,
-  TrafficSourcesCombinedSchema,
-} from '@/entities/referrers';
+import { TopReferrerUrl, TopChannel, TopReferrerSource, TrafficSourcesCombinedSchema } from '@/entities/referrers';
 import { QueryFilter } from '@/entities/filter';
 import { toPieChart } from '@/presenters/toPieChart';
 import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
@@ -232,19 +226,64 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
     endDate: Date,
     queryFilters: QueryFilter[],
     limit: number = 10,
-  ): Promise<TrafficSourcesCombined> => {
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
     try {
-      const [topReferrerUrls, topReferrerSources, topChannels] = await Promise.all([
+      const [
+        topReferrerUrls,
+        compareTopReferrerUrls,
+        topReferrerSources,
+        compareTopReferrerSources,
+        topChannels,
+        compareTopChannels,
+      ] = await Promise.all([
         getTopReferrerUrlsForSite(ctx.siteId, startDate, endDate, queryFilters, limit),
+        compareStartDate &&
+          compareEndDate &&
+          getTopReferrerUrlsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit),
         getTopReferrerSourcesForSite(ctx.siteId, startDate, endDate, queryFilters, limit),
+        compareStartDate &&
+          compareEndDate &&
+          getTopReferrerSourcesForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit),
         getTopChannelsForSite(ctx.siteId, startDate, endDate, queryFilters, limit),
+        compareStartDate &&
+          compareEndDate &&
+          getTopChannelsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit),
       ]);
 
-      return TrafficSourcesCombinedSchema.parse({
+      const data = TrafficSourcesCombinedSchema.parse({
         topReferrerUrls,
         topReferrerSources,
         topChannels,
       });
+
+      const compare =
+        compareStartDate &&
+        compareEndDate &&
+        TrafficSourcesCombinedSchema.parse({
+          topReferrerUrls: compareTopReferrerUrls,
+          topReferrerSources: compareTopReferrerSources,
+          topChannels: compareTopChannels,
+        });
+
+      return {
+        topReferrerUrls: toDataTable({
+          data: data.topReferrerUrls,
+          compare: compare?.topReferrerUrls,
+          categoryKey: 'referrer_url',
+        }),
+        topReferrerSources: toDataTable({
+          data: data.topReferrerSources,
+          compare: compare?.topReferrerSources,
+          categoryKey: 'referrer_source',
+        }),
+        topChannels: toDataTable({
+          data: data.topChannels,
+          compare: compare?.topChannels,
+          categoryKey: 'channel',
+        }),
+      };
     } catch (error) {
       console.error('Error fetching combined traffic sources:', error);
       throw error;

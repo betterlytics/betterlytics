@@ -7,12 +7,7 @@ import {
   getOperatingSystemBreakdownForSite,
   getDeviceUsageTrendForSite,
 } from '@/services/devices';
-import {
-  BrowserStats,
-  DeviceSummary,
-  DeviceBreakdownCombined,
-  DeviceBreakdownCombinedSchema,
-} from '@/entities/devices';
+import { BrowserStats, DeviceSummary, DeviceBreakdownCombinedSchema } from '@/entities/devices';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
@@ -52,18 +47,63 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     queryFilters: QueryFilter[],
-  ): Promise<DeviceBreakdownCombined> => {
-    const [deviceTypeBreakdown, browserBreakdown, operatingSystemBreakdown] = await Promise.all([
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const [
+      deviceTypeBreakdown,
+      compareDeviceTypeBreakdown,
+      browserBreakdown,
+      compareBrowserBreakdown,
+      operatingSystemBreakdown,
+      compareOperatingSystemBreakdown,
+    ] = await Promise.all([
       getDeviceTypeBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
+      compareStartDate &&
+        compareEndDate &&
+        getDeviceTypeBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
       getBrowserBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
+      compareStartDate &&
+        compareEndDate &&
+        getBrowserBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
       getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
+      compareStartDate &&
+        compareEndDate &&
+        getOperatingSystemBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
     ]);
 
-    return DeviceBreakdownCombinedSchema.parse({
+    const data = DeviceBreakdownCombinedSchema.parse({
       devices: deviceTypeBreakdown,
       browsers: browserBreakdown,
       operatingSystems: operatingSystemBreakdown,
     });
+
+    const compare =
+      compareStartDate &&
+      compareEndDate &&
+      DeviceBreakdownCombinedSchema.parse({
+        devices: compareDeviceTypeBreakdown,
+        browsers: compareBrowserBreakdown,
+        operatingSystems: compareOperatingSystemBreakdown,
+      });
+
+    return {
+      devices: toDataTable({
+        data: data.devices,
+        compare: compare?.devices,
+        categoryKey: 'device_type',
+      }),
+      browsers: toDataTable({
+        data: data.browsers,
+        compare: compare?.browsers,
+        categoryKey: 'browser',
+      }),
+      operatingSystems: toDataTable({
+        data: data.operatingSystems,
+        compare: compare?.operatingSystems,
+        categoryKey: 'os',
+      }),
+    };
   },
 );
 
