@@ -1,6 +1,6 @@
 import { Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import ExternalLink from '@/components/ExternalLink';
 
 export function OpenSourceCallout() {
   return (
@@ -23,9 +23,9 @@ export function OpenSourceCallout() {
               </a>
             </Button>
             <Button size='lg' variant='outline' asChild>
-              <a href='/docs' title='Complete Betterlytics Documentation'>
+              <ExternalLink href='/docs' title='Complete Betterlytics Documentation'>
                 View Documentation
-              </a>
+              </ExternalLink>
             </Button>
           </div>
         </div>

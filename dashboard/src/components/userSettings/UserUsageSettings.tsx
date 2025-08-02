@@ -1,9 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { useBillingData } from '@/hooks/useBillingData';
 
@@ -12,7 +12,7 @@ interface UserUsageSettingsProps {
 }
 
 export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsProps) {
-  const router = useRouter();
+  const router = useBARouter();
   const { billingData, isLoading, error } = useBillingData();
 
   const handleViewPlans = () => {

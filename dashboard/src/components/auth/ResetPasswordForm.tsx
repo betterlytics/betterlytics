@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { toast } from 'sonner';
 import { resetPasswordAction } from '@/app/actions/passwordReset';
 import { ResetPasswordSchema } from '@/entities/passwordReset';
@@ -18,7 +18,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const router = useBARouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

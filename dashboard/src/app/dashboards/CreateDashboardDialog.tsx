@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition, useMemo, use } from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -18,6 +17,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { Plus, Lock } from 'lucide-react';
 import { createDashboardAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
 import { domainValidation } from '@/entities/dashboard';
+import { useBARouter } from '@/hooks/use-ba-router';
 
 interface CreateDashboardDialogProps {
   dashboardStatsPromise: ReturnType<typeof getUserDashboardStatsAction>;
@@ -28,7 +28,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
   const [domain, setDomain] = useState<string>('');
   const [validationError, setValidationError] = useState<string>('');
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const router = useBARouter();
 
   const dashboardStats = use(dashboardStatsPromise);
 

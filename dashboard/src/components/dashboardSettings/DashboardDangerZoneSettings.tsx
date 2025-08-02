@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { AlertTriangle, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { startTransition, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -28,7 +28,7 @@ type DangerZoneSettingsProps = {
 
 export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
   const dashboardId = useDashboardId();
-  const router = useRouter();
+  const router = useBARouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDeleteDashboard = async () => {

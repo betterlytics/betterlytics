@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
@@ -8,7 +9,7 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 const URL_PARAM_NAME = 'filters';
 
 export function useSyncURLFilters() {
-  const router = useRouter();
+  const router = useBARouter();
   const searchParams = useSearchParams();
 
   const { queryFilters, setQueryFilters } = useQueryFiltersContext();

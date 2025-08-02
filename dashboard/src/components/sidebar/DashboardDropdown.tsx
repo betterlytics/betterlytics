@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { ChevronDown, Globe, List } from 'lucide-react';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { Dashboard } from '@/entities/dashboard';
@@ -22,7 +22,7 @@ interface DashboardDropdownProps {
 
 export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromise }: DashboardDropdownProps) {
   const dashboardId = useDashboardId();
-  const router = useRouter();
+  const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const currentDashboard = use(currentDashboardPromise);

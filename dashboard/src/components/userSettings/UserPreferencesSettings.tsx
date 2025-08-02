@@ -11,6 +11,7 @@ import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/dictionaries/dictionarie
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import ExternalLink from '@/components/ExternalLink';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -101,9 +102,14 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             <div className='text-muted-foreground pt-2 text-xs text-pretty'>
               Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.
               By enabling it,{' '}
-              <a href='https://wordpress.com/tos/' className='underline'>
+              <ExternalLink
+                href='https://wordpress.com/tos/'
+                className='underline'
+                target='__blank'
+                rel='noopener noreferrer'
+              >
                 you agree to their terms
-              </a>
+              </ExternalLink>
               .
             </div>
           )}

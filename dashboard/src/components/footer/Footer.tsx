@@ -1,6 +1,7 @@
 import Logo from '@/components/logo';
 import Link from 'next/link';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
+import ExternalLink from '@/components/ExternalLink';
 
 export function Footer() {
   return (
@@ -49,13 +50,13 @@ export function Footer() {
             <h3 className='mb-4 font-semibold'>Resources</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
               <li>
-                <a
+                <ExternalLink
                   href='/docs'
                   title='Complete Betterlytics Documentation'
                   className='hover:text-foreground transition-colors'
                 >
                   Documentation
-                </a>
+                </ExternalLink>
               </li>
               <li>
                 <Link href='/#pricing' className='hover:text-foreground transition-colors'>

@@ -1,8 +1,9 @@
 import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import Link from 'next/link';
+import ExternalLink from '@/components/ExternalLink';
 
 export const metadata = generateSEO(SEO_CONFIGS.about);
 
@@ -159,10 +160,14 @@ export default function AboutPage() {
                 <Link href='/register'>Get Started Free</Link>
               </Button>
               <Button asChild variant='outline' size='lg'>
-                <a href='/docs' className='flex items-center gap-2' title='Complete Betterlytics Documentation'>
+                <ExternalLink
+                  href='/docs'
+                  className='flex items-center gap-2'
+                  title='Complete Betterlytics Documentation'
+                >
                   View Documentation
-                  <ExternalLink className='h-4 w-4' />
-                </a>
+                  <ExternalLinkIcon className='h-4 w-4' />
+                </ExternalLink>
               </Button>
             </div>
           </section>

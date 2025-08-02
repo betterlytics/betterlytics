@@ -42,6 +42,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --topbar-height: calc(var(--spacing) * 14);
 }
 
 :root {
@@ -175,4 +176,8 @@
 .leaflet-top,
 .leaflet-bottom {
   z-index: 0 !important;
+}
+
+#nprogress .bar {
+  top: var(--topbar-height) !important;
 }

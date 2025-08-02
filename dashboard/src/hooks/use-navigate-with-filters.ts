@@ -1,13 +1,14 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
+import { useBARouter } from '@/hooks/use-ba-router';
 
 /**
  * Hook for navigation that preserves current search parameters (filters)
  */
 export function useNavigateWithFilters() {
-  const router = useRouter();
+  const router = useBARouter();
   const searchParams = useSearchParams();
 
   // Use this for actions triggered by button clicks or other client-side events

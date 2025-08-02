@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { IntegrationSheet } from '@/components/integration/IntegrationSheet';
+import { useBARouter } from '@/hooks/use-ba-router';
 
 export function IntegrationManager() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const router = useBARouter();
 
   useEffect(() => {
     const showIntegration = searchParams?.get('showIntegration');

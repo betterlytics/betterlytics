@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {
   AlertDialog,
@@ -16,9 +16,10 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getProviders } from 'next-auth/react';
+import ExternalLink from '@/components/ExternalLink';
 
 export default function LoginForm() {
-  const router = useRouter();
+  const router = useBARouter();
   const isMobile = useIsMobile();
   const totpInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState('');
@@ -157,9 +158,12 @@ export default function LoginForm() {
       </div>
 
       <div className='text-center'>
-        <a href='/forgot-password' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
+        <ExternalLink
+          href='/forgot-password'
+          className='text-primary hover:text-primary/80 text-sm font-medium underline'
+        >
           Forgot your password?
-        </a>
+        </ExternalLink>
       </div>
 
       {providers?.google || providers?.github ? (

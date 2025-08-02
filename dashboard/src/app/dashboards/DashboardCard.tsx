@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { Dashboard } from '@/entities/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Globe, Calendar, Settings } from 'lucide-react';
@@ -14,7 +14,7 @@ interface DashboardCardProps {
 
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const { dictionary } = useDictionary();
-  const router = useRouter();
+  const router = useBARouter();
 
   const { formattedDate, loading: loadingDate } = useFormattedDate(dashboard.createdAt, {
     options: { year: 'numeric', month: 'short', day: 'numeric' },
