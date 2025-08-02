@@ -35,6 +35,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
           />
         </div>
       ),
+      accessorFn: (row) => row.current.visitors,
     },
     {
       accessorKey: 'percentage',
@@ -50,6 +51,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
           />
         </div>
       ),
+      accessorFn: (row) => row.current.percentage,
     },
   ];
 

@@ -60,11 +60,13 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         accessorKey: 'visitors',
         header: 'Visitors',
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' />,
+        accessorFn: (row) => row.current.visitors,
       },
       {
         accessorKey: 'pageviews',
         header: 'Pageviews',
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' />,
+        accessorFn: (row) => row.current.pageviews,
       },
       {
         accessorKey: 'bounceRate',
@@ -72,11 +74,13 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         cell: ({ row }) => (
           <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} />
         ),
+        accessorFn: (row) => row.current.bounceRate,
       },
       {
         accessorKey: 'avgTime',
         header: 'Avg. Time',
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} />,
+        accessorFn: (row) => row.current.avgTime,
       },
     ];
   }, [handlePathClick]);
@@ -100,6 +104,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
             />
           </div>
         ),
+        accessorFn: (row) => row.current.entryRate,
       },
       exitRate: {
         accessorKey: 'exitRate',
@@ -115,6 +120,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
             />
           </div>
         ),
+        accessorFn: (row) => row.current.exitRate,
       },
     };
   }, []);
