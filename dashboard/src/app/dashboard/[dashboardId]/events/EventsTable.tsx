@@ -116,21 +116,25 @@ export function EventsTable({ data }: EventsTableProps) {
             </div>
           );
         },
+        accessorFn: (row) => row.current.event_name,
       },
       {
         accessorKey: 'count',
         header: 'Count',
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='count' />,
+        accessorFn: (row) => row.current.count,
       },
       {
         accessorKey: 'unique_users',
         header: 'Unique Users',
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='unique_users' />,
+        accessorFn: (row) => row.current.unique_users,
       },
       {
         accessorKey: 'avg_per_user',
         header: 'Avg per User',
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avg_per_user' />,
+        accessorFn: (row) => row.current.avg_per_user,
       },
       {
         accessorKey: 'last_seen',
@@ -150,6 +154,7 @@ export function EventsTable({ data }: EventsTableProps) {
           const dateB = new Date(rowB.original.current.last_seen).getTime();
           return dateA - dateB;
         },
+        accessorFn: (row) => new Date(row.current.last_seen).getTime(),
       },
       {
         id: 'percentage',
