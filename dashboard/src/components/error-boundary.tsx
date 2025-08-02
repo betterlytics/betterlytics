@@ -117,7 +117,7 @@ Please describe what you were doing when this error occurred:
               </Button>
               <Button onClick={handleGoHome} variant='outline'>
                 <Home className='mr-2 h-4 w-4' />
-                Go to Dashboard
+                Go to Dashboards
               </Button>
               <Button onClick={handleGoBack} variant='outline'>
                 <ArrowLeft className='mr-2 h-4 w-4' />
