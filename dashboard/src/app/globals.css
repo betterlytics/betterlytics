@@ -178,6 +178,8 @@
   z-index: 0 !important;
 }
 
-#nprogress .bar {
-  top: var(--topbar-height) !important;
+@media (min-width: 768px) {
+  #nprogress .bar {
+    top: var(--topbar-height) !important;
+  }
 }
