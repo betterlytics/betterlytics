@@ -11,13 +11,11 @@ const ExternalLink: React.FC<ExternalLinkProps> = ({ children, ...props }) => {
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     startLoader();
-    if (props.onClick) {
-      props.onClick(e);
-    }
+    props.onClick?.(e);
   };
 
   return (
-    <a onClick={handleClick} {...props}>
+    <a {...props} onClick={handleClick}>
       {children}
     </a>
   );
