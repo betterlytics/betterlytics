@@ -22,9 +22,17 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } =
+    await BAFilterSearchParams.decodeFromParams(searchParams);
 
-  const eventsPromise = fetchCustomEventsOverviewAction(dashboardId, startDate, endDate, queryFilters);
+  const eventsPromise = fetchCustomEventsOverviewAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
 
   return (
     <div className='container space-y-6 p-6'>
