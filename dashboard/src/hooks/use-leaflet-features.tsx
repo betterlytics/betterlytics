@@ -21,6 +21,10 @@ type LeafletVisitor = {
   layer: L.Polygon;
 };
 
+//! TODO:
+//! Figure out why visitor is not being set
+//! Add resize events that cleans up by removing desktop/mobile events leftover
+
 export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLeafletFeaturesProps) {
   const [visitor, setVisitor] = useState<LeafletVisitor | undefined>();
   const [prvVisitor, setPrvVisitor] = useState<LeafletVisitor>();
