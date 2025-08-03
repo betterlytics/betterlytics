@@ -5,6 +5,7 @@ import CampaignOverviewSection from './CampaignOverviewSection';
 import CampaignUTMSection from './CampaignUTMSection';
 import CampaignLandingPagesSection from './CampaignLandingPagesSection';
 import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 import {
   fetchCampaignPerformanceAction,
   fetchCampaignVisitorTrendAction,
@@ -37,6 +38,7 @@ export default function CampaignTabs({
   landingPagePerformancePromise,
 }: CampaignTabsProps) {
   const [activeTab, setActiveTab] = useState<TabValue>('overview');
+  const { dictionary } = useDictionary();
 
   const renderTabButton = (tabValue: TabValue, label: string) => (
     <button
@@ -56,9 +58,9 @@ export default function CampaignTabs({
     <div>
       <div className='border-border border-b'>
         <nav className='-mb-px flex space-x-4' aria-label='Tabs'>
-          {renderTabButton('overview', 'Overview')}
-          {renderTabButton('utmBreakdowns', 'UTM Breakdowns')}
-          {renderTabButton('landingPages', 'Landing Pages')}
+          {renderTabButton('overview', dictionary.t('components.campaign.tabs.overview'))}
+          {renderTabButton('utmBreakdowns', dictionary.t('components.campaign.tabs.utmBreakdowns'))}
+          {renderTabButton('landingPages', dictionary.t('components.campaign.tabs.landingPages'))}
         </nav>
       </div>
 

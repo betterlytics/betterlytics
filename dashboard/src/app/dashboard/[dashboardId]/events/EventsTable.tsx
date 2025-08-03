@@ -23,6 +23,7 @@ import { formatPercentage } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
 import type { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { TableCompareCell } from '@/components/TableCompareCell';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type TableEventRow = Awaited<ReturnType<typeof fetchCustomEventsOverviewAction>>[number];
 
@@ -43,6 +44,7 @@ interface EventRowWithExpansion extends TableEventRow {
 }
 
 export function EventsTable({ data }: EventsTableProps) {
+  const { dictionary } = useDictionary();
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const [expandedRows, setExpandedRows] = useState<ExpandedRowState>({});
@@ -93,7 +95,7 @@ export function EventsTable({ data }: EventsTableProps) {
     () => [
       {
         accessorKey: 'event_name',
-        header: 'Event Name',
+        header: dictionary.t('components.events.table.eventName'),
         cell: ({ row }) => {
           const event = row.original;
           return (
@@ -120,25 +122,25 @@ export function EventsTable({ data }: EventsTableProps) {
       },
       {
         accessorKey: 'count',
-        header: 'Count',
+        header: dictionary.t('components.events.table.count'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='count' />,
         accessorFn: (row) => row.current.count,
       },
       {
         accessorKey: 'unique_users',
-        header: 'Unique Users',
+        header: dictionary.t('components.events.table.uniqueUsers'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='unique_users' />,
         accessorFn: (row) => row.current.unique_users,
       },
       {
         accessorKey: 'avg_per_user',
-        header: 'Avg per User',
+        header: dictionary.t('components.events.table.avgPerUser'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avg_per_user' />,
         accessorFn: (row) => row.current.avg_per_user,
       },
       {
         accessorKey: 'last_seen',
-        header: 'Last Seen',
+        header: dictionary.t('components.events.table.lastSeen'),
         cell: ({ row }) => {
           const timeAgo = formatTimeAgo(new Date(row.original.current.last_seen));
 
@@ -158,7 +160,7 @@ export function EventsTable({ data }: EventsTableProps) {
       },
       {
         id: 'percentage',
-        header: 'Percentage',
+        header: dictionary.t('components.events.table.percentage'),
         cell: ({ row }) => {
           const percentage = calculatePercentage(row.original.current.count, row.original.totalEvents);
           return (
@@ -175,7 +177,7 @@ export function EventsTable({ data }: EventsTableProps) {
         },
       },
     ],
-    [],
+    [dictionary],
   );
 
   const table = useReactTable({
@@ -197,10 +199,9 @@ export function EventsTable({ data }: EventsTableProps) {
             <div className='bg-muted/30 mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full'>
               <Activity className='text-primary h-8 w-8' />
             </div>
-            <h3 className='text-foreground mb-3 text-lg font-semibold'>No events found</h3>
+            <h3 className='text-foreground mb-3 text-lg font-semibold'>{dictionary.t('components.events.table.noEvents')}</h3>
             <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>
-              No custom events were tracked during this time period. Events will appear here once they start being
-              recorded.
+              {dictionary.t('components.events.table.noEventsDesc')}
             </p>
           </div>
         </CardContent>
@@ -216,9 +217,9 @@ export function EventsTable({ data }: EventsTableProps) {
             <Activity className='text-primary h-4 w-4' />
           </div>
           <div className='flex items-center gap-3'>
-            <span>Event Details</span>
+            <span>{dictionary.t('components.events.table.eventDetails')}</span>
             <Badge variant='secondary' className='text-xs font-normal'>
-              {data.length} {data.length === 1 ? 'Unique Event' : 'Unique Events'}
+              {data.length} {data.length === 1 ? dictionary.t('components.events.table.uniqueEvent') : dictionary.t('components.events.table.uniqueEvents')}
             </Badge>
           </div>
         </CardTitle>
