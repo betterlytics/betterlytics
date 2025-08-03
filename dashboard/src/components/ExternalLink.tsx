@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTopLoader } from 'nextjs-toploader';
 
 type ExternalLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -9,10 +9,13 @@ type ExternalLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement>;
 const ExternalLink: React.FC<ExternalLinkProps> = ({ children, ...props }) => {
   const { start: startLoader } = useTopLoader();
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    startLoader();
-    props.onClick?.(e);
-  };
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+      startLoader();
+      props.onClick?.(e);
+    },
+    [startLoader, props.onClick],
+  );
 
   return (
     <a {...props} onClick={handleClick}>
