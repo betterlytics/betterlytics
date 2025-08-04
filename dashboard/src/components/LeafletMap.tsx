@@ -45,6 +45,7 @@ const LeafletMap = ({
   const { visitor, setVisitor, onEachFeature } = useLeafletFeatures({
     visitorData,
     calculatedMaxVisitors,
+    size,
   });
 
   useEffect(() => {
@@ -106,6 +107,27 @@ const LeafletMap = ({
         .leaflet-interactive:focus {
           outline: none !important; /** Remove square around selection area */
         }
+        .leaflet-popup-content {
+          margin-right: 0.5rem !important;
+          margin-left: 0.5rem !important;
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          padding: 0 !important;
+          display: flex;
+          flex-direction: column;
+        }
+        .leaflet-popup-content,
+        .leaflet-popup-tip {
+          background-color: var(--color-card);
+          filter: drop-shadow(0 0.5px 2px var(--color-sidebar-accent-foreground));
+        }
+        .leaflet-popup-content-wrapper {
+          background: transparent; /* Remove background */
+          border: none; /* Remove border */
+          box-shadow: none; /* Remove shadow */
+          padding: 0; /* Remove padding */
+          pointer-events: none; /* Optional: Let clicks pass through wrapper */
+        }
       `}</style>
       <MapContainer
         center={[20, 0]}
@@ -132,7 +154,7 @@ const LeafletMap = ({
             click: isMobile ? () => setVisitor(undefined) : undefined,
           }}
         />
-        <MapStickyTooltip geoVisitor={visitor?.geoVisitor} size={size} />
+        {!isMobile && <MapStickyTooltip geoVisitor={visitor?.geoVisitor} size={size} />}
         {showLegend && (
           <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
             <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>

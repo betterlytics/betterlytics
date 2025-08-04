@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { renderToString } from 'react-dom/server';
 import { Feature, Geometry } from 'geojson';
 import { scaleLinear } from 'd3-scale';
@@ -6,11 +6,16 @@ import { GeoVisitor } from '@/entities/geography';
 import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { getTooltipId } from '@/components/leaflet/tooltip/MapStickyTooltip';
 import { useIsMobile } from './use-mobile';
-import { MapTooltip } from '@/components/leaflet/tooltip';
+import MapTooltipContent from '@/components/leaflet/tooltip/MapTooltipContent';
 
+//! TODO: Split this into three files:
+// useMobileLeafletFeatures
+// useDesktopLeafletFeatures
+// useLeafletFeatures # Responsible for rendering correct feature and clean up when switching between desktop / mobile
 interface UseLeafletFeaturesProps {
   visitorData: GeoVisitor[];
   calculatedMaxVisitors: number;
+  size: 'sm' | 'lg';
 }
 
 const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
@@ -21,14 +26,22 @@ type LeafletVisitor = {
   layer: L.Polygon;
 };
 
-//! TODO:
-//! Figure out why visitor is not being set
-//! Add resize events that cleans up by removing desktop/mobile events leftover
-
-export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLeafletFeaturesProps) {
+export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, size }: UseLeafletFeaturesProps) {
   const [visitor, setVisitor] = useState<LeafletVisitor | undefined>();
-  const [prvVisitor, setPrvVisitor] = useState<LeafletVisitor>();
+  const visitorRef = useRef<LeafletVisitor | undefined>(undefined);
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (isMobile && visitor !== visitorRef.current) {
+      visitorRef.current?.layer?.setStyle(originalStyle(visitorRef.current.geoVisitor.visitors));
+      visitorRef.current?.layer?.closePopup();
+      if (visitor) {
+        selectFeature(visitor.geoVisitor, visitor.layer);
+      } else {
+        visitorRef.current = undefined;
+      }
+    }
+  }, [visitor]);
 
   const colorScale = useMemo(() => {
     return scaleLinear<string>()
@@ -64,47 +77,49 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLe
       weight: 2.5,
       fillOpacity: 1,
     }),
-    [MAP_FEATURE_BORDER_COLORS, originalStyle],
+    [originalStyle],
   );
 
   const selectFeature = (geoVisitor: GeoVisitor, layer: L.Polygon) => {
-    console.log('Selecting: ', geoVisitor, ` current:${visitor?.geoVisitor} prv:${prvVisitor?.geoVisitor}`);
-    if (geoVisitor?.country_code === visitor?.geoVisitor.country_code) return;
+    if (geoVisitor.country_code === visitorRef.current?.geoVisitor.country_code) return;
+
     layer.bringToFront();
     layer.setStyle(selectedStyle(geoVisitor.visitors));
-    setPrvVisitor(visitor);
-    setVisitor({ geoVisitor: geoVisitor, layer });
+
+    const newVisitor = { geoVisitor, layer };
+    if (visitor !== newVisitor) {
+      setVisitor(newVisitor);
+    }
+    visitorRef.current = newVisitor;
   };
 
   const mobileFeatureHandler = (geoVisitor: GeoVisitor | undefined, layer: L.Polygon) => {
     if (!geoVisitor) return;
-    const popupHtml = renderToString(<MapTooltip geoVisitor={visitor?.geoVisitor} size={'sm'} />);
+
+    const popupHtml = renderToString(<MapTooltipContent geoVisitor={geoVisitor} size={size} className='' />);
 
     layer.bindPopup(popupHtml, {
       autoPan: true,
       autoPanPadding: [25, 10],
+      closeButton: false,
     });
 
     layer.on({
-      click: (e: L.LeafletMouseEvent) => {
-        console.log('Mobile click!!');
-        if (geoVisitor?.country_code === visitor?.geoVisitor.country_code) return;
+      click: () => {
+        if (geoVisitor.country_code === visitorRef.current?.geoVisitor.country_code) return;
 
-        if (prvVisitor) {
-          console.log('Have prv visitor!!');
-        }
-        prvVisitor?.layer.bringToBack();
-        prvVisitor?.layer?.setStyle(originalStyle(geoVisitor.visitors));
-        prvVisitor?.layer?.closePopup();
-        layer.openPopup(e.latlng);
-
+        visitorRef.current?.layer?.setStyle(originalStyle(visitorRef.current.geoVisitor.visitors));
+        visitorRef.current?.layer?.closePopup();
+        layer.openPopup();
         selectFeature(geoVisitor, layer);
       },
     });
   };
 
   const desktopFeatureHandler = (geoVisitor: GeoVisitor | undefined, layer: L.Polygon) => {
-    console.log('Using desktop feature handler!!');
+    layer.unbindTooltip();
+    layer.unbindPopup();
+
     if (!geoVisitor) return;
 
     const element = layer.getElement();
@@ -119,6 +134,7 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLe
       mouseout: () => {
         layer.setStyle(originalStyle(geoVisitor.visitors));
         setVisitor(undefined);
+        visitorRef.current = undefined;
       },
     });
   };
@@ -126,19 +142,18 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors }: UseLe
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
     const alpha2 = getFeatureId(feature);
     if (!alpha2) return;
-    const visitorEntry = visitorData.find((d) => d.country_code === alpha2);
-    if (visitorEntry) layer.setStyle(originalStyle(visitorEntry?.visitors));
 
-    // Unbind built in tooltip and popup
-    layer.unbindTooltip();
-    layer.unbindPopup();
-
-    return isMobile ? desktopFeatureHandler(visitorEntry, layer) : mobileFeatureHandler(visitorEntry, layer);
+    let visitorEntry = visitorData.find((d) => d.country_code === alpha2);
+    if (!visitorEntry) {
+      visitorEntry = { country_code: alpha2, visitors: 0 };
+    }
+    layer.setStyle(originalStyle(visitorEntry.visitors));
+    isMobile ? mobileFeatureHandler(visitorEntry, layer) : desktopFeatureHandler(visitorEntry, layer);
   };
 
   return {
-    visitor: visitor,
-    setVisitor: setVisitor,
+    visitor,
+    setVisitor,
     onEachFeature,
   };
 }
