@@ -8,7 +8,7 @@ type ExternalLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement>;
 /**
  * Wrapper for the anchor HTML-element (<a>), that triggers the TopLoader's loading animation before navigating
  */
-const ExternalLink: React.FC<ExternalLinkProps> = ({ children, onClick, ...props }) => {
+function ExternalLink({ children, onClick, ...props }: ExternalLinkProps) {
   const { start: startLoader } = useTopLoader();
 
   const handleClick = useCallback(
@@ -24,6 +24,6 @@ const ExternalLink: React.FC<ExternalLinkProps> = ({ children, onClick, ...props
       {children}
     </a>
   );
-};
+}
 
-export default ExternalLink;
+export default React.memo(ExternalLink);

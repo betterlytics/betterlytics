@@ -123,12 +123,9 @@ function SetupTotp() {
                   </TooltipTrigger>
                   <TooltipContent className='flex flex-row items-center'>
                     <code>{totpSecret}</code>
-                    <ExternalLink
-                      className='ms-2 block cursor-pointer py-0.5'
-                      onClick={() => handleCopy(totpSecret)}
-                    >
+                    <button className='ms-2 block cursor-pointer py-0.5' onClick={() => handleCopy(totpSecret)}>
                       {totpSecretCopied ? <Check className='size-3' /> : <Clipboard className='size-3' />}
-                    </ExternalLink>
+                    </button>
                   </TooltipContent>
                 </Tooltip>
                 {' to manually configure it'}

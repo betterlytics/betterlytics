@@ -9,7 +9,7 @@ export function useBARouter() {
   const { start } = useTopLoader();
 
   const push = useCallback(
-    async (...args: Parameters<typeof router.push>) => {
+    (...args: Parameters<typeof router.push>) => {
       start();
       return router.push(...args);
     },
@@ -17,7 +17,7 @@ export function useBARouter() {
   );
 
   const replace = useCallback(
-    async (...args: Parameters<typeof router.replace>) => {
+    (...args: Parameters<typeof router.replace>) => {
       start();
       return router.replace(...args);
     },
