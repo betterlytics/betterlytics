@@ -2,13 +2,14 @@
 
 import { MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { GeoVisitor } from '@/entities/geography';
-import { useLeafletFeatures } from '@/hooks/use-leaflet-features';
+import { useLeafletFeatures } from '@/hooks/leaflet/use-leaflet-features';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState } from 'react';
 import MapBackgroundLayer from '@/components/leaflet/MapBackgroundLayer';
 import MapStickyTooltip from '@/components/leaflet/tooltip/MapStickyTooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -42,9 +43,10 @@ const LeafletMap = ({
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
+  const style = useLeafletStyle({ calculatedMaxVisitors, size });
   const { visitor, setVisitor, onEachFeature } = useLeafletFeatures({
     visitorData,
-    calculatedMaxVisitors,
+    style,
     size,
   });
 
@@ -100,35 +102,7 @@ const LeafletMap = ({
 
   return (
     <div style={{ height: '100%', width: '100%' }}>
-      <style jsx global>{`
-        .leaflet-container {
-          background-color: var(--color-card);
-        }
-        .leaflet-interactive:focus {
-          outline: none !important; /** Remove square around selection area */
-        }
-        .leaflet-popup-content {
-          margin-right: 0.5rem !important;
-          margin-left: 0.5rem !important;
-          margin-top: 0 !important;
-          margin-bottom: 0 !important;
-          padding: 0 !important;
-          display: flex;
-          flex-direction: column;
-        }
-        .leaflet-popup-content,
-        .leaflet-popup-tip {
-          background-color: var(--color-card);
-          filter: drop-shadow(0 0.5px 2px var(--color-sidebar-accent-foreground));
-        }
-        .leaflet-popup-content-wrapper {
-          background: transparent; /* Remove background */
-          border: none; /* Remove border */
-          box-shadow: none; /* Remove shadow */
-          padding: 0; /* Remove padding */
-          pointer-events: none; /* Optional: Let clicks pass through wrapper */
-        }
-      `}</style>
+      {style.LeafletCSS}
       <MapContainer
         center={[20, 0]}
         style={{ height: '100%', width: '100%' }}

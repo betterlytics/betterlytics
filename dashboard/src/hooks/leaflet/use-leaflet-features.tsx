@@ -5,8 +5,9 @@ import { scaleLinear } from 'd3-scale';
 import { GeoVisitor } from '@/entities/geography';
 import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { getTooltipId } from '@/components/leaflet/tooltip/MapStickyTooltip';
-import { useIsMobile } from './use-mobile';
+import { useIsMobile } from '../use-mobile';
 import MapTooltipContent from '@/components/leaflet/tooltip/MapTooltipContent';
+import { LeafletStyle, useLeafletStyle } from './use-leaflet-style';
 
 //! TODO: Split this into three files:
 // useMobileLeafletFeatures
@@ -14,77 +15,29 @@ import MapTooltipContent from '@/components/leaflet/tooltip/MapTooltipContent';
 // useLeafletFeatures # Responsible for rendering correct feature and clean up when switching between desktop / mobile
 interface UseLeafletFeaturesProps {
   visitorData: GeoVisitor[];
-  calculatedMaxVisitors: number;
+  style: LeafletStyle;
   size: 'sm' | 'lg';
 }
 
 const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
   feature?.id ? String(feature.id) : undefined;
 
+//! TODO: Share type
 type LeafletVisitor = {
   geoVisitor: GeoVisitor;
   layer: L.Polygon;
 };
 
-export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, size }: UseLeafletFeaturesProps) {
+export function useLeafletFeatures({ visitorData, style, size }: UseLeafletFeaturesProps) {
   const [visitor, setVisitor] = useState<LeafletVisitor | undefined>();
   const visitorRef = useRef<LeafletVisitor | undefined>(undefined);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (isMobile && visitor !== visitorRef.current) {
-      visitorRef.current?.layer?.setStyle(originalStyle(visitorRef.current.geoVisitor.visitors));
-      visitorRef.current?.layer?.closePopup();
-      if (visitor) {
-        selectFeature(visitor.geoVisitor, visitor.layer);
-      } else {
-        visitorRef.current = undefined;
-      }
-    }
-  }, [visitor]);
-
-  const colorScale = useMemo(() => {
-    return scaleLinear<string>()
-      .domain([0, 1, calculatedMaxVisitors])
-      .range([MAP_VISITOR_COLORS.NO_VISITORS, MAP_VISITOR_COLORS.LOW_VISITORS, MAP_VISITOR_COLORS.HIGH_VISITORS]);
-  }, [calculatedMaxVisitors]);
-
-  const featureBorderColorScale = useMemo(() => {
-    return scaleLinear<string>()
-      .domain([0, 1, calculatedMaxVisitors])
-      .range([
-        MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
-        MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
-        MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
-      ]);
-  }, [calculatedMaxVisitors]);
-
-  const originalStyle = useCallback(
-    (visitors: number) => ({
-      fillColor: colorScale(visitors),
-      color: featureBorderColorScale(visitors),
-      weight: visitors ? 1.5 : 1,
-      fillOpacity: 0.8,
-      opacity: 1,
-    }),
-    [featureBorderColorScale, colorScale],
-  );
-
-  const selectedStyle = useCallback(
-    (visitors: number) => ({
-      ...originalStyle(visitors),
-      color: MAP_FEATURE_BORDER_COLORS.SELECTED,
-      weight: 2.5,
-      fillOpacity: 1,
-    }),
-    [originalStyle],
-  );
 
   const selectFeature = (geoVisitor: GeoVisitor, layer: L.Polygon) => {
     if (geoVisitor.country_code === visitorRef.current?.geoVisitor.country_code) return;
 
     layer.bringToFront();
-    layer.setStyle(selectedStyle(geoVisitor.visitors));
+    layer.setStyle(style.selectedStyle(geoVisitor.visitors));
 
     const newVisitor = { geoVisitor, layer };
     if (visitor !== newVisitor) {
@@ -108,7 +61,7 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, size }:
       click: () => {
         if (geoVisitor.country_code === visitorRef.current?.geoVisitor.country_code) return;
 
-        visitorRef.current?.layer?.setStyle(originalStyle(visitorRef.current.geoVisitor.visitors));
+        visitorRef.current?.layer?.setStyle(style.originalStyle(visitorRef.current.geoVisitor.visitors));
         visitorRef.current?.layer?.closePopup();
         layer.openPopup();
         selectFeature(geoVisitor, layer);
@@ -132,7 +85,7 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, size }:
         selectFeature(geoVisitor, layer);
       },
       mouseout: () => {
-        layer.setStyle(originalStyle(geoVisitor.visitors));
+        layer.setStyle(style.originalStyle(geoVisitor.visitors));
         setVisitor(undefined);
         visitorRef.current = undefined;
       },
@@ -147,7 +100,7 @@ export function useLeafletFeatures({ visitorData, calculatedMaxVisitors, size }:
     if (!visitorEntry) {
       visitorEntry = { country_code: alpha2, visitors: 0 };
     }
-    layer.setStyle(originalStyle(visitorEntry.visitors));
+    layer.setStyle(style.originalStyle(visitorEntry.visitors));
     isMobile ? mobileFeatureHandler(visitorEntry, layer) : desktopFeatureHandler(visitorEntry, layer);
   };
 
