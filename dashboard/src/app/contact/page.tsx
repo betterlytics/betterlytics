@@ -3,6 +3,7 @@ import { StructuredData } from '@/components/StructuredData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
+import ExternalLink from '@/components/ExternalLink';
 
 export const metadata = generateSEO(SEO_CONFIGS.contact);
 
@@ -37,14 +38,14 @@ export default function ContactPage() {
                     </div>
                     <div className='flex-1'>
                       <h3 className='text-lg font-semibold'>{method.title}</h3>
-                      <a
+                      <ExternalLink
                         href={method.href}
                         target='_blank'
                         rel='noopener noreferrer'
                         className='text-muted-foreground hover:text-primary text-sm transition-colors'
                       >
                         {method.description}
-                      </a>
+                      </ExternalLink>
                     </div>
                   </div>
                 );
@@ -75,13 +76,13 @@ export default function ContactPage() {
         <div className='text-center'>
           <p className='text-muted-foreground mb-4'>
             Can't find what you're looking for?{' '}
-            <a
+            <ExternalLink
               href='/docs'
               className='text-primary hover:text-primary/80 font-medium underline'
               title='Complete Betterlytics Documentation'
             >
               Check our full documentation →
-            </a>
+            </ExternalLink>
           </p>
         </div>
       </div>
