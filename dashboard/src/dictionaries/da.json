@@ -64,9 +64,9 @@
     "devices": {
       "tables": {
         "topOperatingSystems": "Top operativsystemer",
-        "mostCommonOperatingSystems": "Mest almindelige operativsystemer",
+        "mostCommonOperatingSystems": "Mest anvendte operativsystemer",
         "topBrowsers": "Top browsere",
-        "mostCommonBrowsers": "Mest almindelige browsere"
+        "mostCommonBrowsers": "Mest anvendte browsere"
       },
       "charts": {
         "deviceTypes": "Enhedstyper",
