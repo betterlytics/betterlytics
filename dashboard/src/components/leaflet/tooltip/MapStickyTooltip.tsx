@@ -5,9 +5,10 @@ import React from 'react';
 import { GeoVisitor } from '@/entities/geography';
 import MapTooltipTip from './MapTooltipTip';
 import MapTooltipContent from './MapTooltipContent';
+import { useMapSelection } from '@/contexts/MapSelectionProvider';
+import { cn } from '@/lib/utils';
 
 export type MapStickyTooltip = {
-  geoVisitor?: GeoVisitor;
   size?: 'sm' | 'lg';
 };
 
@@ -15,7 +16,8 @@ export function getTooltipId(alpha2: string) {
   return `lltooltip-${alpha2}`;
 }
 
-export default function MapStickyTooltip({ geoVisitor, size = 'sm' }: MapStickyTooltip) {
+export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
+  const { hoveredFeature } = useMapSelection();
   const map = useMap();
   const tooltipId = useId();
 
@@ -29,7 +31,7 @@ export default function MapStickyTooltip({ geoVisitor, size = 'sm' }: MapStickyT
     const onMouseMove = (e: MouseEvent) => {
       latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
 
-      if (geoVisitor && tooltipRef.current) {
+      if (hoveredFeature && tooltipRef.current) {
         if (animationFrame === null) {
           animationFrame = requestAnimationFrame(() => {
             if (tooltipRef.current) {
@@ -44,7 +46,7 @@ export default function MapStickyTooltip({ geoVisitor, size = 'sm' }: MapStickyT
     mapContainer.addEventListener('mousemove', onMouseMove);
 
     const initialPositioning = () => {
-      if (geoVisitor && tooltipRef.current) {
+      if (hoveredFeature && tooltipRef.current) {
         tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
       }
     };
@@ -54,9 +56,9 @@ export default function MapStickyTooltip({ geoVisitor, size = 'sm' }: MapStickyT
       mapContainer.removeEventListener('mousemove', onMouseMove);
       if (animationFrame !== null) cancelAnimationFrame(animationFrame);
     };
-  }, [map, geoVisitor]);
+  }, [map]);
 
-  if (!geoVisitor) return null;
+  if (!hoveredFeature) return null;
 
   return createPortal(
     <section
@@ -64,9 +66,12 @@ export default function MapStickyTooltip({ geoVisitor, size = 'sm' }: MapStickyT
       ref={tooltipRef}
       role='tooltip'
       aria-hidden={false}
-      className='my-tooltip pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform'
+      className={cn(
+        !hoveredFeature && 'hidden',
+        'my-tooltip pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
+      )}
     >
-      <MapTooltipContent geoVisitor={geoVisitor} size={size} />
+      <MapTooltipContent geoVisitor={hoveredFeature.geoVisitor} size={size} />
       <MapTooltipTip />
     </section>,
     document.body,

@@ -8,6 +8,7 @@ import { getTooltipId } from '@/components/leaflet/tooltip/MapStickyTooltip';
 import { useIsMobile } from '../use-mobile';
 import MapTooltipContent from '@/components/leaflet/tooltip/MapTooltipContent';
 import { LeafletStyle, useLeafletStyle } from './use-leaflet-style';
+import { useMapSelection } from '@/contexts/MapSelectionProvider';
 
 //! TODO: Split this into three files:
 // useMobileLeafletFeatures
@@ -19,9 +20,6 @@ interface UseLeafletFeaturesProps {
   size: 'sm' | 'lg';
 }
 
-const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
-  feature?.id ? String(feature.id) : undefined;
-
 //! TODO: Share type
 type LeafletVisitor = {
   geoVisitor: GeoVisitor;
@@ -29,7 +27,7 @@ type LeafletVisitor = {
 };
 
 export function useLeafletFeatures({ visitorData, style, size }: UseLeafletFeaturesProps) {
-  const [visitor, setVisitor] = useState<LeafletVisitor | undefined>();
+  const { selectedFeature, setHoveredFeature, hoveredFeature, setSelectedFeature } = useMapSelection();
   const visitorRef = useRef<LeafletVisitor | undefined>(undefined);
   const isMobile = useIsMobile();
 
@@ -40,9 +38,9 @@ export function useLeafletFeatures({ visitorData, style, size }: UseLeafletFeatu
     layer.setStyle(style.selectedStyle(geoVisitor.visitors));
 
     const newVisitor = { geoVisitor, layer };
-    if (visitor !== newVisitor) {
-      setVisitor(newVisitor);
-    }
+    // if (visitor !== newVisitor) {
+    //   setVisitor(newVisitor);
+    // }
     visitorRef.current = newVisitor;
   };
 
@@ -105,8 +103,6 @@ export function useLeafletFeatures({ visitorData, style, size }: UseLeafletFeatu
   };
 
   return {
-    visitor,
-    setVisitor,
     onEachFeature,
   };
 }

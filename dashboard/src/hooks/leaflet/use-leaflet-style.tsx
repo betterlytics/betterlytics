@@ -18,6 +18,7 @@ export type LeafletColorScale = ScaleLinear<string, string, never>;
 export interface LeafletStyle {
   originalStyle: (visitors: number) => FeatureStyle;
   selectedStyle: (visitors: number) => FeatureStyle;
+  hoveredStyle: (visitors: number) => FeatureStyle;
   colorScale: LeafletColorScale;
   featureBorderColorScale: LeafletColorScale;
   LeafletCSS: JSX.Element;
@@ -61,6 +62,14 @@ export function useLeafletStyle({ calculatedMaxVisitors, size }: UseLeafletStyle
     [originalStyle],
   );
 
+  const hoveredStyle = useCallback(
+    (visitors: number) => ({
+      ...selectedStyle(visitors),
+      color: MAP_FEATURE_BORDER_COLORS.HOVERED,
+    }),
+    [selectedStyle],
+  );
+
   const LeafletCSS = useMemo(() => {
     return (
       <style jsx global>
@@ -97,5 +106,5 @@ export function useLeafletStyle({ calculatedMaxVisitors, size }: UseLeafletStyle
     );
   }, []);
 
-  return { originalStyle, selectedStyle, colorScale, featureBorderColorScale, LeafletCSS };
+  return { originalStyle, selectedStyle, hoveredStyle, colorScale, featureBorderColorScale, LeafletCSS };
 }

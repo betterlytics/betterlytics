@@ -10,6 +10,8 @@ import MapBackgroundLayer from '@/components/leaflet/MapBackgroundLayer';
 import MapStickyTooltip from '@/components/leaflet/tooltip/MapStickyTooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
+import { MapSelectionContextProvider, useMapSelection } from '@/contexts/MapSelectionProvider';
+import MapCountryGeoJSON from './leaflet/MapCountryGeoJSON';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -20,11 +22,6 @@ interface LeafletMapProps {
   size?: 'sm' | 'lg';
 }
 
-const geoJsonOptions = {
-  updateWhenIdle: true,
-  buffer: 2,
-};
-
 const LeafletMap = ({
   visitorData,
   maxVisitors,
@@ -34,7 +31,6 @@ const LeafletMap = ({
   initialZoom,
 }: LeafletMapProps) => {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
-  const [inverseWorldGeoJson, setInverseWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
   const [mapComponents, setMapComponents] = useState<{
@@ -43,27 +39,21 @@ const LeafletMap = ({
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
+
   const style = useLeafletStyle({ calculatedMaxVisitors, size });
-  const { visitor, setVisitor, onEachFeature } = useLeafletFeatures({
-    visitorData,
-    style,
-    size,
-  });
 
   useEffect(() => {
     setIsLoading(true);
 
     const loadMapDependencies = async () => {
       try {
-        const [leafletModule, reactLeafletModule, worldRes, inverseWorldRes] = await Promise.all([
+        const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
           import('leaflet'),
           import('react-leaflet'),
           fetch('/data/countries.geo.json'),
-          fetch('/data/notcountries.geo.json'),
         ]);
 
         const world = await worldRes.json();
-        const inverseWorld = await inverseWorldRes.json();
 
         setMapComponents({
           L: leafletModule.default,
@@ -71,7 +61,6 @@ const LeafletMap = ({
           GeoJSON: reactLeafletModule.GeoJSON,
         });
         setWorldGeoJson(world);
-        setInverseWorldGeoJson(inverseWorld);
       } catch (err) {
         console.error('Error loading map dependencies:', err);
       } finally {
@@ -87,7 +76,7 @@ const LeafletMap = ({
     return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
   }, [mapComponents]);
 
-  if (isLoading || !mapComponents || !worldGeoJson || !inverseWorldGeoJson) {
+  if (isLoading || !mapComponents || !worldGeoJson) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
@@ -114,21 +103,12 @@ const LeafletMap = ({
         maxZoom={7}
         attributionControl={false}
       >
-        <GeoJSON
-          key={JSON.stringify(visitorData.length)}
-          data={worldGeoJson}
-          onEachFeature={onEachFeature}
-          {...geoJsonOptions}
-        />
-        <MapBackgroundLayer
-          GeoJSON={mapComponents.GeoJSON}
-          inverseWorldGeoJson={inverseWorldGeoJson}
-          eventHandlers={{
-            mouseover: !isMobile ? () => setVisitor(undefined) : undefined,
-            click: isMobile ? () => setVisitor(undefined) : undefined,
-          }}
-        />
-        {!isMobile && <MapStickyTooltip geoVisitor={visitor?.geoVisitor} size={size} />}
+        <MapSelectionContextProvider>
+          <MapBackgroundLayer GeoJSON={GeoJSON} />
+          <MapCountryGeoJSON GeoJSON={GeoJSON} data={worldGeoJson} />
+          {!isMobile && <MapStickyTooltip size={size} />}
+          {/* TODO: Add selected tooltip on mobile */}
+        </MapSelectionContextProvider>
         {showLegend && (
           <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
             <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>

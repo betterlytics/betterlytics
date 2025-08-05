@@ -8,5 +8,6 @@ export const MAP_FEATURE_BORDER_COLORS = {
   NO_VISITORS: '#9ca3af', // Lighter gray for 0 visitors border
   HIGH_VISITORS: '#93c5fd', // Lighter version of light blue
   LOW_VISITORS: '#3b82f6', // Lighter version of dark blue
-  SELECTED: 'var(--color-green-500)',
+  HOVERED: 'var(--color-green-500',
+  SELECTED: 'var(--color-orange-500)',
 } as const;
