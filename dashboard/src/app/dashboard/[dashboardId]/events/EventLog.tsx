@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from './EventLogItem';
+import type { BADictionary } from '@/dictionaries/dictionaries';
 
 const DEFAULT_PAGE_SIZE = 25;
 const EVENTS_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
@@ -23,7 +24,7 @@ interface EventLogProps {
   pageSize?: number;
 }
 
-const EmptyState = ({ dictionary }: { dictionary: ReturnType<typeof useDictionary>['dictionary'] }) => (
+const EmptyState = ({ dictionary }: { dictionary: BADictionary }) => (
   <div className='flex flex-col items-center justify-center space-y-3 py-16'>
     <div className='bg-muted/50 relative flex h-12 w-12 items-center justify-center rounded-full'>
       <Clock className='text-muted-foreground h-6 w-6' />
@@ -36,7 +37,7 @@ const EmptyState = ({ dictionary }: { dictionary: ReturnType<typeof useDictionar
   </div>
 );
 
-const LoadingMoreIndicator = ({ dictionary }: { dictionary: any }) => (
+const LoadingMoreIndicator = ({ dictionary }: { dictionary: BADictionary }) => (
   <div className='border-border/60 bg-muted/10 flex items-center justify-center border-t py-6'>
     <div className='flex items-center gap-3'>
       <Spinner size='sm' />
@@ -47,11 +48,7 @@ const LoadingMoreIndicator = ({ dictionary }: { dictionary: any }) => (
   </div>
 );
 
-const createShowingText = (
-  allEvents: EventLogEntry[],
-  totalCount: number,
-  dictionary: ReturnType<typeof useDictionary>['dictionary'],
-): string => {
+const createShowingText = (allEvents: EventLogEntry[], totalCount: number, dictionary: BADictionary): string => {
   if (totalCount === 0) {
     return dictionary.t('components.events.log.noEvents');
   }
