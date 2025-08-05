@@ -1,7 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { CreditCard, ExternalLink } from 'lucide-react';
+import { CreditCard, ExternalLink as ExternalLinkIcon } from 'lucide-react';
+import ExternalLink from '@/components/ExternalLink';
 import { createStripeCustomerPortalSession } from '@/actions/stripe';
 import { toast } from 'sonner';
 import { useBillingData } from '@/hooks/useBillingData';
@@ -46,7 +47,7 @@ export default function UserBillingHistory() {
 
         {billingData?.isExistingPaidSubscriber ? (
           <Button onClick={handleViewBillingHistory} className='flex items-center gap-2'>
-            <ExternalLink className='h-4 w-4' />
+            <ExternalLinkIcon className='h-4 w-4' />
             Open Billing Portal
           </Button>
         ) : (
@@ -59,9 +60,9 @@ export default function UserBillingHistory() {
       <div className='mt-6 border-t pt-4'>
         <p className='text-muted-foreground text-center text-sm'>
           Need help with billing?{' '}
-          <a href='mailto:support@betterlytics.io' className='text-primary hover:underline'>
+          <ExternalLink href='mailto:support@betterlytics.io' className='text-primary hover:underline'>
             Contact support
-          </a>
+          </ExternalLink>
         </p>
       </div>
     </SettingsCard>

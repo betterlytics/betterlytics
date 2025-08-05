@@ -17,6 +17,7 @@ import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import ExternalLink from '@/components/ExternalLink';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -166,11 +167,15 @@ export default App;
             {isLoading ? (
               <div className='flex items-center justify-center py-8'>
                 <RefreshCw className='text-muted-foreground h-6 w-6 animate-spin' />
-                <span className='text-muted-foreground ml-2'>{dictionary.t('components.integration.loadingDetails')}</span>
+                <span className='text-muted-foreground ml-2'>
+                  {dictionary.t('components.integration.loadingDetails')}
+                </span>
               </div>
             ) : !siteId ? (
               <div className='flex items-center justify-center py-8'>
-                <span className='text-muted-foreground'>{dictionary.t('components.integration.unableToLoadSiteId')}</span>
+                <span className='text-muted-foreground'>
+                  {dictionary.t('components.integration.unableToLoadSiteId')}
+                </span>
               </div>
             ) : (
               <>
@@ -178,12 +183,17 @@ export default App;
                   <CardHeader className='flex flex-row items-start space-x-3'>
                     <Info className='mt-1 h-5 w-5 flex-shrink-0 text-blue-500 dark:text-blue-400' />
                     <div>
-                      <CardTitle className='text-card-foreground text-base font-medium'>{dictionary.t('components.integration.important')}</CardTitle>
+                      <CardTitle className='text-card-foreground text-base font-medium'>
+                        {dictionary.t('components.integration.important')}
+                      </CardTitle>
                       <CardDescription className='text-muted-foreground text-sm'>
                         {dictionary.t('components.integration.headSectionNote').replace('{head}', '<head>')}
                       </CardDescription>
                       <CardDescription className='text-muted-foreground text-sm'>
-                        {dictionary.t('components.integration.npmPackageNote').replace('{npm}', 'npm').replace('{package}', '@betterlytics/tracker')}
+                        {dictionary
+                          .t('components.integration.npmPackageNote')
+                          .replace('{npm}', 'npm')
+                          .replace('{package}', '@betterlytics/tracker')}
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -277,19 +287,22 @@ export default App;
                   </TabsList>
                   <TabsContent value='html' className='bg-card border-border rounded-md p-4'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> {dictionary.t('components.integration.htmlInstallation')}
+                      <Code className='text-muted-foreground mr-2 h-4 w-4' />{' '}
+                      {dictionary.t('components.integration.htmlInstallation')}
                     </h3>
                     <CodeBlock code={htmlExample} language='html' />
                   </TabsContent>
                   <TabsContent value='nextjs' className='bg-card border-border rounded-md p-4'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> {dictionary.t('components.integration.nextjsInstallation')}
+                      <Code className='text-muted-foreground mr-2 h-4 w-4' />{' '}
+                      {dictionary.t('components.integration.nextjsInstallation')}
                     </h3>
                     <CodeBlock code={nextJsExample} language='javascript' />
                   </TabsContent>
                   <TabsContent value='react' className='bg-card border-border rounded-md p-4'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> {dictionary.t('components.integration.reactInstallation')}
+                      <Code className='text-muted-foreground mr-2 h-4 w-4' />{' '}
+                      {dictionary.t('components.integration.reactInstallation')}
                     </h3>
                     <CodeBlock code={reactExample} language='javascript' />
                   </TabsContent>
@@ -373,30 +386,32 @@ export default App;
 
                   <Card className='bg-card border-border'>
                     <CardHeader>
-                      <CardTitle className='text-card-foreground text-base font-medium'>{dictionary.t('components.integration.needHelp')}</CardTitle>
+                      <CardTitle className='text-card-foreground text-base font-medium'>
+                        {dictionary.t('components.integration.needHelp')}
+                      </CardTitle>
                       <CardDescription className='text-muted-foreground text-sm'>
                         {dictionary.t('components.integration.resourcesToGetStarted')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className='space-y-2'>
-                      <a
+                      <ExternalLink
                         href='/docs'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
-                        <Info className='mr-2 h-4 w-4' /> {dictionary.t('components.integration.documentation')}
-                      </a>
-                      <a
+                        <Info className='mr-2 h-4 w-4' /> Documentation
+                      </ExternalLink>
+                      <ExternalLink
                         href='/docs/troubleshooting'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> {dictionary.t('components.integration.troubleshooting')}
-                      </a>
-                      <a
+                      </ExternalLink>
+                      <ExternalLink
                         href='/contact'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> {dictionary.t('components.integration.contactSupport')}
-                      </a>
+                      </ExternalLink>
                     </CardContent>
                   </Card>
                 </div>
