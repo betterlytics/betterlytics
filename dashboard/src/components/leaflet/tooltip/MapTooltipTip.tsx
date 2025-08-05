@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import React from 'react';
+
 export const MapTooltipTipComponent = () => (
   <div
     className={cn(

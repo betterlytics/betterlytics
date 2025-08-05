@@ -12,6 +12,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useLeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
 import { MapSelectionContextProvider, useMapSelection } from '@/contexts/MapSelectionProvider';
 import MapCountryGeoJSON from './leaflet/MapCountryGeoJSON';
+import MapLegend from './leaflet/MapLegend';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -108,22 +109,8 @@ const LeafletMap = ({
           <MapCountryGeoJSON GeoJSON={GeoJSON} data={worldGeoJson} />
           {!isMobile && <MapStickyTooltip size={size} />}
           {/* TODO: Add selected tooltip on mobile */}
+          {showLegend && <MapLegend maxVisitors={maxVisitors} />}
         </MapSelectionContextProvider>
-        {showLegend && (
-          <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
-            <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
-            <div className='flex items-center'>
-              <span className='text-muted-foreground mr-1 text-xs'>0</span>
-              <div
-                className='h-2 w-24 rounded'
-                style={{
-                  background: `linear-gradient(to right, ${MAP_VISITOR_COLORS.NO_VISITORS} 0%, ${MAP_VISITOR_COLORS.NO_VISITORS} 2%, ${MAP_VISITOR_COLORS.LOW_VISITORS} 3%, ${MAP_VISITOR_COLORS.HIGH_VISITORS} 100%)`,
-                }}
-              ></div>
-              <span className='text-muted-foreground ml-1 text-xs'>{calculatedMaxVisitors.toLocaleString()}</span>
-            </div>
-          </div>
-        )}
       </MapContainer>
     </div>
   );
