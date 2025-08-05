@@ -21,6 +21,7 @@ import { AuthContext } from '@/entities/authContext';
 import { getSessionMetrics } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart } from '@/presenters/toAreaChart';
+import { toDataTable } from '@/presenters/toDataTable';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
   async (
@@ -187,17 +188,56 @@ export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
     endDate: Date,
     limit: number = 5,
     queryFilters: QueryFilter[],
-  ): Promise<PageAnalyticsCombined> => {
-    const [topPages, topEntryPages, topExitPages] = await Promise.all([
-      getTopPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
-      getTopEntryPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
-      getTopExitPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
-    ]);
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const [topPages, topPagesCompare, topEntryPages, topEntryPagesCompare, topExitPages, topExitPagesCompare] =
+      await Promise.all([
+        getTopPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
+        compareStartDate &&
+          compareEndDate &&
+          getTopPagesForSite(ctx.siteId, compareStartDate, compareEndDate, limit, queryFilters),
+        getTopEntryPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
+        compareStartDate &&
+          compareEndDate &&
+          getTopEntryPagesForSite(ctx.siteId, compareStartDate, compareEndDate, limit, queryFilters),
+        getTopExitPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
+        compareStartDate &&
+          compareEndDate &&
+          getTopExitPagesForSite(ctx.siteId, compareStartDate, compareEndDate, limit, queryFilters),
+      ]);
 
-    return PageAnalyticsCombinedSchema.parse({
+    const data = PageAnalyticsCombinedSchema.parse({
       topPages,
       topEntryPages,
       topExitPages,
     });
+
+    const compare =
+      compareStartDate &&
+      compareEndDate &&
+      PageAnalyticsCombinedSchema.parse({
+        topPages: topPagesCompare,
+        topEntryPages: topEntryPagesCompare,
+        topExitPages: topExitPagesCompare,
+      });
+
+    return {
+      topPages: toDataTable({
+        data: data.topPages,
+        compare: compare?.topPages,
+        categoryKey: 'url',
+      }),
+      topEntryPages: toDataTable({
+        data: data.topEntryPages,
+        compare: compare?.topEntryPages,
+        categoryKey: 'url',
+      }),
+      topExitPages: toDataTable({
+        data: data.topExitPages,
+        compare: compare?.topExitPages,
+        categoryKey: 'url',
+      }),
+    };
   },
 );

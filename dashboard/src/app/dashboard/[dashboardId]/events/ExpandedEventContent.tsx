@@ -1,6 +1,6 @@
 import { Hash } from 'lucide-react';
 import { EventTypeRow } from '@/entities/events';
-import { PropertyRow } from '../../../../components/events/PropertyRow';
+import { PropertyRow } from '@/components/events/PropertyRow';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useEventProperties } from '@/hooks/use-event-properties';
 import { QueryFilter } from '@/entities/filter';
