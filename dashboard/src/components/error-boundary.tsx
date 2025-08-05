@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import { AlertTriangle, RefreshCw, Home, Mail, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -63,22 +63,6 @@ export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
     window.history.back();
   }, []);
 
-  const handleReportError = useCallback(() => {
-    const subject = encodeURIComponent('Error Report - Betterlytics Dashboard');
-    const body = encodeURIComponent(`
-Error Details:
-- Message: ${error?.message || 'Unknown error'}
-- Stack: ${error?.stack || 'No stack trace available'}
-- URL: ${window.location.href}
-- User Agent: ${navigator.userAgent}
-- Timestamp: ${new Date().toISOString()}
-
-Please describe what you were doing when this error occurred:
-[Your description here]
-    `);
-    window.open(`mailto:support@betterlytics.com?subject=${subject}&body=${body}`);
-  }, [error]);
-
   return (
     <div className='flex items-center justify-center p-4'>
       <div className='w-full max-w-2xl'>
@@ -112,20 +96,16 @@ Please describe what you were doing when this error occurred:
 
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Button onClick={handleRefresh} variant='default'>
-                <RefreshCw className='mr-2 h-4 w-4' />
+                <RefreshCw className='mr-1 h-4 w-4' />
                 Refresh Page
               </Button>
               <Button onClick={handleGoHome} variant='outline'>
-                <Home className='mr-2 h-4 w-4' />
+                <Home className='mr-1 h-4 w-4' />
                 Go to Dashboards
               </Button>
               <Button onClick={handleGoBack} variant='outline'>
-                <ArrowLeft className='mr-2 h-4 w-4' />
+                <ArrowLeft className='mr-1 h-4 w-4' />
                 Go Back
-              </Button>
-              <Button onClick={handleReportError} variant='outline'>
-                <Mail className='mr-2 h-4 w-4' />
-                Report Issue
               </Button>
             </div>
 
@@ -133,7 +113,14 @@ Please describe what you were doing when this error occurred:
             <div className='mt-8 border-t border-gray-800 pt-6'>
               <div className='space-y-2 text-center'>
                 <p className='text-muted-foreground text-sm'>
-                  If this problem persists, please contact our support team.
+                  If this problem persists, please{' '}
+                  <a
+                    href='mailto:support@betterlytics.com'
+                    className='text-blue-500 underline hover:text-blue-400'
+                  >
+                    contact support
+                  </a>
+                  .
                 </p>
                 <div className='text-muted-foreground flex items-center justify-center gap-4 text-xs'>
                   <span>Error ID: {Date.now().toString(36)}</span>
@@ -144,15 +131,6 @@ Please describe what you were doing when this error occurred:
             </div>
           </CardContent>
         </Card>
-
-        <div className='mt-6 text-center'>
-          <p className='text-muted-foreground text-sm'>
-            Need immediate help?{' '}
-            <a href='mailto:support@betterlytics.com' className='text-blue-500 underline hover:text-blue-400'>
-              Contact Support
-            </a>
-          </p>
-        </div>
       </div>
     </div>
   );
