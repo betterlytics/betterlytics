@@ -2,7 +2,6 @@ import { useMap } from 'react-leaflet/hooks';
 import { useEffect, useRef, useId } from 'react';
 import { createPortal } from 'react-dom';
 import React from 'react';
-import { GeoVisitor } from '@/entities/geography';
 import MapTooltipTip from './MapTooltipTip';
 import MapTooltipContent from './MapTooltipContent';
 import { useMapSelection } from '@/contexts/MapSelectionProvider';
@@ -17,7 +16,7 @@ export function getTooltipId(alpha2: string) {
 }
 
 export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
-  const { hoveredFeature } = useMapSelection();
+  const { hoveredFeature, selectedFeature } = useMapSelection();
   const map = useMap();
   const tooltipId = useId();
 
@@ -58,7 +57,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
     };
   }, [map]);
 
-  if (!hoveredFeature) return null;
+  if (selectedFeature || !hoveredFeature) return null;
 
   return createPortal(
     <section
@@ -67,7 +66,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       role='tooltip'
       aria-hidden={false}
       className={cn(
-        !hoveredFeature && 'hidden',
+        (selectedFeature || !hoveredFeature) && 'i-should-display', // hidden??
         'my-tooltip pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
       )}
     >

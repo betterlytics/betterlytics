@@ -104,10 +104,10 @@ const LeafletMap = ({
         maxZoom={7}
         attributionControl={false}
       >
-        <MapSelectionContextProvider>
+        <MapSelectionContextProvider style={style}>
           <MapBackgroundLayer GeoJSON={GeoJSON} />
-          <MapCountryGeoJSON GeoJSON={GeoJSON} data={worldGeoJson} />
-          {!isMobile && <MapStickyTooltip size={size} />}
+          <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
+          <MapStickyTooltip size={size} />
           {/* TODO: Add selected tooltip on mobile */}
           {showLegend && <MapLegend maxVisitors={maxVisitors} />}
         </MapSelectionContextProvider>

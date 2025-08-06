@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { FeatureCollection } from 'geojson';
-import { useMapEvents, type GeoJSON } from 'react-leaflet';
+import { useMap, useMapEvents, type GeoJSON } from 'react-leaflet';
 import type { LeafletEventHandlerFnMap } from 'leaflet';
 import { useMapSelection } from '@/contexts/MapSelectionProvider';
 
@@ -8,6 +8,7 @@ interface MapBackgroundLayerProps {
   GeoJSON: typeof GeoJSON;
 }
 
+//! TODO: revert to receiving inverseGeoJSON data as prop
 const nomap = {
   type: 'Feature',
   properties: {},
@@ -27,6 +28,11 @@ const nomap = {
 
 const MapBackgroundLayerComponent = ({ GeoJSON }: MapBackgroundLayerProps) => {
   const { setSelectedFeature, setHoveredFeature } = useMapSelection();
+  const map = useMap();
+
+  useEffect(() => {
+    map.on('mouseout', () => setHoveredFeature(undefined));
+  }, [map]);
 
   return (
     <GeoJSON
