@@ -10,6 +10,7 @@ import { fetchPageAnalyticsAction } from '@/app/actions/pages';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatDuration } from '@/utils/dateFormatters';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 interface TabbedPagesTableProps {
   allPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
@@ -23,6 +24,7 @@ const formatPath = (path: string): string => {
 
 export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPagesData }: TabbedPagesTableProps) {
   const { addQueryFilter } = useQueryFiltersContext();
+  const { dictionary } = useDictionary();
 
   const handlePathClick = useCallback(
     (path: string) => {
@@ -41,7 +43,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     return [
       {
         accessorKey: 'path',
-        header: 'Path',
+        header: dictionary.t('components.pages.table.path'),
         cell: ({ row }) => {
           const path = formatPath(row.original.path);
           return (
@@ -49,7 +51,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
               variant='ghost'
               onClick={() => handlePathClick(path)}
               className='cursor-pointer bg-transparent text-left font-medium transition-colors'
-              title={`Filter by ${path}`}
+              title={dictionary.t('components.pages.table.filterByPath').replace('{path}', path)}
             >
               {path}
             </Button>
@@ -58,19 +60,19 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       },
       {
         accessorKey: 'visitors',
-        header: 'Visitors',
+        header: dictionary.t('components.pages.table.visitors'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' />,
         accessorFn: (row) => row.current.visitors,
       },
       {
         accessorKey: 'pageviews',
-        header: 'Pageviews',
+        header: dictionary.t('components.pages.table.pageviews'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' />,
         accessorFn: (row) => row.current.pageviews,
       },
       {
         accessorKey: 'bounceRate',
-        header: 'Bounce Rate',
+        header: dictionary.t('components.pages.table.bounceRate'),
         cell: ({ row }) => (
           <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} />
         ),
@@ -78,7 +80,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       },
       {
         accessorKey: 'avgTime',
-        header: 'Avg. Time',
+        header: dictionary.t('components.pages.table.avgTime'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} />,
         accessorFn: (row) => row.current.avgTime,
       },
@@ -92,7 +94,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     return {
       entryRate: {
         accessorKey: 'entryRate',
-        header: 'Entry Rate',
+        header: dictionary.t('components.pages.table.entryRate'),
         cell: ({ row }) => (
           <div className='flex flex-col'>
             <div>{formatPercentage(row.original.current.entryRate ?? 0)}</div>
@@ -108,7 +110,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       },
       exitRate: {
         accessorKey: 'exitRate',
-        header: 'Exit Rate',
+        header: dictionary.t('components.pages.table.exitRate'),
         cell: ({ row }) => (
           <div className='flex flex-col'>
             <div>{formatPercentage(row.original.current.exitRate ?? 0)}</div>
@@ -143,21 +145,21 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     () => [
       {
         key: 'all',
-        label: 'All Pages',
+        label: dictionary.t('components.pages.table.allPages'),
         data: allPagesData,
         columns: allPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
       },
       {
         key: 'entry',
-        label: 'Entry Pages',
+        label: dictionary.t('components.pages.table.entryPages'),
         data: entryPagesData,
         columns: entryPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
       },
       {
         key: 'exit',
-        label: 'Exit Pages',
+        label: dictionary.t('components.pages.table.exitPages'),
         data: exitPagesData,
         columns: exitPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
@@ -168,8 +170,8 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
 
   return (
     <TabbedTable
-      title='Page Analytics'
-      description='Analytics for all tracked pages'
+      title={dictionary.t('components.pages.table.title')}
+      description={dictionary.t('components.pages.table.description')}
       tabs={tableTabs}
       defaultTab='all'
       searchColumn='path'
