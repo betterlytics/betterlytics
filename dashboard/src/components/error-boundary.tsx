@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import { AlertTriangle, RefreshCw, Home, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useTopLoader } from 'nextjs-toploader';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -50,18 +51,23 @@ interface ErrorFallbackProps {
 }
 
 export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
+  const { start } = useTopLoader();
+
   const handleRefresh = useCallback(() => {
+    start();
     resetError();
     window.location.reload();
-  }, [resetError]);
+  }, [resetError, start]);
 
   const handleGoHome = useCallback(() => {
+    start();
     window.location.href = '/dashboards';
-  }, []);
+  }, [start]);
 
   const handleGoBack = useCallback(() => {
+    start();
     window.history.back();
-  }, []);
+  }, [start]);
 
   return (
     <div className='flex items-center justify-center p-4'>
