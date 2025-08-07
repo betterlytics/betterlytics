@@ -11,17 +11,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, LogOut, ExternalLink, LayoutDashboard, CreditCard } from 'lucide-react';
+import { Settings, LogOut, ExternalLink as ExternalLinkIcon, LayoutDashboard, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import Logo from '@/components/logo';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
 import { BAAvatar } from '../avatar/BAAvatar';
+import { useTopLoader } from 'nextjs-toploader';
+import ExternalLink from '@/components/ExternalLink';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const { start: startLoader } = useTopLoader();
 
   const handleSignOut = async () => {
+    startLoader();
     await signOut({ callbackUrl: '/' });
   };
 
@@ -32,7 +36,7 @@ export default function BATopbar() {
   return (
     <>
       <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
-        <div className='mx-auto flex h-14 items-center justify-between px-8'>
+        <div className='mx-auto flex h-(--topbar-height) items-center justify-between px-8'>
           <div className='flex items-center space-x-2'>
             <Link href='/dashboards' className='flex items-center space-x-2'>
               <Logo variant='icon' showText textSize='md' priority />
@@ -84,10 +88,10 @@ export default function BATopbar() {
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem asChild className='cursor-pointer'>
-                      <a href='/docs' title='Complete Betterlytics Documentation'>
-                        <ExternalLink className='mr-2 h-4 w-4' />
+                      <ExternalLink href='/docs' title='Complete Betterlytics Documentation'>
+                        <ExternalLinkIcon className='mr-2 h-4 w-4' />
                         <span>Documentation</span>
-                      </a>
+                      </ExternalLink>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
                       <LogOut className='mr-2 h-4 w-4' />

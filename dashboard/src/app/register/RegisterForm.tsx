@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
 import { registerUserAction } from '@/app/actions';
@@ -18,7 +18,7 @@ export default function RegisterForm() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const router = useBARouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
