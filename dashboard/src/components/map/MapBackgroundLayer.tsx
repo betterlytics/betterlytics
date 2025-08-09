@@ -1,4 +1,4 @@
-import { useMapSelection } from '@/contexts/MapSelectionProvider';
+import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
 import React, { useEffect } from 'react';
 import type { GeoJSON } from 'react-leaflet';
 import { useMap } from 'react-leaflet/hooks';
@@ -60,4 +60,5 @@ const MapBackgroundLayerComponent = ({ GeoJSON }: MapBackgroundLayerProps) => {
 };
 
 const MapBackgroundLayer = React.memo(MapBackgroundLayerComponent);
+MapBackgroundLayer.displayName = 'MapBackgroundLayer';
 export default MapBackgroundLayer;

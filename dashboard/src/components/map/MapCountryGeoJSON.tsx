@@ -1,4 +1,4 @@
-import { useMapSelection } from '@/contexts/MapSelectionProvider';
+import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
 import { GeoVisitor } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
@@ -68,4 +68,5 @@ const MapCountryGeoJSONComponent = ({
 };
 
 const MapCountryGeoJSON = React.memo(MapCountryGeoJSONComponent);
+MapCountryGeoJSON.displayName = 'MapCountryGeoJSON';
 export default MapCountryGeoJSON;

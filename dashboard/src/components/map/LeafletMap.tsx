@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { useLeafletStyle } from '@/hooks/use-leaflet-style';
-import { MapSelectionContextProvider } from '@/contexts/MapSelectionProvider';
+import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
 import MapLegend from '@/components/map/MapLegend';
 
