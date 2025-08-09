@@ -12,7 +12,7 @@ RUN apt-get update -y && apt-get install -y openssl
 
 # --------------------------
 
-FROM base as builder
+FROM base AS builder
 
 WORKDIR /app
 
@@ -32,7 +32,7 @@ RUN pnpm run build
 
 # --------------------------
 
-FROM base as runner
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -42,6 +42,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 --home /home/nextjs nextjs
 
 ENV COREPACK_HOME=/home/nextjs/.cache/corepack
+
+RUN pnpm install -g prisma
 
 COPY --from=builder /app/public ./public
 
