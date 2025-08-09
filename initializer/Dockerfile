@@ -6,6 +6,8 @@ RUN corepack enable
 
 RUN apt-get update -y && apt-get install -y openssl
 
+ENV NODE_ENV="production"
+
 WORKDIR /app
 
 RUN pnpm install -g prisma
