@@ -9,8 +9,7 @@
     "lint": "next lint",
     "unit-tests": "vitest run",
     "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma",
-    "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma",
-    "migrate-deploy": "pnpm prisma migrate deploy"
+    "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"

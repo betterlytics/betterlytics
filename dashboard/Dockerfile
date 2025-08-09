@@ -4,7 +4,7 @@ FROM node:20-slim AS base
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Setup pnpm
-ENV PNPM_HOME="/pnpm"
+ENV PNPM_HOME="/home/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
@@ -43,8 +43,6 @@ RUN adduser --system --uid 1001 --home /home/nextjs nextjs
 
 ENV COREPACK_HOME=/home/nextjs/.cache/corepack
 
-RUN pnpm install -g prisma
-
 COPY --from=builder /app/public ./public
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -52,4 +50,4 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-CMD pnpm migrate-deploy && node server.js
+CMD prisma migrate deploy && node server.js
