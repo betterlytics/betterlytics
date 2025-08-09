@@ -10,13 +10,14 @@ RUN corepack enable
 
 RUN apt-get update -y && apt-get install -y openssl
 
+RUN mkdir -p /home/pnpm && chown node:node /home/pnpm
+
+
 # --------------------------
 
 FROM base AS builder
 
 WORKDIR /app
-
-RUN pnpm install -g prisma
 
 COPY package*.json .
 RUN pnpm fetch --prod
@@ -42,8 +43,6 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 --home /home/nextjs nextjs
 
 ENV COREPACK_HOME=/home/nextjs/.cache/corepack
-
-RUN pnpm install -g prisma
 
 COPY --from=builder /app/public ./public
 
