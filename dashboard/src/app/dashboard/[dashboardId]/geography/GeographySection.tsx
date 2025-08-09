@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
-import LeafletMap from '@/components/LeafletMap';
+import LeafletMap from '@/components/leaflet/LeafletMap';
 import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type GeographySectionProps = {

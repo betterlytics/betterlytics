@@ -1,25 +1,59 @@
-import React from 'react';
-import type { FeatureCollection } from 'geojson';
+import { useMapSelection } from '@/contexts/MapSelectionProvider';
+import React, { useEffect } from 'react';
 import type { GeoJSON } from 'react-leaflet';
+import { useMap } from 'react-leaflet/hooks';
 
 interface MapBackgroundLayerProps {
   GeoJSON: typeof GeoJSON;
-  inverseWorldGeoJson: FeatureCollection;
-  onDeselect: () => void;
 }
 
-const MapBackgroundLayerComponent = ({ GeoJSON, inverseWorldGeoJson, onDeselect }: MapBackgroundLayerProps) => {
+const nomap = {
+  type: 'Feature',
+  properties: {},
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-230, -120],
+        [230, -120],
+        [230, 120],
+        [-230, 120],
+        [-230, -120],
+      ],
+    ],
+  },
+} as const;
+
+const MapBackgroundLayerComponent = ({ GeoJSON }: MapBackgroundLayerProps) => {
+  const { setMapSelection } = useMapSelection();
+  const map = useMap();
+
+  useEffect(() => {
+    const clearHovered = () => setMapSelection({ hovered: undefined });
+    map.on('mouseout', clearHovered);
+    map.getContainer().addEventListener('blur', clearHovered);
+
+    return () => {
+      map.off('mouseout', clearHovered);
+      map.getContainer().removeEventListener('blur', clearHovered);
+    };
+  }, [map, setMapSelection]);
+
   return (
     <GeoJSON
-      data={inverseWorldGeoJson}
+      data={nomap}
       style={{
         fillColor: 'transparent',
         color: 'transparent',
         weight: 0,
       }}
       eventHandlers={{
-        click: onDeselect,
-        mouseover: onDeselect,
+        click: () => {
+          setMapSelection(null);
+        },
+        mouseover: () => {
+          setMapSelection({ hovered: undefined });
+        },
       }}
     />
   );
