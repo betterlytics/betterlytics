@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 
 interface VerificationRedirectHandlerProps {
@@ -10,7 +10,7 @@ interface VerificationRedirectHandlerProps {
 
 export function VerificationRedirectHandler({ hasSession }: VerificationRedirectHandlerProps) {
   const { refreshSession } = useSessionRefresh();
-  const router = useRouter();
+  const router = useBARouter();
 
   useEffect(() => {
     const handleRedirect = async () => {

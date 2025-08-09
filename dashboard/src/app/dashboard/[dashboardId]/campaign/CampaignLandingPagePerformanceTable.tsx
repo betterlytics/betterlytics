@@ -4,6 +4,7 @@ import React from 'react';
 import { CampaignLandingPagePerformanceItem } from '@/entities/campaign';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
+import ExternalLink from '@/components/ExternalLink';
 
 interface CampaignLandingPagePerformanceTableProps {
   data: CampaignLandingPagePerformanceItem[];
@@ -19,7 +20,7 @@ const columns: ColumnDef<CampaignLandingPagePerformanceItem>[] = [
     accessorKey: 'landingPageUrl',
     header: 'Landing Page URL',
     cell: ({ row }) => (
-      <a
+      <ExternalLink
         href={row.original.landingPageUrl}
         target='_blank'
         rel='noopener noreferrer'
@@ -27,7 +28,7 @@ const columns: ColumnDef<CampaignLandingPagePerformanceItem>[] = [
         title={row.original.landingPageUrl}
       >
         {row.original.landingPageUrl}
-      </a>
+      </ExternalLink>
     ),
   },
   {

@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { notFound, redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
+import ExternalLink from '@/components/ExternalLink';
 
 interface SuccessPageProps {
   searchParams: Promise<{
@@ -57,13 +58,13 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                 <li>Your increased event limits are effective immediately</li>
                 <li>Access your billing details in User Settings</li>
                 <li>
-                  <a
+                  <ExternalLink
                     href='/docs'
                     title='Complete Betterlytics Documentation'
                     className='text-primary font-medium hover:underline'
                   >
                     Check out our documentation
-                  </a>{' '}
+                  </ExternalLink>{' '}
                   to get the most out of Betterlytics
                 </li>
               </ul>

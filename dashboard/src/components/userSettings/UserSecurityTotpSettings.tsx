@@ -20,6 +20,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
+import ExternalLink from '@/components/ExternalLink';
 
 function SetupTotp() {
   const isMobile = useIsMobile();
@@ -122,9 +123,9 @@ function SetupTotp() {
                   </TooltipTrigger>
                   <TooltipContent className='flex flex-row items-center'>
                     <code>{totpSecret}</code>
-                    <a className='ms-2 block cursor-pointer py-0.5' onClick={() => handleCopy(totpSecret)}>
+                    <button className='ms-2 block cursor-pointer py-0.5' onClick={() => handleCopy(totpSecret)}>
                       {totpSecretCopied ? <Check className='size-3' /> : <Clipboard className='size-3' />}
-                    </a>
+                    </button>
                   </TooltipContent>
                 </Tooltip>
                 {' to manually configure it'}
@@ -136,9 +137,9 @@ function SetupTotp() {
 
         <form onSubmit={handleOnSubmit}>
           <div className='mb-4 flex flex-col justify-between gap-4'>
-            <a href={totpUrl} className='m-auto'>
+            <ExternalLink href={totpUrl} className='m-auto'>
               <QRCode value={totpUrl} size={128} className='m-auto' />
-            </a>
+            </ExternalLink>
             <OtpInput value={totp} onValueChange={setTotp} disabled={isPending} ref={totpInputRef} />
           </div>
 

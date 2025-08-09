@@ -25,7 +25,9 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
           label: dictionary.t('dashboard.tabs.browsers'),
           data: deviceBreakdownCombined.browsers.map((item) => ({
             label: item.browser,
-            value: item.visitors,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
             icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
           })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noBrowserData'),
@@ -35,7 +37,9 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
           label: dictionary.t('dashboard.tabs.devices'),
           data: deviceBreakdownCombined.devices.map((item) => ({
             label: item.device_type,
-            value: item.visitors,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
             icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
           })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noDeviceData'),
@@ -45,7 +49,9 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
           label: dictionary.t('dashboard.tabs.operatingSystems'),
           data: deviceBreakdownCombined.operatingSystems.map((item) => ({
             label: item.os,
-            value: item.visitors,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
             icon: <OSIcon name={item.os} className='h-4 w-4' />,
           })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noOperatingSystemData'),

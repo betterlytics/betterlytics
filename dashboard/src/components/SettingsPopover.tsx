@@ -1,22 +1,20 @@
 'use client';
 
-import Link from 'next/link';
 import { Moon, Sun, Settings as SettingsIcon, X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 interface SettingsPopoverProps {
+  onAdvancedSettingsClicked?: () => void;
   onClose: () => void;
 }
 
-export default function SettingsPopover({ onClose }: SettingsPopoverProps) {
+export default function SettingsPopover({ onAdvancedSettingsClicked, onClose }: SettingsPopoverProps) {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
-  const dashboardId = useDashboardId();
 
   useEffect(() => {
     setMounted(true);
@@ -56,14 +54,14 @@ export default function SettingsPopover({ onClose }: SettingsPopoverProps) {
       </div>
 
       <div className='border-border border-t p-3'>
-        <Link
-          href={`/dashboard/${dashboardId}/settings`}
-          onClick={onClose}
-          className='text-foreground hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 rounded-md p-2 text-sm font-medium transition-colors'
+        <Button
+          variant='ghost'
+          onClick={onAdvancedSettingsClicked}
+          className='text-foreground hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-start gap-2 rounded-md p-2! text-sm font-medium transition-colors'
         >
           <SettingsIcon size={16} />
           <span>Advanced Settings</span>
-        </Link>
+        </Button>
       </div>
     </div>
   );

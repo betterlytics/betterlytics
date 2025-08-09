@@ -1,7 +1,7 @@
 import { Code, Zap, Shield } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import ExternalLink from '@/components/ExternalLink';
 
 export function IntegrationSection() {
   const integrationMethods = [
@@ -62,9 +62,9 @@ export function IntegrationSection() {
 
         <div className='mt-12 text-center'>
           <Button size='lg' className='mb-4' asChild>
-            <a href='/docs' title='Betterlytics Integration Guide'>
+            <ExternalLink href='/docs' title='Betterlytics Integration Guide'>
               View Integration Guide
-            </a>
+            </ExternalLink>
           </Button>
           <p className='text-muted-foreground text-sm'>
             Detailed installation instructions for all platforms and frameworks
