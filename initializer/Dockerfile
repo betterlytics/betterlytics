@@ -14,7 +14,7 @@ RUN pnpm install -g dotenv@^16.5.0
 
 WORKDIR /app
 
-COPY ./scripts/run-migrations.js ./scripts/run-migrations.js
+COPY ./scripts ./scripts
 COPY ./migrations ./migrations
 COPY ./prisma ./prisma
 
