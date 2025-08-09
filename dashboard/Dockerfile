@@ -25,7 +25,7 @@ RUN pnpm fetch --prod
 COPY .env.build /.env
 COPY ./prisma ./prisma
 
-RUN pnpm prisma generate
+RUN prisma generate
 
 COPY . .
 
