@@ -6,8 +6,6 @@ RUN corepack enable
 
 RUN apt-get update -y && apt-get install -y openssl
 
-RUN npm install -g pnpm
-
 RUN pnpm install -g prisma
 RUN pnpm install -g clickhouse@^2.6.0
 RUN pnpm install -g clickhouse-migrations@^1.0.4
