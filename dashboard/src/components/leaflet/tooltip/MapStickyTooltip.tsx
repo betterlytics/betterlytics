@@ -29,23 +29,15 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
 
     const onMouseMove = (e: MouseEvent) => {
       latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
-
-      if (hoveredFeature && tooltipRef.current) {
-        if (animationFrame === null) {
-          animationFrame = requestAnimationFrame(() => {
-            if (tooltipRef.current) {
-              tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
-            }
-            animationFrame = null;
-          });
-        }
+      if (tooltipRef.current) {
+        tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
       }
     };
 
     mapContainer.addEventListener('mousemove', onMouseMove);
 
     const initialPositioning = () => {
-      if (hoveredFeature && tooltipRef.current) {
+      if (tooltipRef.current) {
         tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
       }
     };
@@ -55,9 +47,9 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       mapContainer.removeEventListener('mousemove', onMouseMove);
       if (animationFrame !== null) cancelAnimationFrame(animationFrame);
     };
-  }, [map]);
+  }, [tooltipRef, map]);
 
-  if (selectedFeature || !hoveredFeature) return null;
+  if (!hoveredFeature || selectedFeature) return null;
 
   return createPortal(
     <section
@@ -66,11 +58,10 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       role='tooltip'
       aria-hidden={false}
       className={cn(
-        (selectedFeature || !hoveredFeature) && 'i-should-display', // hidden??
         'my-tooltip pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
       )}
     >
-      <MapTooltipContent geoVisitor={hoveredFeature.geoVisitor} size={size} />
+      <MapTooltipContent geoVisitor={hoveredFeature?.geoVisitor} size={size} />
       <MapTooltipTip />
     </section>,
     document.body,

@@ -2,7 +2,9 @@
 
 import { GeoVisitor } from '@/entities/geography';
 import { LeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
+import { useIsMobile } from '@/hooks/use-mobile';
 import React, { createContext, useContext, useState, Dispatch, SetStateAction, useMemo, useCallback } from 'react';
+import { useMap } from 'react-leaflet/hooks';
 
 export type MapFeatureVisitor = {
   geoVisitor: GeoVisitor;
@@ -12,8 +14,7 @@ export type MapFeatureVisitor = {
 type MapSelectionContextType = {
   hoveredFeature: MapFeatureVisitor | undefined;
   selectedFeature: MapFeatureVisitor | undefined;
-  setHoveredFeature: (newFeature: MapFeatureVisitor | undefined) => void;
-  setSelectedFeature: (newFeature: MapFeatureVisitor | undefined) => void;
+  setFeatures: React.Dispatch<Partial<Hello> | null>;
 };
 
 const MapSelectionContext = createContext<MapSelectionContextType | undefined>(undefined);
@@ -28,53 +29,64 @@ export function useMapSelection() {
 
 type Props = { children: React.ReactNode; style: LeafletStyle };
 
+type Hello = { hovered: MapFeatureVisitor | undefined; selected: MapFeatureVisitor | undefined };
+
 export function MapSelectionContextProvider({ children, style }: Props) {
-  const [hovered, setHovered] = React.useState<MapFeatureVisitor | undefined>(undefined);
-  const [selected, setSelected] = React.useState<MapFeatureVisitor | undefined>(undefined);
+  const [combined, setCombined] = React.useState({ selected: undefined, hovered: undefined } as Hello);
+  const isMobile = useIsMobile();
 
-  const setHoveredFeature = (newFeature: MapFeatureVisitor | undefined) => {
-    setHovered((prevHovered) => {
-      console.log(
-        `[Hover Update] new:${newFeature?.geoVisitor.country_code} --- old:${prevHovered?.geoVisitor.country_code}`,
-      );
-      if (prevHovered && prevHovered.geoVisitor.country_code !== selected?.geoVisitor.country_code) {
-        prevHovered.layer.bringToBack();
-        prevHovered.layer.setStyle(style.originalStyle(prevHovered.geoVisitor.visitors));
-      }
-
-      if (newFeature && newFeature.geoVisitor.country_code !== selected?.geoVisitor.country_code) {
-        newFeature.layer.bringToFront();
-        newFeature.layer.setStyle(style.hoveredStyle(newFeature.geoVisitor.visitors));
-      }
-
-      return newFeature;
-    });
-  };
-
-  const setSelectedFeature = React.useCallback(
-    (newFeature: MapFeatureVisitor | undefined) => {
-      setSelected((prevSelected) => {
-        if (prevSelected) {
-          prevSelected.layer.bringToBack();
-          prevSelected.layer.setStyle(style.originalStyle(prevSelected.geoVisitor.visitors));
+  const setFeatures = useCallback(
+    (next: Partial<Hello> | null) => {
+      setCombined((prev) => {
+        if (next === null) {
+          prev.selected?.layer.closePopup();
+          prev.selected?.layer.setStyle(style.originalStyle(prev.selected.geoVisitor.visitors));
+          prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
+          return { selected: undefined, hovered: undefined };
         }
-        if (newFeature) {
-          newFeature.layer.bringToFront();
-          newFeature.layer.setStyle(style.hoveredStyle(newFeature.geoVisitor.visitors));
+
+        if (next.selected) {
+          if (next.selected.geoVisitor.country_code !== prev.selected?.geoVisitor.country_code) {
+            prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
+          } else {
+            next.selected.layer.closePopup();
+            next.selected.layer.setStyle(
+              isMobile
+                ? style.originalStyle(next.selected.geoVisitor.visitors)
+                : style.hoveredStyle(next.selected.geoVisitor.visitors),
+            );
+            return {
+              selected: undefined,
+              hovered: { ...next.selected },
+            };
+          }
+
+          prev?.selected?.layer.setStyle(style.originalStyle(prev.selected.geoVisitor.visitors));
+          next.selected?.layer.setStyle(style.selectedStyle(next.selected.geoVisitor.visitors));
+          next.selected.layer.bringToFront();
+          return { ...prev, ...next };
         }
-        return newFeature;
+
+        if (prev.selected || prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
+          return { ...prev };
+        }
+
+        prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
+        next.hovered?.layer.setStyle(style.hoveredStyle(next.hovered.geoVisitor.visitors));
+        next.hovered?.layer.bringToFront();
+
+        return { ...prev, ...next };
       });
     },
-    [style],
+    [combined, isMobile],
   );
 
   return (
     <MapSelectionContext.Provider
       value={{
-        hoveredFeature: hovered,
-        selectedFeature: selected,
-        setHoveredFeature,
-        setSelectedFeature,
+        hoveredFeature: combined.hovered,
+        selectedFeature: combined.selected,
+        setFeatures,
       }}
     >
       {children}

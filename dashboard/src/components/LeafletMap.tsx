@@ -2,7 +2,6 @@
 
 import { MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { GeoVisitor } from '@/entities/geography';
-import { useLeafletFeatures } from '@/hooks/leaflet/use-leaflet-features';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -33,7 +32,6 @@ const LeafletMap = ({
 }: LeafletMapProps) => {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const isMobile = useIsMobile();
   const [mapComponents, setMapComponents] = useState<{
     L: typeof import('leaflet');
     MapContainer: typeof import('react-leaflet').MapContainer;
@@ -108,7 +106,6 @@ const LeafletMap = ({
           <MapBackgroundLayer GeoJSON={GeoJSON} />
           <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
           <MapStickyTooltip size={size} />
-          {/* TODO: Add selected tooltip on mobile */}
           {showLegend && <MapLegend maxVisitors={maxVisitors} />}
         </MapSelectionContextProvider>
       </MapContainer>

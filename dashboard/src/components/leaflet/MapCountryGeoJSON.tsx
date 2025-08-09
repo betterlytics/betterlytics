@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
+import { renderToString } from 'react-dom/server';
 import { type GeoJSON } from 'react-leaflet';
 import { MapFeatureVisitor, useMapSelection } from '@/contexts/MapSelectionProvider';
 import { Feature, Geometry } from 'geojson';
 import { GeoVisitor } from '@/entities/geography';
 import { LeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
 import { LeafletMouseEvent } from 'leaflet';
+import MapTooltipContent from './tooltip/MapTooltipContent';
 
 interface MapCountryGeoJSONProps {
   GeoJSON: typeof GeoJSON;
@@ -12,6 +14,7 @@ interface MapCountryGeoJSONProps {
   visitorData: GeoVisitor[];
   style: LeafletStyle;
   options?: any; //! TODO type stricter
+  size?: 'sm' | 'lg';
 }
 
 const DEFAULT_OPTS = {
@@ -26,19 +29,13 @@ const MapCountryGeoJSONComponent = ({
   GeoJSON,
   geoData,
   visitorData,
+  size = 'sm',
   style,
   options = DEFAULT_OPTS,
 }: MapCountryGeoJSONProps) => {
-  const { selectedFeature, hoveredFeature, setSelectedFeature, setHoveredFeature } = useMapSelection();
+  const { setFeatures } = useMapSelection();
 
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-    console.log('[onEachFeature]', {
-      id: feature.id,
-      alpha2: getFeatureId(feature),
-      layer,
-      hasHandlers: !!layer.getEvents?.(),
-    });
-
     const alpha2 = getFeatureId(feature);
     if (!alpha2) return;
 
@@ -46,28 +43,24 @@ const MapCountryGeoJSONComponent = ({
     if (!geoVisitor) {
       geoVisitor = { country_code: alpha2, visitors: 0 };
     }
-    const featureVisitor: MapFeatureVisitor = { geoVisitor, layer };
 
     layer.setStyle(style.originalStyle(geoVisitor.visitors));
-
     layer.unbindTooltip();
     layer.unbindPopup();
 
+    const popupHtml = renderToString(<MapTooltipContent geoVisitor={geoVisitor} size={size} className='' />);
+    layer.bindPopup(popupHtml, {
+      autoPan: true,
+      autoPanPadding: [25, 10],
+      closeButton: false,
+    });
+
     layer.on({
       mouseover: (e: LeafletMouseEvent) => {
-        if (hoveredFeature?.geoVisitor.country_code !== featureVisitor.geoVisitor.country_code) {
-          setHoveredFeature({ geoVisitor, layer });
-        }
-      },
-      mouseout: (e: LeafletMouseEvent) => {
-        if (hoveredFeature) {
-          setHoveredFeature(undefined); // if not already set??
-        }
+        setFeatures({ hovered: { geoVisitor, layer } });
       },
       click: (e: LeafletMouseEvent) => {
-        if (selectedFeature?.geoVisitor.country_code !== featureVisitor.geoVisitor.country_code) {
-          setSelectedFeature({ geoVisitor, layer });
-        }
+        setFeatures({ selected: { geoVisitor, layer } });
       },
     });
   };
