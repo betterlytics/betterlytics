@@ -3,7 +3,7 @@ import { GeoVisitor } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
 import type { LeafletMouseEvent } from 'leaflet';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { renderToString } from 'react-dom/server';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
@@ -33,6 +33,11 @@ const MapCountryGeoJSONComponent = ({
 }: MapCountryGeoJSONProps) => {
   const { setMapSelection } = useMapSelection();
 
+  const ref = useRef({ setMapSelection });
+  useEffect(() => {
+    ref.current = { setMapSelection };
+  }, [setMapSelection]);
+
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
     const country_code = getFeatureId(feature);
     if (!country_code) return;
@@ -56,10 +61,10 @@ const MapCountryGeoJSONComponent = ({
 
     layer.on({
       mouseover: (e: LeafletMouseEvent) => {
-        setMapSelection({ hovered: { geoVisitor, layer } });
+        ref.current.setMapSelection({ hovered: { geoVisitor, layer } });
       },
       click: (e: LeafletMouseEvent) => {
-        setMapSelection({ clicked: { geoVisitor, layer } });
+        ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
       },
     });
   };
