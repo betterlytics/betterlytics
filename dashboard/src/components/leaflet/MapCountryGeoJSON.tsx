@@ -1,19 +1,18 @@
-import React, { useEffect } from 'react';
-import { renderToString } from 'react-dom/server';
-import { type GeoJSON } from 'react-leaflet';
-import { MapFeatureVisitor, useMapSelection } from '@/contexts/MapSelectionProvider';
-import { Feature, Geometry } from 'geojson';
+import { useMapSelection } from '@/contexts/MapSelectionProvider';
 import { GeoVisitor } from '@/entities/geography';
-import { LeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
-import { LeafletMouseEvent } from 'leaflet';
+import { LeafletStyle } from '@/hooks/use-leaflet-style';
+import type { Feature, Geometry } from 'geojson';
+import type { LeafletMouseEvent } from 'leaflet';
+import React from 'react';
+import { renderToString } from 'react-dom/server';
+import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
 
 interface MapCountryGeoJSONProps {
   GeoJSON: typeof GeoJSON;
-  geoData: any; //! TODO type stricter
+  geoData: GeoJSON.FeatureCollection;
   visitorData: GeoVisitor[];
   style: LeafletStyle;
-  options?: any; //! TODO type stricter
   size?: 'sm' | 'lg';
 }
 
@@ -31,24 +30,24 @@ const MapCountryGeoJSONComponent = ({
   visitorData,
   size = 'sm',
   style,
-  options = DEFAULT_OPTS,
 }: MapCountryGeoJSONProps) => {
-  const { setFeatures } = useMapSelection();
+  const { setMapSelection } = useMapSelection();
 
   const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-    const alpha2 = getFeatureId(feature);
-    if (!alpha2) return;
+    const country_code = getFeatureId(feature);
+    if (!country_code) return;
 
-    let geoVisitor = visitorData.find((d) => d.country_code === alpha2);
+    let geoVisitor = visitorData.find((d) => d.country_code === country_code);
     if (!geoVisitor) {
-      geoVisitor = { country_code: alpha2, visitors: 0 };
+      geoVisitor = { country_code, visitors: 0 };
     }
 
     layer.setStyle(style.originalStyle(geoVisitor.visitors));
     layer.unbindTooltip();
     layer.unbindPopup();
 
-    const popupHtml = renderToString(<MapTooltipContent geoVisitor={geoVisitor} size={size} className='' />);
+    const popupHtml = renderToString(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
+
     layer.bindPopup(popupHtml, {
       autoPan: true,
       autoPanPadding: [25, 10],
@@ -57,23 +56,16 @@ const MapCountryGeoJSONComponent = ({
 
     layer.on({
       mouseover: (e: LeafletMouseEvent) => {
-        setFeatures({ hovered: { geoVisitor, layer } });
+        setMapSelection({ hovered: { geoVisitor, layer } });
       },
       click: (e: LeafletMouseEvent) => {
-        setFeatures({ selected: { geoVisitor, layer } });
+        setMapSelection({ clicked: { geoVisitor, layer } });
       },
     });
   };
 
-  return (
-    <GeoJSON
-      key={JSON.stringify(visitorData.map((v) => v.country_code))}
-      data={geoData}
-      onEachFeature={onEachFeature}
-      {...options}
-    />
-  );
+  return <GeoJSON key={visitorData.length} data={geoData} onEachFeature={onEachFeature} {...DEFAULT_OPTS} />;
 };
 
-const MapCountryGeoJSON = MapCountryGeoJSONComponent;
+const MapCountryGeoJSON = React.memo(MapCountryGeoJSONComponent);
 export default MapCountryGeoJSON;

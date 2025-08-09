@@ -1,8 +1,6 @@
 'use client';
 
 import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
-import { GeoVisitor } from '@/entities/geography';
-import type { Feature, Geometry } from 'geojson';
 import { ScaleLinear, scaleLinear } from 'd3-scale';
 import 'leaflet/dist/leaflet.css';
 import { type JSX, useCallback, useMemo } from 'react';
@@ -56,7 +54,7 @@ export function useLeafletStyle({ calculatedMaxVisitors, size }: UseLeafletStyle
     (visitors: number) => ({
       ...originalStyle(visitors),
       color: MAP_FEATURE_BORDER_COLORS.SELECTED,
-      weight: 2.5,
+      weight: 2,
       fillOpacity: 1,
     }),
     [originalStyle],
@@ -78,13 +76,10 @@ export function useLeafletStyle({ calculatedMaxVisitors, size }: UseLeafletStyle
             background-color: var(--color-card);
           }
           .leaflet-interactive:focus {
-            outline: none !important; /** Remove square around selection area */
+            outline: none !important;
           }
           .leaflet-popup-content {
-            margin-right: 0.5rem !important;
-            margin-left: 0.5rem !important;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
+            margin: 0 0.5rem !important;
             padding: 0 !important;
             display: flex;
             flex-direction: column;
@@ -95,11 +90,11 @@ export function useLeafletStyle({ calculatedMaxVisitors, size }: UseLeafletStyle
             filter: drop-shadow(0 0.5px 2px var(--color-sidebar-accent-foreground));
           }
           .leaflet-popup-content-wrapper {
-            background: transparent; /* Remove background */
-            border: none; /* Remove border */
-            box-shadow: none; /* Remove shadow */
-            padding: 0; /* Remove padding */
-            pointer-events: none; /* Optional: Let clicks pass through wrapper */
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            pointer-events: none;
           }
         `}
       </style>

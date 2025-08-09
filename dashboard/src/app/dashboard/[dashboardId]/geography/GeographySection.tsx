@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
-import LeafletMap from '@/components/LeafletMap';
+import LeafletMap from '@/components/leaflet/LeafletMap';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import LeafletMap from '@/components/LeafletMap';
+import LeafletMap from '@/components/leaflet/LeafletMap';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS } from '@/constants/geographyData';
 import { GeoVisitor } from '@/entities/geography';

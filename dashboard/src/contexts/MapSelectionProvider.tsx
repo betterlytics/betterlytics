@@ -1,10 +1,9 @@
 'use client';
 
 import { GeoVisitor } from '@/entities/geography';
-import { LeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
+import { LeafletStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
-import React, { createContext, useContext, useState, Dispatch, SetStateAction, useMemo, useCallback } from 'react';
-import { useMap } from 'react-leaflet/hooks';
+import React, { createContext, useCallback, useContext } from 'react';
 
 export type MapFeatureVisitor = {
   geoVisitor: GeoVisitor;
@@ -13,8 +12,13 @@ export type MapFeatureVisitor = {
 
 type MapSelectionContextType = {
   hoveredFeature: MapFeatureVisitor | undefined;
-  selectedFeature: MapFeatureVisitor | undefined;
-  setFeatures: React.Dispatch<Partial<Hello> | null>;
+  clickedFeature: MapFeatureVisitor | undefined;
+  setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
+};
+type MapSelectionProps = { children: React.ReactNode; style: LeafletStyle };
+type MapFeatureSelection = {
+  hovered: MapFeatureVisitor | undefined;
+  clicked: MapFeatureVisitor | undefined;
 };
 
 const MapSelectionContext = createContext<MapSelectionContextType | undefined>(undefined);
@@ -27,47 +31,46 @@ export function useMapSelection() {
   return context;
 }
 
-type Props = { children: React.ReactNode; style: LeafletStyle };
-
-type Hello = { hovered: MapFeatureVisitor | undefined; selected: MapFeatureVisitor | undefined };
-
-export function MapSelectionContextProvider({ children, style }: Props) {
-  const [combined, setCombined] = React.useState({ selected: undefined, hovered: undefined } as Hello);
+export function MapSelectionContextProvider({ children, style }: MapSelectionProps) {
+  const [combined, setCombined] = React.useState({
+    clicked: undefined,
+    hovered: undefined,
+  } as MapFeatureSelection);
   const isMobile = useIsMobile();
 
-  const setFeatures = useCallback(
-    (next: Partial<Hello> | null) => {
+  const setMapSelection = useCallback(
+    (next: Partial<MapFeatureSelection> | null) => {
       setCombined((prev) => {
         if (next === null) {
-          prev.selected?.layer.closePopup();
-          prev.selected?.layer.setStyle(style.originalStyle(prev.selected.geoVisitor.visitors));
+          prev.clicked?.layer.closePopup();
+          prev.clicked?.layer.setStyle(style.originalStyle(prev.clicked.geoVisitor.visitors));
           prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
-          return { selected: undefined, hovered: undefined };
+          return { clicked: undefined, hovered: undefined };
         }
 
-        if (next.selected) {
-          if (next.selected.geoVisitor.country_code !== prev.selected?.geoVisitor.country_code) {
+        if (next.clicked) {
+          if (next.clicked.geoVisitor.country_code !== prev.clicked?.geoVisitor.country_code) {
             prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
           } else {
-            next.selected.layer.closePopup();
-            next.selected.layer.setStyle(
+            next.clicked.layer.closePopup();
+            next.clicked.layer.setStyle(
               isMobile
-                ? style.originalStyle(next.selected.geoVisitor.visitors)
-                : style.hoveredStyle(next.selected.geoVisitor.visitors),
+                ? style.originalStyle(next.clicked.geoVisitor.visitors)
+                : style.hoveredStyle(next.clicked.geoVisitor.visitors),
             );
             return {
-              selected: undefined,
-              hovered: { ...next.selected },
+              clicked: undefined,
+              hovered: { ...next.clicked },
             };
           }
 
-          prev?.selected?.layer.setStyle(style.originalStyle(prev.selected.geoVisitor.visitors));
-          next.selected?.layer.setStyle(style.selectedStyle(next.selected.geoVisitor.visitors));
-          next.selected.layer.bringToFront();
+          prev?.clicked?.layer.setStyle(style.originalStyle(prev.clicked.geoVisitor.visitors));
+          next.clicked?.layer.setStyle(style.selectedStyle(next.clicked.geoVisitor.visitors));
+          next.clicked.layer.bringToFront();
           return { ...prev, ...next };
         }
 
-        if (prev.selected || prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
+        if (prev.clicked || prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
           return { ...prev };
         }
 
@@ -85,8 +88,8 @@ export function MapSelectionContextProvider({ children, style }: Props) {
     <MapSelectionContext.Provider
       value={{
         hoveredFeature: combined.hovered,
-        selectedFeature: combined.selected,
-        setFeatures,
+        clickedFeature: combined.clicked,
+        setMapSelection,
       }}
     >
       {children}

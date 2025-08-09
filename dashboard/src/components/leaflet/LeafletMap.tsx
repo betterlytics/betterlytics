@@ -1,17 +1,15 @@
 'use client';
 
-import { MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { GeoVisitor } from '@/entities/geography';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState } from 'react';
 import MapBackgroundLayer from '@/components/leaflet/MapBackgroundLayer';
 import MapStickyTooltip from '@/components/leaflet/tooltip/MapStickyTooltip';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useLeafletStyle } from '@/hooks/leaflet/use-leaflet-style';
-import { MapSelectionContextProvider, useMapSelection } from '@/contexts/MapSelectionProvider';
-import MapCountryGeoJSON from './leaflet/MapCountryGeoJSON';
-import MapLegend from './leaflet/MapLegend';
+import { useLeafletStyle } from '@/hooks/use-leaflet-style';
+import { MapSelectionContextProvider } from '@/contexts/MapSelectionProvider';
+import MapCountryGeoJSON from './MapCountryGeoJSON';
+import MapLegend from './MapLegend';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];

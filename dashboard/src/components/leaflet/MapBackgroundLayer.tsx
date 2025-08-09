@@ -1,9 +1,7 @@
-import React, { useEffect } from 'react';
-import type { FeatureCollection } from 'geojson';
-import { useMap } from 'react-leaflet/hooks';
-import type { GeoJSON } from 'react-leaflet';
-import type { LeafletEventHandlerFnMap } from 'leaflet';
 import { useMapSelection } from '@/contexts/MapSelectionProvider';
+import React, { useEffect } from 'react';
+import type { GeoJSON } from 'react-leaflet';
+import { useMap } from 'react-leaflet/hooks';
 
 interface MapBackgroundLayerProps {
   GeoJSON: typeof GeoJSON;
@@ -27,19 +25,19 @@ const nomap = {
 } as const;
 
 const MapBackgroundLayerComponent = ({ GeoJSON }: MapBackgroundLayerProps) => {
-  const { setFeatures } = useMapSelection();
+  const { setMapSelection } = useMapSelection();
   const map = useMap();
 
   useEffect(() => {
-    const listener = () => setFeatures({ selected: undefined, hovered: undefined });
-    map.on('mouseout', listener);
-    map.getContainer().addEventListener('blur', listener);
+    const clearHovered = () => setMapSelection({ hovered: undefined });
+    map.on('mouseout', clearHovered);
+    map.getContainer().addEventListener('blur', clearHovered);
 
     return () => {
-      map.off('mouseout', listener);
-      map.getContainer().removeEventListener('blur', listener);
+      map.off('mouseout', clearHovered);
+      map.getContainer().removeEventListener('blur', clearHovered);
     };
-  }, [map, setFeatures]);
+  }, [map, setMapSelection]);
 
   return (
     <GeoJSON
@@ -51,10 +49,10 @@ const MapBackgroundLayerComponent = ({ GeoJSON }: MapBackgroundLayerProps) => {
       }}
       eventHandlers={{
         click: () => {
-          setFeatures(null);
+          setMapSelection(null);
         },
         mouseover: () => {
-          setFeatures({ hovered: undefined });
+          setMapSelection({ hovered: undefined });
         },
       }}
     />
