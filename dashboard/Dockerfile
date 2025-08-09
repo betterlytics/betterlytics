@@ -43,6 +43,8 @@ RUN adduser --system --uid 1001 --home /home/nextjs nextjs
 
 ENV COREPACK_HOME=/home/nextjs/.cache/corepack
 
+RUN pnpm install -g prisma
+
 COPY --from=builder /app/public ./public
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
