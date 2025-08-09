@@ -39,7 +39,9 @@ ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN adduser --system --uid 1001 --home /home/nextjs nextjs
+
+ENV COREPACK_HOME=/home/nextjs/.cache/corepack
 
 COPY --from=builder /app/public ./public
 
