@@ -44,7 +44,7 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 --home /home/nextjs nextjs
 
-ENV COREPACK_HOME=/home/nextjs/.cache/corepack
+RUN chown -R nextjs:nodejs /home/pnpm
 
 COPY --from=builder /app/public ./public
 
