@@ -178,6 +178,12 @@
   z-index: 0 !important;
 }
 
+@media (max-width: 767px) {
+  .map-sticky-tooltip {
+    display: none;
+  }
+}
+
 @media (min-width: 768px) {
   #nprogress .bar {
     top: var(--topbar-height) !important;

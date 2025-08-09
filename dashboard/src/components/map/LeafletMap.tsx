@@ -4,12 +4,12 @@ import { GeoVisitor } from '@/entities/geography';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState } from 'react';
-import MapBackgroundLayer from '@/components/leaflet/MapBackgroundLayer';
-import MapStickyTooltip from '@/components/leaflet/tooltip/MapStickyTooltip';
+import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
+import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { useLeafletStyle } from '@/hooks/use-leaflet-style';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionProvider';
-import MapCountryGeoJSON from './MapCountryGeoJSON';
-import MapLegend from './MapLegend';
+import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
+import MapLegend from '@/components/map/MapLegend';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];

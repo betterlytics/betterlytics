@@ -1,6 +1,6 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import LeafletMap from '@/components/leaflet/LeafletMap';
+import LeafletMap from '@/components/map/LeafletMap';
 import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';

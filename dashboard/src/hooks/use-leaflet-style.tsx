@@ -6,23 +6,23 @@ import 'leaflet/dist/leaflet.css';
 import { type JSX, useCallback, useMemo } from 'react';
 import type { PathOptions } from 'leaflet';
 
-export interface UseLeafletStyleProps {
+export interface UseMapStyleProps {
   calculatedMaxVisitors: number;
   size: 'sm' | 'lg';
 }
 export type FeatureStyle = PathOptions;
-export type LeafletColorScale = ScaleLinear<string, string, never>;
+export type MapColorScale = ScaleLinear<string, string, never>;
 
-export interface LeafletStyle {
+export interface MapStyle {
   originalStyle: (visitors: number) => FeatureStyle;
   selectedStyle: (visitors: number) => FeatureStyle;
   hoveredStyle: (visitors: number) => FeatureStyle;
-  colorScale: LeafletColorScale;
-  featureBorderColorScale: LeafletColorScale;
+  colorScale: MapColorScale;
+  featureBorderColorScale: MapColorScale;
   LeafletCSS: JSX.Element;
 }
 
-export function useLeafletStyle({ calculatedMaxVisitors, size }: UseLeafletStyleProps): LeafletStyle {
+export function useLeafletStyle({ calculatedMaxVisitors, size }: UseMapStyleProps): MapStyle {
   const colorScale = useMemo(() => {
     return scaleLinear<string>()
       .domain([0, 1, calculatedMaxVisitors])
@@ -88,12 +88,15 @@ export function useLeafletStyle({ calculatedMaxVisitors, size }: UseLeafletStyle
           .leaflet-popup-tip {
             background-color: var(--color-card);
             filter: drop-shadow(0 0.5px 2px var(--color-sidebar-accent-foreground));
+            pointer-events: none;
           }
           .leaflet-popup-content-wrapper {
             background: transparent;
             border: none;
             box-shadow: none;
             padding: 0;
+          }
+          .leaflet-popup {
             pointer-events: none;
           }
         `}

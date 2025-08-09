@@ -1,6 +1,6 @@
 import { useMapSelection } from '@/contexts/MapSelectionProvider';
 import { GeoVisitor } from '@/entities/geography';
-import { LeafletStyle } from '@/hooks/use-leaflet-style';
+import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
 import type { LeafletMouseEvent } from 'leaflet';
 import React from 'react';
@@ -12,7 +12,7 @@ interface MapCountryGeoJSONProps {
   GeoJSON: typeof GeoJSON;
   geoData: GeoJSON.FeatureCollection;
   visitorData: GeoVisitor[];
-  style: LeafletStyle;
+  style: MapStyle;
   size?: 'sm' | 'lg';
 }
 

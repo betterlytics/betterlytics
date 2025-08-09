@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom';
 import { useMap } from 'react-leaflet/hooks';
 import MapTooltipContent from './MapTooltipContent';
 import MapTooltipTip from './MapTooltipTip';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export type MapStickyTooltip = {
   size?: 'sm' | 'lg';
@@ -11,6 +13,7 @@ export type MapStickyTooltip = {
 
 export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
   const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelection();
+  const isMobile = useIsMobile();
   const map = useMap();
   const tooltipId = useId();
 
@@ -48,7 +51,10 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       ref={tooltipRef}
       role='tooltip'
       aria-hidden={false}
-      className='leaflet-popup-content-wrapper pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform'
+      className={cn(
+        'map-sticky-tooltip leaflet-popup-content-wrapper',
+        'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
+      )}
     >
       <div className='leaflet-popup-content'>
         <MapTooltipContent geoVisitor={hoveredFeature?.geoVisitor} size={size} />

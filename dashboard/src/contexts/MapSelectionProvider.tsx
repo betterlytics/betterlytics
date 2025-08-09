@@ -1,7 +1,7 @@
 'use client';
 
 import { GeoVisitor } from '@/entities/geography';
-import { LeafletStyle } from '@/hooks/use-leaflet-style';
+import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { createContext, useCallback, useContext } from 'react';
 
@@ -15,7 +15,8 @@ type MapSelectionContextType = {
   clickedFeature: MapFeatureVisitor | undefined;
   setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
 };
-type MapSelectionProps = { children: React.ReactNode; style: LeafletStyle };
+
+type MapSelectionProps = { children: React.ReactNode; style: MapStyle };
 type MapFeatureSelection = {
   hovered: MapFeatureVisitor | undefined;
   clicked: MapFeatureVisitor | undefined;
@@ -36,11 +37,15 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
     clicked: undefined,
     hovered: undefined,
   } as MapFeatureSelection);
+
   const isMobile = useIsMobile();
+
+  console.log('[MapSelection Wrapper] isMobile: ', isMobile);
 
   const setMapSelection = useCallback(
     (next: Partial<MapFeatureSelection> | null) => {
       setCombined((prev) => {
+        console.log('[MapSelection Callback] isMobile: ', isMobile);
         if (next === null) {
           prev.clicked?.layer.closePopup();
           prev.clicked?.layer.setStyle(style.originalStyle(prev.clicked.geoVisitor.visitors));
@@ -81,7 +86,7 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
         return { ...prev, ...next };
       });
     },
-    [combined, isMobile],
+    [style],
   );
 
   return (
