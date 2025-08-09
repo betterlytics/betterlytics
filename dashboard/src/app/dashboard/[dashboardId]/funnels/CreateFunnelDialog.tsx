@@ -24,6 +24,7 @@ import { fetchFunnelPreviewAction } from '@/app/actions/funnels';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQueryFilters } from '@/hooks/use-query-filters';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type FunnelMetadata = {
   name: string;
@@ -38,9 +39,10 @@ type CreateFunnelDialogProps = {
 export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
+  const { dictionary } = useDictionary();
 
   const [metadata, setMetadata] = useState<FunnelMetadata>({
-    name: 'My new funnel',
+    name: dictionary.t('components.funnels.create.defaultName'),
     isStrict: false,
   });
 
@@ -71,10 +73,10 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   const submit = useCallback(() => {
     postFunnelAction(dashboardId, metadata.name, queryFilters, metadata.isStrict)
       .then(() => {
-        toast.success('Funnel created!');
+        toast.success(dictionary.t('components.funnels.create.successMessage'));
         setIsOpen(false);
       })
-      .catch(() => toast.error('Funnel creation failed!'));
+      .catch(() => toast.error(dictionary.t('components.funnels.create.errorMessage')));
   }, [metadata, queryFilters, dashboardId]);
 
   return (
@@ -82,24 +84,24 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
       <DialogTrigger asChild>
         <Button variant={triggerVariant || 'outline'}>
           <Plus className='size-5' />
-          {triggerText || 'Create Funnel'}
+          {triggerText || dictionary.t('components.funnels.create.createFunnel')}
         </Button>
       </DialogTrigger>
       <DialogContent className='bg-background flex h-[70dvh] w-[80dvw] !max-w-[1250px] flex-col'>
         <DialogHeader>
-          <DialogTitle>Create funnel</DialogTitle>
-          <DialogDescription>Create a new funnel for your website.</DialogDescription>
+          <DialogTitle>{dictionary.t('components.funnels.create.createFunnelLower')}</DialogTitle>
+          <DialogDescription>{dictionary.t('components.funnels.create.description')}</DialogDescription>
         </DialogHeader>
         <div className='flex flex-1 flex-col gap-6 overflow-hidden lg:flex-row'>
           <div className='flex h-full flex-col overflow-hidden lg:max-w-2xl'>
             <div className='flex items-start justify-between gap-4 pb-4'>
               <div className='h-full'>
                 <Label htmlFor='name' className='text-foreground mb-1 block'>
-                  Name
+                  {dictionary.t('components.funnels.create.name')}
                 </Label>
                 <Input
                   id='name'
-                  placeholder='My Funnel Name'
+                  placeholder={dictionary.t('components.funnels.create.namePlaceholder')}
                   className='bg-input placeholder:text-muted-foreground w-full'
                   value={metadata.name}
                   onChange={(evt) => setMetadata((prev) => ({ ...prev, name: evt.target.value }))}
@@ -107,7 +109,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
               </div>
               <div className='h-full' title='If active, steps must occur right after each other'>
                 <Label htmlFor='strict-mode' className='text-foreground mb-1 block'>
-                  Strict Mode
+                  {dictionary.t('components.funnels.create.strictMode')}
                 </Label>
                 <div className='flex h-9 flex-grow items-center justify-center'>
                   <Switch
@@ -131,7 +133,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                 ))}
                 <div className='mt-auto'>
                   <Button variant='outline' onClick={addEmptyQueryFilter} className='whitespace-nowrap'>
-                    <PlusIcon className='mr-2 h-4 w-4' /> Add Step
+                    <PlusIcon className='mr-2 h-4 w-4' /> {dictionary.t('components.funnels.create.addStep')}
                   </Button>
                 </div>
               </div>
@@ -139,7 +141,9 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           </div>
           <div className='bg-card flex h-full flex-grow flex-col overflow-hidden rounded-lg p-4 shadow'>
             <div className='mb-4 flex items-center justify-between'>
-              <h3 className='text-card-foreground text-lg font-semibold'>Live Preview (Past 24 Hours)</h3>
+              <h3 className='text-card-foreground text-lg font-semibold'>
+                {dictionary.t('components.funnels.create.livePreview')}
+              </h3>
             </div>
             <div className='scrollbar-thin flex-1 overflow-y-auto'>
               <FunnelPreviewDisplay
@@ -152,7 +156,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
         </div>
         <DialogFooter className='mt-auto pt-2'>
           <Button type='submit' onClick={submit} disabled={queryFilters.length < 2}>
-            Create
+            {dictionary.t('components.funnels.create.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

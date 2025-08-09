@@ -21,7 +21,12 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
         {
           key: 'events',
           label: dictionary.t('dashboard.tabs.events'),
-          data: customEvents.map((event) => ({ label: event.event_name, value: event.count })),
+          data: customEvents.map((event) => ({
+            label: event.event_name,
+            value: event.current.count,
+            trendPercentage: event.change?.count,
+            comparisonValue: event.compare?.count,
+          })),
           emptyMessage: dictionary.t('dashboard.emptyStates.noCustomEventsData'),
         },
       ]}

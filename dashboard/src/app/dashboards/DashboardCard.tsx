@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useBARouter } from '@/hooks/use-ba-router';
 import { Dashboard } from '@/entities/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Globe, Calendar, Settings } from 'lucide-react';
@@ -14,7 +14,7 @@ interface DashboardCardProps {
 
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const { dictionary } = useDictionary();
-  const router = useRouter();
+  const router = useBARouter();
 
   const { formattedDate, loading: loadingDate } = useFormattedDate(dashboard.createdAt, {
     options: { year: 'numeric', month: 'short', day: 'numeric' },
@@ -63,7 +63,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
             </div>
             <div className='flex w-8 justify-center'>
               <Link
-                href={`/dashboard/${dashboard.id}/settings`}
+                href={`/dashboard/${dashboard.id}?settings=true`}
                 className='hover:bg-muted inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
                 title='Dashboard Settings'
                 onClick={(e) => e.stopPropagation()}

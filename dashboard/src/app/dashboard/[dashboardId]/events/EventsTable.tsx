@@ -21,9 +21,14 @@ import { calculatePercentage } from '@/utils/mathUtils';
 import { formatTimeAgo } from '@/utils/dateFormatters';
 import { formatPercentage } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
+import type { fetchCustomEventsOverviewAction } from '@/app/actions/events';
+import { TableCompareCell } from '@/components/TableCompareCell';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
+
+type TableEventRow = Awaited<ReturnType<typeof fetchCustomEventsOverviewAction>>[number];
 
 interface EventsTableProps {
-  data: EventTypeRow[];
+  data: TableEventRow[];
 }
 
 interface ExpandedRowState {
@@ -33,18 +38,19 @@ interface ExpandedRowState {
   };
 }
 
-interface EventRowWithExpansion extends EventTypeRow {
+interface EventRowWithExpansion extends TableEventRow {
   isExpanded: boolean;
   totalEvents: number;
 }
 
 export function EventsTable({ data }: EventsTableProps) {
+  const { dictionary } = useDictionary();
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const [expandedRows, setExpandedRows] = useState<ExpandedRowState>({});
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
 
-  const totalEvents = data.reduce((sum, event) => sum + event.count, 0);
+  const totalEvents = data.reduce((sum, event) => sum + event.current.count, 0);
 
   const toggleRow = (eventName: string) => {
     setExpandedRows((prev) => ({
@@ -80,7 +86,7 @@ export function EventsTable({ data }: EventsTableProps) {
   const tableData = useMemo(() => {
     return data.map((event) => ({
       ...event,
-      isExpanded: expandedRows[event.event_name]?.isExpanded || false,
+      isExpanded: expandedRows[event.current.event_name]?.isExpanded || false,
       totalEvents,
     }));
   }, [data, expandedRows, totalEvents]);
@@ -89,7 +95,7 @@ export function EventsTable({ data }: EventsTableProps) {
     () => [
       {
         accessorKey: 'event_name',
-        header: 'Event Name',
+        header: dictionary.t('components.events.table.eventName'),
         cell: ({ row }) => {
           const event = row.original;
           return (
@@ -112,76 +118,66 @@ export function EventsTable({ data }: EventsTableProps) {
             </div>
           );
         },
+        accessorFn: (row) => row.current.event_name,
       },
       {
         accessorKey: 'count',
-        header: 'Count',
-        cell: ({ row }) => (
-          <div className='flex items-center justify-end text-right font-mono text-sm'>
-            <span>{row.original.count.toLocaleString()}</span>
-            <div className='ml-2 h-4 w-4' />
-          </div>
-        ),
+        header: dictionary.t('components.events.table.count'),
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='count' />,
+        accessorFn: (row) => row.current.count,
       },
       {
         accessorKey: 'unique_users',
-        header: 'Unique Users',
-        cell: ({ row }) => (
-          <div className='flex items-center justify-end text-right font-mono text-sm'>
-            <span>{row.original.unique_users.toLocaleString()}</span>
-            <div className='ml-2 h-4 w-4' />
-          </div>
-        ),
+        header: dictionary.t('components.events.table.uniqueUsers'),
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='unique_users' />,
+        accessorFn: (row) => row.current.unique_users,
       },
       {
         accessorKey: 'avg_per_user',
-        header: 'Avg per User',
-        cell: ({ row }) => (
-          <div className='flex items-center justify-end text-right font-mono text-sm'>
-            <span>{row.original.avg_per_user}</span>
-            <div className='ml-2 h-4 w-4' />
-          </div>
-        ),
+        header: dictionary.t('components.events.table.avgPerUser'),
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avg_per_user' />,
+        accessorFn: (row) => row.current.avg_per_user,
       },
       {
         accessorKey: 'last_seen',
-        header: 'Last Seen',
+        header: dictionary.t('components.events.table.lastSeen'),
         cell: ({ row }) => {
-          const timeAgo = formatTimeAgo(new Date(row.original.last_seen));
+          const timeAgo = formatTimeAgo(new Date(row.original.current.last_seen));
 
           return (
-            <div className='flex items-center justify-end text-right text-sm'>
+            <div className='flex items-center text-right text-sm'>
               <span className='text-muted-foreground'>{timeAgo}</span>
               <div className='ml-2 h-4 w-4' />
             </div>
           );
         },
         sortingFn: (rowA, rowB) => {
-          const dateA = new Date(rowA.original.last_seen).getTime();
-          const dateB = new Date(rowB.original.last_seen).getTime();
+          const dateA = new Date(rowA.original.current.last_seen).getTime();
+          const dateB = new Date(rowB.original.current.last_seen).getTime();
           return dateA - dateB;
         },
+        accessorFn: (row) => new Date(row.current.last_seen).getTime(),
       },
       {
         id: 'percentage',
-        header: 'Percentage',
+        header: dictionary.t('components.events.table.percentage'),
         cell: ({ row }) => {
-          const percentage = calculatePercentage(row.original.count, row.original.totalEvents);
+          const percentage = calculatePercentage(row.original.current.count, row.original.totalEvents);
           return (
-            <div className='flex items-center justify-end text-right font-mono text-sm'>
+            <div className='flex items-center text-right font-mono text-sm'>
               <span>{formatPercentage(percentage)}</span>
               <div className='ml-2 h-4 w-4' />
             </div>
           );
         },
         sortingFn: (rowA, rowB) => {
-          const percentageA = calculatePercentage(rowA.original.count, rowA.original.totalEvents);
-          const percentageB = calculatePercentage(rowB.original.count, rowB.original.totalEvents);
+          const percentageA = calculatePercentage(rowA.original.current.count, rowA.original.totalEvents);
+          const percentageB = calculatePercentage(rowB.original.current.count, rowB.original.totalEvents);
           return percentageA - percentageB;
         },
       },
     ],
-    [],
+    [dictionary],
   );
 
   const table = useReactTable({
@@ -203,10 +199,9 @@ export function EventsTable({ data }: EventsTableProps) {
             <div className='bg-muted/30 mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full'>
               <Activity className='text-primary h-8 w-8' />
             </div>
-            <h3 className='text-foreground mb-3 text-lg font-semibold'>No events found</h3>
+            <h3 className='text-foreground mb-3 text-lg font-semibold'>{dictionary.t('components.events.table.noEvents')}</h3>
             <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>
-              No custom events were tracked during this time period. Events will appear here once they start being
-              recorded.
+              {dictionary.t('components.events.table.noEventsDesc')}
             </p>
           </div>
         </CardContent>
@@ -222,9 +217,9 @@ export function EventsTable({ data }: EventsTableProps) {
             <Activity className='text-primary h-4 w-4' />
           </div>
           <div className='flex items-center gap-3'>
-            <span>Event Details</span>
+            <span>{dictionary.t('components.events.table.eventDetails')}</span>
             <Badge variant='secondary' className='text-xs font-normal'>
-              {data.length} {data.length === 1 ? 'Unique Event' : 'Unique Events'}
+              {data.length} {data.length === 1 ? dictionary.t('components.events.table.uniqueEvent') : dictionary.t('components.events.table.uniqueEvents')}
             </Badge>
           </div>
         </CardTitle>
@@ -242,16 +237,10 @@ export function EventsTable({ data }: EventsTableProps) {
                         'px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400',
                         header.column.getCanSort() &&
                           'cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-slate-700',
-                        header.id === 'event_name' ? 'text-left' : 'text-right',
                       )}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div
-                        className={cn(
-                          'flex items-center',
-                          header.id === 'event_name' ? 'justify-start' : 'justify-end',
-                        )}
-                      >
+                      <div className={cn('flex items-center')}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
                           <div className='ml-2 flex h-4 w-4 items-center justify-center'>
@@ -295,7 +284,7 @@ export function EventsTable({ data }: EventsTableProps) {
                       <TableRow className='hover:bg-transparent'>
                         <TableCell colSpan={columns.length}>
                           <ExpandedEventContent
-                            event={event}
+                            event={event.current}
                             expandedProperties={expandedRows[event.event_name]?.expandedProperties || new Set()}
                             onToggleProperty={(propertyName) => toggleProperty(event.event_name, propertyName)}
                             startDate={startDate}

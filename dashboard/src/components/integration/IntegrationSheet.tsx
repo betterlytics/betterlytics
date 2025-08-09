@@ -16,6 +16,8 @@ import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import ExternalLink from '@/components/ExternalLink';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -35,6 +37,7 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
     siteIdGenerated: true,
     dataReceiving: false,
   });
+  const { dictionary } = useDictionary();
 
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
 
@@ -67,7 +70,7 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
       setCopiedIdentifier(identifier);
       setTimeout(() => setCopiedIdentifier(null), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error(dictionary.t('components.integration.failedToCopy'));
     }
   };
 
@@ -140,23 +143,23 @@ export default App;
         <div className='flex h-full flex-col'>
           <SheetHeader className='border-border space-y-1.5 border-b p-6'>
             <div className='flex items-center justify-between'>
-              <SheetTitle className='text-xl'>Website Integration</SheetTitle>
+              <SheetTitle className='text-xl'>{dictionary.t('components.integration.title')}</SheetTitle>
               <div className='flex items-center'>
                 {integrationStatus.accountCreated &&
                 integrationStatus.siteIdGenerated &&
                 integrationStatus.dataReceiving ? (
                   <Badge className='mr-3 rounded bg-green-600/20 px-2 py-1 text-xs font-medium text-green-500 dark:bg-green-500/30 dark:text-green-400'>
-                    Fully Integrated
+                    {dictionary.t('components.integration.fullyIntegrated')}
                   </Badge>
                 ) : (
                   <Badge className='mr-3 rounded bg-red-600/20 px-2 py-1 text-xs font-medium text-red-500 dark:bg-red-500/30 dark:text-red-400'>
-                    Not Fully Integrated
+                    {dictionary.t('components.integration.notFullyIntegrated')}
                   </Badge>
                 )}
               </div>
             </div>
             <SheetDescription className='text-muted-foreground text-sm'>
-              Add the tracking script to your website to start collecting analytics data
+              {dictionary.t('components.integration.description')}
             </SheetDescription>
           </SheetHeader>
 
@@ -164,11 +167,15 @@ export default App;
             {isLoading ? (
               <div className='flex items-center justify-center py-8'>
                 <RefreshCw className='text-muted-foreground h-6 w-6 animate-spin' />
-                <span className='text-muted-foreground ml-2'>Loading integration details...</span>
+                <span className='text-muted-foreground ml-2'>
+                  {dictionary.t('components.integration.loadingDetails')}
+                </span>
               </div>
             ) : !siteId ? (
               <div className='flex items-center justify-center py-8'>
-                <span className='text-muted-foreground'>Unable to load site ID</span>
+                <span className='text-muted-foreground'>
+                  {dictionary.t('components.integration.unableToLoadSiteId')}
+                </span>
               </div>
             ) : (
               <>
@@ -176,28 +183,17 @@ export default App;
                   <CardHeader className='flex flex-row items-start space-x-3'>
                     <Info className='mt-1 h-5 w-5 flex-shrink-0 text-blue-500 dark:text-blue-400' />
                     <div>
-                      <CardTitle className='text-card-foreground text-base font-medium'>Important</CardTitle>
+                      <CardTitle className='text-card-foreground text-base font-medium'>
+                        {dictionary.t('components.integration.important')}
+                      </CardTitle>
                       <CardDescription className='text-muted-foreground text-sm'>
-                        Add this script to the{' '}
-                        <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
-                          &lt;head&gt;
-                        </code>{' '}
-                        section of your root layout or individual pages.
+                        {dictionary.t('components.integration.headSectionNote').replace('{head}', '<head>')}
                       </CardDescription>
                       <CardDescription className='text-muted-foreground text-sm'>
-                        Or install our{' '}
-                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
-                          <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
-                            npm
-                          </code>{' '}
-                        </a>
-                        package{' '}
-                        <a href='https://www.npmjs.com/package/@betterlytics/tracker'>
-                          <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
-                            @betterlytics/tracker
-                          </code>
-                        </a>{' '}
-                        for easy setup for Node projects.
+                        {dictionary
+                          .t('components.integration.npmPackageNote')
+                          .replace('{npm}', 'npm')
+                          .replace('{package}', '@betterlytics/tracker')}
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -206,7 +202,7 @@ export default App;
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
-                      Your Site ID
+                      {dictionary.t('components.integration.yourSiteId')}
                     </label>
                     <Button
                       variant='ghost'
@@ -217,12 +213,12 @@ export default App;
                       {copiedIdentifier === 'siteId' ? (
                         <>
                           <Check className='h-3.5 w-3.5' />
-                          Copied
+                          {dictionary.t('components.integration.copied')}
                         </>
                       ) : (
                         <>
                           <Clipboard className='h-3.5 w-3.5' />
-                          Copy
+                          {dictionary.t('components.integration.copy')}
                         </>
                       )}
                     </Button>
@@ -239,7 +235,7 @@ export default App;
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='trackingScriptDisplay' className='text-muted-foreground text-sm font-medium'>
-                      Tracking Script
+                      {dictionary.t('components.integration.trackingScript')}
                     </label>
                     <Button
                       variant='ghost'
@@ -250,12 +246,12 @@ export default App;
                       {copiedIdentifier === 'trackingScript' ? (
                         <>
                           <Check className='h-3.5 w-3.5' />
-                          Copied
+                          {dictionary.t('components.integration.copied')}
                         </>
                       ) : (
                         <>
                           <Clipboard className='h-3.5 w-3.5' />
-                          Copy
+                          {dictionary.t('components.integration.copy')}
                         </>
                       )}
                     </Button>
@@ -291,19 +287,22 @@ export default App;
                   </TabsList>
                   <TabsContent value='html' className='bg-card border-border rounded-md p-4'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> HTML Installation
+                      <Code className='text-muted-foreground mr-2 h-4 w-4' />{' '}
+                      {dictionary.t('components.integration.htmlInstallation')}
                     </h3>
                     <CodeBlock code={htmlExample} language='html' />
                   </TabsContent>
                   <TabsContent value='nextjs' className='bg-card border-border rounded-md p-4'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> Next.js Installation
+                      <Code className='text-muted-foreground mr-2 h-4 w-4' />{' '}
+                      {dictionary.t('components.integration.nextjsInstallation')}
                     </h3>
                     <CodeBlock code={nextJsExample} language='javascript' />
                   </TabsContent>
                   <TabsContent value='react' className='bg-card border-border rounded-md p-4'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> React Installation
+                      <Code className='text-muted-foreground mr-2 h-4 w-4' />{' '}
+                      {dictionary.t('components.integration.reactInstallation')}
                     </h3>
                     <CodeBlock code={reactExample} language='javascript' />
                   </TabsContent>
@@ -312,11 +311,7 @@ export default App;
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
-                      Initialize using our{' '}
-                      <code className='bg-muted rounded px-1 py-0.5 text-xs text-orange-600 dark:text-orange-400'>
-                        npm
-                      </code>{' '}
-                      package
+                      {dictionary.t('components.integration.initializeNpmPackage').replace('{npm}', 'npm')}
                     </label>
                     <Button
                       variant='ghost'
@@ -327,12 +322,12 @@ export default App;
                       {copiedIdentifier === 'siteId' ? (
                         <>
                           <Check className='h-3.5 w-3.5' />
-                          Copied
+                          {dictionary.t('components.integration.copied')}
                         </>
                       ) : (
                         <>
                           <Clipboard className='h-3.5 w-3.5' />
-                          Copy
+                          {dictionary.t('components.integration.copy')}
                         </>
                       )}
                     </Button>
@@ -364,26 +359,26 @@ export default App;
                   <Card className='bg-card border-border'>
                     <CardHeader>
                       <CardTitle className='text-card-foreground text-base font-medium'>
-                        Integration Status
+                        {dictionary.t('components.integration.integrationStatus')}
                       </CardTitle>
                       <CardDescription className='text-muted-foreground text-sm'>
-                        Track your progress
+                        {dictionary.t('components.integration.trackProgress')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className='space-y-3'>
                       <StatusItem
-                        label='Account Created'
-                        description='Your account is ready'
+                        label={dictionary.t('components.integration.accountCreated')}
+                        description={dictionary.t('components.integration.accountReady')}
                         isComplete={integrationStatus.accountCreated}
                       />
                       <StatusItem
-                        label='Site ID Generated'
-                        description='Your unique identifier'
+                        label={dictionary.t('components.integration.siteIdGenerated')}
+                        description={dictionary.t('components.integration.uniqueIdentifier')}
                         isComplete={integrationStatus.siteIdGenerated}
                       />
                       <StatusItem
-                        label='Data Receiving'
-                        description='Analytics data flowing'
+                        label={dictionary.t('components.integration.dataReceiving')}
+                        description={dictionary.t('components.integration.analyticsDataFlowing')}
                         isComplete={integrationStatus.dataReceiving}
                       />
                     </CardContent>
@@ -391,30 +386,32 @@ export default App;
 
                   <Card className='bg-card border-border'>
                     <CardHeader>
-                      <CardTitle className='text-card-foreground text-base font-medium'>Need Help?</CardTitle>
+                      <CardTitle className='text-card-foreground text-base font-medium'>
+                        {dictionary.t('components.integration.needHelp')}
+                      </CardTitle>
                       <CardDescription className='text-muted-foreground text-sm'>
-                        Resources to get started
+                        {dictionary.t('components.integration.resourcesToGetStarted')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className='space-y-2'>
-                      <a
+                      <ExternalLink
                         href='/docs'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> Documentation
-                      </a>
-                      <a
+                      </ExternalLink>
+                      <ExternalLink
                         href='/docs/troubleshooting'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
-                        <Info className='mr-2 h-4 w-4' /> Troubleshooting
-                      </a>
-                      <a
+                        <Info className='mr-2 h-4 w-4' /> {dictionary.t('components.integration.troubleshooting')}
+                      </ExternalLink>
+                      <ExternalLink
                         href='/contact'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
-                        <Info className='mr-2 h-4 w-4' /> Contact Support
-                      </a>
+                        <Info className='mr-2 h-4 w-4' /> {dictionary.t('components.integration.contactSupport')}
+                      </ExternalLink>
                     </CardContent>
                   </Card>
                 </div>
@@ -432,12 +429,12 @@ export default App;
               {isVerifying ? (
                 <>
                   <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-                  Verifying...
+                  {dictionary.t('components.integration.verifying')}
                 </>
               ) : (
                 <>
                   <RefreshCw className='mr-2 h-4 w-4' />
-                  Verify Installation
+                  {dictionary.t('components.integration.verifyInstallation')}
                 </>
               )}
             </Button>
