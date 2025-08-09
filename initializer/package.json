@@ -1,0 +1,13 @@
+{
+  "name": "migrations",
+  "private": true,
+  "scripts": {
+    "migrate-clickhouse": "node scripts/run-migration.js"
+  },
+  "dependencies": {
+    "clickhouse": "^2.6.0",
+    "clickhouse-migrations": "^1.0.4",
+    "@clickhouse/client": "^1.11.1",
+    "dotenv": "^16.5.0"
+  }
+}
