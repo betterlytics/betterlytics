@@ -37,7 +37,7 @@ const LeafletMap = ({
   } | null>(null);
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
 
-  const style = useLeafletStyle({ calculatedMaxVisitors, size });
+  const style = useLeafletStyle({ calculatedMaxVisitors });
 
   useEffect(() => {
     setIsLoading(true);

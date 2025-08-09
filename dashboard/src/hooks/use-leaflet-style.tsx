@@ -6,10 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import { type JSX, useCallback, useMemo } from 'react';
 import type { PathOptions } from 'leaflet';
 
-export interface UseMapStyleProps {
-  calculatedMaxVisitors: number;
-  size: 'sm' | 'lg';
-}
+export type UseMapStyleProps = { calculatedMaxVisitors: number };
 export type FeatureStyle = PathOptions;
 export type MapColorScale = ScaleLinear<string, string, never>;
 
@@ -22,7 +19,7 @@ export interface MapStyle {
   LeafletCSS: JSX.Element;
 }
 
-export function useLeafletStyle({ calculatedMaxVisitors, size }: UseMapStyleProps): MapStyle {
+export function useLeafletStyle({ calculatedMaxVisitors }: UseMapStyleProps): MapStyle {
   const colorScale = useMemo(() => {
     return scaleLinear<string>()
       .domain([0, 1, calculatedMaxVisitors])

@@ -2,7 +2,6 @@ import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
 import { GeoVisitor } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
-import type { LeafletMouseEvent } from 'leaflet';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { renderToString } from 'react-dom/server';
 import type { GeoJSON } from 'react-leaflet';
@@ -61,15 +60,15 @@ const MapCountryGeoJSONComponent = ({
       });
 
       layer.on({
-        mouseover: (e: LeafletMouseEvent) => {
+        mouseover: () => {
           ref.current.setMapSelection({ hovered: { geoVisitor, layer } });
         },
-        click: (e: LeafletMouseEvent) => {
+        click: () => {
           ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
         },
       });
     },
-    [ref.current],
+    [size, style, visitorData],
   );
 
   return <GeoJSON key={visitorData.length} data={geoData} onEachFeature={onEachFeature} {...DEFAULT_OPTS} />;
