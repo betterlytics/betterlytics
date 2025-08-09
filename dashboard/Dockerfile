@@ -12,6 +12,8 @@ RUN apt-get update -y && apt-get install -y openssl
 
 RUN mkdir -p /home/pnpm && chown node:node /home/pnpm
 
+RUN pnpm install -g prisma
+
 
 # --------------------------
 
