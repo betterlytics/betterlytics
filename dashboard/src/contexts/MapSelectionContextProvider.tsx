@@ -40,8 +40,6 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
 
   const isMobile = useIsMobile();
 
-  console.log('[MapSelection Wrapper] isMobile: ', isMobile);
-
   const setMapSelection = useCallback(
     (next: Partial<MapFeatureSelection> | null) => {
       setCombined((prev) => {
@@ -57,7 +55,6 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
             prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
           } else {
             next.clicked.layer.closePopup();
-            console.log('[MapSelection Callback] isMobile: ', isMobile);
             next.clicked.layer.setStyle(
               isMobile
                 ? style.originalStyle(next.clicked.geoVisitor.visitors)
