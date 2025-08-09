@@ -20,7 +20,6 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
 
   useEffect(() => {
     const mapContainer = map.getContainer();
-    let animationFrame: number | null = null;
 
     const onMouseMove = (e: MouseEvent) => {
       latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
@@ -37,7 +36,6 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
 
     return () => {
       mapContainer.removeEventListener('mousemove', onMouseMove);
-      if (animationFrame !== null) cancelAnimationFrame(animationFrame);
     };
   }, [map, selectedFeature]);
 
