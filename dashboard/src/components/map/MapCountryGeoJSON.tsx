@@ -3,7 +3,7 @@ import { GeoVisitor } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
 import type { LeafletMouseEvent } from 'leaflet';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { renderToString } from 'react-dom/server';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
@@ -38,40 +38,42 @@ const MapCountryGeoJSONComponent = ({
     ref.current = { setMapSelection };
   }, [setMapSelection]);
 
-  const onEachFeature = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-    const country_code = getFeatureId(feature);
-    if (!country_code) return;
+  const onEachFeature = useCallback(
+    (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
+      const country_code = getFeatureId(feature);
+      if (!country_code) return;
 
-    let geoVisitor = visitorData.find((d) => d.country_code === country_code);
-    if (!geoVisitor) {
-      geoVisitor = { country_code, visitors: 0 };
-    }
+      let geoVisitor = visitorData.find((d) => d.country_code === country_code);
+      if (!geoVisitor) {
+        geoVisitor = { country_code, visitors: 0 };
+      }
 
-    layer.setStyle(style.originalStyle(geoVisitor.visitors));
-    layer.unbindTooltip();
-    layer.unbindPopup();
+      layer.setStyle(style.originalStyle(geoVisitor.visitors));
+      layer.unbindTooltip();
+      layer.unbindPopup();
 
-    const popupHtml = renderToString(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
+      const popupHtml = renderToString(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
 
-    layer.bindPopup(popupHtml, {
-      autoPan: true,
-      autoPanPadding: [25, 10],
-      closeButton: false,
-    });
+      layer.bindPopup(popupHtml, {
+        autoPan: true,
+        autoPanPadding: [25, 10],
+        closeButton: false,
+      });
 
-    layer.on({
-      mouseover: (e: LeafletMouseEvent) => {
-        ref.current.setMapSelection({ hovered: { geoVisitor, layer } });
-      },
-      click: (e: LeafletMouseEvent) => {
-        ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
-      },
-    });
-  };
+      layer.on({
+        mouseover: (e: LeafletMouseEvent) => {
+          ref.current.setMapSelection({ hovered: { geoVisitor, layer } });
+        },
+        click: (e: LeafletMouseEvent) => {
+          ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
+        },
+      });
+    },
+    [ref.current],
+  );
 
   return <GeoJSON key={visitorData.length} data={geoData} onEachFeature={onEachFeature} {...DEFAULT_OPTS} />;
 };
-
 const MapCountryGeoJSON = React.memo(MapCountryGeoJSONComponent);
 MapCountryGeoJSON.displayName = 'MapCountryGeoJSON';
 export default MapCountryGeoJSON;
