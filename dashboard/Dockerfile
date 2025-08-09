@@ -4,16 +4,11 @@ FROM node:20-slim AS base
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Setup pnpm
-ENV PNPM_HOME="/home/pnpm"
+ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
 RUN apt-get update -y && apt-get install -y openssl
-
-RUN mkdir -p /home/pnpm && chown node:node /home/pnpm
-
-RUN pnpm install -g prisma
-
 
 # --------------------------
 
@@ -21,13 +16,15 @@ FROM base AS builder
 
 WORKDIR /app
 
+RUN pnpm install -g prisma
+
 COPY package*.json .
 RUN pnpm fetch --prod
 
 COPY .env.build /.env
 COPY ./prisma ./prisma
 
-RUN prisma generate
+RUN pnpm prisma generate
 
 COPY . .
 
@@ -42,16 +39,13 @@ ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 --home /home/nextjs nextjs
-
-RUN chown -R nextjs:nodejs /home/pnpm
+RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 USER nextjs
 
-CMD prisma migrate deploy && node server.js
+CMD [ "node", "server.js" ]
