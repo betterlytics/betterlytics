@@ -1,15 +1,15 @@
 'use client';
 
-import { GeoVisitor } from '@/entities/geography';
-import type { LatLngBoundsExpression } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import React, { useEffect, useMemo, useState } from 'react';
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
-import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
-import { useLeafletStyle } from '@/hooks/use-leaflet-style';
-import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
 import MapLegend from '@/components/map/MapLegend';
+import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
+import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
+import { GeoVisitor } from '@/entities/geography';
+import { useLeafletStyle } from '@/hooks/use-leaflet-style';
+import type { LatLngBoundsExpression } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -20,60 +20,58 @@ interface LeafletMapProps {
   size?: 'sm' | 'lg';
 }
 
-const LeafletMap = ({
+export default function LeafletMap({
   visitorData,
   maxVisitors,
   showZoomControls,
   showLegend = true,
   size = 'sm',
   initialZoom,
-}: LeafletMapProps) => {
+}: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [mapComponents, setMapComponents] = useState<{
     L: typeof import('leaflet');
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
-  const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
+  const [isPending, startTransition] = useTransition();
 
+  const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
   const style = useLeafletStyle({ calculatedMaxVisitors });
 
   useEffect(() => {
-    setIsLoading(true);
+    startTransition(() => {
+      const loadMapDependencies = async () => {
+        try {
+          const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
+            import('leaflet'),
+            import('react-leaflet'),
+            fetch('/data/countries.geo.json'),
+          ]);
 
-    const loadMapDependencies = async () => {
-      try {
-        const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
-          import('leaflet'),
-          import('react-leaflet'),
-          fetch('/data/countries.geo.json'),
-        ]);
+          const world = await worldRes.json();
 
-        const world = await worldRes.json();
+          setMapComponents({
+            L: leafletModule.default,
+            MapContainer: reactLeafletModule.MapContainer,
+            GeoJSON: reactLeafletModule.GeoJSON,
+          });
+          setWorldGeoJson(world);
+        } catch (err) {
+          console.error('Error loading map dependencies:', err);
+        }
+      };
 
-        setMapComponents({
-          L: leafletModule.default,
-          MapContainer: reactLeafletModule.MapContainer,
-          GeoJSON: reactLeafletModule.GeoJSON,
-        });
-        setWorldGeoJson(world);
-      } catch (err) {
-        console.error('Error loading map dependencies:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadMapDependencies();
+      loadMapDependencies();
+    });
   }, []);
 
-  const MAX_WORLD_BOUNDS = useMemo(() => {
+  const worldBounds = useMemo(() => {
     if (!mapComponents?.L) return null;
     return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
   }, [mapComponents]);
 
-  if (isLoading || !mapComponents || !worldGeoJson) {
+  if (isPending || !mapComponents || !worldGeoJson) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
@@ -94,7 +92,7 @@ const LeafletMap = ({
         style={{ height: '100%', width: '100%' }}
         zoom={initialZoom || 2}
         zoomControl={showZoomControls}
-        maxBounds={MAX_WORLD_BOUNDS as LatLngBoundsExpression}
+        maxBounds={worldBounds as LatLngBoundsExpression}
         maxBoundsViscosity={0.5}
         minZoom={1}
         maxZoom={7}
@@ -109,6 +107,4 @@ const LeafletMap = ({
       </MapContainer>
     </div>
   );
-};
-
-export default LeafletMap;
+}

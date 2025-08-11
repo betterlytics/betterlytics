@@ -30,6 +30,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
 
     mapContainer.addEventListener('mousemove', onMouseMove);
 
+    // Initial positioning before event fires
     if (tooltipRef.current && latestMouseRef.current) {
       tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
     }

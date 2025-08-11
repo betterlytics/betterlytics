@@ -1,5 +1,6 @@
+import { BACKGROUND_WORLD } from '@/constants/geographyData';
 import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { GeoJSON } from 'react-leaflet';
 import { useMap } from 'react-leaflet/hooks';
 
@@ -7,29 +8,23 @@ interface MapBackgroundLayerProps {
   GeoJSON: typeof GeoJSON;
 }
 
-const nomap = {
-  type: 'Feature',
-  properties: {},
-  geometry: {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [-230, -120],
-        [230, -120],
-        [230, 120],
-        [-230, 120],
-        [-230, -120],
-      ],
-    ],
-  },
-} as const;
-
-const MapBackgroundLayerComponent = ({ GeoJSON }: MapBackgroundLayerProps) => {
+export default function MapBackgroundLayer({ GeoJSON }: MapBackgroundLayerProps) {
   const { setMapSelection } = useMapSelection();
   const map = useMap();
 
+  const clearHovered = useCallback(() => {
+    setMapSelection({ hovered: undefined });
+  }, [setMapSelection]);
+
+  const handleClick = useCallback(() => {
+    setMapSelection(null);
+  }, [setMapSelection]);
+
+  const handleMouseOver = useCallback(() => {
+    setMapSelection({ hovered: undefined });
+  }, [setMapSelection]);
+
   useEffect(() => {
-    const clearHovered = () => setMapSelection({ hovered: undefined });
     map.on('mouseout', clearHovered);
     map.getContainer().addEventListener('blur', clearHovered);
 
@@ -37,28 +32,20 @@ const MapBackgroundLayerComponent = ({ GeoJSON }: MapBackgroundLayerProps) => {
       map.off('mouseout', clearHovered);
       map.getContainer().removeEventListener('blur', clearHovered);
     };
-  }, [map, setMapSelection]);
+  }, [map, clearHovered]);
 
   return (
     <GeoJSON
-      data={nomap}
+      data={BACKGROUND_WORLD}
       style={{
         fillColor: 'transparent',
         color: 'transparent',
         weight: 0,
       }}
       eventHandlers={{
-        click: () => {
-          setMapSelection(null);
-        },
-        mouseover: () => {
-          setMapSelection({ hovered: undefined });
-        },
+        click: handleClick,
+        mouseover: handleMouseOver,
       }}
     />
   );
-};
-
-const MapBackgroundLayer = React.memo(MapBackgroundLayerComponent);
-MapBackgroundLayer.displayName = 'MapBackgroundLayer';
-export default MapBackgroundLayer;
+}

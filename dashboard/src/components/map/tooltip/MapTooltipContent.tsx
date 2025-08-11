@@ -1,9 +1,9 @@
-import { cn } from '@/lib/utils';
-import { CountryDisplay } from '@/components/language/CountryDisplay';
 import { FlagIconProps } from '@/components/icons';
+import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { GeoVisitor } from '@/entities/geography';
+import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
 import React from 'react';
-import { GeoVisitor } from '@/entities/geography';
 
 export type MapTooltipContentProps = {
   geoVisitor?: GeoVisitor;
@@ -11,8 +11,9 @@ export type MapTooltipContentProps = {
   size: 'sm' | 'lg';
 };
 
-const MapTooltipContentComponent = ({ geoVisitor, size, className }: MapTooltipContentProps) => {
+function MapTooltipContent({ geoVisitor, size, className }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
+
   return (
     <div
       className={cn(
@@ -32,9 +33,9 @@ const MapTooltipContentComponent = ({ geoVisitor, size, className }: MapTooltipC
       </div>
     </div>
   );
-};
+}
 
-const MapTooltipContent = React.memo(MapTooltipContentComponent);
-MapTooltipContent.displayName = 'MapTooltipContent';
+const MemoizedMapTooltipContent = React.memo(MapTooltipContent);
+MemoizedMapTooltipContent.displayName = 'MapTooltipContent';
 
-export default MapTooltipContent;
+export default MemoizedMapTooltipContent;

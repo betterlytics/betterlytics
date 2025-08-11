@@ -1,5 +1,22 @@
 import { GeoVisitor } from '@/entities/geography';
 
+export const BACKGROUND_WORLD = {
+  type: 'Feature',
+  properties: {},
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [-230, -120],
+        [230, -120],
+        [230, 120],
+        [-230, 120],
+        [-230, -120],
+      ],
+    ],
+  },
+} as const;
+
 export const MOCK_WORLD_GEOVISITORS: GeoVisitor[] = [
   {
     country_code: 'BE',

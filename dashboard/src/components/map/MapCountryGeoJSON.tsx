@@ -3,10 +3,9 @@ import { GeoVisitor } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
 import React, { useCallback, useEffect, useRef } from 'react';
-import { renderToString } from 'react-dom/server';
+import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
-import { createRoot } from 'react-dom/client';
 
 interface MapCountryGeoJSONProps {
   GeoJSON: typeof GeoJSON;
@@ -24,13 +23,13 @@ const DEFAULT_OPTS = {
 const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
   feature?.id ? String(feature.id) : undefined;
 
-const MapCountryGeoJSONComponent = ({
+export default function MapCountryGeoJSON({
   GeoJSON,
   geoData,
   visitorData,
   size = 'sm',
   style,
-}: MapCountryGeoJSONProps) => {
+}: MapCountryGeoJSONProps) {
   const { setMapSelection } = useMapSelection();
 
   const ref = useRef({ setMapSelection });
@@ -47,13 +46,13 @@ const MapCountryGeoJSONComponent = ({
       if (!geoVisitor) {
         geoVisitor = { country_code, visitors: 0 };
       }
-      
+
       const popupContainer = document.createElement('div');
 
       layer.setStyle(style.originalStyle(geoVisitor.visitors));
       layer.unbindTooltip();
       layer.unbindPopup();
-      
+
       layer.bindPopup(popupContainer, {
         autoPan: true,
         autoPanPadding: [25, 10],
@@ -68,16 +67,19 @@ const MapCountryGeoJSONComponent = ({
           ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
         },
         popupopen: () => {
-          const root = createRoot(popupContainer);
-          root.render(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
-        }
+          if (!(popupContainer as any)._reactRoot) {
+            (popupContainer as any)._reactRoot = createRoot(popupContainer);
+          }
+          (popupContainer as any)._reactRoot.render(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
+
+          requestAnimationFrame(() => {
+            layer.getPopup()?.update();
+          });
+        },
       });
     },
     [size, style, visitorData],
   );
 
   return <GeoJSON key={visitorData.length} data={geoData} onEachFeature={onEachFeature} {...DEFAULT_OPTS} />;
-};
-const MapCountryGeoJSON = React.memo(MapCountryGeoJSONComponent);
-MapCountryGeoJSON.displayName = 'MapCountryGeoJSON';
-export default MapCountryGeoJSON;
+}

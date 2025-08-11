@@ -40,6 +40,12 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
 
   const isMobile = useIsMobile();
 
+  /**
+   * Updates map selection state and applies corresponding styles.
+   * - Clears selection if `null` is passed.
+   * - Clicking toggles selection; clicking the same feature again deselects it.
+   * - Hover updates only when no feature is clicked.
+   */
   const setMapSelection = useCallback(
     (next: Partial<MapFeatureSelection> | null) => {
       setCombined((prev) => {
@@ -69,6 +75,7 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
           prev?.clicked?.layer.setStyle(style.originalStyle(prev.clicked.geoVisitor.visitors));
           next.clicked?.layer.setStyle(style.selectedStyle(next.clicked.geoVisitor.visitors));
           next.clicked.layer.bringToFront();
+
           return { ...prev, ...next };
         }
 
