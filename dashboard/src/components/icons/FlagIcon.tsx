@@ -17,9 +17,9 @@ function FlagIconComponent({ countryCode, countryName = getCountryName(countryCo
         <HelpCircle
           size='1em'
           style={{
-            color: '#9ca3af',
-            height: 'fit-content',
-            width: '1em',
+            color: 'var(--foreground)',
+            height: '1em',
+            width: 'fit-content',
           }}
         />
       </span>
@@ -31,9 +31,9 @@ function FlagIconComponent({ countryCode, countryName = getCountryName(countryCo
       <FlagComponent
         {...props}
         style={{
-          border: 'var(--popover-foreground) solid 0.1px',
-          height: 'fit-content',
-          width: '1em',
+          border: 'var(--flagicon-border) solid 0.5px',
+          height: '1em',
+          aspectRatio: '3/2',
         }}
       />
     </span>

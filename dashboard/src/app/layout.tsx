@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
 import ConditionalFooter from '@/components/ConditionalFooter';
 import { generateSEO, SEO_CONFIGS, generateStructuredData } from '@/lib/seo';
+import NextTopLoader from 'nextjs-toploader';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -59,6 +60,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
         <Providers>
           <ConditionalTopBar />
           {children}

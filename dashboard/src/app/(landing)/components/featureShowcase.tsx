@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
-import Link from 'next/link';
 import AdvancedFiltersCard from './featureCards/advancedFiltersCard';
 import FunnelsCard from './featureCards/funnelsCard';
 import EventTrackingCard from './featureCards/eventTrackingCard';
 import UserJourneyCard from './featureCards/userJourneyCard';
 import WorldMapCard from './featureCards/worldMapCard';
 import TrafficSourcesCard from './featureCards/trafficSourcesCard';
+import ExternalLink from '@/components/ExternalLink';
 
 export function FeatureShowcase() {
   return (
@@ -36,9 +36,9 @@ export function FeatureShowcase() {
 
         <div className='mt-8 flex justify-center'>
           <Button variant='outline' size='lg'>
-            <a href='/docs' title='Complete Betterlytics Documentation'>
+            <ExternalLink href='/docs' title='Complete Betterlytics Documentation'>
               Explore All Features
-            </a>
+            </ExternalLink>
             <ChevronRight className='ml-2 h-4 w-4' />
           </Button>
         </div>

@@ -8,11 +8,13 @@ import { fetchRecentEventsAction, fetchTotalEventCountAction } from '@/app/actio
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 import { formatNumber } from '@/utils/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from './EventLogItem';
+import type { BADictionary } from '@/dictionaries/dictionaries';
 
 const DEFAULT_PAGE_SIZE = 25;
 const EVENTS_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
@@ -22,47 +24,53 @@ interface EventLogProps {
   pageSize?: number;
 }
 
-const EmptyState = () => (
+const EmptyState = ({ dictionary }: { dictionary: BADictionary }) => (
   <div className='flex flex-col items-center justify-center space-y-3 py-16'>
     <div className='bg-muted/50 relative flex h-12 w-12 items-center justify-center rounded-full'>
       <Clock className='text-muted-foreground h-6 w-6' />
       <div className='absolute inset-0 animate-pulse rounded-full bg-green-500/10' />
     </div>
     <div className='text-center'>
-      <p className='text-foreground text-sm font-medium'>Waiting for events...</p>
-      <p className='text-muted-foreground mt-1 text-xs'>Events will appear here in real-time as they occur</p>
+      <p className='text-foreground text-sm font-medium'>{dictionary.t('components.events.log.waiting')}</p>
+      <p className='text-muted-foreground mt-1 text-xs'>{dictionary.t('components.events.log.realTimeDesc')}</p>
     </div>
   </div>
 );
 
-const LoadingMoreIndicator = () => (
+const LoadingMoreIndicator = ({ dictionary }: { dictionary: BADictionary }) => (
   <div className='border-border/60 bg-muted/10 flex items-center justify-center border-t py-6'>
     <div className='flex items-center gap-3'>
       <Spinner size='sm' />
-      <span className='text-muted-foreground text-sm font-medium'>Loading more events...</span>
+      <span className='text-muted-foreground text-sm font-medium'>
+        {dictionary.t('components.events.log.loadingMore')}
+      </span>
     </div>
   </div>
 );
 
-const createShowingText = (allEvents: EventLogEntry[], totalCount: number): string => {
+const createShowingText = (allEvents: EventLogEntry[], totalCount: number, dictionary: BADictionary): string => {
   if (totalCount === 0) {
-    return 'No events found';
+    return dictionary.t('components.events.log.noEvents');
   }
 
   const loadedCount = allEvents.length;
   const totalFormatted = formatNumber(totalCount);
 
   if (loadedCount >= totalCount) {
-    return `Showing all ${totalFormatted} events`;
+    return dictionary.t('components.events.log.showingAll').replace('{count}', totalFormatted);
   }
 
-  return `Showing ${loadedCount.toLocaleString()} of ${totalFormatted} events`;
+  return dictionary
+    .t('components.events.log.showingPartial')
+    .replace('{loaded}', loadedCount.toLocaleString())
+    .replace('{total}', totalFormatted);
 };
 
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const dashboardId = useDashboardId();
+  const { dictionary } = useDictionary();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['recentEvents', dashboardId, startDate, endDate, pageSize, queryFilters],
@@ -116,7 +124,10 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     [isLoading, observerCallback],
   );
 
-  const currentCountText = useMemo(() => createShowingText(allEvents, totalCount), [allEvents, totalCount]);
+  const currentCountText = useMemo(
+    () => createShowingText(allEvents, totalCount, dictionary),
+    [allEvents, totalCount, dictionary],
+  );
 
   return (
     <Card className='border-border/50 relative overflow-hidden shadow-sm'>
@@ -130,8 +141,10 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               <LiveIndicator />
             </div>
             <div className='flex min-w-0 flex-col'>
-              <span className='text-lg font-semibold'>Event Log</span>
-              <span className='text-muted-foreground text-xs font-normal'>Real-time activity tracking</span>
+              <span className='text-lg font-semibold'>{dictionary.t('components.events.log.title')}</span>
+              <span className='text-muted-foreground text-xs font-normal'>
+                {dictionary.t('components.events.log.description')}
+              </span>
             </div>
             <div className='ml-2 flex flex-shrink-0 items-center gap-2'></div>
           </div>
@@ -143,10 +156,10 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           {isLoading ? (
             <div className='flex flex-col items-center justify-center space-y-3 py-16'>
               <Spinner />
-              <p className='text-muted-foreground text-sm'>Loading events...</p>
+              <p className='text-muted-foreground text-sm'>{dictionary.t('components.events.log.loading')}</p>
             </div>
           ) : allEvents.length === 0 ? (
-            <EmptyState />
+            <EmptyState dictionary={dictionary} />
           ) : (
             <>
               <div className='divide-border/60 divide-y'>
@@ -164,7 +177,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                 })}
               </div>
 
-              {isFetchingNextPage && <LoadingMoreIndicator />}
+              {isFetchingNextPage && <LoadingMoreIndicator dictionary={dictionary} />}
             </>
           )}
         </div>

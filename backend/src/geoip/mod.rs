@@ -121,11 +121,11 @@ impl GeoIpService {
         }
 
         if let Some(cached_result) = self.ip_cache.get(ip_address) {
-            debug!("GeoIP cache hit for IP: {}", ip_address);
+            debug!("GeoIP cache hit");
             return cached_result;
         }
 
-        debug!("GeoIP cache miss for IP: {}", ip_address);
+        debug!("GeoIP cache miss");
 
         self.update_reader_if_changed();
 
@@ -135,7 +135,7 @@ impl GeoIpService {
         let ip: IpAddr = match ip_address.parse() {
             Ok(ip) => ip,
             Err(e) => {
-                warn!("Failed to parse IP address '{}': {}", ip_address, e);
+                warn!("Failed to parse IP address: {}", e);
                 self.ip_cache.insert(ip_address.to_string(), None);
                 return None;
             }
@@ -147,7 +147,7 @@ impl GeoIpService {
                 .and_then(|country_data| country_data.iso_code)
                 .map(|s| s.to_string()),
             Err(e) => {
-                warn!("GeoIP lookup failed for IP {}: {}", ip_address, e);
+                warn!("GeoIP lookup failed: {}", e);
                 None
             }
         };

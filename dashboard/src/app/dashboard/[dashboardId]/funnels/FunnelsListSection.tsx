@@ -7,6 +7,7 @@ import { ArrowRightCircleIcon } from 'lucide-react';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { FunnelsEmptyState } from './FunnelsEmptyState';
 import { formatPercentage } from '@/utils/formatters';
+import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type FunnelsListSectionProps = {
   funnelsPromise: ReturnType<typeof fetchFunnelsAction>;
@@ -15,6 +16,7 @@ type FunnelsListSectionProps = {
 
 export default function FunnelsListSection({ funnelsPromise, dashboardId }: FunnelsListSectionProps) {
   const funnels = use(funnelsPromise);
+  const { dictionary } = useDictionary();
 
   if (funnels.length === 0) {
     return <FunnelsEmptyState />;
@@ -30,7 +32,7 @@ export default function FunnelsListSection({ funnelsPromise, dashboardId }: Funn
           <div className='col-span-3 flex gap-2'>
             <h1 className='text-xl font-semibold'>{funnel.name}</h1>
             <Badge className='text-muted-foreground mt-0.5 h-[1.5rem] rounded-full' variant='outline'>
-              {funnel.stepCount} steps
+              {funnel.stepCount} {dictionary.t('components.funnels.list.steps')}
             </Badge>
           </div>
           <div className='col-span-1 flex justify-end'>
@@ -43,13 +45,13 @@ export default function FunnelsListSection({ funnelsPromise, dashboardId }: Funn
           </div>
           <div className='col-span-4 row-span-4 grid gap-2 md:row-span-1 md:grid-cols-4'>
             <InlineDataDisplay
-              title={'Conversion rate'}
+              title={dictionary.t('components.funnels.list.conversionRate')}
               value={`${formatPercentage(100 * funnel.conversionRate)}`}
             />
-            <InlineDataDisplay title={'Completed'} value={funnel.visitorCount.min} />
-            <InlineDataDisplay title={'Total users'} value={funnel.visitorCount.max} />
+            <InlineDataDisplay title={dictionary.t('components.funnels.list.completed')} value={funnel.visitorCount.min} />
+            <InlineDataDisplay title={dictionary.t('components.funnels.list.totalUsers')} value={funnel.visitorCount.max} />
             <InlineDataDisplay
-              title={'Largest drop-off'}
+              title={dictionary.t('components.funnels.list.largestDropOff')}
               value={`${formatPercentage(100 * funnel.biggestDropOff.dropoffRatio)}`}
             />
           </div>

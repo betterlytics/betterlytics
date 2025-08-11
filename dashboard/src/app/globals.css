@@ -42,6 +42,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --topbar-height: calc(var(--spacing) * 14);
 }
 
 :root {
@@ -90,6 +91,8 @@
   --sidebar-accent-foreground: oklch(0.3 0 0);
   --sidebar-border: oklch(93% 0 0);
   --sidebar-ring: oklch(74% 0.118 268.64);
+
+  --flagicon-border: oklch(0.5 0 0 / 0.5);
 }
 
 .dark {
@@ -136,6 +139,8 @@
   --sidebar-accent-foreground: oklch(0.95 0.01 265);
   --sidebar-border: oklch(0.3 0.02 266);
   --sidebar-ring: oklch(50% 0.222 268.78); /* blue-800 */
+
+  --flagicon-border: oklch(0.75 0.02 265 / 0.5);
 }
 
 @layer base {
@@ -173,7 +178,8 @@
   z-index: 0 !important;
 }
 
-.text-xxs {
-  font-size: 11px;
-  line-height: var(--tw-leading, 11px);
+@media (min-width: 768px) {
+  #nprogress .bar {
+    top: var(--topbar-height) !important;
+  }
 }
