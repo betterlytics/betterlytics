@@ -10,6 +10,7 @@ import { GeoVisitor } from '@/entities/geography';
 import { LatLngBoundsExpression } from 'leaflet';
 import { getCountryName } from '@/utils/countryCodes';
 import { FlagIconProps } from './icons';
+import { useTranslations } from 'next-intl';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -52,6 +53,7 @@ const LeafletMap = ({
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
   } | null>(null);
+  const t = useTranslations('components.geography');
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
 
   useEffect(() => {
@@ -141,7 +143,7 @@ const LeafletMap = ({
           countryName={getCountryName(featureId)}
         />
         <div className='flex gap-1 text-sm text-nowrap'>
-          <div className='text-muted-foreground'>Visitors:</div>
+          <div className='text-muted-foreground'>{t('visitors')}:</div>
           <span className='text-foreground'>{visitors}</span>
         </div>
       </div>,
@@ -165,7 +167,7 @@ const LeafletMap = ({
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
           <div className='border-accent border-t-primary mb-2 h-8 w-8 animate-spin rounded-full border-4'></div>
-          <p className='text-foreground'>Loading map...</p>
+          <p className='text-foreground'>{t('loading')}</p>
         </div>
       </div>
     );
@@ -216,7 +218,7 @@ const LeafletMap = ({
         />
         {showLegend && (
           <div className='info-legend bg-card border-border absolute right-[1%] bottom-[1%] rounded-md border p-2.5 shadow'>
-            <h4 className='text-foreground mb-1.5 font-medium'>Visitors</h4>
+            <h4 className='text-foreground mb-1.5 font-medium'>{t('visitors')}</h4>
             <div className='flex items-center'>
               <span className='text-muted-foreground mr-1 text-xs'>0</span>
               <div

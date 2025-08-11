@@ -20,6 +20,7 @@ import DictionaryProvider from '@/contexts/DictionaryContextProvider';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { NextIntlClientProvider } from 'next-intl';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -53,36 +54,38 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
-        <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
-          <section>
-            <BATopbar />
-            <SidebarProvider>
-              <BASidebar dashboardId={dashboardId} />
-              <BAMobileSidebarTrigger />
-              <main className='bg-background w-full overflow-x-hidden'>
-                <ScrollReset />
-                {billingEnabled && (
-                  <Suspense fallback={null}>
-                    <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
-                  </Suspense>
-                )}
-                {isFeatureEnabled('enableAccountVerification') &&
-                  session.user?.email &&
-                  !session.user?.emailVerified && (
-                    <div className='mx-auto max-w-7xl px-4 pt-4'>
-                      <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
-                    </div>
+        <NextIntlClientProvider>
+          <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
+            <section>
+              <BATopbar />
+              <SidebarProvider>
+                <BASidebar dashboardId={dashboardId} />
+                <BAMobileSidebarTrigger />
+                <main className='bg-background w-full overflow-x-hidden'>
+                  <ScrollReset />
+                  {billingEnabled && (
+                    <Suspense fallback={null}>
+                      <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
+                    </Suspense>
                   )}
-                <div className='flex w-full justify-center'>{children}</div>
-              </main>
-              {/* Conditionally render tracking script based on server-side feature flag */}
-              {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
-              <Suspense>
-                <IntegrationManager />
-              </Suspense>
-            </SidebarProvider>
-          </section>
-        </DictionaryProvider>
+                  {isFeatureEnabled('enableAccountVerification') &&
+                    session.user?.email &&
+                    !session.user?.emailVerified && (
+                      <div className='mx-auto max-w-7xl px-4 pt-4'>
+                        <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
+                      </div>
+                    )}
+                  <div className='flex w-full justify-center'>{children}</div>
+                </main>
+                {/* Conditionally render tracking script based on server-side feature flag */}
+                {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
+                <Suspense>
+                  <IntegrationManager />
+                </Suspense>
+              </SidebarProvider>
+            </section>
+          </DictionaryProvider>
+        </NextIntlClientProvider>
       </DashboardProvider>
     </PublicEnvironmentVariablesProvider>
   );

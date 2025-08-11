@@ -1,0 +1,224 @@
+{
+  "public": {
+    "about": {
+      "aboutUs": "Om Betterlytics"
+    }
+  },
+  "dashboard": {
+    "metrics": {
+      "uniqueVisitors": "Unikke besøgende",
+      "totalPageviews": "Samlede sidevisninger",
+      "bounceRate": "Afvisningsprocent",
+      "avgVisitDuration": "Gennemsnitlig besøgstid"
+    },
+    "sections": {
+      "topPages": "Top sider",
+      "geography": "Geografi",
+      "devicesBreakdown": "Enheder opdeling",
+      "trafficSources": "Trafikkilder",
+      "customEvents": "Brugerdefinerede hændelser"
+    },
+    "tabs": {
+      "pages": "Sider",
+      "entryPages": "Indgangssider",
+      "exitPages": "Udgangssider",
+      "topCountries": "Top lande",
+      "worldMap": "Verdenskort",
+      "browsers": "Browsere",
+      "devices": "Enheder",
+      "operatingSystems": "Operativsystemer",
+      "referrers": "Henvisninger",
+      "sources": "Kilder",
+      "channels": "Kanaler",
+      "events": "Hændelser"
+    },
+    "emptyStates": {
+      "noPageData": "Ingen sidedata tilgængelig",
+      "noEntryPagesData": "Ingen indgangssidedata tilgængelig",
+      "noExitPagesData": "Ingen udgangssidedata tilgængelig",
+      "noCountryData": "Ingen landedata tilgængelig",
+      "noWorldMapData": "Ingen verdenskortdata tilgængelig",
+      "noBrowserData": "Ingen browserdata tilgængelig",
+      "noDeviceData": "Ingen enhedsdata tilgængelig",
+      "noOperatingSystemData": "Ingen operativsystemdata tilgængelig",
+      "noReferrerData": "Ingen henvisningsdata tilgængelig",
+      "noSourceData": "Ingen kildedata tilgængelig",
+      "noChannelData": "Ingen kanaldata tilgængelig",
+      "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig"
+    }
+  },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Nuværende periode",
+      "previousPeriod": "Forrige periode"
+    }
+  },
+  "misc": {
+    "loading": "Indlæser...",
+    "error": "Der opstod en fejl",
+    "app": "Applikation",
+    "created": "Oprettet",
+    "unknown": "Ukendt"
+  },
+  "languages": {
+    "da": "Dansk",
+    "en": "Engelsk"
+  },
+  "components": {
+    "devices": {
+      "tables": {
+        "topOperatingSystems": "Top operativsystemer",
+        "mostCommonOperatingSystems": "Mest anvendte operativsystemer",
+        "topBrowsers": "Top browsere",
+        "mostCommonBrowsers": "Mest anvendte browsere"
+      },
+      "charts": {
+        "deviceTypes": "Enhedstyper",
+        "visitorsByDeviceCategory": "Besøgende efter enhedskategori",
+        "deviceUsageTrend": "Enhedsanvendelsestrend",
+        "visitorTrendsByDeviceType": "Besøgendetrends efter enhedstype"
+      },
+      "trends": {
+        "noData": "Ingen trenddata tilgængelig",
+        "adjustTimeRange": "Prøv at justere tidsperioden eller filtre"
+      }
+    },
+    "campaign": {
+      "tabs": {
+        "overview": "Oversigt",
+        "utmBreakdowns": "UTM-opdeling",
+        "landingPages": "Landingssider"
+      }
+    },
+    "events": {
+      "log": {
+        "waiting": "Venter på hændelser...",
+        "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",
+        "loadingMore": "Indlæser flere hændelser...",
+        "noEvents": "Ingen hændelser fundet",
+        "showingAll": "Viser alle {count} hændelser",
+        "showingPartial": "Viser {loaded} af {total} hændelser",
+        "title": "Hændelseslog",
+        "description": "Realtids aktivitetssporing",
+        "loading": "Indlæser hændelser..."
+      },
+      "table": {
+        "eventName": "Hændelsesnavn",
+        "count": "Antal",
+        "uniqueUsers": "Unikke brugere",
+        "avgPerUser": "Gennemsnit pr. bruger",
+        "lastSeen": "Sidst set",
+        "percentage": "Procent",
+        "noEvents": "Ingen hændelser fundet",
+        "noEventsDesc": "Ingen brugerdefinerede hændelser blev sporet i denne tidsperiode. Hændelser vil vises her, når de begynder at blive registreret.",
+        "eventDetails": "Hændelsesdetaljer",
+        "uniqueEvent": "Unik hændelse",
+        "uniqueEvents": "Unikke hændelser"
+      }
+    },
+    "funnels": {
+      "list": {
+        "steps": "trin",
+        "conversionRate": "Konverteringsrate",
+        "completed": "Fuldført",
+        "totalUsers": "Totale brugere",
+        "largestDropOff": "Største frafald"
+      },
+      "create": {
+        "defaultName": "Min nye tragt",
+        "createFunnel": "Opret tragt",
+        "createFunnelLower": "Opret tragt",
+        "description": "Opret en ny tragt til dit websted.",
+        "name": "Navn",
+        "namePlaceholder": "Mit tragtnavn",
+        "strictMode": "Strikt tilstand",
+        "addStep": "Tilføj trin",
+        "livePreview": "Live forhåndsvisning (sidste 24 timer)",
+        "create": "Opret",
+        "successMessage": "Tragt oprettet!",
+        "errorMessage": "Tragtoprettelse mislykkedes!"
+      }
+    },
+    "pages": {
+      "summary": {
+        "pagesPerSession": "Sider pr. session",
+        "totalPageviews": "Samlede sidevisninger",
+        "avgTimeOnPage": "Gennemsnitlig tid på side",
+        "avgBounceRate": "Gennemsnitlig afvisningsprocent"
+      },
+      "table": {
+        "path": "Sti",
+        "filterByPath": "Filtrer efter {path}",
+        "visitors": "Besøgende",
+        "pageviews": "Sidevisninger",
+        "bounceRate": "Afvisningsprocent",
+        "avgTime": "Gennemsnitlig tid",
+        "entryRate": "Indgangsrate",
+        "exitRate": "Udgangsrate",
+        "allPages": "Alle sider",
+        "entryPages": "Indgangssider",
+        "exitPages": "Udgangssider",
+        "title": "Sideanalyse",
+        "description": "Analyser for alle sporede sider"
+      }
+    },
+    "referrers": {
+      "charts": {
+        "distribution": "Henvisningsfordeling",
+        "trafficByCategory": "Trafik efter kilde kategori",
+        "trafficTrends": "Henvisningstrafik trends",
+        "trafficBySourceOverTime": "Trafik efter kilde over tid"
+      },
+      "table": {
+        "details": "Henvisningsdetaljer",
+        "detailsDescription": "Detaljeret opdeling af trafikkilder"
+      }
+    },
+    "geography": {
+      "noData": "Ingen geografiske data tilgængelige for den valgte periode",
+      "loading": "Indlæser kort...",
+      "visitors": "Besøgende"
+    },
+    "userJourney": {
+      "steps": "Trin",
+      "topJourneys": "Top {journeys} rejser",
+      "noData": "Ingen rejsedata tilgængelig for de valgte kriterier."
+    },
+    "integration": {
+      "title": "Hjemmeside integration",
+      "description": "Tilføj sporingsskriptet til din hjemmeside for at begynde at indsamle analytiske data",
+      "fullyIntegrated": "Fuldt integreret",
+      "notFullyIntegrated": "Ikke fuldt integreret",
+      "loadingDetails": "Indlæser integrationsdetaljer...",
+      "unableToLoadSiteId": "Kan ikke indlæse site-ID",
+      "failedToCopy": "Kunne ikke kopiere",
+      "important": "Vigtigt",
+      "headSectionNote": "Tilføj dette script til {head}-sektionen af din rod-layout eller individuelle sider.",
+      "npmPackageNote": "Eller installer vores {npm} pakke {package} for nem opsætning til Node-projekter.",
+      "yourSiteId": "Dit site-ID",
+      "trackingScript": "Sporingsskript",
+      "copied": "Kopieret",
+      "copy": "Kopier",
+      "htmlInstallation": "HTML installation",
+      "nextjsInstallation": "Next.js installation",
+      "reactInstallation": "React installation",
+      "initializeNpmPackage": "Initialiser ved hjælp af vores {npm} pakke",
+      "integrationStatus": "Integrationsstatus",
+      "trackProgress": "Spor dit fremskridt",
+      "accountCreated": "Konto oprettet",
+      "accountReady": "Din konto er klar",
+      "siteIdGenerated": "Site-ID genereret",
+      "uniqueIdentifier": "Din unikke identifikator",
+      "dataReceiving": "Datamodtagelse",
+      "analyticsDataFlowing": "Analytiske data flyder",
+      "needHelp": "Brug for hjælp?",
+      "resourcesToGetStarted": "Ressourcer til at komme i gang",
+      "documentation": "Dokumentation",
+      "troubleshooting": "Problemløsning",
+      "contactSupport": "Kontakt support",
+      "verifying": "Verificerer...",
+      "verifyInstallation": "Verificer installation"
+    }
+  }
+}
