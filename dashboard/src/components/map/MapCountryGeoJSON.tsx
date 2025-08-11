@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { renderToString } from 'react-dom/server';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
+import { createRoot } from 'react-dom/client';
 
 interface MapCountryGeoJSONProps {
   GeoJSON: typeof GeoJSON;
@@ -46,14 +47,14 @@ const MapCountryGeoJSONComponent = ({
       if (!geoVisitor) {
         geoVisitor = { country_code, visitors: 0 };
       }
+      
+      const popupContainer = document.createElement('div');
 
       layer.setStyle(style.originalStyle(geoVisitor.visitors));
       layer.unbindTooltip();
       layer.unbindPopup();
-
-      const popupHtml = renderToString(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
-
-      layer.bindPopup(popupHtml, {
+      
+      layer.bindPopup(popupContainer, {
         autoPan: true,
         autoPanPadding: [25, 10],
         closeButton: false,
@@ -66,6 +67,10 @@ const MapCountryGeoJSONComponent = ({
         click: () => {
           ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
         },
+        popupopen: () => {
+          const root = createRoot(popupContainer);
+          root.render(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
+        }
       });
     },
     [size, style, visitorData],
