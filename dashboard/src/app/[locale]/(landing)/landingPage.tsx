@@ -1,4 +1,4 @@
-import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import { SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { HeroSection } from './components/heroSection';
 import { FrameworkCompatibility } from './components/frameworkCompatibility';
@@ -7,11 +7,6 @@ import { FeatureShowcase } from './components/featureShowcase';
 import { IntegrationSection } from './components/integrationSection';
 import { PricingSection } from './components/pricingSection';
 import { OpenSourceCallout } from './components/openSourceCallout';
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  return generateSEO(SEO_CONFIGS.landing, { locale });
-}
 
 export default function LandingPage() {
   return (
