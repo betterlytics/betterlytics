@@ -21,7 +21,6 @@ import { VerificationBanner } from '@/components/accountVerification/Verificatio
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -51,13 +50,11 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   }
 
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
-  const locale = await getLocale();
-  const messages = await getMessages();
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider>
           <DictionaryProvider dictionary={dictionary} initialLanguage={language}>
             <section>
               <BATopbar />
