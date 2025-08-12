@@ -6,10 +6,11 @@ import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import { GeoVisitor } from '@/entities/geography';
-import { useLeafletStyle } from '@/hooks/use-leaflet-style';
+import { useMapStyle } from '@/hooks/use-leaflet-style';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
+import { Spinner } from '../ui/spinner';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -37,7 +38,7 @@ export default function LeafletMap({
   const [isPending, startTransition] = useTransition();
 
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
-  const style = useLeafletStyle({ calculatedMaxVisitors });
+  const style = useMapStyle({ calculatedMaxVisitors });
 
   useEffect(() => {
     startTransition(() => {
@@ -75,8 +76,8 @@ export default function LeafletMap({
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
-          <div className='border-accent border-t-primary mb-2 h-8 w-8 animate-spin rounded-full border-4'></div>
-          <p className='text-foreground'>Loading map...</p>
+          <Spinner size='lg' />
+          <p className='text-muted-foreground mt-2'>Loading map...</p>
         </div>
       </div>
     );

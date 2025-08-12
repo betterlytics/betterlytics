@@ -93,6 +93,9 @@
   --sidebar-ring: oklch(74% 0.118 268.64);
 
   --flagicon-border: oklch(0.5 0 0 / 0.5);
+
+  --map-feature-border-hovered: oklch(0.6 0.18 130); /* Green */
+  --map-feature-border-clicked: oklch(0.6 0.18 40); /* Orange */
 }
 
 .dark {
@@ -141,6 +144,9 @@
   --sidebar-ring: oklch(50% 0.222 268.78); /* blue-800 */
 
   --flagicon-border: oklch(0.75 0.02 265 / 0.5);
+
+  --map-feature-border-hovered: oklch(0.7 0.2 130); /* Green */
+  --map-feature-border-clicked: oklch(0.7 0.25 40); /* Orange */
 }
 
 @layer base {

@@ -19,7 +19,7 @@ export interface MapStyle {
   LeafletCSS: JSX.Element;
 }
 
-export function useLeafletStyle({ calculatedMaxVisitors }: UseMapStyleProps): MapStyle {
+export function useMapStyle({ calculatedMaxVisitors }: UseMapStyleProps): MapStyle {
   const colorScale = useMemo(() => {
     return scaleLinear<string>()
       .domain([0, 1, calculatedMaxVisitors])
@@ -40,7 +40,7 @@ export function useLeafletStyle({ calculatedMaxVisitors }: UseMapStyleProps): Ma
     (visitors: number) => ({
       fillColor: colorScale(visitors),
       color: featureBorderColorScale(visitors),
-      weight: visitors ? 1.5 : 1,
+      weight: visitors ? 1.5 : 1.4,
       fillOpacity: 0.8,
       opacity: 1,
     }),
@@ -50,7 +50,7 @@ export function useLeafletStyle({ calculatedMaxVisitors }: UseMapStyleProps): Ma
   const selectedStyle = useCallback(
     (visitors: number) => ({
       ...originalStyle(visitors),
-      color: MAP_FEATURE_BORDER_COLORS.SELECTED,
+      color: MAP_FEATURE_BORDER_COLORS.CLICKED,
       weight: 2,
       fillOpacity: 1,
     }),
@@ -94,6 +94,7 @@ export function useLeafletStyle({ calculatedMaxVisitors }: UseMapStyleProps): Ma
             padding: 0;
           }
           .leaflet-popup {
+            z-index: 11;
             pointer-events: none;
           }
         `}
