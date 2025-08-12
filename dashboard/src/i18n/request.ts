@@ -1,15 +1,13 @@
 import { getUserSettingsAction } from '@/app/actions/userSettings';
 import { DEFAULT_LANGUAGE, getEffectiveLanguage } from '@/dictionaries/dictionaries';
 import { getRequestConfig } from 'next-intl/server';
-import { headers } from 'next/headers';
 
-export default getRequestConfig(async () => {
+export default getRequestConfig(async ({ requestLocale }) => {
   const result = await getUserSettingsAction();
 
-  console.log(result);
-  const language = result.success ? result.data.language : DEFAULT_LANGUAGE;
-  const effectiveLanguage = getEffectiveLanguage(language);
-  const locale = (await headers()).get('x-locale') ?? effectiveLanguage;
+  const preferredLanguage = result.success ? result.data.language : DEFAULT_LANGUAGE;
+  const effectiveLanguage = getEffectiveLanguage(preferredLanguage);
+  const locale = (await requestLocale) ?? effectiveLanguage;
 
   return {
     locale,

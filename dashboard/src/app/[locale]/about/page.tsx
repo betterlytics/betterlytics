@@ -4,19 +4,13 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import Link from 'next/link';
 import ExternalLink from '@/components/ExternalLink';
-import { getMessages, getTranslations } from 'next-intl/server';
-import type { Locale } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 export const metadata = generateSEO(SEO_CONFIGS.about);
 
-interface AboutPageProps {
-  params: Promise<{ locale: string }>;
-}
-
-export default async function AboutPage({ params }: AboutPageProps) {
-  const { locale } = await params;
+export default async function AboutPage() {
   const dict = await getMessages();
-  console.log(locale, "dict is : ", dict.public.about.aboutUs);
+
   return (
     <>
       <StructuredData config={SEO_CONFIGS.about} />
