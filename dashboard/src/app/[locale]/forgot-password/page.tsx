@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth';
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export default async function ForgotPasswordPage() {
   const session = await getServerSession(authOptions);

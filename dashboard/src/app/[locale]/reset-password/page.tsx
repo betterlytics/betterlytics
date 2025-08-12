@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { validateResetTokenAction } from '@/app/actions/passwordReset';
 
 interface ResetPasswordPageProps {

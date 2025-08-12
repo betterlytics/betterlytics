@@ -2,7 +2,7 @@ import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { Button } from '@/components/ui/button';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import ExternalLink from '@/components/ExternalLink';
 import { getMessages } from 'next-intl/server';
 

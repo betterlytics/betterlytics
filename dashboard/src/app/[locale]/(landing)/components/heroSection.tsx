@@ -2,7 +2,7 @@ import { ChevronRight, Github, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GitHubStats } from './githubStats';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export function HeroSection() {
   return (

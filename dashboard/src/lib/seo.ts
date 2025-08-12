@@ -17,6 +17,12 @@ export function generateSEO({ title, description, keywords, path, imageAlt }: SE
   const fullUrl = `${BASE_URL}${path}`;
   const imageAltText = imageAlt || `${fullTitle} - Simple, Cookieless, Privacy-First Web Analytics`;
 
+  const languages: Record<string, string> = {
+    en: path,
+    da: path === '/' ? '/da' : `/da${path}`,
+    'x-default': path,
+  };
+
   return {
     title: fullTitle,
     description,
@@ -32,6 +38,7 @@ export function generateSEO({ title, description, keywords, path, imageAlt }: SE
     metadataBase: new URL(BASE_URL),
     alternates: {
       canonical: fullUrl,
+      languages,
     },
     openGraph: {
       type: 'website',

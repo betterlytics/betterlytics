@@ -5,7 +5,6 @@ import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
-import ConditionalFooter from '@/components/ConditionalFooter';
 import { generateSEO, SEO_CONFIGS, generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
@@ -67,7 +66,6 @@ export default async function RootLayout({
         <Providers>
           <ConditionalTopBar />
           {children}
-          <ConditionalFooter />
         </Providers>
         <Toaster />
       </body>
