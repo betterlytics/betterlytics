@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { routing } from '@/i18n/routing';
 
 interface SEOConfig {
   title: string;
@@ -12,16 +13,25 @@ interface SEOConfig {
 const BASE_URL = 'https://betterlytics.io';
 const DEFAULT_IMAGE = '/betterlytics-logo-full-light.png';
 
-export function generateSEO({ title, description, keywords, path, imageAlt }: SEOConfig): Metadata {
+export function generateSEO(
+  { title, description, keywords, path, imageAlt }: SEOConfig,
+  options?: { locale?: string },
+): Metadata {
   const fullTitle = title.includes('Betterlytics') ? title : `${title} - Betterlytics`;
-  const fullUrl = `${BASE_URL}${path}`;
+  const defaultLocale = routing.defaultLocale;
+  const currentLocale = options?.locale ?? defaultLocale;
+  const localizedPath =
+    currentLocale === defaultLocale ? path : path === '/' ? `/${currentLocale}` : `/${currentLocale}${path}`;
+  const fullUrl = `${BASE_URL}${localizedPath}`;
   const imageAltText = imageAlt || `${fullTitle} - Simple, Cookieless, Privacy-First Web Analytics`;
 
-  const languages: Record<string, string> = {
-    en: path,
-    da: path === '/' ? '/da' : `/da${path}`,
-    'x-default': path,
-  };
+  const languages: Record<string, string> = routing.locales.reduce((acc: Record<string, string>, locale) => {
+    acc[locale] = locale === defaultLocale ? path : path === '/' ? `/${locale}` : `/${locale}${path}`;
+    return acc;
+  }, {});
+
+  // x-default helps Google pick a default when the user's language is unknown
+  languages['x-default'] = path;
 
   return {
     title: fullTitle,

@@ -3,7 +3,10 @@ import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 
-export const metadata = generateSEO(SEO_CONFIGS.terms);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return generateSEO(SEO_CONFIGS.terms, { locale });
+}
 
 export default function TermsPage() {
   if (!env.IS_CLOUD) {

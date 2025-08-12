@@ -8,7 +8,10 @@ import { IntegrationSection } from './components/integrationSection';
 import { PricingSection } from './components/pricingSection';
 import { OpenSourceCallout } from './components/openSourceCallout';
 
-export const metadata = generateSEO(SEO_CONFIGS.landing);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return generateSEO(SEO_CONFIGS.landing, { locale });
+}
 
 export default function LandingPage() {
   return (

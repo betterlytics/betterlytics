@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { Footer } from '@/components/footer/Footer';
+import PublicTopBar from '@/components/topbar/PublicTopBar';
 
 export default async function LocaleLayout({
   children,
@@ -13,6 +14,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <PublicTopBar />
       {children}
       <Footer />
     </NextIntlClientProvider>

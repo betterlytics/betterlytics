@@ -4,8 +4,7 @@ import './globals.css';
 import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
-import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
-import { generateSEO, SEO_CONFIGS, generateStructuredData } from '@/lib/seo';
+import { generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 
@@ -18,8 +17,6 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
-
-export const metadata = generateSEO(SEO_CONFIGS.landing);
 
 const organizationStructuredData = generateStructuredData('organization', {
   title: 'Betterlytics',
@@ -63,10 +60,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
-        <Providers>
-          <ConditionalTopBar />
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>

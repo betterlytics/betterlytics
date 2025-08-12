@@ -5,7 +5,10 @@ import { Mail } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
 import ExternalLink from '@/components/ExternalLink';
 
-export const metadata = generateSEO(SEO_CONFIGS.contact);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return generateSEO(SEO_CONFIGS.contact, { locale });
+}
 
 export default function ContactPage() {
   return (

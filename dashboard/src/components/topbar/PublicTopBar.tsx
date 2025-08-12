@@ -2,8 +2,8 @@
 
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { useBARouter } from '@/hooks/use-ba-router';
+import { Link } from '@/i18n/navigation';
+import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
@@ -12,12 +12,8 @@ import ExternalLink from '@/components/ExternalLink';
 
 export default function PublicTopBar() {
   const { data: session, status } = useSession();
-  const router = useBARouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const handleSignIn = () => {
-    router.push('/signin');
-  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -60,12 +56,12 @@ export default function PublicTopBar() {
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
               ) : session ? (
-                <Link href='/dashboards'>
+                <NextLink href='/dashboards'>
                   <Button variant='default'>Go to Dashboard</Button>
-                </Link>
+                </NextLink>
               ) : !isOnSignInPage ? (
                 <Link href='/signin'>
-                  <Button onClick={handleSignIn}>Get Started</Button>
+                  <Button>Get Started</Button>
                 </Link>
               ) : null}
             </div>
@@ -84,7 +80,7 @@ export default function PublicTopBar() {
           <div className='border-t md:hidden'>
             <nav className='space-y-3 py-4'>
               <Link
-                href='#pricing'
+                href='/#pricing'
                 onClick={closeMobileMenu}
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
               >
@@ -101,16 +97,14 @@ export default function PublicTopBar() {
 
               <div className='border-t pt-3'>
                 {session ? (
-                  <Link href='/dashboards' onClick={closeMobileMenu}>
+                  <Link href='/dashboards' onClick={closeMobileMenu} locale={'false' as unknown as any}>
                     <Button variant='default' className='w-full'>
                       Go to Dashboard
                     </Button>
                   </Link>
                 ) : !isOnSignInPage ? (
                   <Link href='/signin' onClick={closeMobileMenu}>
-                    <Button onClick={handleSignIn} className='w-full'>
-                      Get Started
-                    </Button>
+                    <Button className='w-full'>Get Started</Button>
                   </Link>
                 ) : null}
               </div>

@@ -2,7 +2,10 @@ import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 
-export const metadata = generateSEO(SEO_CONFIGS.dpa);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return generateSEO(SEO_CONFIGS.dpa, { locale });
+}
 
 export default function DPAPage() {
   if (!env.IS_CLOUD) {
