@@ -11,6 +11,7 @@ declare module 'next-auth' {
       image?: string | null;
       role: string | null;
       totpEnabled: boolean;
+      hasPassword?: boolean;
     };
   }
 
@@ -22,6 +23,7 @@ declare module 'next-auth' {
     image?: string | null;
     role: string | null;
     totpEnabled: boolean;
+    hasPassword?: boolean;
   }
 }
 
@@ -33,5 +35,6 @@ declare module 'next-auth/jwt' {
     emailVerified?: Date | null;
     role: string | null;
     totpEnabled: boolean;
+    hasPassword?: boolean;
   }
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useSession } from 'next-auth/react';
 import { Lock, Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { ChangePasswordData, ChangePasswordSchema } from '@/entities/password';
 import { changePasswordAction } from '@/app/actions/userSettings';
@@ -80,6 +81,8 @@ function PasswordField({
 
 export default function UserSecuritySettings() {
   const [isPending, startTransition] = useTransition();
+  const { data: session } = useSession();
+  const hasPassword = Boolean(session?.user?.hasPassword);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
@@ -160,7 +163,7 @@ export default function UserSecuritySettings() {
             showPassword={showPasswords.current}
             onToggleVisibility={() => togglePasswordVisibility('current')}
             error={errors.currentPassword}
-            disabled={isPending}
+            disabled={isPending || !hasPassword}
             tabIndex={1}
             autoComplete='current-password'
           />
@@ -173,7 +176,7 @@ export default function UserSecuritySettings() {
             showPassword={showPasswords.new}
             onToggleVisibility={() => togglePasswordVisibility('new')}
             error={errors.newPassword}
-            disabled={isPending}
+            disabled={isPending || !hasPassword}
             tabIndex={2}
             autoComplete='new-password'
             helpText='Password must be at least 8 characters long'
@@ -187,7 +190,7 @@ export default function UserSecuritySettings() {
             showPassword={showPasswords.confirm}
             onToggleVisibility={() => togglePasswordVisibility('confirm')}
             error={errors.confirmPassword}
-            disabled={isPending}
+            disabled={isPending || !hasPassword}
             tabIndex={3}
             autoComplete='new-password'
           />
@@ -199,9 +202,14 @@ export default function UserSecuritySettings() {
             </div>
           )}
 
-          <Button type='submit' disabled={isPending || !isFormFilled} className='w-full sm:w-auto' tabIndex={4}>
+          <Button
+            type='submit'
+            disabled={isPending || !isFormFilled || !hasPassword}
+            className='w-full sm:w-auto'
+            tabIndex={4}
+          >
             {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            Change Password
+            {hasPassword ? 'Change Password' : 'Password managed by OAuth'}
           </Button>
         </form>
       </SettingsCard>
