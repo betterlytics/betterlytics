@@ -34,6 +34,7 @@ export default function LeafletMap({
     L: typeof import('leaflet');
     MapContainer: typeof import('react-leaflet').MapContainer;
     GeoJSON: typeof import('react-leaflet').GeoJSON;
+    Polygon: typeof import('react-leaflet').Polygon;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -56,6 +57,7 @@ export default function LeafletMap({
             L: leafletModule.default,
             MapContainer: reactLeafletModule.MapContainer,
             GeoJSON: reactLeafletModule.GeoJSON,
+            Polygon: reactLeafletModule.Polygon,
           });
           setWorldGeoJson(world);
         } catch (err) {
@@ -83,7 +85,7 @@ export default function LeafletMap({
     );
   }
 
-  const { MapContainer, GeoJSON } = mapComponents;
+  const { MapContainer, GeoJSON, Polygon } = mapComponents;
 
   return (
     <div style={{ height: '100%', width: '100%' }}>
@@ -100,7 +102,7 @@ export default function LeafletMap({
         attributionControl={false}
       >
         <MapSelectionContextProvider style={style}>
-          <MapBackgroundLayer GeoJSON={GeoJSON} />
+          <MapBackgroundLayer Polygon={Polygon} />
           <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
           <MapStickyTooltip size={size} />
           {showLegend && <MapLegend maxVisitors={maxVisitors} />}
