@@ -1,5 +1,5 @@
 import Logo from '@/components/logo';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
 import ExternalLink from '@/components/ExternalLink';
 
@@ -69,7 +69,7 @@ export function Footer() {
             <h3 className='mb-4 font-semibold'>Connect</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
               <li>
-                <Link
+                <ExternalLink
                   href='https://github.com/betterlytics/betterlytics'
                   className='hover:text-foreground flex items-center transition-colors'
                   target='_blank'
@@ -77,10 +77,10 @@ export function Footer() {
                 >
                   <GitHubIcon className='mr-2 h-4 w-4' />
                   GitHub
-                </Link>
+                </ExternalLink>
               </li>
               <li>
-                <Link
+                <ExternalLink
                   href='https://bsky.app/profile/betterlytics.bsky.social'
                   className='hover:text-foreground flex items-center transition-colors'
                   target='_blank'
@@ -88,10 +88,10 @@ export function Footer() {
                 >
                   <BlueskyIcon className='mr-2 h-4 w-4' />
                   Bluesky
-                </Link>
+                </ExternalLink>
               </li>
               <li>
-                <Link
+                <ExternalLink
                   href='https://discord.com/invite/vwqSvPn6sP'
                   className='hover:text-foreground flex items-center transition-colors'
                   target='_blank'
@@ -99,7 +99,7 @@ export function Footer() {
                 >
                   <DiscordIcon className='mr-2 h-4 w-4' />
                   Discord
-                </Link>
+                </ExternalLink>
               </li>
             </ul>
           </div>

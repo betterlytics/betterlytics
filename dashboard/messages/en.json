@@ -1,0 +1,224 @@
+{
+  "public": {
+    "about": {
+      "aboutUs": "About Betterlytics"
+    }
+  },
+  "dashboard": {
+    "metrics": {
+      "uniqueVisitors": "Unique Visitors",
+      "totalPageviews": "Total Pageviews",
+      "bounceRate": "Bounce Rate",
+      "avgVisitDuration": "Avg. Visit Duration"
+    },
+    "sections": {
+      "topPages": "Top Pages",
+      "geography": "Geography",
+      "devicesBreakdown": "Devices Breakdown",
+      "trafficSources": "Traffic Sources",
+      "customEvents": "Custom Events"
+    },
+    "tabs": {
+      "pages": "Pages",
+      "entryPages": "Entry Pages",
+      "exitPages": "Exit Pages",
+      "topCountries": "Top Countries",
+      "worldMap": "World Map",
+      "browsers": "Browsers",
+      "devices": "Devices",
+      "operatingSystems": "Operating Systems",
+      "referrers": "Referrers",
+      "sources": "Sources",
+      "channels": "Channels",
+      "events": "Events"
+    },
+    "emptyStates": {
+      "noPageData": "No page data available",
+      "noEntryPagesData": "No entry pages data available",
+      "noExitPagesData": "No exit pages data available",
+      "noCountryData": "No country data available",
+      "noWorldMapData": "No world map data available",
+      "noBrowserData": "No browser data available",
+      "noDeviceData": "No device data available",
+      "noOperatingSystemData": "No operating system data available",
+      "noReferrerData": "No referrer data available",
+      "noSourceData": "No source data available",
+      "noChannelData": "No channel data available",
+      "noCustomEventsData": "No custom events data available"
+    }
+  },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Current Period",
+      "previousPeriod": "Previous Period"
+    }
+  },
+  "misc": {
+    "loading": "Loading...",
+    "error": "Error",
+    "app": "Application",
+    "created": "Created",
+    "unknown": "Unknown"
+  },
+  "languages": {
+    "da": "Danish",
+    "en": "English"
+  },
+  "components": {
+    "devices": {
+      "tables": {
+        "topOperatingSystems": "Top Operating Systems",
+        "mostCommonOperatingSystems": "Most common operating systems",
+        "topBrowsers": "Top Browsers",
+        "mostCommonBrowsers": "Most common browsers"
+      },
+      "charts": {
+        "deviceTypes": "Device Types",
+        "visitorsByDeviceCategory": "Visitors by device category",
+        "deviceUsageTrend": "Device Usage Trend",
+        "visitorTrendsByDeviceType": "Visitor trends by device type"
+      },
+      "trends": {
+        "noData": "No trend data available",
+        "adjustTimeRange": "Try adjusting the time range or filters"
+      }
+    },
+    "campaign": {
+      "tabs": {
+        "overview": "Overview",
+        "utmBreakdowns": "UTM Breakdowns",
+        "landingPages": "Landing Pages"
+      }
+    },
+    "events": {
+      "log": {
+        "waiting": "Waiting for events...",
+        "realTimeDesc": "Events will appear here in real-time as they occur",
+        "loadingMore": "Loading more events...",
+        "noEvents": "No events found",
+        "showingAll": "Showing all {count} events",
+        "showingPartial": "Showing {loaded} of {total} events",
+        "title": "Event Log",
+        "description": "Real-time activity tracking",
+        "loading": "Loading events..."
+      },
+      "table": {
+        "eventName": "Event Name",
+        "count": "Count",
+        "uniqueUsers": "Unique Users",
+        "avgPerUser": "Avg per User",
+        "lastSeen": "Last Seen",
+        "percentage": "Percentage",
+        "noEvents": "No events found",
+        "noEventsDesc": "No custom events were tracked during this time period. Events will appear here once they start being recorded.",
+        "eventDetails": "Event Details",
+        "uniqueEvent": "Unique Event",
+        "uniqueEvents": "Unique Events"
+      }
+    },
+    "funnels": {
+      "list": {
+        "steps": "steps",
+        "conversionRate": "Conversion rate",
+        "completed": "Completed",
+        "totalUsers": "Total users",
+        "largestDropOff": "Largest drop-off"
+      },
+      "create": {
+        "defaultName": "My new funnel",
+        "createFunnel": "Create Funnel",
+        "createFunnelLower": "Create funnel",
+        "description": "Create a new funnel for your website.",
+        "name": "Name",
+        "namePlaceholder": "My Funnel Name",
+        "strictMode": "Strict Mode",
+        "addStep": "Add Step",
+        "livePreview": "Live Preview (Past 24 Hours)",
+        "create": "Create",
+        "successMessage": "Funnel created!",
+        "errorMessage": "Funnel creation failed!"
+      }
+    },
+    "pages": {
+      "summary": {
+        "pagesPerSession": "Pages per Session",
+        "totalPageviews": "Total Pageviews",
+        "avgTimeOnPage": "Avg. Time on Page",
+        "avgBounceRate": "Avg. Bounce Rate"
+      },
+      "table": {
+        "path": "Path",
+        "filterByPath": "Filter by {path}",
+        "visitors": "Visitors",
+        "pageviews": "Pageviews",
+        "bounceRate": "Bounce Rate",
+        "avgTime": "Avg. Time",
+        "entryRate": "Entry Rate",
+        "exitRate": "Exit Rate",
+        "allPages": "All Pages",
+        "entryPages": "Entry Pages",
+        "exitPages": "Exit Pages",
+        "title": "Page Analytics",
+        "description": "Analytics for all tracked pages"
+      }
+    },
+    "referrers": {
+      "charts": {
+        "distribution": "Referrer Distribution",
+        "trafficByCategory": "Traffic sources by category",
+        "trafficTrends": "Referral Traffic Trends",
+        "trafficBySourceOverTime": "Traffic by source over time"
+      },
+      "table": {
+        "details": "Referrer Details",
+        "detailsDescription": "Detailed breakdown of traffic sources"
+      }
+    },
+    "geography": {
+      "noData": "No geographic data available for the selected period",
+      "loading": "Loading map...",
+      "visitors": "Visitors"
+    },
+    "userJourney": {
+      "steps": "Steps",
+      "topJourneys": "Top {journeys} Journeys",
+      "noData": "No journey data available for the selected criteria."
+    },
+    "integration": {
+      "title": "Website Integration",
+      "description": "Add the tracking script to your website to start collecting analytics data",
+      "fullyIntegrated": "Fully Integrated",
+      "notFullyIntegrated": "Not Fully Integrated",
+      "loadingDetails": "Loading integration details...",
+      "unableToLoadSiteId": "Unable to load site ID",
+      "failedToCopy": "Failed to copy",
+      "important": "Important",
+      "headSectionNote": "Add this script to the {head} section of your root layout or individual pages.",
+      "npmPackageNote": "Or install our {npm} package {package} for easy setup for Node projects.",
+      "yourSiteId": "Your Site ID",
+      "trackingScript": "Tracking Script",
+      "copied": "Copied",
+      "copy": "Copy",
+      "htmlInstallation": "HTML Installation",
+      "nextjsInstallation": "Next.js Installation",
+      "reactInstallation": "React Installation",
+      "initializeNpmPackage": "Initialize using our {npm} package",
+      "integrationStatus": "Integration Status",
+      "trackProgress": "Track your progress",
+      "accountCreated": "Account Created",
+      "accountReady": "Your account is ready",
+      "siteIdGenerated": "Site ID Generated",
+      "uniqueIdentifier": "Your unique identifier",
+      "dataReceiving": "Data Receiving",
+      "analyticsDataFlowing": "Analytics data flowing",
+      "needHelp": "Need Help?",
+      "resourcesToGetStarted": "Resources to get started",
+      "documentation": "Documentation",
+      "troubleshooting": "Troubleshooting",
+      "contactSupport": "Contact Support",
+      "verifying": "Verifying...",
+      "verifyInstallation": "Verify Installation"
+    }
+  }
+}

@@ -2,7 +2,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { verifyEmailAction } from '@/app/actions/verification';
 import Logo from '@/components/logo';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import NextLink from 'next/link';
 import { Button } from '@/components/ui/button';
 import { XCircle, AlertCircle } from 'lucide-react';
 import { VerificationRedirectHandler } from '@/components/accountVerification/VerificationRedirectHandler';
@@ -75,11 +76,11 @@ export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageP
           </div>
           <div className='mt-6 space-y-3'>
             {session ? (
-              <Link href='/dashboards'>
+              <NextLink href='/dashboards'>
                 <Button variant='outline' className='w-full'>
                   Return to Dashboard
                 </Button>
-              </Link>
+              </NextLink>
             ) : (
               <Link href='/signin'>
                 <Button variant='outline' className='w-full'>

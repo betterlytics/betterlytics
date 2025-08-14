@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth';
 import LoginForm from '@/components/auth/LoginForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
 

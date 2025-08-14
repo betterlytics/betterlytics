@@ -2,7 +2,10 @@ import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 
-export const metadata = generateSEO(SEO_CONFIGS.privacy);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return generateSEO(SEO_CONFIGS.privacy, { locale });
+}
 
 export default function PrivacyPage() {
   if (!env.IS_CLOUD) {

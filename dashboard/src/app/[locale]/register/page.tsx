@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import RegisterForm from '@/app/register/RegisterForm';
+import RegisterForm from '@/app/[locale]/register/RegisterForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export default async function RegisterPage() {

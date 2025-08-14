@@ -2,18 +2,24 @@ import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { Button } from '@/components/ui/button';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import ExternalLink from '@/components/ExternalLink';
+import { getMessages } from 'next-intl/server';
 
-export const metadata = generateSEO(SEO_CONFIGS.about);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return generateSEO(SEO_CONFIGS.about, { locale });
+}
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const dict = await getMessages();
+
   return (
     <>
       <StructuredData config={SEO_CONFIGS.about} />
       <div className='container mx-auto max-w-4xl px-4 py-32'>
         <div className='mb-12 text-center'>
-          <h1 className='mb-6 text-4xl font-bold tracking-tight'>About Betterlytics</h1>
+          <h1 className='mb-6 text-4xl font-bold tracking-tight'>{dict.public.about.aboutUs}</h1>
           <p className='text-muted-foreground mx-auto max-w-3xl text-xl leading-relaxed'>
             We're building the future of web analytics: privacy-first, open source, and designed for the modern
             web. No more choosing between powerful insights and respecting your visitors' privacy.
