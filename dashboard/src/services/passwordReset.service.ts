@@ -1,7 +1,7 @@
 'server-only';
 
 import { ForgotPasswordData, ResetPasswordData } from '@/entities/passwordReset';
-import { findUserByEmail, updateUserPassword } from '@/repositories/postgres/user';
+import { findUserByEmail, findUserById, updateUserPassword } from '@/repositories/postgres/user';
 import {
   createPasswordResetToken,
   findPasswordResetToken,
@@ -30,6 +30,11 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
 
     // Always return true for security (we don't want to reveal if email exists)
     if (!user) {
+      return true;
+    }
+
+    // Block reset for OAuth-only accounts (no local password set)
+    if (!user.passwordHash) {
       return true;
     }
 
@@ -72,6 +77,11 @@ export async function resetPassword(resetPasswordData: ResetPasswordData) {
       throw new Error('Reset token has expired');
     }
 
+    // Ensure user currently has a password (blocks OAuth-only users)
+    const targetUser = await findUserById(resetToken.userId);
+    if (!targetUser?.passwordHash) {
+      throw new Error('Password reset is not available for OAuth accounts');
+    }
     await updateUserPassword(resetToken.userId, resetPasswordData.newPassword);
 
     await deleteUserPasswordResetTokens(resetToken.userId);

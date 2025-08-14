@@ -11,7 +11,7 @@ export const UserSchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
   email: z.string().email(),
-  passwordHash: z.string().optional(),
+  passwordHash: z.string().nullable().optional(),
   role: z.enum(['admin', 'user']).nullable(),
   emailVerified: z.date().nullable().optional(),
   image: z.string().nullable().optional(),
