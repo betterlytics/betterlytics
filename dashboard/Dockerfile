@@ -28,8 +28,6 @@ RUN pnpm prisma generate
 
 COPY . .
 
-RUN rm -rf .next
-
 RUN pnpm run build
 
 # --------------------------
