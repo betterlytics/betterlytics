@@ -79,6 +79,28 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.type === 'oauth' && user?.id && user?.email) {
+        let emailIsVerified = false;
+
+        if (account.provider === 'google') {
+          const p = (profile ?? {}) as Record<string, unknown>;
+          emailIsVerified = p?.email_verified === true;
+        }
+
+        if (emailIsVerified) {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { emailVerified: new Date() },
+            });
+          } catch (e) {
+            console.error('Failed to mark OAuth email as verified:', e);
+          }
+        }
+      }
+      return true;
+    },
     async jwt({ token, user, trigger }) {
       if (user) {
         token.uid = user.id;
