@@ -12,7 +12,7 @@ RUN apt-get update -y && apt-get install -y openssl
 
 # --------------------------
 
-FROM base as builder
+FROM base AS builder
 
 WORKDIR /app
 
@@ -32,7 +32,7 @@ RUN pnpm run build
 
 # --------------------------
 
-FROM base as runner
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -48,4 +48,4 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-CMD node server.js
+CMD [ "node", "server.js" ]
