@@ -45,6 +45,7 @@ interface EventRowWithExpansion extends TableEventRow {
 
 export function EventsTable({ data }: EventsTableProps) {
   const t = useTranslations('components.events.table');
+
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const [expandedRows, setExpandedRows] = useState<ExpandedRowState>({});

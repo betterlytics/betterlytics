@@ -1,6 +1,5 @@
-// src/global.d.ts
-import messages from '@/messages/en.json';
-import type { SupportedLanguages } from './constants/supportedLanguages';
+import messages from '../../messages/en.json';
+import type { SupportedLanguages } from '../constants/supportedLanguages';
 
 declare module 'next-intl' {
   interface AppConfig {
