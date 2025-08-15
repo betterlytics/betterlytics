@@ -5,11 +5,11 @@ import type { Polygon } from 'react-leaflet';
 import { useMap } from 'react-leaflet/hooks';
 
 const BG_COORDINATES = [
-  [-230, -120],
-  [230, -120],
-  [230, 120],
-  [-230, 120],
-  [-230, -120],
+  [-500, -300],
+  [500, -300],
+  [500, 300],
+  [-500, 300],
+  [-500, -300],
 ] as LatLngExpression[];
 
 interface MapBackgroundLayerProps {
