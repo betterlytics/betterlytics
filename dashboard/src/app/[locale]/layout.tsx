@@ -1,3 +1,4 @@
+import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
 import { NextIntlClientProvider } from 'next-intl';
 
 export default async function LocaleLayout({ children }: { children: React.ReactNode }) {
@@ -5,5 +6,5 @@ export default async function LocaleLayout({ children }: { children: React.React
 }
 
 export function generateStaticParams() {
-  return [{ locale: 'en' }, { locale: 'da' }];
+  return SUPPORTED_LANGUAGES.map((locale) => ({ locale }));
 }
