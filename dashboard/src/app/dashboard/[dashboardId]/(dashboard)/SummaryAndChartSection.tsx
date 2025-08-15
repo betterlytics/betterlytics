@@ -9,7 +9,7 @@ import {
 } from '@/app/actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -27,7 +27,7 @@ type SummaryAndChartSectionProps = {
 export default function SummaryAndChartSection({ data }: SummaryAndChartSectionProps) {
   const [summary, visitorsData, pageviewsData, sessionMetricsData] = use(data);
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
-  const { dictionary } = useDictionary();
+  const t = useTranslations('dashboard.metrics');
 
   const handleMetricChange = useCallback((metric: string) => {
     setActiveMetric(metric as ActiveMetric);
@@ -35,7 +35,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
 
   const cards: SummaryCardData[] = [
     {
-      title: dictionary.t('dashboard.metrics.uniqueVisitors'),
+      title: t('uniqueVisitors'),
       value: summary.uniqueVisitors.toLocaleString(),
       rawChartData: summary.visitorsChartData,
       valueField: 'unique_visitors',
@@ -44,7 +44,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       onClick: () => handleMetricChange('visitors'),
     },
     {
-      title: dictionary.t('dashboard.metrics.totalPageviews'),
+      title: t('totalPageviews'),
       value: summary.pageviews.toLocaleString(),
       rawChartData: summary.pageviewsChartData,
       valueField: 'views',
@@ -53,7 +53,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       onClick: () => handleMetricChange('pageviews'),
     },
     {
-      title: dictionary.t('dashboard.metrics.bounceRate'),
+      title: t('bounceRate'),
       value: summary.bounceRate !== undefined ? `${summary.bounceRate}%` : '0%',
       rawChartData: summary.bounceRateChartData,
       valueField: 'bounce_rate',
@@ -62,7 +62,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       onClick: () => handleMetricChange('bounceRate'),
     },
     {
-      title: dictionary.t('dashboard.metrics.avgVisitDuration'),
+      title: t('avgVisitDuration'),
       value: formatDuration(summary.avgVisitDuration),
       rawChartData: summary.avgVisitDurationChartData,
       valueField: 'avg_visit_duration',

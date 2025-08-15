@@ -3,7 +3,7 @@
 import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { use } from 'react';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
 
 type CustomEventsSectionProps = {
   customEventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
@@ -11,23 +11,23 @@ type CustomEventsSectionProps = {
 
 export default function CustomEventsSection({ customEventsPromise }: CustomEventsSectionProps) {
   const customEvents = use(customEventsPromise);
-  const { dictionary } = useDictionary();
+  const t = useTranslations('dashboard');
 
   return (
     <MultiProgressTable
-      title={dictionary.t('dashboard.sections.customEvents')}
+      title={t('sections.customEvents')}
       defaultTab='events'
       tabs={[
         {
           key: 'events',
-          label: dictionary.t('dashboard.tabs.events'),
+          label: t('tabs.events'),
           data: customEvents.map((event) => ({
             label: event.event_name,
             value: event.current.count,
             trendPercentage: event.change?.count,
             comparisonValue: event.compare?.count,
           })),
-          emptyMessage: dictionary.t('dashboard.emptyStates.noCustomEventsData'),
+          emptyMessage: t('emptyStates.noCustomEventsData'),
         },
       ]}
     />

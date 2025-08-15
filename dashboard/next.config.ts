@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 import * as path from 'path';
 import dotenv from 'dotenv';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 // Load environment variables from the root directory
 const rootDir = path.resolve(process.cwd(), '..');
@@ -15,4 +16,4 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 };
 
-export default nextConfig;
+export default createNextIntlPlugin()(nextConfig);

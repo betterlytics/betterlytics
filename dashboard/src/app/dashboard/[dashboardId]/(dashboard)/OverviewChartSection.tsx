@@ -9,7 +9,7 @@ import {
   type fetchUniqueVisitorsAction,
 } from '@/app/actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
 
 type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
 
@@ -31,34 +31,34 @@ export default function OverviewChartSection({
   pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>;
   sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>;
 }) {
-  const { dictionary } = useDictionary();
+  const t = useTranslations('dashboard');
 
   const metricConfigs: Record<ActiveMetric, MetricConfig> = useMemo(
     () => ({
       visitors: {
-        title: dictionary.dashboard.metrics.uniqueVisitors,
+        title: t('metrics.uniqueVisitors'),
         valueField: 'unique_visitors',
         color: 'var(--chart-1)',
       },
       pageviews: {
-        title: dictionary.dashboard.metrics.totalPageviews,
+        title: t('metrics.totalPageviews'),
         valueField: 'views',
         color: 'var(--chart-2)',
       },
       bounceRate: {
-        title: dictionary.dashboard.metrics.bounceRate,
+        title: t('metrics.bounceRate'),
         valueField: 'bounce_rate',
         color: 'var(--chart-3)',
         formatValue: (value: number) => `${value}%`,
       },
       avgDuration: {
-        title: dictionary.dashboard.metrics.avgVisitDuration,
+        title: t('metrics.avgVisitDuration'),
         valueField: 'avg_visit_duration',
         color: 'var(--chart-4)',
         formatValue: (value: number) => formatDuration(value),
       },
     }),
-    [dictionary],
+    [t],
   );
 
   const { chartData, comparisonMap } = useMemo(() => {

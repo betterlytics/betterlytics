@@ -17,7 +17,7 @@ import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartToo
 import { format } from 'date-fns';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
 
 interface DeviceUsageTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -49,14 +49,14 @@ export default function DeviceUsageTrendChart({
   comparisonMap,
   granularity,
 }: DeviceUsageTrendChartProps) {
-  const { dictionary } = useDictionary();
-  
+  const t = useTranslations('components.devices.trends');
+
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>{dictionary.t('components.devices.trends.noData')}</p>
-          <p className='text-muted-foreground/70 text-xs'>{dictionary.t('components.devices.trends.adjustTimeRange')}</p>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
         </div>
       </div>
     );

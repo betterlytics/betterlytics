@@ -11,6 +11,7 @@ import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { Spinner } from '../ui/spinner';
+import { useTranslations } from 'next-intl';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
@@ -37,7 +38,7 @@ export default function LeafletMap({
     Polygon: typeof import('react-leaflet').Polygon;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
-
+  const t = useTranslations('components.geography');
   const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
   const style = useMapStyle({ calculatedMaxVisitors });
 
@@ -79,7 +80,7 @@ export default function LeafletMap({
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
           <Spinner size='lg' />
-          <p className='text-muted-foreground mt-2'>Loading map...</p>
+          <p className='text-muted-foreground mt-2'>{t('loading')}</p>
         </div>
       </div>
     );

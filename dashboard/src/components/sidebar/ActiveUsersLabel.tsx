@@ -5,11 +5,13 @@ import { fetchActiveUsersAction } from '@/app/actions/visitors';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { LiveIndicator } from '@/components/live-indicator';
 import { AnimatedCounter } from '@/components/animated-counter';
+import { useTranslations } from 'next-intl';
 
 const ACTIVE_USERS_REFRESH_INTERVAL_MS = 30 * 1000;
 
 export function ActiveUsersLabel() {
   const dashboardId = useDashboardId();
+  const t = useTranslations('dashboard.sidebar');
 
   const { data: activeUsers = 0 } = useQuery({
     queryKey: ['activeUsers', dashboardId],
@@ -23,7 +25,7 @@ export function ActiveUsersLabel() {
         <LiveIndicator />
       </div>
       <span className='text-muted-foreground text-sm font-semibold'>
-        <AnimatedCounter value={activeUsers} /> current visitor{activeUsers !== 1 ? 's' : ''}
+        <AnimatedCounter value={activeUsers} /> {t('activeUsers', { count: activeUsers })}
       </span>
     </div>
   );
