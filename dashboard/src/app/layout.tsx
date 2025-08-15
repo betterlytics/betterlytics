@@ -9,6 +9,7 @@ import ConditionalFooter from '@/components/ConditionalFooter';
 import { generateSEO, SEO_CONFIGS, generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

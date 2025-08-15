@@ -28,18 +28,7 @@ import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Suspense } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
 import { DashboardDropdown } from './DashboardDropdown';
-
-const navItems = [
-  { name: 'Overview', href: '', icon: <LayoutDashboard size={18} /> },
-  { name: 'Pages', href: '/pages', icon: <FileText size={18} /> },
-  { name: 'Referrers', href: '/referrers', icon: <Link2 size={18} /> },
-  { name: 'Geography', href: '/geography', icon: <Globe size={18} /> },
-  { name: 'User Journey', href: '/user-journey', icon: <Route size={18} /> },
-  { name: 'Funnels', href: '/funnels', icon: <Funnel size={18} /> },
-  { name: 'Devices', href: '/devices', icon: <Smartphone size={18} /> },
-  { name: 'Campaigns', href: '/campaign', icon: <DollarSign size={18} /> },
-  { name: 'Events', href: '/events', icon: <CircleDot size={18} /> },
-];
+import { getTranslations } from 'next-intl/server';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -48,6 +37,19 @@ type BASidebarProps = {
 export default async function BASidebar({ dashboardId }: BASidebarProps) {
   const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
   const allDashboardsPromise = getAllUserDashboardsAction();
+  const t = await getTranslations('dashboard.sidebar');
+
+  const navItems = [
+    { name: t('overview'), href: '', icon: <LayoutDashboard size={18} /> },
+    { name: t('pages'), href: '/pages', icon: <FileText size={18} /> },
+    { name: t('referrers'), href: '/referrers', icon: <Link2 size={18} /> },
+    { name: t('geography'), href: '/geography', icon: <Globe size={18} /> },
+    { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
+    { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
+    { name: t('devices'), href: '/devices', icon: <Smartphone size={18} /> },
+    { name: t('campaigns'), href: '/campaign', icon: <DollarSign size={18} /> },
+    { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
+  ];
 
   return (
     <Sidebar

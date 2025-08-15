@@ -5,6 +5,18 @@
     }
   },
   "dashboard": {
+    "sidebar": {
+      "overview": "Overview",
+      "pages": "Pages",
+      "referrers": "Referrers",
+      "geography": "Geography",
+      "userJourney": "User Journey",
+      "funnels": "Tragter",
+      "devices": "Enheder",
+      "campaigns": "Kampagner",
+      "events": "Hændelser",
+      "activeUsers": "{count, plural, =0 {No active users} one {active user} other {active users}}"
+    },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",

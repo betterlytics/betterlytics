@@ -1,5 +1,5 @@
 // src/global.d.ts
-import messages from '@/dictionaries/en.json'; // use your default-locale file
+import messages from '@/messages/en.json';
 import type { SupportedLanguages } from './constants/supportedLanguages';
 
 declare module 'next-intl' {
