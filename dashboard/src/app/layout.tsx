@@ -64,13 +64,15 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
-        <Providers>
-          <ConditionalTopBar />
-          {children}
-          <ConditionalFooter />
-        </Providers>
-        <Toaster />
+        <NextIntlClientProvider>
+          <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
+          <Providers>
+            <ConditionalTopBar />
+            {children}
+            <ConditionalFooter />
+          </Providers>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
