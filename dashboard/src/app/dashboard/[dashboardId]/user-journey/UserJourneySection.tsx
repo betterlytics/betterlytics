@@ -42,7 +42,7 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
         >
           {JOURNEY_OPTIONS.map((journeys) => (
             <option key={journeys} value={journeys}>
-              {t('topJourneys').replace('{journeys}', journeys.toString())}
+              {t('topJourneys', { journeys: journeys.toString() })}
             </option>
           ))}
         </select>

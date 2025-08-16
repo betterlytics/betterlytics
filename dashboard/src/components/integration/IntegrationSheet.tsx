@@ -184,7 +184,30 @@ export default App;
                         {t('headSectionNote', { head: '<head>' })}
                       </CardDescription>
                       <CardDescription className='text-muted-foreground text-sm'>
-                        {t('npmPackageNote', { npm: 'npm', package: '@betterlytics/tracker' })}
+                        <span>
+                          {t.rich('npmPackageNote', {
+                            npm: (chunks) => (
+                              <a
+                                href='https://www.npmjs.com/package/@betterlytics/tracker'
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='text-primary underline'
+                              >
+                                {chunks}
+                              </a>
+                            ),
+                            package: (chunks) => (
+                              <a
+                                href='https://www.npmjs.com/package/@betterlytics/tracker'
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='text-primary underline'
+                              >
+                                {chunks}
+                              </a>
+                            ),
+                          })}
+                        </span>
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -299,7 +322,20 @@ export default App;
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
-                      {t('initializeNpmPackage', { npm: 'npm' })}
+                      <span>
+                        {t.rich('initializeNpmPackage', {
+                          npm: (chunks) => (
+                            <a
+                              href='https://www.npmjs.com/package/@betterlytics/tracker'
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='text-primary underline'
+                            >
+                              {chunks}
+                            </a>
+                          ),
+                        })}
+                      </span>
                     </label>
                     <Button
                       variant='ghost'
