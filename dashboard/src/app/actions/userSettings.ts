@@ -14,7 +14,7 @@ export const getUserSettingsAction = withUserAuth(
 
 export const updateUserSettingsAction = withUserAuth(
   async (user: User, updates: UserSettingsUpdate): Promise<UserSettings> =>
-    (user.settings ??= await UserSettingsService.updateUserSettings(user.id, updates)),
+    (user.settings = await UserSettingsService.updateUserSettings(user.id, updates)),
 );
 
 export const deleteUserAccountAction = withUserAuth(async (user: User): Promise<void> => {
