@@ -1,20 +1,8 @@
 import 'next-auth';
 import 'next-auth/jwt';
+import type { UserSettings } from '@/entities/userSettings';
 
 declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string;
-      name: string | null;
-      email: string;
-      emailVerified?: Date | null;
-      image?: string | null;
-      role: string | null;
-      totpEnabled: boolean;
-      hasPassword?: boolean;
-    };
-  }
-
   interface User {
     id: string;
     name: string | null;
@@ -24,6 +12,11 @@ declare module 'next-auth' {
     role: string | null;
     totpEnabled: boolean;
     hasPassword?: boolean;
+    settings?: UserSettings;
+  }
+
+  interface Session {
+    user: User;
   }
 }
 

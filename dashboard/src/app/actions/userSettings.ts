@@ -7,14 +7,14 @@ import { withUserAuth } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/userSettings';
 import { User } from 'next-auth';
 
-export const getUserSettingsAction = withUserAuth(async (user: User): Promise<UserSettings> => {
-  return await UserSettingsService.getUserSettings(user.id);
-});
+export const getUserSettingsAction = withUserAuth(
+  async (user: User): Promise<UserSettings> =>
+    (user.settings ??= await UserSettingsService.getUserSettings(user.id)),
+);
 
 export const updateUserSettingsAction = withUserAuth(
-  async (user: User, updates: UserSettingsUpdate): Promise<UserSettings> => {
-    return await UserSettingsService.updateUserSettings(user.id, updates);
-  },
+  async (user: User, updates: UserSettingsUpdate): Promise<UserSettings> =>
+    (user.settings ??= await UserSettingsService.updateUserSettings(user.id, updates)),
 );
 
 export const deleteUserAccountAction = withUserAuth(async (user: User): Promise<void> => {

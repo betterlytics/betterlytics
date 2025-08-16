@@ -10,6 +10,7 @@ import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
+import { getUserSettings } from '@/services/userSettings';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -127,6 +128,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
+        session.user.settings = await getUserSettings(token.uid);
         session.user.id = token.uid;
         session.user.name = token.name;
         session.user.email = token.email;
