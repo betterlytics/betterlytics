@@ -59,7 +59,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             <div className='mt-6 text-center'>
               <p className='text-muted-foreground text-sm'>
                 Don&apos;t have an account?{' '}
-                <Link href='/register' className='text-primary hover:text-primary/80 font-medium underline'>
+                <Link href='/onboarding' className='text-primary hover:text-primary/80 font-medium underline'>
                   Create one
                 </Link>
               </p>

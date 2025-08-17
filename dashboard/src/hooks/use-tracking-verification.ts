@@ -5,8 +5,7 @@ import { useDashboardId } from './use-dashboard-id';
 import { verifyTrackingInstallation } from '@/app/actions';
 import { toast } from 'sonner';
 
-export function useTrackingVerification() {
-  const dashboardId = useDashboardId();
+export function useTrackingVerificationWithId(dashboardId: string | undefined) {
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -59,6 +58,12 @@ export function useTrackingVerification() {
     isVerified: isVerified === true,
     isLoading: isVerified === null,
     isVerifying,
+    verifySilently,
     verify,
   };
+}
+
+export function useTrackingVerification() {
+  const dashboardId = useDashboardId();
+  return useTrackingVerificationWithId(dashboardId);
 }
