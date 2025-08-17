@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
+import { getTranslations } from 'next-intl/server';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -19,6 +20,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await getServerSession(authOptions);
   const registrationEnabled = isFeatureEnabled('enableRegistration');
   const { error } = await searchParams;
+  const t = await getTranslations('public.auth.signin');
 
   if (session) {
     redirect('/dashboards');
@@ -27,9 +29,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const getErrorMessage = (error: string) => {
     switch (error) {
       case 'CredentialsSignin':
-        return 'Invalid email or password. Please check your credentials and try again.';
+        return t('errors.CredentialsSignin');
       default:
-        return 'An error occurred during sign in. Please try again.';
+        return t('errors.default');
     }
   };
 
@@ -42,8 +44,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           <div className='mb-6 flex justify-center'>
             <Logo variant='full' width={200} height={60} priority />
           </div>
-          <h2 className='text-foreground mt-6 text-2xl font-semibold'>Sign in to your account</h2>
-          <p className='text-muted-foreground mt-2 text-sm'>Access your analytics dashboard</p>
+          <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('title')}</h2>
+          <p className='text-muted-foreground mt-2 text-sm'>{t('subtitle')}</p>
         </div>
         <div className='bg-card rounded-lg border p-8 shadow-sm'>
           {error && (
@@ -58,9 +60,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           {registrationEnabled && (
             <div className='mt-6 text-center'>
               <p className='text-muted-foreground text-sm'>
-                Don&apos;t have an account?{' '}
+                {t('cta.noAccount')}{' '}
                 <Link href='/register' className='text-primary hover:text-primary/80 font-medium underline'>
-                  Create one
+                  {t('cta.createOne')}
                 </Link>
               </p>
             </div>

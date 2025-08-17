@@ -5,8 +5,9 @@ import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/supportedLanguages';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'public.about' });
   const seoConfig = { ...SEO_CONFIGS.about, title: t('aboutUs') } as const;

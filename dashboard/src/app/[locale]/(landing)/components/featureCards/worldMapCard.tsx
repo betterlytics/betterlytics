@@ -3,6 +3,7 @@ import LeafletMap from '@/components/map/LeafletMap';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS } from '@/constants/geographyData';
 import { GeoVisitor } from '@/entities/geography';
+import { getTranslations } from 'next-intl/server';
 
 const CountryCol = ({ geoVisitor }: { geoVisitor: GeoVisitor }) => (
   <div className='flex py-2 text-xs' key={geoVisitor.country_code}>
@@ -14,14 +15,13 @@ const CountryCol = ({ geoVisitor }: { geoVisitor: GeoVisitor }) => (
   </div>
 );
 
-export default function WorldMapCard() {
+export default async function WorldMapCard() {
+  const t = await getTranslations('public.landing.cards.worldMap');
   return (
     <Card>
       <CardHeader className='pb-0'>
-        <CardTitle className='text-xl'>Geographical Analytics</CardTitle>
-        <CardDescription className='text-base'>
-          See where your visitors are coming from around the world.
-        </CardDescription>
+        <CardTitle className='text-xl'>{t('title')}</CardTitle>
+        <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
 
       <CardContent className='space-y-4'>
@@ -37,7 +37,7 @@ export default function WorldMapCard() {
 
         <div className='border-border/60 border-t pt-3'>
           <div className='flex items-center justify-between text-xs'>
-            <span className='text-muted-foreground'>Top Countries</span>
+            <span className='text-muted-foreground'>{t('topCountries')}</span>
             <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-1 overflow-hidden'>
               {Array.from({ length: 2 }).map((_, i) => (
                 <CountryCol key={MOCK_WORLD_GEOVISITORS[i].country_code} geoVisitor={MOCK_WORLD_GEOVISITORS[i]} />

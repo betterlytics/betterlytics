@@ -1,11 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, ExternalLink } from 'lucide-react';
 import { formatPercentage } from '@/utils/formatters';
+import { getTranslations } from 'next-intl/server';
 
 export default async function TrafficSourcesCard() {
+  const t = await getTranslations('public.landing.cards.trafficSources');
   const trafficSources = [
     {
-      name: 'Google Search',
+      name: t('sources.googleSearch'),
       visitors: 3247,
       percentage: 42.8,
       icon: (
@@ -16,7 +18,7 @@ export default async function TrafficSourcesCard() {
       color: 'bg-blue-500',
     },
     {
-      name: 'Direct',
+      name: t('sources.direct'),
       visitors: 1834,
       percentage: 24.2,
       icon: (
@@ -27,7 +29,7 @@ export default async function TrafficSourcesCard() {
       color: 'bg-gray-600',
     },
     {
-      name: 'Social Media',
+      name: t('sources.socialMedia'),
       visitors: 1456,
       percentage: 19.2,
       icon: (
@@ -38,7 +40,7 @@ export default async function TrafficSourcesCard() {
       color: 'bg-pink-500',
     },
     {
-      name: 'Email',
+      name: t('sources.email'),
       visitors: 678,
       percentage: 8.9,
       icon: (
@@ -49,7 +51,7 @@ export default async function TrafficSourcesCard() {
       color: 'bg-green-500',
     },
     {
-      name: 'Other',
+      name: t('sources.other'),
       visitors: 365,
       percentage: 4.9,
       icon: (
@@ -67,7 +69,9 @@ export default async function TrafficSourcesCard() {
         {source.icon}
         <div>
           <div className='text-sm font-medium'>{source.name}</div>
-          <div className='text-muted-foreground text-xs'>{source.visitors.toLocaleString()} visitors</div>
+          <div className='text-muted-foreground text-xs'>
+            {source.visitors.toLocaleString()} {t('visitorsLabel')}
+          </div>
         </div>
       </div>
       <div className='flex items-center space-x-2'>
@@ -85,10 +89,8 @@ export default async function TrafficSourcesCard() {
   return (
     <Card>
       <CardHeader className='pb-3'>
-        <CardTitle className='text-xl'>Traffic Sources</CardTitle>
-        <CardDescription className='text-base'>
-          Discover where your visitors are arriving from and optimize your marketing efforts.
-        </CardDescription>
+        <CardTitle className='text-xl'>{t('title')}</CardTitle>
+        <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
 
       <CardContent className='space-y-4'>
@@ -100,9 +102,9 @@ export default async function TrafficSourcesCard() {
 
         <div className='border-border/60 border-t pt-3'>
           <div className='flex items-center justify-between text-xs'>
-            <span className='text-muted-foreground'>Total Visitors</span>
+            <span className='text-muted-foreground'>{t('totalVisitors')}</span>
             <div className='text-primary flex items-center'>
-              <span className='font-medium'>7,580 this month</span>
+              <span className='font-medium'>7,580 {t('thisMonth')}</span>
             </div>
           </div>
         </div>

@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
-export default function FunnelsCard() {
+export default async function FunnelsCard() {
+  const t = await getTranslations('public.landing.cards.funnels');
   const funnelSteps = [
     { name: 'Read Blog Post', conversion: 100, dropOff: 60.0 },
     { name: 'Click CTA', conversion: 40, dropOff: 30.0 },
@@ -12,10 +14,8 @@ export default function FunnelsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-xl'>Funnels</CardTitle>
-        <CardDescription className='text-base'>
-          Track the conversion rate of your website's key user journeys.
-        </CardDescription>
+        <CardTitle className='text-xl'>{t('title')}</CardTitle>
+        <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent className='space-y-3'>
         {funnelSteps.map((step) => (
@@ -38,10 +38,10 @@ export default function FunnelsCard() {
 
         <div className='border-border mt-4 border-t pt-3'>
           <div className='flex items-center justify-between text-sm'>
-            <span className='font-medium'>Total: 15%</span>
+            <span className='font-medium'>{t('total')}: 15%</span>
             <div className='flex items-center text-green-500'>
               <TrendingUp className='mr-1 h-3 w-3' />
-              <span>2.3% since last week</span>
+              <span>2.3% {t('sinceLastWeek')}</span>
             </div>
           </div>
         </div>

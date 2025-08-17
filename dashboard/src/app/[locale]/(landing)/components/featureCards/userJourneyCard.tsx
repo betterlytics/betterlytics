@@ -1,6 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getTranslations } from 'next-intl/server';
 
 export default async function UserJourneyCard() {
+  const t = await getTranslations('public.landing.cards.journeys');
   const journeyData = {
     start: { name: 'Landing Page', users: 1000 },
     middle: { name: 'Product Page', users: 650 },
@@ -47,10 +49,8 @@ export default async function UserJourneyCard() {
   return (
     <Card>
       <CardHeader className='pb-0'>
-        <CardTitle className='text-xl'>User Journeys</CardTitle>
-        <CardDescription className='text-base'>
-          Track multiple user paths and see how visitors navigate through your site.
-        </CardDescription>
+        <CardTitle className='text-xl'>{t('title')}</CardTitle>
+        <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
 
       <CardContent className='space-y-3'>

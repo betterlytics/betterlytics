@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { getTranslations } from 'next-intl/server';
 import {
   ArrowRight,
   Target,
@@ -13,7 +14,8 @@ import {
   Globe,
 } from 'lucide-react';
 
-export default function AdvancedFiltersCard() {
+export default async function AdvancedFiltersCard() {
+  const t = await getTranslations('public.landing.cards.advancedFilters');
   const filterCategories = [
     { name: 'URL', icon: <LinkIcon className='h-4 w-4' /> },
     { name: 'Device Type', icon: <Monitor className='h-4 w-4' /> },
@@ -31,10 +33,8 @@ export default function AdvancedFiltersCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-xl'>Advanced Filters</CardTitle>
-        <CardDescription className='text-base'>
-          Slice and dice your analytics data by any dimension to uncover actionable insights.
-        </CardDescription>
+        <CardTitle className='text-xl'>{t('title')}</CardTitle>
+        <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className='flex flex-wrap gap-2'>

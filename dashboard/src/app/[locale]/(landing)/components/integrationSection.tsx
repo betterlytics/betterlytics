@@ -2,26 +2,36 @@ import { Code, Zap, Shield } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ExternalLink from '@/components/ExternalLink';
+import { getTranslations } from 'next-intl/server';
 
-export function IntegrationSection() {
+export async function IntegrationSection() {
+  const t = await getTranslations('public.landing.integration');
   const integrationMethods = [
     {
       icon: <Code className='h-8 w-8' />,
-      title: 'Simple Script Tag',
-      description: 'Add one line to your HTML and start tracking immediately. Works with any website or CMS.',
-      features: ['One-line installation', 'Works anywhere', 'No build process needed'],
+      title: t('cards.script.title'),
+      description: t('cards.script.description'),
+      features: [t('cards.script.features.f1'), t('cards.script.features.f2'), t('cards.script.features.f3')],
     },
     {
       icon: <Zap className='h-8 w-8' />,
-      title: 'Framework Ready',
-      description: 'Native support for React, Next.js, Vue, and other modern frameworks with TypeScript.',
-      features: ['TypeScript support', 'Framework components', 'Tree-shakeable'],
+      title: t('cards.framework.title'),
+      description: t('cards.framework.description'),
+      features: [
+        t('cards.framework.features.f1'),
+        t('cards.framework.features.f2'),
+        t('cards.framework.features.f3'),
+      ],
     },
     {
       icon: <Shield className='h-8 w-8' />,
-      title: 'Self-Hosted Option',
-      description: 'Deploy on your own infrastructure with Docker for complete data ownership and control.',
-      features: ['Docker deployment', 'Complete control', 'GDPR compliant'],
+      title: t('cards.selfHosted.title'),
+      description: t('cards.selfHosted.description'),
+      features: [
+        t('cards.selfHosted.features.f1'),
+        t('cards.selfHosted.features.f2'),
+        t('cards.selfHosted.features.f3'),
+      ],
     },
   ];
 
@@ -30,12 +40,9 @@ export function IntegrationSection() {
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
-            Get started in <span className='text-blue-600 dark:text-blue-400'>under 2 minutes</span>
+            {t('titleStart')} <span className='text-blue-600 dark:text-blue-400'>{t('titleEmphasis')}</span>
           </h2>
-          <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>
-            Add our lightweight script and start collecting cookieless, privacy-friendly analytics immediately. No
-            cookies, no personal data, no consent banners required.
-          </p>
+          <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
         </div>
 
         <div className='mx-auto grid max-w-6xl gap-8 md:grid-cols-3'>
@@ -62,13 +69,11 @@ export function IntegrationSection() {
 
         <div className='mt-12 text-center'>
           <Button size='lg' className='mb-4' asChild>
-            <ExternalLink href='/docs' title='Betterlytics Integration Guide'>
-              View Integration Guide
+            <ExternalLink href='/docs' title={t('guideTitle')}>
+              {t('guideButton')}
             </ExternalLink>
           </Button>
-          <p className='text-muted-foreground text-sm'>
-            Detailed installation instructions for all platforms and frameworks
-          </p>
+          <p className='text-muted-foreground text-sm'>{t('footer')}</p>
         </div>
       </div>
     </section>

@@ -5,6 +5,7 @@ import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
 import { validateResetTokenAction } from '@/app/actions/passwordReset';
+import { getTranslations } from 'next-intl/server';
 
 interface ResetPasswordPageProps {
   searchParams: Promise<{
@@ -37,6 +38,7 @@ function ResetPasswordLayout({ title, description, children }: ResetPasswordLayo
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
   const session = await getServerSession(authOptions);
+  const t = await getTranslations('public.auth.resetPassword');
 
   if (session) {
     redirect('/dashboards');
@@ -46,14 +48,11 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
 
   if (!token) {
     return (
-      <ResetPasswordLayout
-        title='Invalid Reset Link'
-        description='This password reset link is invalid or missing a token.'
-      >
+      <ResetPasswordLayout title={t('invalid.title')} description={t('invalid.description')}>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-4 text-sm'>Please request a new password reset link.</p>
+          <p className='text-muted-foreground mb-4 text-sm'>{t('invalid.note')}</p>
           <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
-            Request New Reset Link
+            {t('invalid.requestLink')}
           </Link>
         </div>
       </ResetPasswordLayout>
@@ -64,16 +63,11 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
 
   if (!isValidToken) {
     return (
-      <ResetPasswordLayout
-        title='Reset Link Expired'
-        description='This password reset link has expired or is invalid.'
-      >
+      <ResetPasswordLayout title={t('expired.title')} description={t('expired.description')}>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-4 text-sm'>
-            Password reset links expire after 1 hour for security reasons. Please request a new one.
-          </p>
+          <p className='text-muted-foreground mb-4 text-sm'>{t('expired.info')}</p>
           <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
-            Request New Reset Link
+            {t('expired.requestLink')}
           </Link>
         </div>
       </ResetPasswordLayout>
@@ -81,13 +75,13 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
   }
 
   return (
-    <ResetPasswordLayout title='Set your new password' description='Enter your new password below'>
+    <ResetPasswordLayout title={t('form.title')} description={t('form.description')}>
       <ResetPasswordForm token={token} />
       <div className='mt-6 text-center'>
         <p className='text-muted-foreground text-sm'>
-          Remember your password?{' '}
+          {t('cta.remember')}{' '}
           <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
-            Back to Sign In
+            {t('cta.backToSignIn')}
           </Link>
         </p>
       </div>

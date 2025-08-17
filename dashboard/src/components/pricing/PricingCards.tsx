@@ -11,6 +11,7 @@ import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
 import { Dispatch } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface PricingCardsProps {
   eventRange: EventRange;
@@ -40,6 +41,7 @@ export function PricingCards({
   className = '',
   billingData,
 }: PricingCardsProps) {
+  const t = useTranslations('pricingCards');
   const growthPrice = currency === 'EUR' ? eventRange.growth.price.eur_cents : eventRange.growth.price.usd_cents;
   const professionalPrice =
     currency === 'EUR' ? eventRange.professional.price.eur_cents : eventRange.professional.price.usd_cents;
@@ -51,34 +53,34 @@ export function PricingCards({
     {
       tier: 'growth',
       price_cents: growthPrice,
-      period: !isFree && !isCustom ? '/month' : '',
-      description: 'Perfect for small websites and personal projects',
+      period: !isFree && !isCustom ? t('periodPerMonth') : '',
+      description: t('descriptions.growth'),
       features: [
-        `Up to ${eventRange.label} events/month`,
-        'All dashboard & analytics features',
-        '1 site',
-        '1+ year data retention',
-        'Email support',
+        t('features.upToEventsPerMonth', { events: eventRange.label }),
+        t('features.allFeatures'),
+        t('features.oneSite'),
+        t('features.retention1PlusYear'),
+        t('features.emailSupport'),
       ],
-      cta: isFree ? 'Get Started for Free' : isCustom ? 'Contact Sales' : 'Get Started',
+      cta: isFree ? t('cta.getStartedForFree') : isCustom ? t('cta.contactSales') : t('cta.getStarted'),
       popular: false,
       lookup_key: eventRange.growth.lookup_key,
     },
     {
       tier: 'professional',
       price_cents: professionalPrice,
-      period: !isCustom ? '/month' : '',
-      description: 'Advanced features for growing businesses',
+      period: !isCustom ? t('periodPerMonth') : '',
+      description: t('descriptions.professional'),
       features: [
-        `Up to ${eventRange.label} events/month`,
-        'Everything in Starter',
-        'Up to 50 sites',
-        '3+ years data retention',
+        t('features.upToEventsPerMonth', { events: eventRange.label }),
+        t('features.everythingInStarter'),
+        t('features.upTo50Sites'),
+        t('features.retention3PlusYears'),
         //'Access to API',
         //'Up to 10 team members',
-        'Priority support',
+        t('features.prioritySupport'),
       ],
-      cta: isCustom ? 'Contact Sales' : 'Get Started',
+      cta: isCustom ? t('cta.contactSales') : t('cta.getStarted'),
       popular: true,
       lookup_key: eventRange.professional.lookup_key,
     },
@@ -86,16 +88,16 @@ export function PricingCards({
       tier: 'enterprise',
       price_cents: -1,
       period: '',
-      description: 'Complete solution for large organizations',
+      description: t('descriptions.enterprise'),
       features: [
-        'Everything in Professional',
-        'Unlimited sites',
-        '5+ years data retention',
+        t('features.everythingInProfessional'),
+        t('features.unlimitedSites'),
+        t('features.retention5PlusYears'),
         //'Unlimited team members',
-        'Dedicated support & help',
-        'SLA guarantee',
+        t('features.dedicatedSupport'),
+        t('features.slaGuarantee'),
       ],
-      cta: 'Contact Us',
+      cta: t('cta.contactUs'),
       popular: false,
       lookup_key: null,
     },
@@ -116,8 +118,8 @@ export function PricingCards({
   };
 
   const formatDisplayPrice = (price: number): string => {
-    if (price === 0) return 'Free';
-    if (price < 0) return 'Custom';
+    if (price === 0) return t('labels.free');
+    if (price < 0) return t('labels.custom');
     return formatPrice(price, currency);
   };
 
@@ -131,16 +133,16 @@ export function PricingCards({
       let isDisabled = false;
 
       if (isCurrentPlan) {
-        buttonText = 'Current Plan';
+        buttonText = t('cta.currentPlan');
         buttonVariant = 'secondary';
         isDisabled = true;
       } else if (plan.tier === 'enterprise') {
-        buttonText = 'Contact Sales';
+        buttonText = t('cta.contactSales');
       } else if (plan.tier === 'growth' && plan.price_cents === 0) {
-        buttonText = 'Get Started for Free';
+        buttonText = t('cta.getStartedForFree');
         isDisabled = true;
       } else if (billingData.isExistingPaidSubscriber) {
-        buttonText = 'Change to This Plan';
+        buttonText = t('cta.changeToThisPlan');
       } else {
         buttonText = plan.cta;
       }
@@ -157,7 +159,7 @@ export function PricingCards({
       );
     }
 
-    const href = plan.cta.toLowerCase().includes('get started') ? '/register' : '/contact';
+    const href = plan.cta.toLowerCase().includes(t('cta.getStarted').toLowerCase()) ? '/register' : '/contact';
 
     return (
       <Link href={href} className='w-full'>
@@ -176,7 +178,9 @@ export function PricingCards({
           className={`dark:metric-card relative flex flex-col ${plan.popular ? 'dark:shadow-card-glow border-primary/50' : ''}`}
         >
           {plan.popular && (
-            <Badge className='bg-primary absolute -top-3 left-1/2 -translate-x-1/2 transform'>Most Popular</Badge>
+            <Badge className='bg-primary absolute -top-3 left-1/2 -translate-x-1/2 transform'>
+              {t('badges.mostPopular')}
+            </Badge>
           )}
           {billingData &&
             billingData.subscription.tier === plan.tier &&

@@ -5,9 +5,11 @@ import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { getTranslations } from 'next-intl/server';
 
 export default async function RegisterPage() {
   const session = await getServerSession(authOptions);
+  const t = await getTranslations('public.auth.register');
 
   if (session) {
     redirect('/dashboards');
@@ -21,13 +23,11 @@ export default async function RegisterPage() {
             <div className='mb-6 flex justify-center'>
               <Logo variant='full' width={200} height={60} priority />
             </div>
-            <h2 className='text-foreground mt-6 text-2xl font-semibold'>Registration Disabled</h2>
-            <p className='text-muted-foreground mt-2 text-sm'>
-              Registration is currently disabled on this instance.
-            </p>
+            <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('disabled.title')}</h2>
+            <p className='text-muted-foreground mt-2 text-sm'>{t('disabled.description')}</p>
             <div className='mt-4'>
               <Link href='/signin' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
-                Back to Sign In
+                {t('disabled.backToSignIn')}
               </Link>
             </div>
           </div>
@@ -43,16 +43,16 @@ export default async function RegisterPage() {
           <div className='mb-6 flex justify-center'>
             <Logo variant='full' width={200} height={60} priority />
           </div>
-          <h2 className='text-foreground mt-6 text-2xl font-semibold'>Create your account</h2>
-          <p className='text-muted-foreground mt-2 text-sm'>Start tracking your analytics today</p>
+          <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('title')}</h2>
+          <p className='text-muted-foreground mt-2 text-sm'>{t('subtitle')}</p>
         </div>
         <div className='bg-card rounded-lg border p-8 shadow-sm'>
           <RegisterForm />
           <div className='mt-6 text-center'>
             <p className='text-muted-foreground text-sm'>
-              Already have an account?{' '}
+              {t('cta.haveAccount')}{' '}
               <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
-                Sign in
+                {t('cta.signIn')}
               </Link>
             </p>
           </div>

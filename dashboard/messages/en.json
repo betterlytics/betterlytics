@@ -469,6 +469,257 @@
         "technical": "Technical questions:",
         "footer": "This DPA is automatically accepted when you use Betterlytics and forms part of our Terms of Service. 🇪🇺 Anonymous-by-design analytics - Made and hosted in the European Union"
       }
+    },
+    "auth": {
+      "signin": {
+        "title": "Sign in to your account",
+        "subtitle": "Access your analytics dashboard",
+        "errors": {
+          "CredentialsSignin": "Invalid email or password. Please check your credentials and try again.",
+          "default": "An error occurred during sign in. Please try again."
+        },
+        "cta": {
+          "noAccount": "Don't have an account?",
+          "createOne": "Create one"
+        }
+      },
+      "register": {
+        "title": "Create your account",
+        "subtitle": "Start tracking your analytics today",
+        "cta": {
+          "haveAccount": "Already have an account?",
+          "signIn": "Sign in"
+        },
+        "disabled": {
+          "title": "Registration Disabled",
+          "description": "Registration is currently disabled on this instance.",
+          "backToSignIn": "Back to Sign In"
+        }
+      },
+      "forgotPassword": {
+        "title": "Reset your password",
+        "subtitle": "Enter your email and we'll send you a password reset link",
+        "cta": {
+          "remember": "Remember your password?",
+          "backToSignIn": "Back to Sign In"
+        }
+      },
+      "resetPassword": {
+        "invalid": {
+          "title": "Invalid Reset Link",
+          "description": "This password reset link is invalid or missing a token.",
+          "note": "Please request a new password reset link.",
+          "requestLink": "Request New Reset Link"
+        },
+        "expired": {
+          "title": "Reset Link Expired",
+          "description": "This password reset link has expired or is invalid.",
+          "info": "Password reset links expire after 1 hour for security reasons. Please request a new one.",
+          "requestLink": "Request New Reset Link"
+        },
+        "form": {
+          "title": "Set your new password",
+          "description": "Enter your new password below"
+        },
+        "cta": {
+          "remember": "Remember your password?",
+          "backToSignIn": "Back to Sign In"
+        }
+      },
+      "verifyEmail": {
+        "invalid": {
+          "title": "Invalid Verification Link",
+          "description": "The verification link is invalid or missing. Please check your email and try again.",
+          "backToSignIn": "Back to Sign In"
+        },
+        "failed": {
+          "title": "Verification Failed",
+          "expiredInfo": "Verification links expire after 24 hours for security. You can request a new one and try again.",
+          "genericFallback": "An error occurred during verification."
+        },
+        "buttons": {
+          "returnToDashboard": "Return to Dashboard",
+          "backToSignIn": "Back to Sign In"
+        },
+        "helpLine": "Need help? Contact support at support@betterlytics.io"
+      }
+    },
+    "landing": {
+      "seo": {
+        "title": "Betterlytics | Simple, Cookieless, Privacy-Friendly Web Analytics",
+        "description": "Betterlytics is a privacy-first Google Analytics alternative. Get GDPR-compliant, cookieless insights without invasive tracking. Simple, open-source, and easy to use."
+      },
+      "hero": {
+        "badge": "Open Source • GDPR Compliant • Cookieless",
+        "titleTop": "Privacy-First",
+        "titleBottom": "Web Analytics",
+        "description": "Get powerful insights without compromising your users' privacy. GDPR-compliant, cookieless analytics that respects user privacy while delivering the data you need.",
+        "ctaPrimary": "Get Started for Free",
+        "ctaGithub": "View on GitHub"
+      },
+      "framework": {
+        "title": "Works with your favorite tools",
+        "subtitle": "Universal compatibility - works with any website, framework, or platform",
+        "footer": "And countless more... If it runs on the web, we support it!"
+      },
+      "principles": {
+        "titleEmphasis": "High-performance",
+        "titleRest": "analytics that respects privacy",
+        "subtitle": "Real-time insights, lightning-fast performance, and complete privacy compliance for everyone",
+        "features": {
+          "euGdpr": {
+            "title": "EU-Based & GDPR Compliant",
+            "description": "Servers hosted in the EU with strict data protection standards. Complete GDPR compliance with anonymous data collection and robust privacy safeguards."
+          },
+          "noConsent": {
+            "title": "No Consent Banner Required",
+            "description": "Fully anonymous analytics mean no cookie banners, no GDPR consent forms, no user friction. Just install and start tracking immediately."
+          },
+          "dataOwnership": {
+            "title": "Complete Data Ownership",
+            "description": "Your data stays yours forever. Self-host with our open-source version or use our secure cloud infrastructure."
+          },
+          "realtime": {
+            "title": "Real-time Business Insights",
+            "description": "Lightning-fast visitor tracking and conversion analytics worldwide. Beautiful dashboards help you make data-driven decisions instantly."
+          },
+          "lightweight": {
+            "title": "Lightweight & Developer-Friendly",
+            "description": "Under 1KB script, open-source codebase, and comprehensive APIs. Built by developers, for developers."
+          },
+          "simpleSetup": {
+            "title": "Simple Setup, Powerful Features",
+            "description": "One-line integration for any website. Advanced customization options and enterprise-grade features available."
+          }
+        }
+      },
+      "showcase": {
+        "titleEmphasis": "Powerful features",
+        "titleRest": "at your fingertips",
+        "subtitle": "Explore the full arsenal of analytics capabilities",
+        "docsButton": "Explore All Features",
+        "docsTitle": "Complete Betterlytics Documentation"
+      },
+      "integration": {
+        "titleStart": "Get started in",
+        "titleEmphasis": "under 2 minutes",
+        "subtitle": "Add our lightweight script and start collecting cookieless, privacy-friendly analytics immediately. No cookies, no personal data, no consent banners required.",
+        "cards": {
+          "script": {
+            "title": "Simple Script Tag",
+            "description": "Add one line to your HTML and start tracking immediately. Works with any website or CMS.",
+            "features": { "f1": "One-line installation", "f2": "Works anywhere", "f3": "No build process needed" }
+          },
+          "framework": {
+            "title": "Framework Ready",
+            "description": "Native support for React, Next.js, Vue, and other modern frameworks with TypeScript.",
+            "features": { "f1": "TypeScript support", "f2": "Framework components", "f3": "Tree-shakeable" }
+          },
+          "selfHosted": {
+            "title": "Self-Hosted Option",
+            "description": "Deploy on your own infrastructure with Docker for complete data ownership and control.",
+            "features": { "f1": "Docker deployment", "f2": "Complete control", "f3": "GDPR compliant" }
+          }
+        },
+        "guideButton": "View Integration Guide",
+        "guideTitle": "Betterlytics Integration Guide",
+        "footer": "Detailed installation instructions for all platforms and frameworks"
+      },
+      "openSource": {
+        "titleEmphasis": "Open Source",
+        "titleRest": "& Community Driven",
+        "subtitle": "Transparent, community-driven development. Join our contributors, request features, or adapt the platform to your unique requirements.",
+        "starOnGithub": "Star on GitHub",
+        "viewDocs": "View Documentation",
+        "docsTitle": "Complete Betterlytics Documentation"
+      },
+      "pricing": {
+        "titleEmphasis": "Simple, scalable",
+        "titleRest": "pricing",
+        "subtitle": "Traffic-based plans that matches your growth. Start free, scale as you grow.",
+        "footer": "Start with our free plan - no credit card required."
+      },
+      "cards": {
+        "advancedFilters": {
+          "title": "Advanced Filters",
+          "description": "Slice and dice your analytics data by any dimension to uncover actionable insights."
+        },
+        "trafficSources": {
+          "title": "Traffic Sources",
+          "description": "Discover where your visitors are arriving from and optimize your marketing efforts.",
+          "totalVisitors": "Total Visitors",
+          "thisMonth": "this month",
+          "visitorsLabel": "visitors",
+          "sources": {
+            "googleSearch": "Google Search",
+            "direct": "Direct",
+            "socialMedia": "Social Media",
+            "email": "Email",
+            "other": "Other"
+          }
+        },
+        "funnels": {
+          "title": "Funnels",
+          "description": "Track the conversion rate of your website's key user journeys.",
+          "total": "Total",
+          "dropOff": "drop off",
+          "sinceLastWeek": "since last week"
+        },
+        "events": {
+          "title": "Real-time Events",
+          "description": "Track every user interaction as it happens with detailed event logging.",
+          "showing": "Showing {loaded} of {total} events"
+        },
+        "journeys": {
+          "title": "User Journeys",
+          "description": "Track multiple user paths and see how visitors navigate through your site."
+        },
+        "worldMap": {
+          "title": "Geographical Analytics",
+          "description": "See where your visitors are coming from around the world.",
+          "topCountries": "Top Countries"
+        }
+      }
+    }
+  },
+  "pricingCards": {
+    "periodPerMonth": "/month",
+    "descriptions": {
+      "growth": "Perfect for small websites and personal projects",
+      "professional": "Advanced features for growing businesses",
+      "enterprise": "Complete solution for large organizations"
+    },
+    "features": {
+      "upToEventsPerMonth": "Up to {events} events/month",
+      "allFeatures": "All dashboard & analytics features",
+      "oneSite": "1 site",
+      "upTo50Sites": "Up to 50 sites",
+      "unlimitedSites": "Unlimited sites",
+      "retention1PlusYear": "1+ year data retention",
+      "retention3PlusYears": "3+ years data retention",
+      "retention5PlusYears": "5+ years data retention",
+      "emailSupport": "Email support",
+      "prioritySupport": "Priority support",
+      "dedicatedSupport": "Dedicated support & help",
+      "slaGuarantee": "SLA guarantee",
+      "everythingInStarter": "Everything in Starter",
+      "everythingInProfessional": "Everything in Professional"
+    },
+    "cta": {
+      "getStartedForFree": "Get Started for Free",
+      "contactSales": "Contact Sales",
+      "getStarted": "Get Started",
+      "currentPlan": "Current Plan",
+      "changeToThisPlan": "Change to This Plan",
+      "contactUs": "Contact Us"
+    },
+    "badges": {
+      "mostPopular": "Most Popular",
+      "current": "Current"
+    },
+    "labels": {
+      "free": "Free",
+      "custom": "Custom"
     }
   },
   "dashboard": {

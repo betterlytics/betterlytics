@@ -3,9 +3,10 @@ import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 import { getTranslations, getLocale } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/supportedLanguages';
 import { StructuredData } from '@/components/StructuredData';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'public.terms' });
   const seoConfig = { ...SEO_CONFIGS.terms, title: t('title') } as const;

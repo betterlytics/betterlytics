@@ -3,8 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock } from 'lucide-react';
 import { EventLogItem } from '@/app/dashboard/[dashboardId]/events/EventLogItem';
+import { getTranslations } from 'next-intl/server';
 
-export default function EventTrackingCard() {
+export default async function EventTrackingCard() {
+  const t = await getTranslations('public.landing.cards.events');
   const mockEvents: EventLogEntry[] = [
     {
       event_name: 'Button Click',
@@ -102,11 +104,9 @@ export default function EventTrackingCard() {
             <Clock className='text-primary h-4 w-4' />
             <LiveIndicator />
           </div>
-          Real-time Events
+          {t('title')}
         </CardTitle>
-        <CardDescription className='text-base'>
-          Track every user interaction as it happens with detailed event logging.
-        </CardDescription>
+        <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
 
       <CardContent className='p-0'>
@@ -119,7 +119,9 @@ export default function EventTrackingCard() {
         </ScrollArea>
 
         <div className='border-border/60 mt-4 border-t pt-3'>
-          <div className='text-muted-foreground text-center text-xs'>Showing 8 of 1,247 events</div>
+          <div className='text-muted-foreground text-center text-xs'>
+            {t('showing', { loaded: 8, total: 1247 })}
+          </div>
         </div>
       </CardContent>
     </Card>
