@@ -680,6 +680,29 @@
           "topCountries": "Top Countries"
         }
       }
+    },
+    "nav": {
+      "documentation": "Documentation",
+      "pricing": "Pricing",
+      "goToDashboard": "Go to Dashboard",
+      "getStarted": "Get Started"
+    },
+    "footer": {
+      "blurb": "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
+      "company": "Company",
+      "resources": "Resources",
+      "connect": "Connect",
+      "about": "About",
+      "contact": "Contact",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "dpa": "Data Processing Agreement",
+      "documentation": "Documentation",
+      "pricing": "Pricing",
+      "github": "GitHub",
+      "bluesky": "Bluesky",
+      "discord": "Discord",
+      "copyright": "© {year} Betterlytics. All rights reserved. Open source under AGPL-3.0 license."
     }
   },
   "pricingCards": {

@@ -684,6 +684,29 @@
           "topCountries": "Toplande"
         }
       }
+    },
+    "nav": {
+      "documentation": "Dokumentation",
+      "pricing": "Priser",
+      "goToDashboard": "Gå til dashboard",
+      "getStarted": "Kom i gang"
+    },
+    "footer": {
+      "blurb": "Privacy-first webanalyse til det moderne web. GDPR-kompatibel, cookiefri og open source.",
+      "company": "Virksomhed",
+      "resources": "Ressourcer",
+      "connect": "Forbind",
+      "about": "Om",
+      "contact": "Kontakt",
+      "privacyPolicy": "Privatlivspolitik",
+      "termsOfService": "Vilkår for tjenesten",
+      "dpa": "Databehandleraftale",
+      "documentation": "Dokumentation",
+      "pricing": "Priser",
+      "github": "GitHub",
+      "bluesky": "Bluesky",
+      "discord": "Discord",
+      "copyright": "© {year} Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licens."
     }
   },
   "pricingCards": {

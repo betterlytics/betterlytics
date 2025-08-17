@@ -9,8 +9,10 @@ import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
+import { useTranslations } from 'next-intl';
 
 export default function PublicTopBar() {
+  const t = useTranslations('public.nav');
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,16 +40,16 @@ export default function PublicTopBar() {
           <nav className='hidden items-center space-x-6 md:flex'>
             <ExternalLink
               href='/docs'
-              title='Complete Betterlytics Documentation'
+              title={t('documentation')}
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              Documentation
+              {t('documentation')}
             </ExternalLink>
             <Link
               href='/#pricing'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              Pricing
+              {t('pricing')}
             </Link>
 
             <div className='flex items-center space-x-4'>
@@ -57,11 +59,11 @@ export default function PublicTopBar() {
                 </div>
               ) : session ? (
                 <NextLink href='/dashboards'>
-                  <Button variant='default'>Go to Dashboard</Button>
+                  <Button variant='default'>{t('goToDashboard')}</Button>
                 </NextLink>
               ) : !isOnSignInPage ? (
                 <Link href='/signin'>
-                  <Button>Get Started</Button>
+                  <Button>{t('getStarted')}</Button>
                 </Link>
               ) : null}
             </div>
@@ -84,27 +86,27 @@ export default function PublicTopBar() {
                 onClick={closeMobileMenu}
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
               >
-                Pricing
+                {t('pricing')}
               </Link>
               <ExternalLink
                 href='/docs'
                 onClick={closeMobileMenu}
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
-                title='Complete Betterlytics Documentation'
+                title={t('documentation')}
               >
-                Documentation
+                {t('documentation')}
               </ExternalLink>
 
               <div className='border-t pt-3'>
                 {session ? (
                   <Link href='/dashboards' onClick={closeMobileMenu} locale={'false' as unknown as any}>
                     <Button variant='default' className='w-full'>
-                      Go to Dashboard
+                      {t('goToDashboard')}
                     </Button>
                   </Link>
                 ) : !isOnSignInPage ? (
                   <Link href='/signin' onClick={closeMobileMenu}>
-                    <Button className='w-full'>Get Started</Button>
+                    <Button className='w-full'>{t('getStarted')}</Button>
                   </Link>
                 ) : null}
               </div>
