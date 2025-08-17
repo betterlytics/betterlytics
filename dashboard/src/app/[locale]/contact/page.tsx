@@ -5,8 +5,9 @@ import { Mail } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/supportedLanguages';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'public.contact' });
   const seoConfig = { ...SEO_CONFIGS.contact, title: t('title') } as const;

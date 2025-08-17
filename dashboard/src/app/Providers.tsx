@@ -5,8 +5,6 @@ import { SessionProvider } from 'next-auth/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/app/ThemeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale } from 'next-intl/server';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
