@@ -2,6 +2,66 @@
   "public": {
     "about": {
       "aboutUs": "About Betterlytics"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "intro": "Questions about Betterlytics? Need support with your analytics setup? Our team is ready to assist you.",
+      "getInTouch": {
+        "title": "Get in Touch",
+        "description": "Whether you need technical support, have questions about our features, or want to discuss enterprise solutions, we're here to help. Choose the method that works best for you:"
+      },
+      "methods": {
+        "email": {
+          "title": "Email",
+          "description": "hello@betterlytics.io"
+        },
+        "github": {
+          "title": "GitHub",
+          "description": "github.com/betterlytics/betterlytics"
+        },
+        "discord": {
+          "title": "Discord",
+          "description": "Join our Discord Server"
+        },
+        "bluesky": {
+          "title": "Bluesky",
+          "description": "@betterlytics.bsky.social"
+        }
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "items": {
+          "integrate": {
+            "question": "How do I integrate Betterlytics with my website?",
+            "answer": "Integration is simple! Just add our lightweight script tag to your website or install our NPM package. Check our documentation for detailed setup guides for all major frameworks."
+          },
+          "gdpr": {
+            "question": "Is Betterlytics really GDPR compliant?",
+            "answer": "Yes, absolutely! We don't use cookies, don't collect personal data, and all data processing is done in compliance with GDPR, CCPA, and other privacy regulations."
+          },
+          "migrate": {
+            "question": "Can I migrate from Google Analytics?",
+            "answer": "Not yet! But we're working hard to implement this feature and will provide a migration guide and tools to help you transition from Google Analytics."
+          },
+          "freePlan": {
+            "question": "What's included in the free plan?",
+            "answer": "The free self-hosted plan includes up to 10,000 tracked events, full dashboard access and community support. Perfect for getting started! No credit card required, no strings attached."
+          },
+          "cloud": {
+            "question": "How does the cloud hosting work?",
+            "answer": "Our cloud hosting provides a fully managed Betterlytics instance with automatic updates, backups, and 99.9% uptime SLA. No server management required!"
+          },
+          "support": {
+            "question": "Do you offer support for self-hosted instances?",
+            "answer": "Partially! We provide community support through GitHub and Discord for self-hosted instances, but our priority is to support our cloud hosting customers."
+          }
+        }
+      },
+      "cta": {
+        "lead": "Can't find what you're looking for?",
+        "docsLinkText": "Check our full documentation →",
+        "docsLinkTitle": "Complete Betterlytics Documentation"
+      }
     }
   },
   "dashboard": {

@@ -3,9 +3,7 @@ import { DEFAULT_LANGUAGE, getEffectiveLanguage } from '@/dictionaries/dictionar
 import { getRequestConfig } from 'next-intl/server';
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  const result = await getUserSettingsAction();
-
-  const preferredLanguage = result.success ? result.data.language : DEFAULT_LANGUAGE;
+  const preferredLanguage = DEFAULT_LANGUAGE;
   const effectiveLanguage = getEffectiveLanguage(preferredLanguage);
   const locale = (await requestLocale) ?? effectiveLanguage;
 

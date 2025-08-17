@@ -2,6 +2,66 @@
   "public": {
     "about": {
       "aboutUs": "Om Betterlytics"
+    },
+    "contact": {
+      "title": "Kontakt os",
+      "intro": "Spørgsmål om Betterlytics? Har du brug for hjælp til din analyseopsætning? Vores team er klar til at hjælpe.",
+      "getInTouch": {
+        "title": "Tag kontakt",
+        "description": "Uanset om du har brug for teknisk support, har spørgsmål til vores funktioner, eller vil drøfte enterprise-løsninger, er vi her for at hjælpe. Vælg den metode, der passer dig bedst:"
+      },
+      "methods": {
+        "email": {
+          "title": "E-mail",
+          "description": "hello@betterlytics.io"
+        },
+        "github": {
+          "title": "GitHub",
+          "description": "github.com/betterlytics/betterlytics"
+        },
+        "discord": {
+          "title": "Discord",
+          "description": "Deltag i vores Discord-server"
+        },
+        "bluesky": {
+          "title": "Bluesky",
+          "description": "@betterlytics.bsky.social"
+        }
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "items": {
+          "integrate": {
+            "question": "Hvordan integrerer jeg Betterlytics på min hjemmeside?",
+            "answer": "Integrationen er simpel! Tilføj blot vores mikro-script-tag til din hjemmeside eller installer vores NPM-pakke. Se vores dokumentation for detaljerede opsætningsvejledninger til alle større frameworks."
+          },
+          "gdpr": {
+            "question": "Er Betterlytics virkelig GDPR-kompatibel?",
+            "answer": "Ja, helt sikkert! Vi bruger ikke cookies, indsamler ikke persondata, og al databehandling sker i overensstemmelse med GDPR, CCPA og andre persondatabestemmelser."
+          },
+          "migrate": {
+            "question": "Kan jeg migrere fra Google Analytics?",
+            "answer": "Ikke endnu! Men vi arbejder hårdt på at implementere denne funktion og vil levere en migrationsvejledning og værktøjer til at hjælpe dig med overgangen fra Google Analytics."
+          },
+          "freePlan": {
+            "question": "Hvad er inkluderet i den gratis plan?",
+            "answer": "Den gratis self-hosted plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger."
+          },
+          "cloud": {
+            "question": "Hvordan fungerer cloud-hosting?",
+            "answer": "Vores cloud-hosting giver en fuldt administreret Betterlytics-instans med automatiske opdateringer, backups og 99,9% oppetid. Ingen serveradministration krævet!"
+          },
+          "support": {
+            "question": "Tilbyder I support til self-hosted installationer?",
+            "answer": "Delvist! Vi yder community-support via GitHub og Discord for self-hosted installationer, men vores prioritet er at støtte vores cloud-hosting kunder."
+          }
+        }
+      },
+      "cta": {
+        "lead": "Kan du ikke finde det, du søger?",
+        "docsLinkText": "Se vores fulde dokumentation →",
+        "docsLinkTitle": "Komplet Betterlytics-dokumentation"
+      }
     }
   },
   "dashboard": {

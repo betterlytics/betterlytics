@@ -4,35 +4,90 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
 import ExternalLink from '@/components/ExternalLink';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  return generateSEO(SEO_CONFIGS.contact, { locale });
+  const t = await getTranslations({ locale, namespace: 'public.contact' });
+  const seoConfig = { ...SEO_CONFIGS.contact, title: t('title') } as const;
+  return generateSEO(seoConfig, { locale });
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const t = await getTranslations('public.contact');
+  const seoConfig = { ...SEO_CONFIGS.contact, title: t('title') } as const;
+
+  const contactMethods = [
+    {
+      icon: Mail,
+      title: t('methods.email.title'),
+      description: t('methods.email.description'),
+      href: 'mailto:hello@betterlytics.io',
+    },
+    {
+      icon: GitHubIcon,
+      title: t('methods.github.title'),
+      description: t('methods.github.description'),
+      href: 'https://github.com/betterlytics/betterlytics',
+    },
+    {
+      icon: DiscordIcon,
+      title: t('methods.discord.title'),
+      description: t('methods.discord.description'),
+      href: 'https://discord.gg/vwqSvPn6sP',
+    },
+    {
+      icon: BlueskyIcon,
+      title: t('methods.bluesky.title'),
+      description: t('methods.bluesky.description'),
+      href: 'https://bsky.app/profile/betterlytics.bsky.social',
+    },
+  ];
+
+  const faqItems = [
+    {
+      question: t('faq.items.integrate.question'),
+      answer: t('faq.items.integrate.answer'),
+    },
+    {
+      question: t('faq.items.gdpr.question'),
+      answer: t('faq.items.gdpr.answer'),
+    },
+    {
+      question: t('faq.items.migrate.question'),
+      answer: t('faq.items.migrate.answer'),
+    },
+    {
+      question: t('faq.items.freePlan.question'),
+      answer: t('faq.items.freePlan.answer'),
+    },
+    {
+      question: t('faq.items.cloud.question'),
+      answer: t('faq.items.cloud.answer'),
+    },
+    {
+      question: t('faq.items.support.question'),
+      answer: t('faq.items.support.answer'),
+    },
+  ];
+
   return (
     <>
-      <StructuredData config={SEO_CONFIGS.contact} />
+      <StructuredData config={seoConfig} />
       <div className='container mx-auto max-w-6xl px-4 py-8'>
         <div className='mb-12 text-center'>
-          <h1 className='mb-4 text-3xl font-bold tracking-tight'>Contact Us</h1>
-          <p className='text-muted-foreground text-xl'>
-            Questions about Betterlytics? Need support with your analytics setup? Our team is ready to assist you.
-          </p>
+          <h1 className='mb-4 text-3xl font-bold tracking-tight'>{t('title')}</h1>
+          <p className='text-muted-foreground text-xl'>{t('intro')}</p>
         </div>
 
         <div className='mb-16'>
           <Card>
             <CardHeader>
-              <CardTitle>Get in Touch</CardTitle>
-              <CardDescription>
-                Whether you need technical support, have questions about our features, or want to discuss
-                enterprise solutions, we're here to help. Choose the method that works best for you:
-              </CardDescription>
+              <CardTitle>{t('getInTouch.title')}</CardTitle>
+              <CardDescription>{t('getInTouch.description')}</CardDescription>
             </CardHeader>
             <CardContent className='space-y-6'>
-              {CONTACT_METHODS.map((method) => {
+              {contactMethods.map((method) => {
                 const Icon = method.icon;
                 return (
                   <div key={method.title} className='flex items-center gap-4'>
@@ -59,11 +114,11 @@ export default function ContactPage() {
 
         <div className='mb-8'>
           <div className='mb-8 text-center'>
-            <h2 className='mb-4 text-2xl font-bold'>Frequently Asked Questions</h2>
+            <h2 className='mb-4 text-2xl font-bold'>{t('faq.title')}</h2>
           </div>
 
           <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            {FAQ_ITEMS.map((item, index) => (
+            {faqItems.map((item, index) => (
               <Card key={index}>
                 <CardHeader>
                   <CardTitle className='text-base'>{item.question}</CardTitle>
@@ -78,13 +133,13 @@ export default function ContactPage() {
 
         <div className='text-center'>
           <p className='text-muted-foreground mb-4'>
-            Can't find what you're looking for?{' '}
+            {t('cta.lead')}{' '}
             <ExternalLink
               href='/docs'
               className='text-primary hover:text-primary/80 font-medium underline'
-              title='Complete Betterlytics Documentation'
+              title={t('cta.docsLinkTitle')}
             >
-              Check our full documentation →
+              {t('cta.docsLinkText')}
             </ExternalLink>
           </p>
         </div>
@@ -92,63 +147,3 @@ export default function ContactPage() {
     </>
   );
 }
-
-const CONTACT_METHODS = [
-  {
-    icon: Mail,
-    title: 'Email',
-    description: 'hello@betterlytics.io',
-    href: 'mailto:hello@betterlytics.io',
-  },
-  {
-    icon: GitHubIcon,
-    title: 'GitHub',
-    description: 'github.com/betterlytics/betterlytics',
-    href: 'https://github.com/betterlytics/betterlytics',
-  },
-  {
-    icon: DiscordIcon,
-    title: 'Discord',
-    description: 'Join our Discord Server',
-    href: 'https://discord.gg/vwqSvPn6sP',
-  },
-  {
-    icon: BlueskyIcon,
-    title: 'Bluesky',
-    description: '@betterlytics.bsky.social',
-    href: 'https://bsky.app/profile/betterlytics.bsky.social',
-  },
-];
-
-const FAQ_ITEMS = [
-  {
-    question: 'How do I integrate Betterlytics with my website?',
-    answer:
-      'Integration is simple! Just add our lightweight script tag to your website or install our NPM package. Check our documentation for detailed setup guides for all major frameworks.',
-  },
-  {
-    question: 'Is Betterlytics really GDPR compliant?',
-    answer:
-      "Yes, absolutely! We don't use cookies, don't collect personal data, and all data processing is done in compliance with GDPR, CCPA, and other privacy regulations.",
-  },
-  {
-    question: 'Can I migrate from Google Analytics?',
-    answer:
-      "Not yet! But we're working hard to implement this feature and will provide a migration guide and tools to help you transition from Google Analytics.",
-  },
-  {
-    question: "What's included in the free plan?",
-    answer:
-      'The free self-hosted plan includes up to 10,000 tracked events, full dashboard access and community support. Perfect for getting started! No credit card required, no strings attached.',
-  },
-  {
-    question: 'How does the cloud hosting work?',
-    answer:
-      'Our cloud hosting provides a fully managed Betterlytics instance with automatic updates, backups, and 99.9% uptime SLA. No server management required!',
-  },
-  {
-    question: 'Do you offer support for self-hosted instances?',
-    answer:
-      'Partially! We provide community support through GitHub and Discord for self-hosted instances, but our priority is to support our cloud hosting customers.',
-  },
-];
