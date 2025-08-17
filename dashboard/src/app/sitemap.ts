@@ -65,22 +65,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       continue;
     }
 
-    for (const locale of SUPPORTED_LANGUAGES) {
-      const url = `${baseUrl}${localizedPath(page.path, locale)}`;
-      const languages: Record<string, string> = {};
-      for (const alt of SUPPORTED_LANGUAGES) {
-        languages[alt] = `${baseUrl}${localizedPath(page.path, alt)}`;
-      }
-      languages['x-default'] = `${baseUrl}${page.path}`;
-
-      entries.push({
-        url,
-        lastModified: now,
-        changeFrequency: page.changeFrequency,
-        priority: page.priority,
-        alternates: { languages },
-      });
+    const languages: Record<string, string> = {};
+    for (const alt of SUPPORTED_LANGUAGES) {
+      languages[alt] = `${baseUrl}${localizedPath(page.path, alt)}`;
     }
+
+    entries.push({
+      url: `${baseUrl}${page.path}`,
+      lastModified: now,
+      changeFrequency: page.changeFrequency,
+      priority: page.priority,
+      alternates: { languages },
+    });
   }
 
   return entries;
