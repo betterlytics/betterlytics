@@ -1,7 +1,60 @@
 {
   "public": {
     "about": {
-      "aboutUs": "Om Betterlytics"
+      "aboutUs": "Om Betterlytics",
+      "intro": "Vi bygger fremtidens webanalyse: privacy-first, open source og designet til det moderne web. Ikke mere at vælge mellem stærke indsigter og at respektere dine besøgendes privatliv.",
+      "sections": {
+        "howWeStarted": {
+          "title": "Hvordan vi startede",
+          "p1": "Betterlytics blev født ud af reel frustration. Vores team udviklede et Vendor Management System, da vi ramte en mur med webanalyse. Hver løsning vi vurderede, tvang os til det samme umulige valg: enten kompromittere vores brugeres privatliv eller nøjes med utilstrækkelige indsigter.",
+          "p2": "Traditionelle analyseværktøjer tvinger dig til at vælge mellem dybdegående indsigter og brugernes privatliv. Vi mener, det er et falsk valg. Betterlytics beviser, at du kan få stærke, handlingsorienterede indsigter og samtidig være fuldt privatlivs-kompatibel og respektfuld over for dine besøgende.",
+          "p3": "Det, der startede som en løsning på vores egne behov, blev til noget langt større: en mission om at bygge analyseværktøjer, der respekterer både website-ejere og deres besøgende. Hver funktion er designet med privatliv og performance som lige vigtige prioriteter."
+        },
+        "whyPrivacyFirst": {
+          "title": "Hvorfor privacy-first analyse er vigtigt",
+          "p1": "Webanalyseindustrien har i alt for lang tid været domineret af overvågningskapitalisme. Store analyseudbydere indsamler enorme mængder persondata, sporer brugere på tværs af websites og bruger disse oplysninger til at opbygge detaljerede adfærdsprofiler til reklameformål.",
+          "p2": "Vi mener ikke, at website-ejere skal gå på kompromis med deres besøgendes privatliv for at forstå, hvordan deres site performer. Betterlytics indsamler kun de nødvendige metrics: ingen cookies, ingen persondata, ingen cross-site tracking. Dine besøgendes privatliv respekteres som standard."
+        },
+        "builtInOpen": {
+          "title": "Bygget i det åbne",
+          "p1": "Betterlytics er fuldstændig open source under AGPL-3.0 licensen. Det handler ikke kun om transparens, men om ansvarlighed. Alle kan inspicere vores kode, verificere vores privacy-udsagn og bidrage til at gøre platformen bedre.",
+          "p2": "Open source betyder også frihed. Du kan self-host’e Betterlytics på din egen infrastruktur og sikre fuld kontrol over dine data. Ingen vendor lock-in, ingen pludselige politikændringer, ingen uventede prisstigninger."
+        },
+        "privacyPerformance": {
+          "title": "Privatliv og performance i perfekt balance",
+          "p1": "Vi går lige meget op i privatliv og performance, fordi din hjemmesides hastighed er lige så vigtig som dine besøgendes privatliv. Vores tracking-script er under 2KB i størrelse. Sammenlign det med Google Analytics’ script, der er over 45KB. Bygget med moderne webstandarder og optimeret til hastighed, så Betterlytics ikke gør dit site langsomt.",
+          "p2": "Under motorhjelmen bruger vi cutting-edge teknologi: Rust til højtydende databehandling, ClickHouse til lynhurtige analytiske forespørgsler og Next.js 15 til en moderne, responsiv dashboard-oplevelse. Hver teknisk beslutning prioriterer både privatliv og systemperformance."
+        },
+        "builtForEveryone": {
+          "title": "Bygget til alle",
+          "p1": "Uanset om du driver en personlig blog, en voksende SaaS-platform, en e-handelsbutik eller et enterprise-website, er Betterlytics designet til at opfylde dine behov. Vi forstår, at forskellige organisationer har forskellige krav – fra simple trafikindsigter til kompleks analyse af brugerrejser.",
+          "p2": "Integration tager minutter, ikke timer. Vores dashboard er intuitivt og veldokumenteret og viser dig det, du behøver, uden unødig kompleksitet. Selvom vi endnu ikke har et offentligt API, er alle dashboard-funktioner grundigt dokumenteret, så du får mest muligt ud af din analyse."
+        },
+        "privacyRegulations": {
+          "title": "Privatlivsregler gjort simple",
+          "p1": "GDPR, CCPA, PECR kompatibel. Privatlivsregler bør ikke være et compliance-mareridt. Fordi Betterlytics ikke indsamler persondata eller bruger cookies, er du compliant som standard. Ingen cookiebannere, intet samtykkestyring nødvendigt.",
+          "p2": "Denne enkelhed gælder også for dine brugere. De kan fokusere på dit indhold i stedet for at blive afbrudt af privatlivsmeddelelser og samtykkeformularer. En bedre oplevelse for alle.",
+          "p3Prefix": "Vi holder til i EU, og al databehandling foregår inden for EU’s grænser. Dine data forlader aldrig EU, hvilket sikrer fuld overholdelse af GDPR. For detaljer om, hvordan vi håndterer dine data, se vores",
+          "privacyPolicyLabel": "privatlivspolitik"
+        },
+        "communityDriven": {
+          "title": "Fællesskabsdrevet udvikling",
+          "p1": "Betterlytics vokser gennem feedback og bidrag fra fællesskabet. Vi lytter til udviklere, implementerer ønskede funktioner og vedligeholder platformen baseret på reelle brugerbehov – ikke investorers krav eller reklameindtægter. Tak til vores community for feedback og bidrag.",
+          "p2": "Vores bæredygtige forretningsmodel betyder, at vi kan fokusere på at bygge den bedst mulige analyseplatform. Vi finansieres af vores brugere – ikke ved at sælge deres data. Denne incitaments-justering sikrer, at vi altid prioriterer privatliv og performance."
+        },
+        "future": {
+          "title": "Fremtiden for webanalyse",
+          "quote": "Vi mener, at virksomheder skal kunne forstå deres målgruppe uden at ofre privatliv eller gå på kompromis med etik. Analyse kan være både kraftfuld og respektfuld fra design.",
+          "p1": "Denne vision driver alt, hvad vi bygger. Hver funktion, hver optimering, hver beslutning er styret af vores engagement i privacy-first analyse, som alle kan stole på og bruge."
+        }
+      },
+      "cta": {
+        "title": "Klar til at komme i gang?",
+        "lead": "Deltag i det voksende fællesskab af virksomheder, der nægter at gå på kompromis med privatliv.",
+        "getStarted": "Kom i gang gratis",
+        "viewDocs": "Se dokumentation",
+        "docsTitle": "Komplet Betterlytics-dokumentation"
+      }
     },
     "contact": {
       "title": "Kontakt os",
