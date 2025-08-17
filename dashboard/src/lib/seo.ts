@@ -11,7 +11,7 @@ interface SEOConfig {
 }
 
 const BASE_URL = 'https://betterlytics.io';
-const DEFAULT_IMAGE = '/betterlytics-logo-full-light.png';
+const DEFAULT_IMAGE = '/og_image.png';
 
 export function generateSEO(
   { title, description, keywords, path, imageAlt }: SEOConfig,

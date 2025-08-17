@@ -2,8 +2,8 @@
 
 import { use } from 'react';
 import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
-import LeafletMap from '@/components/LeafletMap';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import LeafletMap from '@/components/map/LeafletMap';
+import { useTranslations } from 'next-intl';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -11,7 +11,7 @@ type GeographySectionProps = {
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
   const mapData = use(worldMapPromise);
-  const { dictionary } = useDictionary();
+  const t = useTranslations('components.geography');
 
   return (
     <>
@@ -26,7 +26,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
 
       {mapData.visitorData.length === 0 && (
         <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
-          <p className='text-sm text-amber-700'>{dictionary.t('components.geography.noData')}</p>
+          <p className='text-sm text-amber-700'>{t('noData')}</p>
         </div>
       )}
     </>

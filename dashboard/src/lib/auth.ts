@@ -2,14 +2,18 @@ import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
 import { findUserByEmail } from '@/repositories/postgres/user';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
+import prisma from '@/lib/postgres';
+import { getUserSettings } from '@/services/userSettings';
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       credentials: {
@@ -76,7 +80,7 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, trigger, account, profile }) {
       if (user) {
         token.uid = user.id;
         token.name = user.name;
@@ -84,6 +88,25 @@ export const authOptions: NextAuthOptions = {
         token.emailVerified = user.emailVerified;
         token.role = user.role;
         token.totpEnabled = user.totpEnabled;
+        token.hasPassword = Boolean((user as unknown as { passwordHash?: string | null })?.passwordHash);
+        if (account?.provider === 'google') {
+          const emailVerifiedByGoogle = Boolean((profile as any)?.email_verified);
+          const userIsUnverified = !user.emailVerified;
+
+          if (emailVerifiedByGoogle && userIsUnverified) {
+            const verifiedAt = new Date();
+            token.emailVerified = verifiedAt;
+
+            try {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { emailVerified: verifiedAt },
+              });
+            } catch (e) {
+              console.error('Failed to update verified email from Google:', e);
+            }
+          }
+        }
       } else if (trigger === 'update' && token.email) {
         try {
           const freshUser = await findUserByEmail(token.email as string);
@@ -94,6 +117,7 @@ export const authOptions: NextAuthOptions = {
             token.emailVerified = freshUser.emailVerified || null;
             token.role = freshUser.role;
             token.totpEnabled = freshUser.totpEnabled;
+            token.hasPassword = Boolean(freshUser.passwordHash);
           }
         } catch (error) {
           console.error('Error refreshing user data in JWT callback:', error);
@@ -104,12 +128,17 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
+        session.user.settings = {
+          ...(await getUserSettings(token.uid)),
+          synchronizedAt: new Date(),
+        };
         session.user.id = token.uid;
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.emailVerified = token.emailVerified;
         session.user.role = token.role;
         session.user.totpEnabled = token.totpEnabled;
+        session.user.hasPassword = token.hasPassword;
       }
       return session;
     },

@@ -57,60 +57,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    hostname: prometheus
-    user: 65534:65534
-    ports:
-      - 9090:9090
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus_data
-    networks:
-      - monitoring_network
-
-  promtail:
-    image: grafana/promtail:3.2.1
-    container_name: promtail
-    hostname: promtail
-    restart: unless-stopped
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
-      - promtail_data:/positions
-    networks:
-      - monitoring_network
-
-  loki:
-    image: grafana/loki:1.4.1
-    container_name: loki
-    hostname: loki
-    volumes:
-      - ./loki-data:/loki
-    networks:
-      - monitoring_network
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    hostname: grafana
-    ports:
-      - 8081:3000
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    networks:
-      - monitoring_network
-
 volumes:
   clickhouse_data:
   clickhouse_users:
   postgres_data:
-  promtail_data:
-  prometheus_data:
-  grafana_data:
-
-networks:
-  monitoring_network:

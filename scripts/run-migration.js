@@ -1,4 +1,7 @@
-require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 const { execSync } = require("child_process");
 
 const url = process.env.CLICKHOUSE_URL;
@@ -16,8 +19,8 @@ if (!url || !db) {
 const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --user=${user} --password=${password}`;
 
 try {
-  execSync(command, { stdio: "inherit" })
-} catch(error) {
+  execSync(command, { stdio: "inherit" });
+} catch (error) {
   console.error("Migration failed:", error.message);
   process.exit(1);
-};
+}

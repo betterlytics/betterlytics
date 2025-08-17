@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -60,7 +61,9 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
-        <Providers>{children}</Providers>
+        <NextIntlClientProvider>
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
         <Toaster />
       </body>
     </html>

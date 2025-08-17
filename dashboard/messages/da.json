@@ -472,6 +472,18 @@
     }
   },
   "dashboard": {
+    "sidebar": {
+      "overview": "Oversigt",
+      "pages": "Sider",
+      "referrers": "Henvisninger",
+      "userJourney": "Brugerrejse",
+      "geography": "Geografi",
+      "devices": "Enheder",
+      "campaigns": "Kampagner",
+      "events": "Hændelser",
+      "funnels": "Tragter",
+      "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}"
+    },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
@@ -662,7 +674,7 @@
       "failedToCopy": "Kunne ikke kopiere",
       "important": "Vigtigt",
       "headSectionNote": "Tilføj dette script til {head}-sektionen af din rod-layout eller individuelle sider.",
-      "npmPackageNote": "Eller installer vores {npm} pakke {package} for nem opsætning til Node-projekter.",
+      "npmPackageNote": "Eller installer vores <npm>npm</npm> pakke <package>@betterlytics/tracker</package> for nem opsætning til Node-projekter.",
       "yourSiteId": "Dit site-ID",
       "trackingScript": "Sporingsskript",
       "copied": "Kopieret",
@@ -670,7 +682,7 @@
       "htmlInstallation": "HTML installation",
       "nextjsInstallation": "Next.js installation",
       "reactInstallation": "React installation",
-      "initializeNpmPackage": "Initialiser ved hjælp af vores {npm} pakke",
+      "initializeNpmPackage": "Initialiser ved hjælp af vores <npm>npm</npm> pakke",
       "integrationStatus": "Integrationsstatus",
       "trackProgress": "Spor dit fremskridt",
       "accountCreated": "Konto oprettet",

@@ -3,7 +3,7 @@ import { CreateVerificationTokenData, VerificationToken } from '@/entities/verif
 
 export async function createVerificationToken(data: CreateVerificationTokenData): Promise<VerificationToken> {
   try {
-    const verificationToken = await prisma.verificationRequest.create({
+    const verificationToken = await prisma.verificationToken.create({
       data: {
         identifier: data.identifier,
         token: data.token,
@@ -20,7 +20,7 @@ export async function createVerificationToken(data: CreateVerificationTokenData)
 
 export async function findVerificationToken(token: string): Promise<VerificationToken | null> {
   try {
-    const verificationToken = await prisma.verificationRequest.findUnique({
+    const verificationToken = await prisma.verificationToken.findUnique({
       where: { token },
     });
 
@@ -33,7 +33,7 @@ export async function findVerificationToken(token: string): Promise<Verification
 
 export async function findVerificationTokenByIdentifier(identifier: string): Promise<VerificationToken | null> {
   try {
-    const verificationToken = await prisma.verificationRequest.findFirst({
+    const verificationToken = await prisma.verificationToken.findFirst({
       where: { identifier },
       orderBy: { createdAt: 'desc' },
     });
@@ -47,7 +47,7 @@ export async function findVerificationTokenByIdentifier(identifier: string): Pro
 
 export async function deleteVerificationToken(token: string): Promise<void> {
   try {
-    await prisma.verificationRequest.delete({
+    await prisma.verificationToken.delete({
       where: { token },
     });
   } catch (error) {
@@ -58,7 +58,7 @@ export async function deleteVerificationToken(token: string): Promise<void> {
 
 export async function deleteExpiredVerificationTokens(): Promise<void> {
   try {
-    await prisma.verificationRequest.deleteMany({
+    await prisma.verificationToken.deleteMany({
       where: {
         expires: {
           lt: new Date(),

@@ -472,6 +472,18 @@
     }
   },
   "dashboard": {
+    "sidebar": {
+      "overview": "Overview",
+      "pages": "Pages",
+      "referrers": "Referrers",
+      "geography": "Geography",
+      "userJourney": "User Journey",
+      "funnels": "Tragter",
+      "devices": "Enheder",
+      "campaigns": "Kampagner",
+      "events": "Hændelser",
+      "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}"
+    },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",
@@ -662,7 +674,7 @@
       "failedToCopy": "Failed to copy",
       "important": "Important",
       "headSectionNote": "Add this script to the {head} section of your root layout or individual pages.",
-      "npmPackageNote": "Or install our {npm} package {package} for easy setup for Node projects.",
+      "npmPackageNote": "Or install our <npm>npm</npm> package <package>@betterlytics/tracker</package> for easy setup for Node projects.",
       "yourSiteId": "Your Site ID",
       "trackingScript": "Tracking Script",
       "copied": "Copied",
@@ -670,7 +682,7 @@
       "htmlInstallation": "HTML Installation",
       "nextjsInstallation": "Next.js Installation",
       "reactInstallation": "React Installation",
-      "initializeNpmPackage": "Initialize using our {npm} package",
+      "initializeNpmPackage": "Initialize using our <npm>npm</npm> package",
       "integrationStatus": "Integration Status",
       "trackProgress": "Track your progress",
       "accountCreated": "Account Created",

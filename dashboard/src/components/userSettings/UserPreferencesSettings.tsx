@@ -7,10 +7,9 @@ import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
-import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/dictionaries/dictionaries';
+import { DEFAULT_LANGUAGE, SupportedLanguages } from '@/constants/supportedLanguages';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
 import ExternalLink from '@/components/ExternalLink';
 
 interface UserPreferencesSettingsProps {
@@ -21,10 +20,8 @@ interface UserPreferencesSettingsProps {
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
   const { theme, setTheme } = useTheme();
   const { refreshSettings, settings, updateSetting } = useUserSettings();
-  const { changeLanguage } = useDictionary();
 
   const handleLocaleChange = async (newLocale: SupportedLanguages) => {
-    await changeLanguage(newLocale);
     onUpdate({ language: newLocale });
     await refreshSettings();
   };
