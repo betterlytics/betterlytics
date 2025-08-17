@@ -47,7 +47,7 @@
     return url;
   }
 
-  function trackEvent(eventName, isCustomEvent = false, properties = {}) {
+  function trackEvent(eventName, overrides = {}) {
     var url = normalize(window.location.href);
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
@@ -74,14 +74,15 @@
       body: JSON.stringify({
         site_id: siteId,
         event_name: eventName,
-        is_custom_event: isCustomEvent,
-        properties: JSON.stringify(properties),
+        is_custom_event: false,
+        properties: "{}",
         url: url,
         referrer: referrer,
         user_agent: userAgent,
         screen_resolution: screenResolution,
         visitor_id: visitorId,
         timestamp: Math.floor(Date.now() / 1000),
+        ...overrides,
       }),
     }).catch(function (error) {
       console.error("Analytics tracking failed:", error);
@@ -92,7 +93,10 @@
 
   window.betterlytics = {
     event: (eventName, eventProps = {}) =>
-      trackEvent(eventName, true, eventProps),
+      trackEvent(eventName, {
+        is_custom_event: true,
+        properties: JSON.stringify(eventProps),
+      }),
   };
 
   for (var i = 0; i < queuedEvents.length; i++) {
@@ -100,7 +104,7 @@
   }
 
   // Track initial page view
-  trackEvent("pageview");
+  trackEvent();
 
   // Track page visibility changes
   document.addEventListener("visibilitychange", function () {
@@ -129,4 +133,27 @@
       }
     });
   }
+
+  // Outbound link tracking
+  function isOutboundLink(link) {
+    try {
+      var linkUrl = new URL(link.href, window.location.href);
+      return (
+        linkUrl.hostname !== window.location.hostname && linkUrl.hostname !== ""
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Set up outbound link click tracking
+  document.addEventListener("click", function (event) {
+    var target = event.target.closest("a");
+
+    if (target && target.href && isOutboundLink(target)) {
+      trackEvent("outbound_link", {
+        outbound_link_url: target.href,
+      });
+    }
+  });
 })();

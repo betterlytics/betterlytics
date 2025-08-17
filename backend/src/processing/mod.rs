@@ -41,6 +41,8 @@ pub struct ProcessedEvent {
     pub event_type: String,
     pub custom_event_name: String,
     pub custom_event_json: String,
+    /// Outbound link tracking
+    pub outbound_link_url: String,
 }
 
 /// Event processor that handles real-time processing
@@ -90,6 +92,7 @@ impl EventProcessor {
             campaign_info: CampaignInfo::default(),
             custom_event_name: String::new(),
             custom_event_json: String::new(),
+            outbound_link_url: String::new(),
         };
 
         // Handle event types
@@ -181,10 +184,31 @@ impl EventProcessor {
             processed.event_type = "custom".to_string();
             processed.custom_event_name = event_name;
             processed.custom_event_json = processed.event.raw.properties.clone();
+        } else if event_name == "outbound_link" {
+            processed.event_type = "outbound_link".to_string();
+            // Extract and clean outbound link URL (remove query params for privacy)
+            if let Some(ref outbound_url) = processed.event.raw.outbound_link_url {
+                processed.outbound_link_url = self.clean_outbound_url(outbound_url);
+            }
         } else {
             processed.event_type = event_name;
         }
         Ok(())
+    }
+
+    /// Clean outbound URL by removing query parameters and fragment for privacy
+    fn clean_outbound_url(&self, url: &str) -> String {
+        match Url::parse(url) {
+            Ok(mut parsed_url) => {
+                parsed_url.set_query(None);
+                parsed_url.set_fragment(None);
+                parsed_url.to_string()
+            }
+            Err(_) => {
+                // If URL parsing fails, return as-is (validation should catch this earlier)
+                url.to_string()
+            }
+        }
     }
 
     /// Get geolocation data for the IP
