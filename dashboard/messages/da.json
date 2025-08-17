@@ -115,6 +115,360 @@
         "docsLinkText": "Se vores fulde dokumentation →",
         "docsLinkTitle": "Komplet Betterlytics-dokumentation"
       }
+    },
+    "privacy": {
+      "title": "Betterlytics privatlivspolitik",
+      "lastUpdated": "Sidst opdateret:",
+      "tldr": {
+        "title": "Kort fortalt",
+        "body": "For besøgende på websites bruger vi ikke cookies og indsamler ingen persondata. Hvis du vælger at oprette en konto, beder vi kun om det absolut nødvendige og deler det kun med tjenester, der er nødvendige for, at appen fungerer."
+      },
+      "scope": {
+        "title": "Denne politik omfatter",
+        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics’ hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for din privatlivspolitik, databehandling og juridisk overholdelse."
+      },
+      "intro": {
+        "p1": "Hos Betterlytics er vi engagerede i at overholde GDPR, CCPA, PECR og andre privatlivsregler. Privatlivet for dine data — og det er dine data, ikke vores! — er vigtigt for os. Vi holder til i EU, og al databehandling foregår inden for EU’s grænser.",
+        "p2": "I denne politik beskriver vi, hvilke data vi indsamler og hvorfor, hvordan dine data håndteres, og dine rettigheder. Vi lover, at vi aldrig sælger dine data – aldrig har gjort det og vil aldrig gøre det."
+      },
+      "visitor": {
+        "title": "Som besøgende på websites, der bruger Betterlytics",
+        "lead": "Besøgendes privatliv er vigtigt for os. Vi har designet vores analysesystem til at være helt cookiefrit og privacy-fokuseret. Som besøgende på websites, der bruger Betterlytics:",
+        "li1": "Der indsamles ingen personlige oplysninger",
+        "li2": "Der lagres ingen cookies i din browser",
+        "li3": "Ingen oplysninger deles med, sendes til eller sælges til tredjepart",
+        "li4": "Ingen oplysninger deles med reklamevirksomheder",
+        "li5": "Ingen oplysninger udnyttes til personlige eller adfærdsmæssige profiler",
+        "li6": "Ingen oplysninger monetariseres",
+        "li7": "Alle indsamlede data er aggregerede og anonymiserede"
+      },
+      "anonymous": {
+        "title": "Hvilke anonyme data vi indsamler og hvorfor",
+        "pageViews": {
+          "title": "Sidevisninger og navigation",
+          "body": "Vi sporer hvilke sider, der besøges, og navigationsmønstre for at hjælpe ejere med at forstå, hvordan indholdet forbruges. Vi indsamler URL-sti (uden query-parametre for at undgå utilsigtet tracking af følsomme data) og henviserinformation."
+        },
+        "deviceBrowser": {
+          "title": "Enheds- og browserinformation",
+          "body": "Vi parser user agent-strengen for at bestemme browsertype, operativsystem og enhedskategori (mobil, tablet, desktop, laptop). Skærmopløsning kategoriseres (lille, mellem, stor) frem for at gemme præcise værdier."
+        },
+        "geographic": {
+          "title": "Geografisk information",
+          "body": "Vi bestemmer besøgendes land ud fra IP-adresse via en GeoIP-database. Selve IP-adressen anonymiseres straks ved at fjerne sidste oktet (IPv4) eller kun bruge de første 64 bit (IPv6), før nogen behandling."
+        },
+        "anonymousId": {
+          "title": "Anonym besøgsidentifikation",
+          "body": "Vi genererer en anonym besøgsfingeraftryk ved hjælp af et kryptografisk hash af den anonymiserede IP, kategoriseret skærmopløsning, browsernavn og en dagligt roterende salt. Det gør det muligt at tælle unikke besøgende uden at spore individer. Fingeraftrykket ændres dagligt for at sikre langvarig anonymitet."
+        },
+        "sessionTracking": {
+          "title": "Sessionstracking",
+          "body": "Vi sporer sessioner for at forstå, hvordan besøgende engagerer sig med websites. Sessioner udløber automatisk efter 30 minutters inaktivitet og lagres kun i serverhukommelse, aldrig i cookies eller browser-lager."
+        }
+      },
+      "processStore": {
+        "title": "Hvordan vi behandler og lagrer data",
+        "li1": "EU-baseret hosting: Al data behandles og lagres på servere i EU, hvilket sikrer GDPR-overholdelse.",
+        "li2": "Straks anonymisering: IP-adresser anonymiseres straks ved modtagelse, før nogen behandling eller lagring.",
+        "li3": "Ingen cross-site tracking: Hvert websites data er isoleret og spores separat med unikke site-ID’er.",
+        "li4": "Aggregeret rapportering: Alle rapporter viser kun aggregerede data uden muligheden for at identificere individer.",
+        "li5": "Daglig fingeraftryk-rotation: Besøgsfingeraftryk ændres dagligt og forhindrer langvarig sporing."
+      },
+      "customer": {
+        "title": "Som kunde og abonnent på Betterlytics",
+        "lead": "Vores ledende princip er kun at indsamle det, vi har brug for, og kun behandle information for at levere den tjeneste, du har tilmeldt dig.",
+        "whatWeCollect": {
+          "title": "Hvad vi indsamler og hvorfor",
+          "email": "E-mailadresse: Kræves for at oprette en konto, sende vigtige servicebeskeder og yde kundesupport.",
+          "auth": "Godkendelsesdata: Sikker sessions-token for at holde dig logget ind i dit dashboard.",
+          "websiteConfig": "Website-konfiguration: Domænenavne og site-indstillinger, du konfigurerer til din analyse-tracking.",
+          "usage": "Brugsdata: Hvordan du bruger vores dashboard til at forbedre vores service og yde support."
+        },
+        "thirdParty": {
+          "title": "Tredjepartstjenester",
+          "intro": "Vi bruger et begrænset antal betroede, EU-baserede tjenesteudbydere:",
+          "li1": "Betalingsbehandling (hvis relevant) via EU-kompatible betalingsudbydere",
+          "li2": "E-mail levering til transaktionelle e-mails og notifikationer",
+          "outro": "Vi deler kun de nødvendige oplysninger med disse udbydere og forpligter dem kontraktligt til at beskytte dine data i henhold til GDPR."
+        }
+      },
+      "dataRetention": {
+        "title": "Opbevaring af data",
+        "li1": "Sletning af konto: Når du sletter din konto, slettes ALLE data permanent med det samme – både dine persondata (e-mail, betalingsinfo, kontoindstillinger) OG al website-analysedata. Ingen undtagelser, ingen opbevaringsperiode.",
+        "li2": "Annullering af abonnement (uden sletning af konto): Hvis du annullerer dit abonnement, men beholder din konto, opbevarer vi dine analysedata i op til 1 måned i tilfælde af reaktivering, hvorefter de slettes permanent.",
+        "li3": "Sessionsdata: Besøgssessioner lagres kun i serverhukommelse og udløber automatisk efter 30 minutters inaktivitet.",
+        "footer": "Du har altid ret til øjeblikkelig sletning af alle data."
+      },
+      "rights": {
+        "title": "Dine rettigheder under GDPR",
+        "intro": "Som registreret under GDPR har du følgende rettigheder:",
+        "li1": "Indsigtsret: Anmod om en kopi af dine persondata",
+        "li2": "Ret til berigtigelse: Ret unøjagtige persondata",
+        "li3": "Ret til sletning: Anmod om sletning af dine persondata",
+        "li4": "Ret til begrænsning af behandling: Begræns hvordan vi bruger dine data",
+        "li5": "Ret til dataportabilitet: Modtag dine data i et portabelt format",
+        "li6": "Ret til indsigelse: Gør indsigelse mod behandling baseret på legitime interesser",
+        "li7": "Ret til at trække samtykke tilbage: Træk samtykke til databehandling tilbage",
+        "contact": "For at udøve nogen af disse rettigheder, kontakt os på privacy@betterlytics.io"
+      },
+      "noCookies": {
+        "title": "Ingen cookies-politik",
+        "body": "Betterlytics bruger ikke cookies til at spore website-besøgende. Vi opnår al nødvendig analysefunktionalitet gennem cookiefri, server-side behandling. Det betyder, at websites, der bruger Betterlytics, ikke behøver at vise cookiebannere for vores analyse-tracking."
+      },
+      "security": {
+        "title": "Datasikkerhed",
+        "li1": "Al datatransmission er krypteret med TLS 1.3",
+        "li2": "Data i hvile er krypteret med branchestandarder",
+        "li3": "Adgang til data er strengt begrænset til autoriseret personale",
+        "li4": "Alle servere befinder sig i sikre EU-datacentre"
+      },
+      "changes": {
+        "title": "Ændringer i denne privatlivspolitik",
+        "body": "Vi kan opdatere denne politik efter behov for at overholde relevante regler og afspejle nye praksisser. Når vi foretager væsentlige ændringer, informerer vi vores kunder via e-mail og annoncerer dem på vores website."
+      },
+      "contact": {
+        "title": "Kontakt os",
+        "lead": "Hvis du har spørgsmål, kommentarer eller bekymringer om denne privatlivspolitik, dine data eller dine rettigheder vedrørende dine oplysninger, kontakt os:",
+        "email": "E-mail:",
+        "address": "Adresse:",
+        "footer1": "🇪🇺 Fremstillet og hostet i EU",
+        "footer2": "Forpligtet til privatliv, transparens og GDPR-overholdelse"
+      }
+    },
+    "terms": {
+      "title": "Betterlytics vilkår for tjenesten",
+      "lastUpdated": "Sidst opdateret:",
+      "scope": {
+        "title": "Disse vilkår omfatter",
+        "body": "Disse vilkår for tjenesten gælder udelukkende for Betterlytics’ hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. De gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine vilkår, databehandling og juridisk overholdelse."
+      },
+      "intro": {
+        "p1": "Tak fordi du bruger Betterlytics! Når vi siger ‘virksomhed’, ‘vi’, ‘vores’, ‘os’, ‘service’ eller ‘tjenester’ i dette dokument, henviser vi til Betterlytics og vores privatlivsfokuserede webanalyseplatform.",
+        "p2": "Vi kan opdatere disse vilkår i fremtiden. Når vi foretager væsentlige ændringer, informerer vi vores kunder via e-mail og annoncerer dem på vores website. Når du bruger vores service – nu eller i fremtiden – accepterer du de nyeste vilkår.",
+        "p3": "Hvis du ikke accepterer disse vilkår, skal du ikke bruge denne service. Overtrædelse af vilkårene nedenfor kan medføre lukning af din konto."
+      },
+      "account": {
+        "title": "Konto-vilkår",
+        "li1": "Sikkerhedsansvar: Du er ansvarlig for at opretholde sikkerheden for din konto og adgangskode. Betterlytics kan ikke holdes ansvarlig for tab eller skader som følge af manglende overholdelse af denne sikkerhedsforpligtelse.",
+        "li2": "Kontoaktivitet: Du er ansvarlig for enhver aktivitet, der foregår under din konto, inklusive aktivitet fra teammedlemmer, du inviterer.",
+        "li3": "Juridisk overholdelse: Du må ikke bruge vores service til ulovlige formål eller til at overtræde love i din jurisdiktion.",
+        "li4": "Registreringskrav: Du skal angive en gyldig e-mailadresse for at gennemføre tilmeldingen. Du skal være et menneske – konti registreret af bots eller automatiserede metoder er ikke tilladt.",
+        "li5": "Ejerskab af website: Du skal eje eller have udtrykkelig tilladelse til at installere vores analyse-script på ethvert website, du sporer med Betterlytics.",
+        "li6": "Datakvalitet: Du accepterer at afgive korrekte oplysninger om dine websites og ikke bevidst sende falske eller vildledende data til vores service.",
+        "li7": "Alderskrav: Du skal være mindst 18 år for at bruge vores service. Hvis du er mellem 13-17 år, må du kun bruge vores service med forældres samtykke."
+      },
+      "acceptableUse": {
+        "title": "Acceptabel brug",
+        "intro": "Betterlytics er designet til legitim website-analyse og er bygget som et open source-projekt for transparens. Du accepterer ikke at bruge vores service til at:",
+        "li1": "Spor besøgende uden deres viden eller i strid med privatlivslovgivning",
+        "li2": "Indsamle personligt identificerbare oplysninger (vores system er designet til at forhindre dette)",
+        "li3": "Generere kunstig eller bot-trafik for at øge statistik eller misbruge vores infrastruktur",
+        "li4": "Spor websites, du ikke ejer, uden udtrykkelig tilladelse",
+        "li5": "Misbruge vores infrastruktur, omgå rate-limits eller sende defekt data, der kan skade vores systemer",
+        "li6": "Bruge vores service til at skade, chikanere eller krænke privatlivet for nogen",
+        "li7": "Overtræde gældende love, herunder GDPR, CCPA eller andre privatlivsregler"
+      },
+      "payment": {
+        "title": "Betaling, refusion og ændringer af plan",
+        "freeTierTitle": "Gratis plan",
+        "freeTierBody": "Vi tilbyder en permanent gratis plan med en månedlig grænse for events som angivet på vores prisside. Intet kreditkort er påkrævet for den gratis plan. Vi sælger aldrig dine data – uanset hvilken plan du bruger.",
+        "billingTitle": "Fakturering",
+        "billingBody": "Du kan bruge vores gratis plan ubegrænset inden for de månedlige grænser. For højere forbrug skal du opgradere til en betalt plan og betale forud. Hvis du overskrider planens grænser uden at opgradere, risikerer du at miste overskydende data. Hvis betalte konti er forfaldne, fryser vi kontoen, indtil betaling sker.",
+        "limitsTitle": "Event-grænser",
+        "limitsBody": "Hver plan inkluderer en månedlig grænse for events (sidevisninger, brugerdefinerede events osv.). Ubrugte events overføres ikke til næste måned. Du vil aldrig blive opkrævet ekstra for lejlighedsvise trafikspidser. Hvis du konsekvent overskrider grænserne i to på hinanden følgende måneder, kontakter vi dig for at drøfte opgradering.",
+        "planChangesTitle": "Ændringer af plan",
+        "planChangesBody": "Du kan op- eller nedgradere din plan når som helst. Opgraderinger træder i kraft med det samme. Nedgraderinger kan medføre tab af funktioner eller kapacitet. Vi er ikke ansvarlige for datatab som følge af nedgraderinger.",
+        "refundsTitle": "Refusioner",
+        "refundsBody": "Alle gebyrer er ikke-refunderbare. Hvis du dog oplever væsentlige serviceproblemer inden for de første 30 dage, så kontakt os – vi finder en fair løsning sammen."
+      },
+      "cancellation": {
+        "title": "Opsigelse og ophør",
+        "importantTitle": "Vigtigt: To typer opsigelse",
+        "li1": "Opsigelse af abonnement: Beholder din konto men stopper fakturering. Analyser beholdes i 1 måned.",
+        "li2": "Sletning af konto: Sletter alt permanent med det samme, inklusive alle analysedata.",
+        "howToTitle": "Sådan opsiger du",
+        "howToBody": "Du kan opsige dit abonnement eller slette din konto helt via dine kontoindstillinger. En e-mail anmodning alene betragtes ikke som en korrekt opsigelse.",
+        "whatHappensTitle": "Hvad sker der ved opsigelse",
+        "whLi1": "Opsigelse af abonnement: Træder i kraft ved udgangen af den aktuelle faktureringsperiode. Du bliver ikke opkrævet igen. Dine analysedata bliver utilgængelige, men bevares i 1 måned, hvis du vender tilbage – derefter slettes de permanent.",
+        "whLi2": "Sletning af konto: Alle data (personlige og analyse) slettes permanent med det samme. Dette kan ikke fortrydes.",
+        "ourRightTitle": "Vores ret til at afslutte",
+        "ourRightBody": "Vi forbeholder os retten til at suspendere eller afslutte din konto ved overtrædelse af vilkårene, ulovlig aktivitet eller misbrug af vores service eller team. Vi giver besked, når det er muligt, men øjeblikkelig afslutning kan være nødvendig i alvorlige tilfælde."
+      },
+      "serviceMods": {
+        "title": "Serviceændringer og priser",
+        "li1": "Serviceændringer: Vi forbeholder os retten til at ændre eller afbryde dele af servicen med eller uden varsel. Vi kommunikerer væsentlige ændringer, der påvirker din brug, på forhånd, når det er muligt.",
+        "li2": "Prisændringer: Vi kan ændre vores prisstruktur. Eksisterende kunder er typisk undtaget fra prisstigninger, men vi forbeholder os retten til at ændre priser for alle kunder med mindst 30 dages varsel via e-mail.",
+        "li3": "Feature-opdateringer: Vi forbedrer løbende servicen med nye funktioner og forbedringer. Nogle funktioner kan kræve opgradering."
+      },
+      "dataOwnership": {
+        "title": "Dataejerskab og privatliv",
+        "yourRightsTitle": "Dine datarettigheder",
+        "yourRightsBody": "Du ejer 100% af dine analysedata. Vi gør ikke krav på immaterielle rettigheder over dine websitedata og vil aldrig sælge eller dele dem med tredjeparter.",
+        "dpaTitle": "Databehandleraftale",
+        "dpaBodyPrefix": "For enterprise-kunder og GDPR-overholdelse er vores omfattende Databehandleraftale (DPA) tilgængelig på",
+        "dpaBodySuffix": ". DPA’en er en del af disse vilkår og regulerer, hvordan vi behandler data på dine vegne.",
+        "whatWeCollectTitle": "Hvad vi indsamler",
+        "whatWeCollectBody": "Vores service er designet til at være privacy-first og cookiefri. Vi indsamler kun anonyme, aggregerede data som beskrevet i vores privatlivspolitik. Vi indsamler ikke personligt identificerbare oplysninger.",
+        "yourResponsibilitiesTitle": "Dine forpligtelser",
+        "yrLi1": "Sørg for, at din brug af vores service overholder gældende privatlivslove (GDPR, CCPA osv.)",
+        "yrLi2": "Opdater din privatlivspolitik med brugen af Betterlytics til anonym analyse (typisk kræves intet cookiebanner, da vores service er cookiefri)",
+        "yrLi3": "Forsøg ikke at sende følsomme oplysninger (kreditkort, persondata osv.) gennem vores service, inkl. i URL-stier eller query-parametre.",
+        "yrLi4": "Oprethold sikkerheden for din konto og rapportér straks uautoriseret adgang",
+        "ourCommitmentsTitle": "Vores forpligtelser",
+        "ocLi1": "Behandle dine data kun som beskrevet i vores privatlivspolitik",
+        "ocLi2": "Implementere passende sikkerhedsforanstaltninger for at beskytte dine data",
+        "ocLi3": "Aldrig sælge, dele eller monetarisere dine analysedata",
+        "ocLi4": "Leverer EU-baseret hosting og behandling for GDPR-overholdelse",
+        "ocLi5": "Slette dine data øjeblikkeligt ved sletning af konto"
+      },
+      "sla": {
+        "title": "Service niveau og support",
+        "availabilityTitle": "Tilgængelighed",
+        "availabilityBody": "Vi bestræber os på høj tilgængelighed, men leverer servicen \"som den er\" og \"som tilgængelig\". Vi garanterer ikke oppetid, men arbejder hårdt for pålidelighed.",
+        "supportTitle": "Support",
+        "supportBody": "Teknisk support tilbydes via e-mail efter rimelig indsats. Vi bestræber os på hurtige svar men garanterer ikke specifikke svartider.",
+        "bugsTitle": "Fejl og problemer",
+        "bugsBody": "Vi tester vores funktioner grundigt, men software er aldrig perfekt. Vi registrerer rapporterede fejl og prioriterer rettelser – især for sikkerheds- eller privatlivsproblemer. Ikke alle fejl rettes med det samme."
+      },
+      "liability": {
+        "title": "Ansvar og ansvarsfraskrivelser",
+        "p1": "Du accepterer udtrykkeligt, at Betterlytics ikke er ansvarlig for direkte, indirekte, tilfældige, særlige eller følgeskader, herunder men ikke begrænset til:",
+        "li1": "Tab af fortjeneste, goodwill, brug, data eller andre immaterielle tab",
+        "li2": "Brugen af eller manglende evne til at bruge vores tjenester",
+        "li3": "Uautoriseret adgang til eller ændring af dine data",
+        "li4": "Udtalelser eller adfærd fra tredjepart",
+        "li5": "Enhver anden sag i forbindelse med disse vilkår eller vores tjenester",
+        "note": "Hvad det betyder: Selvom vi arbejder hårdt på at levere pålidelig, privatlivsfokuseret analyse, er teknologi ikke perfekt, og ting kan gå galt. Ved at bruge Betterlytics accepterer du, at vi ikke kan holdes ansvarlige for eventuelle forretningsmæssige tab eller problemer, der kan skyldes serviceproblemer. Vi vil vinde din tillid gennem transparens, stærk sikkerhed og fokus på privatliv.",
+        "p2": "Denne aftale er underlagt EU-lovgivningen og den jurisdiktion, hvor Betterlytics er juridisk etableret."
+      },
+      "ip": {
+        "title": "Intellektuelle rettigheder",
+        "li1": "Dit indhold: Du beholder alle rettigheder til det indhold, du leverer til vores service. Dine websitedata forbliver dine.",
+        "li2": "Vores service: Udseende, oplevelse og funktionalitet af Betterlytics er vores intellektuelle ejendom. Du må ikke kopiere, modificere eller reverse-engineere vores service.",
+        "li3": "Feedback: Hvis du giver feedback eller forslag, accepterer du, at vi kan bruge og indarbejde det uden betaling eller attributtering.",
+        "li4": "Varemærker: ‘Betterlytics’ og vores logo er vores varemærker. Du må ikke bruge dem uden skriftlig tilladelse, bortset fra at identificere vores service i forbindelse med legitim brug.",
+        "li5": "Open source-komponenter: Vores analyse-script og kernekomponenter er udgivet under open source-licenser. Dette giver ikke rettigheder til vores hostede service, varemærker eller proprietær infrastruktur."
+      },
+      "updates": {
+        "title": "Opdateringer og kommunikation",
+        "p1": "Vi kan opdatere disse vilkår fra tid til anden. Når vi foretager væsentlige ændringer:",
+        "li1": "Vi informerer dig via e-mail mindst 30 dage i forvejen",
+        "li2": "Vi offentliggør opdateringer på vores website",
+        "li3": "Fortsat brug efter ikrafttrædelse udgør accept",
+        "li4": "Hvis du ikke er enig i ændringerne, kan du opsige din konto"
+      },
+      "contact": {
+        "title": "Kontakt os",
+        "lead": "Hvis du har spørgsmål til disse vilkår, kontakt os:",
+        "email": "E-mail:",
+        "support": "Support:",
+        "address": "Adresse:",
+        "footer1": "🇪🇺 Fremstillet og hostet i EU",
+        "footer2": "Privatlivsfokuseret analyse, du kan stole på"
+      }
+    },
+    "dpa": {
+      "title": "Databehandleraftale (DPA)",
+      "lastUpdated": "Sidst opdateret:",
+      "scope": {
+        "title": "Denne DPA omfatter",
+        "body": "Denne databehandleraftale gælder udelukkende for Betterlytics’ hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine databehandleraftaler og juridisk overholdelse."
+      },
+      "whyDifferent": {
+        "title": "Hvorfor denne DPA er anderledes",
+        "body": "I modsætning til traditionelle analysetjenester er Betterlytics designet til at være anonymt fra design. Vi behandler ingen persondata, hvilket gør denne DPA til en af de enkleste i branchen."
+      },
+      "intro": {
+        "title": "1. Introduktion",
+        "p1": "Denne databehandleraftale (\"DPA\") er en del af Betterlytics’ vilkår for tjenesten og regulerer databehandling, når du bruger vores analysetjeneste. Aftalen er designet til at sikre overholdelse af GDPR og anden relevant databeskyttelseslovgivning.",
+        "p2": "Vigtigt: Betterlytics er specifikt designet til kun at behandle anonyme, aggregerede data. Ingen persondata indsamles, lagres eller behandles af vores service."
+      },
+      "definitions": {
+        "title": "2. Definitioner",
+        "controller": "\"Dataansvarlig\": Dig (kunden), der fastlægger formål og midler til behandling af data fra dine website-besøgende.",
+        "processor": "\"Databehandler\": Betterlytics, der behandler data på dine vegne efter dine instrukser.",
+        "processing": "\"Behandling\": I vores tilfælde indsamling og analyse af anonyme, aggregerede website-analysedata.",
+        "personalData": "\"Persondata\": Ikke relevant – Betterlytics er designet til at undgå behandling af persondata."
+      },
+      "processingDetails": {
+        "title": "3. Detaljer om databehandling",
+        "naturePurposeTitle": "3.1 Behandlingens karakter og formål",
+        "npLi1": "Levering af anonym website-analyse og besøgsindsigter",
+        "npLi2": "Generering af aggregerede rapporter om trafik og brugsmønstre",
+        "npLi3": "Registrering og filtrering af bot-trafik for nøjagtig statistik",
+        "categoriesTitle": "3.2 Datakategorier",
+        "categoriesIntro": "Kun anonyme data:",
+        "catLi1": "Anonymiserede IP-adresser (sidste oktet fjernes straks)",
+        "catLi2": "Kategoriserede skærmopløsninger (små/mellem/store)",
+        "catLi3": "Browser- og operativsystemoplysninger",
+        "catLi4": "Geografiske data på landeniveau",
+        "catLi5": "Side-URL’er og henviserinformation",
+        "catLi6": "Dagligt roterende besøgsfingeraftryk (anonym identifikation)",
+        "subjectsTitle": "3.3 Registrerede personer",
+        "subjectsBody": "Ikke relevant – vores system er designet til at forhindre identifikation af individer. Al data behandles kun i aggregeret og anonym form.",
+        "locationTitle": "3.4 Behandlingssted",
+        "locationBody": "Al databehandling foregår i EU på servere i sikre EU-datacentre."
+      },
+      "instructions": {
+        "title": "4. Dine instrukser",
+        "intro": "Ved at bruge Betterlytics instruerer du os i at:",
+        "li1": "Indsamle anonym analysedata fra dine website-besøgende",
+        "li2": "Behandle disse data for at generere website-analyse og indsigter",
+        "li3": "Opbevare data i løbet af dit abonnement",
+        "li4": "Slette alle data øjeblikkeligt ved sletning af konto",
+        "li5": "Give dig rapporter og adgang til dine data"
+      },
+      "security": {
+        "title": "5. Sikkerhedsforanstaltninger",
+        "intro": "Betterlytics implementerer passende tekniske og organisatoriske foranstaltninger for at sikre datasikkerhed:",
+        "li1": "Al datatransmission krypteres med TLS 1.2/1.3",
+        "li2": "Data i hvile krypteres efter branchestandard",
+        "li3": "Adgangskontrol begrænser dataadgang til autoriseret personale",
+        "li4": "Regelmæssige sikkerhedsrevisioner og opdateringer",
+        "li5": "EU-baserede servere i sikre datacentre",
+        "li6": "Straks anonymisering af IP ved indsamling"
+      },
+      "subprocessors": {
+        "title": "6. Underbehandlere",
+        "intro": "Betterlytics kan engagere følgende kategorier af underbehandlere:",
+        "li1": "Infrastrukturudbydere: EU-baseret cloud-hosting og infrastruktur",
+        "notice": "Vi informerer dig om ændringer i underbehandlere og indhenter samtykke, hvor loven kræver det."
+      },
+      "rights": {
+        "title": "7. Registreredes rettigheder",
+        "body": "Ikke relevant: Da Betterlytics kun behandler anonyme data, gælder individuelle rettigheder (indsigt, berigtigelse, sletning m.v.) ikke for vores analysedata. Besøgende kan ikke identificeres i vores system, hvilket gør individuelle anmodninger umulige at opfylde."
+      },
+      "breach": {
+        "title": "8. Underretning om brud på persondatasikkerheden",
+        "intro": "I det usandsynlige tilfælde af en sikkerhedshændelse, der påvirker vores service:",
+        "li1": "Vi underretter dig inden for 72 timer efter, at vi bliver opmærksomme på hændelsen",
+        "li2": "Vi giver detaljer om hændelsen og vores afhjælpende foranstaltninger",
+        "li3": "Vi hjælper med eventuelle påkrævede underretninger til datatilsyn",
+        "li4": "Bemærk: Risikoen for individer er minimal, da vi kun behandler anonyme data"
+      },
+      "deletion": {
+        "title": "9. Sletning og tilbagelevering af data",
+        "accountTitle": "Sletning af konto",
+        "accountBody": "Alle data (personlige og analyse) slettes permanent med det samme ved sletning af konto.",
+        "subscriptionTitle": "Opsigelse af abonnement",
+        "subscriptionBody": "Analyser opbevares i 1 måned i tilfælde af, at du vender tilbage, hvorefter de slettes permanent.",
+        "exportTitle": "Dataeksport",
+        "exportBody": "Du kan eksportere dine analysedata til enhver tid via dit dashboard."
+      },
+      "compliance": {
+        "title": "10. Revision og compliance",
+        "intro": "Betterlytics opretholder compliance gennem:",
+        "li1": "Regelmæssige interne sikkerheds- og privatlivsvurderinger",
+        "li2": "Transparent, open source-kodebase for teknisk verifikation",
+        "li3": "Offentlig privatlivspolitik og vilkår for tjenesten",
+        "li4": "Forpligtelse til at samarbejde om rimelige revisionsanmodninger fra enterprise-kunder"
+      },
+      "contact": {
+        "title": "Kontakt vedr. DPA",
+        "lead": "For spørgsmål om denne DPA eller databehandlingspraksis:",
+        "legal": "Juridiske henvendelser:",
+        "technical": "Tekniske spørgsmål:",
+        "footer": "Denne DPA accepteres automatisk, når du bruger Betterlytics, og er en del af vores vilkår. 🇪🇺 Anonymt fra design – Fremstillet og hostet i EU"
+      }
     }
   },
   "dashboard": {
