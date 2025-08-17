@@ -128,7 +128,10 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.settings = await getUserSettings(token.uid);
+        session.user.settings = {
+          ...(await getUserSettings(token.uid)),
+          synchronizedAt: new Date(),
+        };
         session.user.id = token.uid;
         session.user.name = token.name;
         session.user.email = token.email;

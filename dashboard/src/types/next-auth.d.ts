@@ -12,7 +12,7 @@ declare module 'next-auth' {
     role: string | null;
     totpEnabled: boolean;
     hasPassword?: boolean;
-    settings?: UserSettings;
+    settings?: UserSettings & { synchronizedAt?: Date };
   }
 
   interface Session {
