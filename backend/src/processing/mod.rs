@@ -9,6 +9,7 @@ use crate::referrer::{ReferrerInfo, parse_referrer};
 use url::Url;
 use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
+use crate::outbound_link::process_outbound_link;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -186,9 +187,10 @@ impl EventProcessor {
             processed.custom_event_json = processed.event.raw.properties.clone();
         } else if event_name == "outbound_link" {
             processed.event_type = "outbound_link".to_string();
-            // Extract and clean outbound link URL (remove query params for privacy)
+            // Process and clean outbound link URL
             if let Some(ref outbound_url) = processed.event.raw.outbound_link_url {
-                processed.outbound_link_url = self.clean_outbound_url(outbound_url);
+                let outbound_info = process_outbound_link(outbound_url);
+                processed.outbound_link_url = outbound_info.url;
             }
         } else {
             processed.event_type = event_name;
@@ -196,20 +198,6 @@ impl EventProcessor {
         Ok(())
     }
 
-    /// Clean outbound URL by removing query parameters and fragment for privacy
-    fn clean_outbound_url(&self, url: &str) -> String {
-        match Url::parse(url) {
-            Ok(mut parsed_url) => {
-                parsed_url.set_query(None);
-                parsed_url.set_fragment(None);
-                parsed_url.to_string()
-            }
-            Err(_) => {
-                // If URL parsing fails, return as-is (validation should catch this earlier)
-                url.to_string()
-            }
-        }
-    }
 
     /// Get geolocation data for the IP
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {
