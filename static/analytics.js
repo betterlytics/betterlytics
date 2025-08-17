@@ -104,7 +104,7 @@
   }
 
   // Track initial page view
-  trackEvent();
+  trackEvent("pageview");
 
   // Track page visibility changes
   document.addEventListener("visibilitychange", function () {
