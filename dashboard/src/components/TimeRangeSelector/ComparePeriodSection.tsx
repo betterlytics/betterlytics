@@ -53,7 +53,11 @@ export function ComparePeriodSection({
                 label='End date'
                 date={compareEndDate}
                 onDateSelect={(date) => date && onCompareEndDateSelect(date)}
-                disabled={(date) => date > new Date()}
+                disabled={(date) => {
+                  if (date > new Date()) return true;
+                  if (compareStartDate && date < compareStartDate) return true;
+                  return false;
+                }}
                 id='compareEndDateInput'
               />
             </div>
