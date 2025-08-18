@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +11,13 @@ import { registerUserAction } from '@/app/actions';
 import { RegisterUserSchema } from '@/entities/user';
 import { signIn, getProviders } from 'next-auth/react';
 import { ZodError } from 'zod';
+import { GoogleIcon, GitHubIcon } from '@/components/icons';
 
-export function AccountCreationStep() {
-  const { state, updateAccount, setUserId, nextStep } = useOnboarding();
+export default function AccountCreationPage() {
+  const { state, updateAccount, setUserId } = useOnboarding();
   const { data: session } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState('');
   const [providers, setProviders] = useState<Record<string, any> | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -27,9 +31,9 @@ export function AccountCreationStep() {
   // If user already has a session (OAuth users), automatically proceed to next step
   useEffect(() => {
     if (session?.user) {
-      nextStep();
+      router.push('/onboarding/website');
     }
-  }, [session, nextStep]);
+  }, [session, router]);
 
   const handleEmailRegistration = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,7 +84,7 @@ export function AccountCreationStep() {
         });
         
         setUserId(result.data.id);
-        nextStep();
+        router.push('/onboarding/website');
       });
     } catch (error) {
       if (error instanceof ZodError) {
@@ -89,7 +93,7 @@ export function AccountCreationStep() {
         setError('Please check your input');
       }
     }
-  }, [updateAccount, setUserId, nextStep]);
+  }, [updateAccount, setUserId, router]);
 
   const handleOAuthRegistration = useCallback(async (provider: 'google' | 'github') => {
     setError('');
@@ -99,7 +103,7 @@ export function AccountCreationStep() {
       try {
         const result = await signIn(provider, {
           redirect: false,
-          callbackUrl: '/onboarding?onboarding=true',
+          callbackUrl: '/onboarding/account',
         });
 
         if (result?.url) {
@@ -188,40 +192,46 @@ export function AccountCreationStep() {
       </form>
 
       {providers?.google || providers?.github ? (
-        <>
-          <div className='relative flex items-center'>
-            <div className='border-border flex-grow border-t'></div>
-            <span className='text-muted-foreground mx-4 flex-shrink text-sm'>or</span>
-            <div className='border-border flex-grow border-t'></div>
-          </div>
-
-          <div className='space-y-3'>
-            {providers?.google && (
-              <Button
-                type='button'
-                variant='outline'
-                onClick={() => handleOAuthRegistration('google')}
-                disabled={isGooglePending}
-                className='w-full'
-              >
-                {isGooglePending ? 'Signing up...' : 'Continue with Google'}
-              </Button>
-            )}
-
-            {providers?.github && (
-              <Button
-                type='button'
-                variant='outline'
-                onClick={() => handleOAuthRegistration('github')}
-                disabled={isGithubPending}
-                className='w-full'
-              >
-                {isGithubPending ? 'Signing up...' : 'Continue with GitHub'}
-              </Button>
-            )}
-          </div>
-        </>
+        <div className='relative my-6 flex items-center'>
+          <div className='border-border flex-grow border-t'></div>
+          <span className='text-muted-foreground mx-4 flex-shrink text-sm'>or</span>
+          <div className='border-border flex-grow border-t'></div>
+        </div>
       ) : null}
+
+      <div className='space-y-3'>
+        {/* Google Registration Button */}
+        {providers?.google && (
+          <button
+            type='button'
+            onClick={() => handleOAuthRegistration('google')}
+            disabled={isGooglePending}
+            className='font-roboto transition-border relative box-border flex h-10 w-full min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none disabled:cursor-not-allowed disabled:opacity-50'
+          >
+            <GoogleIcon />
+
+            <span className='font-roboto grow-0 truncate align-top font-medium'>
+              {isGooglePending ? 'Signing up...' : 'Continue with Google'}
+            </span>
+          </button>
+        )}
+
+        {/* GitHub Registration Button */}
+        {providers?.github && (
+          <button
+            type='button'
+            onClick={() => handleOAuthRegistration('github')}
+            disabled={isGithubPending}
+            className='font-roboto transition-border relative box-border flex h-10 w-full min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none disabled:cursor-not-allowed disabled:opacity-50'
+          >
+            <GitHubIcon />
+
+            <span className='font-roboto grow-0 truncate align-top font-medium'>
+              {isGithubPending ? 'Signing up...' : 'Continue with GitHub'}
+            </span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,10 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { OnboardingWizard } from './OnboardingWizard';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
-import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import Link from 'next/link';
 import Logo from '@/components/logo';
 
@@ -17,11 +14,6 @@ interface OnboardingPageProps {
 export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
   const session = await getServerSession(authOptions);
   const { onboarding } = await searchParams;
-
-  // If user has a session but didn't come from OAuth onboarding flow, redirect to dashboards
-  if (session && onboarding !== 'true') {
-    redirect('/dashboards');
-  }
 
   if (!isFeatureEnabled('enableRegistration')) {
     return (
@@ -46,13 +38,12 @@ export default async function OnboardingPage({ searchParams }: OnboardingPagePro
     );
   }
 
-  const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
+  // If user has a session, they should go to the website step
+  // OAuth users will be redirected here after authentication
+  if (session) {
+    redirect('/onboarding/website');
+  }
 
-  return (
-    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
-      <div className='bg-background'>
-        <OnboardingWizard />
-      </div>
-    </PublicEnvironmentVariablesProvider>
-  );
+  // For new users or OAuth flow, start at account creation
+  redirect('/onboarding/account');
 }

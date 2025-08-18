@@ -12,7 +12,6 @@ interface OnboardingAccountData {
 }
 
 interface OnboardingWebsiteData {
-  websiteName: string;
   domain: string;
 }
 

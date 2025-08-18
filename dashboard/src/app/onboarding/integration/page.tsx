@@ -1,26 +1,44 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Circle, Code, Clipboard, Check, RefreshCw } from 'lucide-react';
+import { Code, Clipboard, Check } from 'lucide-react';
 import { CodeBlock } from '@/components/integration/CodeBlock';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification';
 import { useBARouter } from '@/hooks/use-ba-router';
+import { LiveIndicator } from '@/components/live-indicator';
 
-export function IntegrationStep() {
+export default function IntegrationPage() {
   const { state, updateIntegration, completeOnboarding } = useOnboarding();
+  const { data: session } = useSession();
+  const router = useRouter();
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
 
   const { isVerifying, isVerified, verify, verifySilently } = useTrackingVerificationWithId(state.dashboardId);
-  const router = useBARouter();
+  const baRouter = useBARouter();
 
   const siteId = state.siteId;
+
+  // Redirect if prerequisites are missing
+  useEffect(() => {
+    if (!session?.user) {
+      router.push('/onboarding/account');
+      return;
+    }
+    
+    if (!state.dashboardId || !state.siteId) {
+      router.push('/onboarding/website');
+      return;
+    }
+  }, [session, state.dashboardId, state.siteId, router]);
 
   useEffect(() => {
     if (isVerified && !state.integration.installationComplete) {
@@ -48,18 +66,19 @@ export function IntegrationStep() {
 
   const handleFinishOnboarding = useCallback(() => {
     completeOnboarding();
-    router.push(`/dashboard/${state.dashboardId}`);
-  }, [completeOnboarding, router, state.dashboardId]);
+    baRouter.push(`/dashboard/${state.dashboardId}`);
+  }, [completeOnboarding, baRouter, state.dashboardId]);
 
   const handleSkipForNow = useCallback(() => {
     completeOnboarding();
-    router.push(`/dashboard/${state.dashboardId}?showIntegration=true`);
-  }, [completeOnboarding, router, state.dashboardId]);
+    baRouter.push(`/dashboard/${state.dashboardId}?showIntegration=true`);
+  }, [completeOnboarding, baRouter, state.dashboardId]);
+
 
   if (!siteId) {
     return (
       <div className='py-8 text-center'>
-        <p className='text-muted-foreground'>No site ID found. Please go back and create your dashboard first.</p>
+        <p className='text-muted-foreground'>No site ID found. Please complete the previous steps first.</p>
       </div>
     );
   }
@@ -141,9 +160,12 @@ export default App;`;
             ✓ Installation Verified
           </Badge>
         ) : (
-          <Badge className='bg-orange-600/20 px-3 py-1 text-orange-500 dark:bg-orange-500/30 dark:text-orange-400'>
-            Waiting for Installation
-          </Badge>
+          <div className='relative'>
+            <Badge className='bg-orange-600/20 px-3 py-1 text-orange-500 dark:bg-orange-500/30 dark:text-orange-400'>
+              Waiting for Installation
+            </Badge>
+            <LiveIndicator color='orange' />
+          </div>
         )}
       </div>
 
@@ -230,65 +252,10 @@ export default App;`;
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-base font-medium'>Installation Status</CardTitle>
-          <CardDescription className='text-sm'>
-            We'll automatically detect when tracking is working
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-          <div className='flex items-center gap-3'>
-            <CheckCircle className='h-5 w-5 text-green-500' />
-            <div>
-              <p className='text-sm font-medium'>Dashboard created</p>
-              <p className='text-muted-foreground text-xs'>Your analytics dashboard is ready</p>
-            </div>
-          </div>
-
-          <div className='flex items-center gap-3'>
-            <CheckCircle className='h-5 w-5 text-green-500' />
-            <div>
-              <p className='text-sm font-medium'>Site ID generated</p>
-              <p className='text-muted-foreground text-xs'>Unique identifier created for your website</p>
-            </div>
-          </div>
-
-          <div className='flex items-center gap-3'>
-            {isVerified ? (
-              <CheckCircle className='h-5 w-5 text-green-500' />
-            ) : (
-              <Circle className='text-muted-foreground h-5 w-5' />
-            )}
-            <div>
-              <p className='text-sm font-medium'>Data receiving</p>
-              <p className='text-muted-foreground text-xs'>
-                {isVerified ? 'Analytics data is flowing!' : 'Waiting for first pageview...'}
-              </p>
-            </div>
-          </div>
-
-          <div className='pt-2'>
-            <Button variant='outline' onClick={verify} disabled={isVerifying} size='sm' className='w-full'>
-              {isVerifying ? (
-                <>
-                  <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
-                  Checking...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className='mr-2 h-4 w-4' />
-                  Check Installation
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       <div className='flex flex-col gap-3 pt-4 sm:flex-row'>
         {isVerified ? (
-          <Button onClick={handleFinishOnboarding} className='flex-1'>
+          <Button onClick={handleFinishOnboarding} className='w-full'>
             🎉 Go to Dashboard
           </Button>
         ) : (
