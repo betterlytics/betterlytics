@@ -17,7 +17,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       locale ??= DEFAULT_LANGUAGE;
     }
   }
-
+  console.log('Using locale:', locale);
   return {
     locale: locale as SupportedLanguages,
     messages: (await import(`../../messages/${locale}.json`)).default,
