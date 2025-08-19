@@ -11,7 +11,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: SupportedLanguages }>;
 }) {
   const { locale } = await params;
-  const messages = (await import(`../../messages/${locale}.json`)).default;
+  const messages = (await import(`../../../messages/${locale}.json`)).default;
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
