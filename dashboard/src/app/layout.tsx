@@ -6,8 +6,7 @@ import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import { generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
-import { getLocale } from 'next-intl/server';
-import { NextIntlClientProvider } from 'next-intl';
+import { DEFAULT_LANGUAGE } from '@/constants/supportedLanguages';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,15 +32,13 @@ const organizationStructuredData = generateStructuredData('organization', {
   path: '/',
 });
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={DEFAULT_LANGUAGE} suppressHydrationWarning>
       <head>
         {env.ENABLE_APP_TRACKING && (
           <Script
@@ -61,9 +58,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
-        <NextIntlClientProvider>
-          <Providers>{children}</Providers>
-        </NextIntlClientProvider>
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>

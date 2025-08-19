@@ -2,6 +2,7 @@ import BATopbar from '@/components/topbar/BATopbar';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/environment';
 import { type ReactNode } from 'react';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { NextIntlClientProvider } from 'next-intl';
 
 type DashboardsLayoutProps = {
   children: ReactNode;
@@ -12,10 +13,12 @@ export default async function DashboardsLayout({ children }: DashboardsLayoutPro
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
-      <section className='h-full w-full'>
-        <BATopbar />
-        {children}
-      </section>
+      <NextIntlClientProvider>
+        <section className='h-full w-full'>
+          <BATopbar />
+          {children}
+        </section>
+      </NextIntlClientProvider>
     </PublicEnvironmentVariablesProvider>
   );
 }
