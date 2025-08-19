@@ -34,7 +34,7 @@ const envSchema = z.object({
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
-  DEFAULT_LANGUAGE: z.enum(SUPPORTED_LANGUAGES).optional().default('en'),
+  PUBLIC_DEFAULT_LANGUAGE: z.enum(SUPPORTED_LANGUAGES).optional().default('en'),
   GITHUB_ID: z.string().optional().default(''),
   GITHUB_SECRET: z.string().optional().default(''),
   GOOGLE_CLIENT_ID: z.string().optional().default(''),

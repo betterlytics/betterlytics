@@ -1,6 +1,6 @@
 import { getUserSettingsAction } from '@/app/actions/userSettings';
 import { SupportedLanguages } from '@/constants/supportedLanguages';
-import { DEFAULT_LANGUAGE } from '@/constants/supportedLanguages';
+import { env } from '@/lib/env';
 import { getRequestConfig } from 'next-intl/server';
 
 export default getRequestConfig(async ({ requestLocale }) => {
@@ -14,7 +14,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     } catch (error) {
       console.error('Error fetching user settings:', error);
     } finally {
-      locale ??= DEFAULT_LANGUAGE;
+      locale ??= env.PUBLIC_DEFAULT_LANGUAGE;
     }
   }
 
