@@ -99,11 +99,11 @@ export default function PublicTopBar() {
 
               <div className='border-t pt-3'>
                 {session ? (
-                  <Link href='/dashboards' onClick={closeMobileMenu} locale={'false' as unknown as any}>
+                  <NextLink href='/dashboards' onClick={closeMobileMenu}>
                     <Button variant='default' className='w-full'>
                       {t('goToDashboard')}
                     </Button>
-                  </Link>
+                  </NextLink>
                 ) : !isOnSignInPage ? (
                   <Link href='/signin' onClick={closeMobileMenu}>
                     <Button className='w-full'>{t('getStarted')}</Button>
