@@ -7,11 +7,10 @@ import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
-import type { SupportedLanguages } from '@/constants/supportedLanguages';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import ExternalLink from '@/components/ExternalLink';
-import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -21,8 +20,6 @@ interface UserPreferencesSettingsProps {
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
   const { theme, setTheme } = useTheme();
   const { refreshSettings, settings, updateSetting } = useUserSettings();
-
-  const { PUBLIC_DEFAULT_LANGUAGE } = usePublicEnvironmentVariablesContext();
 
   const handleLocaleChange = async (newLocale: SupportedLanguages) => {
     onUpdate({ language: newLocale });
@@ -121,7 +118,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>Language</Label>
             <LanguageSelect
-              value={(formData.language as SupportedLanguages) || PUBLIC_DEFAULT_LANGUAGE}
+              value={(formData.language as SupportedLanguages) || settings?.language}
               onUpdate={handleLocaleChange}
             />
           </div>

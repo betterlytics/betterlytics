@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { type FlagIconProps } from '@/components/icons/FlagIcon';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/supportedLanguages';
+import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
 
 type LanguageSelectProps = {
   onUpdate: React.Dispatch<SupportedLanguages>;

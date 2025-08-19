@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
-import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/supportedLanguages';
+import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 
 type PageCfg = {
   path: string;
@@ -44,7 +44,7 @@ const PAGES: PageCfg[] = [
 ];
 
 const localizedPath = (path: string, locale: SupportedLanguages) => {
-  if (locale === env.PUBLIC_DEFAULT_LANGUAGE) return path;
+  if (locale === env.NEXT_PUBLIC_DEFAULT_LANGUAGE) return path;
   return path === '/' ? `/${locale}` : `/${locale}${path}`;
 };
 

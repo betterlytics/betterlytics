@@ -1,4 +1,4 @@
-import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
+import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
 
 export const zStringBoolean = z
@@ -34,7 +34,10 @@ const envSchema = z.object({
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
-  PUBLIC_DEFAULT_LANGUAGE: z.enum(SUPPORTED_LANGUAGES).optional().default('en'),
+  NEXT_PUBLIC_DEFAULT_LANGUAGE: z
+    .enum(SUPPORTED_LANGUAGES)
+    .optional()
+    .default((process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE as SupportedLanguages) ?? 'en'),
   GITHUB_ID: z.string().optional().default(''),
   GITHUB_SECRET: z.string().optional().default(''),
   GOOGLE_CLIENT_ID: z.string().optional().default(''),

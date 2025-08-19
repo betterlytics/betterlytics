@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Settings, LogOut, ExternalLink as ExternalLinkIcon, LayoutDashboard, CreditCard } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
 import { BAAvatar } from '../avatar/BAAvatar';

@@ -1,6 +1,6 @@
 import { Footer } from '@/components/footer/Footer';
 import PublicTopBar from '@/components/topbar/PublicTopBar';
-import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
+import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 
 export default async function LocaleLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -5,7 +5,7 @@ import { Mail } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
-import type { SupportedLanguages } from '@/constants/supportedLanguages';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;

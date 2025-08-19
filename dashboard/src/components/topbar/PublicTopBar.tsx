@@ -2,9 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { Link } from '@/i18n/navigation';
-import NextLink from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
@@ -58,9 +56,9 @@ export default function PublicTopBar() {
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
               ) : session ? (
-                <NextLink href='/dashboards'>
+                <Link href='/dashboards'>
                   <Button variant='default'>{t('goToDashboard')}</Button>
-                </NextLink>
+                </Link>
               ) : !isOnSignInPage ? (
                 <Link href='/signin'>
                   <Button>{t('getStarted')}</Button>
@@ -99,11 +97,11 @@ export default function PublicTopBar() {
 
               <div className='border-t pt-3'>
                 {session ? (
-                  <NextLink href='/dashboards' onClick={closeMobileMenu}>
+                  <Link href='/dashboards' onClick={closeMobileMenu}>
                     <Button variant='default' className='w-full'>
                       {t('goToDashboard')}
                     </Button>
-                  </NextLink>
+                  </Link>
                 ) : !isOnSignInPage ? (
                   <Link href='/signin' onClick={closeMobileMenu}>
                     <Button className='w-full'>{t('getStarted')}</Button>

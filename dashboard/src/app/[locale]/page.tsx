@@ -5,7 +5,7 @@ import LandingPage from './(landing)/landingPage';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { getTranslations } from 'next-intl/server';
-import type { SupportedLanguages } from '@/constants/supportedLanguages';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 export default async function HomePage() {
   if (!isClientFeatureEnabled('isCloud')) {
