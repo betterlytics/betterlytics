@@ -15,13 +15,14 @@ const isOutOfSync = (user: User): boolean => {
 };
 
 export const getUserSettingsAction = withUserAuth(async (user: User): Promise<UserSettings> => {
-  if (isOutOfSync(user)) {
+  if (isOutOfSync(user) || !user.settings) {
     user.settings = {
       ...(await UserSettingsService.getUserSettings(user.id)),
       synchronizedAt: new Date(),
     };
   }
-  return user.settings!;
+
+  return user.settings;
 });
 
 export const updateUserSettingsAction = withUserAuth(
