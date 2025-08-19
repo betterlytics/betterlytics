@@ -1,4 +1,4 @@
-import { SUPPORTED_LANGUAGES, SupportedLanguages, UNLOCALIZED_ROUTES } from '@/constants/i18n';
+import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
 import { defineRouting } from 'next-intl/routing';
 
 const defaultLocale = (process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en') as SupportedLanguages;

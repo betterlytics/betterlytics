@@ -5,5 +5,5 @@ import { UNLOCALIZED_ROUTES } from '@/constants/i18n';
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: [`/((?!api|_next|.*\\..*|${UNLOCALIZED_ROUTES.join('|')}).*)`],
+  matcher: ['/((?!api|_next|.*\\..*|dashboard|dashboards|billing|docs).*)'],
 };
