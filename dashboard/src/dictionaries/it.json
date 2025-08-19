@@ -46,7 +46,7 @@
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Periodo attuale",
-      "previousPeriod": "Perioo precedente"
+      "previousPeriod": "Periodo precedente"
     }
   },
   "misc": {
@@ -178,7 +178,7 @@
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
       "noData": "Nessun dato di percorso disponibile per i criteri selezionati."
-    },    
+    },
     "integration": {
       "title": "Integrazione sito",
       "description": "Aggiungi lo script di tracciamento al tuo sito per iniziare a raccogliere dati",
