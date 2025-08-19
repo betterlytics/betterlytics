@@ -1,0 +1,218 @@
+{
+  "dashboard": {
+    "metrics": {
+      "uniqueVisitors": "Visitatori unici",
+      "totalPageviews": "Visualizzazioni totali",
+      "bounceRate": "Frequenza di rimbalzo",
+      "avgVisitDuration": "Durata media visita"
+    },
+    "sections": {
+      "topPages": "Pagine principali",
+      "geography": "Geografia",
+      "devicesBreakdown": "Suddivisione per dispositivo",
+      "trafficSources": "Sorgenti di traffico",
+      "customEvents": "Eventi personalizzati"
+    },
+    "tabs": {
+      "pages": "Pagine",
+      "entryPages": "Pagine di ingresso",
+      "exitPages": "Pagine di uscita",
+      "topCountries": "Paesi principali",
+      "worldMap": "Mappa mondiale",
+      "browsers": "Browser",
+      "devices": "Dispositivi",
+      "operatingSystems": "Sistemi operativi",
+      "referrers": "Siti di riferimento",
+      "sources": "Fonti",
+      "channels": "Canali",
+      "events": "Eventi"
+    },
+    "emptyStates": {
+      "noPageData": "Nessun dato di pagina disponibile",
+      "noEntryPagesData": "Nessun dato sulle pagine di ingresso disponibile",
+      "noExitPagesData": "Nessun dato sulle pagine di uscita disponibile",
+      "noCountryData": "Nessun dato per paese disponibile",
+      "noWorldMapData": "Nessun dato per la mappa mondiale disponibile",
+      "noBrowserData": "Nessun dato per browser disponibile",
+      "noDeviceData": "Nessun dato per dispositivo disponibile",
+      "noOperatingSystemData": "Nessun dato per sistema operativo disponibile",
+      "noReferrerData": "Nessun dato per sito di riferimento disponibile",
+      "noSourceData": "Nessun dato per fonte disponibile",
+      "noChannelData": "Nessun dato per canale disponibile",
+      "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile"
+    }
+  },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Periodo attuale",
+      "previousPeriod": "Perioo precedente"
+    }
+  },
+  "misc": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "app": "Applicazione",
+    "created": "Creato",
+    "unknown": "Sconosciuto"
+  },
+  "languages": {
+    "da": "Danish",
+    "en": "English",
+    "it": "Italiano"
+  },
+  "components": {
+    "devices": {
+      "tables": {
+        "topOperatingSystems": "Sistemi operativi principali",
+        "mostCommonOperatingSystems": "Sistemi operativi più comuni",
+        "topBrowsers": "Browser principali",
+        "mostCommonBrowsers": "Browser più comuni"
+      },
+      "charts": {
+        "deviceTypes": "Tipo di dispositivo",
+        "visitorsByDeviceCategory": "Visitatori per categoria dispositivo",
+        "deviceUsageTrend": "Tendenza utilizzo dispositivi",
+        "visitorTrendsByDeviceType": "Tendenza visitatori per tipo dispositivo"
+      },
+      "trends": {
+        "noData": "Nessun dato di tendenza disponibile",
+        "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri"
+      }
+    },
+    "campaign": {
+      "tabs": {
+        "overview": "Panoramica",
+        "utmBreakdowns": "Ripartizione UTM",
+        "landingPages": "Pagine di destinazione"
+      }
+    },
+    "events": {
+      "log": {
+        "waiting": "In attesa di eventi...",
+        "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",
+        "loadingMore": "Caricamento di altri eventi...",
+        "noEvents": "Nessun evento trovato",
+        "showingAll": "Mostrati tutti i {count} eventi",
+        "showingPartial": "Mostrati {loaded} di {total} eventi",
+        "title": "Registro eventi",
+        "description": "Tracciamento attività in tempo reale",
+        "loading": "Caricamento eventi..."
+      },
+      "table": {
+        "eventName": "Nome evento",
+        "count": "Numero",
+        "uniqueUsers": "Utenti unici",
+        "avgPerUser": "Media per utente",
+        "lastSeen": "Ultima visualizzazione",
+        "percentage": "Percentuale",
+        "noEvents": "Nessun evento trovato",
+        "noEventsDesc": "Nessun evento personalizzato tracciato in questo periodo. Gli eventi appariranno qui quando inizieranno a essere registrati.",
+        "eventDetails": "Dettagli evento",
+        "uniqueEvent": "Evento unico",
+        "uniqueEvents": "Eventi unici"
+      }
+    },
+    "funnels": {
+      "list": {
+        "steps": "passaggi",
+        "conversionRate": "Tasso di conversione",
+        "completed": "Completato",
+        "totalUsers": "Utenti totali",
+        "largestDropOff": "Perdita maggiore"
+      },
+      "create": {
+        "defaultName": "Il mio nuovo funnel",
+        "createFunnel": "Crea Funnel",
+        "createFunnelLower": "Crea funnel",
+        "description": "Crea un nuovo funnel per il tuo sito.",
+        "name": "Nome",
+        "namePlaceholder": "Nome del mio funnel",
+        "strictMode": "Modalità ristretta",
+        "addStep": "Aggiungi passaggio",
+        "livePreview": "Anteprima live (ultime 24 ore)",
+        "create": "Crea",
+        "successMessage": "Funnel creato!",
+        "errorMessage": "Creazione funnel fallita!"
+      }
+    },
+    "pages": {
+      "summary": {
+        "pagesPerSession": "Pagine per sessione",
+        "totalPageviews": "Visualizzazioni totali",
+        "avgTimeOnPage": "Tempo medio sulla pagina",
+        "avgBounceRate": "Frequenza di rimbalzo media"
+      },
+      "table": {
+        "path": "Percorso",
+        "filterByPath": "Filtra per {path}",
+        "visitors": "Visitatori",
+        "pageviews": "Visualizzazioni",
+        "bounceRate": "Frequenza di rimbalzo",
+        "avgTime": "Tempo medio",
+        "entryRate": "Tasso di ingresso",
+        "exitRate": "Tasso di uscita",
+        "allPages": "Tutte le pagine",
+        "entryPages": "Pagine di ingresso",
+        "exitPages": "Pagine di uscita",
+        "title": "Analisi pagine",
+        "description": "Analisi di tutte le pagine monitorate"
+      }
+    },
+    "referrers": {
+      "charts": {
+        "distribution": "Distribuzione siti di riferimento",
+        "trafficByCategory": "Fonti di traffico per categoria",
+        "trafficTrends": "Trend traffico di riferimento",
+        "trafficBySourceOverTime": "Traffico per fonte nel tempo"
+      },
+      "table": {
+        "details": "Dettagli sito di riferimento",
+        "detailsDescription": "Analisi dettagliata delle fonti di traffico"
+      }
+    },
+    "geography": {
+      "noData": "Nessun dato geografico disponibile per il periodo selezionato"
+    },
+    "userJourney": {
+      "steps": "Passaggi",
+      "topJourneys": "Principali {journeys} percorsi",
+      "noData": "Nessun dato di percorso disponibile per i criteri selezionati."
+    },    
+    "integration": {
+      "title": "Integrazione sito",
+      "description": "Aggiungi lo script di tracciamento al tuo sito per iniziare a raccogliere dati",
+      "fullyIntegrated": "Integrato completamente",
+      "notFullyIntegrated": "Non completamente integrato",
+      "loadingDetails": "Caricamento dettagli integrazione...",
+      "unableToLoadSiteId": "Impossibile caricare l'ID del sito",
+      "failedToCopy": "Copia non riuscita",
+      "important": "Importante",
+      "headSectionNote": "Aggiungi questo script alla sezione {head} del layout principale o delle singole pagine.",
+      "npmPackageNote": "Oppure installa il nostro pacchetto {npm} {package} per una configurazione semplice nei progetti Node.",
+      "yourSiteId": "ID del tuo sito",
+      "trackingScript": "Script di tracciamento",
+      "copied": "Copiato",
+      "copy": "Copia",
+      "htmlInstallation": "Installazione HTML",
+      "nextjsInstallation": "Installazione Next.js",
+      "reactInstallation": "Installazione React",
+      "initializeNpmPackage": "Inizializza usando il nostro pacchetto {npm}",
+      "integrationStatus": "Stato integrazione",
+      "trackProgress": "Traccia i tuoi progressi",
+      "accountCreated": "Account creato",
+      "accountReady": "Il tuo account è pronto",
+      "siteIdGenerated": "ID sito generato",
+      "uniqueIdentifier": "Il tuo identificatore univoco",
+      "dataReceiving": "Ricezione dati",
+      "analyticsDataFlowing": "Flusso dati attivo",
+      "needHelp": "Serve aiuto?",
+      "resourcesToGetStarted": "Risorse per iniziare",
+      "documentation": "Documentazione",
+      "troubleshooting": "Risoluzione problemi",
+      "contactSupport": "Contatta il supporto",
+      "verifying": "Verifica in corso...",
+      "verifyInstallation": "Verifica installazione"
+    }
+  }
+}
