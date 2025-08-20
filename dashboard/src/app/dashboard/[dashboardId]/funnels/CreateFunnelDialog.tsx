@@ -39,7 +39,7 @@ type CreateFunnelDialogProps = {
 export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
-  const t = useTranslations<'components.funnels.create'>('components.funnels.create');
+  const t = useTranslations('components.funnels.create');
 
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: t('defaultName'),
