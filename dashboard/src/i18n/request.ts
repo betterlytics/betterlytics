@@ -1,22 +1,24 @@
-import { getUserSettingsAction } from '@/app/actions/userSettings';
-import { SupportedLanguages } from '@/constants/i18n';
-import { env } from '@/lib/env';
+import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
+import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
 import { getRequestConfig } from 'next-intl/server';
 
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
-
   if (!locale) {
     try {
-      const result = await getUserSettingsAction();
-      if (result.success) {
-        locale = result.data.language;
+      const session = await getServerSession(authOptions);
+      
+      if (session?.user?.settings?.language) {
+        locale = session.user.settings.language;
       }
     } catch (error) {
-      console.error('Error fetching user settings:', error);
-    } finally {
-      locale ??= env.NEXT_PUBLIC_DEFAULT_LANGUAGE;
+      console.error('Error fetching user settings from session:', error);
     }
+  }
+
+  if (SUPPORTED_LANGUAGES.includes(locale as SupportedLanguages) === false) {
+    locale = process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE;
   }
 
   return {

@@ -12,7 +12,7 @@ declare module 'next-auth' {
     role: string | null;
     totpEnabled: boolean;
     hasPassword?: boolean;
-    settings?: UserSettings & { synchronizedAt?: Date };
+    settings?: UserSettings;
   }
 
   interface Session {
@@ -29,5 +29,7 @@ declare module 'next-auth/jwt' {
     role: string | null;
     totpEnabled: boolean;
     hasPassword?: boolean;
+    settings?: UserSettings;
+    settingsLastFetched?: number;
   }
 }

@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
+import NextLink from 'next/link';
 
 export default function PublicTopBar() {
   const t = useTranslations('public.nav');
@@ -56,9 +57,9 @@ export default function PublicTopBar() {
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
               ) : session ? (
-                <Link href='/dashboards'>
+                <NextLink href='/dashboards'>
                   <Button variant='default'>{t('goToDashboard')}</Button>
-                </Link>
+                </NextLink>
               ) : !isOnSignInPage ? (
                 <Link href='/signin'>
                   <Button>{t('getStarted')}</Button>
@@ -97,11 +98,11 @@ export default function PublicTopBar() {
 
               <div className='border-t pt-3'>
                 {session ? (
-                  <Link href='/dashboards' onClick={closeMobileMenu}>
+                  <NextLink href='/dashboards' onClick={closeMobileMenu}>
                     <Button variant='default' className='w-full'>
                       {t('goToDashboard')}
                     </Button>
-                  </Link>
+                  </NextLink>
                 ) : !isOnSignInPage ? (
                   <Link href='/signin' onClick={closeMobileMenu}>
                     <Button className='w-full'>{t('getStarted')}</Button>

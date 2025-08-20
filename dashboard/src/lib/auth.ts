@@ -89,6 +89,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.totpEnabled = user.totpEnabled;
         token.hasPassword = Boolean((user as unknown as { passwordHash?: string | null })?.passwordHash);
+
         if (account?.provider === 'google') {
           const emailVerifiedByGoogle = Boolean((profile as any)?.email_verified);
           const userIsUnverified = !user.emailVerified;
@@ -121,17 +122,27 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('Error refreshing user data in JWT callback:', error);
-          // We keep existing token data if refresh fails
+        }
+      }
+
+      // Add user settings to token / session
+      if (token.uid) {
+        const staleThreshold = 5 * 60 * 1000;
+        const isStale = !token.settingsLastFetched || Date.now() - token.settingsLastFetched > staleThreshold;
+        if (isStale) {
+          try {
+            const freshSettings = await getUserSettings(token.uid);
+            token.settings = freshSettings;
+            token.settingsLastFetched = Date.now();
+          } catch (error) {
+            console.error('Error refreshing user settings:', error);
+          }
         }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.settings = {
-          ...(await getUserSettings(token.uid)),
-          synchronizedAt: new Date(),
-        };
         session.user.id = token.uid;
         session.user.name = token.name;
         session.user.email = token.email;
@@ -139,6 +150,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.totpEnabled = token.totpEnabled;
         session.user.hasPassword = token.hasPassword;
+        session.user.settings = token.settings;
       }
       return session;
     },
