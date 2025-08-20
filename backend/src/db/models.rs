@@ -41,6 +41,7 @@ pub struct EventRow {
 pub enum EventType {
     Pageview = 1,
     Custom = 2,
+    Cwv = 3,
 }
 
 impl EventRow {

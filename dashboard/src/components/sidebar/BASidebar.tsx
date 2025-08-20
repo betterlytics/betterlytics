@@ -8,6 +8,7 @@ import {
   Funnel,
   DollarSign,
   Route,
+  Gauge,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -38,6 +39,7 @@ const navItems = [
   { name: 'Funnels', href: '/funnels', icon: <Funnel size={18} /> },
   { name: 'Devices', href: '/devices', icon: <Smartphone size={18} /> },
   { name: 'Campaigns', href: '/campaign', icon: <DollarSign size={18} /> },
+  { name: 'Core Web Vitals', href: '/web-vitals', icon: <Gauge size={18} /> },
   { name: 'Events', href: '/events', icon: <CircleDot size={18} /> },
 ];
 

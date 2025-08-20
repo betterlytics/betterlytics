@@ -99,6 +99,32 @@
     window.betterlytics.event.apply(this, queuedEvents[i]);
   }
 
+  if (script.getAttribute("data-web-vitals") === "true") {
+    var s = document.createElement("script");
+    s.src = "https://unpkg.com/web-vitals@5/dist/web-vitals.iife.js";
+    s.async = true;
+    s.onload = function () {
+      var send = function (m) {
+        window.betterlytics.event("cwv", {
+          name: m.name,
+          value: m.value,
+          id: m.id,
+          rating: m.rating,
+          delta: m.delta,
+          navigationType: m.navigationType,
+        });
+      };
+      if (typeof webVitals !== "undefined") {
+        webVitals.onCLS(send);
+        webVitals.onINP(send);
+        webVitals.onLCP(send);
+        webVitals.onFCP(send);
+        webVitals.onTTFB(send);
+      }
+    };
+    document.head.appendChild(s);
+  }
+
   // Track initial page view
   trackEvent("pageview");
 
