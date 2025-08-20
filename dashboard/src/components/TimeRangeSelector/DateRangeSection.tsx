@@ -31,7 +31,11 @@ export function DateRangeSection({
           label='End date'
           date={endDate}
           onDateSelect={(date) => date && onEndDateSelect(date)}
-          disabled={(date) => date > new Date()}
+          disabled={(date) => {
+            if (date > new Date()) return true;
+            if (startDate && date < startDate) return true;
+            return false;
+          }}
           id='endDateInput'
         />
       </div>
