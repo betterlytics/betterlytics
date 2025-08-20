@@ -99,7 +99,7 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-96 max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
+      <PopoverContent className='w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
         <QuickSelectSection selectedRange={tempState.range} onRangeSelect={handleQuickSelect} />
 
         <GranularitySection
