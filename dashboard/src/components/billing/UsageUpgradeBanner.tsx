@@ -2,7 +2,7 @@
 
 import { AlertTriangle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from '@/i18n/navigation';
+import Link from 'next/link';
 import { use } from 'react';
 import type { UserBillingData } from '@/entities/billing';
 import { formatPercentage } from '@/utils/formatters';

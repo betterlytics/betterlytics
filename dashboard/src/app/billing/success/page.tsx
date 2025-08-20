@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import NextLink from 'next/link';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,10 +79,10 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               <Link href='/dashboard'>Go to Dashboard</Link>
             </Button>
             <Button variant='outline' asChild>
-              <Link href='/billing'>
+              <NextLink href='/billing'>
                 <ArrowLeft className='mr-2 h-4 w-4' />
                 Back to Billing
-              </Link>
+              </NextLink>
             </Button>
           </div>
         </div>
