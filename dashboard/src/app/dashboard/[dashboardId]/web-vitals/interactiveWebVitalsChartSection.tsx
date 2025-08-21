@@ -84,7 +84,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   }
 
   const referenceLines = thresholds[active]?.map((y, idx) => {
-    const label = `${idx === 0 ? 'Good' : 'Needs improvement'} (<= ${formatThreshold(active, y)})`;
+    const label = `${idx === 0 ? 'Good' : 'Needs improvement'} (≤ ${formatThreshold(active, y)})`;
     const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-ni)';
     return { y, label, stroke, strokeDasharray: '6 6', labelFill: stroke };
   });
