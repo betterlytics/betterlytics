@@ -91,6 +91,7 @@
   /* CWV threshold line colors */
   --cwv-threshold-good: oklch(70% 0.18 150); /* green */
   --cwv-threshold-ni: oklch(80% 0.18 80); /* amber */
+  --cwv-threshold-poor: oklch(70% 0.22 27); /* red */
 
   --sidebar: white; /* Whiter sidebar for light mode */
   --sidebar-foreground: oklch(0.2 0.01 265);
@@ -151,6 +152,7 @@
   /* CWV threshold line colors */
   --cwv-threshold-good: oklch(70% 0.18 150);
   --cwv-threshold-ni: oklch(80% 0.18 80);
+  --cwv-threshold-poor: oklch(70% 0.22 27);
 
   --sidebar: oklch(0.13 0.02 265); /* Slightly darker than main background */
   --sidebar-foreground: oklch(0.95 0.01 265);

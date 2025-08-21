@@ -83,3 +83,19 @@ export function formatShortSeconds(seconds: number): string {
 export function formatShortFromMilliseconds(milliseconds: number): string {
   return formatShortSeconds(milliseconds / 1000);
 }
+
+// Compact duration formatters (short units: s/ms)
+export function formatCompactSeconds(seconds: number): string {
+  if (!Number.isFinite(seconds)) return '-';
+  if (Math.abs(seconds) < 1) {
+    return `${Math.round(seconds * 1000)} ms`;
+  }
+  return `${new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(seconds)} s`;
+}
+
+export function formatCompactFromMilliseconds(milliseconds: number): string {
+  return formatCompactSeconds(milliseconds / 1000);
+}

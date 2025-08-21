@@ -5,7 +5,7 @@ import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/webVitals';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
-import { formatShortFromMilliseconds } from '@/utils/dateFormatters';
+import { formatShortFromMilliseconds, formatCompactFromMilliseconds } from '@/utils/dateFormatters';
 
 type Props = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
@@ -18,38 +18,72 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
   const seriesByMetric = use(seriesPromise);
 
+  // Thresholds values are taken from Web.dev
+  const thresholds: Partial<Record<CoreWebVitalName, number[]>> = {
+    // CLS: good <= 0.1, medium 0.1-0.25
+    CLS: [0.1, 0.25],
+    // LCP: good <= 2500ms, medium 2500-4000
+    LCP: [2500, 4000],
+    // INP: good <= 200ms, medium 200-500
+    INP: [200, 500],
+    // FCP: good <= 1800ms, medium 1800-3000
+    FCP: [1800, 3000],
+    // TTFB: good <= 800ms, medium 800-1800
+    TTFB: [800, 1800],
+  };
+
+  function formatCardValue(metric: CoreWebVitalName, value: number | null): React.ReactNode {
+    if (value === null) return '—';
+    const goodThreshold = metric === 'CLS' ? thresholds.CLS?.[0] : thresholds[metric]?.[0];
+    const niThreshold = metric === 'CLS' ? thresholds.CLS?.[1] : thresholds[metric]?.[1];
+
+    let colorStyle: React.CSSProperties = {};
+    if (goodThreshold !== undefined && niThreshold !== undefined) {
+      if (value > niThreshold) {
+        colorStyle = { color: 'var(--cwv-threshold-poor)' };
+      } else if (value > goodThreshold) {
+        colorStyle = { color: 'var(--cwv-threshold-ni)' };
+      } else {
+        colorStyle = { color: 'var(--cwv-threshold-good)' };
+      }
+    }
+
+    const display = metric === 'CLS' ? value.toFixed(3) : formatCompactFromMilliseconds(value);
+    return <span style={colorStyle}>{display}</span>;
+  }
+
   const cards: SummaryCardData[] = [
     {
-      title: 'CLS p75',
-      value: summary.clsP75 === null ? '—' : summary.clsP75.toFixed(3),
+      title: 'Cumulative Layout Shift (p75)',
+      value: formatCardValue('CLS', summary.clsP75),
       chartColor: 'var(--chart-1)',
       isActive: active === 'CLS',
       onClick: () => setActive('CLS'),
     },
     {
-      title: 'LCP p75 (ms)',
-      value: summary.lcpP75 === null ? '—' : Math.round(summary.lcpP75).toLocaleString(),
+      title: 'Largest Contentful Paint (p75)',
+      value: formatCardValue('LCP', summary.lcpP75),
       chartColor: 'var(--chart-2)',
       isActive: active === 'LCP',
       onClick: () => setActive('LCP'),
     },
     {
-      title: 'INP p75 (ms)',
-      value: summary.inpP75 === null ? '—' : Math.round(summary.inpP75).toLocaleString(),
+      title: 'Interaction to Next Paint (p75)',
+      value: formatCardValue('INP', summary.inpP75),
       chartColor: 'var(--chart-3)',
       isActive: active === 'INP',
       onClick: () => setActive('INP'),
     },
     {
-      title: 'FCP p75 (ms)',
-      value: summary.fcpP75 === null ? '—' : Math.round(summary.fcpP75).toLocaleString(),
+      title: 'First Contentful Paint (p75)',
+      value: formatCardValue('FCP', summary.fcpP75),
       chartColor: 'var(--chart-4)',
       isActive: active === 'FCP',
       onClick: () => setActive('FCP'),
     },
     {
-      title: 'TTFB p75 (ms)',
-      value: summary.ttfbP75 === null ? '—' : Math.round(summary.ttfbP75).toLocaleString(),
+      title: 'Time to First Byte (p75)',
+      value: formatCardValue('TTFB', summary.ttfbP75),
       chartColor: 'var(--chart-5)',
       isActive: active === 'TTFB',
       onClick: () => setActive('TTFB'),
@@ -57,26 +91,14 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   ];
 
   const titles: Record<CoreWebVitalName, string> = {
-    CLS: 'CLS',
-    LCP: 'LCP (ms)',
-    INP: 'INP (ms)',
-    FCP: 'FCP (ms)',
-    TTFB: 'TTFB (ms)',
+    CLS: 'Cumulative Layout Shift',
+    LCP: 'Largest Contentful Paint (ms)',
+    INP: 'Interaction to Next Paint (ms)',
+    FCP: 'First Contentful Paint (ms)',
+    TTFB: 'Time to First Byte (ms)',
   } as const;
 
   const chartData = seriesByMetric[active] || [];
-
-  // Thresholds values are taken from Web.dev
-  const thresholds: Partial<Record<CoreWebVitalName, number[]>> = {
-    // CLS: good <= 0.1, medium 0.1-0.25
-    CLS: [0.1, 0.25],
-    // LCP: good <= 2500ms, medium 2500-4000
-    LCP: [2500, 4000],
-    // FCP: good <= 1800ms, medium 1800-3000
-    FCP: [1800, 3000],
-    // TTFB: good <= 800ms, medium 800-1800
-    TTFB: [800, 1800],
-  };
 
   function formatThreshold(metric: CoreWebVitalName, value: number): string {
     if (metric === 'CLS') return value.toString();

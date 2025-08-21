@@ -107,7 +107,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                         position='insideLeft'
                         dx={8}
                         textAnchor='start'
-                        fill={r.labelFill ?? r.stroke}
+                        fill={r.labelFill}
                       />
                     )}
                   </ReferenceLine>
