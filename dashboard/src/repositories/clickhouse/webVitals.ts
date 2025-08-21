@@ -9,8 +9,8 @@ import {
   CoreWebVitalsSummary,
   CoreWebVitalsSummarySchema,
   CORE_WEB_VITAL_NAMES,
-  CoreWebVitalPercentilesRow,
-  CoreWebVitalPercentilesRowSchema,
+  CoreWebVitalNamedPercentilesRowSchema,
+  CoreWebVitalNamedPercentilesRow,
 } from '@/entities/webVitals';
 
 export async function getCoreWebVitalsP75(
@@ -68,14 +68,13 @@ export async function getCoreWebVitalsP75(
   return CoreWebVitalsSummarySchema.parse(summary);
 }
 
-export async function getCoreWebVitalPercentilesSeries(
+export async function getAllCoreWebVitalPercentilesSeries(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: any[],
-  metricName: string,
-): Promise<CoreWebVitalPercentilesRow[]> {
+): Promise<CoreWebVitalNamedPercentilesRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
   const granularitySql = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
 
@@ -96,13 +95,14 @@ export async function getCoreWebVitalPercentilesSeries(
     )
     SELECT
       date,
+      name,
       quantileTDigest(0.50)(value) AS p50,
       quantileTDigest(0.75)(value) AS p75,
       quantileTDigest(0.90)(value) AS p90,
       quantileTDigest(0.99)(value) AS p99
     FROM metrics
-    WHERE name = {metric:String}
-    GROUP BY date
+    WHERE name IN {metric_names:Array(String)}
+    GROUP BY date, name
     ORDER BY date ASC
     LIMIT 10080
   `;
@@ -114,10 +114,10 @@ export async function getCoreWebVitalPercentilesSeries(
         site_id: siteId,
         start_date: startDate,
         end_date: endDate,
-        metric: metricName,
+        metric_names: CORE_WEB_VITAL_NAMES,
       },
     })
-    .toPromise()) as Array<{ date: string; p50: number; p75: number; p90: number; p99: number }>;
+    .toPromise()) as Array<{ date: string; name: string; p50: number; p75: number; p90: number; p99: number }>;
 
-  return rows.map((r) => CoreWebVitalPercentilesRowSchema.parse(r));
+  return rows.map((r) => CoreWebVitalNamedPercentilesRowSchema.parse(r));
 }

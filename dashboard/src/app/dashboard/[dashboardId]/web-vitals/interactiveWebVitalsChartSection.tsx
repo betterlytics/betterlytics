@@ -1,28 +1,21 @@
 'use client';
-import { use, useMemo, useState } from 'react';
+import { use, useState } from 'react';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
-import { CoreWebVitalName, CoreWebVitalPercentilesRow, CoreWebVitalsSummary } from '@/entities/webVitals';
+import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/webVitals';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 
 type Props = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
-  seriesPromise: Promise<
-    readonly [
-      CoreWebVitalPercentilesRow[],
-      CoreWebVitalPercentilesRow[],
-      CoreWebVitalPercentilesRow[],
-      CoreWebVitalPercentilesRow[],
-      CoreWebVitalPercentilesRow[],
-    ]
-  >;
+  seriesPromise: Promise<CoreWebVitalsSeries>;
 };
 
 export default function InteractiveWebVitalsChartSection({ summaryPromise, seriesPromise }: Props) {
   const summary = use(summaryPromise);
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
-  const [clsSeries, lcpSeries, inpSeries, fcpSeries, ttfbSeries] = use(seriesPromise);
+  const seriesByMetric = use(seriesPromise);
 
   const cards: SummaryCardData[] = [
     {
@@ -70,23 +63,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     TTFB: 'TTFB (ms)',
   } as const;
 
-  const seriesByMetric = useMemo(
-    () => ({ CLS: clsSeries, LCP: lcpSeries, INP: inpSeries, FCP: fcpSeries, TTFB: ttfbSeries }),
-    [clsSeries, lcpSeries, inpSeries, fcpSeries, ttfbSeries],
-  );
-
-  const colorByMetric: Record<CoreWebVitalName, string> = {
-    CLS: 'var(--chart-1)',
-    LCP: 'var(--chart-2)',
-    INP: 'var(--chart-3)',
-    FCP: 'var(--chart-4)',
-    TTFB: 'var(--chart-5)',
-  } as const;
-
-  const chartData = useMemo(() => {
-    const rows = seriesByMetric[active] || [];
-    return rows.map((r) => ({ date: r.date, value: [r.p50, r.p75, r.p90, r.p99] }));
-  }, [seriesByMetric, active]);
+  const chartData = seriesByMetric[active] || [];
 
   return (
     <div className='space-y-6'>

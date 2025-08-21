@@ -3,9 +3,10 @@
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { QueryFilter } from '@/entities/filter';
-import { getCoreWebVitalPercentilesTimeseries, getCoreWebVitalsSummaryForSite } from '@/services/webVitals';
+import { getAllCoreWebVitalPercentilesTimeseries, getCoreWebVitalsSummaryForSite } from '@/services/webVitals';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { CoreWebVitalName } from '@/entities/webVitals';
+import { toPercentileLinesByMetric, type PercentilePoint } from '@/presenters/toMultiLine';
 
 export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
@@ -13,22 +14,21 @@ export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
   },
 );
 
-export const fetchCoreWebVitalPercentilesSeriesAction = withDashboardAuthContext(
+export const fetchCoreWebVitalChartDataAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     startDate: Date,
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
-    metricName: CoreWebVitalName,
-  ) => {
-    return getCoreWebVitalPercentilesTimeseries(
+  ): Promise<Record<CoreWebVitalName, PercentilePoint[]>> => {
+    const rows = await getAllCoreWebVitalPercentilesTimeseries(
       ctx.siteId,
       startDate,
       endDate,
       granularity,
       queryFilters,
-      metricName,
     );
+    return toPercentileLinesByMetric(rows, granularity, { start: startDate, end: endDate });
   },
 );

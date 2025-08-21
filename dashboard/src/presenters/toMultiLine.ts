@@ -1,0 +1,54 @@
+import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { getDateKey } from '@/utils/dateHelpers';
+import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/webVitals';
+
+const IntervalFunctions = {
+  day: utcDay,
+  hour: utcHour,
+  minute: utcMinute,
+} as const;
+
+export type PercentilePoint = { date: number; value: [number, number, number, number] };
+export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
+
+export function toPercentileLinesByMetric(
+  rows: CoreWebVitalNamedPercentilesRow[],
+  granularity: GranularityRangeValues,
+  dateRange: { start: Date; end: Date },
+): Record<CoreWebVitalName, PercentilePoint[]> {
+  const byMetric: Record<CoreWebVitalName, Record<string, [number, number, number, number]>> = {
+    CLS: {},
+    LCP: {},
+    INP: {},
+    FCP: {},
+    TTFB: {},
+  };
+
+  for (const r of rows) {
+    const key = getDateKey(r.date);
+    byMetric[r.name][key] = [r.p50, r.p75, r.p90, r.p99];
+  }
+
+  const interval = IntervalFunctions[granularity];
+  const start = utcMinute(dateRange.start);
+  const end = utcMinute(dateRange.end);
+
+  const result: Record<CoreWebVitalName, PercentilePoint[]> = {
+    CLS: [],
+    LCP: [],
+    INP: [],
+    FCP: [],
+    TTFB: [],
+  };
+
+  for (let time = start; time <= end; time = interval.offset(time, 1)) {
+    const key = time.valueOf().toString();
+    (Object.keys(result) as CoreWebVitalName[]).forEach((name) => {
+      const vals = byMetric[name][key] ?? [0, 0, 0, 0];
+      result[name].push({ date: +key, value: vals });
+    });
+  }
+
+  return result;
+}
