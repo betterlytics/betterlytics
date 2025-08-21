@@ -64,6 +64,23 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   } as const;
 
   const chartData = seriesByMetric[active] || [];
+  const thresholds: Partial<Record<CoreWebVitalName, number[]>> = {
+    // CLS: good <= 0.1, medium 0.1-0.25, bad > 0.25
+    CLS: [0.1, 0.25],
+    // LCP: good <= 2500ms, medium 2500-4000, bad > 4000
+    LCP: [2500, 4000],
+    // FCP: good <= 1800ms, medium 1800-3000, bad > 3000 (non-core, optional)
+    FCP: [1800, 3000],
+    // TTFB: good <= 800ms, medium 800-1800, bad > 1800
+    TTFB: [800, 1800],
+  };
+
+  const referenceLines = thresholds[active]?.map((y, idx) => ({
+    y,
+    label: idx === 0 ? 'Good' : 'Needs improvement',
+    stroke: idx === 0 ? 'var(--cwv-p50)' : 'var(--cwv-p90)',
+    strokeDasharray: '6 6',
+  }));
 
   return (
     <div className='space-y-6'>
@@ -78,6 +95,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
           { dataKey: 'value.2', stroke: 'var(--cwv-p90)' }, // p90
           { dataKey: 'value.3', stroke: 'var(--cwv-p99)' }, // p99
         ]}
+        referenceLines={referenceLines}
       />
     </div>
   );

@@ -1,5 +1,14 @@
 import React, { useMemo } from 'react';
-import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Line, ComposedChart } from 'recharts';
+import {
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Line,
+  ComposedChart,
+  ReferenceLine,
+} from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -23,10 +32,11 @@ interface MultiSeriesChartProps {
   granularity?: GranularityRangeValues;
   formatValue?: (value: number) => string;
   series: MultiSeriesConfig[];
+  referenceLines?: Array<{ y: number; label?: string; stroke?: string; strokeDasharray?: string }>;
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
-  ({ title, data, granularity, formatValue, series }) => {
+  ({ title, data, granularity, formatValue, series, referenceLines }) => {
     const axisFormatter = useMemo(() => granularityDateFormmatter(granularity), [granularity]);
     return (
       <Card>
@@ -74,6 +84,15 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     stroke={s.stroke}
                     strokeWidth={s.strokeWidth ?? 2}
                     dot={s.dot ?? false}
+                  />
+                ))}
+                {referenceLines?.map((r, i) => (
+                  <ReferenceLine
+                    key={`ref-${i}`}
+                    y={r.y}
+                    stroke={r.stroke ?? 'var(--chart-comparison)'}
+                    strokeDasharray={r.strokeDasharray ?? '4 4'}
+                    label={r.label}
                   />
                 ))}
               </ComposedChart>
