@@ -180,12 +180,6 @@ impl EventProcessor {
         if event_name.eq_ignore_ascii_case("cwv") {
             processed.event_type = "cwv".to_string();
             processed.custom_event_json = processed.event.raw.properties.clone();
-            // Extract metric name into custom_event_name for easier querying/indexing
-            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&processed.custom_event_json) {
-                if let Some(name) = v.get("name").and_then(|n| n.as_str()) {
-                    processed.custom_event_name = name.to_string();
-                }
-            }
         } else if processed.event.raw.is_custom_event {
             processed.event_type = "custom".to_string();
             processed.custom_event_name = event_name;

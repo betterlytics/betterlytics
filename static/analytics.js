@@ -99,27 +99,50 @@
     window.betterlytics.event.apply(this, queuedEvents[i]);
   }
 
+  // Web Vitals batching (send once per page lifecycle)
   if (script.getAttribute("data-web-vitals") === "true") {
+    var cwvQueue = new Map();
+    var cwvFlushed = false;
+
+    function addCwvMetric(m) {
+      cwvQueue.set(m.name, {
+        name: m.name,
+        value: m.value,
+        id: m.id,
+        rating: m.rating,
+        delta: m.delta,
+        navigationType: m.navigationType,
+      });
+    }
+
+    function flushCwvQueue() {
+      if (cwvFlushed || cwvQueue.size === 0) return;
+      cwvFlushed = true;
+      var metrics = Array.from(cwvQueue.values());
+      window.betterlytics.event("cwv", { metrics: metrics });
+      cwvQueue.clear();
+    }
+
+    // Flush on visibility change to hidden and on pagehide (Safari/iOS)
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") {
+        flushCwvQueue();
+      }
+    });
+    window.addEventListener("pagehide", function () {
+      flushCwvQueue();
+    });
+
     var s = document.createElement("script");
     s.src = "https://unpkg.com/web-vitals@5/dist/web-vitals.iife.js";
     s.async = true;
     s.onload = function () {
-      var send = function (m) {
-        window.betterlytics.event("cwv", {
-          name: m.name,
-          value: m.value,
-          id: m.id,
-          rating: m.rating,
-          delta: m.delta,
-          navigationType: m.navigationType,
-        });
-      };
       if (typeof webVitals !== "undefined") {
-        webVitals.onCLS(send);
-        webVitals.onINP(send);
-        webVitals.onLCP(send);
-        webVitals.onFCP(send);
-        webVitals.onTTFB(send);
+        webVitals.onCLS(addCwvMetric);
+        webVitals.onINP(addCwvMetric);
+        webVitals.onLCP(addCwvMetric);
+        webVitals.onFCP(addCwvMetric);
+        webVitals.onTTFB(addCwvMetric);
       }
     };
     document.head.appendChild(s);
