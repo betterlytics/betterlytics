@@ -91,7 +91,6 @@ impl EventValidator {
         self.validate_payload_sizes(raw_event)?;
         self.validate_formats(raw_event, ip_address)?;
         
-        // Validate outbound link URL if present
         if raw_event.event_name == "outbound_link" {
             self.validate_outbound_link_url(raw_event)?;
         }
@@ -204,14 +203,12 @@ impl EventValidator {
         }
     }
 
-    /// Validate outbound link URL
     fn validate_outbound_link_url(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         let outbound_url = match &raw_event.outbound_link_url {
             Some(url) => url,
             None => return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL required for outbound_link events".to_string())),
         };
 
-        // Check if empty
         if outbound_url.is_empty() {
             return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL cannot be empty".to_string()));
         }
@@ -221,7 +218,6 @@ impl EventValidator {
             return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL too long".to_string()));
         }
 
-        // Check for control characters
         if contains_control_characters(outbound_url) {
             return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL contains invalid control characters".to_string()));
         }
