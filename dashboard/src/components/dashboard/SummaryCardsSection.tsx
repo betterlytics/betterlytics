@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import SummaryCard from '@/components/SummaryCard';
 
 export interface SummaryCardData {
-  title: string;
+  title: ReactNode;
   value: ReactNode;
   icon?: ReactNode;
   footer?: ReactNode;
@@ -23,7 +23,7 @@ export default function SummaryCardsSection({ cards, className }: SummaryCardsSe
     <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 ${className}`}>
       {cards.map((card, index) => (
         <SummaryCard
-          key={`${card.title}-${index}`}
+          key={index}
           title={card.title}
           value={card.value}
           icon={card.icon}

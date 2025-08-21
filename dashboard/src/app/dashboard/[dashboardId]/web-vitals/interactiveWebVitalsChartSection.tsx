@@ -49,9 +49,16 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     return <span style={colorStyle}>{display}</span>;
   }
 
+  const P75Badge = () => <span className='text-muted-foreground ml-2 text-xs font-medium'>p75</span>;
+
   const cards: SummaryCardData[] = [
     {
-      title: 'Cumulative Layout Shift (p75)',
+      title: (
+        <span>
+          Cumulative Layout Shift
+          <P75Badge />
+        </span>
+      ),
       value: formatCardValue('CLS', summary.clsP75),
       footer:
         summary.clsP75 === null ? null : (
@@ -64,7 +71,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       onClick: () => setActive('CLS'),
     },
     {
-      title: 'Largest Contentful Paint (p75)',
+      title: (
+        <span>
+          Largest Contentful Paint
+          <P75Badge />
+        </span>
+      ),
       value: formatCardValue('LCP', summary.lcpP75),
       footer:
         summary.lcpP75 === null ? null : (
@@ -77,7 +89,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       onClick: () => setActive('LCP'),
     },
     {
-      title: 'Interaction to Next Paint (p75)',
+      title: (
+        <span>
+          Interaction to Next Paint
+          <P75Badge />
+        </span>
+      ),
       value: formatCardValue('INP', summary.inpP75),
       footer:
         summary.inpP75 === null ? null : (
@@ -90,7 +107,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       onClick: () => setActive('INP'),
     },
     {
-      title: 'First Contentful Paint (p75)',
+      title: (
+        <span>
+          First Contentful Paint
+          <P75Badge />
+        </span>
+      ),
       value: formatCardValue('FCP', summary.fcpP75),
       footer:
         summary.fcpP75 === null ? null : (
@@ -103,7 +125,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       onClick: () => setActive('FCP'),
     },
     {
-      title: 'Time to First Byte (p75)',
+      title: (
+        <span>
+          Time to First Byte
+          <P75Badge />
+        </span>
+      ),
       value: formatCardValue('TTFB', summary.ttfbP75),
       footer:
         summary.ttfbP75 === null ? null : (
