@@ -33,8 +33,7 @@ const getOutboundLinkColor = (name: string): string => {
 const formatUrl = (url: string): string => {
   if (url === 'Others') return url;
 
-  // Remove protocol and show just domain + path
-  return url.replace(/^https?:\/\//, '').split('/')[0];
+  return url.toLowerCase();
 };
 
 export default function OutboundLinksPieChart({ distributionPromise }: OutboundLinksPieChartProps) {
