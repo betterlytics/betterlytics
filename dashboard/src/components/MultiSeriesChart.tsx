@@ -100,7 +100,16 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     stroke={r.stroke ?? 'var(--chart-comparison)'}
                     strokeDasharray={r.strokeDasharray ?? '4 4'}
                   >
-                    {r.label && <Label value={r.label} dy={-12} fill={r.labelFill ?? r.stroke} />}
+                    {r.label && (
+                      <Label
+                        value={r.label}
+                        dy={-12}
+                        position='insideLeft'
+                        dx={8}
+                        textAnchor='start'
+                        fill={r.labelFill ?? r.stroke}
+                      />
+                    )}
                   </ReferenceLine>
                 ))}
               </ComposedChart>
