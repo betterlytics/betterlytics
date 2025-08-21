@@ -5,6 +5,7 @@ export interface SummaryCardData {
   title: string;
   value: ReactNode;
   icon?: ReactNode;
+  footer?: ReactNode;
   rawChartData?: any[];
   valueField?: string;
   chartColor?: string;
@@ -26,6 +27,7 @@ export default function SummaryCardsSection({ cards, className }: SummaryCardsSe
           title={card.title}
           value={card.value}
           icon={card.icon}
+          footer={card.footer}
           rawChartData={card.rawChartData}
           valueField={card.valueField}
           chartColor={card.chartColor}

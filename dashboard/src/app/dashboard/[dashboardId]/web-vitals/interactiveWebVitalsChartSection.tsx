@@ -1,6 +1,7 @@
 'use client';
 import { use, useState } from 'react';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
+import CoreWebVitalBar from '@/components/dashboard/CoreWebVitalBar';
 import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/webVitals';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
@@ -32,21 +33,17 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     TTFB: [800, 1800],
   };
 
+  function getStatusColor(metric: CoreWebVitalName, value: number): string {
+    const [goodThreshold, niThreshold] = thresholds[metric] ?? [];
+    if (goodThreshold === undefined || niThreshold === undefined) return '';
+    if (value > niThreshold) return 'var(--cwv-threshold-poor)';
+    if (value > goodThreshold) return 'var(--cwv-threshold-ni)';
+    return 'var(--cwv-threshold-good)';
+  }
+
   function formatCardValue(metric: CoreWebVitalName, value: number | null): React.ReactNode {
     if (value === null) return '—';
-    const goodThreshold = metric === 'CLS' ? thresholds.CLS?.[0] : thresholds[metric]?.[0];
-    const niThreshold = metric === 'CLS' ? thresholds.CLS?.[1] : thresholds[metric]?.[1];
-
-    let colorStyle: React.CSSProperties = {};
-    if (goodThreshold !== undefined && niThreshold !== undefined) {
-      if (value > niThreshold) {
-        colorStyle = { color: 'var(--cwv-threshold-poor)' };
-      } else if (value > goodThreshold) {
-        colorStyle = { color: 'var(--cwv-threshold-ni)' };
-      } else {
-        colorStyle = { color: 'var(--cwv-threshold-good)' };
-      }
-    }
+    const colorStyle: React.CSSProperties = { color: getStatusColor(metric, value) };
 
     const display = metric === 'CLS' ? value.toFixed(3) : formatCompactFromMilliseconds(value);
     return <span style={colorStyle}>{display}</span>;
@@ -56,6 +53,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     {
       title: 'Cumulative Layout Shift (p75)',
       value: formatCardValue('CLS', summary.clsP75),
+      footer:
+        summary.clsP75 === null ? null : (
+          <div style={{ color: getStatusColor('CLS', summary.clsP75) }}>
+            <CoreWebVitalBar metric='CLS' value={summary.clsP75} thresholds={thresholds} />
+          </div>
+        ),
       chartColor: 'var(--chart-1)',
       isActive: active === 'CLS',
       onClick: () => setActive('CLS'),
@@ -63,6 +66,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     {
       title: 'Largest Contentful Paint (p75)',
       value: formatCardValue('LCP', summary.lcpP75),
+      footer:
+        summary.lcpP75 === null ? null : (
+          <div style={{ color: getStatusColor('LCP', summary.lcpP75) }}>
+            <CoreWebVitalBar metric='LCP' value={summary.lcpP75} thresholds={thresholds} />
+          </div>
+        ),
       chartColor: 'var(--chart-2)',
       isActive: active === 'LCP',
       onClick: () => setActive('LCP'),
@@ -70,6 +79,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     {
       title: 'Interaction to Next Paint (p75)',
       value: formatCardValue('INP', summary.inpP75),
+      footer:
+        summary.inpP75 === null ? null : (
+          <div style={{ color: getStatusColor('INP', summary.inpP75) }}>
+            <CoreWebVitalBar metric='INP' value={summary.inpP75} thresholds={thresholds} />
+          </div>
+        ),
       chartColor: 'var(--chart-3)',
       isActive: active === 'INP',
       onClick: () => setActive('INP'),
@@ -77,6 +92,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     {
       title: 'First Contentful Paint (p75)',
       value: formatCardValue('FCP', summary.fcpP75),
+      footer:
+        summary.fcpP75 === null ? null : (
+          <div style={{ color: getStatusColor('FCP', summary.fcpP75) }}>
+            <CoreWebVitalBar metric='FCP' value={summary.fcpP75} thresholds={thresholds} />
+          </div>
+        ),
       chartColor: 'var(--chart-4)',
       isActive: active === 'FCP',
       onClick: () => setActive('FCP'),
@@ -84,6 +105,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     {
       title: 'Time to First Byte (p75)',
       value: formatCardValue('TTFB', summary.ttfbP75),
+      footer:
+        summary.ttfbP75 === null ? null : (
+          <div style={{ color: getStatusColor('TTFB', summary.ttfbP75) }}>
+            <CoreWebVitalBar metric='TTFB' value={summary.ttfbP75} thresholds={thresholds} />
+          </div>
+        ),
       chartColor: 'var(--chart-5)',
       isActive: active === 'TTFB',
       onClick: () => setActive('TTFB'),
