@@ -88,6 +88,9 @@
   --cwv-p75: oklch(72% 0.12 258);
   --cwv-p90: oklch(62% 0.16 262);
   --cwv-p99: oklch(52% 0.2 266); /* darker blue */
+  /* CWV threshold line colors */
+  --cwv-threshold-good: oklch(70% 0.18 150); /* green */
+  --cwv-threshold-ni: oklch(80% 0.18 80); /* amber */
 
   --sidebar: white; /* Whiter sidebar for light mode */
   --sidebar-foreground: oklch(0.2 0.01 265);
@@ -145,6 +148,9 @@
   --cwv-p75: oklch(74% 0.12 258);
   --cwv-p90: oklch(68% 0.16 262);
   --cwv-p99: oklch(62% 0.2 266);
+  /* CWV threshold line colors */
+  --cwv-threshold-good: oklch(70% 0.18 150);
+  --cwv-threshold-ni: oklch(80% 0.18 80);
 
   --sidebar: oklch(0.13 0.02 265); /* Slightly darker than main background */
   --sidebar-foreground: oklch(0.95 0.01 265);

@@ -8,6 +8,7 @@ import {
   Line,
   ComposedChart,
   ReferenceLine,
+  Label,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ChartTooltip } from './charts/ChartTooltip';
@@ -32,7 +33,13 @@ interface MultiSeriesChartProps {
   granularity?: GranularityRangeValues;
   formatValue?: (value: number) => string;
   series: MultiSeriesConfig[];
-  referenceLines?: Array<{ y: number; label?: string; stroke?: string; strokeDasharray?: string }>;
+  referenceLines?: Array<{
+    y: number;
+    label?: string;
+    stroke?: string;
+    strokeDasharray?: string;
+    labelFill?: string;
+  }>;
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
@@ -92,8 +99,9 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     y={r.y}
                     stroke={r.stroke ?? 'var(--chart-comparison)'}
                     strokeDasharray={r.strokeDasharray ?? '4 4'}
-                    label={r.label}
-                  />
+                  >
+                    {r.label && <Label value={r.label} dy={-12} fill={r.labelFill ?? r.stroke} />}
+                  </ReferenceLine>
                 ))}
               </ComposedChart>
             </ResponsiveContainer>

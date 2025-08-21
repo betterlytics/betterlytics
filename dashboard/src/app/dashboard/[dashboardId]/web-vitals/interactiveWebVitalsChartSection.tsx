@@ -5,6 +5,7 @@ import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/webVitals';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
+import { formatShortFromMilliseconds } from '@/utils/dateFormatters';
 
 type Props = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
@@ -64,23 +65,29 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   } as const;
 
   const chartData = seriesByMetric[active] || [];
+
+  // Thresholds values are taken from Web.dev
   const thresholds: Partial<Record<CoreWebVitalName, number[]>> = {
-    // CLS: good <= 0.1, medium 0.1-0.25, bad > 0.25
+    // CLS: good <= 0.1, medium 0.1-0.25
     CLS: [0.1, 0.25],
-    // LCP: good <= 2500ms, medium 2500-4000, bad > 4000
+    // LCP: good <= 2500ms, medium 2500-4000
     LCP: [2500, 4000],
-    // FCP: good <= 1800ms, medium 1800-3000, bad > 3000 (non-core, optional)
+    // FCP: good <= 1800ms, medium 1800-3000
     FCP: [1800, 3000],
-    // TTFB: good <= 800ms, medium 800-1800, bad > 1800
+    // TTFB: good <= 800ms, medium 800-1800
     TTFB: [800, 1800],
   };
 
-  const referenceLines = thresholds[active]?.map((y, idx) => ({
-    y,
-    label: idx === 0 ? 'Good' : 'Needs improvement',
-    stroke: idx === 0 ? 'var(--cwv-p50)' : 'var(--cwv-p90)',
-    strokeDasharray: '6 6',
-  }));
+  function formatThreshold(metric: CoreWebVitalName, value: number): string {
+    if (metric === 'CLS') return value.toString();
+    return formatShortFromMilliseconds(value);
+  }
+
+  const referenceLines = thresholds[active]?.map((y, idx) => {
+    const label = `${idx === 0 ? 'Good' : 'Needs improvement'} (<= ${formatThreshold(active, y)})`;
+    const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-ni)';
+    return { y, label, stroke, strokeDasharray: '6 6', labelFill: stroke };
+  });
 
   return (
     <div className='space-y-6'>
