@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { SummaryCardsSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { fetchCoreWebVitalsSummaryAction, fetchCoreWebVitalSeriesAction } from '@/app/actions';
+import { fetchCoreWebVitalsSummaryAction, fetchCoreWebVitalPercentilesSeriesAction } from '@/app/actions';
 import InteractiveWebVitalsChartSection from './interactiveWebVitalsChartSection';
 
 type PageParams = {
@@ -25,11 +25,11 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
 
   const summaryPromise = fetchCoreWebVitalsSummaryAction(dashboardId, startDate, endDate, queryFilters);
   const seriesPromise = Promise.all([
-    fetchCoreWebVitalSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'CLS'),
-    fetchCoreWebVitalSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'LCP'),
-    fetchCoreWebVitalSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'INP'),
-    fetchCoreWebVitalSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'FCP'),
-    fetchCoreWebVitalSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'TTFB'),
+    fetchCoreWebVitalPercentilesSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'CLS'),
+    fetchCoreWebVitalPercentilesSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'LCP'),
+    fetchCoreWebVitalPercentilesSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'INP'),
+    fetchCoreWebVitalPercentilesSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'FCP'),
+    fetchCoreWebVitalPercentilesSeriesAction(dashboardId, startDate, endDate, granularity, queryFilters, 'TTFB'),
   ] as const);
 
   return (

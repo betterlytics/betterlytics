@@ -1,8 +1,7 @@
-import { getCoreWebVitalSeries, getCoreWebVitalsP75 } from '@/repositories/clickhouse/webVitals';
-import { CoreWebVitalSeriesRow, CoreWebVitalsSummary } from '@/entities/webVitals';
+import { getCoreWebVitalPercentilesSeries, getCoreWebVitalsP75 } from '@/repositories/clickhouse/webVitals';
+import { CoreWebVitalPercentilesRow, CoreWebVitalsSummary } from '@/entities/webVitals';
 import { QueryFilter } from '@/entities/filter';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { BAQuery } from '@/lib/ba-query';
 
 export async function getCoreWebVitalsSummaryForSite(
   siteId: string,
@@ -13,20 +12,19 @@ export async function getCoreWebVitalsSummaryForSite(
   return getCoreWebVitalsP75(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
 }
 
-export async function getCoreWebVitalTimeseries(
+export async function getCoreWebVitalPercentilesTimeseries(
   siteId: string,
   startDate: Date,
   endDate: Date,
   granularity: any,
   queryFilters: QueryFilter[],
   metricName: string,
-): Promise<CoreWebVitalSeriesRow[]> {
-  const granularitySql = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
-  return getCoreWebVitalSeries(
+): Promise<CoreWebVitalPercentilesRow[]> {
+  return getCoreWebVitalPercentilesSeries(
     siteId,
     toDateTimeString(startDate),
     toDateTimeString(endDate),
-    granularitySql,
+    granularity,
     queryFilters,
     metricName,
   );

@@ -19,9 +19,11 @@ export const CoreWebVitalRowSchema = z.object({
 });
 export type CoreWebVitalRow = z.infer<typeof CoreWebVitalRowSchema>;
 
-export const CoreWebVitalSeriesRowSchema = z.object({
+export const CoreWebVitalPercentilesRowSchema = z.object({
   date: z.string(),
-  name: CoreWebVitalNameSchema,
-  value: z.number(),
+  p50: z.number(),
+  p75: z.number(),
+  p90: z.number(),
+  p99: z.number(),
 });
-export type CoreWebVitalSeriesRow = z.infer<typeof CoreWebVitalSeriesRowSchema>;
+export type CoreWebVitalPercentilesRow = z.infer<typeof CoreWebVitalPercentilesRowSchema>;

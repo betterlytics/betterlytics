@@ -1,19 +1,19 @@
 'use client';
 import { use, useMemo, useState } from 'react';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
-import { CoreWebVitalName, CoreWebVitalSeriesRow, CoreWebVitalsSummary } from '@/entities/webVitals';
-import InteractiveChart from '@/components/InteractiveChart';
+import { CoreWebVitalName, CoreWebVitalPercentilesRow, CoreWebVitalsSummary } from '@/entities/webVitals';
+import MultiSeriesChart from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 type Props = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
   seriesPromise: Promise<
     readonly [
-      CoreWebVitalSeriesRow[],
-      CoreWebVitalSeriesRow[],
-      CoreWebVitalSeriesRow[],
-      CoreWebVitalSeriesRow[],
-      CoreWebVitalSeriesRow[],
+      CoreWebVitalPercentilesRow[],
+      CoreWebVitalPercentilesRow[],
+      CoreWebVitalPercentilesRow[],
+      CoreWebVitalPercentilesRow[],
+      CoreWebVitalPercentilesRow[],
     ]
   >;
 };
@@ -83,16 +83,25 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     TTFB: 'var(--chart-5)',
   } as const;
 
-  const chartData = useMemo(
-    () => (seriesByMetric[active] || []).map((r) => ({ date: r.date, value: [r.value] })),
-    [seriesByMetric, active],
-  );
-  const color = colorByMetric[active];
+  const chartData = useMemo(() => {
+    const rows = seriesByMetric[active] || [];
+    return rows.map((r) => ({ date: r.date, value: [r.p50, r.p75, r.p90, r.p99] }));
+  }, [seriesByMetric, active]);
 
   return (
     <div className='space-y-6'>
       <SummaryCardsSection className='lg:grid-cols-5' cards={cards} />
-      <InteractiveChart title={titles[active]} data={chartData} color={color} granularity={granularity} />
+      <MultiSeriesChart
+        title={titles[active]}
+        data={chartData}
+        granularity={granularity}
+        series={[
+          { dataKey: 'value.0', stroke: 'var(--cwv-p50)' }, // p50
+          { dataKey: 'value.1', stroke: 'var(--cwv-p75)' }, // p75
+          { dataKey: 'value.2', stroke: 'var(--cwv-p90)' }, // p90
+          { dataKey: 'value.3', stroke: 'var(--cwv-p99)' }, // p99
+        ]}
+      />
     </div>
   );
 }

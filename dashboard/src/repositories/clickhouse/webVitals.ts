@@ -2,14 +2,15 @@ import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { DateTimeString } from '@/types/dates';
 import { BAQuery } from '@/lib/ba-query';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
 import {
   CoreWebVitalRow,
   CoreWebVitalRowSchema,
   CoreWebVitalsSummary,
   CoreWebVitalsSummarySchema,
   CORE_WEB_VITAL_NAMES,
-  CoreWebVitalSeriesRow,
-  CoreWebVitalSeriesRowSchema,
+  CoreWebVitalPercentilesRow,
+  CoreWebVitalPercentilesRowSchema,
 } from '@/entities/webVitals';
 
 export async function getCoreWebVitalsP75(
@@ -67,15 +68,16 @@ export async function getCoreWebVitalsP75(
   return CoreWebVitalsSummarySchema.parse(summary);
 }
 
-export async function getCoreWebVitalSeries(
+export async function getCoreWebVitalPercentilesSeries(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
-  granularitySql: (column: 'timestamp' | 'date' | 'custom_date', start: DateTimeString) => any,
+  granularity: GranularityRangeValues,
   queryFilters: any[],
   metricName: string,
-): Promise<CoreWebVitalSeriesRow[]> {
+): Promise<CoreWebVitalPercentilesRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
+  const granularitySql = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
 
   const query = safeSql`
     WITH metrics AS (
@@ -94,11 +96,13 @@ export async function getCoreWebVitalSeries(
     )
     SELECT
       date,
-      name,
-      max(value) AS value
+      quantileTDigest(0.50)(value) AS p50,
+      quantileTDigest(0.75)(value) AS p75,
+      quantileTDigest(0.90)(value) AS p90,
+      quantileTDigest(0.99)(value) AS p99
     FROM metrics
     WHERE name = {metric:String}
-    GROUP BY date, name
+    GROUP BY date
     ORDER BY date ASC
     LIMIT 10080
   `;
@@ -113,7 +117,7 @@ export async function getCoreWebVitalSeries(
         metric: metricName,
       },
     })
-    .toPromise()) as Array<{ date: string; name: string; value: number }>;
+    .toPromise()) as Array<{ date: string; p50: number; p75: number; p90: number; p99: number }>;
 
-  return rows.map((r) => CoreWebVitalSeriesRowSchema.parse(r));
+  return rows.map((r) => CoreWebVitalPercentilesRowSchema.parse(r));
 }

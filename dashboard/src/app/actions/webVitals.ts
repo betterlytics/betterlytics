@@ -3,7 +3,7 @@
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { QueryFilter } from '@/entities/filter';
-import { getCoreWebVitalTimeseries, getCoreWebVitalsSummaryForSite } from '@/services/webVitals';
+import { getCoreWebVitalPercentilesTimeseries, getCoreWebVitalsSummaryForSite } from '@/services/webVitals';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { CoreWebVitalName } from '@/entities/webVitals';
 
@@ -13,7 +13,7 @@ export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
   },
 );
 
-export const fetchCoreWebVitalSeriesAction = withDashboardAuthContext(
+export const fetchCoreWebVitalPercentilesSeriesAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     startDate: Date,
@@ -22,6 +22,13 @@ export const fetchCoreWebVitalSeriesAction = withDashboardAuthContext(
     queryFilters: QueryFilter[],
     metricName: CoreWebVitalName,
   ) => {
-    return getCoreWebVitalTimeseries(ctx.siteId, startDate, endDate, granularity, queryFilters, metricName);
+    return getCoreWebVitalPercentilesTimeseries(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      metricName,
+    );
   },
 );
