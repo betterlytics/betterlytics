@@ -18,3 +18,10 @@ export const CoreWebVitalRowSchema = z.object({
   p75: z.number().nullable(),
 });
 export type CoreWebVitalRow = z.infer<typeof CoreWebVitalRowSchema>;
+
+export const CoreWebVitalSeriesRowSchema = z.object({
+  date: z.string(),
+  name: CoreWebVitalNameSchema,
+  value: z.number(),
+});
+export type CoreWebVitalSeriesRow = z.infer<typeof CoreWebVitalSeriesRowSchema>;

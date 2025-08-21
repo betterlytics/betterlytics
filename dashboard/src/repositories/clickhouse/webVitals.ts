@@ -8,6 +8,8 @@ import {
   CoreWebVitalsSummary,
   CoreWebVitalsSummarySchema,
   CORE_WEB_VITAL_NAMES,
+  CoreWebVitalSeriesRow,
+  CoreWebVitalSeriesRowSchema,
 } from '@/entities/webVitals';
 
 export async function getCoreWebVitalsP75(
@@ -63,4 +65,55 @@ export async function getCoreWebVitalsP75(
   };
 
   return CoreWebVitalsSummarySchema.parse(summary);
+}
+
+export async function getCoreWebVitalSeries(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  granularitySql: (column: 'timestamp' | 'date' | 'custom_date', start: DateTimeString) => any,
+  queryFilters: any[],
+  metricName: string,
+): Promise<CoreWebVitalSeriesRow[]> {
+  const filters = BAQuery.getFilterQuery(queryFilters || []);
+
+  const query = safeSql`
+    WITH metrics AS (
+      SELECT
+        ${granularitySql('timestamp', startDate)} as date,
+        JSONExtractString(metric, 'name') AS name,
+        JSONExtractFloat(metric, 'value') AS value
+      FROM analytics.events
+      ARRAY JOIN JSONExtractArrayRaw(custom_event_json, 'metrics') AS metric
+      WHERE site_id = {site_id:String}
+        AND event_type = 'cwv'
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+        AND custom_event_json != ''
+        AND custom_event_json != '{}'
+        AND ${SQL.AND(filters)}
+    )
+    SELECT
+      date,
+      name,
+      max(value) AS value
+    FROM metrics
+    WHERE name = {metric:String}
+    GROUP BY date, name
+    ORDER BY date ASC
+    LIMIT 10080
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start_date: startDate,
+        end_date: endDate,
+        metric: metricName,
+      },
+    })
+    .toPromise()) as Array<{ date: string; name: string; value: number }>;
+
+  return rows.map((r) => CoreWebVitalSeriesRowSchema.parse(r));
 }
