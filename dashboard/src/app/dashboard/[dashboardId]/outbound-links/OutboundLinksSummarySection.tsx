@@ -3,7 +3,6 @@
 import { use } from 'react';
 import { fetchOutboundLinksSummaryWithChartsAction } from '@/app/actions/outboundLinks';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
 
 type OutboundLinksSummarySectionProps = {
   outboundLinksSummaryWithChartsPromise: ReturnType<typeof fetchOutboundLinksSummaryWithChartsAction>;
@@ -13,11 +12,10 @@ export default function OutboundLinksSummarySection({
   outboundLinksSummaryWithChartsPromise,
 }: OutboundLinksSummarySectionProps) {
   const summaryWithCharts = use(outboundLinksSummaryWithChartsPromise);
-  const { dictionary } = useDictionary();
 
   const cards: SummaryCardData[] = [
     {
-      title: 'Total Clicks',
+      title: 'Total Unique Clicks',
       value: summaryWithCharts.totalClicks.toLocaleString(),
       rawChartData: summaryWithCharts.dailyClicksChartData,
       valueField: 'outboundClicks',

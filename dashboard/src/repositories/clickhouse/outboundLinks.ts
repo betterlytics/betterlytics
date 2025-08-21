@@ -46,7 +46,7 @@ export async function getOutboundLinksAnalytics(
     )
     SELECT 
       e.outbound_link_url,
-      count() as clicks,
+      uniq(e.visitor_id) as clicks,
       ts.top_source_url,
       uniqExact(e.url) as source_url_count,
       uniq(e.visitor_id) as unique_visitors
@@ -93,7 +93,7 @@ export async function getDailyOutboundClicks(
   const query = safeSql`
     SELECT 
       ${granularityFunc('timestamp', startDate)} as date,
-      count() as outboundClicks
+      uniq(visitor_id, outbound_link_url) as outboundClicks
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
@@ -120,6 +120,87 @@ export async function getDailyOutboundClicks(
 }
 
 /**
+ * Get outbound links distribution for pie chart (top 9 + others)
+ */
+export async function getOutboundLinksDistribution(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  queryFilters: QueryFilter[],
+): Promise<Array<{ outbound_link_url: string; clicks: number }>> {
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  // Query 1: Get top 9 outbound links
+  const top9Query = safeSql`
+    SELECT 
+      outbound_link_url,
+      uniq(visitor_id) as clicks
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+      AND event_type = 'outbound_link'
+      AND outbound_link_url != ''
+      AND ${SQL.AND(filters)}
+    GROUP BY outbound_link_url
+    ORDER BY clicks DESC
+    LIMIT 9
+  `;
+
+  // Query 2: Get total clicks across all outbound links
+  const totalQuery = safeSql`
+    SELECT 
+      uniq(visitor_id) as total_clicks
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+      AND event_type = 'outbound_link'
+      AND outbound_link_url != ''
+      AND ${SQL.AND(filters)}
+  `;
+
+  const [top9Result, totalResult] = await Promise.all([
+    clickhouse
+      .query(top9Query.taggedSql, {
+        params: {
+          ...top9Query.taggedParams,
+          site_id: siteId,
+          start: startDate,
+          end: endDate,
+        },
+      })
+      .toPromise(),
+    clickhouse
+      .query(totalQuery.taggedSql, {
+        params: {
+          ...totalQuery.taggedParams,
+          site_id: siteId,
+          start: startDate,
+          end: endDate,
+        },
+      })
+      .toPromise(),
+  ]);
+
+  const top9Data = top9Result as Array<{ outbound_link_url: string; clicks: number }>;
+  const totalClicks = (totalResult as Array<{ total_clicks: number }>)[0]?.total_clicks || 0;
+
+  // Calculate "Others" by subtracting top 9 from total
+  const top9Sum = top9Data.reduce((sum, item) => sum + item.clicks, 0);
+  const othersClicks = totalClicks - top9Sum;
+
+  const result = [...top9Data];
+
+  if (othersClicks > 0) {
+    result.push({
+      outbound_link_url: 'Others',
+      clicks: othersClicks,
+    });
+  }
+
+  return result;
+}
+
+/**
  * Get summary statistics for outbound links
  */
 export async function getOutboundLinksSummary(
@@ -127,12 +208,17 @@ export async function getOutboundLinksSummary(
   startDate: DateTimeString,
   endDate: DateTimeString,
   queryFilters: QueryFilter[],
-): Promise<{ totalClicks: number; uniqueVisitors: number; topDomain: string | null; topSourceUrl: string | null }> {
+): Promise<{
+  totalClicks: number;
+  uniqueVisitors: number;
+  topDomain: string | null;
+  topSourceUrl: string | null;
+}> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     SELECT 
-      count() as totalClicks,
+      uniq(visitor_id) as totalClicks,
       uniq(visitor_id) as uniqueVisitors
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -163,7 +249,7 @@ export async function getOutboundLinksSummary(
       AND outbound_link_url != ''
       AND ${SQL.AND(filters)}
     GROUP BY domain
-    ORDER BY count() DESC
+    ORDER BY uniq(visitor_id) DESC
     LIMIT 1
   `;
 
@@ -188,7 +274,7 @@ export async function getOutboundLinksSummary(
       AND outbound_link_url != ''
       AND ${SQL.AND(filters)}
     GROUP BY source_url
-    ORDER BY count() DESC
+    ORDER BY uniq(visitor_id) DESC
     LIMIT 1
   `;
 

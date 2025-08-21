@@ -5,10 +5,14 @@ import { Suspense } from 'react';
 import {
   fetchOutboundLinksAnalyticsAction,
   fetchOutboundLinksSummaryWithChartsAction,
+  fetchOutboundClicksChartAction,
+  fetchOutboundLinksDistributionAction,
 } from '@/app/actions/outboundLinks';
-import { SummaryCardsSkeleton, TableSkeleton } from '@/components/skeleton';
+import { SummaryCardsSkeleton, TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import OutboundLinksSummarySection from './OutboundLinksSummarySection';
 import OutboundLinksTableSection from './OutboundLinksTableSection';
+import OutboundLinksChartSection from './OutboundLinksChartSection';
+import OutboundLinksPieChart from './OutboundLinksPieChart';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { ActiveQueryFilters } from '@/components/filters/ActiveQueryFilters';
@@ -46,6 +50,25 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
     compareEndDate,
   );
 
+  const outboundClicksChartPromise = fetchOutboundClicksChartAction(
+    dashboardId,
+    startDate,
+    endDate,
+    granularity,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
+
+  const outboundLinksDistributionPromise = fetchOutboundLinksDistributionAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  );
+
   return (
     <div className='container space-y-6 p-6'>
       <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
@@ -63,6 +86,15 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
           outboundLinksSummaryWithChartsPromise={outboundLinksSummaryWithChartsPromise}
         />
       </Suspense>
+
+      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+        <Suspense fallback={<ChartSkeleton />}>
+          <OutboundLinksPieChart distributionPromise={outboundLinksDistributionPromise} />
+        </Suspense>
+        <Suspense fallback={<ChartSkeleton />}>
+          <OutboundLinksChartSection outboundClicksChartPromise={outboundClicksChartPromise} />
+        </Suspense>
+      </div>
 
       <Suspense fallback={<TableSkeleton />}>
         <OutboundLinksTableSection outboundLinksAnalyticsPromise={outboundLinksAnalyticsPromise} />

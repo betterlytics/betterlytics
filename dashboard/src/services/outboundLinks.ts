@@ -4,6 +4,7 @@ import {
   getOutboundLinksAnalytics,
   getDailyOutboundClicks,
   getOutboundLinksSummary,
+  getOutboundLinksDistribution,
 } from '@/repositories/clickhouse/outboundLinks';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
@@ -63,4 +64,15 @@ export async function getOutboundLinksSummaryWithChartsForSite(
   };
 
   return OutboundLinksSummaryWithChartsSchema.parse(summaryWithCharts);
+}
+
+export async function getOutboundLinksDistributionForSite(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  queryFilters: QueryFilter[],
+): Promise<Array<{ outbound_link_url: string; clicks: number }>> {
+  const formattedStart = toDateTimeString(startDate);
+  const formattedEnd = toDateTimeString(endDate);
+  return getOutboundLinksDistribution(siteId, formattedStart, formattedEnd, queryFilters);
 }
