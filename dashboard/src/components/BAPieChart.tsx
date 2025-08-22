@@ -53,7 +53,7 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getI
         </PieChart>
       </ResponsiveContainer>
       <div className='mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2'>
-        {data.map((entry) => (
+        {data.slice(0, 4).map((entry) => (
           <div key={entry.name} className='flex items-center gap-1 text-sm'>
             <span
               className='inline-block h-3 w-3 rounded-full'
@@ -66,6 +66,7 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getI
             <span className='text-muted-foreground'>{formatPercentage(entry.percentage)}</span>
           </div>
         ))}
+        {data.length > 4 && '...'}
       </div>
     </div>
   );
