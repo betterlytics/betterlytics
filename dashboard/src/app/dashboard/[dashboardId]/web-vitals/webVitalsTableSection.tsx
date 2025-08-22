@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
 import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
+import MetricInfo from '@/app/dashboard/[dashboardId]/web-vitals/MetricInfo';
 import type { CoreWebVitalName } from '@/entities/webVitals';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/webVitals';
 
@@ -51,6 +52,13 @@ export default function WebVitalsTableSection({
         );
       };
 
+    const headerWithInfo = (metric: CoreWebVitalName) => (
+      <div className='inline-flex items-center gap-1.5'>
+        <span>{metric}</span>
+        <MetricInfo metric={metric} iconClassName='h-3.5 w-3.5' />
+      </div>
+    );
+
     return [
       {
         accessorKey: 'key',
@@ -62,13 +70,33 @@ export default function WebVitalsTableSection({
           </div>
         ),
       },
-      { accessorKey: 'CLS', header: 'CLS', cell: valueCell('CLS'), accessorFn: (r) => getValue(r, 'CLS') },
-      { accessorKey: 'LCP', header: 'LCP', cell: valueCell('LCP'), accessorFn: (r) => getValue(r, 'LCP') },
-      { accessorKey: 'INP', header: 'INP', cell: valueCell('INP'), accessorFn: (r) => getValue(r, 'INP') },
-      { accessorKey: 'FCP', header: 'FCP', cell: valueCell('FCP'), accessorFn: (r) => getValue(r, 'FCP') },
+      {
+        accessorKey: 'CLS',
+        header: () => headerWithInfo('CLS'),
+        cell: valueCell('CLS'),
+        accessorFn: (r) => getValue(r, 'CLS'),
+      },
+      {
+        accessorKey: 'LCP',
+        header: () => headerWithInfo('LCP'),
+        cell: valueCell('LCP'),
+        accessorFn: (r) => getValue(r, 'LCP'),
+      },
+      {
+        accessorKey: 'INP',
+        header: () => headerWithInfo('INP'),
+        cell: valueCell('INP'),
+        accessorFn: (r) => getValue(r, 'INP'),
+      },
+      {
+        accessorKey: 'FCP',
+        header: () => headerWithInfo('FCP'),
+        cell: valueCell('FCP'),
+        accessorFn: (r) => getValue(r, 'FCP'),
+      },
       {
         accessorKey: 'TTFB',
-        header: 'TTFB',
+        header: () => headerWithInfo('TTFB'),
         cell: valueCell('TTFB'),
         accessorFn: (r) => getValue(r, 'TTFB'),
       },

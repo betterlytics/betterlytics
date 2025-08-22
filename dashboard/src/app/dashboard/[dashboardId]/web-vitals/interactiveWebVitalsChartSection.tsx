@@ -11,8 +11,7 @@ import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 import { formatShortFromMilliseconds, formatCompactFromMilliseconds } from '@/utils/dateFormatters';
 import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { Info } from 'lucide-react';
+import MetricInfo from '@/app/dashboard/[dashboardId]/web-vitals/MetricInfo';
 
 type Props = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
@@ -191,43 +190,6 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         headerRight={<SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />}
       />
     </div>
-  );
-}
-
-function MetricInfo({ metric }: { metric: CoreWebVitalName }) {
-  const desc: Record<CoreWebVitalName, string> = {
-    CLS: 'Measures visual stability. CLS captures how much content unexpectedly shifts while the page loads.',
-    LCP: 'Measures loading performance. LCP is the moment the largest text or image becomes visible.',
-    INP: 'Measures responsiveness. INP is the time from a user action until the next visual update.',
-    FCP: 'Shows when the first piece of content appears on the screen during page load.',
-    TTFB: 'Measures server response speed — the time from request until the first byte is received.',
-  } as const;
-
-  const [goodRaw, niRaw] = CWV_THRESHOLDS[metric] ?? [];
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button type='button' aria-label='About metric' className='text-muted-foreground hover:text-foreground'>
-          <Info className='h-4 w-4' />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side='bottom'>
-        <div className='max-w-[260px] space-y-2'>
-          <p className='text-primary-foreground/90'>{desc[metric]}</p>
-
-          <div className='bg-primary-foreground/20 h-px' />
-          <div className='text-[11px] leading-4'>
-            <div>
-              <span className='opacity-80'>Good:</span> ≤ {formatCWV(metric, goodRaw)}
-            </div>
-            <div>
-              <span className='opacity-80'>Needs improvement:</span> ≤ {formatCWV(metric, niRaw)}
-            </div>
-          </div>
-        </div>
-      </TooltipContent>
-    </Tooltip>
   );
 }
 
