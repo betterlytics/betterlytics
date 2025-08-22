@@ -13,12 +13,22 @@ type Props = {
   perPagePromise: Promise<Row[]>;
   perDevicePromise: Promise<DimRow[]>;
   perCountryPromise: Promise<DimRow[]>;
+  perBrowserPromise: Promise<DimRow[]>;
+  perOsPromise: Promise<DimRow[]>;
 };
 
-export default function WebVitalsTableSection({ perPagePromise, perDevicePromise, perCountryPromise }: Props) {
+export default function WebVitalsTableSection({
+  perPagePromise,
+  perDevicePromise,
+  perCountryPromise,
+  perBrowserPromise,
+  perOsPromise,
+}: Props) {
   const data = use(perPagePromise);
   const devices = use(perDevicePromise);
   const countries = use(perCountryPromise);
+  const browsers = use(perBrowserPromise);
+  const operatingSystems = use(perOsPromise);
   type PercentileKey = 'p50' | 'p75' | 'p90' | 'p99';
   const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
@@ -68,6 +78,8 @@ export default function WebVitalsTableSection({ perPagePromise, perDevicePromise
   const pageColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Page'), [activePercentile]);
   const deviceColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Device Type'), [activePercentile]);
   const countryColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Country'), [activePercentile]);
+  const browserColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Browser'), [activePercentile]);
+  const osColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Operating System'), [activePercentile]);
 
   const defaultSorting = [{ id: 'LCP', desc: true }];
 
@@ -85,6 +97,20 @@ export default function WebVitalsTableSection({ perPagePromise, perDevicePromise
       label: 'Countries',
       data: countries,
       columns: countryColumns,
+      defaultSorting,
+    },
+    {
+      key: 'browsers',
+      label: 'Browsers',
+      data: browsers,
+      columns: browserColumns,
+      defaultSorting,
+    },
+    {
+      key: 'os',
+      label: 'Operating Systems',
+      data: operatingSystems,
+      columns: osColumns,
       defaultSorting,
     },
   ];

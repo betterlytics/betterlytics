@@ -140,6 +140,8 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
         CASE 
           WHEN {dim:String} = 'device_type' THEN device_type 
           WHEN {dim:String} = 'country_code' THEN country_code 
+          WHEN {dim:String} = 'browser' THEN browser 
+          WHEN {dim:String} = 'os' THEN os 
           ELSE url 
         END AS key,
         JSONExtractString(metric, 'name') AS name,

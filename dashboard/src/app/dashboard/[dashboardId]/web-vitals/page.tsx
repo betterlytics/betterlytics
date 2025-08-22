@@ -51,6 +51,14 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
     queryFilters,
     'country_code',
   );
+  const perBrowserPromise = fetchCoreWebVitalsByDimensionAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    'browser',
+  );
+  const perOsPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'os');
 
   return (
     <div className='container space-y-6 p-6'>
@@ -63,6 +71,8 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
           perPagePromise={perPagePromise}
           perDevicePromise={perDevicePromise}
           perCountryPromise={perCountryPromise}
+          perBrowserPromise={perBrowserPromise}
+          perOsPromise={perOsPromise}
         />
       </Suspense>
     </div>
