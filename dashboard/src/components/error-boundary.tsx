@@ -120,10 +120,7 @@ export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
               <div className='space-y-2 text-center'>
                 <p className='text-muted-foreground text-sm'>
                   If this problem persists, please{' '}
-                  <a
-                    href='mailto:support@betterlytics.com'
-                    className='text-blue-500 underline hover:text-blue-400'
-                  >
+                  <a href='mailto:support@betterlytics.io' className='text-blue-500 underline hover:text-blue-400'>
                     contact support
                   </a>
                   .
