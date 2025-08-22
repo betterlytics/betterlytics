@@ -131,7 +131,7 @@ export async function getOutboundLinksDistribution(
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   // Query 1: Get top 9 outbound links
-  const top9Query = safeSql`
+  const topQuery = safeSql`
     SELECT 
       outbound_link_url,
       uniq(visitor_id) as clicks
@@ -160,9 +160,9 @@ export async function getOutboundLinksDistribution(
 
   const [top9Result, totalResult] = await Promise.all([
     clickhouse
-      .query(top9Query.taggedSql, {
+      .query(topQuery.taggedSql, {
         params: {
-          ...top9Query.taggedParams,
+          ...topQuery.taggedParams,
           site_id: siteId,
           start: startDate,
           end: endDate,
@@ -181,14 +181,13 @@ export async function getOutboundLinksDistribution(
       .toPromise(),
   ]);
 
-  const top9Data = top9Result as Array<{ outbound_link_url: string; clicks: number }>;
+  const topData = top9Result as Array<{ outbound_link_url: string; clicks: number }>;
   const totalClicks = (totalResult as Array<{ total_clicks: number }>)[0]?.total_clicks || 0;
 
-  // Calculate "Others" by subtracting top 9 from total
-  const top9Sum = top9Data.reduce((sum, item) => sum + item.clicks, 0);
-  const othersClicks = totalClicks - top9Sum;
+  const topSum = topData.reduce((sum, item) => sum + item.clicks, 0);
+  const othersClicks = totalClicks - topSum;
 
-  const result = [...top9Data];
+  const result = [...topData];
 
   if (othersClicks > 0) {
     result.push({
