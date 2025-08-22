@@ -3,6 +3,7 @@
 import { use, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
+import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
 import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
 import type { CoreWebVitalName } from '@/entities/webVitals';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/webVitals';
@@ -33,7 +34,7 @@ export default function WebVitalsTableSection({
   const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
 
-  const makeColumns = (label: string): ColumnDef<Row>[] => {
+  const makeColumns = (label: string, renderIcon?: (key: string) => React.ReactNode): ColumnDef<Row>[] => {
     const getValue = (row: Row, metric: CoreWebVitalName): number | null => {
       const percentiles = row.current.__percentiles?.[metric];
       return percentiles ? percentiles[percentileIndex[activePercentile]] : (row.current as any)[metric];
@@ -54,7 +55,12 @@ export default function WebVitalsTableSection({
       {
         accessorKey: 'key',
         header: label,
-        cell: ({ row }) => <span className='max-w-[480px] truncate'>{row.original.key}</span>,
+        cell: ({ row }) => (
+          <div className='flex max-w-[480px] items-center gap-2 truncate'>
+            {renderIcon && <span className='shrink-0'>{renderIcon(row.original.key)}</span>}
+            <span className='truncate'>{row.original.key}</span>
+          </div>
+        ),
       },
       { accessorKey: 'CLS', header: 'CLS', cell: valueCell('CLS'), accessorFn: (r) => getValue(r, 'CLS') },
       { accessorKey: 'LCP', header: 'LCP', cell: valueCell('LCP'), accessorFn: (r) => getValue(r, 'LCP') },
@@ -76,10 +82,22 @@ export default function WebVitalsTableSection({
   };
 
   const pageColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Page'), [activePercentile]);
-  const deviceColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Device Type'), [activePercentile]);
-  const countryColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Country'), [activePercentile]);
-  const browserColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Browser'), [activePercentile]);
-  const osColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Operating System'), [activePercentile]);
+  const deviceColumns: ColumnDef<Row>[] = useMemo(
+    () => makeColumns('Device Type', (key) => <DeviceIcon type={key} className='h-4 w-4' />),
+    [activePercentile],
+  );
+  const countryColumns: ColumnDef<Row>[] = useMemo(
+    () => makeColumns('Country', (key) => <FlagIcon countryCode={(key || 'US').toUpperCase() as any} />),
+    [activePercentile],
+  );
+  const browserColumns: ColumnDef<Row>[] = useMemo(
+    () => makeColumns('Browser', (key) => <BrowserIcon name={key} className='h-4 w-4' />),
+    [activePercentile],
+  );
+  const osColumns: ColumnDef<Row>[] = useMemo(
+    () => makeColumns('Operating System', (key) => <OSIcon name={key} className='h-4 w-4' />),
+    [activePercentile],
+  );
 
   const defaultSorting = [{ id: 'LCP', desc: true }];
 
