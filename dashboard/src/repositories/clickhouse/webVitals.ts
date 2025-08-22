@@ -11,6 +11,9 @@ import {
   CORE_WEB_VITAL_NAMES,
   CoreWebVitalNamedPercentilesRowSchema,
   CoreWebVitalNamedPercentilesRow,
+  CWVDimension,
+  CoreWebVitalsPerDimensionRow,
+  type CoreWebVitalName,
 } from '@/entities/webVitals';
 
 export async function getCoreWebVitalsP75(
@@ -120,4 +123,65 @@ export async function getAllCoreWebVitalPercentilesSeries(
     .toPromise()) as Array<{ date: string; name: string; p50: number; p75: number; p90: number; p99: number }>;
 
   return rows.map((r) => CoreWebVitalNamedPercentilesRowSchema.parse(r));
+}
+
+export async function getCoreWebVitalsP75ByDimension(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  queryFilters: any[],
+  dimension: CWVDimension,
+): Promise<CoreWebVitalsPerDimensionRow[]> {
+  const filters = BAQuery.getFilterQuery(queryFilters || []);
+
+  const query = safeSql`
+    WITH metrics AS (
+      SELECT
+        CASE 
+          WHEN {dim:String} = 'device_type' THEN device_type 
+          WHEN {dim:String} = 'country_code' THEN country_code 
+          ELSE url 
+        END AS key,
+        JSONExtractString(metric, 'name') AS name,
+        JSONExtractFloat(metric, 'value') AS value
+      FROM analytics.events
+      ARRAY JOIN JSONExtractArrayRaw(custom_event_json, 'metrics') AS metric
+      WHERE site_id = {site_id:String}
+        AND event_type = 'cwv'
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+        AND custom_event_json != ''
+        AND custom_event_json != '{}'
+        AND ${SQL.AND(filters)}
+    )
+    SELECT
+      key,
+      name,
+      quantileTDigest(0.75)(value) AS p75,
+      count() AS samples
+    FROM metrics
+    WHERE name IN {metric_names:Array(String)}
+    GROUP BY key, name
+    ORDER BY key ASC
+    LIMIT 100000
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start_date: startDate,
+        end_date: endDate,
+        metric_names: CORE_WEB_VITAL_NAMES,
+        dim: dimension,
+      },
+    })
+    .toPromise()) as Array<CoreWebVitalsPerDimensionRow>;
+
+  return rows.map((r) => ({
+    key: r.key,
+    name: r.name as CoreWebVitalName,
+    p75: r.p75,
+    samples: r.samples,
+  }));
 }

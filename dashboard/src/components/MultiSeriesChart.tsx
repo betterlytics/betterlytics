@@ -11,7 +11,7 @@ import {
   Label,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ChartTooltip } from './charts/ChartTooltip';
+import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter, granularityDateFormmatter } from '@/utils/chartUtils';
 
@@ -25,10 +25,11 @@ export interface MultiSeriesConfig {
   stroke: string;
   strokeWidth?: number;
   dot?: boolean;
+  name?: string;
 }
 
 interface MultiSeriesChartProps {
-  title: string;
+  title: React.ReactNode;
   data: ChartDataPoint[];
   granularity?: GranularityRangeValues;
   formatValue?: (value: number) => string;
@@ -40,15 +41,19 @@ interface MultiSeriesChartProps {
     strokeDasharray?: string;
     labelFill?: string;
   }>;
+  headerRight?: React.ReactNode;
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
-  ({ title, data, granularity, formatValue, series, referenceLines }) => {
+  ({ title, data, granularity, formatValue, series, referenceLines, headerRight }) => {
     const axisFormatter = useMemo(() => granularityDateFormmatter(granularity), [granularity]);
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-          <CardTitle className='text-lg font-semibold'>{title}</CardTitle>
+          <CardTitle className='text-lg font-semibold'>
+            <span className='inline-flex items-center gap-2'>{title}</span>
+          </CardTitle>
+          {headerRight && <div className='flex items-center gap-2'>{headerRight}</div>}
         </CardHeader>
 
         <CardContent className='pb-0'>
@@ -77,7 +82,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
 
                 <Tooltip
                   content={
-                    <ChartTooltip
+                    <MultiLineChartTooltip
                       labelFormatter={(date) => defaultDateLabelFormatter(date, granularity)}
                       formatter={formatValue}
                     />
@@ -91,6 +96,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     stroke={s.stroke}
                     strokeWidth={s.strokeWidth ?? 2}
                     dot={s.dot ?? false}
+                    name={s.name}
                   />
                 ))}
                 {referenceLines?.map((r, i) => (

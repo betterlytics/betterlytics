@@ -1,12 +1,18 @@
 'use client';
 import { use, useState } from 'react';
+import { cn } from '@/lib/utils';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import CoreWebVitalBar from '@/components/dashboard/CoreWebVitalBar';
 import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/webVitals';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
+import type { MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 import { formatShortFromMilliseconds, formatCompactFromMilliseconds } from '@/utils/dateFormatters';
+import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
+import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 
 type Props = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
@@ -19,31 +25,9 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
   const seriesByMetric = use(seriesPromise);
 
-  // Thresholds values are taken from Web.dev
-  const thresholds: Partial<Record<CoreWebVitalName, number[]>> = {
-    // CLS: good <= 0.1, medium 0.1-0.25
-    CLS: [0.1, 0.25],
-    // LCP: good <= 2500ms, medium 2500-4000
-    LCP: [2500, 4000],
-    // INP: good <= 200ms, medium 200-500
-    INP: [200, 500],
-    // FCP: good <= 1800ms, medium 1800-3000
-    FCP: [1800, 3000],
-    // TTFB: good <= 800ms, medium 800-1800
-    TTFB: [800, 1800],
-  };
-
-  function getStatusColor(metric: CoreWebVitalName, value: number): string {
-    const [goodThreshold, niThreshold] = thresholds[metric] ?? [];
-    if (goodThreshold === undefined || niThreshold === undefined) return '';
-    if (value > niThreshold) return 'var(--cwv-threshold-poor)';
-    if (value > goodThreshold) return 'var(--cwv-threshold-ni)';
-    return 'var(--cwv-threshold-good)';
-  }
-
   function formatCardValue(metric: CoreWebVitalName, value: number | null): React.ReactNode {
     if (value === null) return '—';
-    const colorStyle: React.CSSProperties = { color: getStatusColor(metric, value) };
+    const colorStyle: React.CSSProperties = { color: getCwvStatusColor(metric, value) };
 
     const display = metric === 'CLS' ? value.toFixed(3) : formatCompactFromMilliseconds(value);
     return <span style={colorStyle}>{display}</span>;
@@ -62,8 +46,8 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       value: formatCardValue('CLS', summary.clsP75),
       footer:
         summary.clsP75 === null ? null : (
-          <div style={{ color: getStatusColor('CLS', summary.clsP75) }}>
-            <CoreWebVitalBar metric='CLS' value={summary.clsP75} thresholds={thresholds} />
+          <div style={{ color: getCwvStatusColor('CLS', summary.clsP75) }}>
+            <CoreWebVitalBar metric='CLS' value={summary.clsP75} thresholds={CWV_THRESHOLDS} />
           </div>
         ),
       chartColor: 'var(--chart-1)',
@@ -80,8 +64,8 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       value: formatCardValue('LCP', summary.lcpP75),
       footer:
         summary.lcpP75 === null ? null : (
-          <div style={{ color: getStatusColor('LCP', summary.lcpP75) }}>
-            <CoreWebVitalBar metric='LCP' value={summary.lcpP75} thresholds={thresholds} />
+          <div style={{ color: getCwvStatusColor('LCP', summary.lcpP75) }}>
+            <CoreWebVitalBar metric='LCP' value={summary.lcpP75} thresholds={CWV_THRESHOLDS} />
           </div>
         ),
       chartColor: 'var(--chart-2)',
@@ -98,8 +82,8 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       value: formatCardValue('INP', summary.inpP75),
       footer:
         summary.inpP75 === null ? null : (
-          <div style={{ color: getStatusColor('INP', summary.inpP75) }}>
-            <CoreWebVitalBar metric='INP' value={summary.inpP75} thresholds={thresholds} />
+          <div style={{ color: getCwvStatusColor('INP', summary.inpP75) }}>
+            <CoreWebVitalBar metric='INP' value={summary.inpP75} thresholds={CWV_THRESHOLDS} />
           </div>
         ),
       chartColor: 'var(--chart-3)',
@@ -116,8 +100,8 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       value: formatCardValue('FCP', summary.fcpP75),
       footer:
         summary.fcpP75 === null ? null : (
-          <div style={{ color: getStatusColor('FCP', summary.fcpP75) }}>
-            <CoreWebVitalBar metric='FCP' value={summary.fcpP75} thresholds={thresholds} />
+          <div style={{ color: getCwvStatusColor('FCP', summary.fcpP75) }}>
+            <CoreWebVitalBar metric='FCP' value={summary.fcpP75} thresholds={CWV_THRESHOLDS} />
           </div>
         ),
       chartColor: 'var(--chart-4)',
@@ -134,8 +118,8 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       value: formatCardValue('TTFB', summary.ttfbP75),
       footer:
         summary.ttfbP75 === null ? null : (
-          <div style={{ color: getStatusColor('TTFB', summary.ttfbP75) }}>
-            <CoreWebVitalBar metric='TTFB' value={summary.ttfbP75} thresholds={thresholds} />
+          <div style={{ color: getCwvStatusColor('TTFB', summary.ttfbP75) }}>
+            <CoreWebVitalBar metric='TTFB' value={summary.ttfbP75} thresholds={CWV_THRESHOLDS} />
           </div>
         ),
       chartColor: 'var(--chart-5)',
@@ -146,10 +130,10 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
 
   const titles: Record<CoreWebVitalName, string> = {
     CLS: 'Cumulative Layout Shift',
-    LCP: 'Largest Contentful Paint (ms)',
-    INP: 'Interaction to Next Paint (ms)',
-    FCP: 'First Contentful Paint (ms)',
-    TTFB: 'Time to First Byte (ms)',
+    LCP: 'Largest Contentful Paint',
+    INP: 'Interaction to Next Paint',
+    FCP: 'First Contentful Paint',
+    TTFB: 'Time to First Byte',
   } as const;
 
   const chartData = seriesByMetric[active] || [];
@@ -159,27 +143,126 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
     return formatShortFromMilliseconds(value);
   }
 
-  const referenceLines = thresholds[active]?.map((y, idx) => {
+  const referenceLines = CWV_THRESHOLDS[active]?.map((y, idx) => {
     const label = `${idx === 0 ? 'Good' : 'Needs improvement'} (≤ ${formatThreshold(active, y)})`;
     const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-ni)';
     return { y, label, stroke, strokeDasharray: '6 6', labelFill: stroke };
   });
 
+  const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = [
+    { dataKey: 'value.0', stroke: 'var(--cwv-p50)', name: 'P50' },
+    { dataKey: 'value.1', stroke: 'var(--cwv-p75)', name: 'P75' },
+    { dataKey: 'value.2', stroke: 'var(--cwv-p90)', name: 'P90' },
+    { dataKey: 'value.3', stroke: 'var(--cwv-p99)', name: 'P99' },
+  ] as const;
+
+  const [enabledKeys, setEnabledKeys] = useState(() => new Set(SERIES_DEFS.map((d) => d.dataKey)));
+
+  function toggleKey(key: string) {
+    setEnabledKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        if (next.size === 1) return next; // keep at least one enabled
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
+
+  const activeSeries: MultiSeriesConfig[] = SERIES_DEFS.filter((d) => enabledKeys.has(d.dataKey));
+
   return (
     <div className='space-y-6'>
       <SummaryCardsSection className='lg:grid-cols-5' cards={cards} />
       <MultiSeriesChart
-        title={titles[active]}
+        title={
+          <span className='flex items-center gap-2'>
+            {titles[active]}
+            <MetricInfo metric={active} />
+          </span>
+        }
         data={chartData}
         granularity={granularity}
-        series={[
-          { dataKey: 'value.0', stroke: 'var(--cwv-p50)' }, // p50
-          { dataKey: 'value.1', stroke: 'var(--cwv-p75)' }, // p75
-          { dataKey: 'value.2', stroke: 'var(--cwv-p90)' }, // p90
-          { dataKey: 'value.3', stroke: 'var(--cwv-p99)' }, // p99
-        ]}
+        formatValue={(v) => formatCWV(active, Number(v))}
+        series={activeSeries}
         referenceLines={referenceLines}
+        headerRight={<SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />}
       />
+    </div>
+  );
+}
+
+function MetricInfo({ metric }: { metric: CoreWebVitalName }) {
+  const desc: Record<CoreWebVitalName, string> = {
+    CLS: 'Measures visual stability. CLS captures how much content unexpectedly shifts while the page loads.',
+    LCP: 'Measures loading performance. LCP is the moment the largest text or image becomes visible.',
+    INP: 'Measures responsiveness. INP is the time from a user action until the next visual update.',
+    FCP: 'Shows when the first piece of content appears on the screen during page load.',
+    TTFB: 'Measures server response speed — the time from request until the first byte is received.',
+  } as const;
+
+  const [goodRaw, niRaw] = CWV_THRESHOLDS[metric] ?? [];
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button type='button' aria-label='About metric' className='text-muted-foreground hover:text-foreground'>
+          <Info className='h-4 w-4' />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side='bottom'>
+        <div className='max-w-[260px] space-y-2'>
+          <p className='text-primary-foreground/90'>{desc[metric]}</p>
+
+          <div className='bg-primary-foreground/20 h-px' />
+          <div className='text-[11px] leading-4'>
+            <div>
+              <span className='opacity-80'>Good:</span> ≤ {formatCWV(metric, goodRaw)}
+            </div>
+            <div>
+              <span className='opacity-80'>Needs improvement:</span> ≤ {formatCWV(metric, niRaw)}
+            </div>
+          </div>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+type ToggleProps = {
+  defs: ReadonlyArray<MultiSeriesConfig>;
+  enabledKeys: Set<string>;
+  onToggle: (key: string) => void;
+};
+
+function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
+  return (
+    <div className='flex flex-wrap items-center gap-2'>
+      {defs.map((d) => {
+        const isOn = enabledKeys.has(d.dataKey);
+        return (
+          <button
+            key={d.dataKey}
+            type='button'
+            onClick={() => onToggle(d.dataKey)}
+            aria-pressed={isOn}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium',
+              isOn
+                ? 'bg-primary/10 border-primary/20 text-popover-foreground'
+                : 'bg-muted/30 border-border text-muted-foreground',
+            )}
+          >
+            <span
+              className={cn('h-3 w-3 rounded-sm', isOn ? undefined : 'opacity-40')}
+              style={{ background: d.stroke }}
+            />
+            <span>{d.name || String(d.dataKey)}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

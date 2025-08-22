@@ -5,8 +5,13 @@ import { authOptions } from '@/lib/auth';
 import { SummaryCardsSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { fetchCoreWebVitalsSummaryAction, fetchCoreWebVitalChartDataAction } from '@/app/actions';
+import {
+  fetchCoreWebVitalsSummaryAction,
+  fetchCoreWebVitalChartDataAction,
+  fetchCoreWebVitalsByDimensionAction,
+} from '@/app/actions';
 import InteractiveWebVitalsChartSection from './interactiveWebVitalsChartSection';
+import WebVitalsTableSection from './webVitalsTableSection';
 
 type PageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -31,12 +36,34 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
     granularity,
     queryFilters,
   );
+  const perPagePromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'url');
+  const perDevicePromise = fetchCoreWebVitalsByDimensionAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    'device_type',
+  );
+  const perCountryPromise = fetchCoreWebVitalsByDimensionAction(
+    dashboardId,
+    startDate,
+    endDate,
+    queryFilters,
+    'country_code',
+  );
 
   return (
     <div className='container space-y-6 p-6'>
       <DashboardFilters />
       <Suspense fallback={<SummaryCardsSkeleton />}>
         <InteractiveWebVitalsChartSection summaryPromise={summaryPromise} seriesPromise={seriesPromise} />
+      </Suspense>
+      <Suspense>
+        <WebVitalsTableSection
+          perPagePromise={perPagePromise}
+          perDevicePromise={perDevicePromise}
+          perCountryPromise={perCountryPromise}
+        />
       </Suspense>
     </div>
   );
