@@ -28,7 +28,7 @@ pub fn get_domain(url_str: &str) -> String {
         Ok(parsed_url) => {
             let parsed_domain = parsed_url.domain();
             match parsed_domain {
-                Some(domain) => domain.to_string(),
+                Some(domain) => domain.trim_start_matches("www.").to_string(),
                 None => parsed_url.to_string()
             }
         }
