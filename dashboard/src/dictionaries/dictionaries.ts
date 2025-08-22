@@ -1,6 +1,7 @@
 export const dictionaries = {
   en: () => import(`@/dictionaries/en.json`).then((module) => module.default),
   da: () => import('@/dictionaries/da.json').then((module) => module.default),
+  it: () => import('@/dictionaries/it.json').then((module) => module.default),
 };
 
 export type RawDictionary = Awaited<ReturnType<(typeof dictionaries)['en']>>;
