@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { use, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
@@ -19,22 +19,26 @@ export default function WebVitalsTableSection({ perPagePromise, perDevicePromise
   const data = use(perPagePromise);
   const devices = use(perDevicePromise);
   const countries = use(perCountryPromise);
+  type PercentileKey = 'p50' | 'p75' | 'p90' | 'p99';
+  const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
+  const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
 
   const makeColumns = (label: string): ColumnDef<Row>[] => {
-    type CurrentKeys = keyof Row['current'];
+    const getValue = (row: Row, metric: CoreWebVitalName): number | null => {
+      const percentiles = row.current.__percentiles?.[metric];
+      return percentiles ? percentiles[percentileIndex[activePercentile]] : (row.current as any)[metric];
+    };
+
     const valueCell =
       (metric: CoreWebVitalName) =>
-      ({ row }: { row: { original: Row } }) => (
-        <div className='flex flex-col items-start'>
-          <span
-            style={{
-              color: getCwvStatusColor(metric, row.original.current[metric as CurrentKeys] as number | null),
-            }}
-          >
-            {formatCWV(metric, row.original.current[metric as CurrentKeys] as number | null)}
-          </span>
-        </div>
-      );
+      ({ row }: { row: { original: Row } }) => {
+        const value = getValue(row.original, metric);
+        return (
+          <div className='flex flex-col items-start'>
+            <span style={{ color: getCwvStatusColor(metric, value) }}>{formatCWV(metric, value)}</span>
+          </div>
+        );
+      };
 
     return [
       {
@@ -42,11 +46,16 @@ export default function WebVitalsTableSection({ perPagePromise, perDevicePromise
         header: label,
         cell: ({ row }) => <span className='max-w-[480px] truncate'>{row.original.key}</span>,
       },
-      { accessorKey: 'CLS', header: 'CLS', cell: valueCell('CLS'), accessorFn: (r) => r.current.key },
-      { accessorKey: 'LCP', header: 'LCP', cell: valueCell('LCP'), accessorFn: (r) => r.current.key },
-      { accessorKey: 'INP', header: 'INP', cell: valueCell('INP'), accessorFn: (r) => r.current.key },
-      { accessorKey: 'FCP', header: 'FCP', cell: valueCell('FCP'), accessorFn: (r) => r.current.key },
-      { accessorKey: 'TTFB', header: 'TTFB', cell: valueCell('TTFB'), accessorFn: (r) => r.current.key },
+      { accessorKey: 'CLS', header: 'CLS', cell: valueCell('CLS'), accessorFn: (r) => getValue(r, 'CLS') },
+      { accessorKey: 'LCP', header: 'LCP', cell: valueCell('LCP'), accessorFn: (r) => getValue(r, 'LCP') },
+      { accessorKey: 'INP', header: 'INP', cell: valueCell('INP'), accessorFn: (r) => getValue(r, 'INP') },
+      { accessorKey: 'FCP', header: 'FCP', cell: valueCell('FCP'), accessorFn: (r) => getValue(r, 'FCP') },
+      {
+        accessorKey: 'TTFB',
+        header: 'TTFB',
+        cell: valueCell('TTFB'),
+        accessorFn: (r) => getValue(r, 'TTFB'),
+      },
       {
         accessorKey: 'samples',
         header: 'Events',
@@ -56,9 +65,9 @@ export default function WebVitalsTableSection({ perPagePromise, perDevicePromise
     ];
   };
 
-  const pageColumns: ColumnDef<Row>[] = makeColumns('Page');
-  const deviceColumns: ColumnDef<Row>[] = makeColumns('Device Type');
-  const countryColumns: ColumnDef<Row>[] = makeColumns('Country');
+  const pageColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Page'), [activePercentile]);
+  const deviceColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Device Type'), [activePercentile]);
+  const countryColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Country'), [activePercentile]);
 
   const defaultSorting = [{ id: 'LCP', desc: true }];
 
@@ -80,5 +89,37 @@ export default function WebVitalsTableSection({ perPagePromise, perDevicePromise
     },
   ];
 
-  return <TabbedTable title='Performance breakdown (p75)' tabs={tabs} defaultTab='pages' />;
+  const headerActions = (
+    <div className='flex items-center gap-2'>
+      {[
+        { key: 'p50' as PercentileKey, label: 'P50', color: 'var(--cwv-p50)' },
+        { key: 'p75' as PercentileKey, label: 'P75', color: 'var(--cwv-p75)' },
+        { key: 'p90' as PercentileKey, label: 'P90', color: 'var(--cwv-p90)' },
+        { key: 'p99' as PercentileKey, label: 'P99', color: 'var(--cwv-p99)' },
+      ].map((d) => {
+        const isOn = activePercentile === d.key;
+        const classes =
+          'inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium ' +
+          (isOn
+            ? 'bg-primary/10 border-primary/20 text-popover-foreground'
+            : 'bg-muted/30 border-border text-muted-foreground');
+        return (
+          <button
+            key={d.label}
+            type='button'
+            onClick={() => setActivePercentile(d.key)}
+            aria-pressed={isOn}
+            className={classes}
+          >
+            <span className={'h-3 w-3 rounded-sm ' + (isOn ? '' : 'opacity-40')} style={{ background: d.color }} />
+            <span>{d.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <TabbedTable title='Performance breakdown' tabs={tabs} defaultTab='pages' headerActions={headerActions} />
+  );
 }

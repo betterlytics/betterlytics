@@ -12,8 +12,8 @@ import {
   CoreWebVitalNamedPercentilesRowSchema,
   CoreWebVitalNamedPercentilesRow,
   CWVDimension,
-  CoreWebVitalsPerDimensionRow,
   type CoreWebVitalName,
+  CoreWebVitalsAllPercentilesPerDimensionRow,
 } from '@/entities/webVitals';
 
 export async function getCoreWebVitalsP75(
@@ -125,13 +125,13 @@ export async function getAllCoreWebVitalPercentilesSeries(
   return rows.map((r) => CoreWebVitalNamedPercentilesRowSchema.parse(r));
 }
 
-export async function getCoreWebVitalsP75ByDimension(
+export async function getCoreWebVitalsAllPercentilesByDimension(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
   queryFilters: any[],
   dimension: CWVDimension,
-): Promise<CoreWebVitalsPerDimensionRow[]> {
+): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
   const query = safeSql`
@@ -156,7 +156,10 @@ export async function getCoreWebVitalsP75ByDimension(
     SELECT
       key,
       name,
+      quantileTDigest(0.50)(value) AS p50,
       quantileTDigest(0.75)(value) AS p75,
+      quantileTDigest(0.90)(value) AS p90,
+      quantileTDigest(0.99)(value) AS p99,
       count() AS samples
     FROM metrics
     WHERE name IN {metric_names:Array(String)}
@@ -172,16 +175,19 @@ export async function getCoreWebVitalsP75ByDimension(
         site_id: siteId,
         start_date: startDate,
         end_date: endDate,
-        metric_names: CORE_WEB_VITAL_NAMES,
         dim: dimension,
+        metric_names: CORE_WEB_VITAL_NAMES,
       },
     })
-    .toPromise()) as Array<CoreWebVitalsPerDimensionRow>;
+    .toPromise()) as Array<CoreWebVitalsAllPercentilesPerDimensionRow>;
 
   return rows.map((r) => ({
     key: r.key,
     name: r.name as CoreWebVitalName,
+    p50: r.p50,
     p75: r.p75,
+    p90: r.p90,
+    p99: r.p99,
     samples: r.samples,
   }));
 }

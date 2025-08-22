@@ -1,10 +1,9 @@
 import {
   getAllCoreWebVitalPercentilesSeries,
   getCoreWebVitalsP75,
-  getCoreWebVitalsP75ByDimension,
-  type CWVDimension,
+  getCoreWebVitalsAllPercentilesByDimension,
 } from '@/repositories/clickhouse/webVitals';
-import { CoreWebVitalsSummary } from '@/entities/webVitals';
+import { CoreWebVitalsSummary, type CWVDimension } from '@/entities/webVitals';
 import { QueryFilter } from '@/entities/filter';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
@@ -33,14 +32,14 @@ export async function getAllCoreWebVitalPercentilesTimeseries(
   );
 }
 
-export async function getCoreWebVitalsPerDimension(
+export async function getCoreWebVitalsAllPercentilesPerDimension(
   siteId: string,
   startDate: Date,
   endDate: Date,
   queryFilters: QueryFilter[],
   dimension: CWVDimension,
 ) {
-  return getCoreWebVitalsP75ByDimension(
+  return getCoreWebVitalsAllPercentilesByDimension(
     siteId,
     toDateTimeString(startDate),
     toDateTimeString(endDate),

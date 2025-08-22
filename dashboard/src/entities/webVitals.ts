@@ -30,9 +30,13 @@ export const CoreWebVitalNamedPercentilesRowSchema = z.object({
 export type CoreWebVitalNamedPercentilesRow = z.infer<typeof CoreWebVitalNamedPercentilesRowSchema>;
 
 export type CWVDimension = 'device_type' | 'country_code' | 'url';
-export type CoreWebVitalsPerDimensionRow = {
+
+export type CoreWebVitalsAllPercentilesPerDimensionRow = {
   key: string;
   name: CoreWebVitalName;
+  p50: number | null;
   p75: number | null;
+  p90: number | null;
+  p99: number | null;
   samples: number;
 };
