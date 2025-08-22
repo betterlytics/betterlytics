@@ -8,6 +8,7 @@ import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
 import MetricInfo from '@/app/dashboard/[dashboardId]/web-vitals/MetricInfo';
 import type { CoreWebVitalName } from '@/entities/webVitals';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/webVitals';
+import * as Flags from 'country-flag-icons/react/3x2';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
@@ -41,9 +42,8 @@ export default function WebVitalsTableSection({
       return percentiles ? percentiles[percentileIndex[activePercentile]] : (row.current as any)[metric];
     };
 
-    const valueCell =
-      (metric: CoreWebVitalName) =>
-      ({ row }: { row: { original: Row } }) => {
+    const valueCell = (metric: CoreWebVitalName) => {
+      const Cell = ({ row }: { row: { original: Row } }) => {
         const value = getValue(row.original, metric);
         return (
           <div className='flex flex-col items-start'>
@@ -51,6 +51,9 @@ export default function WebVitalsTableSection({
           </div>
         );
       };
+      Cell.displayName = `CwvValueCell_${metric}`;
+      return Cell;
+    };
 
     const headerWithInfo = (metric: CoreWebVitalName) => (
       <div className='inline-flex items-center gap-1.5'>
@@ -115,7 +118,7 @@ export default function WebVitalsTableSection({
     [activePercentile],
   );
   const countryColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns('Country', (key) => <FlagIcon countryCode={(key || 'US').toUpperCase() as any} />),
+    () => makeColumns('Country', (key) => <FlagIcon countryCode={key.toUpperCase() as keyof typeof Flags} />),
     [activePercentile],
   );
   const browserColumns: ColumnDef<Row>[] = useMemo(
