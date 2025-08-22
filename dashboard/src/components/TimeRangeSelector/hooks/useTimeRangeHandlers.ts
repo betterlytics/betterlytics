@@ -122,13 +122,26 @@ export function useTimeRangeHandlers({
   const handleStartDateSelect = useCallback(
     (date: Date | undefined) => {
       if (!date) return;
+      const newStart = startOfDay(date);
+      let newEnd = tempState.customEnd && endOfDay(tempState.customEnd);
+
+      // Preserve duration by default when moving the start date
+      if (tempState.customStart && tempState.customEnd) {
+        const previousDurationMs =
+          endOfDay(tempState.customEnd).getTime() - startOfDay(tempState.customStart).getTime();
+        const safeDurationMs = Math.max(previousDurationMs, 0);
+        const computedEnd = new Date(newStart.getTime() + safeDurationMs);
+        const todayEnd = endOfDay(new Date());
+        newEnd = computedEnd.getTime() > todayEnd.getTime() ? todayEnd : endOfDay(computedEnd);
+      }
+
       updateTempState({
         range: 'custom',
-        customStart: startOfDay(date),
-        customEnd: tempState.customEnd && endOfDay(tempState.customEnd),
+        customStart: newStart,
+        customEnd: newEnd,
       });
     },
-    [updateTempState, tempState.customEnd],
+    [updateTempState, tempState.customStart, tempState.customEnd],
   );
 
   const handleEndDateSelect = useCallback(
