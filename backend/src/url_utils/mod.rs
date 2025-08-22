@@ -22,20 +22,13 @@ pub fn normalize_url(url: &Url) -> Option<String> {
     Some(normalized)
 }
 
-/// Cleans and normalizes a URL string by:
-/// 1. Removing query parameters and fragments for privacy
-/// 2. Normalizing the host (removing www. prefix)  
-/// 3. Removing protocol prefixes
-pub fn clean_and_normalize_url(url_str: &str) -> String {
+/// Returns the domain of a url string:
+pub fn get_domain(url_str: &str) -> String {
     match Url::parse(url_str) {
-        Ok(mut parsed_url) => {
-            // Remove query params and fragments for privacy
-            parsed_url.set_query(None);
-            parsed_url.set_fragment(None);
-            
-            // Normalize and return clean URL
-            match normalize_url(&parsed_url) {
-                Some(normalized) => normalized,
+        Ok(parsed_url) => {
+            let parsed_domain = parsed_url.domain();
+            match parsed_domain {
+                Some(domain) => domain.to_string(),
                 None => parsed_url.to_string()
             }
         }
