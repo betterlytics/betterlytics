@@ -4,6 +4,10 @@ import { env } from '@/lib/env';
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = env.PUBLIC_BASE_URL;
 
+  if (!env.IS_CLOUD) {
+    return [];
+  }
+
   return [
     /****************** PUBLIC PAGES ******************/
 
