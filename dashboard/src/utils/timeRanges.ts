@@ -6,13 +6,12 @@ import {
   endOfDay,
   startOfDay,
   endOfHour,
-  endOfMinute,
   startOfHour,
-  startOfMinute,
+  roundToNearestMinutes,
 } from 'date-fns';
-import { GranularityRangeValues } from './granularityRanges';
+import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 
-export type TimeRangeValue = '24h' | '7d' | '28d' | '3mo' | 'custom';
+export type TimeRangeValue = '24h' | '3d' | '7d' | '28d' | '3mo' | '6mo' | 'custom';
 export type TimeGrouping = 'minute' | 'hour' | 'day';
 
 export interface TimeRangePreset {
@@ -28,6 +27,16 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const end = new Date();
       const start = subDays(end, 1);
+      return { startDate: start, endDate: end };
+    },
+  },
+  {
+    label: 'Last 3 days',
+    value: '3d',
+    getRange: () => {
+      const now = new Date();
+      const end = subSeconds(endOfDay(now), 1);
+      const start = startOfDay(subDays(now, 2));
       return { startDate: start, endDate: end };
     },
   },
@@ -61,6 +70,16 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
       return { startDate: start, endDate: end };
     },
   },
+  {
+    label: 'Last 6 months',
+    value: '6mo',
+    getRange: () => {
+      const now = new Date();
+      const end = subSeconds(endOfDay(now), 1);
+      const start = startOfDay(subMonths(now, 6));
+      return { startDate: start, endDate: end };
+    },
+  },
 ];
 
 export function getDateWithTimeOfDay(date: Date, timeOfDayDate: Date) {
@@ -77,15 +96,18 @@ export function getDateWithTimeOfDay(date: Date, timeOfDayDate: Date) {
 }
 
 export function getStartDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
-  return granularity === 'day'
-    ? startOfDay(date)
-    : granularity === 'hour'
-      ? startOfHour(date)
-      : startOfMinute(date);
+  if (granularity === 'day') return startOfDay(date);
+  if (granularity === 'hour') return startOfHour(date);
+  const nearestTo = getMinuteStep(granularity);
+  return roundToNearestMinutes(date, { nearestTo, roundingMethod: 'floor' });
 }
 
 export function getEndDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
-  return granularity === 'day' ? endOfDay(date) : granularity === 'hour' ? endOfHour(date) : endOfMinute(date);
+  if (granularity === 'day') return endOfDay(date);
+  if (granularity === 'hour') return endOfHour(date);
+
+  const nearestTo = getMinuteStep(granularity);
+  return subSeconds(roundToNearestMinutes(date, { nearestTo, roundingMethod: 'ceil' }), 1);
 }
 
 export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>): {
