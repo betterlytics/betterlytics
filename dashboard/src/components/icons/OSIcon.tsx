@@ -12,7 +12,7 @@ interface OSIconProps {
 }
 
 export const OSIcon = React.memo<OSIconProps>(({ name, className = 'h-3.5 w-3.5' }) => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   const iconName = React.useMemo(() => {
     const normalizedName = name.toLowerCase().replace(/\s+/g, '') as OSType;
@@ -20,8 +20,8 @@ export const OSIcon = React.memo<OSIconProps>(({ name, className = 'h-3.5 w-3.5'
 
     if (!iconVariants) return null;
 
-    return theme === 'dark' ? iconVariants.dark : iconVariants.light;
-  }, [name, theme]);
+    return resolvedTheme === 'dark' ? iconVariants.dark : iconVariants.light;
+  }, [name, resolvedTheme]);
 
   if (!iconName) {
     return <Monitor className={className} />;

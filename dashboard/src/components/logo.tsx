@@ -29,13 +29,13 @@ export default function Logo({
   spacing = 'normal',
 }: LogoProps) {
   const [mounted, setMounted] = useState(false);
-  const { theme, systemTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const currentTheme = mounted ? (theme === 'system' ? systemTheme : theme) : 'light';
+  const currentTheme = mounted ? resolvedTheme : 'light';
   const isDark = currentTheme === 'dark';
 
   const logoSources = {

@@ -127,7 +127,7 @@ export default function QueryFiltersSelector() {
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto p-4'>
+        <DialogContent className='top-[40%] max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto p-4'>
           <DialogHeader>
             <DialogTitle>Filters</DialogTitle>
           </DialogHeader>
