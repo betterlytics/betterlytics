@@ -19,7 +19,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
             key={preset.value}
             variant={selectedRange === preset.value ? 'default' : 'outline'}
             onClick={() => onRangeSelect(preset.value)}
-            className='w-full justify-start pr-3 pl-3 text-left'
+            className='w-full justify-start px-3 text-left'
           >
             {preset.label}
           </Button>

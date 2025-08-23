@@ -56,9 +56,13 @@ export function getValidGranularityFallback(
   return found ?? 'day';
 }
 
-export function getMinuteStep(granularity: GranularityRangeValues): 15 | 30 {
-  if (granularity === 'minute_15') return 15;
-  if (granularity === 'minute_30') return 30;
-
-  throw new Error(`Invalid granularity: ${granularity}`);
+export function getMinuteStep(granularity: GranularityRangeValues): number {
+  switch (granularity) {
+    case 'minute_15':
+      return 15;
+    case 'minute_30':
+      return 30;
+    default:
+      throw new Error(`Invalid granularity: ${granularity}`);
+  }
 }
