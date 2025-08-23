@@ -1,25 +1,26 @@
 export const dictionaries = {
   en: () => import(`@/dictionaries/en.json`).then((module) => module.default),
   da: () => import('@/dictionaries/da.json').then((module) => module.default),
-  it: () => import('@/dictionaries/it.json').then((module) => module.default),
 };
 
 export type RawDictionary = Awaited<ReturnType<(typeof dictionaries)['en']>>;
 export type DictionaryKeys = NestedDictKeyOf<RawDictionary>;
 
-type NestedDictKeyOf<TObj extends object, TSep extends string = '.'> =
-  Extract<{
+type NestedDictKeyOf<TObj extends object, TSep extends string = '.'> = Extract<
+  {
     [K in keyof TObj & (string | number)]: TObj[K] extends object
       ? `${K}` | `${K}${TSep}${NestedDictKeyOf<TObj[K], TSep>}`
       : `${K}`;
-  }[keyof TObj & (string | number)], string>;
+  }[keyof TObj & (string | number)],
+  string
+>;
 
 export type BADictionary = RawDictionary & {
   t: (key: DictionaryKeys, ...args: unknown[]) => string;
 };
 
 export type SupportedLanguages = keyof typeof dictionaries;
-export const DEFAULT_LANGUAGE: SupportedLanguages = process.env.DEFAULT_LANGUAGE as SupportedLanguages ?? 'en';
+export const DEFAULT_LANGUAGE: SupportedLanguages = (process.env.DEFAULT_LANGUAGE as SupportedLanguages) ?? 'en';
 
 function isLanguageSupported(language: string): language is SupportedLanguages {
   return language in dictionaries;
@@ -44,7 +45,7 @@ export async function loadDictionary(language: SupportedLanguages): Promise<BADi
 export function addTFunction(dict: RawDictionary): BADictionary {
   return {
     ...dict,
-    t: (key: DictionaryKeys, ...args: unknown[])  => {
+    t: (key: DictionaryKeys, ...args: unknown[]) => {
       return key.split('.').reduce((current: any, k) => current?.[k], dict) || key;
     },
   };
