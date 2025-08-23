@@ -398,7 +398,7 @@ export default App;
                         href='/docs'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
-                        <Info className='mr-2 h-4 w-4' /> Documentation
+                        <Info className='mr-2 h-4 w-4' /> {dictionary.t('components.integration.documentation')}
                       </ExternalLink>
                       <ExternalLink
                         href='/docs/troubleshooting'
