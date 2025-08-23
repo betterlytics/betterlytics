@@ -7,6 +7,8 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { Footer } from "./components/footer";
 import { getAssetPath } from "@/lib/constants";
+import NextTopLoader from 'nextjs-toploader';
+import ExternalLink from "@/shared/ExternalLink";
 
 export const metadata: Metadata = {
   title: "Betterlytics Docs",
@@ -53,26 +55,29 @@ export const metadata: Metadata = {
   },
 };
 
-const navbar = (
-  <Navbar
-    logo={
-      <Image
+const navbar = 
+  <>
+    <Navbar
+      logo={
+        <Image
         src={getAssetPath("/images/favicon-dark.svg")}
         alt="Betterlytics"
         width={32}
         height={32}
         className="object-contain"
         priority
-      />
-    }
-    projectLink="https://github.com/betterlytics/betterlytics"
-    chatLink="https://discord.gg/vwqSvPn6sP"
-  >
-    <a href="https://betterlytics.io/dashboards" title="To Dashboard">
-      To Dashboard
-    </a>
-  </Navbar>
-);
+        />
+      }
+      projectLink="https://github.com/betterlytics/betterlytics"
+      chatLink="https://discord.gg/vwqSvPn6sP"
+      >
+      <ExternalLink href="https://betterlytics.io/dashboards" title="To Dashboard">
+        To Dashboard
+      </ExternalLink>
+    </Navbar>
+    <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
+  </>
+
 
 const banner = (
   <Banner storageKey="some-key">

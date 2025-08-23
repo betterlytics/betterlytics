@@ -40,6 +40,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --banner-height: 30px;
 }
 
 :root {
@@ -142,5 +143,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.nextra-banner {
+  height: var(--banner-height);
+}
+
+@media (min-width: 768px) {
+  #nprogress .bar {
+    top: calc(var(--nextra-navbar-height)+var(--banner-height)) !important;
   }
 }
