@@ -56,7 +56,7 @@ export function getValidGranularityFallback(
   return found ?? 'day';
 }
 
-export function getMinuteStep(granularity: GranularityRangeValues): number {
+export function getMinuteStep(granularity: GranularityRangeValues): 15 | 30 {
   switch (granularity) {
     case 'minute_15':
       return 15;
