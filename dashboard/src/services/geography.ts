@@ -32,5 +32,12 @@ export async function fetchVisitorsByGeographyTimeseries(
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
-  return getVisitorsByCountryTimeseries(siteId, formattedStart, formattedEnd, queryFilters, granularity, limit);
+  return (await getVisitorsByCountryTimeseries(
+    siteId,
+    formattedStart,
+    formattedEnd,
+    queryFilters,
+    granularity,
+    limit,
+  )) as { date: string; country_code: string; visitors: number }[];
 }

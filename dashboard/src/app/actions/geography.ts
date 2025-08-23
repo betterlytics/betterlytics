@@ -9,6 +9,7 @@ import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
 import { worldMapResponseSchema } from '@/entities/geography';
 import { toDataTable } from '@/presenters/toDataTable';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
+import { toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 
 const queryParamsSchema = z.object({
   siteId: z.string(),
@@ -127,7 +128,20 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
         granularity,
       );
 
-      return geoVisitors;
+      const test = toStackedAreaChart({
+        data: geoVisitors,
+        categoryKey: 'country_code',
+        valueKey: 'visitors',
+        granularity,
+        dateRange: {
+          start: startDate,
+          end: endDate,
+        },
+      });
+
+      console.log(test);
+
+      return test;
       // return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
     } catch (error) {
       console.error('Error fetching visitor map data:', error);

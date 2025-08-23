@@ -66,7 +66,7 @@ export async function getVisitorsByCountryTimeseries(
   const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
   const query = safeSql`
     SELECT
-      ${granularityFunc('timestamp', startDate)} AS timestamp,
+      ${granularityFunc('timestamp', startDate)} AS date,
       country_code,
       uniq(visitor_id) as visitors
     FROM analytics.events
@@ -76,8 +76,8 @@ export async function getVisitorsByCountryTimeseries(
       AND country_code IS NOT NULL
       AND country_code != ''
       AND ${SQL.AND(filters)}
-    GROUP BY timestamp, country_code
-    ORDER BY timestamp, country_code
+    GROUP BY date, country_code
+    ORDER BY date, country_code
     LIMIT {limit:UInt32}
   `;
 
