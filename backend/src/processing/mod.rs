@@ -41,6 +41,7 @@ pub struct ProcessedEvent {
     pub event_type: String,
     pub custom_event_name: String,
     pub custom_event_json: String,
+    pub scroll_depth: Option<f32>,
 }
 
 /// Event processor that handles real-time processing
@@ -90,6 +91,7 @@ impl EventProcessor {
             campaign_info: CampaignInfo::default(),
             custom_event_name: String::new(),
             custom_event_json: String::new(),
+            scroll_depth: None,
         };
 
         // Handle event types
@@ -177,7 +179,10 @@ impl EventProcessor {
     /// Handle different event types
     async fn handle_event_types(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let event_name = processed.event.raw.event_name.clone();
-        if processed.event.raw.is_custom_event {
+        if event_name == "scroll_depth" {
+            processed.event_type = "scroll_depth".to_string();
+            processed.scroll_depth = processed.event.raw.scroll_depth;
+        } else if processed.event.raw.is_custom_event {
             processed.event_type = "custom".to_string();
             processed.custom_event_name = event_name;
             processed.custom_event_json = processed.event.raw.properties.clone();

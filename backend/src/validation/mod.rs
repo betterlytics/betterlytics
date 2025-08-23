@@ -48,6 +48,8 @@ pub enum ValidationError {
     PayloadTooLarge(String),
     #[error("Invalid JSON: {0}")]
     InvalidJson(String),
+    #[error("Invalid scroll depth: {0}")]
+    InvalidScrollDepth(String),
 }
 
 #[derive(Debug, Clone)]
@@ -89,9 +91,12 @@ impl EventValidator {
         self.validate_payload_sizes(raw_event)?;
         self.validate_formats(raw_event, ip_address)?;
 
-        // only present for custom events
         if !raw_event.properties.is_empty() {
             self.validate_properties_json(&raw_event.properties)?;
+        }
+
+        if raw_event.event_name == "scroll_depth" {
+            self.validate_scroll_depth_event(raw_event)?;
         }
 
         Ok(ValidatedTrackingEvent {
@@ -197,6 +202,19 @@ impl EventValidator {
         }
     }
 
+    fn validate_scroll_depth_event(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        let scroll_depth = match &raw_event.scroll_depth {
+            Some(depth) => depth,
+            None => return Err(ValidationError::InvalidScrollDepth("Missing scroll_depth value".to_string())),
+        };
+
+        if *scroll_depth < 0.0 || *scroll_depth > 100.0 {
+            return Err(ValidationError::InvalidScrollDepth("scroll_depth must be between 0 and 100".to_string()));
+        }
+
+        Ok(())
+    }
+
     /// Log sanitized rejection details for debugging
     fn log_sanitized_rejection(
         &self,
@@ -230,6 +248,7 @@ impl EventValidator {
             ValidationError::InvalidUserAgent(_) => "invalid_user_agent",
             ValidationError::PayloadTooLarge(_) => "payload_too_large",
             ValidationError::InvalidJson(_) => "invalid_json",
+            ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
         }
     }
 
