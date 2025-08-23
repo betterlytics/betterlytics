@@ -1,1 +1,1 @@
-export const SUPPORTED_LANGUAGES = ['en', 'da'] as const;
+export const SUPPORTED_LANGUAGES = ['en', 'da', 'it'] as const;
