@@ -6,10 +6,8 @@ import {
   endOfDay,
   startOfDay,
   endOfHour,
-  endOfMinute,
   startOfHour,
-  startOfMinute,
-  addMinutes,
+  roundToNearestMinutes,
 } from 'date-fns';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 
@@ -100,24 +98,16 @@ export function getDateWithTimeOfDay(date: Date, timeOfDayDate: Date) {
 export function getStartDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
   if (granularity === 'day') return startOfDay(date);
   if (granularity === 'hour') return startOfHour(date);
-
-  // Minute-based granularities: align to grid step
-  const step = getMinuteStep(granularity);
-  const startMinute = Math.floor(date.getMinutes() / step) * step;
-  const aligned = new Date(date);
-  aligned.setSeconds(0, 0);
-  aligned.setMinutes(startMinute);
-  return startOfMinute(aligned);
+  const nearestTo = getMinuteStep(granularity);
+  return roundToNearestMinutes(date, { nearestTo, roundingMethod: 'floor' });
 }
 
 export function getEndDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
   if (granularity === 'day') return endOfDay(date);
   if (granularity === 'hour') return endOfHour(date);
 
-  // Minute-based granularities: align to end of current grid bucket
-  const step = getMinuteStep(granularity);
-  const startAligned = getStartDateWithGranularity(date, granularity);
-  return endOfMinute(addMinutes(startAligned, step - 1));
+  const nearestTo = getMinuteStep(granularity);
+  return subSeconds(roundToNearestMinutes(date, { nearestTo, roundingMethod: 'ceil' }), 1);
 }
 
 export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>): {
