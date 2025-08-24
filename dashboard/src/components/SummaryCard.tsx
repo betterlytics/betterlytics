@@ -15,6 +15,7 @@ interface SummaryCardProps<T extends ChartData = ChartData> {
   title: React.ReactNode;
   value: React.ReactNode;
   icon?: React.ReactNode;
+  footer?: React.ReactNode;
 
   // Mini chart data
   rawChartData?: T[];
@@ -60,6 +61,7 @@ const SummaryCard = React.memo(
     title,
     value,
     icon,
+    footer,
     rawChartData,
     valueField,
     chartColor = 'var(--chart-1)',
@@ -140,6 +142,7 @@ const SummaryCard = React.memo(
               </Badge>
             )}
           </div>
+          {footer && <div className='mt-3'>{footer}</div>}
         </CardContent>
       </Card>
     );
