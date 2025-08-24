@@ -53,17 +53,6 @@
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
-    // Generate visitor ID from browser fingerprint
-    var visitorId = (function (fingerprint) {
-      var hash = 0;
-      for (var i = 0; i < fingerprint.length; i++) {
-        var char = fingerprint.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash;
-      }
-      return Math.abs(hash).toString(16);
-    })(userAgent + screenResolution);
-
     // Send tracking data
     fetch(serverUrl, {
       method: "POST",
@@ -80,7 +69,6 @@
         referrer: referrer,
         user_agent: userAgent,
         screen_resolution: screenResolution,
-        visitor_id: visitorId,
         timestamp: Math.floor(Date.now() / 1000),
       }),
     }).catch(function (error) {

@@ -16,7 +16,6 @@ type LanguageSelectProps = {
 const LANGUAGE = {
   da: { name: 'Dansk', code: 'DK' },
   en: { name: 'English', code: 'GB' },
-  it: { name: 'Italiano', code: 'IT' },
 } satisfies Record<SupportedLanguages, { name: string; code: FlagIconProps['countryCode'] }>;
 
 export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelectProps) {
