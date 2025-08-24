@@ -774,6 +774,7 @@
     "tabs": {
       "pages": "Pages",
       "userJourney": "User Journey",
+      "funnels": "Funnels",
       "entryPages": "Entry Pages",
       "exitPages": "Exit Pages",
       "topCountries": "Top Countries",
@@ -885,6 +886,12 @@
     "tabbedTable": {
       "searchPlaceholder": "Filter by {field}..."
     },
+    "filters": {
+      "type": "Type",
+      "operator": "Operator",
+      "is": "is",
+      "isNot": "is not"
+    },
     "funnels": {
       "list": {
         "steps": "steps",
@@ -906,6 +913,26 @@
         "create": "Create",
         "successMessage": "Funnel created!",
         "errorMessage": "Funnel creation failed!"
+      },
+      "page": {
+        "description": "Analyze user conversion paths"
+      },
+      "preview": {
+        "loading": "Loading preview...",
+        "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
+      },
+      "details": {
+        "title": "Funnel Analysis",
+        "description": "Detailed funnel conversion analysis",
+        "steps": "steps",
+        "users": "users",
+        "dropped": "dropped",
+        "summary": {
+          "overallConversion": "Overall conversion",
+          "totalVisitors": "Total visitors",
+          "totalCompleted": "Total completed",
+          "biggestDropOff": "Biggest drop-off"
+        }
       }
     },
     "pages": {

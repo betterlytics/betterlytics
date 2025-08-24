@@ -778,6 +778,7 @@
     "tabs": {
       "pages": "Pagine",
       "userJourney": "Percorso utente",
+      "funnels": "Funnel",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
       "topCountries": "Paesi principali",
@@ -890,6 +891,12 @@
     "tabbedTable": {
       "searchPlaceholder": "Filtra per {field}..."
     },
+    "filters": {
+      "type": "Tipo",
+      "operator": "Operatore",
+      "is": "è",
+      "isNot": "non è"
+    },
     "funnels": {
       "list": {
         "steps": "passaggi",
@@ -911,6 +918,26 @@
         "create": "Crea",
         "successMessage": "Funnel creato!",
         "errorMessage": "Creazione funnel fallita!"
+      },
+      "page": {
+        "description": "Analizza i percorsi di conversione degli utenti"
+      },
+      "preview": {
+        "loading": "Caricamento anteprima...",
+        "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima."
+      },
+      "details": {
+        "title": "Analisi funnel",
+        "description": "Analisi dettagliata delle conversioni del funnel",
+        "steps": "passaggi",
+        "users": "utenti",
+        "dropped": "abbandoni",
+        "summary": {
+          "overallConversion": "Conversione complessiva",
+          "totalVisitors": "Visitatori totali",
+          "totalCompleted": "Completati totali",
+          "biggestDropOff": "Perdita maggiore"
+        }
       }
     },
     "pages": {

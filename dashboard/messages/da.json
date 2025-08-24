@@ -778,6 +778,7 @@
     "tabs": {
       "pages": "Sider",
       "userJourney": "Brugerrejse",
+      "funnels": "Tragter",
       "entryPages": "Indgangssider",
       "exitPages": "Udgangssider",
       "topCountries": "Top lande",
@@ -889,6 +890,12 @@
     "tabbedTable": {
       "searchPlaceholder": "Filtrer efter {field}..."
     },
+    "filters": {
+      "type": "Type",
+      "operator": "Operator",
+      "is": "er",
+      "isNot": "er ikke"
+    },
     "funnels": {
       "list": {
         "steps": "trin",
@@ -910,6 +917,26 @@
         "create": "Opret",
         "successMessage": "Tragt oprettet!",
         "errorMessage": "Tragtoprettelse mislykkedes!"
+      },
+      "page": {
+        "description": "Analyser brugerens konverteringsforløb"
+      },
+      "preview": {
+        "loading": "Indlæser forhåndsvisning...",
+        "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
+      },
+      "details": {
+        "title": "Tragtanalyse",
+        "description": "Detaljeret tragt-konverteringsanalyse",
+        "steps": "trin",
+        "users": "brugere",
+        "dropped": "frafald",
+        "summary": {
+          "overallConversion": "Samlet konvertering",
+          "totalVisitors": "Samlede besøgende",
+          "totalCompleted": "Samlet fuldført",
+          "biggestDropOff": "Største frafald"
+        }
       }
     },
     "pages": {
