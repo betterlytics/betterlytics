@@ -819,6 +819,14 @@
     "en": "English"
   },
   "components": {
+    "billing": {
+      "usageBanner": {
+        "title": "Usage Limit Exceeded:",
+        "body": "You've used <strong>{current}</strong> events out of your <strong>{limit}</strong> event limit ({percentage} over your {plan} plan).",
+        "upgradeHint": "Upgrade to ensure all your analytics data remains accessible",
+        "upgradeCta": "Upgrade Now"
+      }
+    },
     "devices": {
       "tables": {
         "topOperatingSystems": "Top Operating Systems",

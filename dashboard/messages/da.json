@@ -823,6 +823,14 @@
     "en": "Engelsk"
   },
   "components": {
+    "billing": {
+      "usageBanner": {
+        "title": "Forbrugsgrænse overskredet:",
+        "body": "Du har brugt <strong>{current}</strong> events ud af din grænse på <strong>{limit}</strong> events ({percentage} over din {plan}-plan).",
+        "upgradeHint": "Opgrader for at sikre, at alle dine analysedata forbliver tilgængelige",
+        "upgradeCta": "Opgrader nu"
+      }
+    },
     "devices": {
       "tables": {
         "topOperatingSystems": "Top operativsystemer",

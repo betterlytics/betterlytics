@@ -824,6 +824,14 @@
     "it": "Italiano"
   },
   "components": {
+    "billing": {
+      "usageBanner": {
+        "title": "Limite di utilizzo superato:",
+        "body": "Hai utilizzato <strong>{current}</strong> eventi su un limite di <strong>{limit}</strong> eventi ({percentage} oltre il tuo piano {plan}).",
+        "upgradeHint": "Esegui l'upgrade per garantire che tutti i tuoi dati restino accessibili",
+        "upgradeCta": "Esegui upgrade"
+      }
+    },
     "devices": {
       "tables": {
         "topOperatingSystems": "Sistemi operativi principali",
