@@ -1,9 +1,31 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import { generateSEO } from '@/lib/seo';
 import { authOptions } from '@/lib/auth';
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  ...generateSEO({
+    title: 'Forgot your password? | Betterlytics',
+    description: 'Reset your Betterlytics password securely. Enter your email to receive a password reset link.',
+    keywords: ['Forgot Password', 'Password Reset', 'Account Recovery', 'Betterlytics'],
+    path: '/forgot-password',
+  }),
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      'max-image-preview': 'none',
+      'max-snippet': 0,
+      'max-video-preview': 0,
+    },
+  },
+};
 
 export default async function ForgotPasswordPage() {
   const session = await getServerSession(authOptions);
