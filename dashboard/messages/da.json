@@ -1155,6 +1155,44 @@
       "title": "Hurtige indstillinger",
       "theme": "Tema",
       "advanced": "Avancerede indstillinger"
+    },
+    "dashboardSettingsDialog": {
+      "title": "Dashboardindstillinger",
+      "description": "Konfigurer dine dashboard-præferencer og dataindsamlingsindstillinger.",
+      "loading": "Indlæser indstillinger...",
+      "saveChanges": "Gem ændringer",
+      "toastSuccess": "Indstillinger gemt",
+      "toastError": "Kunne ikke gemme indstillinger",
+      "tabs": {
+        "data": "Data",
+        "danger": "Farezone"
+      },
+      "data": {
+        "title": "Datahåndtering",
+        "description": "Konfigurer dataopbevaring og indsamling",
+        "retentionLabel": "Periode for dataopbevaring",
+        "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
+        "presets": {
+          "d30": "30 dage",
+          "m3": "3 måneder",
+          "m6": "6 måneder",
+          "y1": "1 år",
+          "y2": "2 år",
+          "y3": "3 år"
+        }
+      },
+      "danger": {
+        "title": "Slet dashboard",
+        "description": "Slet dashboard permanent",
+        "warning": "Advarsel: Denne handling kan ikke fortrydes",
+        "deleteButton": "Slet dashboard",
+        "dialog": {
+          "title": "Slet dashboard",
+          "description": "Er du sikker på, at du vil slette dette dashboard? Denne handling kan ikke fortrydes.",
+          "cancel": "Annuller",
+          "confirm": "Slet dashboard"
+        }
+      }
     }
   }
 }
