@@ -1,6 +1,7 @@
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { scaleTime } from 'd3-scale';
-import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { utcDay } from 'd3-time';
+import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
 import { timeFormat } from 'd3-time-format';
 import { useMemo } from 'react';
 import { getDateKey } from '@/utils/dateHelpers';
@@ -41,12 +42,7 @@ export function useFragmentedGranularityTimeSeriesLineChart<K extends string>({
 
   // Fill in the missing dates
   const chartData = useMemo(() => {
-    // Find the time interval of input based on specified granularity
-    const intervalFunc = {
-      day: utcDay,
-      hour: utcHour,
-      minute: utcMinute,
-    }[granularity];
+    const intervalFunc = getTimeIntervalForGranularity(granularity);
 
     const filled = [];
     // Iterate through each potential time frame
@@ -70,7 +66,8 @@ export function useFragmentedGranularityTimeSeriesLineChart<K extends string>({
     return {
       day: timeFormat('%B %d, %Y'),
       hour: timeFormat('%H:%M, %B %d, %Y'),
-      minute: timeFormat('%H:%M, %B %d, %Y'),
+      minute_15: timeFormat('%H:%M, %B %d, %Y'),
+      minute_30: timeFormat('%H:%M, %B %d, %Y'),
     }[granularity];
   }, [granularity]);
 

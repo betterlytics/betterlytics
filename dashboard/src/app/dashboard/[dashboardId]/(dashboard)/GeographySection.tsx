@@ -41,7 +41,11 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
           emptyMessage: t('emptyStates.noWorldMapData'),
           customContent: worldMapData ? (
             <div className='h-[280px] w-full'>
-              <LeafletMap visitorData={worldMapData.visitorData} showZoomControls={false} />
+              <LeafletMap
+                visitorData={worldMapData.visitorData}
+                maxVisitors={worldMapData.maxVisitors}
+                showZoomControls={false}
+              />
             </div>
           ) : (
             <div className='text-muted-foreground py-12 text-center'>{t('emptyStates.noWorldMapData')}</div>

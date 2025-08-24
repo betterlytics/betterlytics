@@ -20,6 +20,8 @@ const PAGES: PageCfg[] = [
   { path: '/terms', changeFrequency: 'monthly', priority: 0.4, localized: true },
   { path: '/dpa', changeFrequency: 'monthly', priority: 0.4, localized: true },
 
+  /****************** PUBLIC PAGES ******************/
+
   // Non-localized docs
   { path: '/docs', changeFrequency: 'weekly', priority: 0.8, localized: false },
   { path: '/docs/installation', changeFrequency: 'monthly', priority: 0.8, localized: false },
@@ -53,6 +55,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = [];
+
+  if (!env.IS_CLOUD) {
+    return entries;
+  }
 
   for (const page of PAGES) {
     if (!page.localized) {
