@@ -8,7 +8,20 @@ export async function generateMetadata(props: {
 }) {
   const params = await props.params;
   const { metadata } = await importPage(params.mdxPath);
-  return metadata;
+  if (metadata?.alternates?.canonical) return metadata;
+
+  const canonicalPath =
+    Array.isArray(params.mdxPath) && params.mdxPath.length > 0
+      ? `/docs/${params.mdxPath.join("/")}`
+      : "/docs";
+
+  return {
+    ...metadata,
+    alternates: {
+      ...(metadata?.alternates ?? {}),
+      canonical: canonicalPath,
+    },
+  };
 }
 
 const Wrapper = getMDXComponents().wrapper;

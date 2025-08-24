@@ -1,10 +1,40 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import { generateSEO } from '@/lib/seo';
 import { authOptions } from '@/lib/auth';
 import RegisterForm from '@/app/register/RegisterForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+
+export const metadata: Metadata = {
+  ...generateSEO({
+    title: 'Get started for free — Create your Betterlytics account',
+    description:
+      'Get started for free with Betterlytics. Create your account for privacy-first, cookieless analytics for websites and apps.',
+    keywords: [
+      'Register',
+      'Create Account',
+      'Sign up',
+      'Betterlytics',
+      'Web Analytics',
+      'Google Analytics Alternative',
+    ],
+    path: '/register',
+  }),
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      'max-image-preview': 'none',
+      'max-snippet': 0,
+      'max-video-preview': 0,
+    },
+  },
+};
 
 export default async function RegisterPage() {
   const session = await getServerSession(authOptions);
@@ -44,7 +74,9 @@ export default async function RegisterPage() {
             <Logo variant='full' width={200} height={60} priority />
           </div>
           <h2 className='text-foreground mt-6 text-2xl font-semibold'>Create your account</h2>
-          <p className='text-muted-foreground mt-2 text-sm'>Start tracking your analytics today</p>
+          <p className='text-muted-foreground mt-2 text-sm'>
+            Get started for free — set up your analytics in minutes
+          </p>
         </div>
         <div className='bg-card rounded-lg border p-8 shadow-sm'>
           <RegisterForm />

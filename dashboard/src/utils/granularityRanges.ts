@@ -1,4 +1,4 @@
-export type GranularityRangeValues = 'minute' | 'hour' | 'day';
+export type GranularityRangeValues = 'minute_15' | 'minute_30' | 'hour' | 'day';
 
 export interface GranularityRangePreset {
   label: string;
@@ -15,8 +15,12 @@ export const GRANULARITY_RANGE_PRESETS: GranularityRangePreset[] = [
     value: 'hour',
   },
   {
-    label: 'Minute',
-    value: 'minute',
+    label: '30 min',
+    value: 'minute_30',
+  },
+  {
+    label: '15 min',
+    value: 'minute_15',
   },
 ];
 
@@ -25,9 +29,11 @@ export function getAllowedGranularities(startDate: Date, endDate: Date): Granula
   const oneDayMs = 24 * 60 * 60 * 1000;
   const oneWeekMs = 7 * oneDayMs;
   const twoDaysMs = 2 * oneDayMs;
+  const twelveHoursMs = 12 * 60 * 60 * 1000;
 
   if (durationMs >= oneWeekMs) return ['day'];
-  if (durationMs <= twoDaysMs) return ['hour', 'minute'];
+  if (durationMs <= twelveHoursMs) return ['hour', 'minute_30', 'minute_15'];
+  if (durationMs <= twoDaysMs) return ['hour', 'minute_30', 'minute_15'];
   return ['day', 'hour'];
 }
 
@@ -39,13 +45,24 @@ export function getValidGranularityFallback(
     return currentGranularity;
   }
 
-  if (currentGranularity === 'minute') {
-    return allowedGranularities.includes('hour') ? 'hour' : 'day';
-  }
+  const fallbackOrder: Record<GranularityRangeValues, GranularityRangeValues[]> = {
+    minute_15: ['minute_15', 'minute_30', 'hour', 'day'],
+    minute_30: ['minute_30', 'hour', 'day'],
+    hour: ['hour', 'minute_30', 'minute_15', 'day'],
+    day: ['day', 'hour', 'minute_30', 'minute_15'],
+  };
 
-  if (currentGranularity === 'day') {
-    return allowedGranularities.includes('hour') ? 'hour' : 'minute';
-  }
+  const found = fallbackOrder[currentGranularity].find((g) => allowedGranularities.includes(g));
+  return found ?? 'day';
+}
 
-  return 'day';
+export function getMinuteStep(granularity: GranularityRangeValues): 15 | 30 {
+  switch (granularity) {
+    case 'minute_15':
+      return 15;
+    case 'minute_30':
+      return 30;
+    default:
+      throw new Error(`Invalid granularity: ${granularity}`);
+  }
 }

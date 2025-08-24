@@ -39,10 +39,10 @@ function getDateRangeWithGranularity(
 ) {
   const preset = getDateRangeForTimePresets(range);
 
-  const startDate = getStartDateWithGranularity(preset.startDate, granularity);
-  const endDate = getEndDateWithGranularity(preset.endDate, granularity);
+  const customStart = getStartDateWithGranularity(preset.startDate, granularity);
+  const customEnd = getEndDateWithGranularity(preset.endDate, granularity);
 
-  return { startDate, endDate };
+  return { customStart, customEnd };
 }
 
 function getCompareRangeWithGranularity(
@@ -66,6 +66,16 @@ function getCompareRangeWithGranularity(
   return { compareStart, compareEnd };
 }
 
+function getRangeWithGranularity(range: Exclude<TimeRangeValue, 'custom'>, granularity: GranularityRangeValues) {
+  const custom = getDateRangeWithGranularity(range, granularity);
+  const compare = getCompareRangeWithGranularity(range, granularity, custom.customStart, custom.customEnd);
+
+  return {
+    ...custom,
+    ...compare,
+  };
+}
+
 export function useTimeRangeHandlers({
   tempState,
   updateTempState,
@@ -85,15 +95,12 @@ export function useTimeRangeHandlers({
         getAllowedGranularities(granularityRange.startDate, granularityRange.endDate),
       );
 
-      const { startDate, endDate } = getDateRangeWithGranularity(value, granularity);
-      const compare = getCompareRangeWithGranularity(value, granularity, startDate, endDate);
+      const range = getRangeWithGranularity(value, granularity);
 
       updateTempState({
         range: value,
         granularity,
-        customStart: startDate,
-        customEnd: endDate,
-        ...compare,
+        ...range,
       });
     },
     [updateTempState, tempState.granularity],
@@ -108,12 +115,11 @@ export function useTimeRangeHandlers({
         return;
       }
 
-      const { startDate, endDate } = getDateRangeWithGranularity(tempState.range, granularity);
+      const range = getDateRangeWithGranularity(tempState.range, granularity);
 
       updateTempState({
         granularity,
-        customStart: startDate,
-        customEnd: endDate,
+        ...range,
       });
     },
     [updateTempState, allowedGranularities, tempState.range],
@@ -166,6 +172,7 @@ export function useTimeRangeHandlers({
   const handleCompareStartDateSelect = useCallback(
     (date: Date | undefined) => {
       updateTempState({
+        range: 'custom',
         compareStart: date,
       });
     },
@@ -184,6 +191,7 @@ export function useTimeRangeHandlers({
       const compareStart = new Date(compareEnd.getTime() - timeDifference);
 
       updateTempState({
+        range: 'custom',
         compareStart,
         compareEnd,
       });
@@ -197,10 +205,21 @@ export function useTimeRangeHandlers({
       finalGranularity = getValidGranularityFallback(finalGranularity, allowedGranularities);
     }
 
-    const finalState = {
-      ...tempState,
-      granularity: finalGranularity,
-    };
+    const finalState =
+      tempState.range === 'custom'
+        ? {
+            ...tempState,
+            granularity: finalGranularity,
+            customStart: tempState.customStart && startOfDay(tempState.customStart),
+            customEnd: tempState.customEnd && endOfDay(tempState.customEnd),
+            compareStart: tempState.compareStart && startOfDay(tempState.compareStart),
+            compareEnd: tempState.compareEnd && endOfDay(tempState.compareEnd),
+          }
+        : {
+            ...tempState,
+            granulairy: finalGranularity,
+            ...getRangeWithGranularity(tempState.range, finalGranularity),
+          };
 
     onApply(finalState);
   }, [tempState, allowedGranularities, onApply]);

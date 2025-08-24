@@ -1,6 +1,7 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { GranularityRangeValues } from './granularityRanges';
+import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { timeFormat } from 'd3-time-format';
+import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
 
 export interface TrendInfo {
   icon: typeof TrendingUp | typeof TrendingDown | typeof Minus;
@@ -59,4 +60,10 @@ export function granularityDateFormmatter(granularity?: GranularityRangeValues) 
   }
 
   return timeFormat('%b %d - %H:%M');
+}
+
+export function getTimeIntervalForGranularity(granularity: GranularityRangeValues): TimeInterval {
+  if (granularity === 'day') return utcDay;
+  if (granularity === 'hour') return utcHour;
+  return utcMinute.every(getMinuteStep(granularity)) as TimeInterval;
 }
