@@ -1156,6 +1156,17 @@
       "theme": "Tema",
       "advanced": "Avancerede indstillinger"
     },
+    "topbar": {
+      "userMenu": {
+        "userFallback": "Bruger",
+        "dashboards": "Dashboards",
+        "upgradePlan": "Opgrader plan",
+        "settings": "Indstillinger",
+        "documentation": "Dokumentation",
+        "documentationTitle": "Komplet Betterlytics-dokumentation",
+        "logout": "Log ud"
+      }
+    },
     "dashboardSettingsDialog": {
       "title": "Dashboardindstillinger",
       "description": "Konfigurer dine dashboard-præferencer og dataindsamlingsindstillinger.",

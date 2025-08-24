@@ -1157,6 +1157,17 @@
       "theme": "Tema",
       "advanced": "Impostazioni avanzate"
     },
+    "topbar": {
+      "userMenu": {
+        "userFallback": "Utente",
+        "dashboards": "Dashboard",
+        "upgradePlan": "Aggiorna piano",
+        "settings": "Impostazioni",
+        "documentation": "Documentazione",
+        "documentationTitle": "Documentazione completa Betterlytics",
+        "logout": "Esci"
+      }
+    },
     "dashboardSettingsDialog": {
       "title": "Impostazioni dashboard",
       "description": "Configura le preferenze della dashboard e le impostazioni di raccolta dati.",
