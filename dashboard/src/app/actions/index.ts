@@ -8,6 +8,7 @@ export * from './geography';
 export * from './overview';
 export * from './pages';
 export * from './referrers';
+export * from './outboundLinks';
 export * from './site';
 export * from './userJourney';
 export * from './verification';

@@ -608,7 +608,11 @@
           "script": {
             "title": "Tag script semplice",
             "description": "Aggiungi una riga al tuo HTML e inizia a tracciare immediatamente. Funziona con qualsiasi sito web o CMS.",
-            "features": { "f1": "Installazione di una riga", "f2": "Funziona ovunque", "f3": "Nessun processo di build necessario" }
+            "features": {
+              "f1": "Installazione di una riga",
+              "f2": "Funziona ovunque",
+              "f3": "Nessun processo di build necessario"
+            }
           },
           "framework": {
             "title": "Pronto per i framework",
@@ -751,6 +755,7 @@
       "pages": "Pagine",
       "referrers": "Siti di riferimento",
       "geography": "Geografia",
+      "outboundLinks": "Collegamenti in uscita",
       "userJourney": "Percorso utente",
       "funnels": "Funnel",
       "devices": "Dispositivi",
@@ -938,6 +943,28 @@
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
       "noData": "Nessun dato di percorso disponibile per i criteri selezionati."
+    },
+    "outboundLinks": {
+      "summary": {
+        "totalUniqueClicks": "Clic unici totali",
+        "uniqueVisitors": "Visitatori unici", 
+        "topDomain": "Dominio principale",
+        "topSourcePage": "Pagina sorgente principale"
+      },
+      "table": {
+        "title": "Performance link in uscita",
+        "destinationUrl": "URL di destinazione",
+        "uniqueClicks": "Clic unici", 
+        "topReferrerPage": "Pagina referrer principale",
+        "sourcePages": "Pagine sorgente"
+      },
+      "chart": {
+        "title": "Clic in uscita unici nel tempo"
+      },
+      "pieChart": {
+        "title": "Distribuzione link in uscita",
+        "description": "Link in uscita principali per clic unici"
+      }
     },
     "integration": {
       "title": "Integrazione sito",

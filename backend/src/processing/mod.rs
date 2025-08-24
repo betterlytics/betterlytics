@@ -9,6 +9,7 @@ use crate::referrer::{ReferrerInfo, parse_referrer};
 use url::Url;
 use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
+use crate::outbound_link::process_outbound_link;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -41,6 +42,8 @@ pub struct ProcessedEvent {
     pub event_type: String,
     pub custom_event_name: String,
     pub custom_event_json: String,
+    /// Outbound link tracking - stored when user clicks on a link that directs them to an external page
+    pub outbound_link_url: String,
 }
 
 /// Event processor that handles real-time processing
@@ -90,6 +93,7 @@ impl EventProcessor {
             campaign_info: CampaignInfo::default(),
             custom_event_name: String::new(),
             custom_event_json: String::new(),
+            outbound_link_url: String::new(),
         };
 
         // Handle event types
@@ -181,11 +185,21 @@ impl EventProcessor {
             processed.event_type = "custom".to_string();
             processed.custom_event_name = event_name;
             processed.custom_event_json = processed.event.raw.properties.clone();
+        } else if event_name == "outbound_link" {
+            processed.event_type = "outbound_link".to_string();
+            // Process and clean outbound link URL
+            if let Some(ref outbound_url_str) = processed.event.raw.outbound_link_url {
+                if let Some(ref outbound_url) = Url::parse(&outbound_url_str).ok() {
+                    let outbound_info = process_outbound_link(outbound_url);
+                    processed.outbound_link_url = outbound_info.url;
+                }
+            }
         } else {
             processed.event_type = event_name;
         }
         Ok(())
     }
+
 
     /// Get geolocation data for the IP
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {

@@ -16,6 +16,8 @@ mod geoip;
 mod geoip_updater;
 mod bot_detection;
 mod referrer;
+mod outbound_link;
+mod url_utils;
 mod campaign;
 mod ua_parser;
 mod metrics;
