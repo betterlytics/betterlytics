@@ -42,7 +42,7 @@ pub struct ProcessedEvent {
     pub event_type: String,
     pub custom_event_name: String,
     pub custom_event_json: String,
-    /// Outbound link tracking
+    /// Outbound link tracking - stored when user clicks on a link that directs them to an external page
     pub outbound_link_url: String,
 }
 

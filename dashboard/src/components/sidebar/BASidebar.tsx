@@ -8,7 +8,7 @@ import {
   Funnel,
   DollarSign,
   Route,
-  ExternalLink,
+  ExternalLink as ExternalLinkIcon,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -34,7 +34,7 @@ const navItems = [
   { name: 'Overview', href: '', icon: <LayoutDashboard size={18} /> },
   { name: 'Pages', href: '/pages', icon: <FileText size={18} /> },
   { name: 'Referrers', href: '/referrers', icon: <Link2 size={18} /> },
-  { name: 'Outbound Links', href: '/outbound-links', icon: <ExternalLink size={18} /> },
+  { name: 'Outbound Links', href: '/outbound-links', icon: <ExternalLinkIcon size={18} /> },
   { name: 'Geography', href: '/geography', icon: <Globe size={18} /> },
   { name: 'User Journey', href: '/user-journey', icon: <Route size={18} /> },
   { name: 'Funnels', href: '/funnels', icon: <Funnel size={18} /> },

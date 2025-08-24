@@ -9,11 +9,9 @@ type OutboundLinksPieChartProps = {
   distributionPromise: ReturnType<typeof fetchOutboundLinksDistributionAction>;
 };
 
-// Color scheme for outbound links
 const getOutboundLinkColor = (name: string): string => {
   const colors: Record<string, string> = {
     Others: '#64748b',
-    // Add more specific colors if needed
   };
 
   if (colors[name]) {
@@ -31,9 +29,7 @@ const getOutboundLinkColor = (name: string): string => {
 };
 
 const formatUrl = (url: string): string => {
-  if (url === 'Others') return url;
-
-  return url.toLowerCase();
+  return url === 'Others' ? url : url.toLowerCase();
 };
 
 export default function OutboundLinksPieChart({ distributionPromise }: OutboundLinksPieChartProps) {

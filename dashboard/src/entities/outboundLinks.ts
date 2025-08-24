@@ -24,7 +24,6 @@ export const OutboundLinksSummaryWithChartsSchema = z.object({
   dailyClicksChartData: z.array(DailyOutboundClicksRowSchema),
 });
 
-// Type exports
 export type OutboundLinkRow = z.infer<typeof OutboundLinkRowSchema>;
 export type DailyOutboundClicksRow = z.infer<typeof DailyOutboundClicksRowSchema>;
 export type OutboundLinksSummaryWithCharts = z.infer<typeof OutboundLinksSummaryWithChartsSchema>;

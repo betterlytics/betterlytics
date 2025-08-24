@@ -62,7 +62,7 @@ export async function getOutboundLinksAnalytics(
     LIMIT {limit:UInt32}
   `;
 
-  const result = (await clickhouse
+  const result = await clickhouse
     .query(query.taggedSql, {
       params: {
         ...query.taggedParams,
@@ -72,7 +72,7 @@ export async function getOutboundLinksAnalytics(
         limit,
       },
     })
-    .toPromise()) as any[];
+    .toPromise();
 
   return OutboundLinkRowSchema.array().parse(result);
 }
@@ -105,7 +105,7 @@ export async function getDailyOutboundClicks(
     LIMIT 10080
   `;
 
-  const result = (await clickhouse
+  const result = await clickhouse
     .query(query.taggedSql, {
       params: {
         ...query.taggedParams,
@@ -114,7 +114,7 @@ export async function getDailyOutboundClicks(
         end_date: endDate,
       },
     })
-    .toPromise()) as unknown[];
+    .toPromise();
 
   return result.map((row) => DailyOutboundClicksRowSchema.parse(row));
 }
@@ -130,8 +130,7 @@ export async function getOutboundLinksDistribution(
 ): Promise<Array<{ outbound_link_url: string; clicks: number }>> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
-  // Query 1: Get top 9 outbound links
-  const topQuery = safeSql`
+  const top9Query = safeSql`
     SELECT 
       outbound_link_url,
       uniq(visitor_id) as clicks
@@ -146,7 +145,6 @@ export async function getOutboundLinksDistribution(
     LIMIT 9
   `;
 
-  // Query 2: Get total clicks across all outbound links
   const totalQuery = safeSql`
     SELECT 
       uniq(visitor_id) as total_clicks
@@ -160,9 +158,9 @@ export async function getOutboundLinksDistribution(
 
   const [top9Result, totalResult] = await Promise.all([
     clickhouse
-      .query(topQuery.taggedSql, {
+      .query(top9Query.taggedSql, {
         params: {
-          ...topQuery.taggedParams,
+          ...top9Query.taggedParams,
           site_id: siteId,
           start: startDate,
           end: endDate,

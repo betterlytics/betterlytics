@@ -32,7 +32,7 @@ export default function OutboundLinksSummarySection({
       title: 'Top Domain',
       value: (
         <span className='overflow-wrap-anywhere leading-tight break-all'>
-          {summaryWithCharts.topDomain || 'No data'}
+          {summaryWithCharts.topDomain || '-'}
         </span>
       ),
       rawChartData: summaryWithCharts.dailyClicksChartData,
@@ -43,7 +43,7 @@ export default function OutboundLinksSummarySection({
       title: 'Top Source Page',
       value: (
         <span className='overflow-wrap-anywhere leading-tight break-all'>
-          {summaryWithCharts.topSourceUrl || 'No data'}
+          {summaryWithCharts.topSourceUrl || '-'}
         </span>
       ),
       rawChartData: summaryWithCharts.dailyClicksChartData,
