@@ -1150,6 +1150,11 @@
         "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
         "toastFailure": "Kunne ikke sende bekræftelsesmail"
       }
+    },
+    "settingsPopover": {
+      "title": "Hurtige indstillinger",
+      "theme": "Tema",
+      "advanced": "Avancerede indstillinger"
     }
   }
 }

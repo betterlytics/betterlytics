@@ -1151,6 +1151,11 @@
         "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
         "toastFailure": "Invio dell'email di verifica non riuscito"
       }
+    },
+    "settingsPopover": {
+      "title": "Impostazioni rapide",
+      "theme": "Tema",
+      "advanced": "Impostazioni avanzate"
     }
   }
 }
