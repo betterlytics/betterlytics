@@ -4,7 +4,7 @@ import { use } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/userJourney';
 import UserJourneyChart from '@/app/dashboard/[dashboardId]/user-journey/UserJourneyChart';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
 
 const STEP_OPTIONS = [1, 2, 3, 4, 5];
 const JOURNEY_OPTIONS = [5, 10, 20, 50, 100];
@@ -15,7 +15,7 @@ type UserJourneySectionProps = {
 
 export default function UserJourneySection({ userJourneyPromise }: UserJourneySectionProps) {
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
-  const { dictionary } = useDictionary();
+  const t = useTranslations('components.userJourney');
 
   const journeyData = use(userJourneyPromise);
 
@@ -30,7 +30,7 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
         >
           {STEP_OPTIONS.map((steps) => (
             <option key={steps} value={steps}>
-              {steps} {dictionary.t('components.userJourney.steps')}
+              {steps} {t('steps')}
             </option>
           ))}
         </select>
@@ -42,7 +42,7 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
         >
           {JOURNEY_OPTIONS.map((journeys) => (
             <option key={journeys} value={journeys}>
-              {dictionary.t('components.userJourney.topJourneys').replace('{journeys}', journeys.toString())}
+              {t('topJourneys', { journeys: journeys.toString() })}
             </option>
           ))}
         </select>
@@ -57,7 +57,7 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
 
         {journeyData?.nodes.length === 0 && (
           <div className='bg-muted rounded-md p-8 text-center'>
-            <p className='text-muted-foreground'>{dictionary.t('components.userJourney.noData')}</p>
+            <p className='text-muted-foreground'>{t('noData')}</p>
           </div>
         )}
       </div>

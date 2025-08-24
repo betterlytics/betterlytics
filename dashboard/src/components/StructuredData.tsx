@@ -1,7 +1,14 @@
-import { generateStructuredData, SEO_CONFIGS } from '@/lib/seo';
+import { generateStructuredData } from '@/lib/seo';
 
 interface StructuredDataProps {
-  config: (typeof SEO_CONFIGS)[keyof typeof SEO_CONFIGS];
+  config: {
+    title: string;
+    description: string;
+    keywords: string[];
+    path: string;
+    imageAlt?: string;
+    structuredData?: 'organization' | 'website' | 'webpage' | 'contact';
+  };
 }
 
 export function StructuredData({ config }: StructuredDataProps) {

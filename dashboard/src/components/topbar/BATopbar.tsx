@@ -12,12 +12,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Settings, LogOut, ExternalLink as ExternalLinkIcon, LayoutDashboard, CreditCard } from 'lucide-react';
-import Link from 'next/link';
 import Logo from '@/components/logo';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
 import { BAAvatar } from '../avatar/BAAvatar';
 import { useTopLoader } from 'nextjs-toploader';
 import ExternalLink from '@/components/ExternalLink';
+import NextLink from 'next/link';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
@@ -38,9 +38,9 @@ export default function BATopbar() {
       <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
         <div className='mx-auto flex h-(--topbar-height) items-center justify-between px-8'>
           <div className='flex items-center space-x-2'>
-            <Link href='/dashboards' className='flex items-center space-x-2'>
+            <NextLink href='/dashboards' className='flex items-center space-x-2'>
               <Logo variant='icon' showText textSize='md' priority />
-            </Link>
+            </NextLink>
           </div>
 
           <div className='flex items-center space-x-4'>
@@ -69,16 +69,16 @@ export default function BATopbar() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild className='cursor-pointer'>
-                      <Link href='/dashboards'>
+                      <NextLink href='/dashboards'>
                         <LayoutDashboard className='mr-2 h-4 w-4' />
                         <span>Dashboards</span>
-                      </Link>
+                      </NextLink>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className='cursor-pointer'>
-                      <Link href='/billing'>
+                      <NextLink href='/billing'>
                         <CreditCard className='mr-2 h-4 w-4' />
                         <span>Upgrade Plan</span>
-                      </Link>
+                      </NextLink>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSettingsClick} className='cursor-pointer'>
                       <Settings className='mr-2 h-4 w-4' />
