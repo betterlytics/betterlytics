@@ -1,0 +1,978 @@
+{
+  "public": {
+    "about": {
+      "aboutUs": "Chi siamo - Betterlytics",
+      "intro": "Stiamo costruendo il futuro delle analitiche web: privacy-first, open source e progettate per il web moderno. Non devi più scegliere tra insights potenti e rispettare la privacy dei tuoi visitatori.",
+      "sections": {
+        "howWeStarted": {
+          "title": "Come abbiamo iniziato",
+          "p1": "Betterlytics è nato da una vera frustrazione. Il nostro team stava sviluppando un sistema di gestione fornitori quando abbiamo incontrato un ostacolo con le analitiche web. Ogni soluzione che abbiamo valutato ci costringeva alla stessa scelta impossibile: compromettere la privacy dei nostri utenti o accontentarsi di insights inadeguati.",
+          "p2": "I tradizionali strumenti di analisi ti costringono a scegliere tra insights completi e privacy degli utenti. Noi crediamo che questa sia una falsa scelta. Betterlytics dimostra che puoi avere analisi potenti e utili pur essendo completamente conformi alla privacy e rispettosi dei tuoi visitatori.",
+          "p3": "Quello che è iniziato come una soluzione per le nostre esigenze è diventato qualcosa di molto più grande: una missione per costruire strumenti di analisi che rispettino sia i proprietari di siti web che i loro visitatori. Ogni funzionalità è progettata con privacy e prestazioni come priorità equivalenti."
+        },
+        "whyPrivacyFirst": {
+          "title": "Perché le analitiche privacy-first sono importanti",
+          "p1": "L'industria delle analitiche web è stata dominata troppo a lungo dal capitalismo di sorveglianza. I principali fornitori di analitiche raccolgono grandi quantità di dati personali, tracciano gli utenti attraverso i siti web e utilizzano queste informazioni per costruire profili comportamentali dettagliati per scopi pubblicitari.",
+          "p2": "Non crediamo che i proprietari di siti web debbano compromettere la privacy dei loro visitatori per capire le prestazioni del loro sito. Betterlytics raccoglie solo le metriche essenziali di cui hai bisogno: niente cookie, nessun dato personale, nessun tracciamento cross-site. La privacy dei tuoi visitatori è rispettata per impostazione predefinita."
+        },
+        "builtInOpen": {
+          "title": "Costruito in modo aperto",
+          "p1": "Betterlytics è completamente open source sotto la licenza AGPL-3.0. Non si tratta solo di trasparenza, ma di responsabilità. Chiunque può ispezionare il nostro codice, verificare le nostre affermazioni sulla privacy e contribuire a rendere la piattaforma migliore.",
+          "p2": "L'open source significa anche libertà. Puoi ospitare Betterlytics sulla tua infrastruttura, garantendo il controllo completo sui tuoi dati. Nessun vendor lock-in, nessun cambio improvviso di policy, nessun aumento di prezzo a sorpresa."
+        },
+        "privacyPerformance": {
+          "title": "Privacy e prestazioni in perfetto equilibrio",
+          "p1": "Siamo ossessionati tanto dalla privacy quanto dalle prestazioni perché la velocità del tuo sito web conta tanto quanto la privacy dei tuoi visitatori. Il nostro script di tracciamento pesa meno di 2KB. Confrontalo con i 45KB+ di Google Analytics. Costruito con standard web moderni e ottimizzato per la velocità, Betterlytics non rallenterà il tuo sito.",
+          "p2": "Sotto il cofano, utilizziamo tecnologie all'avanguardia: Rust per l'elaborazione dati ad alte prestazioni, ClickHouse per query analitiche velocissime e Next.js 15 per un'esperienza dashboard moderna e reattiva. Ogni decisione tecnica priorizza sia la privacy dell'utente che le prestazioni del sistema."
+        },
+        "builtForEveryone": {
+          "title": "Costruito per tutti",
+          "p1": "Che tu gestisca un blog personale, una piattaforma SaaS in crescita, un negozio e-commerce o un sito web aziendale, Betterlytics è progettato per soddisfare le tue esigenze. Comprendiamo che diverse organizzazioni hanno requisiti diversi, dai semplici insights sul traffico all'analisi complessa del percorso utente.",
+          "p2": "L'integrazione richiede minuti, non ore. La nostra dashboard è intuitiva e ben documentata, mostra quello che devi sapere senza annegare in complessità inutili. Anche se non abbiamo ancora un'API pubblica, ogni funzionalità della dashboard è accuratamente documentata per aiutarti a ottenere il massimo dalle tue analitiche."
+        },
+        "privacyRegulations": {
+          "title": "Regolamentazioni privacy semplificate",
+          "p1": "Conforme a GDPR, CCPA, PECR. Le regolamentazioni sulla privacy non dovrebbero essere un incubo di conformità. Poiché Betterlytics non raccoglie dati personali né utilizza cookie, sei conforme per impostazione predefinita. Nessun banner per i cookie richiesto, nessuna gestione del consenso necessaria.",
+          "p2": "Questa semplicità si estende anche ai tuoi utenti. Possono concentrarsi sui tuoi contenuti invece di essere interrotti da avvisi sulla privacy e moduli di consenso. Un'esperienza migliore per tutti.",
+          "p3Prefix": "Abbiamo sede nell'Unione Europea e tutta l'elaborazione dei dati avviene entro i confini UE. I tuoi dati non lasciano mai l'UE, garantendo piena conformità ai requisiti GDPR. Per informazioni dettagliate su come gestiamo i tuoi dati, consulta la nostra",
+          "privacyPolicyLabel": "politica sulla privacy"
+        },
+        "communityDriven": {
+          "title": "Sviluppo guidato dalla community",
+          "p1": "Betterlytics cresce attraverso feedback e contributi della community. Ascoltiamo gli sviluppatori, implementiamo le funzionalità richieste e manteniamo la piattaforma basandoci sulle reali esigenze degli utenti; non su richieste di investitori o requisiti di ricavi pubblicitari. Vogliamo ringraziare profondamente la nostra community per il feedback e i contributi.",
+          "p2": "Il nostro modello di business sostenibile significa che possiamo concentrarci sulla costruzione della migliore piattaforma di analitiche possibile. Siamo finanziati dai nostri utenti, non vendendo i loro dati. Questo allineamento di incentivi garantisce che daremo sempre priorità a privacy e prestazioni e non comprometteremo mai nessuna delle due."
+        },
+        "future": {
+          "title": "Il futuro delle analitiche web",
+          "quote": "Crediamo che le aziende dovrebbero essere in grado di comprendere il loro pubblico senza sacrificare la privacy o fare compromessi inutili sull'etica. Le analitiche possono essere sia potenti che rispettose per design.",
+          "p1": "Questa visione guida tutto quello che costruiamo. Ogni funzionalità, ogni ottimizzazione, ogni decisione è guidata dal nostro impegno verso analitiche privacy-first di cui tutti possono fidarsi e usare."
+        }
+      },
+      "cta": {
+        "title": "Pronto per iniziare?",
+        "lead": "Unisciti alla community crescente di aziende che rifiutano di compromettere la privacy.",
+        "getStarted": "Inizia gratis",
+        "viewDocs": "Vedi documentazione",
+        "docsTitle": "Documentazione completa Betterlytics"
+      }
+    },
+    "contact": {
+      "title": "Contattaci",
+      "intro": "Domande su Betterlytics? Hai bisogno di supporto per la configurazione delle analitiche? Il nostro team è pronto ad assisterti.",
+      "getInTouch": {
+        "title": "Mettiti in contatto",
+        "description": "Che tu abbia bisogno di supporto tecnico, domande sulle nostre funzionalità o voglia discutere soluzioni enterprise, siamo qui per aiutare. Scegli il metodo che funziona meglio per te:"
+      },
+      "methods": {
+        "email": {
+          "title": "Email",
+          "description": "hello@betterlytics.io"
+        },
+        "github": {
+          "title": "GitHub",
+          "description": "github.com/betterlytics/betterlytics"
+        },
+        "discord": {
+          "title": "Discord",
+          "description": "Unisciti al nostro server Discord"
+        },
+        "bluesky": {
+          "title": "Bluesky",
+          "description": "@betterlytics.bsky.social"
+        }
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "integrate": {
+            "question": "Come integro Betterlytics con il mio sito web?",
+            "answer": "L'integrazione è semplice! Aggiungi semplicemente il nostro script leggero al tuo sito web o installa il nostro pacchetto NPM. Consulta la nostra documentazione per guide dettagliate per tutti i principali framework."
+          },
+          "gdpr": {
+            "question": "Betterlytics è davvero conforme al GDPR?",
+            "answer": "Sì, assolutamente! Non utilizziamo cookie, non raccogliamo dati personali e tutta l'elaborazione dei dati è fatta in conformità con GDPR, CCPA e altre regolamentazioni sulla privacy."
+          },
+          "migrate": {
+            "question": "Posso migrare da Google Analytics?",
+            "answer": "Non ancora! Ma stiamo lavorando duramente per implementare questa funzionalità e forniremo una guida alla migrazione e strumenti per aiutarti nella transizione da Google Analytics."
+          },
+          "freePlan": {
+            "question": "Cosa include il piano gratuito?",
+            "answer": "Il piano auto-ospitato gratuito include fino a 10.000 eventi tracciati, accesso completo alla dashboard e supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo."
+          },
+          "cloud": {
+            "question": "Come funziona l'hosting cloud?",
+            "answer": "Il nostro hosting cloud fornisce un'istanza Betterlytics completamente gestita con aggiornamenti automatici, backup e SLA di uptime del 99.9%. Nessuna gestione server richiesta!"
+          },
+          "support": {
+            "question": "Offrite supporto per istanze auto-ospitate?",
+            "answer": "Parzialmente! Forniamo supporto della community attraverso GitHub e Discord per le istanze auto-ospitate, ma la nostra priorità è supportare i clienti dell'hosting cloud."
+          }
+        }
+      },
+      "cta": {
+        "lead": "Non trovi quello che cerchi?",
+        "docsLinkText": "Consulta la nostra documentazione completa →",
+        "docsLinkTitle": "Documentazione completa Betterlytics"
+      }
+    },
+    "privacy": {
+      "title": "Politica Privacy di Betterlytics",
+      "lastUpdated": "Ultimo aggiornamento:",
+      "tldr": {
+        "title": "TL;DR",
+        "body": "Per i visitatori del sito web, non utilizziamo cookie e non raccogliamo alcun dato personale. Se decidi di creare un account, chiediamo il minimo indispensabile e lo condividiamo solo con servizi assolutamente necessari per il funzionamento dell'app."
+      },
+      "scope": {
+        "title": "Ambito di questa politica",
+        "body": "Questa politica sulla privacy si applica esclusivamente al servizio cloud ospitato Betterlytics disponibile su betterlytics.io e i nostri domini ufficiali. Non si applica alle installazioni auto-ospitate del nostro software open source. Se ospiti Betterlytics autonomamente, sei responsabile della tua politica sulla privacy, delle pratiche di elaborazione dei dati e della conformità legale."
+      },
+      "intro": {
+        "p1": "In Betterlytics, ci impegniamo a rispettare GDPR, CCPA, PECR e altre regolamentazioni sulla privacy. La privacy dei tuoi dati — e sono i tuoi dati, non nostri! — è molto importante per noi. Abbiamo sede nell'Unione Europea e tutta l'elaborazione dei dati avviene entro i confini UE.",
+        "p2": "In questa politica, illustriamo quali dati raccogliamo e perché, come vengono gestiti i tuoi dati e i tuoi diritti sui dati. Promettiamo che non vendiamo mai i tuoi dati: mai fatto, mai faremo."
+      },
+      "visitor": {
+        "title": "Come visitatore di siti web che utilizzano Betterlytics",
+        "lead": "La privacy dei visitatori del sito web è importante per noi. Abbiamo progettato il nostro sistema di analitiche per essere completamente senza cookie e orientato alla privacy. Come visitatore di siti web che utilizzano Betterlytics:",
+        "li1": "Nessuna informazione personale viene raccolta",
+        "li2": "Nessun cookie viene memorizzato nel tuo browser",
+        "li3": "Nessuna informazione viene condivisa, inviata o venduta a terze parti",
+        "li4": "Nessuna informazione viene condivisa con aziende pubblicitarie",
+        "li5": "Nessuna informazione viene estratta e raccolta per tendenze personali e comportamentali",
+        "li6": "Nessuna informazione viene monetizzata",
+        "li7": "Tutti i dati raccolti sono aggregati e anonimizzati"
+      },
+      "anonymous": {
+        "title": "Quali dati anonimi raccogliamo e perché",
+        "pageViews": {
+          "title": "Visualizzazioni pagina e navigazione",
+          "body": "Tracciamo quali pagine vengono visitate e i pattern di navigazione per aiutare i proprietari di siti web a capire come i loro contenuti vengono consumati. Raccogliamo il percorso URL (senza parametri di query per prevenire il tracciamento accidentale di dati sensibili) e informazioni sul referrer."
+        },
+        "deviceBrowser": {
+          "title": "Informazioni dispositivo e browser",
+          "body": "Analizziamo la stringa user agent per determinare il tipo di browser, sistema operativo e categoria di dispositivo (mobile, tablet, desktop, laptop). La risoluzione dello schermo viene raggruppata in categorie (piccola, media, grande) invece di memorizzare le dimensioni esatte."
+        },
+        "geographic": {
+          "title": "Informazioni geografiche",
+          "body": "Determiniamo il paese del visitatore dal loro indirizzo IP utilizzando un database GeoIP. L'indirizzo IP stesso viene immediatamente anonimizzato rimuovendo l'ultimo ottetto (IPv4) o utilizzando solo i primi 64 bit (IPv6) prima di qualsiasi elaborazione."
+        },
+        "anonymousId": {
+          "title": "Identificazione visitatore anonima",
+          "body": "Generiamo un'impronta digitale anonima del visitatore utilizzando un hash crittografico dell'indirizzo IP anonimizzato, risoluzione schermo raggruppata, nome browser e un salt che ruota giornalmente. Questo ci permette di contare i visitatori unici senza tracciare individui. L'impronta digitale cambia giornalmente, garantendo l'anonimato a lungo termine."
+        },
+        "sessionTracking": {
+          "title": "Tracciamento sessioni",
+          "body": "Tracciamo le sessioni per capire come i visitatori interagiscono con i siti web. Le sessioni scadono automaticamente dopo 30 minuti di inattività e sono memorizzate solo nella memoria del server, mai nei cookie o nell'archiviazione del browser."
+        }
+      },
+      "processStore": {
+        "title": "Come elaboriamo e memorizziamo i dati",
+        "li1": "Hosting basato in UE: Tutti i dati sono elaborati e memorizzati su server situati nell'Unione Europea, garantendo conformità GDPR.",
+        "li2": "Anonimizzazione immediata: Gli indirizzi IP sono anonimizzati immediatamente alla ricezione, prima di qualsiasi elaborazione o archiviazione.",
+        "li3": "Nessun tracciamento cross-site: I dati di ogni sito web sono isolati e tracciati separatamente con identificatori di sito unici.",
+        "li4": "Reporting aggregato: Tutti i rapporti analitici mostrano solo dati aggregati, senza possibilità di identificare singoli visitatori.",
+        "li5": "Rotazione giornaliera delle impronte digitali: Le impronte digitali dei visitatori cambiano giornalmente, prevenendo il tracciamento a lungo termine degli individui."
+      },
+      "customer": {
+        "title": "Come cliente e abbonato di Betterlytics",
+        "lead": "Il nostro principio guida è raccogliere solo quello che ci serve ed elaborare queste informazioni esclusivamente per fornirti il servizio per cui ti sei registrato.",
+        "whatWeCollect": {
+          "title": "Cosa raccogliamo e perché",
+          "email": "Indirizzo email: Richiesto per creare un account, inviarti comunicazioni di servizio essenziali e fornire supporto clienti.",
+          "auth": "Dati di autenticazione: Token di sessione sicuri per mantenerti connesso alla tua dashboard.",
+          "websiteConfig": "Configurazione sito web: Nomi dominio e impostazioni del sito che configuri per il tracciamento analitico.",
+          "usage": "Dati di utilizzo: Come usi la nostra dashboard per migliorare il nostro servizio e fornire supporto."
+        },
+        "thirdParty": {
+          "title": "Servizi di terze parti",
+          "intro": "Utilizziamo un numero selezionato di fornitori di servizi fidati, basati in UE:",
+          "li1": "Elaborazione pagamenti (se applicabile) attraverso processori di pagamento conformi UE",
+          "li2": "Consegna email per email transazionali e notifiche",
+          "outro": "Condividiamo solo le informazioni minime necessarie con questi fornitori e li vincoliamo contrattualmente a proteggere i tuoi dati secondo gli standard GDPR."
+        }
+      },
+      "dataRetention": {
+        "title": "Conservazione dei dati",
+        "li1": "Eliminazione account: Quando elimini il tuo account, TUTTI i dati vengono eliminati permanentemente immediatamente - questo include i tuoi dati personali (email, informazioni di pagamento, impostazioni account) E tutti i dati analitici del sito web. Nessuna eccezione, nessun periodo di conservazione.",
+        "li2": "Cancellazione abbonamento (senza eliminazione account): Se cancelli il tuo abbonamento ma mantieni il tuo account, conserviamo i tuoi dati analitici per un massimo di 1 mese nel caso decidessi di riattivare, dopo di che vengono eliminati permanentemente.",
+        "li3": "Dati di sessione: Le sessioni dei visitatori sono memorizzate solo nella memoria del server e scadono automaticamente dopo 30 minuti di inattività.",
+        "footer": "Hai sempre il diritto all'eliminazione immediata di tutti i dati."
+      },
+      "rights": {
+        "title": "I tuoi diritti sotto il GDPR",
+        "intro": "Come soggetto dei dati sotto il GDPR, hai i seguenti diritti:",
+        "li1": "Diritto di accesso: Richiedere una copia dei tuoi dati personali",
+        "li2": "Diritto di rettifica: Correggere dati personali inesatti",
+        "li3": "Diritto alla cancellazione: Richiedere l'eliminazione dei tuoi dati personali",
+        "li4": "Diritto di limitazione dell'elaborazione: Limitare come utilizziamo i tuoi dati",
+        "li5": "Diritto alla portabilità dei dati: Ricevere i tuoi dati in un formato portatile",
+        "li6": "Diritto di opposizione: Opporsi all'elaborazione basata su interessi legittimi",
+        "li7": "Diritto di ritirare il consenso: Ritirare il consenso per l'elaborazione dei dati",
+        "contact": "Per esercitare qualsiasi di questi diritti, contattaci a privacy@betterlytics.io"
+      },
+      "noCookies": {
+        "title": "Politica senza cookie",
+        "body": "Betterlytics non utilizza alcun cookie per tracciare i visitatori del sito web. Raggiungiamo tutta la funzionalità di analitiche necessaria attraverso l'elaborazione lato server senza cookie. Questo significa che i siti web che utilizzano Betterlytics non devono mostrare banner di consenso per i cookie per il nostro tracciamento analitico."
+      },
+      "security": {
+        "title": "Sicurezza dei dati",
+        "li1": "Tutta la trasmissione dei dati è crittografata utilizzando TLS 1.3",
+        "li2": "I dati a riposo sono crittografati utilizzando crittografia standard del settore",
+        "li3": "L'accesso ai dati è strettamente limitato al personale autorizzato",
+        "li4": "Tutti i server si trovano in data center UE sicuri"
+      },
+      "changes": {
+        "title": "Modifiche a questa politica sulla privacy",
+        "body": "Potremmo aggiornare questa politica quando necessario per conformarci alle regolamentazioni pertinenti e riflettere eventuali nuove pratiche. Ogni volta che apportiamo modifiche significative alle nostre politiche, informeremo i nostri clienti via email e le annunceremo sul nostro sito web."
+      },
+      "contact": {
+        "title": "Contattaci",
+        "lead": "Se hai domande, commenti o preoccupazioni riguardo a questa politica sulla privacy, i tuoi dati o i tuoi diritti rispetto alle tue informazioni, contattaci:",
+        "email": "Email:",
+        "address": "Indirizzo:",
+        "footer1": "🇪🇺 Realizzato e ospitato nell'Unione Europea",
+        "footer2": "Impegnati per privacy, trasparenza e conformità GDPR"
+      }
+    },
+    "terms": {
+      "title": "Termini di Servizio Betterlytics",
+      "lastUpdated": "Ultimo aggiornamento:",
+      "scope": {
+        "title": "Ambito di questi termini",
+        "body": "Questi Termini di Servizio si applicano esclusivamente al servizio cloud ospitato Betterlytics disponibile su betterlytics.io e i nostri domini ufficiali. Non si applicano alle installazioni auto-ospitate del nostro software open source. Se ospiti Betterlytics autonomamente, sei responsabile dei tuoi termini di servizio, elaborazione dei dati e conformità legale."
+      },
+      "intro": {
+        "p1": "Grazie per utilizzare Betterlytics! Quando diciamo \"azienda\", \"noi\", \"nostro\", \"ci\", \"servizio\" o \"servizi\" in questo documento, ci riferiamo a Betterlytics e alla nostra piattaforma di analitiche web orientata alla privacy.",
+        "p2": "Potremmo aggiornare questi Termini di Servizio in futuro. Ogni volta che apportiamo modifiche significative alle nostre politiche, informeremo i nostri clienti via email e le annunceremo sul nostro sito web. Quando usi il nostro servizio, ora o in futuro, accetti gli ultimi Termini di Servizio.",
+        "p3": "Se non accetti questi Termini di Servizio, non utilizzare questo servizio. La violazione di uno qualsiasi dei termini seguenti può comportare la terminazione del tuo account."
+      },
+      "account": {
+        "title": "Termini dell'account",
+        "li1": "Responsabilità di sicurezza: Sei responsabile del mantenimento della sicurezza del tuo account e password. Betterlytics non può e non sarà responsabile per eventuali perdite o danni derivanti dal tuo mancato rispetto di questo obbligo di sicurezza.",
+        "li2": "Attività dell'account: Sei responsabile per qualsiasi attività che si verifica sotto il tuo account, inclusa l'attività dei membri del team che inviti al tuo account.",
+        "li3": "Conformità legale: Non puoi utilizzare il nostro servizio per scopi illegali o per violare leggi nella tua giurisdizione.",
+        "li4": "Requisiti di registrazione: Devi fornire un indirizzo email valido per completare il processo di registrazione. Devi essere umano - account registrati da bot o metodi automatizzati non sono permessi.",
+        "li5": "Proprietà del sito web: Devi possedere o avere permesso esplicito per installare il nostro script di analitiche su qualsiasi sito web che tracci con Betterlytics.",
+        "li6": "Accuratezza dei dati: Accetti di fornire informazioni accurate sui tuoi siti web e di non inviare intenzionalmente dati falsi o fuorvianti al nostro servizio.",
+        "li7": "Requisiti di età: Devi avere almeno 18 anni per utilizzare il nostro servizio. Se hai tra 13-17 anni, puoi utilizzare il nostro servizio solo con il consenso dei genitori."
+      },
+      "acceptableUse": {
+        "title": "Uso accettabile",
+        "intro": "Betterlytics è progettato per analitiche legittime di siti web ed è costruito come progetto open source per la trasparenza. Accetti di non utilizzare il nostro servizio per:",
+        "li1": "Tracciare visitatori senza la loro conoscenza o in violazione delle leggi sulla privacy",
+        "li2": "Raccogliere informazioni personalmente identificabili (il nostro sistema è progettato per prevenire questo)",
+        "li3": "Generare traffico artificiale o bot per gonfiare le statistiche o abusare della nostra infrastruttura",
+        "li4": "Tracciare siti web che non possiedi senza permesso esplicito",
+        "li5": "Abusare della nostra infrastruttura di servizio, aggirare i limiti di velocità o inviare dati malformati che potrebbero danneggiare i nostri sistemi",
+        "li6": "Utilizzare il nostro servizio per danneggiare, molestare o violare la privacy di qualsiasi individuo",
+        "li7": "Violare leggi applicabili, incluso GDPR, CCPA o altre regolamentazioni sulla privacy"
+      },
+      "payment": {
+        "title": "Pagamenti, rimborsi e modifiche al piano",
+        "freeTierTitle": "Piano gratuito",
+        "freeTierBody": "Offriamo un piano permanentemente gratuito con un limite mensile di eventi come specificato nella nostra pagina dei prezzi. Nessuna carta di credito è richiesta per il piano gratuito. Non vendiamo mai i tuoi dati - mai, indipendentemente dal piano che utilizzi.",
+        "billingTitle": "Fatturazione",
+        "billingBody": "Puoi utilizzare il nostro piano gratuito indefinitamente entro i limiti mensili di eventi. Per un utilizzo maggiore, devi passare a un piano a pagamento e pagare in anticipo. Se superi i limiti del piano senza fare l'upgrade, rischi di perdere i dati in eccesso. Se gli account a pagamento diventano scaduti, congeleremo l'account fino al pagamento.",
+        "limitsTitle": "Limiti di eventi",
+        "limitsBody": "Ogni piano include un limite mensile di eventi (visualizzazioni pagina, eventi personalizzati, ecc.). Gli eventi non utilizzati non si trasferiscono al mese successivo. Non ti verrà mai addebitato extra per picchi di traffico occasionali. Se superi costantemente i limiti del tuo piano per due mesi consecutivi, ti contatteremo per discutere l'upgrade.",
+        "planChangesTitle": "Modifiche al piano",
+        "planChangesBody": "Puoi fare upgrade o downgrade del tuo piano in qualsiasi momento. Gli upgrade hanno effetto immediatamente. Il downgrade può comportare la perdita di funzionalità o capacità. Non accettiamo responsabilità per eventuali perdite di dati risultanti dai downgrade del piano.",
+        "refundsTitle": "Rimborsi",
+        "refundsBody": "Tutte le tariffe sono non rimborsabili. Tuttavia, se riscontri problemi significativi del servizio entro i primi 30 giorni, contattaci e lavoreremo con te per trovare una soluzione equa."
+      },
+      "cancellation": {
+        "title": "Cancellazione e terminazione",
+        "importantTitle": "Importante: Due tipi di cancellazione",
+        "li1": "Cancellazione abbonamento: Mantiene il tuo account ma ferma la fatturazione. Dati analitici conservati per 1 mese.",
+        "li2": "Eliminazione account: Elimina permanentemente tutto immediatamente, inclusi tutti i dati analitici.",
+        "howToTitle": "Come cancellare",
+        "howToBody": "Puoi cancellare il tuo abbonamento o eliminare completamente il tuo account attraverso le impostazioni dell'account. Una richiesta via email da sola non è considerata una cancellazione appropriata.",
+        "whatHappensTitle": "Cosa succede quando cancelli",
+        "whLi1": "Cancellazione abbonamento: La tua cancellazione ha effetto alla fine del tuo periodo di fatturazione attuale. Non ti verrà più addebitato. I tuoi dati analitici diventano inaccessibili ma vengono conservati per 1 mese nel caso tornassi, poi eliminati permanentemente.",
+        "whLi2": "Eliminazione account: Tutti i dati (personali e analitici) vengono eliminati permanentemente immediatamente. Questo non può essere annullato.",
+        "ourRightTitle": "Il nostro diritto di terminazione",
+        "ourRightBody": "Ci riserviamo il diritto di sospendere o terminare il tuo account per violazione di questi termini, attività illegali o abuso del nostro servizio o membri del team. Forniremo avviso quando possibile, ma la terminazione immediata può essere necessaria in casi gravi."
+      },
+      "serviceMods": {
+        "title": "Modifiche al servizio e prezzi",
+        "li1": "Modifiche al servizio: Ci riserviamo il diritto di modificare o interrompere qualsiasi parte del servizio con o senza preavviso. Comunicheremo modifiche significative che influenzano il tuo utilizzo in anticipo quando possibile.",
+        "li2": "Modifiche ai prezzi: Potremmo cambiare la nostra struttura dei prezzi. I clienti esistenti sono tipicamente esenti da aumenti di prezzo, ma ci riserviamo il diritto di cambiare i prezzi per tutti i clienti con almeno 30 giorni di preavviso via email.",
+        "li3": "Aggiornamenti delle funzionalità: Miglioriamo regolarmente il nostro servizio con nuove funzionalità e miglioramenti. Alcune funzionalità possono richiedere upgrade del piano."
+      },
+      "dataOwnership": {
+        "title": "Proprietà dei dati e privacy",
+        "yourRightsTitle": "I tuoi diritti sui dati",
+        "yourRightsBody": "Possiedi il 100% dei tuoi dati analitici. Non rivendichiamo diritti di proprietà intellettuale sui dati del tuo sito web e non li venderemo mai o condivideremo con terze parti.",
+        "dpaTitle": "Accordo di elaborazione dati",
+        "dpaBodyPrefix": "Per clienti enterprise e conformità GDPR, il nostro Accordo di elaborazione dati (DPA) completo è disponibile su",
+        "dpaBodySuffix": ". Il DPA fa parte di questi Termini di Servizio e governa come elaboriamo i dati per tuo conto.",
+        "whatWeCollectTitle": "Cosa raccogliamo",
+        "whatWeCollectBody": "Il nostro servizio è progettato per essere privacy-first e senza cookie. Raccogliamo solo dati anonimi e aggregati come dettagliato nella nostra Politica sulla Privacy. Non raccogliamo informazioni personalmente identificabili.",
+        "yourResponsibilitiesTitle": "Le tue responsabilità",
+        "yrLi1": "Assicurati che il tuo utilizzo del nostro servizio sia conforme a tutte le leggi sulla privacy applicabili (GDPR, CCPA, ecc.)",
+        "yrLi2": "Aggiorna la tua politica sulla privacy per menzionare l'uso di Betterlytics per analitiche anonime (nota: tipicamente non è richiesto alcun banner di consenso per i cookie poiché il nostro servizio è senza cookie)",
+        "yrLi3": "Non tentare di inviare informazioni sensibili (carte di credito, dati personali, ecc.) attraverso il nostro servizio, incluso nei percorsi URL o parametri di query.",
+        "yrLi4": "Mantieni la sicurezza del tuo account e segnala immediatamente qualsiasi accesso non autorizzato",
+        "ourCommitmentsTitle": "I nostri impegni",
+        "ocLi1": "Elaborare i tuoi dati solo come descritto nella nostra Politica sulla Privacy",
+        "ocLi2": "Implementare misure di sicurezza appropriate per proteggere i tuoi dati",
+        "ocLi3": "Non vendere, condividere o monetizzare mai i tuoi dati analitici",
+        "ocLi4": "Fornire hosting e elaborazione basati in UE per conformità GDPR",
+        "ocLi5": "Eliminare i tuoi dati immediatamente all'eliminazione dell'account"
+      },
+      "sla": {
+        "title": "Livello di servizio e supporto",
+        "availabilityTitle": "Disponibilità del servizio",
+        "availabilityBody": "Ci impegniamo per alta disponibilità ma forniamo il servizio \"così com'è\" e \"come disponibile\". Non garantiamo l'uptime, anche se lavoriamo duramente per mantenere un servizio affidabile.",
+        "supportTitle": "Supporto",
+        "supportBody": "Il supporto tecnico è fornito via email su base di sforzo ragionevole. Miriamo a rispondere prontamente ma non garantiamo tempi di risposta specifici.",
+        "bugsTitle": "Bug e problemi",
+        "bugsBody": "Testiamo estensivamente le nostre funzionalità, ma nessun software è perfetto. Tracciamo i bug segnalati e diamo priorità alle correzioni, specialmente per problemi di sicurezza o privacy. Non tutti i bug segnalati verranno corretti immediatamente."
+      },
+      "liability": {
+        "title": "Responsabilità e disclaimer",
+        "p1": "Comprendi espressamente e accetti che Betterlytics non sarà responsabile per eventuali danni diretti, indiretti, incidentali, speciali, consequenziali o esemplari, inclusi ma non limitati a:",
+        "li1": "Perdita di profitti, avviamento, uso, dati o altre perdite intangibili",
+        "li2": "L'uso o l'incapacità di utilizzare i nostri servizi",
+        "li3": "Accesso non autorizzato o alterazione dei tuoi dati",
+        "li4": "Dichiarazioni o condotta di terze parti",
+        "li5": "Qualsiasi altra questione relativa a questi Termini o ai nostri servizi",
+        "note": "Cosa significa: Anche se lavoriamo duramente per fornire analitiche affidabili e orientate alla privacy, la tecnologia non è perfetta e le cose possono andare storte. Utilizzando Betterlytics, capisci che non possiamo essere ritenuti responsabili per eventuali perdite commerciali o problemi che potrebbero risultare da problemi del servizio. Siamo impegnati a guadagnare la tua fiducia attraverso trasparenza, forti pratiche di sicurezza e mettendo la tua privacy al primo posto.",
+        "p2": "Questo accordo sarà governato dalle leggi dell'Unione Europea e dalla giurisdizione dove Betterlytics è legalmente stabilito."
+      },
+      "ip": {
+        "title": "Proprietà intellettuale",
+        "li1": "I tuoi contenuti: Mantieni tutti i diritti su qualsiasi contenuto che fornisci al nostro servizio. I dati del tuo sito web rimangono tuoi.",
+        "li2": "Il nostro servizio: L'aspetto, la sensazione e la funzionalità di Betterlytics sono di nostra proprietà intellettuale. Non puoi copiare, modificare o fare reverse engineering del nostro servizio.",
+        "li3": "Feedback: Se fornisci feedback o suggerimenti sul nostro servizio, accetti che possiamo utilizzare e incorporare quel feedback senza pagamento o attribuzione.",
+        "li4": "Marchi: \"Betterlytics\" e il nostro logo sono nostri marchi. Non puoi utilizzarli senza permesso scritto, eccetto per identificare il nostro servizio in connessione con il tuo uso legittimo.",
+        "li5": "Componenti open source: Il nostro script di analitiche e componenti core sono rilasciati sotto licenze open source. Questo non concede diritti al nostro servizio ospitato, marchi o infrastruttura proprietaria."
+      },
+      "updates": {
+        "title": "Aggiornamenti e comunicazione",
+        "p1": "Potremmo aggiornare questi Termini di Servizio di tanto in tanto. Quando apportiamo modifiche significative:",
+        "li1": "Ti notificheremo via email almeno 30 giorni in anticipo",
+        "li2": "Pubblicheremo gli aggiornamenti sul nostro sito web",
+        "li3": "L'uso continuato del nostro servizio dopo che le modifiche entrano in vigore costituisce accettazione",
+        "li4": "Se non sei d'accordo con le modifiche, puoi cancellare il tuo account"
+      },
+      "contact": {
+        "title": "Contattaci",
+        "lead": "Se hai domande su questi Termini di Servizio, contattaci:",
+        "email": "Email:",
+        "support": "Supporto:",
+        "address": "Indirizzo:",
+        "footer1": "🇪🇺 Realizzato e ospitato nell'Unione Europea",
+        "footer2": "Analitiche orientate alla privacy di cui puoi fidarti"
+      }
+    },
+    "dpa": {
+      "title": "Accordo di Elaborazione Dati (DPA)",
+      "lastUpdated": "Ultimo aggiornamento:",
+      "scope": {
+        "title": "Ambito di questo DPA",
+        "body": "Questo Accordo di Elaborazione Dati si applica esclusivamente al servizio cloud ospitato Betterlytics disponibile su betterlytics.io e i nostri domini ufficiali. Non si applica alle installazioni auto-ospitate del nostro software open source. Se ospiti Betterlytics autonomamente, sei responsabile dei tuoi accordi di elaborazione dati e conformità legale."
+      },
+      "whyDifferent": {
+        "title": "Perché questo DPA è diverso",
+        "body": "A differenza dei servizi di analitiche tradizionali, Betterlytics è progettato per essere anonimo per design. Non elaboriamo dati personali, rendendo questo uno dei DPA più semplici nell'industria delle analitiche."
+      },
+      "intro": {
+        "title": "1. Introduzione",
+        "p1": "Questo Accordo di Elaborazione Dati (\"DPA\") fa parte dei Termini di Servizio di Betterlytics e governa l'elaborazione dei dati quando utilizzi il nostro servizio di analitiche. Questo accordo è progettato per garantire la conformità con il Regolamento Generale sulla Protezione dei Dati (GDPR) e altre leggi applicabili sulla protezione dei dati.",
+        "p2": "Importante: Betterlytics è specificamente progettato per elaborare solo dati anonimi e aggregati. Nessun dato personale viene raccolto, memorizzato o elaborato dal nostro servizio."
+      },
+      "definitions": {
+        "title": "2. Definizioni",
+        "controller": "\"Titolare del Trattamento\": Tu (il cliente) che determini le finalità e i mezzi di elaborazione dei dati dai visitatori del tuo sito web.",
+        "processor": "\"Responsabile del Trattamento\": Betterlytics, che elabora i dati per tuo conto secondo le tue istruzioni.",
+        "processing": "\"Trattamento\": Nel nostro caso, la raccolta e analisi di dati anonimi e aggregati di analitiche del sito web.",
+        "personalData": "\"Dati Personali\": Non applicabile - Betterlytics è progettato per evitare l'elaborazione di qualsiasi dato personale."
+      },
+      "processingDetails": {
+        "title": "3. Dettagli elaborazione dati",
+        "naturePurposeTitle": "3.1 Natura e finalità del trattamento",
+        "npLi1": "Fornire analitiche anonime del sito web e insights sui visitatori",
+        "npLi2": "Generare rapporti aggregati su traffico del sito web e pattern di utilizzo",
+        "npLi3": "Rilevare e filtrare il traffico bot per statistiche accurate",
+        "categoriesTitle": "3.2 Categorie di dati",
+        "categoriesIntro": "Solo dati anonimi:",
+        "catLi1": "Indirizzi IP anonimizzati (ultimo ottetto rimosso immediatamente)",
+        "catLi2": "Risoluzioni schermo raggruppate (categorie piccola/media/grande)",
+        "catLi3": "Informazioni browser e sistema operativo",
+        "catLi4": "Dati geografici a livello di paese",
+        "catLi5": "URL delle pagine e informazioni referrer",
+        "catLi6": "Impronte digitali visitatori a rotazione giornaliera (identificazione anonima)",
+        "subjectsTitle": "3.3 Interessati",
+        "subjectsBody": "Non applicabile - il nostro sistema è progettato per prevenire l'identificazione di singoli interessati. Tutti i dati sono elaborati in forma aggregata e anonima soltanto.",
+        "locationTitle": "3.4 Luogo di elaborazione",
+        "locationBody": "Tutta l'elaborazione dei dati avviene nell'Unione Europea su server situati in data center UE sicuri."
+      },
+      "instructions": {
+        "title": "4. Le tue istruzioni",
+        "intro": "Utilizzando Betterlytics, ci istruisci di:",
+        "li1": "Raccogliere dati analitici anonimi dai visitatori del tuo sito web",
+        "li2": "Elaborare questi dati per generare analitiche e insights del sito web",
+        "li3": "Memorizzare i dati per la durata del tuo abbonamento",
+        "li4": "Eliminare tutti i dati immediatamente all'eliminazione dell'account",
+        "li5": "Fornirti rapporti analitici e accesso ai tuoi dati"
+      },
+      "security": {
+        "title": "5. Misure di sicurezza",
+        "intro": "Betterlytics implementa misure tecniche e organizzative appropriate per garantire la sicurezza dei dati:",
+        "li1": "Tutta la trasmissione dati crittografata utilizzando TLS 1.2/1.3",
+        "li2": "Dati a riposo crittografati utilizzando crittografia standard del settore",
+        "li3": "Controlli di accesso che limitano l'accesso ai dati solo al personale autorizzato",
+        "li4": "Audit e aggiornamenti di sicurezza regolari",
+        "li5": "Server basati in UE in data center sicuri",
+        "li6": "Anonimizzazione IP immediata al punto di raccolta dati"
+      },
+      "subprocessors": {
+        "title": "6. Subprocessori",
+        "intro": "Betterlytics può coinvolgere le seguenti categorie di subprocessori:",
+        "li1": "Fornitori di infrastruttura: Servizi di hosting cloud e infrastruttura basati in UE",
+        "notice": "Ti notificheremo di eventuali modifiche ai nostri subprocessori e otterremo il tuo consenso dove richiesto dalla legge."
+      },
+      "rights": {
+        "title": "7. Diritti dell'interessato",
+        "body": "Non applicabile: Poiché Betterlytics elabora solo dati anonimi, i diritti individuali dell'interessato (accesso, rettifica, cancellazione, ecc.) non si applicano ai nostri dati analitici. I visitatori non possono essere identificati nel nostro sistema, rendendo impossibile soddisfare le richieste di diritti individuali."
+      },
+      "breach": {
+        "title": "8. Notifica di violazione dei dati",
+        "intro": "Nel caso improbabile di un incidente di sicurezza che interessi il nostro servizio:",
+        "li1": "Ti notificheremo entro 72 ore dal momento in cui veniamo a conoscenza di qualsiasi incidente",
+        "li2": "Forniremo dettagli dell'incidente e le nostre misure di risposta",
+        "li3": "Assisteremo con eventuali notifiche richieste alle autorità di protezione dati",
+        "li4": "Nota: Il rischio per gli individui è minimo dato la nostra elaborazione di soli dati anonimi"
+      },
+      "deletion": {
+        "title": "9. Eliminazione e restituzione dati",
+        "accountTitle": "Eliminazione account",
+        "accountBody": "Tutti i dati (personali e analitici) vengono eliminati permanentemente immediatamente all'eliminazione dell'account.",
+        "subscriptionTitle": "Cancellazione abbonamento",
+        "subscriptionBody": "I dati analitici vengono conservati per 1 mese nel caso tornassi, poi eliminati permanentemente.",
+        "exportTitle": "Esportazione dati",
+        "exportBody": "Puoi esportare i tuoi dati analitici in qualsiasi momento attraverso la tua dashboard."
+      },
+      "compliance": {
+        "title": "10. Audit e conformità",
+        "intro": "Betterlytics mantiene la conformità attraverso:",
+        "li1": "Valutazioni regolari interne di sicurezza e privacy",
+        "li2": "Codebase trasparente e open-source per verifica tecnica",
+        "li3": "Politica sulla privacy e termini di servizio pubblici",
+        "li4": "Impegno a cooperare con ragionevoli richieste di audit da clienti enterprise"
+      },
+      "contact": {
+        "title": "Contatto per questioni DPA",
+        "lead": "Per domande su questo DPA o pratiche di elaborazione dati:",
+        "legal": "Richieste legali:",
+        "technical": "Domande tecniche:",
+        "footer": "Questo DPA è automaticamente accettato quando utilizzi Betterlytics e fa parte dei nostri Termini di Servizio. 🇪🇺 Analitiche anonime per design - Realizzato e ospitato nell'Unione Europea"
+      }
+    },
+    "auth": {
+      "signin": {
+        "title": "Accedi al tuo account",
+        "subtitle": "Accedi alla tua dashboard analitiche",
+        "errors": {
+          "CredentialsSignin": "Email o password non validi. Controlla le tue credenziali e riprova.",
+          "default": "Si è verificato un errore durante l'accesso. Riprova."
+        },
+        "cta": {
+          "noAccount": "Non hai un account?",
+          "createOne": "Creane uno"
+        }
+      },
+      "register": {
+        "title": "Crea il tuo account",
+        "subtitle": "Inizia a tracciare le tue analitiche oggi",
+        "cta": {
+          "haveAccount": "Hai già un account?",
+          "signIn": "Accedi"
+        },
+        "disabled": {
+          "title": "Registrazione disabilitata",
+          "description": "La registrazione è attualmente disabilitata su questa istanza.",
+          "backToSignIn": "Torna all'accesso"
+        }
+      },
+      "forgotPassword": {
+        "title": "Reimposta la tua password",
+        "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
+        "cta": {
+          "remember": "Ricordi la tua password?",
+          "backToSignIn": "Torna all'accesso"
+        }
+      },
+      "resetPassword": {
+        "invalid": {
+          "title": "Link di reimpostazione non valido",
+          "description": "Questo link per reimpostare la password non è valido o manca un token.",
+          "note": "Richiedi un nuovo link per reimpostare la password.",
+          "requestLink": "Richiedi nuovo link di reimpostazione"
+        },
+        "expired": {
+          "title": "Link di reimpostazione scaduto",
+          "description": "Questo link per reimpostare la password è scaduto o non è valido.",
+          "info": "I link per reimpostare la password scadono dopo 1 ora per motivi di sicurezza. Richiedine uno nuovo.",
+          "requestLink": "Richiedi nuovo link di reimpostazione"
+        },
+        "form": {
+          "title": "Imposta la tua nuova password",
+          "description": "Inserisci la tua nuova password sotto"
+        },
+        "cta": {
+          "remember": "Ricordi la tua password?",
+          "backToSignIn": "Torna all'accesso"
+        }
+      },
+      "verifyEmail": {
+        "invalid": {
+          "title": "Link di verifica non valido",
+          "description": "Il link di verifica non è valido o mancante. Controlla la tua email e riprova.",
+          "backToSignIn": "Torna all'accesso"
+        },
+        "failed": {
+          "title": "Verifica fallita",
+          "expiredInfo": "I link di verifica scadono dopo 24 ore per sicurezza. Puoi richiederne uno nuovo e riprovare.",
+          "genericFallback": "Si è verificato un errore durante la verifica."
+        },
+        "buttons": {
+          "returnToDashboard": "Torna alla dashboard",
+          "backToSignIn": "Torna all'accesso"
+        },
+        "helpLine": "Serve aiuto? Contatta il supporto a support@betterlytics.io"
+      }
+    },
+    "landing": {
+      "seo": {
+        "title": "Betterlytics | Analitiche web semplici, senza cookie e rispettose della privacy",
+        "description": "Betterlytics è un'alternativa a Google Analytics orientata alla privacy. Ottieni insights conformi al GDPR e senza cookie senza tracciamento invasivo. Semplice, open-source e facile da usare."
+      },
+      "hero": {
+        "badge": "Open Source • Conforme GDPR • Senza cookie",
+        "titleTop": "Analitiche web",
+        "titleBottom": "privacy-first",
+        "description": "Ottieni insights potenti senza compromettere la privacy dei tuoi utenti. Analitiche conformi al GDPR e senza cookie che rispettano la privacy dell'utente fornendo i dati di cui hai bisogno.",
+        "ctaPrimary": "Inizia gratis",
+        "ctaGithub": "Vedi su GitHub"
+      },
+      "framework": {
+        "title": "Funziona con i tuoi strumenti preferiti",
+        "subtitle": "Compatibilità universale - funziona con qualsiasi sito web, framework o piattaforma",
+        "footer": "E molti altri... Se funziona sul web, lo supportiamo!"
+      },
+      "principles": {
+        "titleEmphasis": "Analitiche ad",
+        "titleRest": "alte prestazioni che rispettano la privacy",
+        "subtitle": "Insights in tempo reale, prestazioni velocissime e completa conformità sulla privacy per tutti",
+        "features": {
+          "euGdpr": {
+            "title": "Con sede in UE e conforme al GDPR",
+            "description": "Server ospitati nell'UE con rigorosi standard di protezione dati. Completa conformità GDPR con raccolta dati anonima e robuste salvaguardie sulla privacy."
+          },
+          "noConsent": {
+            "title": "Nessun banner di consenso richiesto",
+            "description": "Analitiche completamente anonime significano nessun banner per i cookie, nessun modulo di consenso GDPR, nessun attrito per l'utente. Installa e inizia a tracciare immediatamente."
+          },
+          "dataOwnership": {
+            "title": "Completa proprietà dei dati",
+            "description": "I tuoi dati rimangono tuoi per sempre. Auto-ospita con la nostra versione open-source o utilizza la nostra infrastruttura cloud sicura."
+          },
+          "realtime": {
+            "title": "Insights aziendali in tempo reale",
+            "description": "Tracciamento visitatori velocissimo e analitiche di conversione in tutto il mondo. Belle dashboard ti aiutano a prendere decisioni basate sui dati istantaneamente."
+          },
+          "lightweight": {
+            "title": "Leggero e developer-friendly",
+            "description": "Script sotto 1KB, codebase open-source e API complete. Costruito da sviluppatori, per sviluppatori."
+          },
+          "simpleSetup": {
+            "title": "Configurazione semplice, funzionalità potenti",
+            "description": "Integrazione di una riga per qualsiasi sito web. Opzioni di personalizzazione avanzate e funzionalità di livello enterprise disponibili."
+          }
+        }
+      },
+      "showcase": {
+        "titleEmphasis": "Funzionalità potenti",
+        "titleRest": "a portata di mano",
+        "subtitle": "Esplora l'arsenale completo delle capacità analitiche",
+        "docsButton": "Esplora tutte le funzionalità",
+        "docsTitle": "Documentazione completa Betterlytics"
+      },
+      "integration": {
+        "titleStart": "Inizia in",
+        "titleEmphasis": "meno di 2 minuti",
+        "subtitle": "Aggiungi il nostro script leggero e inizia a raccogliere analitiche senza cookie e rispettose della privacy immediatamente. Nessun cookie, nessun dato personale, nessun banner di consenso richiesto.",
+        "cards": {
+          "script": {
+            "title": "Tag script semplice",
+            "description": "Aggiungi una riga al tuo HTML e inizia a tracciare immediatamente. Funziona con qualsiasi sito web o CMS.",
+            "features": { "f1": "Installazione di una riga", "f2": "Funziona ovunque", "f3": "Nessun processo di build necessario" }
+          },
+          "framework": {
+            "title": "Pronto per i framework",
+            "description": "Supporto nativo per React, Next.js, Vue e altri framework moderni con TypeScript.",
+            "features": { "f1": "Supporto TypeScript", "f2": "Componenti framework", "f3": "Tree-shakeable" }
+          },
+          "selfHosted": {
+            "title": "Opzione auto-ospitata",
+            "description": "Distribuisci sulla tua infrastruttura con Docker per completa proprietà e controllo dei dati.",
+            "features": { "f1": "Distribuzione Docker", "f2": "Controllo completo", "f3": "Conforme GDPR" }
+          }
+        },
+        "guideButton": "Vedi guida integrazione",
+        "guideTitle": "Guida integrazione Betterlytics",
+        "footer": "Istruzioni dettagliate di installazione per tutte le piattaforme e framework"
+      },
+      "openSource": {
+        "titleEmphasis": "Open Source",
+        "titleRest": "e guidato dalla community",
+        "subtitle": "Sviluppo trasparente e guidato dalla community. Unisciti ai nostri contributori, richiedi funzionalità o adatta la piattaforma ai tuoi requisiti unici.",
+        "starOnGithub": "Stella su GitHub",
+        "viewDocs": "Vedi documentazione",
+        "docsTitle": "Documentazione completa Betterlytics"
+      },
+      "pricing": {
+        "titleEmphasis": "Prezzi semplici,",
+        "titleRest": "scalabili",
+        "subtitle": "Piani basati sul traffico che si adattano alla tua crescita. Inizia gratis, scala mentre cresci.",
+        "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
+      },
+      "cards": {
+        "advancedFilters": {
+          "title": "Filtri avanzati",
+          "description": "Taglia e analizza i tuoi dati analitici per qualsiasi dimensione per scoprire insights azionabili."
+        },
+        "trafficSources": {
+          "title": "Fonti di traffico",
+          "description": "Scopri da dove arrivano i tuoi visitatori e ottimizza i tuoi sforzi di marketing.",
+          "totalVisitors": "Visitatori totali",
+          "thisMonth": "questo mese",
+          "visitorsLabel": "visitatori",
+          "sources": {
+            "googleSearch": "Ricerca Google",
+            "direct": "Diretto",
+            "socialMedia": "Social media",
+            "email": "Email",
+            "other": "Altro"
+          }
+        },
+        "funnels": {
+          "title": "Funnel",
+          "description": "Traccia il tasso di conversione dei percorsi utente chiave del tuo sito web.",
+          "total": "Totale",
+          "dropOff": "abbandono",
+          "sinceLastWeek": "dalla scorsa settimana"
+        },
+        "events": {
+          "title": "Eventi in tempo reale",
+          "description": "Traccia ogni interazione utente mentre accade con logging dettagliato degli eventi.",
+          "showing": "Mostrati {loaded} di {total} eventi"
+        },
+        "journeys": {
+          "title": "Percorsi utente",
+          "description": "Traccia percorsi utente multipli e vedi come i visitatori navigano nel tuo sito."
+        },
+        "worldMap": {
+          "title": "Analitiche geografiche",
+          "description": "Vedi da dove arrivano i tuoi visitatori nel mondo.",
+          "topCountries": "Paesi principali"
+        }
+      }
+    },
+    "nav": {
+      "documentation": "Documentazione",
+      "pricing": "Prezzi",
+      "goToDashboard": "Vai alla dashboard",
+      "getStarted": "Inizia"
+    },
+    "footer": {
+      "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
+      "company": "Azienda",
+      "resources": "Risorse",
+      "connect": "Connettiti",
+      "about": "Chi siamo",
+      "contact": "Contatti",
+      "privacyPolicy": "Politica privacy",
+      "termsOfService": "Termini di servizio",
+      "dpa": "Accordo elaborazione dati",
+      "documentation": "Documentazione",
+      "pricing": "Prezzi",
+      "github": "GitHub",
+      "bluesky": "Bluesky",
+      "discord": "Discord",
+      "copyright": "© {year} Betterlytics. Tutti i diritti riservati. Open source sotto licenza AGPL-3.0."
+    }
+  },
+  "pricingCards": {
+    "periodPerMonth": "/mese",
+    "descriptions": {
+      "growth": "Perfetto per piccoli siti web e progetti personali",
+      "professional": "Funzionalità avanzate per aziende in crescita",
+      "enterprise": "Soluzione completa per grandi organizzazioni"
+    },
+    "features": {
+      "upToEventsPerMonth": "Fino a {events} eventi/mese",
+      "allFeatures": "Tutte le funzionalità dashboard e analitiche",
+      "oneSite": "1 sito",
+      "upTo50Sites": "Fino a 50 siti",
+      "unlimitedSites": "Siti illimitati",
+      "retention1PlusYear": "Conservazione dati 1+ anno",
+      "retention3PlusYears": "Conservazione dati 3+ anni",
+      "retention5PlusYears": "Conservazione dati 5+ anni",
+      "emailSupport": "Supporto email",
+      "prioritySupport": "Supporto prioritario",
+      "dedicatedSupport": "Supporto dedicato e aiuto",
+      "slaGuarantee": "Garanzia SLA",
+      "everythingInStarter": "Tutto in Starter",
+      "everythingInProfessional": "Tutto in Professional"
+    },
+    "cta": {
+      "getStartedForFree": "Inizia gratis",
+      "contactSales": "Contatta vendite",
+      "getStarted": "Inizia",
+      "currentPlan": "Piano attuale",
+      "changeToThisPlan": "Cambia a questo piano",
+      "contactUs": "Contattaci"
+    },
+    "badges": {
+      "mostPopular": "Più popolare",
+      "current": "Attuale"
+    },
+    "labels": {
+      "free": "Gratuito",
+      "custom": "Personalizzato"
+    }
+  },
+  "dashboard": {
+    "sidebar": {
+      "overview": "Panoramica",
+      "pages": "Pagine",
+      "referrers": "Siti di riferimento",
+      "geography": "Geografia",
+      "userJourney": "Percorso utente",
+      "funnels": "Funnel",
+      "devices": "Dispositivi",
+      "campaigns": "Campagne",
+      "events": "Eventi",
+      "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}"
+    },
+    "metrics": {
+      "uniqueVisitors": "Visitatori unici",
+      "totalPageviews": "Visualizzazioni totali",
+      "bounceRate": "Frequenza di rimbalzo",
+      "avgVisitDuration": "Durata media visita"
+    },
+    "sections": {
+      "topPages": "Pagine principali",
+      "geography": "Geografia",
+      "devicesBreakdown": "Suddivisione per dispositivo",
+      "trafficSources": "Sorgenti di traffico",
+      "customEvents": "Eventi personalizzati"
+    },
+    "tabs": {
+      "pages": "Pagine",
+      "entryPages": "Pagine di ingresso",
+      "exitPages": "Pagine di uscita",
+      "topCountries": "Paesi principali",
+      "worldMap": "Mappa mondiale",
+      "browsers": "Browser",
+      "devices": "Dispositivi",
+      "operatingSystems": "Sistemi operativi",
+      "referrers": "Siti di riferimento",
+      "sources": "Fonti",
+      "channels": "Canali",
+      "events": "Eventi"
+    },
+    "emptyStates": {
+      "noPageData": "Nessun dato di pagina disponibile",
+      "noEntryPagesData": "Nessun dato sulle pagine di ingresso disponibile",
+      "noExitPagesData": "Nessun dato sulle pagine di uscita disponibile",
+      "noCountryData": "Nessun dato per paese disponibile",
+      "noWorldMapData": "Nessun dato per la mappa mondiale disponibile",
+      "noBrowserData": "Nessun dato per browser disponibile",
+      "noDeviceData": "Nessun dato per dispositivo disponibile",
+      "noOperatingSystemData": "Nessun dato per sistema operativo disponibile",
+      "noReferrerData": "Nessun dato per sito di riferimento disponibile",
+      "noSourceData": "Nessun dato per fonte disponibile",
+      "noChannelData": "Nessun dato per canale disponibile",
+      "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile"
+    }
+  },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Periodo attuale",
+      "previousPeriod": "Periodo precedente"
+    }
+  },
+  "misc": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "app": "Applicazione",
+    "created": "Creato",
+    "unknown": "Sconosciuto"
+  },
+  "languages": {
+    "da": "Danish",
+    "en": "English",
+    "it": "Italiano"
+  },
+  "components": {
+    "devices": {
+      "tables": {
+        "topOperatingSystems": "Sistemi operativi principali",
+        "mostCommonOperatingSystems": "Sistemi operativi più comuni",
+        "topBrowsers": "Browser principali",
+        "mostCommonBrowsers": "Browser più comuni"
+      },
+      "charts": {
+        "deviceTypes": "Tipo di dispositivo",
+        "visitorsByDeviceCategory": "Visitatori per categoria dispositivo",
+        "deviceUsageTrend": "Tendenza utilizzo dispositivi",
+        "visitorTrendsByDeviceType": "Tendenza visitatori per tipo dispositivo"
+      },
+      "trends": {
+        "noData": "Nessun dato di tendenza disponibile",
+        "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri"
+      }
+    },
+    "campaign": {
+      "tabs": {
+        "overview": "Panoramica",
+        "utmBreakdowns": "Ripartizione UTM",
+        "landingPages": "Pagine di destinazione"
+      }
+    },
+    "events": {
+      "log": {
+        "waiting": "In attesa di eventi...",
+        "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",
+        "loadingMore": "Caricamento di altri eventi...",
+        "noEvents": "Nessun evento trovato",
+        "showingAll": "Mostrati tutti i {count} eventi",
+        "showingPartial": "Mostrati {loaded} di {total} eventi",
+        "title": "Registro eventi",
+        "description": "Tracciamento attività in tempo reale",
+        "loading": "Caricamento eventi..."
+      },
+      "table": {
+        "eventName": "Nome evento",
+        "count": "Numero",
+        "uniqueUsers": "Utenti unici",
+        "avgPerUser": "Media per utente",
+        "lastSeen": "Ultima visualizzazione",
+        "percentage": "Percentuale",
+        "noEvents": "Nessun evento trovato",
+        "noEventsDesc": "Nessun evento personalizzato tracciato in questo periodo. Gli eventi appariranno qui quando inizieranno a essere registrati.",
+        "eventDetails": "Dettagli evento",
+        "uniqueEvent": "Evento unico",
+        "uniqueEvents": "Eventi unici"
+      }
+    },
+    "funnels": {
+      "list": {
+        "steps": "passaggi",
+        "conversionRate": "Tasso di conversione",
+        "completed": "Completato",
+        "totalUsers": "Utenti totali",
+        "largestDropOff": "Perdita maggiore"
+      },
+      "create": {
+        "defaultName": "Il mio nuovo funnel",
+        "createFunnel": "Crea Funnel",
+        "createFunnelLower": "Crea funnel",
+        "description": "Crea un nuovo funnel per il tuo sito.",
+        "name": "Nome",
+        "namePlaceholder": "Nome del mio funnel",
+        "strictMode": "Modalità ristretta",
+        "addStep": "Aggiungi passaggio",
+        "livePreview": "Anteprima live (ultime 24 ore)",
+        "create": "Crea",
+        "successMessage": "Funnel creato!",
+        "errorMessage": "Creazione funnel fallita!"
+      }
+    },
+    "pages": {
+      "summary": {
+        "pagesPerSession": "Pagine per sessione",
+        "totalPageviews": "Visualizzazioni totali",
+        "avgTimeOnPage": "Tempo medio sulla pagina",
+        "avgBounceRate": "Frequenza di rimbalzo media"
+      },
+      "table": {
+        "path": "Percorso",
+        "filterByPath": "Filtra per {path}",
+        "visitors": "Visitatori",
+        "pageviews": "Visualizzazioni",
+        "bounceRate": "Frequenza di rimbalzo",
+        "avgTime": "Tempo medio",
+        "entryRate": "Tasso di ingresso",
+        "exitRate": "Tasso di uscita",
+        "allPages": "Tutte le pagine",
+        "entryPages": "Pagine di ingresso",
+        "exitPages": "Pagine di uscita",
+        "title": "Analisi pagine",
+        "description": "Analisi di tutte le pagine monitorate"
+      }
+    },
+    "referrers": {
+      "charts": {
+        "distribution": "Distribuzione siti di riferimento",
+        "trafficByCategory": "Fonti di traffico per categoria",
+        "trafficTrends": "Trend traffico di riferimento",
+        "trafficBySourceOverTime": "Traffico per fonte nel tempo"
+      },
+      "table": {
+        "details": "Dettagli sito di riferimento",
+        "detailsDescription": "Analisi dettagliata delle fonti di traffico"
+      }
+    },
+    "geography": {
+      "noData": "Nessun dato geografico disponibile per il periodo selezionato",
+      "loading": "Caricamento mappa...",
+      "visitors": "Visitatori"
+    },
+    "userJourney": {
+      "steps": "Passaggi",
+      "topJourneys": "Principali {journeys} percorsi",
+      "noData": "Nessun dato di percorso disponibile per i criteri selezionati."
+    },
+    "integration": {
+      "title": "Integrazione sito",
+      "description": "Aggiungi lo script di tracciamento al tuo sito per iniziare a raccogliere dati",
+      "fullyIntegrated": "Integrato completamente",
+      "notFullyIntegrated": "Non completamente integrato",
+      "loadingDetails": "Caricamento dettagli integrazione...",
+      "unableToLoadSiteId": "Impossibile caricare l'ID del sito",
+      "failedToCopy": "Copia non riuscita",
+      "important": "Importante",
+      "headSectionNote": "Aggiungi questo script alla sezione {head} del layout principale o delle singole pagine.",
+      "npmPackageNote": "Oppure installa il nostro pacchetto <npm>npm</npm> <package>@betterlytics/tracker</package> per una configurazione semplice nei progetti Node.",
+      "yourSiteId": "ID del tuo sito",
+      "trackingScript": "Script di tracciamento",
+      "copied": "Copiato",
+      "copy": "Copia",
+      "htmlInstallation": "Installazione HTML",
+      "nextjsInstallation": "Installazione Next.js",
+      "reactInstallation": "Installazione React",
+      "initializeNpmPackage": "Inizializza usando il nostro pacchetto <npm>npm</npm>",
+      "integrationStatus": "Stato integrazione",
+      "trackProgress": "Traccia i tuoi progressi",
+      "accountCreated": "Account creato",
+      "accountReady": "Il tuo account è pronto",
+      "siteIdGenerated": "ID sito generato",
+      "uniqueIdentifier": "Il tuo identificatore univoco",
+      "dataReceiving": "Ricezione dati",
+      "analyticsDataFlowing": "Flusso dati attivo",
+      "needHelp": "Serve aiuto?",
+      "resourcesToGetStarted": "Risorse per iniziare",
+      "documentation": "Documentazione",
+      "troubleshooting": "Risoluzione problemi",
+      "contactSupport": "Contatta il supporto",
+      "verifying": "Verifica in corso...",
+      "verifyInstallation": "Verifica installazione"
+    }
+  }
+}

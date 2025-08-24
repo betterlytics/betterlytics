@@ -10,6 +10,7 @@ import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
+import { getUserSettings } from '@/services/userSettings';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -88,6 +89,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.totpEnabled = user.totpEnabled;
         token.hasPassword = Boolean((user as unknown as { passwordHash?: string | null })?.passwordHash);
+
         if (account?.provider === 'google') {
           const emailVerifiedByGoogle = Boolean((profile as any)?.email_verified);
           const userIsUnverified = !user.emailVerified;
@@ -107,20 +109,37 @@ export const authOptions: NextAuthOptions = {
           }
         }
       } else if (trigger === 'update' && token.email) {
-        try {
-          const freshUser = await findUserByEmail(token.email as string);
-          if (freshUser) {
-            token.uid = freshUser.id;
-            token.name = freshUser.name;
-            token.email = freshUser.email;
-            token.emailVerified = freshUser.emailVerified || null;
-            token.role = freshUser.role;
-            token.totpEnabled = freshUser.totpEnabled;
-            token.hasPassword = Boolean(freshUser.passwordHash);
+        // Clears TTL on fetching user
+        token.userLastFetched = 0;
+      }
+
+      // Fetch user / user settings to token / session on cache TTL expirery
+      if (token.uid) {
+        const staleThreshold = 5 * 60 * 1000;
+        const isStale = !token.userLastFetched || Date.now() - token.userLastFetched > staleThreshold;
+        if (isStale) {
+          try {
+            const freshUser = await findUserByEmail(token.email as string);
+            if (freshUser) {
+              // Refresh user
+              token.uid = freshUser.id;
+              token.name = freshUser.name;
+              token.email = freshUser.email;
+              token.emailVerified = freshUser.emailVerified || null;
+              token.role = freshUser.role;
+              token.totpEnabled = freshUser.totpEnabled;
+              token.hasPassword = Boolean(freshUser.passwordHash);
+
+              // Refresh usersettings
+              const freshSettings = await getUserSettings(token.uid);
+              token.settings = freshSettings;
+
+              // Update TTL
+              token.userLastFetched = Date.now();
+            }
+          } catch (error) {
+            console.error('Error refreshing user:', error);
           }
-        } catch (error) {
-          console.error('Error refreshing user data in JWT callback:', error);
-          // We keep existing token data if refresh fails
         }
       }
       return token;
@@ -134,6 +153,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.totpEnabled = token.totpEnabled;
         session.user.hasPassword = token.hasPassword;
+        session.user.settings = token.settings;
       }
       return session;
     },

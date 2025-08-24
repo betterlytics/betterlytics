@@ -1,0 +1,977 @@
+{
+  "public": {
+    "about": {
+      "aboutUs": "About Betterlytics",
+      "intro": "We're building the future of web analytics: privacy-first, open source, and designed for the modern web. No more choosing between powerful insights and respecting your visitors' privacy.",
+      "sections": {
+        "howWeStarted": {
+          "title": "How We Started",
+          "p1": "Betterlytics was born out of real frustration. Our team was developing a Vendor Management System when we hit a wall with web analytics. Every solution we evaluated forced us into the same impossible choice: either compromise our users' privacy or settle for inadequate insights.",
+          "p2": "Traditional analytics tools force you to choose between comprehensive insights and user privacy. We believe that's a false choice. Betterlytics proves you can have powerful, actionable analytics while being completely privacy-compliant and respectful of your visitors.",
+          "p3": "What started as a solution for our own needs became something much bigger: a mission to build analytics tools that respect both website owners and their visitors. Every feature is designed with privacy and performance as equal priorities."
+        },
+        "whyPrivacyFirst": {
+          "title": "Why Privacy-First Analytics Matter",
+          "p1": "The web analytics industry has been dominated by surveillance capitalism for too long. Major analytics providers collect vast amounts of personal data, track users across websites, and use this information to build detailed behavioral profiles for advertising purposes.",
+          "p2": "We don't believe website owners should have to compromise their visitors' privacy to understand how their site performs. Betterlytics collects only the essential metrics you need: no cookies, no personal data, no cross-site tracking. Your visitors' privacy is respected by default."
+        },
+        "builtInOpen": {
+          "title": "Built in the Open",
+          "p1": "Betterlytics is completely open source under the AGPL-3.0 license. This isn't just about transparency, it's about accountability. Anyone can inspect our code, verify our privacy claims, and contribute to making the platform better.",
+          "p2": "Open source also means freedom. You can self-host Betterlytics on your own infrastructure, ensuring complete control over your data. No vendor lock-in, no surprise policy changes, no sudden price increases."
+        },
+        "privacyPerformance": {
+          "title": "Privacy and Performance in Perfect Balance",
+          "p1": "We obsess over both privacy and performance equally because your website's speed matters just as much as your visitors' privacy. Our tracking script weighs less than 2KB. Compare that to Google Analytics' bloated 45KB+ payload. Built with modern web standards and optimized for speed, Betterlytics won't slow down your site.",
+          "p2": "Under the hood, we use cutting-edge technology: Rust for high-performance data processing, ClickHouse for lightning-fast analytical queries, and Next.js 15 for a modern, responsive dashboard experience. Every technical decision prioritizes both user privacy and system performance."
+        },
+        "builtForEveryone": {
+          "title": "Built for Everyone",
+          "p1": "Whether you're running a personal blog, a growing SaaS platform, an e-commerce store, or an enterprise website, Betterlytics is designed to meet your needs. We understand that different organizations have different requirements, from simple traffic insights to complex user journey analysis.",
+          "p2": "Integration takes minutes, not hours. Our dashboard is intuitive and well-documented, showing you what you need to know without drowning you in unnecessary complexity. While we don't have a public API yet, every dashboard feature is thoroughly documented to help you get the most out of your analytics."
+        },
+        "privacyRegulations": {
+          "title": "Privacy Regulations Made Simple",
+          "p1": "GDPR, CCPA, PECR compliant. Privacy regulations shouldn't be a compliance nightmare. Because Betterlytics doesn't collect personal data or use cookies, you're compliant by default. No cookie banners required, no consent management needed.",
+          "p2": "This simplicity extends to your users too. They can focus on your content instead of being interrupted by privacy notices and consent forms. Better experience for everyone.",
+          "p3Prefix": "We're based in the European Union and all data processing occurs within EU boundaries. Your data never leaves the EU, ensuring full compliance with GDPR requirements. For detailed information about how we handle your data, see our",
+          "privacyPolicyLabel": "privacy policy"
+        },
+        "communityDriven": {
+          "title": "Community-Driven Development",
+          "p1": "Betterlytics grows through community feedback and contributions. We listen to developers, implement requested features, and maintain the platform based on real user needs; not investor demands or advertising revenue requirements. We want to deeply thank our community for their feedback and contributions.",
+          "p2": "Our sustainable business model means we can focus on building the best analytics platform possible. We're funded by our users, not by selling their data. This alignment of incentives ensures we'll always prioritize privacy and performance and never compromise on either."
+        },
+        "future": {
+          "title": "The Future of Web Analytics",
+          "quote": "We believe businesses should be able to understand their audience without sacrificing privacy or making needless compromises on ethics. Analytics can be both powerful and respectful by design.",
+          "p1": "This vision drives everything we build. Every feature, every optimization, every decision is guided by our commitment to privacy-first analytics that everyone can trust and use."
+        }
+      },
+      "cta": {
+        "title": "Ready to Get Started?",
+        "lead": "Join the growing community of businesses who refuse to compromise on privacy.",
+        "getStarted": "Get Started Free",
+        "viewDocs": "View Documentation",
+        "docsTitle": "Complete Betterlytics Documentation"
+      }
+    },
+    "contact": {
+      "title": "Contact Us",
+      "intro": "Questions about Betterlytics? Need support with your analytics setup? Our team is ready to assist you.",
+      "getInTouch": {
+        "title": "Get in Touch",
+        "description": "Whether you need technical support, have questions about our features, or want to discuss enterprise solutions, we're here to help. Choose the method that works best for you:"
+      },
+      "methods": {
+        "email": {
+          "title": "Email",
+          "description": "hello@betterlytics.io"
+        },
+        "github": {
+          "title": "GitHub",
+          "description": "github.com/betterlytics/betterlytics"
+        },
+        "discord": {
+          "title": "Discord",
+          "description": "Join our Discord Server"
+        },
+        "bluesky": {
+          "title": "Bluesky",
+          "description": "@betterlytics.bsky.social"
+        }
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "items": {
+          "integrate": {
+            "question": "How do I integrate Betterlytics with my website?",
+            "answer": "Integration is simple! Just add our lightweight script tag to your website or install our NPM package. Check our documentation for detailed setup guides for all major frameworks."
+          },
+          "gdpr": {
+            "question": "Is Betterlytics really GDPR compliant?",
+            "answer": "Yes, absolutely! We don't use cookies, don't collect personal data, and all data processing is done in compliance with GDPR, CCPA, and other privacy regulations."
+          },
+          "migrate": {
+            "question": "Can I migrate from Google Analytics?",
+            "answer": "Not yet! But we're working hard to implement this feature and will provide a migration guide and tools to help you transition from Google Analytics."
+          },
+          "freePlan": {
+            "question": "What's included in the free plan?",
+            "answer": "The free self-hosted plan includes up to 10,000 tracked events, full dashboard access and community support. Perfect for getting started! No credit card required, no strings attached."
+          },
+          "cloud": {
+            "question": "How does the cloud hosting work?",
+            "answer": "Our cloud hosting provides a fully managed Betterlytics instance with automatic updates, backups, and 99.9% uptime SLA. No server management required!"
+          },
+          "support": {
+            "question": "Do you offer support for self-hosted instances?",
+            "answer": "Partially! We provide community support through GitHub and Discord for self-hosted instances, but our priority is to support our cloud hosting customers."
+          }
+        }
+      },
+      "cta": {
+        "lead": "Can't find what you're looking for?",
+        "docsLinkText": "Check our full documentation →",
+        "docsLinkTitle": "Complete Betterlytics Documentation"
+      }
+    },
+    "privacy": {
+      "title": "Betterlytics Privacy Policy",
+      "lastUpdated": "Last updated:",
+      "tldr": {
+        "title": "TL;DR",
+        "body": "For website visitors, we do not use cookies and we do not collect any personal data. If you decide to create an account, we ask for the bare minimum and only share it with services that are absolutely necessary for the app to function."
+      },
+      "scope": {
+        "title": "Scope of This Policy",
+        "body": "This privacy policy applies exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. It does not apply to self-hosted installations of our open source software. If you self-host Betterlytics, you are responsible for your own privacy policy, data processing practices, and legal compliance."
+      },
+      "intro": {
+        "p1": "At Betterlytics, we are committed to complying with GDPR, CCPA, PECR and other privacy regulations. The privacy of your data — and it is your data, not ours! — is a big deal to us. We are based in the European Union and all data processing occurs within EU boundaries.",
+        "p2": "In this policy, we lay out what data we collect and why, how your data is handled and your rights to your data. We promise we never sell your data: never have, never will."
+      },
+      "visitor": {
+        "title": "As a visitor to websites using Betterlytics",
+        "lead": "The privacy of website visitors is important to us. We have designed our analytics system to be completely cookieless and privacy-focused. As a visitor to websites using Betterlytics:",
+        "li1": "No personal information is collected",
+        "li2": "No cookies are stored in your browser",
+        "li3": "No information is shared with, sent to or sold to third-parties",
+        "li4": "No information is shared with advertising companies",
+        "li5": "No information is mined and harvested for personal and behavioral trends",
+        "li6": "No information is monetized",
+        "li7": "All data collected is aggregated and anonymized"
+      },
+      "anonymous": {
+        "title": "What anonymous data we collect and why",
+        "pageViews": {
+          "title": "Page Views and Navigation",
+          "body": "We track which pages are visited and navigation patterns to help website owners understand how their content is being consumed. We collect the URL path (without query parameters to prevent accidental tracking of sensitive data) and referrer information."
+        },
+        "deviceBrowser": {
+          "title": "Device and Browser Information",
+          "body": "We parse the user agent string to determine browser type, operating system, and device category (mobile, tablet, desktop, laptop). Screen resolution is bucketed into categories (small, medium, large) rather than storing exact dimensions."
+        },
+        "geographic": {
+          "title": "Geographic Information",
+          "body": "We determine the visitor's country from their IP address using a GeoIP database. The IP address itself is immediately anonymized by removing the last octet (IPv4) or using only the first 64 bits (IPv6) before any processing."
+        },
+        "anonymousId": {
+          "title": "Anonymous Visitor Identification",
+          "body": "We generate an anonymous visitor fingerprint using a cryptographic hash of the anonymized IP address, bucketed screen resolution, browser name, and a daily rotating salt. This allows us to count unique visitors without tracking individuals. The fingerprint changes daily, ensuring long-term anonymity."
+        },
+        "sessionTracking": {
+          "title": "Session Tracking",
+          "body": "We track sessions to understand how visitors engage with websites. Sessions automatically expire after 30 minutes of inactivity and are stored only in server memory, never in cookies or browser storage."
+        }
+      },
+      "processStore": {
+        "title": "How we process and store data",
+        "li1": "EU-based hosting: All data is processed and stored on servers located within the European Union, ensuring GDPR compliance.",
+        "li2": "Immediate anonymization: IP addresses are anonymized immediately upon receipt, before any processing or storage occurs.",
+        "li3": "No cross-site tracking: Each website's data is isolated and tracked separately with unique site identifiers.",
+        "li4": "Aggregated reporting: All analytics reports show aggregated data only, with no ability to identify individual visitors.",
+        "li5": "Daily fingerprint rotation: Visitor fingerprints change daily, preventing long-term tracking of individuals."
+      },
+      "customer": {
+        "title": "As a customer and subscriber of Betterlytics",
+        "lead": "Our guiding principle is to collect only what we need and process this information solely to provide you with the service you signed up for.",
+        "whatWeCollect": {
+          "title": "What we collect and why",
+          "email": "Email address: Required to create an account, send you essential service communications, and provide customer support.",
+          "auth": "Authentication data: Secure session tokens to keep you logged in to your dashboard.",
+          "websiteConfig": "Website configuration: Domain names and site settings you configure for your analytics tracking.",
+          "usage": "Usage data: How you use our dashboard to improve our service and provide support."
+        },
+        "thirdParty": {
+          "title": "Third-party services",
+          "intro": "We use a select number of trusted, EU-based service providers:",
+          "li1": "Payment processing (if applicable) through EU-compliant payment processors",
+          "li2": "Email delivery for transactional emails and notifications",
+          "outro": "We only share the minimum necessary information with these providers and contractually bind them to protect your data according to GDPR standards."
+        }
+      },
+      "dataRetention": {
+        "title": "Data retention",
+        "li1": "Account deletion: When you delete your account, ALL data is permanently deleted immediately - this includes your personal data (email, payment information, account settings) AND all website analytics data. No exceptions, no retention period.",
+        "li2": "Subscription cancellation (without account deletion): If you cancel your subscription but keep your account, we retain your analytics data for up to 1 month in case you decide to reactivate, after which it is permanently deleted.",
+        "li3": "Session data: Visitor sessions are stored only in server memory and automatically expire after 30 minutes of inactivity.",
+        "footer": "You always have the right to immediate deletion of all data."
+      },
+      "rights": {
+        "title": "Your rights under GDPR",
+        "intro": "As a data subject under GDPR, you have the following rights:",
+        "li1": "Right of access: Request a copy of your personal data",
+        "li2": "Right to rectification: Correct inaccurate personal data",
+        "li3": "Right to erasure: Request deletion of your personal data",
+        "li4": "Right to restrict processing: Limit how we use your data",
+        "li5": "Right to data portability: Receive your data in a portable format",
+        "li6": "Right to object: Object to processing based on legitimate interests",
+        "li7": "Right to withdraw consent: Withdraw consent for data processing",
+        "contact": "To exercise any of these rights, please contact us at privacy@betterlytics.io"
+      },
+      "noCookies": {
+        "title": "No cookies policy",
+        "body": "Betterlytics does not use any cookies for tracking website visitors. We achieve all necessary analytics functionality through cookieless, server-side processing. This means websites using Betterlytics do not need to display cookie consent banners for our analytics tracking."
+      },
+      "security": {
+        "title": "Data security",
+        "li1": "All data transmission is encrypted using TLS 1.3",
+        "li2": "Data at rest is encrypted using industry-standard encryption",
+        "li3": "Access to data is strictly limited to authorized personnel",
+        "li4": "All servers are located in secure EU data centers"
+      },
+      "changes": {
+        "title": "Changes to this privacy policy",
+        "body": "We may update this policy as needed to comply with relevant regulations and reflect any new practices. Whenever we make significant changes to our policies, we will notify our customers via email and announce them on our website."
+      },
+      "contact": {
+        "title": "Contact us",
+        "lead": "If you have any questions, comments, or concerns about this privacy policy, your data, or your rights with respect to your information, please contact us:",
+        "email": "Email:",
+        "address": "Address:",
+        "footer1": "🇪🇺 Made and hosted in the European Union",
+        "footer2": "Committed to privacy, transparency, and GDPR compliance"
+      }
+    },
+    "terms": {
+      "title": "Betterlytics Terms of Service",
+      "lastUpdated": "Last updated:",
+      "scope": {
+        "title": "Scope of These Terms",
+        "body": "These Terms of Service apply exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. They do not apply to self-hosted installations of our open source software. If you self-host Betterlytics, you are responsible for your own terms of service, data processing, and legal compliance."
+      },
+      "intro": {
+        "p1": "Thank you for using Betterlytics! When we say \"company\", \"we\", \"our\", \"us\", \"service\" or \"services\" in this document, we are referring to Betterlytics and our privacy-focused web analytics platform.",
+        "p2": "We may update these Terms of Service in the future. Whenever we make significant changes to our policies, we will notify our customers via email and announce them on our website. When you use our service, now or in the future, you are agreeing to the latest Terms of Service.",
+        "p3": "If you do not agree to these Terms of Service, do not use this service. Violation of any of the terms below may result in the termination of your account."
+      },
+      "account": {
+        "title": "Account Terms",
+        "li1": "Security responsibility: You are responsible for maintaining the security of your account and password. Betterlytics cannot and will not be liable for any loss or damage from your failure to comply with this security obligation.",
+        "li2": "Account activity: You are responsible for any activity that occurs under your account, including activity by team members you invite to your account.",
+        "li3": "Legal compliance: You may not use our service for any illegal purpose or to violate any laws in your jurisdiction.",
+        "li4": "Registration requirements: You must provide a valid email address to complete the signup process. You must be a human - accounts registered by bots or automated methods are not permitted.",
+        "li5": "Website ownership: You must own or have explicit permission to install our analytics script on any website you track with Betterlytics.",
+        "li6": "Data accuracy: You agree to provide accurate information about your websites and not to intentionally send false or misleading data to our service.",
+        "li7": "Age requirements: You must be at least 18 years old to use our service. If you are between 13-17, you may use our service only with parental consent."
+      },
+      "acceptableUse": {
+        "title": "Acceptable Use",
+        "intro": "Betterlytics is designed for legitimate website analytics and is built as an open source project for transparency. You agree not to use our service to:",
+        "li1": "Track visitors without their knowledge or in violation of privacy laws",
+        "li2": "Collect personally identifiable information (our system is designed to prevent this)",
+        "li3": "Generate artificial or bot traffic to inflate statistics or abuse our infrastructure",
+        "li4": "Track websites you don't own without explicit permission",
+        "li5": "Abuse our service infrastructure, bypass rate limits, or send malformed data that could harm our systems",
+        "li6": "Use our service to harm, harass, or violate the privacy of any individual",
+        "li7": "Violate any applicable laws, including GDPR, CCPA, or other privacy regulations"
+      },
+      "payment": {
+        "title": "Payment, Refunds, and Plan Changes",
+        "freeTierTitle": "Free Tier",
+        "freeTierBody": "We offer a permanently free tier with a monthly event limit as specified on our pricing page. No credit card is required for the free tier. We do not sell your data - ever, regardless of which plan you use.",
+        "billingTitle": "Billing",
+        "billingBody": "You can use our free tier indefinitely within the monthly event limits. For higher usage, you need to upgrade to a paid plan and pay in advance. If you exceed plan limits without upgrading, you risk losing excess data. If paid accounts become overdue, we will freeze the account until payment is made.",
+        "limitsTitle": "Event Limits",
+        "limitsBody": "Each plan includes a monthly limit of events (pageviews, custom events, etc.). Unused events do not roll over to the next month. You will never be charged extra for occasional traffic spikes. If you consistently exceed your plan limits for two consecutive months, we will contact you to discuss upgrading.",
+        "planChangesTitle": "Plan Changes",
+        "planChangesBody": "You can upgrade or downgrade your plan at any time. Upgrades take effect immediately. Downgrading may result in loss of features or capacity. We do not accept liability for any data loss resulting from plan downgrades.",
+        "refundsTitle": "Refunds",
+        "refundsBody": "All fees are non-refundable. However, if you experience significant service issues within the first 30 days, please contact us and we'll work with you to find a fair solution."
+      },
+      "cancellation": {
+        "title": "Cancellation and Termination",
+        "importantTitle": "Important: Two Types of Cancellation",
+        "li1": "Subscription cancellation: Keeps your account but stops billing. Analytics data retained for 1 month.",
+        "li2": "Account deletion: Permanently deletes everything immediately, including all analytics data.",
+        "howToTitle": "How to Cancel",
+        "howToBody": "You can cancel your subscription or delete your account entirely through your account settings. An email request alone is not considered proper cancellation.",
+        "whatHappensTitle": "What Happens When You Cancel",
+        "whLi1": "Subscription cancellation: Your cancellation takes effect at the end of your current billing period. You won't be charged again. Your analytics data becomes inaccessible but is retained for 1 month in case you return, then permanently deleted.",
+        "whLi2": "Account deletion: All data (personal and analytics) is permanently deleted immediately. This cannot be undone.",
+        "ourRightTitle": "Our Right to Terminate",
+        "ourRightBody": "We reserve the right to suspend or terminate your account for violation of these terms, illegal activity, or abuse of our service or team members. We will provide notice when possible, but immediate termination may be necessary in severe cases."
+      },
+      "serviceMods": {
+        "title": "Service Modifications and Pricing",
+        "li1": "Service changes: We reserve the right to modify or discontinue any part of the service with or without notice. We will communicate significant changes affecting your usage in advance when possible.",
+        "li2": "Pricing changes: We may change our pricing structure. Existing customers are typically exempt from price increases, but we reserve the right to change prices for all customers with at least 30 days notice via email.",
+        "li3": "Feature updates: We regularly improve our service with new features and enhancements. Some features may require plan upgrades."
+      },
+      "dataOwnership": {
+        "title": "Data Ownership and Privacy",
+        "yourRightsTitle": "Your Data Rights",
+        "yourRightsBody": "You own 100% of your analytics data. We claim no intellectual property rights over your website data and will never sell or share it with third parties.",
+        "dpaTitle": "Data Processing Agreement",
+        "dpaBodyPrefix": "For enterprise customers and GDPR compliance, our comprehensive Data Processing Agreement (DPA) is available at",
+        "dpaBodySuffix": ". The DPA forms part of these Terms of Service and governs how we process data on your behalf.",
+        "whatWeCollectTitle": "What We Collect",
+        "whatWeCollectBody": "Our service is designed to be privacy-first and cookieless. We collect only anonymous, aggregated data as detailed in our Privacy Policy. We do not collect personally identifiable information.",
+        "yourResponsibilitiesTitle": "Your Responsibilities",
+        "yrLi1": "Ensure your use of our service complies with all applicable privacy laws (GDPR, CCPA, etc.)",
+        "yrLi2": "Update your privacy policy to mention the use of Betterlytics for anonymous analytics (note: no cookie consent banner is typically required since our service is cookieless)",
+        "yrLi3": "Do not attempt to send sensitive information (credit cards, personal data, etc.) through our service, including in URL paths or query parameters.",
+        "yrLi4": "Maintain security of your account and immediately report any unauthorized access",
+        "ourCommitmentsTitle": "Our Commitments",
+        "ocLi1": "Process your data only as described in our Privacy Policy",
+        "ocLi2": "Implement appropriate security measures to protect your data",
+        "ocLi3": "Never sell, share, or monetize your analytics data",
+        "ocLi4": "Provide EU-based hosting and processing for GDPR compliance",
+        "ocLi5": "Delete your data immediately upon account deletion"
+      },
+      "sla": {
+        "title": "Service Level and Support",
+        "availabilityTitle": "Service Availability",
+        "availabilityBody": "We strive for high availability but provide the service on an \"as is\" and \"as available\" basis. We make no guarantees about uptime, though we work hard to maintain reliable service.",
+        "supportTitle": "Support",
+        "supportBody": "Technical support is provided via email on a reasonable effort basis. We aim to respond promptly but do not guarantee specific response times.",
+        "bugsTitle": "Bugs and Issues",
+        "bugsBody": "We test our features extensively, but no software is perfect. We track reported bugs and prioritize fixes, especially for security or privacy issues. Not all reported bugs will be fixed immediately."
+      },
+      "liability": {
+        "title": "Liability and Disclaimers",
+        "p1": "You expressly understand and agree that Betterlytics shall not be liable for any direct, indirect, incidental, special, consequential, or exemplary damages, including but not limited to:",
+        "li1": "Loss of profits, goodwill, use, data, or other intangible losses",
+        "li2": "The use or inability to use our services",
+        "li3": "Unauthorized access to or alteration of your data",
+        "li4": "Statements or conduct of any third party",
+        "li5": "Any other matter relating to these Terms or our services",
+        "note": "What this means: While we work hard to provide reliable, privacy-focused analytics, technology isn't perfect and things can go wrong. By using Betterlytics, you understand that we can't be held responsible for any business losses or problems that might result from service issues. We're committed to earning your trust through transparency, strong security practices, and putting your privacy first.",
+        "p2": "This agreement shall be governed by the laws of the European Union and the jurisdiction where Betterlytics is legally established."
+      },
+      "ip": {
+        "title": "Intellectual Property",
+        "li1": "Your content: You retain all rights to any content you provide to our service. Your website data remains yours.",
+        "li2": "Our service: The look, feel, and functionality of Betterlytics is our intellectual property. You may not copy, modify, or reverse engineer our service.",
+        "li3": "Feedback: If you provide feedback or suggestions about our service, you agree that we may use and incorporate that feedback without payment or attribution.",
+        "li4": "Trademarks: \"Betterlytics\" and our logo are our trademarks. You may not use them without written permission, except to identify our service in connection with your legitimate use.",
+        "li5": "Open source components: Our analytics script and core components are released under open source licenses. This does not grant rights to our hosted service, trademarks, or proprietary infrastructure."
+      },
+      "updates": {
+        "title": "Updates and Communication",
+        "p1": "We may update these Terms of Service from time to time. When we make significant changes:",
+        "li1": "We will notify you via email at least 30 days in advance",
+        "li2": "We will post updates on our website",
+        "li3": "Continued use of our service after changes take effect constitutes acceptance",
+        "li4": "If you don't agree with changes, you may cancel your account"
+      },
+      "contact": {
+        "title": "Contact Us",
+        "lead": "If you have any questions about these Terms of Service, please contact us:",
+        "email": "Email:",
+        "support": "Support:",
+        "address": "Address:",
+        "footer1": "🇪🇺 Made and hosted in the European Union",
+        "footer2": "Privacy-focused analytics you can trust"
+      }
+    },
+    "dpa": {
+      "title": "Data Processing Agreement (DPA)",
+      "lastUpdated": "Last updated:",
+      "scope": {
+        "title": "Scope of This DPA",
+        "body": "This Data Processing Agreement applies exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. It does not apply to self-hosted installations of our open source software. If you self-host Betterlytics, you are responsible for your own data processing agreements and legal compliance."
+      },
+      "whyDifferent": {
+        "title": "Why This DPA Is Different",
+        "body": "Unlike traditional analytics services, Betterlytics is designed to be anonymous-by-design. We process no personal data, making this one of the simplest DPAs in the analytics industry."
+      },
+      "intro": {
+        "title": "1. Introduction",
+        "p1": "This Data Processing Agreement (\"DPA\") forms part of the Betterlytics Terms of Service and governs the processing of data when you use our analytics service. This agreement is designed to ensure compliance with the General Data Protection Regulation (GDPR) and other applicable data protection laws.",
+        "p2": "Important: Betterlytics is specifically designed to process only anonymous, aggregated data. No personal data is collected, stored, or processed by our service."
+      },
+      "definitions": {
+        "title": "2. Definitions",
+        "controller": "\"Data Controller\": You (the customer) who determines the purposes and means of processing data from your website visitors.",
+        "processor": "\"Data Processor\": Betterlytics, who processes data on your behalf according to your instructions.",
+        "processing": "\"Processing\": In our case, the collection and analysis of anonymous, aggregated website analytics data.",
+        "personalData": "\"Personal Data\": Not applicable - Betterlytics is designed to avoid processing any personal data."
+      },
+      "processingDetails": {
+        "title": "3. Data Processing Details",
+        "naturePurposeTitle": "3.1 Nature and Purpose of Processing",
+        "npLi1": "Providing anonymous website analytics and visitor insights",
+        "npLi2": "Generating aggregated reports on website traffic and usage patterns",
+        "npLi3": "Detecting and filtering bot traffic for accurate statistics",
+        "categoriesTitle": "3.2 Categories of Data",
+        "categoriesIntro": "Anonymous data only:",
+        "catLi1": "Anonymized IP addresses (last octet removed immediately)",
+        "catLi2": "Bucketed screen resolutions (small/medium/large categories)",
+        "catLi3": "Browser and operating system information",
+        "catLi4": "Country-level geographic data",
+        "catLi5": "Page URLs and referrer information",
+        "catLi6": "Daily-rotating visitor fingerprints (anonymous identification)",
+        "subjectsTitle": "3.3 Data Subjects",
+        "subjectsBody": "Not applicable - our system is designed to prevent identification of individual data subjects. All data is processed in aggregate and anonymous form only.",
+        "locationTitle": "3.4 Processing Location",
+        "locationBody": "All data processing occurs within the European Union on servers located in secure EU data centers."
+      },
+      "instructions": {
+        "title": "4. Your Instructions",
+        "intro": "By using Betterlytics, you instruct us to:",
+        "li1": "Collect anonymous analytics data from your website visitors",
+        "li2": "Process this data to generate website analytics and insights",
+        "li3": "Store the data for the duration of your subscription",
+        "li4": "Delete all data immediately upon account deletion",
+        "li5": "Provide you with analytics reports and access to your data"
+      },
+      "security": {
+        "title": "5. Security Measures",
+        "intro": "Betterlytics implements appropriate technical and organizational measures to ensure data security:",
+        "li1": "All data transmission encrypted using TLS 1.2/1.3",
+        "li2": "Data at rest encrypted using industry-standard encryption",
+        "li3": "Access controls limiting data access to authorized personnel only",
+        "li4": "Regular security audits and updates",
+        "li5": "EU-based servers in secure data centers",
+        "li6": "Immediate IP anonymization at data collection point"
+      },
+      "subprocessors": {
+        "title": "6. Subprocessors",
+        "intro": "Betterlytics may engage the following categories of subprocessors:",
+        "li1": "Infrastructure providers: EU-based cloud hosting and infrastructure services",
+        "notice": "We will notify you of any changes to our subprocessors and obtain your consent where required by law."
+      },
+      "rights": {
+        "title": "7. Data Subject Rights",
+        "body": "Not applicable: Since Betterlytics processes only anonymous data, individual data subject rights (access, rectification, erasure, etc.) do not apply to our analytics data. Visitors cannot be identified in our system, making individual rights requests impossible to fulfill."
+      },
+      "breach": {
+        "title": "8. Data Breach Notification",
+        "intro": "In the unlikely event of a security incident affecting our service:",
+        "li1": "We will notify you within 72 hours of becoming aware of any incident",
+        "li2": "We will provide details of the incident and our response measures",
+        "li3": "We will assist with any required notifications to data protection authorities",
+        "li4": "Note: Risk to individuals is minimal given our anonymous-only data processing"
+      },
+      "deletion": {
+        "title": "9. Data Deletion and Return",
+        "accountTitle": "Account Deletion",
+        "accountBody": "All data (personal and analytics) is permanently deleted immediately upon account deletion.",
+        "subscriptionTitle": "Subscription Cancellation",
+        "subscriptionBody": "Analytics data is retained for 1 month in case you return, then permanently deleted.",
+        "exportTitle": "Data Export",
+        "exportBody": "You can export your analytics data at any time through your dashboard."
+      },
+      "compliance": {
+        "title": "10. Audits and Compliance",
+        "intro": "Betterlytics maintains compliance through:",
+        "li1": "Regular internal security and privacy assessments",
+        "li2": "Transparent, open-source codebase for technical verification",
+        "li3": "Public privacy policy and terms of service",
+        "li4": "Commitment to cooperate with reasonable audit requests from enterprise customers"
+      },
+      "contact": {
+        "title": "Contact for DPA Matters",
+        "lead": "For questions about this DPA or data processing practices:",
+        "legal": "Legal inquiries:",
+        "technical": "Technical questions:",
+        "footer": "This DPA is automatically accepted when you use Betterlytics and forms part of our Terms of Service. 🇪🇺 Anonymous-by-design analytics - Made and hosted in the European Union"
+      }
+    },
+    "auth": {
+      "signin": {
+        "title": "Sign in to your account",
+        "subtitle": "Access your analytics dashboard",
+        "errors": {
+          "CredentialsSignin": "Invalid email or password. Please check your credentials and try again.",
+          "default": "An error occurred during sign in. Please try again."
+        },
+        "cta": {
+          "noAccount": "Don't have an account?",
+          "createOne": "Create one"
+        }
+      },
+      "register": {
+        "title": "Create your account",
+        "subtitle": "Get started for free — set up your analytics in minutes",
+        "cta": {
+          "haveAccount": "Already have an account?",
+          "signIn": "Sign in"
+        },
+        "disabled": {
+          "title": "Registration Disabled",
+          "description": "Registration is currently disabled on this instance.",
+          "backToSignIn": "Back to Sign In"
+        }
+      },
+      "forgotPassword": {
+        "title": "Reset your password",
+        "subtitle": "Enter your email and we'll send you a password reset link",
+        "cta": {
+          "remember": "Remember your password?",
+          "backToSignIn": "Back to Sign In"
+        }
+      },
+      "resetPassword": {
+        "invalid": {
+          "title": "Invalid Reset Link",
+          "description": "This password reset link is invalid or missing a token.",
+          "note": "Please request a new password reset link.",
+          "requestLink": "Request New Reset Link"
+        },
+        "expired": {
+          "title": "Reset Link Expired",
+          "description": "This password reset link has expired or is invalid.",
+          "info": "Password reset links expire after 1 hour for security reasons. Please request a new one.",
+          "requestLink": "Request New Reset Link"
+        },
+        "form": {
+          "title": "Set your new password",
+          "description": "Enter your new password below"
+        },
+        "cta": {
+          "remember": "Remember your password?",
+          "backToSignIn": "Back to Sign In"
+        }
+      },
+      "verifyEmail": {
+        "invalid": {
+          "title": "Invalid Verification Link",
+          "description": "The verification link is invalid or missing. Please check your email and try again.",
+          "backToSignIn": "Back to Sign In"
+        },
+        "failed": {
+          "title": "Verification Failed",
+          "expiredInfo": "Verification links expire after 24 hours for security. You can request a new one and try again.",
+          "genericFallback": "An error occurred during verification."
+        },
+        "buttons": {
+          "returnToDashboard": "Return to Dashboard",
+          "backToSignIn": "Back to Sign In"
+        },
+        "helpLine": "Need help? Contact support at support@betterlytics.io"
+      }
+    },
+    "landing": {
+      "seo": {
+        "title": "Betterlytics | Simple, Cookieless, Privacy-Friendly Web Analytics",
+        "description": "Betterlytics is a privacy-first Google Analytics alternative. Get GDPR-compliant, cookieless insights without invasive tracking. Simple, open-source, and easy to use."
+      },
+      "hero": {
+        "badge": "Open Source • GDPR Compliant • Cookieless",
+        "titleTop": "Privacy-First",
+        "titleBottom": "Web Analytics",
+        "description": "Get powerful insights without compromising your users' privacy. GDPR-compliant, cookieless analytics that respects user privacy while delivering the data you need.",
+        "ctaPrimary": "Get Started for Free",
+        "ctaGithub": "View on GitHub"
+      },
+      "framework": {
+        "title": "Works with your favorite tools",
+        "subtitle": "Universal compatibility - works with any website, framework, or platform",
+        "footer": "And countless more... If it runs on the web, we support it!"
+      },
+      "principles": {
+        "titleEmphasis": "High-performance",
+        "titleRest": "analytics that respects privacy",
+        "subtitle": "Real-time insights, lightning-fast performance, and complete privacy compliance for everyone",
+        "features": {
+          "euGdpr": {
+            "title": "EU-Based & GDPR Compliant",
+            "description": "Servers hosted in the EU with strict data protection standards. Complete GDPR compliance with anonymous data collection and robust privacy safeguards."
+          },
+          "noConsent": {
+            "title": "No Consent Banner Required",
+            "description": "Fully anonymous analytics mean no cookie banners, no GDPR consent forms, no user friction. Just install and start tracking immediately."
+          },
+          "dataOwnership": {
+            "title": "Complete Data Ownership",
+            "description": "Your data stays yours forever. Self-host with our open-source version or use our secure cloud infrastructure."
+          },
+          "realtime": {
+            "title": "Real-time Business Insights",
+            "description": "Lightning-fast visitor tracking and conversion analytics worldwide. Beautiful dashboards help you make data-driven decisions instantly."
+          },
+          "lightweight": {
+            "title": "Lightweight & Developer-Friendly",
+            "description": "Under 1KB script, open-source codebase, and comprehensive APIs. Built by developers, for developers."
+          },
+          "simpleSetup": {
+            "title": "Simple Setup, Powerful Features",
+            "description": "One-line integration for any website. Advanced customization options and enterprise-grade features available."
+          }
+        }
+      },
+      "showcase": {
+        "titleEmphasis": "Powerful features",
+        "titleRest": "at your fingertips",
+        "subtitle": "Explore the full arsenal of analytics capabilities",
+        "docsButton": "Explore All Features",
+        "docsTitle": "Complete Betterlytics Documentation"
+      },
+      "integration": {
+        "titleStart": "Get started in",
+        "titleEmphasis": "under 2 minutes",
+        "subtitle": "Add our lightweight script and start collecting cookieless, privacy-friendly analytics immediately. No cookies, no personal data, no consent banners required.",
+        "cards": {
+          "script": {
+            "title": "Simple Script Tag",
+            "description": "Add one line to your HTML and start tracking immediately. Works with any website or CMS.",
+            "features": { "f1": "One-line installation", "f2": "Works anywhere", "f3": "No build process needed" }
+          },
+          "framework": {
+            "title": "Framework Ready",
+            "description": "Native support for React, Next.js, Vue, and other modern frameworks with TypeScript.",
+            "features": { "f1": "TypeScript support", "f2": "Framework components", "f3": "Tree-shakeable" }
+          },
+          "selfHosted": {
+            "title": "Self-Hosted Option",
+            "description": "Deploy on your own infrastructure with Docker for complete data ownership and control.",
+            "features": { "f1": "Docker deployment", "f2": "Complete control", "f3": "GDPR compliant" }
+          }
+        },
+        "guideButton": "View Integration Guide",
+        "guideTitle": "Betterlytics Integration Guide",
+        "footer": "Detailed installation instructions for all platforms and frameworks"
+      },
+      "openSource": {
+        "titleEmphasis": "Open Source",
+        "titleRest": "& Community Driven",
+        "subtitle": "Transparent, community-driven development. Join our contributors, request features, or adapt the platform to your unique requirements.",
+        "starOnGithub": "Star on GitHub",
+        "viewDocs": "View Documentation",
+        "docsTitle": "Complete Betterlytics Documentation"
+      },
+      "pricing": {
+        "titleEmphasis": "Simple, scalable",
+        "titleRest": "pricing",
+        "subtitle": "Traffic-based plans that matches your growth. Start free, scale as you grow.",
+        "footer": "Start with our free plan - no credit card required."
+      },
+      "cards": {
+        "advancedFilters": {
+          "title": "Advanced Filters",
+          "description": "Slice and dice your analytics data by any dimension to uncover actionable insights."
+        },
+        "trafficSources": {
+          "title": "Traffic Sources",
+          "description": "Discover where your visitors are arriving from and optimize your marketing efforts.",
+          "totalVisitors": "Total Visitors",
+          "thisMonth": "this month",
+          "visitorsLabel": "visitors",
+          "sources": {
+            "googleSearch": "Google Search",
+            "direct": "Direct",
+            "socialMedia": "Social Media",
+            "email": "Email",
+            "other": "Other"
+          }
+        },
+        "funnels": {
+          "title": "Funnels",
+          "description": "Track the conversion rate of your website's key user journeys.",
+          "total": "Total",
+          "dropOff": "drop off",
+          "sinceLastWeek": "since last week"
+        },
+        "events": {
+          "title": "Real-time Events",
+          "description": "Track every user interaction as it happens with detailed event logging.",
+          "showing": "Showing {loaded} of {total} events"
+        },
+        "journeys": {
+          "title": "User Journeys",
+          "description": "Track multiple user paths and see how visitors navigate through your site."
+        },
+        "worldMap": {
+          "title": "Geographical Analytics",
+          "description": "See where your visitors are coming from around the world.",
+          "topCountries": "Top Countries"
+        }
+      }
+    },
+    "nav": {
+      "documentation": "Documentation",
+      "pricing": "Pricing",
+      "goToDashboard": "Go to Dashboard",
+      "getStarted": "Get Started"
+    },
+    "footer": {
+      "blurb": "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
+      "company": "Company",
+      "resources": "Resources",
+      "connect": "Connect",
+      "about": "About",
+      "contact": "Contact",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "dpa": "Data Processing Agreement",
+      "documentation": "Documentation",
+      "pricing": "Pricing",
+      "github": "GitHub",
+      "bluesky": "Bluesky",
+      "discord": "Discord",
+      "copyright": "© {year} Betterlytics. All rights reserved. Open source under AGPL-3.0 license."
+    }
+  },
+  "pricingCards": {
+    "periodPerMonth": "/month",
+    "descriptions": {
+      "growth": "Perfect for small websites and personal projects",
+      "professional": "Advanced features for growing businesses",
+      "enterprise": "Complete solution for large organizations"
+    },
+    "features": {
+      "upToEventsPerMonth": "Up to {events} events/month",
+      "allFeatures": "All dashboard & analytics features",
+      "oneSite": "1 site",
+      "upTo50Sites": "Up to 50 sites",
+      "unlimitedSites": "Unlimited sites",
+      "retention1PlusYear": "1+ year data retention",
+      "retention3PlusYears": "3+ years data retention",
+      "retention5PlusYears": "5+ years data retention",
+      "emailSupport": "Email support",
+      "prioritySupport": "Priority support",
+      "dedicatedSupport": "Dedicated support & help",
+      "slaGuarantee": "SLA guarantee",
+      "everythingInStarter": "Everything in Starter",
+      "everythingInProfessional": "Everything in Professional"
+    },
+    "cta": {
+      "getStartedForFree": "Get Started for Free",
+      "contactSales": "Contact Sales",
+      "getStarted": "Get Started",
+      "currentPlan": "Current Plan",
+      "changeToThisPlan": "Change to This Plan",
+      "contactUs": "Contact Us"
+    },
+    "badges": {
+      "mostPopular": "Most Popular",
+      "current": "Current"
+    },
+    "labels": {
+      "free": "Free",
+      "custom": "Custom"
+    }
+  },
+  "dashboard": {
+    "sidebar": {
+      "overview": "Overview",
+      "pages": "Pages",
+      "referrers": "Referrers",
+      "geography": "Geography",
+      "userJourney": "User Journey",
+      "funnels": "Funnels",
+      "devices": "Devices",
+      "campaigns": "Campaigns",
+      "events": "Events",
+      "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}"
+    },
+    "metrics": {
+      "uniqueVisitors": "Unique Visitors",
+      "totalPageviews": "Total Pageviews",
+      "bounceRate": "Bounce Rate",
+      "avgVisitDuration": "Avg. Visit Duration"
+    },
+    "sections": {
+      "topPages": "Top Pages",
+      "geography": "Geography",
+      "devicesBreakdown": "Devices Breakdown",
+      "trafficSources": "Traffic Sources",
+      "customEvents": "Custom Events"
+    },
+    "tabs": {
+      "pages": "Pages",
+      "entryPages": "Entry Pages",
+      "exitPages": "Exit Pages",
+      "topCountries": "Top Countries",
+      "worldMap": "World Map",
+      "browsers": "Browsers",
+      "devices": "Devices",
+      "operatingSystems": "Operating Systems",
+      "referrers": "Referrers",
+      "sources": "Sources",
+      "channels": "Channels",
+      "events": "Events"
+    },
+    "emptyStates": {
+      "noPageData": "No page data available",
+      "noEntryPagesData": "No entry pages data available",
+      "noExitPagesData": "No exit pages data available",
+      "noCountryData": "No country data available",
+      "noWorldMapData": "No world map data available",
+      "noBrowserData": "No browser data available",
+      "noDeviceData": "No device data available",
+      "noOperatingSystemData": "No operating system data available",
+      "noReferrerData": "No referrer data available",
+      "noSourceData": "No source data available",
+      "noChannelData": "No channel data available",
+      "noCustomEventsData": "No custom events data available"
+    }
+  },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Current Period",
+      "previousPeriod": "Previous Period"
+    }
+  },
+  "misc": {
+    "loading": "Loading...",
+    "error": "Error",
+    "app": "Application",
+    "created": "Created",
+    "unknown": "Unknown"
+  },
+  "languages": {
+    "da": "Danish",
+    "en": "English"
+  },
+  "components": {
+    "devices": {
+      "tables": {
+        "topOperatingSystems": "Top Operating Systems",
+        "mostCommonOperatingSystems": "Most common operating systems",
+        "topBrowsers": "Top Browsers",
+        "mostCommonBrowsers": "Most common browsers"
+      },
+      "charts": {
+        "deviceTypes": "Device Types",
+        "visitorsByDeviceCategory": "Visitors by device category",
+        "deviceUsageTrend": "Device Usage Trend",
+        "visitorTrendsByDeviceType": "Visitor trends by device type"
+      },
+      "trends": {
+        "noData": "No trend data available",
+        "adjustTimeRange": "Try adjusting the time range or filters"
+      }
+    },
+    "campaign": {
+      "tabs": {
+        "overview": "Overview",
+        "utmBreakdowns": "UTM Breakdowns",
+        "landingPages": "Landing Pages"
+      }
+    },
+    "events": {
+      "log": {
+        "waiting": "Waiting for events...",
+        "realTimeDesc": "Events will appear here in real-time as they occur",
+        "loadingMore": "Loading more events...",
+        "noEvents": "No events found",
+        "showingAll": "Showing all {count} events",
+        "showingPartial": "Showing {loaded} of {total} events",
+        "title": "Event Log",
+        "description": "Real-time activity tracking",
+        "loading": "Loading events..."
+      },
+      "table": {
+        "eventName": "Event Name",
+        "count": "Count",
+        "uniqueUsers": "Unique Users",
+        "avgPerUser": "Avg per User",
+        "lastSeen": "Last Seen",
+        "percentage": "Percentage",
+        "noEvents": "No events found",
+        "noEventsDesc": "No custom events were tracked during this time period. Events will appear here once they start being recorded.",
+        "eventDetails": "Event Details",
+        "uniqueEvent": "Unique Event",
+        "uniqueEvents": "Unique Events"
+      }
+    },
+    "funnels": {
+      "list": {
+        "steps": "steps",
+        "conversionRate": "Conversion rate",
+        "completed": "Completed",
+        "totalUsers": "Total users",
+        "largestDropOff": "Largest drop-off"
+      },
+      "create": {
+        "defaultName": "My new funnel",
+        "createFunnel": "Create Funnel",
+        "createFunnelLower": "Create funnel",
+        "description": "Create a new funnel for your website.",
+        "name": "Name",
+        "namePlaceholder": "My Funnel Name",
+        "strictMode": "Strict Mode",
+        "addStep": "Add Step",
+        "livePreview": "Live Preview (Past 24 Hours)",
+        "create": "Create",
+        "successMessage": "Funnel created!",
+        "errorMessage": "Funnel creation failed!"
+      }
+    },
+    "pages": {
+      "summary": {
+        "pagesPerSession": "Pages per Session",
+        "totalPageviews": "Total Pageviews",
+        "avgTimeOnPage": "Avg. Time on Page",
+        "avgBounceRate": "Avg. Bounce Rate"
+      },
+      "table": {
+        "path": "Path",
+        "filterByPath": "Filter by {path}",
+        "visitors": "Visitors",
+        "pageviews": "Pageviews",
+        "bounceRate": "Bounce Rate",
+        "avgTime": "Avg. Time",
+        "entryRate": "Entry Rate",
+        "exitRate": "Exit Rate",
+        "allPages": "All Pages",
+        "entryPages": "Entry Pages",
+        "exitPages": "Exit Pages",
+        "title": "Page Analytics",
+        "description": "Analytics for all tracked pages"
+      }
+    },
+    "referrers": {
+      "charts": {
+        "distribution": "Referrer Distribution",
+        "trafficByCategory": "Traffic sources by category",
+        "trafficTrends": "Referral Traffic Trends",
+        "trafficBySourceOverTime": "Traffic by source over time"
+      },
+      "table": {
+        "details": "Referrer Details",
+        "detailsDescription": "Detailed breakdown of traffic sources"
+      }
+    },
+    "geography": {
+      "noData": "No geographic data available for the selected period",
+      "loading": "Loading map...",
+      "visitors": "Visitors"
+    },
+    "userJourney": {
+      "steps": "Steps",
+      "topJourneys": "Top {journeys} Journeys",
+      "noData": "No journey data available for the selected criteria."
+    },
+    "integration": {
+      "title": "Website Integration",
+      "description": "Add the tracking script to your website to start collecting analytics data",
+      "fullyIntegrated": "Fully Integrated",
+      "notFullyIntegrated": "Not Fully Integrated",
+      "loadingDetails": "Loading integration details...",
+      "unableToLoadSiteId": "Unable to load site ID",
+      "failedToCopy": "Failed to copy",
+      "important": "Important",
+      "headSectionNote": "Add this script to the {head} section of your root layout or individual pages.",
+      "npmPackageNote": "Or install our <npm>npm</npm> package <package>@betterlytics/tracker</package> for easy setup for Node projects.",
+      "yourSiteId": "Your Site ID",
+      "trackingScript": "Tracking Script",
+      "copied": "Copied",
+      "copy": "Copy",
+      "htmlInstallation": "HTML Installation",
+      "nextjsInstallation": "Next.js Installation",
+      "reactInstallation": "React Installation",
+      "initializeNpmPackage": "Initialize using our <npm>npm</npm> package",
+      "integrationStatus": "Integration Status",
+      "trackProgress": "Track your progress",
+      "accountCreated": "Account Created",
+      "accountReady": "Your account is ready",
+      "siteIdGenerated": "Site ID Generated",
+      "uniqueIdentifier": "Your unique identifier",
+      "dataReceiving": "Data Receiving",
+      "analyticsDataFlowing": "Analytics data flowing",
+      "needHelp": "Need Help?",
+      "resourcesToGetStarted": "Resources to get started",
+      "documentation": "Documentation",
+      "troubleshooting": "Troubleshooting",
+      "contactSupport": "Contact Support",
+      "verifying": "Verifying...",
+      "verifyInstallation": "Verify Installation"
+    }
+  }
+}
