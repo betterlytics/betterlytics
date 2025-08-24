@@ -608,7 +608,11 @@
           "script": {
             "title": "Tag script semplice",
             "description": "Aggiungi una riga al tuo HTML e inizia a tracciare immediatamente. Funziona con qualsiasi sito web o CMS.",
-            "features": { "f1": "Installazione di una riga", "f2": "Funziona ovunque", "f3": "Nessun processo di build necessario" }
+            "features": {
+              "f1": "Installazione di una riga",
+              "f2": "Funziona ovunque",
+              "f3": "Nessun processo di build necessario"
+            }
           },
           "framework": {
             "title": "Pronto per i framework",
@@ -972,7 +976,26 @@
       "troubleshooting": "Risoluzione problemi",
       "contactSupport": "Contatta il supporto",
       "verifying": "Verifica in corso...",
-      "verifyInstallation": "Verifica installazione"
+      "verifyInstallation": "Verifica installazione",
+      "noDataBanner": {
+        "title": "Integrazione richiesta",
+        "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati analitici. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
+        "setup": "Configura integrazione",
+        "dismiss": "Chiudi"
+      }
+    },
+    "accountVerification": {
+      "banner": {
+        "title": "Verifica il tuo indirizzo email",
+        "body": "Ciao {name}! Ti abbiamo inviato un'email di verifica a <strong>{email}</strong>. Fai clic sul link nell'email per verificare il tuo account.",
+        "resend": "Reinvia email di verifica",
+        "sending": "Invio in corso...",
+        "sentLabel": "Email inviata! Controlla la tua casella di posta.",
+        "help": "Non trovi l'email? Controlla la cartella spam o attendi qualche minuto.",
+        "dismiss": "Chiudi",
+        "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
+        "toastFailure": "Invio dell'email di verifica non riuscito"
+      }
     }
   }
 }

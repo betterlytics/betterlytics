@@ -975,7 +975,26 @@
       "troubleshooting": "Problemløsning",
       "contactSupport": "Kontakt support",
       "verifying": "Verificerer...",
-      "verifyInstallation": "Verificer installation"
+      "verifyInstallation": "Verificer installation",
+      "noDataBanner": {
+        "title": "Integration påkrævet",
+        "description": "Dit dashboard er klart, men vi modtager endnu ikke nogen analysedata. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
+        "setup": "Opsæt integration",
+        "dismiss": "Skjul"
+      }
+    },
+    "accountVerification": {
+      "banner": {
+        "title": "Bekræft venligst din e-mailadresse",
+        "body": "Hej {name}! Vi har sendt en bekræftelsesmail til <strong>{email}</strong>. Klik på linket i e-mailen for at bekræfte din konto.",
+        "resend": "Send bekræftelsesmail igen",
+        "sending": "Sender...",
+        "sentLabel": "E-mail sendt! Tjek din indbakke.",
+        "help": "Kan du ikke finde e-mailen? Tjek din spammappe eller vent et par minutter.",
+        "dismiss": "Skjul",
+        "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
+        "toastFailure": "Kunne ikke sende bekræftelsesmail"
+      }
     }
   }
 }
