@@ -752,10 +752,10 @@
       "referrers": "Referrers",
       "geography": "Geography",
       "userJourney": "User Journey",
-      "funnels": "Tragter",
-      "devices": "Enheder",
-      "campaigns": "Kampagner",
-      "events": "Hændelser",
+      "funnels": "Funnels",
+      "devices": "Devices",
+      "campaigns": "Campaigns",
+      "events": "Events",
       "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}"
     },
     "metrics": {
