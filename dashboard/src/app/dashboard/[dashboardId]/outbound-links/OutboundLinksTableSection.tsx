@@ -26,15 +26,17 @@ export default function OutboundLinksTableSection({
         accessorKey: 'outbound_link_url',
         header: 'Destination URL',
         cell: ({ row }) => (
-          <ExternalLink
-            href={`https://${row.original.current.outbound_link_url}`}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
-          >
+          <div className='flex items-center gap-2'>
             <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
-            {row.original.current.outbound_link_url}
-          </ExternalLink>
+            <ExternalLink
+              href={`https://${row.original.current.outbound_link_url}`}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
+            >
+              {row.original.current.outbound_link_url}
+            </ExternalLink>
+          </div>
         ),
         accessorFn: (row) => row.current.outbound_link_url,
       },
