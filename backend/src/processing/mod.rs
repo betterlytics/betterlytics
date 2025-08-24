@@ -188,9 +188,11 @@ impl EventProcessor {
         } else if event_name == "outbound_link" {
             processed.event_type = "outbound_link".to_string();
             // Process and clean outbound link URL
-            if let Some(ref outbound_url) = processed.event.raw.outbound_link_url {
-                let outbound_info = process_outbound_link(outbound_url);
-                processed.outbound_link_url = outbound_info.url;
+            if let Some(ref outbound_url_str) = processed.event.raw.outbound_link_url {
+                if let Some(ref outbound_url) = Url::parse(&outbound_url_str).ok() {
+                    let outbound_info = process_outbound_link(outbound_url);
+                    processed.outbound_link_url = outbound_info.url;
+                }
             }
         } else {
             processed.event_type = event_name;

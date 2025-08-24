@@ -21,20 +21,3 @@ pub fn normalize_url(url: &Url) -> Option<String> {
 
     Some(normalized)
 }
-
-/// Returns the domain of a url string:
-pub fn get_domain(url_str: &str) -> String {
-    match Url::parse(url_str) {
-        Ok(parsed_url) => {
-            let parsed_domain = parsed_url.domain();
-            match parsed_domain {
-                Some(domain) => domain.trim_start_matches("www.").to_string(),
-                None => parsed_url.to_string()
-            }
-        }
-        Err(_) => {
-            // If URL parsing fails, return as-is (validation should catch this earlier)
-            url_str.to_string()
-        }
-    }
-}

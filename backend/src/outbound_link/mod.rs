@@ -1,4 +1,5 @@
-use crate::url_utils::get_domain;
+use crate::url_utils::normalize_url;
+use url::Url;
 
 /// Outbound link information for analytics tracking
 #[derive(Debug, Clone, Default)]
@@ -10,11 +11,11 @@ pub struct OutboundLinkInfo {
 /// Process and clean an outbound link URL for storage
 /// 
 /// This function returns the domain of the url
-pub fn process_outbound_link(url: &str) -> OutboundLinkInfo {
-    let cleaned_url = get_domain(url);
-    
+pub fn process_outbound_link(url: &Url) -> OutboundLinkInfo {
+    let cleaned_url = normalize_url(&url);
+    let cleaned_url_str: String = cleaned_url.unwrap();
     OutboundLinkInfo {
-        url: cleaned_url
+        url: cleaned_url_str
     }
 }
 

@@ -20,6 +20,9 @@
         };
       }) ?? [];
 
+  // "off" | "domain" | "full" (defaults to "domain")
+  var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
+
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
   }
@@ -53,17 +56,6 @@
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
-    // Generate visitor ID from browser fingerprint
-    var visitorId = (function (fingerprint) {
-      var hash = 0;
-      for (var i = 0; i < fingerprint.length; i++) {
-        var char = fingerprint.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash;
-      }
-      return Math.abs(hash).toString(16);
-    })(userAgent + screenResolution);
-
     // Send tracking data
     fetch(serverUrl, {
       method: "POST",
@@ -80,7 +72,6 @@
         referrer: referrer,
         user_agent: userAgent,
         screen_resolution: screenResolution,
-        visitor_id: visitorId,
         timestamp: Math.floor(Date.now() / 1000),
         ...overrides,
       }),
@@ -135,25 +126,33 @@
   }
 
   // Outbound link tracking
-  function isOutboundLink(link) {
-    try {
-      var linkUrl = new URL(link.href, window.location.href);
-      return (
-        linkUrl.hostname !== window.location.hostname && linkUrl.hostname !== ""
-      );
-    } catch (e) {
-      return false;
+  function parseOutboundLink(link) {
+    var linkUrl = URL.parse(link.href, window.location.origin);
+    if (
+      linkUrl &&
+      linkUrl.hostname !== window.location.hostname &&
+      linkUrl.hostname !== ""
+    ) {
+      return outboundLinks === "domain"
+        ? linkUrl.origin
+        : linkUrl.origin + linkUrl.pathname;
     }
+    return false;
   }
 
-  // Set up outbound link click tracking
-  document.addEventListener("click", function (event) {
-    var target = event.target.closest("a");
-
-    if (target && target.href && isOutboundLink(target)) {
-      trackEvent("outbound_link", {
-        outbound_link_url: target.href,
-      });
-    }
-  });
+  // Only enable if outbounds is set to "domain" or "full"
+  if (["domain", "full"].includes(outboundLinks)) {
+    // Set up outbound link click tracking
+    document.addEventListener("click", function (event) {
+      var target = event.target.closest("a");
+      if (target && target.href) {
+        const parsed = parseOutboundLink(target);
+        if (parsed) {
+          trackEvent("outbound_link", {
+            outbound_link_url: parsed,
+          });
+        }
+      }
+    });
+  }
 })();
