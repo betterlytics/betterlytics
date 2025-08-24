@@ -112,6 +112,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const freshUser = await findUserByEmail(token.email as string);
           if (freshUser) {
+            token.settingsLastFetched = 0;
             token.uid = freshUser.id;
             token.name = freshUser.name;
             token.email = freshUser.email;
