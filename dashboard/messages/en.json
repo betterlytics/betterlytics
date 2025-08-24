@@ -773,6 +773,7 @@
     },
     "tabs": {
       "pages": "Pages",
+      "userJourney": "User Journey",
       "entryPages": "Entry Pages",
       "exitPages": "Exit Pages",
       "topCountries": "Top Countries",
@@ -977,9 +978,13 @@
       "visitors": "Visitors"
     },
     "userJourney": {
+      "page": {
+        "description": "Visualize how users navigate across key paths."
+      },
       "steps": "Steps",
       "topJourneys": "Top {journeys} Journeys",
-      "noData": "No journey data available for the selected criteria."
+      "noData": "No journey data available for the selected criteria.",
+      "sessions": "Sessions"
     },
     "integration": {
       "title": "Website Integration",

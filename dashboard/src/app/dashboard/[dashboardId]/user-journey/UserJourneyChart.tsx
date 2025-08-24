@@ -1,6 +1,7 @@
 'use client';
 
 import { SankeyData } from '@/entities/userJourney';
+import { useTranslations } from 'next-intl';
 import { Sankey, Rectangle, ResponsiveContainer, Layer, Text } from 'recharts';
 import { useState, useRef, useEffect, useMemo, memo, useCallback } from 'react';
 
@@ -123,6 +124,7 @@ const NodeLabel = memo(({ x, y, width, height, url, count }: NodeLabelProps) => 
 NodeLabel.displayName = 'NodeLabel';
 
 export default function UserJourneyChart({ data }: UserJourneyChartProps) {
+  const t = useTranslations('components.userJourney');
   const [activeLink, setActiveLink] = useState<number | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
@@ -306,7 +308,9 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
         <p className='font-medium text-gray-800'>
           {tooltip.content.source} → {tooltip.content.target}
         </p>
-        <p className='text-sm text-gray-600'>Sessions: {tooltip.content.value}</p>
+        <p className='text-sm text-gray-600'>
+          {t('sessions')}: {tooltip.content.value}
+        </p>
       </div>
     );
   }, [tooltip.visible, tooltip.content, tooltip.x, tooltip.y]);

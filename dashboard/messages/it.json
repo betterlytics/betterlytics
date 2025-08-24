@@ -777,6 +777,7 @@
     },
     "tabs": {
       "pages": "Pagine",
+      "userJourney": "Percorso utente",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
       "topCountries": "Paesi principali",
@@ -982,9 +983,13 @@
       "visitors": "Visitatori"
     },
     "userJourney": {
+      "page": {
+        "description": "Visualizza come gli utenti navigano tra i percorsi chiave."
+      },
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
-      "noData": "Nessun dato di percorso disponibile per i criteri selezionati."
+      "noData": "Nessun dato di percorso disponibile per i criteri selezionati.",
+      "sessions": "Sessioni"
     },
     "integration": {
       "title": "Integrazione sito",
