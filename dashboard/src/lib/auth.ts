@@ -109,34 +109,36 @@ export const authOptions: NextAuthOptions = {
           }
         }
       } else if (trigger === 'update' && token.email) {
-        try {
-          const freshUser = await findUserByEmail(token.email as string);
-          if (freshUser) {
-            token.settingsLastFetched = 0;
-            token.uid = freshUser.id;
-            token.name = freshUser.name;
-            token.email = freshUser.email;
-            token.emailVerified = freshUser.emailVerified || null;
-            token.role = freshUser.role;
-            token.totpEnabled = freshUser.totpEnabled;
-            token.hasPassword = Boolean(freshUser.passwordHash);
-          }
-        } catch (error) {
-          console.error('Error refreshing user data in JWT callback:', error);
-        }
+        // Clears TTL on fetching user
+        token.userLastFetched = 0;
       }
 
-      // Add user settings to token / session
+      // Fetch user / user settings to token / session on cache TTL expirery
       if (token.uid) {
         const staleThreshold = 5 * 60 * 1000;
-        const isStale = !token.settingsLastFetched || Date.now() - token.settingsLastFetched > staleThreshold;
+        const isStale = !token.userLastFetched || Date.now() - token.userLastFetched > staleThreshold;
         if (isStale) {
           try {
-            const freshSettings = await getUserSettings(token.uid);
-            token.settings = freshSettings;
-            token.settingsLastFetched = Date.now();
+            const freshUser = await findUserByEmail(token.email as string);
+            if (freshUser) {
+              // Refresh user
+              token.uid = freshUser.id;
+              token.name = freshUser.name;
+              token.email = freshUser.email;
+              token.emailVerified = freshUser.emailVerified || null;
+              token.role = freshUser.role;
+              token.totpEnabled = freshUser.totpEnabled;
+              token.hasPassword = Boolean(freshUser.passwordHash);
+
+              // Refresh usersettings
+              const freshSettings = await getUserSettings(token.uid);
+              token.settings = freshSettings;
+
+              // Update TTL
+              token.userLastFetched = Date.now();
+            }
           } catch (error) {
-            console.error('Error refreshing user settings:', error);
+            console.error('Error refreshing user:', error);
           }
         }
       }

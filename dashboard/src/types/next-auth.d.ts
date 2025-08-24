@@ -30,6 +30,6 @@ declare module 'next-auth/jwt' {
     totpEnabled: boolean;
     hasPassword?: boolean;
     settings?: UserSettings;
-    settingsLastFetched?: number;
+    userLastFetched?: number;
   }
 }
