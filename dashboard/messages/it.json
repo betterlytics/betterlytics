@@ -806,6 +806,10 @@
       "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile"
     }
   },
+  "devicesPage": {
+    "title": "Dispositivi",
+    "description": "Suddivisione dei dispositivi dei visitatori e analisi d'uso"
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -838,7 +842,19 @@
       }
     },
     "devices": {
+      "summary": {
+        "distinctDeviceTypes": "Tipi di dispositivo distinti",
+        "mostPopularDevice": "Dispositivo più popolare",
+        "mostPopularOperatingSystem": "Sistema operativo più popolare",
+        "mostPopularBrowser": "Browser più popolare"
+      },
       "tables": {
+        "columns": {
+          "os": "Sistema operativo",
+          "browser": "Browser",
+          "visitors": "Visitatori",
+          "percentage": "Percentuale"
+        },
         "topOperatingSystems": "Sistemi operativi principali",
         "mostCommonOperatingSystems": "Sistemi operativi più comuni",
         "topBrowsers": "Browser principali",

@@ -806,6 +806,10 @@
       "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig"
     }
   },
+  "devicesPage": {
+    "title": "Enheder",
+    "description": "Opdeling af besøgendes enheder og anvendelsesanalyse"
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -837,7 +841,19 @@
       }
     },
     "devices": {
+      "summary": {
+        "distinctDeviceTypes": "Unikke enhedstyper",
+        "mostPopularDevice": "Mest populære enhed",
+        "mostPopularOperatingSystem": "Mest populære operativsystem",
+        "mostPopularBrowser": "Mest populære browser"
+      },
       "tables": {
+        "columns": {
+          "os": "Operativsystem",
+          "browser": "Browser",
+          "visitors": "Besøgende",
+          "percentage": "Procent"
+        },
         "topOperatingSystems": "Top operativsystemer",
         "mostCommonOperatingSystems": "Mest anvendte operativsystemer",
         "topBrowsers": "Top browsere",

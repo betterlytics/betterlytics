@@ -802,6 +802,10 @@
       "noCustomEventsData": "No custom events data available"
     }
   },
+  "devicesPage": {
+    "title": "Devices",
+    "description": "Visitor device breakdown and usage analytics"
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -833,7 +837,19 @@
       }
     },
     "devices": {
+      "summary": {
+        "distinctDeviceTypes": "Distinct Device Types",
+        "mostPopularDevice": "Most Popular Device",
+        "mostPopularOperatingSystem": "Most Popular Operating System",
+        "mostPopularBrowser": "Most Popular Browser"
+      },
       "tables": {
+        "columns": {
+          "os": "Operating System",
+          "browser": "Browser",
+          "visitors": "Visitors",
+          "percentage": "Percentage"
+        },
         "topOperatingSystems": "Top Operating Systems",
         "mostCommonOperatingSystems": "Most common operating systems",
         "topBrowsers": "Top Browsers",
