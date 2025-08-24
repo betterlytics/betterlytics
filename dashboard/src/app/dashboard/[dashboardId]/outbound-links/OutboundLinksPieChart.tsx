@@ -1,6 +1,7 @@
 'use client';
 
 import { use } from 'react';
+import { useTranslations } from 'next-intl';
 import BAPieChart from '@/components/BAPieChart';
 import { fetchOutboundLinksDistributionAction } from '@/app/actions/outboundLinks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,12 +35,13 @@ const formatUrl = (url: string): string => {
 
 export default function OutboundLinksPieChart({ distributionPromise }: OutboundLinksPieChartProps) {
   const distributionData = use(distributionPromise);
+  const t = useTranslations('components.outboundLinks.pieChart');
 
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Outbound Links Distribution</CardTitle>
-        <p className='text-muted-foreground text-xs'>Top outbound links by unique clicks</p>
+        <CardTitle>{t('title')}</CardTitle>
+        <p className='text-muted-foreground text-xs'>{t('description')}</p>
       </CardHeader>
       <CardContent className='flex flex-1 items-center justify-center'>
         <BAPieChart data={distributionData} getColor={getOutboundLinkColor} getLabel={formatUrl} />

@@ -939,6 +939,28 @@
       "topJourneys": "Top {journeys} Journeys",
       "noData": "No journey data available for the selected criteria."
     },
+    "outboundLinks": {
+      "summary": {
+        "totalUniqueClicks": "Total Unique Clicks",
+        "uniqueVisitors": "Unique Visitors", 
+        "topDomain": "Top Domain",
+        "topSourcePage": "Top Source Page"
+      },
+      "table": {
+        "title": "Outbound Link Performance",
+        "destinationUrl": "Destination URL",
+        "uniqueClicks": "Unique Clicks", 
+        "topReferrerPage": "Top Referrer Page",
+        "sourcePages": "Source Pages"
+      },
+      "chart": {
+        "title": "Unique Outbound Clicks Over Time"
+      },
+      "pieChart": {
+        "title": "Outbound Links Distribution",
+        "description": "Top outbound links by unique clicks"
+      }
+    },
     "integration": {
       "title": "Website Integration",
       "description": "Add the tracking script to your website to start collecting analytics data",

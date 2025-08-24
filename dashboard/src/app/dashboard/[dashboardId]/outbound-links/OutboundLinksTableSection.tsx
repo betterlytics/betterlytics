@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/outboundLinks';
 import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,12 +20,13 @@ export default function OutboundLinksTableSection({
   outboundLinksAnalyticsPromise,
 }: OutboundLinksTableSectionProps) {
   const outboundLinksData = use(outboundLinksAnalyticsPromise);
+  const t = useTranslations('components.outboundLinks.table');
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(
     () => [
       {
         accessorKey: 'outbound_link_url',
-        header: 'Destination URL',
+        header: t('destinationUrl'),
         cell: ({ row }) => (
           <div className='flex items-center gap-2'>
             <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
@@ -42,30 +44,30 @@ export default function OutboundLinksTableSection({
       },
       {
         accessorKey: 'clicks',
-        header: 'Unique Clicks',
+        header: t('uniqueClicks'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='clicks' />,
         accessorFn: (row) => row.current.clicks,
       },
       {
         accessorKey: 'top_source_url',
-        header: 'Top Referrer Page',
+        header: t('topReferrerPage'),
         cell: ({ row }) => <span className='text-sm break-all'>{row.original.current.top_source_url}</span>,
         accessorFn: (row) => row.current.top_source_url,
       },
       {
         accessorKey: 'source_url_count',
-        header: 'Source Pages',
+        header: t('sourcePages'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='source_url_count' />,
         accessorFn: (row) => row.current.source_url_count,
       },
     ],
-    [],
+    [t],
   );
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Outbound Link Performance</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <DataTable data={outboundLinksData} columns={columns} />

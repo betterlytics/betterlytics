@@ -943,6 +943,28 @@
       "topJourneys": "Top {journeys} rejser",
       "noData": "Ingen rejsedata tilgængelig for de valgte kriterier."
     },
+    "outboundLinks": {
+      "summary": {
+        "totalUniqueClicks": "Samlede unikke klik",
+        "uniqueVisitors": "Unikke besøgende", 
+        "topDomain": "Top domæne",
+        "topSourcePage": "Top kildeside"
+      },
+      "table": {
+        "title": "Udgående link performance",
+        "destinationUrl": "Destinations-URL",
+        "uniqueClicks": "Unikke klik", 
+        "topReferrerPage": "Top henvisningsside",
+        "sourcePages": "Kildesider"
+      },
+      "chart": {
+        "title": "Unikke udgående klik over tid"
+      },
+      "pieChart": {
+        "title": "Udgående links fordeling",
+        "description": "Top udgående links efter unikke klik"
+      }
+    },
     "integration": {
       "title": "Hjemmeside integration",
       "description": "Tilføj sporingsskriptet til din hjemmeside for at begynde at indsamle analytiske data",
