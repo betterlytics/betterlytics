@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import Link from 'next/link';
 import Logo from '@/components/logo';
+import { getFirstUserDashboardAction } from '@/app/actions';
 
 interface OnboardingPageProps {
   searchParams: Promise<{
@@ -38,12 +39,18 @@ export default async function OnboardingPage({ searchParams }: OnboardingPagePro
     );
   }
 
-  // If user has a session, they should go to the website step
-  // OAuth users will be redirected here after authentication
+  // If user has a session (such as going back or OAuth users):
+  // - If they don't have a dashboard, go to website step
+  // - If they have a dashboard, go to integration step
   if (session) {
-    redirect('/onboarding/website');
+    const dashboard = await getFirstUserDashboardAction();
+    if (!dashboard) {
+      redirect('/onboarding/website');
+    } else {
+      redirect('/onboarding/integration');
+    }
   }
 
-  // For new users or OAuth flow, start at account creation
+  // For users without a session start at account creation
   redirect('/onboarding/account');
 }

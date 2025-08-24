@@ -6,15 +6,8 @@ import { useMemo } from 'react';
 
 export function OnboardingProgress() {
   const pathname = usePathname();
-  
-  const steps = useMemo(
-    () => [
-      { label: 'Account', description: 'Create account' },
-      { label: 'Website', description: 'Add your site' },
-      { label: 'Integration', description: 'Install tracking' },
-    ],
-    [],
-  );
+
+  const steps = useMemo(() => [{ label: 'Account' }, { label: 'Website' }, { label: 'Integration' }], []);
 
   const getCurrentStep = () => {
     if (pathname === '/onboarding/account') return 1;
@@ -24,7 +17,7 @@ export function OnboardingProgress() {
   };
 
   return (
-    <div className='mb-8'>
+    <div className='mb-6'>
       <Stepper steps={steps} currentStep={getCurrentStep()} />
     </div>
   );

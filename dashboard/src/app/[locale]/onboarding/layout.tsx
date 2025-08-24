@@ -10,13 +10,9 @@ export default async function OnboardingLayout({ children }: { children: React.R
     <OnboardingProvider>
       <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
         <div className='bg-background'>
-          <div className='container mx-auto max-w-2xl px-4 py-12'>
+          <div className='container mx-auto max-w-4xl px-4 py-12'>
             <OnboardingProgress />
-            <div className='bg-card rounded-lg border p-8 shadow-sm'>
-              <div className='min-h-[400px] space-y-6'>
-                {children}
-              </div>
-            </div>
+            <div className='min-h-[400px] space-y-6'>{children}</div>
           </div>
         </div>
       </PublicEnvironmentVariablesProvider>

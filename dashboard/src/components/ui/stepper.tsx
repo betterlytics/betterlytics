@@ -35,45 +35,33 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
                       'bg-primary border-primary text-primary-foreground': isCompleted,
                       'border-primary bg-primary text-primary-foreground': isCurrent,
                       'border-muted-foreground bg-background text-muted-foreground': isUpcoming,
-                    }
+                    },
                   )}
                 >
-                  {isCompleted ? (
-                    <Check className='h-4 w-4' />
-                  ) : (
-                    <span>{stepNumber}</span>
-                  )}
+                  {isCompleted ? <Check className='h-4 w-4' /> : <span>{stepNumber}</span>}
                 </div>
                 <div className='mt-2 text-center'>
                   <div
-                    className={cn(
-                      'text-sm font-medium',
-                      {
-                        'text-primary': isCompleted || isCurrent,
-                        'text-muted-foreground': isUpcoming,
-                      }
-                    )}
+                    className={cn('text-sm font-medium', {
+                      'text-primary': isCompleted || isCurrent,
+                      'text-muted-foreground': isUpcoming,
+                    })}
                   >
                     {step.label}
                   </div>
                   {step.description && (
-                    <div className='text-xs text-muted-foreground mt-1'>
-                      {step.description}
-                    </div>
+                    <div className='text-muted-foreground mt-1 text-xs'>{step.description}</div>
                   )}
                 </div>
               </div>
-              
+
               {index < steps.length - 1 && (
-                <div className='flex-1 mx-4 mb-8'>
+                <div className='mx-4 mb-8 flex-1'>
                   <div
-                    className={cn(
-                      'h-0.5 w-full transition-colors',
-                      {
-                        'bg-primary': stepNumber < currentStep,
-                        'bg-muted': stepNumber >= currentStep,
-                      }
-                    )}
+                    className={cn('h-0.5 w-full transition-colors', {
+                      'bg-primary': stepNumber < currentStep,
+                      'bg-muted': stepNumber >= currentStep,
+                    })}
                   />
                 </div>
               )}
