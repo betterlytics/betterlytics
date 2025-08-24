@@ -883,6 +883,9 @@
         "uniqueEvents": "Eventi unici"
       }
     },
+    "tabbedTable": {
+      "searchPlaceholder": "Filtra per {field}..."
+    },
     "funnels": {
       "list": {
         "steps": "passaggi",
@@ -926,7 +929,8 @@
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",
         "title": "Analisi pagine",
-        "description": "Analisi di tutte le pagine monitorate"
+        "description": "Analizza le pagine principali, le prestazioni di ingresso/uscita e il coinvolgimento per ottimizzare i contenuti.",
+        "filterByPathPlaceholder": "Filtra per percorso..."
       }
     },
     "referrers": {

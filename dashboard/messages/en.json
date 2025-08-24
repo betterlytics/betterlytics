@@ -878,6 +878,9 @@
         "uniqueEvents": "Unique Events"
       }
     },
+    "tabbedTable": {
+      "searchPlaceholder": "Filter by {field}..."
+    },
     "funnels": {
       "list": {
         "steps": "steps",
@@ -921,7 +924,8 @@
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
         "title": "Page Analytics",
-        "description": "Analytics for all tracked pages"
+        "description": "Analyze top pages, entry/exit performance, and engagement to optimize content.",
+        "filterByPathPlaceholder": "Filter by path..."
       }
     },
     "referrers": {

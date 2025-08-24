@@ -882,6 +882,9 @@
         "uniqueEvents": "Unikke hændelser"
       }
     },
+    "tabbedTable": {
+      "searchPlaceholder": "Filtrer efter {field}..."
+    },
     "funnels": {
       "list": {
         "steps": "trin",
@@ -925,7 +928,8 @@
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
         "title": "Sideanalyse",
-        "description": "Analyser for alle sporede sider"
+        "description": "Analyser top sider, indgangs-/udgangsperformance og engagement for at optimere indhold.",
+        "filterByPathPlaceholder": "Filtrer efter sti..."
       }
     },
     "referrers": {
