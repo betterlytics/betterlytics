@@ -1,4 +1,6 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import { generateSEO } from '@/lib/seo';
 import { authOptions } from '@/lib/auth';
 import LoginForm from '@/components/auth/LoginForm';
 import Logo from '@/components/logo';
@@ -14,6 +16,34 @@ interface SignInPageProps {
     verified?: string;
   }>;
 }
+
+export const metadata: Metadata = {
+  ...generateSEO({
+    title: 'Sign in to Betterlytics',
+    description:
+      'Sign in to access your Betterlytics analytics dashboard. Secure, privacy-first, cookieless web analytics.',
+    keywords: [
+      'Sign in',
+      'Login',
+      'Betterlytics Account',
+      'Analytics Dashboard',
+      'Privacy-First Analytics',
+      'Google Analytics Alternative',
+    ],
+    path: '/signin',
+  }),
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      'max-image-preview': 'none',
+      'max-snippet': 0,
+      'max-video-preview': 0,
+    },
+  },
+};
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await getServerSession(authOptions);
