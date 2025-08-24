@@ -940,6 +940,9 @@
       }
     },
     "events": {
+      "page": {
+        "description": "Analitiche e insight per i tuoi eventi personalizzati"
+      },
       "log": {
         "waiting": "In attesa di eventi...",
         "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",

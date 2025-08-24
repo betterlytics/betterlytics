@@ -939,6 +939,9 @@
       }
     },
     "events": {
+      "page": {
+        "description": "Analyser og indsigter for dine brugerdefinerede hændelser"
+      },
       "log": {
         "waiting": "Venter på hændelser...",
         "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",

@@ -935,6 +935,9 @@
       }
     },
     "events": {
+      "page": {
+        "description": "Analytics and insights for your custom events"
+      },
       "log": {
         "waiting": "Waiting for events...",
         "realTimeDesc": "Events will appear here in real-time as they occur",
