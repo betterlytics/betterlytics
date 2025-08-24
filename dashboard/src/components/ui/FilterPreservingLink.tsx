@@ -3,7 +3,7 @@
 import Link, { LinkProps } from 'next/link';
 import { useNavigateWithFilters } from '@/hooks/use-navigate-with-filters';
 import { ReactNode, forwardRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
 interface FilterPreservingLinkProps extends Omit<LinkProps, 'href'> {

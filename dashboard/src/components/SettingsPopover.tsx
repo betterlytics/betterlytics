@@ -14,13 +14,13 @@ interface SettingsPopoverProps {
 
 export default function SettingsPopover({ onAdvancedSettingsClicked, onClose }: SettingsPopoverProps) {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const isDarkTheme = mounted ? theme === 'dark' : false;
+  const isDarkTheme = mounted ? resolvedTheme === 'dark' : false;
 
   return (
     <div className='bg-popover border-border text-popover-foreground w-72 rounded-md border shadow-lg'>

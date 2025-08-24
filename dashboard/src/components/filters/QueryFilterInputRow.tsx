@@ -29,6 +29,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -43,6 +45,7 @@ export function QueryFilterInputRow<TEntity>({
   requestRemoval,
   disableDeletion,
 }: QueryFilterInputRowProps<TEntity>) {
+  const isMobile = useIsMobile();
   return (
     <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <Select
@@ -52,7 +55,7 @@ export function QueryFilterInputRow<TEntity>({
         <SelectTrigger className='col-span-8 w-full md:col-span-4'>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align={'start'} position={'popper'} className={cn(isMobile && 'max-h-72')}>
           <SelectGroup>
             <SelectLabel>Type</SelectLabel>
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => (

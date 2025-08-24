@@ -4,10 +4,10 @@ import './globals.css';
 import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
-import ConditionalTopBar from '@/components/topbar/ConditionalTopBar';
-import ConditionalFooter from '@/components/ConditionalFooter';
-import { generateSEO, SEO_CONFIGS, generateStructuredData } from '@/lib/seo';
+import { generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
+import { getLocale } from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,8 +18,6 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
-
-export const metadata = generateSEO(SEO_CONFIGS.landing);
 
 const organizationStructuredData = generateStructuredData('organization', {
   title: 'Betterlytics',
@@ -35,13 +33,15 @@ const organizationStructuredData = generateStructuredData('organization', {
   path: '/',
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {env.ENABLE_APP_TRACKING && (
           <Script
@@ -61,11 +61,9 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
-        <Providers>
-          <ConditionalTopBar />
-          {children}
-          <ConditionalFooter />
-        </Providers>
+        <NextIntlClientProvider>
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
         <Toaster />
       </body>
     </html>
