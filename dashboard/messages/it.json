@@ -779,6 +779,7 @@
       "pages": "Pagine",
       "userJourney": "Percorso utente",
       "funnels": "Funnel",
+      "campaigns": "Campagne",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
       "topCountries": "Paesi principali",
@@ -876,6 +877,66 @@
         "overview": "Panoramica",
         "utmBreakdowns": "Ripartizione UTM",
         "landingPages": "Pagine di destinazione"
+      },
+      "page": {
+        "description": "Analitiche e insight sulle performance delle campagne"
+      },
+      "performance": {
+        "title": "Performance campagna",
+        "description": "Metriche chiave per le tue campagne",
+        "columns": {
+          "campaignName": "Nome campagna",
+          "visitors": "Visitatori",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgSessionDuration": "Durata media sessione",
+          "pagesPerSession": "Pagine per sessione"
+        }
+      },
+      "trend": {
+        "title": "Trend visitatori campagna",
+        "description": "Andamento visitatori nel tempo per campagna",
+        "empty": "Nessun dato di trend visitatori per le campagne disponibile."
+      },
+      "utm": {
+        "table": {
+          "title": "Ripartizione parametri UTM",
+          "description": "Performance campagna sui diversi parametri UTM"
+        },
+        "chart": {
+          "title": "Distribuzione UTM",
+          "description": "Ripartizione visiva delle performance dei parametri UTM"
+        },
+        "tabs": {
+          "source": "Sorgente",
+          "medium": "Mezzo",
+          "content": "Contenuto",
+          "terms": "Termini"
+        },
+        "empty": {
+          "source": "Nessun dato di ripartizione per sorgente disponibile per le campagne",
+          "medium": "Nessun dato di ripartizione per mezzo disponibile per le campagne",
+          "content": "Nessun dato di ripartizione per contenuto disponibile per le campagne",
+          "term": "Nessun dato di ripartizione per termini disponibile per le campagne"
+        },
+        "columns": {
+          "dimension": "Dimensione",
+          "visitors": "Visitatori",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgSessionDuration": "Durata media sessione",
+          "pagesPerSession": "Pagine per sessione"
+        }
+      },
+      "landing": {
+        "title": "Performance pagine di destinazione campagna",
+        "description": "Metriche chiave per le pagine di destinazione delle campagne",
+        "columns": {
+          "campaignName": "Nome campagna",
+          "landingPageUrl": "URL pagina di destinazione",
+          "visitors": "Visitatori",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgSessionDuration": "Durata media sessione",
+          "pagesPerSession": "Pagine per sessione"
+        }
       }
     },
     "events": {

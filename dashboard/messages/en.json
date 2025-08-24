@@ -775,6 +775,7 @@
       "pages": "Pages",
       "userJourney": "User Journey",
       "funnels": "Funnels",
+      "campaigns": "Campaigns",
       "entryPages": "Entry Pages",
       "exitPages": "Exit Pages",
       "topCountries": "Top Countries",
@@ -871,6 +872,66 @@
         "overview": "Overview",
         "utmBreakdowns": "UTM Breakdowns",
         "landingPages": "Landing Pages"
+      },
+      "page": {
+        "description": "Campaign performance analytics and insights"
+      },
+      "performance": {
+        "title": "Campaign Performance",
+        "description": "Key metrics for your campaigns",
+        "columns": {
+          "campaignName": "Campaign Name",
+          "visitors": "Visitors",
+          "bounceRate": "Bounce Rate",
+          "avgSessionDuration": "Avg. Session Duration",
+          "pagesPerSession": "Pages / Session"
+        }
+      },
+      "trend": {
+        "title": "Campaign Visitor Trend",
+        "description": "Visitor trends over time by campaign",
+        "empty": "No campaign visitor trend data available."
+      },
+      "utm": {
+        "table": {
+          "title": "UTM Parameter Breakdown",
+          "description": "Campaign performance across different UTM parameters"
+        },
+        "chart": {
+          "title": "UTM Distribution",
+          "description": "Visual breakdown of UTM parameter performance"
+        },
+        "tabs": {
+          "source": "Source",
+          "medium": "Medium",
+          "content": "Content",
+          "terms": "Terms"
+        },
+        "empty": {
+          "source": "No source breakdown data available for campaigns",
+          "medium": "No medium breakdown data available for campaigns",
+          "content": "No content breakdown data available for campaigns",
+          "term": "No term breakdown data available for campaigns"
+        },
+        "columns": {
+          "dimension": "Dimension",
+          "visitors": "Visitors",
+          "bounceRate": "Bounce Rate",
+          "avgSessionDuration": "Avg. Session Duration",
+          "pagesPerSession": "Pages / Session"
+        }
+      },
+      "landing": {
+        "title": "Campaign Landing Page Performance",
+        "description": "Key metrics for campaign landing pages",
+        "columns": {
+          "campaignName": "Campaign Name",
+          "landingPageUrl": "Landing Page URL",
+          "visitors": "Visitors",
+          "bounceRate": "Bounce Rate",
+          "avgSessionDuration": "Avg. Session Duration",
+          "pagesPerSession": "Pages / Session"
+        }
       }
     },
     "events": {

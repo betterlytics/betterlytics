@@ -779,6 +779,7 @@
       "pages": "Sider",
       "userJourney": "Brugerrejse",
       "funnels": "Tragter",
+      "campaigns": "Kampagner",
       "entryPages": "Indgangssider",
       "exitPages": "Udgangssider",
       "topCountries": "Top lande",
@@ -875,6 +876,66 @@
         "overview": "Oversigt",
         "utmBreakdowns": "UTM-opdeling",
         "landingPages": "Landingssider"
+      },
+      "page": {
+        "description": "Kampagneperformance analyser og indsigter"
+      },
+      "performance": {
+        "title": "Kampagneperformance",
+        "description": "Nøgletal for dine kampagner",
+        "columns": {
+          "campaignName": "Kampagnenavn",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
+      },
+      "trend": {
+        "title": "Kampagne-besøgendetrend",
+        "description": "Besøgendetrends over tid pr. kampagne",
+        "empty": "Ingen trenddata for kampagnebesøgende tilgængelig."
+      },
+      "utm": {
+        "table": {
+          "title": "UTM-parameteropdeling",
+          "description": "Kampagneperformance på tværs af UTM-parametre"
+        },
+        "chart": {
+          "title": "UTM-fordeling",
+          "description": "Visuel opdeling af UTM-parameter performance"
+        },
+        "tabs": {
+          "source": "Kilde",
+          "medium": "Medium",
+          "content": "Indhold",
+          "terms": "Termer"
+        },
+        "empty": {
+          "source": "Ingen kildeopdeling tilgængelig for kampagner",
+          "medium": "Ingen medium-opdeling tilgængelig for kampagner",
+          "content": "Ingen indholdsopdeling tilgængelig for kampagner",
+          "term": "Ingen term-opdeling tilgængelig for kampagner"
+        },
+        "columns": {
+          "dimension": "Dimension",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
+      },
+      "landing": {
+        "title": "Kampagne landingsside-performance",
+        "description": "Nøgletal for kampagne-landingssider",
+        "columns": {
+          "campaignName": "Kampagnenavn",
+          "landingPageUrl": "Landingsside-URL",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
       }
     },
     "events": {
