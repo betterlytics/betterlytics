@@ -835,6 +835,23 @@
         "body": "You've used <strong>{current}</strong> events out of your <strong>{limit}</strong> event limit ({percentage} over your {plan} plan).",
         "upgradeHint": "Upgrade to ensure all your analytics data remains accessible",
         "upgradeCta": "Upgrade Now"
+      },
+      "currentPlan": {
+        "title": "Current Plan",
+        "canceledBannerTitle": "Subscription Canceled",
+        "canceledBannerBody": "Your subscription will remain active until {date}. You can reactivate anytime before then.",
+        "description": "Your current subscription details",
+        "plan": "Plan",
+        "monthlyPrice": "Monthly Price",
+        "free": "Free",
+        "eventUsage": "Event Usage",
+        "usageProgress": "{current} of {limit} events",
+        "resetsInDays": "Resets in {days} days",
+        "expiresInDays": "Expires in {days} days",
+        "canceled": "Canceled",
+        "manage": "Manage Subscription",
+        "reactivate": "Reactivate Subscription",
+        "cancel": "Cancel Subscription"
       }
     },
     "devices": {
@@ -1161,6 +1178,148 @@
         "documentation": "Documentation",
         "documentationTitle": "Complete Betterlytics Documentation",
         "logout": "Log out"
+      }
+    },
+    "userSettings": {
+      "tabs": {
+        "profile": "Profile",
+        "preferences": "Preferences",
+        "usage": "Usage",
+        "billing": "Billing",
+        "security": "Security",
+        "danger": "Danger Zone"
+      },
+      "dialog": {
+        "title": "User Settings",
+        "description": "Manage your account settings and preferences.",
+        "loading": "Loading settings...",
+        "loadFailed": "Failed to load settings",
+        "noSettings": "No settings found",
+        "buttons": {
+          "cancel": "Cancel",
+          "saving": "Saving...",
+          "saveChanges": "Save Changes"
+        },
+        "toast": {
+          "success": "Settings saved successfully!",
+          "error": "Failed to save settings. Please try again."
+        }
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Change your personal information",
+        "nameLabel": "Name",
+        "namePlaceholder": "Enter your name",
+        "optional": "Optional",
+        "emailLabel": "Email",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "updateButton": "Update Profile",
+        "toast": {
+          "success": "Profile updated successfully",
+          "error": "Failed to update profile. Please try again."
+        }
+      },
+      "preferences": {
+        "appearance": {
+          "title": "Appearance",
+          "description": "Customize the visual appearance of your dashboard",
+          "themeLabel": "Theme",
+          "light": "Light",
+          "dark": "Dark",
+          "system": "System"
+        },
+        "avatar": {
+          "label": "Avatar",
+          "none": "None",
+          "gravatar": "Gravatar",
+          "note": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
+          "noteIntro": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
+          "terms": "you agree to their terms"
+        },
+        "localization": {
+          "title": "Localization",
+          "description": "Set your language preferences",
+          "language": "Language"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Configure your notification preferences",
+          "emailNotifications": "Email notifications",
+          "marketingEmails": "Marketing emails"
+        }
+      },
+      "usage": {
+        "title": "Usage & Plan",
+        "description": "Monitor your current usage and manage your subscription plan.",
+        "cta": {
+          "needMore": "Need more events?",
+          "upgradeHint": "Upgrade your plan to get more events and unlock additional features.",
+          "viewPlans": "View Plans"
+        },
+        "error": "Unable to load usage data"
+      },
+      "billingPortal": {
+        "title": "Billing Portal",
+        "description": "Manage your billing details and access your full billing history",
+        "access": "Access Billing Portal",
+        "accessButton": "Open Billing Portal",
+        "explainer": "View all past invoices, update payment methods, and manage your billing through Stripe's secure customer portal.",
+        "notAvailable": "Billing portal will be available once you upgrade to a paid plan.",
+        "needHelp": "Need help with billing?",
+        "contactSupport": "Contact support",
+        "loading": "Loading billing information...",
+        "toastError": "Failed to open billing portal, please try again."
+      },
+      "security": {
+        "title": "Password & Authentication",
+        "description": "Change your account password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmNewPassword": "Confirm New Password",
+        "passwordHelp": "Password must be at least 8 characters long",
+        "passwordsMatch": "Passwords match",
+        "changePassword": "Change Password",
+        "passwordManagedByOAuth": "Password managed by OAuth",
+        "toast": {
+          "success": "Password updated successfully"
+        },
+        "totp": {
+          "title": "Two-Factor Authentication",
+          "description": "Add an extra layer of security to your account by requiring a second form of verification in addition to your password",
+          "enable": "Enable 2FA",
+          "instructions": "To enable 2FA, scan the QR code with your authenticator app or use the <setup>setup key</setup> to manually configure it, then enter the verification code below.",
+          "cancel": "Cancel",
+          "confirm": "Confirm",
+          "enabled": "Enabled",
+          "disable": "Disable",
+          "disableTitle": "Disable 2FA",
+          "disableDescription": "Are you sure you want to disable two-factor authentication for your account?",
+          "disabledSuccess": "Two-factor authentication disabled successfully",
+          "disableFailed": "Failed to disable two-factor authentication. Please try again."
+        }
+      },
+      "danger": {
+        "title": "Delete Account",
+        "description": "Permanently delete your account and all associated data",
+        "warning": "Warning: This action cannot be undone",
+        "details": "This will permanently delete your account, remove access to all dashboards, and delete all your personal settings.",
+        "delete": "Delete Account",
+        "dialog": {
+          "title": "Delete Account Permanently",
+          "description": "Are you absolutely sure you want to delete your account? This action cannot be undone and will permanently:",
+          "li1": "Delete all your personal information",
+          "li2": "Remove access to all your dashboards",
+          "li3": "Delete all your account settings",
+          "li4": "Sign you out of all devices",
+          "cancel": "Cancel",
+          "confirm": "Delete Account Permanently"
+        },
+        "toast": {
+          "success": "Account deleted successfully",
+          "error": "Failed to delete account. Please try again.",
+          "unable": "Unable to delete account. Please try signing in again."
+        }
       }
     },
     "dashboardSettingsDialog": {
