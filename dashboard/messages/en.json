@@ -819,6 +819,9 @@
     "en": "English"
   },
   "components": {
+    "dataTable": {
+      "noResults": "No results."
+    },
     "billing": {
       "usageBanner": {
         "title": "Usage Limit Exceeded:",
@@ -929,6 +932,16 @@
       }
     },
     "referrers": {
+      "page": {
+        "description": "Analyze referral sources, traffic share, and performance trends."
+      },
+      "summary": {
+        "referralSessions": "Referral Sessions",
+        "referralTrafficPct": "Referral Traffic %",
+        "topReferrerSource": "Top Referrer Source",
+        "avgSessionDuration": "Avg. Session Duration",
+        "none": "None"
+      },
       "charts": {
         "distribution": "Referrer Distribution",
         "trafficByCategory": "Traffic sources by category",
@@ -937,7 +950,25 @@
       },
       "table": {
         "details": "Referrer Details",
-        "detailsDescription": "Detailed breakdown of traffic sources"
+        "detailsDescription": "Detailed breakdown of traffic sources",
+        "tabs": {
+          "all": "All",
+          "search": "Search",
+          "social": "Social",
+          "direct": "Direct",
+          "email": "Email",
+          "other": "Other"
+        },
+        "columns": {
+          "source": "Source",
+          "type": "Type",
+          "visits": "Visits",
+          "percentage": "Percentage",
+          "bounceRate": "Bounce Rate",
+          "avgVisitDuration": "Avg. Visit Duration",
+          "direct": "Direct",
+          "unknown": "Unknown"
+        }
       }
     },
     "geography": {

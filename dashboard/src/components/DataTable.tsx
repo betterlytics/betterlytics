@@ -13,6 +13,7 @@ import {
   type ColumnFiltersState,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTranslations } from 'next-intl';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 
 interface DataTableProps<TData, TValue> {
@@ -32,6 +33,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   tableRef,
 }: DataTableProps<TData, TValue>) {
+  const t = useTranslations('components.dataTable');
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
@@ -108,7 +110,7 @@ export function DataTable<TData, TValue>({
                 colSpan={columns.length}
                 className='h-24 px-4 py-3 text-center text-gray-500 dark:text-slate-400'
               >
-                No results.
+                {t('noResults')}
               </TableCell>
             </TableRow>
           )}

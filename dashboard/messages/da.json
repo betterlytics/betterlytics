@@ -823,6 +823,9 @@
     "en": "Engelsk"
   },
   "components": {
+    "dataTable": {
+      "noResults": "Ingen resultater."
+    },
     "billing": {
       "usageBanner": {
         "title": "Forbrugsgrænse overskredet:",
@@ -933,15 +936,43 @@
       }
     },
     "referrers": {
+      "page": {
+        "description": "Analyser henvisningskilder, trafikandel og præstationstrends."
+      },
       "charts": {
         "distribution": "Henvisningsfordeling",
         "trafficByCategory": "Trafik efter kilde kategori",
         "trafficTrends": "Henvisningstrafik trends",
         "trafficBySourceOverTime": "Trafik efter kilde over tid"
       },
+      "summary": {
+        "referralSessions": "Henvisningssessioner",
+        "referralTrafficPct": "Henvisningstrafik %",
+        "topReferrerSource": "Top henvisningskilde",
+        "avgSessionDuration": "Gns. sessionsvarighed",
+        "none": "Ingen"
+      },
       "table": {
         "details": "Henvisningsdetaljer",
-        "detailsDescription": "Detaljeret opdeling af trafikkilder"
+        "detailsDescription": "Detaljeret opdeling af trafikkilder",
+        "tabs": {
+          "all": "Alle",
+          "search": "Søgning",
+          "social": "Social",
+          "direct": "Direkte",
+          "email": "E-mail",
+          "other": "Andet"
+        },
+        "columns": {
+          "source": "Kilde",
+          "type": "Type",
+          "visits": "Besøg",
+          "percentage": "Procent",
+          "bounceRate": "Afvisningsprocent",
+          "avgVisitDuration": "Gns. besøgstid",
+          "direct": "Direkte",
+          "unknown": "Ukendt"
+        }
       }
     },
     "geography": {

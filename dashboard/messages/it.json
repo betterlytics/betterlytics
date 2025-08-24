@@ -824,6 +824,9 @@
     "it": "Italiano"
   },
   "components": {
+    "dataTable": {
+      "noResults": "Nessun risultato."
+    },
     "billing": {
       "usageBanner": {
         "title": "Limite di utilizzo superato:",
@@ -934,6 +937,16 @@
       }
     },
     "referrers": {
+      "page": {
+        "description": "Analizza le fonti di riferimento, la quota di traffico e le tendenze."
+      },
+      "summary": {
+        "referralSessions": "Sessioni da referrer",
+        "referralTrafficPct": "Traffico da referrer %",
+        "topReferrerSource": "Fonte di riferimento principale",
+        "avgSessionDuration": "Durata media sessione",
+        "none": "Nessuna"
+      },
       "charts": {
         "distribution": "Distribuzione siti di riferimento",
         "trafficByCategory": "Fonti di traffico per categoria",
@@ -942,7 +955,25 @@
       },
       "table": {
         "details": "Dettagli sito di riferimento",
-        "detailsDescription": "Analisi dettagliata delle fonti di traffico"
+        "detailsDescription": "Analisi dettagliata delle fonti di traffico",
+        "tabs": {
+          "all": "Tutti",
+          "search": "Ricerca",
+          "social": "Social",
+          "direct": "Diretto",
+          "email": "Email",
+          "other": "Altro"
+        },
+        "columns": {
+          "source": "Fonte",
+          "type": "Tipo",
+          "visits": "Visite",
+          "percentage": "Percentuale",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgVisitDuration": "Durata media visita",
+          "direct": "Diretto",
+          "unknown": "Sconosciuto"
+        }
       }
     },
     "geography": {
