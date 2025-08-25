@@ -130,7 +130,7 @@ export default function AccountCreationPage() {
 
   return (
     <div className='grid grid-cols-2 gap-4'>
-      <div className='space-y-10 px-6 py-10'>
+      <div className='hidden space-y-10 px-6 py-10 md:block'>
         <div className='flex justify-center'>
           <Logo variant='icon' showText textSize='md' priority />
         </div>
@@ -156,7 +156,7 @@ export default function AccountCreationPage() {
           </p>
         </div>
       </div>
-      <div className='bg-card space-y-3 rounded-lg border p-6 shadow-sm'>
+      <div className='bg-card col-span-2 space-y-3 rounded-lg border p-6 shadow-sm md:col-span-1'>
         <h2 className='text-center text-2xl font-semibold'>Create your account</h2>
 
         {error && (

@@ -63,58 +63,48 @@ export default function WebsiteSetupPage() {
   );
 
   return (
-    <div className='space-y-6'>
-      <div className='text-center'>
-        <h2 className='text-2xl font-semibold'>Set up your website</h2>
-        <p className='text-muted-foreground mt-2'>Tell us about the website you want to track</p>
+    <div className='grid grid-cols-2 gap-4'>
+      <div className='hidden md:block'>
+        <img src={'/onboarding/image.png'} alt={'Visual graph'} className='object-fit h-full w-full blur-[4px]' />
       </div>
-
-      {error && (
-        <div
-          className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
-          role='alert'
-        >
-          <span className='block sm:inline'>{error}</span>
+      <div className='bg-card col-span-2 space-y-3 rounded-lg border p-6 shadow-sm md:col-span-1'>
+        <div className='text-center'>
+          <h2 className='text-2xl font-semibold'>Set up your website</h2>
+          <p className='text-muted-foreground mt-2'>Tell us about the website you want to track</p>
         </div>
-      )}
 
-      <form className='space-y-6' onSubmit={handleSubmit}>
-        <Card>
-          <CardHeader className='flex flex-row items-start space-y-0 space-x-3'>
-            <Globe className='mt-1 h-5 w-5 flex-shrink-0 text-blue-500' />
-            <div>
-              <CardTitle className='text-base font-medium'>Website Details</CardTitle>
-              <CardDescription className='text-sm'>
-                Basic information about your website or application
-              </CardDescription>
+        <form className='space-y-6' onSubmit={handleSubmit}>
+          <div className='space-y-2'>
+            <Label htmlFor='domain'>Domain</Label>
+            <Input
+              id='domain'
+              name='domain'
+              type='text'
+              required
+              defaultValue={state.website.domain || ''}
+              placeholder='example.com'
+              disabled={isPending}
+            />
+            <p className='text-muted-foreground text-xs'>
+              Enter your domain without https:// or www. (e.g., example.com)
+            </p>
+          </div>
+          {error && (
+            <div
+              className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
+              role='alert'
+            >
+              <span className='block sm:inline'>{error}</span>
             </div>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='domain'>Domain</Label>
-              <Input
-                id='domain'
-                name='domain'
-                type='text'
-                required
-                defaultValue={state.website.domain || ''}
-                placeholder='example.com'
-                disabled={isPending}
-              />
-              <p className='text-muted-foreground text-xs'>
-                Enter your domain without https:// or www. (e.g., example.com)
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          )}
 
-
-        <div className='flex justify-end pt-4'>
-          <Button type='submit' disabled={isPending} className='w-full sm:w-auto'>
-            {isPending ? 'Creating Dashboard...' : 'Create Dashboard'}
-          </Button>
-        </div>
-      </form>
+          <div className='flex justify-end pt-4'>
+            <Button type='submit' disabled={isPending} className='w-full sm:w-auto'>
+              {isPending ? 'Creating Dashboard...' : 'Create Dashboard'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
