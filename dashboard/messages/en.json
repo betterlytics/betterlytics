@@ -1338,6 +1338,12 @@
         "logout": "Log out"
       }
     },
+    "sidebar": {
+      "dashboardDropdown": {
+        "switch": "Switch Dashboard",
+        "viewAll": "View all Dashboards"
+      }
+    },
     "userSettings": {
       "tabs": {
         "profile": "Profile",

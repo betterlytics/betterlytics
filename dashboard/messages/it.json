@@ -1346,6 +1346,12 @@
         "logout": "Esci"
       }
     },
+    "sidebar": {
+      "dashboardDropdown": {
+        "switch": "Cambia dashboard",
+        "viewAll": "Vedi tutte le dashboard"
+      }
+    },
     "userSettings": {
       "tabs": {
         "profile": "Profilo",

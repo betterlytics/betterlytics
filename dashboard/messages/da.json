@@ -1342,6 +1342,12 @@
         "logout": "Log ud"
       }
     },
+    "sidebar": {
+      "dashboardDropdown": {
+        "switch": "Skift dashboard",
+        "viewAll": "Se alle dashboards"
+      }
+    },
     "userSettings": {
       "tabs": {
         "profile": "Profil",
