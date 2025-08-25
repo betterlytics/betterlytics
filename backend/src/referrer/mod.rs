@@ -3,6 +3,7 @@ use std::sync::OnceLock;
 use url::Url;
 use std::path::Path;
 use tracing::info;
+use crate::url_utils::normalize_url;
 
 /// Referrer source categories
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -235,20 +236,3 @@ fn extract_search_term(url: &Url, param_names: &[String]) -> Option<String> {
     None
 }
 
-/// Strips protocol prefixes (http://, https://, www.) and trailing /
-fn normalize_url(url: &Url) -> Option<String> {
-
-    let host = url.host_str()?.trim_start_matches("www.");
-    let mut normalized = String::from(host);
-
-    if let Some(port) = url.port() {
-        normalized.push_str(&format!(":{}", port));
-    }
-
-    let path = url.path().trim_end_matches('/');
-    if !path.is_empty() && path != "/" {
-        normalized.push_str(path);
-    }
-
-    Some(normalized)
-}

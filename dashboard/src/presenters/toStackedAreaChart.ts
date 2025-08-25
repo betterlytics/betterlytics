@@ -1,13 +1,8 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
+import { utcMinute } from 'd3-time';
 import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
-
-const IntervalFunctions = {
-  day: utcDay,
-  hour: utcHour,
-  minute: utcMinute,
-} as const;
 
 type RawStackedData<CategoryKey extends string, ValueKey extends string> = Array<
   { date: string } & Record<CategoryKey, string> & Record<ValueKey, number>
@@ -84,7 +79,7 @@ function dataToStackedAreaChart<CategoryKey extends string, ValueKey extends str
     end: utcMinute(dateRange.end),
   };
 
-  const intervalFunc = IntervalFunctions[granularity];
+  const intervalFunc = getTimeIntervalForGranularity(granularity);
 
   for (let time = iterationRange.start; time <= iterationRange.end; time = intervalFunc.offset(time, 1)) {
     const key = time.valueOf().toString();
