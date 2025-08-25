@@ -1102,7 +1102,39 @@
       "type": "Type",
       "operator": "Operator",
       "is": "er",
-      "isNot": "er ikke"
+      "isNot": "er ikke",
+      "columns": {
+        "url": "URL",
+        "device_type": "Enhedstype",
+        "country_code": "Land",
+        "browser": "Browser",
+        "os": "Operativsystem",
+        "referrer_source": "Henvisningskilde",
+        "referrer_source_name": "Henvisningsnavn",
+        "referrer_search_term": "Henvisningssøgeterm",
+        "referrer_url": "Henvisnings-URL",
+        "utm_source": "UTM-kilde",
+        "utm_medium": "UTM-medium",
+        "utm_campaign": "UTM-kampagne",
+        "utm_term": "UTM-term",
+        "utm_content": "UTM-indhold",
+        "custom_event_name": "Hændelse",
+        "event_type": "Type"
+      },
+      "selector": {
+        "triggerLabel": "Filtre",
+        "title": "Filtre",
+        "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
+        "addFilter": "Tilføj filter",
+        "cancel": "Annuller",
+        "apply": "Anvend",
+        "empty": {
+          "title": "Ingen aktive filtre",
+          "description": "Tilføj filtre for at forfine dine analysedata og fokusere på specifikke segmenter.",
+          "addFirst": "Tilføj dit første filter",
+          "common": "Almindelige filtre: Land, Browser, URL, Enhed"
+        }
+      }
     },
     "funnels": {
       "list": {

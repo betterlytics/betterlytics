@@ -63,7 +63,7 @@ export function QueryFilterInputRow<TEntity>({
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => (
               <SelectItem key={column.value} value={column.value}>
                 {column.icon}
-                {column.label}
+                {t(`columns.${column.value}`)}
               </SelectItem>
             ))}
           </SelectGroup>

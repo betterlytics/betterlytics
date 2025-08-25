@@ -1098,7 +1098,39 @@
       "type": "Type",
       "operator": "Operator",
       "is": "is",
-      "isNot": "is not"
+      "isNot": "is not",
+      "columns": {
+        "url": "URL",
+        "device_type": "Device type",
+        "country_code": "Country",
+        "browser": "Browser",
+        "os": "Operating system",
+        "referrer_source": "Referrer source",
+        "referrer_source_name": "Referrer name",
+        "referrer_search_term": "Referrer term",
+        "referrer_url": "Referrer URL",
+        "utm_source": "UTM source",
+        "utm_medium": "UTM medium",
+        "utm_campaign": "UTM campaign",
+        "utm_term": "UTM term",
+        "utm_content": "UTM content",
+        "custom_event_name": "Event",
+        "event_type": "Event type"
+      },
+      "selector": {
+        "triggerLabel": "Filters",
+        "title": "Filters",
+        "emptyNoneSelected": "No filters selected - apply to save",
+        "addFilter": "Add filter",
+        "cancel": "Cancel",
+        "apply": "Apply",
+        "empty": {
+          "title": "No active filters",
+          "description": "Add filters to refine your analytics data and focus on specific segments.",
+          "addFirst": "Add your first filter",
+          "common": "Common filters: Country, Browser, URL, Device"
+        }
+      }
     },
     "funnels": {
       "list": {
