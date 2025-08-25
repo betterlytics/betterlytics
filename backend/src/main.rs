@@ -78,18 +78,7 @@ async fn main() {
         None
     };
 
-    let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
-    let processor = Arc::new(processor);
-
-    let db_clone = db.clone();
-    tokio::spawn(async move {
-        while let Some(processed) = processed_rx.recv().await {
-            if let Err(e) = db_clone.insert_event(processed).await {
-                tracing::error!("Failed to insert processed event: {}", e);
-            }
-        }
-    });
-
+    let processor = Arc::new(EventProcessor::new(geoip_service, db.clone()));
 
     let app = Router::new()
         .route("/health", get(health_check))
@@ -157,8 +146,9 @@ async fn track_event(
 
     let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
 
-    if let Err(e) = processor.process_event(event).await {
-        error!("Failed to process validated event: {}", e);
+    // Enqueue the event for background processing
+    if let Err(e) = processor.enqueue_event(event) {
+        error!("Failed to enqueue validated event: {}", e);
         return Ok(StatusCode::OK);
     }
     

@@ -1,5 +1,6 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use tokio::sync::mpsc;
+use tokio::sync::mpsc::error::TrySendError;
 use tracing::{error, debug};
 use crate::analytics::{AnalyticsEvent, generate_fingerprint};
 use crate::geoip::GeoIpService;
@@ -10,6 +11,7 @@ use url::Url;
 use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
 use crate::outbound_link::process_outbound_link;
+use crate::db::SharedDatabase;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -46,16 +48,57 @@ pub struct ProcessedEvent {
     pub outbound_link_url: String,
 }
 
+const INBOUND_EVENT_CHANNEL_CAPACITY: usize = 100_000;
+const NUM_PROCESSING_WORKERS: usize = 2;
+const PROCESSING_WORKER_CHANNEL_CAPACITY: usize = 10_000;
+
 /// Event processor that handles real-time processing
+#[derive(Clone)]
 pub struct EventProcessor {
-    event_tx: mpsc::Sender<ProcessedEvent>,
+    /// Shared GeoIP service used during processing
     geoip_service: GeoIpService,
+    /// Inbound channel: raw events enqueued by request handler
+    inbound_tx: mpsc::Sender<AnalyticsEvent>,
+    /// Database handle to enqueue processed events into inserter
+    db: SharedDatabase,
 }
 
 impl EventProcessor {
-    pub fn new(geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
-        let (event_tx, event_rx) = mpsc::channel(100_000);
-        (Self { event_tx, geoip_service }, event_rx)
+    pub fn new(geoip_service: GeoIpService, db: SharedDatabase) -> Self {
+        let (inbound_tx, mut inbound_rx) = mpsc::channel(INBOUND_EVENT_CHANNEL_CAPACITY);
+
+        let processor = Self { geoip_service: geoip_service.clone(), inbound_tx, db };
+
+        // Spawn processing workers with their own queues
+        let mut worker_senders: Vec<mpsc::Sender<AnalyticsEvent>> = Vec::with_capacity(NUM_PROCESSING_WORKERS);
+        for i in 0..NUM_PROCESSING_WORKERS {
+            let (worker_tx, worker_rx) = mpsc::channel(PROCESSING_WORKER_CHANNEL_CAPACITY);
+            worker_senders.push(worker_tx);
+            let processor_clone = processor.clone();
+            tokio::spawn(async move {
+                if let Err(e) = run_processing_worker(i, processor_clone, worker_rx).await {
+                    error!("Processing worker {} failed: {}", i, e);
+                }
+            });
+        }
+
+        // Dispatcher: reads from inbound queue and distributes to workers round-robin
+        tokio::spawn(async move {
+            let mut worker_index = 0usize;
+            while let Some(event) = inbound_rx.recv().await {
+                dispatch_event_round_robin(&worker_senders, &mut worker_index, event).await;
+            }
+            debug!("Processing dispatcher: inbound channel closed. Shutting down.");
+        });
+
+        processor
+    }
+
+    /// Non-blocking enqueue of a raw analytics event. Returns immediately.
+    pub fn enqueue_event(&self, event: AnalyticsEvent) -> Result<()> {
+        self.inbound_tx
+            .try_send(event)
+            .map_err(|e| anyhow!("Failed to enqueue event: {}", e))
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -145,8 +188,8 @@ impl EventProcessor {
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);
 
-        if let Err(e) = self.event_tx.send(processed).await {
-            error!("Failed to send processed event: {}", e);
+        if let Err(e) = self.db.insert_event(processed).await {
+            error!("Failed to enqueue processed event into DB inserter: {}", e);
         }
 
         debug!("Processed event finished!");
@@ -246,4 +289,60 @@ impl EventProcessor {
 
         Ok(())
     } 
+}
+
+async fn run_processing_worker(
+    worker_id: usize,
+    processor: EventProcessor,
+    mut rx: mpsc::Receiver<AnalyticsEvent>,
+) -> Result<()> {
+    debug!("Processing worker {}: Starting.", worker_id);
+    while let Some(event) = rx.recv().await {
+        if let Err(e) = processor.process_event(event).await {
+            error!("Processing worker {}: error processing event: {}", worker_id, e);
+        }
+    }
+    debug!("Processing worker {}: Channel closed. Exiting.", worker_id);
+    Ok(())
+}
+
+async fn dispatch_event_round_robin(
+    worker_senders: &Vec<mpsc::Sender<AnalyticsEvent>>,
+    worker_index: &mut usize,
+    event: AnalyticsEvent,
+) {
+    let mut sent = false;
+    let mut event_opt = Some(event);
+
+    for attempt in 0..worker_senders.len() {
+        let idx = (*worker_index + attempt) % worker_senders.len();
+        let ev = event_opt.take().unwrap();
+        match worker_senders[idx].try_send(ev) {
+            Ok(()) => {
+                sent = true;
+                *worker_index = (idx + 1) % worker_senders.len();
+                break;
+            }
+            Err(TrySendError::Full(ev_back)) => {
+                event_opt = Some(ev_back);
+                continue;
+            }
+            Err(TrySendError::Closed(ev_back)) => {
+                event_opt = Some(ev_back);
+                continue;
+            }
+        }
+    }
+
+    if !sent {
+        if let Some(ev) = event_opt {
+            if let Err(e) = worker_senders[*worker_index].send(ev).await {
+                error!(
+                    "Processing dispatcher failed to send event to worker {}: {}",
+                    *worker_index, e
+                );
+            }
+            *worker_index = (*worker_index + 1) % worker_senders.len();
+        }
+    }
 }
