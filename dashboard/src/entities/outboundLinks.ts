@@ -21,9 +21,15 @@ export const OutboundLinksSummaryWithChartsSchema = z.object({
   uniqueVisitors: z.number().int().min(0),
   topDomain: z.string().nullable(),
   topSourceUrl: z.string().nullable(),
-  dailyClicksChartData: z.array(DailyOutboundClicksRowSchema),
+});
+
+// Pie chart schema
+export const TopOutboundLinksDistrubutionSchema = z.object({
+  outbound_link_url: z.string(),
+  clicks: z.number().int().min(0),
 });
 
 export type OutboundLinkRow = z.infer<typeof OutboundLinkRowSchema>;
 export type DailyOutboundClicksRow = z.infer<typeof DailyOutboundClicksRowSchema>;
 export type OutboundLinksSummaryWithCharts = z.infer<typeof OutboundLinksSummaryWithChartsSchema>;
+export type TopOutboundLinksDistrubution = z.infer<typeof TopOutboundLinksDistrubutionSchema>;

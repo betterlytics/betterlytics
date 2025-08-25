@@ -3,6 +3,10 @@ import {
   OutboundLinkRowSchema,
   DailyOutboundClicksRow,
   DailyOutboundClicksRowSchema,
+  TopOutboundLinksDistrubutionSchema,
+  TopOutboundLinksDistrubution,
+  OutboundLinksSummaryWithChartsSchema,
+  OutboundLinksSummaryWithCharts,
 } from '@/entities/outboundLinks';
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
@@ -127,7 +131,7 @@ export async function getOutboundLinksDistribution(
   startDate: DateTimeString,
   endDate: DateTimeString,
   queryFilters: QueryFilter[],
-): Promise<Array<{ outbound_link_url: string; clicks: number }>> {
+): Promise<Array<TopOutboundLinksDistrubution>> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const top9Query = safeSql`
@@ -194,7 +198,7 @@ export async function getOutboundLinksDistribution(
     });
   }
 
-  return result;
+  return result.map((res) => TopOutboundLinksDistrubutionSchema.parse(res));
 }
 
 /**
@@ -205,12 +209,7 @@ export async function getOutboundLinksSummary(
   startDate: DateTimeString,
   endDate: DateTimeString,
   queryFilters: QueryFilter[],
-): Promise<{
-  totalClicks: number;
-  uniqueVisitors: number;
-  topDomain: string | null;
-  topSourceUrl: string | null;
-}> {
+): Promise<OutboundLinksSummaryWithCharts> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -286,10 +285,10 @@ export async function getOutboundLinksSummary(
     })
     .toPromise()) as any[];
 
-  return {
+  return OutboundLinksSummaryWithChartsSchema.parse({
     totalClicks: result[0]?.totalClicks || 0,
     uniqueVisitors: result[0]?.uniqueVisitors || 0,
     topDomain: topDomainResult[0]?.domain || null,
     topSourceUrl: topSourceUrlResult[0]?.source_url || null,
-  };
+  });
 }
