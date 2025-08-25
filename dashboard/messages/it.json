@@ -941,6 +941,31 @@
     "dataTable": {
       "noResults": "Nessun risultato."
     },
+    "timeRange": {
+      "quickSelect": "Selezione rapida",
+      "granularity": "Granularità",
+      "currentPeriod": "Periodo corrente",
+      "compareWithPrevious": "Confronta con il periodo precedente",
+      "compareToPeriod": "Periodo di confronto",
+      "startDate": "Data di inizio",
+      "endDate": "Data di fine",
+      "dateRange": "Intervallo date",
+      "presets": {
+        "24h": "Ultime 24 ore",
+        "3d": "Ultimi 3 giorni",
+        "7d": "Ultimi 7 giorni",
+        "28d": "Ultimi 28 giorni",
+        "3mo": "Ultimi 3 mesi",
+        "6mo": "Ultimi 6 mesi"
+      },
+      "granularityLabels": {
+        "day": "Giorno",
+        "hour": "Ora",
+        "minute_30": "30 min",
+        "minute_15": "15 min"
+      },
+      "apply": "Applica"
+    },
     "loading": {
       "dashboard": {
         "initializing": "Inizializzazione dashboard",

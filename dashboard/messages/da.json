@@ -937,6 +937,31 @@
     "dataTable": {
       "noResults": "Ingen resultater."
     },
+    "timeRange": {
+      "quickSelect": "Hurtig valg",
+      "granularity": "Granularitet",
+      "currentPeriod": "Nuværende periode",
+      "compareWithPrevious": "Sammenlign med forrige periode",
+      "compareToPeriod": "Sammenligningsperiode",
+      "startDate": "Startdato",
+      "endDate": "Slutdato",
+      "dateRange": "Datointerval",
+      "presets": {
+        "24h": "Seneste 24 timer",
+        "3d": "Seneste 3 dage",
+        "7d": "Seneste 7 dage",
+        "28d": "Seneste 28 dage",
+        "3mo": "Seneste 3 måneder",
+        "6mo": "Seneste 6 måneder"
+      },
+      "granularityLabels": {
+        "day": "Dag",
+        "hour": "Time",
+        "minute_30": "30 min",
+        "minute_15": "15 min"
+      },
+      "apply": "Anvend"
+    },
     "loading": {
       "dashboard": {
         "initializing": "Initialiserer dashboard",

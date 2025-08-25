@@ -933,6 +933,31 @@
     "dataTable": {
       "noResults": "No results."
     },
+    "timeRange": {
+      "quickSelect": "Quick select",
+      "granularity": "Granularity",
+      "currentPeriod": "Current period",
+      "compareWithPrevious": "Compare with previous period",
+      "compareToPeriod": "Compare to period",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "dateRange": "Date range",
+      "presets": {
+        "24h": "Last 24 hours",
+        "3d": "Last 3 days",
+        "7d": "Last 7 days",
+        "28d": "Last 28 days",
+        "3mo": "Last 3 months",
+        "6mo": "Last 6 months"
+      },
+      "granularityLabels": {
+        "day": "Day",
+        "hour": "Hour",
+        "minute_30": "30 min",
+        "minute_15": "15 min"
+      },
+      "apply": "Apply"
+    },
     "loading": {
       "dashboard": {
         "initializing": "Initializing Dashboard",
