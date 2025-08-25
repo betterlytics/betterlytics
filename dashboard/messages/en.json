@@ -826,15 +826,57 @@
     "en": "English"
   },
   "components": {
-    "dataTable": {
-      "noResults": "No results."
-    },
     "billing": {
       "usageBanner": {
         "title": "Usage Limit Exceeded:",
         "body": "You've used <strong>{current}</strong> events out of your <strong>{limit}</strong> event limit ({percentage} over your {plan} plan).",
         "upgradeHint": "Upgrade to ensure all your analytics data remains accessible",
         "upgradeCta": "Upgrade Now"
+      },
+      "navigation": {
+        "backToDashboard": "Back to Dashboard",
+        "title": "Choose Your Plan"
+      },
+      "page": {
+        "heading": "Upgrade your plan",
+        "subheading": "Choose the perfect plan for your analytics needs."
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "subtitle": "Everything you need to know about our pricing and plans",
+        "items": {
+          "changePlan": {
+            "q": "Can I change my plan anytime?",
+            "a": "Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we will prorate the billing accordingly."
+          },
+          "exceedLimit": {
+            "q": "What happens if I exceed my event limit?",
+            "a": "We will continue tracking your events and you will receive an email notification when you exceed your limit. If you exceed your limits for more than 30 days, there is a chance that your excessive tracked data will be deleted."
+          },
+          "annualBilling": {
+            "q": "Do you offer annual billing?",
+            "a": "Currently we offer monthly billing only. Annual billing with discounts is coming soon!"
+          },
+          "freeOption": {
+            "q": "Is there a free option?",
+            "a": "Yes! Our Starter plan includes 10,000 free events per month forever. No credit card required to get started."
+          },
+          "cancelAnytime": {
+            "q": "Can I cancel anytime?",
+            "a": "Absolutely. You can cancel your subscription at any time. Your plan will remain active until the end of your current billing period."
+          },
+          "paymentMethods": {
+            "q": "What payment methods do you accept?",
+            "a": "We accept all major credit cards (Visa, MasterCard, American Express) and support secure payments through our payment processor."
+          }
+        }
+      },
+      "interactive": {
+        "checkoutCanceled": "Checkout was canceled. You can try again anytime.",
+        "contactForCustomPlan": "Please contact us for a custom plan",
+        "planSelectionFailed": "Failed to process plan selection, please try again.",
+        "subscriptionChangesNote": "Changes to your subscription will be processed immediately through Stripe's secure billing portal.",
+        "freePlanNote": "Start with our free plan - no credit card required."
       },
       "currentPlan": {
         "title": "Current Plan",
@@ -854,6 +896,10 @@
         "cancel": "Cancel Subscription"
       }
     },
+    "dataTable": {
+      "noResults": "No results."
+    },
+
     "devices": {
       "summary": {
         "distinctDeviceTypes": "Distinct Device Types",

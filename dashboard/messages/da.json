@@ -830,15 +830,57 @@
     "en": "Engelsk"
   },
   "components": {
-    "dataTable": {
-      "noResults": "Ingen resultater."
-    },
     "billing": {
       "usageBanner": {
         "title": "Forbrugsgrænse overskredet:",
         "body": "Du har brugt <strong>{current}</strong> events ud af din grænse på <strong>{limit}</strong> events ({percentage} over din {plan}-plan).",
         "upgradeHint": "Opgrader for at sikre, at alle dine analysedata forbliver tilgængelige",
         "upgradeCta": "Opgrader nu"
+      },
+      "navigation": {
+        "backToDashboard": "Tilbage til dashboard",
+        "title": "Vælg din plan"
+      },
+      "page": {
+        "heading": "Opgrader din plan",
+        "subheading": "Vælg den perfekte plan til dine analysebehov."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "subtitle": "Alt du behøver at vide om vores priser og planer",
+        "items": {
+          "changePlan": {
+            "q": "Kan jeg ændre min plan når som helst?",
+            "a": "Ja! Du kan op- eller nedgradere din plan når som helst. Ændringer træder i kraft med det samme, og vi forholdsmæssigt justerer faktureringen."
+          },
+          "exceedLimit": {
+            "q": "Hvad sker der, hvis jeg overskrider min event-grænse?",
+            "a": "Vi fortsætter med at spore dine events og sender en e-mail, når du overskrider din grænse. Hvis du overskrider grænsen i mere end 30 dage, kan overskydende data blive slettet."
+          },
+          "annualBilling": {
+            "q": "Tilbyder I årlig fakturering?",
+            "a": "Lige nu tilbyder vi kun månedlig fakturering. Årlig fakturering med rabat kommer snart!"
+          },
+          "freeOption": {
+            "q": "Er der en gratis mulighed?",
+            "a": "Ja! Vores Starter-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for at komme i gang."
+          },
+          "cancelAnytime": {
+            "q": "Kan jeg opsige når som helst?",
+            "a": "Helt sikkert. Du kan opsige dit abonnement når som helst. Din plan forbliver aktiv indtil slutningen af din nuværende faktureringsperiode."
+          },
+          "paymentMethods": {
+            "q": "Hvilke betalingsmetoder accepterer I?",
+            "a": "Vi accepterer alle større kreditkort (Visa, MasterCard, American Express) og understøtter sikre betalinger via vores betalingsudbyder."
+          }
+        }
+      },
+      "interactive": {
+        "checkoutCanceled": "Betalingen blev annulleret. Du kan prøve igen når som helst.",
+        "contactForCustomPlan": "Kontakt os for en tilpasset plan",
+        "planSelectionFailed": "Kunne ikke behandle valg af plan. Prøv igen.",
+        "subscriptionChangesNote": "Ændringer i dit abonnement behandles straks gennem Stripes sikre faktureringsportal.",
+        "freePlanNote": "Start med vores gratis plan – intet kreditkort krævet."
       },
       "currentPlan": {
         "title": "Nuværende plan",
@@ -858,6 +900,10 @@
         "cancel": "Annullér abonnement"
       }
     },
+    "dataTable": {
+      "noResults": "Ingen resultater."
+    },
+
     "devices": {
       "summary": {
         "distinctDeviceTypes": "Unikke enhedstyper",

@@ -831,15 +831,57 @@
     "it": "Italiano"
   },
   "components": {
-    "dataTable": {
-      "noResults": "Nessun risultato."
-    },
     "billing": {
       "usageBanner": {
         "title": "Limite di utilizzo superato:",
         "body": "Hai utilizzato <strong>{current}</strong> eventi su un limite di <strong>{limit}</strong> eventi ({percentage} oltre il tuo piano {plan}).",
         "upgradeHint": "Esegui l'upgrade per garantire che tutti i tuoi dati restino accessibili",
         "upgradeCta": "Esegui upgrade"
+      },
+      "navigation": {
+        "backToDashboard": "Torna alla dashboard",
+        "title": "Scegli il tuo piano"
+      },
+      "page": {
+        "heading": "Aggiorna il tuo piano",
+        "subheading": "Scegli il piano perfetto per le tue esigenze analitiche."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "subtitle": "Tutto ciò che devi sapere su prezzi e piani",
+        "items": {
+          "changePlan": {
+            "q": "Posso cambiare piano in qualsiasi momento?",
+            "a": "Sì! Puoi effettuare upgrade o downgrade del piano in qualsiasi momento. Le modifiche hanno effetto immediato e adegueremo la fatturazione proporzionalmente."
+          },
+          "exceedLimit": {
+            "q": "Cosa succede se supero il limite di eventi?",
+            "a": "Continueremo a tracciare i tuoi eventi e riceverai un'email quando superi il limite. Se superi i limiti per più di 30 giorni, i dati in eccesso potrebbero essere eliminati."
+          },
+          "annualBilling": {
+            "q": "Offrite la fatturazione annuale?",
+            "a": "Attualmente offriamo solo fatturazione mensile. La fatturazione annuale con sconti arriverà presto!"
+          },
+          "freeOption": {
+            "q": "Esiste un'opzione gratuita?",
+            "a": "Sì! Il nostro piano Starter include 10.000 eventi gratuiti al mese per sempre. Nessuna carta di credito richiesta per iniziare."
+          },
+          "cancelAnytime": {
+            "q": "Posso annullare in qualsiasi momento?",
+            "a": "Assolutamente. Puoi annullare l'abbonamento in qualsiasi momento. Il piano rimarrà attivo fino alla fine del periodo di fatturazione corrente."
+          },
+          "paymentMethods": {
+            "q": "Quali metodi di pagamento accettate?",
+            "a": "Accettiamo tutte le principali carte di credito (Visa, MasterCard, American Express) e supportiamo pagamenti sicuri tramite il nostro processore di pagamenti."
+          }
+        }
+      },
+      "interactive": {
+        "checkoutCanceled": "Il checkout è stato annullato. Puoi riprovare in qualsiasi momento.",
+        "contactForCustomPlan": "Contattaci per un piano personalizzato",
+        "planSelectionFailed": "Impossibile elaborare la selezione del piano, riprova.",
+        "subscriptionChangesNote": "Le modifiche al tuo abbonamento saranno elaborate immediatamente tramite il portale di fatturazione sicuro di Stripe.",
+        "freePlanNote": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
       },
       "currentPlan": {
         "title": "Piano attuale",
@@ -859,6 +901,10 @@
         "cancel": "Annulla abbonamento"
       }
     },
+    "dataTable": {
+      "noResults": "Nessun risultato."
+    },
+
     "devices": {
       "summary": {
         "distinctDeviceTypes": "Tipi di dispositivo distinti",
