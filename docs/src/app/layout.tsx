@@ -78,13 +78,6 @@ const navbar =
     <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
   </>
 
-
-const banner = (
-  <Banner storageKey="some-key">
-    🚧 Betterlytics Docs is being worked on 🚧
-  </Banner>
-);
-
 const footer = <Footer />;
 
 export default async function RootLayout({
@@ -101,7 +94,6 @@ export default async function RootLayout({
       <Head></Head>
       <body>
         <Layout
-          banner={banner}
           navbar={navbar}
           sidebar={{ autoCollapse: true }}
           pageMap={await getPageMap()}
