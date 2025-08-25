@@ -8,6 +8,7 @@ import EventsTableSection from './EventsTableSection';
 import { EventLog } from '@/app/dashboard/[dashboardId]/events/EventLog';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
 
 type EventsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -34,12 +35,15 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
     compareEndDate,
   );
 
+  const tTabs = await getTranslations('dashboard.tabs');
+  const tPage = await getTranslations('components.events.page');
+
   return (
     <div className='container space-y-6 p-6'>
       <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
         <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Events</h1>
-          <p className='text-muted-foreground text-sm'>Analytics and insights for your custom events</p>
+          <h1 className='text-foreground mb-1 text-2xl font-bold'>{tTabs('events')}</h1>
+          <p className='text-muted-foreground text-sm'>{tPage('description')}</p>
         </div>
         <DashboardFilters />
       </div>

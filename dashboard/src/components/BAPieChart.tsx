@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
@@ -18,12 +19,13 @@ interface BAPieChartProps {
 }
 
 const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getIcon, formatValue }) => {
+  const t = useTranslations('components.devices.trends');
   if (data.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>No trend data available</p>
-          <p className='text-muted-foreground/70 text-xs'>Try adjusting the time range or filters</p>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
         </div>
       </div>
     );

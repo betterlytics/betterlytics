@@ -10,6 +10,7 @@ import { Globe, Link } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
 import { ToDataTable } from '@/presenters/toDataTable';
 import { TableCompareCell } from '@/components/TableCompareCell';
+import { useTranslations } from 'next-intl';
 
 export const ReferrerTab = {
   All: 'all',
@@ -45,6 +46,8 @@ interface ReferrerTableProps {
 
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
   const [activeTab, setActiveTab] = useState<ReferrerTabKey>(ReferrerTab.All);
+  const tTabs = useTranslations('components.referrers.table.tabs');
+  const tCols = useTranslations('components.referrers.table.columns');
 
   const totalVisits = data.reduce((sum, row) => sum + row.current.visits, 0);
 
@@ -57,7 +60,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
   const columns: ColumnDef<ToDataTable<'source_name', ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
-      header: 'Source',
+      header: tCols('source'),
       cell: ({ row }) => {
         const data = row.original.current;
         return (
@@ -71,8 +74,8 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
               {data.source_url
                 ? data.source_url
                 : data.source_type.toLowerCase() === 'direct'
-                  ? 'Direct'
-                  : 'Unknown'}
+                  ? tCols('direct')
+                  : tCols('unknown')}
             </div>
           </div>
         );
@@ -80,18 +83,18 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     },
     {
       accessorKey: 'source_type',
-      header: 'Type',
+      header: tCols('type'),
       cell: ({ row }) => <SourceTypeBadge type={row.original.current.source_type} />,
     },
     {
       accessorKey: 'visits',
-      header: 'Visits',
+      header: tCols('visits'),
       cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visits' formatter={formatNumber} />,
       accessorFn: (row) => row.current.visits,
     },
     {
       id: 'percentage',
-      header: 'Percentage',
+      header: tCols('percentage'),
       accessorFn: (row) => {
         if (totalVisits === 0) {
           return 0;
@@ -103,7 +106,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     },
     {
       accessorKey: 'bounce_rate',
-      header: 'Bounce Rate',
+      header: tCols('bounceRate'),
       cell: ({ row }) => (
         <TableCompareCell row={row.original} dataKey='bounce_rate' formatter={formatPercentage} />
       ),
@@ -111,7 +114,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     },
     {
       accessorKey: 'avg_visit_duration',
-      header: 'Avg. Visit Duration',
+      header: tCols('avgVisitDuration'),
       cell: ({ row }) => (
         <TableCompareCell row={row.original} dataKey='avg_visit_duration' formatter={formatDuration} />
       ),
@@ -123,7 +126,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     <div>
       <div className='border-border mb-4 border-b'>
         <div className='flex space-x-4 overflow-x-auto'>
-          {(Object.entries(ReferrerTab) as [ReferrerTabValue, ReferrerTabKey][]).map(([key, value]) => (
+          {(Object.values(ReferrerTab) as ReferrerTabKey[]).map((value) => (
             <button
               key={value}
               className={`border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
@@ -133,7 +136,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
               }`}
               onClick={() => setActiveTab(value)}
             >
-              {key}
+              {tTabs(value)}
             </button>
           ))}
         </div>

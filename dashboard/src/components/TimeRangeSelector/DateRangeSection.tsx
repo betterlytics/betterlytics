@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { DatePicker } from './DatePicker';
+import { useTranslations } from 'next-intl';
 
 interface DateRangeSectionProps {
   startDate: Date | undefined;
@@ -16,19 +17,20 @@ export function DateRangeSection({
   onStartDateSelect,
   onEndDateSelect,
 }: DateRangeSectionProps) {
+  const t = useTranslations('components.timeRange');
   return (
     <div>
-      <h3 className='mb-2 text-sm font-medium text-gray-500'>Current period</h3>
+      <h3 className='mb-2 text-sm font-medium text-gray-500'>{t('currentPeriod')}</h3>
       <div className='grid grid-cols-2 gap-4'>
         <DatePicker
-          label='Start date'
+          label={t('startDate')}
           date={startDate}
           onDateSelect={(date) => date && onStartDateSelect(date)}
           disabled={(date) => date > new Date()}
           id='startDateInput'
         />
         <DatePicker
-          label='End date'
+          label={t('endDate')}
           date={endDate}
           onDateSelect={(date) => date && onEndDateSelect(date)}
           disabled={(date) => {

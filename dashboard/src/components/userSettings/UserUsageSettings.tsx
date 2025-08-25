@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Zap } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { useBillingData } from '@/hooks/useBillingData';
+import { useTranslations } from 'next-intl';
 
 interface UserUsageSettingsProps {
   onCloseDialog?: () => void;
@@ -14,6 +15,7 @@ interface UserUsageSettingsProps {
 export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsProps) {
   const router = useBARouter();
   const { billingData, isLoading, error } = useBillingData();
+  const t = useTranslations('components.userSettings.usage');
 
   const handleViewPlans = () => {
     onCloseDialog?.();
@@ -31,7 +33,7 @@ export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsPr
   if (error || !billingData) {
     return (
       <div className='py-8 text-center'>
-        <p className='text-muted-foreground'>Unable to load usage data</p>
+        <p className='text-muted-foreground'>{t('error')}</p>
       </div>
     );
   }
@@ -39,10 +41,8 @@ export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsPr
   return (
     <div className='space-y-6'>
       <div>
-        <h3 className='text-lg font-medium'>Usage & Plan</h3>
-        <p className='text-muted-foreground text-sm'>
-          Monitor your current usage and manage your subscription plan.
-        </p>
+        <h3 className='text-lg font-medium'>{t('title')}</h3>
+        <p className='text-muted-foreground text-sm'>{t('description')}</p>
       </div>
 
       <CurrentPlanCard billingData={billingData} showManagementButtons={true} />
@@ -51,14 +51,12 @@ export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsPr
         <div className='space-y-1'>
           <h4 className='flex items-center gap-2 text-sm font-medium'>
             <Zap className='text-primary h-4 w-4' />
-            Need more events?
+            {t('cta.needMore')}
           </h4>
-          <p className='text-muted-foreground text-sm'>
-            Upgrade your plan to get more events and unlock additional features.
-          </p>
+          <p className='text-muted-foreground text-sm'>{t('cta.upgradeHint')}</p>
         </div>
         <Button onClick={handleViewPlans} size='sm'>
-          View Plans
+          {t('cta.viewPlans')}
         </Button>
       </div>
 

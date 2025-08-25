@@ -4,10 +4,12 @@ import DashboardCard from '@/app/dashboards/DashboardCard';
 import ButtonSkeleton from '@/components/skeleton/ButtonSkeleton';
 import { Suspense } from 'react';
 import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
+import { getTranslations } from 'next-intl/server';
 
 export default async function DashboardsPage() {
   const dashboards = await getAllUserDashboardsAction();
   const dashboardStatsPromise = getUserDashboardStatsAction();
+  const t = await getTranslations('dashboardsPage');
 
   if (!dashboards.success) {
     throw new Error('Failed to get dashboards');
@@ -19,8 +21,8 @@ export default async function DashboardsPage() {
 
       <div className='mb-8 flex items-center justify-between'>
         <div>
-          <h1 className='mb-2 text-3xl font-bold tracking-tight'>Your Dashboards</h1>
-          <p className='text-muted-foreground'>Manage and monitor analytics for all your websites.</p>
+          <h1 className='mb-2 text-3xl font-bold tracking-tight'>{t('title')}</h1>
+          <p className='text-muted-foreground'>{t('subtitle')}</p>
         </div>
         {dashboards.data.length > 0 && (
           <Suspense fallback={<ButtonSkeleton />}>
@@ -38,10 +40,8 @@ export default async function DashboardsPage() {
       ) : (
         <div className='py-16 text-center'>
           <div className='mx-auto max-w-md'>
-            <h3 className='text-foreground mb-2 text-lg font-semibold'>No dashboards yet</h3>
-            <p className='text-muted-foreground mb-6 text-sm'>
-              Create your first dashboard to start tracking analytics for your website.
-            </p>
+            <h3 className='text-foreground mb-2 text-lg font-semibold'>{t('emptyTitle')}</h3>
+            <p className='text-muted-foreground mb-6 text-sm'>{t('emptyDescription')}</p>
             <Suspense fallback={<ButtonSkeleton />}>
               <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} />
             </Suspense>

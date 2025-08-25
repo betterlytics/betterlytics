@@ -14,6 +14,7 @@ import ReferrersChartsSection from './ReferrersChartsSection';
 import ReferrersTableSection from './ReferrersTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
 
 type ReferrersPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -64,12 +65,15 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     compareEndDate,
   );
 
+  const tTabs = await getTranslations('dashboard.tabs');
+  const tPage = await getTranslations('components.referrers.page');
+
   return (
     <div className='container space-y-6 p-6'>
       <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
         <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Referrers</h1>
-          <p className='text-muted-foreground text-sm'>Analytics and insights for your website</p>
+          <h1 className='text-foreground mb-1 text-2xl font-bold'>{tTabs('referrers')}</h1>
+          <p className='text-muted-foreground text-sm'>{tPage('description')}</p>
         </div>
         <DashboardFilters />
       </div>

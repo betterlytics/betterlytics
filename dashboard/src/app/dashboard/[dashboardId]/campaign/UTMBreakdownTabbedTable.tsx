@@ -10,6 +10,7 @@ import {
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
 } from '@/app/actions';
+import { useTranslations } from 'next-intl';
 
 type UTMBreakdownTabbedTableProps = {
   sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
@@ -32,6 +33,10 @@ export default function UTMBreakdownTabbedTable({
   contentBreakdownPromise,
   termBreakdownPromise,
 }: UTMBreakdownTabbedTableProps) {
+  const t = useTranslations('components.campaign.utm');
+  const tTabs = useTranslations('components.campaign.utm.tabs');
+  const tEmpty = useTranslations('components.campaign.utm.empty');
+  const tCols = useTranslations('components.campaign.utm.columns');
   const sourceBreakdown = use(sourceBreakdownPromise);
   const mediumBreakdown = use(mediumBreakdownPromise);
   const contentBreakdown = use(contentBreakdownPromise);
@@ -47,67 +52,67 @@ export default function UTMBreakdownTabbedTable({
         },
         {
           accessorKey: 'visitors',
-          header: 'Visitors',
+          header: tCols('visitors'),
           cell: ({ row }) => <div>{row.getValue<number>('visitors').toLocaleString()}</div>,
         },
         {
           accessorKey: 'bounceRate',
-          header: 'Bounce Rate',
+          header: tCols('bounceRate'),
           cell: ({ row }) => <div>{formatPercentage(row.getValue<number>('bounceRate'))}</div>,
         },
         {
           accessorKey: 'avgSessionDuration',
-          header: 'Avg. Session Duration',
+          header: tCols('avgSessionDuration'),
           cell: ({ row }) => <div>{row.getValue('avgSessionDuration')}</div>,
         },
         {
           accessorKey: 'pagesPerSession',
-          header: 'Pages / Session',
+          header: tCols('pagesPerSession'),
           cell: ({ row }) => <div>{row.getValue<number>('pagesPerSession').toFixed(1)}</div>,
         },
       ];
     },
-    [],
+    [tCols],
   );
 
-  const sourceColumns = useMemo(() => createUTMColumns('source', 'Source'), [createUTMColumns]);
-  const mediumColumns = useMemo(() => createUTMColumns('medium', 'Medium'), [createUTMColumns]);
-  const contentColumns = useMemo(() => createUTMColumns('content', 'Content'), [createUTMColumns]);
-  const termColumns = useMemo(() => createUTMColumns('term', 'Term/Keyword'), [createUTMColumns]);
+  const sourceColumns = useMemo(() => createUTMColumns('source', tTabs('source')), [createUTMColumns, tTabs]);
+  const mediumColumns = useMemo(() => createUTMColumns('medium', tTabs('medium')), [createUTMColumns, tTabs]);
+  const contentColumns = useMemo(() => createUTMColumns('content', tTabs('content')), [createUTMColumns, tTabs]);
+  const termColumns = useMemo(() => createUTMColumns('term', tTabs('terms')), [createUTMColumns, tTabs]);
 
   const tabs: TabDefinition<BaseUTMBreakdownItem>[] = useMemo(
     () => [
       {
         key: 'source',
-        label: 'Source',
+        label: tTabs('source'),
         data: sourceBreakdown as BaseUTMBreakdownItem[],
         columns: sourceColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: 'No source breakdown data available for campaigns',
+        emptyMessage: tEmpty('source'),
       },
       {
         key: 'medium',
-        label: 'Medium',
+        label: tTabs('medium'),
         data: mediumBreakdown as BaseUTMBreakdownItem[],
         columns: mediumColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: 'No medium breakdown data available for campaigns',
+        emptyMessage: tEmpty('medium'),
       },
       {
         key: 'content',
-        label: 'Content',
+        label: tTabs('content'),
         data: contentBreakdown as BaseUTMBreakdownItem[],
         columns: contentColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: 'No content breakdown data available for campaigns',
+        emptyMessage: tEmpty('content'),
       },
       {
         key: 'term',
-        label: 'Terms',
+        label: tTabs('terms'),
         data: termBreakdown as BaseUTMBreakdownItem[],
         columns: termColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: 'No term breakdown data available for campaigns',
+        emptyMessage: tEmpty('term'),
       },
     ],
     [
@@ -119,15 +124,12 @@ export default function UTMBreakdownTabbedTable({
       mediumColumns,
       contentColumns,
       termColumns,
+      tTabs,
+      tEmpty,
     ],
   );
 
   return (
-    <TabbedTable
-      title='UTM Parameter Breakdown'
-      description='Campaign performance across different UTM parameters'
-      tabs={tabs}
-      defaultTab='source'
-    />
+    <TabbedTable title={t('table.title')} description={t('table.description')} tabs={tabs} defaultTab='source' />
   );
 }

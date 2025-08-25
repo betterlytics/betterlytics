@@ -5,16 +5,18 @@ import { ColumnDef } from '@tanstack/react-table';
 import { OSIcon } from '@/components/icons';
 import { fetchOperatingSystemBreakdownAction } from '@/app/actions/devices';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
+import { useTranslations } from 'next-intl';
 
 interface OperatingSystemTableProps {
   data: Awaited<ReturnType<typeof fetchOperatingSystemBreakdownAction>>;
 }
 
 export default function OperatingSystemTable({ data }: OperatingSystemTableProps) {
+  const tCols = useTranslations('components.devices.tables.columns');
   const columns: ColumnDef<Awaited<ReturnType<typeof fetchOperatingSystemBreakdownAction>>[number]>[] = [
     {
       accessorKey: 'os',
-      header: 'Operating System',
+      header: tCols('os'),
       cell: ({ row }) => (
         <div className='flex items-center gap-2'>
           <OSIcon name={row.original.os} className='h-4 w-4' />
@@ -24,7 +26,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
     },
     {
       accessorKey: 'visitors',
-      header: 'Visitors',
+      header: tCols('visitors'),
       cell: ({ row }) => (
         <div className='flex flex-col'>
           <div>{row.original.current.visitors.toLocaleString()}</div>
@@ -39,7 +41,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
     },
     {
       accessorKey: 'percentage',
-      header: 'Percentage',
+      header: tCols('percentage'),
       cell: ({ row }) => (
         <div className='flex flex-col'>
           <div>{`${row.original.current.percentage}%`}</div>

@@ -9,6 +9,7 @@ import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
 import { createStripeCheckoutSession, createStripeCustomerPortalSession } from '@/actions/stripe';
 import type { UserBillingData } from '@/entities/billing';
 import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
+import { useTranslations } from 'next-intl';
 
 interface BillingInteractiveProps {
   billingData: UserBillingData;
@@ -18,10 +19,11 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const t = useTranslations('components.billing.interactive');
 
   useEffect(() => {
     if (searchParams?.get('canceled') === 'true') {
-      toast.info('Checkout was canceled. You can try again anytime.');
+      toast.info(t('checkoutCanceled'));
     }
   }, [searchParams]);
 
@@ -30,7 +32,7 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
       const validatedPlan = SelectedPlanSchema.parse(planData);
 
       if (validatedPlan.tier === 'enterprise') {
-        toast.info('Please contact us for a custom plan');
+        toast.info(t('contactForCustomPlan'));
         return;
       }
 
@@ -44,7 +46,7 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
         if (portalUrl.success) {
           window.location.href = portalUrl.data;
         } else {
-          throw new Error('No customer portal URL received');
+          throw new Error('NO_PORTAL_URL');
         }
         return;
       }
@@ -53,10 +55,10 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
       if (result.success) {
         window.location.href = result.data;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error('NO_CHECKOUT_URL');
       }
     } catch {
-      toast.error('Failed to process plan selection, please try again.');
+      toast.error(t('planSelectionFailed'));
     }
   };
 
@@ -66,11 +68,9 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
 
       <div className='mt-6 text-center'>
         {billingData.isExistingPaidSubscriber ? (
-          <p className='text-muted-foreground text-sm'>
-            Changes to your subscription will be processed immediately through Stripe's secure billing portal.
-          </p>
+          <p className='text-muted-foreground text-sm'>{t('subscriptionChangesNote')}</p>
         ) : (
-          <p className='text-muted-foreground text-sm'>Start with our free plan - no credit card required.</p>
+          <p className='text-muted-foreground text-sm'>{t('freePlanNote')}</p>
         )}
       </div>
 

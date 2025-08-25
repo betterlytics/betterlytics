@@ -18,11 +18,13 @@ import { BAAvatar } from '../avatar/BAAvatar';
 import { useTopLoader } from 'nextjs-toploader';
 import ExternalLink from '@/components/ExternalLink';
 import NextLink from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const { start: startLoader } = useTopLoader();
+  const t = useTranslations('components.topbar.userMenu');
 
   const handleSignOut = async () => {
     startLoader();
@@ -55,7 +57,7 @@ export default function BATopbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant='ghost' className='flex h-10 items-center space-x-2 rounded-full px-3'>
                       <span className='text-foreground hidden text-sm font-medium sm:block'>
-                        {session.user?.name || 'User'}
+                        {session.user?.name || t('userFallback')}
                       </span>
                       <BAAvatar />
                     </Button>
@@ -63,7 +65,9 @@ export default function BATopbar() {
                   <DropdownMenuContent className='w-56' align='end' forceMount>
                     <DropdownMenuLabel className='font-normal'>
                       <div className='flex flex-col space-y-1'>
-                        <p className='text-sm leading-none font-medium'>{session.user?.name || 'User'}</p>
+                        <p className='text-sm leading-none font-medium'>
+                          {session.user?.name || t('userFallback')}
+                        </p>
                         <p className='text-muted-foreground text-xs leading-none'>{session.user?.email}</p>
                       </div>
                     </DropdownMenuLabel>
@@ -71,31 +75,31 @@ export default function BATopbar() {
                     <DropdownMenuItem asChild className='cursor-pointer'>
                       <NextLink href='/dashboards'>
                         <LayoutDashboard className='mr-2 h-4 w-4' />
-                        <span>Dashboards</span>
+                        <span>{t('dashboards')}</span>
                       </NextLink>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className='cursor-pointer'>
                       <NextLink href='/billing'>
                         <CreditCard className='mr-2 h-4 w-4' />
-                        <span>Upgrade Plan</span>
+                        <span>{t('upgradePlan')}</span>
                       </NextLink>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSettingsClick} className='cursor-pointer'>
                       <Settings className='mr-2 h-4 w-4' />
-                      <span>Settings</span>
+                      <span>{t('settings')}</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem asChild className='cursor-pointer'>
-                      <ExternalLink href='/docs' title='Complete Betterlytics Documentation'>
+                      <ExternalLink href='/docs' title={t('documentationTitle')}>
                         <ExternalLinkIcon className='mr-2 h-4 w-4' />
-                        <span>Documentation</span>
+                        <span>{t('documentation')}</span>
                       </ExternalLink>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
                       <LogOut className='mr-2 h-4 w-4' />
-                      <span>Log out</span>
+                      <span>{t('logout')}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

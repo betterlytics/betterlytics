@@ -16,6 +16,7 @@ import ReferrerLegend from './ReferrerLegend';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
+import { useTranslations } from 'next-intl';
 
 interface ReferrerTrafficTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -30,12 +31,13 @@ export default function ReferrerTrafficTrendChart({
   comparisonMap,
   granularity,
 }: ReferrerTrafficTrendChartProps) {
+  const t = useTranslations('components.devices.trends');
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>No trend data available</p>
-          <p className='text-muted-foreground/70 text-xs'>Try adjusting the time range or filters</p>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
         </div>
       </div>
     );

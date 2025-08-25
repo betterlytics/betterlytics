@@ -18,6 +18,7 @@ import { Plus, Lock } from 'lucide-react';
 import { createDashboardAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
 import { domainValidation } from '@/entities/dashboard';
 import { useBARouter } from '@/hooks/use-ba-router';
+import { useTranslations } from 'next-intl';
 
 interface CreateDashboardDialogProps {
   dashboardStatsPromise: ReturnType<typeof getUserDashboardStatsAction>;
@@ -29,6 +30,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
   const [validationError, setValidationError] = useState<string>('');
   const [isPending, startTransition] = useTransition();
   const router = useBARouter();
+  const t = useTranslations('components.dashboards.createDialog');
 
   const dashboardStats = use(dashboardStatsPromise);
 
@@ -50,7 +52,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
     const result = domainValidation.safeParse(domain);
 
     if (!result.success) {
-      setValidationError(result.error.errors[0]?.message || 'Invalid domain');
+      setValidationError(result.error.errors[0]?.message || t('errors.invalidDomain'));
       return;
     }
 
@@ -58,11 +60,11 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
       const newDashboard = await createDashboardAction(result.data);
 
       if (!newDashboard.success) {
-        toast.error('Failed to create dashboard.');
+        toast.error(t('toast.createFailed'));
         return;
       }
 
-      toast.success('Dashboard created! Setting up integration...');
+      toast.success(t('toast.createdInitializing'));
       setOpen(false);
       setDomain('');
       setValidationError('');
@@ -88,12 +90,12 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
       {canCreateMore ? (
         <>
           <Plus className='h-4 w-4' />
-          Create Dashboard
+          {t('buttons.create')}
         </>
       ) : (
         <>
           <Lock className='h-4 w-4' />
-          Create Dashboard
+          {t('buttons.create')}
         </>
       )}
     </Button>
@@ -105,7 +107,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
     <Tooltip>
       <TooltipTrigger asChild>{createButton}</TooltipTrigger>
       <TooltipContent>
-        <p>You've reached your dashboard limit. Upgrade your plan to create more dashboards.</p>
+        <p>{t('limitTooltip')}</p>
       </TooltipContent>
     </Tooltip>
   );
@@ -115,37 +117,37 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
       <DialogTrigger asChild>{triggerElement}</DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle>Create New Dashboard</DialogTitle>
-          <DialogDescription>Enter your website domain to start tracking analytics.</DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='domain' className='font-medium'>
-              Website Domain
+              {t('label.domain')}
             </Label>
             <Input
               id='domain'
               type='text'
               value={domain}
               onChange={(evt) => handleDomainChange(evt.target.value)}
-              placeholder='example.com'
+              placeholder={t('placeholder.domain')}
               className={`w-full ${validationError ? 'border-destructive' : ''}`}
               disabled={isPending}
             />
             {validationError ? (
               <p className='text-destructive text-xs'>{validationError}</p>
             ) : (
-              <p className='text-muted-foreground text-xs'>Enter your domain without https:// or www.</p>
+              <p className='text-muted-foreground text-xs'>{t('helper.domain')}</p>
             )}
           </div>
 
           <div className='flex justify-end space-x-2 pt-4'>
             <Button type='button' variant='outline' onClick={() => handleOpenChange(false)} disabled={isPending}>
-              Cancel
+              {t('buttons.cancel')}
             </Button>
             <Button type='submit' disabled={isPending || !isFormValid}>
-              {isPending ? 'Creating...' : 'Create Dashboard'}
+              {isPending ? t('buttons.creating') : t('buttons.create')}
             </Button>
           </div>
         </form>

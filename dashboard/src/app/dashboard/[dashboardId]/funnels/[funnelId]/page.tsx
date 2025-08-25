@@ -9,6 +9,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { SummaryCardsSkeleton } from '@/components/skeleton';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
 
 type FunnelPageProps = {
   params: Promise<{ dashboardId: string; funnelId: string }>;
@@ -27,12 +28,14 @@ export default async function FunnelPage({ params, searchParams }: FunnelPagePro
   const { dashboardId, funnelId } = await params;
   const funnelPromise = fetchFunnelDetailsAction(dashboardId, funnelId, startDate, endDate);
 
+  const tPage = await getTranslations('components.funnels.details');
+
   return (
     <div className='container space-y-6 p-6'>
       <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
         <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Funnel Analysis</h1>
-          <p className='text-muted-foreground text-sm'>Detailed funnel conversion analysis</p>
+          <h1 className='text-foreground mb-1 text-2xl font-bold'>{tPage('title')}</h1>
+          <p className='text-muted-foreground text-sm'>{tPage('description')}</p>
         </div>
         <DashboardFilters />
       </div>
