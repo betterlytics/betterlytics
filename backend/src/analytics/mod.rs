@@ -25,6 +25,8 @@ pub struct RawTrackingEvent {
     pub screen_resolution: String,
     /// Timestamp of the event
     pub timestamp: u64,
+    /// Scroll depth percentage (0-100)
+    pub scroll_depth: Option<f32>,
 }
 
 /// The main analytics event type that includes server-side data
