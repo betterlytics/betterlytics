@@ -807,6 +807,12 @@
     "title": "Devices",
     "description": "Visitor device breakdown and usage analytics"
   },
+  "dashboardsPage": {
+    "title": "Your Dashboards",
+    "subtitle": "Manage and monitor analytics for all your websites.",
+    "emptyTitle": "No dashboards yet",
+    "emptyDescription": "Create your first dashboard to start tracking analytics for your website."
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -826,6 +832,34 @@
     "en": "English"
   },
   "components": {
+    "dashboards": {
+      "createDialog": {
+        "title": "Create New Dashboard",
+        "description": "Enter your website domain to start tracking analytics.",
+        "label": {
+          "domain": "Website Domain"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Enter your domain without https:// or www."
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "create": "Create Dashboard",
+          "creating": "Creating..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard created! Setting up integration...",
+          "createFailed": "Failed to create dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Invalid domain"
+        },
+        "limitTooltip": "You've reached your dashboard limit. Upgrade your plan to create more dashboards."
+      }
+    },
     "billing": {
       "usageBanner": {
         "title": "Usage Limit Exceeded:",

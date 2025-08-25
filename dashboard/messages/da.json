@@ -811,6 +811,12 @@
     "title": "Enheder",
     "description": "Opdeling af besøgendes enheder og anvendelsesanalyse"
   },
+  "dashboardsPage": {
+    "title": "Dine dashboards",
+    "subtitle": "Administrér og overvåg analyse for alle dine websites.",
+    "emptyTitle": "Ingen dashboards endnu",
+    "emptyDescription": "Opret dit første dashboard for at begynde at spore analyse for din hjemmeside."
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -830,6 +836,34 @@
     "en": "Engelsk"
   },
   "components": {
+    "dashboards": {
+      "createDialog": {
+        "title": "Opret nyt dashboard",
+        "description": "Indtast dit website-domæne for at begynde at spore analyse.",
+        "label": {
+          "domain": "Website-domæne"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Indtast dit domæne uden https:// eller www."
+        },
+        "buttons": {
+          "cancel": "Annuller",
+          "create": "Opret dashboard",
+          "creating": "Opretter..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard oprettet! Opsætter integration...",
+          "createFailed": "Kunne ikke oprette dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Ugyldigt domæne"
+        },
+        "limitTooltip": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards."
+      }
+    },
     "billing": {
       "usageBanner": {
         "title": "Forbrugsgrænse overskredet:",

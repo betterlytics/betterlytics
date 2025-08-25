@@ -811,6 +811,43 @@
     "title": "Dispositivi",
     "description": "Suddivisione dei dispositivi dei visitatori e analisi d'uso"
   },
+  "dashboardsPage": {
+    "title": "Le tue dashboard",
+    "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
+    "emptyTitle": "Nessuna dashboard ancora",
+    "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito."
+  },
+  "componentsBilling": {
+    "dashboards": {
+      "createDialog": {
+        "title": "Crea nuova dashboard",
+        "description": "Inserisci il dominio del tuo sito per iniziare a tracciare le analitiche.",
+        "label": {
+          "domain": "Dominio del sito web"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Inserisci il dominio senza https:// o www."
+        },
+        "buttons": {
+          "cancel": "Annulla",
+          "create": "Crea dashboard",
+          "creating": "Creazione in corso..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard creata! Configurazione integrazione...",
+          "createFailed": "Impossibile creare la dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Dominio non valido"
+        },
+        "limitTooltip": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
+      }
+    }
+  },
+
   "charts": {
     "tooltip": {
       "vs": "vs",
