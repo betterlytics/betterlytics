@@ -25,6 +25,8 @@ pub struct RawTrackingEvent {
     pub screen_resolution: String,
     /// Timestamp of the event
     pub timestamp: u64,
+    /// Outbound link URL (only for outbound_link events)
+    pub outbound_link_url: Option<String>,
 }
 
 /// The main analytics event type that includes server-side data
