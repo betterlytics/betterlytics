@@ -937,6 +937,12 @@
     "dataTable": {
       "noResults": "Ingen resultater."
     },
+    "loading": {
+      "dashboard": {
+        "initializing": "Initialiserer dashboard",
+        "loadingSettings": "Indlæser dine dashboard-indstillinger..."
+      }
+    },
 
     "devices": {
       "summary": {

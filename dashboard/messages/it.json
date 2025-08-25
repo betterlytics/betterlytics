@@ -941,6 +941,12 @@
     "dataTable": {
       "noResults": "Nessun risultato."
     },
+    "loading": {
+      "dashboard": {
+        "initializing": "Inizializzazione dashboard",
+        "loadingSettings": "Caricamento impostazioni della dashboard..."
+      }
+    },
 
     "devices": {
       "summary": {
