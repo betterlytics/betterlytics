@@ -1213,6 +1213,21 @@
         "dismiss": "Chiudi",
         "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
         "toastFailure": "Invio dell'email di verifica non riuscito"
+      },
+      "requiredModal": {
+        "title": "Verifica email richiesta",
+        "subtitle": "Verifica la tua email per aggiornare il tuo piano",
+        "whyTitle": "Perché verificare la tua email?",
+        "whyItems": {
+          "secureBilling": "Fatturazione sicura e conferme di pagamento",
+          "notifications": "Notifiche e avvisi importanti per l'account",
+          "security": "Maggiore sicurezza e recupero dell'account"
+        },
+        "verifyLine": "Ciao {name}, dobbiamo verificare il tuo indirizzo email <strong>{email}</strong> prima che tu possa passare a un piano a pagamento.",
+        "sentTitle": "Email di verifica inviata!",
+        "sentInfo": "Controlla la posta in arrivo e la cartella spam. Il link di verifica scadrà tra 24 ore.",
+        "cancel": "Annulla",
+        "continue": "Torna alla dashboard"
       }
     },
     "settingsPopover": {

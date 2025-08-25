@@ -1212,6 +1212,21 @@
         "dismiss": "Skjul",
         "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
         "toastFailure": "Kunne ikke sende bekræftelsesmail"
+      },
+      "requiredModal": {
+        "title": "E-mailbekræftelse påkrævet",
+        "subtitle": "Bekræft din e-mail for at opgradere din plan",
+        "whyTitle": "Hvorfor bekræfte din e-mail?",
+        "whyItems": {
+          "secureBilling": "Sikker fakturering og betalingsbekræftelser",
+          "notifications": "Vigtige kontonotifikationer og advarsler",
+          "security": "Forbedret kontosikkerhed og gendannelse"
+        },
+        "verifyLine": "Hej {name}, vi skal bekræfte din e-mailadresse <strong>{email}</strong>, før du kan opgradere til en betalt plan.",
+        "sentTitle": "Bekræftelsesmail sendt!",
+        "sentInfo": "Tjek din indbakke og spammappe. Bekræftelseslinket udløber om 24 timer.",
+        "cancel": "Annuller",
+        "continue": "Fortsæt til dashboard"
       }
     },
     "settingsPopover": {

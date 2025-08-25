@@ -1208,6 +1208,21 @@
         "dismiss": "Dismiss",
         "toastSuccess": "Verification email sent! Please check your inbox.",
         "toastFailure": "Failed to send verification email"
+      },
+      "requiredModal": {
+        "title": "Email Verification Required",
+        "subtitle": "Please verify your email to upgrade your plan",
+        "whyTitle": "Why verify your email?",
+        "whyItems": {
+          "secureBilling": "Secure billing and payment confirmations",
+          "notifications": "Important account notifications and alerts",
+          "security": "Enhanced account security and recovery"
+        },
+        "verifyLine": "Hi {name}, we need to verify your email address <strong>{email}</strong> before you can upgrade to a paid plan.",
+        "sentTitle": "Verification email sent!",
+        "sentInfo": "Please check your inbox and spam folder. The verification link will expire in 24 hours.",
+        "cancel": "Cancel",
+        "continue": "Continue to Dashboard"
       }
     },
     "settingsPopover": {
