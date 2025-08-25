@@ -15,12 +15,17 @@ export const DailyOutboundClicksRowSchema = z.object({
   outboundClicks: z.number().int().min(0),
 });
 
-// Summary data with charts (similar to pages summary)
-export const OutboundLinksSummaryWithChartsSchema = z.object({
+// Summary data
+export const OutboundLinkSummarySchema = z.object({
   totalClicks: z.number().int().min(0),
   uniqueVisitors: z.number().int().min(0),
   topDomain: z.string().nullable(),
   topSourceUrl: z.string().nullable(),
+});
+
+// Summary data with charts (similar to pages summary)
+export const OutboundLinksSummaryWithChartsSchema = OutboundLinkSummarySchema.extend({
+  dailyClicksChartData: z.array(DailyOutboundClicksRowSchema),
 });
 
 // Pie chart schema
@@ -31,5 +36,6 @@ export const TopOutboundLinksDistrubutionSchema = z.object({
 
 export type OutboundLinkRow = z.infer<typeof OutboundLinkRowSchema>;
 export type DailyOutboundClicksRow = z.infer<typeof DailyOutboundClicksRowSchema>;
+export type OutboundLinksSummary = z.infer<typeof OutboundLinkSummarySchema>;
 export type OutboundLinksSummaryWithCharts = z.infer<typeof OutboundLinksSummaryWithChartsSchema>;
 export type TopOutboundLinksDistrubution = z.infer<typeof TopOutboundLinksDistrubutionSchema>;

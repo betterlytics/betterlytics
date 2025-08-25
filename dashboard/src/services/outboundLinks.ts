@@ -12,6 +12,7 @@ import {
   DailyOutboundClicksRow,
   OutboundLinksSummaryWithCharts,
   OutboundLinksSummaryWithChartsSchema,
+  TopOutboundLinksDistrubution,
 } from '@/entities/outboundLinks';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
@@ -71,7 +72,7 @@ export async function getOutboundLinksDistributionForSite(
   startDate: Date,
   endDate: Date,
   queryFilters: QueryFilter[],
-): Promise<Array<{ outbound_link_url: string; clicks: number }>> {
+): Promise<Array<TopOutboundLinksDistrubution>> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
   return getOutboundLinksDistribution(siteId, formattedStart, formattedEnd, queryFilters);

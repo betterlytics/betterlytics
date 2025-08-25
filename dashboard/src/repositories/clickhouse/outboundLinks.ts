@@ -5,8 +5,8 @@ import {
   DailyOutboundClicksRowSchema,
   TopOutboundLinksDistrubutionSchema,
   TopOutboundLinksDistrubution,
-  OutboundLinksSummaryWithChartsSchema,
-  OutboundLinksSummaryWithCharts,
+  OutboundLinksSummary,
+  OutboundLinkSummarySchema,
 } from '@/entities/outboundLinks';
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
@@ -209,7 +209,7 @@ export async function getOutboundLinksSummary(
   startDate: DateTimeString,
   endDate: DateTimeString,
   queryFilters: QueryFilter[],
-): Promise<OutboundLinksSummaryWithCharts> {
+): Promise<OutboundLinksSummary> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -285,7 +285,7 @@ export async function getOutboundLinksSummary(
     })
     .toPromise()) as any[];
 
-  return OutboundLinksSummaryWithChartsSchema.parse({
+  return OutboundLinkSummarySchema.parse({
     totalClicks: result[0]?.totalClicks || 0,
     uniqueVisitors: result[0]?.uniqueVisitors || 0,
     topDomain: topDomainResult[0]?.domain || null,
