@@ -66,6 +66,9 @@ export default async function RegisterPage() {
     );
   }
 
+  // Redirect to new onboarding flow
+  redirect('/onboarding');
+
   return (
     <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
       <div className='w-full max-w-md space-y-8'>
