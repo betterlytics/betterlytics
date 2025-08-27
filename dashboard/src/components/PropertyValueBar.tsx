@@ -24,7 +24,7 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
       <div className='relative h-7 overflow-hidden rounded-sm text-xs xl:text-sm'>
         <Progress
           value={Math.max(value.relativePercentage, 2)}
-          className='bg-muted/30 group-hover:bg-muted/40 [&>div]:bg-primary/80 absolute bottom-0 h-1 rounded-sm transition-colors duration-200'
+          className='bg-muted/30 group-hover:bg-muted/40 [&>div]:bg-primary/30 h-full rounded-sm transition-colors duration-200'
         />
 
         <div className='absolute inset-0 z-10 flex items-center justify-between px-3'>
