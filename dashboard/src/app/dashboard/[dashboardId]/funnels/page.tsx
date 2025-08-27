@@ -8,6 +8,7 @@ import { CreateFunnelDialog } from './CreateFunnelDialog';
 import TimeRangeSelector from '@/components/TimeRangeSelector';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import DashboardFilters from '@/components/dashboard/DashboardFilters';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -27,16 +28,9 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
 
   return (
     <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 xl:flex-row xl:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Funnels</h1>
-          <p className='text-muted-foreground text-sm'>Analyze user conversion paths</p>
-        </div>
-        <div className='flex flex-col-reverse gap-4 lg:flex-row lg:justify-end xl:items-center'>
-          <CreateFunnelDialog />
-          <TimeRangeSelector />
-        </div>
-      </div>
+      <DashboardFilters>
+        <CreateFunnelDialog />
+      </DashboardFilters>
 
       <Suspense
         fallback={

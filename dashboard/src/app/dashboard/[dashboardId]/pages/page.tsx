@@ -64,13 +64,7 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
 
   return (
     <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Pages</h1>
-          <p className='text-muted-foreground text-sm'>Analytics and insights for your website</p>
-        </div>
-        <DashboardFilters />
-      </div>
+      <DashboardFilters />
 
       <Suspense fallback={<SummaryCardsSkeleton />}>
         <PagesSummarySection pagesSummaryWithChartsPromise={pagesSummaryWithChartsPromise} />

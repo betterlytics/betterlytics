@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/spinner';
 import UserJourneySection from '@/app/dashboard/[dashboardId]/user-journey/UserJourneySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { UserJourneyFilters } from './UserJourneyFilters';
 
 type UserJourneyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -35,13 +36,9 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
 
   return (
     <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>User Journey</h1>
-          <p className='text-muted-foreground text-sm'>Analytics and insights for your website</p>
-        </div>
-        <DashboardFilters showComparison={false} />
-      </div>
+      <DashboardFilters showComparison={false}>
+        <UserJourneyFilters />
+      </DashboardFilters>
 
       <Suspense
         fallback={

@@ -71,13 +71,7 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
 
   return (
     <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Outbound Links</h1>
-          <p className='text-muted-foreground text-sm'>Track clicks to external websites</p>
-        </div>
-        <DashboardFilters />
-      </div>
+      <DashboardFilters />
 
       <ActiveQueryFilters />
 
