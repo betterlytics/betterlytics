@@ -1,4 +1,4 @@
-import { Roboto, Roboto_Mono } from 'next/font/google';
+import { Inter, Inter_Tight } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { env } from '@/lib/env';
@@ -9,13 +9,13 @@ import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 
-const robotoSans = Roboto({
+const robotoSans = Inter({
   variable: '--font-roboto-sans',
   subsets: ['latin'],
   weight: '400',
 });
 
-const robotoMono = Roboto_Mono({
+const robotoMono = Inter_Tight({
   variable: '--font-roboto-mono',
   subsets: ['latin'],
 });
