@@ -1,10 +1,10 @@
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { timeFormat } from 'd3-time-format';
 import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
 
 export interface TrendInfo {
-  icon: typeof TrendingUp | typeof TrendingDown | typeof Minus;
+  icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
   color: string;
   bgColor: string;
 }
@@ -16,10 +16,10 @@ export function getTrendInfo(current: number, previous: number, hasComparison: b
 
   const diff = current - previous;
   if (diff > 0) {
-    return { icon: TrendingUp, color: 'text-green-400', bgColor: 'bg-green-500/10' };
+    return { icon: ChevronUp, color: 'text-green-400', bgColor: 'bg-green-500/10' };
   }
   if (diff < 0) {
-    return { icon: TrendingDown, color: 'text-red-400', bgColor: 'bg-red-500/10' };
+    return { icon: ChevronDown, color: 'text-red-400', bgColor: 'bg-red-500/10' };
   }
   return { icon: Minus, color: 'text-gray-400', bgColor: 'bg-gray-500/10' };
 }

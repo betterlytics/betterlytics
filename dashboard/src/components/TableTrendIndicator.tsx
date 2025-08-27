@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Minus } from 'lucide-react';
 
 type TableTrendIndicatorProps = {
   current: number;
@@ -34,7 +34,7 @@ export function TableTrendIndicator({
 
   const isPositive = current - comparedData > 0;
   const color = isPositive ? 'text-green-400' : 'text-red-400';
-  const Icon = isPositive ? TrendingUp : TrendingDown;
+  const Icon = isPositive ? ChevronUp : ChevronDown;
   const sign = isPositive ? '+' : '-';
 
   return (
@@ -42,7 +42,7 @@ export function TableTrendIndicator({
       <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
       {comparedData !== 0 && (
         <>
-          <Icon className='h-3 w-3' />
+          <Icon className='h-3 w-3' fill={'currentColor'} />
           <span>
             {sign}
             {Math.abs(percentage).toFixed(1)}%

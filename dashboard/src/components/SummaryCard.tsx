@@ -132,9 +132,9 @@ const SummaryCard = React.memo(
                 }`}
               >
                 {trendData.direction === 'up' ? (
-                  <ChevronUp className='h-3 w-3' />
+                  <ChevronUp className='h-3 w-3' fill='currentColor' />
                 ) : (
-                  <ChevronDown className='h-3 w-3' />
+                  <ChevronDown className='h-3 w-3' fill='currentColor' />
                 )}
                 <span>{trendData.percentage.toFixed(1)}%</span>
               </Badge>
