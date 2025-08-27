@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Roboto, Roboto_Mono } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { env } from '@/lib/env';
@@ -9,13 +9,14 @@ import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const robotoSans = Roboto({
+  variable: '--font-roboto-sans',
   subsets: ['latin'],
+  weight: '400',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const robotoMono = Roboto_Mono({
+  variable: '--font-roboto-mono',
   subsets: ['latin'],
 });
 
@@ -59,7 +60,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
         <NextIntlClientProvider>
           <Providers>{children}</Providers>
