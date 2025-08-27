@@ -8,8 +8,7 @@ import {
   fetchOutboundClicksChartAction,
   fetchOutboundLinksDistributionAction,
 } from '@/app/actions/outboundLinks';
-import { SummaryCardsSkeleton, TableSkeleton, ChartSkeleton } from '@/components/skeleton';
-import OutboundLinksSummarySection from './OutboundLinksSummarySection';
+import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import OutboundLinksTableSection from './OutboundLinksTableSection';
 import OutboundLinksChartSection from './OutboundLinksChartSection';
 import OutboundLinksPieChart from './OutboundLinksPieChart';
@@ -32,14 +31,6 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
   const { dashboardId } = await params;
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
-
-  const outboundLinksSummaryWithChartsPromise = fetchOutboundLinksSummaryWithChartsAction(
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    queryFilters,
-  );
 
   const outboundLinksAnalyticsPromise = fetchOutboundLinksAnalyticsAction(
     dashboardId,
@@ -74,12 +65,6 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
       <DashboardFilters />
 
       <ActiveQueryFilters />
-
-      <Suspense fallback={<SummaryCardsSkeleton />}>
-        <OutboundLinksSummarySection
-          outboundLinksSummaryWithChartsPromise={outboundLinksSummaryWithChartsPromise}
-        />
-      </Suspense>
 
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
         <Suspense fallback={<ChartSkeleton />}>
