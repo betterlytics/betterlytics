@@ -23,7 +23,7 @@ export default function SettingsButton() {
         <PopoverTrigger asChild>
           <Button
             variant='ghost'
-            className='hover:bg-accent hover:text-accent-foreground text-foreground flex w-full items-center gap-2 rounded px-2 py-2 text-sm font-medium'
+            className='text-foreground flex w-full items-center gap-2 rounded px-2 py-2 text-sm font-medium hover:bg-[var(--hover)]'
           >
             <Settings size={18} />
             Dashboard Settings

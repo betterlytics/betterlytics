@@ -92,22 +92,27 @@ export default function QueryFiltersSelector() {
           </div>
         </div>
       ) : (
-        <div className='flex flex-col items-center justify-center px-4 py-4 pb-8 text-center'>
-          <div className='bg-muted mb-4 rounded-full p-3'>
-            <FilterIcon className='text-muted-foreground h-6 w-6' />
+        <div className='space-y-2'>
+          <div className='space-y-3'>
+            <QueryFilterInputRow
+              key={'new'}
+              onFilterUpdate={updateQueryFilter}
+              filter={addEmptyQueryFilter() as any}
+              requestRemoval={(filter) => removeQueryFilter(filter.id)}
+            />
           </div>
-          <h3 className='mb-1 text-base font-medium'>No active filters</h3>
-          <p className='text-muted-foreground mb-4 max-w-[260px] text-sm'>
-            Add filters to refine your analytics data and focus on specific segments.
-          </p>
-          <div className='flex w-full flex-col gap-2'>
-            <Button className='w-full' size='sm' onClick={addEmptyQueryFilter}>
-              <PlusIcon className='mr-2 h-4 w-4' />
-              Add your first filter
+          <Separator />
+          <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
+            <Button className='h-8 w-full md:w-28' onClick={addEmptyQueryFilter} variant='outline'>
+              Add filter
             </Button>
-            <div className='text-muted-foreground mt-2 flex items-center gap-2 text-xs'>
-              <SettingsIcon className='h-3 w-3' />
-              <span>Common filters: Country, Browser, URL, Device</span>
+            <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
+              <Button className='h-8 w-[48%] max-w-[110px]' onClick={cancelFilters} variant='ghost'>
+                Cancel
+              </Button>
+              <Button className='h-8 w-[48%] max-w-[110px]' onClick={saveFilters}>
+                Apply
+              </Button>
             </div>
           </div>
         </div>

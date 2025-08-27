@@ -10,8 +10,10 @@ import {
 } from '@/app/actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
+import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
+import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 
-type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
+type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
 interface MetricConfig {
   title: string;
@@ -25,11 +27,13 @@ export default function OverviewChartSection({
   visitorsData,
   pageviewsData,
   sessionMetricsData,
+  cards,
 }: {
   activeMetric: ActiveMetric;
   visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>;
   pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>;
   sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>;
+  cards?: SummaryCardData[];
 }) {
   const t = useTranslations('dashboard');
 
@@ -40,21 +44,31 @@ export default function OverviewChartSection({
         valueField: 'unique_visitors',
         color: 'var(--chart-1)',
       },
+      sessions: {
+        title: 'Sessions',
+        valueField: 'unique_visitors',
+        color: 'var(--chart-1)',
+      },
+      pagesPerSession: {
+        title: 'Pages per Session',
+        valueField: 'unique_visitors',
+        color: 'var(--chart-1)',
+      },
       pageviews: {
         title: t('metrics.totalPageviews'),
         valueField: 'views',
-        color: 'var(--chart-2)',
+        color: 'var(--chart-1)',
       },
       bounceRate: {
         title: t('metrics.bounceRate'),
         valueField: 'bounce_rate',
-        color: 'var(--chart-3)',
+        color: 'var(--chart-1)',
         formatValue: (value: number) => `${value}%`,
       },
       avgDuration: {
         title: t('metrics.avgVisitDuration'),
         valueField: 'avg_visit_duration',
-        color: 'var(--chart-4)',
+        color: 'var(--chart-1)',
         formatValue: (value: number) => formatDuration(value),
       },
     }),
@@ -65,8 +79,14 @@ export default function OverviewChartSection({
     switch (activeMetric) {
       case 'visitors':
         return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
+      case 'sessions':
+        // Temporary: reuse visitors data for sessions until sessions endpoint exists
+        return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
       case 'pageviews':
         return { chartData: pageviewsData.data, comparisonMap: pageviewsData.comparisonMap };
+      case 'pagesPerSession':
+        // Temporary reuse visitors data until dedicated endpoint exists
+        return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
       case 'bounceRate':
         return {
           chartData: sessionMetricsData.bounceRate.data,
@@ -87,12 +107,13 @@ export default function OverviewChartSection({
 
   return (
     <InteractiveChart
-      title={currentMetricConfig.title}
+      title={undefined}
       data={chartData}
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
       granularity={granularity}
       comparisonMap={comparisonMap}
+      headerContent={cards ? <InlineMetricsHeader cards={cards} /> : undefined}
     />
   );
 }

@@ -59,7 +59,11 @@ function TabbedTable<TData>({
               {headerActions && <div>{headerActions}</div>}
               <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
                 {tabs.map((tab) => (
-                  <TabsTrigger key={tab.key} value={tab.key} className='px-3 py-1 text-xs font-medium'>
+                  <TabsTrigger
+                    key={tab.key}
+                    value={tab.key}
+                    className='px-3 py-1 text-xs font-medium hover:bg-[var(--hover)]'
+                  >
                     {tab.label}
                   </TabsTrigger>
                 ))}

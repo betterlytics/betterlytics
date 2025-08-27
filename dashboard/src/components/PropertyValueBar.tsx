@@ -20,7 +20,7 @@ interface PropertyValueBarProps {
 
 export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) {
   return (
-    <div className='group hover:bg-muted/20 relative rounded-sm transition-colors duration-200'>
+    <div className='group relative rounded-sm transition-colors duration-200 hover:bg-[var(--hover)]'>
       <div className='relative h-7 overflow-hidden rounded-sm text-xs xl:text-sm'>
         <Progress
           value={Math.max(value.relativePercentage, 2)}

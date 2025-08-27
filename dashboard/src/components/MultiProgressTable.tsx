@@ -84,7 +84,11 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
     () => (
       <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 h-8`}>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.key} value={tab.key} className='px-3 py-1 text-xs font-medium'>
+          <TabsTrigger
+            key={tab.key}
+            value={tab.key}
+            className='px-3 py-1 text-xs font-medium hover:bg-[var(--hover)]'
+          >
             {tab.label}
           </TabsTrigger>
         ))}
@@ -104,7 +108,7 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
   );
 
   return (
-    <Card className='border-border/50 h-full'>
+    <Card className='border-border h-full'>
       <CardHeader className='pb-0'>
         <div className='flex flex-col items-center justify-between sm:flex-row lg:flex-col xl:flex-row'>
           <CardTitle className='text-lg font-semibold'>{title}</CardTitle>

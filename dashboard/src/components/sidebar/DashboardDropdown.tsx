@@ -40,7 +40,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
-          className='hover:bg-accent/50 h-auto w-full min-w-0 justify-between border px-2.5 py-1.5 text-sm font-medium'
+          className='h-auto w-full min-w-0 justify-between border px-2.5 py-1.5 text-sm font-medium hover:bg-[var(--hover)]'
         >
           <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden'>
             <Globe className='text-muted-foreground h-4 w-4 flex-shrink-0' />{' '}
@@ -61,19 +61,24 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
           <DropdownMenuItem
             key={dashboard.id}
             onClick={() => handleDashboardSwitch(dashboard.id)}
-            className={`cursor-pointer ${dashboard.id === dashboardId ? 'bg-accent' : ''}`}
+            className={`focus:text-foreground cursor-pointer hover:bg-[var(--hover)] focus:bg-[var(--hover)] ${
+              dashboard.id === dashboardId ? 'bg-[var(--selected)]' : ''
+            }`}
           >
             <div className='flex w-full items-center gap-2'>
               <Globe className='text-muted-foreground h-4 w-4' />
               <span className='flex-1 truncate'>{dashboard.domain}</span>
-              {dashboard.id === dashboardId && <div className='h-2 w-2 flex-shrink-0 rounded-full bg-green-500' />}
+              {dashboard.id === dashboardId && <div className='bg-primary h-2 w-2 flex-shrink-0 rounded-full' />}
             </div>
           </DropdownMenuItem>
         ))}
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => router.push('/dashboards')} className='cursor-pointer'>
+        <DropdownMenuItem
+          onClick={() => router.push('/dashboards')}
+          className='cursor-pointer hover:bg-[var(--hover)] focus:bg-[var(--hover)]'
+        >
           <div className='flex w-full items-center gap-2'>
             <List className='text-muted-foreground h-4 w-4' />
             <span>View all Dashboards</span>
