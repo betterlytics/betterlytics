@@ -51,7 +51,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
         <section>
-          <BATopbar />
+          {/* <BATopbar /> */}
           <SidebarProvider>
             <BASidebar dashboardId={dashboardId} />
             <BAMobileSidebarTrigger />

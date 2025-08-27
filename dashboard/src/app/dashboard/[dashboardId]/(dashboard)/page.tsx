@@ -116,7 +116,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   );
 
   return (
-    <div className='container space-y-6 p-6'>
+    <div className='relative container space-y-3 p-6 pt-4'>
       <DashboardFilters />
 
       <Suspense>
@@ -134,29 +134,20 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <SummaryAndChartSection data={summaryAndChartPromise} />
       </Suspense>
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
         <Suspense fallback={<TableSkeleton />}>
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} />
         </Suspense>
-      </div>
+        <Suspense fallback={<TableSkeleton />}>
+          <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
+        </Suspense>
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
-        <div className='flex-1 lg:flex-[2]'>
-          <Suspense fallback={<TableSkeleton />}>
-            <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
-          </Suspense>
-        </div>
-        <div className='flex-1'>
-          <Suspense fallback={<TableSkeleton />}>
-            <TrafficSourcesSection trafficSourcesCombinedPromise={trafficSourcesPromise} />
-          </Suspense>
-        </div>
-      </div>
-
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+        <Suspense fallback={<TableSkeleton />}>
+          <TrafficSourcesSection trafficSourcesCombinedPromise={trafficSourcesPromise} />
+        </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <CustomEventsSection customEventsPromise={customEventsPromise} />
         </Suspense>

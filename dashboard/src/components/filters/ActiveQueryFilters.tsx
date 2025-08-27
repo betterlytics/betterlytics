@@ -7,6 +7,9 @@ import { XIcon } from 'lucide-react';
 export function ActiveQueryFilters() {
   const { queryFilters, removeQueryFilter } = useQueryFiltersContext();
 
+  if (queryFilters.length === 0) {
+    return null;
+  }
   return (
     <div className='flex flex-wrap gap-1 md:justify-end-safe'>
       {queryFilters.map((filter) => (

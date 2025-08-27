@@ -100,7 +100,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
               </div>
               <div className='flex items-center gap-2'>
                 {card.icon && <div className='text-muted-foreground pt-1'>{card.icon}</div>}
-                <span className='text-foreground text-2xl font-semibold tracking-tight group-hover:opacity-90 md:text-3xl'>
+                <span className='text-foreground text-xl font-semibold tracking-tight group-hover:opacity-90 md:text-2xl'>
                   {card.value}
                 </span>
                 {trend && trend.direction !== 'neutral' && (

@@ -26,11 +26,12 @@ import {
 import SettingsButton from '../SettingsButton';
 import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Suspense } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
 import { DashboardDropdown } from './DashboardDropdown';
 import { getTranslations } from 'next-intl/server';
+import NextLink from 'next/link';
+import Logo from '@/components/logo';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -58,12 +59,12 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
   ];
 
   return (
-    <Sidebar
-      variant='sidebar'
-      collapsible='icon'
-      className='top-0 h-screen border-t md:top-14 md:h-[calc(100vh-3.5rem)]'
-    >
-      <SidebarHeader className='bg-sidebar rounded-t-xl pt-2'></SidebarHeader>
+    <Sidebar variant='sidebar' collapsible='icon' className='top-0 h-screen border-t md:h-[100vh]'>
+      <SidebarHeader className='bg-sidebar rounded-t-xl pt-4 pl-6'>
+        <NextLink href='/dashboards' className='flex items-center space-x-2'>
+          <Logo variant='icon' showText textSize='md' priority />
+        </NextLink>
+      </SidebarHeader>
       <SidebarContent className='bg-sidebar overflow-x-hidden pl-1'>
         <SidebarGroup>
           <SidebarGroupContent className='space-y-2 overflow-hidden px-2'>
@@ -77,14 +78,6 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
         </SidebarGroup>
 
         <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <Suspense fallback={null}>
-              <ActiveUsersLabel />
-            </Suspense>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
         <SidebarGroup>
           <SidebarGroupLabel>Analytics</SidebarGroupLabel>
