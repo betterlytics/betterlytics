@@ -54,6 +54,7 @@
   --card: white;
   --card-foreground: oklch(0.2 0.01 265);
 
+  --selected: hsl(0, 0%, 95%);
   --popover: white;
   --popover-foreground: oklch(0.15 0 0);
 
