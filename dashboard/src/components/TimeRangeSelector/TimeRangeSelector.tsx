@@ -126,9 +126,9 @@ export function TimeRangeSelector({
       <Dialog open={isPopoverOpen} onOpenChange={handlePopoverOpenChange}>
         <DialogTrigger asChild>
           <Button
-            variant='outline'
+            variant='secondary'
             role='combobox'
-            className={cn('min-w-[200px] justify-between shadow-sm', className, '!bg-secondary')}
+            className={cn('min-w-[200px] justify-between shadow-sm', className)}
           >
             <div className='flex items-center gap-2'>
               <CalendarIcon className='h-4 w-4' />
@@ -137,7 +137,7 @@ export function TimeRangeSelector({
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='!bg-secondary max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
+        <DialogContent className='bg-secondary max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
           <DialogHeader>
             <DialogTitle>Date range</DialogTitle>
           </DialogHeader>
@@ -151,9 +151,9 @@ export function TimeRangeSelector({
     <Popover open={isPopoverOpen} onOpenChange={handlePopoverOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant='outline'
+          variant='secondary'
           role='combobox'
-          className={cn('min-w-[200px] justify-between shadow-sm', className, '!bg-secondary')}
+          className={cn('min-w-[200px] justify-between shadow-sm', className)}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />
@@ -162,7 +162,7 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='!bg-secondary w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
+      <PopoverContent className='bg-secondary w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
         {content}
       </PopoverContent>
     </Popover>

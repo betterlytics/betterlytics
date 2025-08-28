@@ -124,11 +124,7 @@ export default function QueryFiltersSelector() {
     return (
       <Dialog open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <DialogTrigger asChild>
-          <Button
-            variant='outline'
-            role='combobox'
-            className={'!bg-secondary min-w-[200px] justify-between shadow-sm'}
-          >
+          <Button variant='secondary' role='combobox' className={'min-w-[200px] justify-between shadow-sm'}>
             <div className='flex items-center gap-2'>
               <FilterIcon className='h-4 w-4' />
               <span>Filters</span>
@@ -149,11 +145,7 @@ export default function QueryFiltersSelector() {
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant='outline'
-          role='combobox'
-          className={'!bg-secondary min-w-[200px] justify-between shadow-sm'}
-        >
+        <Button variant='secondary' role='combobox' className={'min-w-[200px] justify-between shadow-sm'}>
           <div className='flex items-center gap-2'>
             <FilterIcon className='h-4 w-4' />
             <span>Filters</span>
@@ -162,7 +154,7 @@ export default function QueryFiltersSelector() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className='!bg-secondary w-[620px] max-w-[calc(100svw-48px)] border py-4 shadow-2xl'
+        className='bg-secondary w-[620px] max-w-[calc(100svw-48px)] border py-4 shadow-2xl'
         align='start'
       >
         {content}
