@@ -19,9 +19,10 @@
   },
   "packageManager": "pnpm@10.9.0",
   "dependencies": {
+    "@clickhouse/client": "^1.11.1",
     "clickhouse": "^2.6.0",
     "clickhouse-migrations": "^1.0.4",
-    "@clickhouse/client": "^1.11.1",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "nextjs-toploader": "^3.8.16"
   }
 }

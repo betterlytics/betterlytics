@@ -144,3 +144,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media (min-width: 768px) {
+  #nprogress .bar {
+    top: var(--nextra-navbar-height) !important;
+  }
+}
