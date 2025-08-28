@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, FilterIcon, PlusIcon, SettingsIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { QueryFilterInputRow } from './QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
