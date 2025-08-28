@@ -46,12 +46,12 @@ export default function OverviewChartSection({
       },
       sessions: {
         title: 'Sessions',
-        valueField: 'unique_visitors',
+        valueField: 'sessions',
         color: 'var(--chart-1)',
       },
       pagesPerSession: {
         title: 'Pages per Session',
-        valueField: 'unique_visitors',
+        valueField: 'pages_per_session',
         color: 'var(--chart-1)',
       },
       pageviews: {
@@ -80,13 +80,17 @@ export default function OverviewChartSection({
       case 'visitors':
         return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
       case 'sessions':
-        // Temporary: reuse visitors data for sessions until sessions endpoint exists
-        return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
+        return {
+          chartData: sessionMetricsData.sessions.data,
+          comparisonMap: sessionMetricsData.sessions.comparisonMap,
+        };
       case 'pageviews':
         return { chartData: pageviewsData.data, comparisonMap: pageviewsData.comparisonMap };
       case 'pagesPerSession':
-        // Temporary reuse visitors data until dedicated endpoint exists
-        return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
+        return {
+          chartData: sessionMetricsData.pagesPerSession.data,
+          comparisonMap: sessionMetricsData.pagesPerSession.comparisonMap,
+        };
       case 'bounceRate':
         return {
           chartData: sessionMetricsData.bounceRate.data,

@@ -42,6 +42,8 @@ export async function getSummaryStatsWithChartsForSite(
   const uniqueVisitors = visitorsChartData.reduce((sum: number, row) => sum + row.unique_visitors, 0);
   const pageviews = pageviewsChartData.reduce((sum: number, row) => sum + row.views, 0);
 
+  const totalSessions = sessionMetricsChartData.reduce((sum: number, row) => sum + row.sessions, 0);
+
   const totalBounceRate =
     sessionMetricsChartData.length > 0
       ? sessionMetricsChartData.reduce((sum: number, row) => sum + row.bounce_rate, 0) /
@@ -63,11 +65,13 @@ export async function getSummaryStatsWithChartsForSite(
   const statsWithCharts = {
     uniqueVisitors,
     pageviews,
+    sessions: totalSessions,
     bounceRate: Math.round(totalBounceRate),
     avgVisitDuration: Math.round(totalAvgVisitDuration),
     pagesPerSession: Number(avgPagesPerSession.toFixed(1)),
     visitorsChartData,
     pageviewsChartData,
+    sessionsChartData: sessionMetricsChartData,
     bounceRateChartData: sessionMetricsChartData,
     avgVisitDurationChartData: sessionMetricsChartData,
     pagesPerSessionChartData: sessionMetricsChartData,

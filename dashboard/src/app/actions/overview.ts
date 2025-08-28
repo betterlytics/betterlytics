@@ -153,6 +153,34 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           end: compareEndDate,
         },
       }),
+      pagesPerSession: toAreaChart({
+        data,
+        granularity,
+        dataKey: 'pages_per_session',
+        dateRange: {
+          start: startDate,
+          end: endDate,
+        },
+        compare,
+        compareDateRange: {
+          start: compareStartDate,
+          end: compareEndDate,
+        },
+      }),
+      sessions: toAreaChart({
+        data,
+        granularity,
+        dataKey: 'sessions',
+        dateRange: {
+          start: startDate,
+          end: endDate,
+        },
+        compare,
+        compareDateRange: {
+          start: compareStartDate,
+          end: compareEndDate,
+        },
+      }),
     };
   },
 );
