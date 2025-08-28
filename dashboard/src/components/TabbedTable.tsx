@@ -43,11 +43,7 @@ function TabbedTable<TData>({
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='pb-0'>
-          <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-            <div className={cn(searchColumn && 'sm:col-span-2')}>
-              <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
-              {description && <p className='text-muted-foreground text-sm'>{description}</p>}
-            </div>
+          <div className='flex justify-between'>
             {searchColumn && (
               <Input
                 placeholder={`Filter by ${searchColumn}...`}
