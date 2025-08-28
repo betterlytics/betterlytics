@@ -44,6 +44,15 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       onClick: () => handleMetricChange('visitors'),
     },
     {
+      title: t('totalPageviews'),
+      value: summary.pageviews.toLocaleString(),
+      rawChartData: summary.pageviewsChartData,
+      valueField: 'views',
+      chartColor: 'var(--chart-1)',
+      isActive: activeMetric === 'pageviews',
+      onClick: () => handleMetricChange('pageviews'),
+    },
+    {
       title: 'Sessions',
       value: summary.uniqueVisitors.toLocaleString(),
       rawChartData: summary.visitorsChartData,
@@ -62,13 +71,13 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       onClick: () => handleMetricChange('pagesPerSession'),
     },
     {
-      title: t('totalPageviews'),
-      value: summary.pageviews.toLocaleString(),
-      rawChartData: summary.pageviewsChartData,
-      valueField: 'views',
+      title: t('avgVisitDuration'),
+      value: formatDuration(summary.avgVisitDuration),
+      rawChartData: summary.avgVisitDurationChartData,
+      valueField: 'avg_visit_duration',
       chartColor: 'var(--chart-1)',
-      isActive: activeMetric === 'pageviews',
-      onClick: () => handleMetricChange('pageviews'),
+      isActive: activeMetric === 'avgDuration',
+      onClick: () => handleMetricChange('avgDuration'),
     },
     {
       title: t('bounceRate'),
@@ -78,15 +87,6 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'bounceRate',
       onClick: () => handleMetricChange('bounceRate'),
-    },
-    {
-      title: t('avgVisitDuration'),
-      value: formatDuration(summary.avgVisitDuration),
-      rawChartData: summary.avgVisitDurationChartData,
-      valueField: 'avg_visit_duration',
-      chartColor: 'var(--chart-1)',
-      isActive: activeMetric === 'avgDuration',
-      onClick: () => handleMetricChange('avgDuration'),
     },
   ];
 
