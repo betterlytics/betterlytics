@@ -55,19 +55,23 @@ export function DataTable<TData, TValue>({
   }, []);
 
   return (
-    <div className={`rounded-lg ${className || ''} border-secondary overflow-hidden border-2`}>
+    <div
+      className={`rounded-lg ${className || ''} dark:border-secondary overflow-hidden border border-gray-200 dark:border-2`}
+    >
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className='border-muted-foreground dark:bg-secondary dark:hover:bg-secondary bg-muted hover:bg-muted border-b'
+              className='border-muted-foreground dark:bg-secondary dark:hover:bg-secondary border-b bg-gray-50'
             >
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className={`text-foreground px-4 py-3 text-left text-sm font-medium ${
-                    header.column.getCanSort() ? 'hover:bg-card cursor-pointer select-none' : ''
+                  className={`text-foreground dark:bg-muted/50 px-4 py-3 text-left text-sm font-medium ${
+                    header.column.getCanSort()
+                      ? 'dark:hover:bg-card cursor-pointer select-none hover:bg-gray-200'
+                      : ''
                   }`}
                   onClick={header.column.getToggleSortingHandler()}
                 >
