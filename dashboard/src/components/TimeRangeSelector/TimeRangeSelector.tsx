@@ -128,7 +128,11 @@ export function TimeRangeSelector({
           <Button
             variant='secondary'
             role='combobox'
-            className={cn('min-w-[200px] justify-between border shadow-sm', className)}
+            className={cn(
+              'min-w-[200px] justify-between border shadow-sm',
+              className,
+              'dark:bg-secondary dark:hover:bg-secondary/60 bg-white hover:bg-gray-100',
+            )}
           >
             <div className='flex items-center gap-2'>
               <CalendarIcon className='h-4 w-4' />
@@ -153,7 +157,11 @@ export function TimeRangeSelector({
         <Button
           variant='secondary'
           role='combobox'
-          className={cn('min-w-[200px] justify-between border shadow-sm', className)}
+          className={cn(
+            'min-w-[200px] justify-between border shadow-sm',
+            className,
+            'dark:bg-secondary dark:hover:bg-secondary/60 bg-white hover:bg-gray-100',
+          )}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />

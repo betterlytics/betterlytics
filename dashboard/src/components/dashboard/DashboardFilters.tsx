@@ -3,7 +3,6 @@
 import TimeRangeSelector from '@/components/TimeRangeSelector';
 import QueryFiltersSelector from '@/components/filters/QueryFiltersSelector';
 import { ActiveQueryFilters } from '../filters/ActiveQueryFilters';
-import { ActiveUsersLabel } from '../sidebar/ActiveUsersLabel';
 import { ReactNode } from 'react';
 
 interface DashboardFiltersProps {
