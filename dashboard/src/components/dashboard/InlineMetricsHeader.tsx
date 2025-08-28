@@ -33,13 +33,10 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
   return (
     <div className='grid w-full grid-cols-2 gap-2 px-1 sm:flex sm:flex-wrap sm:gap-3'>
       {cards.map((card, idx) => {
-        const trend = useMemo(
-          () =>
-            card.rawChartData && card.valueField
-              ? calculateTrend(card.rawChartData as ChartDatum[], card.valueField as keyof ChartDatum)
-              : null,
-          [card.rawChartData, card.valueField],
-        );
+        const trend =
+          card.rawChartData && card.valueField
+            ? calculateTrend(card.rawChartData as ChartDatum[], card.valueField as keyof ChartDatum)
+            : null;
 
         return (
           <button
