@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
 
@@ -25,9 +25,15 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   title: string;
   tabs: TabConfig<T>[];
   defaultTab?: string;
+  footer?: React.ReactNode;
 }
 
-function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab }: MultiProgressTableProps<T>) {
+function MultiProgressTable<T extends ProgressBarData>({
+  title,
+  tabs,
+  defaultTab,
+  footer,
+}: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
 
   const handleTabChange = useCallback((value: string) => {
@@ -108,7 +114,7 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
   );
 
   return (
-    <Card className='border-border h-full gap-1 pt-3 pl-1'>
+    <Card className='border-border flex h-full flex-col gap-1 pt-3 pb-0 pl-1'>
       <CardHeader className='pb-0 pl-3'>
         <div className='flex flex-col items-center justify-between border-b pb-1 pl-1 sm:flex-row lg:flex-col xl:flex-row'>
           <CardTitle className='text-lg font-medium'>{title}</CardTitle>
@@ -117,11 +123,16 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent className='px-3 md:px-6'>
+      <CardContent className='flex-1 px-3 md:px-6'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           {tabsContent}
         </Tabs>
       </CardContent>
+      {footer ? (
+        <CardFooter className='justify-end px-3 py-2 md:px-6'>
+          <div className='w-full border-t pt-2 text-right'>{footer}</div>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

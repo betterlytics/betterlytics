@@ -776,6 +776,7 @@
       "trafficSources": "Sorgenti di traffico",
       "customEvents": "Eventi personalizzati"
     },
+    "goTo": "Vai a {section}",
     "tabs": {
       "pages": "Pagine",
       "entryPages": "Pagine di ingresso",
@@ -947,14 +948,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Clic unici totali",
-        "uniqueVisitors": "Visitatori unici", 
+        "uniqueVisitors": "Visitatori unici",
         "topDomain": "Dominio principale",
         "topSourcePage": "Pagina sorgente principale"
       },
       "table": {
         "title": "Performance link in uscita",
         "destinationUrl": "URL di destinazione",
-        "uniqueClicks": "Clic unici", 
+        "uniqueClicks": "Clic unici",
         "topReferrerPage": "Pagina referrer principale",
         "sourcePages": "Pagine sorgente"
       },

@@ -772,6 +772,7 @@
       "trafficSources": "Traffic Sources",
       "customEvents": "Custom Events"
     },
+    "goTo": "Go to {section}",
     "tabs": {
       "pages": "Pages",
       "entryPages": "Entry Pages",

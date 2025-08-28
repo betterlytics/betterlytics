@@ -6,6 +6,9 @@ import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
 import { useTranslations } from 'next-intl';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { ArrowRight } from 'lucide-react';
 
 type DevicesSectionProps = {
   deviceBreakdownCombinedPromise: ReturnType<typeof fetchDeviceBreakdownCombinedAction>;
@@ -14,6 +17,7 @@ type DevicesSectionProps = {
 export default function DevicesSection({ deviceBreakdownCombinedPromise }: DevicesSectionProps) {
   const deviceBreakdownCombined = use(deviceBreakdownCombinedPromise);
   const t = useTranslations('dashboard');
+  const dashboardId = useDashboardId();
 
   return (
     <MultiProgressTable
@@ -57,6 +61,15 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
           emptyMessage: t('emptyStates.noOperatingSystemData'),
         },
       ]}
+      footer={
+        <FilterPreservingLink
+          href={`/dashboard/${dashboardId}/devices`}
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.devices') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
     />
   );
 }

@@ -6,6 +6,9 @@ import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { useTranslations } from 'next-intl';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { ArrowRight } from 'lucide-react';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -16,6 +19,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
   const worldMapData = use(worldMapPromise);
   const topCountries = use(topCountriesPromise);
   const t = useTranslations('dashboard');
+  const dashboardId = useDashboardId();
 
   return (
     <MultiProgressTable
@@ -52,6 +56,15 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
           ),
         },
       ]}
+      footer={
+        <FilterPreservingLink
+          href={`/dashboard/${dashboardId}/geography`}
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.geography') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
     />
   );
 }
