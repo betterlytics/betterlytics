@@ -124,7 +124,11 @@ export default function QueryFiltersSelector() {
     return (
       <Dialog open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <DialogTrigger asChild>
-          <Button variant='outline' role='combobox' className={'min-w-[200px] justify-between shadow-sm'}>
+          <Button
+            variant='outline'
+            role='combobox'
+            className={'!bg-secondary min-w-[200px] justify-between shadow-sm'}
+          >
             <div className='flex items-center gap-2'>
               <FilterIcon className='h-4 w-4' />
               <span>Filters</span>
@@ -132,7 +136,7 @@ export default function QueryFiltersSelector() {
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='top-[40%] max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto p-4'>
+        <DialogContent className='bg-secondary top-[40%] max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto p-4'>
           <DialogHeader>
             <DialogTitle>Filters</DialogTitle>
           </DialogHeader>
@@ -145,7 +149,11 @@ export default function QueryFiltersSelector() {
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
-        <Button variant='outline' role='combobox' className={'min-w-[200px] justify-between shadow-sm'}>
+        <Button
+          variant='outline'
+          role='combobox'
+          className={'!bg-secondary min-w-[200px] justify-between shadow-sm'}
+        >
           <div className='flex items-center gap-2'>
             <FilterIcon className='h-4 w-4' />
             <span>Filters</span>
@@ -153,7 +161,10 @@ export default function QueryFiltersSelector() {
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[620px] max-w-[calc(100svw-48px)] border py-4 shadow-2xl' align='end'>
+      <PopoverContent
+        className='!bg-secondary w-[620px] max-w-[calc(100svw-48px)] border py-4 shadow-2xl'
+        align='start'
+      >
         {content}
       </PopoverContent>
     </Popover>

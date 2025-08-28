@@ -128,7 +128,7 @@ export function TimeRangeSelector({
           <Button
             variant='outline'
             role='combobox'
-            className={cn('min-w-[200px] justify-between shadow-sm', className)}
+            className={cn('min-w-[200px] justify-between shadow-sm', className, '!bg-secondary')}
           >
             <div className='flex items-center gap-2'>
               <CalendarIcon className='h-4 w-4' />
@@ -137,7 +137,7 @@ export function TimeRangeSelector({
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
+        <DialogContent className='!bg-secondary max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
           <DialogHeader>
             <DialogTitle>Date range</DialogTitle>
           </DialogHeader>
@@ -153,7 +153,7 @@ export function TimeRangeSelector({
         <Button
           variant='outline'
           role='combobox'
-          className={cn('min-w-[200px] justify-between shadow-sm', className)}
+          className={cn('min-w-[200px] justify-between shadow-sm', className, '!bg-secondary')}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />
@@ -162,7 +162,7 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
+      <PopoverContent className='!bg-secondary w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
         {content}
       </PopoverContent>
     </Popover>
