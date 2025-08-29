@@ -43,13 +43,17 @@ function TabbedTable<TData>({
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='pb-0'>
-          <div className='flex justify-between'>
+          <div className='flex flex-col-reverse justify-between sm:flex-row'>
             {searchColumn && (
-              <Input
-                placeholder={`Filter by ${searchColumn}...`}
-                onChange={(event) => tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)}
-                className='row-start-3 max-w-sm sm:row-start-2'
-              />
+              <div className='bg-table-header max-w-sm rounded-md border'>
+                <Input
+                  placeholder={`Filter by ${searchColumn}...`}
+                  onChange={(event) =>
+                    tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)
+                  }
+                  className='row-start-3 max-w-sm sm:row-start-2'
+                />
+              </div>
             )}
             <div className='flex items-center justify-center gap-4 sm:justify-end'>
               {headerActions && <div>{headerActions}</div>}
