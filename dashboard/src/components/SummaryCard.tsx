@@ -73,7 +73,7 @@ const SummaryCard = React.memo(
 
     return (
       <Card
-        className={`group relative overflow-hidden py-4 transition-all duration-200 ${
+        className={`group relative overflow-hidden rounded-lg py-4 transition-all duration-200 ${
           onClick
             ? 'hover:border-primary/40 hover:bg-accent/20 cursor-pointer hover:scale-[1.02] hover:shadow-lg'
             : ''
