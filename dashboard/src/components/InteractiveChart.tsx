@@ -34,7 +34,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const isMobile = useIsMobile();
     return (
-      <Card>
+      <Card className='pt-1 sm:pt-4'>
         {title && (
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
             <CardTitle className='text-lg font-semibold'>{title}</CardTitle>
