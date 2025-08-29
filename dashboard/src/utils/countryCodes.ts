@@ -1,7 +1,15 @@
+import { SupportedLanguages, SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import countries from 'i18n-iso-countries';
-import enLocale from 'i18n-iso-countries/langs/en.json';
 
-countries.registerLocale(enLocale);
+async function registerLocales() {
+  await Promise.all(
+    SUPPORTED_LANGUAGES.map(async (lang) => {
+      countries.registerLocale((await import(`i18n-iso-countries/langs/${lang}.json`)).default);
+    }),
+  );
+}
+
+registerLocales();
 
 /**
  * Converts an ISO 3166-1 alpha-2 country code to alpha-3
@@ -24,9 +32,10 @@ export function alpha3ToAlpha2Code(alpha3: string): string | undefined {
 /**
  * Converts an ISO 3166-1 alpha-2 country code to country name
  * @param alpha2 The two-letter country code (e.g., 'DK')
+ * @param locale The locale for the country name (e.g., 'en', 'it', 'da')
  * @returns The country name (e.g., 'Denmark') or 'Unknown' if not found
  */
-export function getCountryName(alpha2: string): string {
-  const name = countries.getName(alpha2.toUpperCase(), 'en');
+export function getCountryName(alpha2: string, locale: SupportedLanguages): string {
+  const name = countries.getName(alpha2.toUpperCase(), locale);
   return name || 'Unknown';
 }

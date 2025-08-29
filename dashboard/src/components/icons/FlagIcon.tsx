@@ -1,14 +1,13 @@
 import React from 'react';
 import * as Flags from 'country-flag-icons/react/3x2';
-import { getCountryName } from '@/utils/countryCodes';
 import { HelpCircle } from 'lucide-react';
 
 export type FlagIconProps = {
   countryCode: keyof typeof Flags;
-  countryName?: string;
+  countryName: string;
 } & Flags.ElementAttributes<Flags.HTMLSVGElement>;
 
-function FlagIconComponent({ countryCode, countryName = getCountryName(countryCode), ...props }: FlagIconProps) {
+function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps) {
   const FlagComponent = Flags[countryCode];
 
   if (!FlagComponent) {
