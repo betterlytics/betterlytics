@@ -103,7 +103,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
                 {trend && trend.direction !== 'neutral' && (
                   <span
                     className={`inline-flex items-center gap-1 text-xs ${
-                      trend.isPositive ? 'text-green-500' : 'text-red-500'
+                      trend.isPositive ? 'text-trend-up' : 'text-trend-down'
                     } group-hover:opacity-90`}
                   >
                     {trend.direction === 'up' ? (

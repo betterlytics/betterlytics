@@ -17,7 +17,7 @@ const TrendPercentage = React.memo(({ percentage, withParenthesis }: TrendPercen
 
   const isPositive = percentage > 0;
   const sign = isPositive ? '+' : '-';
-  const color = isPositive ? 'text-green-400' : 'text-red-400';
+  const color = isPositive ? 'text-trend-up' : 'text-trend-down';
 
   const absValue = Math.abs(percentage);
   const formatted = absValue % 1 ? absValue.toFixed(1) : absValue.toFixed(0);

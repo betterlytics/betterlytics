@@ -16,10 +16,10 @@ export function getTrendInfo(current: number, previous: number, hasComparison: b
 
   const diff = current - previous;
   if (diff > 0) {
-    return { icon: ChevronUp, color: 'text-green-400', bgColor: 'bg-green-500/10' };
+    return { icon: ChevronUp, color: 'text-trend-up', bgColor: 'bg-green-500/10' };
   }
   if (diff < 0) {
-    return { icon: ChevronDown, color: 'text-red-400', bgColor: 'bg-red-500/10' };
+    return { icon: ChevronDown, color: 'text-trend-down', bgColor: 'bg-red-500/10' };
   }
   return { icon: Minus, color: 'text-gray-400', bgColor: 'bg-gray-500/10' };
 }

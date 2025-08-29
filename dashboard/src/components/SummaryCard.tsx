@@ -128,7 +128,7 @@ const SummaryCard = React.memo(
               <Badge
                 variant='outline'
                 className={`gap-1 text-xs ${
-                  trendData.isPositive ? 'border-none text-green-600' : 'border-none text-red-600'
+                  trendData.isPositive ? 'text-trend-up border-none' : 'text-trend-down border-none'
                 }`}
               >
                 {trendData.direction === 'up' ? (
