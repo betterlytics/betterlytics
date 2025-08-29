@@ -33,7 +33,7 @@ export function TableTrendIndicator({
   }
 
   const isPositive = current - comparedData > 0;
-  const color = isPositive ? 'text-green-400' : 'text-red-400';
+  const color = isPositive ? 'text-trend-up' : 'text-trend-down';
   const Icon = isPositive ? ChevronUp : ChevronDown;
   const sign = isPositive ? '+' : '-';
 

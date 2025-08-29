@@ -21,7 +21,7 @@ const TrendIndicator = React.memo(({ percentage }: TrendIndicatorProps) => {
 
   const isPositive = percentage > 0;
   const Icon = isPositive ? ChevronUp : ChevronDown;
-  const color = isPositive ? 'text-green-400' : 'text-red-400';
+  const color = isPositive ? 'text-trend-up' : 'text-trend-down';
 
   return (
     <div className='flex items-center'>
