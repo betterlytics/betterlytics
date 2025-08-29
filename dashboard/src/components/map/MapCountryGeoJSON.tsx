@@ -35,6 +35,7 @@ export default function MapCountryGeoJSON({
   const locale = useLocale();
   const t = useTranslations('components.geography');
   const ref = useRef({ setMapSelection });
+
   useEffect(() => {
     ref.current = { setMapSelection };
   }, [setMapSelection]);
@@ -85,5 +86,12 @@ export default function MapCountryGeoJSON({
     [size, style, visitorData],
   );
 
-  return <GeoJSON key={visitorData.length} data={geoData} onEachFeature={onEachFeature} {...DEFAULT_OPTS} />;
+  return (
+    <GeoJSON
+      key={`${visitorData.length}-${locale}`}
+      data={geoData}
+      onEachFeature={onEachFeature}
+      {...DEFAULT_OPTS}
+    />
+  );
 }
