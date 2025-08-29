@@ -39,7 +39,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         )}
 
         <CardContent className='p-0'>
-          {headerContent && <div className='px-4 pt-0 pb-0'>{headerContent}</div>}
+          {headerContent && <div className='mb-5 px-4 pt-0 pb-0'>{headerContent}</div>}
           <div className='h-80 px-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
               <ComposedChart data={data} margin={{ top: 10, right: 22, left: 6, bottom: 0 }}>

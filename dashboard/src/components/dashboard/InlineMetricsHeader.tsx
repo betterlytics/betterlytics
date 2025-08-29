@@ -56,7 +56,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
               aria-hidden='true'
             />
             {card.rawChartData && card.valueField && (
-              <div className='pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-20 group-hover:opacity-15'>
+              <div className='pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-50 transition duration-150 group-hover:opacity-90'>
                 <ResponsiveContainer width='100%' height='100%'>
                   <AreaChart
                     data={card.rawChartData as ChartDatum[]}
