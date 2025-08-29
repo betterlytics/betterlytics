@@ -114,7 +114,7 @@ const SummaryCard = React.memo(
 
         <CardContent className='relative z-10 space-y-0 px-4 py-2'>
           <div className='mb-2 flex items-center justify-between'>
-            <span className='text-muted-foreground text-sm font-medium'>{title}</span>
+            <span className='text-muted-foreground text-base font-medium'>{title}</span>
             {onClick && (
               <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
                 <MousePointer2 className='text-muted-foreground/60 h-4 w-4' />
