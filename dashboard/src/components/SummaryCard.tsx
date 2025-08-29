@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useId, useMemo } from 'react';
 import { ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -66,6 +66,7 @@ const SummaryCard = React.memo(
     isActive = false,
     onClick,
   }: SummaryCardProps<T>) => {
+    const gradientId = useId();
     const trendData = useMemo(
       () => (rawChartData && valueField ? calculateTrend(rawChartData, valueField) : null),
       [rawChartData, valueField],
@@ -88,22 +89,22 @@ const SummaryCard = React.memo(
       >
         {rawChartData && rawChartData.length > 0 && valueField && (
           <div
-            className={`pointer-events-none absolute right-0 bottom-0 left-0 h-16 opacity-[0.2] transition-opacity duration-200 ${onClick ? 'group-hover:opacity-[0.15]' : ''}`}
+            className={`pointer-events-none absolute right-0 bottom-0 left-0 h-16 transition-opacity duration-200`}
           >
             <ResponsiveContainer width='100%' height='100%'>
               <AreaChart data={rawChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id={`gradient-${title}`} x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='0%' stopColor={chartColor} stopOpacity={0.6} />
-                    <stop offset='100%' stopColor={chartColor} stopOpacity={0.1} />
+                  <linearGradient id={`summary-gradient-${gradientId}`} x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='5%' stopColor={chartColor} stopOpacity={0.3} />
+                    <stop offset='95%' stopColor={chartColor} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <Area
-                  type='monotone'
+                  type='linear'
                   dataKey={valueField as string}
                   stroke={chartColor}
                   strokeWidth={2}
-                  fill={`url(#gradient-${title})`}
+                  fill={`url(#summary-gradient-${gradientId})`}
                   dot={false}
                   activeDot={false}
                 />
