@@ -88,7 +88,7 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   const tabsList = useMemo(
     () => (
-      <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 h-8 w-full`}>
+      <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 h-8 w-full gap-1`}>
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.key}

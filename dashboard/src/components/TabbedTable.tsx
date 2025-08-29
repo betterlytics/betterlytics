@@ -57,7 +57,7 @@ function TabbedTable<TData>({
             )}
             <div className='flex items-center justify-center gap-4 sm:justify-end'>
               {headerActions && <div>{headerActions}</div>}
-              <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
+              <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} gap-1`}>
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.key}
