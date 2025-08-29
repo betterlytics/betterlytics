@@ -67,7 +67,7 @@ export default function DeviceUsageTrendChart({
       <div className='h-[250px] w-full'>
         <ResponsiveContainer width='100%' height='100%'>
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray='3 3' vertical={false} stroke='#f1f5f9' />
+            <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
             <XAxis
               dataKey='date'
               tickLine={false}
