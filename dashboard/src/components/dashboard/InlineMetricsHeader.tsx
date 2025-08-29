@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { Badge } from '@/components/ui/badge';
 import { ChevronUp, ChevronDown, MousePointer2 } from 'lucide-react';
 import type { SummaryCardData } from './SummaryCardsSection';
+import { cn } from '@/lib/utils';
 
 interface ChartDatum {
   date: string;
@@ -56,7 +56,12 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
               aria-hidden='true'
             />
             {card.rawChartData && card.valueField && (
-              <div className='pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-50 transition duration-150 group-hover:opacity-90'>
+              <div
+                className={cn(
+                  'pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-50 transition duration-150 group-hover:opacity-90',
+                  { 'opacity-100': card.isActive },
+                )}
+              >
                 <ResponsiveContainer width='100%' height='100%'>
                   <AreaChart
                     data={card.rawChartData as ChartDatum[]}
