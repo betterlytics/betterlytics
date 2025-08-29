@@ -5,6 +5,7 @@ import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
 import { defaultDateLabelFormatter, granularityDateFormmatter } from '@/utils/chartUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChartDataPoint {
   date: string | number;
@@ -30,6 +31,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
       };
     }, [formatValue]);
+
+    const isMobile = useIsMobile();
     return (
       <Card>
         {title && (
@@ -68,6 +71,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   tickFormatter={yTickFormatter}
                   className='text-muted-foreground'
                   width={40}
+                  mirror={isMobile}
                 />
 
                 <Tooltip
