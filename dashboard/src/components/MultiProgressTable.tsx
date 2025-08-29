@@ -88,7 +88,7 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   const tabsList = useMemo(
     () => (
-      <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 h-8`}>
+      <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 h-8 w-full`}>
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.key}
@@ -115,10 +115,14 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   return (
     <Card className='border-border flex h-full flex-col gap-1 pt-3 pb-0 pl-1'>
-      <CardHeader className='pb-0 pl-3'>
-        <div className='flex flex-col items-center justify-between pb-1 pl-1 sm:flex-row lg:flex-col xl:flex-row'>
-          <CardTitle className='text-lg font-medium'>{title}</CardTitle>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className='w-auto'>
+      <CardHeader className='px-3 pb-0 sm:px-4'>
+        <div className='flex flex-col justify-between space-y-1 pb-1 sm:flex-row lg:flex-col xl:flex-row'>
+          <CardTitle className='flex-1 text-lg font-medium'>{title}</CardTitle>
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+            className='flex flex-1 items-center sm:items-end'
+          >
             {tabsList}
           </Tabs>
         </div>
