@@ -18,7 +18,7 @@ export function GranularitySection({
 }: GranularitySectionProps) {
   return (
     <div>
-      <h3 className='mb-2 text-sm font-medium text-gray-500'>Granularity</h3>
+      <h3 className='text-text mb-2 text-sm font-medium'>Granularity</h3>
       <div className='grid grid-cols-2 gap-2'>
         {GRANULARITY_RANGE_PRESETS.map((gran) => {
           const isAllowed = allowedGranularities.includes(gran.value);

@@ -129,7 +129,7 @@
   --secondary: hsl(0 0% 15%);
   --secondary-foreground: oklch(0.95 0.01 265);
 
-  --muted: oklch(0.28 0.01 265);
+  --muted: hsl(0 0% 12%);
   --muted-foreground: oklch(0.86 0.02 265);
 
   --accent: hsl(0 0% 20%);
@@ -139,7 +139,7 @@
   --destructive-foreground: white;
 
   --border: hsl(0 0% 22%);
-  --input: hsl(0 0% 20%);
+  --input: hsl(0 0% 25%);
   --ring: oklch(50% 0.222 268.78); /* blue-800 */
 
   --chart-1: oklch(56% 0.196 268.74); /* blue-700 - Primary blue */
