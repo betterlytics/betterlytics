@@ -88,8 +88,8 @@ export function QueryFilterInputRow<TEntity>({
         onChange={(evt) => onFilterUpdate({ ...filter, value: evt.target.value })}
       />
       <Button
-        variant='destructive'
-        className='hover:bg-destructive/90 dark:hover:bg-destructive/50 col-span-2 md:col-span-1'
+        variant='ghost'
+        className='col-span-2 md:col-span-1'
         onClick={() => requestRemoval(filter)}
         disabled={disableDeletion}
       >
