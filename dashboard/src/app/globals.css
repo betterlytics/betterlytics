@@ -40,6 +40,8 @@
   --color-card: var(--card);
   --color-trend-up: var(--trend-up);
   --color-trend-down: var(--trend-down);
+  --color-table-header: var(--table-header);
+  --color-table-header-hover: var(--table-header-hover);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -102,6 +104,9 @@
 
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
+
+  --table-header: oklch(94.912% 0.00011 271.152);
+  --table-header-hover: oklch(97.614% 0.00011 271.152);
 }
 
 .dark {
@@ -160,6 +165,9 @@
 
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
+
+  --table-header: oklch(29.313% 0.00003 271.152);
+  --table-header-hover: oklch(36.768% 0.00004 271.152);
 }
 
 @layer base {
