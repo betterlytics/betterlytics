@@ -49,7 +49,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                     <stop offset='95%' stopColor={color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid className='opacity-10' />
+                <CartesianGrid className='opacity-10' vertical={false} />
                 <XAxis
                   dataKey='date'
                   fontSize={12}
