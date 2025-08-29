@@ -63,19 +63,17 @@ export function DataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className='border-muted-foreground dark:bg-secondary dark:hover:bg-secondary border-b bg-gray-50'
+              className='border-muted-foreground bg-table-header hover:bg-table-header border-b'
             >
               {headerGroup.headers.map((header, headerIdx) => {
                 const isLastHeader = headerIdx === headerGroup.headers.length - 1;
                 return (
                   <TableHead
                     key={header.id}
-                    className={`text-foreground dark:bg-muted/50 ${
+                    className={`text-foreground ${
                       isLastHeader ? 'pr-1 pl-4' : 'px-4'
                     } py-3 text-left text-sm font-medium ${
-                      header.column.getCanSort()
-                        ? 'dark:hover:bg-card cursor-pointer select-none hover:bg-gray-200'
-                        : ''
+                      header.column.getCanSort() ? 'hover:!bg-table-header-hover cursor-pointer select-none' : ''
                     }`}
                     onClick={header.column.getToggleSortingHandler()}
                     style={{ width: `${header.getSize?.() || header.column.columnDef.size || ''}px` }}
