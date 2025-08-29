@@ -28,7 +28,7 @@ export default function DataSettings({ formData, onUpdate }: DataSettingsProps) 
           value={formData.dataRetentionDays?.toString() || '365'}
           onValueChange={(value) => onUpdate({ dataRetentionDays: parseInt(value) })}
         >
-          <SelectTrigger className='w-full'>
+          <SelectTrigger className='border-border w-full'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

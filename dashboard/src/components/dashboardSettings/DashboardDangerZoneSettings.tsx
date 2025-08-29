@@ -56,7 +56,10 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
 
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <AlertDialogTrigger asChild>
-            <Button variant='destructive' className='w-full sm:w-auto'>
+            <Button
+              variant='destructive'
+              className='hover:bg-destructive/80 dark:hover:bg-destructive/80 w-full sm:w-auto'
+            >
               <Trash2 className='h-4 w-4' />
               Delete Dashboard
             </Button>
@@ -73,12 +76,14 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteDashboard}
-                className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
-              >
-                <Trash2 className='mr-2 h-4 w-4' />
-                Delete Dashboard
+              <AlertDialogAction asChild onClick={handleDeleteDashboard}>
+                <Button
+                  variant='destructive'
+                  className='hover:bg-destructive/80 dark:hover:bg-destructive/80 w-full sm:w-auto'
+                >
+                  <Trash2 className='h-4 w-4' />
+                  Delete Dashboard
+                </Button>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

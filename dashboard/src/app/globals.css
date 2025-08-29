@@ -130,11 +130,11 @@
   --accent: hsl(0 0% 20%);
   --accent-foreground: hsl(0 0% 90%);
 
-  --destructive: oklch(0.7 0.2 20);
+  --destructive: oklch(0.7 0.2171 19.06);
   --destructive-foreground: white;
 
   --border: hsl(0 0% 22%);
-  --input: hsl(0 0% 14%);
+  --input: hsl(0 0% 20%);
   --ring: oklch(50% 0.222 268.78); /* blue-800 */
 
   --chart-1: oklch(56% 0.196 268.74); /* blue-700 - Primary blue */
