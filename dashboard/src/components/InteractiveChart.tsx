@@ -43,9 +43,12 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 px-4 pt-0 pb-0'>{headerContent}</div>}
-          <div className='h-80 px-1 md:px-4'>
+          <div className='h-80 px-0 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
-              <ComposedChart data={data} margin={{ top: 10, right: 22, left: 6, bottom: 0 }}>
+              <ComposedChart
+                data={data}
+                margin={{ top: 10, right: isMobile ? 4 : 22, left: isMobile ? 4 : 22, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
                     <stop offset='5%' stopColor={color} stopOpacity={0.3} />

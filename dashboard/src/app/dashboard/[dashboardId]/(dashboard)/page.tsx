@@ -116,7 +116,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   );
 
   return (
-    <div className='relative container space-y-3 p-6 pt-4'>
+    <div className='relative container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardFilters />
 
       <Suspense>
