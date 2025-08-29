@@ -51,7 +51,7 @@ function TabbedTable<TData>({
                   onChange={(event) =>
                     tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)
                   }
-                  className='row-start-3 max-w-sm sm:row-start-2'
+                  className='bg-input row-start-3 max-w-sm sm:row-start-2'
                 />
               </div>
             )}
