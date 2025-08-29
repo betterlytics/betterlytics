@@ -58,21 +58,20 @@
   --card: white;
   --card-foreground: oklch(0.2 0.01 265);
 
-  --selected: hsl(0, 0%, 95%);
   --popover: white;
   --popover-foreground: oklch(0.15 0 0);
 
   --primary: oklch(62% 0.17 268.71); /* Our main blue (blue-600) */
   --primary-foreground: white;
 
-  --secondary: oklch(91.62% 0.04 268.53); /* blue-100 */
-  --secondary-foreground: oklch(0% 0 0); /* blue-800 */
+  --secondary: oklch(97% 0 0); /* blue-100 */
+  --secondary-foreground: oklch(0.25 0 0); /* blue-800 */
 
   --muted: oklch(96% 0 0);
   --muted-foreground: oklch(0.5 0 0);
 
-  --accent: oklch(95% 0 0);
-  --accent-foreground: oklch(0.2 0 0);
+  --accent: oklch(97% 0 0);
+  --accent-foreground: oklch(0.25 0 0);
 
   --destructive: oklch(0.65 0.25 30);
   --destructive-foreground: white;
@@ -119,9 +118,6 @@
 
   --popover: hsl(0 0% 10.5%);
   --popover-foreground: oklch(0.95 0.01 265);
-
-  --selected: hsl(0 0% 15%);
-  --hover: hsl(0 0% 14%);
 
   --primary: oklch(56% 0.196 268.74); /* blue-700 */
   --primary-foreground: white;

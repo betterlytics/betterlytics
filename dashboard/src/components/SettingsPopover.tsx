@@ -57,7 +57,7 @@ export default function SettingsPopover({ onAdvancedSettingsClicked, onClose }: 
         <Button
           variant='ghost'
           onClick={onAdvancedSettingsClicked}
-          className='text-foreground hover:text-accent-foreground flex w-full items-center justify-start gap-2 rounded-md p-2! text-sm font-medium transition-colors hover:bg-[var(--hover)]'
+          className='text-foreground flex w-full items-center justify-start gap-2 rounded-md p-2! text-sm font-medium transition-colors'
         >
           <SettingsIcon size={16} />
           <span>Advanced Settings</span>

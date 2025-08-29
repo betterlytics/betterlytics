@@ -53,10 +53,7 @@ export default function BATopbar() {
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant='ghost'
-                      className='flex h-10 items-center space-x-2 rounded-full px-3 hover:bg-[var(--hover)]'
-                    >
+                    <Button variant='ghost' className='flex h-10 items-center space-x-2 rounded-full px-3'>
                       <span className='text-foreground hidden text-sm font-medium sm:block'>
                         {session.user?.name || 'User'}
                       </span>
@@ -71,47 +68,32 @@ export default function BATopbar() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      asChild
-                      className='cursor-pointer hover:bg-[var(--hover)] focus:bg-[var(--hover)]'
-                    >
+                    <DropdownMenuItem asChild className='cursor-pointer'>
                       <NextLink href='/dashboards'>
                         <LayoutDashboard className='mr-2 h-4 w-4' />
                         <span>Dashboards</span>
                       </NextLink>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      asChild
-                      className='cursor-pointer hover:bg-[var(--hover)] focus:bg-[var(--hover)]'
-                    >
+                    <DropdownMenuItem asChild className='cursor-pointer'>
                       <NextLink href='/billing'>
                         <CreditCard className='mr-2 h-4 w-4' />
                         <span>Upgrade Plan</span>
                       </NextLink>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={handleSettingsClick}
-                      className='cursor-pointer hover:bg-[var(--hover)] focus:bg-[var(--hover)]'
-                    >
+                    <DropdownMenuItem onClick={handleSettingsClick} className='cursor-pointer'>
                       <Settings className='mr-2 h-4 w-4' />
                       <span>Settings</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
 
-                    <DropdownMenuItem
-                      asChild
-                      className='cursor-pointer hover:bg-[var(--hover)] focus:bg-[var(--hover)]'
-                    >
+                    <DropdownMenuItem asChild className='cursor-pointer'>
                       <ExternalLink href='/docs' title='Complete Betterlytics Documentation'>
                         <ExternalLinkIcon className='mr-2 h-4 w-4' />
                         <span>Documentation</span>
                       </ExternalLink>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={handleSignOut}
-                      className='cursor-pointer hover:bg-[var(--hover)] focus:bg-[var(--hover)]'
-                    >
+                    <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
                       <LogOut className='mr-2 h-4 w-4' />
                       <span>Log out</span>
                     </DropdownMenuItem>

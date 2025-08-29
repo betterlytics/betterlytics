@@ -33,8 +33,8 @@ export const FilterPreservingLink = forwardRef<HTMLAnchorElement, FilterPreservi
         href={hrefWithFilters}
         className={cn(
           className,
-          'hover:bg-[var(--hover)]',
-          isOnPage && 'border-primary border-l-[3px] bg-[var(--selected)]',
+          'hover:bg-[var(--secondary)]/80',
+          isOnPage && 'border-primary border-l-[3px] bg-[var(--secondary)]',
         )}
         onClick={onClick}
         {...linkProps}

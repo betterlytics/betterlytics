@@ -46,8 +46,8 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
             aria-pressed={card.isActive}
             className={`group relative flex w-full min-w-0 flex-col overflow-hidden rounded-md px-3 py-4 text-left transition-all duration-200 sm:w-[220px] sm:flex-none sm:py-2 md:w-[220px] ${
               card.onClick ? 'cursor-pointer' : ''
-            } ${!card.isActive ? 'selected:brightness-75 selected:saturate-70' : ''}`}
-            style={{ background: card.isActive ? 'var(--selected)' : undefined }}
+            } ${!card.isActive ? 'hover:brightness-85 hover:saturate-90' : ''}`}
+            style={{ background: card.isActive ? 'var(--secondary)' : undefined }}
           >
             {/* Left accent rail */}
             <span

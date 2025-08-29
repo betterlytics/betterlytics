@@ -33,11 +33,7 @@ export default function DataSettings({ formData, onUpdate }: DataSettingsProps) 
           </SelectTrigger>
           <SelectContent>
             {DATA_RETENTION_PRESETS.map((preset) => (
-              <SelectItem
-                key={preset.value}
-                value={preset.value.toString()}
-                className='hover:bg-[var(--hover)] focus:bg-[var(--hover)]'
-              >
+              <SelectItem key={preset.value} value={preset.value.toString()} className='hover:bg-accent'>
                 {preset.label}
               </SelectItem>
             ))}

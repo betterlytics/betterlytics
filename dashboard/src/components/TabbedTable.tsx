@@ -62,7 +62,7 @@ function TabbedTable<TData>({
                   <TabsTrigger
                     key={tab.key}
                     value={tab.key}
-                    className='px-3 py-1 text-xs font-medium hover:bg-[var(--hover)]'
+                    className='hover:bg-accent px-3 py-1 text-xs font-medium'
                   >
                     {tab.label}
                   </TabsTrigger>
