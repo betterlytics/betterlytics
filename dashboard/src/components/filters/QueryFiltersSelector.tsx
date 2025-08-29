@@ -73,7 +73,7 @@ export default function QueryFiltersSelector() {
             </Button>
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
               <Button
-                className='h-8 w-[48%] max-w-[110px]'
+                className='hover:bg-destructive/90 dark:hover:bg-destructive/50 h-8 w-[48%] max-w-[110px]'
                 disabled={!isFiltersModified}
                 onClick={cancelFilters}
                 variant={isFiltersModified ? 'destructive' : 'ghost'}
