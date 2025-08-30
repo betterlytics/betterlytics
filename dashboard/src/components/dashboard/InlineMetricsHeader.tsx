@@ -90,7 +90,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
             <div className='relative z-10'>
               <div className='mb-1 flex items-center justify-between'>
                 <span
-                  className={`text-base font-medium ${
+                  className={`text- font-medium sm:text-base ${
                     card.isActive ? 'text-foreground' : 'text-muted-foreground group-hover:opacity-90'
                   }`}
                 >
@@ -102,7 +102,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
               </div>
               <div className='flex items-center gap-2'>
                 {card.icon && <div className='text-muted-foreground pt-1'>{card.icon}</div>}
-                <span className='text-foreground text-xl font-semibold tracking-tight group-hover:opacity-90 md:text-2xl'>
+                <span className='text-foreground text-base font-semibold tracking-tight group-hover:opacity-90 sm:text-xl md:text-2xl'>
                   {card.value}
                 </span>
                 {trend && trend.direction !== 'neutral' && (

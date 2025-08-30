@@ -223,7 +223,7 @@ export function EventsTable({ data }: EventsTableProps) {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className='p-6'>
+      <CardContent className='px-2 sm:px-6'>
         <div className='overflow-hidden rounded-lg border border-gray-200 dark:border-slate-700'>
           <Table>
             <TableHeader className='bg-gray-50 dark:bg-slate-800'>

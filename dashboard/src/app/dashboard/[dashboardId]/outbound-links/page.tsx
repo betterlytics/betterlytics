@@ -66,13 +66,15 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
 
       <ActiveQueryFilters />
 
-      <div className='grid grid-cols-1 gap-3 lg:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-3 xl:grid-cols-3'>
         <Suspense fallback={<ChartSkeleton />}>
           <OutboundLinksPieChart distributionPromise={outboundLinksDistributionPromise} />
         </Suspense>
-        <Suspense fallback={<ChartSkeleton />}>
-          <OutboundLinksChartSection outboundClicksChartPromise={outboundClicksChartPromise} />
-        </Suspense>
+        <div className='xl:col-span-2'>
+          <Suspense fallback={<ChartSkeleton />}>
+            <OutboundLinksChartSection outboundClicksChartPromise={outboundClicksChartPromise} />
+          </Suspense>
+        </div>
       </div>
 
       <Suspense fallback={<TableSkeleton />}>

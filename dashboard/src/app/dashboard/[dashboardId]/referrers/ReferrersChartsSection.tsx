@@ -29,13 +29,8 @@ export default function ReferrersChartsSection({
   const distributionData = distributionResult.data;
 
   return (
-    <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-      <div className='bg-card border-border rounded-lg border p-4 shadow'>
-        <div className='text-foreground mb-2 font-medium'>{t('distribution')}</div>
-        <p className='text-muted-foreground mb-4 text-xs'>{t('trafficByCategory')}</p>
-        <BAPieChart data={distributionData} getColor={getReferrerColor} getLabel={capitalizeFirstLetter} />
-      </div>
-      <div className='bg-card border-border rounded-lg border p-4 shadow'>
+    <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
+      <div className='bg-card border-border rounded-lg border p-4 shadow xl:col-span-5'>
         <div className='text-foreground mb-2 font-medium'>{t('trafficTrends')}</div>
         <p className='text-muted-foreground mb-4 text-xs'>{t('trafficBySourceOverTime')}</p>
         <ReferrerTrafficTrendChart
@@ -44,6 +39,11 @@ export default function ReferrersChartsSection({
           comparisonMap={trendResult.comparisonMap}
           granularity={granularity}
         />
+      </div>
+      <div className='bg-card border-border rounded-lg border p-4 shadow xl:col-span-3'>
+        <div className='text-foreground mb-2 font-medium'>{t('distribution')}</div>
+        <p className='text-muted-foreground mb-4 text-xs'>{t('trafficByCategory')}</p>
+        <BAPieChart data={distributionData} getColor={getReferrerColor} getLabel={capitalizeFirstLetter} />
       </div>
     </div>
   );

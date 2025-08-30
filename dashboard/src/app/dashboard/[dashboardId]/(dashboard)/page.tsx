@@ -134,7 +134,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <SummaryAndChartSection data={summaryAndChartPromise} />
       </Suspense>
 
-      <div className='grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3'>
+      <div className='grid grid-cols-1 gap-3 lg:grid-cols-2'>
         <Suspense fallback={<TableSkeleton />}>
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>

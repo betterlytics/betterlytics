@@ -42,16 +42,16 @@ function TabbedTable<TData>({
   return (
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
-        <CardHeader className='pb-0'>
+        <CardHeader className='px-1 pb-0 sm:px-6'>
           <div className='flex flex-col-reverse justify-between sm:flex-row'>
             {searchColumn && (
-              <div className='bg-table-header max-w-sm rounded-md border'>
+              <div className='bg-table-header w-full rounded-md border sm:max-w-sm'>
                 <Input
                   placeholder={`Filter by ${searchColumn}...`}
                   onChange={(event) =>
                     tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)
                   }
-                  className='bg-input row-start-3 max-w-sm sm:row-start-2'
+                  className='bg-input row-start-3 w-full sm:row-start-2 sm:max-w-sm'
                 />
               </div>
             )}
@@ -71,7 +71,7 @@ function TabbedTable<TData>({
             </div>
           </div>
         </CardHeader>
-        <CardContent className='px-6 pt-0 pb-4'>
+        <CardContent className='px-1 pt-0 pb-4 sm:px-6'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
               <div className='overflow-x-auto'>
