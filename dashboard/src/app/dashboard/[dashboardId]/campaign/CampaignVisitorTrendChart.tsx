@@ -36,7 +36,7 @@ export default function CampaignVisitorTrendChart({
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
           <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray='3 3' />
+            <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1} />
             <XAxis
               dataKey='date'
               tickLine={false}

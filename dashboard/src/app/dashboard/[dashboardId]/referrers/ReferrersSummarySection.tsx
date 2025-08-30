@@ -30,7 +30,7 @@ export default function ReferrersSummarySection({
       value: formatPercentage(referralPercentage),
       rawChartData: summaryData.referralPercentageChartData,
       valueField: 'referralPercentage',
-      chartColor: 'var(--chart-2)',
+      chartColor: 'var(--chart-1)',
     },
     {
       title: 'Top Referrer Source',
@@ -41,7 +41,7 @@ export default function ReferrersSummarySection({
       value: formatDuration(summaryData.avgSessionDuration),
       rawChartData: summaryData.avgSessionDurationChartData,
       valueField: 'avgSessionDuration',
-      chartColor: 'var(--chart-4)',
+      chartColor: 'var(--chart-1)',
     },
   ];
 

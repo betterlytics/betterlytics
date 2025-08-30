@@ -103,7 +103,7 @@
   --primary: oklch(56% 0.196 268.74); /* blue-700 */
   --primary-foreground: white;
 
-  --secondary: oklch(0.25 0.04 266); /* Deeper blue */
+  --secondary: oklch(41.283% 0.00005 271.152); /* Deeper blue */
   --secondary-foreground: oklch(0.95 0.01 265);
 
   --muted: oklch(0.25 0.02 265);

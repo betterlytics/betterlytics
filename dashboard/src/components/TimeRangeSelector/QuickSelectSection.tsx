@@ -12,7 +12,7 @@ interface QuickSelectSectionProps {
 export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelectSectionProps) {
   return (
     <div>
-      <h3 className='mb-2 text-sm font-medium text-gray-500'>Quick select</h3>
+      <h3 className='text-text mb-2 text-sm font-medium'>Quick select</h3>
       <div className='grid grid-cols-3 gap-2'>
         {TIME_RANGE_PRESETS.filter((p) => p.value !== 'custom').map((preset) => (
           <Button

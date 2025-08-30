@@ -27,21 +27,21 @@ export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: P
       value: summaryWithCharts.totalPageviews.toLocaleString(),
       rawChartData: summaryWithCharts.pageviewsChartData,
       valueField: 'views',
-      chartColor: 'var(--chart-2)',
+      chartColor: 'var(--chart-1)',
     },
     {
       title: t('avgTimeOnPage'),
       value: formatDuration(summaryWithCharts.avgTimeOnPage),
       rawChartData: summaryWithCharts.avgTimeChartData,
       valueField: 'value',
-      chartColor: 'var(--chart-3)',
+      chartColor: 'var(--chart-1)',
     },
     {
       title: t('avgBounceRate'),
       value: `${summaryWithCharts.avgBounceRate}%`,
       rawChartData: summaryWithCharts.bounceRateChartData,
       valueField: 'value',
-      chartColor: 'var(--chart-4)',
+      chartColor: 'var(--chart-1)',
     },
   ];
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
 
@@ -25,9 +25,15 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   title: string;
   tabs: TabConfig<T>[];
   defaultTab?: string;
+  footer?: React.ReactNode;
 }
 
-function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab }: MultiProgressTableProps<T>) {
+function MultiProgressTable<T extends ProgressBarData>({
+  title,
+  tabs,
+  defaultTab,
+  footer,
+}: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
 
   const handleTabChange = useCallback((value: string) => {
@@ -82,9 +88,9 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
 
   const tabsList = useMemo(
     () => (
-      <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 h-8`}>
+      <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 h-8 w-full gap-1`}>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.key} value={tab.key} className='px-3 py-1 text-xs font-medium'>
+          <TabsTrigger key={tab.key} value={tab.key} className='hover:bg-accent px-3 py-1 text-xs font-medium'>
             {tab.label}
           </TabsTrigger>
         ))}
@@ -104,20 +110,29 @@ function MultiProgressTable<T extends ProgressBarData>({ title, tabs, defaultTab
   );
 
   return (
-    <Card className='border-border/50 h-full'>
-      <CardHeader className='pb-0'>
-        <div className='flex flex-col items-center justify-between sm:flex-row lg:flex-col xl:flex-row'>
-          <CardTitle className='text-lg font-semibold'>{title}</CardTitle>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className='w-auto'>
+    <Card className='border-border flex h-full flex-col gap-1 pt-3 pb-0 pl-1'>
+      <CardHeader className='px-3 pb-0 sm:px-4'>
+        <div className='flex flex-col justify-between space-y-1 pb-1 sm:flex-row lg:flex-col xl:flex-row'>
+          <CardTitle className='flex-1 text-lg font-medium'>{title}</CardTitle>
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+            className='flex flex-1 items-center sm:items-end'
+          >
             {tabsList}
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent className='px-3 md:px-6'>
+      <CardContent className='flex-1 px-2 md:px-4'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           {tabsContent}
         </Tabs>
       </CardContent>
+      {footer ? (
+        <CardFooter className='justify-end px-3 py-2 md:px-6'>
+          <div className='w-full border-t pt-2 text-right'>{footer}</div>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

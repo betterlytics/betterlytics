@@ -65,14 +65,8 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
   );
 
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Referrers</h1>
-          <p className='text-muted-foreground text-sm'>Analytics and insights for your website</p>
-        </div>
-        <DashboardFilters />
-      </div>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+      <DashboardFilters />
 
       <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
         <ReferrersSummarySection referrerSummaryWithChartsPromise={referrerSummaryWithChartsPromise} />
@@ -80,7 +74,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>

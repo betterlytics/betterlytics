@@ -7,11 +7,11 @@ import {
   fetchTotalPageViewsAction,
   fetchSessionMetricsAction,
 } from '@/app/actions';
-import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
+import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useTranslations } from 'next-intl';
 
-type ActiveMetric = 'visitors' | 'pageviews' | 'bounceRate' | 'avgDuration';
+type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
 type SummaryAndChartSectionProps = {
   data: Promise<
@@ -48,39 +48,56 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       value: summary.pageviews.toLocaleString(),
       rawChartData: summary.pageviewsChartData,
       valueField: 'views',
-      chartColor: 'var(--chart-2)',
+      chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'pageviews',
       onClick: () => handleMetricChange('pageviews'),
     },
     {
-      title: t('bounceRate'),
-      value: summary.bounceRate !== undefined ? `${summary.bounceRate}%` : '0%',
-      rawChartData: summary.bounceRateChartData,
-      valueField: 'bounce_rate',
-      chartColor: 'var(--chart-3)',
-      isActive: activeMetric === 'bounceRate',
-      onClick: () => handleMetricChange('bounceRate'),
+      title: 'Sessions',
+      value: summary.sessions.toLocaleString(),
+      rawChartData: summary.sessionsChartData,
+      valueField: 'sessions',
+      chartColor: 'var(--chart-1)',
+      isActive: activeMetric === 'sessions',
+      onClick: () => handleMetricChange('sessions'),
+    },
+    {
+      title: 'Pages per Session',
+      value: summary.pagesPerSession.toLocaleString(),
+      rawChartData: summary.pagesPerSessionChartData,
+      valueField: 'pages_per_session',
+      chartColor: 'var(--chart-1)',
+      isActive: activeMetric === 'pagesPerSession',
+      onClick: () => handleMetricChange('pagesPerSession'),
     },
     {
       title: t('avgVisitDuration'),
       value: formatDuration(summary.avgVisitDuration),
       rawChartData: summary.avgVisitDurationChartData,
       valueField: 'avg_visit_duration',
-      chartColor: 'var(--chart-4)',
+      chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'avgDuration',
       onClick: () => handleMetricChange('avgDuration'),
+    },
+    {
+      title: t('bounceRate'),
+      value: summary.bounceRate !== undefined ? `${summary.bounceRate}%` : '0%',
+      rawChartData: summary.bounceRateChartData,
+      valueField: 'bounce_rate',
+      chartColor: 'var(--chart-1)',
+      isActive: activeMetric === 'bounceRate',
+      onClick: () => handleMetricChange('bounceRate'),
     },
   ];
 
   return (
     <div className='space-y-6'>
-      <SummaryCardsSection cards={cards} />
-
       <OverviewChartSection
         activeMetric={activeMetric}
         visitorsData={visitorsData}
         pageviewsData={pageviewsData}
         sessionMetricsData={sessionMetricsData}
+        cards={cards}
       />
     </div>
   );

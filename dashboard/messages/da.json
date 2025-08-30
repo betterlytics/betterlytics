@@ -776,6 +776,7 @@
       "trafficSources": "Trafikkilder",
       "customEvents": "Brugerdefinerede hændelser"
     },
+    "goTo": "Gå til {section}",
     "tabs": {
       "pages": "Sider",
       "entryPages": "Indgangssider",
@@ -946,14 +947,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Samlede unikke klik",
-        "uniqueVisitors": "Unikke besøgende", 
+        "uniqueVisitors": "Unikke besøgende",
         "topDomain": "Top domæne",
         "topSourcePage": "Top kildeside"
       },
       "table": {
         "title": "Udgående link performance",
         "destinationUrl": "Destinations-URL",
-        "uniqueClicks": "Unikke klik", 
+        "uniqueClicks": "Unikke klik",
         "topReferrerPage": "Top henvisningsside",
         "sourcePages": "Kildesider"
       },
