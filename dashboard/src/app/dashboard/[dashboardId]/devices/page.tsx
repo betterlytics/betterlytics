@@ -68,12 +68,12 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   );
 
   return (
-    <div className='container space-y-6 p-6'>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardFilters />
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
@@ -87,7 +87,7 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
             <TableSkeleton />
             <TableSkeleton />
           </div>

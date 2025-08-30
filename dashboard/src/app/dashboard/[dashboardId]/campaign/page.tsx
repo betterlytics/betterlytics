@@ -46,7 +46,7 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
   const landingPagePerformancePromise = fetchCampaignLandingPagePerformanceAction(dashboardId, startDate, endDate);
 
   return (
-    <div className='container space-y-6 p-6'>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardFilters />
 
       <CampaignTabs

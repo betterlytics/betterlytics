@@ -24,7 +24,7 @@ export default function DevicesChartsSection({
   const t = useTranslations('components.devices.charts');
 
   return (
-    <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+    <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
       <div className='bg-card border-border rounded-lg border p-6 shadow'>
         <h2 className='text-foreground mb-1 text-lg font-bold'>{t('deviceTypes')}</h2>
         <p className='text-muted-foreground mb-4 text-sm'>{t('visitorsByDeviceCategory')}</p>

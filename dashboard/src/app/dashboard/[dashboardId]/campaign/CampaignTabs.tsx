@@ -68,7 +68,7 @@ export default function CampaignTabs({
         {activeTab === 'overview' && (
           <Suspense
             fallback={
-              <div className='space-y-6'>
+              <div className='space-y-3'>
                 <TableSkeleton />
                 <ChartSkeleton />
               </div>
@@ -84,9 +84,9 @@ export default function CampaignTabs({
         {activeTab === 'utmBreakdowns' && (
           <Suspense
             fallback={
-              <div className='space-y-6'>
+              <div className='space-y-3'>
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+                  <div key={i} className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
                     <div className='lg:col-span-2'>
                       <TableSkeleton />
                     </div>

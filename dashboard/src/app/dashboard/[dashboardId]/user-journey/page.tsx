@@ -35,7 +35,7 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
   );
 
   return (
-    <div className='container space-y-6 p-6'>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardFilters showComparison={false}>
         <UserJourneyFilters />
       </DashboardFilters>

@@ -29,7 +29,7 @@ export default function ReferrersChartsSection({
   const distributionData = distributionResult.data;
 
   return (
-    <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+    <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
       <div className='bg-card border-border rounded-lg border p-4 shadow'>
         <div className='text-foreground mb-2 font-medium'>{t('distribution')}</div>
         <p className='text-muted-foreground mb-4 text-xs'>{t('trafficByCategory')}</p>

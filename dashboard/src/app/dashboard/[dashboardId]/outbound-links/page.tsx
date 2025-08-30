@@ -61,12 +61,12 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
   );
 
   return (
-    <div className='container space-y-6 p-6'>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardFilters />
 
       <ActiveQueryFilters />
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-3 lg:grid-cols-2'>
         <Suspense fallback={<ChartSkeleton />}>
           <OutboundLinksPieChart distributionPromise={outboundLinksDistributionPromise} />
         </Suspense>

@@ -65,7 +65,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
   );
 
   return (
-    <div className='container space-y-6 p-6'>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardFilters />
 
       <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
@@ -74,7 +74,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
