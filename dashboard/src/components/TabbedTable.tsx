@@ -43,7 +43,7 @@ function TabbedTable<TData>({
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='px-1 pb-0 sm:px-6'>
-          <div className='flex flex-col-reverse justify-between sm:flex-row'>
+          <div className='flex flex-col-reverse justify-between gap-4 sm:flex-row'>
             {searchColumn && (
               <div className='bg-table-header w-full rounded-md border sm:max-w-sm'>
                 <Input
@@ -55,9 +55,9 @@ function TabbedTable<TData>({
                 />
               </div>
             )}
-            <div className='flex items-center justify-center gap-4 sm:justify-end'>
+            <div className='flex items-center justify-center sm:justify-end'>
               {headerActions && <div>{headerActions}</div>}
-              <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} gap-1`}>
+              <TabsList className={`bg-muted/30 grid w-auto grid-cols-${tabs.length} gap-1`}>
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.key}
