@@ -89,13 +89,13 @@ export function TimeRangeSelector({
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
       <QuickSelectSection selectedRange={tempState.range} onRangeSelect={handleQuickSelect} />
-
+      <Separator className='my-4' />
       <GranularitySection
         selectedGranularity={tempState.granularity}
         allowedGranularities={allowedGranularities}
         onGranularitySelect={handleGranularitySelect}
       />
-
+      <Separator className='my-4' />
       <DateRangeSection
         startDate={tempState.customStart}
         endDate={tempState.customEnd}
