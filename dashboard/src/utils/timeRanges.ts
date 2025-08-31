@@ -134,3 +134,49 @@ export function getCompareRangeForTimePresets(value: Omit<TimeRangeValue, 'custo
     compareEnd,
   };
 }
+
+/**
+ * Time-range quick date computations
+ */
+
+export function getRangeWithGranularity(
+  range: Exclude<TimeRangeValue, 'custom'>,
+  granularity: GranularityRangeValues,
+) {
+  const custom = getDateRangeWithGranularity(range, granularity);
+  const compare = getCompareRangeWithGranularity(range, granularity, custom.customStart, custom.customEnd);
+
+  return {
+    ...custom,
+    ...compare,
+  };
+}
+
+function getDateRangeWithGranularity(
+  range: Exclude<TimeRangeValue, 'custom'>,
+  granularity: GranularityRangeValues,
+) {
+  const preset = getDateRangeForTimePresets(range);
+
+  const customStart = getStartDateWithGranularity(preset.startDate, granularity);
+  const customEnd = getEndDateWithGranularity(preset.endDate, granularity);
+
+  return { customStart, customEnd };
+}
+
+function getCompareRangeWithGranularity(
+  range: Exclude<TimeRangeValue, 'custom'>,
+  granularity: GranularityRangeValues,
+  startDate: Date,
+  endDate: Date,
+) {
+  const preset = getCompareRangeForTimePresets(range);
+
+  const compareStart = getStartDateWithGranularity(
+    getDateWithTimeOfDay(preset.compareStart, startDate),
+    granularity,
+  );
+  const compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(preset.compareEnd, endDate), granularity);
+
+  return { compareStart, compareEnd };
+}

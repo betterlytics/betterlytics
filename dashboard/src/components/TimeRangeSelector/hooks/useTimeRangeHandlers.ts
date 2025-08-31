@@ -3,11 +3,9 @@
 import { useCallback, useEffect } from 'react';
 import {
   TimeRangeValue,
-  getCompareRangeForTimePresets,
   getDateRangeForTimePresets,
   getDateWithTimeOfDay,
-  getEndDateWithGranularity,
-  getStartDateWithGranularity,
+  getRangeWithGranularity,
 } from '@/utils/timeRanges';
 import {
   GranularityRangeValues,
@@ -31,49 +29,6 @@ interface UseTimeRangeHandlersProps {
   updateTempState: (updates: Partial<TempState>) => void;
   allowedGranularities: GranularityRangeValues[];
   onApply: (tempState: TempState) => void;
-}
-
-function getDateRangeWithGranularity(
-  range: Exclude<TimeRangeValue, 'custom'>,
-  granularity: GranularityRangeValues,
-) {
-  const preset = getDateRangeForTimePresets(range);
-
-  const customStart = getStartDateWithGranularity(preset.startDate, granularity);
-  const customEnd = getEndDateWithGranularity(preset.endDate, granularity);
-
-  return { customStart, customEnd };
-}
-
-function getCompareRangeWithGranularity(
-  range: TimeRangeValue,
-  granularity: GranularityRangeValues,
-  startDate: Date,
-  endDate: Date,
-) {
-  if (range === 'custom') {
-    return {};
-  }
-
-  const preset = getCompareRangeForTimePresets(range);
-
-  const compareStart = getStartDateWithGranularity(
-    getDateWithTimeOfDay(preset.compareStart, startDate),
-    granularity,
-  );
-  const compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(preset.compareEnd, endDate), granularity);
-
-  return { compareStart, compareEnd };
-}
-
-function getRangeWithGranularity(range: Exclude<TimeRangeValue, 'custom'>, granularity: GranularityRangeValues) {
-  const custom = getDateRangeWithGranularity(range, granularity);
-  const compare = getCompareRangeWithGranularity(range, granularity, custom.customStart, custom.customEnd);
-
-  return {
-    ...custom,
-    ...compare,
-  };
 }
 
 export function useTimeRangeHandlers({
@@ -115,7 +70,7 @@ export function useTimeRangeHandlers({
         return;
       }
 
-      const range = getDateRangeWithGranularity(tempState.range, granularity);
+      const range = getRangeWithGranularity(tempState.range, granularity);
 
       updateTempState({
         granularity,
