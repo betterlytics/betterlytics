@@ -1,27 +1,25 @@
 'use client';
 
 import { use } from 'react';
-import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
+import { getWorldMapDataAlpha2, getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import LeafletMap from '@/components/map/LeafletMap';
 import { useTranslations } from 'next-intl';
+import DeckGLMap from '@/components/map/DeckGLMap';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
+  // worldMapTimeseries: ReturnType<typeof getWorldMapGranularityTimeseries>;
 };
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
   const mapData = use(worldMapPromise);
+  // const seriesData = use(worldMapTimeseries);
   const t = useTranslations('components.geography');
 
   return (
     <>
       <div className='h-full w-full'>
-        <LeafletMap
-          visitorData={mapData.visitorData}
-          maxVisitors={mapData.maxVisitors}
-          showZoomControls={true}
-          size='lg'
-        />
+        <DeckGLMap visitorData={mapData.visitorData} maxVisitors={mapData.maxVisitors} />
       </div>
 
       {mapData.visitorData.length === 0 && (

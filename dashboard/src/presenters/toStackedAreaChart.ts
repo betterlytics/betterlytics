@@ -29,7 +29,7 @@ type ChartDataPoint = {
   date: number;
 } & Record<string, number>;
 
-type StackedAreaChartResult = {
+export type StackedAreaChartResult = {
   data: ChartDataPoint[];
   categories: string[];
   comparisonMap?: ComparisonMapping[];
