@@ -45,7 +45,7 @@ function TabbedTable<TData>({
         <CardHeader className='px-1 pb-0 sm:px-6'>
           <div className='flex flex-col-reverse justify-between gap-4 sm:flex-row'>
             {searchColumn && (
-              <div className='bg-table-header w-full rounded-md border sm:max-w-sm'>
+              <div className='w-full rounded-md sm:max-w-sm'>
                 <Input
                   placeholder={`Filter by ${searchColumn}...`}
                   onChange={(event) =>
