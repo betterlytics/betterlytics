@@ -1,13 +1,8 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { utcMinute } from 'd3-time';
+import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
 import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
-
-const IntervalFunctions = {
-  day: utcDay,
-  hour: utcHour,
-  minute: utcMinute,
-} as const;
 
 type DataToAreaChartProps<K extends string> = {
   dataKey: K;
@@ -40,7 +35,7 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
   const chartData = [];
 
   // Find the time interval of input based on specified granularity
-  const intervalFunc = IntervalFunctions[granularity];
+  const intervalFunc = getTimeIntervalForGranularity(granularity);
 
   const { start, end } = {
     start: utcMinute(dateRange.start),

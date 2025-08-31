@@ -20,6 +20,9 @@
         };
       }) ?? [];
 
+  // "off" | "domain" | "full" (defaults to "domain")
+  var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
+
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
   }
@@ -47,22 +50,11 @@
     return url;
   }
 
-  function trackEvent(eventName, isCustomEvent = false, properties = {}) {
+  function trackEvent(eventName, overrides = {}) {
     var url = normalize(window.location.href);
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
-
-    // Generate visitor ID from browser fingerprint
-    var visitorId = (function (fingerprint) {
-      var hash = 0;
-      for (var i = 0; i < fingerprint.length; i++) {
-        var char = fingerprint.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash;
-      }
-      return Math.abs(hash).toString(16);
-    })(userAgent + screenResolution);
 
     // Send tracking data
     fetch(serverUrl, {
@@ -74,14 +66,14 @@
       body: JSON.stringify({
         site_id: siteId,
         event_name: eventName,
-        is_custom_event: isCustomEvent,
-        properties: JSON.stringify(properties),
+        is_custom_event: false,
+        properties: "{}",
         url: url,
         referrer: referrer,
         user_agent: userAgent,
         screen_resolution: screenResolution,
-        visitor_id: visitorId,
         timestamp: Math.floor(Date.now() / 1000),
+        ...overrides,
       }),
     }).catch(function (error) {
       console.error("Analytics tracking failed:", error);
@@ -92,7 +84,10 @@
 
   window.betterlytics = {
     event: (eventName, eventProps = {}) =>
-      trackEvent(eventName, true, eventProps),
+      trackEvent(eventName, {
+        is_custom_event: true,
+        properties: JSON.stringify(eventProps),
+      }),
   };
 
   for (var i = 0; i < queuedEvents.length; i++) {
@@ -126,6 +121,37 @@
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
         trackEvent("pageview");
+      }
+    });
+  }
+
+  // Outbound link tracking
+  function parseOutboundLink(link) {
+    var linkUrl = URL.parse(link.href, window.location.origin);
+    if (
+      linkUrl &&
+      linkUrl.hostname !== window.location.hostname &&
+      linkUrl.hostname !== ""
+    ) {
+      return outboundLinks === "domain"
+        ? linkUrl.origin
+        : linkUrl.origin + linkUrl.pathname;
+    }
+    return false;
+  }
+
+  // Only enable if outbounds is set to "domain" or "full"
+  if (["domain", "full"].includes(outboundLinks)) {
+    // Set up outbound link click tracking
+    document.addEventListener("click", function (event) {
+      var target = event.target.closest("a");
+      if (target && target.href) {
+        const parsed = parseOutboundLink(target);
+        if (parsed) {
+          trackEvent("outbound_link", {
+            outbound_link_url: parsed,
+          });
+        }
       }
     });
   }

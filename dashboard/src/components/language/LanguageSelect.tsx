@@ -4,9 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import * as React from 'react';
 
 import { type FlagIconProps } from '@/components/icons/FlagIcon';
-import { SupportedLanguages } from '@/dictionaries/dictionaries';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { SUPPORTED_LANGUAGES } from '@/constants/supportedLanguages';
+import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
 
 type LanguageSelectProps = {
   onUpdate: React.Dispatch<SupportedLanguages>;
@@ -17,6 +16,7 @@ type LanguageSelectProps = {
 const LANGUAGE = {
   da: { name: 'Dansk', code: 'DK' },
   en: { name: 'English', code: 'GB' },
+  it: { name: 'Italiano', code: 'IT' },
 } satisfies Record<SupportedLanguages, { name: string; code: FlagIconProps['countryCode'] }>;
 
 export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelectProps) {

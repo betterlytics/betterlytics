@@ -70,8 +70,8 @@ export function useSyncURLFilters() {
           numberOfSteps,
           numberOfJourneys,
         },
-        compareStartDate: compareStartDate && compareEndDate ? compareStartDate : undefined,
-        compareEndDate: compareStartDate && compareEndDate ? compareEndDate : undefined,
+        compareStartDate: compareEnabled && compareStartDate && compareEndDate ? compareStartDate : undefined,
+        compareEndDate: compareEnabled && compareStartDate && compareEndDate ? compareEndDate : undefined,
         compareEnabled: compareEnabled,
       });
 
@@ -81,5 +81,15 @@ export function useSyncURLFilters() {
     } catch (error) {
       console.error('Failed to add filters:', error);
     }
-  }, [queryFilters, startDate, endDate, granularity, numberOfSteps, numberOfJourneys]);
+  }, [
+    queryFilters,
+    startDate,
+    endDate,
+    compareEnabled,
+    compareStartDate,
+    compareEndDate,
+    granularity,
+    numberOfSteps,
+    numberOfJourneys,
+  ]);
 }

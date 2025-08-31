@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { format } from 'date-fns';
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -163,7 +162,7 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-96 max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
+      <PopoverContent className='w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
         {content}
       </PopoverContent>
     </Popover>

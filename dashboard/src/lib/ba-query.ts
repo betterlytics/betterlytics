@@ -39,12 +39,13 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 // Utility for granularity
-const GranularityIntervalSchema = z.enum(['1 DAY', '1 HOUR', '1 MINUTE']);
+const GranularityIntervalSchema = z.enum(['1 DAY', '1 HOUR', '15 MINUTE', '30 MINUTE']);
 const granularityIntervalMapper = {
   day: GranularityIntervalSchema.enum['1 DAY'],
   hour: GranularityIntervalSchema.enum['1 HOUR'],
-  minute: GranularityIntervalSchema.enum['1 MINUTE'],
-};
+  minute_15: GranularityIntervalSchema.enum['15 MINUTE'],
+  minute_30: GranularityIntervalSchema.enum['30 MINUTE'],
+} as const;
 
 const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
 

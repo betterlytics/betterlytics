@@ -17,7 +17,7 @@ interface BAPieChartProps {
   formatValue?: (value: number) => string;
 }
 
-const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getIcon, formatValue }) => {
+const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getIcon, formatValue, getLabel }) => {
   if (data.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
@@ -53,17 +53,20 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getI
         </PieChart>
       </ResponsiveContainer>
       <div className='mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2'>
-        {data.map((entry) => (
+        {data.slice(0, 4).map((entry) => (
           <div key={entry.name} className='flex items-center gap-1 text-sm'>
             <span
               className='inline-block h-3 w-3 rounded-full'
               style={{ backgroundColor: getColor(entry.name) }}
             ></span>
             {getIcon && getIcon(entry.name)}
-            <span className='text-foreground font-medium'>{capitalizeFirstLetter(entry.name)}</span>
+            <span className='text-foreground font-medium'>
+              {getLabel?.(entry.name) ?? capitalizeFirstLetter(entry.name)}
+            </span>
             <span className='text-muted-foreground'>{formatPercentage(entry.percentage)}</span>
           </div>
         ))}
+        {data.length > 4 && '...'}
       </div>
     </div>
   );

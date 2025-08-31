@@ -18,6 +18,7 @@ import { Spinner } from '../ui/spinner';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import useIsChanged from '@/hooks/use-is-changed';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useRouter } from 'next/navigation';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ interface UserSettingsTabConfig {
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  const router = useRouter();
 
   const USER_SETTINGS_TABS: UserSettingsTabConfig[] = useMemo(
     () => [
@@ -104,6 +106,9 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     const result = await saveSettings(formData);
     if (result.success) {
       await refreshSession();
+      if (formData.language && formData.language !== settings?.language) {
+        router.refresh();
+      }
       toast.success('Settings saved successfully!');
       onOpenChange(false);
     } else {
