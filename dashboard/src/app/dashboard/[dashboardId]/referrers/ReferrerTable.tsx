@@ -128,8 +128,8 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
               key={value}
               className={`border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
                 activeTab === value
-                  ? 'border-gray-800 text-gray-800'
-                  : 'border-transparent text-gray-600 hover:border-gray-300'
+                  ? 'border-primary text-muted-foreground'
+                  : 'text-muted-foreground hover:border-primary border-transparent'
               }`}
               onClick={() => setActiveTab(value)}
             >

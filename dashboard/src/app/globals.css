@@ -135,7 +135,7 @@
   --destructive-foreground: white;
 
   --border: hsl(0 0% 22%);
-  --input: hsl(0 0% 25%);
+  --input: hsl(0, 0%, 30%);
   --ring: oklch(50% 0.222 268.78); /* blue-800 */
 
   --chart-1: oklch(56% 0.196 268.74); /* blue-700 - Primary blue */
