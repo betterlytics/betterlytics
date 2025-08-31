@@ -42,6 +42,7 @@ const envSchema = z.object({
   GITHUB_SECRET: z.string().optional().default(''),
   GOOGLE_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
+  MISTRAL_API_KEY: z.string().optional().default(''),
 });
 
 export const env = envSchema.parse(process.env);

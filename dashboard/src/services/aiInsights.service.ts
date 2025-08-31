@@ -10,6 +10,7 @@ import { getReferrerTableDataForSite } from '@/services/referrers';
 
 import { toAreaChart } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
+import { getMistralReport } from '@/repositories/ai/mistral';
 
 /**
  * Generates AI Insights for a dashboard
@@ -19,7 +20,9 @@ export async function getAIInsights(siteId: string) {
 
   const compiled = await getCompiledPresentedData(params);
 
-  console.log(compiled);
+  // console.log(JSON.stringify(compiled));
+
+  return getMistralReport(JSON.stringify(compiled));
 }
 
 function getServiceQueryParams(siteId: string) {
