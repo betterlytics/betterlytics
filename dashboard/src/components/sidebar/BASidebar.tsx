@@ -9,6 +9,7 @@ import {
   DollarSign,
   Route,
   ExternalLink as ExternalLinkIcon,
+  CircuitBoard,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -51,6 +52,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     { name: t('devices'), href: '/devices', icon: <Smartphone size={18} /> },
     { name: t('campaigns'), href: '/campaign', icon: <DollarSign size={18} /> },
     { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
+    { name: 'AI', href: '/ai-insights', icon: <CircuitBoard size={18} /> },
   ];
 
   return (
