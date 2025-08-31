@@ -30,8 +30,6 @@ import { Suspense } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
 import { DashboardDropdown } from './DashboardDropdown';
 import { getTranslations } from 'next-intl/server';
-import NextLink from 'next/link';
-import Logo from '@/components/logo';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 
 type BASidebarProps = {

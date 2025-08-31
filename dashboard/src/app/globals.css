@@ -76,8 +76,8 @@
   --destructive: oklch(0.65 0.25 30);
   --destructive-foreground: white;
 
-  --border: oklch(93% 0 0);
-  --input: oklch(94% 0 0);
+  --border: oklch(90% 0 0);
+  --input: oklch(90% 0 0);
   --ring: oklch(74% 0.118 268.64);
 
   --chart-1: oklch(62% 0.17 268.71); /* blue-600 - Primary blue */
@@ -116,7 +116,7 @@
   --card: hsl(0 0% 10.5%); /* card */
   --card-foreground: oklch(0.95 0.01 265);
 
-  --popover: hsl(0 0% 10.5%);
+  --popover: hsl(0 0% 15%);
   --popover-foreground: oklch(0.95 0.01 265);
 
   --primary: oklch(56% 0.196 268.74); /* blue-700 */

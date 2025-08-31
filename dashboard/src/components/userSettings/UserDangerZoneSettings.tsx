@@ -94,7 +94,7 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
               <Button
                 variant='destructive'
                 disabled={isPending}
-                className='hover:bg-destructive/80 dark:hover:bg-destructive/50 w-full sm:w-auto'
+                className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full sm:w-auto'
               >
                 {isPending ? (
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -132,7 +132,7 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
                     variant='destructive'
                     onClick={handleDeleteAccount}
                     disabled={isPending || !canDelete}
-                    className='hover:bg-destructive/90 dark:hover:bg-destructive/50'
+                    className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full sm:w-auto'
                   >
                     {isPending ? (
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />

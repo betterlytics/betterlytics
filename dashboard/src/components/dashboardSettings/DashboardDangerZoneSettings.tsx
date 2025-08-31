@@ -58,7 +58,7 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
           <AlertDialogTrigger asChild>
             <Button
               variant='destructive'
-              className='hover:bg-destructive/80 dark:hover:bg-destructive/80 w-full sm:w-auto'
+              className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full sm:w-auto'
             >
               <Trash2 className='h-4 w-4' />
               Delete Dashboard
@@ -79,7 +79,7 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
               <AlertDialogAction asChild onClick={handleDeleteDashboard}>
                 <Button
                   variant='destructive'
-                  className='hover:bg-destructive/80 dark:hover:bg-destructive/80 w-full sm:w-auto'
+                  className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full sm:w-auto'
                 >
                   <Trash2 className='h-4 w-4' />
                   Delete Dashboard

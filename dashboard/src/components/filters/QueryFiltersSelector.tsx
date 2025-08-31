@@ -153,10 +153,7 @@ export default function QueryFiltersSelector() {
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className='bg-secondary w-[620px] max-w-[calc(100svw-48px)] border py-4 shadow-2xl'
-        align='start'
-      >
+      <PopoverContent className='w-[620px] max-w-[calc(100svw-48px)] border py-4 shadow-2xl' align='start'>
         {content}
       </PopoverContent>
     </Popover>
