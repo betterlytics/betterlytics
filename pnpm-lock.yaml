@@ -20,9 +20,6 @@ importers:
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
-      nextjs-toploader:
-        specifier: ^3.8.16
-        version: 3.8.16(next@15.3.3(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
   backend: {}
 
@@ -167,7 +164,7 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       nextjs-toploader:
-        specifier: '*'
+        specifier: ^3.8.16
         version: 3.8.16(next@15.3.3(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       otpauth:
         specifier: ^9.4.0
@@ -306,7 +303,7 @@ importers:
         specifier: 15.3.3
         version: 15.3.3(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       nextjs-toploader:
-        specifier: '*'
+        specifier: ^3.8.16
         version: 3.8.16(next@15.3.3(@opentelemetry/api@1.9.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       nextra:
         specifier: ^4.2.17
