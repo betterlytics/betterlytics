@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,10 +16,9 @@ import Logo from '@/components/logo';
 import { CheckCircleIcon } from 'lucide-react';
 
 export default function AccountCreationPage() {
-  const { state, updateAccount, setUserId } = useOnboarding();
+  const { state, setUserId } = useOnboarding();
   const { data: session } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [error, setError] = useState('');
   const [providers, setProviders] = useState<Record<string, any> | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -46,8 +45,8 @@ export default function AccountCreationPage() {
       const email = formData.get('email') as string;
       const password = formData.get('password') as string;
       const confirmPassword = formData.get('confirmPassword') as string;
-      const name = formData.get('name') as string;
-
+      const name = formData.get('name') as string | null;
+      console.log('Name:', name);
       if (password !== confirmPassword) {
         setError('Passwords do not match');
         return;
@@ -57,7 +56,7 @@ export default function AccountCreationPage() {
         const validatedData = RegisterUserSchema.parse({
           email,
           password,
-          name: name.trim() || undefined,
+          name: name?.trim() || undefined,
         });
 
         startTransition(async () => {
@@ -79,13 +78,6 @@ export default function AccountCreationPage() {
             return;
           }
 
-          updateAccount({
-            email,
-            name,
-            isOAuth: false,
-            provider: 'credentials',
-          });
-
           setUserId(result.data.id);
           router.push('/onboarding/website');
         });
@@ -93,40 +85,33 @@ export default function AccountCreationPage() {
         if (error instanceof ZodError) {
           setError(error.errors[0]?.message || 'Please check your input');
         } else {
+          console.log(error);
           setError('Please check your input');
         }
       }
     },
-    [updateAccount, setUserId, router],
+    [setUserId, router],
   );
 
-  const handleOAuthRegistration = useCallback(
-    async (provider: 'google' | 'github') => {
-      setError('');
-      const transition = provider === 'github' ? startGithubTransition : startGoogleTransition;
+  const handleOAuthRegistration = useCallback(async (provider: 'google' | 'github') => {
+    setError('');
+    const transition = provider === 'github' ? startGithubTransition : startGoogleTransition;
 
-      transition(async () => {
-        try {
-          const result = await signIn(provider, {
-            redirect: false,
-            callbackUrl: '/onboarding/account',
-          });
+    transition(async () => {
+      try {
+        const result = await signIn(provider, {
+          redirect: false,
+          callbackUrl: '/onboarding/account',
+        });
 
-          if (result?.url) {
-            updateAccount({
-              isOAuth: true,
-              provider,
-            });
-
-            window.location.href = result.url;
-          }
-        } catch {
-          setError('An error occurred during sign up. Please try again.');
+        if (result?.url) {
+          window.location.href = result.url;
         }
-      });
-    },
-    [updateAccount],
-  );
+      } catch {
+        setError('An error occurred during sign up. Please try again.');
+      }
+    });
+  }, []);
 
   return (
     <div className='grid grid-cols-2 gap-4'>

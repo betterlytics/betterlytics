@@ -34,7 +34,6 @@ type OnboardingAction =
   | { type: 'SET_STEP'; payload: number }
   | { type: 'NEXT_STEP' }
   | { type: 'PREV_STEP' }
-  | { type: 'UPDATE_ACCOUNT'; payload: Partial<OnboardingAccountData> }
   | { type: 'UPDATE_WEBSITE'; payload: Partial<OnboardingWebsiteData> }
   | { type: 'UPDATE_INTEGRATION'; payload: Partial<OnboardingIntegrationData> }
   | { type: 'SET_USER_ID'; payload: string }
@@ -67,9 +66,6 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
 
     case 'PREV_STEP':
       return { ...state, currentStep: Math.max(1, state.currentStep - 1) };
-
-    case 'UPDATE_ACCOUNT':
-      return { ...state, account: { ...state.account, ...action.payload } };
 
     case 'UPDATE_WEBSITE':
       return { ...state, website: { ...state.website, ...action.payload } };
@@ -105,7 +101,6 @@ interface OnboardingContextType {
   setStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
-  updateAccount: (data: Partial<OnboardingAccountData>) => void;
   updateWebsite: (data: Partial<OnboardingWebsiteData>) => void;
   updateIntegration: (data: Partial<OnboardingIntegrationData>) => void;
   setUserId: (id: string) => void;
@@ -150,7 +145,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       setStep: (step: number) => dispatch({ type: 'SET_STEP', payload: step }),
       nextStep: () => dispatch({ type: 'NEXT_STEP' }),
       prevStep: () => dispatch({ type: 'PREV_STEP' }),
-      updateAccount: (data: Partial<OnboardingAccountData>) => dispatch({ type: 'UPDATE_ACCOUNT', payload: data }),
       updateWebsite: (data: Partial<OnboardingWebsiteData>) => dispatch({ type: 'UPDATE_WEBSITE', payload: data }),
       updateIntegration: (data: Partial<OnboardingIntegrationData>) =>
         dispatch({ type: 'UPDATE_INTEGRATION', payload: data }),

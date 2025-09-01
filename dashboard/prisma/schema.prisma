@@ -96,7 +96,8 @@ model UserSettings {
 model Dashboard {
   id String @id @default(cuid())
   siteId String @unique
-  domain String
+  name String
+  domain String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
