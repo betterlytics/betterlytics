@@ -33,6 +33,7 @@ pub struct EventRow {
     pub event_type: EventType,
     pub custom_event_name: String,
     pub custom_event_json: String,
+    pub outbound_link_url: String,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]
@@ -41,6 +42,7 @@ pub struct EventRow {
 pub enum EventType {
     Pageview = 1,
     Custom = 2,
+    OutboundLink = 3,
 }
 
 impl EventRow {
@@ -72,6 +74,7 @@ impl EventRow {
             event_type: event.event_type.parse().unwrap(),
             custom_event_name: event.custom_event_name,
             custom_event_json: event.custom_event_json,
+            outbound_link_url: event.outbound_link_url,
         }
     }
 }
