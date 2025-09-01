@@ -10,6 +10,7 @@ import GeographySection from './GeographySection';
 import DevicesSection from './DevicesSection';
 import TrafficSourcesSection from './TrafficSourcesSection';
 import CustomEventsSection from './CustomEventsSection';
+import WeeklyHeatmapSection from './WeeklyHeatmapSection';
 import {
   fetchDeviceBreakdownCombinedAction,
   fetchPageAnalyticsCombinedAction,
@@ -20,6 +21,7 @@ import {
   getTopCountryVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions';
+import { fetchWeeklyHeatmapAllAction } from '@/app/actions/weeklyHeatmap';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -114,6 +116,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     compareStartDate,
     compareEndDate,
   );
+  const weeklyHeatmapAllPromise = fetchWeeklyHeatmapAllAction(dashboardId, startDate, endDate, queryFilters);
 
   return (
     <div className='container space-y-6 p-6'>
@@ -160,7 +163,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <Suspense fallback={<TableSkeleton />}>
           <CustomEventsSection customEventsPromise={customEventsPromise} />
         </Suspense>
-        <div>{/* Placeholder for future content */}</div>
+        <Suspense fallback={<TableSkeleton />}>
+          <WeeklyHeatmapSection weeklyHeatmapAllPromise={weeklyHeatmapAllPromise} />
+        </Suspense>
       </div>
     </div>
   );
