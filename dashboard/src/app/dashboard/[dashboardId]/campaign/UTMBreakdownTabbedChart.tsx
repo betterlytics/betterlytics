@@ -124,8 +124,6 @@ export default function UTMBreakdownTabbedChart({
   termBreakdownPromise,
 }: UTMBreakdownTabbedChartProps) {
   const t = useTranslations('components.campaign.utm');
-  const tTabs = useTranslations('components.campaign.utm.tabs');
-  const tEmpty = useTranslations('components.campaign.utm.empty');
   const sourceBreakdown = use(sourceBreakdownPromise);
   const mediumBreakdown = use(mediumBreakdownPromise);
   const contentBreakdown = use(contentBreakdownPromise);
@@ -135,34 +133,34 @@ export default function UTMBreakdownTabbedChart({
     () => [
       {
         key: 'source',
-        label: tTabs('source'),
+        label: t('tabs.source'),
         data: sourceBreakdown,
         dataKey: CampaignDataKey.SOURCE,
-        emptyMessage: tEmpty('source'),
+        emptyMessage: t('empty.source'),
       },
       {
         key: 'medium',
-        label: tTabs('medium'),
+        label: t('tabs.medium'),
         data: mediumBreakdown,
         dataKey: CampaignDataKey.MEDIUM,
-        emptyMessage: tEmpty('medium'),
+        emptyMessage: t('empty.medium'),
       },
       {
         key: 'content',
-        label: tTabs('content'),
+        label: t('tabs.content'),
         data: contentBreakdown,
         dataKey: CampaignDataKey.CONTENT,
-        emptyMessage: tEmpty('content'),
+        emptyMessage: t('empty.content'),
       },
       {
         key: 'term',
-        label: tTabs('terms'),
+        label: t('tabs.terms'),
         data: termBreakdown,
         dataKey: CampaignDataKey.TERM,
-        emptyMessage: tEmpty('term'),
+        emptyMessage: t('empty.term'),
       },
     ],
-    [sourceBreakdown, mediumBreakdown, contentBreakdown, termBreakdown, tTabs, tEmpty],
+    [sourceBreakdown, mediumBreakdown, contentBreakdown, termBreakdown, t],
   );
 
   return (

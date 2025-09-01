@@ -11,12 +11,11 @@ interface CampaignPerformanceTableProps {
 
 export default function CampaignPerformanceTable({ data }: CampaignPerformanceTableProps) {
   const t = useTranslations('components.campaign.performance');
-  const tCols = useTranslations('components.campaign.performance.columns');
 
   const columns: ColumnDef<CampaignPerformance>[] = [
     {
       accessorKey: 'name',
-      header: tCols('campaignName'),
+      header: t('columns.campaignName'),
       cell: ({ row }) => (
         <div className='truncate font-medium' title={row.original.name}>
           {row.original.name}
@@ -26,24 +25,24 @@ export default function CampaignPerformanceTable({ data }: CampaignPerformanceTa
     },
     {
       accessorKey: 'visitors',
-      header: tCols('visitors'),
+      header: t('columns.visitors'),
       cell: ({ row }) => <div>{row.original.visitors.toLocaleString()}</div>,
     },
     {
       accessorKey: 'bounceRate',
-      header: tCols('bounceRate'),
+      header: t('columns.bounceRate'),
       cell: ({ row }) => <div className='font-medium'>{formatPercentage(row.original.bounceRate)}</div>,
       size: 120,
     },
     {
       accessorKey: 'avgSessionDuration',
-      header: tCols('avgSessionDuration'),
+      header: t('columns.avgSessionDuration'),
       cell: ({ row }) => <div>{row.original.avgSessionDuration}</div>,
       size: 180,
     },
     {
       accessorKey: 'pagesPerSession',
-      header: tCols('pagesPerSession'),
+      header: t('columns.pagesPerSession'),
       cell: ({ row }) => <div>{row.original.pagesPerSession.toFixed(1)}</div>,
       size: 150,
     },

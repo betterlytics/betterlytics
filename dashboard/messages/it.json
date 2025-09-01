@@ -1010,6 +1010,7 @@
         "landingPages": "Pagine di destinazione"
       },
       "page": {
+        "title": "Campagne",
         "description": "Analitiche e insight sulle performance delle campagne"
       },
       "performance": {
@@ -1072,6 +1073,7 @@
     },
     "events": {
       "page": {
+        "title": "Eventi",
         "description": "Analitiche e insight per i tuoi eventi personalizzati"
       },
       "log": {
@@ -1163,6 +1165,7 @@
         "errorMessage": "Creazione funnel fallita!"
       },
       "page": {
+        "title": "Funnel",
         "description": "Analizza i percorsi di conversione degli utenti"
       },
       "preview": {

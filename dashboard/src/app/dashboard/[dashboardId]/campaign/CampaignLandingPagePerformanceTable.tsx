@@ -13,17 +13,16 @@ interface CampaignLandingPagePerformanceTableProps {
 
 export default function CampaignLandingPagePerformanceTable({ data }: CampaignLandingPagePerformanceTableProps) {
   const t = useTranslations('components.campaign.landing');
-  const tCols = useTranslations('components.campaign.landing.columns');
 
   const columns: ColumnDef<CampaignLandingPagePerformanceItem>[] = [
     {
       accessorKey: 'campaignName',
-      header: tCols('campaignName'),
+      header: t('columns.campaignName'),
       cell: ({ row }) => <div className='font-medium'>{row.original.campaignName}</div>,
     },
     {
       accessorKey: 'landingPageUrl',
-      header: tCols('landingPageUrl'),
+      header: t('columns.landingPageUrl'),
       cell: ({ row }) => (
         <ExternalLink
           href={row.original.landingPageUrl}
@@ -38,22 +37,22 @@ export default function CampaignLandingPagePerformanceTable({ data }: CampaignLa
     },
     {
       accessorKey: 'visitors',
-      header: tCols('visitors'),
+      header: t('columns.visitors'),
       cell: ({ row }) => <div>{row.original.visitors.toLocaleString()}</div>,
     },
     {
       accessorKey: 'bounceRate',
-      header: tCols('bounceRate'),
+      header: t('columns.bounceRate'),
       cell: ({ row }) => <div>{row.original.bounceRate.toFixed(1)}%</div>,
     },
     {
       accessorKey: 'avgSessionDuration',
-      header: tCols('avgSessionDuration'),
+      header: t('columns.avgSessionDuration'),
       cell: ({ row }) => <div>{row.original.avgSessionDuration}</div>,
     },
     {
       accessorKey: 'pagesPerSession',
-      header: tCols('pagesPerSession'),
+      header: t('columns.pagesPerSession'),
       cell: ({ row }) => <div>{row.original.pagesPerSession.toFixed(1)}</div>,
     },
   ];

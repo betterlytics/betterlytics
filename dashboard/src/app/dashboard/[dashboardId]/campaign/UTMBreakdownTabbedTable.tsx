@@ -34,9 +34,6 @@ export default function UTMBreakdownTabbedTable({
   termBreakdownPromise,
 }: UTMBreakdownTabbedTableProps) {
   const t = useTranslations('components.campaign.utm');
-  const tTabs = useTranslations('components.campaign.utm.tabs');
-  const tEmpty = useTranslations('components.campaign.utm.empty');
-  const tCols = useTranslations('components.campaign.utm.columns');
   const sourceBreakdown = use(sourceBreakdownPromise);
   const mediumBreakdown = use(mediumBreakdownPromise);
   const contentBreakdown = use(contentBreakdownPromise);
@@ -52,67 +49,67 @@ export default function UTMBreakdownTabbedTable({
         },
         {
           accessorKey: 'visitors',
-          header: tCols('visitors'),
+          header: t('columns.visitors'),
           cell: ({ row }) => <div>{row.getValue<number>('visitors').toLocaleString()}</div>,
         },
         {
           accessorKey: 'bounceRate',
-          header: tCols('bounceRate'),
+          header: t('columns.bounceRate'),
           cell: ({ row }) => <div>{formatPercentage(row.getValue<number>('bounceRate'))}</div>,
         },
         {
           accessorKey: 'avgSessionDuration',
-          header: tCols('avgSessionDuration'),
+          header: t('columns.avgSessionDuration'),
           cell: ({ row }) => <div>{row.getValue('avgSessionDuration')}</div>,
         },
         {
           accessorKey: 'pagesPerSession',
-          header: tCols('pagesPerSession'),
+          header: t('columns.pagesPerSession'),
           cell: ({ row }) => <div>{row.getValue<number>('pagesPerSession').toFixed(1)}</div>,
         },
       ];
     },
-    [tCols],
+    [t],
   );
 
-  const sourceColumns = useMemo(() => createUTMColumns('source', tTabs('source')), [createUTMColumns, tTabs]);
-  const mediumColumns = useMemo(() => createUTMColumns('medium', tTabs('medium')), [createUTMColumns, tTabs]);
-  const contentColumns = useMemo(() => createUTMColumns('content', tTabs('content')), [createUTMColumns, tTabs]);
-  const termColumns = useMemo(() => createUTMColumns('term', tTabs('terms')), [createUTMColumns, tTabs]);
+  const sourceColumns = useMemo(() => createUTMColumns('source', t('tabs.source')), [createUTMColumns, t]);
+  const mediumColumns = useMemo(() => createUTMColumns('medium', t('tabs.medium')), [createUTMColumns, t]);
+  const contentColumns = useMemo(() => createUTMColumns('content', t('tabs.content')), [createUTMColumns, t]);
+  const termColumns = useMemo(() => createUTMColumns('term', t('tabs.terms')), [createUTMColumns, t]);
 
   const tabs: TabDefinition<BaseUTMBreakdownItem>[] = useMemo(
     () => [
       {
         key: 'source',
-        label: tTabs('source'),
+        label: t('tabs.source'),
         data: sourceBreakdown as BaseUTMBreakdownItem[],
         columns: sourceColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: tEmpty('source'),
+        emptyMessage: t('empty.source'),
       },
       {
         key: 'medium',
-        label: tTabs('medium'),
+        label: t('tabs.medium'),
         data: mediumBreakdown as BaseUTMBreakdownItem[],
         columns: mediumColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: tEmpty('medium'),
+        emptyMessage: t('empty.medium'),
       },
       {
         key: 'content',
-        label: tTabs('content'),
+        label: t('tabs.content'),
         data: contentBreakdown as BaseUTMBreakdownItem[],
         columns: contentColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: tEmpty('content'),
+        emptyMessage: t('empty.content'),
       },
       {
         key: 'term',
-        label: tTabs('terms'),
+        label: t('tabs.terms'),
         data: termBreakdown as BaseUTMBreakdownItem[],
         columns: termColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: tEmpty('term'),
+        emptyMessage: t('empty.term'),
       },
     ],
     [
@@ -124,8 +121,7 @@ export default function UTMBreakdownTabbedTable({
       mediumColumns,
       contentColumns,
       termColumns,
-      tTabs,
-      tEmpty,
+      t,
     ],
   );
 

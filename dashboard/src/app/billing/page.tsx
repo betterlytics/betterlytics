@@ -17,7 +17,7 @@ export default async function BillingPage() {
   }
 
   const session = await getServerSession(authOptions);
-  const tPage = await getTranslations('components.billing.page');
+  const t = await getTranslations('components.billing.page');
 
   if (!session) {
     redirect('/signin');
@@ -46,8 +46,8 @@ export default async function BillingPage() {
         )}
 
         <div className='mb-16 space-y-4 text-center'>
-          <h2 className='text-3xl font-bold sm:text-4xl'>{tPage('heading')}</h2>
-          <p className='text-muted-foreground text-xl'>{tPage('subheading')}</p>
+          <h2 className='text-3xl font-bold sm:text-4xl'>{t('heading')}</h2>
+          <p className='text-muted-foreground text-xl'>{t('subheading')}</p>
         </div>
 
         <div className='mb-8'>

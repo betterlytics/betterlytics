@@ -1006,6 +1006,7 @@
         "landingPages": "Landingssider"
       },
       "page": {
+        "title": "Kampagner",
         "description": "Kampagneperformance analyser og indsigter"
       },
       "performance": {
@@ -1068,6 +1069,7 @@
     },
     "events": {
       "page": {
+        "title": "Hændelser",
         "description": "Analyser og indsigter for dine brugerdefinerede hændelser"
       },
       "log": {
@@ -1159,6 +1161,7 @@
         "errorMessage": "Tragtoprettelse mislykkedes!"
       },
       "page": {
+        "title": "Tragter",
         "description": "Analyser brugerens konverteringsforløb"
       },
       "preview": {
