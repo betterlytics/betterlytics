@@ -75,7 +75,7 @@ const SummaryCard = React.memo(
 
     return (
       <Card
-        className={`group relative overflow-hidden py-4 transition-all duration-200 ${
+        className={`group relative h-full overflow-hidden py-4 transition-all duration-200 ${
           onClick
             ? 'hover:border-primary/40 hover:bg-accent/20 cursor-pointer hover:scale-[1.02] hover:shadow-lg'
             : ''
@@ -114,7 +114,7 @@ const SummaryCard = React.memo(
           </div>
         )}
 
-        <CardContent className='relative z-10 space-y-0 px-4 py-2'>
+        <CardContent className='relative z-10 flex h-full flex-col space-y-0 px-4 py-2'>
           <div className='mb-2 flex items-center justify-between'>
             <span className='text-muted-foreground text-sm font-medium'>{title}</span>
             {onClick && (
@@ -142,7 +142,7 @@ const SummaryCard = React.memo(
               </Badge>
             )}
           </div>
-          {footer && <div className='mt-3'>{footer}</div>}
+          {footer && <div className='mt-auto pt-3'>{footer}</div>}
         </CardContent>
       </Card>
     );
