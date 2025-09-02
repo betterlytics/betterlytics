@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { createDashboardAction } from '@/app/actions/dashboard';
+import { createDashboardAction, getFirstUserDashboardAction } from '@/app/actions/dashboard';
 import { domainValidation } from '@/entities/dashboard';
 import { toast } from 'sonner';
 import { PrefixInput } from '@/components/inputs/PrefixInput';
@@ -22,7 +22,15 @@ export default function WebsiteSetupPage() {
   useEffect(() => {
     if (!session?.user) {
       router.push('/onboarding/account');
+      return;
     }
+    getFirstUserDashboardAction()
+      .then((dashboard) => {
+        if (dashboard) {
+          router.push('/onboarding/integration');
+        }
+      })
+      .catch(() => {});
   }, [session, router]);
 
   const handleSubmit = useCallback(
