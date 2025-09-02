@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { SummaryCardsSkeleton } from '@/components/skeleton';
+import { ChartSkeleton, SummaryCardsSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import {
@@ -63,7 +63,14 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
   return (
     <div className='container space-y-6 p-6'>
       <DashboardFilters />
-      <Suspense fallback={<SummaryCardsSkeleton />}>
+      <Suspense
+        fallback={
+          <div className='space-y-6'>
+            <SummaryCardsSkeleton />
+            <ChartSkeleton />
+          </div>
+        }
+      >
         <InteractiveWebVitalsChartSection summaryPromise={summaryPromise} seriesPromise={seriesPromise} />
       </Suspense>
       <Suspense>
