@@ -17,7 +17,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
         <div className='bg-background'>
           <div className='container mx-auto max-w-4xl px-4 py-12'>
             <OnboardingProgress />
-            <div className='min-h-[400px] space-y-6'>{children}</div>
+            <div className='flex min-h-[400px] flex-col justify-center space-y-6'>{children}</div>
           </div>
         </div>
       </PublicEnvironmentVariablesProvider>

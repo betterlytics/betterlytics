@@ -61,12 +61,9 @@ export default function WebsiteSetupPage() {
   );
 
   return (
-    <div className='grid grid-cols-2 gap-4'>
-      <div className='hidden md:block'>
-        <img src={'/onboarding/image.png'} alt={'Visual graph'} className='object-fit h-full w-full blur-[4px]' />
-      </div>
-      <div className='bg-card col-span-2 space-y-3 rounded-lg border p-6 shadow-sm md:col-span-1'>
-        <div className='text-center'>
+    <div className='flex justify-center'>
+      <div className='bg-card space-y-6 rounded-lg border p-6 md:w-xl'>
+        <div>
           <h2 className='text-2xl font-semibold'>Set up your website</h2>
           <p className='text-muted-foreground mt-2'>Tell us about the website you want to track</p>
         </div>
