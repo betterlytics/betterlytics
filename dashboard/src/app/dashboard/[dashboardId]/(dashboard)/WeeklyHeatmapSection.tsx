@@ -84,13 +84,18 @@ function HeatmapGrid({ data }: HeatmapGridProps) {
   const scaleMax = Math.max(1, sorted.length ? sorted[p95Index] : 1);
 
   const getCellStyle = (value: number): CSSProperties => {
+    if (value <= 0) return { backgroundColor: 'transparent' };
     const t = Math.min(1, value / scaleMax);
-    const percent = Math.round(t * 100);
-    return { background: `color-mix(in oklch, var(--primary) ${percent}%, transparent)` };
+    const eased = Math.pow(t, 0.85);
+    const hue = 268.7; // primary hue
+    const lightness = 60; // close to primary lightness
+    const chroma = 0.18; // close to primary chroma
+    const alpha = 0.1 + 0.9 * eased; // start faint, ramp to solid
+    return { backgroundColor: `oklch(${lightness}% ${chroma} ${hue} / ${alpha})` };
   };
 
   return (
-    <div className='grid grid-cols-[40px_repeat(7,80px)] gap-x-0.5 gap-y-1'>
+    <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-0.5 gap-y-1'>
       <div></div>
       {dayLabels.map((label) => (
         <div
