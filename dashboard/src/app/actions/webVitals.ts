@@ -6,7 +6,7 @@ import { QueryFilter } from '@/entities/filter';
 import {
   getAllCoreWebVitalPercentilesTimeseries,
   getCoreWebVitalsSummaryForSite,
-  getCoreWebVitalsAllPercentilesPerDimension,
+  getCoreWebVitalsPreparedByDimension,
 } from '@/services/webVitals';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { CoreWebVitalName } from '@/entities/webVitals';
@@ -47,19 +47,13 @@ export const fetchCoreWebVitalsByDimensionAction = withDashboardAuthContext(
     queryFilters: QueryFilter[],
     dimension: CWVDimension,
   ) => {
-    const rows = await getCoreWebVitalsAllPercentilesPerDimension(
+    const prepared = await getCoreWebVitalsPreparedByDimension(
       ctx.siteId,
       startDate,
       endDate,
       queryFilters,
       dimension,
     );
-    const pivoted = pivotByCategory(rows, 'key', 'name', 'p75').map((r) => {
-      const bucket = rows.filter((w) => w.key === r.key);
-      const metricToPercentiles = Object.fromEntries(bucket.map((b) => [b.name, [b.p50, b.p75, b.p90, b.p99]]));
-      const samples = bucket.reduce((acc, w) => acc + (w.samples || 0), 0);
-      return { ...r, __percentiles: metricToPercentiles, samples };
-    });
-    return toDataTable({ categoryKey: 'key', data: pivoted });
+    return toDataTable({ categoryKey: 'key', data: prepared });
   },
 );

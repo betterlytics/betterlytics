@@ -9,6 +9,9 @@ import MetricInfo from '@/app/dashboard/[dashboardId]/web-vitals/MetricInfo';
 import type { CoreWebVitalName } from '@/entities/webVitals';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/webVitals';
 import * as Flags from 'country-flag-icons/react/3x2';
+import { Badge } from '@/components/ui/badge';
+import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
+import InfoTooltip from '@/app/dashboard/[dashboardId]/web-vitals/InfoTooltip';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
@@ -44,6 +47,38 @@ export default function WebVitalsTableSection({
         return percentiles ? percentiles[percentileIndex[activePercentile]] : (row.current as any)[metric];
       };
 
+      const getOpportunity = (row: Row): number | null => {
+        const idx = percentileIndex[activePercentile];
+        const arr = row.current.__opportunities as [number, number, number, number] | undefined;
+        return arr ? arr[idx] : null;
+      };
+
+      const getScore = (row: Row): number | null => {
+        const idx = percentileIndex[activePercentile];
+        const arr = row.current.__scores as [number, number, number, number] | undefined;
+        return arr ? arr[idx] : null;
+      };
+
+      const scoreVisual = (score: number): { label: string; className: string } => {
+        if (score >= PERFORMANCE_SCORE_THRESHOLDS.greatMin)
+          return {
+            label: 'Great',
+            className:
+              'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700',
+          };
+        if (score >= PERFORMANCE_SCORE_THRESHOLDS.okayMin)
+          return {
+            label: 'Okay',
+            className:
+              'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700',
+          };
+        return {
+          label: 'Poor',
+          className:
+            'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700',
+        };
+      };
+
       const valueCell = (metric: CoreWebVitalName) => {
         const Cell = ({ row }: { row: { original: Row } }) => {
           const value = getValue(row.original, metric);
@@ -64,6 +99,51 @@ export default function WebVitalsTableSection({
         </div>
       );
 
+      const headerWithPerformanceInfo = () => (
+        <div className='inline-flex items-center gap-1.5'>
+          <span>Performance</span>
+          <InfoTooltip
+            ariaLabel='About performance score'
+            iconClassName='h-3.5 w-3.5'
+            content={
+              <>
+                <p className='text-primary-foreground/90'>
+                  Performance score (0–100) based on the following metric weights: LCP 30%, CLS 15%, FCP 15%, TTFB
+                  10%, INP 30%.
+                </p>
+                <div className='bg-primary-foreground/20 h-px' />
+                <div className='text-[11px] leading-4'>
+                  <div>Great: ≥ {PERFORMANCE_SCORE_THRESHOLDS.greatMin}</div>
+                  <div>Okay: ≥ {PERFORMANCE_SCORE_THRESHOLDS.okayMin}</div>
+                  <div>Poor: &lt; {PERFORMANCE_SCORE_THRESHOLDS.okayMin}</div>
+                </div>
+              </>
+            }
+          />
+        </div>
+      );
+
+      const headerWithOpportunityInfo = () => (
+        <div className='inline-flex items-center gap-1.5'>
+          <span>Opportunity</span>
+          <InfoTooltip
+            ariaLabel='About opportunity'
+            iconClassName='h-3.5 w-3.5'
+            content={
+              <>
+                <p className='text-primary-foreground/90'>
+                  Traffic-weighted potential improvement: traffic share × (100 − Performance).
+                </p>
+                <div className='bg-primary-foreground/20 h-px' />
+                <div className='text-[11px] leading-4'>
+                  <div>Changes with the selected percentile (P50/P75/P90/P99)</div>
+                </div>
+              </>
+            }
+          />
+        </div>
+      );
+
       return [
         {
           accessorKey: 'key',
@@ -74,6 +154,12 @@ export default function WebVitalsTableSection({
               <span className='truncate'>{row.original.key}</span>
             </div>
           ),
+        },
+        {
+          accessorKey: 'samples',
+          header: 'Pageloads',
+          cell: ({ row }) => <span className='tabular-nums'>{row.original.current.samples}</span>,
+          accessorFn: (r) => r.current.samples,
         },
         {
           accessorKey: 'CLS',
@@ -106,10 +192,28 @@ export default function WebVitalsTableSection({
           accessorFn: (r) => getValue(r, 'TTFB'),
         },
         {
-          accessorKey: 'samples',
-          header: 'Events',
-          cell: ({ row }) => <span className='tabular-nums'>{row.original.current.samples}</span>,
-          accessorFn: (r) => r.current.samples,
+          accessorKey: 'score',
+          header: () => headerWithPerformanceInfo(),
+          cell: ({ row }) => {
+            const v = getScore(row.original);
+            if (v == null) return <span className='text-muted-foreground'>—</span>;
+            const { label, className } = scoreVisual(v);
+            return (
+              <Badge className={className}>
+                {label}: <span className='tabular-nums'>{v.toFixed(1)}</span>
+              </Badge>
+            );
+          },
+          accessorFn: (r) => getScore(r) ?? 0,
+        },
+        {
+          accessorKey: 'opportunity',
+          header: () => headerWithOpportunityInfo(),
+          cell: ({ row }) => {
+            const v = getOpportunity(row.original);
+            return <span className='tabular-nums'>{v == null ? '—' : v.toFixed(2)}</span>;
+          },
+          accessorFn: (r) => getOpportunity(r) ?? 0,
         },
       ];
     },

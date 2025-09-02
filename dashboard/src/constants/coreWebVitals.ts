@@ -17,3 +17,8 @@ export const CWV_DESCRIPTIONS: Record<CoreWebVitalName, string> = {
   FCP: 'Shows when the first piece of content appears on the screen during page load.',
   TTFB: 'Measures server response speed — the time from request until the first byte is received.',
 };
+
+export const PERFORMANCE_SCORE_THRESHOLDS = {
+  greatMin: 90,
+  okayMin: 50,
+};
