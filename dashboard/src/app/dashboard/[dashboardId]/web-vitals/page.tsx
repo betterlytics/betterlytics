@@ -10,7 +10,7 @@ import {
   fetchCoreWebVitalChartDataAction,
   fetchCoreWebVitalsByDimensionAction,
 } from '@/app/actions';
-import InteractiveWebVitalsChartSection from './interactiveWebVitalsChartSection';
+import InteractiveWebVitalsChartSection from './InteractiveWebVitalsChartSection';
 import WebVitalsTableSection from './webVitalsTableSection';
 
 type PageParams = {
