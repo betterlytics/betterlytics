@@ -49,11 +49,11 @@ export function formatDifference(
  * Formats the date based on the granularity
  */
 export function defaultDateLabelFormatter(date: string | number, granularity?: GranularityRangeValues) {
-  const formatter = granularityDateFormmatter(granularity);
+  const formatter = granularityDateFormatter(granularity);
   return formatter(new Date(date));
 }
 
-export function granularityDateFormmatter(granularity?: GranularityRangeValues) {
+export function granularityDateFormatter(granularity?: GranularityRangeValues) {
   if (granularity === undefined || granularity === 'day') {
     return timeFormat('%b %d');
   }

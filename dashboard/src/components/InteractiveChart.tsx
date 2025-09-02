@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
-import { defaultDateLabelFormatter, granularityDateFormmatter } from '@/utils/chartUtils';
+import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 
 interface ChartDataPoint {
   date: string | number;
@@ -22,7 +22,7 @@ interface InteractiveChartProps {
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   ({ title, data, color, formatValue, granularity, comparisonMap }) => {
-    const axisFormatter = useMemo(() => granularityDateFormmatter(granularity), [granularity]);
+    const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>

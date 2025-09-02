@@ -13,7 +13,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { defaultDateLabelFormatter, granularityDateFormmatter } from '@/utils/chartUtils';
+import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 
 interface ChartDataPoint {
   date: string | number;
@@ -46,7 +46,7 @@ interface MultiSeriesChartProps {
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
   ({ title, data, granularity, formatValue, series, referenceLines, headerRight }) => {
-    const axisFormatter = useMemo(() => granularityDateFormmatter(granularity), [granularity]);
+    const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
