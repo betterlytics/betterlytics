@@ -44,10 +44,10 @@ function TabbedTable<TData>({
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='pb-0'>
           <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-            <div className={cn('flex items-center gap-3', searchColumn && 'sm:col-span-2')}>
+            <div className={cn('grid grid-cols-[1fr_auto] items-start gap-2', searchColumn && 'sm:col-span-2')}>
               <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
-              {headerActions && <div>{headerActions}</div>}
-              {description && <p className='text-muted-foreground text-sm'>{description}</p>}
+              {headerActions && <div className='justify-self-end'>{headerActions}</div>}
+              {description && <p className='text-muted-foreground col-span-2 text-sm'>{description}</p>}
             </div>
             {searchColumn && (
               <Input

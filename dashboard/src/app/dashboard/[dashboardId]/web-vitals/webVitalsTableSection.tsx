@@ -173,7 +173,7 @@ export default function WebVitalsTableSection({
 
   const headerActions = useMemo(
     () => (
-      <div className='flex items-center gap-2'>
+      <div className='grid grid-cols-2 grid-rows-2 gap-1 sm:inline-flex sm:flex-row sm:items-center sm:gap-2'>
         {[
           { key: 'p50' as PercentileKey, label: 'P50', color: 'var(--cwv-p50)' },
           { key: 'p75' as PercentileKey, label: 'P75', color: 'var(--cwv-p75)' },
@@ -182,7 +182,7 @@ export default function WebVitalsTableSection({
         ].map((d) => {
           const isOn = activePercentile === d.key;
           const classes =
-            'inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium ' +
+            'inline-flex items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium min-w-[56px] sm:min-w-0 ' +
             (isOn
               ? 'bg-primary/10 border-primary/20 text-popover-foreground'
               : 'bg-muted/30 border-border text-muted-foreground');
@@ -192,10 +192,11 @@ export default function WebVitalsTableSection({
               type='button'
               onClick={() => setActivePercentile(d.key)}
               aria-pressed={isOn}
+              aria-label={`Select ${d.label} percentile`}
               className={classes}
             >
               <span
-                className={'h-3 w-3 rounded-sm ' + (isOn ? '' : 'opacity-40')}
+                className={'inline-block h-3 w-3 rounded-sm ' + (isOn ? '' : 'opacity-40')}
                 style={{ background: d.color }}
               />
               <span>{d.label}</span>
