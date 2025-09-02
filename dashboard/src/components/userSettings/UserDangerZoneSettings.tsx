@@ -33,7 +33,6 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
   const [countdown, setCountdown] = useState(5);
   const [canDelete, setCanDelete] = useState(false);
   const t = useTranslations('components.userSettings.danger');
-  const tDialog = useTranslations('components.userSettings.danger.dialog');
 
   useEffect(() => {
     if (isDialogOpen) {
@@ -100,22 +99,22 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
               <AlertDialogHeader>
                 <AlertDialogTitle className='flex items-center gap-2'>
                   <AlertTriangle className='text-destructive h-5 w-5' />
-                  {tDialog('title')}
+                  {t('dialog.title')}
                 </AlertDialogTitle>
-                <AlertDialogDescription>{tDialog('description')}</AlertDialogDescription>
+                <AlertDialogDescription>{t('dialog.description')}</AlertDialogDescription>
               </AlertDialogHeader>
 
               <div className='text-muted-foreground space-y-2 text-sm'>
                 <ul className='list-inside list-disc space-y-1'>
-                  <li>{tDialog('li1')}</li>
-                  <li>{tDialog('li2')}</li>
-                  <li>{tDialog('li3')}</li>
-                  <li>{tDialog('li4')}</li>
+                  <li>{t('dialog.li1')}</li>
+                  <li>{t('dialog.li2')}</li>
+                  <li>{t('dialog.li3')}</li>
+                  <li>{t('dialog.li4')}</li>
                 </ul>
               </div>
 
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending}>{tDialog('cancel')}</AlertDialogCancel>
+                <AlertDialogCancel disabled={isPending}>{t('dialog.cancel')}</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDeleteAccount}
                   disabled={isPending || !canDelete}
@@ -126,7 +125,7 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
                   ) : (
                     <Trash2 className='mr-2 h-4 w-4' />
                   )}
-                  {canDelete ? tDialog('confirm') : `${tDialog('confirm')} (${countdown})`}
+                  {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
