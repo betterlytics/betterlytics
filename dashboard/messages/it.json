@@ -1257,6 +1257,7 @@
     },
     "userJourney": {
       "page": {
+        "title": "Percorso utente",
         "description": "Visualizza come gli utenti navigano tra i percorsi chiave."
       },
       "steps": "Passaggi",

@@ -1249,6 +1249,7 @@
     },
     "userJourney": {
       "page": {
+        "title": "User Journey",
         "description": "Visualize how users navigate across key paths."
       },
       "steps": "Steps",
