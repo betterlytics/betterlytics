@@ -47,7 +47,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   axisLine={false}
                   className='text-muted-foreground'
                   tickFormatter={(value) =>
-                    axisFormatter(new Date(typeof value === 'number' ? value : Date.parse(String(value))))
+                    axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
                   }
                   minTickGap={100}
                 />

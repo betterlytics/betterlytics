@@ -68,7 +68,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                   axisLine={false}
                   className='text-muted-foreground'
                   tickFormatter={(value) =>
-                    axisFormatter(new Date(typeof value === 'number' ? value : Date.parse(String(value))))
+                    axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
                   }
                   minTickGap={100}
                 />
@@ -101,7 +101,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                 ))}
                 {referenceLines?.map((r, i) => (
                   <ReferenceLine
-                    key={`ref-${i}`}
+                    key={`ref-${r.label}`}
                     y={r.y}
                     stroke={r.stroke ?? 'var(--chart-comparison)'}
                     strokeDasharray={r.strokeDasharray ?? '4 4'}
