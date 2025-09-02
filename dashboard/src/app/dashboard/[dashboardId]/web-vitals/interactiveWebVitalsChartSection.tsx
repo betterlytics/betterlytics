@@ -197,6 +197,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         data={chartData}
         granularity={granularity}
         formatValue={(v) => formatCWV(active, Number(v))}
+        yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
         series={activeSeries}
         referenceLines={referenceLines}
         headerRight={<SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />}

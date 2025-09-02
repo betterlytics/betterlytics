@@ -42,10 +42,11 @@ interface MultiSeriesChartProps {
     labelFill?: string;
   }>;
   headerRight?: React.ReactNode;
+  yDomain?: [number | 'dataMin' | 'auto', number | 'dataMax' | 'auto' | ((dataMax: number) => number)];
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
-  ({ title, data, granularity, formatValue, series, referenceLines, headerRight }) => {
+  ({ title, data, granularity, formatValue, series, referenceLines, headerRight, yDomain }) => {
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     return (
       <Card>
@@ -78,6 +79,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                   axisLine={false}
                   tickFormatter={formatValue ? formatValue : (value: number) => value.toLocaleString()}
                   className='text-muted-foreground'
+                  domain={yDomain}
                 />
 
                 <Tooltip
