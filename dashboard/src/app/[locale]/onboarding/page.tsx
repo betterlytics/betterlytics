@@ -14,7 +14,6 @@ interface OnboardingPageProps {
 
 export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
   const session = await getServerSession(authOptions);
-  const { onboarding } = await searchParams;
 
   if (!isFeatureEnabled('enableRegistration')) {
     return (

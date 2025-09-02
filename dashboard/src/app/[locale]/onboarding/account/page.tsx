@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect, useCallback } from 'react';
+import { useState, useTransition, useEffect, useCallback, use } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
@@ -14,6 +14,23 @@ import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import Logo from '@/components/logo';
 import { CheckCircleIcon } from 'lucide-react';
+import { motion } from 'motion/react';
+
+const listVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.5, // controls delay *between* li's
+      delayChildren: 0.4, // initial delay before starting the whole batch
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0 },
+};
 
 export default function AccountCreationPage() {
   const { state, setUserId } = useOnboarding();
@@ -119,27 +136,29 @@ export default function AccountCreationPage() {
         <div className='flex justify-center'>
           <Logo variant='icon' showText textSize='md' priority />
         </div>
-        <div className='grid grid-cols-10 gap-y-2'>
-          <CheckCircleIcon />
-          <h3 className='col-span-9 font-semibold'>Start collecting web analytics immediately</h3>
-          <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
-            Integrate our low-code web snippet into your site, or use our npm package.
-          </p>
-        </div>
-        <div className='grid grid-cols-10 gap-y-2'>
-          <CheckCircleIcon />
-          <h3 className='col-span-9 font-semibold'>Generous free plan to help you grow</h3>
-          <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
-            10K events every month for free, no creditcard required, no strings attached. Forever.
-          </p>
-        </div>
-        <div className='grid grid-cols-10 gap-y-2'>
-          <CheckCircleIcon />
-          <h3 className='col-span-9 font-semibold'>Awesome features on their way</h3>
-          <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
-            Betterlytics is open-source. We're actively working on new features we're eager to show
-          </p>
-        </div>
+        <motion.ul variants={listVariants} initial='hidden' animate='visible' className='space-y-2'>
+          <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
+            <CheckCircleIcon />
+            <h3 className='col-span-9 font-semibold'>Start collecting web analytics immediately</h3>
+            <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
+              Integrate our low-code web snippet into your site, or use our npm package.
+            </p>
+          </motion.li>
+          <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
+            <CheckCircleIcon />
+            <h3 className='col-span-9 font-semibold'>Generous free plan to help you grow</h3>
+            <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
+              10K events every month for free, no creditcard required, no strings attached. Forever.
+            </p>
+          </motion.li>
+          <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
+            <CheckCircleIcon />
+            <h3 className='col-span-9 font-semibold'>Awesome features on their way</h3>
+            <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
+              Betterlytics is open-source. We're actively working on new features we're eager to show
+            </p>
+          </motion.li>
+        </motion.ul>
       </div>
       <div className='bg-card col-span-2 space-y-3 rounded-lg border p-6 shadow-sm md:col-span-1'>
         <h2 className='text-center text-2xl font-semibold'>Create your account</h2>

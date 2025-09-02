@@ -84,6 +84,7 @@ export default function WebsiteSetupPage() {
               defaultValue={state.website.domain || ''}
               placeholder='example.com'
               disabled={isPending}
+              prefix='https://'
             />
             <p className='text-muted-foreground text-xs'>
               Enter your domain without https:// or www. (e.g., example.com)
