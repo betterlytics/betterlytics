@@ -729,7 +729,7 @@
       "prioritySupport": "Supporto prioritario",
       "dedicatedSupport": "Supporto dedicato e aiuto",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutto in Starter",
+      "everythingInStarter": "Tutto in Growth",
       "everythingInProfessional": "Tutto in Professional"
     },
     "cta": {
@@ -901,7 +901,7 @@
           },
           "freeOption": {
             "q": "Esiste un'opzione gratuita?",
-            "a": "Sì! Il nostro piano Starter include 10.000 eventi gratuiti al mese per sempre. Nessuna carta di credito richiesta per iniziare."
+            "a": "Sì! Il nostro piano Growth include 10.000 eventi gratuiti al mese per sempre. Nessuna carta di credito richiesta per iniziare."
           },
           "cancelAnytime": {
             "q": "Posso annullare in qualsiasi momento?",
@@ -1112,7 +1112,7 @@
       "columns": {
         "url": "URL",
         "device_type": "Tipo di dispositivo",
-        "country_code": "Paese",
+        "country_code": "Prefisso internazionale",
         "browser": "Browser",
         "os": "Sistema operativo",
         "referrer_source": "Sorgente referrer",

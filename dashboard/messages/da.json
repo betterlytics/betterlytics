@@ -729,7 +729,7 @@
       "prioritySupport": "Prioriteret support",
       "dedicatedSupport": "Dedikeret support og hjælp",
       "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Starter",
+      "everythingInStarter": "Alt i Growth",
       "everythingInProfessional": "Alt i Professional"
     },
     "cta": {
@@ -771,7 +771,7 @@
     "sections": {
       "topPages": "Top sider",
       "geography": "Geografi",
-      "devicesBreakdown": "Enheder opdeling",
+      "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
       "customEvents": "Brugerdefinerede hændelser"
     },
@@ -897,7 +897,7 @@
           },
           "freeOption": {
             "q": "Er der en gratis mulighed?",
-            "a": "Ja! Vores Starter-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for at komme i gang."
+            "a": "Ja! Vores Growth-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for at komme i gang."
           },
           "cancelAnytime": {
             "q": "Kan jeg opsige når som helst?",
@@ -941,7 +941,7 @@
       "quickSelect": "Hurtig valg",
       "granularity": "Granularitet",
       "currentPeriod": "Nuværende periode",
-      "compareWithPrevious": "Sammenlign med forrige periode",
+      "compareWithPrevious": "Sammenlign med tidligere periode",
       "compareToPeriod": "Sammenligningsperiode",
       "startDate": "Startdato",
       "endDate": "Slutdato",
@@ -1108,7 +1108,7 @@
       "columns": {
         "url": "URL",
         "device_type": "Enhedstype",
-        "country_code": "Land",
+        "country_code": "Landekode",
         "browser": "Browser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",

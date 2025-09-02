@@ -725,7 +725,7 @@
       "prioritySupport": "Priority support",
       "dedicatedSupport": "Dedicated support & help",
       "slaGuarantee": "SLA guarantee",
-      "everythingInStarter": "Everything in Starter",
+      "everythingInStarter": "Everything in Growth",
       "everythingInProfessional": "Everything in Professional"
     },
     "cta": {
@@ -893,7 +893,7 @@
           },
           "freeOption": {
             "q": "Is there a free option?",
-            "a": "Yes! Our Starter plan includes 10,000 free events per month forever. No credit card required to get started."
+            "a": "Yes! Our Growth plan includes 10,000 free events per month forever. No credit card required to get started."
           },
           "cancelAnytime": {
             "q": "Can I cancel anytime?",
