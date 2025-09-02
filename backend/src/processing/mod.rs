@@ -177,16 +177,17 @@ impl EventProcessor {
     /// Handle different event types
     async fn handle_event_types(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let event_name = processed.event.raw.event_name.clone();
-        if event_name.eq_ignore_ascii_case("cwv") {
-            processed.event_type = "cwv".to_string();
-            processed.custom_event_json = processed.event.raw.properties.clone();
-        } else if processed.event.raw.is_custom_event {
+        if processed.event.raw.is_custom_event {
             processed.event_type = "custom".to_string();
             processed.custom_event_name = event_name;
+            processed.custom_event_json = processed.event.raw.properties.clone();
+        } else if event_name.eq_ignore_ascii_case("cwv") {
+            processed.event_type = "cwv".to_string();
             processed.custom_event_json = processed.event.raw.properties.clone();
         } else {
             processed.event_type = event_name;
         }
+        
         Ok(())
     }
 
