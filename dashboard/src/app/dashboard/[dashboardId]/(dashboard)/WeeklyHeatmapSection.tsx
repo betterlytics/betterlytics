@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useMemo, useState } from 'react';
+import { Fragment, use, useMemo, useState, type CSSProperties } from 'react';
 import { fetchWeeklyHeatmapAllAction } from '@/app/actions/weeklyHeatmap';
 import type { HeatmapMetric } from '@/entities/weeklyHeatmap';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -77,33 +77,49 @@ type HeatmapGridProps = {
 function HeatmapGrid({ data }: HeatmapGridProps) {
   const dayLabels = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
 
-  const max = Math.max(1, ...data.flatMap((d) => d.hours));
+  // Use p95 to avoid outliers washing out the gradient
+  const allValues = data.flatMap((d) => d.hours);
+  const sorted = [...allValues].sort((a, b) => a - b);
+  const p95Index = Math.max(0, Math.floor(0.95 * (sorted.length - 1)));
+  const scaleMax = Math.max(1, sorted.length ? sorted[p95Index] : 1);
+
+  const getCellStyle = (value: number): CSSProperties => {
+    const t = Math.min(1, value / scaleMax);
+    const percent = Math.round(t * 100);
+    return { background: `color-mix(in oklch, var(--primary) ${percent}%, transparent)` };
+  };
 
   return (
-    <div>
-      <div className='mb-2 grid grid-cols-[60px_repeat(24,minmax(0,1fr))] items-center gap-2'>
-        <div></div>
-        {Array.from({ length: 24 }).map((_, h) => (
-          <div key={h} className='text-muted-foreground text-center text-xs'>
-            {String(h).padStart(2, '0')}
+    <div className='grid grid-cols-[40px_repeat(7,80px)] gap-x-0.5 gap-y-1'>
+      <div></div>
+      {dayLabels.map((label) => (
+        <div
+          key={label}
+          className='text-muted-foreground truncate pb-1 text-center text-[10px] leading-none font-medium'
+        >
+          {label}
+        </div>
+      ))}
+
+      {Array.from({ length: 24 }).map((_, hourIndex) => (
+        <Fragment key={`hour-${hourIndex}`}>
+          <div className='text-muted-foreground flex h-2.5 items-center justify-end pr-2 text-xs leading-none'>
+            {hourIndex % 3 === 1 ? String(hourIndex).padStart(2, '0') : ''}
           </div>
-        ))}
-      </div>
-      <div className='grid grid-rows-7 gap-y-2'>
-        {data.map((row, index) => (
-          <div key={index} className='grid grid-cols-[60px_repeat(24,minmax(0,1fr))] items-center gap-2'>
-            <div className='text-muted-foreground mr-2 text-xs'>{dayLabels[row.weekday - 1]}</div>
-            {row.hours.map((value, hour) => (
+          {Array.from({ length: 7 }).map((_, dayIndex) => {
+            const value = data[dayIndex]?.hours[hourIndex] ?? 0;
+            return (
               <div
-                key={hour}
-                className={cn('h-4 rounded-sm', 'bg-emerald-900/30')}
-                style={{ opacity: Math.max(0.2, value / max) }}
-                aria-label={`${dayLabels[row.weekday - 1]} ${hour}:00 value ${value}`}
+                key={`${hourIndex}-${dayIndex}`}
+                className={cn('h-2.5 w-full rounded-sm ring-1 ring-gray-700/50 transition-colors ring-inset')}
+                style={getCellStyle(value)}
+                title={`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${value}`}
+                aria-label={`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 value ${value}`}
               />
-            ))}
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </Fragment>
+      ))}
     </div>
   );
 }
