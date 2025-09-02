@@ -15,7 +15,6 @@ type DataSettingsProps = {
 
 export default function DataSettings({ formData, onUpdate }: DataSettingsProps) {
   const t = useTranslations('components.dashboardSettingsDialog.data');
-  const tPresets = useTranslations('components.dashboardSettingsDialog.data.presets');
   return (
     <SettingsCard icon={Database} title={t('title')} description={t('description')}>
       <div className='space-y-2'>
@@ -33,7 +32,7 @@ export default function DataSettings({ formData, onUpdate }: DataSettingsProps) 
               <SelectItem key={preset.value} value={preset.value.toString()}>
                 {(() => {
                   try {
-                    return tPresets(preset.i18nKey);
+                    return t(`presets.${preset.i18nKey}`);
                   } catch {
                     return preset.fallback;
                   }
