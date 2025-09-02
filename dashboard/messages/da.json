@@ -1275,6 +1275,7 @@
       "sessions": "Sessioner"
     },
     "integration": {
+      "integrationSetup": "Integrationsopsætning",
       "title": "Hjemmeside integration",
       "description": "Tilføj sporingsskriptet til din hjemmeside for at begynde at indsamle analytiske data",
       "fullyIntegrated": "Fuldt integreret",
@@ -1314,6 +1315,9 @@
         "setup": "Opsæt integration",
         "dismiss": "Skjul"
       }
+    },
+    "settingsButton": {
+      "dashboardSettings": "Dashboard-indstillinger"
     },
     "accountVerification": {
       "banner": {

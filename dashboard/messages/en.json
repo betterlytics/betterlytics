@@ -1271,6 +1271,7 @@
       "sessions": "Sessions"
     },
     "integration": {
+      "integrationSetup": "Integration Setup",
       "title": "Website Integration",
       "description": "Add the tracking script to your website to start collecting analytics data",
       "fullyIntegrated": "Fully Integrated",
@@ -1310,6 +1311,9 @@
         "setup": "Setup Integration",
         "dismiss": "Dismiss"
       }
+    },
+    "settingsButton": {
+      "dashboardSettings": "Dashboard Settings"
     },
     "accountVerification": {
       "banner": {

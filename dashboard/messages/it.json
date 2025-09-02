@@ -1279,6 +1279,7 @@
       "sessions": "Sessioni"
     },
     "integration": {
+      "integrationSetup": "Configurazione integrazione",
       "title": "Integrazione sito",
       "description": "Aggiungi lo script di tracciamento al tuo sito per iniziare a raccogliere dati",
       "fullyIntegrated": "Integrato completamente",
@@ -1318,6 +1319,9 @@
         "setup": "Configura integrazione",
         "dismiss": "Chiudi"
       }
+    },
+    "settingsButton": {
+      "dashboardSettings": "Impostazioni dashboard"
     },
     "accountVerification": {
       "banner": {
