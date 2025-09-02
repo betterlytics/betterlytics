@@ -119,7 +119,7 @@
       if (cwvFlushed || cwvQueue.size === 0) return;
       cwvFlushed = true;
       var metrics = Array.from(cwvQueue.values());
-      window.betterlytics.event("cwv", { metrics: metrics });
+      trackEvent("cwv", false, { metrics: metrics });
       cwvQueue.clear();
     }
 

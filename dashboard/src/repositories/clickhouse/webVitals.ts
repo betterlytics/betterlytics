@@ -27,16 +27,15 @@ export async function getCoreWebVitalsP75(
   const query = safeSql`
     WITH metrics AS (
       SELECT
-        JSONExtractString(metric, 'name') AS name,
-        JSONExtractFloat(metric, 'value') AS value
+        pair.1 AS name,
+        toFloat32(pair.2) AS value
       FROM analytics.events
-      ARRAY JOIN JSONExtractArrayRaw(custom_event_json, 'metrics') AS metric
+      ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
       WHERE site_id = {site_id:String}
         AND event_type = 'cwv'
         AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-        AND custom_event_json != ''
-        AND custom_event_json != '{}'
         AND ${SQL.AND(filters)}
+        AND pair.2 IS NOT NULL
     )
     SELECT
       name,
@@ -85,16 +84,15 @@ export async function getAllCoreWebVitalPercentilesSeries(
     WITH metrics AS (
       SELECT
         ${granularitySql('timestamp', startDate)} as date,
-        JSONExtractString(metric, 'name') AS name,
-        JSONExtractFloat(metric, 'value') AS value
+        pair.1 AS name,
+        toFloat32(pair.2) AS value
       FROM analytics.events
-      ARRAY JOIN JSONExtractArrayRaw(custom_event_json, 'metrics') AS metric
+      ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
       WHERE site_id = {site_id:String}
         AND event_type = 'cwv'
         AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-        AND custom_event_json != ''
-        AND custom_event_json != '{}'
         AND ${SQL.AND(filters)}
+        AND pair.2 IS NOT NULL
     )
     SELECT
       date,
@@ -144,16 +142,15 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
           WHEN {dim:String} = 'os' THEN os 
           ELSE url 
         END AS key,
-        JSONExtractString(metric, 'name') AS name,
-        JSONExtractFloat(metric, 'value') AS value
+        pair.1 AS name,
+        toFloat32(pair.2) AS value
       FROM analytics.events
-      ARRAY JOIN JSONExtractArrayRaw(custom_event_json, 'metrics') AS metric
+      ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
       WHERE site_id = {site_id:String}
         AND event_type = 'cwv'
         AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-        AND custom_event_json != ''
-        AND custom_event_json != '{}'
         AND ${SQL.AND(filters)}
+        AND pair.2 IS NOT NULL
     )
     SELECT
       key,

@@ -41,6 +41,11 @@ pub struct ProcessedEvent {
     pub event_type: String,
     pub custom_event_name: String,
     pub custom_event_json: String,
+    pub cwv_cls: Option<f32>,
+    pub cwv_lcp: Option<f32>,
+    pub cwv_inp: Option<f32>,
+    pub cwv_fcp: Option<f32>,
+    pub cwv_ttfb: Option<f32>,
 }
 
 /// Event processor that handles real-time processing
@@ -90,6 +95,11 @@ impl EventProcessor {
             campaign_info: CampaignInfo::default(),
             custom_event_name: String::new(),
             custom_event_json: String::new(),
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
         };
 
         // Handle event types
@@ -183,12 +193,49 @@ impl EventProcessor {
             processed.custom_event_json = processed.event.raw.properties.clone();
         } else if event_name.eq_ignore_ascii_case("cwv") {
             processed.event_type = "cwv".to_string();
-            processed.custom_event_json = processed.event.raw.properties.clone();
+            let props = processed.event.raw.properties.as_str();
+            let (cls, lcp, inp, fcp, ttfb) = self.extract_cwv_metrics(props);
+            processed.cwv_cls = cls;
+            processed.cwv_lcp = lcp;
+            processed.cwv_inp = inp;
+            processed.cwv_fcp = fcp;
+            processed.cwv_ttfb = ttfb;
         } else {
             processed.event_type = event_name;
         }
         
         Ok(())
+    }
+
+    /// Extract Core Web Vitals metrics from properties JSON
+    fn extract_cwv_metrics(&self, properties_json: &str) -> (Option<f32>, Option<f32>, Option<f32>, Option<f32>, Option<f32>) {
+        if properties_json.is_empty() {
+            return (None, None, None, None, None);
+        }
+        let parsed = match serde_json::from_str::<serde_json::Value>(properties_json) {
+            Ok(v) => v,
+            Err(_) => return (None, None, None, None, None),
+        };
+        let mut cls = None;
+        let mut lcp = None;
+        let mut inp = None;
+        let mut fcp = None;
+        let mut ttfb = None;
+        if let Some(metrics) = parsed.get("metrics").and_then(|m| m.as_array()) {
+            for metric in metrics {
+                let name = metric.get("name").and_then(|n| n.as_str()).unwrap_or("");
+                let val = metric.get("value").and_then(|v| v.as_f64()).map(|v| v as f32);
+                match name {
+                    "CLS" => cls = val,
+                    "LCP" => lcp = val,
+                    "INP" => inp = val,
+                    "FCP" => fcp = val,
+                    "TTFB" => ttfb = val,
+                    _ => {}
+                }
+            }
+        }
+        (cls, lcp, inp, fcp, ttfb)
     }
 
     /// Get geolocation data for the IP
