@@ -5,13 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createDashboardAction } from '@/app/actions/dashboard';
 import { domainValidation } from '@/entities/dashboard';
-import { Globe } from 'lucide-react';
 import { toast } from 'sonner';
+import { PrefixInput } from '@/components/inputs/PrefixInput';
 
 export default function WebsiteSetupPage() {
   const { state, updateWebsite, setSiteId, setDashboardId } = useOnboarding();
@@ -76,7 +74,7 @@ export default function WebsiteSetupPage() {
         <form className='space-y-6' onSubmit={handleSubmit}>
           <div className='space-y-2'>
             <Label htmlFor='domain'>Domain</Label>
-            <Input
+            <PrefixInput
               id='domain'
               name='domain'
               type='text'

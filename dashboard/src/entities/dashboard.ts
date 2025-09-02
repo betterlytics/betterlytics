@@ -9,6 +9,7 @@ export const domainValidation = z
     return domain
       .trim()
       .replace(/^https?:\/\//, '')
+      .replace(/^http?:\/\//, '')
       .replace(/^www\./, '');
   })
   .refine((domain) => domain.includes('.'), { message: 'Domain must include an extension (e.g., example.com)' })
