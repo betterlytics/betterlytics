@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,7 @@ import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import Logo from '@/components/logo';
 import { CheckCircleIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 
 const listVariants = {
   hidden: { opacity: 0 },
