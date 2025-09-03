@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { type WeeklyHeatmapMatrix, type WeeklyHeatmapPrepared } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { formatDuration } from '@/utils/dateFormatters';
 
 type WeeklyHeatmapSectionProps = {
   weeklyHeatmapAllPromise: ReturnType<typeof fetchWeeklyHeatmapAllAction>;
@@ -78,6 +79,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
         data={current?.matrix ?? []}
         maxValue={current?.maxValue ?? 1}
         metricLabel={selectedMetricLabel}
+        metric={selectedMetric}
       />
     </div>
   );
@@ -87,9 +89,10 @@ type HeatmapGridProps = {
   data: WeeklyHeatmapMatrix[];
   maxValue: number;
   metricLabel: string;
+  metric: HeatmapMetric;
 };
 
-function HeatmapGrid({ data, maxValue, metricLabel }: HeatmapGridProps) {
+function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) {
   const dayLabels = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
 
   const effectiveMax = Math.max(1, maxValue);
@@ -144,7 +147,9 @@ function HeatmapGrid({ data, maxValue, metricLabel }: HeatmapGridProps) {
                     <div className='text-popover-foreground font-medium'>
                       {`${dayLabels[dayIndex]} ${hourIndex}:00 - ${(hourIndex + 1) % 24}:00`}
                     </div>
-                    <div className='text-popover-foreground/90'>{`${value} ${metricLabel}`}</div>
+                    <div className='text-popover-foreground/90'>
+                      {`${metric === 'session_duration' ? formatDuration(Math.round(value)) : value} ${metricLabel.toLowerCase()}`}
+                    </div>
                   </div>
                 </TooltipContent>
               </Tooltip>
