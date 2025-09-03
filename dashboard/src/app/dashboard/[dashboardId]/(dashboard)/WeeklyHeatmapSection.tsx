@@ -52,7 +52,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
         </div>
         <div className='w-36'>
           <Select value={selectedMetric} onValueChange={onMetricChange}>
-            <SelectTrigger>
+            <SelectTrigger className='w-full'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
