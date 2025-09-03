@@ -5,7 +5,12 @@ export type WeeklyHeatmapMatrix = {
   hours: number[]; // 24 numbers
 };
 
-export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): WeeklyHeatmapMatrix[] {
+export type WeeklyHeatmapPrepared = {
+  matrix: WeeklyHeatmapMatrix[];
+  maxValue: number;
+};
+
+export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): WeeklyHeatmapPrepared {
   const matrix: Record<number, number[]> = {
     1: Array(24).fill(0),
     2: Array(24).fill(0),
@@ -23,5 +28,9 @@ export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): WeeklyHeatmapMa
   });
 
   const orderedWeekdays: Array<keyof typeof matrix> = [1, 2, 3, 4, 5, 6, 7];
-  return orderedWeekdays.map((key) => ({ weekday: Number(key), hours: matrix[key] }));
+  const resultMatrix = orderedWeekdays.map((key) => ({ weekday: Number(key), hours: matrix[key] }));
+
+  const maxFromRows = rows.length > 0 ? Math.max(...rows.map((r) => r.value)) : 0;
+
+  return { matrix: resultMatrix, maxValue: maxFromRows };
 }

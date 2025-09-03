@@ -5,7 +5,7 @@ import { AuthContext } from '@/entities/authContext';
 import { HeatmapMetric } from '@/entities/weeklyHeatmap';
 import { QueryFilter } from '@/entities/filter';
 import { getWeeklyHeatmapForSite } from '@/services/weeklyHeatmap';
-import { toWeeklyHeatmapMatrix, type WeeklyHeatmapMatrix } from '@/presenters/toWeeklyHeatmapMatrix';
+import { toWeeklyHeatmapMatrix, type WeeklyHeatmapPrepared } from '@/presenters/toWeeklyHeatmapMatrix';
 
 export const fetchWeeklyHeatmapAllAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
@@ -23,7 +23,7 @@ export const fetchWeeklyHeatmapAllAction = withDashboardAuthContext(
     );
 
     return metrics.map(
-      (metric, i) => [metric, toWeeklyHeatmapMatrix(results[i].data)] as [HeatmapMetric, WeeklyHeatmapMatrix[]],
+      (metric, i) => [metric, toWeeklyHeatmapMatrix(results[i].data)] as [HeatmapMetric, WeeklyHeatmapPrepared],
     );
   },
 );
