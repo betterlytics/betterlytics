@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, use, useMemo, useState, type CSSProperties } from 'react';
+import { Fragment, use, useMemo, useState, type CSSProperties, useCallback } from 'react';
 import { fetchWeeklyHeatmapAllAction } from '@/app/actions/weeklyHeatmap';
 import type { HeatmapMetric } from '@/entities/weeklyHeatmap';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -97,16 +97,19 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
 
   const effectiveMax = Math.max(1, maxValue);
 
-  const getCellStyle = (value: number): CSSProperties => {
-    if (value <= 0) return {};
+  const getCellStyle = useCallback(
+    (value: number): CSSProperties => {
+      if (value <= 0) return {};
 
-    const t = Math.log1p(value) / Math.log1p(effectiveMax);
-    const eased = Math.pow(t, 0.85);
+      const t = Math.log1p(value) / Math.log1p(effectiveMax);
+      const eased = Math.pow(t, 0.85);
 
-    return {
-      backgroundColor: `oklch(62% 0.17 268.71 / ${0.1 + 0.9 * eased})`,
-    };
-  };
+      return {
+        backgroundColor: `oklch(62% 0.17 268.71 / ${0.1 + 0.9 * eased})`,
+      };
+    },
+    [effectiveMax],
+  );
 
   return (
     <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-0.5 gap-y-1'>
