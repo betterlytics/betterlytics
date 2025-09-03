@@ -113,7 +113,7 @@ function HeatmapGrid({ data, maxValue }: HeatmapGridProps) {
   const effectiveMax = Math.max(1, maxValue);
 
   const getCellStyle = (value: number): CSSProperties => {
-    if (value <= 0) return { backgroundColor: 'transparent' };
+    if (value <= 0) return {};
 
     const t = Math.log1p(value) / Math.log1p(effectiveMax);
     const eased = Math.pow(t, 0.85);
@@ -145,7 +145,10 @@ function HeatmapGrid({ data, maxValue }: HeatmapGridProps) {
             return (
               <div
                 key={`${hourIndex}-${dayIndex}`}
-                className={cn('h-2.5 w-full rounded-sm ring-1 ring-gray-700/50 transition-colors ring-inset')}
+                className={cn(
+                  'hover:ring-primary/60 h-2.5 w-full rounded-sm transition-colors ring-inset hover:ring-1',
+                  value <= 0 && 'bg-gray-500/10 dark:bg-gray-400/20',
+                )}
                 style={getCellStyle(value)}
                 title={`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${value}`}
                 aria-label={`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 value ${value}`}
