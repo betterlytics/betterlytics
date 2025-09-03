@@ -15,6 +15,7 @@ import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import Logo from '@/components/logo';
 import { CheckCircleIcon } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Link } from '@/i18n/navigation';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -162,7 +163,6 @@ export default function AccountCreationPage() {
       </div>
       <div className='bg-card col-span-2 space-y-3 rounded-lg border p-6 shadow-sm md:col-span-1'>
         <h2 className='text-center text-2xl font-semibold'>Create your account</h2>
-
         {error && (
           <div
             className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
@@ -208,6 +208,20 @@ export default function AccountCreationPage() {
           )}
         </div>
 
+        <div>
+          <span className='text-sm font-light'>
+            By continuing, you agree to our{' '}
+            <Link href='/privacy' target='__blank' className='underline'>
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href='/terms' target='__blank' className='underline'>
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </div>
+
         {(providers?.google || providers?.github) && (
           <div className='relative my-4 flex items-center'>
             <div className='border-border flex-grow border-t'></div>
@@ -215,7 +229,6 @@ export default function AccountCreationPage() {
             <div className='border-border flex-grow border-t'></div>
           </div>
         )}
-
         <form className='space-y-4' onSubmit={handleEmailRegistration}>
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
