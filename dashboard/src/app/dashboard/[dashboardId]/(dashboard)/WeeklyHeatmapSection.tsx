@@ -45,11 +45,11 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
 
   return (
     <div className='bg-card border-border rounded-lg border p-6 shadow'>
-      <div className='mb-4 flex items-center justify-between'>
+      <div className='mb-8 flex items-center justify-between'>
         <div>
           <h2 className='text-foreground mb-1 text-lg font-bold'>Weekly Trends</h2>
         </div>
-        <div className='w-48'>
+        <div className='w-36'>
           <Select value={selectedMetric} onValueChange={onMetricChange}>
             <SelectTrigger>
               <SelectValue />
@@ -89,40 +89,7 @@ type HeatmapGridProps = {
   metricLabel: string;
 };
 
-export const mockWeeklyHeatmap: WeeklyHeatmapMatrix[] = [
-  {
-    weekday: 1, // Monday
-    hours: [0, 0, 0, 0, 1, 2, 4, 8, 12, 15, 18, 20, 22, 18, 15, 12, 10, 8, 6, 4, 3, 2, 1, 0],
-  },
-  {
-    weekday: 2, // Tuesday
-    hours: [0, 0, 0, 0, 1, 2, 5, 10, 14, 18, 20, 22, 24, 20, 18, 15, 12, 9, 7, 5, 3, 2, 1, 0],
-  },
-  {
-    weekday: 3, // Wednesday
-    hours: [0, 0, 0, 0, 2, 3, 6, 12, 16, 20, 22, 24, 26, 22, 20, 16, 14, 10, 8, 6, 4, 3, 2, 0],
-  },
-  {
-    weekday: 4, // Thursday
-    hours: [0, 0, 0, 0, 1, 2, 5, 9, 14, 17, 19, 21, 23, 19, 16, 12, 9, 7, 6, 4, 3, 2, 1, 0],
-  },
-  {
-    weekday: 5, // Friday
-    hours: [0, 0, 0, 0, 1, 2, 4, 8, 12, 15, 20, 24, 282, 25, 22, 18, 14, 12, 10, 8, 6, 4, 2, 0],
-  },
-  {
-    weekday: 6, // Saturday
-    hours: [0, 0, 0, 0, 1, 1, 2, 4, 8, 10, 12, 15, 18, 15, 12, 10, 8, 6, 4, 3, 2, 1, 0, 0],
-  },
-  {
-    weekday: 7, // Sunday
-    hours: [0, 0, 0, 0, 1, 1, 2, 3, 5, 7, 9, 10, 12, 10, 8, 6, 5, 4, 3, 2, 2, 1, 0, 0],
-  },
-];
-
 function HeatmapGrid({ data, maxValue, metricLabel }: HeatmapGridProps) {
-  data = mockWeeklyHeatmap;
-  maxValue = 282;
   const dayLabels = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
 
   const effectiveMax = Math.max(1, maxValue);
