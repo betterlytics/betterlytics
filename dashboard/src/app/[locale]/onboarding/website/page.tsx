@@ -25,8 +25,8 @@ export default function WebsiteSetupPage() {
       return;
     }
     getFirstUserDashboardAction()
-      .then((dashboard) => {
-        if (dashboard) {
+      .then((response) => {
+        if (response.success && response.data) {
           router.push('/onboarding/integration');
         }
       })
