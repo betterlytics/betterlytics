@@ -138,21 +138,21 @@ export default function AccountCreationPage() {
         </div>
         <motion.ul variants={listVariants} initial='hidden' animate='visible' className='space-y-8'>
           <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
-            <CheckCircleIcon />
+            <CheckCircleIcon color='var(--primary)' />
             <h3 className='col-span-9 font-semibold'>Start collecting web analytics immediately</h3>
             <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
               Integrate our low-code web snippet into your site, or use our npm package.
             </p>
           </motion.li>
           <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
-            <CheckCircleIcon />
+            <CheckCircleIcon color='var(--primary)' />
             <h3 className='col-span-9 font-semibold'>Generous free plan to help you grow</h3>
             <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
               10K events every month for free, no creditcard required, no strings attached. Forever.
             </p>
           </motion.li>
           <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
-            <CheckCircleIcon />
+            <CheckCircleIcon color='var(--primary)' />
             <h3 className='col-span-9 font-semibold'>Awesome features on their way</h3>
             <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
               Betterlytics is open-source. We're actively working on new features we're eager to show
