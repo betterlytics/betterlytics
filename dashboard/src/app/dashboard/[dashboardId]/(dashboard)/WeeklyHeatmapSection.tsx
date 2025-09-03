@@ -6,6 +6,7 @@ import type { HeatmapMetric } from '@/entities/weeklyHeatmap';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { type WeeklyHeatmapMatrix, type WeeklyHeatmapPrepared } from '@/presenters/toWeeklyHeatmapMatrix';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type WeeklyHeatmapSectionProps = {
   weeklyHeatmapAllPromise: ReturnType<typeof fetchWeeklyHeatmapAllAction>;
@@ -28,6 +29,15 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
     const pair = allData.find(([metric]) => metric === selectedMetric);
     return pair ? pair[1] : undefined;
   }, [allData, selectedMetric]);
+
+  const selectedMetricLabel = {
+    pageviews: 'Pageviews',
+    unique_visitors: 'Unique Visitors',
+    sessions: 'Sessions',
+    bounce_rate: 'Bounce Rate',
+    pages_per_session: 'Pages / Session',
+    session_duration: 'Session Duration',
+  }[selectedMetric];
 
   const onMetricChange = (next: string) => {
     setSelectedMetric(next as HeatmapMetric);
@@ -64,7 +74,11 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
         </div>
       </div>
 
-      <HeatmapGrid data={current?.matrix ?? []} maxValue={current?.maxValue ?? 1} />
+      <HeatmapGrid
+        data={current?.matrix ?? []}
+        maxValue={current?.maxValue ?? 1}
+        metricLabel={selectedMetricLabel}
+      />
     </div>
   );
 }
@@ -72,6 +86,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
 type HeatmapGridProps = {
   data: WeeklyHeatmapMatrix[];
   maxValue: number;
+  metricLabel: string;
 };
 
 export const mockWeeklyHeatmap: WeeklyHeatmapMatrix[] = [
@@ -105,7 +120,7 @@ export const mockWeeklyHeatmap: WeeklyHeatmapMatrix[] = [
   },
 ];
 
-function HeatmapGrid({ data, maxValue }: HeatmapGridProps) {
+function HeatmapGrid({ data, maxValue, metricLabel }: HeatmapGridProps) {
   data = mockWeeklyHeatmap;
   maxValue = 282;
   const dayLabels = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
@@ -143,16 +158,29 @@ function HeatmapGrid({ data, maxValue }: HeatmapGridProps) {
           {Array.from({ length: 7 }).map((_, dayIndex) => {
             const value = data[dayIndex]?.hours[hourIndex] ?? 0;
             return (
-              <div
-                key={`${hourIndex}-${dayIndex}`}
-                className={cn(
-                  'hover:ring-primary/60 h-2.5 w-full rounded-sm transition-colors ring-inset hover:ring-1',
-                  value <= 0 && 'bg-gray-500/10 dark:bg-gray-400/20',
-                )}
-                style={getCellStyle(value)}
-                title={`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${value}`}
-                aria-label={`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 value ${value}`}
-              />
+              <Tooltip key={`${hourIndex}-${dayIndex}`}>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      'hover:ring-primary/60 h-2.5 w-full rounded-sm transition-colors ring-inset hover:ring-1',
+                      value <= 0 && 'bg-gray-500/10 dark:bg-gray-400/20',
+                    )}
+                    style={getCellStyle(value)}
+                    aria-label={`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 value ${value}`}
+                  />
+                </TooltipTrigger>
+                <TooltipContent
+                  side='top'
+                  className='border-border bg-popover/95 text-popover-foreground rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
+                >
+                  <div>
+                    <div className='text-popover-foreground font-medium'>
+                      {`${dayLabels[dayIndex]} ${hourIndex}:00 - ${(hourIndex + 1) % 24}:00`}
+                    </div>
+                    <div className='text-popover-foreground/90'>{`${value} ${metricLabel}`}</div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             );
           })}
         </Fragment>
