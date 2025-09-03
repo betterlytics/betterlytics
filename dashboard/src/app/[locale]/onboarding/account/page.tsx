@@ -136,7 +136,7 @@ export default function AccountCreationPage() {
         <div className='flex justify-center'>
           <Logo variant='icon' showText textSize='md' priority />
         </div>
-        <motion.ul variants={listVariants} initial='hidden' animate='visible' className='space-y-2'>
+        <motion.ul variants={listVariants} initial='hidden' animate='visible' className='space-y-8'>
           <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
             <CheckCircleIcon />
             <h3 className='col-span-9 font-semibold'>Start collecting web analytics immediately</h3>
