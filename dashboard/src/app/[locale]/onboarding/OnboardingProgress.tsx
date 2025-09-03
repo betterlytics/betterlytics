@@ -10,9 +10,9 @@ export function OnboardingProgress() {
   const steps = useMemo(() => [{ label: 'Account' }, { label: 'Website' }, { label: 'Integration' }], []);
 
   const getCurrentStep = useCallback(() => {
-    if (pathname === '/onboarding/account') return 1;
-    if (pathname === '/onboarding/website') return 2;
-    if (pathname === '/onboarding/integration') return 3;
+    if (pathname.includes('/onboarding/account')) return 1;
+    if (pathname.includes('/onboarding/website')) return 2;
+    if (pathname.includes('/onboarding/integration')) return 3;
     return 1;
   }, [pathname]);
 
