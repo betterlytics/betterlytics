@@ -45,6 +45,7 @@ export async function getWeeklyHeatmap(
         WHERE site_id = {site_id:String}
           AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
           AND ${SQL.AND(filters)}
+          AND event_type = 'pageview'
         GROUP BY session_id, weekday, hour
       )
       SELECT
