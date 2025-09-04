@@ -5,7 +5,7 @@ import { fetchWeeklyHeatmapAllAction } from '@/app/actions/weeklyHeatmap';
 import type { HeatmapMetric } from '@/entities/weeklyHeatmap';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { type WeeklyHeatmapMatrix, type WeeklyHeatmapPrepared } from '@/presenters/toWeeklyHeatmapMatrix';
+import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
 
@@ -26,7 +26,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   const allData = use(props.weeklyHeatmapAllPromise);
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
 
-  const current: WeeklyHeatmapPrepared | undefined = useMemo(() => {
+  const current: PresentedWeeklyHeatmap | undefined = useMemo(() => {
     const pair = allData.find(([metric]) => metric === selectedMetric);
     return pair ? pair[1] : undefined;
   }, [allData, selectedMetric]);
@@ -102,10 +102,10 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
       if (value <= 0) return {};
 
       const t = Math.log1p(value) / Math.log1p(effectiveMax);
-      const eased = Math.pow(t, 0.85);
+      const eased = Math.pow(t, 0.85) * 0.9 + 0.1;
 
       return {
-        backgroundColor: `oklch(62% 0.17 268.71 / ${0.1 + 0.9 * eased})`,
+        backgroundColor: `oklch(62% 0.17 268.71 / ${eased})`,
       };
     },
     [effectiveMax],

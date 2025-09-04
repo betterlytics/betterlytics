@@ -5,7 +5,7 @@ import { AuthContext } from '@/entities/authContext';
 import { HeatmapMetric } from '@/entities/weeklyHeatmap';
 import { QueryFilter } from '@/entities/filter';
 import { getWeeklyHeatmapForSite } from '@/services/weeklyHeatmap';
-import { toWeeklyHeatmapMatrix, type WeeklyHeatmapPrepared } from '@/presenters/toWeeklyHeatmapMatrix';
+import { toWeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 
 export const fetchWeeklyHeatmapAllAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
@@ -19,11 +19,11 @@ export const fetchWeeklyHeatmapAllAction = withDashboardAuthContext(
     ];
 
     const results = await Promise.all(
-      metrics.map((m) => getWeeklyHeatmapForSite(ctx.siteId, startDate, endDate, m, queryFilters)),
+      metrics.map((metric) => getWeeklyHeatmapForSite(ctx.siteId, startDate, endDate, metric, queryFilters)),
     );
 
     return metrics.map(
-      (metric, i) => [metric, toWeeklyHeatmapMatrix(results[i].data)] as [HeatmapMetric, WeeklyHeatmapPrepared],
+      (metric, i) => [metric, toWeeklyHeatmapMatrix(results[i].data)] as [HeatmapMetric, PresentedWeeklyHeatmap],
     );
   },
 );

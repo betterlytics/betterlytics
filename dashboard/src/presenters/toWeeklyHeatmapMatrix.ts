@@ -5,12 +5,12 @@ export type WeeklyHeatmapMatrix = {
   hours: number[]; // 24 numbers
 };
 
-export type WeeklyHeatmapPrepared = {
+export type PresentedWeeklyHeatmap = {
   matrix: WeeklyHeatmapMatrix[];
   maxValue: number;
 };
 
-export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): WeeklyHeatmapPrepared {
+export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): PresentedWeeklyHeatmap {
   const matrix: Record<number, number[]> = {
     1: Array(24).fill(0),
     2: Array(24).fill(0),
@@ -21,16 +21,14 @@ export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): WeeklyHeatmapPr
     7: Array(24).fill(0),
   };
 
-  rows.forEach((row) => {
-    if (row.weekday >= 1 && row.weekday <= 7 && row.hour >= 0 && row.hour <= 23) {
-      matrix[row.weekday][row.hour] = row.value;
-    }
-  });
+  rows
+    .filter((row) => row.weekday >= 1 && row.weekday <= 7 && row.hour >= 0 && row.hour <= 23)
+    .forEach((row) => (matrix[row.weekday][row.hour] = row.value));
 
   const orderedWeekdays: Array<keyof typeof matrix> = [1, 2, 3, 4, 5, 6, 7];
   const resultMatrix = orderedWeekdays.map((key) => ({ weekday: Number(key), hours: matrix[key] }));
 
-  const maxFromRows = rows.length > 0 ? Math.max(...rows.map((r) => r.value)) : 0;
+  const maxFromRows = Math.max(...rows.map((r) => r.value), 0);
 
   return { matrix: resultMatrix, maxValue: maxFromRows };
 }
