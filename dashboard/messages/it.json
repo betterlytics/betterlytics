@@ -767,14 +767,18 @@
       "uniqueVisitors": "Visitatori unici",
       "totalPageviews": "Visualizzazioni totali",
       "bounceRate": "Frequenza di rimbalzo",
-      "avgVisitDuration": "Durata media visita"
+      "avgVisitDuration": "Durata media visita",
+      "sessions": "Sessioni",
+      "pagesPerSession": "Pagine per sessione",
+      "sessionDuration": "Durata sessione"
     },
     "sections": {
       "topPages": "Pagine principali",
       "geography": "Geografia",
       "devicesBreakdown": "Suddivisione per dispositivo",
       "trafficSources": "Sorgenti di traffico",
-      "customEvents": "Eventi personalizzati"
+      "customEvents": "Eventi personalizzati",
+      "weeklyTrends": "Andamenti settimanali"
     },
     "tabs": {
       "pages": "Pagine",
@@ -825,6 +829,17 @@
     "it": "Italiano"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Lun.",
+        "tueShort": "Mar.",
+        "wedShort": "Mer.",
+        "thuShort": "Gio.",
+        "friShort": "Ven.",
+        "satShort": "Sab.",
+        "sunShort": "Dom."
+      }
+    },
     "devices": {
       "tables": {
         "topOperatingSystems": "Sistemi operativi principali",
@@ -947,14 +962,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Clic unici totali",
-        "uniqueVisitors": "Visitatori unici", 
+        "uniqueVisitors": "Visitatori unici",
         "topDomain": "Dominio principale",
         "topSourcePage": "Pagina sorgente principale"
       },
       "table": {
         "title": "Performance link in uscita",
         "destinationUrl": "URL di destinazione",
-        "uniqueClicks": "Clic unici", 
+        "uniqueClicks": "Clic unici",
         "topReferrerPage": "Pagina referrer principale",
         "sourcePages": "Pagine sorgente"
       },

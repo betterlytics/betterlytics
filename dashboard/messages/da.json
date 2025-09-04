@@ -767,14 +767,18 @@
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
       "bounceRate": "Afvisningsprocent",
-      "avgVisitDuration": "Gennemsnitlig besøgstid"
+      "avgVisitDuration": "Gennemsnitlig besøgstid",
+      "sessions": "Sessioner",
+      "pagesPerSession": "Sider pr. session",
+      "sessionDuration": "Sessionsvarighed"
     },
     "sections": {
       "topPages": "Top sider",
       "geography": "Geografi",
       "devicesBreakdown": "Enheder opdeling",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Brugerdefinerede hændelser"
+      "customEvents": "Brugerdefinerede hændelser",
+      "weeklyTrends": "Ugentlige trends"
     },
     "tabs": {
       "pages": "Sider",
@@ -824,6 +828,17 @@
     "en": "Engelsk"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Man.",
+        "tueShort": "Tir.",
+        "wedShort": "Ons.",
+        "thuShort": "Tor.",
+        "friShort": "Fre.",
+        "satShort": "Lør.",
+        "sunShort": "Søn."
+      }
+    },
     "devices": {
       "tables": {
         "topOperatingSystems": "Top operativsystemer",
@@ -946,14 +961,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Samlede unikke klik",
-        "uniqueVisitors": "Unikke besøgende", 
+        "uniqueVisitors": "Unikke besøgende",
         "topDomain": "Top domæne",
         "topSourcePage": "Top kildeside"
       },
       "table": {
         "title": "Udgående link performance",
         "destinationUrl": "Destinations-URL",
-        "uniqueClicks": "Unikke klik", 
+        "uniqueClicks": "Unikke klik",
         "topReferrerPage": "Top henvisningsside",
         "sourcePages": "Kildesider"
       },

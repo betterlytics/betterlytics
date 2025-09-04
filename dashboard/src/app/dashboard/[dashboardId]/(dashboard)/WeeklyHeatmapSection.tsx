@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
+import { useLocale, useTranslations } from 'next-intl';
 
 type WeeklyHeatmapSectionProps = {
   weeklyHeatmapAllPromise: ReturnType<typeof fetchWeeklyHeatmapAllAction>;
@@ -25,20 +26,27 @@ const metricOptions = [
 export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   const allData = use(props.weeklyHeatmapAllPromise);
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
+  const t = useTranslations('dashboard');
 
   const current: PresentedWeeklyHeatmap | undefined = useMemo(() => {
     const pair = allData.find(([metric]) => metric === selectedMetric);
     return pair ? pair[1] : undefined;
   }, [allData, selectedMetric]);
 
-  const selectedMetricLabel = {
-    pageviews: 'Pageviews',
-    unique_visitors: 'Unique Visitors',
-    sessions: 'Sessions',
-    bounce_rate: 'Bounce Rate',
-    pages_per_session: 'Pages / Session',
-    session_duration: 'Session Duration',
-  }[selectedMetric];
+  // Base mapping for metric -> translated label
+  const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
+    () => ({
+      pageviews: t('metrics.totalPageviews'),
+      unique_visitors: t('metrics.uniqueVisitors'),
+      sessions: t('metrics.sessions'),
+      bounce_rate: t('metrics.bounceRate'),
+      pages_per_session: t('metrics.pagesPerSession'),
+      session_duration: t('metrics.sessionDuration'),
+    }),
+    [t],
+  );
+
+  const selectedMetricLabel = metricLabelByMetric[selectedMetric];
 
   const onMetricChange = (next: string) => {
     setSelectedMetric(next as HeatmapMetric);
@@ -48,7 +56,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
     <div className='bg-card border-border rounded-lg border p-6 shadow'>
       <div className='mb-8 flex items-center justify-between'>
         <div>
-          <h2 className='text-foreground mb-1 text-lg font-bold'>Weekly Trends</h2>
+          <h2 className='text-foreground mb-1 text-lg font-bold'>{t('sections.weeklyTrends')}</h2>
         </div>
         <div className='w-36'>
           <Select value={selectedMetric} onValueChange={onMetricChange}>
@@ -58,16 +66,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
             <SelectContent>
               {metricOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
-                  {
-                    {
-                      pageviews: 'Pageviews',
-                      unique_visitors: 'Unique Visitors',
-                      sessions: 'Sessions',
-                      bounce_rate: 'Bounce Rate',
-                      pages_per_session: 'Pages / Session',
-                      session_duration: 'Session Duration',
-                    }[opt.value]
-                  }
+                  {metricLabelByMetric[opt.value as HeatmapMetric]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -93,7 +92,12 @@ type HeatmapGridProps = {
 };
 
 function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) {
-  const dayLabels = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.'];
+  const locale = useLocale();
+  const dayLabels = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    // Monday-first sequence, matching data mapping (1..7 Mon..Sun)
+    return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
+  }, [locale]);
 
   const effectiveMax = Math.max(1, maxValue);
 

@@ -763,14 +763,18 @@
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",
       "bounceRate": "Bounce Rate",
-      "avgVisitDuration": "Avg. Visit Duration"
+      "avgVisitDuration": "Avg. Visit Duration",
+      "sessions": "Sessions",
+      "pagesPerSession": "Pages per Session",
+      "sessionDuration": "Session Duration"
     },
     "sections": {
       "topPages": "Top Pages",
       "geography": "Geography",
       "devicesBreakdown": "Devices Breakdown",
       "trafficSources": "Traffic Sources",
-      "customEvents": "Custom Events"
+      "customEvents": "Custom Events",
+      "weeklyTrends": "Weekly Trends"
     },
     "tabs": {
       "pages": "Pages",
@@ -820,6 +824,17 @@
     "en": "English"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Mon.",
+        "tueShort": "Tue.",
+        "wedShort": "Wed.",
+        "thuShort": "Thu.",
+        "friShort": "Fri.",
+        "satShort": "Sat.",
+        "sunShort": "Sun."
+      }
+    },
     "devices": {
       "tables": {
         "topOperatingSystems": "Top Operating Systems",
@@ -942,14 +957,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Total Unique Clicks",
-        "uniqueVisitors": "Unique Visitors", 
+        "uniqueVisitors": "Unique Visitors",
         "topDomain": "Top Domain",
         "topSourcePage": "Top Source Page"
       },
       "table": {
         "title": "Outbound Link Performance",
         "destinationUrl": "Destination URL",
-        "uniqueClicks": "Unique Clicks", 
+        "uniqueClicks": "Unique Clicks",
         "topReferrerPage": "Top Referrer Page",
         "sourcePages": "Source Pages"
       },
