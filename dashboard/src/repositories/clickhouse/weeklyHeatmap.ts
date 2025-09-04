@@ -52,13 +52,13 @@ export async function getWeeklyHeatmap(
         any(toDateTime64(0, 3)) as date,
         weekday,
         hour,
-        ${SQL.Unsafe(
+        ${safeSql`${
           metric === 'bounce_rate'
-            ? 'if(count() > 0, round((count() - countIf(page_count > 1)) / count() * 100, 1), 0)'
+            ? safeSql`if(count() > 0, round((count() - countIf(page_count > 1)) / count() * 100, 1), 0)`
             : metric === 'pages_per_session'
-              ? 'if(count() > 0, round(sum(page_count) / count(), 1), 0)'
-              : 'if(countIf(page_count > 1) > 0, round(avgIf(duration_seconds, page_count > 1), 0), 0)',
-        )} as value
+              ? safeSql`if(count() > 0, round(sum(page_count) / count(), 1), 0)`
+              : safeSql`if(countIf(page_count > 1) > 0, round(avgIf(duration_seconds, page_count > 1), 0), 0)`
+        }`} as value
       FROM session_data
       GROUP BY weekday, hour
       ORDER BY weekday ASC, hour ASC
