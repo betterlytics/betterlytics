@@ -130,7 +130,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
       {Array.from({ length: 24 }).map((_, hourIndex) => (
         <Fragment key={`hour-${hourIndex}`}>
           <div className='text-muted-foreground flex h-2.5 items-center justify-end pr-2 text-xs leading-none'>
-            {hourIndex % 3 === 1 ? String(hourIndex).padStart(2, '0') : ''}
+            {hourIndex % 3 === 1 ? `${String(hourIndex).padStart(2, '0')}:00` : ''}
           </div>
           {Array.from({ length: 7 }).map((_, dayIndex) => {
             const value = data[dayIndex]?.hours[hourIndex] ?? 0;
@@ -152,7 +152,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                 >
                   <div>
                     <div className='text-popover-foreground font-medium'>
-                      {`${dayLabels[dayIndex]} ${hourIndex}:00 - ${(hourIndex + 1) % 24}:00`}
+                      {`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${String((hourIndex + 1) % 24).padStart(2, '0')}:00`}
                     </div>
                     <div className='text-popover-foreground/90'>
                       {`${metric === 'session_duration' ? formatDuration(Math.round(value)) : value} ${metricLabel.toLowerCase()}`}
