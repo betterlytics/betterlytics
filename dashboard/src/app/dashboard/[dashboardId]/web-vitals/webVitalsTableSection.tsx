@@ -226,7 +226,10 @@ export default function WebVitalsTableSection({
     [makeColumns],
   );
   const countryColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns('Country', (key) => <FlagIcon countryCode={key.toUpperCase() as keyof typeof Flags} />),
+    () =>
+      makeColumns('Country', (key) => (
+        <FlagIcon countryCode={key.toUpperCase() as keyof typeof Flags} countryName={key} />
+      )),
     [makeColumns],
   );
   const browserColumns: ColumnDef<Row>[] = useMemo(
