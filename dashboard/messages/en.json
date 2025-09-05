@@ -750,6 +750,7 @@
       "overview": "Overview",
       "pages": "Pages",
       "referrers": "Referrers",
+      "outboundLinks": "Outbound Links",
       "geography": "Geography",
       "userJourney": "User Journey",
       "funnels": "Funnels",
@@ -1269,6 +1270,28 @@
       "topJourneys": "Top {journeys} Journeys",
       "noData": "No journey data available for the selected criteria.",
       "sessions": "Sessions"
+    },
+    "outboundLinks": {
+      "summary": {
+        "totalUniqueClicks": "Total Unique Clicks",
+        "uniqueVisitors": "Unique Visitors", 
+        "topDomain": "Top Domain",
+        "topSourcePage": "Top Source Page"
+      },
+      "table": {
+        "title": "Outbound Link Performance",
+        "destinationUrl": "Destination URL",
+        "uniqueClicks": "Unique Clicks", 
+        "topReferrerPage": "Top Referrer Page",
+        "sourcePages": "Source Pages"
+      },
+      "chart": {
+        "title": "Unique Outbound Clicks Over Time"
+      },
+      "pieChart": {
+        "title": "Outbound Links Distribution",
+        "description": "Top outbound links by unique clicks"
+      }
     },
     "integration": {
       "integrationSetup": "Integration Setup",

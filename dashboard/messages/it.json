@@ -755,6 +755,7 @@
       "pages": "Pagine",
       "referrers": "Siti di riferimento",
       "geography": "Geografia",
+      "outboundLinks": "Collegamenti in uscita",
       "userJourney": "Percorso utente",
       "funnels": "Funnel",
       "devices": "Dispositivi",
@@ -1277,6 +1278,28 @@
       "topJourneys": "Principali {journeys} percorsi",
       "noData": "Nessun dato di percorso disponibile per i criteri selezionati.",
       "sessions": "Sessioni"
+    },
+    "outboundLinks": {
+      "summary": {
+        "totalUniqueClicks": "Clic unici totali",
+        "uniqueVisitors": "Visitatori unici", 
+        "topDomain": "Dominio principale",
+        "topSourcePage": "Pagina sorgente principale"
+      },
+      "table": {
+        "title": "Performance link in uscita",
+        "destinationUrl": "URL di destinazione",
+        "uniqueClicks": "Clic unici", 
+        "topReferrerPage": "Pagina referrer principale",
+        "sourcePages": "Pagine sorgente"
+      },
+      "chart": {
+        "title": "Clic in uscita unici nel tempo"
+      },
+      "pieChart": {
+        "title": "Distribuzione link in uscita",
+        "description": "Link in uscita principali per clic unici"
+      }
     },
     "integration": {
       "integrationSetup": "Configurazione integrazione",

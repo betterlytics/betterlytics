@@ -8,6 +8,7 @@ import {
   Funnel,
   DollarSign,
   Route,
+  ExternalLink as ExternalLinkIcon,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -43,6 +44,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     { name: t('overview'), href: '', icon: <LayoutDashboard size={18} /> },
     { name: t('pages'), href: '/pages', icon: <FileText size={18} /> },
     { name: t('referrers'), href: '/referrers', icon: <Link2 size={18} /> },
+    { name: t('outboundLinks'), href: '/outbound-links', icon: <ExternalLinkIcon size={18} /> },
     { name: t('geography'), href: '/geography', icon: <Globe size={18} /> },
     { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
     { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
