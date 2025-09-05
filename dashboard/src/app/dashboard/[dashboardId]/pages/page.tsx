@@ -13,8 +13,6 @@ import PagesSummarySection from '@/app/dashboard/[dashboardId]/pages/PagesSummar
 import PagesTableSection from './PagesTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { ActiveQueryFilters } from '@/components/filters/ActiveQueryFilters';
-import { getTranslations } from 'next-intl/server';
 
 type PagesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -63,18 +61,9 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
     compareEndDate,
   );
 
-  const t = await getTranslations('dashboard.tabs');
-  const tPages = await getTranslations('components.pages.table');
-
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>{t('pages')}</h1>
-          <p className='text-muted-foreground text-sm'>{tPages('description')}</p>
-        </div>
-        <DashboardFilters />
-      </div>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+      <DashboardFilters />
 
       <Suspense fallback={<SummaryCardsSkeleton />}>
         <PagesSummarySection pagesSummaryWithChartsPromise={pagesSummaryWithChartsPromise} />

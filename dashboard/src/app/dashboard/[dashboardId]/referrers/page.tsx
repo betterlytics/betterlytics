@@ -14,7 +14,6 @@ import ReferrersChartsSection from './ReferrersChartsSection';
 import ReferrersTableSection from './ReferrersTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { getTranslations } from 'next-intl/server';
 
 type ReferrersPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -65,18 +64,9 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     compareEndDate,
   );
 
-  const tTabs = await getTranslations('dashboard.tabs');
-  const tPage = await getTranslations('components.referrers.page');
-
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>{tTabs('referrers')}</h1>
-          <p className='text-muted-foreground text-sm'>{tPage('description')}</p>
-        </div>
-        <DashboardFilters />
-      </div>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+      <DashboardFilters />
 
       <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
         <ReferrersSummarySection referrerSummaryWithChartsPromise={referrerSummaryWithChartsPromise} />
@@ -84,7 +74,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>

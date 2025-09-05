@@ -46,26 +46,30 @@ function TabbedTable<TData>({
   return (
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
-        <CardHeader className='pb-0'>
-          <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-            <div className={cn(searchColumn && 'sm:col-span-2')}>
-              <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
-              {description && <p className='text-muted-foreground text-sm'>{description}</p>}
-            </div>
+        <CardHeader className='px-1 pb-0 sm:px-6'>
+          <div className='flex flex-col-reverse justify-between gap-4 sm:flex-row'>
             {searchColumn && (
-              <Input
-                placeholder={t('searchPlaceholder', {
-                  field: searchFieldLabel || String(searchColumn),
-                })}
-                onChange={(event) => tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)}
-                className='row-start-3 max-w-sm sm:row-start-2'
-              />
+              <div className='w-full rounded-md sm:max-w-sm'>
+                <Input
+                  placeholder={t('searchPlaceholder', {
+                    field: searchFieldLabel || String(searchColumn),
+                  })}
+                  onChange={(event) =>
+                    tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)
+                  }
+                  className='bg-input row-start-3 w-full sm:row-start-2 sm:max-w-sm'
+                />
+              </div>
             )}
-            <div className='flex items-center justify-center gap-4 sm:justify-end'>
+            <div className='flex items-center justify-center sm:justify-end'>
               {headerActions && <div>{headerActions}</div>}
-              <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
+              <TabsList className={`bg-muted/30 grid w-auto grid-cols-${tabs.length} gap-1`}>
                 {tabs.map((tab) => (
-                  <TabsTrigger key={tab.key} value={tab.key} className='px-3 py-1 text-xs font-medium'>
+                  <TabsTrigger
+                    key={tab.key}
+                    value={tab.key}
+                    className='hover:bg-accent px-3 py-1 text-xs font-medium'
+                  >
                     {tab.label}
                   </TabsTrigger>
                 ))}
@@ -73,7 +77,7 @@ function TabbedTable<TData>({
             </div>
           </div>
         </CardHeader>
-        <CardContent className='px-6 pt-0 pb-4'>
+        <CardContent className='px-1 pt-0 pb-4 sm:px-6'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
               <div className='overflow-x-auto'>

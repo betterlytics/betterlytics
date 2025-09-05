@@ -20,7 +20,7 @@ export function DateRangeSection({
   const t = useTranslations('components.timeRange');
   return (
     <div>
-      <h3 className='mb-2 text-sm font-medium text-gray-500'>{t('currentPeriod')}</h3>
+      <h3 className='text-text mb-2 text-sm font-medium'>{t('currentPeriod')}</h3>
       <div className='grid grid-cols-2 gap-4'>
         <DatePicker
           label={t('startDate')}

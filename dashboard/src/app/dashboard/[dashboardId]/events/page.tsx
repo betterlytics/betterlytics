@@ -38,14 +38,8 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
   const t = await getTranslations('components.events.page');
 
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>{t('title')}</h1>
-          <p className='text-muted-foreground text-sm'>{t('description')}</p>
-        </div>
-        <DashboardFilters />
-      </div>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+      <DashboardFilters />
 
       <Suspense fallback={<TableSkeleton />}>
         <EventsTableSection eventsPromise={eventsPromise} />

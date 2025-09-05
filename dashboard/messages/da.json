@@ -767,7 +767,7 @@
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
       "bounceRate": "Afvisningsprocent",
-      "avgVisitDuration": "Gennemsnitlig besøgstid"
+      "avgVisitDuration": "Gns. besøgstid"
     },
     "sections": {
       "topPages": "Top sider",
@@ -776,6 +776,7 @@
       "trafficSources": "Trafikkilder",
       "customEvents": "Brugerdefinerede hændelser"
     },
+    "goTo": "Gå til {section}",
     "tabs": {
       "pages": "Sider",
       "userJourney": "Brugerrejse",
@@ -1278,14 +1279,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Samlede unikke klik",
-        "uniqueVisitors": "Unikke besøgende", 
+        "uniqueVisitors": "Unikke besøgende",
         "topDomain": "Top domæne",
         "topSourcePage": "Top kildeside"
       },
       "table": {
         "title": "Udgående link performance",
         "destinationUrl": "Destinations-URL",
-        "uniqueClicks": "Unikke klik", 
+        "uniqueClicks": "Unikke klik",
         "topReferrerPage": "Top henvisningsside",
         "sourcePages": "Kildesider"
       },

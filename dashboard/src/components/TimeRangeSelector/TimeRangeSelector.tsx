@@ -93,13 +93,13 @@ export function TimeRangeSelector({
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
       <QuickSelectSection selectedRange={tempState.range} onRangeSelect={handleQuickSelect} />
-
+      <Separator className='my-4' />
       <GranularitySection
         selectedGranularity={tempState.granularity}
         allowedGranularities={allowedGranularities}
         onGranularitySelect={handleGranularitySelect}
       />
-
+      <Separator className='my-4' />
       <DateRangeSection
         startDate={tempState.customStart}
         endDate={tempState.customEnd}
@@ -130,9 +130,9 @@ export function TimeRangeSelector({
       <Dialog open={isPopoverOpen} onOpenChange={handlePopoverOpenChange}>
         <DialogTrigger asChild>
           <Button
-            variant='outline'
+            variant='secondary'
             role='combobox'
-            className={cn('min-w-[200px] justify-between shadow-sm', className)}
+            className={cn('min-w-[200px] justify-between border shadow-sm', className)}
           >
             <div className='flex items-center gap-2'>
               <CalendarIcon className='h-4 w-4' />
@@ -141,7 +141,7 @@ export function TimeRangeSelector({
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
+        <DialogContent className='bg-secondary max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
           <DialogHeader>
             <DialogTitle>{t('dateRange')}</DialogTitle>
           </DialogHeader>
@@ -155,9 +155,9 @@ export function TimeRangeSelector({
     <Popover open={isPopoverOpen} onOpenChange={handlePopoverOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant='outline'
+          variant='secondary'
           role='combobox'
-          className={cn('min-w-[200px] justify-between shadow-sm', className)}
+          className={cn('min-w-[200px] justify-between border shadow-sm', className)}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />
@@ -166,7 +166,10 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
+      <PopoverContent
+        className='bg-secondary w-[415px] max-w-[calc(100svw-48px)] space-y-6 border p-6'
+        align='end'
+      >
         {content}
       </PopoverContent>
     </Popover>

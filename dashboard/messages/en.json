@@ -768,10 +768,11 @@
     "sections": {
       "topPages": "Top Pages",
       "geography": "Geography",
-      "devicesBreakdown": "Devices Breakdown",
+      "devicesBreakdown": "Devices",
       "trafficSources": "Traffic Sources",
       "customEvents": "Custom Events"
     },
+    "goTo": "Go to {section}",
     "tabs": {
       "pages": "Pages",
       "userJourney": "User Journey",
@@ -783,7 +784,7 @@
       "worldMap": "World Map",
       "browsers": "Browsers",
       "devices": "Devices",
-      "operatingSystems": "Operating Systems",
+      "operatingSystems": "OS",
       "referrers": "Referrers",
       "sources": "Sources",
       "channels": "Channels",
@@ -1274,14 +1275,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Total Unique Clicks",
-        "uniqueVisitors": "Unique Visitors", 
+        "uniqueVisitors": "Unique Visitors",
         "topDomain": "Top Domain",
         "topSourcePage": "Top Source Page"
       },
       "table": {
         "title": "Outbound Link Performance",
         "destinationUrl": "Destination URL",
-        "uniqueClicks": "Unique Clicks", 
+        "uniqueClicks": "Unique Clicks",
         "topReferrerPage": "Top Referrer Page",
         "sourcePages": "Source Pages"
       },

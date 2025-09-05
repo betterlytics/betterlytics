@@ -57,39 +57,48 @@ export function DataTable<TData, TValue>({
   }, []);
 
   return (
-    <div className={`rounded-lg ${className || ''} overflow-hidden border border-gray-200 dark:border-slate-700`}>
-      <Table>
-        <TableHeader className='bg-gray-50 dark:bg-slate-800'>
+    <div
+      className={`rounded-lg ${className || ''} dark:border-secondary overflow-hidden border border-gray-200 dark:border-2`}
+    >
+      <Table className='w-full table-fixed'>
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className='border-b border-gray-200 dark:border-slate-700'>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className={`px-4 py-3 text-left text-sm font-medium text-slate-500 dark:text-slate-400 ${
-                    header.column.getCanSort()
-                      ? 'cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-slate-700'
-                      : ''
-                  }`}
-                  onClick={header.column.getToggleSortingHandler()}
-                >
-                  <div className='flex items-center'>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    {header.column.getIsSorted() && (
-                      <span className='ml-2'>
-                        {header.column.getIsSorted() === 'desc' ? (
-                          <ArrowDown className='h-4 w-4' />
-                        ) : (
-                          <ArrowUp className='h-4 w-4' />
-                        )}
-                      </span>
-                    )}
-                  </div>
-                </TableHead>
-              ))}
+            <TableRow
+              key={headerGroup.id}
+              className='border-muted-foreground bg-table-header hover:bg-table-header border-b'
+            >
+              {headerGroup.headers.map((header, headerIdx) => {
+                const isLastHeader = headerIdx === headerGroup.headers.length - 1;
+                return (
+                  <TableHead
+                    key={header.id}
+                    className={`text-foreground ${
+                      isLastHeader ? 'pr-1 pl-4' : 'px-4'
+                    } py-3 text-left text-sm font-medium ${
+                      header.column.getCanSort() ? 'hover:!bg-table-header-hover cursor-pointer select-none' : ''
+                    }`}
+                    onClick={header.column.getToggleSortingHandler()}
+                    style={{ width: `${header.getSize?.() || header.column.columnDef.size || ''}px` }}
+                  >
+                    <div className='flex items-center'>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.column.getIsSorted() && (
+                        <span className='ml-2'>
+                          {header.column.getIsSorted() === 'desc' ? (
+                            <ArrowDown className='h-4 w-4' />
+                          ) : (
+                            <ArrowUp className='h-4 w-4' />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                );
+              })}
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className='divide-y divide-gray-200 bg-white dark:divide-slate-700 dark:bg-slate-900'>
+        <TableBody className='divide-secondary divide-y'>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
@@ -97,11 +106,18 @@ export function DataTable<TData, TValue>({
                 className={`hover:bg-gray-50 dark:hover:bg-slate-800/50 ${onRowClick ? 'cursor-pointer' : ''}`}
                 onClick={() => onRowClick && onRowClick(row)}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className='px-4 py-3 text-sm text-slate-700 dark:text-slate-300'>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell, cellIdx, arr) => {
+                  const isLastCell = cellIdx === arr.length - 1;
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={`${isLastCell ? 'pr-1 pl-4' : 'px-4'} py-3 text-sm text-slate-700 dark:text-slate-300`}
+                      style={{ width: `${cell.column.getSize?.() || cell.column.columnDef.size || ''}px` }}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (
