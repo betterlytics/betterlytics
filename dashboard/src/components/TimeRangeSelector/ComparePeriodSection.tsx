@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { DatePicker } from './DatePicker';
+import { useTranslations } from 'next-intl';
 
 interface ComparePeriodSectionProps {
   compareEnabled: boolean;
@@ -23,6 +24,7 @@ export function ComparePeriodSection({
   onCompareStartDateSelect,
   onCompareEndDateSelect,
 }: ComparePeriodSectionProps) {
+  const t = useTranslations('components.timeRange');
   return (
     <>
       <div className='flex items-center space-x-2'>
@@ -32,7 +34,7 @@ export function ComparePeriodSection({
           onCheckedChange={(checked) => onCompareEnabledChange(checked as boolean)}
         />
         <Label htmlFor='comparePeriodCheckbox' className='text-sm font-normal'>
-          Compare with previous period
+          {t('compareWithPrevious')}
         </Label>
       </div>
 
@@ -40,17 +42,17 @@ export function ComparePeriodSection({
         <>
           <Separator className='my-4' />
           <div>
-            <h3 className='text-text mb-2 text-sm font-medium'>Compare to period</h3>
+            <h3 className='text-text mb-2 text-sm font-medium'>{t('compareToPeriod')}</h3>
             <div className='grid grid-cols-2 gap-4'>
               <DatePicker
-                label='Start date'
+                label={t('startDate')}
                 date={compareStartDate}
                 onDateSelect={(date) => date && onCompareStartDateSelect(date)}
                 disabled={(date) => date > new Date()}
                 id='compareStartDateInput'
               />
               <DatePicker
-                label='End date'
+                label={t('endDate')}
                 date={compareEndDate}
                 onDateSelect={(date) => date && onCompareEndDateSelect(date)}
                 disabled={(date) => {

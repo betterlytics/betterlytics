@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -20,6 +21,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
   const topCountries = use(topCountriesPromise);
   const t = useTranslations('dashboard');
   const dashboardId = useDashboardId();
+  const locale = useLocale();
 
   return (
     <MultiProgressTable
@@ -30,11 +32,16 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
           key: 'countries',
           label: t('tabs.topCountries'),
           data: topCountries.map((country) => ({
-            label: getCountryName(country.country_code),
+            label: getCountryName(country.country_code, locale),
             value: country.current.visitors,
             trendPercentage: country.change?.visitors,
             comparisonValue: country.compare?.visitors,
-            icon: <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />,
+            icon: (
+              <FlagIcon
+                countryCode={country.country_code as FlagIconProps['countryCode']}
+                countryName={getCountryName(country.country_code, locale)}
+              />
+            ),
           })),
           emptyMessage: t('emptyStates.noCountryData'),
         },

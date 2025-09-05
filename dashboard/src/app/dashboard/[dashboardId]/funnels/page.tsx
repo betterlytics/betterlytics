@@ -5,7 +5,6 @@ import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
 import FunnelsListSection from './FunnelsListSection';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
-import TimeRangeSelector from '@/components/TimeRangeSelector';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';

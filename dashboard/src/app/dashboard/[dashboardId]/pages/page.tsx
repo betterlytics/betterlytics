@@ -13,7 +13,6 @@ import PagesSummarySection from '@/app/dashboard/[dashboardId]/pages/PagesSummar
 import PagesTableSection from './PagesTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { ActiveQueryFilters } from '@/components/filters/ActiveQueryFilters';
 
 type PagesPageParams = {
   params: Promise<{ dashboardId: string }>;

@@ -15,6 +15,7 @@ import DevicesChartsSection from './DevicesChartsSection';
 import DevicesTablesSection from './DevicesTablesSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
 
 type DevicesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -67,9 +68,15 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     compareEndDate,
   );
 
+  const t = await getTranslations('devicesPage');
+
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardFilters />
+
+      <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
+        <DevicesSummarySection deviceSummaryPromise={deviceSummaryPromise} />
+      </Suspense>
 
       <Suspense
         fallback={

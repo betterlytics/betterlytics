@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
+import { useTranslations } from 'next-intl';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
@@ -24,6 +25,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
   const dashboardId = useDashboardId();
   const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations('components.sidebar.dashboardDropdown');
 
   const currentDashboard = use(currentDashboardPromise);
   const allDashboards = use(allDashboardsPromise);
@@ -53,7 +55,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
       <DropdownMenuContent align='start' className='w-56'>
         <div className='px-2 py-1.5'>
-          <p className='text-muted-foreground text-xs font-medium'>Switch Dashboard</p>
+          <p className='text-muted-foreground text-xs font-medium'>{t('switch')}</p>
         </div>
         <DropdownMenuSeparator />
 
@@ -78,7 +80,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
         <DropdownMenuItem onClick={() => router.push('/dashboards')} className='cursor-pointer'>
           <div className='flex w-full items-center gap-2'>
             <List className='text-muted-foreground h-4 w-4' />
-            <span>View all Dashboards</span>
+            <span>{t('viewAll')}</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

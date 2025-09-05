@@ -8,6 +8,7 @@ import EventsTableSection from './EventsTableSection';
 import { EventLog } from '@/app/dashboard/[dashboardId]/events/EventLog';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
 
 type EventsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -33,6 +34,8 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
     compareStartDate,
     compareEndDate,
   );
+
+  const t = await getTranslations('components.events.page');
 
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>

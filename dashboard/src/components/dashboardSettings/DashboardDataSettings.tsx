@@ -6,6 +6,7 @@ import { Database } from 'lucide-react';
 import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import SettingsCard from '@/components/SettingsCard';
+import { useTranslations } from 'next-intl';
 
 type DataSettingsProps = {
   formData: DashboardSettingsUpdate;
@@ -13,17 +14,12 @@ type DataSettingsProps = {
 };
 
 export default function DataSettings({ formData, onUpdate }: DataSettingsProps) {
+  const t = useTranslations('components.dashboardSettingsDialog.data');
   return (
-    <SettingsCard
-      icon={Database}
-      title='Data Management'
-      description='Configure data retention and collection preferences'
-    >
+    <SettingsCard icon={Database} title={t('title')} description={t('description')}>
       <div className='space-y-2'>
-        <Label className='text-base'>Data Retention Period</Label>
-        <p className='text-muted-foreground mb-2 text-sm'>
-          How long to keep analytics data before automatic deletion
-        </p>
+        <Label className='text-base'>{t('retentionLabel')}</Label>
+        <p className='text-muted-foreground mb-2 text-sm'>{t('retentionHelp')}</p>
         <Select
           value={formData.dataRetentionDays?.toString() || '365'}
           onValueChange={(value) => onUpdate({ dataRetentionDays: parseInt(value) })}
@@ -34,7 +30,13 @@ export default function DataSettings({ formData, onUpdate }: DataSettingsProps) 
           <SelectContent>
             {DATA_RETENTION_PRESETS.map((preset) => (
               <SelectItem key={preset.value} value={preset.value.toString()} className='hover:bg-accent'>
-                {preset.label}
+                {(() => {
+                  try {
+                    return t(`presets.${preset.i18nKey}`);
+                  } catch {
+                    return preset.fallback;
+                  }
+                })()}
               </SelectItem>
             ))}
           </SelectContent>

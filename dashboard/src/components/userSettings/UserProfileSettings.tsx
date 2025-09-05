@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UpdateUserData, UpdateUserSchema } from '@/entities/user';
+import { useTranslations } from 'next-intl';
 import useIsChanged from '@/hooks/use-is-changed';
 
 export default function UserProfileSettings() {
@@ -23,6 +24,7 @@ export default function UserProfileSettings() {
   const [user, setUser] = useState<UpdateUserData>();
   const [errors, setErrors] = useState<Partial<Record<keyof UpdateUserData, string>>>({});
   const isFormChanged = useIsChanged({ name } as Partial<SessionUser>, session?.user);
+  const t = useTranslations('components.userSettings.profile');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,9 +38,9 @@ export default function UserProfileSettings() {
           await updateUserAction(validatedData);
           await setSession(validatedData);
 
-          toast.success('Profile updated successfully');
+          toast.success(t('toast.success'));
         } catch (error) {
-          toast.error('Failed to update profile. Please try again.');
+          toast.error(t('toast.error'));
         }
       });
     } catch (error) {
@@ -63,10 +65,10 @@ export default function UserProfileSettings() {
 
   return (
     <div className='space-y-6'>
-      <SettingsCard icon={User} title='Profile' description='Change your personal information'>
+      <SettingsCard icon={User} title={t('title')} description={t('description')}>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='space-y-2'>
-            <Label htmlFor='name'>Name</Label>
+            <Label htmlFor='name'>{t('nameLabel')}</Label>
             <Input
               id='name'
               type='text'
@@ -74,24 +76,24 @@ export default function UserProfileSettings() {
               onChange={(e) => setName(e.target.value)}
               className={errors.name ? 'border-destructive' : ''}
               disabled={isPending}
-              placeholder='Enter your name'
+              placeholder={t('namePlaceholder')}
             />
             {errors.name && <p className='text-destructive text-sm'>{errors.name}</p>}
-            <p className='text-muted-foreground text-xs'>Optional</p>
+            <p className='text-muted-foreground text-xs'>{t('optional')}</p>
           </div>
 
           <div className='space-y-2'>
             <Label htmlFor='email'>
-              Email
+              {t('emailLabel')}
               {emailVerified ? (
                 <div className='flex items-center gap-1 text-sm text-green-600'>
                   <Check className='h-3 w-3' />
-                  <span>Verified</span>
+                  <span>{t('verified')}</span>
                 </div>
               ) : (
                 <div className='flex items-center gap-1 text-sm text-red-600'>
                   <X className='h-3 w-3' />
-                  <span>Unverified</span>
+                  <span>{t('unverified')}</span>
                 </div>
               )}
             </Label>
@@ -100,7 +102,7 @@ export default function UserProfileSettings() {
 
           <Button type='submit' disabled={isPending || !isFormChanged} className='w-full sm:w-auto' tabIndex={4}>
             {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            Update Profile
+            {t('updateButton')}
           </Button>
         </form>
       </SettingsCard>

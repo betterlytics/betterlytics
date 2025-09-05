@@ -4,6 +4,7 @@ import React from 'react';
 import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from '@/utils/granularityRanges';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface GranularitySectionProps {
   selectedGranularity: GranularityRangeValues;
@@ -16,9 +17,10 @@ export function GranularitySection({
   allowedGranularities,
   onGranularitySelect,
 }: GranularitySectionProps) {
+  const t = useTranslations('components.timeRange');
   return (
     <div>
-      <h3 className='text-text mb-2 text-sm font-medium'>Granularity</h3>
+      <h3 className='text-text mb-2 text-sm font-medium'>{t('granularity')}</h3>
       <div className='grid grid-cols-2 gap-2'>
         {GRANULARITY_RANGE_PRESETS.map((gran) => {
           const isAllowed = allowedGranularities.includes(gran.value);
@@ -30,7 +32,7 @@ export function GranularitySection({
               disabled={!isAllowed}
               className={cn('w-full', !isAllowed && 'cursor-not-allowed opacity-50')}
             >
-              {gran.label}
+              {t(`granularityLabels.${gran.value}`)}
             </Button>
           );
         }).reverse()}

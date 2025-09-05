@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { EventLogEntry } from '@/entities/events';
 import { formatTimeAgo } from '@/utils/dateFormatters';
 import { DeviceIcon, BrowserIcon, FlagIcon, FlagIconProps } from '@/components/icons';
+import { useLocale } from 'next-intl';
+import { getCountryName } from '@/utils/countryCodes';
 
 const MAX_PROPERTIES_DISPLAY = 3;
 
@@ -63,6 +65,8 @@ const MetadataItem = React.memo(
 MetadataItem.displayName = 'MetadataItem';
 
 export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd, onRef }: EventLogItemProps) {
+  const locale = useLocale();
+
   return (
     <div
       className='group hover:bg-muted/40 hover:border-l-primary/50 relative border-l-2 border-l-transparent p-4 transition-all duration-200'
@@ -102,7 +106,14 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
             )}
 
             {event.country_code && (
-              <MetadataItem icon={<FlagIcon countryCode={event.country_code as FlagIconProps['countryCode']} />}>
+              <MetadataItem
+                icon={
+                  <FlagIcon
+                    countryCode={event.country_code as FlagIconProps['countryCode']}
+                    countryName={getCountryName(event.country_code, locale)}
+                  />
+                }
+              >
                 <span className='font-medium uppercase'>{event.country_code}</span>
               </MetadataItem>
             )}

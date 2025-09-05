@@ -234,6 +234,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       tabs={tableTabs}
       defaultTab='all'
       searchColumn='path'
+      searchFieldLabel={t('path')}
     />
   );
 }
