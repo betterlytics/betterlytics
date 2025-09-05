@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { ChartSkeleton, SummaryCardsSkeleton } from '@/components/skeleton';
+import { ChartSkeleton, SummaryCardsSkeleton, TableSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import {
@@ -73,7 +73,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
       >
         <InteractiveWebVitalsChartSection summaryPromise={summaryPromise} seriesPromise={seriesPromise} />
       </Suspense>
-      <Suspense>
+      <Suspense fallback={<TableSkeleton />}>
         <WebVitalsTableSection
           perPagePromise={perPagePromise}
           perDevicePromise={perDevicePromise}
