@@ -9,6 +9,7 @@ import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { toast } from 'sonner';
+import { getTranslations } from 'next-intl/server';
 
 export default async function BillingPage() {
   if (!isClientFeatureEnabled('enableBilling')) {
@@ -16,6 +17,7 @@ export default async function BillingPage() {
   }
 
   const session = await getServerSession(authOptions);
+  const t = await getTranslations('components.billing.page');
 
   if (!session) {
     redirect('/signin');
@@ -44,8 +46,8 @@ export default async function BillingPage() {
         )}
 
         <div className='mb-16 space-y-4 text-center'>
-          <h2 className='text-3xl font-bold sm:text-4xl'>Upgrade your plan</h2>
-          <p className='text-muted-foreground text-xl'>Choose the perfect plan for your analytics needs.</p>
+          <h2 className='text-3xl font-bold sm:text-4xl'>{t('heading')}</h2>
+          <p className='text-muted-foreground text-xl'>{t('subheading')}</p>
         </div>
 
         <div className='mb-8'>
