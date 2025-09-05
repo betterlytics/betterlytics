@@ -10,6 +10,7 @@ import GeographySection from './GeographySection';
 import DevicesSection from './DevicesSection';
 import TrafficSourcesSection from './TrafficSourcesSection';
 import CustomEventsSection from './CustomEventsSection';
+import WeeklyHeatmapSection from './WeeklyHeatmapSection';
 import {
   fetchDeviceBreakdownCombinedAction,
   fetchPageAnalyticsCombinedAction,
@@ -160,7 +161,12 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <Suspense fallback={<TableSkeleton />}>
           <CustomEventsSection customEventsPromise={customEventsPromise} />
         </Suspense>
-        <div>{/* Placeholder for future content */}</div>
+        <WeeklyHeatmapSection
+          dashboardId={dashboardId}
+          startDate={startDate}
+          endDate={endDate}
+          queryFilters={queryFilters}
+        />
       </div>
     </div>
   );
