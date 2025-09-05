@@ -42,16 +42,16 @@ export function capitalizeFirstLetter(string: string): string {
 }
 
 export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, clsDecimals = 3): string {
-  if (value == null) return '—';
+  if (value === null || value === undefined) return '—';
   if (metric === 'CLS') {
-    const rounded = Number((value as number).toFixed(clsDecimals));
+    const rounded = value.toFixed(clsDecimals);
     return rounded.toString();
   }
-  return formatCompactFromMilliseconds(value as number);
+  return formatCompactFromMilliseconds(value);
 }
 
 export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null | undefined): string | undefined {
-  if (value == null) return undefined;
+  if (value === null || value === undefined) return undefined;
   const [goodThreshold, niThreshold] = CWV_THRESHOLDS[metric] ?? [];
   if (goodThreshold === undefined || niThreshold === undefined) return undefined;
   if (value > niThreshold) return 'var(--cwv-threshold-poor)';
