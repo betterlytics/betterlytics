@@ -3,6 +3,7 @@ import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironment
 import { OnboardingProgress } from './OnboardingProgress';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { Suspense } from 'react';
+import { WidgetTransition } from './WidgetTransition';
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
@@ -20,7 +21,9 @@ export default async function OnboardingLayout({ children }: { children: React.R
             <Suspense>
               <OnboardingProgress />
             </Suspense>
-            <div className='flex min-h-[400px] flex-col justify-center space-y-6'>{children}</div>
+            <div className='flex min-h-[800px] flex-col justify-center space-y-6'>
+              <WidgetTransition>{children}</WidgetTransition>
+            </div>
           </div>
         </div>
       </PublicEnvironmentVariablesProvider>
