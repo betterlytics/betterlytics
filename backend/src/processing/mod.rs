@@ -206,49 +206,16 @@ impl EventProcessor {
             }
         } else if event_name.eq_ignore_ascii_case("cwv") {
             processed.event_type = "cwv".to_string();
-            let props = processed.event.raw.properties.as_str();
-            let (cls, lcp, inp, fcp, ttfb) = self.extract_cwv_metrics(props);
-            processed.cwv_cls = cls;
-            processed.cwv_lcp = lcp;
-            processed.cwv_inp = inp;
-            processed.cwv_fcp = fcp;
-            processed.cwv_ttfb = ttfb;
+            processed.cwv_cls = processed.event.raw.cwv_cls;
+            processed.cwv_lcp = processed.event.raw.cwv_lcp;
+            processed.cwv_inp = processed.event.raw.cwv_inp;
+            processed.cwv_fcp = processed.event.raw.cwv_fcp;
+            processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
         } else {
             processed.event_type = event_name;
         }
         
         Ok(())
-    }
-
-    /// Extract Core Web Vitals metrics from properties JSON
-    fn extract_cwv_metrics(&self, properties_json: &str) -> (Option<f32>, Option<f32>, Option<f32>, Option<f32>, Option<f32>) {
-        if properties_json.is_empty() {
-            return (None, None, None, None, None);
-        }
-        let parsed = match serde_json::from_str::<serde_json::Value>(properties_json) {
-            Ok(v) => v,
-            Err(_) => return (None, None, None, None, None),
-        };
-        let mut cls = None;
-        let mut lcp = None;
-        let mut inp = None;
-        let mut fcp = None;
-        let mut ttfb = None;
-        if let Some(metrics) = parsed.get("metrics").and_then(|m| m.as_array()) {
-            for metric in metrics {
-                let name = metric.get("name").and_then(|n| n.as_str()).unwrap_or("");
-                let val = metric.get("value").and_then(|v| v.as_f64()).map(|v| v as f32);
-                match name {
-                    "CLS" => cls = val,
-                    "LCP" => lcp = val,
-                    "INP" => inp = val,
-                    "FCP" => fcp = val,
-                    "TTFB" => ttfb = val,
-                    _ => {}
-                }
-            }
-        }
-        (cls, lcp, inp, fcp, ttfb)
     }
 
     /// Get geolocation data for the IP

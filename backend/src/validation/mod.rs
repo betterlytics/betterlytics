@@ -95,6 +95,10 @@ impl EventValidator {
             self.validate_outbound_link_url(raw_event)?;
         }
 
+        if raw_event.event_name.eq_ignore_ascii_case("cwv") {
+            self.validate_cwv_fields(raw_event)?;
+        }
+
         // only present for custom events
         if !raw_event.properties.is_empty() {
             self.validate_properties_json(&raw_event.properties)?;
@@ -243,6 +247,18 @@ impl EventValidator {
             }
         }
 
+        Ok(())
+    }
+
+    /// Validate Core Web Vitals fields when present
+    fn validate_cwv_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        fn valid_f32(v: f32) -> bool { v.is_finite() }
+
+        if let Some(v) = raw_event.cwv_cls { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_cls".to_string())); } }
+        if let Some(v) = raw_event.cwv_lcp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_lcp".to_string())); } }
+        if let Some(v) = raw_event.cwv_inp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_inp".to_string())); } }
+        if let Some(v) = raw_event.cwv_fcp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_fcp".to_string())); } }
+        if let Some(v) = raw_event.cwv_ttfb { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_ttfb".to_string())); } }
         Ok(())
     }
 

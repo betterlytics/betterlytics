@@ -114,7 +114,17 @@
       if (cwvFlushed || cwvQueue.size === 0) return;
       cwvFlushed = true;
       var metrics = Array.from(cwvQueue.values());
-      trackEvent("cwv", false, { metrics: metrics });
+      var byName = metrics.reduce(function (acc, m) {
+        acc[m.name] = m.value;
+        return acc;
+      }, {});
+      trackEvent("cwv", {
+        cwv_cls: byName.CLS,
+        cwv_lcp: byName.LCP,
+        cwv_inp: byName.INP,
+        cwv_fcp: byName.FCP,
+        cwv_ttfb: byName.TTFB,
+      });
       cwvQueue.clear();
     }
 
