@@ -7,12 +7,14 @@ import { use } from 'react';
 import type { UserBillingData } from '@/entities/billing';
 import { formatPercentage } from '@/utils/formatters';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
+import { useTranslations } from 'next-intl';
 
 interface UsageUpgradeBannerProps {
   billingDataPromise: Promise<ServerActionResponse<UserBillingData>>;
 }
 
 export default function UsageUpgradeBanner({ billingDataPromise }: UsageUpgradeBannerProps) {
+  const t = useTranslations('components.billing.usageBanner');
   const billingData = use(billingDataPromise);
 
   if (!billingData.success) {
@@ -35,15 +37,19 @@ export default function UsageUpgradeBanner({ billingDataPromise }: UsageUpgradeB
           <div className='flex items-center gap-3'>
             <AlertTriangle className='h-4 w-4 flex-shrink-0' />
             <div className='flex flex-col text-sm sm:flex-row sm:items-center sm:gap-2'>
-              <span className='font-medium'>Usage Limit Exceeded:</span>
+              <span className='font-medium'>{t('title')}</span>
               <span>
-                You&apos;ve used <strong>{usage.current.toLocaleString()}</strong> events out of your{' '}
-                <strong>{usage.limit.toLocaleString()}</strong> event limit ({formatPercentage(overagePercentage)}{' '}
-                over your {subscription.tier} plan).
+                {t.rich('body', {
+                  current: usage.current.toLocaleString(),
+                  limit: usage.limit.toLocaleString(),
+                  percentage: formatPercentage(overagePercentage),
+                  plan: subscription.tier,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </span>
               <span className='flex items-center gap-1 font-medium text-yellow-200'>
                 <AlertCircle className='h-3 w-3' />
-                Upgrade to ensure all your analytics data remains accessible
+                {t('upgradeHint')}
               </span>
             </div>
           </div>
@@ -53,7 +59,7 @@ export default function UsageUpgradeBanner({ billingDataPromise }: UsageUpgradeB
               size='sm'
               className='h-7 bg-white/80 px-4 py-1 text-xs font-semibold text-red-600 shadow-sm hover:bg-gray-100'
             >
-              <Link href='/billing'>Upgrade Now</Link>
+              <Link href='/billing'>{t('upgradeCta')}</Link>
             </Button>
           </div>
         </div>

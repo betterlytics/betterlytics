@@ -8,12 +8,12 @@ import * as UserSettingsService from '@/services/userSettings';
 import { User } from 'next-auth';
 
 export const getUserSettingsAction = withUserAuth(async (user: User): Promise<UserSettings> => {
-  return await UserSettingsService.getUserSettings(user.id);
+  return UserSettingsService.getUserSettings(user.id);
 });
 
 export const updateUserSettingsAction = withUserAuth(
   async (user: User, updates: UserSettingsUpdate): Promise<UserSettings> => {
-    return await UserSettingsService.updateUserSettings(user.id, updates);
+    return UserSettingsService.updateUserSettings(user.id, updates);
   },
 );
 

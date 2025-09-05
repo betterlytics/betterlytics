@@ -18,6 +18,8 @@ import { Spinner } from '../ui/spinner';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import useIsChanged from '@/hooks/use-is-changed';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -39,44 +41,47 @@ interface UserSettingsTabConfig {
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  const router = useRouter();
+  const tTabs = useTranslations('components.userSettings.tabs');
+  const tDialog = useTranslations('components.userSettings.dialog');
 
   const USER_SETTINGS_TABS: UserSettingsTabConfig[] = useMemo(
     () => [
       {
         id: 'profile',
-        label: 'Profile',
+        label: tTabs('profile'),
         icon: User,
         component: UserProfileSettings,
       },
       {
         id: 'preferences',
-        label: 'Preferences',
+        label: tTabs('preferences'),
         icon: Settings,
         component: UserPreferencesSettings,
       },
       {
         id: 'usage',
-        label: 'Usage',
+        label: tTabs('usage'),
         icon: BarChart3,
         component: UserUsageSettings,
         disabled: !isFeatureFlagEnabled('enableBilling'),
       },
       {
         id: 'billing',
-        label: 'Billing',
+        label: tTabs('billing'),
         icon: Receipt,
         component: UserBillingHistory,
         disabled: !isFeatureFlagEnabled('enableBilling'),
       },
       {
         id: 'security',
-        label: 'Security',
+        label: tTabs('security'),
         icon: Shield,
         component: UserSecuritySettings,
       },
       {
         id: 'danger',
-        label: 'Danger Zone',
+        label: tTabs('danger'),
         icon: AlertTriangle,
         component: UserDangerZoneSettings,
       },
@@ -104,6 +109,9 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     const result = await saveSettings(formData);
     if (result.success) {
       await refreshSession();
+      if (formData.language && formData.language !== settings?.language) {
+        router.refresh();
+      }
       toast.success('Settings saved successfully!');
       onOpenChange(false);
     } else {
@@ -121,7 +129,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
         <DialogContent className='sm:max-w-[700px]'>
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <Spinner />
-            <p className='text-muted-foreground text-sm'>Loading settings...</p>
+            <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -135,7 +143,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <AlertTriangle className='text-destructive h-8 w-8' />
             <div className='text-center'>
-              <p className='text-destructive font-medium'>Failed to load settings</p>
+              <p className='text-destructive font-medium'>{tDialog('loadFailed')}</p>
               <p className='text-muted-foreground mt-1 text-sm'>{error}</p>
             </div>
           </div>
@@ -149,7 +157,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className='sm:max-w-[700px]'>
           <div className='flex items-center justify-center py-8'>
-            <span>No settings found</span>
+            <span>{tDialog('noSettings')}</span>
           </div>
         </DialogContent>
       </Dialog>
@@ -160,8 +168,8 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-h-[80vh] overflow-y-auto sm:max-w-[700px]'>
         <DialogHeader>
-          <DialogTitle>User Settings</DialogTitle>
-          <DialogDescription>Manage your account settings and preferences.</DialogDescription>
+          <DialogTitle>{tDialog('title')}</DialogTitle>
+          <DialogDescription>{tDialog('description')}</DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
@@ -189,18 +197,18 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
 
         <div className='flex justify-end space-x-2 border-t pt-4'>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cancel
+            {tDialog('buttons.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving || !isFormChanged}>
             {isSaving ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Saving...
+                {tDialog('buttons.saving')}
               </>
             ) : (
               <>
                 <Save className='mr-2 h-4 w-4' />
-                Save Changes
+                {tDialog('buttons.saveChanges')}
               </>
             )}
           </Button>

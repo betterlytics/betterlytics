@@ -5,7 +5,7 @@ import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/act
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useLocale, useTranslations } from 'next-intl';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -15,38 +15,46 @@ type GeographySectionProps = {
 export default function GeographySection({ worldMapPromise, topCountriesPromise }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
   const topCountries = use(topCountriesPromise);
-  const { dictionary } = useDictionary();
+  const t = useTranslations('dashboard');
+  const locale = useLocale();
 
   return (
     <MultiProgressTable
-      title={dictionary.t('dashboard.sections.geography')}
+      title={t('sections.geography')}
       defaultTab='countries'
       tabs={[
         {
           key: 'countries',
-          label: dictionary.t('dashboard.tabs.topCountries'),
+          label: t('tabs.topCountries'),
           data: topCountries.map((country) => ({
-            label: getCountryName(country.country_code),
+            label: getCountryName(country.country_code, locale),
             value: country.current.visitors,
             trendPercentage: country.change?.visitors,
             comparisonValue: country.compare?.visitors,
-            icon: <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />,
+            icon: (
+              <FlagIcon
+                countryCode={country.country_code as FlagIconProps['countryCode']}
+                countryName={getCountryName(country.country_code, locale)}
+              />
+            ),
           })),
-          emptyMessage: dictionary.t('dashboard.emptyStates.noCountryData'),
+          emptyMessage: t('emptyStates.noCountryData'),
         },
         {
           key: 'worldmap',
-          label: dictionary.t('dashboard.tabs.worldMap'),
+          label: t('tabs.worldMap'),
           data: [],
-          emptyMessage: dictionary.t('dashboard.emptyStates.noWorldMapData'),
+          emptyMessage: t('emptyStates.noWorldMapData'),
           customContent: worldMapData ? (
             <div className='h-[280px] w-full'>
-              <LeafletMap visitorData={worldMapData.visitorData} showZoomControls={false} />
+              <LeafletMap
+                visitorData={worldMapData.visitorData}
+                maxVisitors={worldMapData.maxVisitors}
+                showZoomControls={false}
+              />
             </div>
           ) : (
-            <div className='text-muted-foreground py-12 text-center'>
-              {dictionary.t('dashboard.emptyStates.noWorldMapData')}
-            </div>
+            <div className='text-muted-foreground py-12 text-center'>{t('emptyStates.noWorldMapData')}</div>
           ),
         },
       ]}

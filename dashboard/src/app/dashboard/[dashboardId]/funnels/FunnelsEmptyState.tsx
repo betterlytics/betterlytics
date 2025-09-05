@@ -1,6 +1,7 @@
 import { LucideFunnel, Plus } from 'lucide-react';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 type FunnelExplanationProps = {
   title: string;
@@ -36,6 +37,8 @@ function FunnelExplanation({ title, description, color }: FunnelExplanationProps
 }
 
 export function FunnelsEmptyState() {
+  const t = useTranslations('components.funnels.emptyState');
+
   return (
     <div className='mx-auto flex min-h-[600px] max-w-md flex-col items-center justify-center px-4 text-center'>
       <div className='mb-6'>
@@ -49,29 +52,28 @@ export function FunnelsEmptyState() {
         </div>
       </div>
 
-      <h2 className='mb-3 text-2xl font-semibold'>No funnels created yet</h2>
+      <h2 className='mb-3 text-2xl font-semibold'>{t('title')}</h2>
 
       <p className='text-muted-foreground mb-6 leading-relaxed'>
-        Track user journeys through your site and identify where visitors drop off. Create your first funnel to
-        start analyzing conversion paths and optimize your user experience.
+        {t('description')}
       </p>
 
-      <CreateFunnelDialog triggerText='Create your first Funnel' triggerVariant='default' />
+      <CreateFunnelDialog triggerText={t('createButton')} triggerVariant='default' />
 
       <div className='mt-8 space-y-4 text-left'>
         <FunnelExplanation
-          title='Track conversion steps'
-          description='Monitor user progress through custom filters'
+          title={t('features.trackSteps')}
+          description={t('features.trackStepsDesc')}
           color='blue'
         />
         <FunnelExplanation
-          title='Identify drop-off points'
-          description='Find where users abandon their journey'
+          title={t('features.identifyDropoffs')}
+          description={t('features.identifyDropoffsDesc')}
           color='green'
         />
         <FunnelExplanation
-          title='Optimize conversions'
-          description='Improve your product based on data insights'
+          title={t('features.optimizeConversions')}
+          description={t('features.optimizeConversionsDesc')}
           color='purple'
         />
       </div>

@@ -10,6 +10,7 @@ import {
 } from '../ui/select';
 import { Input } from '../ui/input';
 import { Dispatch, ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
@@ -29,6 +30,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -43,6 +46,8 @@ export function QueryFilterInputRow<TEntity>({
   requestRemoval,
   disableDeletion,
 }: QueryFilterInputRowProps<TEntity>) {
+  const isMobile = useIsMobile();
+  const t = useTranslations('components.filters');
   return (
     <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <Select
@@ -52,13 +57,13 @@ export function QueryFilterInputRow<TEntity>({
         <SelectTrigger className='col-span-8 w-full md:col-span-4'>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align={'start'} position={'popper'} className={cn(isMobile && 'max-h-72')}>
           <SelectGroup>
-            <SelectLabel>Type</SelectLabel>
+            <SelectLabel>{t('type')}</SelectLabel>
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => (
               <SelectItem key={column.value} value={column.value}>
                 {column.icon}
-                {column.label}
+                {t(`columns.${column.value}`)}
               </SelectItem>
             ))}
           </SelectGroup>
@@ -73,9 +78,9 @@ export function QueryFilterInputRow<TEntity>({
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectLabel>Operator</SelectLabel>
-            <SelectItem value={'='}>is</SelectItem>
-            <SelectItem value={'!='}>is not</SelectItem>
+            <SelectLabel>{t('operator')}</SelectLabel>
+            <SelectItem value={'='}>{t('is')}</SelectItem>
+            <SelectItem value={'!='}>{t('isNot')}</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
