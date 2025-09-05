@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, use, useMemo, useState, type CSSProperties, useCallback } from 'react';
+import { Fragment, useMemo, useState, type CSSProperties, useCallback, useEffect } from 'react';
 import { fetchWeeklyHeatmapAllAction } from '@/app/actions/weeklyHeatmap';
 import type { HeatmapMetric } from '@/entities/weeklyHeatmap';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/filter';
+import { HeatmapSkeleton } from '@/components/skeleton';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -28,18 +29,22 @@ const metricOptions = [
 ] as const;
 
 export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const allData = use(
-    useMemo(
-      () => fetchWeeklyHeatmapAllAction(props.dashboardId, props.startDate, props.endDate, props.queryFilters, tz),
-      [props.dashboardId, props.startDate, props.endDate, props.queryFilters, tz],
-    ),
-  );
+  const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
+  useEffect(() => {
+    fetchWeeklyHeatmapAllAction(
+      props.dashboardId,
+      props.startDate,
+      props.endDate,
+      props.queryFilters,
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+    ).then((res) => setAllData(res));
+  }, [props.dashboardId, props.startDate, props.endDate, props.queryFilters]);
+
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
 
   const current: PresentedWeeklyHeatmap | undefined = useMemo(() => {
-    const pair = allData.find(([metric]) => metric === selectedMetric);
+    const pair = allData?.find(([metric]) => metric === selectedMetric);
     return pair ? pair[1] : undefined;
   }, [allData, selectedMetric]);
 
@@ -61,6 +66,10 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   const onMetricChange = (next: string) => {
     setSelectedMetric(next as HeatmapMetric);
   };
+
+  if (!allData) {
+    return <HeatmapSkeleton />;
+  }
 
   return (
     <div className='bg-card border-border rounded-lg border p-6 shadow'>

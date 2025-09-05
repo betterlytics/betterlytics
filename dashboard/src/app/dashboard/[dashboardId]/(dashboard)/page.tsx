@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { TableSkeleton, SummaryCardsSkeleton, ChartSkeleton, HeatmapSkeleton } from '@/components/skeleton';
+import { TableSkeleton, SummaryCardsSkeleton, ChartSkeleton } from '@/components/skeleton';
 import SummaryAndChartSection from './SummaryAndChartSection';
 import PagesAnalyticsSection from './PagesAnalyticsSection';
 import GeographySection from './GeographySection';
@@ -21,7 +21,6 @@ import {
   getTopCountryVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions';
-import { fetchWeeklyHeatmapAllAction } from '@/app/actions/weeklyHeatmap';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -162,14 +161,12 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <Suspense fallback={<TableSkeleton />}>
           <CustomEventsSection customEventsPromise={customEventsPromise} />
         </Suspense>
-        <Suspense fallback={<HeatmapSkeleton />}>
-          <WeeklyHeatmapSection
-            dashboardId={dashboardId}
-            startDate={startDate}
-            endDate={endDate}
-            queryFilters={queryFilters}
-          />
-        </Suspense>
+        <WeeklyHeatmapSection
+          dashboardId={dashboardId}
+          startDate={startDate}
+          endDate={endDate}
+          queryFilters={queryFilters}
+        />
       </div>
     </div>
   );
