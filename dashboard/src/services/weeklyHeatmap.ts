@@ -11,6 +11,7 @@ export async function getWeeklyHeatmapForSite(
   endDate: Date,
   metric: HeatmapMetric,
   queryFilters: QueryFilter[],
+  tz?: string,
 ): Promise<WeeklyHeatmap> {
   const data = await getWeeklyHeatmap(
     siteId,
@@ -18,6 +19,7 @@ export async function getWeeklyHeatmapForSite(
     toDateTimeString(endDate),
     metric,
     queryFilters,
+    tz,
   );
 
   return { metric, data } as WeeklyHeatmap;

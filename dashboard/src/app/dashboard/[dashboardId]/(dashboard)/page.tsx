@@ -116,7 +116,6 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     compareStartDate,
     compareEndDate,
   );
-  const weeklyHeatmapAllPromise = fetchWeeklyHeatmapAllAction(dashboardId, startDate, endDate, queryFilters);
 
   return (
     <div className='container space-y-6 p-6'>
@@ -164,7 +163,12 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <CustomEventsSection customEventsPromise={customEventsPromise} />
         </Suspense>
         <Suspense fallback={<HeatmapSkeleton />}>
-          <WeeklyHeatmapSection weeklyHeatmapAllPromise={weeklyHeatmapAllPromise} />
+          <WeeklyHeatmapSection
+            dashboardId={dashboardId}
+            startDate={startDate}
+            endDate={endDate}
+            queryFilters={queryFilters}
+          />
         </Suspense>
       </div>
     </div>

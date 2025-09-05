@@ -9,9 +9,13 @@ import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/present
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
+import { QueryFilter } from '@/entities/filter';
 
 type WeeklyHeatmapSectionProps = {
-  weeklyHeatmapAllPromise: ReturnType<typeof fetchWeeklyHeatmapAllAction>;
+  dashboardId: string;
+  startDate: Date;
+  endDate: Date;
+  queryFilters: QueryFilter[];
 };
 
 const metricOptions = [
@@ -24,7 +28,13 @@ const metricOptions = [
 ] as const;
 
 export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
-  const allData = use(props.weeklyHeatmapAllPromise);
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const allData = use(
+    useMemo(
+      () => fetchWeeklyHeatmapAllAction(props.dashboardId, props.startDate, props.endDate, props.queryFilters, tz),
+      [props.dashboardId, props.startDate, props.endDate, props.queryFilters, tz],
+    ),
+  );
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
 

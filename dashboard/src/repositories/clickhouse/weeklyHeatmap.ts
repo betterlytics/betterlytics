@@ -28,8 +28,10 @@ export async function getWeeklyHeatmap(
   endDate: DateTimeString,
   metric: HeatmapMetric,
   queryFilters: QueryFilter[],
+  tz?: string,
 ): Promise<WeeklyHeatmapRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const timezone = tz ?? 'UTC';
 
   if (metric === 'bounce_rate' || metric === 'pages_per_session' || metric === 'session_duration') {
     // Build from session_data per hour bucket then aggregate by weekday/hour across the range
@@ -37,8 +39,8 @@ export async function getWeeklyHeatmap(
       WITH session_data AS (
         SELECT
           session_id,
-          toDayOfWeek(timestamp) as weekday,
-          toHour(timestamp) as hour,
+          toDayOfWeek(toTimeZone(timestamp, {tz:String})) as weekday,
+          toHour(toTimeZone(timestamp, {tz:String})) as hour,
           count() as page_count,
           if(count() > 1, dateDiff('second', min(timestamp), max(timestamp)), 0) as duration_seconds
         FROM analytics.events
@@ -71,6 +73,7 @@ export async function getWeeklyHeatmap(
           site_id: siteId,
           start: startDate,
           end: endDate,
+          tz: timezone,
         },
       })
       .toPromise()) as any[];
@@ -89,9 +92,9 @@ export async function getWeeklyHeatmap(
 
   const query = safeSql`
     SELECT
-      any(toStartOfHour(timestamp)) as date,
-      toDayOfWeek(timestamp) as weekday,
-      toHour(timestamp) as hour,
+      any(toStartOfHour(toTimeZone(timestamp, {tz:String}))) as date,
+      toDayOfWeek(toTimeZone(timestamp, {tz:String})) as weekday,
+      toHour(toTimeZone(timestamp, {tz:String})) as hour,
       ${aggregation} as value
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -109,6 +112,7 @@ export async function getWeeklyHeatmap(
         site_id: siteId,
         start: startDate,
         end: endDate,
+        tz: timezone,
       },
     })
     .toPromise()) as any[];
