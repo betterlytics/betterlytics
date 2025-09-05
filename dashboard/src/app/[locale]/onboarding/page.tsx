@@ -6,13 +6,7 @@ import Link from 'next/link';
 import Logo from '@/components/logo';
 import { getFirstUserDashboardAction } from '@/app/actions';
 
-interface OnboardingPageProps {
-  searchParams: Promise<{
-    onboarding?: string;
-  }>;
-}
-
-export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
+export default async function OnboardingPage() {
   const session = await getServerSession(authOptions);
 
   if (!isFeatureEnabled('enableRegistration')) {
@@ -43,13 +37,13 @@ export default async function OnboardingPage({ searchParams }: OnboardingPagePro
   // - If they have a dashboard, go to integration step
   if (session) {
     const dashboard = await getFirstUserDashboardAction();
-    if (!dashboard) {
-      redirect('/onboarding/website');
+    if (dashboard.success && dashboard.data) {
+      return redirect('/onboarding/integration');
     } else {
-      redirect('/onboarding/integration');
+      return redirect('/onboarding/website');
     }
   }
 
   // For users without a session start at account creation
-  redirect('/onboarding/account');
+  return redirect('/onboarding/account');
 }

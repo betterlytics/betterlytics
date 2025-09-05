@@ -2,6 +2,7 @@ import { OnboardingProvider } from '@/contexts/OnboardingProvider';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { OnboardingProgress } from './OnboardingProgress';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
+import { Suspense } from 'react';
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
@@ -16,7 +17,9 @@ export default async function OnboardingLayout({ children }: { children: React.R
         </div>
         <div className='bg-background'>
           <div className='container mx-auto max-w-4xl px-4 py-6'>
-            <OnboardingProgress />
+            <Suspense>
+              <OnboardingProgress />
+            </Suspense>
             <div className='flex min-h-[400px] flex-col justify-center space-y-6'>{children}</div>
           </div>
         </div>
