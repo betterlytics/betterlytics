@@ -51,6 +51,11 @@ export async function getCoreWebVitalsAllPercentilesPerDimension(
 
 type ScoreArray = [number, number, number, number]; // p50, p75, p90, p99
 
+// Metric weights for the score calculation
+// These are field-values compared to lighthouse lab metrics.
+// LCP and INP are more important than FCP and TTFB.
+// CLS is less important than LCP and INP.
+// The weights are not perfect, but they are a good starting point.
 const METRIC_WEIGHTS: Record<CoreWebVitalName, number> = {
   LCP: 0.3,
   CLS: 0.15,
