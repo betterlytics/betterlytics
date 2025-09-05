@@ -1323,6 +1323,18 @@
           "great": "Great",
           "okay": "Okay",
           "poor": "Poor"
+        },
+        "tabs": {
+          "page": "Page",
+          "deviceType": "Device Type",
+          "country": "Country",
+          "browser": "Browser",
+          "operatingSystem": "Operating System",
+          "pages": "Pages",
+          "devices": "Devices",
+          "countries": "Countries",
+          "browsers": "Browsers",
+          "operatingSystems": "Operating Systems"
         }
       },
       "info": {
@@ -1336,18 +1348,6 @@
           "FCP": "Shows when the first piece of content appears on the screen during page load.",
           "TTFB": "Measures server response speed — the time from request until the first byte is received."
         }
-      },
-      "tabs": {
-        "page": "Page",
-        "deviceType": "Device Type",
-        "country": "Country",
-        "browser": "Browser",
-        "operatingSystem": "Operating System",
-        "pages": "Pages",
-        "devices": "Devices",
-        "countries": "Countries",
-        "browsers": "Browsers",
-        "operatingSystems": "Operating Systems"
       }
     },
     "integration": {
