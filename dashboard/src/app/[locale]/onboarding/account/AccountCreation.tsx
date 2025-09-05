@@ -15,6 +15,7 @@ import Logo from '@/components/logo';
 import { CheckCircleIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link, useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -35,6 +36,7 @@ const itemVariants = {
 export default function AccountCreation() {
   const { state, setUserId } = useOnboarding();
   const router = useRouter();
+  const t = useTranslations('onboarding.account');
   const [error, setError] = useState('');
   const [providers, setProviders] = useState<Record<string, any> | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -57,7 +59,7 @@ export default function AccountCreation() {
       const name = formData.get('name') as string | null;
       console.log('Name:', name);
       if (password !== confirmPassword) {
-        setError('Passwords do not match');
+        setError(t('form.passwordsDoNotMatch'));
         return;
       }
 
@@ -83,7 +85,7 @@ export default function AccountCreation() {
           });
 
           if (signInResult?.error) {
-            setError('Registration successful, but sign in failed. Please try signing in manually.');
+            setError(t('form.registrationSuccessfulButSignInFailed'));
             return;
           }
 
@@ -92,10 +94,10 @@ export default function AccountCreation() {
         });
       } catch (error) {
         if (error instanceof ZodError) {
-          setError(error.errors[0]?.message || 'Please check your input');
+          setError(error.errors[0]?.message || t('form.checkInput'));
         } else {
           console.log(error);
-          setError('Please check your input');
+          setError(t('form.checkInput'));
         }
       }
     },
@@ -117,7 +119,7 @@ export default function AccountCreation() {
           window.location.href = result.url;
         }
       } catch {
-        setError('An error occurred during sign up. Please try again.');
+        setError(t('form.signUpError'));
       }
     });
   }, []);
@@ -131,29 +133,29 @@ export default function AccountCreation() {
         <motion.ul variants={listVariants} initial='hidden' animate='visible' className='space-y-8'>
           <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
             <CheckCircleIcon color='var(--primary)' />
-            <h3 className='col-span-9 font-semibold'>Start collecting web analytics immediately</h3>
+            <h3 className='col-span-9 font-semibold'>{t('features.feature1.title')}</h3>
             <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
-              Integrate our low-code web snippet into your site, or use our npm package.
+              {t('features.feature1.description')}
             </p>
           </motion.li>
           <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
             <CheckCircleIcon color='var(--primary)' />
-            <h3 className='col-span-9 font-semibold'>Generous free plan to help you grow</h3>
+            <h3 className='col-span-9 font-semibold'>{t('features.feature2.title')}</h3>
             <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
-              10K events every month for free, no creditcard required, no strings attached. Forever.
+              {t('features.feature2.description')}
             </p>
           </motion.li>
           <motion.li className='grid grid-cols-10 gap-y-2' variants={itemVariants}>
             <CheckCircleIcon color='var(--primary)' />
-            <h3 className='col-span-9 font-semibold'>Awesome features on their way</h3>
+            <h3 className='col-span-9 font-semibold'>{t('features.feature3.title')}</h3>
             <p className='text-muted-foreground col-span-9 col-start-2 text-sm'>
-              Betterlytics is open-source. We're actively working on new features we're eager to show
+              {t('features.feature3.description')}
             </p>
           </motion.li>
         </motion.ul>
       </div>
       <div className='bg-card col-span-2 space-y-3 rounded-lg border p-6 shadow-sm md:col-span-1'>
-        <h2 className='text-center text-2xl font-semibold'>Create your account</h2>
+        <h2 className='text-center text-2xl font-semibold'>{t('form.title')}</h2>
         {error && (
           <div
             className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
@@ -163,7 +165,7 @@ export default function AccountCreation() {
           </div>
         )}
         {(providers?.google || providers?.github) && (
-          <p className='text-muted-foreground mt-2 text-center text-sm'>Sign up with</p>
+          <p className='text-muted-foreground mt-2 text-center text-sm'>{t('form.signUpWith')}</p>
         )}
         <div className='flex gap-3'>
           {/* Google Registration Button */}
@@ -177,7 +179,7 @@ export default function AccountCreation() {
               <GoogleIcon />
 
               <span className='font-roboto grow-0 truncate align-top font-medium'>
-                {isGooglePending ? 'Signing up...' : 'Google'}
+                {isGooglePending ? t('form.signingUpGoogle') : t('form.googleButton')}
               </span>
             </button>
           )}
@@ -193,7 +195,7 @@ export default function AccountCreation() {
               <GitHubIcon />
 
               <span className='font-roboto grow-0 truncate align-top font-medium'>
-                {isGithubPending ? 'Signing up...' : 'GitHub'}
+                {isGithubPending ? t('form.signingUpGitHub') : t('form.gitHubButton')}
               </span>
             </button>
           )}
@@ -201,65 +203,68 @@ export default function AccountCreation() {
 
         <div>
           <span className='text-sm font-light'>
-            By continuing, you agree to our{' '}
-            <Link href='/privacy' target='__blank' className='underline'>
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href='/terms' target='__blank' className='underline'>
-              Privacy Policy
-            </Link>
-            .
+            {t.rich('form.termsAgreement', {
+              termsLink: (chunks) => (
+                <Link href='/privacy' target='__blank' className='underline'>
+                  {chunks}
+                </Link>
+              ),
+              privacyLink: (chunks) => (
+                <Link href='/terms' target='__blank' className='underline'>
+                  {chunks}
+                </Link>
+              ),
+            })}
           </span>
         </div>
 
         {(providers?.google || providers?.github) && (
           <div className='relative my-4 flex items-center'>
             <div className='border-border flex-grow border-t'></div>
-            <span className='text-muted-foreground mx-4 flex-shrink text-sm'>or</span>
+            <span className='text-muted-foreground mx-4 flex-shrink text-sm'>{t('form.orDivider')}</span>
             <div className='border-border flex-grow border-t'></div>
           </div>
         )}
         <form className='space-y-4' onSubmit={handleEmailRegistration}>
           <div className='space-y-2'>
-            <Label htmlFor='email'>Email</Label>
+            <Label htmlFor='email'>{t('form.emailLabel')}</Label>
             <Input
               id='email'
               name='email'
               type='email'
               required
               defaultValue={state.account.email || ''}
-              placeholder='Enter your email'
+              placeholder={t('form.emailPlaceholder')}
               disabled={isPending}
             />
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='password'>Password</Label>
+            <Label htmlFor='password'>{t('form.passwordLabel')}</Label>
             <Input
               id='password'
               name='password'
               type='password'
               required
-              placeholder='Enter your password (min. 8 characters)'
+              placeholder={t('form.passwordPlaceholder')}
               disabled={isPending}
             />
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='confirmPassword'>Confirm Password</Label>
+            <Label htmlFor='confirmPassword'>{t('form.confirmPasswordLabel')}</Label>
             <Input
               id='confirmPassword'
               name='confirmPassword'
               type='password'
               required
-              placeholder='Confirm your password'
+              placeholder={t('form.confirmPasswordPlaceholder')}
               disabled={isPending}
             />
           </div>
 
           <Button type='submit' disabled={isPending} className='w-full'>
-            {isPending ? 'Creating account...' : 'Continue'}
+            {isPending ? t('form.creatingAccount') : t('form.continueButton')}
           </Button>
         </form>
       </div>

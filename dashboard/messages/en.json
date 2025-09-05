@@ -1568,5 +1568,91 @@
         }
       }
     }
+  },
+  "onboarding": {
+    "main": {
+      "registrationDisabled": {
+        "title": "Registration Disabled",
+        "description": "Registration is currently disabled on this instance.",
+        "backToSignIn": "Back to Sign In"
+      }
+    },
+    "account": {
+      "features": {
+        "feature1": {
+          "title": "Start collecting web analytics immediately",
+          "description": "Integrate our low-code web snippet into your site, or use our npm package."
+        },
+        "feature2": {
+          "title": "Generous free plan to help you grow",
+          "description": "10K events every month for free, no creditcard required, no strings attached. Forever."
+        },
+        "feature3": {
+          "title": "Awesome features on their way",
+          "description": "Betterlytics is open-source. We're actively working on new features we're eager to show"
+        }
+      },
+      "form": {
+        "title": "Create your account",
+        "signUpWith": "Sign up with",
+        "termsAgreement": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+        "orDivider": "or",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Enter your email",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password (min. 8 characters)",
+        "confirmPasswordLabel": "Confirm Password",
+        "confirmPasswordPlaceholder": "Confirm your password",
+        "continueButton": "Continue",
+        "creatingAccount": "Creating account...",
+        "signingUpGoogle": "Signing up...",
+        "signingUpGitHub": "Signing up...",
+        "googleButton": "Google",
+        "gitHubButton": "GitHub",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "registrationSuccessfulButSignInFailed": "Registration successful, but sign in failed. Please try signing in manually.",
+        "signUpError": "An error occurred during sign up. Please try again.",
+        "checkInput": "Please check your input"
+      }
+    },
+    "website": {
+      "title": "Set up your website",
+      "description": "Tell us about the website you want to track",
+      "domainLabel": "Domain",
+      "domainPlaceholder": "example.com",
+      "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
+      "createDashboardButton": "Create Dashboard",
+      "creatingDashboard": "Creating Dashboard...",
+      "dashboardCreatedSuccess": "Dashboard created successfully!",
+      "failedToCreateDashboard": "Failed to create dashboard. Please try again."
+    },
+    "integration": {
+      "siteId": {
+        "title": "Your Site ID",
+        "description": "This unique identifier connects your website to your dashboard",
+        "installationVerified": "✓ Installation Verified",
+        "waitingForInstallation": "Waiting for Installation"
+      },
+      "instructions": {
+        "title": "Installation Instructions",
+        "description": "Choose the method that matches your website setup",
+        "htmlTab": "HTML",
+        "nextjsTab": "Next.js",
+        "reactTab": "React",
+        "npmTab": "npm",
+        "htmlDescription": "Add to your HTML <head> section",
+        "nextjsDescription": "Add to your root layout",
+        "reactDescription": "Add to your main App component",
+        "npmDescription": "Install the npm package",
+        "npmInstallFirst": "First, install the package:",
+        "npmThenInitialize": "Then initialize it in your code:"
+      },
+      "buttons": {
+        "goToDashboard": "🎉 Go to Dashboard",
+        "skipForNow": "Skip for Now",
+        "continueToDashboard": "Continue to Dashboard"
+      },
+      "noSiteId": "No site ID found. Please complete the previous steps first."
+    }
   }
 }

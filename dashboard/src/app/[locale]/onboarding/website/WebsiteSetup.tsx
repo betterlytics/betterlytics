@@ -10,10 +10,12 @@ import { createDashboardAction, getFirstUserDashboardAction } from '@/app/action
 import { domainValidation } from '@/entities/dashboard';
 import { toast } from 'sonner';
 import { PrefixInput } from '@/components/inputs/PrefixInput';
+import { useTranslations } from 'next-intl';
 
 export default function WebsiteSetup() {
   const { state, updateWebsite, setSiteId, setDashboardId } = useOnboarding();
   const router = useRouter();
+  const t = useTranslations('onboarding.website');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
 
@@ -35,7 +37,7 @@ export default function WebsiteSetup() {
         const result = await createDashboardAction(domainResult.data);
 
         if (!result.success) {
-          setError('Failed to create dashboard. Please try again.');
+          setError(t('failedToCreateDashboard'));
           return;
         }
 
@@ -45,7 +47,7 @@ export default function WebsiteSetup() {
 
         setDashboardId(result.data.id);
         setSiteId(result.data.siteId);
-        toast.success('Dashboard created successfully!');
+        toast.success(t('dashboardCreatedSuccess'));
         router.push('/onboarding/integration');
       });
     },
@@ -56,25 +58,25 @@ export default function WebsiteSetup() {
     <div className='flex justify-center'>
       <div className='bg-card space-y-6 rounded-lg border p-6 md:w-xl'>
         <div>
-          <h2 className='text-2xl font-semibold'>Set up your website</h2>
-          <p className='text-muted-foreground mt-2'>Tell us about the website you want to track</p>
+          <h2 className='text-2xl font-semibold'>{t('title')}</h2>
+          <p className='text-muted-foreground mt-2'>{t('description')}</p>
         </div>
 
         <form className='space-y-6' onSubmit={handleSubmit}>
           <div className='space-y-2'>
-            <Label htmlFor='domain'>Domain</Label>
+            <Label htmlFor='domain'>{t('domainLabel')}</Label>
             <PrefixInput
               id='domain'
               name='domain'
               type='text'
               required
               defaultValue={state.website.domain || ''}
-              placeholder='example.com'
+              placeholder={t('domainPlaceholder')}
               disabled={isPending}
               prefix='https://'
             />
             <p className='text-muted-foreground text-xs'>
-              Enter your domain without https:// or www. (e.g., example.com)
+              {t('domainHelp')}
             </p>
           </div>
           {error && (
@@ -88,7 +90,7 @@ export default function WebsiteSetup() {
 
           <div className='flex justify-end pt-4'>
             <Button type='submit' disabled={isPending} className='w-full sm:w-auto'>
-              {isPending ? 'Creating Dashboard...' : 'Create Dashboard'}
+              {isPending ? t('creatingDashboard') : t('createDashboardButton')}
             </Button>
           </div>
         </form>

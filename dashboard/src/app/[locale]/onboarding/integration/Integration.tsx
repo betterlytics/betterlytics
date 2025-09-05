@@ -15,9 +15,11 @@ import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification
 import { useBARouter } from '@/hooks/use-ba-router';
 import { LiveIndicator } from '@/components/live-indicator';
 import { Separator } from '@/components/ui/separator';
+import { useTranslations } from 'next-intl';
 
 export default function Integration() {
   const { state, updateIntegration, completeOnboarding } = useOnboarding();
+  const t = useTranslations('onboarding.integration');
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
 
@@ -63,7 +65,7 @@ export default function Integration() {
   if (!siteId) {
     return (
       <div className='py-8 text-center'>
-        <p className='text-muted-foreground'>No site ID found. Please complete the previous steps first.</p>
+        <p className='text-muted-foreground'>{t('noSiteId')}</p>
       </div>
     );
   }
@@ -136,16 +138,16 @@ export default App;`;
     <Card>
       <CardHeader>
         <CardTitle className='flex justify-between text-base font-medium'>
-          Your Site ID{' '}
+          {t('siteId.title')}{' '}
           <div className='flex justify-center'>
             {isVerified ? (
               <Badge className='bg-green-600/20 px-3 py-1 text-green-500 dark:bg-green-500/30 dark:text-green-400'>
-                ✓ Installation Verified
+                {t('siteId.installationVerified')}
               </Badge>
             ) : (
               <div className='relative'>
                 <Badge className='bg-orange-600/20 px-3 py-1 text-orange-500 dark:bg-orange-500/30 dark:text-orange-400'>
-                  Waiting for Installation
+                  {t('siteId.waitingForInstallation')}
                 </Badge>
                 <LiveIndicator color='orange' />
               </div>
@@ -153,7 +155,7 @@ export default App;`;
           </div>
         </CardTitle>
         <CardDescription className='text-sm'>
-          This unique identifier connects your website to your dashboard
+          {t('siteId.description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -168,23 +170,23 @@ export default App;`;
       <Separator />
 
       <CardHeader>
-        <CardTitle className='text-base font-medium'>Installation Instructions</CardTitle>
-        <CardDescription className='text-sm'>Choose the method that matches your website setup</CardDescription>
+        <CardTitle className='text-base font-medium'>{t('instructions.title')}</CardTitle>
+        <CardDescription className='text-sm'>{t('instructions.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue='html' className='w-full gap-4'>
           <TabsList className='grid w-full grid-cols-4'>
-            <TabsTrigger value='html'>HTML</TabsTrigger>
-            <TabsTrigger value='nextjs'>Next.js</TabsTrigger>
-            <TabsTrigger value='react'>React</TabsTrigger>
-            <TabsTrigger value='npm'>npm</TabsTrigger>
+            <TabsTrigger value='html'>{t('instructions.htmlTab')}</TabsTrigger>
+            <TabsTrigger value='nextjs'>{t('instructions.nextjsTab')}</TabsTrigger>
+            <TabsTrigger value='react'>{t('instructions.reactTab')}</TabsTrigger>
+            <TabsTrigger value='npm'>{t('instructions.npmTab')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value='html'>
             <div className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>Add to your HTML &lt;head&gt; section</span>
+                <span className='text-sm font-medium'>{t('instructions.htmlDescription')}</span>
               </div>
               <CodeBlock code={htmlExample} language='html' />
             </div>
@@ -194,7 +196,7 @@ export default App;`;
             <div className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>Add to your root layout</span>
+                <span className='text-sm font-medium'>{t('instructions.nextjsDescription')}</span>
               </div>
               <CodeBlock code={nextJsExample} language='javascript' />
             </div>
@@ -204,7 +206,7 @@ export default App;`;
             <div className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>Add to your main App component</span>
+                <span className='text-sm font-medium'>{t('instructions.reactDescription')}</span>
               </div>
               <CodeBlock code={reactExample} language='javascript' />
             </div>
@@ -214,16 +216,16 @@ export default App;`;
             <div className='space-y-4'>
               <div className='flex items-center gap-2'>
                 <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>Install the npm package</span>
+                <span className='text-sm font-medium'>{t('instructions.npmDescription')}</span>
               </div>
 
               <div className='space-y-2'>
-                <p className='text-muted-foreground text-sm'>First, install the package:</p>
+                <p className='text-muted-foreground text-sm'>{t('instructions.npmInstallFirst')}</p>
                 <CodeBlock code='npm install @betterlytics/tracker' language='html' />
               </div>
 
               <div className='space-y-2'>
-                <p className='text-muted-foreground text-sm'>Then initialize it in your code:</p>
+                <p className='text-muted-foreground text-sm'>{t('instructions.npmThenInitialize')}</p>
                 <CodeBlock code={nodeExample} language='javascript' />
               </div>
             </div>
@@ -233,15 +235,15 @@ export default App;`;
       <CardFooter className='gap-4'>
         {isVerified ? (
           <Button onClick={handleFinishOnboarding} className='w-full'>
-            🎉 Go to Dashboard
+            {t('buttons.goToDashboard')}
           </Button>
         ) : (
           <>
             <Button variant='outline' onClick={handleSkipForNow} className='flex-1'>
-              Skip for Now
+              {t('buttons.skipForNow')}
             </Button>
             <Button onClick={handleFinishOnboarding} className='flex-1'>
-              Continue to Dashboard
+              {t('buttons.continueToDashboard')}
             </Button>
           </>
         )}

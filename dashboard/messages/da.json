@@ -1572,5 +1572,91 @@
         }
       }
     }
+  },
+  "onboarding": {
+    "main": {
+      "registrationDisabled": {
+        "title": "Registrering deaktiveret",
+        "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
+        "backToSignIn": "Tilbage til log ind"
+      }
+    },
+    "account": {
+      "features": {
+        "feature1": {
+          "title": "Start med at indsamle webanalytik med det samme",
+          "description": "Integrer vores low-code web snippet på dit site, eller brug vores npm-pakke."
+        },
+        "feature2": {
+          "title": "Generøs gratis plan til at hjælpe dig med at vokse",
+          "description": "10K events hver måned gratis, intet kreditkort krævet, ingen forpligtelser. For altid."
+        },
+        "feature3": {
+          "title": "Fantastiske funktioner på vej",
+          "description": "Betterlytics er open-source. Vi arbejder aktivt på nye funktioner, som vi er ivrige efter at vise"
+        }
+      },
+      "form": {
+        "title": "Opret din konto",
+        "signUpWith": "Tilmeld dig med",
+        "termsAgreement": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
+        "orDivider": "eller",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Indtast din email",
+        "passwordLabel": "Adgangskode",
+        "passwordPlaceholder": "Indtast din adgangskode (min. 8 tegn)",
+        "confirmPasswordLabel": "Bekræft adgangskode",
+        "confirmPasswordPlaceholder": "Bekræft din adgangskode",
+        "continueButton": "Fortsæt",
+        "creatingAccount": "Opretter konto...",
+        "signingUpGoogle": "Tilmelder...",
+        "signingUpGitHub": "Tilmelder...",
+        "googleButton": "Google",
+        "gitHubButton": "GitHub",
+        "passwordsDoNotMatch": "Adgangskoder matcher ikke",
+        "registrationSuccessfulButSignInFailed": "Registrering lykkedes, men log ind mislykkedes. Prøv at logge ind manuelt.",
+        "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
+        "checkInput": "Tjek venligst dit input"
+      }
+    },
+    "website": {
+      "title": "Opsæt dit website",
+      "description": "Fortæl os om det website, du vil spore",
+      "domainLabel": "Domæne",
+      "domainPlaceholder": "eksempel.dk",
+      "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "createDashboardButton": "Opret dashboard",
+      "creatingDashboard": "Opretter dashboard...",
+      "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",
+      "failedToCreateDashboard": "Kunne ikke oprette dashboard. Prøv igen."
+    },
+    "integration": {
+      "siteId": {
+        "title": "Dit site-ID",
+        "description": "Dette unikke identifikator forbinder dit website til dit dashboard",
+        "installationVerified": "✓ Installation verificeret",
+        "waitingForInstallation": "Venter på installation"
+      },
+      "instructions": {
+        "title": "Installationsinstruktioner",
+        "description": "Vælg den metode, der matcher din website-opsætning",
+        "htmlTab": "HTML",
+        "nextjsTab": "Next.js",
+        "reactTab": "React",
+        "npmTab": "npm",
+        "htmlDescription": "Tilføj til din HTML <head> sektion",
+        "nextjsDescription": "Tilføj til dit rod-layout",
+        "reactDescription": "Tilføj til din main App-komponent",
+        "npmDescription": "Installer npm-pakken",
+        "npmInstallFirst": "Først, installer pakken:",
+        "npmThenInitialize": "Derefter initialiser den i din kode:"
+      },
+      "buttons": {
+        "goToDashboard": "🎉 Gå til dashboard",
+        "skipForNow": "Spring over for nu",
+        "continueToDashboard": "Fortsæt til dashboard"
+      },
+      "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
+    }
   }
 }
