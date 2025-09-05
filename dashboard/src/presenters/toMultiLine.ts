@@ -1,13 +1,8 @@
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { utcMinute } from 'd3-time';
 import { getDateKey } from '@/utils/dateHelpers';
 import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/webVitals';
-
-const IntervalFunctions = {
-  day: utcDay,
-  hour: utcHour,
-  minute: utcMinute,
-} as const;
+import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
 
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
 export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
@@ -30,7 +25,7 @@ export function toPercentileLinesByMetric(
     byMetric[r.name][key] = [r.p50, r.p75, r.p90, r.p99];
   }
 
-  const interval = IntervalFunctions[granularity];
+  const interval = getTimeIntervalForGranularity(granularity);
   const start = utcMinute(dateRange.start);
   const end = utcMinute(dateRange.end);
 
