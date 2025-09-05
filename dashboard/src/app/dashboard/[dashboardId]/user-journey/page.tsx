@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/spinner';
 import UserJourneySection from '@/app/dashboard/[dashboardId]/user-journey/UserJourneySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
 
 type UserJourneyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -33,12 +34,14 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
     queryFilters,
   );
 
+  const t = await getTranslations('components.userJourney.page');
+
   return (
     <div className='container space-y-6 p-6'>
       <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
         <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>User Journey</h1>
-          <p className='text-muted-foreground text-sm'>Analytics and insights for your website</p>
+          <h1 className='text-foreground mb-1 text-2xl font-bold'>{t('title')}</h1>
+          <p className='text-muted-foreground text-sm'>{t('description')}</p>
         </div>
         <DashboardFilters showComparison={false} />
       </div>

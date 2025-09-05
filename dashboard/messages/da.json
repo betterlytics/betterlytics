@@ -729,7 +729,7 @@
       "prioritySupport": "Prioriteret support",
       "dedicatedSupport": "Dedikeret support og hjælp",
       "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Starter",
+      "everythingInStarter": "Alt i Growth",
       "everythingInProfessional": "Alt i Professional"
     },
     "cta": {
@@ -772,12 +772,15 @@
     "sections": {
       "topPages": "Top sider",
       "geography": "Geografi",
-      "devicesBreakdown": "Enheder opdeling",
+      "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
       "customEvents": "Brugerdefinerede hændelser"
     },
     "tabs": {
       "pages": "Sider",
+      "userJourney": "Brugerrejse",
+      "funnels": "Tragter",
+      "campaigns": "Kampagner",
       "entryPages": "Indgangssider",
       "exitPages": "Udgangssider",
       "topCountries": "Top lande",
@@ -805,6 +808,16 @@
       "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig"
     }
   },
+  "devicesPage": {
+    "title": "Enheder",
+    "description": "Opdeling af besøgendes enheder og anvendelsesanalyse"
+  },
+  "dashboardsPage": {
+    "title": "Dine dashboards",
+    "subtitle": "Administrér og overvåg analyse for alle dine websites.",
+    "emptyTitle": "Ingen dashboards endnu",
+    "emptyDescription": "Opret dit første dashboard for at begynde at spore analyse for din hjemmeside."
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -824,8 +837,153 @@
     "en": "Engelsk"
   },
   "components": {
+    "dashboards": {
+      "createDialog": {
+        "title": "Opret nyt dashboard",
+        "description": "Indtast dit website-domæne for at begynde at spore analyse.",
+        "label": {
+          "domain": "Website-domæne"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Indtast dit domæne uden https:// eller www."
+        },
+        "buttons": {
+          "cancel": "Annuller",
+          "create": "Opret dashboard",
+          "creating": "Opretter..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard oprettet! Opsætter integration...",
+          "createFailed": "Kunne ikke oprette dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Ugyldigt domæne"
+        },
+        "limitTooltip": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards."
+      }
+    },
+    "billing": {
+      "usageBanner": {
+        "title": "Forbrugsgrænse overskredet:",
+        "body": "Du har brugt <strong>{current}</strong> events ud af din grænse på <strong>{limit}</strong> events ({percentage} over din {plan}-plan).",
+        "upgradeHint": "Opgrader for at sikre, at alle dine analysedata forbliver tilgængelige",
+        "upgradeCta": "Opgrader nu"
+      },
+      "navigation": {
+        "backToDashboard": "Tilbage til dashboard",
+        "title": "Vælg din plan"
+      },
+      "page": {
+        "heading": "Opgrader din plan",
+        "subheading": "Vælg den perfekte plan til dine analysebehov."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "subtitle": "Alt du behøver at vide om vores priser og planer",
+        "items": {
+          "changePlan": {
+            "q": "Kan jeg ændre min plan når som helst?",
+            "a": "Ja! Du kan op- eller nedgradere din plan når som helst. Ændringer træder i kraft med det samme, og vi forholdsmæssigt justerer faktureringen."
+          },
+          "exceedLimit": {
+            "q": "Hvad sker der, hvis jeg overskrider min event-grænse?",
+            "a": "Vi fortsætter med at spore dine events og sender en e-mail, når du overskrider din grænse. Hvis du overskrider grænsen i mere end 30 dage, kan overskydende data blive slettet."
+          },
+          "annualBilling": {
+            "q": "Tilbyder I årlig fakturering?",
+            "a": "Lige nu tilbyder vi kun månedlig fakturering. Årlig fakturering med rabat kommer snart!"
+          },
+          "freeOption": {
+            "q": "Er der en gratis mulighed?",
+            "a": "Ja! Vores Growth-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for at komme i gang."
+          },
+          "cancelAnytime": {
+            "q": "Kan jeg opsige når som helst?",
+            "a": "Helt sikkert. Du kan opsige dit abonnement når som helst. Din plan forbliver aktiv indtil slutningen af din nuværende faktureringsperiode."
+          },
+          "paymentMethods": {
+            "q": "Hvilke betalingsmetoder accepterer I?",
+            "a": "Vi accepterer alle større kreditkort (Visa, MasterCard, American Express) og understøtter sikre betalinger via vores betalingsudbyder."
+          }
+        }
+      },
+      "interactive": {
+        "checkoutCanceled": "Betalingen blev annulleret. Du kan prøve igen når som helst.",
+        "contactForCustomPlan": "Kontakt os for en tilpasset plan",
+        "planSelectionFailed": "Kunne ikke behandle valg af plan. Prøv igen.",
+        "subscriptionChangesNote": "Ændringer i dit abonnement behandles straks gennem Stripes sikre faktureringsportal.",
+        "freePlanNote": "Start med vores gratis plan – intet kreditkort krævet."
+      },
+      "currentPlan": {
+        "title": "Nuværende plan",
+        "canceledBannerTitle": "Abonnement annulleret",
+        "canceledBannerBody": "Dit abonnement forbliver aktivt indtil {date}. Du kan genaktivere når som helst inden da.",
+        "description": "Detaljer for din nuværende abonnement",
+        "plan": "Plan",
+        "monthlyPrice": "Månedlig pris",
+        "free": "Gratis",
+        "eventUsage": "Event-forbrug",
+        "usageProgress": "{current} af {limit} events",
+        "resetsInDays": "Nulstilles om {days} dage",
+        "expiresInDays": "Udløber om {days} dage",
+        "canceled": "Annulleret",
+        "manage": "Administrér abonnement",
+        "reactivate": "Genaktivér abonnement",
+        "cancel": "Annullér abonnement"
+      }
+    },
+    "dataTable": {
+      "noResults": "Ingen resultater."
+    },
+    "timeRange": {
+      "quickSelect": "Hurtig valg",
+      "granularity": "Granularitet",
+      "currentPeriod": "Nuværende periode",
+      "compareWithPrevious": "Sammenlign med tidligere periode",
+      "compareToPeriod": "Sammenligningsperiode",
+      "startDate": "Startdato",
+      "endDate": "Slutdato",
+      "dateRange": "Datointerval",
+      "presets": {
+        "24h": "Seneste 24 timer",
+        "3d": "Seneste 3 dage",
+        "7d": "Seneste 7 dage",
+        "28d": "Seneste 28 dage",
+        "3mo": "Seneste 3 måneder",
+        "6mo": "Seneste 6 måneder"
+      },
+      "granularityLabels": {
+        "day": "Dag",
+        "hour": "Time",
+        "minute_30": "30 min",
+        "minute_15": "15 min"
+      },
+      "apply": "Anvend"
+    },
+    "loading": {
+      "dashboard": {
+        "initializing": "Initialiserer dashboard",
+        "loadingSettings": "Indlæser dine dashboard-indstillinger..."
+      }
+    },
+
     "devices": {
+      "summary": {
+        "distinctDeviceTypes": "Unikke enhedstyper",
+        "mostPopularDevice": "Mest populære enhed",
+        "mostPopularOperatingSystem": "Mest populære operativsystem",
+        "mostPopularBrowser": "Mest populære browser"
+      },
       "tables": {
+        "columns": {
+          "os": "Operativsystem",
+          "browser": "Browser",
+          "visitors": "Besøgende",
+          "percentage": "Procent"
+        },
         "topOperatingSystems": "Top operativsystemer",
         "mostCommonOperatingSystems": "Mest anvendte operativsystemer",
         "topBrowsers": "Top browsere",
@@ -847,9 +1005,74 @@
         "overview": "Oversigt",
         "utmBreakdowns": "UTM-opdeling",
         "landingPages": "Landingssider"
+      },
+      "page": {
+        "title": "Kampagner",
+        "description": "Kampagneperformance analyser og indsigter"
+      },
+      "performance": {
+        "title": "Kampagneperformance",
+        "description": "Nøgletal for dine kampagner",
+        "columns": {
+          "campaignName": "Kampagnenavn",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
+      },
+      "trend": {
+        "title": "Kampagne-besøgendetrend",
+        "description": "Besøgendetrends over tid pr. kampagne",
+        "empty": "Ingen trenddata for kampagnebesøgende tilgængelig."
+      },
+      "utm": {
+        "table": {
+          "title": "UTM-parameteropdeling",
+          "description": "Kampagneperformance på tværs af UTM-parametre"
+        },
+        "chart": {
+          "title": "UTM-fordeling",
+          "description": "Visuel opdeling af UTM-parameter performance"
+        },
+        "tabs": {
+          "source": "Kilde",
+          "medium": "Medium",
+          "content": "Indhold",
+          "terms": "Termer"
+        },
+        "empty": {
+          "source": "Ingen kildeopdeling tilgængelig for kampagner",
+          "medium": "Ingen medium-opdeling tilgængelig for kampagner",
+          "content": "Ingen indholdsopdeling tilgængelig for kampagner",
+          "term": "Ingen term-opdeling tilgængelig for kampagner"
+        },
+        "columns": {
+          "dimension": "Dimension",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
+      },
+      "landing": {
+        "title": "Kampagne landingsside-performance",
+        "description": "Nøgletal for kampagne-landingssider",
+        "columns": {
+          "campaignName": "Kampagnenavn",
+          "landingPageUrl": "Landingsside-URL",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
       }
     },
     "events": {
+      "page": {
+        "title": "Hændelser",
+        "description": "Analyser og indsigter for dine brugerdefinerede hændelser"
+      },
       "log": {
         "waiting": "Venter på hændelser...",
         "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",
@@ -875,6 +1098,47 @@
         "uniqueEvents": "Unikke hændelser"
       }
     },
+    "tabbedTable": {
+      "searchPlaceholder": "Filtrer efter {field}..."
+    },
+    "filters": {
+      "type": "Type",
+      "operator": "Operator",
+      "is": "er",
+      "isNot": "er ikke",
+      "columns": {
+        "url": "URL",
+        "device_type": "Enhedstype",
+        "country_code": "Landekode",
+        "browser": "Browser",
+        "os": "Operativsystem",
+        "referrer_source": "Henvisningskilde",
+        "referrer_source_name": "Henvisningsnavn",
+        "referrer_search_term": "Henvisningssøgeterm",
+        "referrer_url": "Henvisnings-URL",
+        "utm_source": "UTM-kilde",
+        "utm_medium": "UTM-medium",
+        "utm_campaign": "UTM-kampagne",
+        "utm_term": "UTM-term",
+        "utm_content": "UTM-indhold",
+        "custom_event_name": "Hændelse",
+        "event_type": "Type"
+      },
+      "selector": {
+        "triggerLabel": "Filtre",
+        "title": "Filtre",
+        "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
+        "addFilter": "Tilføj filter",
+        "cancel": "Annuller",
+        "apply": "Anvend",
+        "empty": {
+          "title": "Ingen aktive filtre",
+          "description": "Tilføj filtre for at forfine dine analysedata og fokusere på specifikke segmenter.",
+          "addFirst": "Tilføj dit første filter",
+          "common": "Almindelige filtre: Land, Browser, URL, Enhed"
+        }
+      }
+    },
     "funnels": {
       "list": {
         "steps": "trin",
@@ -896,6 +1160,40 @@
         "create": "Opret",
         "successMessage": "Tragt oprettet!",
         "errorMessage": "Tragtoprettelse mislykkedes!"
+      },
+      "page": {
+        "title": "Tragter",
+        "description": "Analyser brugerens konverteringsforløb"
+      },
+      "preview": {
+        "loading": "Indlæser forhåndsvisning...",
+        "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
+      },
+      "details": {
+        "title": "Tragtanalyse",
+        "description": "Detaljeret tragt-konverteringsanalyse",
+        "steps": "trin",
+        "users": "brugere",
+        "dropped": "frafald",
+        "summary": {
+          "overallConversion": "Samlet konvertering",
+          "totalVisitors": "Samlede besøgende",
+          "totalCompleted": "Samlet fuldført",
+          "biggestDropOff": "Største frafald"
+        }
+      },
+      "emptyState": {
+        "title": "Ingen tragter oprettet endnu",
+        "description": "Spor brugerrejser gennem dit site og identificér hvor besøgende falder fra. Opret din første tragt for at begynde at analysere konverteringsstier og optimere din brugeroplevelse.",
+        "createButton": "Opret din første tragt",
+        "features": {
+          "trackSteps": "Spor konverteringstrin",
+          "trackStepsDesc": "Overvåg brugernes fremgang gennem brugerdefinerede filtre",
+          "identifyDropoffs": "Identificér frafaldspoints",
+          "identifyDropoffsDesc": "Find hvor brugerne forlader deres rejse",
+          "optimizeConversions": "Optimér konverteringer",
+          "optimizeConversionsDesc": "Forbedre dit produkt baseret på dataindsigter"
+        }
       }
     },
     "pages": {
@@ -918,19 +1216,48 @@
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
         "title": "Sideanalyse",
-        "description": "Analyser for alle sporede sider"
+        "description": "Analyser top sider, indgangs-/udgangsperformance og engagement for at optimere indhold.",
+        "filterByPathPlaceholder": "Filtrer efter sti..."
       }
     },
     "referrers": {
+      "page": {
+        "description": "Analyser henvisningskilder, trafikandel og præstationstrends."
+      },
       "charts": {
         "distribution": "Henvisningsfordeling",
         "trafficByCategory": "Trafik efter kilde kategori",
         "trafficTrends": "Henvisningstrafik trends",
         "trafficBySourceOverTime": "Trafik efter kilde over tid"
       },
+      "summary": {
+        "referralSessions": "Henvisningssessioner",
+        "referralTrafficPct": "Henvisningstrafik %",
+        "topReferrerSource": "Top henvisningskilde",
+        "avgSessionDuration": "Gns. sessionsvarighed",
+        "none": "Ingen"
+      },
       "table": {
         "details": "Henvisningsdetaljer",
-        "detailsDescription": "Detaljeret opdeling af trafikkilder"
+        "detailsDescription": "Detaljeret opdeling af trafikkilder",
+        "tabs": {
+          "all": "Alle",
+          "search": "Søgning",
+          "social": "Social",
+          "direct": "Direkte",
+          "email": "E-mail",
+          "other": "Andet"
+        },
+        "columns": {
+          "source": "Kilde",
+          "type": "Type",
+          "visits": "Besøg",
+          "percentage": "Procent",
+          "bounceRate": "Afvisningsprocent",
+          "avgVisitDuration": "Gns. besøgstid",
+          "direct": "Direkte",
+          "unknown": "Ukendt"
+        }
       }
     },
     "geography": {
@@ -939,9 +1266,14 @@
       "visitors": "Besøgende"
     },
     "userJourney": {
+      "page": {
+        "title": "Brugerrejse",
+        "description": "Visualisér hvordan brugere navigerer mellem vigtige stier."
+      },
       "steps": "Trin",
       "topJourneys": "Top {journeys} rejser",
-      "noData": "Ingen rejsedata tilgængelig for de valgte kriterier."
+      "noData": "Ingen rejsedata tilgængelig for de valgte kriterier.",
+      "sessions": "Sessioner"
     },
     "outboundLinks": {
       "summary": {
@@ -966,6 +1298,7 @@
       }
     },
     "integration": {
+      "integrationSetup": "Integrationsopsætning",
       "title": "Hjemmeside integration",
       "description": "Tilføj sporingsskriptet til din hjemmeside for at begynde at indsamle analytiske data",
       "fullyIntegrated": "Fuldt integreret",
@@ -998,7 +1331,246 @@
       "troubleshooting": "Problemløsning",
       "contactSupport": "Kontakt support",
       "verifying": "Verificerer...",
-      "verifyInstallation": "Verificer installation"
+      "verifyInstallation": "Verificer installation",
+      "noDataBanner": {
+        "title": "Integration påkrævet",
+        "description": "Dit dashboard er klart, men vi modtager endnu ikke nogen analysedata. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
+        "setup": "Opsæt integration",
+        "dismiss": "Skjul"
+      }
+    },
+    "settingsButton": {
+      "dashboardSettings": "Dashboard-indstillinger"
+    },
+    "accountVerification": {
+      "banner": {
+        "title": "Bekræft venligst din e-mailadresse",
+        "body": "Hej {name}! Vi har sendt en bekræftelsesmail til <strong>{email}</strong>. Klik på linket i e-mailen for at bekræfte din konto.",
+        "resend": "Send bekræftelsesmail igen",
+        "sending": "Sender...",
+        "sentLabel": "E-mail sendt! Tjek din indbakke.",
+        "help": "Kan du ikke finde e-mailen? Tjek din spammappe eller vent et par minutter.",
+        "dismiss": "Skjul",
+        "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
+        "toastFailure": "Kunne ikke sende bekræftelsesmail"
+      },
+      "requiredModal": {
+        "title": "E-mailbekræftelse påkrævet",
+        "subtitle": "Bekræft din e-mail for at opgradere din plan",
+        "whyTitle": "Hvorfor bekræfte din e-mail?",
+        "whyItems": {
+          "secureBilling": "Sikker fakturering og betalingsbekræftelser",
+          "notifications": "Vigtige kontonotifikationer og advarsler",
+          "security": "Forbedret kontosikkerhed og gendannelse"
+        },
+        "verifyLine": "Hej {name}, vi skal bekræfte din e-mailadresse <strong>{email}</strong>, før du kan opgradere til en betalt plan.",
+        "sentTitle": "Bekræftelsesmail sendt!",
+        "sentInfo": "Tjek din indbakke og spammappe. Bekræftelseslinket udløber om 24 timer.",
+        "cancel": "Annuller",
+        "continue": "Fortsæt til dashboard"
+      }
+    },
+    "settingsPopover": {
+      "title": "Hurtige indstillinger",
+      "theme": "Tema",
+      "advanced": "Avancerede indstillinger"
+    },
+    "topbar": {
+      "userMenu": {
+        "userFallback": "Bruger",
+        "dashboards": "Dashboards",
+        "upgradePlan": "Opgrader plan",
+        "settings": "Indstillinger",
+        "documentation": "Dokumentation",
+        "documentationTitle": "Komplet Betterlytics-dokumentation",
+        "logout": "Log ud"
+      }
+    },
+    "sidebar": {
+      "dashboardDropdown": {
+        "switch": "Skift dashboard",
+        "viewAll": "Se alle dashboards"
+      }
+    },
+    "userSettings": {
+      "tabs": {
+        "profile": "Profil",
+        "preferences": "Præferencer",
+        "usage": "Forbrug",
+        "billing": "Fakturering",
+        "security": "Sikkerhed",
+        "danger": "Farezone"
+      },
+      "dialog": {
+        "title": "Brugerindstillinger",
+        "description": "Administrér dine kontoinstillinger og præferencer.",
+        "loading": "Indlæser indstillinger...",
+        "loadFailed": "Kunne ikke indlæse indstillinger",
+        "noSettings": "Ingen indstillinger fundet",
+        "buttons": {
+          "cancel": "Annuller",
+          "saving": "Gemmer...",
+          "saveChanges": "Gem ændringer"
+        },
+        "toast": {
+          "success": "Indstillinger gemt!",
+          "error": "Kunne ikke gemme indstillinger. Prøv igen."
+        }
+      },
+      "profile": {
+        "title": "Profil",
+        "description": "Redigér dine personlige oplysninger",
+        "nameLabel": "Navn",
+        "namePlaceholder": "Indtast dit navn",
+        "optional": "Valgfrit",
+        "emailLabel": "E-mail",
+        "verified": "Bekræftet",
+        "unverified": "Ikke bekræftet",
+        "updateButton": "Opdater profil",
+        "toast": {
+          "success": "Profil opdateret",
+          "error": "Kunne ikke opdatere profil. Prøv igen."
+        }
+      },
+      "preferences": {
+        "appearance": {
+          "title": "Udseende",
+          "description": "Tilpas det visuelle udtryk for dit dashboard",
+          "themeLabel": "Tema",
+          "light": "Lyst",
+          "dark": "Mørkt",
+          "system": "System"
+        },
+        "avatar": {
+          "label": "Avatar",
+          "none": "Ingen",
+          "gravatar": "Gravatar",
+          "note": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
+          "noteIntro": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
+          "terms": "du accepterer deres vilkår"
+        },
+        "localization": {
+          "title": "Lokalisering",
+          "description": "Vælg dit sprog",
+          "language": "Sprog"
+        },
+        "notifications": {
+          "title": "Notifikationer",
+          "description": "Konfigurer dine notifikationspræferencer",
+          "emailNotifications": "E-mail notifikationer",
+          "marketingEmails": "Marketing-e-mails"
+        }
+      },
+      "usage": {
+        "title": "Forbrug og plan",
+        "description": "Overvåg dit aktuelle forbrug og administrér dit abonnement.",
+        "cta": {
+          "needMore": "Brug for flere events?",
+          "upgradeHint": "Opgrader din plan for at få flere events og låse op for flere funktioner.",
+          "viewPlans": "Se planer"
+        },
+        "error": "Kan ikke indlæse forbrugsdata"
+      },
+      "billingPortal": {
+        "title": "Faktureringsportal",
+        "description": "Administrér dine faktureringsoplysninger og se din fulde fakturahistorik",
+        "access": "Adgang til faktureringsportal",
+        "accessButton": "Åbn faktureringsportal",
+        "explainer": "Se tidligere fakturaer, opdatér betalingsmetoder og administrér din fakturering via Stripes sikre kundeportal.",
+        "notAvailable": "Faktureringsportalen er tilgængelig, når du opgraderer til en betalt plan.",
+        "needHelp": "Brug for hjælp til fakturering?",
+        "contactSupport": "Kontakt support",
+        "loading": "Indlæser faktureringsoplysninger...",
+        "toastError": "Kunne ikke åbne faktureringsportal, prøv igen."
+      },
+      "security": {
+        "title": "Adgangskode og godkendelse",
+        "description": "Skift din kontoadgangskode",
+        "currentPassword": "Nuværende adgangskode",
+        "newPassword": "Ny adgangskode",
+        "confirmNewPassword": "Bekræft ny adgangskode",
+        "passwordHelp": "Adgangskoden skal være mindst 8 tegn",
+        "passwordsMatch": "Adgangskoderne matcher",
+        "changePassword": "Skift adgangskode",
+        "passwordManagedByOAuth": "Adgangskode håndteres af OAuth",
+        "toast": {
+          "success": "Adgangskode opdateret"
+        },
+        "totp": {
+          "title": "To-faktor-godkendelse",
+          "description": "Tilføj et ekstra sikkerhedslag ved at kræve en ekstra godkendelse ud over din adgangskode",
+          "enable": "Aktivér 2FA",
+          "instructions": "For at aktivere 2FA skal du scanne QR-koden med din autentificeringsapp eller bruge <setup>opsætningsnøglen</setup> til manuel konfiguration og derefter indtaste verifikationskoden nedenfor.",
+          "cancel": "Annuller",
+          "confirm": "Bekræft",
+          "enabled": "Aktiveret",
+          "disable": "Deaktivér",
+          "disableTitle": "Deaktivér 2FA",
+          "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
+          "disabledSuccess": "To-faktor-godkendelse deaktiveret",
+          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen."
+        }
+      },
+      "danger": {
+        "title": "Slet konto",
+        "description": "Slet din konto og alle tilknyttede data permanent",
+        "warning": "Advarsel: Denne handling kan ikke fortrydes",
+        "details": "Dette vil permanent slette din konto, fjerne adgang til alle dashboards og slette alle dine personlige indstillinger.",
+        "delete": "Slet konto",
+        "dialog": {
+          "title": "Slet konto permanent",
+          "description": "Er du helt sikker på, at du vil slette din konto? Denne handling kan ikke fortrydes og vil permanent:",
+          "li1": "Slette alle dine personlige oplysninger",
+          "li2": "Fjerne adgang til alle dine dashboards",
+          "li3": "Slette alle dine kontoindstillinger",
+          "li4": "Logge dig ud af alle enheder",
+          "cancel": "Annuller",
+          "confirm": "Slet konto permanent"
+        },
+        "toast": {
+          "success": "Konto slettet",
+          "error": "Kunne ikke slette konto. Prøv igen.",
+          "unable": "Kan ikke slette konto. Prøv at logge ind igen."
+        }
+      }
+    },
+    "dashboardSettingsDialog": {
+      "title": "Dashboardindstillinger",
+      "description": "Konfigurer dine dashboard-præferencer og dataindsamlingsindstillinger.",
+      "loading": "Indlæser indstillinger...",
+      "saveChanges": "Gem ændringer",
+      "toastSuccess": "Indstillinger gemt",
+      "toastError": "Kunne ikke gemme indstillinger",
+      "tabs": {
+        "data": "Data",
+        "danger": "Farezone"
+      },
+      "data": {
+        "title": "Datahåndtering",
+        "description": "Konfigurer dataopbevaring og indsamling",
+        "retentionLabel": "Periode for dataopbevaring",
+        "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
+        "presets": {
+          "d30": "30 dage",
+          "m3": "3 måneder",
+          "m6": "6 måneder",
+          "y1": "1 år",
+          "y2": "2 år",
+          "y3": "3 år"
+        }
+      },
+      "danger": {
+        "title": "Slet dashboard",
+        "description": "Slet dashboard permanent",
+        "warning": "Advarsel: Denne handling kan ikke fortrydes",
+        "deleteButton": "Slet dashboard",
+        "dialog": {
+          "title": "Slet dashboard",
+          "description": "Er du sikker på, at du vil slette dette dashboard? Denne handling kan ikke fortrydes.",
+          "cancel": "Annuller",
+          "confirm": "Slet dashboard"
+        }
+      }
     }
   }
 }

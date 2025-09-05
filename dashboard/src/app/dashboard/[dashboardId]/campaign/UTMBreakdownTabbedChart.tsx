@@ -12,6 +12,7 @@ import {
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
 } from '@/app/actions';
+import { useTranslations } from 'next-intl';
 
 type UTMBreakdownTabbedChartProps = {
   sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
@@ -122,6 +123,7 @@ export default function UTMBreakdownTabbedChart({
   contentBreakdownPromise,
   termBreakdownPromise,
 }: UTMBreakdownTabbedChartProps) {
+  const t = useTranslations('components.campaign.utm');
   const sourceBreakdown = use(sourceBreakdownPromise);
   const mediumBreakdown = use(mediumBreakdownPromise);
   const contentBreakdown = use(contentBreakdownPromise);
@@ -131,34 +133,34 @@ export default function UTMBreakdownTabbedChart({
     () => [
       {
         key: 'source',
-        label: 'Source',
+        label: t('tabs.source'),
         data: sourceBreakdown,
         dataKey: CampaignDataKey.SOURCE,
-        emptyMessage: 'No source breakdown data available for campaigns',
+        emptyMessage: t('empty.source'),
       },
       {
         key: 'medium',
-        label: 'Medium',
+        label: t('tabs.medium'),
         data: mediumBreakdown,
         dataKey: CampaignDataKey.MEDIUM,
-        emptyMessage: 'No medium breakdown data available for campaigns',
+        emptyMessage: t('empty.medium'),
       },
       {
         key: 'content',
-        label: 'Content',
+        label: t('tabs.content'),
         data: contentBreakdown,
         dataKey: CampaignDataKey.CONTENT,
-        emptyMessage: 'No content breakdown data available for campaigns',
+        emptyMessage: t('empty.content'),
       },
       {
         key: 'term',
-        label: 'Terms',
+        label: t('tabs.terms'),
         data: termBreakdown,
         dataKey: CampaignDataKey.TERM,
-        emptyMessage: 'No term breakdown data available for campaigns',
+        emptyMessage: t('empty.term'),
       },
     ],
-    [sourceBreakdown, mediumBreakdown, contentBreakdown, termBreakdown],
+    [sourceBreakdown, mediumBreakdown, contentBreakdown, termBreakdown, t],
   );
 
   return (
@@ -167,8 +169,8 @@ export default function UTMBreakdownTabbedChart({
         <CardHeader className='pb-0'>
           <div className='flex flex-col items-center justify-between sm:flex-row'>
             <div>
-              <CardTitle className='mb-1 text-lg font-semibold'>UTM Distribution</CardTitle>
-              <p className='text-muted-foreground text-sm'>Visual breakdown of UTM parameter performance</p>
+              <CardTitle className='mb-1 text-lg font-semibold'>{t('chart.title')}</CardTitle>
+              <p className='text-muted-foreground text-sm'>{t('chart.description')}</p>
             </div>
             <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
               {tabs.map((tab) => (

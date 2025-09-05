@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ReactNode, useRef } from 'react';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface TabDefinition<TData> {
   key: string;
@@ -25,6 +26,7 @@ interface TabbedTableProps<TData> {
   className?: string;
   headerActions?: ReactNode;
   searchColumn?: string;
+  searchFieldLabel?: string;
 }
 
 function TabbedTable<TData>({
@@ -35,9 +37,11 @@ function TabbedTable<TData>({
   className = '',
   headerActions,
   searchColumn,
+  searchFieldLabel,
 }: TabbedTableProps<TData>) {
   const activeDefaultTab = defaultTab || tabs[0]?.key;
   const tableRef = useRef<Table<TData> | null>(null);
+  const t = useTranslations('components.tabbedTable');
 
   return (
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
@@ -50,7 +54,9 @@ function TabbedTable<TData>({
             </div>
             {searchColumn && (
               <Input
-                placeholder={`Filter by ${searchColumn}...`}
+                placeholder={t('searchPlaceholder', {
+                  field: searchFieldLabel || String(searchColumn),
+                })}
                 onChange={(event) => tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)}
                 className='row-start-3 max-w-sm sm:row-start-2'
               />

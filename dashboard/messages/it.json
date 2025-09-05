@@ -729,7 +729,7 @@
       "prioritySupport": "Supporto prioritario",
       "dedicatedSupport": "Supporto dedicato e aiuto",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutto in Starter",
+      "everythingInStarter": "Tutto in Growth",
       "everythingInProfessional": "Tutto in Professional"
     },
     "cta": {
@@ -778,6 +778,9 @@
     },
     "tabs": {
       "pages": "Pagine",
+      "userJourney": "Percorso utente",
+      "funnels": "Funnel",
+      "campaigns": "Campagne",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
       "topCountries": "Paesi principali",
@@ -805,6 +808,47 @@
       "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile"
     }
   },
+  "devicesPage": {
+    "title": "Dispositivi",
+    "description": "Suddivisione dei dispositivi dei visitatori e analisi d'uso"
+  },
+  "dashboardsPage": {
+    "title": "Le tue dashboard",
+    "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
+    "emptyTitle": "Nessuna dashboard ancora",
+    "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito."
+  },
+  "componentsBilling": {
+    "dashboards": {
+      "createDialog": {
+        "title": "Crea nuova dashboard",
+        "description": "Inserisci il dominio del tuo sito per iniziare a tracciare le analitiche.",
+        "label": {
+          "domain": "Dominio del sito web"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Inserisci il dominio senza https:// o www."
+        },
+        "buttons": {
+          "cancel": "Annulla",
+          "create": "Crea dashboard",
+          "creating": "Creazione in corso..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard creata! Configurazione integrazione...",
+          "createFailed": "Impossibile creare la dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Dominio non valido"
+        },
+        "limitTooltip": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
+      }
+    }
+  },
+
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -825,8 +869,125 @@
     "it": "Italiano"
   },
   "components": {
+    "billing": {
+      "usageBanner": {
+        "title": "Limite di utilizzo superato:",
+        "body": "Hai utilizzato <strong>{current}</strong> eventi su un limite di <strong>{limit}</strong> eventi ({percentage} oltre il tuo piano {plan}).",
+        "upgradeHint": "Esegui l'upgrade per garantire che tutti i tuoi dati restino accessibili",
+        "upgradeCta": "Esegui upgrade"
+      },
+      "navigation": {
+        "backToDashboard": "Torna alla dashboard",
+        "title": "Scegli il tuo piano"
+      },
+      "page": {
+        "heading": "Aggiorna il tuo piano",
+        "subheading": "Scegli il piano perfetto per le tue esigenze analitiche."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "subtitle": "Tutto ciò che devi sapere su prezzi e piani",
+        "items": {
+          "changePlan": {
+            "q": "Posso cambiare piano in qualsiasi momento?",
+            "a": "Sì! Puoi effettuare upgrade o downgrade del piano in qualsiasi momento. Le modifiche hanno effetto immediato e adegueremo la fatturazione proporzionalmente."
+          },
+          "exceedLimit": {
+            "q": "Cosa succede se supero il limite di eventi?",
+            "a": "Continueremo a tracciare i tuoi eventi e riceverai un'email quando superi il limite. Se superi i limiti per più di 30 giorni, i dati in eccesso potrebbero essere eliminati."
+          },
+          "annualBilling": {
+            "q": "Offrite la fatturazione annuale?",
+            "a": "Attualmente offriamo solo fatturazione mensile. La fatturazione annuale con sconti arriverà presto!"
+          },
+          "freeOption": {
+            "q": "Esiste un'opzione gratuita?",
+            "a": "Sì! Il nostro piano Growth include 10.000 eventi gratuiti al mese per sempre. Nessuna carta di credito richiesta per iniziare."
+          },
+          "cancelAnytime": {
+            "q": "Posso annullare in qualsiasi momento?",
+            "a": "Assolutamente. Puoi annullare l'abbonamento in qualsiasi momento. Il piano rimarrà attivo fino alla fine del periodo di fatturazione corrente."
+          },
+          "paymentMethods": {
+            "q": "Quali metodi di pagamento accettate?",
+            "a": "Accettiamo tutte le principali carte di credito (Visa, MasterCard, American Express) e supportiamo pagamenti sicuri tramite il nostro processore di pagamenti."
+          }
+        }
+      },
+      "interactive": {
+        "checkoutCanceled": "Il checkout è stato annullato. Puoi riprovare in qualsiasi momento.",
+        "contactForCustomPlan": "Contattaci per un piano personalizzato",
+        "planSelectionFailed": "Impossibile elaborare la selezione del piano, riprova.",
+        "subscriptionChangesNote": "Le modifiche al tuo abbonamento saranno elaborate immediatamente tramite il portale di fatturazione sicuro di Stripe.",
+        "freePlanNote": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
+      },
+      "currentPlan": {
+        "title": "Piano attuale",
+        "canceledBannerTitle": "Abbonamento annullato",
+        "canceledBannerBody": "Il tuo abbonamento rimarrà attivo fino al {date}. Puoi riattivarlo in qualsiasi momento prima di allora.",
+        "description": "Dettagli del tuo abbonamento attuale",
+        "plan": "Piano",
+        "monthlyPrice": "Prezzo mensile",
+        "free": "Gratuito",
+        "eventUsage": "Utilizzo eventi",
+        "usageProgress": "{current} di {limit} eventi",
+        "resetsInDays": "Si azzera tra {days} giorni",
+        "expiresInDays": "Scade tra {days} giorni",
+        "canceled": "Annullato",
+        "manage": "Gestisci abbonamento",
+        "reactivate": "Riattiva abbonamento",
+        "cancel": "Annulla abbonamento"
+      }
+    },
+    "dataTable": {
+      "noResults": "Nessun risultato."
+    },
+    "timeRange": {
+      "quickSelect": "Selezione rapida",
+      "granularity": "Granularità",
+      "currentPeriod": "Periodo corrente",
+      "compareWithPrevious": "Confronta con il periodo precedente",
+      "compareToPeriod": "Periodo di confronto",
+      "startDate": "Data di inizio",
+      "endDate": "Data di fine",
+      "dateRange": "Intervallo date",
+      "presets": {
+        "24h": "Ultime 24 ore",
+        "3d": "Ultimi 3 giorni",
+        "7d": "Ultimi 7 giorni",
+        "28d": "Ultimi 28 giorni",
+        "3mo": "Ultimi 3 mesi",
+        "6mo": "Ultimi 6 mesi"
+      },
+      "granularityLabels": {
+        "day": "Giorno",
+        "hour": "Ora",
+        "minute_30": "30 min",
+        "minute_15": "15 min"
+      },
+      "apply": "Applica"
+    },
+    "loading": {
+      "dashboard": {
+        "initializing": "Inizializzazione dashboard",
+        "loadingSettings": "Caricamento impostazioni della dashboard..."
+      }
+    },
+
     "devices": {
+      "summary": {
+        "distinctDeviceTypes": "Tipi di dispositivo distinti",
+        "mostPopularDevice": "Dispositivo più popolare",
+        "mostPopularOperatingSystem": "Sistema operativo più popolare",
+        "mostPopularBrowser": "Browser più popolare"
+      },
       "tables": {
+        "columns": {
+          "os": "Sistema operativo",
+          "browser": "Browser",
+          "visitors": "Visitatori",
+          "percentage": "Percentuale"
+        },
         "topOperatingSystems": "Sistemi operativi principali",
         "mostCommonOperatingSystems": "Sistemi operativi più comuni",
         "topBrowsers": "Browser principali",
@@ -848,9 +1009,74 @@
         "overview": "Panoramica",
         "utmBreakdowns": "Ripartizione UTM",
         "landingPages": "Pagine di destinazione"
+      },
+      "page": {
+        "title": "Campagne",
+        "description": "Analitiche e insight sulle performance delle campagne"
+      },
+      "performance": {
+        "title": "Performance campagna",
+        "description": "Metriche chiave per le tue campagne",
+        "columns": {
+          "campaignName": "Nome campagna",
+          "visitors": "Visitatori",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgSessionDuration": "Durata media sessione",
+          "pagesPerSession": "Pagine per sessione"
+        }
+      },
+      "trend": {
+        "title": "Trend visitatori campagna",
+        "description": "Andamento visitatori nel tempo per campagna",
+        "empty": "Nessun dato di trend visitatori per le campagne disponibile."
+      },
+      "utm": {
+        "table": {
+          "title": "Ripartizione parametri UTM",
+          "description": "Performance campagna sui diversi parametri UTM"
+        },
+        "chart": {
+          "title": "Distribuzione UTM",
+          "description": "Ripartizione visiva delle performance dei parametri UTM"
+        },
+        "tabs": {
+          "source": "Sorgente",
+          "medium": "Mezzo",
+          "content": "Contenuto",
+          "terms": "Termini"
+        },
+        "empty": {
+          "source": "Nessun dato di ripartizione per sorgente disponibile per le campagne",
+          "medium": "Nessun dato di ripartizione per mezzo disponibile per le campagne",
+          "content": "Nessun dato di ripartizione per contenuto disponibile per le campagne",
+          "term": "Nessun dato di ripartizione per termini disponibile per le campagne"
+        },
+        "columns": {
+          "dimension": "Dimensione",
+          "visitors": "Visitatori",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgSessionDuration": "Durata media sessione",
+          "pagesPerSession": "Pagine per sessione"
+        }
+      },
+      "landing": {
+        "title": "Performance pagine di destinazione campagna",
+        "description": "Metriche chiave per le pagine di destinazione delle campagne",
+        "columns": {
+          "campaignName": "Nome campagna",
+          "landingPageUrl": "URL pagina di destinazione",
+          "visitors": "Visitatori",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgSessionDuration": "Durata media sessione",
+          "pagesPerSession": "Pagine per sessione"
+        }
       }
     },
     "events": {
+      "page": {
+        "title": "Eventi",
+        "description": "Analitiche e insight per i tuoi eventi personalizzati"
+      },
       "log": {
         "waiting": "In attesa di eventi...",
         "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",
@@ -876,6 +1102,47 @@
         "uniqueEvents": "Eventi unici"
       }
     },
+    "tabbedTable": {
+      "searchPlaceholder": "Filtra per {field}..."
+    },
+    "filters": {
+      "type": "Tipo",
+      "operator": "Operatore",
+      "is": "è",
+      "isNot": "non è",
+      "columns": {
+        "url": "URL",
+        "device_type": "Tipo di dispositivo",
+        "country_code": "Prefisso internazionale",
+        "browser": "Browser",
+        "os": "Sistema operativo",
+        "referrer_source": "Sorgente referrer",
+        "referrer_source_name": "Nome referrer",
+        "referrer_search_term": "Termine di ricerca referrer",
+        "referrer_url": "URL referrer",
+        "utm_source": "Sorgente UTM",
+        "utm_medium": "Mezzo UTM",
+        "utm_campaign": "Campagna UTM",
+        "utm_term": "Termine UTM",
+        "utm_content": "Contenuto UTM",
+        "custom_event_name": "Evento",
+        "event_type": "Tipo di evento"
+      },
+      "selector": {
+        "triggerLabel": "Filtri",
+        "title": "Filtri",
+        "emptyNoneSelected": "Nessun filtro selezionato - premi Applica per salvare",
+        "addFilter": "Aggiungi filtro",
+        "cancel": "Annulla",
+        "apply": "Applica",
+        "empty": {
+          "title": "Nessun filtro attivo",
+          "description": "Aggiungi filtri per perfezionare i dati e concentrarti su segmenti specifici.",
+          "addFirst": "Aggiungi il primo filtro",
+          "common": "Filtri comuni: Paese, Browser, URL, Dispositivo"
+        }
+      }
+    },
     "funnels": {
       "list": {
         "steps": "passaggi",
@@ -897,6 +1164,40 @@
         "create": "Crea",
         "successMessage": "Funnel creato!",
         "errorMessage": "Creazione funnel fallita!"
+      },
+      "page": {
+        "title": "Funnel",
+        "description": "Analizza i percorsi di conversione degli utenti"
+      },
+      "preview": {
+        "loading": "Caricamento anteprima...",
+        "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima."
+      },
+      "details": {
+        "title": "Analisi funnel",
+        "description": "Analisi dettagliata delle conversioni del funnel",
+        "steps": "passaggi",
+        "users": "utenti",
+        "dropped": "abbandoni",
+        "summary": {
+          "overallConversion": "Conversione complessiva",
+          "totalVisitors": "Visitatori totali",
+          "totalCompleted": "Completati totali",
+          "biggestDropOff": "Perdita maggiore"
+        }
+      },
+      "emptyState": {
+        "title": "Nessun funnel creato ancora",
+        "description": "Traccia i percorsi degli utenti attraverso il tuo sito e identifica dove i visitatori abbandonano. Crea il tuo primo funnel per iniziare ad analizzare i percorsi di conversione e ottimizzare l'esperienza utente.",
+        "createButton": "Crea il tuo primo Funnel",
+        "features": {
+          "trackSteps": "Traccia i passaggi di conversione",
+          "trackStepsDesc": "Monitora il progresso degli utenti attraverso filtri personalizzati",
+          "identifyDropoffs": "Identifica i punti di abbandono",
+          "identifyDropoffsDesc": "Trova dove gli utenti abbandonano il loro percorso",
+          "optimizeConversions": "Ottimizza le conversioni",
+          "optimizeConversionsDesc": "Migliora il tuo prodotto basandoti sui dati"
+        }
       }
     },
     "pages": {
@@ -919,10 +1220,21 @@
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",
         "title": "Analisi pagine",
-        "description": "Analisi di tutte le pagine monitorate"
+        "description": "Analizza le pagine principali, le prestazioni di ingresso/uscita e il coinvolgimento per ottimizzare i contenuti.",
+        "filterByPathPlaceholder": "Filtra per percorso..."
       }
     },
     "referrers": {
+      "page": {
+        "description": "Analizza le fonti di riferimento, la quota di traffico e le tendenze."
+      },
+      "summary": {
+        "referralSessions": "Sessioni da referrer",
+        "referralTrafficPct": "Traffico da referrer %",
+        "topReferrerSource": "Fonte di riferimento principale",
+        "avgSessionDuration": "Durata media sessione",
+        "none": "Nessuna"
+      },
       "charts": {
         "distribution": "Distribuzione siti di riferimento",
         "trafficByCategory": "Fonti di traffico per categoria",
@@ -931,7 +1243,25 @@
       },
       "table": {
         "details": "Dettagli sito di riferimento",
-        "detailsDescription": "Analisi dettagliata delle fonti di traffico"
+        "detailsDescription": "Analisi dettagliata delle fonti di traffico",
+        "tabs": {
+          "all": "Tutti",
+          "search": "Ricerca",
+          "social": "Social",
+          "direct": "Diretto",
+          "email": "Email",
+          "other": "Altro"
+        },
+        "columns": {
+          "source": "Fonte",
+          "type": "Tipo",
+          "visits": "Visite",
+          "percentage": "Percentuale",
+          "bounceRate": "Frequenza di rimbalzo",
+          "avgVisitDuration": "Durata media visita",
+          "direct": "Diretto",
+          "unknown": "Sconosciuto"
+        }
       }
     },
     "geography": {
@@ -940,9 +1270,14 @@
       "visitors": "Visitatori"
     },
     "userJourney": {
+      "page": {
+        "title": "Percorso utente",
+        "description": "Visualizza come gli utenti navigano tra i percorsi chiave."
+      },
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
-      "noData": "Nessun dato di percorso disponibile per i criteri selezionati."
+      "noData": "Nessun dato di percorso disponibile per i criteri selezionati.",
+      "sessions": "Sessioni"
     },
     "outboundLinks": {
       "summary": {
@@ -967,6 +1302,7 @@
       }
     },
     "integration": {
+      "integrationSetup": "Configurazione integrazione",
       "title": "Integrazione sito",
       "description": "Aggiungi lo script di tracciamento al tuo sito per iniziare a raccogliere dati",
       "fullyIntegrated": "Integrato completamente",
@@ -999,7 +1335,246 @@
       "troubleshooting": "Risoluzione problemi",
       "contactSupport": "Contatta il supporto",
       "verifying": "Verifica in corso...",
-      "verifyInstallation": "Verifica installazione"
+      "verifyInstallation": "Verifica installazione",
+      "noDataBanner": {
+        "title": "Integrazione richiesta",
+        "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati analitici. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
+        "setup": "Configura integrazione",
+        "dismiss": "Chiudi"
+      }
+    },
+    "settingsButton": {
+      "dashboardSettings": "Impostazioni dashboard"
+    },
+    "accountVerification": {
+      "banner": {
+        "title": "Verifica il tuo indirizzo email",
+        "body": "Ciao {name}! Ti abbiamo inviato un'email di verifica a <strong>{email}</strong>. Fai clic sul link nell'email per verificare il tuo account.",
+        "resend": "Reinvia email di verifica",
+        "sending": "Invio in corso...",
+        "sentLabel": "Email inviata! Controlla la tua casella di posta.",
+        "help": "Non trovi l'email? Controlla la cartella spam o attendi qualche minuto.",
+        "dismiss": "Chiudi",
+        "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
+        "toastFailure": "Invio dell'email di verifica non riuscito"
+      },
+      "requiredModal": {
+        "title": "Verifica email richiesta",
+        "subtitle": "Verifica la tua email per aggiornare il tuo piano",
+        "whyTitle": "Perché verificare la tua email?",
+        "whyItems": {
+          "secureBilling": "Fatturazione sicura e conferme di pagamento",
+          "notifications": "Notifiche e avvisi importanti per l'account",
+          "security": "Maggiore sicurezza e recupero dell'account"
+        },
+        "verifyLine": "Ciao {name}, dobbiamo verificare il tuo indirizzo email <strong>{email}</strong> prima che tu possa passare a un piano a pagamento.",
+        "sentTitle": "Email di verifica inviata!",
+        "sentInfo": "Controlla la posta in arrivo e la cartella spam. Il link di verifica scadrà tra 24 ore.",
+        "cancel": "Annulla",
+        "continue": "Torna alla dashboard"
+      }
+    },
+    "settingsPopover": {
+      "title": "Impostazioni rapide",
+      "theme": "Tema",
+      "advanced": "Impostazioni avanzate"
+    },
+    "topbar": {
+      "userMenu": {
+        "userFallback": "Utente",
+        "dashboards": "Dashboard",
+        "upgradePlan": "Aggiorna piano",
+        "settings": "Impostazioni",
+        "documentation": "Documentazione",
+        "documentationTitle": "Documentazione completa Betterlytics",
+        "logout": "Esci"
+      }
+    },
+    "sidebar": {
+      "dashboardDropdown": {
+        "switch": "Cambia dashboard",
+        "viewAll": "Vedi tutte le dashboard"
+      }
+    },
+    "userSettings": {
+      "tabs": {
+        "profile": "Profilo",
+        "preferences": "Preferenze",
+        "usage": "Utilizzo",
+        "billing": "Fatturazione",
+        "security": "Sicurezza",
+        "danger": "Zona pericolosa"
+      },
+      "dialog": {
+        "title": "Impostazioni utente",
+        "description": "Gestisci le impostazioni e le preferenze del tuo account.",
+        "loading": "Caricamento impostazioni...",
+        "loadFailed": "Caricamento impostazioni non riuscito",
+        "noSettings": "Nessuna impostazione trovata",
+        "buttons": {
+          "cancel": "Annulla",
+          "saving": "Salvataggio...",
+          "saveChanges": "Salva modifiche"
+        },
+        "toast": {
+          "success": "Impostazioni salvate con successo!",
+          "error": "Impossibile salvare le impostazioni. Riprova."
+        }
+      },
+      "profile": {
+        "title": "Profilo",
+        "description": "Modifica le tue informazioni personali",
+        "nameLabel": "Nome",
+        "namePlaceholder": "Inserisci il tuo nome",
+        "optional": "Opzionale",
+        "emailLabel": "Email",
+        "verified": "Verificato",
+        "unverified": "Non verificato",
+        "updateButton": "Aggiorna profilo",
+        "toast": {
+          "success": "Profilo aggiornato con successo",
+          "error": "Impossibile aggiornare il profilo. Riprova."
+        }
+      },
+      "preferences": {
+        "appearance": {
+          "title": "Aspetto",
+          "description": "Personalizza l'aspetto visivo della tua dashboard",
+          "themeLabel": "Tema",
+          "light": "Chiaro",
+          "dark": "Scuro",
+          "system": "Sistema"
+        },
+        "avatar": {
+          "label": "Avatar",
+          "none": "Nessuno",
+          "gravatar": "Gravatar",
+          "note": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
+          "noteIntro": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
+          "terms": "accetti i loro termini"
+        },
+        "localization": {
+          "title": "Localizzazione",
+          "description": "Imposta le tue preferenze linguistiche",
+          "language": "Lingua"
+        },
+        "notifications": {
+          "title": "Notifiche",
+          "description": "Configura le tue preferenze di notifica",
+          "emailNotifications": "Notifiche email",
+          "marketingEmails": "Email marketing"
+        }
+      },
+      "usage": {
+        "title": "Utilizzo e piano",
+        "description": "Monitora l'utilizzo corrente e gestisci il tuo piano di abbonamento.",
+        "cta": {
+          "needMore": "Hai bisogno di più eventi?",
+          "upgradeHint": "Aggiorna il tuo piano per ottenere più eventi e sbloccare funzionalità aggiuntive.",
+          "viewPlans": "Vedi i piani"
+        },
+        "error": "Impossibile caricare i dati di utilizzo"
+      },
+      "billingPortal": {
+        "title": "Portale di fatturazione",
+        "description": "Gestisci i dettagli di fatturazione e accedi alla cronologia completa",
+        "access": "Accedi al portale di fatturazione",
+        "accessButton": "Apri portale di fatturazione",
+        "explainer": "Visualizza tutte le fatture passate, aggiorna i metodi di pagamento e gestisci la fatturazione tramite il portale clienti sicuro di Stripe.",
+        "notAvailable": "Il portale di fatturazione sarà disponibile una volta effettuato l'upgrade a un piano a pagamento.",
+        "needHelp": "Hai bisogno di aiuto con la fatturazione?",
+        "contactSupport": "Contatta il supporto",
+        "loading": "Caricamento informazioni di fatturazione...",
+        "toastError": "Impossibile aprire il portale di fatturazione, riprova."
+      },
+      "security": {
+        "title": "Password e autenticazione",
+        "description": "Modifica la password del tuo account",
+        "currentPassword": "Password attuale",
+        "newPassword": "Nuova password",
+        "confirmNewPassword": "Conferma nuova password",
+        "passwordHelp": "La password deve essere lunga almeno 8 caratteri",
+        "passwordsMatch": "Le password coincidono",
+        "changePassword": "Cambia password",
+        "passwordManagedByOAuth": "Password gestita da OAuth",
+        "toast": {
+          "success": "Password aggiornata con successo"
+        },
+        "totp": {
+          "title": "Autenticazione a due fattori",
+          "description": "Aggiungi un ulteriore livello di sicurezza richiedendo una seconda forma di verifica oltre alla password",
+          "enable": "Abilita 2FA",
+          "instructions": "Per abilitare la 2FA, scansiona il QR code con la tua app di autenticazione oppure usa la <setup>chiave di configurazione</setup> per impostarla manualmente, poi inserisci il codice di verifica qui sotto.",
+          "cancel": "Annulla",
+          "confirm": "Conferma",
+          "enabled": "Abilitato",
+          "disable": "Disabilita",
+          "disableTitle": "Disabilita 2FA",
+          "disableDescription": "Sei sicuro di voler disabilitare l'autenticazione a due fattori per il tuo account?",
+          "disabledSuccess": "Autenticazione a due fattori disabilitata con successo",
+          "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova."
+        }
+      },
+      "danger": {
+        "title": "Elimina account",
+        "description": "Elimina definitivamente il tuo account e tutti i dati associati",
+        "warning": "Attenzione: questa azione non può essere annullata",
+        "details": "Questo eliminerà definitivamente il tuo account, rimuoverà l'accesso a tutte le dashboard e cancellerà tutte le impostazioni personali.",
+        "delete": "Elimina account",
+        "dialog": {
+          "title": "Elimina account definitivamente",
+          "description": "Sei sicuro di voler eliminare il tuo account? Questa azione non può essere annullata e comporterà in modo permanente:",
+          "li1": "Eliminazione di tutte le informazioni personali",
+          "li2": "Rimozione dell'accesso a tutte le tue dashboard",
+          "li3": "Eliminazione di tutte le impostazioni dell'account",
+          "li4": "Disconnessione da tutti i dispositivi",
+          "cancel": "Annulla",
+          "confirm": "Elimina account definitivamente"
+        },
+        "toast": {
+          "success": "Account eliminato con successo",
+          "error": "Impossibile eliminare l'account. Riprova.",
+          "unable": "Impossibile eliminare l'account. Prova ad accedere di nuovo."
+        }
+      }
+    },
+    "dashboardSettingsDialog": {
+      "title": "Impostazioni dashboard",
+      "description": "Configura le preferenze della dashboard e le impostazioni di raccolta dati.",
+      "loading": "Caricamento impostazioni...",
+      "saveChanges": "Salva modifiche",
+      "toastSuccess": "Impostazioni salvate correttamente",
+      "toastError": "Impossibile salvare le impostazioni",
+      "tabs": {
+        "data": "Dati",
+        "danger": "Zona pericolosa"
+      },
+      "data": {
+        "title": "Gestione dati",
+        "description": "Configura conservazione e raccolta dei dati",
+        "retentionLabel": "Periodo di conservazione dati",
+        "retentionHelp": "Per quanto tempo conservare i dati analitici prima dell'eliminazione automatica",
+        "presets": {
+          "d30": "30 giorni",
+          "m3": "3 mesi",
+          "m6": "6 mesi",
+          "y1": "1 anno",
+          "y2": "2 anni",
+          "y3": "3 anni"
+        }
+      },
+      "danger": {
+        "title": "Elimina dashboard",
+        "description": "Elimina definitivamente la dashboard",
+        "warning": "Attenzione: questa azione non può essere annullata",
+        "deleteButton": "Elimina dashboard",
+        "dialog": {
+          "title": "Elimina dashboard",
+          "description": "Sei sicuro di voler eliminare questa dashboard? Questa azione non può essere annullata.",
+          "cancel": "Annulla",
+          "confirm": "Elimina dashboard"
+        }
+      }
     }
   }
 }
