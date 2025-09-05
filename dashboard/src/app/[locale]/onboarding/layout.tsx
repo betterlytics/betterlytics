@@ -15,7 +15,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
           <div className='absolute right-10 bottom-20 h-96 w-96 animate-pulse rounded-full bg-purple-500/5 blur-3xl delay-1000'></div>
           <div className='animate-spin-slow absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-gradient-to-r from-blue-500/3 to-purple-500/3 blur-3xl'></div>
         </div>
-        <div className='bg-background'>
+        <div className='bg-background my-auto'>
           <div className='container mx-auto max-w-4xl px-4 py-6'>
             <Suspense>
               <OnboardingProgress />

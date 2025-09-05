@@ -5,10 +5,8 @@ import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 export default async function LocaleLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className='flex min-h-screen flex-col justify-between'>
-      <div>
-        <PublicTopBar />
-        {children}
-      </div>
+      <PublicTopBar />
+      <div className='flex flex-1 flex-col'>{children}</div>
       <Footer />
     </div>
   );
