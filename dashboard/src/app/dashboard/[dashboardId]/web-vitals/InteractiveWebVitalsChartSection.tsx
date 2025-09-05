@@ -12,6 +12,7 @@ import { formatShortFromMilliseconds, formatCompactFromMilliseconds } from '@/ut
 import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from '@/app/dashboard/[dashboardId]/web-vitals/MetricInfo';
+import { useTranslations } from 'next-intl';
 
 function formatCardValue(metric: CoreWebVitalName, value: number | null) {
   if (value === null) return '—';
@@ -25,12 +26,15 @@ function P75Badge() {
   return <span className='text-muted-foreground ml-2 text-xs font-medium'>p75</span>;
 }
 
-const TITLES: Record<CoreWebVitalName, string> = {
-  CLS: 'Cumulative Layout Shift',
-  LCP: 'Largest Contentful Paint',
-  INP: 'Interaction to Next Paint',
-  FCP: 'First Contentful Paint',
-  TTFB: 'Time to First Byte',
+const METRIC_LABEL_KEYS: Record<
+  CoreWebVitalName,
+  'metrics.CLS' | 'metrics.LCP' | 'metrics.INP' | 'metrics.FCP' | 'metrics.TTFB'
+> = {
+  CLS: 'metrics.CLS',
+  LCP: 'metrics.LCP',
+  INP: 'metrics.INP',
+  FCP: 'metrics.FCP',
+  TTFB: 'metrics.TTFB',
 } as const;
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = [
@@ -51,6 +55,7 @@ type Props = {
 };
 
 export default function InteractiveWebVitalsChartSection({ summaryPromise, seriesPromise }: Props) {
+  const t = useTranslations('components.webVitals');
   const summary = use(summaryPromise);
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
@@ -61,7 +66,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       {
         title: (
           <span>
-            Cumulative Layout Shift
+            {t('metrics.CLS')}
             <P75Badge />
           </span>
         ),
@@ -79,7 +84,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       {
         title: (
           <span>
-            Largest Contentful Paint
+            {t('metrics.LCP')}
             <P75Badge />
           </span>
         ),
@@ -97,7 +102,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       {
         title: (
           <span>
-            Interaction to Next Paint
+            {t('metrics.INP')}
             <P75Badge />
           </span>
         ),
@@ -115,7 +120,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       {
         title: (
           <span>
-            First Contentful Paint
+            {t('metrics.FCP')}
             <P75Badge />
           </span>
         ),
@@ -133,7 +138,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       {
         title: (
           <span>
-            Time to First Byte
+            {t('metrics.TTFB')}
             <P75Badge />
           </span>
         ),
@@ -157,7 +162,10 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   const referenceLines = useMemo(
     () =>
       CWV_THRESHOLDS[active]?.map((y, idx) => {
-        const label = `${idx === 0 ? 'Good' : 'Needs improvement'} (≤ ${formatThreshold(active, y)})`;
+        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.needsImprovement')} (≤ ${formatThreshold(
+          active,
+          y,
+        )})`;
         const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-ni)';
         return { y, label, stroke, strokeDasharray: '6 6', labelFill: stroke };
       }),
@@ -190,7 +198,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       <MultiSeriesChart
         title={
           <span className='flex items-center gap-2'>
-            {TITLES[active]}
+            {t(METRIC_LABEL_KEYS[active])}
             <MetricInfo metric={active} />
           </span>
         }

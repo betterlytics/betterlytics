@@ -12,6 +12,7 @@ import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
 import InfoTooltip from '@/app/dashboard/[dashboardId]/web-vitals/InfoTooltip';
+import { useTranslations } from 'next-intl';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
@@ -31,6 +32,7 @@ export default function WebVitalsTableSection({
   perBrowserPromise,
   perOsPromise,
 }: Props) {
+  const t = useTranslations('components.webVitals.table');
   const data = use(perPagePromise);
   const devices = use(perDevicePromise);
   const countries = use(perCountryPromise);
@@ -62,18 +64,18 @@ export default function WebVitalsTableSection({
       const scoreVisual = (score: number): { label: string; className: string } => {
         if (score >= PERFORMANCE_SCORE_THRESHOLDS.greatMin)
           return {
-            label: 'Great',
+            label: t('badges.great'),
             className:
               'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700',
           };
         if (score >= PERFORMANCE_SCORE_THRESHOLDS.okayMin)
           return {
-            label: 'Okay',
+            label: t('badges.okay'),
             className:
               'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700',
           };
         return {
-          label: 'Poor',
+          label: t('badges.poor'),
           className:
             'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700',
         };
@@ -101,21 +103,18 @@ export default function WebVitalsTableSection({
 
       const headerWithPerformanceInfo = () => (
         <div className='inline-flex items-center gap-1.5'>
-          <span>Performance</span>
+          <span>{t('performance')}</span>
           <InfoTooltip
-            ariaLabel='About performance score'
+            ariaLabel={t('performanceAria')}
             iconClassName='h-3.5 w-3.5'
             content={
               <>
-                <p className='text-primary-foreground/90'>
-                  Performance score (0–100) based on the following metric weights: LCP 30%, CLS 15%, FCP 15%, TTFB
-                  10%, INP 30%.
-                </p>
+                <p className='text-primary-foreground/90'>{t('performanceDescr')}</p>
                 <div className='bg-primary-foreground/20 h-px' />
                 <div className='text-[11px] leading-4'>
-                  <div>Great: ≥ {PERFORMANCE_SCORE_THRESHOLDS.greatMin}</div>
-                  <div>Okay: ≥ {PERFORMANCE_SCORE_THRESHOLDS.okayMin}</div>
-                  <div>Poor: &lt; {PERFORMANCE_SCORE_THRESHOLDS.okayMin}</div>
+                  <div>{t('performanceGreat', { min: PERFORMANCE_SCORE_THRESHOLDS.greatMin })}</div>
+                  <div>{t('performanceOkay', { min: PERFORMANCE_SCORE_THRESHOLDS.okayMin })}</div>
+                  <div>{t('performancePoor', { min: PERFORMANCE_SCORE_THRESHOLDS.okayMin })}</div>
                 </div>
               </>
             }
@@ -125,18 +124,16 @@ export default function WebVitalsTableSection({
 
       const headerWithOpportunityInfo = () => (
         <div className='inline-flex items-center gap-1.5'>
-          <span>Opportunity</span>
+          <span>{t('opportunity')}</span>
           <InfoTooltip
-            ariaLabel='About opportunity'
+            ariaLabel={t('opportunityAria')}
             iconClassName='h-3.5 w-3.5'
             content={
               <>
-                <p className='text-primary-foreground/90'>
-                  Traffic-weighted potential improvement: traffic share × (100 − Performance).
-                </p>
+                <p className='text-primary-foreground/90'>{t('opportunityDescr')}</p>
                 <div className='bg-primary-foreground/20 h-px' />
                 <div className='text-[11px] leading-4'>
-                  <div>Changes with the selected percentile (P50/P75/P90/P99)</div>
+                  <div>{t('opportunityNote')}</div>
                 </div>
               </>
             }
@@ -157,7 +154,7 @@ export default function WebVitalsTableSection({
         },
         {
           accessorKey: 'samples',
-          header: 'Pageloads',
+          header: t('pageloads'),
           cell: ({ row }) => <span className='tabular-nums'>{row.original.current.samples}</span>,
           accessorFn: (r) => r.current.samples,
         },
@@ -220,62 +217,62 @@ export default function WebVitalsTableSection({
     [activePercentile, percentileIndex],
   );
 
-  const pageColumns: ColumnDef<Row>[] = useMemo(() => makeColumns('Page'), [makeColumns]);
+  const pageColumns: ColumnDef<Row>[] = useMemo(() => makeColumns(t('tabs.page')), [makeColumns, t]);
   const deviceColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns('Device Type', (key) => <DeviceIcon type={key} className='h-4 w-4' />),
-    [makeColumns],
+    () => makeColumns(t('tabs.deviceType'), (key) => <DeviceIcon type={key} className='h-4 w-4' />),
+    [makeColumns, t],
   );
   const countryColumns: ColumnDef<Row>[] = useMemo(
     () =>
-      makeColumns('Country', (key) => (
+      makeColumns(t('tabs.country'), (key) => (
         <FlagIcon countryCode={key.toUpperCase() as keyof typeof Flags} countryName={key} />
       )),
-    [makeColumns],
+    [makeColumns, t],
   );
   const browserColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns('Browser', (key) => <BrowserIcon name={key} className='h-4 w-4' />),
-    [makeColumns],
+    () => makeColumns(t('tabs.browser'), (key) => <BrowserIcon name={key} className='h-4 w-4' />),
+    [makeColumns, t],
   );
   const osColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns('Operating System', (key) => <OSIcon name={key} className='h-4 w-4' />),
-    [makeColumns],
+    () => makeColumns(t('tabs.operatingSystem'), (key) => <OSIcon name={key} className='h-4 w-4' />),
+    [makeColumns, t],
   );
 
   const defaultSorting = [{ id: 'LCP', desc: true }];
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
-      { key: 'pages', label: 'Pages', data, columns: pageColumns, defaultSorting },
+      { key: 'pages', label: t('tabs.pages'), data, columns: pageColumns, defaultSorting },
       {
         key: 'devices',
-        label: 'Devices',
+        label: t('tabs.devices'),
         data: devices,
         columns: deviceColumns,
         defaultSorting,
       },
       {
         key: 'countries',
-        label: 'Countries',
+        label: t('tabs.countries'),
         data: countries,
         columns: countryColumns,
         defaultSorting,
       },
       {
         key: 'browsers',
-        label: 'Browsers',
+        label: t('tabs.browsers'),
         data: browsers,
         columns: browserColumns,
         defaultSorting,
       },
       {
         key: 'os',
-        label: 'Operating Systems',
+        label: t('tabs.operatingSystems'),
         data: operatingSystems,
         columns: osColumns,
         defaultSorting,
       },
     ],
-    [data, devices, countries, browsers, operatingSystems, defaultSorting],
+    [data, devices, countries, browsers, operatingSystems, defaultSorting, t],
   );
 
   const headerActions = useMemo(
@@ -315,7 +312,5 @@ export default function WebVitalsTableSection({
     [activePercentile],
   );
 
-  return (
-    <TabbedTable title='Performance breakdown' tabs={tabs} defaultTab='pages' headerActions={headerActions} />
-  );
+  return <TabbedTable title={t('title')} tabs={tabs} defaultTab='pages' headerActions={headerActions} />;
 }
