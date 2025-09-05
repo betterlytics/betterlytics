@@ -12,8 +12,8 @@ import {
   CoreWebVitalNamedPercentilesRowSchema,
   CoreWebVitalNamedPercentilesRow,
   CWVDimension,
-  type CoreWebVitalName,
   CoreWebVitalsAllPercentilesPerDimensionRow,
+  CoreWebVitalsAllPercentilesPerDimensionRowSchema,
 } from '@/entities/webVitals';
 
 export async function getCoreWebVitalsP75(
@@ -180,13 +180,5 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
     })
     .toPromise()) as Array<CoreWebVitalsAllPercentilesPerDimensionRow>;
 
-  return rows.map((r) => ({
-    key: r.key,
-    name: r.name as CoreWebVitalName,
-    p50: r.p50,
-    p75: r.p75,
-    p90: r.p90,
-    p99: r.p99,
-    samples: r.samples,
-  }));
+  return rows.map((r) => CoreWebVitalsAllPercentilesPerDimensionRowSchema.parse(r));
 }

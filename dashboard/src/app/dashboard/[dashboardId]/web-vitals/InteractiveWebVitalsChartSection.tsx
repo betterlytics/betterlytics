@@ -213,7 +213,7 @@ type ToggleProps = {
 };
 
 function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
-  const isAnyEnabled = useMemo(() => Array.from(enabledKeys).length > 0, [enabledKeys]);
+  const isAnyEnabled = useMemo(() => enabledKeys.size, [enabledKeys]);
 
   return (
     <div className='flex flex-wrap items-center gap-2'>

@@ -31,12 +31,16 @@ export type CoreWebVitalNamedPercentilesRow = z.infer<typeof CoreWebVitalNamedPe
 
 export type CWVDimension = 'device_type' | 'country_code' | 'url' | 'browser' | 'os';
 
-export type CoreWebVitalsAllPercentilesPerDimensionRow = {
-  key: string;
-  name: CoreWebVitalName;
-  p50: number | null;
-  p75: number | null;
-  p90: number | null;
-  p99: number | null;
-  samples: number;
-};
+export const CoreWebVitalsAllPercentilesPerDimensionRowSchema = z.object({
+  key: z.string(),
+  name: CoreWebVitalNameSchema,
+  p50: z.number().nullable(),
+  p75: z.number().nullable(),
+  p90: z.number().nullable(),
+  p99: z.number().nullable(),
+  samples: z.number(),
+});
+
+export type CoreWebVitalsAllPercentilesPerDimensionRow = z.infer<
+  typeof CoreWebVitalsAllPercentilesPerDimensionRowSchema
+>;
