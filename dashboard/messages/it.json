@@ -1282,14 +1282,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Clic unici totali",
-        "uniqueVisitors": "Visitatori unici", 
+        "uniqueVisitors": "Visitatori unici",
         "topDomain": "Dominio principale",
         "topSourcePage": "Pagina sorgente principale"
       },
       "table": {
         "title": "Performance link in uscita",
         "destinationUrl": "URL di destinazione",
-        "uniqueClicks": "Clic unici", 
+        "uniqueClicks": "Clic unici",
         "topReferrerPage": "Pagina referrer principale",
         "sourcePages": "Pagine sorgente"
       },
@@ -1648,7 +1648,7 @@
         "nextjsTab": "Next.js",
         "reactTab": "React",
         "npmTab": "npm",
-        "htmlDescription": "Aggiungi alla sezione <head> del tuo HTML",
+        "htmlDescription": "Aggiungi alla sezione {head} del tuo HTML",
         "nextjsDescription": "Aggiungi al tuo layout root",
         "reactDescription": "Aggiungi al tuo componente App principale",
         "npmDescription": "Installa il pacchetto npm",

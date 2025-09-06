@@ -1274,14 +1274,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Total Unique Clicks",
-        "uniqueVisitors": "Unique Visitors", 
+        "uniqueVisitors": "Unique Visitors",
         "topDomain": "Top Domain",
         "topSourcePage": "Top Source Page"
       },
       "table": {
         "title": "Outbound Link Performance",
         "destinationUrl": "Destination URL",
-        "uniqueClicks": "Unique Clicks", 
+        "uniqueClicks": "Unique Clicks",
         "topReferrerPage": "Top Referrer Page",
         "sourcePages": "Source Pages"
       },
@@ -1640,7 +1640,7 @@
         "nextjsTab": "Next.js",
         "reactTab": "React",
         "npmTab": "npm",
-        "htmlDescription": "Add to your HTML <head> section",
+        "htmlDescription": "Add to your HTML {head} section",
         "nextjsDescription": "Add to your root layout",
         "reactDescription": "Add to your main App component",
         "npmDescription": "Install the npm package",

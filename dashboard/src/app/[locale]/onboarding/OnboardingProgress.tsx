@@ -17,7 +17,7 @@ export function OnboardingProgress() {
   }, [pathname]);
 
   return (
-    <div className='mb-6'>
+    <div className='mb-6 w-full'>
       <Stepper steps={steps} currentStep={getCurrentStep()} />
     </div>
   );

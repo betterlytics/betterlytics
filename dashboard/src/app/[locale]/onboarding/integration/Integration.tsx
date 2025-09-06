@@ -154,9 +154,7 @@ export default App;`;
             )}
           </div>
         </CardTitle>
-        <CardDescription className='text-sm'>
-          {t('siteId.description')}
-        </CardDescription>
+        <CardDescription className='text-sm'>{t('siteId.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className='bg-muted flex items-center justify-between rounded-md border p-3'>
@@ -186,7 +184,9 @@ export default App;`;
             <div className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>{t('instructions.htmlDescription')}</span>
+                <span className='text-sm font-medium'>
+                  {t('instructions.htmlDescription', { head: '<head>' })}
+                </span>
               </div>
               <CodeBlock code={htmlExample} language='html' />
             </div>

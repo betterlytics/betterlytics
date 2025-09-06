@@ -1278,14 +1278,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Samlede unikke klik",
-        "uniqueVisitors": "Unikke besøgende", 
+        "uniqueVisitors": "Unikke besøgende",
         "topDomain": "Top domæne",
         "topSourcePage": "Top kildeside"
       },
       "table": {
         "title": "Udgående link performance",
         "destinationUrl": "Destinations-URL",
-        "uniqueClicks": "Unikke klik", 
+        "uniqueClicks": "Unikke klik",
         "topReferrerPage": "Top henvisningsside",
         "sourcePages": "Kildesider"
       },
@@ -1644,7 +1644,7 @@
         "nextjsTab": "Next.js",
         "reactTab": "React",
         "npmTab": "npm",
-        "htmlDescription": "Tilføj til din HTML <head> sektion",
+        "htmlDescription": "Tilføj til din HTML {head} sektion",
         "nextjsDescription": "Tilføj til dit rod-layout",
         "reactDescription": "Tilføj til din main App-komponent",
         "npmDescription": "Installer npm-pakken",
