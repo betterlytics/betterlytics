@@ -7,6 +7,7 @@ import AccountCreation from './steps/AccountCreation';
 import WebsiteSetup from './steps/WebsiteSetup';
 import Integration from './steps/Integration';
 import { getProviders } from 'next-auth/react';
+import Logo from '@/components/logo';
 
 type Steps = 'account' | 'website' | 'integration';
 
@@ -19,7 +20,10 @@ export default function OnboardingPage({ initialStep, providers }: OnboardingPag
   const [step, setStep] = useState<Steps>(initialStep);
 
   return (
-    <main className='relative mb-0 flex h-full min-h-svh flex-1 flex-col items-center gap-2 overflow-hidden pt-6'>
+    <main className='relative mb-0 flex w-full flex-1 flex-col items-center gap-2 pt-6'>
+      <div className='mb-2 flex w-full justify-center md:mb-6'>
+        <Logo variant='simple' showText textSize='lg' priority />
+      </div>
       <OnboardingProgress step={step} />
       <AnimatePresence mode='wait'>
         {step === 'account' && (

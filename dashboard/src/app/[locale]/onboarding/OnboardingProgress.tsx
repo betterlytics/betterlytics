@@ -21,7 +21,7 @@ export function OnboardingProgress({ step }: OnboardingPorgressProps) {
   }, [step]);
 
   return (
-    <div className='mb-6 w-full'>
+    <div className='mt-2 mb-6 w-full md:mt-6'>
       <Stepper steps={steps} currentStep={getCurrentStep()} />
     </div>
   );
