@@ -7,6 +7,7 @@ import { getFirstUserDashboardAction } from '@/app/actions';
 import { getTranslations } from 'next-intl/server';
 import { getProviders } from 'next-auth/react';
 import OnboardingPage from './OnboardingPage';
+import { OnboardingProvider } from './OnboardingProvider';
 
 export default async function Onboarding() {
   const session = await getServerSession(authOptions);
@@ -33,10 +34,22 @@ export default async function Onboarding() {
     );
   }
 
-  const getStep = async () => {
+  const getFirstDashboard = async () => {
     if (session) {
       const dashboard = await getFirstUserDashboardAction();
       if (dashboard.success && dashboard.data) {
+        return dashboard.data;
+      }
+    }
+
+    return null;
+  };
+
+  const dashboard = await getFirstDashboard();
+
+  const getStep = async () => {
+    if (session) {
+      if (dashboard) {
         return 'integration';
       } else {
         return 'website';
@@ -48,5 +61,9 @@ export default async function Onboarding() {
   const providers = await getProviders();
   const initialStep = await getStep();
 
-  return <OnboardingPage initialStep={initialStep} providers={providers} />;
+  return (
+    <OnboardingProvider initialDashboard={dashboard}>
+      <OnboardingPage initialStep={initialStep} providers={providers} />;
+    </OnboardingProvider>
+  );
 }
