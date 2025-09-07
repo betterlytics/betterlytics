@@ -768,14 +768,18 @@
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
       "bounceRate": "Afvisningsprocent",
-      "avgVisitDuration": "Gennemsnitlig besøgstid"
+      "avgVisitDuration": "Gennemsnitlig besøgstid",
+      "sessions": "Sessioner",
+      "pagesPerSession": "Sider pr. session",
+      "sessionDuration": "Sessionsvarighed"
     },
     "sections": {
       "topPages": "Top sider",
       "geography": "Geografi",
       "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Brugerdefinerede hændelser"
+      "customEvents": "Brugerdefinerede hændelser",
+      "weeklyTrends": "Ugentlige trends"
     },
     "tabs": {
       "pages": "Sider",
@@ -838,6 +842,17 @@
     "en": "Engelsk"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Man.",
+        "tueShort": "Tir.",
+        "wedShort": "Ons.",
+        "thuShort": "Tor.",
+        "friShort": "Fre.",
+        "satShort": "Lør.",
+        "sunShort": "Søn."
+      }
+    },
     "dashboards": {
       "createDialog": {
         "title": "Opret nyt dashboard",

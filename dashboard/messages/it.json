@@ -768,14 +768,18 @@
       "uniqueVisitors": "Visitatori unici",
       "totalPageviews": "Visualizzazioni totali",
       "bounceRate": "Frequenza di rimbalzo",
-      "avgVisitDuration": "Durata media visita"
+      "avgVisitDuration": "Durata media visita",
+      "sessions": "Sessioni",
+      "pagesPerSession": "Pagine per sessione",
+      "sessionDuration": "Durata sessione"
     },
     "sections": {
       "topPages": "Pagine principali",
       "geography": "Geografia",
       "devicesBreakdown": "Suddivisione per dispositivo",
       "trafficSources": "Sorgenti di traffico",
-      "customEvents": "Eventi personalizzati"
+      "customEvents": "Eventi personalizzati",
+      "weeklyTrends": "Andamenti settimanali"
     },
     "tabs": {
       "pages": "Pagine",
@@ -870,6 +874,17 @@
     "it": "Italiano"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Lun.",
+        "tueShort": "Mar.",
+        "wedShort": "Mer.",
+        "thuShort": "Gio.",
+        "friShort": "Ven.",
+        "satShort": "Sab.",
+        "sunShort": "Dom."
+      }
+    },
     "billing": {
       "usageBanner": {
         "title": "Limite di utilizzo superato:",
