@@ -4,8 +4,8 @@ import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { DatePicker } from './DatePicker';
 import { useTranslations } from 'next-intl';
+import { DateRangePicker } from './DateRangePicker';
 
 interface ComparePeriodSectionProps {
   compareEnabled: boolean;
@@ -43,24 +43,20 @@ export function ComparePeriodSection({
           <Separator className='my-4' />
           <div>
             <h3 className='text-text mb-2 text-sm font-medium'>{t('compareToPeriod')}</h3>
-            <div className='grid grid-cols-2 gap-4'>
-              <DatePicker
-                label={t('startDate')}
-                date={compareStartDate}
-                onDateSelect={(date) => date && onCompareStartDateSelect(date)}
-                disabled={(date) => date > new Date()}
-                id='compareStartDateInput'
-              />
-              <DatePicker
-                label={t('endDate')}
-                date={compareEndDate}
-                onDateSelect={(date) => date && onCompareEndDateSelect(date)}
-                disabled={(date) => {
-                  if (date > new Date()) return true;
-                  if (compareStartDate && date < compareStartDate) return true;
-                  return false;
+            <div className='grid gap-4'>
+              <DateRangePicker
+                onDateRangeSelect={(range) => {
+                  if (range?.from !== compareStartDate) {
+                    onCompareStartDateSelect(range?.from);
+                  }
+                  if (range?.to !== compareEndDate) {
+                    onCompareEndDateSelect(range?.to);
+                  }
                 }}
-                id='compareEndDateInput'
+                range={{
+                  from: compareStartDate,
+                  to: compareEndDate,
+                }}
               />
             </div>
           </div>

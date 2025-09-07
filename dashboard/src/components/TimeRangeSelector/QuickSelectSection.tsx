@@ -19,13 +19,13 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
   return (
     <div>
       <h3 className='text-text mb-2 text-sm font-medium'>{t('quickSelect')}</h3>
-      <div className='grid grid-cols-3 gap-2'>
+      <div className='grid grid-cols-2 gap-2'>
         {TIME_RANGE_PRESETS.filter(isNonCustomPreset).map((preset) => (
           <Button
             key={preset.value}
             variant={selectedRange === preset.value ? 'default' : 'outline'}
             onClick={() => onRangeSelect(preset.value)}
-            className='w-full justify-start px-3 text-left'
+            className='w-full px-3 text-center'
           >
             {t(`presets.${preset.value}`)}
           </Button>

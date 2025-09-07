@@ -167,7 +167,7 @@ export function TimeRangeSelector({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className='bg-secondary w-[415px] max-w-[calc(100svw-48px)] space-y-6 border p-6'
+        className='bg-secondary w-[350px] max-w-[calc(100svw-48px)] space-y-6 border p-6'
         align='end'
       >
         {content}
