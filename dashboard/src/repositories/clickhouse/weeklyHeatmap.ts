@@ -14,11 +14,11 @@ function getBaseAggregation(metric: HeatmapMetric) {
     case 'sessions':
       return safeSql`uniq(session_id)`;
     case 'bounce_rate':
-      return null as unknown as ReturnType<typeof safeSql>;
+      return safeSql`1`;
     case 'pages_per_session':
-      return null as unknown as ReturnType<typeof safeSql>;
+      return safeSql`1`;
     case 'session_duration':
-      return null as unknown as ReturnType<typeof safeSql>;
+      return safeSql`1`;
   }
 }
 
@@ -37,11 +37,13 @@ export async function getWeeklyHeatmap(
     // Build from session_data per hour bucket then aggregate by weekday/hour across the range
     const query = safeSql`
       WITH session_data AS (
+        WITH
+          toStartOfWeek(timestamp) AS week_start
         SELECT
           session_id,
           toDayOfWeek(toTimeZone(timestamp, {tz:String})) as weekday,
           toHour(toTimeZone(timestamp, {tz:String})) as hour,
-          count() as page_count,
+          count() / uniq(week_start) as page_count,
           if(count() > 1, dateDiff('second', min(timestamp), max(timestamp)), 0) as duration_seconds
         FROM analytics.events
         WHERE site_id = {site_id:String}
@@ -91,11 +93,13 @@ export async function getWeeklyHeatmap(
   const aggregation = getBaseAggregation(metric);
 
   const query = safeSql`
+    WITH
+      toStartOfWeek(timestamp) AS week_start
     SELECT
       any(toStartOfHour(toTimeZone(timestamp, {tz:String}))) as date,
       toDayOfWeek(toTimeZone(timestamp, {tz:String})) as weekday,
       toHour(toTimeZone(timestamp, {tz:String})) as hour,
-      ${aggregation} as value
+      ${aggregation} / uniq(week_start) as value
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
