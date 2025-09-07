@@ -40,6 +40,7 @@ type AccountCreationProps = {
 export default function AccountCreation({ providers, onNext }: AccountCreationProps) {
   const { state, setUserId } = useOnboarding();
   const t = useTranslations('onboarding.account');
+  const tAuth = useTranslations('public.auth.register');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [isGooglePending, startGoogleTransition] = useTransition();
@@ -270,6 +271,14 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
             {isPending ? t('form.creatingAccount') : t('form.continueButton')}
           </Button>
         </form>
+      </div>
+      <div className='col-span-2 mt-2 text-center md:col-span-1 md:col-start-2'>
+        <p className='text-muted-foreground text-sm'>
+          {tAuth('cta.haveAccount')}{' '}
+          <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
+            {tAuth('cta.signIn')}
+          </Link>
+        </p>
       </div>
     </div>
   );
