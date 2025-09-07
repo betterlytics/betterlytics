@@ -63,7 +63,7 @@ export default async function Onboarding() {
 
   return (
     <OnboardingProvider initialDashboard={dashboard}>
-      <OnboardingPage initialStep={initialStep} providers={providers} />;
+      <OnboardingPage initialStep={initialStep} providers={providers} />
     </OnboardingProvider>
   );
 }
