@@ -1656,6 +1656,7 @@
         "skipForNow": "Spring over for nu",
         "continueToDashboard": "Fortsæt til dashboard"
       },
+      "redirectingIn": "Omdirigerer om {seconds}...",
       "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
     }
   }

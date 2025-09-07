@@ -1652,6 +1652,7 @@
         "skipForNow": "Skip for Now",
         "continueToDashboard": "Continue to Dashboard"
       },
+      "redirectingIn": "Redirecting in {seconds}...",
       "noSiteId": "No site ID found. Please complete the previous steps first."
     }
   }

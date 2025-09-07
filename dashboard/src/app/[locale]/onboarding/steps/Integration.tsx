@@ -61,11 +61,26 @@ export default function Integration() {
     baRouter.push(`/dashboard/${state.dashboardId}?showIntegration=true`);
   }, [completeOnboarding, baRouter, state.dashboardId]);
 
+  const totalCountdownSeconds = 5;
+  const [secondsLeft, setSecondsLeft] = useState<number>(totalCountdownSeconds);
+
+  useEffect(() => {
+    if (isVerified) {
+      setSecondsLeft(totalCountdownSeconds);
+      const intervalId = setInterval(() => {
+        setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+      return () => clearInterval(intervalId);
+    } else {
+      setSecondsLeft(totalCountdownSeconds);
+    }
+  }, [isVerified]);
+
   useEffect(() => {
     if (isVerified) {
       const timeout = setTimeout(() => {
         handleFinishOnboarding();
-      }, 10000);
+      }, 5000);
 
       return () => clearTimeout(timeout);
     }
@@ -184,7 +199,12 @@ export default App;`;
       <CardContent>
         <div className='bg-muted flex items-center justify-between rounded-md border p-3'>
           <code className='font-mono text-sm'>{siteId}</code>
-          <Button variant='ghost' size='sm' onClick={() => handleCopy(siteId, 'siteId')} className='h-8 px-2'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => handleCopy(siteId, 'siteId')}
+            className='h-8 cursor-pointer px-2'
+          >
             {copiedIdentifier === 'siteId' ? <Check className='h-4 w-4' /> : <Clipboard className='h-4 w-4' />}
           </Button>
         </div>
@@ -199,10 +219,18 @@ export default App;`;
       <CardContent>
         <Tabs defaultValue='html' className='w-full gap-4'>
           <TabsList className='grid w-full grid-cols-4'>
-            <TabsTrigger value='html'>{t('instructions.htmlTab')}</TabsTrigger>
-            <TabsTrigger value='nextjs'>{t('instructions.nextjsTab')}</TabsTrigger>
-            <TabsTrigger value='react'>{t('instructions.reactTab')}</TabsTrigger>
-            <TabsTrigger value='npm'>{t('instructions.npmTab')}</TabsTrigger>
+            <TabsTrigger value='html' className='cursor-pointer'>
+              {t('instructions.htmlTab')}
+            </TabsTrigger>
+            <TabsTrigger value='nextjs' className='cursor-pointer'>
+              {t('instructions.nextjsTab')}
+            </TabsTrigger>
+            <TabsTrigger value='react' className='cursor-pointer'>
+              {t('instructions.reactTab')}
+            </TabsTrigger>
+            <TabsTrigger value='npm' className='cursor-pointer'>
+              {t('instructions.npmTab')}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value='html'>
@@ -266,22 +294,17 @@ export default App;`;
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className='shadow-primary/25 relative inline-block overflow-hidden rounded-xl shadow-md'
+                className='relative inline-flex items-center gap-3'
               >
+                <div className='text-muted-foreground flex items-center gap-2 text-sm'>
+                  <span>{t('redirectingIn', { seconds: secondsLeft })}</span>
+                </div>
                 <Button
-                  variant='outline'
+                  variant='default'
                   onClick={handleFinishOnboarding}
-                  className='text-foreground z-10 h-10 overflow-hidden rounded-xl'
+                  className='h-10 cursor-pointer rounded-xl'
                 >
-                  <motion.div
-                    initial={{ x: '-100%' }}
-                    animate={{ x: '0%' }}
-                    transition={{ duration: 10, ease: 'linear' }}
-                    className='absolute inset-0 z-0'
-                  >
-                    <div className='from-primary/40 via-primary/60 to-primary/40 h-full w-full bg-gradient-to-r' />
-                  </motion.div>
-                  <span className='relative z-10'>{t('buttons.goToDashboard')}</span>
+                  {t('buttons.continueToDashboard')}
                 </Button>
               </motion.div>
             ) : (
@@ -292,7 +315,7 @@ export default App;`;
                 exit={{ opacity: 0 }}
                 className='relative inline-block'
               >
-                <Button variant='outline' onClick={handleSkipForNow} className='h-10 rounded-xl'>
+                <Button variant='outline' onClick={handleSkipForNow} className='h-10 cursor-pointer rounded-xl'>
                   {t('buttons.skipForNow')}
                 </Button>
               </motion.div>

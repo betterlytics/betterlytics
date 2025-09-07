@@ -1660,6 +1660,7 @@
         "skipForNow": "Salta per ora",
         "continueToDashboard": "Continua alla dashboard"
       },
+      "redirectingIn": "Reindirizzamento tra {seconds}...",
       "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
     }
   }
