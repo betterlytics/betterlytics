@@ -16,8 +16,15 @@ import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
+import { useTopLoader } from 'nextjs-toploader';
 
 export default function Integration() {
+  const { remove } = useTopLoader();
+
+  useEffect(() => {
+    remove();
+  }, [remove]);
+
   const { dashboard } = useOnboarding();
 
   if (!dashboard) {
