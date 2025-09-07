@@ -764,14 +764,18 @@
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",
       "bounceRate": "Bounce Rate",
-      "avgVisitDuration": "Avg. Visit Duration"
+      "avgVisitDuration": "Avg. Visit Duration",
+      "sessions": "Sessions",
+      "pagesPerSession": "Pages per Session",
+      "sessionDuration": "Session Duration"
     },
     "sections": {
       "topPages": "Top Pages",
       "geography": "Geography",
       "devicesBreakdown": "Devices",
       "trafficSources": "Traffic Sources",
-      "customEvents": "Custom Events"
+      "customEvents": "Custom Events",
+      "weeklyTrends": "Weekly Trends"
     },
     "goTo": "Go to {section}",
     "tabs": {
@@ -839,6 +843,17 @@
     "en": "English"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Mon.",
+        "tueShort": "Tue.",
+        "wedShort": "Wed.",
+        "thuShort": "Thu.",
+        "friShort": "Fri.",
+        "satShort": "Sat.",
+        "sunShort": "Sun."
+      }
+    },
     "dashboards": {
       "createDialog": {
         "title": "Create New Dashboard",
@@ -1629,6 +1644,93 @@
           "confirm": "Delete Dashboard"
         }
       }
+    }
+  },
+  "onboarding": {
+    "main": {
+      "registrationDisabled": {
+        "title": "Registration Disabled",
+        "description": "Registration is currently disabled on this instance.",
+        "backToSignIn": "Back to Sign In"
+      }
+    },
+    "account": {
+      "features": {
+        "feature1": {
+          "title": "Get started in under 2 minutes",
+          "description": "Just add one line of code or install our npm package. No cookies, no pop-ups."
+        },
+        "feature2": {
+          "title": "Free forever",
+          "description": "10,000 events per month. No credit card. No commitment."
+        },
+        "feature3": {
+          "title": "Privacy-first & open source",
+          "description": "Cookieless, GDPR-compliant, and EU-hosted. Transparent and secure."
+        }
+      },
+      "form": {
+        "title": "Create your account",
+        "signUpWith": "Sign up with",
+        "termsAgreement": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+        "orDivider": "or",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Enter your email",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password (min. 8 characters)",
+        "confirmPasswordLabel": "Confirm Password",
+        "confirmPasswordPlaceholder": "Confirm your password",
+        "continueButton": "Continue",
+        "creatingAccount": "Creating account...",
+        "signingUpGoogle": "Signing up...",
+        "signingUpGitHub": "Signing up...",
+        "googleButton": "Google",
+        "gitHubButton": "GitHub",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "registrationSuccessfulButSignInFailed": "Registration successful, but sign in failed. Please try signing in manually.",
+        "signUpError": "An error occurred during sign up. Please try again.",
+        "checkInput": "Please check your input"
+      }
+    },
+    "website": {
+      "title": "Set up your dashboard",
+      "description": "Tell us about the website you want to track",
+      "domainLabel": "Domain",
+      "domainPlaceholder": "example.com",
+      "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
+      "createDashboardButton": "Create Dashboard",
+      "creatingDashboard": "Creating Dashboard...",
+      "dashboardCreatedSuccess": "Dashboard created successfully!",
+      "failedToCreateDashboard": "Failed to create dashboard. Please try again."
+    },
+    "integration": {
+      "siteId": {
+        "title": "Your Site ID",
+        "description": "This unique identifier connects your website to your dashboard",
+        "installationVerified": "✓ Installation Verified",
+        "waitingForInstallation": "Waiting for Installation"
+      },
+      "instructions": {
+        "title": "Installation Instructions",
+        "description": "Choose the method that matches your website setup",
+        "htmlTab": "HTML",
+        "nextjsTab": "Next.js",
+        "reactTab": "React",
+        "npmTab": "npm",
+        "htmlDescription": "Add to your HTML {head} section",
+        "nextjsDescription": "Add to your root layout",
+        "reactDescription": "Add to your main App component",
+        "npmDescription": "Install the npm package",
+        "npmInstallFirst": "First, install the package:",
+        "npmThenInitialize": "Then initialize it in your code:"
+      },
+      "buttons": {
+        "goToDashboard": "🎉 to Dashboard...",
+        "skipForNow": "Skip for Now",
+        "continueToDashboard": "Continue to Dashboard"
+      },
+      "redirectingIn": "Redirecting in {seconds}...",
+      "noSiteId": "No site ID found. Please complete the previous steps first."
     }
   }
 }

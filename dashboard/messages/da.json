@@ -18,11 +18,11 @@
         "builtInOpen": {
           "title": "Bygget i det åbne",
           "p1": "Betterlytics er fuldstændig open source under AGPL-3.0 licensen. Det handler ikke kun om transparens, men om ansvarlighed. Alle kan inspicere vores kode, verificere vores privacy-udsagn og bidrage til at gøre platformen bedre.",
-          "p2": "Open source betyder også frihed. Du kan self-host’e Betterlytics på din egen infrastruktur og sikre fuld kontrol over dine data. Ingen vendor lock-in, ingen pludselige politikændringer, ingen uventede prisstigninger."
+          "p2": "Open source betyder også frihed. Du kan self-host'e Betterlytics på din egen infrastruktur og sikre fuld kontrol over dine data. Ingen vendor lock-in, ingen pludselige politikændringer, ingen uventede prisstigninger."
         },
         "privacyPerformance": {
           "title": "Privatliv og performance i perfekt balance",
-          "p1": "Vi går lige meget op i privatliv og performance, fordi din hjemmesides hastighed er lige så vigtig som dine besøgendes privatliv. Vores tracking-script er under 2KB i størrelse. Sammenlign det med Google Analytics’ script, der er over 45KB. Bygget med moderne webstandarder og optimeret til hastighed, så Betterlytics ikke gør dit site langsomt.",
+          "p1": "Vi går lige meget op i privatliv og performance, fordi din hjemmesides hastighed er lige så vigtig som dine besøgendes privatliv. Vores tracking-script er under 2KB i størrelse. Sammenlign det med Google Analytics' script, der er over 45KB. Bygget med moderne webstandarder og optimeret til hastighed, så Betterlytics ikke gør dit site langsomt.",
           "p2": "Under motorhjelmen bruger vi cutting-edge teknologi: Rust til højtydende databehandling, ClickHouse til lynhurtige analytiske forespørgsler og Next.js 15 til en moderne, responsiv dashboard-oplevelse. Hver teknisk beslutning prioriterer både privatliv og systemperformance."
         },
         "builtForEveryone": {
@@ -34,7 +34,7 @@
           "title": "Privatlivsregler gjort simple",
           "p1": "GDPR, CCPA, PECR kompatibel. Privatlivsregler bør ikke være et compliance-mareridt. Fordi Betterlytics ikke indsamler persondata eller bruger cookies, er du compliant som standard. Ingen cookiebannere, intet samtykkestyring nødvendigt.",
           "p2": "Denne enkelhed gælder også for dine brugere. De kan fokusere på dit indhold i stedet for at blive afbrudt af privatlivsmeddelelser og samtykkeformularer. En bedre oplevelse for alle.",
-          "p3Prefix": "Vi holder til i EU, og al databehandling foregår inden for EU’s grænser. Dine data forlader aldrig EU, hvilket sikrer fuld overholdelse af GDPR. For detaljer om, hvordan vi håndterer dine data, se vores",
+          "p3Prefix": "Vi holder til i EU, og al databehandling foregår inden for EU's grænser. Dine data forlader aldrig EU, hvilket sikrer fuld overholdelse af GDPR. For detaljer om, hvordan vi håndterer dine data, se vores",
           "privacyPolicyLabel": "privatlivspolitik"
         },
         "communityDriven": {
@@ -125,10 +125,10 @@
       },
       "scope": {
         "title": "Denne politik omfatter",
-        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics’ hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for din privatlivspolitik, databehandling og juridisk overholdelse."
+        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics' hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for din privatlivspolitik, databehandling og juridisk overholdelse."
       },
       "intro": {
-        "p1": "Hos Betterlytics er vi engagerede i at overholde GDPR, CCPA, PECR og andre privatlivsregler. Privatlivet for dine data — og det er dine data, ikke vores! — er vigtigt for os. Vi holder til i EU, og al databehandling foregår inden for EU’s grænser.",
+        "p1": "Hos Betterlytics er vi engagerede i at overholde GDPR, CCPA, PECR og andre privatlivsregler. Privatlivet for dine data — og det er dine data, ikke vores! — er vigtigt for os. Vi holder til i EU, og al databehandling foregår inden for EU's grænser.",
         "p2": "I denne politik beskriver vi, hvilke data vi indsamler og hvorfor, hvordan dine data håndteres, og dine rettigheder. Vi lover, at vi aldrig sælger dine data – aldrig har gjort det og vil aldrig gøre det."
       },
       "visitor": {
@@ -169,7 +169,7 @@
         "title": "Hvordan vi behandler og lagrer data",
         "li1": "EU-baseret hosting: Al data behandles og lagres på servere i EU, hvilket sikrer GDPR-overholdelse.",
         "li2": "Straks anonymisering: IP-adresser anonymiseres straks ved modtagelse, før nogen behandling eller lagring.",
-        "li3": "Ingen cross-site tracking: Hvert websites data er isoleret og spores separat med unikke site-ID’er.",
+        "li3": "Ingen cross-site tracking: Hvert websites data er isoleret og spores separat med unikke site-ID'er.",
         "li4": "Aggregeret rapportering: Alle rapporter viser kun aggregerede data uden muligheden for at identificere individer.",
         "li5": "Daglig fingeraftryk-rotation: Besøgsfingeraftryk ændres dagligt og forhindrer langvarig sporing."
       },
@@ -239,10 +239,10 @@
       "lastUpdated": "Sidst opdateret:",
       "scope": {
         "title": "Disse vilkår omfatter",
-        "body": "Disse vilkår for tjenesten gælder udelukkende for Betterlytics’ hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. De gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine vilkår, databehandling og juridisk overholdelse."
+        "body": "Disse vilkår for tjenesten gælder udelukkende for Betterlytics' hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. De gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine vilkår, databehandling og juridisk overholdelse."
       },
       "intro": {
-        "p1": "Tak fordi du bruger Betterlytics! Når vi siger ‘virksomhed’, ‘vi’, ‘vores’, ‘os’, ‘service’ eller ‘tjenester’ i dette dokument, henviser vi til Betterlytics og vores privatlivsfokuserede webanalyseplatform.",
+        "p1": "Tak fordi du bruger Betterlytics! Når vi siger 'virksomhed', 'vi', 'vores', 'os', 'service' eller 'tjenester' i dette dokument, henviser vi til Betterlytics og vores privatlivsfokuserede webanalyseplatform.",
         "p2": "Vi kan opdatere disse vilkår i fremtiden. Når vi foretager væsentlige ændringer, informerer vi vores kunder via e-mail og annoncerer dem på vores website. Når du bruger vores service – nu eller i fremtiden – accepterer du de nyeste vilkår.",
         "p3": "Hvis du ikke accepterer disse vilkår, skal du ikke bruge denne service. Overtrædelse af vilkårene nedenfor kan medføre lukning af din konto."
       },
@@ -305,7 +305,7 @@
         "yourRightsBody": "Du ejer 100% af dine analysedata. Vi gør ikke krav på immaterielle rettigheder over dine websitedata og vil aldrig sælge eller dele dem med tredjeparter.",
         "dpaTitle": "Databehandleraftale",
         "dpaBodyPrefix": "For enterprise-kunder og GDPR-overholdelse er vores omfattende Databehandleraftale (DPA) tilgængelig på",
-        "dpaBodySuffix": ". DPA’en er en del af disse vilkår og regulerer, hvordan vi behandler data på dine vegne.",
+        "dpaBodySuffix": ". DPA'en er en del af disse vilkår og regulerer, hvordan vi behandler data på dine vegne.",
         "whatWeCollectTitle": "Hvad vi indsamler",
         "whatWeCollectBody": "Vores service er designet til at være privacy-first og cookiefri. Vi indsamler kun anonyme, aggregerede data som beskrevet i vores privatlivspolitik. Vi indsamler ikke personligt identificerbare oplysninger.",
         "yourResponsibilitiesTitle": "Dine forpligtelser",
@@ -345,7 +345,7 @@
         "li1": "Dit indhold: Du beholder alle rettigheder til det indhold, du leverer til vores service. Dine websitedata forbliver dine.",
         "li2": "Vores service: Udseende, oplevelse og funktionalitet af Betterlytics er vores intellektuelle ejendom. Du må ikke kopiere, modificere eller reverse-engineere vores service.",
         "li3": "Feedback: Hvis du giver feedback eller forslag, accepterer du, at vi kan bruge og indarbejde det uden betaling eller attributtering.",
-        "li4": "Varemærker: ‘Betterlytics’ og vores logo er vores varemærker. Du må ikke bruge dem uden skriftlig tilladelse, bortset fra at identificere vores service i forbindelse med legitim brug.",
+        "li4": "Varemærker: 'Betterlytics' og vores logo er vores varemærker. Du må ikke bruge dem uden skriftlig tilladelse, bortset fra at identificere vores service i forbindelse med legitim brug.",
         "li5": "Open source-komponenter: Vores analyse-script og kernekomponenter er udgivet under open source-licenser. Dette giver ikke rettigheder til vores hostede service, varemærker eller proprietær infrastruktur."
       },
       "updates": {
@@ -371,7 +371,7 @@
       "lastUpdated": "Sidst opdateret:",
       "scope": {
         "title": "Denne DPA omfatter",
-        "body": "Denne databehandleraftale gælder udelukkende for Betterlytics’ hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine databehandleraftaler og juridisk overholdelse."
+        "body": "Denne databehandleraftale gælder udelukkende for Betterlytics' hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine databehandleraftaler og juridisk overholdelse."
       },
       "whyDifferent": {
         "title": "Hvorfor denne DPA er anderledes",
@@ -379,7 +379,7 @@
       },
       "intro": {
         "title": "1. Introduktion",
-        "p1": "Denne databehandleraftale (\"DPA\") er en del af Betterlytics’ vilkår for tjenesten og regulerer databehandling, når du bruger vores analysetjeneste. Aftalen er designet til at sikre overholdelse af GDPR og anden relevant databeskyttelseslovgivning.",
+        "p1": "Denne databehandleraftale (\"DPA\") er en del af Betterlytics' vilkår for tjenesten og regulerer databehandling, når du bruger vores analysetjeneste. Aftalen er designet til at sikre overholdelse af GDPR og anden relevant databeskyttelseslovgivning.",
         "p2": "Vigtigt: Betterlytics er specifikt designet til kun at behandle anonyme, aggregerede data. Ingen persondata indsamles, lagres eller behandles af vores service."
       },
       "definitions": {
@@ -401,7 +401,7 @@
         "catLi2": "Kategoriserede skærmopløsninger (små/mellem/store)",
         "catLi3": "Browser- og operativsystemoplysninger",
         "catLi4": "Geografiske data på landeniveau",
-        "catLi5": "Side-URL’er og henviserinformation",
+        "catLi5": "Side-URL'er og henviserinformation",
         "catLi6": "Dagligt roterende besøgsfingeraftryk (anonym identifikation)",
         "subjectsTitle": "3.3 Registrerede personer",
         "subjectsBody": "Ikke relevant – vores system er designet til at forhindre identifikation af individer. Al data behandles kun i aggregeret og anonym form.",
@@ -699,7 +699,7 @@
       "about": "Om",
       "contact": "Kontakt",
       "privacyPolicy": "Privatlivspolitik",
-      "termsOfService": "Vilkår for tjenesten",
+      "termsOfService": "Servicevilkår",
       "dpa": "Databehandleraftale",
       "documentation": "Dokumentation",
       "pricing": "Priser",
@@ -768,14 +768,18 @@
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
       "bounceRate": "Afvisningsprocent",
-      "avgVisitDuration": "Gns. besøgstid"
+      "avgVisitDuration": "Gns. besøgstid",
+      "sessions": "Sessioner",
+      "pagesPerSession": "Sider pr. session",
+      "sessionDuration": "Sessionsvarighed"
     },
     "sections": {
       "topPages": "Top sider",
       "geography": "Geografi",
       "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Brugerdefinerede hændelser"
+      "customEvents": "Brugerdefinerede hændelser",
+      "weeklyTrends": "Ugentlige trends"
     },
     "goTo": "Gå til {section}",
     "tabs": {
@@ -843,6 +847,17 @@
     "en": "Engelsk"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Man.",
+        "tueShort": "Tir.",
+        "wedShort": "Ons.",
+        "thuShort": "Tor.",
+        "friShort": "Fre.",
+        "satShort": "Lør.",
+        "sunShort": "Søn."
+      }
+    },
     "dashboards": {
       "createDialog": {
         "title": "Opret nyt dashboard",
@@ -1633,6 +1648,93 @@
           "confirm": "Slet dashboard"
         }
       }
+    }
+  },
+  "onboarding": {
+    "main": {
+      "registrationDisabled": {
+        "title": "Registrering deaktiveret",
+        "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
+        "backToSignIn": "Tilbage til log ind"
+      }
+    },
+    "account": {
+      "features": {
+        "feature1": {
+          "title": "Kom i gang på under 2 minutter",
+          "description": "Bare tilføj én linje kode eller installer vores npm‑pakke. Ingen cookies, ingen pop‑ups."
+        },
+        "feature2": {
+          "title": "Gratis for altid",
+          "description": "10.000 events pr. måned. Ingen kreditkort. Ingen binding."
+        },
+        "feature3": {
+          "title": "Privatliv først & open source",
+          "description": "Cookieless, GDPR‑kompatibel og EU‑hostet. Gennemsigtigt og sikkert."
+        }
+      },
+      "form": {
+        "title": "Opret din konto",
+        "signUpWith": "Tilmeld dig med",
+        "termsAgreement": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
+        "orDivider": "eller",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Indtast din email",
+        "passwordLabel": "Adgangskode",
+        "passwordPlaceholder": "Indtast din adgangskode (min. 8 tegn)",
+        "confirmPasswordLabel": "Bekræft adgangskode",
+        "confirmPasswordPlaceholder": "Bekræft din adgangskode",
+        "continueButton": "Fortsæt",
+        "creatingAccount": "Opretter konto...",
+        "signingUpGoogle": "Tilmelder...",
+        "signingUpGitHub": "Tilmelder...",
+        "googleButton": "Google",
+        "gitHubButton": "GitHub",
+        "passwordsDoNotMatch": "Adgangskoder matcher ikke",
+        "registrationSuccessfulButSignInFailed": "Registrering lykkedes, men log ind mislykkedes. Prøv at logge ind manuelt.",
+        "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
+        "checkInput": "Tjek venligst dit input"
+      }
+    },
+    "website": {
+      "title": "Opsæt dit dashboard",
+      "description": "Fortæl os om det website, du vil spore",
+      "domainLabel": "Domæne",
+      "domainPlaceholder": "eksempel.dk",
+      "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "createDashboardButton": "Opret dashboard",
+      "creatingDashboard": "Opretter dashboard...",
+      "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",
+      "failedToCreateDashboard": "Kunne ikke oprette dashboard. Prøv igen."
+    },
+    "integration": {
+      "siteId": {
+        "title": "Dit site-ID",
+        "description": "Dette unikke identifikator forbinder dit website til dit dashboard",
+        "installationVerified": "✓ Installation verificeret",
+        "waitingForInstallation": "Venter på installation"
+      },
+      "instructions": {
+        "title": "Installationsinstruktioner",
+        "description": "Vælg den metode, der matcher din website-opsætning",
+        "htmlTab": "HTML",
+        "nextjsTab": "Next.js",
+        "reactTab": "React",
+        "npmTab": "npm",
+        "htmlDescription": "Tilføj til din HTML {head} sektion",
+        "nextjsDescription": "Tilføj til dit rod-layout",
+        "reactDescription": "Tilføj til din main App-komponent",
+        "npmDescription": "Installer npm-pakken",
+        "npmInstallFirst": "Først, installer pakken:",
+        "npmThenInitialize": "Derefter initialiser den i din kode:"
+      },
+      "buttons": {
+        "goToDashboard": "🎉 til dashboard...",
+        "skipForNow": "Spring over for nu",
+        "continueToDashboard": "Fortsæt til dashboard"
+      },
+      "redirectingIn": "Omdirigerer om {seconds}...",
+      "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
     }
   }
 }
