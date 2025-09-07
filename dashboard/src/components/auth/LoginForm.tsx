@@ -131,9 +131,17 @@ export default function LoginForm() {
           />
         </div>
         <div>
-          <label htmlFor='password' className='text-foreground mb-2 block text-sm font-medium'>
-            Password
-          </label>
+          <div className='mb-2 flex items-center justify-between'>
+            <label htmlFor='password' className='text-foreground block text-sm font-medium'>
+              Password
+            </label>
+            <ExternalLink
+              href='/forgot-password'
+              className='text-primary hover:text-primary/80 text-sm font-medium underline'
+            >
+              Forgot your password?
+            </ExternalLink>
+          </div>
           <input
             id='password'
             name='password'
@@ -156,15 +164,6 @@ export default function LoginForm() {
         >
           {isPending || isDialogOpen ? 'Signing in...' : 'Sign in'}
         </button>
-      </div>
-
-      <div className='text-center'>
-        <ExternalLink
-          href='/forgot-password'
-          className='text-primary hover:text-primary/80 text-sm font-medium underline'
-        >
-          Forgot your password?
-        </ExternalLink>
       </div>
 
       {providers?.google || providers?.github ? (

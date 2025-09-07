@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOnboarding } from '../OnboardingProvider';
+import ExternalLink from '@/components/ExternalLink';
 
 export default function Integration() {
   const { dashboard } = useOnboarding();
@@ -268,7 +269,17 @@ export default App;`;
               </div>
 
               <div className='space-y-2'>
-                <p className='text-muted-foreground text-sm'>{t('instructions.npmInstallFirst')}</p>
+                <div className='flex items-center justify-between'>
+                  <p className='text-muted-foreground text-sm'>{t('instructions.npmInstallFirst')}</p>
+                  <ExternalLink
+                    href='https://www.npmjs.com/package/@betterlytics/tracker'
+                    className='text-primary hover:text-primary/80 text-sm font-medium underline'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    View on npm
+                  </ExternalLink>
+                </div>
                 <CodeBlock code='npm install @betterlytics/tracker' language='html' />
               </div>
 
