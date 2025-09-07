@@ -135,7 +135,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
   );
 
   return (
-    <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-0.5 gap-y-1'>
+    <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-1 gap-y-1'>
       <div></div>
       {dayLabels.map((label) => (
         <div
@@ -158,7 +158,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                 <TooltipTrigger asChild>
                   <div
                     className={cn(
-                      'hover:ring-primary/60 h-2.5 w-full rounded-sm transition-colors ring-inset hover:ring-1',
+                      'hover:ring-primary/60 h-2.5 w-full rounded-[2px] transition-colors ring-inset hover:ring-1',
                       value <= 0 && 'bg-gray-500/10 dark:bg-gray-400/20',
                     )}
                     style={getCellStyle(value)}
