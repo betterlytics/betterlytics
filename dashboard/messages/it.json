@@ -1624,7 +1624,7 @@
       }
     },
     "website": {
-      "title": "Configura il tuo sito web",
+      "title": "Configura il tuo dashboard",
       "description": "Raccontaci del sito web che vuoi monitorare",
       "domainLabel": "Dominio",
       "domainPlaceholder": "esempio.com",

@@ -1620,7 +1620,7 @@
       }
     },
     "website": {
-      "title": "Opsæt dit website",
+      "title": "Opsæt dit dashboard",
       "description": "Fortæl os om det website, du vil spore",
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",

@@ -1616,7 +1616,7 @@
       }
     },
     "website": {
-      "title": "Set up your website",
+      "title": "Set up your dashboard",
       "description": "Tell us about the website you want to track",
       "domainLabel": "Domain",
       "domainPlaceholder": "example.com",
