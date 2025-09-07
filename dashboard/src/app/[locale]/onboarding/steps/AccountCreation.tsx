@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState, useTransition, useCallback, Dispatch } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +13,7 @@ import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import Logo from '@/components/logo';
 import { CheckCircleIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
 const listVariants = {
@@ -35,11 +34,11 @@ const itemVariants = {
 
 type AccountCreationProps = {
   providers: Awaited<ReturnType<typeof getProviders>>;
+  onNext: Dispatch<void>;
 };
 
-export default function AccountCreation({ providers }: AccountCreationProps) {
+export default function AccountCreation({ providers, onNext }: AccountCreationProps) {
   const { state, setUserId } = useOnboarding();
-  const router = useRouter();
   const t = useTranslations('onboarding.account');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -56,7 +55,7 @@ export default function AccountCreation({ providers }: AccountCreationProps) {
       const password = formData.get('password') as string;
       const confirmPassword = formData.get('confirmPassword') as string;
       const name = formData.get('name') as string | null;
-      console.log('Name:', name);
+
       if (password !== confirmPassword) {
         setError(t('form.passwordsDoNotMatch'));
         return;
@@ -89,7 +88,8 @@ export default function AccountCreation({ providers }: AccountCreationProps) {
           }
 
           setUserId(result.data.id);
-          router.push('/onboarding/website');
+
+          onNext();
         });
       } catch (error) {
         if (error instanceof ZodError) {
@@ -100,7 +100,7 @@ export default function AccountCreation({ providers }: AccountCreationProps) {
         }
       }
     },
-    [setUserId, router],
+    [setUserId],
   );
 
   const handleOAuthRegistration = useCallback(async (provider: 'google' | 'github') => {

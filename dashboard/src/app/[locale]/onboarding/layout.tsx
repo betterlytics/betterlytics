@@ -1,7 +1,6 @@
 import { OnboardingProvider } from '@/contexts/OnboardingProvider';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
-import { WidgetTransition } from './WidgetTransition';
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
@@ -17,9 +16,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
               <div className='animate-spin-slow absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-gradient-to-r from-blue-500/3 to-purple-500/3 blur-3xl'></div>
             </div>
             <div className='flex h-full w-full flex-col items-center justify-center'>
-              <div className='container mx-auto flex h-full max-w-4xl flex-col px-4'>
-                <WidgetTransition>{children}</WidgetTransition>
-              </div>
+              <div className='container mx-auto flex h-full max-w-4xl flex-col px-4'>{children}</div>
             </div>
           </PublicEnvironmentVariablesProvider>
         </OnboardingProvider>

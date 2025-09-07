@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -6,8 +5,10 @@ import { Link } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import { getFirstUserDashboardAction } from '@/app/actions';
 import { getTranslations } from 'next-intl/server';
+import { getProviders } from 'next-auth/react';
+import OnboardingPage from './OnboardingPage';
 
-export default async function OnboardingPage() {
+export default async function Onboarding() {
   const session = await getServerSession(authOptions);
   const t = await getTranslations('onboarding.main');
 
@@ -20,9 +21,7 @@ export default async function OnboardingPage() {
               <Logo variant='full' width={200} height={60} priority />
             </div>
             <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('registrationDisabled.title')}</h2>
-            <p className='text-muted-foreground mt-2 text-sm'>
-              {t('registrationDisabled.description')}
-            </p>
+            <p className='text-muted-foreground mt-2 text-sm'>{t('registrationDisabled.description')}</p>
             <div className='mt-4'>
               <Link href='/signin' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
                 {t('registrationDisabled.backToSignIn')}
@@ -34,18 +33,20 @@ export default async function OnboardingPage() {
     );
   }
 
-  // If user has a session (such as going back or OAuth users):
-  // - If they don't have a dashboard, go to website step
-  // - If they have a dashboard, go to integration step
-  if (session) {
-    const dashboard = await getFirstUserDashboardAction();
-    if (dashboard.success && dashboard.data) {
-      return redirect('/onboarding/integration');
-    } else {
-      return redirect('/onboarding/website');
+  const getStep = async () => {
+    if (session) {
+      const dashboard = await getFirstUserDashboardAction();
+      if (dashboard.success && dashboard.data) {
+        return 'integration';
+      } else {
+        return 'website';
+      }
     }
-  }
+    return 'account';
+  };
 
-  // For users without a session start at account creation
-  return redirect('/onboarding/account');
+  const providers = await getProviders();
+  const initialStep = await getStep();
+
+  return <OnboardingPage initialStep={initialStep} providers={providers} />;
 }

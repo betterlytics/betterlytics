@@ -1,20 +1,21 @@
 'use client';
 
-import { useState, useTransition, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useState, useTransition, useCallback, Dispatch } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { createDashboardAction, getFirstUserDashboardAction } from '@/app/actions/dashboard';
+import { createDashboardAction } from '@/app/actions/dashboard';
 import { domainValidation } from '@/entities/dashboard';
 import { toast } from 'sonner';
 import { PrefixInput } from '@/components/inputs/PrefixInput';
 import { useTranslations } from 'next-intl';
 
-export default function WebsiteSetup() {
+type WebsiteSetupProps = {
+  onNext: Dispatch<void>;
+};
+
+export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
   const { state, updateWebsite, setSiteId, setDashboardId } = useOnboarding();
-  const router = useRouter();
   const t = useTranslations('onboarding.website');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -48,10 +49,11 @@ export default function WebsiteSetup() {
         setDashboardId(result.data.id);
         setSiteId(result.data.siteId);
         toast.success(t('dashboardCreatedSuccess'));
-        router.push('/onboarding/integration');
+
+        onNext();
       });
     },
-    [updateWebsite, setSiteId, setDashboardId, router],
+    [updateWebsite, setSiteId, setDashboardId],
   );
 
   return (
@@ -75,9 +77,7 @@ export default function WebsiteSetup() {
               disabled={isPending}
               prefix='https://'
             />
-            <p className='text-muted-foreground text-xs'>
-              {t('domainHelp')}
-            </p>
+            <p className='text-muted-foreground text-xs'>{t('domainHelp')}</p>
           </div>
           {error && (
             <div
