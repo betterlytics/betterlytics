@@ -761,20 +761,25 @@
       "devices": "Dispositivi",
       "campaigns": "Campagne",
       "events": "Eventi",
-      "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}"
+      "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
+      "webVitals": "Web Vitals"
     },
     "metrics": {
       "uniqueVisitors": "Visitatori unici",
       "totalPageviews": "Visualizzazioni totali",
       "bounceRate": "Frequenza di rimbalzo",
-      "avgVisitDuration": "Durata media visita"
+      "avgVisitDuration": "Durata media visita",
+      "sessions": "Sessioni",
+      "pagesPerSession": "Pagine per sessione",
+      "sessionDuration": "Durata sessione"
     },
     "sections": {
       "topPages": "Pagine principali",
       "geography": "Geografia",
       "devicesBreakdown": "Suddivisione per dispositivo",
       "trafficSources": "Sorgenti di traffico",
-      "customEvents": "Eventi personalizzati"
+      "customEvents": "Eventi personalizzati",
+      "weeklyTrends": "Andamenti settimanali"
     },
     "tabs": {
       "pages": "Pagine",
@@ -869,6 +874,17 @@
     "it": "Italiano"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Lun.",
+        "tueShort": "Mar.",
+        "wedShort": "Mer.",
+        "thuShort": "Gio.",
+        "friShort": "Ven.",
+        "satShort": "Sab.",
+        "sunShort": "Dom."
+      }
+    },
     "billing": {
       "usageBanner": {
         "title": "Limite di utilizzo superato:",
@@ -1299,6 +1315,62 @@
       "pieChart": {
         "title": "Distribuzione link in uscita",
         "description": "Link in uscita principali per clic unici"
+      }
+    },
+    "webVitals": {
+      "metrics": {
+        "CLS": "Cumulative Layout Shift",
+        "LCP": "Largest Contentful Paint",
+        "INP": "Interaction to Next Paint",
+        "FCP": "First Contentful Paint",
+        "TTFB": "Time to First Byte"
+      },
+      "thresholds": {
+        "good": "Buono",
+        "needsImprovement": "Da migliorare"
+      },
+      "table": {
+        "title": "Analisi prestazioni",
+        "performance": "Prestazioni",
+        "performanceAria": "Informazioni sul punteggio di prestazioni",
+        "performanceDescr": "Punteggio di prestazioni (0–100) basato sui seguenti pesi: LCP 30%, CLS 15%, FCP 15%, TTFB 10%, INP 30%.",
+        "performanceGreat": "Ottimo: ≥ {min}",
+        "performanceOkay": "Discreto: ≥ {min}",
+        "performancePoor": "Scarso: < {min}",
+        "opportunity": "Opportunità",
+        "opportunityAria": "Informazioni sull'opportunità",
+        "opportunityDescr": "Miglioramento potenziale ponderato per il traffico: quota traffico × (100 − Prestazioni).",
+        "opportunityNote": "Cambia con il percentile selezionato (P50/P75/P90/P99)",
+        "pageloads": "Caricamenti pagina",
+        "badges": {
+          "great": "Ottimo",
+          "okay": "Discreto",
+          "poor": "Scarso"
+        },
+        "tabs": {
+          "page": "Pagina",
+          "deviceType": "Tipo di dispositivo",
+          "country": "Paese",
+          "browser": "Browser",
+          "operatingSystem": "Sistema operativo",
+          "pages": "Pagine",
+          "devices": "Dispositivi",
+          "countries": "Paesi",
+          "browsers": "Browser",
+          "operatingSystems": "Sistemi operativi"
+        }
+      },
+      "info": {
+        "aboutMetricAria": "Informazioni sulla metrica",
+        "good": "Buono",
+        "needsImprovement": "Da migliorare",
+        "descriptions": {
+          "CLS": "Misura la stabilità visiva. CLS cattura quanto il contenuto si sposta inaspettatamente durante il caricamento.",
+          "LCP": "Misura le prestazioni di caricamento. LCP è il momento in cui il testo o l'immagine più grande diventa visibile.",
+          "INP": "Misura la reattività. INP è il tempo dall'azione dell'utente al successivo aggiornamento visivo.",
+          "FCP": "Mostra quando il primo contenuto appare sullo schermo durante il caricamento della pagina.",
+          "TTFB": "Misura la velocità di risposta del server — il tempo dalla richiesta alla ricezione del primo byte."
+        }
       }
     },
     "integration": {
