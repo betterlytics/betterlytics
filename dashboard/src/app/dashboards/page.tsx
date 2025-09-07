@@ -1,6 +1,8 @@
 import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
+import { getUserBillingData } from '@/actions/billing';
 import { CreateDashboardDialog } from '@/app/dashboards/CreateDashboardDialog';
 import DashboardCard from '@/app/dashboards/DashboardCard';
+import { CreateDashboardCard } from '@/app/dashboards/CreateDashboardCard';
 import PlanQuota from './PlanQuota';
 import ButtonSkeleton from '@/components/skeleton/ButtonSkeleton';
 import { Suspense } from 'react';
@@ -10,6 +12,7 @@ import { getTranslations } from 'next-intl/server';
 export default async function DashboardsPage() {
   const dashboards = await getAllUserDashboardsAction();
   const dashboardStatsPromise = getUserDashboardStatsAction();
+  const billingDataPromise = getUserBillingData();
   const t = await getTranslations('dashboardsPage');
 
   if (!dashboards.success) {
@@ -31,27 +34,18 @@ export default async function DashboardsPage() {
 
           <div className='flex w-full items-center gap-4 sm:w-auto'>
             <Suspense fallback={<div className='bg-muted h-8 w-full animate-pulse rounded sm:w-48' />}>
-              <PlanQuota dashboardStatsPromise={dashboardStatsPromise} />
+              <PlanQuota billingDataPromise={billingDataPromise} />
             </Suspense>
           </div>
         </div>
       </div>
-
-      {dashboards.data.length > 0 && (
-        <div className='mb-6 flex items-center justify-end'>
-          <Suspense fallback={<ButtonSkeleton />}>
-            <div className='[&_button]:bg-primary [&_button]:text-primary-foreground [&_button:hover]:bg-primary/90'>
-              <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} />
-            </div>
-          </Suspense>
-        </div>
-      )}
 
       {dashboards.data.length > 0 ? (
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
           {dashboards.data.map((dashboard) => (
             <DashboardCard key={dashboard.id} dashboard={dashboard} />
           ))}
+          <CreateDashboardCard dashboardStatsPromise={dashboardStatsPromise} />
         </div>
       ) : (
         <div className='py-16 text-center'>

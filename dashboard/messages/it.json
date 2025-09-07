@@ -817,7 +817,11 @@
     "title": "Le tue dashboard",
     "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
     "emptyTitle": "Nessuna dashboard ancora",
-    "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito."
+    "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito.",
+    "createCard": {
+      "title": "Crea dashboard",
+      "description": "Aggiungi una nuova dashboard"
+    }
   },
   "componentsBilling": {
     "dashboards": {

@@ -1,19 +1,16 @@
-import { getUserDashboardStatsAction } from '@/app/actions/dashboard';
 import { getUserBillingData } from '@/actions/billing';
 
-type DashboardStatsResult = Awaited<ReturnType<typeof getUserDashboardStatsAction>>;
-
 export default async function PlanQuota({
-  dashboardStatsPromise,
+  billingDataPromise,
 }: {
-  dashboardStatsPromise: Promise<DashboardStatsResult>;
+  billingDataPromise: ReturnType<typeof getUserBillingData>;
 }) {
-  const [stats, billing] = await Promise.all([dashboardStatsPromise, getUserBillingData()]);
-  if (!stats?.success) return null;
+  const billing = await billingDataPromise;
+  if (!billing?.success) return null;
 
-  const { current, limit } = stats.data;
+  const { current, limit } = billing.data.usage;
   const percentage = Math.min(100, Math.round((current / Math.max(1, limit)) * 100));
-  const tier = billing?.success ? billing.data.subscription.tier : undefined;
+  const tier = billing.data.subscription.tier;
   const planLabel =
     tier === 'professional'
       ? 'Pro Plan'
@@ -26,7 +23,7 @@ export default async function PlanQuota({
   return (
     <div className='flex w-full min-w-0 flex-col gap-2 rounded-md py-1 text-sm sm:min-w-[280px]'>
       <div className='flex items-center justify-between'>
-        <div className='font-medium'>Dashboards</div>
+        <div className='font-medium'>Events</div>
         <a
           href='/billing'
           className='text-primary hover:text-primary/90 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium'

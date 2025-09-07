@@ -813,7 +813,11 @@
     "title": "Your Dashboards",
     "subtitle": "Manage and monitor analytics for all your websites.",
     "emptyTitle": "No dashboards yet",
-    "emptyDescription": "Create your first dashboard to start tracking analytics for your website."
+    "emptyDescription": "Create your first dashboard to start tracking analytics for your website.",
+    "createCard": {
+      "title": "Create Dashboard",
+      "description": "Add a new dashboard"
+    }
   },
   "charts": {
     "tooltip": {

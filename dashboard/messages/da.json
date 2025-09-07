@@ -817,7 +817,11 @@
     "title": "Dine dashboards",
     "subtitle": "Administrér og overvåg analyse for alle dine websites.",
     "emptyTitle": "Ingen dashboards endnu",
-    "emptyDescription": "Opret dit første dashboard for at begynde at spore analyse for din hjemmeside."
+    "emptyDescription": "Opret dit første dashboard for at begynde at spore analyse for din hjemmeside.",
+    "createCard": {
+      "title": "Opret dashboard",
+      "description": "Tilføj et nyt dashboard"
+    }
   },
   "charts": {
     "tooltip": {
