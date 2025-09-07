@@ -154,7 +154,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         onClick: () => setActive('TTFB'),
       },
     ],
-    [summary, active],
+    [summary, active, t],
   );
 
   const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
@@ -169,7 +169,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-ni)';
         return { y, label, stroke, strokeDasharray: '6 6', labelFill: stroke };
       }),
-    [active],
+    [active, t],
   );
 
   const [enabledKeys, setEnabledKeys] = useState(() => new Set(SERIES_DEFS.map((d) => d.dataKey)));
