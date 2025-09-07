@@ -214,7 +214,17 @@ export default App;`;
       <Separator />
 
       <CardHeader>
-        <CardTitle className='text-base font-medium'>{t('instructions.title')}</CardTitle>
+        <CardTitle className='flex items-center justify-between text-base font-medium'>
+          <span>{t('instructions.title')}</span>
+          <ExternalLink
+            href='https://betterlytics.io/docs/installation/cloud-hosting#step-3-install-your-tracking-script'
+            className='text-muted-foreground hover:text-foreground text-sm underline'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            View docs
+          </ExternalLink>
+        </CardTitle>
         <CardDescription className='text-sm'>{t('instructions.description')}</CardDescription>
       </CardHeader>
       <CardContent>
