@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +14,7 @@ import { useBARouter } from '@/hooks/use-ba-router';
 import { LiveIndicator } from '@/components/live-indicator';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
+import { AnimatePresence, motion, useAnimation } from 'motion/react';
 
 export default function Integration() {
   const { state, updateIntegration, completeOnboarding } = useOnboarding();
@@ -61,6 +60,23 @@ export default function Integration() {
     completeOnboarding();
     baRouter.push(`/dashboard/${state.dashboardId}?showIntegration=true`);
   }, [completeOnboarding, baRouter, state.dashboardId]);
+
+  const controls = useAnimation();
+
+  useEffect(() => {
+    if (isVerified) {
+      controls.start({
+        strokeDashoffset: 0,
+        transition: { duration: 10, ease: 'linear' },
+      });
+
+      const timeout = setTimeout(() => {
+        handleFinishOnboarding();
+      }, 10000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isVerified, controls, handleFinishOnboarding]);
 
   if (!siteId) {
     return (
@@ -140,18 +156,34 @@ export default App;`;
         <CardTitle className='flex justify-between text-base font-medium'>
           {t('siteId.title')}{' '}
           <div className='flex justify-center'>
-            {isVerified ? (
-              <Badge className='bg-green-600/20 px-3 py-1 text-green-500 dark:bg-green-500/30 dark:text-green-400'>
-                {t('siteId.installationVerified')}
-              </Badge>
-            ) : (
-              <div className='relative'>
-                <Badge className='bg-orange-600/20 px-3 py-1 text-orange-500 dark:bg-orange-500/30 dark:text-orange-400'>
-                  {t('siteId.waitingForInstallation')}
-                </Badge>
-                <LiveIndicator color='orange' />
-              </div>
-            )}
+            <AnimatePresence mode='wait'>
+              {isVerified ? (
+                <motion.div
+                  key='success'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className='relative inline-block'
+                >
+                  <Badge className='rounded-xl bg-green-600/20 px-3 py-1 text-green-500 dark:bg-green-500/30 dark:text-green-400'>
+                    {t('siteId.installationVerified')}
+                  </Badge>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key='pending'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className='relative'
+                >
+                  <Badge className='rounded-xl bg-orange-600/20 px-3 py-1 text-orange-500 dark:bg-orange-500/30 dark:text-orange-400'>
+                    {t('siteId.waitingForInstallation')}
+                  </Badge>
+                  <LiveIndicator color='orange' />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </CardTitle>
         <CardDescription className='text-sm'>{t('siteId.description')}</CardDescription>
@@ -233,20 +265,47 @@ export default App;`;
         </Tabs>
       </CardContent>
       <CardFooter className='gap-4'>
-        {isVerified ? (
-          <Button onClick={handleFinishOnboarding} className='w-full'>
-            {t('buttons.goToDashboard')}
-          </Button>
-        ) : (
-          <>
-            <Button variant='outline' onClick={handleSkipForNow} className='flex-1'>
-              {t('buttons.skipForNow')}
-            </Button>
-            <Button onClick={handleFinishOnboarding} className='flex-1'>
-              {t('buttons.continueToDashboard')}
-            </Button>
-          </>
-        )}
+        <div className='relative flex w-full justify-end'>
+          <AnimatePresence mode='wait'>
+            {isVerified ? (
+              <motion.div
+                key='success'
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className='shadow-primary/25 relative inline-block overflow-hidden rounded-xl shadow-md'
+              >
+                <Button
+                  variant='outline'
+                  onClick={handleFinishOnboarding}
+                  className='text-foreground z-10 h-10 overflow-hidden rounded-xl'
+                >
+                  <motion.div
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '0%' }}
+                    transition={{ duration: 10, ease: 'linear' }}
+                    className='absolute inset-0 z-0'
+                  >
+                    <div className='from-primary/40 via-primary/60 to-primary/40 h-full w-full bg-gradient-to-r' />
+                  </motion.div>
+                  <span className='relative z-10'>{t('buttons.goToDashboard')}</span>
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key='pending'
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className='relative inline-block'
+              >
+                <Button variant='outline' onClick={handleSkipForNow} className='h-10 rounded-xl'>
+                  {t('buttons.skipForNow')}
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </CardFooter>
     </Card>
   );

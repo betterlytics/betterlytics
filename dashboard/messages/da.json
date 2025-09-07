@@ -1652,7 +1652,7 @@
         "npmThenInitialize": "Derefter initialiser den i din kode:"
       },
       "buttons": {
-        "goToDashboard": "🎉 Gå til dashboard",
+        "goToDashboard": "🎉 til dashboard...",
         "skipForNow": "Spring over for nu",
         "continueToDashboard": "Fortsæt til dashboard"
       },

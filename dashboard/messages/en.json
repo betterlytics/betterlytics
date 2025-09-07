@@ -1648,7 +1648,7 @@
         "npmThenInitialize": "Then initialize it in your code:"
       },
       "buttons": {
-        "goToDashboard": "🎉 Go to Dashboard",
+        "goToDashboard": "🎉 to Dashboard...",
         "skipForNow": "Skip for Now",
         "continueToDashboard": "Continue to Dashboard"
       },

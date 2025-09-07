@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo, useLayoutEffect } from 'react';
 
 interface OnboardingAccountData {
   email: string;
@@ -119,7 +119,7 @@ interface OnboardingProviderProps {
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [state, dispatch] = useReducer(onboardingReducer, initialState);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -134,8 +134,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   useEffect(() => {
     if (!state.isCompleted) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
     }
   }, [state]);
 

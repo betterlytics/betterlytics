@@ -111,7 +111,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
       try {
         const result = await signIn(provider, {
           redirect: false,
-          callbackUrl: '/onboarding/account',
+          callbackUrl: '/onboarding',
         });
 
         if (result?.url) {
