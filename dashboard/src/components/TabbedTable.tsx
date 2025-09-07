@@ -19,7 +19,7 @@ interface TabDefinition<TData> {
 }
 
 interface TabbedTableProps<TData> {
-  title: string;
+  title: ReactNode;
   description?: string;
   tabs: TabDefinition<TData>[];
   defaultTab?: string;
@@ -48,9 +48,10 @@ function TabbedTable<TData>({
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='pb-0'>
           <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-            <div className={cn(searchColumn && 'sm:col-span-2')}>
+            <div className={cn('grid grid-cols-[1fr_auto] items-start gap-2', searchColumn && 'sm:col-span-2')}>
               <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
-              {description && <p className='text-muted-foreground text-sm'>{description}</p>}
+              {headerActions && <div className='justify-self-end'>{headerActions}</div>}
+              {description && <p className='text-muted-foreground col-span-2 text-sm'>{description}</p>}
             </div>
             {searchColumn && (
               <Input
@@ -62,7 +63,6 @@ function TabbedTable<TData>({
               />
             )}
             <div className='flex items-center justify-center gap-4 sm:justify-end'>
-              {headerActions && <div>{headerActions}</div>}
               <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
                 {tabs.map((tab) => (
                   <TabsTrigger key={tab.key} value={tab.key} className='px-3 py-1 text-xs font-medium'>
