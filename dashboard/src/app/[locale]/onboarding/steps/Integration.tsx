@@ -14,7 +14,7 @@ import { useBARouter } from '@/hooks/use-ba-router';
 import { LiveIndicator } from '@/components/live-indicator';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
-import { AnimatePresence, motion, useAnimation } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 
 export default function Integration() {
   const { state, updateIntegration, completeOnboarding } = useOnboarding();
@@ -61,22 +61,15 @@ export default function Integration() {
     baRouter.push(`/dashboard/${state.dashboardId}?showIntegration=true`);
   }, [completeOnboarding, baRouter, state.dashboardId]);
 
-  const controls = useAnimation();
-
   useEffect(() => {
     if (isVerified) {
-      controls.start({
-        strokeDashoffset: 0,
-        transition: { duration: 10, ease: 'linear' },
-      });
-
       const timeout = setTimeout(() => {
         handleFinishOnboarding();
       }, 10000);
 
       return () => clearTimeout(timeout);
     }
-  }, [isVerified, controls, handleFinishOnboarding]);
+  }, [isVerified, handleFinishOnboarding]);
 
   if (!siteId) {
     return (
