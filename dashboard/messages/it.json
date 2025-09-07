@@ -1648,5 +1648,92 @@
         }
       }
     }
+  },
+  "onboarding": {
+    "main": {
+      "registrationDisabled": {
+        "title": "Registrazione disabilitata",
+        "description": "La registrazione è attualmente disabilitata su questa istanza.",
+        "backToSignIn": "Torna all'accesso"
+      }
+    },
+    "account": {
+      "features": {
+        "feature1": {
+          "title": "Inizia in meno di 2 minuti",
+          "description": "Aggiungi una riga di codice o installa il nostro pacchetto npm. Niente cookie, niente pop‑up."
+        },
+        "feature2": {
+          "title": "Gratis per sempre",
+          "description": "10.000 eventi al mese. Nessuna carta di credito. Nessun vincolo."
+        },
+        "feature3": {
+          "title": "Privacy‑first e open source",
+          "description": "Senza cookie, conforme al GDPR e ospitato nell'UE. Trasparente e sicuro."
+        }
+      },
+      "form": {
+        "title": "Crea il tuo account",
+        "signUpWith": "Registrati con",
+        "termsAgreement": "Continuando, accetti i nostri <termsLink>Termini di servizio</termsLink> e la nostra <privacyLink>Politica sulla privacy</privacyLink>.",
+        "orDivider": "oppure",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Inserisci la tua email",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Inserisci la tua password (min. 8 caratteri)",
+        "confirmPasswordLabel": "Conferma password",
+        "confirmPasswordPlaceholder": "Conferma la tua password",
+        "continueButton": "Continua",
+        "creatingAccount": "Creazione account...",
+        "signingUpGoogle": "Registrazione...",
+        "signingUpGitHub": "Registrazione...",
+        "googleButton": "Google",
+        "gitHubButton": "GitHub",
+        "passwordsDoNotMatch": "Le password non corrispondono",
+        "registrationSuccessfulButSignInFailed": "Registrazione riuscita, ma accesso fallito. Prova ad accedere manualmente.",
+        "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
+        "checkInput": "Controlla il tuo input"
+      }
+    },
+    "website": {
+      "title": "Configura il tuo dashboard",
+      "description": "Raccontaci del sito web che vuoi monitorare",
+      "domainLabel": "Dominio",
+      "domainPlaceholder": "esempio.com",
+      "domainHelp": "Inserisci il tuo dominio senza https:// o www. (es. esempio.com)",
+      "createDashboardButton": "Crea dashboard",
+      "creatingDashboard": "Creazione dashboard...",
+      "dashboardCreatedSuccess": "Dashboard creata con successo!",
+      "failedToCreateDashboard": "Impossibile creare la dashboard. Riprova."
+    },
+    "integration": {
+      "siteId": {
+        "title": "Il tuo ID sito",
+        "description": "Questo identificatore unico collega il tuo sito web alla tua dashboard",
+        "installationVerified": "✓ Installazione verificata",
+        "waitingForInstallation": "In attesa dell'installazione"
+      },
+      "instructions": {
+        "title": "Istruzioni di installazione",
+        "description": "Scegli il metodo che corrisponde alla configurazione del tuo sito web",
+        "htmlTab": "HTML",
+        "nextjsTab": "Next.js",
+        "reactTab": "React",
+        "npmTab": "npm",
+        "htmlDescription": "Aggiungi alla sezione {head} del tuo HTML",
+        "nextjsDescription": "Aggiungi al tuo layout root",
+        "reactDescription": "Aggiungi al tuo componente App principale",
+        "npmDescription": "Installa il pacchetto npm",
+        "npmInstallFirst": "Prima, installa il pacchetto:",
+        "npmThenInitialize": "Poi inizializzalo nel tuo codice:"
+      },
+      "buttons": {
+        "goToDashboard": "🎉 alla dashboard...",
+        "skipForNow": "Salta per ora",
+        "continueToDashboard": "Continua alla dashboard"
+      },
+      "redirectingIn": "Reindirizzamento tra {seconds}...",
+      "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
+    }
   }
 }
