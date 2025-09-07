@@ -15,6 +15,7 @@ interface SummaryCardProps<T extends ChartData = ChartData> {
   title: React.ReactNode;
   value: React.ReactNode;
   icon?: React.ReactNode;
+  footer?: React.ReactNode;
 
   // Mini chart data
   rawChartData?: T[];
@@ -60,6 +61,7 @@ const SummaryCard = React.memo(
     title,
     value,
     icon,
+    footer,
     rawChartData,
     valueField,
     chartColor = 'var(--chart-1)',
@@ -113,7 +115,7 @@ const SummaryCard = React.memo(
           </div>
         )}
 
-        <CardContent className='relative z-10 space-y-0 px-4 py-2'>
+        <CardContent className='relative z-10 flex h-full flex-col space-y-0 px-4 py-2'>
           <div className='mb-2 flex items-center justify-between'>
             <span className='text-foreground font-medium'>{title}</span>
             {onClick && (
@@ -141,6 +143,7 @@ const SummaryCard = React.memo(
               </Badge>
             )}
           </div>
+          {footer && <div className='mt-auto pt-3'>{footer}</div>}
         </CardContent>
       </Card>
     );

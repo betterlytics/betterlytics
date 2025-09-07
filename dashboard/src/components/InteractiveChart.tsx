@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
-import { defaultDateLabelFormatter, granularityDateFormmatter } from '@/utils/chartUtils';
+import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChartDataPoint {
@@ -24,7 +24,7 @@ interface InteractiveChartProps {
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   ({ title, data, color, formatValue, granularity, comparisonMap, headerContent }) => {
-    const axisFormatter = useMemo(() => granularityDateFormmatter(granularity), [granularity]);
+    const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
         const text = formatValue ? formatValue(value) : value.toLocaleString();
@@ -63,7 +63,9 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   axisLine={false}
                   className='text-muted-foreground'
                   tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-                  tickFormatter={axisFormatter}
+                  tickFormatter={(value) =>
+                    axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
+                  }
                   minTickGap={100}
                 />
                 <YAxis

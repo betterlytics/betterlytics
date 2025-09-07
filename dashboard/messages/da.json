@@ -761,7 +761,8 @@
       "campaigns": "Kampagner",
       "events": "Hændelser",
       "funnels": "Tragter",
-      "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}"
+      "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
+      "webVitals": "Web Vitals"
     },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
@@ -1300,6 +1301,62 @@
       "pieChart": {
         "title": "Udgående links fordeling",
         "description": "Top udgående links efter unikke klik"
+      }
+    },
+    "webVitals": {
+      "metrics": {
+        "CLS": "Cumulative Layout Shift",
+        "LCP": "Largest Contentful Paint",
+        "INP": "Interaction to Next Paint",
+        "FCP": "First Contentful Paint",
+        "TTFB": "Time to First Byte"
+      },
+      "thresholds": {
+        "good": "God",
+        "needsImprovement": "Behøver forbedring"
+      },
+      "table": {
+        "title": "Performance-opdeling",
+        "performance": "Ydelse",
+        "performanceAria": "Om performance score",
+        "performanceDescr": "Performance-score (0–100) baseret på følgende vægte: LCP 30%, CLS 15%, FCP 15%, TTFB 10%, INP 30%.",
+        "performanceGreat": "God: ≥ {min}",
+        "performanceOkay": "Okay: ≥ {min}",
+        "performancePoor": "Dårlig: < {min}",
+        "opportunity": "Potentiale",
+        "opportunityAria": "Om potentiale",
+        "opportunityDescr": "Trafikvægtet potentiel forbedring: trafikandel × (100 − Performance).",
+        "opportunityNote": "Ændres med det valgte percentil (P50/P75/P90/P99)",
+        "pageloads": "Sideindlæsninger",
+        "badges": {
+          "great": "God",
+          "okay": "Okay",
+          "poor": "Dårlig"
+        },
+        "tabs": {
+          "page": "Side",
+          "deviceType": "Enhedstype",
+          "country": "Land",
+          "browser": "Browser",
+          "operatingSystem": "Operativsystem",
+          "pages": "Sider",
+          "devices": "Enheder",
+          "countries": "Lande",
+          "browsers": "Browsere",
+          "operatingSystems": "Operativsystemer"
+        }
+      },
+      "info": {
+        "aboutMetricAria": "Om metric",
+        "good": "God",
+        "needsImprovement": "Behøver forbedring",
+        "descriptions": {
+          "CLS": "Måler visuel stabilitet. CLS fanger hvor meget indhold uventet flytter sig under indlæsning.",
+          "LCP": "Måler indlæsningsperformance. LCP er det øjeblik, hvor den største tekst eller det største billede bliver synligt.",
+          "INP": "Måler responsivitet. INP er tiden fra en brugerhandling til næste visuelle opdatering.",
+          "FCP": "Viser hvornår det første indhold vises på skærmen under indlæsning.",
+          "TTFB": "Måler serverens svartid — tiden fra forespørgsel til første byte modtages."
+        }
       }
     },
     "integration": {

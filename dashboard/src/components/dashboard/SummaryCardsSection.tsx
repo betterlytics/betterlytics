@@ -2,9 +2,10 @@ import { ReactNode } from 'react';
 import SummaryCard from '@/components/SummaryCard';
 
 export interface SummaryCardData {
-  title: string;
+  title: ReactNode;
   value: ReactNode;
   icon?: ReactNode;
+  footer?: ReactNode;
   rawChartData?: any[];
   valueField?: string;
   chartColor?: string;
@@ -22,10 +23,11 @@ export default function SummaryCardsSection({ cards, className }: SummaryCardsSe
     <div className={`grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 ${className}`}>
       {cards.map((card, index) => (
         <SummaryCard
-          key={`${card.title}-${index}`}
+          key={index}
           title={card.title}
           value={card.value}
           icon={card.icon}
+          footer={card.footer}
           rawChartData={card.rawChartData}
           valueField={card.valueField}
           chartColor={card.chartColor}

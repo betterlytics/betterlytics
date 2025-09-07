@@ -757,7 +757,8 @@
       "devices": "Devices",
       "campaigns": "Campaigns",
       "events": "Events",
-      "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}"
+      "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}",
+      "webVitals": "Web Vitals"
     },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
@@ -1296,6 +1297,62 @@
       "pieChart": {
         "title": "Outbound Links Distribution",
         "description": "Top outbound links by unique clicks"
+      }
+    },
+    "webVitals": {
+      "metrics": {
+        "CLS": "Cumulative Layout Shift",
+        "LCP": "Largest Contentful Paint",
+        "INP": "Interaction to Next Paint",
+        "FCP": "First Contentful Paint",
+        "TTFB": "Time to First Byte"
+      },
+      "thresholds": {
+        "good": "Good",
+        "needsImprovement": "Needs improvement"
+      },
+      "table": {
+        "title": "Performance breakdown",
+        "performance": "Performance",
+        "performanceAria": "About performance score",
+        "performanceDescr": "Performance score (0–100) based on the following metric weights: LCP 30%, CLS 15%, FCP 15%, TTFB 10%, INP 30%.",
+        "performanceGreat": "Great: ≥ {min}",
+        "performanceOkay": "Okay: ≥ {min}",
+        "performancePoor": "Poor: < {min}",
+        "opportunity": "Opportunity",
+        "opportunityAria": "About opportunity",
+        "opportunityDescr": "Traffic-weighted potential improvement: traffic share × (100 − Performance).",
+        "opportunityNote": "Changes with the selected percentile (P50/P75/P90/P99)",
+        "pageloads": "Pageloads",
+        "badges": {
+          "great": "Great",
+          "okay": "Okay",
+          "poor": "Poor"
+        },
+        "tabs": {
+          "page": "Page",
+          "deviceType": "Device Type",
+          "country": "Country",
+          "browser": "Browser",
+          "operatingSystem": "Operating System",
+          "pages": "Pages",
+          "devices": "Devices",
+          "countries": "Countries",
+          "browsers": "Browsers",
+          "operatingSystems": "Operating Systems"
+        }
+      },
+      "info": {
+        "aboutMetricAria": "About metric",
+        "good": "Good",
+        "needsImprovement": "Needs improvement",
+        "descriptions": {
+          "CLS": "Measures visual stability. CLS captures how much content unexpectedly shifts while the page loads.",
+          "LCP": "Measures loading performance. LCP is the moment the largest text or image becomes visible.",
+          "INP": "Measures responsiveness. INP is the time from a user action until the next visual update.",
+          "FCP": "Shows when the first piece of content appears on the screen during page load.",
+          "TTFB": "Measures server response speed — the time from request until the first byte is received."
+        }
       }
     },
     "integration": {

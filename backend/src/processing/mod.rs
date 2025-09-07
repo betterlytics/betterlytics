@@ -44,6 +44,11 @@ pub struct ProcessedEvent {
     pub custom_event_json: String,
     /// Outbound link tracking - stored when user clicks on a link that directs them to an external page
     pub outbound_link_url: String,
+    pub cwv_cls: Option<f32>,
+    pub cwv_lcp: Option<f32>,
+    pub cwv_inp: Option<f32>,
+    pub cwv_fcp: Option<f32>,
+    pub cwv_ttfb: Option<f32>,
 }
 
 /// Event processor that handles real-time processing
@@ -94,6 +99,11 @@ impl EventProcessor {
             custom_event_name: String::new(),
             custom_event_json: String::new(),
             outbound_link_url: String::new(),
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
         };
 
         // Handle event types
@@ -194,12 +204,19 @@ impl EventProcessor {
                     processed.outbound_link_url = outbound_info.url;
                 }
             }
+        } else if event_name.eq_ignore_ascii_case("cwv") {
+            processed.event_type = "cwv".to_string();
+            processed.cwv_cls = processed.event.raw.cwv_cls;
+            processed.cwv_lcp = processed.event.raw.cwv_lcp;
+            processed.cwv_inp = processed.event.raw.cwv_inp;
+            processed.cwv_fcp = processed.event.raw.cwv_fcp;
+            processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
         } else {
             processed.event_type = event_name;
         }
+        
         Ok(())
     }
-
 
     /// Get geolocation data for the IP
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {

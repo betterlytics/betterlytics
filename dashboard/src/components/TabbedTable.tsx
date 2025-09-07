@@ -19,7 +19,7 @@ interface TabDefinition<TData> {
 }
 
 interface TabbedTableProps<TData> {
-  title: string;
+  title: ReactNode;
   description?: string;
   tabs: TabDefinition<TData>[];
   defaultTab?: string;
@@ -47,7 +47,12 @@ function TabbedTable<TData>({
     <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='px-1 pb-0 sm:px-6'>
-          <div className='flex flex-col-reverse justify-between gap-4 sm:flex-row'>
+          <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+            <div className={cn('grid grid-cols-[1fr_auto] items-start gap-2', searchColumn && 'sm:col-span-2')}>
+              <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
+              {headerActions && <div className='justify-self-end'>{headerActions}</div>}
+              {description && <p className='text-muted-foreground col-span-2 text-sm'>{description}</p>}
+            </div>
             {searchColumn && (
               <div className='w-full rounded-md sm:max-w-sm'>
                 <Input
@@ -61,9 +66,8 @@ function TabbedTable<TData>({
                 />
               </div>
             )}
-            <div className='flex items-center justify-center sm:justify-end'>
-              {headerActions && <div>{headerActions}</div>}
-              <TabsList className={`bg-muted/30 grid w-auto grid-cols-${tabs.length} gap-1`}>
+            <div className='flex items-center justify-center gap-4 sm:justify-end'>
+              <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.key}

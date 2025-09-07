@@ -9,6 +9,8 @@ import {
   DollarSign,
   Route,
   ExternalLink as ExternalLinkIcon,
+  BarChart,
+  Gauge,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -29,6 +31,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
 import { DashboardDropdown } from './DashboardDropdown';
+
 import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 
@@ -55,6 +58,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
     { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
     { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
+    { name: t('webVitals'), href: '/web-vitals', icon: <Gauge size={18} /> },
   ];
 
   return (
