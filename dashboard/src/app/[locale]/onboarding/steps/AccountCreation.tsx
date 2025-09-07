@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition, useCallback, Dispatch } from 'react';
-import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +9,6 @@ import { RegisterUserSchema } from '@/entities/user';
 import { signIn, getProviders } from 'next-auth/react';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
-import Logo from '@/components/logo';
 import { CheckCircleIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from '@/i18n/navigation';
@@ -38,7 +36,6 @@ type AccountCreationProps = {
 };
 
 export default function AccountCreation({ providers, onNext }: AccountCreationProps) {
-  const { state, setUserId } = useOnboarding();
   const t = useTranslations('onboarding.account');
   const tAuth = useTranslations('public.auth.register');
   const [error, setError] = useState('');
@@ -46,63 +43,58 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [isGithubPending, startGithubTransition] = useTransition();
 
-  const handleEmailRegistration = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setError('');
+  const handleEmailRegistration = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
 
-      const formData = new FormData(e.currentTarget);
-      const email = formData.get('email') as string;
-      const password = formData.get('password') as string;
-      const confirmPassword = formData.get('confirmPassword') as string;
-      const name = formData.get('name') as string | null;
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+    const name = formData.get('name') as string | null;
 
-      if (password !== confirmPassword) {
-        setError(t('form.passwordsDoNotMatch'));
-        return;
-      }
+    if (password !== confirmPassword) {
+      setError(t('form.passwordsDoNotMatch'));
+      return;
+    }
 
-      try {
-        const validatedData = RegisterUserSchema.parse({
-          email,
-          password,
-          name: name?.trim() || undefined,
-        });
+    try {
+      const validatedData = RegisterUserSchema.parse({
+        email,
+        password,
+        name: name?.trim() || undefined,
+      });
 
-        startTransition(async () => {
-          const result = await registerUserAction(validatedData);
+      startTransition(async () => {
+        const result = await registerUserAction(validatedData);
 
-          if (!result.success) {
-            setError(result.error.message);
-            return;
-          }
-
-          const signInResult = await signIn('credentials', {
-            email: validatedData.email,
-            password: validatedData.password,
-            redirect: false,
-          });
-
-          if (signInResult?.error) {
-            setError(t('form.registrationSuccessfulButSignInFailed'));
-            return;
-          }
-
-          setUserId(result.data.id);
-
-          onNext();
-        });
-      } catch (error) {
-        if (error instanceof ZodError) {
-          setError(error.errors[0]?.message || t('form.checkInput'));
-        } else {
-          console.log(error);
-          setError(t('form.checkInput'));
+        if (!result.success) {
+          setError(result.error.message);
+          return;
         }
+
+        const signInResult = await signIn('credentials', {
+          email: validatedData.email,
+          password: validatedData.password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          setError(t('form.registrationSuccessfulButSignInFailed'));
+          return;
+        }
+
+        onNext();
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        setError(error.errors[0]?.message || t('form.checkInput'));
+      } else {
+        console.log(error);
+        setError(t('form.checkInput'));
       }
-    },
-    [setUserId],
-  );
+    }
+  }, []);
 
   const handleOAuthRegistration = useCallback(async (provider: 'google' | 'github') => {
     setError('');
@@ -230,7 +222,6 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
               name='email'
               type='email'
               required
-              defaultValue={state.account.email || ''}
               placeholder={t('form.emailPlaceholder')}
               className='h-10 rounded-xl'
               disabled={isPending}

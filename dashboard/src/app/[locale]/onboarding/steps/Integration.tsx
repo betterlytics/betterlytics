@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useOnboarding } from '@/contexts/OnboardingProvider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,34 +14,32 @@ import { LiveIndicator } from '@/components/live-indicator';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
+import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
 
 export default function Integration() {
-  const { state, updateIntegration, completeOnboarding } = useOnboarding();
+  const { dashboard } = useOnboarding();
+
+  if (!dashboard) {
+    throw Error('Dashboard is required for integration');
+  }
+
   const t = useTranslations('onboarding.integration');
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
 
-  const { isVerified, verifySilently } = useTrackingVerificationWithId(state.dashboardId);
+  const { isVerified, verifySilently } = useTrackingVerificationWithId(dashboard.id);
   const baRouter = useBARouter();
 
-  const siteId = state.siteId;
-
   useEffect(() => {
-    if (isVerified && !state.integration.installationComplete) {
-      updateIntegration({ installationComplete: true });
-    }
-  }, [isVerified, updateIntegration, state.integration.installationComplete]);
-
-  useEffect(() => {
-    if (!isVerified && state.dashboardId) {
+    if (!isVerified) {
       const interval = setInterval(() => {
         verifySilently();
       }, 10000);
 
       return () => clearInterval(interval);
     }
-  }, [isVerified, state.dashboardId, verifySilently]);
+  }, [isVerified, verifySilently]);
 
   const handleCopy = useCallback(async (text: string, identifier: string) => {
     try {
@@ -53,14 +50,12 @@ export default function Integration() {
   }, []);
 
   const handleFinishOnboarding = useCallback(() => {
-    completeOnboarding();
-    baRouter.push(`/dashboard/${state.dashboardId}`);
-  }, [completeOnboarding, baRouter, state.dashboardId]);
+    baRouter.push(`/dashboard/${dashboard.id}`);
+  }, [dashboard, baRouter]);
 
   const handleSkipForNow = useCallback(() => {
-    completeOnboarding();
-    baRouter.push(`/dashboard/${state.dashboardId}?showIntegration=true`);
-  }, [completeOnboarding, baRouter, state.dashboardId]);
+    baRouter.push(`/dashboard/${dashboard.id}?showIntegration=true`);
+  }, [baRouter, dashboard]);
 
   const totalCountdownSeconds = 5;
   const [secondsLeft, setSecondsLeft] = useState<number>(totalCountdownSeconds);
@@ -87,7 +82,7 @@ export default function Integration() {
     }
   }, [isVerified, handleFinishOnboarding]);
 
-  if (!siteId) {
+  if (!dashboard.siteId) {
     return (
       <div className='py-8 text-center'>
         <p className='text-muted-foreground'>{t('noSiteId')}</p>
@@ -95,7 +90,7 @@ export default function Integration() {
     );
   }
 
-  const trackingScript = `<script async src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${siteId}" data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`;
+  const trackingScript = `<script async src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${dashboard.siteId}" data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`;
 
   const htmlExample = `<!DOCTYPE html>
 <html>
@@ -121,7 +116,7 @@ export default function RootLayout({
         <Script
           async
           src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-          data-site-id="${siteId}"
+          data-site-id="${dashboard.siteId}"
           data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
         />
       </head>
@@ -132,7 +127,7 @@ export default function RootLayout({
 
   const nodeExample = `import betterlytics from "@betterlytics/tracker";
 
-betterlytics.init("${siteId}");
+betterlytics.init("${dashboard.siteId}");
 `;
 
   const reactExample = `import React, { useEffect } from 'react';
@@ -142,7 +137,7 @@ function App() {
     const script = document.createElement('script');
     script.async = true;
     script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
-    script.setAttribute('data-site-id', "${siteId}");
+    script.setAttribute('data-site-id', "${dashboard.siteId}");
     script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/track");
     document.head.appendChild(script);
 
@@ -199,11 +194,11 @@ export default App;`;
       </CardHeader>
       <CardContent>
         <div className='bg-muted flex items-center justify-between rounded-md border p-3'>
-          <code className='font-mono text-sm'>{siteId}</code>
+          <code className='font-mono text-sm'>{dashboard.siteId}</code>
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => handleCopy(siteId, 'siteId')}
+            onClick={() => handleCopy(dashboard.siteId, 'siteId')}
             className='h-8 cursor-pointer px-2'
           >
             {copiedIdentifier === 'siteId' ? <Check className='h-4 w-4' /> : <Clipboard className='h-4 w-4' />}
