@@ -1,6 +1,7 @@
 import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
 import { CreateDashboardDialog } from '@/app/dashboards/CreateDashboardDialog';
 import DashboardCard from '@/app/dashboards/DashboardCard';
+import PlanQuota from './PlanQuota';
 import ButtonSkeleton from '@/components/skeleton/ButtonSkeleton';
 import { Suspense } from 'react';
 import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
@@ -19,17 +20,32 @@ export default async function DashboardsPage() {
     <div className='container mx-auto max-w-7xl px-4 py-8'>
       <VerificationSuccessHandler />
 
-      <div className='mb-8 flex items-center justify-between'>
-        <div>
-          <h1 className='mb-2 text-3xl font-bold tracking-tight'>{t('title')}</h1>
-          <p className='text-muted-foreground'>{t('subtitle')}</p>
+      <div className='from-primary/10 via-background to-background mb-8 rounded-xl border bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] p-6'>
+        <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
+          <div>
+            <h1 className='mb-2 text-3xl font-bold tracking-tight'>{t('title')}</h1>
+            <p className='text-muted-foreground'>{t('subtitle')}</p>
+          </div>
+
+          <hr className='border-border w-full border-t sm:hidden' />
+
+          <div className='flex w-full items-center gap-4 sm:w-auto'>
+            <Suspense fallback={<div className='bg-muted h-8 w-full animate-pulse rounded sm:w-48' />}>
+              <PlanQuota dashboardStatsPromise={dashboardStatsPromise} />
+            </Suspense>
+          </div>
         </div>
-        {dashboards.data.length > 0 && (
-          <Suspense fallback={<ButtonSkeleton />}>
-            <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} />
-          </Suspense>
-        )}
       </div>
+
+      {dashboards.data.length > 0 && (
+        <div className='mb-6 flex items-center justify-end'>
+          <Suspense fallback={<ButtonSkeleton />}>
+            <div className='[&_button]:bg-primary [&_button]:text-primary-foreground [&_button:hover]:bg-primary/90'>
+              <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} />
+            </div>
+          </Suspense>
+        </div>
+      )}
 
       {dashboards.data.length > 0 ? (
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
@@ -43,7 +59,9 @@ export default async function DashboardsPage() {
             <h3 className='text-foreground mb-2 text-lg font-semibold'>{t('emptyTitle')}</h3>
             <p className='text-muted-foreground mb-6 text-sm'>{t('emptyDescription')}</p>
             <Suspense fallback={<ButtonSkeleton />}>
-              <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} />
+              <div className='[&_button]:bg-primary [&_button]:text-primary-foreground [&_button:hover]:bg-primary/90'>
+                <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} />
+              </div>
             </Suspense>
           </div>
         </div>

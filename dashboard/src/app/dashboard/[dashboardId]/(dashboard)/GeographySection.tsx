@@ -5,7 +5,6 @@ import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/act
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
-import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
