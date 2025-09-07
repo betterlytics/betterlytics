@@ -141,7 +141,7 @@ export function TimeRangeSelector({
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='bg-secondary max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
+        <DialogContent className='bg-secondary max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto px-3 py-6'>
           <DialogHeader>
             <DialogTitle>{t('dateRange')}</DialogTitle>
           </DialogHeader>
