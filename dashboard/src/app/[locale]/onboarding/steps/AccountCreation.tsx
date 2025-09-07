@@ -266,7 +266,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
           <Button
             type='submit'
             disabled={isPending}
-            className='shadow-primary/50 h-10 w-full cursor-pointer rounded-xl shadow-2xl'
+            className='shadow-primary/50 shadow-2x mt-3 h-10 w-full cursor-pointer rounded-xl'
           >
             {isPending ? t('form.creatingAccount') : t('form.continueButton')}
           </Button>

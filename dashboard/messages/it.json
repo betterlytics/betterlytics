@@ -1588,16 +1588,16 @@
     "account": {
       "features": {
         "feature1": {
-          "title": "Inizia a raccogliere analitiche web immediatamente",
-          "description": "Integra il nostro snippet web low-code nel tuo sito, o usa il nostro pacchetto npm."
+          "title": "Inizia in meno di 2 minuti",
+          "description": "Aggiungi una riga di codice o installa il nostro pacchetto npm. Niente cookie, niente pop‑up."
         },
         "feature2": {
-          "title": "Piano gratuito generoso per aiutarti a crescere",
-          "description": "10K eventi ogni mese gratis, nessuna carta di credito richiesta, nessun vincolo. Per sempre."
+          "title": "Gratis per sempre",
+          "description": "10.000 eventi al mese. Nessuna carta di credito. Nessun vincolo."
         },
         "feature3": {
-          "title": "Fantastiche funzionalità in arrivo",
-          "description": "Betterlytics è open-source. Stiamo lavorando attivamente su nuove funzionalità che siamo impazienti di mostrare"
+          "title": "Privacy‑first e open source",
+          "description": "Senza cookie, conforme al GDPR e ospitato nell'UE. Trasparente e sicuro."
         }
       },
       "form": {
