@@ -55,13 +55,17 @@ export function PricingComponent({
         </div>
         <div className='text-muted-foreground col-start-3 flex flex-shrink-0 justify-center text-xs lg:col-start-5 lg:justify-end'>
           <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
-            <SelectTrigger size='sm'>
+            <SelectTrigger size='sm' className='cursor-pointer'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value='USD'>USD ($)</SelectItem>
-                <SelectItem value='EUR'>EUR (€)</SelectItem>
+                <SelectItem value='USD' className='cursor-pointer'>
+                  USD ($)
+                </SelectItem>
+                <SelectItem value='EUR' className='cursor-pointer'>
+                  EUR (€)
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

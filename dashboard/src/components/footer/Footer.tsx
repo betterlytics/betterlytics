@@ -12,7 +12,9 @@ export async function Footer() {
         <div className='grid gap-8 md:grid-cols-4'>
           <div>
             <div className='mb-4'>
-              <Logo variant='simple' showText textSize='lg' priority />
+              <Link href='/' className='flex items-center space-x-2'>
+                <Logo variant='icon' showText textSize='md' priority />
+              </Link>
             </div>
             <p className='text-muted-foreground text-sm'>{t('blurb')}</p>
           </div>
