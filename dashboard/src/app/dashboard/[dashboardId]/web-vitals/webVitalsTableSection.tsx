@@ -286,7 +286,7 @@ export default function WebVitalsTableSection({
         ].map((d) => {
           const isOn = activePercentile === d.key;
           const classes =
-            'inline-flex items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium min-w-[56px] sm:min-w-0 ' +
+            'inline-flex items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium min-w-[56px] sm:min-w-0 cursor-pointer ' +
             (isOn
               ? 'bg-primary/10 border-primary/20 text-popover-foreground'
               : 'bg-muted/30 border-border text-muted-foreground');

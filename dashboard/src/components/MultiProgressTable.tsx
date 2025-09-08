@@ -90,7 +90,11 @@ function MultiProgressTable<T extends ProgressBarData>({
     () => (
       <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 w-full gap-1`}>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.key} value={tab.key} className='hover:bg-accent px-3 py-1 text-xs font-medium'>
+          <TabsTrigger
+            key={tab.key}
+            value={tab.key}
+            className='hover:bg-accent cursor-pointer px-3 py-1 text-xs font-medium'
+          >
             {tab.label}
           </TabsTrigger>
         ))}

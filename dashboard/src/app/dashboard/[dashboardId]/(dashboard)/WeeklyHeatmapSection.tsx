@@ -79,12 +79,12 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
         </div>
         <div className='w-36'>
           <Select value={selectedMetric} onValueChange={onMetricChange}>
-            <SelectTrigger className='w-full'>
+            <SelectTrigger className='w-full cursor-pointer'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {metricOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value} className='cursor-pointer'>
                   {metricLabelByMetric[opt.value as HeatmapMetric]}
                 </SelectItem>
               ))}

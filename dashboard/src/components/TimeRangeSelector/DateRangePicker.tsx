@@ -33,7 +33,10 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
         <PopoverTrigger asChild>
           <Button
             variant={'outline'}
-            className={cn('w-full truncate text-left font-normal', !range && 'text-muted-foreground')}
+            className={cn(
+              'w-full cursor-pointer truncate text-left font-normal',
+              !range && 'text-muted-foreground',
+            )}
           >
             <CalendarIcon className='h-4 w-4' />
             <div className='ml-2'>
@@ -46,7 +49,13 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
           </Button>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start'>
-          <Calendar mode='range' selected={range} onSelect={handleDateSelect} captionLayout='dropdown' />
+          <Calendar
+            mode='range'
+            selected={range}
+            onSelect={handleDateSelect}
+            captionLayout='dropdown'
+            className='[&_button]:cursor-pointer [&_select]:cursor-pointer'
+          />
         </PopoverContent>
       </Popover>
     </div>

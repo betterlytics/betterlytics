@@ -235,7 +235,7 @@ function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
             disabled={!isAnyEnabled}
             aria-pressed={isOn}
             className={cn(
-              'inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium',
+              'inline-flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium',
               isOn
                 ? 'bg-primary/10 border-primary/20 text-popover-foreground disabled:opacity-50'
                 : 'bg-muted/30 border-border text-muted-foreground',

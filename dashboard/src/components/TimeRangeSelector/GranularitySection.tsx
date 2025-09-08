@@ -30,7 +30,7 @@ export function GranularitySection({
               variant={selectedGranularity === gran.value ? 'default' : 'outline'}
               onClick={() => isAllowed && onGranularitySelect(gran.value)}
               disabled={!isAllowed}
-              className={cn('w-full', !isAllowed && 'cursor-not-allowed opacity-50')}
+              className={cn('w-full cursor-pointer', !isAllowed && 'cursor-not-allowed opacity-50')}
             >
               {t(`granularityLabels.${gran.value}`)}
             </Button>

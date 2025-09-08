@@ -120,7 +120,9 @@ export function TimeRangeSelector({
 
       <Separator className='my-4' />
       <div className='flex justify-end'>
-        <Button onClick={handleApplyAndClose}>{t('apply')}</Button>
+        <Button className='cursor-pointer' onClick={handleApplyAndClose}>
+          {t('apply')}
+        </Button>
       </div>
     </div>
   );
@@ -157,7 +159,7 @@ export function TimeRangeSelector({
         <Button
           variant='secondary'
           role='combobox'
-          className={cn('min-w-[200px] justify-between border shadow-sm', className)}
+          className={cn('min-w-[200px] cursor-pointer justify-between border shadow-sm', className)}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />

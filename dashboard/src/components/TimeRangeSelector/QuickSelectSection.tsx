@@ -25,7 +25,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
             key={preset.value}
             variant={selectedRange === preset.value ? 'default' : 'outline'}
             onClick={() => onRangeSelect(preset.value)}
-            className='w-full px-3 text-center'
+            className='w-full cursor-pointer px-3 text-center'
           >
             {t(`presets.${preset.value}`)}
           </Button>

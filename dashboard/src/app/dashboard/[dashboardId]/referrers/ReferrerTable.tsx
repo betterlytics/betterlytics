@@ -128,7 +128,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
           {(Object.values(ReferrerTab) as ReferrerTabKey[]).map((value) => (
             <button
               key={value}
-              className={`border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
+              className={`cursor-pointer border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
                 activeTab === value
                   ? 'border-primary text-muted-foreground'
                   : 'text-muted-foreground hover:border-primary border-transparent'

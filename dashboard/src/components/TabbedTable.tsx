@@ -62,17 +62,17 @@ function TabbedTable<TData>({
                   onChange={(event) =>
                     tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)
                   }
-                  className='bg-input row-start-3 w-full sm:row-start-2 sm:max-w-sm'
+                  className='bg-input cursor-input row-start-3 w-full sm:row-start-2 sm:max-w-sm'
                 />
               </div>
             )}
             <div className='flex items-center justify-center gap-4 sm:justify-end'>
-              <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
+              <TabsList className={`bg-muted/30 grid h-8 w-auto gap-1 grid-cols-${tabs.length}`}>
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.key}
                     value={tab.key}
-                    className='hover:bg-accent px-3 py-1 text-xs font-medium'
+                    className='hover:bg-accent cursor-pointer px-3 py-1 text-xs font-medium'
                   >
                     {tab.label}
                   </TabsTrigger>

@@ -82,7 +82,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant || 'outline'}>
+        <Button variant={triggerVariant || 'outline'} className='cursor-pointer'>
           <Plus className='size-5' />
           {triggerText || t('createFunnel')}
         </Button>
@@ -114,7 +114,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                 <div className='flex h-9 flex-grow items-center justify-center'>
                   <Switch
                     id='strict-mode'
-                    className='bg-input placeholder:text-muted-foreground my-auto'
+                    className='bg-input placeholder:text-muted-foreground my-auto cursor-pointer'
                     checked={metadata.isStrict}
                     onCheckedChange={(checked: boolean) => setMetadata((prev) => ({ ...prev, isStrict: checked }))}
                   />
@@ -132,7 +132,11 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                   />
                 ))}
                 <div className='mt-auto'>
-                  <Button variant='outline' onClick={addEmptyQueryFilter} className='whitespace-nowrap'>
+                  <Button
+                    variant='outline'
+                    onClick={addEmptyQueryFilter}
+                    className='cursor-pointer whitespace-nowrap'
+                  >
                     <PlusIcon className='mr-2 h-4 w-4' /> {t('addStep')}
                   </Button>
                 </div>
@@ -153,7 +157,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           </div>
         </div>
         <DialogFooter className='mt-auto pt-2'>
-          <Button type='submit' onClick={submit} disabled={queryFilters.length < 2}>
+          <Button type='submit' onClick={submit} disabled={queryFilters.length < 2} className='cursor-pointer'>
             {t('create')}
           </Button>
         </DialogFooter>

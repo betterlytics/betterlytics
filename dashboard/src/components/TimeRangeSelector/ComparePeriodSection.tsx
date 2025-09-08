@@ -30,10 +30,11 @@ export function ComparePeriodSection({
       <div className='flex items-center space-x-2'>
         <Checkbox
           id='comparePeriodCheckbox'
+          className='cursor-pointer'
           checked={compareEnabled}
           onCheckedChange={(checked) => onCompareEnabledChange(checked as boolean)}
         />
-        <Label htmlFor='comparePeriodCheckbox' className='text-sm font-normal'>
+        <Label htmlFor='comparePeriodCheckbox' className='cursor-pointer text-sm font-normal'>
           {t('compareWithPrevious')}
         </Label>
       </div>
