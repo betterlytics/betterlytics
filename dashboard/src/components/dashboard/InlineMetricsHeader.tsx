@@ -120,6 +120,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
                   </span>
                 )}
               </div>
+              {card.footer && <div className='mt-2'>{card.footer}</div>}
             </div>
           </button>
         );

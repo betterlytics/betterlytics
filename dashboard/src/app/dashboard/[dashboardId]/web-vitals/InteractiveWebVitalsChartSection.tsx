@@ -1,7 +1,8 @@
 'use client';
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
-import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
+import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
+import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import CoreWebVitalBar from '@/components/dashboard/CoreWebVitalBar';
 import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/webVitals';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
@@ -194,7 +195,6 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
 
   return (
     <div className='space-y-6'>
-      <SummaryCardsSection className='lg:grid-cols-5' cards={cards} />
       <MultiSeriesChart
         title={
           <span className='flex items-center gap-2'>
@@ -209,6 +209,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         series={activeSeries}
         referenceLines={referenceLines}
         headerRight={<SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />}
+        headerContent={<InlineMetricsHeader cards={cards} />}
       />
     </div>
   );

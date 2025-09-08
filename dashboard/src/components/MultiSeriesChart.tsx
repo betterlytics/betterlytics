@@ -1,3 +1,4 @@
+'use client';
 import React, { useMemo } from 'react';
 import {
   ResponsiveContainer,
@@ -14,6 +15,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChartDataPoint {
   date: string | number;
@@ -42,14 +44,22 @@ interface MultiSeriesChartProps {
     labelFill?: string;
   }>;
   headerRight?: React.ReactNode;
+  headerContent?: React.ReactNode;
   yDomain?: [number | 'dataMin' | 'auto', number | 'dataMax' | 'auto' | ((dataMax: number) => number)];
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
-  ({ title, data, granularity, formatValue, series, referenceLines, headerRight, yDomain }) => {
+  ({ title, data, granularity, formatValue, series, referenceLines, headerRight, headerContent, yDomain }) => {
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
+    const yTickFormatter = useMemo(() => {
+      return (value: number) => {
+        const text = formatValue ? formatValue(value) : value.toLocaleString();
+        return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
+      };
+    }, [formatValue]);
+    const isMobile = useIsMobile();
     return (
-      <Card>
+      <Card className='pt-1 sm:pt-4'>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
           <CardTitle className='text-lg font-semibold'>
             <span className='inline-flex items-center gap-2'>{title}</span>
@@ -57,17 +67,22 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
           {headerRight && <div className='flex items-center gap-2'>{headerRight}</div>}
         </CardHeader>
 
-        <CardContent className='pb-0'>
-          <div className='h-80'>
-            <ResponsiveContainer width='100%' height='100%'>
-              <ComposedChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray='3 3' className='opacity-10' />
+        <CardContent className='p-0'>
+          {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
+          <div className='h-80 px-2 py-1 md:px-4'>
+            <ResponsiveContainer width='100%' height='100%' className='mt-4'>
+              <ComposedChart
+                data={data}
+                margin={{ top: 10, right: isMobile ? 4 : 22, left: isMobile ? 4 : 22, bottom: 0 }}
+              >
+                <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
                 <XAxis
                   dataKey='date'
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                   className='text-muted-foreground'
+                  tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
                   tickFormatter={(value) =>
                     axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
                   }
@@ -77,8 +92,11 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={formatValue ? formatValue : (value: number) => value.toLocaleString()}
+                  tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                  tickFormatter={yTickFormatter}
                   className='text-muted-foreground'
+                  width={40}
+                  mirror={isMobile}
                   domain={yDomain}
                 />
 
