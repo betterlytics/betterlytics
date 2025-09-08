@@ -67,6 +67,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                     axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
                   }
                   minTickGap={100}
+                  tickMargin={6}
                 />
                 <YAxis
                   fontSize={12}
