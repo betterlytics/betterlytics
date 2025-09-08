@@ -121,7 +121,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const t = await getTranslations('dashboard.sidebar');
 
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('overview')}>
         <DashboardFilters />
       </DashboardHeader>
@@ -141,7 +141,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <SummaryAndChartSection data={summaryAndChartPromise} />
       </Suspense>
 
-      <div className='grid grid-cols-1 gap-3 lg:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
         <Suspense fallback={<TableSkeleton />}>
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>

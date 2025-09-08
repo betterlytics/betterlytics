@@ -117,9 +117,9 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
                     } group-hover:opacity-90`}
                   >
                     {trend.direction === 'up' ? (
-                      <ChevronUp className='h-3 w-3' fill='currentColor' />
+                      <ChevronUp className='h-3.5 w-3.5' fill='currentColor' />
                     ) : (
-                      <ChevronDown className='h-3 w-3' fill='currentColor' />
+                      <ChevronDown className='h-3.5 w-3.5' fill='currentColor' />
                     )}
                     {trend.percentage.toFixed(1)}%
                   </span>

@@ -86,7 +86,7 @@ export function ChartTooltip({
 
           {formattedDifference && (
             <div className={cn('flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium', trendBgColor)}>
-              <TrendIcon className={cn('h-3 w-3', trendColor)} fill='currentColor' />
+              <TrendIcon className={cn('h-3.5 w-3.5', trendColor)} fill='currentColor' />
               <span className={trendColor}>{formattedDifference}</span>
             </div>
           )}

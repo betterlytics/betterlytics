@@ -134,7 +134,7 @@ export function StackedAreaChartTooltip({
                           trend.bgColor,
                         )}
                       >
-                        <trend.icon className={cn('h-3 w-3', trend.color)} fill='currentColor' />
+                        <trend.icon className={cn('h-3.5 w-3.5', trend.color)} fill='currentColor' />
                         <span className={trend.color}>{difference}</span>
                       </div>
                     )}

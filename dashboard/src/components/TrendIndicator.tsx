@@ -14,7 +14,7 @@ const TrendIndicator = React.memo(({ percentage }: TrendIndicatorProps) => {
   if (percentage === 0) {
     return (
       <div className='flex items-center'>
-        <Minus className='h-3 w-3' />
+        <Minus className='h-3.5 w-3.5' />
       </div>
     );
   }
@@ -25,7 +25,7 @@ const TrendIndicator = React.memo(({ percentage }: TrendIndicatorProps) => {
 
   return (
     <div className='flex items-center'>
-      <Icon className={cn('h-3 w-3', color)} fill='currentColor' />
+      <Icon className={cn('h-3.5 w-3.5', color)} fill='currentColor' />
     </div>
   );
 });

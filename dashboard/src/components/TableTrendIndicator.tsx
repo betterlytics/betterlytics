@@ -42,7 +42,7 @@ export function TableTrendIndicator({
       <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
       {comparedData !== 0 && (
         <>
-          <Icon className='h-3 w-3' fill={'currentColor'} />
+          <Icon className='h-3.5 w-3.5' fill={'currentColor'} />
           <span>
             {sign}
             {Math.abs(percentage).toFixed(1)}%
