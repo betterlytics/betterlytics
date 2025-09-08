@@ -12,6 +12,8 @@ import {
 } from '@/app/actions';
 import InteractiveWebVitalsChartSection from './InteractiveWebVitalsChartSection';
 import WebVitalsTableSection from './webVitalsTableSection';
+import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type PageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -59,10 +61,13 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
     'browser',
   );
   const perOsPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'os');
-
+  const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container space-y-6 p-6'>
-      <DashboardFilters />
+      <DashboardHeader title={t('webVitals')}>
+        <DashboardFilters />
+      </DashboardHeader>
+
       <Suspense
         fallback={
           <div className='space-y-6'>

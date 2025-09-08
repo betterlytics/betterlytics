@@ -15,6 +15,8 @@ import OutboundLinksPieChart from './OutboundLinksPieChart';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { ActiveQueryFilters } from '@/components/filters/ActiveQueryFilters';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { getTranslations } from 'next-intl/server';
 
 type OutboundLinksPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -59,10 +61,12 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
     compareStartDate,
     compareEndDate,
   );
-
+  const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
-      <DashboardFilters />
+      <DashboardHeader title={t('outboundLinks')}>
+        <DashboardFilters />
+      </DashboardHeader>
 
       <ActiveQueryFilters />
 

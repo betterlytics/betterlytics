@@ -9,6 +9,7 @@ import { EventLog } from '@/app/dashboard/[dashboardId]/events/EventLog';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type EventsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -35,11 +36,13 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
     compareEndDate,
   );
 
-  const t = await getTranslations('components.events.page');
+  const t = await getTranslations('dashboard.sidebar');
 
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
-      <DashboardFilters />
+      <DashboardHeader title={t('events')}>
+        <DashboardFilters />
+      </DashboardHeader>
 
       <Suspense fallback={<TableSkeleton />}>
         <EventsTableSection eventsPromise={eventsPromise} />

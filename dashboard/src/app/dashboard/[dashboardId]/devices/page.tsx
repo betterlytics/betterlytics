@@ -16,6 +16,7 @@ import DevicesTablesSection from './DevicesTablesSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type DevicesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -68,11 +69,13 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     compareEndDate,
   );
 
-  const t = await getTranslations('devicesPage');
+  const t = await getTranslations('dashboard.sidebar');
 
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
-      <DashboardFilters />
+      <DashboardHeader title={t('devices')}>
+        <DashboardFilters />
+      </DashboardHeader>
 
       <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
         <DevicesSummarySection deviceSummaryPromise={deviceSummaryPromise} />

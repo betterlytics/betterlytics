@@ -8,6 +8,8 @@ import { CreateFunnelDialog } from './CreateFunnelDialog';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { getTranslations } from 'next-intl/server';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -24,12 +26,14 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   const { dashboardId } = await params;
   const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
-
+  const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
-      <DashboardFilters>
-        <CreateFunnelDialog />
-      </DashboardFilters>
+      <DashboardHeader title={t('funnels')}>
+        <DashboardFilters>
+          <CreateFunnelDialog />
+        </DashboardFilters>
+      </DashboardHeader>
 
       <Suspense
         fallback={

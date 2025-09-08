@@ -25,6 +25,8 @@ import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { NoDataBanner } from '@/app/dashboard/[dashboardId]/NoDataBanner';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { getTranslations } from 'next-intl/server';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -116,9 +118,13 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     compareEndDate,
   );
 
+  const t = await getTranslations('dashboard.sidebar');
+
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
-      <DashboardFilters />
+      <DashboardHeader title={t('overview')}>
+        <DashboardFilters />
+      </DashboardHeader>
 
       <Suspense>
         <NoDataBanner />

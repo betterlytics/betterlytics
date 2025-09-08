@@ -11,7 +11,7 @@ export function ActiveQueryFilters() {
     return null;
   }
   return (
-    <div className='flex flex-wrap gap-1'>
+    <div className='flex flex-wrap gap-1 sm:justify-end'>
       {queryFilters.map((filter) => (
         <Badge
           key={filter.id}

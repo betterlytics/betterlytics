@@ -1,0 +1,15 @@
+import { ReactNode } from 'react';
+
+interface DashboardHeaderProps {
+  title: string;
+  children?: ReactNode;
+}
+
+export function DashboardHeader({ title, children }: DashboardHeaderProps) {
+  return (
+    <div className='mb-2 flex flex-col justify-between gap-2 lg:flex-row'>
+      <h1 className='pt-1 text-2xl font-semibold sm:pl-1'>{title}</h1>
+      {children}
+    </div>
+  );
+}
