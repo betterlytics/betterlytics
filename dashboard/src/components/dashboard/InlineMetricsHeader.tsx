@@ -27,9 +27,12 @@ function calculateTrend<T extends ChartDatum>(data: T[], valueField: keyof T) {
 
 type InlineMetricsHeaderProps = {
   cards: SummaryCardData[];
+  widthClass?: string; // optional override for card width at breakpoints
+  pinFooter?: boolean; // when true, stick footer (e.g., CWV bar) to bottom
 };
 
-export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps) {
+export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: InlineMetricsHeaderProps) {
+  const widthClasses = widthClass || 'sm:w-[228px] md:w-[228px]';
   return (
     <div className='grid w-full grid-cols-2 gap-2 px-1 sm:flex sm:flex-wrap sm:gap-3'>
       {cards.map((card, idx) => {
@@ -44,7 +47,9 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
             type='button'
             onClick={card.onClick}
             aria-pressed={card.isActive}
-            className={`group relative flex w-full min-w-0 flex-col overflow-hidden rounded-md px-3 py-4 text-left transition-all duration-200 sm:w-[220px] sm:flex-none sm:py-2 md:w-[220px] ${
+            className={`group relative flex w-full min-w-0 flex-col overflow-hidden rounded-md px-3 py-4 text-left transition-all duration-200 sm:flex-none sm:py-2 ${
+              widthClasses
+            } ${
               card.onClick ? 'cursor-pointer' : ''
             } ${!card.isActive ? 'hover:brightness-85 hover:saturate-90' : ''}`}
             style={{ background: card.isActive ? 'var(--secondary)' : undefined }}
@@ -87,7 +92,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
               </div>
             )}
 
-            <div className='relative z-10'>
+            <div className={pinFooter ? 'relative z-10 flex h-full flex-col' : 'relative z-10'}>
               <div className='mb-1 flex items-center justify-between'>
                 <span
                   className={`text- font-medium sm:text-base ${
@@ -120,7 +125,7 @@ export default function InlineMetricsHeader({ cards }: InlineMetricsHeaderProps)
                   </span>
                 )}
               </div>
-              {card.footer && <div className='mt-2'>{card.footer}</div>}
+              {card.footer && <div className={pinFooter ? 'mt-auto pt-2' : 'mt-2'}>{card.footer}</div>}
             </div>
           </button>
         );
