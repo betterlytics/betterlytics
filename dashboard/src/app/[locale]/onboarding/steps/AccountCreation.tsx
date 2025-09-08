@@ -163,7 +163,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
               type='button'
               onClick={() => handleOAuthRegistration('google')}
               disabled={isGooglePending}
-              className='font-roboto transition-border relative box-border flex h-10 w-full min-w-min cursor-pointer appearance-none items-center justify-center rounded-xl border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-all duration-200 ease-in-out outline-none select-none disabled:cursor-not-allowed disabled:opacity-50'
+              className='font-roboto transition-border relative box-border flex h-10 w-full min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-all duration-200 ease-in-out outline-none select-none disabled:cursor-not-allowed disabled:opacity-50'
             >
               <GoogleIcon />
 
@@ -179,7 +179,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
               type='button'
               onClick={() => handleOAuthRegistration('github')}
               disabled={isGithubPending}
-              className='font-roboto transition-border relative box-border flex h-10 w-full min-w-min cursor-pointer appearance-none items-center justify-center rounded-xl border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-all duration-200 ease-in-out outline-none select-none disabled:cursor-not-allowed disabled:opacity-50'
+              className='font-roboto transition-border relative box-border flex h-10 w-full min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-all duration-200 ease-in-out outline-none select-none disabled:cursor-not-allowed disabled:opacity-50'
             >
               <GitHubIcon />
 
@@ -223,7 +223,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
               type='email'
               required
               placeholder={t('form.emailPlaceholder')}
-              className='h-10 rounded-xl'
+              className='h-10 rounded-md'
               disabled={isPending}
             />
           </div>
@@ -236,7 +236,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
               type='password'
               required
               placeholder={t('form.passwordPlaceholder')}
-              className='h-10 rounded-xl'
+              className='h-10 rounded-md'
               disabled={isPending}
             />
           </div>
@@ -249,7 +249,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
               type='password'
               required
               placeholder={t('form.confirmPasswordPlaceholder')}
-              className='h-10 rounded-xl'
+              className='h-10 rounded-md'
               disabled={isPending}
             />
           </div>
@@ -257,7 +257,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
           <Button
             type='submit'
             disabled={isPending}
-            className='shadow-primary/50 shadow-2x mt-3 h-10 w-full cursor-pointer rounded-xl'
+            className='shadow-primary/50 shadow-2x mt-3 h-10 w-full cursor-pointer rounded-md'
           >
             {isPending ? t('form.creatingAccount') : t('form.continueButton')}
           </Button>
