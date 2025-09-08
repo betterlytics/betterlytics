@@ -12,7 +12,10 @@ export function UserJourneyFilters() {
   return (
     <div className='flex items-center gap-2'>
       <Select value={String(numberOfSteps)} onValueChange={(v) => setNumberOfSteps(Number(v))}>
-        <SelectTrigger id='steps-select' className='h-9 cursor-pointer md:w-[200px]'>
+        <SelectTrigger
+          id='steps-select'
+          className='h-9 cursor-pointer border border-[--input] shadow-sm md:w-[200px]'
+        >
           <SelectValue placeholder={`${t('steps')}: ${numberOfSteps}`} />
         </SelectTrigger>
         <SelectContent className='cursor-pointer'>
@@ -25,7 +28,10 @@ export function UserJourneyFilters() {
       </Select>
 
       <Select value={String(numberOfJourneys)} onValueChange={(v) => setNumberOfJourneys(Number(v))}>
-        <SelectTrigger id='journeys-select' className='h-9 cursor-pointer md:w-[200px]'>
+        <SelectTrigger
+          id='journeys-select'
+          className='h-9 cursor-pointer border border-[--input] shadow-sm md:w-[200px]'
+        >
           <SelectValue placeholder={t('topJourneys', { journeys: numberOfJourneys.toString() })} />
         </SelectTrigger>
         <SelectContent className='cursor-pointer'>
