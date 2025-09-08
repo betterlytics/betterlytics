@@ -120,26 +120,25 @@
 
 .dark {
   /* Match provided palette */
-  --background: oklch(15% 0.01 265); /* background */
+  --background: oklch(18.22% 0 0); /* background */
   --foreground: oklch(0.95 0.01 265);
 
-  --card: oklch(18.588% 0.00692 258.416); /* card */
-
+  --card: hsl(0 0% 10.5%); /* card */
   --card-foreground: oklch(0.95 0.01 265);
 
-  --popover: hsl(0, 2%, 10%);
+  --popover: hsl(0 0% 15%);
   --popover-foreground: oklch(0.95 0.01 265);
 
   --primary: oklch(56% 0.196 268.74); /* blue-700 */
   --primary-foreground: white;
 
-  --secondary: oklch(25% 0.01 270);
+  --secondary: hsl(0 0% 15%);
   --secondary-foreground: oklch(0.95 0.01 265);
 
-  --muted: oklch(21% 0.008 265);
+  --muted: hsl(0 0% 12%);
   --muted-foreground: oklch(0.86 0.02 265);
 
-  --accent: oklch(28% 0.018 270);
+  --accent: hsl(0 0% 20%);
   --accent-foreground: hsl(0 0% 90%);
 
   --destructive: oklch(0.7 0.2171 19.06);
@@ -147,13 +146,12 @@
 
   --border: hsl(0 0% 22%);
   --input: hsl(0, 0%, 30%);
-
   --ring: oklch(50% 0.222 268.78); /* blue-800 */
 
   --chart-1: oklch(56% 0.196 268.74); /* blue-700 - Primary blue */
   --chart-2: oklch(0.65 0.2 162.48); /* Teal */
   --chart-3: oklch(0.7 0.2 130); /* Green */
-  --chart-4: oklch(0.7 0.2 40); /* Orange */
+  --chart-4: oklch(0.7 0.25 40); /* Orange */
   --chart-5: oklch(0.7 0.25 320); /* Purple */
   --chart-comparison: oklch(0.65 0.02 265); /* Slightly lighter gray */
 
@@ -171,9 +169,9 @@
   --sidebar-foreground: oklch(0.95 0.01 265);
   --sidebar-primary: oklch(56% 0.196 268.74); /* blue-700 */
   --sidebar-primary-foreground: white;
-  --sidebar-accent: oklch(25% 0.012 270);
+  --sidebar-accent: oklch(0.25 0.04 266);
   --sidebar-accent-foreground: oklch(0.95 0.01 265);
-  --sidebar-border: oklch(26% 0.008 265);
+  --sidebar-border: oklch(0.3 0.02 266);
   --sidebar-ring: oklch(50% 0.222 268.78); /* blue-800 */
 
   --flagicon-border: oklch(0.75 0.02 265 / 0.5);
@@ -181,11 +179,11 @@
   --map-feature-border-hovered: oklch(0.7 0.2 130); /* Green */
   --map-feature-border-clicked: oklch(0.7 0.25 40); /* Orange */
 
-  --trend-up: oklch(62% 0.19 150);
+  --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
 
-  --table-header: oklch(30% 0.01 265);
-  --table-header-hover: oklch(36% 0.012 265);
+  --table-header: oklch(29.313% 0.00003 271.152);
+  --table-header-hover: oklch(36.768% 0.00004 271.152);
 }
 
 @layer base {
@@ -197,6 +195,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    @apply tracking-wide;
+    font-family: var(--font-roboto-sans);
+  }
+  code,
+  pre {
+    font-family: var(--font-roboto-mono);
   }
 }
 
