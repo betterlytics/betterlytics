@@ -320,7 +320,7 @@ export default App;`;
                 <Button
                   variant='default'
                   onClick={handleFinishOnboarding}
-                  className='h-10 cursor-pointer rounded-xl'
+                  className='h-10 cursor-pointer rounded-md'
                 >
                   {t('buttons.continueToDashboard')}
                 </Button>
@@ -333,7 +333,7 @@ export default App;`;
                 exit={{ opacity: 0 }}
                 className='relative inline-block'
               >
-                <Button variant='outline' onClick={handleSkipForNow} className='h-10 cursor-pointer rounded-xl'>
+                <Button variant='outline' onClick={handleSkipForNow} className='h-10 cursor-pointer rounded-md'>
                   {t('buttons.skipForNow')}
                 </Button>
               </motion.div>
