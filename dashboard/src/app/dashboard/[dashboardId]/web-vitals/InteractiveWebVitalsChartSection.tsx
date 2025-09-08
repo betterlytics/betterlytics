@@ -196,20 +196,26 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   return (
     <div className='space-y-6'>
       <MultiSeriesChart
-        title={
-          <span className='flex items-center gap-2'>
-            {t(METRIC_LABEL_KEYS[active])}
-            <MetricInfo metric={active} />
-          </span>
-        }
+        title={undefined}
         data={chartData}
         granularity={granularity}
         formatValue={(v) => formatCWV(active, Number(v))}
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
         series={activeSeries}
         referenceLines={referenceLines}
-        headerRight={<SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />}
-        headerContent={<InlineMetricsHeader cards={cards} />}
+        headerRight={undefined}
+        headerContent={
+          <div className='space-y-3'>
+            <InlineMetricsHeader cards={cards} />
+            <div className='flex items-center justify-center gap-4'>
+              <span className='text-muted-foreground flex items-center gap-2 text-sm font-medium'>
+                {t(METRIC_LABEL_KEYS[active])}
+                <MetricInfo metric={active} />
+              </span>
+              <SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />
+            </div>
+          </div>
+        }
       />
     </div>
   );
