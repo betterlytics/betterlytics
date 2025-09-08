@@ -25,7 +25,7 @@ export default function SettingsButton() {
         <PopoverTrigger asChild>
           <Button
             variant='ghost'
-            className='text-foreground flex w-full items-center gap-2 rounded px-2 py-2 text-sm font-medium'
+            className='text-foreground flex w-full cursor-pointer items-center gap-2 rounded px-2 py-2 text-sm font-medium'
           >
             <Settings size={18} />
             {t('dashboardSettings')}

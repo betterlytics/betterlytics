@@ -11,7 +11,11 @@ export function IntegrationButton() {
 
   return (
     <>
-      <Button onClick={() => setIsSheetOpen(true)} variant='secondary' className='border-border border-1'>
+      <Button
+        onClick={() => setIsSheetOpen(true)}
+        variant='secondary'
+        className='border-border cursor-pointer border-1'
+      >
         {t('integrationSetup')}
       </Button>
       <IntegrationSheet open={isSheetOpen} onOpenChange={setIsSheetOpen} />

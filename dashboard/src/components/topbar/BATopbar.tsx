@@ -55,7 +55,10 @@ export default function BATopbar() {
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' className='flex h-10 items-center space-x-2 rounded-full px-3'>
+                    <Button
+                      variant='ghost'
+                      className='flex h-10 cursor-pointer items-center space-x-2 rounded-full px-3'
+                    >
                       <span className='text-foreground hidden text-sm font-medium sm:block'>
                         {session.user?.name || t('userFallback')}
                       </span>

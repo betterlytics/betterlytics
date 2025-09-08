@@ -42,7 +42,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
-          className='h-auto w-full min-w-0 justify-between border px-2.5 py-1.5 text-sm font-medium'
+          className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium'
         >
           <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden'>
             <Globe className='text-muted-foreground h-4 w-4 flex-shrink-0' />{' '}
