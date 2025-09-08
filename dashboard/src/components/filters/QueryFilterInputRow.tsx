@@ -54,14 +54,14 @@ export function QueryFilterInputRow<TEntity>({
         value={filter.column}
         onValueChange={(column: FilterColumn) => onFilterUpdate({ ...filter, column })}
       >
-        <SelectTrigger className='col-span-8 w-full md:col-span-4'>
+        <SelectTrigger className='col-span-8 w-full cursor-pointer md:col-span-4'>
           <SelectValue />
         </SelectTrigger>
         <SelectContent align={'start'} position={'popper'} className={cn(isMobile && 'max-h-72')}>
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => (
-              <SelectItem key={column.value} value={column.value}>
+              <SelectItem className='cursor-pointer' key={column.value} value={column.value}>
                 {column.icon}
                 {t(`columns.${column.value}`)}
               </SelectItem>
@@ -73,14 +73,18 @@ export function QueryFilterInputRow<TEntity>({
         value={filter.operator}
         onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
       >
-        <SelectTrigger className='col-span-4 w-full md:col-span-2'>
+        <SelectTrigger className='col-span-4 w-full cursor-pointer md:col-span-2'>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectLabel>{t('operator')}</SelectLabel>
-            <SelectItem value={'='}>{t('is')}</SelectItem>
-            <SelectItem value={'!='}>{t('isNot')}</SelectItem>
+            <SelectItem className='cursor-pointer' value={'='}>
+              {t('is')}
+            </SelectItem>
+            <SelectItem className='cursor-pointer' value={'!='}>
+              {t('isNot')}
+            </SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -91,7 +95,7 @@ export function QueryFilterInputRow<TEntity>({
       />
       <Button
         variant='ghost'
-        className='col-span-2 md:col-span-1'
+        className='col-span-2 cursor-pointer md:col-span-1'
         onClick={() => requestRemoval(filter)}
         disabled={disableDeletion}
       >

@@ -71,12 +71,12 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <Button className='h-8 w-full md:w-28' onClick={addEmptyQueryFilter} variant='outline'>
+            <Button className='h-8 w-full cursor-pointer md:w-28' onClick={addEmptyQueryFilter} variant='outline'>
               {t('selector.addFilter')}
             </Button>
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
               <Button
-                className='hover:bg-destructive/90 dark:hover:bg-destructive/50 h-8 w-[48%] max-w-[110px]'
+                className='hover:bg-destructive/90 dark:hover:bg-destructive/50 h-8 w-[48%] max-w-[110px] cursor-pointer'
                 disabled={!isFiltersModified}
                 onClick={cancelFilters}
                 variant={isFiltersModified ? 'destructive' : 'ghost'}
@@ -84,7 +84,7 @@ export default function QueryFiltersSelector() {
                 {t('selector.cancel')}
               </Button>
               <Button
-                className='h-8 w-[48%] max-w-[110px]'
+                className='h-8 w-[48%] max-w-[110px] cursor-pointer'
                 disabled={isFiltersModified === false}
                 onClick={saveFilters}
                 variant={isFiltersModified ? 'default' : 'ghost'}
@@ -106,14 +106,14 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <Button className='h-8 w-full md:w-28' onClick={addEmptyQueryFilter} variant='outline'>
+            <Button className='h-8 w-full cursor-pointer md:w-28' onClick={addEmptyQueryFilter} variant='outline'>
               {t('selector.addFilter')}
             </Button>
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
-              <Button className='h-8 w-[48%] max-w-[110px]' onClick={cancelFilters} variant='ghost'>
+              <Button className='h-8 w-[48%] max-w-[110px] cursor-pointer' onClick={cancelFilters} variant='ghost'>
                 {t('selector.cancel')}
               </Button>
-              <Button className='h-8 w-[48%] max-w-[110px]' onClick={saveFilters}>
+              <Button className='h-8 w-[48%] max-w-[110px] cursor-pointer' onClick={saveFilters}>
                 {t('selector.apply')}
               </Button>
             </div>
@@ -127,7 +127,11 @@ export default function QueryFiltersSelector() {
     return (
       <Dialog open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <DialogTrigger asChild>
-          <Button variant='secondary' role='combobox' className={'min-w-[200px] justify-between border shadow-sm'}>
+          <Button
+            variant='secondary'
+            role='combobox'
+            className={'min-w-[200px] cursor-pointer justify-between border shadow-sm'}
+          >
             <div className='flex items-center gap-2'>
               <FilterIcon className='h-4 w-4' />
               <span>{t('selector.triggerLabel')}</span>
@@ -148,7 +152,11 @@ export default function QueryFiltersSelector() {
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
-        <Button variant='secondary' role='combobox' className={'min-w-[200px] justify-between border shadow-sm'}>
+        <Button
+          variant='secondary'
+          role='combobox'
+          className={'min-w-[200px] cursor-pointer justify-between border shadow-sm'}
+        >
           <div className='flex items-center gap-2'>
             <FilterIcon className='h-4 w-4' />
             <span>{t('selector.triggerLabel')}</span>
