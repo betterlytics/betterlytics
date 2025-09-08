@@ -37,7 +37,7 @@ export default function BATopbar() {
 
   return (
     <>
-      <header className='bg-sidebar/95 supports-[backdrop-filter]:bg-sidebar/80 sticky top-0 z-50 w-full border-b backdrop-blur'>
+      <header className='bg-background supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 w-full border-b backdrop-blur'>
         <div className='mx-auto flex h-(--topbar-height) items-center justify-between px-8'>
           <div className='flex items-center space-x-2'>
             <NextLink href='/dashboards' className='flex items-center space-x-2'>

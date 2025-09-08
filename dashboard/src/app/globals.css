@@ -147,7 +147,7 @@
   --destructive-foreground: white;
 
   /* Borders & input */
-  --border: oklch(26.879% 0.00576 271.207);
+  --border: oklch(30.117% 0.00947 268.373);
   --input: oklch(0.3 0.007 265);
   --ring: oklch(50% 0.222 268.78); /* brand blue kept for focus */
 
