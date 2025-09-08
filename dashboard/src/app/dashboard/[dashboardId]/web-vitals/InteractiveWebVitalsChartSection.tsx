@@ -231,7 +231,7 @@ function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
   const isAnyEnabled = useMemo(() => enabledKeys.size, [enabledKeys]);
 
   return (
-    <div className='flex flex-wrap items-center gap-2'>
+    <div className='grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center'>
       {defs.map((d) => {
         const isOn = enabledKeys.has(d.dataKey);
         return (
@@ -242,7 +242,7 @@ function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
             disabled={!isAnyEnabled}
             aria-pressed={isOn}
             className={cn(
-              'inline-flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium',
+              'inline-flex w-full cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium sm:w-auto',
               isOn
                 ? 'bg-primary/10 border-primary/20 text-popover-foreground disabled:opacity-50'
                 : 'bg-muted/30 border-border text-muted-foreground',
