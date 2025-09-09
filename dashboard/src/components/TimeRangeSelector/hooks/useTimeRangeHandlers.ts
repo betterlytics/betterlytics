@@ -179,36 +179,6 @@ export function useTimeRangeHandlers({
     [updateTempState, tempState],
   );
 
-  const handleCompareStartDateSelect = useCallback(
-    (date: Date | undefined) => {
-      updateTempState({
-        range: 'custom',
-        compareStart: date,
-      });
-    },
-    [updateTempState, tempState],
-  );
-
-  const handleCompareEndDateSelect = useCallback(
-    (date: Date | undefined) => {
-      if (!date || !tempState.customStart || !tempState.customEnd) {
-        return;
-      }
-
-      const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
-
-      const compareEnd = getDateWithTimeOfDay(date, tempState.customEnd);
-      const compareStart = new Date(compareEnd.getTime() - timeDifference);
-
-      updateTempState({
-        range: 'custom',
-        compareStart,
-        compareEnd,
-      });
-    },
-    [updateTempState, tempState],
-  );
-
   const handleApply = useCallback(() => {
     let finalGranularity = tempState.granularity;
     if (!allowedGranularities.includes(finalGranularity)) {
