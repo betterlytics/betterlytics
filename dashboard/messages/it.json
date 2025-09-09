@@ -800,21 +800,9 @@
       "events": "Eventi"
     },
     "emptyStates": {
-      "noPageData": "Nessun dato di pagina disponibile",
-      "noEntryPagesData": "Nessun dato sulle pagine di ingresso disponibile",
-      "noExitPagesData": "Nessun dato sulle pagine di uscita disponibile",
-      "noCountryData": "Nessun dato per paese disponibile",
-      "noWorldMapData": "Nessun dato per la mappa mondiale disponibile",
-      "noBrowserData": "Nessun dato per browser disponibile",
-      "noDeviceData": "Nessun dato per dispositivo disponibile",
-      "noOperatingSystemData": "Nessun dato per sistema operativo disponibile",
-      "noReferrerData": "Nessun dato per sito di riferimento disponibile",
-      "noSourceData": "Nessun dato per fonte disponibile",
-      "noChannelData": "Nessun dato per canale disponibile",
-      "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile",
-      "tabbedTableEmptyState": "Nessun dato per {tab} disponibile",
       "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri",
-      "noUserJourneyData": "Nessun dato per percorso utente disponibile"
+      "noUserJourneyData": "Nessun dato per percorso utente disponibile",
+      "noData": "Nessun dato disponibile"
     }
   },
   "devicesPage": {

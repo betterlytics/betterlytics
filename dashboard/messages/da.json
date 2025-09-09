@@ -800,21 +800,9 @@
       "events": "Hændelser"
     },
     "emptyStates": {
-      "noPageData": "Ingen sidedata tilgængelig",
-      "noEntryPagesData": "Ingen indgangssidedata tilgængelig",
-      "noExitPagesData": "Ingen udgangssidedata tilgængelig",
-      "noCountryData": "Ingen landedata tilgængelig",
-      "noWorldMapData": "Ingen verdenskortdata tilgængelig",
-      "noBrowserData": "Ingen browserdata tilgængelig",
-      "noDeviceData": "Ingen enhedsdata tilgængelig",
-      "noOperatingSystemData": "Ingen operativsystemdata tilgængelig",
-      "noReferrerData": "Ingen henvisningsdata tilgængelig",
-      "noSourceData": "Ingen kildedata tilgængelig",
-      "noChannelData": "Ingen kanaldata tilgængelig",
-      "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig",
-      "tabbedTableEmptyState": "Ingen {tab} data tilgængelig",
       "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",
-      "noUserJourneyData": "Ingen brugerrejse data tilgængelig"
+      "noUserJourneyData": "Ingen brugerrejse data tilgængelig",
+      "noData": "Ingen data tilgængelig"
     }
   },
   "devicesPage": {

@@ -40,15 +40,8 @@ export const CampaignDataKey = {
   CONTENT: 'content',
 } as const;
 
-function UTMPieChart({
-  data,
-  dataKey,
-  emptyMessage,
-}: {
-  data: CampaignBreakdownItem[];
-  dataKey: string;
-  emptyMessage: string;
-}) {
+function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey: string }) {
+  const t = useTranslations('dashboard.emptyStates');
   const chartData = useMemo((): ChartDataItem[] => {
     if (!data || data.length === 0) return [];
     const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);
@@ -67,7 +60,10 @@ function UTMPieChart({
   if (chartData.length === 0) {
     return (
       <div className='flex min-h-[300px] items-center justify-center'>
-        <p className='text-muted-foreground text-sm'>{emptyMessage}</p>
+        <div className='text-center'>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+        </div>
       </div>
     );
   }
@@ -136,28 +132,24 @@ export default function UTMBreakdownTabbedChart({
         label: t('tabs.source'),
         data: sourceBreakdown,
         dataKey: CampaignDataKey.SOURCE,
-        emptyMessage: t('empty.source'),
       },
       {
         key: 'medium',
         label: t('tabs.medium'),
         data: mediumBreakdown,
         dataKey: CampaignDataKey.MEDIUM,
-        emptyMessage: t('empty.medium'),
       },
       {
         key: 'content',
         label: t('tabs.content'),
         data: contentBreakdown,
         dataKey: CampaignDataKey.CONTENT,
-        emptyMessage: t('empty.content'),
       },
       {
         key: 'term',
         label: t('tabs.terms'),
         data: termBreakdown,
         dataKey: CampaignDataKey.TERM,
-        emptyMessage: t('empty.term'),
       },
     ],
     [sourceBreakdown, mediumBreakdown, contentBreakdown, termBreakdown, t],
@@ -185,7 +177,7 @@ export default function UTMBreakdownTabbedChart({
         <CardContent className='px-6 pt-0 pb-4'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
-              <UTMPieChart data={tab.data} dataKey={tab.dataKey} emptyMessage={tab.emptyMessage} />
+              <UTMPieChart data={tab.data} dataKey={tab.dataKey} />
             </TabsContent>
           ))}
         </CardContent>

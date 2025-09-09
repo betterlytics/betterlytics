@@ -31,7 +31,7 @@ export default function ReferrerTrafficTrendChart({
   comparisonMap,
   granularity,
 }: ReferrerTrafficTrendChartProps) {
-  const t = useTranslations('components.devices.trends');
+  const t = useTranslations('dashboard.emptyStates');
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>

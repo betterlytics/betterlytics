@@ -30,7 +30,6 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: t('emptyStates.noPageData'),
         },
         {
           key: 'entry',
@@ -41,7 +40,6 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: t('emptyStates.noEntryPagesData'),
         },
         {
           key: 'exit',
@@ -52,7 +50,6 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: t('emptyStates.noExitPagesData'),
         },
       ]}
       footer={

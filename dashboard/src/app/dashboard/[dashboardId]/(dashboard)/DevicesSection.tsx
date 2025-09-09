@@ -34,7 +34,6 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
             comparisonValue: item.compare?.visitors,
             icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
           })),
-          emptyMessage: t('emptyStates.noBrowserData'),
         },
         {
           key: 'devices',
@@ -46,7 +45,6 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
             comparisonValue: item.compare?.visitors,
             icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
           })),
-          emptyMessage: t('emptyStates.noDeviceData'),
         },
         {
           key: 'os',
@@ -58,7 +56,6 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
             comparisonValue: item.compare?.visitors,
             icon: <OSIcon name={item.os} className='h-4 w-4' />,
           })),
-          emptyMessage: t('emptyStates.noOperatingSystemData'),
         },
       ]}
       footer={

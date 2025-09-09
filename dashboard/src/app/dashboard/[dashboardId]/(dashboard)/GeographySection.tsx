@@ -42,14 +42,12 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
               />
             ),
           })),
-          emptyMessage: t('emptyStates.noCountryData'),
         },
         {
           key: 'worldmap',
           label: t('tabs.worldMap'),
           data: [],
-          emptyMessage: t('emptyStates.noWorldMapData'),
-          customContent: worldMapData ? (
+          customContent: (
             <div className='h-[280px] w-full'>
               <LeafletMap
                 visitorData={worldMapData.visitorData}
@@ -57,8 +55,6 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
                 showZoomControls={false}
               />
             </div>
-          ) : (
-            <div className='text-muted-foreground py-12 text-center'>{t('emptyStates.noWorldMapData')}</div>
           ),
         },
       ]}

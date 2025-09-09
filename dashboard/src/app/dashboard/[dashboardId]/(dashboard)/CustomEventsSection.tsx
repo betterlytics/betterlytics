@@ -31,7 +31,6 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
             trendPercentage: event.change?.count,
             comparisonValue: event.compare?.count,
           })),
-          emptyMessage: t('emptyStates.noCustomEventsData'),
         },
       ]}
       footer={

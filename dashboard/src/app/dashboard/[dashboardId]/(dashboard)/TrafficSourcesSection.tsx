@@ -33,7 +33,6 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
               trendPercentage: item.change?.visits,
               comparisonValue: item.compare?.visits,
             })),
-          emptyMessage: t('emptyStates.noReferrerData'),
         },
         {
           key: 'sources',
@@ -44,7 +43,6 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
             trendPercentage: item.change?.visits,
             comparisonValue: item.compare?.visits,
           })),
-          emptyMessage: t('emptyStates.noSourceData'),
         },
         {
           key: 'channels',
@@ -55,7 +53,6 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
             trendPercentage: item.change?.visits,
             comparisonValue: item.compare?.visits,
           })),
-          emptyMessage: t('emptyStates.noChannelData'),
         },
       ]}
       footer={

@@ -85,7 +85,6 @@ export default function UTMBreakdownTabbedTable({
         data: sourceBreakdown as BaseUTMBreakdownItem[],
         columns: sourceColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: t('empty.source'),
       },
       {
         key: 'medium',
@@ -93,7 +92,6 @@ export default function UTMBreakdownTabbedTable({
         data: mediumBreakdown as BaseUTMBreakdownItem[],
         columns: mediumColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: t('empty.medium'),
       },
       {
         key: 'content',
@@ -101,7 +99,6 @@ export default function UTMBreakdownTabbedTable({
         data: contentBreakdown as BaseUTMBreakdownItem[],
         columns: contentColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: t('empty.content'),
       },
       {
         key: 'term',
@@ -109,7 +106,6 @@ export default function UTMBreakdownTabbedTable({
         data: termBreakdown as BaseUTMBreakdownItem[],
         columns: termColumns,
         defaultSorting: [{ id: 'visitors', desc: true }],
-        emptyMessage: t('empty.term'),
       },
     ],
     [

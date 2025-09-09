@@ -49,7 +49,7 @@ export default function DeviceUsageTrendChart({
   comparisonMap,
   granularity,
 }: DeviceUsageTrendChartProps) {
-  const t = useTranslations('components.devices.trends');
+  const t = useTranslations('dashboard.emptyStates');
 
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (

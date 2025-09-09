@@ -19,7 +19,7 @@ interface BAPieChartProps {
 }
 
 const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getIcon, formatValue, getLabel }) => {
-  const t = useTranslations('components.devices.trends');
+  const t = useTranslations('dashboard.emptyStates');
   if (data.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>

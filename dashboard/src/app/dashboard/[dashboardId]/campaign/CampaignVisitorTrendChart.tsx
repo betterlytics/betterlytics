@@ -23,10 +23,16 @@ export default function CampaignVisitorTrendChart({
   granularity,
 }: CampaignVisitorTrendChartProps) {
   const t = useTranslations('components.campaign.trend');
+  const tEmpty = useTranslations('dashboard.emptyStates');
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='bg-card border-border flex min-h-[350px] items-center justify-center rounded-xl border p-6 shadow'>
-        <p className='text-muted-foreground'>{t('empty')}</p>
+        <div className='flex h-[300px] items-center justify-center'>
+          <div className='text-center'>
+            <p className='text-muted-foreground mb-1'>{tEmpty('noData')}</p>
+            <p className='text-muted-foreground/70 text-xs'>{tEmpty('adjustTimeRange')}</p>
+          </div>
+        </div>
       </div>
     );
   }

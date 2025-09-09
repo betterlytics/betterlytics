@@ -4,6 +4,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
+import { useTranslations } from 'next-intl';
 
 interface ProgressBarData {
   label: string;
@@ -17,7 +18,6 @@ interface TabConfig<T extends ProgressBarData> {
   key: string;
   label: string;
   data: T[];
-  emptyMessage: string;
   customContent?: React.ReactNode;
 }
 
@@ -35,17 +35,24 @@ function MultiProgressTable<T extends ProgressBarData>({
   footer,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
-
+  const t = useTranslations('dashboard.emptyStates');
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
   }, []);
 
-  const renderProgressList = useCallback((data: T[], emptyMessage: string) => {
+  const renderProgressList = useCallback((data: T[]) => {
     const maxVisitors = Math.max(...data.map((item) => item.value), 1);
     const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
 
     if (data.length === 0) {
-      return <div className='text-muted-foreground py-12 text-center'>{emptyMessage}</div>;
+      return (
+        <div className='flex h-[300px] items-center justify-center'>
+          <div className='text-center'>
+            <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+            <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+          </div>
+        </div>
+      );
     }
 
     return (
@@ -81,7 +88,7 @@ function MultiProgressTable<T extends ProgressBarData>({
         return tab.customContent;
       }
 
-      return renderProgressList(tab.data, tab.emptyMessage);
+      return renderProgressList(tab.data);
     },
     [renderProgressList],
   );
