@@ -49,8 +49,8 @@ export default function CampaignPerformanceTable({ data }: CampaignPerformanceTa
   ];
 
   return (
-    <div className='bg-card border-border gap-3 rounded-lg border p-6 shadow'>
-      <h2 className='text-foreground mb-1 text-lg font-bold'>{t('title')}</h2>
+    <div className='bg-card border-border gap-3 rounded-xl border p-6 shadow'>
+      <h2 className='text-foreground mb-1 text-lg font-medium'>{t('title')}</h2>
       <div className='mt-4'>
         <DataTable columns={columns} data={data} defaultSorting={[{ id: 'visitors', desc: true }]} />
       </div>

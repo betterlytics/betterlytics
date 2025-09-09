@@ -47,7 +47,7 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
       <Suspense
         fallback={
           <div className='relative min-h-[400px]'>
-            <div className='bg-background/70 absolute inset-0 flex items-center justify-center rounded-lg backdrop-blur-sm'>
+            <div className='bg-background/70 absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm'>
               <div className='flex flex-col items-center'>
                 <Spinner size='lg' className='mb-2' />
                 <p className='text-muted-foreground'>Loading journey data...</p>

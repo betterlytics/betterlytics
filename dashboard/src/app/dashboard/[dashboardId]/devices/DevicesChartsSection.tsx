@@ -25,8 +25,8 @@ export default function DevicesChartsSection({
 
   return (
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
-      <div className='bg-card border-border rounded-lg border p-6 shadow xl:col-span-5'>
-        <h2 className='text-foreground mb-1 text-lg font-bold'>{t('deviceUsageTrend')}</h2>
+      <div className='bg-card border-border rounded-xl border p-6 shadow xl:col-span-5'>
+        <h2 className='text-foreground mb-1 text-lg font-medium'>{t('deviceUsageTrend')}</h2>
         <DeviceUsageTrendChart
           chartData={deviceUsageTrend.data}
           categories={deviceUsageTrend.categories}
@@ -34,15 +34,16 @@ export default function DevicesChartsSection({
           granularity={granularity}
         />
       </div>
-      <div className='bg-card border-border rounded-lg border p-6 shadow xl:col-span-3'>
-        <h2 className='text-foreground mb-1 text-lg font-bold'>{t('deviceTypes')}</h2>
-        <p className='text-muted-foreground mb-4 text-sm'>{t('visitorsByDeviceCategory')}</p>
-        <BAPieChart
-          data={deviceBreakdown}
-          getColor={getDeviceColor}
-          getLabel={getDeviceLabel}
-          getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
-        />
+      <div className='bg-card border-border rounded-xl border p-6 shadow xl:col-span-3'>
+        <h2 className='text-foreground mb-1 text-lg font-medium'>{t('deviceTypes')}</h2>
+        <div className='mt-6'>
+          <BAPieChart
+            data={deviceBreakdown}
+            getColor={getDeviceColor}
+            getLabel={getDeviceLabel}
+            getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
+          />
+        </div>
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ function TabbedTable<TData>({
   const t = useTranslations('components.tabbedTable');
 
   return (
-    <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
+    <Card className={`bg-card border-border rounded-xl border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='px-1 pb-0 sm:px-6'>
           <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>

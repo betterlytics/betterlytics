@@ -164,7 +164,7 @@ export default function UTMBreakdownTabbedChart({
   );
 
   return (
-    <Card className='bg-card border-border rounded-lg border shadow'>
+    <Card className='bg-card border-border rounded-xl border shadow'>
       <Tabs defaultValue='source'>
         <CardHeader className='pb-0'>
           <div className='flex flex-col items-center justify-between sm:flex-row'>

@@ -25,14 +25,14 @@ export default function CampaignVisitorTrendChart({
   const t = useTranslations('components.campaign.trend');
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
-      <div className='bg-card border-border flex min-h-[350px] items-center justify-center rounded-lg border p-6 shadow'>
+      <div className='bg-card border-border flex min-h-[350px] items-center justify-center rounded-xl border p-6 shadow'>
         <p className='text-muted-foreground'>{t('empty')}</p>
       </div>
     );
   }
 
   return (
-    <div className='bg-card border-border rounded-lg border p-6 shadow'>
+    <div className='bg-card border-border rounded-xl border p-6 shadow'>
       <h2 className='text-foreground mb-1 text-lg font-bold'>{t('title')}</h2>
       <p className='text-muted-foreground mb-4 text-sm'>{t('description')}</p>
       <div style={{ width: '100%', height: 300 }}>

@@ -17,13 +17,13 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
   return (
     <div className='relative mt-8 min-h-[400px] overflow-x-auto'>
       {journeyData && journeyData.nodes.length > 0 && (
-        <div className='bg-card text-card-foreground min-w-5xl rounded-lg p-4 shadow'>
+        <div className='bg-card text-card-foreground min-w-5xl rounded-xl p-4 shadow'>
           <UserJourneyChart data={journeyData} />
         </div>
       )}
 
       {journeyData?.nodes.length === 0 && (
-        <div className='bg-muted rounded-md p-8 text-center'>
+        <div className='bg-muted rounded-xl p-8 text-center'>
           <p className='text-muted-foreground'>{t('noData')}</p>
         </div>
       )}
