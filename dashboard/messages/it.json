@@ -1004,15 +1004,12 @@
           "percentage": "Percentuale"
         },
         "topOperatingSystems": "Sistemi operativi principali",
-        "mostCommonOperatingSystems": "Sistemi operativi più comuni",
-        "topBrowsers": "Browser principali",
-        "mostCommonBrowsers": "Browser più comuni"
+        "topBrowsers": "Browser principali"
       },
       "charts": {
         "deviceTypes": "Tipo di dispositivo",
         "visitorsByDeviceCategory": "Visitatori per categoria dispositivo",
-        "deviceUsageTrend": "Tendenza utilizzo dispositivi",
-        "visitorTrendsByDeviceType": "Tendenza visitatori per tipo dispositivo"
+        "deviceUsageTrend": "Tendenza utilizzo dispositivi"
       },
       "trends": {
         "noData": "Nessun dato di tendenza disponibile",
@@ -1031,7 +1028,6 @@
       },
       "performance": {
         "title": "Performance campagna",
-        "description": "Metriche chiave per le tue campagne",
         "columns": {
           "campaignName": "Nome campagna",
           "visitors": "Visitatori",
@@ -1047,12 +1043,10 @@
       },
       "utm": {
         "table": {
-          "title": "Ripartizione parametri UTM",
-          "description": "Performance campagna sui diversi parametri UTM"
+          "title": "Ripartizione parametri UTM"
         },
         "chart": {
-          "title": "Distribuzione UTM",
-          "description": "Ripartizione visiva delle performance dei parametri UTM"
+          "title": "Distribuzione UTM"
         },
         "tabs": {
           "source": "Sorgente",
@@ -1076,7 +1070,6 @@
       },
       "landing": {
         "title": "Performance pagine di destinazione campagna",
-        "description": "Metriche chiave per le pagine di destinazione delle campagne",
         "columns": {
           "campaignName": "Nome campagna",
           "landingPageUrl": "URL pagina di destinazione",
@@ -1235,7 +1228,6 @@
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",
         "title": "Analisi pagine",
-        "description": "Analizza le pagine principali, le prestazioni di ingresso/uscita e il coinvolgimento per ottimizzare i contenuti.",
         "filterByPathPlaceholder": "Filtra per percorso..."
       }
     },
@@ -1252,13 +1244,10 @@
       },
       "charts": {
         "distribution": "Distribuzione siti di riferimento",
-        "trafficByCategory": "Fonti di traffico per categoria",
-        "trafficTrends": "Trend traffico di riferimento",
-        "trafficBySourceOverTime": "Traffico per fonte nel tempo"
+        "trafficTrends": "Trend traffico di riferimento"
       },
       "table": {
         "details": "Dettagli sito di riferimento",
-        "detailsDescription": "Analisi dettagliata delle fonti di traffico",
         "tabs": {
           "all": "Tutti",
           "search": "Ricerca",
@@ -1312,8 +1301,7 @@
         "title": "Clic in uscita unici nel tempo"
       },
       "pieChart": {
-        "title": "Distribuzione link in uscita",
-        "description": "Link in uscita principali per clic unici"
+        "title": "Distribuzione link in uscita"
       }
     },
     "webVitals": {

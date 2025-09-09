@@ -63,7 +63,7 @@ export default function DeviceUsageTrendChart({
   }
 
   return (
-    <div className='w-full'>
+    <div className='mt-10 w-full'>
       <div className='h-[250px] w-full'>
         <ResponsiveContainer width='100%' height='100%'>
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>

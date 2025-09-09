@@ -75,7 +75,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
     <div className='bg-card border-border rounded-lg border p-6 shadow'>
       <div className='mb-8 flex items-center justify-between'>
         <div>
-          <h2 className='text-foreground mb-1 text-lg font-bold'>{t('sections.weeklyTrends')}</h2>
+          <h2 className='text-foreground mb-1 text-lg font-medium'>{t('sections.weeklyTrends')}</h2>
         </div>
         <div className='w-48'>
           <Select value={selectedMetric} onValueChange={onMetricChange}>

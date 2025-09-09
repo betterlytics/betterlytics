@@ -171,7 +171,6 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
   return (
     <TabbedTable
       title={t('title')}
-      description={t('description')}
       tabs={tableTabs}
       defaultTab='all'
       searchColumn='path'

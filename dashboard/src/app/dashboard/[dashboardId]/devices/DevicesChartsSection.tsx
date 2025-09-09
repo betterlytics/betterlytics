@@ -27,7 +27,6 @@ export default function DevicesChartsSection({
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
       <div className='bg-card border-border rounded-lg border p-6 shadow xl:col-span-5'>
         <h2 className='text-foreground mb-1 text-lg font-bold'>{t('deviceUsageTrend')}</h2>
-        <p className='text-muted-foreground mb-4 text-sm'>{t('visitorTrendsByDeviceType')}</p>
         <DeviceUsageTrendChart
           chartData={deviceUsageTrend.data}
           categories={deviceUsageTrend.categories}

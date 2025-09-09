@@ -1000,15 +1000,12 @@
           "percentage": "Procent"
         },
         "topOperatingSystems": "Top operativsystemer",
-        "mostCommonOperatingSystems": "Mest anvendte operativsystemer",
-        "topBrowsers": "Top browsere",
-        "mostCommonBrowsers": "Mest anvendte browsere"
+        "topBrowsers": "Top browsere"
       },
       "charts": {
         "deviceTypes": "Enhedstyper",
         "visitorsByDeviceCategory": "Besøgende efter enhedskategori",
-        "deviceUsageTrend": "Enhedsanvendelsestrend",
-        "visitorTrendsByDeviceType": "Besøgendetrends efter enhedstype"
+        "deviceUsageTrend": "Enhedsanvendelsestrend"
       },
       "trends": {
         "noData": "Ingen trenddata tilgængelig",
@@ -1027,7 +1024,6 @@
       },
       "performance": {
         "title": "Kampagneperformance",
-        "description": "Nøgletal for dine kampagner",
         "columns": {
           "campaignName": "Kampagnenavn",
           "visitors": "Besøgende",
@@ -1043,12 +1039,10 @@
       },
       "utm": {
         "table": {
-          "title": "UTM-parameteropdeling",
-          "description": "Kampagneperformance på tværs af UTM-parametre"
+          "title": "UTM-parameteropdeling"
         },
         "chart": {
-          "title": "UTM-fordeling",
-          "description": "Visuel opdeling af UTM-parameter performance"
+          "title": "UTM-fordeling"
         },
         "tabs": {
           "source": "Kilde",
@@ -1072,7 +1066,6 @@
       },
       "landing": {
         "title": "Kampagne landingsside-performance",
-        "description": "Nøgletal for kampagne-landingssider",
         "columns": {
           "campaignName": "Kampagnenavn",
           "landingPageUrl": "Landingsside-URL",
@@ -1231,7 +1224,6 @@
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
         "title": "Sideanalyse",
-        "description": "Analyser top sider, indgangs-/udgangsperformance og engagement for at optimere indhold.",
         "filterByPathPlaceholder": "Filtrer efter sti..."
       }
     },
@@ -1241,9 +1233,7 @@
       },
       "charts": {
         "distribution": "Henvisningsfordeling",
-        "trafficByCategory": "Trafik efter kilde kategori",
-        "trafficTrends": "Henvisningstrafik trends",
-        "trafficBySourceOverTime": "Trafik efter kilde over tid"
+        "trafficTrends": "Henvisningstrafik trends"
       },
       "summary": {
         "referralSessions": "Henvisningssessioner",
@@ -1254,7 +1244,6 @@
       },
       "table": {
         "details": "Henvisningsdetaljer",
-        "detailsDescription": "Detaljeret opdeling af trafikkilder",
         "tabs": {
           "all": "Alle",
           "search": "Søgning",
@@ -1308,8 +1297,7 @@
         "title": "Unikke udgående klik over tid"
       },
       "pieChart": {
-        "title": "Udgående links fordeling",
-        "description": "Top udgående links efter unikke klik"
+        "title": "Udgående links fordeling"
       }
     },
     "webVitals": {

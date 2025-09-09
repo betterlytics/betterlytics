@@ -168,10 +168,7 @@ export default function UTMBreakdownTabbedChart({
       <Tabs defaultValue='source'>
         <CardHeader className='pb-0'>
           <div className='flex flex-col items-center justify-between sm:flex-row'>
-            <div>
-              <CardTitle className='mb-1 text-lg font-semibold'>{t('chart.title')}</CardTitle>
-              <p className='text-muted-foreground text-sm'>{t('chart.description')}</p>
-            </div>
+            <CardTitle className='mb-1 text-lg font-medium'>{t('chart.title')}</CardTitle>
             <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} gap-1`}>
               {tabs.map((tab) => (
                 <TabsTrigger

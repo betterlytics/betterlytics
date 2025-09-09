@@ -20,12 +20,10 @@ export default function DevicesTablesSection({ browserStatsPromise, osStatsPromi
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-2'>
       <div className='bg-card border-border rounded-lg border p-6 shadow'>
         <h2 className='text-foreground mb-1 text-lg font-bold'>{t('topOperatingSystems')}</h2>
-        <p className='text-muted-foreground mb-4 text-sm'>{t('mostCommonOperatingSystems')}</p>
         <OperatingSystemTable data={osStats} />
       </div>
       <div className='bg-card border-border rounded-lg border p-6 shadow'>
         <h2 className='text-foreground mb-1 text-lg font-bold'>{t('topBrowsers')}</h2>
-        <p className='text-muted-foreground mb-4 text-sm'>{t('mostCommonBrowsers')}</p>
         <BrowserTable data={browserStats} />
       </div>
     </div>

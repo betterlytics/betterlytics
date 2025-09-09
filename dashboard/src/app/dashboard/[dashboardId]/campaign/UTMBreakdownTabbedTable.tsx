@@ -125,7 +125,5 @@ export default function UTMBreakdownTabbedTable({
     ],
   );
 
-  return (
-    <TabbedTable title={t('table.title')} description={t('table.description')} tabs={tabs} defaultTab='source' />
-  );
+  return <TabbedTable title={t('table.title')} tabs={tabs} defaultTab='source' />;
 }
