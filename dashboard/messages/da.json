@@ -813,7 +813,8 @@
       "noChannelData": "Ingen kanaldata tilgængelig",
       "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig",
       "tabbedTableEmptyState": "Ingen {tab} data tilgængelig",
-      "adjustTimeRange": "Prøv at justere tidsperioden eller filtre"
+      "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",
+      "noUserJourneyData": "Ingen brugerrejse data tilgængelig"
     }
   },
   "devicesPage": {
@@ -1278,7 +1279,6 @@
       },
       "steps": "Trin",
       "topJourneys": "Top {journeys} rejser",
-      "noData": "Ingen rejsedata tilgængelig for de valgte kriterier.",
       "sessions": "Sessioner"
     },
     "outboundLinks": {

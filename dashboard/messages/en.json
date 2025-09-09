@@ -809,7 +809,8 @@
       "noChannelData": "No channel data available",
       "noCustomEventsData": "No custom events data available",
       "tabbedTableEmptyState": "No {tab} data available",
-      "adjustTimeRange": "Adjust time range or filters"
+      "adjustTimeRange": "Adjust time range or filters",
+      "noUserJourneyData": "No user journey data available"
     }
   },
   "devicesPage": {
@@ -1274,7 +1275,6 @@
       },
       "steps": "Steps",
       "topJourneys": "Top {journeys} Journeys",
-      "noData": "No journey data available for the selected criteria.",
       "sessions": "Sessions"
     },
     "outboundLinks": {

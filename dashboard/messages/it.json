@@ -813,7 +813,8 @@
       "noChannelData": "Nessun dato per canale disponibile",
       "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile",
       "tabbedTableEmptyState": "Nessun dato per {tab} disponibile",
-      "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri"
+      "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri",
+      "noUserJourneyData": "Nessun dato per percorso utente disponibile"
     }
   },
   "devicesPage": {
@@ -1282,7 +1283,6 @@
       },
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
-      "noData": "Nessun dato di percorso disponibile per i criteri selezionati.",
       "sessions": "Sessioni"
     },
     "outboundLinks": {

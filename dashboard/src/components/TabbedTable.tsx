@@ -42,7 +42,6 @@ function TabbedTable<TData>({
   const activeDefaultTab = defaultTab || tabs[0]?.key;
   const tableRef = useRef<Table<TData> | null>(null);
   const t = useTranslations('components.tabbedTable');
-  const tDashboard = useTranslations('dashboard.emptyStates');
 
   return (
     <Card className={`bg-card border-border rounded-xl border shadow ${className}`}>
@@ -86,20 +85,12 @@ function TabbedTable<TData>({
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
               <div className='overflow-x-auto'>
-                {tab.data.length === 0 ? (
-                  <div className='flex h-32 items-center justify-center'>
-                    <p className='text-muted-foreground'>
-                      {tab.emptyMessage || tDashboard('tabbedTableEmptyState', { tab: tab.label.toLowerCase() })}
-                    </p>
-                  </div>
-                ) : (
-                  <DataTable
-                    columns={tab.columns}
-                    data={tab.data}
-                    defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
-                    tableRef={tableRef}
-                  />
-                )}
+                <DataTable
+                  columns={tab.columns}
+                  data={tab.data}
+                  defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
+                  tableRef={tableRef}
+                />
               </div>
             </TabsContent>
           ))}

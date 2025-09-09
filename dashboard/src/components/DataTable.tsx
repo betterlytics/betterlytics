@@ -109,7 +109,7 @@ export function DataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className='h-24 px-4 py-3 text-center'>
+              <TableCell colSpan={columns.length}>
                 <div className='flex h-[300px] items-center justify-center'>
                   <div className='text-center'>
                     <p className='text-muted-foreground mb-1'>{t('noReferrerData')}</p>
