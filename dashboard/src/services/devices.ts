@@ -9,12 +9,8 @@ import {
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   DeviceType,
-  BrowserInfo,
   BrowserStats,
   BrowserStatsSchema,
-  DeviceSummary,
-  DeviceSummarySchema,
-  OperatingSystemInfo,
   OperatingSystemStats,
   OperatingSystemStatsSchema,
   DeviceUsageTrendRow,
@@ -30,38 +26,6 @@ export async function getDeviceTypeBreakdownForSite(
   queryFilters: QueryFilter[],
 ): Promise<DeviceType[]> {
   return getDeviceTypeBreakdown(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
-}
-
-export async function getDeviceSummaryForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<DeviceSummary> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
-  const [deviceBreakdown, browserBreakdown, osBreakdown] = await Promise.all([
-    getDeviceTypeBreakdown(siteId, startDateTime, endDateTime, queryFilters),
-    getBrowserBreakdown(siteId, startDateTime, endDateTime, queryFilters),
-    getOperatingSystemBreakdown(siteId, startDateTime, endDateTime, queryFilters),
-  ]);
-
-  const distinctDeviceCount = deviceBreakdown.length;
-
-  // Calculate top item for each category
-  const topDevice = calculateTopItem<DeviceType>(deviceBreakdown, 'device_type');
-  const topBrowser = calculateTopItem<BrowserInfo>(browserBreakdown, 'browser');
-  const topOs = calculateTopItem<OperatingSystemInfo>(osBreakdown, 'os');
-
-  const summary = {
-    distinctDeviceCount,
-    topDevice,
-    topBrowser,
-    topOs,
-  };
-
-  return DeviceSummarySchema.parse(summary);
 }
 
 export async function getBrowserBreakdownForSite(

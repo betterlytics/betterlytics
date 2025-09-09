@@ -996,12 +996,6 @@
     },
 
     "devices": {
-      "summary": {
-        "distinctDeviceTypes": "Tipi di dispositivo distinti",
-        "mostPopularDevice": "Dispositivo più popolare",
-        "mostPopularOperatingSystem": "Sistema operativo più popolare",
-        "mostPopularBrowser": "Browser più popolare"
-      },
       "tables": {
         "columns": {
           "os": "Sistema operativo",

@@ -988,12 +988,6 @@
     },
 
     "devices": {
-      "summary": {
-        "distinctDeviceTypes": "Distinct Device Types",
-        "mostPopularDevice": "Most Popular Device",
-        "mostPopularOperatingSystem": "Most Popular Operating System",
-        "mostPopularBrowser": "Most Popular Browser"
-      },
       "tables": {
         "columns": {
           "os": "Operating System",
