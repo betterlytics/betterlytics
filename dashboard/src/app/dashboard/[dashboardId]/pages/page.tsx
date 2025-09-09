@@ -37,6 +37,8 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
     startDate,
     endDate,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
   const pageAnalyticsPromise = fetchPageAnalyticsAction(
     dashboardId,

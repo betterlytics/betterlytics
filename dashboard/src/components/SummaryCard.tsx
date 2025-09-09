@@ -17,6 +17,9 @@ interface SummaryCardProps<T extends ChartData = ChartData> {
   icon?: React.ReactNode;
   footer?: React.ReactNode;
 
+  // Compare
+  comparePercentage?: number | null;
+
   // Mini chart data
   rawChartData?: T[];
   valueField?: keyof T;
@@ -33,26 +36,22 @@ interface TrendData {
   isPositive: boolean;
 }
 
-function calculateTrend<T extends ChartData>(data: T[], valueField: keyof T): TrendData | null {
-  if (data.length < 2) return null;
+function calculateTrend(comparePercentage?: number | null): TrendData | null {
+  if (comparePercentage === null || comparePercentage === undefined) {
+    return null;
+  }
 
-  const firstValue = Number(data[0][valueField]);
-  const lastValue = Number(data[data.length - 1][valueField]);
-
-  if (firstValue === 0) return null;
-
-  const percentageChange = ((lastValue - firstValue) / firstValue) * 100;
-  const absPercentage = Math.abs(percentageChange);
+  const absPercentage = Math.abs(comparePercentage);
 
   let direction: 'up' | 'down' | 'neutral' = 'neutral';
   if (absPercentage > 0) {
-    direction = percentageChange > 0 ? 'up' : 'down';
+    direction = comparePercentage > 0 ? 'up' : 'down';
   }
 
   return {
     direction,
     percentage: absPercentage,
-    isPositive: percentageChange > 0,
+    isPositive: comparePercentage > 0,
   };
 }
 
@@ -63,16 +62,14 @@ const SummaryCard = React.memo(
     icon,
     footer,
     rawChartData,
+    comparePercentage,
     valueField,
     chartColor = 'var(--chart-1)',
     isActive = false,
     onClick,
   }: SummaryCardProps<T>) => {
     const gradientId = useId();
-    const trendData = useMemo(
-      () => (rawChartData && valueField ? calculateTrend(rawChartData, valueField) : null),
-      [rawChartData, valueField],
-    );
+    const trendData = useMemo(() => calculateTrend(comparePercentage), [comparePercentage]);
 
     return (
       <Card
