@@ -42,6 +42,7 @@
   --color-trend-down: var(--trend-down);
   --color-table-header: var(--table-header);
   --color-table-header-hover: var(--table-header-hover);
+  --color-flagicon-border: var(--flagicon-border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -174,7 +175,7 @@
   --sidebar-border: oklch(0.3 0.02 266);
   --sidebar-ring: oklch(50% 0.222 268.78); /* blue-800 */
 
-  --flagicon-border: oklch(0.75 0.02 265 / 0.5);
+  --flagicon-border: oklch(68.273% 0.0186 267.741 / 0.281);
 
   --map-feature-border-hovered: oklch(0.7 0.2 130); /* Green */
   --map-feature-border-clicked: oklch(0.7 0.25 40); /* Orange */
