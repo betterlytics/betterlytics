@@ -14,11 +14,11 @@ function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps
     return (
       <span title={countryName || 'Unknown'} className='flex items-center justify-center'>
         <HelpCircle
-          size='1em'
+          size='1rem'
           style={{
             color: 'var(--foreground)',
-            height: '1em',
-            width: 'fit-content',
+            height: '1rem',
+            width: 'auto',
           }}
         />
       </span>
@@ -29,10 +29,10 @@ function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps
     <span title={countryName || 'Unknown'} className='flex items-center justify-center'>
       <FlagComponent
         {...props}
+        className='shadow-foreground/80 dark:shadow-background/50 !h-[1.15em] w-fit rounded-xs shadow-sm dark:rounded-none'
         style={{
-          border: 'var(--flagicon-border) solid 0.5px',
-          height: '1em',
-          aspectRatio: '3/2',
+          imageRendering: 'auto',
+          shapeRendering: 'geometricPrecision',
         }}
       />
     </span>

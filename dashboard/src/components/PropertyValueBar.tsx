@@ -29,7 +29,9 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
 
         <div className='absolute inset-0 z-10 flex items-center justify-between px-3'>
           <div className='flex max-w-[85%] items-center gap-2 truncate'>
-            {typeof index === 'number' && <span className='text-foreground font-mono font-medium'>{index}.</span>}
+            {typeof index === 'number' && (
+              <span className='text-foreground w-3 font-mono font-medium'>{index}.</span>
+            )}
             {icon && <span className='flex-shrink-0'>{icon}</span>}
             <span className='text-foreground truncate font-mono font-medium'>{value.value}</span>
           </div>

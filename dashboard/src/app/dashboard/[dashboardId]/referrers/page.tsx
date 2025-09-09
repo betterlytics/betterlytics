@@ -67,7 +67,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
   );
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('referrers')}>
         <DashboardFilters />
       </DashboardHeader>
@@ -76,7 +76,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
       </Suspense>
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>

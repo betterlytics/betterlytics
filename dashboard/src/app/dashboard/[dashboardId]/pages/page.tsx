@@ -66,7 +66,7 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
   );
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('pages')}>
         <DashboardFilters />
       </DashboardHeader>
