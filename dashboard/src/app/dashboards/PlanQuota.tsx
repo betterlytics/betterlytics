@@ -1,4 +1,5 @@
 import { getUserBillingData } from '@/actions/billing';
+import Link from 'next/link';
 
 export default async function PlanQuota({
   billingDataPromise,
@@ -24,12 +25,12 @@ export default async function PlanQuota({
     <div className='flex w-full min-w-0 flex-col gap-2 rounded-md py-1 text-sm sm:min-w-[280px]'>
       <div className='flex items-center justify-between'>
         <div className='font-medium'>Events</div>
-        <a
+        <Link
           href='/billing'
           className='text-primary hover:text-primary/90 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium'
         >
           Manage
-        </a>
+        </Link>
       </div>
 
       <div className='text-2xl font-semibold'>
