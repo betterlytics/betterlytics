@@ -77,7 +77,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
         <div>
           <h2 className='text-foreground mb-1 text-lg font-bold'>{t('sections.weeklyTrends')}</h2>
         </div>
-        <div className='w-36'>
+        <div className='w-48'>
           <Select value={selectedMetric} onValueChange={onMetricChange}>
             <SelectTrigger className='w-full cursor-pointer'>
               <SelectValue />
