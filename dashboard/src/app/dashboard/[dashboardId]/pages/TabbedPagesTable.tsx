@@ -11,7 +11,6 @@ import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useTranslations } from 'next-intl';
-import ResponsiveSparkline from '@/components/ResponsiveSparkline';
 
 interface TabbedPagesTableProps {
   allPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
@@ -21,41 +20,6 @@ interface TabbedPagesTableProps {
 
 const formatPath = (path: string): string => {
   return path || '/';
-};
-
-// Generate deterministic pseudo-random values for the sparkline so it has ups and downs
-const hashStringToNumber = (input: string): number => {
-  let hash = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    hash = (hash << 5) - hash + input.charCodeAt(i);
-    hash |= 0; // Convert to 32bit integer
-  }
-  return Math.abs(hash);
-};
-
-const createDeterministicRandom = (seed: number): (() => number) => {
-  let a = seed | 0;
-  return () => {
-    let t = (a += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-};
-
-const generateSparklineValues = (baseValue: number, key: string, points = 16): number[] => {
-  const seed = hashStringToNumber(key || '/');
-  const rand = createDeterministicRandom(seed);
-  const amplitude = Math.max(Math.round(baseValue * 0.2), 5);
-  const center = Math.max(baseValue, 1);
-  const values: number[] = [];
-  for (let i = 0; i < points; i += 1) {
-    const sine = Math.sin((i / points) * Math.PI * 2);
-    const noise = (rand() - 0.5) * 0.6; // small randomness for variation
-    const delta = Math.round(amplitude * (0.25 * sine + 0.15 * noise));
-    values.push(Math.max(0, center + delta));
-  }
-  return values;
 };
 
 export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPagesData }: TabbedPagesTableProps) {
@@ -119,29 +83,9 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         header: t('avgTime'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} />,
         accessorFn: (row) => row.current.avgTime,
-        size: 100,
       },
     ];
   }, [handlePathClick]);
-
-  const getSparklineColumn = useCallback((): ColumnDef<
-    Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]
-  > => {
-    return {
-      id: 'sparkline',
-      header: '',
-      cell: ({ row }) => {
-        const current = row.original.current.pageviews ?? 0;
-        const compare = row.original.compare?.pageviews ?? current;
-        const base = Math.max(1, Math.round((current + compare) / 2));
-        const key = `${row.original.path || '/'}:${base}`;
-        const values = generateSparklineValues(base, key);
-        return <ResponsiveSparkline values={values} height={20} />;
-      },
-      enableSorting: false,
-      size: 80,
-    };
-  }, []);
 
   const getTabSpecificColumns = useCallback((): Record<
     string,
@@ -183,22 +127,19 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     };
   }, []);
 
-  const allPagesColumns = useMemo(() => {
-    const base = getBaseColumns();
-    return [...base, getSparklineColumn()];
-  }, [getBaseColumns, getSparklineColumn]);
+  const allPagesColumns = useMemo(() => getBaseColumns(), [getBaseColumns]);
 
   const entryPagesColumns = useMemo(() => {
     const base = getBaseColumns();
     const specific = getTabSpecificColumns();
-    return [...base, specific.entryRate, getSparklineColumn()];
-  }, [getBaseColumns, getTabSpecificColumns, getSparklineColumn]);
+    return [...base, specific.entryRate];
+  }, [getBaseColumns, getTabSpecificColumns]);
 
   const exitPagesColumns = useMemo(() => {
     const base = getBaseColumns();
     const specific = getTabSpecificColumns();
-    return [...base, specific.exitRate, getSparklineColumn()];
-  }, [getBaseColumns, getTabSpecificColumns, getSparklineColumn]);
+    return [...base, specific.exitRate];
+  }, [getBaseColumns, getTabSpecificColumns]);
 
   const tableTabs = useMemo(
     () => [
