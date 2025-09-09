@@ -49,7 +49,7 @@ function TabbedTable<TData>({
         <CardHeader className='px-1 pb-0 sm:px-6'>
           <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
             <div className={cn('grid grid-cols-[1fr_auto] items-start gap-2', searchColumn && 'sm:col-span-2')}>
-              <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
+              <CardTitle className='mb-1 text-lg font-medium'>{title}</CardTitle>
               {headerActions && <div className='justify-self-end'>{headerActions}</div>}
               {description && <p className='text-muted-foreground col-span-2 text-sm'>{description}</p>}
             </div>

@@ -996,15 +996,12 @@
           "percentage": "Percentage"
         },
         "topOperatingSystems": "Top Operating Systems",
-        "mostCommonOperatingSystems": "Most common operating systems",
-        "topBrowsers": "Top Browsers",
-        "mostCommonBrowsers": "Most common browsers"
+        "topBrowsers": "Top Browsers"
       },
       "charts": {
         "deviceTypes": "Device Types",
         "visitorsByDeviceCategory": "Visitors by device category",
-        "deviceUsageTrend": "Device Usage Trend",
-        "visitorTrendsByDeviceType": "Visitor trends by device type"
+        "deviceUsageTrend": "Device Usage Trend"
       },
       "trends": {
         "noData": "No trend data available",
@@ -1023,7 +1020,6 @@
       },
       "performance": {
         "title": "Campaign Performance",
-        "description": "Key metrics for your campaigns",
         "columns": {
           "campaignName": "Campaign Name",
           "visitors": "Visitors",
@@ -1039,12 +1035,10 @@
       },
       "utm": {
         "table": {
-          "title": "UTM Parameter Breakdown",
-          "description": "Campaign performance across different UTM parameters"
+          "title": "UTM Parameter Breakdown"
         },
         "chart": {
-          "title": "UTM Distribution",
-          "description": "Visual breakdown of UTM parameter performance"
+          "title": "UTM Distribution"
         },
         "tabs": {
           "source": "Source",
@@ -1068,7 +1062,6 @@
       },
       "landing": {
         "title": "Campaign Landing Page Performance",
-        "description": "Key metrics for campaign landing pages",
         "columns": {
           "campaignName": "Campaign Name",
           "landingPageUrl": "Landing Page URL",
@@ -1227,7 +1220,6 @@
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
         "title": "Page Analytics",
-        "description": "Analyze top pages, entry/exit performance, and engagement to optimize content.",
         "filterByPathPlaceholder": "Filter by path..."
       }
     },
@@ -1244,13 +1236,10 @@
       },
       "charts": {
         "distribution": "Referrer Distribution",
-        "trafficByCategory": "Traffic sources by category",
-        "trafficTrends": "Referral Traffic Trends",
-        "trafficBySourceOverTime": "Traffic by source over time"
+        "trafficTrends": "Referral Traffic Trends"
       },
       "table": {
         "details": "Referrer Details",
-        "detailsDescription": "Detailed breakdown of traffic sources",
         "tabs": {
           "all": "All",
           "search": "Search",
@@ -1304,8 +1293,7 @@
         "title": "Unique Outbound Clicks Over Time"
       },
       "pieChart": {
-        "title": "Outbound Links Distribution",
-        "description": "Top outbound links by unique clicks"
+        "title": "Outbound Links Distribution"
       }
     },
     "webVitals": {

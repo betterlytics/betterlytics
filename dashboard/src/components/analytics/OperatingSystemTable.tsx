@@ -58,7 +58,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
   ];
 
   return (
-    <div className='overflow-x-auto'>
+    <div className='mt-4 overflow-x-auto'>
       <DataTable
         columns={columns}
         data={data}

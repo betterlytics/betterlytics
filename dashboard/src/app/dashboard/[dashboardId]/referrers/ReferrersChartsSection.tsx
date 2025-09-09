@@ -32,7 +32,6 @@ export default function ReferrersChartsSection({
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
       <div className='bg-card border-border rounded-lg border p-4 shadow xl:col-span-5'>
         <div className='text-foreground mb-2 font-medium'>{t('trafficTrends')}</div>
-        <p className='text-muted-foreground mb-4 text-xs'>{t('trafficBySourceOverTime')}</p>
         <ReferrerTrafficTrendChart
           chartData={trendResult.data}
           categories={trendResult.categories}
@@ -42,7 +41,6 @@ export default function ReferrersChartsSection({
       </div>
       <div className='bg-card border-border rounded-lg border p-4 shadow xl:col-span-3'>
         <div className='text-foreground mb-2 font-medium'>{t('distribution')}</div>
-        <p className='text-muted-foreground mb-4 text-xs'>{t('trafficByCategory')}</p>
         <BAPieChart data={distributionData} getColor={getReferrerColor} getLabel={capitalizeFirstLetter} />
       </div>
     </div>
