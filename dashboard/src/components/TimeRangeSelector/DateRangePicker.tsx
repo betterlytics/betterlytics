@@ -22,7 +22,6 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
   const handleDateSelect = useCallback(
     (selectedDate: DateRange | undefined) => {
       onDateRangeSelect(selectedDate);
-      // setIsOpen(false);
     },
     [onDateRangeSelect],
   );

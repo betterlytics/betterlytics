@@ -125,41 +125,18 @@ export function useTimeRangeHandlers({
     [updateTempState, allowedGranularities, tempState.range],
   );
 
-  const handleStartDateSelect = useCallback(
-    (date: Date | undefined) => {
-      if (!date) return;
-      const newStart = startOfDay(date);
-      let newEnd = tempState.customEnd && endOfDay(tempState.customEnd);
-
-      // Preserve duration by default when moving the start date
-      if (tempState.customStart && tempState.customEnd) {
-        const previousDurationMs =
-          endOfDay(tempState.customEnd).getTime() - startOfDay(tempState.customStart).getTime();
-        const safeDurationMs = Math.max(previousDurationMs, 0);
-        const computedEnd = new Date(newStart.getTime() + safeDurationMs);
-        const todayEnd = endOfDay(new Date());
-        newEnd = computedEnd.getTime() > todayEnd.getTime() ? todayEnd : endOfDay(computedEnd);
+  const handleCustomDateRangeSelect = useCallback(
+    (from: Date | undefined, to: Date | undefined) => {
+      if (!from || !to) {
+        return;
       }
-
       updateTempState({
         range: 'custom',
-        customStart: newStart,
-        customEnd: newEnd,
+        customStart: startOfDay(from),
+        customEnd: endOfDay(to),
       });
     },
-    [updateTempState, tempState.customStart, tempState.customEnd],
-  );
-
-  const handleEndDateSelect = useCallback(
-    (date: Date | undefined) => {
-      if (!date) return;
-      updateTempState({
-        range: 'custom',
-        customEnd: endOfDay(date),
-        customStart: tempState.customStart && startOfDay(tempState.customStart),
-      });
-    },
-    [updateTempState, tempState.customStart],
+    [updateTempState],
   );
 
   const handleCompareEnabledChange = useCallback(
@@ -167,6 +144,39 @@ export function useTimeRangeHandlers({
       updateTempState({ compareEnabled: enabled });
     },
     [updateTempState],
+  );
+
+  const handleCompareDateRangeSelect = useCallback(
+    (from: Date | undefined, to: Date | undefined) => {
+      if (!from || !to) {
+        return;
+      }
+
+      // On end date select
+      if (
+        tempState.compareEnd &&
+        startOfDay(tempState.compareEnd).getTime() !== startOfDay(to).getTime() &&
+        tempState.customEnd &&
+        tempState.customStart
+      ) {
+        const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
+
+        const compareEnd = getDateWithTimeOfDay(to, tempState.customEnd);
+        const compareStart = new Date(compareEnd.getTime() - timeDifference);
+        return updateTempState({
+          range: 'custom',
+          compareStart,
+          compareEnd,
+        });
+      }
+
+      updateTempState({
+        range: 'custom',
+        compareStart: startOfDay(from),
+        compareEnd: endOfDay(to),
+      });
+    },
+    [updateTempState, tempState],
   );
 
   const handleCompareStartDateSelect = useCallback(
@@ -251,11 +261,9 @@ export function useTimeRangeHandlers({
   return {
     handleQuickSelect,
     handleGranularitySelect,
-    handleStartDateSelect,
-    handleEndDateSelect,
+    handleCustomDateRangeSelect,
     handleCompareEnabledChange,
-    handleCompareStartDateSelect,
-    handleCompareEndDateSelect,
+    handleCompareDateRangeSelect,
     handleApply,
   };
 }
