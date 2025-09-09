@@ -12,7 +12,6 @@ import { type DateRange } from 'react-day-picker';
 interface DateRangePickerProps {
   range: DateRange | undefined;
   onDateRangeSelect: (date: DateRange | undefined) => void;
-  disabled?: (date: DateRange) => boolean;
   id?: string;
 }
 
@@ -54,6 +53,7 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
             onSelect={handleDateSelect}
             captionLayout='dropdown'
             className='[&_button]:cursor-pointer [&_select]:cursor-pointer'
+            disabled={(date) => date > new Date()}
           />
         </PopoverContent>
       </Popover>
