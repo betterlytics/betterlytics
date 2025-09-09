@@ -812,7 +812,8 @@
       "noSourceData": "Ingen kildedata tilgængelig",
       "noChannelData": "Ingen kanaldata tilgængelig",
       "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig",
-      "tabbedTableEmptyState": "Ingen {tab} data tilgængelig"
+      "tabbedTableEmptyState": "Ingen {tab} data tilgængelig",
+      "adjustTimeRange": "Prøv at justere tidsperioden eller filtre"
     }
   },
   "devicesPage": {

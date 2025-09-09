@@ -33,7 +33,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   tableRef,
 }: DataTableProps<TData, TValue>) {
-  const t = useTranslations('components.dataTable');
+  const t = useTranslations('dashboard.emptyStates');
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
@@ -109,11 +109,13 @@ export function DataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className='h-24 px-4 py-3 text-center text-gray-500 dark:text-slate-400'
-              >
-                {t('noResults')}
+              <TableCell colSpan={columns.length} className='h-24 px-4 py-3 text-center'>
+                <div className='flex h-[300px] items-center justify-center'>
+                  <div className='text-center'>
+                    <p className='text-muted-foreground mb-1'>{t('noReferrerData')}</p>
+                    <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+                  </div>
+                </div>
               </TableCell>
             </TableRow>
           )}

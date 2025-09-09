@@ -812,7 +812,8 @@
       "noSourceData": "Nessun dato per fonte disponibile",
       "noChannelData": "Nessun dato per canale disponibile",
       "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile",
-      "tabbedTableEmptyState": "Nessun dato per {tab} disponibile"
+      "tabbedTableEmptyState": "Nessun dato per {tab} disponibile",
+      "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri"
     }
   },
   "devicesPage": {

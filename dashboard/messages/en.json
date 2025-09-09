@@ -808,7 +808,8 @@
       "noSourceData": "No source data available",
       "noChannelData": "No channel data available",
       "noCustomEventsData": "No custom events data available",
-      "tabbedTableEmptyState": "No {tab} data available"
+      "tabbedTableEmptyState": "No {tab} data available",
+      "adjustTimeRange": "Adjust time range or filters"
     }
   },
   "devicesPage": {
