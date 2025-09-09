@@ -8,11 +8,7 @@ import { useCountriesLayer } from '@/hooks/deckgl/use-countries-layer';
 import { MapActionbar } from './controls/MapPlayActionbar';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { PlaybackSpeed } from './controls/PlaybackSpeedDropdown';
-
-type GeoVisitor = {
-  country_code: string;
-  visitors: number;
-};
+import { type GeoVisitor } from '@/entities/geography';
 
 interface DeckGLMapProps {
   visitorData: GeoVisitor[];
@@ -31,7 +27,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   const [geojson, setGeojson] = useState<FeatureCollection | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ---- Build synthetic timeseries for demo ----
+  // ---- Demo timeseries
   const visitorDataTimeseries: GeoVisitor[][] = useMemo(() => {
     return Array.from({ length: 40 }).map((_, i) =>
       visitorData.map((d) => ({
@@ -45,7 +41,6 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     return Math.max(...visitorDataTimeseries.flatMap((frame) => frame.map((d) => d.visitors)));
   }, [visitorDataTimeseries]);
 
-  // ---- Playback state (replaces old frameRef + setInterval) ----
   const [speed, setSpeed] = useState(1 as PlaybackSpeed);
   const {
     position, // float progress for slider
@@ -59,7 +54,6 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     speed,
   });
 
-  // ---- Load geojson ----
   useEffect(() => {
     fetch('/data/countries.geo.json')
       .then((res) => res.json())
@@ -67,7 +61,6 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
       .catch((err) => console.error('Error loading geojson:', err));
   }, []);
 
-  // ---- Current visitors dict ----
   const visitorDict = useMemo(() => {
     const currentFrame = visitorDataTimeseries[frame];
     return Object.fromEntries(currentFrame.map((d) => [d.country_code, d.visitors]));
@@ -85,7 +78,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
       <DeckGL initialViewState={{ ...INITIAL_VIEW_STATE, zoom: initialZoom }} controller={true} layers={layers}>
-        {/* Global map CSS */}
+        {/* Global map CSS should be removed or renmaed*/}
         <style jsx global>
           {`
             .leaflet-container {
@@ -123,7 +116,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         <div className='absolute bottom-10 left-[18rem] z-10 w-[calc(100%-20rem)]'>
           <MapActionbar
             ticks={visitorDataTimeseries.map((_, i) => ({
-              label: `Frame ${i + 1}`,
+              label: `${i + 1}`,
               value: i,
             }))}
             value={position}

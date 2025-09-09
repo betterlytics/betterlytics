@@ -932,7 +932,12 @@
     "geography": {
       "noData": "No geographic data available for the selected period",
       "loading": "Loading map...",
-      "visitors": "Visitors"
+      "visitors": "Visitors",
+      "playback": {
+        "play": "Play",
+        "stop": "Stop",
+        "pause": "Pause"
+      }
     },
     "userJourney": {
       "steps": "Steps",
@@ -942,14 +947,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Total Unique Clicks",
-        "uniqueVisitors": "Unique Visitors", 
+        "uniqueVisitors": "Unique Visitors",
         "topDomain": "Top Domain",
         "topSourcePage": "Top Source Page"
       },
       "table": {
         "title": "Outbound Link Performance",
         "destinationUrl": "Destination URL",
-        "uniqueClicks": "Unique Clicks", 
+        "uniqueClicks": "Unique Clicks",
         "topReferrerPage": "Top Referrer Page",
         "sourcePages": "Source Pages"
       },

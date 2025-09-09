@@ -937,7 +937,12 @@
     "geography": {
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
-      "visitors": "Visitatori"
+      "visitors": "Visitatori",
+      "playback": {
+        "play": "Play",
+        "stop": "Stop",
+        "pause": "Pause"
+      }
     },
     "userJourney": {
       "steps": "Passaggi",
@@ -947,14 +952,14 @@
     "outboundLinks": {
       "summary": {
         "totalUniqueClicks": "Clic unici totali",
-        "uniqueVisitors": "Visitatori unici", 
+        "uniqueVisitors": "Visitatori unici",
         "topDomain": "Dominio principale",
         "topSourcePage": "Pagina sorgente principale"
       },
       "table": {
         "title": "Performance link in uscita",
         "destinationUrl": "URL di destinazione",
-        "uniqueClicks": "Clic unici", 
+        "uniqueClicks": "Clic unici",
         "topReferrerPage": "Pagina referrer principale",
         "sourcePages": "Pagine sorgente"
       },

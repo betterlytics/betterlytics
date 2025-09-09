@@ -54,8 +54,8 @@ export default function DeckGLStickyTooltip({ size = 'sm', containerRef }: DeckG
       role='tooltip'
       aria-hidden={false}
       className={cn(
-        'deckgl-sticky-tooltip',
-        'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col duration-75 will-change-transform',
+        'map-sticky-tooltip leaflet-popup-content-wrapper',
+        'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
       )}
     >
       <div className='leaflet-popup-content'>

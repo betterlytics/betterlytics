@@ -1,9 +1,8 @@
 'use client';
 
-import { PlayButton } from './PlayButton';
-import { StopButton } from './StopButton';
-import { TimeSlider } from './TimeSlider';
-import { PlaybackSpeed, PlaybackSpeedDropdown } from './PlaybackSpeedDropdown';
+import { PlaybackButton } from '@/components/map/deckgl/controls/PlayButton';
+import { TimeSlider } from '@/components/map/deckgl/controls/TimeSlider';
+import { PlaybackSpeed, PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 
 type MapActionbarProps<TValue> = {
   ticks: { label: string; value: TValue }[];
@@ -27,10 +26,10 @@ export function MapActionbar<TValue>({
   onChangeSpeed,
 }: MapActionbarProps<TValue>) {
   return (
-    <div className='flex flex-col gap-2 rounded-xl bg-white/90 p-2 shadow-md'>
+    <div className='bg-background/80 flex flex-col gap-2 rounded-xl p-2 shadow-md'>
       <div className='flex items-center gap-3'>
-        <PlayButton playing={playing} onToggle={onTogglePlay} />
-        <StopButton onStop={onStop} />
+        <PlaybackButton onClick={onTogglePlay} playbackType={playing ? 'pause' : 'play'} />
+        <PlaybackButton onClick={onStop} playbackType='stop' />
         <TimeSlider ticks={ticks} value={value} playing={playing} onScrub={onScrub} />
         <PlaybackSpeedDropdown speed={speed} onChange={onChangeSpeed} />
       </div>
