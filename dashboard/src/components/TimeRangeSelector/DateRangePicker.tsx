@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { format } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -20,9 +20,19 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
 
   const handleDateSelect = useCallback(
     (selectedDate: DateRange | undefined) => {
+      if (range?.from && range.to) {
+        if (selectedDate?.from && startOfDay(range.from).getTime() !== startOfDay(selectedDate.from).getTime()) {
+          return onDateRangeSelect({ from: selectedDate.from });
+        }
+
+        if (selectedDate?.to && startOfDay(range.to).getTime() !== startOfDay(selectedDate.to).getTime()) {
+          return onDateRangeSelect({ from: selectedDate.to });
+        }
+      }
+
       onDateRangeSelect(selectedDate);
     },
-    [onDateRangeSelect],
+    [range, onDateRangeSelect],
   );
 
   return (

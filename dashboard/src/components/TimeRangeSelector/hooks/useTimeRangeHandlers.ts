@@ -127,9 +127,20 @@ export function useTimeRangeHandlers({
 
   const handleCustomDateRangeSelect = useCallback(
     (from: Date | undefined, to: Date | undefined) => {
+      if (!to) {
+        if (from) {
+          return updateTempState({
+            range: 'custom',
+            customStart: startOfDay(from),
+            customEnd: undefined,
+          });
+        }
+      }
+
       if (!from || !to) {
         return;
       }
+
       updateTempState({
         range: 'custom',
         customStart: startOfDay(from),
@@ -148,6 +159,16 @@ export function useTimeRangeHandlers({
 
   const handleCompareDateRangeSelect = useCallback(
     (from: Date | undefined, to: Date | undefined) => {
+      if (!to) {
+        if (from) {
+          return updateTempState({
+            range: 'custom',
+            compareStart: startOfDay(from),
+            compareEnd: undefined,
+          });
+        }
+      }
+
       if (!from || !to) {
         return;
       }
