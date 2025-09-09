@@ -74,15 +74,15 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
                   >
                     <defs>
                       <linearGradient id={`inline-gradient-${idx}`} x1='0' y1='0' x2='0' y2='1'>
-                        <stop offset='0%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.6} />
-                        <stop offset='100%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.1} />
+                        <stop offset='0%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.3} />
+                        <stop offset='100%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
                     <Area
                       type='monotone'
                       dataKey={card.valueField as string}
                       stroke={card.chartColor ?? 'var(--chart-1)'}
-                      strokeWidth={2}
+                      strokeWidth={1}
                       fill={`url(#inline-gradient-${idx})`}
                       dot={false}
                       activeDot={false}
