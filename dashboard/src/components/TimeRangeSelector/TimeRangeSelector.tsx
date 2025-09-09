@@ -53,11 +53,9 @@ export function TimeRangeSelector({
   const {
     handleQuickSelect,
     handleGranularitySelect,
-    handleStartDateSelect,
-    handleEndDateSelect,
+    handleCustomDateRangeSelect,
     handleCompareEnabledChange,
-    handleCompareStartDateSelect,
-    handleCompareEndDateSelect,
+    handleCompareDateRangeSelect,
     handleApply,
   } = useTimeRangeHandlers({
     tempState,
@@ -103,8 +101,7 @@ export function TimeRangeSelector({
       <DateRangeSection
         startDate={tempState.customStart}
         endDate={tempState.customEnd}
-        onStartDateSelect={handleStartDateSelect}
-        onEndDateSelect={handleEndDateSelect}
+        onDateRangeSelect={handleCustomDateRangeSelect}
       />
 
       {showComparison && (
@@ -113,8 +110,7 @@ export function TimeRangeSelector({
           onCompareEnabledChange={handleCompareEnabledChange}
           compareStartDate={tempState.compareStart}
           compareEndDate={tempState.compareEnd}
-          onCompareStartDateSelect={handleCompareStartDateSelect}
-          onCompareEndDateSelect={handleCompareEndDateSelect}
+          onDateRangeSelect={handleCompareDateRangeSelect}
         />
       )}
 

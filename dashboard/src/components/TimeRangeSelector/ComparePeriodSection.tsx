@@ -12,8 +12,7 @@ interface ComparePeriodSectionProps {
   onCompareEnabledChange: (enabled: boolean) => void;
   compareStartDate: Date | undefined;
   compareEndDate: Date | undefined;
-  onCompareStartDateSelect: (date: Date | undefined) => void;
-  onCompareEndDateSelect: (date: Date | undefined) => void;
+  onDateRangeSelect: (from: Date | undefined, to: Date | undefined) => void;
 }
 
 export function ComparePeriodSection({
@@ -21,8 +20,7 @@ export function ComparePeriodSection({
   onCompareEnabledChange,
   compareStartDate,
   compareEndDate,
-  onCompareStartDateSelect,
-  onCompareEndDateSelect,
+  onDateRangeSelect,
 }: ComparePeriodSectionProps) {
   const t = useTranslations('components.timeRange');
   return (
@@ -47,12 +45,7 @@ export function ComparePeriodSection({
             <div className='grid gap-4'>
               <DateRangePicker
                 onDateRangeSelect={(range) => {
-                  if (range?.from !== compareStartDate) {
-                    onCompareStartDateSelect(range?.from);
-                  }
-                  if (range?.to !== compareEndDate) {
-                    onCompareEndDateSelect(range?.to);
-                  }
+                  onDateRangeSelect(range?.from, range?.to);
                 }}
                 range={{
                   from: compareStartDate,

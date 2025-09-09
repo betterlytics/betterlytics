@@ -7,16 +7,10 @@ import { DateRangePicker } from './DateRangePicker';
 interface DateRangeSectionProps {
   startDate: Date | undefined;
   endDate: Date | undefined;
-  onStartDateSelect: (date: Date | undefined) => void;
-  onEndDateSelect: (date: Date | undefined) => void;
+  onDateRangeSelect: (from: Date | undefined, to: Date | undefined) => void;
 }
 
-export function DateRangeSection({
-  startDate,
-  endDate,
-  onStartDateSelect,
-  onEndDateSelect,
-}: DateRangeSectionProps) {
+export function DateRangeSection({ startDate, endDate, onDateRangeSelect }: DateRangeSectionProps) {
   const t = useTranslations('components.timeRange');
   return (
     <div>
@@ -24,12 +18,7 @@ export function DateRangeSection({
       <div className='grid gap-4'>
         <DateRangePicker
           onDateRangeSelect={(range) => {
-            if (range?.from !== startDate) {
-              onStartDateSelect(range?.from);
-            }
-            if (range?.to !== endDate) {
-              onEndDateSelect(range?.to);
-            }
+            onDateRangeSelect(range?.from, range?.to);
           }}
           range={{
             from: startDate,
