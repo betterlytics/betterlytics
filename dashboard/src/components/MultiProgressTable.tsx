@@ -121,7 +121,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   );
 
   return (
-    <Card className='border-border flex h-full flex-col gap-1 pt-3 pb-0 pl-1'>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 pt-3 pb-0 pl-1 sm:min-h-[400px]'>
       <CardHeader className='px-3 pb-0 sm:px-4'>
         <div className='flex flex-col justify-between space-y-1 pb-1 sm:flex-row lg:flex-col xl:flex-row'>
           <CardTitle className='flex-1 text-lg font-medium'>{title}</CardTitle>
