@@ -63,14 +63,14 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
   );
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('outboundLinks')}>
         <DashboardFilters />
       </DashboardHeader>
 
       <ActiveQueryFilters />
 
-      <div className='grid grid-cols-1 gap-3 xl:grid-cols-3'>
+      <div className='grid grid-cols-1 gap-4 xl:grid-cols-3'>
         <Suspense fallback={<ChartSkeleton />}>
           <OutboundLinksPieChart distributionPromise={outboundLinksDistributionPromise} />
         </Suspense>
