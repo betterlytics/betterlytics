@@ -52,13 +52,13 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     { name: t('geography'), href: '/geography', icon: <Globe size={18} /> },
     { name: t('devices'), href: '/devices', icon: <Smartphone size={18} /> },
     { name: t('campaigns'), href: '/campaign', icon: <DollarSign size={18} /> },
+    { name: t('webVitals'), href: '/web-vitals', icon: <Gauge size={18} /> },
   ];
 
   const behaviorItems = [
     { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
     { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
     { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
-    { name: t('webVitals'), href: '/web-vitals', icon: <Gauge size={18} /> },
   ];
 
   return (

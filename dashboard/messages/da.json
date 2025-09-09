@@ -992,12 +992,6 @@
     },
 
     "devices": {
-      "summary": {
-        "distinctDeviceTypes": "Unikke enhedstyper",
-        "mostPopularDevice": "Mest populære enhed",
-        "mostPopularOperatingSystem": "Mest populære operativsystem",
-        "mostPopularBrowser": "Mest populære browser"
-      },
       "tables": {
         "columns": {
           "os": "Operativsystem",

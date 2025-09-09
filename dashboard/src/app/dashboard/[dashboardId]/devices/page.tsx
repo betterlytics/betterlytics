@@ -3,14 +3,12 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import {
-  fetchDeviceSummaryAction,
   fetchDeviceTypeBreakdownAction,
   fetchBrowserBreakdownAction,
   fetchOperatingSystemBreakdownAction,
   fetchDeviceUsageTrendAction,
 } from '@/app/actions';
-import { SummaryCardsSkeleton, TableSkeleton, ChartSkeleton } from '@/components/skeleton';
-import DevicesSummarySection from './DevicesSummarySection';
+import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import DevicesChartsSection from './DevicesChartsSection';
 import DevicesTablesSection from './DevicesTablesSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
@@ -34,7 +32,6 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
-  const deviceSummaryPromise = fetchDeviceSummaryAction(dashboardId, startDate, endDate, queryFilters);
   const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(
     dashboardId,
     startDate,
@@ -76,10 +73,6 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
       <DashboardHeader title={t('devices')}>
         <DashboardFilters />
       </DashboardHeader>
-
-      <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
-        <DevicesSummarySection deviceSummaryPromise={deviceSummaryPromise} />
-      </Suspense>
 
       <Suspense
         fallback={
