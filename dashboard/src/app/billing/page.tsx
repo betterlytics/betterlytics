@@ -50,11 +50,10 @@ export default async function BillingPage() {
           <p className='text-muted-foreground text-xl'>{t('subheading')}</p>
         </div>
 
-        <div className='mb-8'>
+        <BillingInteractive billingData={billingData.data} />
+        <div className='mt-10'>
           <CurrentPlanCard billingData={billingData.data} showManagementButtons={true} />
         </div>
-
-        <BillingInteractive billingData={billingData.data} />
 
         <div className='mt-10'>
           <BillingFAQGrid />
