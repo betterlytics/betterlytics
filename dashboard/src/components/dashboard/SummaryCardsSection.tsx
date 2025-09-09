@@ -8,6 +8,7 @@ export interface SummaryCardData {
   footer?: ReactNode;
   rawChartData?: any[];
   valueField?: string;
+  comparePercentage?: number | null;
   chartColor?: string;
   isActive?: boolean;
   onClick?: () => void;
@@ -28,6 +29,7 @@ export default function SummaryCardsSection({ cards, className }: SummaryCardsSe
           value={card.value}
           icon={card.icon}
           footer={card.footer}
+          comparePercentage={card.comparePercentage}
           rawChartData={card.rawChartData}
           valueField={card.valueField}
           chartColor={card.chartColor}

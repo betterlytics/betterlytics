@@ -83,8 +83,50 @@ export const fetchExitPageAnalyticsAction = withDashboardAuthContext(
 );
 
 export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
-    return getPagesSummaryWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    queryFilters: QueryFilter[],
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getPagesSummaryWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+    const compare =
+      compareStartDate &&
+      compareEndDate &&
+      (await getPagesSummaryWithChartsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+    const comparePercentage = (key: keyof typeof data) => {
+      if (!compare) {
+        return null;
+      }
+
+      if (typeof data[key] !== 'number' || typeof compare[key] !== 'number') {
+        throw new Error('Invalid data');
+      }
+
+      const current = data[key];
+      const previous = compare[key];
+
+      if (previous === 0) {
+        return null;
+      }
+
+      return ((current - previous) / previous) * 100;
+    };
+
+    const compareValues = {
+      pagesPerSession: comparePercentage('pagesPerSession'),
+      totalPageviews: comparePercentage('totalPageviews'),
+      avgTimeOnPage: comparePercentage('avgTimeOnPage'),
+      avgBounceRate: comparePercentage('avgBounceRate'),
+    };
+
+    return {
+      ...data,
+      compareValues,
+    };
   },
 );
 

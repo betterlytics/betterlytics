@@ -90,8 +90,52 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
 
 // Enhanced summary stats action that includes chart data
 export const fetchSummaryStatsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
-    return getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    queryFilters: QueryFilter[],
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+    const compare =
+      compareStartDate &&
+      compareEndDate &&
+      (await getSummaryStatsWithChartsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+    const comparePercentage = (key: keyof typeof data) => {
+      if (!compare) {
+        return null;
+      }
+
+      if (typeof data[key] !== 'number' || typeof compare[key] !== 'number') {
+        throw new Error('Invalid data');
+      }
+
+      const current = data[key];
+      const previous = compare[key];
+
+      if (previous === 0) {
+        return null;
+      }
+
+      return ((current - previous) / previous) * 100;
+    };
+
+    const compareValues = {
+      uniqueVisitors: comparePercentage('uniqueVisitors'),
+      pageviews: comparePercentage('pageviews'),
+      sessions: comparePercentage('sessions'),
+      pagesPerSession: comparePercentage('pagesPerSession'),
+      avgVisitDuration: comparePercentage('avgVisitDuration'),
+      bounceRate: comparePercentage('bounceRate'),
+    };
+
+    return {
+      ...data,
+      compareValues,
+    };
   },
 );
 

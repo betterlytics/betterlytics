@@ -11,18 +11,23 @@ interface ChartDatum {
   [key: string]: string | number;
 }
 
-function calculateTrend<T extends ChartDatum>(data: T[], valueField: keyof T) {
-  if (!data || data.length < 2) return null;
-  const first = Number(data[0][valueField]);
-  const last = Number(data[data.length - 1][valueField]);
-  if (first === 0) return null;
-  const diffPct = ((last - first) / first) * 100;
-  const absPct = Math.abs(diffPct);
+function calculateTrend(comparePercentage?: number | null) {
+  if (comparePercentage === null || comparePercentage === undefined) {
+    return null;
+  }
+
+  const absPercentage = Math.abs(comparePercentage);
+
+  let direction: 'up' | 'down' | 'neutral' = 'neutral';
+  if (absPercentage > 0) {
+    direction = comparePercentage > 0 ? 'up' : 'down';
+  }
+
   return {
-    direction: diffPct > 0 ? 'up' : diffPct < 0 ? 'down' : 'neutral',
-    percentage: absPct,
-    isPositive: diffPct >= 0,
-  } as const;
+    direction,
+    percentage: absPercentage,
+    isPositive: comparePercentage > 0,
+  };
 }
 
 type InlineMetricsHeaderProps = {
@@ -36,10 +41,7 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
   return (
     <div className='grid w-full grid-cols-2 gap-2 px-1 sm:flex sm:flex-wrap sm:gap-3'>
       {cards.map((card, idx) => {
-        const trend =
-          card.rawChartData && card.valueField
-            ? calculateTrend(card.rawChartData as ChartDatum[], card.valueField as keyof ChartDatum)
-            : null;
+        const trend = calculateTrend(card.comparePercentage);
 
         return (
           <button
