@@ -76,9 +76,14 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-            <ChartSkeleton />
-            <ChartSkeleton />
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-3'>
+            <div className='md:col-span-2'>
+              <ChartSkeleton />
+            </div>
+
+            <div className='md:col-span-1'>
+              <ChartSkeleton />
+            </div>
           </div>
         }
       >
