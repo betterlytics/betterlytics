@@ -16,6 +16,24 @@ type FunnelsPageParams = {
   searchParams: Promise<{ filters: string }>;
 };
 
+type FunnelsHeaderProps = {
+  funnelsPromise: ReturnType<typeof fetchFunnelsAction>;
+  title: string;
+};
+
+async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
+  const funnels = await funnelsPromise;
+  if (funnels.length === 0) return null;
+
+  return (
+    <DashboardHeader title={title}>
+      <DashboardFilters>
+        <CreateFunnelDialog />
+      </DashboardFilters>
+    </DashboardHeader>
+  );
+}
+
 export default async function FunnelsPage({ params, searchParams }: FunnelsPageParams) {
   const session = await getServerSession(authOptions);
 
@@ -29,11 +47,9 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
-      <DashboardHeader title={t('funnels')}>
-        <DashboardFilters>
-          <CreateFunnelDialog />
-        </DashboardFilters>
-      </DashboardHeader>
+      <Suspense fallback={null}>
+        <FunnelsHeader funnelsPromise={funnelsPromise} title={t('funnels')} />
+      </Suspense>
 
       <Suspense
         fallback={
