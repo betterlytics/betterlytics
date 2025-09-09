@@ -811,7 +811,8 @@
       "noReferrerData": "Ingen henvisningsdata tilgængelig",
       "noSourceData": "Ingen kildedata tilgængelig",
       "noChannelData": "Ingen kanaldata tilgængelig",
-      "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig"
+      "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig",
+      "tabbedTableEmptyState": "Ingen {tab} data tilgængelig"
     }
   },
   "devicesPage": {

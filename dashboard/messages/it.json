@@ -811,7 +811,8 @@
       "noReferrerData": "Nessun dato per sito di riferimento disponibile",
       "noSourceData": "Nessun dato per fonte disponibile",
       "noChannelData": "Nessun dato per canale disponibile",
-      "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile"
+      "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile",
+      "tabbedTableEmptyState": "Nessun dato per {tab} disponibile"
     }
   },
   "devicesPage": {

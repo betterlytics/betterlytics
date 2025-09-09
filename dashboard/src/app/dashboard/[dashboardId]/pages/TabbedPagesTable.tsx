@@ -5,7 +5,7 @@ import { useMemo, useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { Button } from '@/components/ui/button';
 import { formatPercentage } from '@/utils/formatters';
-import TabbedTable, { TabDefinition } from '@/components/TabbedTable';
+import TabbedTable from '@/components/TabbedTable';
 import { fetchPageAnalyticsAction } from '@/app/actions/pages';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';

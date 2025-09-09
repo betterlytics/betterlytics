@@ -807,7 +807,8 @@
       "noReferrerData": "No referrer data available",
       "noSourceData": "No source data available",
       "noChannelData": "No channel data available",
-      "noCustomEventsData": "No custom events data available"
+      "noCustomEventsData": "No custom events data available",
+      "tabbedTableEmptyState": "No {tab} data available"
     }
   },
   "devicesPage": {
