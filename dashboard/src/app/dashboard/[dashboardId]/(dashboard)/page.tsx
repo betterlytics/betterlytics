@@ -130,14 +130,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <NoDataBanner />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <div className='space-y-6'>
-            <SummaryCardsSkeleton />
-            <ChartSkeleton />
-          </div>
-        }
-      >
+      <Suspense fallback={<ChartSkeleton />}>
         <SummaryAndChartSection data={summaryAndChartPromise} />
       </Suspense>
 
