@@ -9,6 +9,8 @@ export type GeoVisitor = {
 
 export type MapFeatureVisitor = {
   geoVisitor: GeoVisitor;
+  longitude?: number;
+  latitude?: number;
 };
 
 interface MapFeatureSelection {
@@ -70,115 +72,3 @@ export function DeckGLMapSelectionProvider({ children }: { children: React.React
     </DeckGLMapSelectionContext.Provider>
   );
 }
-
-// Absolutely! React doesn’t give you a built-in “why did this rerender?” tool in production, but in dev mode there are several reliable ways to trace it. Since you’re dealing with DeckGL + multiple layers, this will help pinpoint exactly which props or state changes are triggering rerenders. Here’s a rundown:
-
-// ---
-
-// ### **1. `React DevTools Profiler` (Recommended)**
-
-// * Open React DevTools → Profiler tab.
-// * Click “Record”, interact with your map, then stop recording.
-// * You’ll see **which components re-rendered**, how long it took, and why.
-// * Hovering over a component shows **why it rendered**: props, state changes, or context.
-
-// ---
-
-// ### **2. `useWhyDidYouUpdate` hook (Custom)**
-
-// You can add a debug hook to log why a component rerenders:
-
-// ```ts
-// import { useEffect, useRef } from 'react';
-
-// export function useWhyDidYouUpdate(name: string, props: Record<string, any>) {
-//   const prevProps = useRef(props);
-
-//   useEffect(() => {
-//     const changes: Record<string, { from: any; to: any }> = {};
-
-//     Object.keys(props).forEach((key) => {
-//       if (prevProps.current[key] !== props[key]) {
-//         changes[key] = { from: prevProps.current[key], to: props[key] };
-//       }
-//     });
-
-//     if (Object.keys(changes).length) {
-//       console.log('[why-did-you-update]', name, changes);
-//     }
-
-//     prevProps.current = props;
-//   });
-// }
-// ```
-
-// Usage:
-
-// ```ts
-// function DeckGLMap(props: DeckGLMapProps) {
-//   useWhyDidYouUpdate('DeckGLMap', props);
-
-//   // ...
-// }
-// ```
-
-// ---
-
-// ### **3. `React.memo` + `console.log`**
-
-// If a component is wrapped in `React.memo`, you can log when it actually renders:
-
-// ```ts
-// const DeckGLStickyTooltip = React.memo((props: DeckGLStickyTooltipProps) => {
-//   console.log('DeckGLStickyTooltip render', props);
-//   return <Tooltip {...props} />;
-// });
-// ```
-
-// * This is useful to see repeated renders when props didn’t change.
-// * Pair it with the profiler to see what triggered it.
-
-// ---
-
-// ### **4. Track context usage**
-
-// Since you’re using `DeckGLMapSelectionContext`, you can log inside the context provider:
-
-// ```ts
-// useEffect(() => {
-//   console.log('Selection changed', selection);
-// }, [selection]);
-// ```
-
-// * This shows whether **hover/click updates** are causing rerenders downstream.
-// * If the tooltip jitter corresponds to these logs, it confirms the layer reads the **context state** instead of a **ref**.
-
-// ---
-
-// ### **5. Layer-specific logging**
-
-// For DeckGL layers, you can log every time you recreate them:
-
-// ```ts
-// console.log('CountriesLayer created', visitorDict);
-// ```
-
-// * Combine with `hoverRef` vs `hoverState` to see if your layer recreates on every hover.
-// * Ideally, the layer should **read refs** so hover changes don’t trigger new layer creation.
-
-// ---
-
-// ✅ **Tip:** Since your problem is that **hover updates are triggering full DeckGL rerenders**, logging context changes + using refs for hover/click is the cleanest way to trace and fix jitter.
-
-// ---
-
-// If you want, I can write a **full example of a debug-ready DeckGL setup** with logs in:
-
-// * `DeckGLMap`
-// * `CountriesLayer`
-// * `DeckGLStickyTooltip`
-// * `SelectionContext`
-
-// …so you can literally see each render and what triggered it.
-
-// Do you want me to do that?

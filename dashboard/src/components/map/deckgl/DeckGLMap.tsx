@@ -1,15 +1,17 @@
 'use client';
 
 import { DeckGL } from '@deck.gl/react';
+
 import { FeatureCollection } from 'geojson';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
 import { useCountriesLayer } from '@/hooks/deckgl/use-countries-layer';
-import { MapActionbar } from './controls/MapPlayActionbar';
+import { MapActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
-import { PlaybackSpeed } from './controls/PlaybackSpeedDropdown';
+import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import { type GeoVisitor } from '@/entities/geography';
-import { ZoomButton, ZOOM_TYPES, ZoomType } from './controls/ZoomButton';
+import { ZoomButton, ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
+import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
 
 interface DeckGLMapProps {
   visitorData: GeoVisitor[];
@@ -47,6 +49,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     ...INITIAL_VIEW_STATE,
     zoom: initialZoom,
   } as any);
+  const [currentViewport, setCurrentViewport] = useState<any>(null);
 
   const {
     position, // float progress for slider
@@ -160,6 +163,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         </div>
         {/* Tooltip */}
         {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
+        {viewState && <DeckGLPopup viewState={viewState} />}
       </DeckGL>
     </div>
   );

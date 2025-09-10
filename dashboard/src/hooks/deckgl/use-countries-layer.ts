@@ -71,6 +71,8 @@ export function useCountriesLayer({
           if (info.object) {
             setMapSelection({
               clicked: {
+                longitude: info?.coordinate?.[0],
+                latitude: info?.coordinate?.[1],
                 geoVisitor: {
                   country_code: info.object.id as string,
                   visitors: visitorDict[info.object.id] ?? 0,

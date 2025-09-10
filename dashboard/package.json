@@ -15,6 +15,7 @@
     "schema": "./prisma/schema.prisma"
   },
   "dependencies": {
+    "@deck.gl/core": "^9.1.14",
     "@deck.gl/layers": "^9.1.14",
     "@deck.gl/react": "^9.1.14",
     "@iconify/react": "^6.0.0",
