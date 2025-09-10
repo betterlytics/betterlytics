@@ -13,7 +13,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
-  onDateRangeSelect: (date: DateRange | undefined) => void;
+  onDateRangeSelect: (dateRange: DateRange | undefined) => void;
   id?: string;
 }
 
@@ -26,35 +26,29 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
 
   const handleDateSelect = useCallback(
     (selectedRange: DateRange | undefined) => {
-      // Since Calendar has it's own implementation of which date to select (start/end)
-      // this code is used to figure out which date has just been selected by the user
-      const selectedDate =
-        selectedRange?.from &&
-        range?.from &&
-        startOfDay(range.from).getTime() !== startOfDay(selectedRange.from).getTime()
-          ? selectedRange.from
-          : selectedRange?.to;
+      if (!selectedRange) {
+        onDateRangeSelect(undefined);
+        return;
+      }
 
-      if (!selectedDate) {
+      const selected = getClickedDate(selectedRange, range);
+
+      if (!selected) {
         return onDateRangeSelect(selectedRange);
       }
 
-      if (selectStartDate) {
-        if (range?.to === undefined || startOfDay(selectedDate) > startOfDay(range.to)) {
-          onDateRangeSelect({ from: selectedDate, to: undefined });
-          return setSelectEndDate();
-        } else {
-          onDateRangeSelect({ from: selectedDate, to: range?.to });
-        }
-      } else {
-        if (range?.from === undefined || startOfDay(selectedDate) < startOfDay(range.from)) {
-          onDateRangeSelect({ from: selectedDate, to: undefined });
-          return setSelectEndDate();
-        } else {
-          onDateRangeSelect({ from: range?.from, to: selectedDate });
-        }
+      const { newRange, setSelectEnd, shouldToggle } = computeSelectionRange(selected, range, selectStartDate);
+
+      onDateRangeSelect(newRange);
+
+      if (setSelectEnd) {
+        setSelectEndDate();
+        return;
       }
-      return toggleDateSelect();
+
+      if (shouldToggle) {
+        toggleDateSelect();
+      }
     },
     [range, onDateRangeSelect, selectStartDate, setSelectEndDate],
   );
@@ -99,3 +93,47 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
     </div>
   );
 }
+
+type DateRangeResult = {
+  newRange: DateRange;
+  setSelectEnd: boolean;
+  shouldToggle: boolean;
+};
+
+function normalize(date?: Date) {
+  return date ? startOfDay(date).getTime() : undefined;
+}
+
+function getClickedDate(selectedRange: DateRange | undefined, range: DateRange | undefined) {
+  if (!selectedRange) return undefined;
+
+  // Since Calendar has it's own implementation of which date to select (start/end)
+  // this code is used to figure out which date has just been selected by the user
+  if (selectedRange.from && range?.from && normalize(range.from) !== normalize(selectedRange.from)) {
+    return selectedRange.from;
+  } else {
+    return selectedRange.to;
+  }
+}
+
+const computeSelectionRange = (
+  selectedDate: Date,
+  range: DateRange | undefined,
+  selectStartDate: boolean,
+): DateRangeResult => {
+  const selectedTime = normalize(selectedDate)!;
+  const fromTime = normalize(range?.from);
+  const toTime = normalize(range?.to);
+
+  if (selectStartDate) {
+    if (toTime === undefined || selectedTime > toTime) {
+      return { newRange: { from: selectedDate, to: undefined }, setSelectEnd: true, shouldToggle: false };
+    }
+    return { newRange: { from: selectedDate, to: range?.to }, setSelectEnd: false, shouldToggle: true };
+  }
+
+  if (fromTime === undefined || selectedTime < fromTime) {
+    return { newRange: { from: selectedDate, to: undefined }, setSelectEnd: true, shouldToggle: false };
+  }
+  return { newRange: { from: range?.from, to: selectedDate }, setSelectEnd: false, shouldToggle: true };
+};
