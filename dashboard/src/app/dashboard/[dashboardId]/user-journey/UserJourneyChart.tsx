@@ -298,19 +298,25 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
     return (
       <div
-        className='absolute z-10 rounded border bg-white p-2 shadow-md'
+        className='absolute z-10'
         style={{
           left: `${tooltip.x}px`,
           top: `${tooltip.y}px`,
           pointerEvents: 'none',
         }}
       >
-        <p className='font-medium text-gray-800'>
-          {tooltip.content.source} → {tooltip.content.target}
-        </p>
-        <p className='text-sm text-gray-600'>
-          {t('sessions')}: {tooltip.content.value}
-        </p>
+        <div className='border-border bg-popover/95 animate-in fade-in-0 zoom-in-95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm duration-200'>
+          <div className='space-y-1.5'>
+            <div className='flex items-center justify-between gap-3'>
+              <span className='text-popover-foreground text-sm'>
+                {tooltip.content.source} → {tooltip.content.target}
+              </span>
+            </div>
+            <div className='text-popover-foreground/80 text-xs'>
+              {t('sessions')}: {tooltip.content.value.toLocaleString()}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }, [tooltip.visible, tooltip.content, tooltip.x, tooltip.y]);

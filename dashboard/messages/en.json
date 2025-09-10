@@ -1280,7 +1280,8 @@
         "sourcePages": "Source Pages"
       },
       "chart": {
-        "title": "Unique Outbound Clicks Over Time"
+        "title": "Unique Outbound Clicks Over Time",
+        "tooltipTitle": "Unique Outbound Clicks"
       },
       "pieChart": {
         "title": "Outbound Links Distribution"
