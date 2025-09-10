@@ -10,11 +10,11 @@ export function UserJourneyFilters() {
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
   const t = useTranslations('components.userJourney');
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex w-full items-center justify-end gap-1 sm:gap-4'>
       <Select value={String(numberOfSteps)} onValueChange={(v) => setNumberOfSteps(Number(v))}>
         <SelectTrigger
           id='steps-select'
-          className='h-9 cursor-pointer border border-[--input] shadow-sm md:w-[200px]'
+          className='h-9 w-full cursor-pointer border border-[--input] shadow-sm md:w-[200px]'
         >
           <SelectValue placeholder={`${t('steps')}: ${numberOfSteps}`} />
         </SelectTrigger>
@@ -30,7 +30,7 @@ export function UserJourneyFilters() {
       <Select value={String(numberOfJourneys)} onValueChange={(v) => setNumberOfJourneys(Number(v))}>
         <SelectTrigger
           id='journeys-select'
-          className='h-9 cursor-pointer border border-[--input] shadow-sm md:w-[200px]'
+          className='h-9 w-full cursor-pointer border border-[--input] shadow-sm md:w-[200px]'
         >
           <SelectValue placeholder={t('topJourneys', { journeys: numberOfJourneys.toString() })} />
         </SelectTrigger>
