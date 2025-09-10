@@ -939,9 +939,9 @@
       "loading": "Caricamento mappa...",
       "visitors": "Visitatori",
       "playback": {
-        "play": "Play",
-        "stop": "Stop",
-        "pause": "Pause"
+        "play": "Riproduci",
+        "stop": "Interrompi",
+        "pause": "Pausa"
       },
       "zoom": {
         "in": "Zoom avanti",
