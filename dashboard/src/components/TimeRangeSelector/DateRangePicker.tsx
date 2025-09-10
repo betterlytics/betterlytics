@@ -8,6 +8,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { type DateRange } from 'react-day-picker';
+import { useToggle } from '@/hooks/use-toggle';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
@@ -18,21 +19,32 @@ interface DateRangePickerProps {
 export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleDateSelect = useCallback(
-    (selectedDate: DateRange | undefined) => {
-      if (range?.from && range.to) {
-        if (selectedDate?.from && startOfDay(range.from).getTime() !== startOfDay(selectedDate.from).getTime()) {
-          return onDateRangeSelect({ from: selectedDate.from });
-        }
+  const { isOn: selectStartDate, toggle: toggleDateSelect } = useToggle(true);
 
-        if (selectedDate?.to && startOfDay(range.to).getTime() !== startOfDay(selectedDate.to).getTime()) {
-          return onDateRangeSelect({ from: selectedDate.to });
-        }
+  const handleDateSelect = useCallback(
+    (selectedRange: DateRange | undefined) => {
+      // Since Calendar has it's own implementation of which date to select (start/end)
+      // this code is used to figure out which date has just been selected by the user
+      const selectedDate =
+        selectedRange?.from &&
+        range?.from &&
+        startOfDay(range.from).getTime() !== startOfDay(selectedRange.from).getTime()
+          ? selectedRange.from
+          : selectedRange?.to;
+
+      if (selectStartDate && selectedRange?.from) {
+        onDateRangeSelect({ from: selectedDate, to: range?.to });
+        return toggleDateSelect();
       }
 
-      onDateRangeSelect(selectedDate);
+      if (selectStartDate === false && selectedRange?.to) {
+        onDateRangeSelect({ from: range?.from, to: selectedDate });
+        return toggleDateSelect();
+      }
+
+      onDateRangeSelect(selectedRange);
     },
-    [range, onDateRangeSelect],
+    [range, onDateRangeSelect, selectStartDate],
   );
 
   return (
