@@ -1284,7 +1284,8 @@
         "sourcePages": "Kildesider"
       },
       "chart": {
-        "title": "Unikke udgående klik over tid"
+        "title": "Unikke udgående klik over tid",
+        "tooltipTitle": "Unikke udgående klik"
       },
       "pieChart": {
         "title": "Udgående links fordeling"

@@ -20,10 +20,11 @@ interface InteractiveChartProps {
   granularity?: GranularityRangeValues;
   comparisonMap?: ComparisonMapping[];
   headerContent?: React.ReactNode;
+  tooltipTitle?: string;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
-  ({ title, data, color, formatValue, granularity, comparisonMap, headerContent }) => {
+  ({ title, data, color, formatValue, granularity, comparisonMap, headerContent, tooltipTitle }) => {
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
@@ -86,6 +87,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                       labelFormatter={(date) => defaultDateLabelFormatter(date, granularity)}
                       formatter={formatValue}
                       comparisonMap={comparisonMap}
+                      title={tooltipTitle}
                     />
                   }
                 />

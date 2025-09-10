@@ -29,6 +29,7 @@ export function formatDifference(
   previous: number,
   hasComparison: boolean,
   formatter?: (value: number) => string,
+  includePreviousNumber: boolean = true,
 ): string | null {
   if (!hasComparison || previous === 0) return null;
 
@@ -38,9 +39,12 @@ export function formatDifference(
   const sign = diff > 0 ? '+' : '';
   const formattedDiff = formatter ? formatter(diff) : diff.toString();
 
-  if (previous !== 0) {
-    const percentage = ((diff / previous) * 100).toFixed(1);
-    return `${sign}${formattedDiff} (${sign}${percentage}%)`;
+  const percentage = ((diff / previous) * 100).toFixed(1);
+
+  if (previous !== 0 && includePreviousNumber) {
+    return `${sign}${percentage}% (${sign}${formattedDiff})`;
+  } else if (!includePreviousNumber) {
+    return `${sign}${percentage}%`;
   }
 
   return `${sign}${formattedDiff}`;

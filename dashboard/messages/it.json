@@ -1288,7 +1288,8 @@
         "sourcePages": "Pagine sorgente"
       },
       "chart": {
-        "title": "Clic in uscita unici nel tempo"
+        "title": "Clic in uscita unici nel tempo",
+        "tooltipTitle": "Clic in uscita unici"
       },
       "pieChart": {
         "title": "Distribuzione link in uscita"

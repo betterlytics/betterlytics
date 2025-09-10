@@ -118,6 +118,7 @@ export default function OverviewChartSection({
       granularity={granularity}
       comparisonMap={comparisonMap}
       headerContent={cards ? <InlineMetricsHeader cards={cards} /> : undefined}
+      tooltipTitle={currentMetricConfig.title}
     />
   );
 }

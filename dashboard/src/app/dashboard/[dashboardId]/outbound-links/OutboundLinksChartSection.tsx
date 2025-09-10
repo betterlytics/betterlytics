@@ -22,6 +22,7 @@ export default function OutboundLinksChartSection({ outboundClicksChartPromise }
       color='var(--chart-1)'
       granularity={granularity}
       comparisonMap={chartData.comparisonMap}
+      tooltipTitle={t('tooltipTitle')}
     />
   );
 }
