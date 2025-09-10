@@ -2,13 +2,14 @@
 
 import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection } from 'geojson';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
 import { useCountriesLayer } from '@/hooks/deckgl/use-countries-layer';
 import { MapActionbar } from './controls/MapPlayActionbar';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { PlaybackSpeed } from './controls/PlaybackSpeedDropdown';
 import { type GeoVisitor } from '@/entities/geography';
+import { ZoomButton, ZOOM_TYPES, ZoomType } from './controls/ZoomButton';
 
 interface DeckGLMapProps {
   visitorData: GeoVisitor[];
@@ -42,6 +43,11 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   }, [visitorDataTimeseries]);
 
   const [speed, setSpeed] = useState(1 as PlaybackSpeed);
+  const [viewState, setViewState] = useState({
+    ...INITIAL_VIEW_STATE,
+    zoom: initialZoom,
+  } as any);
+
   const {
     position, // float progress for slider
     frame, // discrete frame index
@@ -66,6 +72,16 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     return Object.fromEntries(currentFrame.map((d) => [d.country_code, d.visitors]));
   }, [visitorDataTimeseries, frame]);
 
+  const handleZoom = useCallback(
+    (zoomType: ZoomType) => {
+      setViewState((vs: any) => ({
+        ...vs,
+        zoom: Math.max(0, Math.min(20, vs.zoom + (+(zoomType === 'in') || -1))),
+      }));
+    },
+    [setViewState],
+  );
+
   const layers = useCountriesLayer({
     geojson,
     visitorDict,
@@ -77,7 +93,12 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
-      <DeckGL initialViewState={{ ...INITIAL_VIEW_STATE, zoom: initialZoom }} controller={true} layers={layers}>
+      <DeckGL
+        viewState={viewState}
+        controller={true}
+        onViewStateChange={({ viewState }) => setViewState(viewState)}
+        layers={layers}
+      >
         {/* Global map CSS should be removed or renmaed*/}
         <style jsx global>
           {`
@@ -113,7 +134,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         </style>
 
         {/* Controls */}
-        <div className='absolute bottom-10 left-[18rem] z-10 w-[calc(100%-20rem)]'>
+        <div className='absolute bottom-10 left-[17rem] z-10 w-[calc(100%-20rem)]'>
           <MapActionbar
             ticks={visitorDataTimeseries.map((_, i) => ({
               label: `${i + 1}`,
@@ -128,7 +149,15 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
             onChangeSpeed={setSpeed}
           />
         </div>
-
+        <div className='absolute top-3 left-[17rem] z-10 flex flex-col'>
+          <ZoomButton
+            key={'in'}
+            className={'border-b-border border-b-[0.5px]'}
+            onClick={() => handleZoom('in')}
+            zoomType={'in'}
+          />
+          <ZoomButton key={'out'} onClick={() => handleZoom('out')} zoomType={'out'} />
+        </div>
         {/* Tooltip */}
         {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
       </DeckGL>

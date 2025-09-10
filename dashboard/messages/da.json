@@ -941,6 +941,10 @@
         "play": "Afspil",
         "stop": "Stop",
         "pause": "Pause"
+      },
+      "zoom": {
+        "in": "Zoom ind",
+        "out": "Zoom ud"
       }
     },
     "userJourney": {

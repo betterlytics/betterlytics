@@ -942,6 +942,10 @@
         "play": "Play",
         "stop": "Stop",
         "pause": "Pause"
+      },
+      "zoom": {
+        "in": "Zoom avanti",
+        "out": "Zoom indietro"
       }
     },
     "userJourney": {
