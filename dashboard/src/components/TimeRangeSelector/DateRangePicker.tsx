@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { format, startOfDay } from 'date-fns';
+import { addMonths, format, startOfDay } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -22,7 +22,7 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
 
   const isMobile = useIsMobile();
 
-  const { isOn: selectStartDate, toggle: toggleDateSelect } = useToggle(true);
+  const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
 
   const handleDateSelect = useCallback(
     (selectedRange: DateRange | undefined) => {
@@ -35,19 +35,28 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
           ? selectedRange.from
           : selectedRange?.to;
 
-      if (selectStartDate && selectedRange?.from) {
-        onDateRangeSelect({ from: selectedDate, to: range?.to });
-        return toggleDateSelect();
+      if (!selectedDate) {
+        return onDateRangeSelect(selectedRange);
       }
 
-      if (selectStartDate === false && selectedRange?.to) {
-        onDateRangeSelect({ from: range?.from, to: selectedDate });
-        return toggleDateSelect();
+      if (selectStartDate) {
+        if (range?.to === undefined || startOfDay(selectedDate) > startOfDay(range.to)) {
+          onDateRangeSelect({ from: selectedDate, to: undefined });
+          return setSelectEndDate();
+        } else {
+          onDateRangeSelect({ from: selectedDate, to: range?.to });
+        }
+      } else {
+        if (range?.from === undefined || startOfDay(selectedDate) < startOfDay(range.from)) {
+          onDateRangeSelect({ from: selectedDate, to: undefined });
+          return setSelectEndDate();
+        } else {
+          onDateRangeSelect({ from: range?.from, to: selectedDate });
+        }
       }
-
-      onDateRangeSelect(selectedRange);
+      return toggleDateSelect();
     },
-    [range, onDateRangeSelect, selectStartDate],
+    [range, onDateRangeSelect, selectStartDate, setSelectEndDate],
   );
 
   return (
@@ -74,8 +83,12 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
           <Calendar
             mode='range'
-            selected={range}
-            startMonth={new Date(2023, 0)}
+            selected={{
+              from: range?.from && startOfDay(range.from),
+              to: range?.to && startOfDay(range.to),
+            }}
+            startMonth={new Date(2019, 0)}
+            endMonth={addMonths(new Date(), 1)}
             onSelect={handleDateSelect}
             captionLayout='dropdown'
             className='[&_button]:cursor-pointer [&_select]:cursor-pointer'
