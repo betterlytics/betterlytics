@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
@@ -18,6 +19,8 @@ interface DateRangePickerProps {
 
 export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const isMobile = useIsMobile();
 
   const { isOn: selectStartDate, toggle: toggleDateSelect } = useToggle(true);
 
@@ -68,10 +71,11 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-auto p-0' align='start'>
+        <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
           <Calendar
             mode='range'
             selected={range}
+            startMonth={new Date(2023, 0)}
             onSelect={handleDateSelect}
             captionLayout='dropdown'
             className='[&_button]:cursor-pointer [&_select]:cursor-pointer'
