@@ -40,7 +40,7 @@ export default function CampaignVisitorTrendChart({
   return (
     <div className='bg-card border-border rounded-xl border p-6 shadow'>
       <h2 className='text-foreground mb-0 text-lg font-bold'>{t('title')}</h2>
-      <div style={{ width: '100%', height: 300 }}>
+      <div style={{ width: '100%', height: 300 }} className='mt-10'>
         <ResponsiveContainer className='mt-4'>
           <AreaChart data={chartData} margin={{ top: 10, right: 22, left: 22, bottom: 0 }}>
             <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
