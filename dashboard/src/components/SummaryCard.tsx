@@ -4,7 +4,7 @@ import React, { useId, useMemo } from 'react';
 import { ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronUp, ChevronDown, MousePointer2 } from 'lucide-react';
+import { ChevronUp, ChevronDown, MousePointerClick } from 'lucide-react';
 
 interface ChartData {
   date: string;
@@ -117,7 +117,7 @@ const SummaryCard = React.memo(
             <span className='text-foreground font-medium'>{title}</span>
             {onClick && (
               <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
-                <MousePointer2 className='text-foreground/60 h-4 w-4' />
+                <MousePointerClick className='text-foreground/60 h-4 w-4' />
               </div>
             )}
           </div>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { ChevronUp, ChevronDown, MousePointer2 } from 'lucide-react';
+import { ChevronUp, ChevronDown, MousePointerClick } from 'lucide-react';
 import type { SummaryCardData } from './SummaryCardsSection';
 import { cn } from '@/lib/utils';
 
@@ -104,7 +104,7 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
                   {card.title}
                 </span>
                 {card.onClick && (
-                  <MousePointer2 className='text-muted-foreground/60 h-4 w-4 opacity-0 group-hover:opacity-100' />
+                  <MousePointerClick className='text-muted-foreground/60 h-4 w-4 opacity-0 group-hover:opacity-100' />
                 )}
               </div>
               <div className='flex items-center gap-2'>
