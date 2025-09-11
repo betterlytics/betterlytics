@@ -72,8 +72,8 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   }
 
   return (
-    <div className='bg-card border-border rounded-xl border p-6 shadow'>
-      <div className='mb-8 flex items-center justify-between'>
+    <div className='bg-card border-border rounded-xl border px-1 py-6 shadow'>
+      <div className='mb-8 flex items-center justify-between px-3'>
         <div>
           <h2 className='text-foreground mb-1 text-lg font-medium'>{t('sections.weeklyTrends')}</h2>
         </div>
@@ -135,7 +135,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
   );
 
   return (
-    <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-1 gap-y-1'>
+    <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-1 gap-y-1 px-3 sm:pl-4'>
       <div></div>
       {dayLabels.map((label) => (
         <div
