@@ -277,7 +277,7 @@ export default function WebVitalsTableSection({
 
   const headerActions = useMemo(
     () => (
-      <div className='grid grid-cols-2 grid-rows-2 gap-1 sm:inline-flex sm:flex-row sm:items-center sm:gap-2'>
+      <div className='inline-flex flex-row items-center gap-2'>
         {[
           { key: 'p50' as PercentileKey, label: 'P50', color: 'var(--cwv-p50)' },
           { key: 'p75' as PercentileKey, label: 'P75', color: 'var(--cwv-p75)' },

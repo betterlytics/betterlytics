@@ -15,8 +15,8 @@ export default function ReferrersTableSection({ referrerTablePromise }: Referrer
   const t = useTranslations('components.referrers.table');
 
   return (
-    <div className='bg-card border-border rounded-xl border p-4 shadow'>
-      <div className='text-foreground mb-2 font-medium'>{t('details')}</div>
+    <div className='bg-card border-border rounded-xl border px-1 py-4 shadow sm:px-4'>
+      <div className='text-foreground mb-2 px-3 font-medium sm:px-0'>{t('details')}</div>
       <ReferrerTable data={tableData} />
     </div>
   );

@@ -20,7 +20,6 @@ interface TabDefinition<TData> {
 
 interface TabbedTableProps<TData> {
   title: ReactNode;
-  description?: string;
   tabs: TabDefinition<TData>[];
   defaultTab?: string;
   className?: string;
@@ -31,7 +30,6 @@ interface TabbedTableProps<TData> {
 
 function TabbedTable<TData>({
   title,
-  description,
   tabs,
   defaultTab,
   className = '',
@@ -46,12 +44,15 @@ function TabbedTable<TData>({
   return (
     <Card className={`bg-card border-border rounded-xl border shadow ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
-        <CardHeader className='px-1 pb-0 sm:px-6'>
-          <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-            <div className={cn('grid grid-cols-[1fr_auto] items-start gap-2', searchColumn && 'sm:col-span-2')}>
+        <CardHeader className='px-4 pb-0 sm:px-6'>
+          <div className='relative grid grid-cols-1 gap-3 xl:grid-cols-2'>
+            <div
+              className={cn('grid grid-cols-1 items-start gap-2 xl:grid-cols-2', searchColumn && 'sm:col-span-2')}
+            >
               <CardTitle className='mb-1 text-lg font-medium'>{title}</CardTitle>
-              {headerActions && <div className='justify-self-end'>{headerActions}</div>}
-              {description && <p className='text-muted-foreground col-span-2 text-sm'>{description}</p>}
+              <div className='flex'>
+                {headerActions && <div className='justify-self-end'>{headerActions}</div>}
+              </div>
             </div>
             {searchColumn && (
               <div className='w-full rounded-md sm:max-w-sm'>
@@ -66,8 +67,8 @@ function TabbedTable<TData>({
                 />
               </div>
             )}
-            <div className='flex items-center justify-center gap-4 sm:justify-end'>
-              <TabsList className={`bg-muted/30 grid h-8 w-auto gap-1 grid-cols-${tabs.length}`}>
+            <div className='flex items-center gap-4 overflow-auto sm:justify-end'>
+              <TabsList className={`bg-muted/30 flex h-8 gap-1`}>
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.key}

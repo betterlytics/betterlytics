@@ -63,7 +63,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
   const perOsPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'os');
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-6 p-6'>
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('webVitals')}>
         <DashboardFilters />
       </DashboardHeader>
