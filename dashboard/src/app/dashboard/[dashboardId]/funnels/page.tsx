@@ -10,6 +10,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
+import TimeRangeSelector from '@/components/TimeRangeSelector';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -27,9 +28,10 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
 
   return (
     <DashboardHeader title={title}>
-      <DashboardFilters>
+      <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-3 sm:flex-row'>
         <CreateFunnelDialog />
-      </DashboardFilters>
+        <TimeRangeSelector showComparison={false} />
+      </div>
     </DashboardHeader>
   );
 }

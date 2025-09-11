@@ -126,7 +126,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[700px]'>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <Spinner />
             <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
@@ -139,7 +139,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   if (error) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[700px]'>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <AlertTriangle className='text-destructive h-8 w-8' />
             <div className='text-center'>
@@ -155,7 +155,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   if (!settings) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[700px]'>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
           <div className='flex items-center justify-center py-8'>
             <span>{tDialog('noSettings')}</span>
           </div>
@@ -166,7 +166,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[80vh] overflow-y-auto sm:max-w-[700px]'>
+      <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto md:max-w-11/12 md:min-w-[700px] lg:w-fit lg:max-w-9/12 lg:min-w-[900px] xl:max-w-2/3'>
         <DialogHeader>
           <DialogTitle>{tDialog('title')}</DialogTitle>
           <DialogDescription>{tDialog('description')}</DialogDescription>
@@ -179,7 +179,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
               return (
                 <TabsTrigger key={tab.id} value={tab.id} className='flex items-center gap-2'>
                   <Icon className='h-4 w-4' />
-                  <span className='hidden sm:inline'>{tab.label}</span>
+                  <span className='hidden lg:inline'>{tab.label}</span>
                 </TabsTrigger>
               );
             })}

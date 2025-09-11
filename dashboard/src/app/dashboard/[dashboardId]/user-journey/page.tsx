@@ -41,9 +41,16 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('userJourney')}>
         <DashboardFilters showComparison={false}>
-          <UserJourneyFilters />
+          <div className='hidden 2xl:inline-block'>
+            <UserJourneyFilters />
+          </div>
         </DashboardFilters>
       </DashboardHeader>
+
+      <div className='flex justify-end 2xl:hidden'>
+        <UserJourneyFilters />
+      </div>
+
       <Suspense
         fallback={
           <div className='relative min-h-[400px]'>

@@ -82,7 +82,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant || 'outline'} className='cursor-pointer'>
+        <Button variant={triggerVariant || 'secondary'} className='cursor-pointer border'>
           <Plus className='size-5' />
           {triggerText || t('createFunnel')}
         </Button>
