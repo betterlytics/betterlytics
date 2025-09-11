@@ -26,6 +26,7 @@ import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { NoDataBanner } from '@/app/dashboard/[dashboardId]/NoDataBanner';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import AutoRefresh from '@/components/dashboard/AutoRefresh';
 import { getTranslations } from 'next-intl/server';
 
 type DashboardPageParams = {
@@ -131,7 +132,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('overview')}>
-        <DashboardFilters />
+        <DashboardFilters>
+          <AutoRefresh />
+        </DashboardFilters>
       </DashboardHeader>
 
       <Suspense>
