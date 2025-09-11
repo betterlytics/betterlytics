@@ -164,10 +164,7 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className='bg-secondary w-[350px] max-w-[calc(100svw-48px)] space-y-6 border p-6'
-        align='end'
-      >
+      <PopoverContent className='w-[350px] max-w-[calc(100svw-48px)] space-y-6 border p-6' align='end'>
         {content}
       </PopoverContent>
     </Popover>
