@@ -49,17 +49,17 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
             type='button'
             onClick={card.onClick}
             aria-pressed={card.isActive}
-            className={`group relative flex w-full min-w-0 flex-col overflow-hidden rounded-md px-3 py-4 text-left transition-all duration-200 sm:flex-none sm:py-2 ${
+            className={`group relative flex w-full min-w-0 flex-col overflow-hidden rounded-md border border-transparent px-3 py-4 text-left transition-all duration-200 sm:flex-none sm:py-2 ${
               widthClasses
-            } ${
-              card.onClick ? 'cursor-pointer' : ''
-            } ${!card.isActive ? 'hover:brightness-85 hover:saturate-90' : ''}`}
+            } ${card.onClick ? 'cursor-pointer' : ''} ${
+              !card.isActive ? 'hover:bg-accent/40 hover:border-primary/20 hover:shadow-sm' : 'shadow-sm'
+            } focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:outline-none`}
             style={{ background: card.isActive ? 'var(--secondary)' : undefined }}
           >
             {/* Left accent rail */}
             <span
-              className='absolute top-0 left-0 h-full w-[3px] rounded-r'
-              style={{ background: card.isActive ? 'var(--chart-1)' : 'transparent' }}
+              className='absolute top-0 left-0 h-full w-[3px] rounded-r bg-transparent'
+              style={{ background: card.isActive ? 'var(--chart-1)' : undefined }}
               aria-hidden='true'
             />
             {card.rawChartData && card.valueField && (
@@ -98,7 +98,7 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
               <div className='mb-1 flex items-center justify-between'>
                 <span
                   className={`text- font-medium sm:text-base ${
-                    card.isActive ? 'text-foreground' : 'text-muted-foreground group-hover:opacity-90'
+                    card.isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
                   }`}
                 >
                   {card.title}
