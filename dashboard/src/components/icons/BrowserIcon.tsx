@@ -1,7 +1,7 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
 import { Icon } from '@iconify/react';
-import { browserIconNames, browserLabels, type BrowserType } from '@/constants/browserIcons';
+import { browserIconNames, normalizeBrowserKey } from '@/constants/browserIcons';
 
 interface BrowserIconProps {
   name: string;
@@ -9,8 +9,8 @@ interface BrowserIconProps {
 }
 
 export const BrowserIcon = React.memo<BrowserIconProps>(({ name, className = 'h-3.5 w-3.5' }) => {
-  const normalizedName = name.toLowerCase().replace(/\s+/g, '') as BrowserType;
-  const iconName = browserIconNames[normalizedName];
+  const normalizedKey = normalizeBrowserKey(name);
+  const iconName = normalizedKey ? browserIconNames[normalizedKey] : undefined;
 
   if (!iconName) {
     return <Globe className={className} />;
