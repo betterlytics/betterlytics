@@ -15,6 +15,7 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toDataTable } from '@/presenters/toDataTable';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
 
 export const fetchPageAnalyticsAction = withDashboardAuthContext(
   async (
@@ -87,15 +88,22 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
     ctx: AuthContext,
     startDate: Date,
     endDate: Date,
+    granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const data = await getPagesSummaryWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+    const data = await getPagesSummaryWithChartsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
     const compare =
       compareStartDate &&
       compareEndDate &&
-      (await getPagesSummaryWithChartsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+      (await getPagesSummaryWithChartsForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+      ));
 
     const comparePercentage = (key: keyof typeof data) => {
       if (!compare) {
@@ -123,8 +131,34 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
       avgBounceRate: comparePercentage('avgBounceRate'),
     };
 
+    const dateRange = { start: startDate, end: endDate };
+
     return {
       ...data,
+      pagesPerSessionChartData: toSparklineSeries({
+        data: data.pagesPerSessionChartData,
+        granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      avgTimeChartData: toSparklineSeries({
+        data: data.avgTimeChartData,
+        granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      bounceRateChartData: toSparklineSeries({
+        data: data.bounceRateChartData,
+        granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      pageviewsChartData: toSparklineSeries({
+        data: data.pageviewsChartData,
+        granularity,
+        dataKey: 'views',
+        dateRange,
+      }),
       compareValues,
     };
   },

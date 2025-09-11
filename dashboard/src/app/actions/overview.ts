@@ -20,7 +20,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { getSessionMetrics } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { toAreaChart } from '@/presenters/toAreaChart';
+import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
@@ -94,15 +94,22 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
     ctx: AuthContext,
     startDate: Date,
     endDate: Date,
+    granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const data = await getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+    const data = await getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
     const compare =
       compareStartDate &&
       compareEndDate &&
-      (await getSummaryStatsWithChartsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+      (await getSummaryStatsWithChartsForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+      ));
 
     const comparePercentage = (key: keyof typeof data) => {
       if (!compare) {
@@ -132,8 +139,46 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
       bounceRate: comparePercentage('bounceRate'),
     };
 
+    const dateRange = { start: startDate, end: endDate };
+
     return {
       ...data,
+      visitorsChartData: toSparklineSeries({
+        data: data.visitorsChartData,
+        granularity,
+        dataKey: 'unique_visitors',
+        dateRange,
+      }),
+      pageviewsChartData: toSparklineSeries({
+        data: data.pageviewsChartData,
+        granularity,
+        dataKey: 'views',
+        dateRange,
+      }),
+      sessionsChartData: toSparklineSeries({
+        data: data.sessionsChartData,
+        granularity,
+        dataKey: 'sessions',
+        dateRange,
+      }),
+      bounceRateChartData: toSparklineSeries({
+        data: data.bounceRateChartData,
+        granularity,
+        dataKey: 'bounce_rate',
+        dateRange,
+      }),
+      avgVisitDurationChartData: toSparklineSeries({
+        data: data.avgVisitDurationChartData,
+        granularity,
+        dataKey: 'avg_visit_duration',
+        dateRange,
+      }),
+      pagesPerSessionChartData: toSparklineSeries({
+        data: data.pagesPerSessionChartData,
+        granularity,
+        dataKey: 'pages_per_session',
+        dateRange,
+      }),
       compareValues,
     };
   },

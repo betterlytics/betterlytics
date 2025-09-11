@@ -23,20 +23,13 @@ export async function getSummaryStatsWithChartsForSite(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ) {
-  const dailyGranularity: GranularityRangeValues = 'day'; // Always daily for summary cards as lower granularities becomes too noisy
-
   const [visitorsChartData, pageviewsChartData, sessionMetricsChartData] = await Promise.all([
-    getUniqueVisitorsForSite(siteId, startDate, endDate, dailyGranularity, queryFilters),
-    getTotalPageViewsForSite(siteId, startDate, endDate, dailyGranularity, queryFilters),
-    getSessionMetrics(
-      siteId,
-      toDateTimeString(startDate),
-      toDateTimeString(endDate),
-      dailyGranularity,
-      queryFilters,
-    ),
+    getUniqueVisitorsForSite(siteId, startDate, endDate, granularity, queryFilters),
+    getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters),
+    getSessionMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), granularity, queryFilters),
   ]);
 
   const uniqueVisitors = visitorsChartData.reduce((sum: number, row) => sum + row.unique_visitors, 0);

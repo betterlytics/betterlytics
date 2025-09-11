@@ -37,6 +37,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     dashboardId,
     startDate,
     endDate,
+    granularity,
     queryFilters,
   );
   const distributionPromise = fetchReferrerSourceAggregationDataForSite(
