@@ -54,8 +54,8 @@ pub fn parse_user_agent(user_agent: &str) -> ParsedUserAgent {
     
     let parser = USER_AGENT_PARSER.get().expect("User agent parser not initialized. Call initialize() first.");
     let client = parser.parse(user_agent);
-    
-    let browser = client.user_agent.family.to_string();
+
+    let browser = canonicalize_browser_family(&client.user_agent.family);
     let browser_version = client.user_agent.major.map(|v| v.to_string());
     let os = client.os.family.to_string();
     
@@ -71,4 +71,55 @@ pub fn parse_user_agent(user_agent: &str) -> ParsedUserAgent {
         browser_version,
         os,
     }
+}
+
+/// Normalize/Canonicalize browser family names to a small set of common brands for UI/icon mapping.
+/// Examples:
+/// - "Chrome Mobile iOS" -> "Chrome"
+/// - "Mobile Safari" -> "Safari"
+/// - "Firefox Mobile" / "FxiOS" -> "Firefox"
+/// - "Microsoft Edge" / "Edg" -> "Edge"
+/// - "OPR" / "Opera Mobile" -> "Opera"
+fn canonicalize_browser_family(family: &str) -> String {
+    let f = family.to_lowercase();
+
+    // Preserve specific Chromium-based brands first
+    if f.contains("brave") {
+        return "Brave".to_string();
+    }
+    if f.contains("vivaldi") {
+        return "Vivaldi".to_string();
+    }
+    if f.contains("arc") {
+        return "Arc".to_string();
+    }
+
+    // Major families
+    if f.contains("edg") || f.contains("edge") {
+        return "Edge".to_string();
+    }
+    if f.contains("opr") || f.contains("opera") {
+        return "Opera".to_string();
+    }
+    if f.contains("firefox") || f == "fxios" {
+        return "Firefox".to_string();
+    }
+    if f.contains("safari") {
+        return "Safari".to_string();
+    }
+    if f.contains("chrome") || f.contains("chromium") || f == "crios" {
+        return "Chrome".to_string();
+    }
+    if f.contains("duckduckgo") {
+        return "DuckDuckGo".to_string();
+    }
+    if f.contains("opera") {
+        return "Opera".to_string();
+    }
+    if f.contains("ecosia") {
+        return "Ecosia".to_string();
+    }
+
+    // Default to original family if no mapping found
+    family.to_string()
 }
