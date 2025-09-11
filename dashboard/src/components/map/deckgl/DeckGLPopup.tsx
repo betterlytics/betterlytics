@@ -1,14 +1,18 @@
 import { WebMercatorViewport } from '@deck.gl/core';
 import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
+import MapTooltipContent from '../tooltip/MapTooltipContent';
+import MapTooltipTip from '../tooltip/MapTooltipTip';
+import { cn } from '@/lib/utils';
 
 interface DeckGLPopupProps {
   viewState: any; // the DeckGL viewState
+  size?: 'sm' | 'lg';
   children?: React.ReactNode;
 }
 
-export function DeckGLPopup({ viewState, children }: DeckGLPopupProps) {
+export function DeckGLPopup({ viewState, size = 'sm', children }: DeckGLPopupProps) {
   const { clickedFeature } = useMapSelection();
-
+  console.log('clickedFeature: ', clickedFeature);
   if (!clickedFeature) return null;
 
   const viewport = new WebMercatorViewport(viewState);
@@ -18,19 +22,26 @@ export function DeckGLPopup({ viewState, children }: DeckGLPopupProps) {
   const [x, y] = viewport.project(featureLatLng);
 
   return (
-    <div
-      className='absolute z-50'
+    <section
+      role='tooltip'
+      aria-hidden={false}
       style={{
         left: x,
         top: y,
         transform: 'translate(-50%, -100%)',
         pointerEvents: 'auto',
       }}
+      className={cn(
+        'rounded-md',
+        'deckgl-popup leaflet-popup-content-wrapper',
+        'pointer-events-none absolute z-[11] flex flex-col will-change-transform',
+      )}
     >
-      <div className='rounded-xl bg-white p-3 shadow-lg'>
-        <h3 className='mb-1 text-sm font-bold'>Country: {clickedFeature.geoVisitor.country_code}</h3>
+      <div className='leaflet-popup-content'>
+        <MapTooltipContent geoVisitor={clickedFeature?.geoVisitor} size={size} />
         {children}
       </div>
-    </div>
+      <MapTooltipTip />
+    </section>
   );
 }

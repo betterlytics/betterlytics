@@ -66,6 +66,7 @@ export function CountriesLayer({
           },
         });
       } else {
+        console.log('Clicking outside object');
         setMapSelection({ clicked: undefined });
       }
     },

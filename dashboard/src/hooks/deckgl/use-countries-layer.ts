@@ -21,16 +21,11 @@ export function useCountriesLayer({
   baseInterval,
   calculatedMaxVisitors,
 }: CountriesLayerProps) {
-  const { hoveredFeature, clickedFeature, setMapSelection } = useMapSelection();
+  const { hoveredFeature, clickedFeature } = useMapSelection();
   const style = useDeckGLMapStyle({ calculatedMaxVisitors });
 
   return useMemo(() => {
     if (!geojson) return [];
-    console.log(
-      'new countries layer',
-      hoveredFeature?.geoVisitor.country_code,
-      clickedFeature?.geoVisitor.country_code,
-    );
     return [
       new GeoJsonLayer({
         id: 'deckgl-countries-layer',
@@ -52,36 +47,6 @@ export function useCountriesLayer({
           if (clickedFeature?.geoVisitor.country_code === iso) return style.selectedStyle(visitors).line;
           if (hoveredFeature?.geoVisitor.country_code === iso) return style.hoveredStyle(visitors).line;
           return style.originalStyle(visitors).line;
-        },
-        onHover: (info) => {
-          if (info.object) {
-            setMapSelection({
-              hovered: {
-                geoVisitor: {
-                  country_code: info.object.id as string,
-                  visitors: visitorDict[info.object.id] ?? 0,
-                },
-              },
-            });
-          } else {
-            setMapSelection({ hovered: undefined });
-          }
-        },
-        onClick: (info) => {
-          if (info.object) {
-            setMapSelection({
-              clicked: {
-                longitude: info?.coordinate?.[0],
-                latitude: info?.coordinate?.[1],
-                geoVisitor: {
-                  country_code: info.object.id as string,
-                  visitors: visitorDict[info.object.id] ?? 0,
-                },
-              },
-            });
-          } else {
-            setMapSelection({ clicked: undefined });
-          }
         },
         transitions: {
           getFillColor: {

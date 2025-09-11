@@ -49,25 +49,25 @@ export function useDeckGLMapStyle({ calculatedMaxVisitors }: UseDeckGLMapStylePr
   );
 
   const originalStyle = useCallback(
-    (visitors: number) => ({
-      fill: toRgbaTuple(colorScale(visitors), 200),
-      line: toRgbaTuple(featureBorderColorScale(visitors), 255),
+    (visitors?: number) => ({
+      fill: toRgbaTuple(colorScale(visitors ?? 0), 200),
+      line: toRgbaTuple(featureBorderColorScale(visitors ?? 0), 255),
     }),
     [colorScale, featureBorderColorScale],
   );
 
   const selectedStyle = useCallback(
-    (visitors: number) => ({
+    (visitors?: number) => ({
       ...originalStyle(visitors),
       line: toRgbaTuple(MAP_FEATURE_BORDER_COLORS.CLICKED, 255),
-      fill: toRgbaTuple(colorScale(visitors), 255),
+      fill: toRgbaTuple(colorScale(visitors ?? 0), 255),
     }),
     [originalStyle, colorScale],
   );
 
   const hoveredStyle = useCallback(
-    (visitors: number) => ({
-      ...selectedStyle(visitors),
+    (visitors?: number) => ({
+      ...selectedStyle(visitors ?? 0),
       line: toRgbaTuple(MAP_FEATURE_BORDER_COLORS.HOVERED, 255),
     }),
     [selectedStyle],

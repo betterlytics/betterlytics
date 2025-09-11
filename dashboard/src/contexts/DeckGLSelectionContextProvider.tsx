@@ -42,7 +42,7 @@ export function DeckGLMapSelectionProvider({ children }: { children: React.React
 
   const setMapSelection = useCallback<React.Dispatch<Partial<MapFeatureSelection> | null>>((next) => {
     setSelection((prev) => {
-      if (next === null) return {};
+      if (next === null) return { clicked: undefined, hovered: undefined };
       if (next.clicked) {
         clickedFeatureRef.current = next.clicked;
         hoveredFeatureRef.current = undefined;
@@ -51,7 +51,7 @@ export function DeckGLMapSelectionProvider({ children }: { children: React.React
           ? { hovered: { ...next.clicked }, clicked: undefined }
           : { hovered: undefined, clicked: { ...next.clicked } };
       }
-      if (prev.clicked) return prev;
+      if (prev.clicked) return { ...prev };
       if (prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) return prev;
       hoveredFeatureRef.current = next.hovered;
       return { ...prev, hovered: next.hovered };

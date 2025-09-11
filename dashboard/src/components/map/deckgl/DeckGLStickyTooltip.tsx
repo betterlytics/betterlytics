@@ -18,7 +18,12 @@ export default function DeckGLStickyTooltip({ size = 'sm', containerRef }: DeckG
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const latestMouseRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number>(0);
-  console.log('DeckGLStickyTooltip render', { hoveredFeature, clickedFeature });
+
+  useEffect(() => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
+    }
+  }, [clickedFeature]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -58,7 +63,7 @@ export default function DeckGLStickyTooltip({ size = 'sm', containerRef }: DeckG
         'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
       )}
     >
-      <div className='leaflet-popup-content'>
+      <div className='leaflet-popup-content rounded-lg'>
         <MapTooltipContent geoVisitor={hoveredFeature.geoVisitor} size={size} />
       </div>
       <MapTooltipTip />

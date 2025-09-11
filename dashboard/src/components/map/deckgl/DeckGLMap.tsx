@@ -12,6 +12,8 @@ import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDro
 import { type GeoVisitor } from '@/entities/geography';
 import { ZoomButton, ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
 import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
+import { DeckGLBackgroundEvents } from './DeckGLBackgroundEvents';
+import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
 
 interface DeckGLMapProps {
   visitorData: GeoVisitor[];
@@ -29,6 +31,7 @@ const INITIAL_VIEW_STATE = {
 export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapProps) {
   const [geojson, setGeojson] = useState<FeatureCollection | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { setMapSelection } = useMapSelection();
 
   // ---- Demo timeseries
   const visitorDataTimeseries: GeoVisitor[][] = useMemo(() => {
@@ -49,7 +52,6 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     ...INITIAL_VIEW_STATE,
     zoom: initialZoom,
   } as any);
-  const [currentViewport, setCurrentViewport] = useState<any>(null);
 
   const {
     position, // float progress for slider
@@ -98,8 +100,41 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
       <DeckGL
         viewState={viewState}
-        controller={true}
+        controller={{
+          doubleClickZoom: false,
+          dragRotate: false,
+        }}
         onViewStateChange={({ viewState }) => setViewState(viewState)}
+        onClick={(info, event) => {
+          if (info.object) {
+            setMapSelection({
+              clicked: {
+                longitude: info?.coordinate?.[0],
+                latitude: info?.coordinate?.[1],
+                geoVisitor: {
+                  country_code: info.object.id as string,
+                  visitors: visitorDict[info.object.id] ?? 0,
+                },
+              },
+            });
+          } else {
+            setMapSelection(null);
+          }
+        }}
+        onHover={(info, event) => {
+          if (info.object) {
+            setMapSelection({
+              hovered: {
+                geoVisitor: {
+                  country_code: info.object.id as string,
+                  visitors: visitorDict[info.object.id] ?? 0,
+                },
+              },
+            });
+          } else {
+            setMapSelection({ hovered: undefined });
+          }
+        }}
         layers={layers}
       >
         {/* Global map CSS should be removed or renmaed*/}
@@ -136,35 +171,36 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
           `}
         </style>
 
-        {/* Controls */}
-        <div className='absolute bottom-10 left-[17rem] z-10 w-[calc(100%-20rem)]'>
-          <MapActionbar
-            ticks={visitorDataTimeseries.map((_, i) => ({
-              label: `${i + 1}`,
-              value: i,
-            }))}
-            value={position}
-            playing={playing}
-            speed={speed}
-            onTogglePlay={toggle}
-            onStop={stop}
-            onScrub={scrub}
-            onChangeSpeed={setSpeed}
-          />
-        </div>
-        <div className='absolute top-3 left-[17rem] z-10 flex flex-col'>
-          <ZoomButton
-            key={'in'}
-            className={'border-b-border border-b-[0.5px]'}
-            onClick={() => handleZoom('in')}
-            zoomType={'in'}
-          />
-          <ZoomButton key={'out'} onClick={() => handleZoom('out')} zoomType={'out'} />
-        </div>
-        {/* Tooltip */}
-        {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
-        {viewState && <DeckGLPopup viewState={viewState} />}
+        {/* <DeckGLBackgroundEvents containerRef={containerRef} /> */}
       </DeckGL>
+      {/* Controls */}
+      <div className='pointer-events-auto absolute bottom-10 left-[17rem] z-12 w-[calc(100%-20rem)]'>
+        <MapActionbar
+          ticks={visitorDataTimeseries.map((_, i) => ({
+            label: `${i + 1}`,
+            value: i,
+          }))}
+          value={position}
+          playing={playing}
+          speed={speed}
+          onTogglePlay={toggle}
+          onStop={stop}
+          onScrub={scrub}
+          onChangeSpeed={setSpeed}
+        />
+      </div>
+      <div className='pointer-events-auto absolute top-3 left-[17rem] z-12 flex flex-col'>
+        <ZoomButton
+          key={'in'}
+          className={'border-b-border border-b-[0.5px]'}
+          onClick={() => handleZoom('in')}
+          zoomType={'in'}
+        />
+        <ZoomButton key={'out'} onClick={() => handleZoom('out')} zoomType={'out'} />
+      </div>
+      {/* Tooltip */}
+      {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
+      {viewState && <DeckGLPopup viewState={viewState} />}
     </div>
   );
 }
