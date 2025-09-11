@@ -54,7 +54,7 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
             } ${card.onClick ? 'cursor-pointer' : ''} ${
               !card.isActive ? 'hover:bg-accent/40 hover:border-primary/20 hover:shadow-sm' : 'shadow-sm'
             } focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:outline-none`}
-            style={{ background: card.isActive ? 'var(--secondary)' : undefined }}
+            style={{ background: card.isActive ? 'var(--card-interactive)' : undefined }}
           >
             {/* Left accent rail */}
             <span

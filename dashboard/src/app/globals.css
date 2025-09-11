@@ -58,6 +58,7 @@
 
   --card: #fdfdfd;
   --card-foreground: oklch(0.2 0.01 265);
+  --card-interactive: oklch(96% 0.005 260);
 
   --popover: white;
   --popover-foreground: oklch(0.15 0 0);
@@ -126,6 +127,7 @@
 
   --card: hsl(0 0% 10.5%); /* card */
   --card-foreground: oklch(0.95 0.01 265);
+  --card-interactive: hsl(0 0% 15%);
 
   --popover: hsl(0 0% 15%);
   --popover-foreground: oklch(0.95 0.01 265);
