@@ -39,21 +39,29 @@ export default function CampaignVisitorTrendChart({
 
   return (
     <div className='bg-card border-border rounded-xl border p-6 shadow'>
-      <h2 className='text-foreground mb-1 text-lg font-bold'>{t('title')}</h2>
-      <p className='text-muted-foreground mb-4 text-sm'>{t('description')}</p>
+      <h2 className='text-foreground mb-0 text-lg font-bold'>{t('title')}</h2>
       <div style={{ width: '100%', height: 300 }}>
-        <ResponsiveContainer>
-          <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1} />
+        <ResponsiveContainer className='mt-4'>
+          <AreaChart data={chartData} margin={{ top: 10, right: 22, left: 22, bottom: 0 }}>
+            <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
             <XAxis
               dataKey='date'
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 12 }}
-              tickMargin={10}
+              className='text-muted-foreground'
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+              tickMargin={6}
+              minTickGap={100}
               tickFormatter={(value) => format(new Date(value), 'MMM dd')}
             />
-            <YAxis tick={{ fontSize: 12 }} />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              className='text-muted-foreground'
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+              tickFormatter={(value) => value.toLocaleString()}
+              width={40}
+            />
             <Tooltip
               content={(props) => (
                 <StackedAreaChartTooltip

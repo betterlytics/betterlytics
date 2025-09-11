@@ -45,23 +45,26 @@ export default function ReferrerTrafficTrendChart({
 
   return (
     <div className='h-[300px] w-full'>
-      <ResponsiveContainer width='100%' height='100%'>
-        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray='3 3' vertical={false} stroke='var(--color-border)' />
+      <ResponsiveContainer width='100%' height='100%' className='mt-4'>
+        <AreaChart data={chartData} margin={{ top: 10, right: 22, left: 22, bottom: 0 }}>
+          <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
           <XAxis
             dataKey='date'
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 12 }}
-            tickMargin={10}
+            className='text-muted-foreground'
+            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+            tickMargin={6}
+            minTickGap={100}
             tickFormatter={(value) => format(new Date(value), 'MMM dd')}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 12 }}
-            tickMargin={10}
+            className='text-muted-foreground'
+            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
             tickFormatter={(value) => value.toLocaleString()}
+            width={40}
           />
           <RechartsTooltip
             content={(props) => (
