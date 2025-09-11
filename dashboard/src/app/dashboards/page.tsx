@@ -23,7 +23,7 @@ export default async function DashboardsPage() {
     <div className='container mx-auto max-w-7xl px-4 py-8'>
       <VerificationSuccessHandler />
 
-      <div className='from-primary/10 via-background to-background mb-8 rounded-xl border bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] p-6'>
+      <div className='bg-card mb-8 rounded-xl border p-6'>
         <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
           <div>
             <h1 className='mb-2 text-3xl font-bold tracking-tight'>{t('title')}</h1>

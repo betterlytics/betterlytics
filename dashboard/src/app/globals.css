@@ -53,10 +53,10 @@
 :root {
   --radius: 0.5rem;
 
-  --background: white;
+  --background: #f9f9f9;
   --foreground: oklch(0.2 0.01 265);
 
-  --card: white;
+  --card: #fdfdfd;
   --card-foreground: oklch(0.2 0.01 265);
 
   --popover: white;
