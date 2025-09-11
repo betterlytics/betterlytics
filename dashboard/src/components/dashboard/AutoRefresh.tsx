@@ -62,27 +62,21 @@ export function AutoRefresh({ className = '' }: { className?: string }) {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Label className='text-muted-foreground hidden sm:inline' htmlFor='auto-refresh-select'>
-        Auto refresh
-      </Label>
       <Select value={value} onValueChange={(v) => setValue(v as RefreshIntervalValue)}>
         <SelectTrigger
           id='auto-refresh-select'
-          className='bg-secondary border-border w-[120px] cursor-pointer border shadow-sm'
+          className='bg-secondary border-border min-w-[200px] cursor-pointer border shadow-sm'
         >
           <SelectValue placeholder='Off' />
         </SelectTrigger>
         <SelectContent>
           {options.map((opt) => (
             <SelectItem key={opt.value} value={opt.value} className='cursor-pointer'>
-              {opt.label}
+              {'Auto refresh - ' + opt.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <Label className='text-muted-foreground sm:hidden' htmlFor='auto-refresh-select'>
-        Auto refresh
-      </Label>
     </div>
   );
 }
