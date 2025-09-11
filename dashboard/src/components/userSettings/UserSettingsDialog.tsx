@@ -166,7 +166,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto md:max-w-11/12 md:min-w-[700px] lg:w-fit lg:max-w-9/12 lg:min-w-[900px] xl:max-w-2/3'>
+      <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto md:max-w-11/12 md:min-w-[700px] lg:max-w-[900px] lg:min-w-[900px]'>
         <DialogHeader>
           <DialogTitle>{tDialog('title')}</DialogTitle>
           <DialogDescription>{tDialog('description')}</DialogDescription>
