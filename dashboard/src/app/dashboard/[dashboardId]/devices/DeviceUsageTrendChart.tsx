@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { useTranslations } from 'next-intl';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DeviceUsageTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -50,6 +51,7 @@ export default function DeviceUsageTrendChart({
   granularity,
 }: DeviceUsageTrendChartProps) {
   const t = useTranslations('dashboard.emptyStates');
+  const isMobile = useIsMobile();
 
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
@@ -66,7 +68,10 @@ export default function DeviceUsageTrendChart({
     <div className='mt-10 w-full'>
       <div className='h-[250px] w-full'>
         <ResponsiveContainer width='100%' height='100%' className='mt-4'>
-          <AreaChart data={chartData} margin={{ top: 10, right: 22, left: 22, bottom: 0 }}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 10, right: isMobile ? 4 : 22, left: isMobile ? 4 : 22, bottom: 0 }}
+          >
             <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
             <XAxis
               dataKey='date'
@@ -85,6 +90,7 @@ export default function DeviceUsageTrendChart({
               tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
               tickFormatter={(val) => val.toLocaleString()}
               width={40}
+              mirror={isMobile}
             />
             <RechartsTooltip
               content={(props) => (
