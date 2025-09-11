@@ -4,14 +4,14 @@ import { useEffect } from 'react';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 export function DisableAutoRefresh() {
-  const { setAutoRefreshDisabled } = useTimeRangeContext();
+  const { setAutoRefreshInterval } = useTimeRangeContext();
 
   useEffect(() => {
-    setAutoRefreshDisabled(true);
+    setAutoRefreshInterval('off');
     return () => {
-      setAutoRefreshDisabled(false);
+      setAutoRefreshInterval('off');
     };
-  }, [setAutoRefreshDisabled]);
+  }, [setAutoRefreshInterval]);
 
   return null;
 }
