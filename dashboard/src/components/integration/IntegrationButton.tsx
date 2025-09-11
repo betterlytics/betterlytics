@@ -14,7 +14,7 @@ export function IntegrationButton() {
       <Button
         onClick={() => setIsSheetOpen(true)}
         variant='secondary'
-        className='border-border cursor-pointer border-1'
+        className='border-border cursor-pointer border-1 shadow-sm'
       >
         {t('integrationSetup')}
       </Button>
