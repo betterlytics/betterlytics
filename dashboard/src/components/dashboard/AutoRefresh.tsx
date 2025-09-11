@@ -66,7 +66,10 @@ export function AutoRefresh({ className = '' }: { className?: string }) {
         Auto refresh
       </Label>
       <Select value={value} onValueChange={(v) => setValue(v as RefreshIntervalValue)}>
-        <SelectTrigger id='auto-refresh-select' className='w-[120px] cursor-pointer'>
+        <SelectTrigger
+          id='auto-refresh-select'
+          className='bg-secondary border-border w-[120px] cursor-pointer border shadow-sm'
+        >
           <SelectValue placeholder='Off' />
         </SelectTrigger>
         <SelectContent>
