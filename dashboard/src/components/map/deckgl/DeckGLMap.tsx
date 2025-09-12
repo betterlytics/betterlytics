@@ -12,6 +12,7 @@ import { type GeoVisitor } from '@/entities/geography';
 import { ZoomButton, ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
 import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
 import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
+import { LinearInterpolator } from '@deck.gl/core';
 
 interface DeckGLMapProps {
   visitorData: GeoVisitor[];
@@ -71,16 +72,18 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     return Object.fromEntries(currentFrame.map((d) => [d.country_code, d.visitors]));
   }, [visitorDataTimeseries, frame]);
 
-  const handleZoom = useCallback(
-    (zoomType: ZoomType) => {
-      console.log('[Callback] handleZoom', zoomType);
-      setViewState((vs: any) => ({
+  const handleZoom = useCallback((zoomType: ZoomType) => {
+    setViewState((vs: any) => {
+      const newZoom = Math.max(0, Math.min(20, vs.zoom + (zoomType === 'in' ? 1 : -1)));
+
+      return {
         ...vs,
-        zoom: Math.max(0, Math.min(20, vs.zoom + (+(zoomType === 'in') || -1))),
-      }));
-    },
-    [setViewState],
-  );
+        zoom: newZoom,
+        transitionDuration: 250,
+        transitionInterpolator: new LinearInterpolator(['zoom']),
+      };
+    });
+  }, []);
 
   const handleClick = useCallback(
     (info: any) => {
@@ -144,7 +147,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         }}
         onClick={handleClick}
         onHover={handleHover}
-        useDevicePixels={true} /* Disable for performance gains */
+        useDevicePixels={false} /* Disable for performance gains */
         layers={layers}
       >
         <style jsx global>
