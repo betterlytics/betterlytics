@@ -1,11 +1,13 @@
 'use client';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { Badge } from '../ui/badge';
-import { formatQueryFilter } from '@/utils/queryFilters';
 import { XIcon } from 'lucide-react';
+import { formatQueryFilter } from '@/utils/queryFilterFormatters';
+import { useTranslations } from 'next-intl';
 
 export function ActiveQueryFilters() {
   const { queryFilters, removeQueryFilter } = useQueryFiltersContext();
+  const t = useTranslations('components.filters');
 
   if (queryFilters.length === 0) {
     return null;
@@ -18,7 +20,7 @@ export function ActiveQueryFilters() {
           variant='outline'
           className='text-muted-foreground border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 px-2 py-1'
         >
-          {formatQueryFilter(filter)}
+          {formatQueryFilter(filter, t)}
           <div
             className='mt-0.5 size-3.5 cursor-pointer opacity-80 hover:opacity-100'
             onClick={() => removeQueryFilter(filter.id)}
