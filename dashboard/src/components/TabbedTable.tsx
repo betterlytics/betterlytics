@@ -42,9 +42,9 @@ function TabbedTable<TData>({
   const t = useTranslations('components.tabbedTable');
 
   return (
-    <Card className={`bg-card border-border rounded-xl border shadow ${className}`}>
+    <Card className={`bg-card border-border rounded-xl border px-3 shadow sm:px-6 ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
-        <CardHeader className='px-4 pb-0 sm:px-6'>
+        <CardHeader className='px-0 pb-0'>
           <div className='relative grid grid-cols-1 gap-3 xl:grid-cols-2'>
             <div
               className={cn('grid grid-cols-1 items-start gap-2 xl:grid-cols-2', searchColumn && 'sm:col-span-2')}
@@ -82,7 +82,7 @@ function TabbedTable<TData>({
             </div>
           </div>
         </CardHeader>
-        <CardContent className='px-1 pt-0 pb-4 sm:px-6'>
+        <CardContent className='px-0 pt-0 pb-4'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
               <div className='overflow-x-auto'>

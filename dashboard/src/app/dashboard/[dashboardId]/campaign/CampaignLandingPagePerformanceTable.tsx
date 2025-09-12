@@ -57,8 +57,8 @@ export default function CampaignLandingPagePerformanceTable({ data }: CampaignLa
     },
   ];
   return (
-    <div className='bg-card border-border col-span-1 rounded-xl border px-1 py-6 shadow sm:px-6 lg:col-span-3'>
-      <h2 className='text-foreground mb-1 px-5 text-lg font-medium sm:px-0'>{t('title')}</h2>
+    <div className='bg-card border-border col-span-1 rounded-xl border px-3 py-6 shadow sm:px-6 lg:col-span-3'>
+      <h2 className='text-foreground mb-1 px-0 text-lg font-medium'>{t('title')}</h2>
       <div className='mt-4'>
         <DataTable columns={columns} data={data} defaultSorting={[{ id: 'visitors', desc: true }]} />
       </div>

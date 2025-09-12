@@ -210,8 +210,8 @@ export function EventsTable({ data }: EventsTableProps) {
   }
 
   return (
-    <Card className='border-border/50 overflow-hidden'>
-      <CardHeader>
+    <Card className='border-border/50 overflow-hidden px-3 sm:px-6'>
+      <CardHeader className='px-0'>
         <CardTitle className='flex items-center gap-3'>
           <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
             <Activity className='text-primary h-4 w-4' />
@@ -224,7 +224,7 @@ export function EventsTable({ data }: EventsTableProps) {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className='px-2 sm:px-6'>
+      <CardContent className='px-0'>
         <div className='dark:border-secondary overflow-hidden rounded-lg border border-gray-200 dark:border-2'>
           <Table>
             <TableHeader>

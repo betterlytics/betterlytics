@@ -65,11 +65,11 @@ export default function OutboundLinksTableSection({
   );
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className='px-3 py-6 sm:px-6'>
+      <CardHeader className='px-0'>
         <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='px-1 sm:px-4'>
+      <CardContent className='px-0'>
         <DataTable data={outboundLinksData} columns={columns} />
       </CardContent>
     </Card>
