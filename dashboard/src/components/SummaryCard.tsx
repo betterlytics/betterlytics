@@ -114,7 +114,7 @@ const SummaryCard = React.memo(
 
         <CardContent className='relative z-10 flex h-full flex-col space-y-0 px-4 py-2'>
           <div className='mb-2 flex items-center justify-between'>
-            <span className='text-foreground font-medium'>{title}</span>
+            <span className='text-foreground text-sm font-medium hyphens-auto lg:text-base'>{title}</span>
             {onClick && (
               <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
                 <MousePointerClick className='text-foreground/60 h-4 w-4' />
@@ -123,7 +123,9 @@ const SummaryCard = React.memo(
           </div>
           <div className='flex items-center gap-2'>
             {icon && <div className='text-foreground pt-1'>{icon}</div>}
-            <span className='text-foreground text-2xl font-bold tracking-tight'>{value}</span>
+            <span className='text-foreground text-base font-bold tracking-tight sm:text-lg lg:text-2xl'>
+              {value}
+            </span>
             {trendData && trendData.direction !== 'neutral' && (
               <Badge
                 variant='outline'
