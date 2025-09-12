@@ -32,6 +32,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
           label: t('tabs.topCountries'),
           data: topCountries.map((country) => ({
             label: getCountryName(country.country_code, locale),
+            key: country.country_code,
             value: country.current.visitors,
             trendPercentage: country.change?.visitors,
             comparisonValue: country.compare?.visitors,

@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 interface ProgressBarData {
   label: string;
   value: number;
+  key?: string;
   trendPercentage?: number;
   comparisonValue?: number;
   icon?: React.ReactElement;
@@ -62,7 +63,7 @@ function MultiProgressTable<T extends ProgressBarData>({
           const percentage = (item.value / total) * 100;
 
           return (
-            <div key={item.label} className='group relative'>
+            <div key={item.key ?? item.label} className='group relative'>
               <PropertyValueBar
                 value={{
                   value: item.label,
