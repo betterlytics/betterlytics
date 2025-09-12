@@ -8,6 +8,7 @@ import { generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
+import ThemeColorUpdater from '@/app/ThemeColorUpdater';
 
 const robotoSans = Inter({
   variable: '--font-roboto-sans',
@@ -44,6 +45,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <meta name='theme-color' content='#fff' />
         {env.ENABLE_APP_TRACKING && (
           <Script
             async
@@ -59,11 +61,10 @@ export default async function RootLayout({
             __html: JSON.stringify(organizationStructuredData),
           }}
         />
-        <meta name='theme-color' content='#f9f9f9' media='(prefers-color-scheme: light)' />
-        <meta name='theme-color' content='#121212' media='(prefers-color-scheme: dark)' />
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
+        <ThemeColorUpdater />
         <NextIntlClientProvider>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

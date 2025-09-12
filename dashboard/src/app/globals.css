@@ -196,7 +196,8 @@
   html {
     scroll-behavior: smooth;
     background-color: var(--background);
-    height: 100vh;
+    /* Hint UA for built-in form controls and overscroll visuals */
+    color-scheme: light dark;
   }
   body {
     @apply bg-background text-foreground;
