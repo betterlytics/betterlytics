@@ -2,7 +2,8 @@ import type { FeatureCollection } from 'geojson';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
 import { useMemo } from 'react';
-import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
+import { GeoJsonLayer, PathLayer } from '@deck.gl/layers';
+import { PathStyleExtension } from '@deck.gl/extensions';
 
 interface CountriesLayerProps {
   geojson: FeatureCollection | null;
@@ -32,17 +33,24 @@ export function CountriesLayer({
     return map;
   }, [geojson]);
 
-  // Highlight layer data (hovered/clicked)
-  const filteredData = useMemo(() => {
-    const arr: GeoJSON.Feature[] = [];
-    if (hoveredFeature?.geoVisitor.country_code) {
-      const f = featureLookup.get(hoveredFeature.geoVisitor.country_code);
-      if (f) arr.push(f);
-    }
-    if (clickedFeature?.geoVisitor.country_code) {
-      const f = featureLookup.get(clickedFeature.geoVisitor.country_code);
-      if (f) arr.push(f);
-    }
+  const pathData = useMemo(() => {
+    const arr: Array<GeoJSON.Feature & { path: number[][] }> = [];
+
+    const addFeaturePaths = (countryCode?: string) => {
+      if (!countryCode) return;
+      const f = featureLookup.get(countryCode);
+      if (!f) return;
+
+      if (f.geometry.type === 'Polygon') {
+        arr.push({ ...f, path: f.geometry.coordinates[0] });
+      } else if (f.geometry.type === 'MultiPolygon') {
+        f.geometry.coordinates.forEach((poly) => arr.push({ ...f, path: poly[0] }));
+      }
+    };
+
+    addFeaturePaths(hoveredFeature?.geoVisitor.country_code);
+    addFeaturePaths(clickedFeature?.geoVisitor.country_code);
+
     return arr;
   }, [featureLookup, hoveredFeature?.geoVisitor.country_code, clickedFeature?.geoVisitor.country_code]);
 
@@ -79,21 +87,23 @@ export function CountriesLayer({
   }, [geojson, visitorDict, style, playing, frameInterval, baseInterval]);
 
   const highlightLayer = useMemo(() => {
-    if (!filteredData.length) return null;
-    return new GeoJsonLayer({
-      id: 'countries-highlight',
-      data: filteredData,
-      filled: false,
-      stroked: true,
-      lineWidthMinPixels: 2,
-      getLineColor: (f) =>
-        f.id === clickedFeature?.geoVisitor.country_code ? style.selectedStyle().line : style.hoveredStyle().line,
+    if (!pathData.length) return null;
+
+    return new PathLayer({
+      id: 'highlight-paths',
+      data: pathData,
       pickable: false,
+      getPath: (f: any) => f.path, // outer ring
+      getColor: (f: any) =>
+        f.id === clickedFeature?.geoVisitor.country_code ? style.selectedStyle().line : style.hoveredStyle().line,
+      getWidth: 2,
+      widthUnits: 'pixels',
+      extensions: [new PathStyleExtension({})],
       updateTriggers: {
-        getLineColor: [hoveredFeature?.geoVisitor?.country_code, clickedFeature?.geoVisitor?.country_code],
+        getColor: [hoveredFeature?.geoVisitor?.country_code, clickedFeature?.geoVisitor?.country_code],
       },
     });
-  }, [filteredData, hoveredFeature?.geoVisitor.country_code, clickedFeature?.geoVisitor.country_code, style]);
+  }, [pathData, hoveredFeature?.geoVisitor?.country_code, clickedFeature?.geoVisitor?.country_code, style]);
 
   return [mainLayer, highlightLayer].filter(Boolean) as GeoJsonLayer[];
 }
