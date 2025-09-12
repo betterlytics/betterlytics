@@ -12,14 +12,27 @@ export type DeckGLColor = [number, number, number, number];
 
 export interface DeckGLMapStyle {
   originalStyle: (visitors: number) => { fill: DeckGLColor; line: DeckGLColor };
-  selectedStyle: (visitors: number) => { fill: DeckGLColor; line: DeckGLColor };
-  hoveredStyle: (visitors: number) => { fill: DeckGLColor; line: DeckGLColor };
+  selectedStyle: (visitors?: number) => { line: DeckGLColor };
+  hoveredStyle: (visitors?: number) => { line: DeckGLColor };
   colorScale: MapColorScale;
   featureBorderColorScale: MapColorScale;
 }
 
-function toRgbaTuple(hex: string, alpha = 255): DeckGLColor {
-  const c = d3color(hex)!;
+function toRgbaTuple(colorOrVar: string, alpha = 255): DeckGLColor {
+  let hex = colorOrVar;
+
+  if (colorOrVar.startsWith('var(')) {
+    // Extract CSS variable name
+    const varName = colorOrVar.slice(4, -1).trim();
+    hex = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  }
+
+  const c = d3color(hex);
+  if (!c) {
+    console.warn('Invalid color:', colorOrVar, 'resolved to:', hex);
+    return [0, 0, 0, alpha];
+  }
+
   return [c.r, c.g, c.b, alpha];
 }
 
@@ -55,23 +68,18 @@ export function useDeckGLMapStyle({ calculatedMaxVisitors }: UseDeckGLMapStylePr
     }),
     [colorScale, featureBorderColorScale],
   );
-
   const selectedStyle = useCallback(
-    (visitors?: number) => ({
-      ...originalStyle(visitors),
+    (_visitors?: number) => ({
       line: toRgbaTuple(MAP_FEATURE_BORDER_COLORS.CLICKED, 255),
-      fill: toRgbaTuple(colorScale(visitors ?? 0), 255),
     }),
-    [originalStyle, colorScale],
+    [],
   );
 
   const hoveredStyle = useCallback(
-    (visitors?: number) => ({
-      ...selectedStyle(visitors ?? 0),
+    (_visitors?: number) => ({
       line: toRgbaTuple(MAP_FEATURE_BORDER_COLORS.HOVERED, 255),
     }),
-    [selectedStyle],
+    [],
   );
-
   return { originalStyle, selectedStyle, hoveredStyle, colorScale, featureBorderColorScale };
 }

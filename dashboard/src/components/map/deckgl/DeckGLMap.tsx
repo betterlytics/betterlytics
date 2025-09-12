@@ -4,7 +4,7 @@ import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection } from 'geojson';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
-import { useCountriesLayer } from '@/hooks/deckgl/use-countries-layer';
+import { CountriesLayer } from '@/components/map/deckgl/CountriesLayer';
 import { MapActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
@@ -125,7 +125,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     [visitorDict, setMapSelection, hoveredFeatureRef],
   );
 
-  const layers = useCountriesLayer({
+  const layers = CountriesLayer({
     geojson,
     visitorDict,
     playing,
@@ -144,6 +144,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         }}
         onClick={handleClick}
         onHover={handleHover}
+        useDevicePixels={true} /* Disable for performance gains */
         layers={layers}
       >
         <style jsx global>
