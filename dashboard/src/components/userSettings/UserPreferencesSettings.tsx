@@ -44,23 +44,23 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
         <div className='flex items-center justify-between'>
           <Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>
           <Select value={theme} onValueChange={handleThemeChange}>
-            <SelectTrigger className='w-32'>
+            <SelectTrigger className='w-32 cursor-pointer'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='light'>
+              <SelectItem value='light' className='cursor-pointer'>
                 <div className='flex items-center space-x-2'>
                   <Sun className='h-4 w-4' />
                   <span>{t('appearance.light')}</span>
                 </div>
               </SelectItem>
-              <SelectItem value='dark'>
+              <SelectItem value='dark' className='cursor-pointer'>
                 <div className='flex items-center space-x-2'>
                   <Moon className='h-4 w-4' />
                   <span>{t('appearance.dark')}</span>
                 </div>
               </SelectItem>
-              <SelectItem value='system'>
+              <SelectItem value='system' className='cursor-pointer'>
                 <div className='flex items-center space-x-2'>
                   <Monitor className='h-4 w-4' />
                   <span>{t('appearance.system')}</span>
@@ -74,17 +74,17 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
           <div className='flex items-center justify-between'>
             <Label htmlFor='avatar'>{t('avatar.label')}</Label>
             <Select value={settings?.avatar} onValueChange={handleAvatarChange}>
-              <SelectTrigger className='w-32'>
+              <SelectTrigger className='w-32 cursor-pointer'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='default'>
+                <SelectItem value='default' className='cursor-pointer'>
                   <div className='flex items-center space-x-2'>
                     <User className='h-4 w-4' />
                     <span>{t('avatar.none')}</span>
                   </div>
                 </SelectItem>
-                <SelectItem value='gravatar'>
+                <SelectItem value='gravatar' className='cursor-pointer'>
                   <div className='flex items-center space-x-2'>
                     <BookUser className='h-4 w-4' />
                     <span>{t('avatar.gravatar')}</span>
@@ -133,6 +133,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
               id='email-notifications'
               checked={formData.emailNotifications ?? true}
               onCheckedChange={(checked) => onUpdate({ emailNotifications: checked })}
+              className='cursor-pointer'
             />
           </div>
 
@@ -145,6 +146,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
               id='marketing-emails'
               checked={formData.marketingEmails ?? false}
               onCheckedChange={(checked) => onUpdate({ marketingEmails: checked })}
+              className='cursor-pointer'
             />
           </div>
         </div>

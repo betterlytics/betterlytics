@@ -35,10 +35,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const isMobile = useIsMobile();
     return (
-      <Card className='pt-1 sm:pt-4'>
+      <Card className='pt-4'>
         {title && (
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-lg font-semibold'>{title}</CardTitle>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pt-2 pb-2'>
+            <CardTitle className='text-lg font-medium'>{title}</CardTitle>
           </CardHeader>
         )}
 

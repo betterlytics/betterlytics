@@ -53,6 +53,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
                 visitorData={worldMapData.visitorData}
                 maxVisitors={worldMapData.maxVisitors}
                 showZoomControls={false}
+                initialZoom={1}
               />
             </div>
           ),

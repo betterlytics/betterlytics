@@ -67,7 +67,7 @@ export default function OutboundLinksTableSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
+        <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className='px-1 sm:px-4'>
         <DataTable data={outboundLinksData} columns={columns} />

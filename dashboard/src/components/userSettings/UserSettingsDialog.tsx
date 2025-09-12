@@ -177,7 +177,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
             {availableTabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <TabsTrigger key={tab.id} value={tab.id} className='flex items-center gap-2'>
+                <TabsTrigger key={tab.id} value={tab.id} className='flex cursor-pointer items-center gap-2'>
                   <Icon className='h-4 w-4' />
                   <span className='hidden lg:inline'>{tab.label}</span>
                 </TabsTrigger>
@@ -188,7 +188,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           {availableTabs.map((tab) => {
             const Component = tab.component;
             return (
-              <TabsContent key={tab.id} value={tab.id} className='mt-6'>
+              <TabsContent key={tab.id} value={tab.id} className='mt-6 min-h-[420px]'>
                 <Component formData={formData} onUpdate={handleUpdate} onCloseDialog={handleCloseDialog} />
               </TabsContent>
             );
@@ -196,10 +196,10 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
         </Tabs>
 
         <div className='flex justify-end space-x-2 border-t pt-4'>
-          <Button variant='outline' onClick={() => onOpenChange(false)}>
+          <Button variant='outline' onClick={() => onOpenChange(false)} className='cursor-pointer'>
             {tDialog('buttons.cancel')}
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || !isFormChanged}>
+          <Button onClick={handleSave} disabled={isSaving || !isFormChanged} className='cursor-pointer'>
             {isSaving ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />

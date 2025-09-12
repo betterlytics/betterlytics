@@ -22,7 +22,7 @@ const LANGUAGE = {
 export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelectProps) {
   return (
     <Select value={language} onValueChange={onUpdate}>
-      <SelectTrigger id={id}>
+      <SelectTrigger id={id} className='cursor-pointer'>
         <SelectValue>
           {language && (
             <CountryDisplay countryCode={LANGUAGE[language].code} countryName={LANGUAGE[language].name} />
@@ -31,7 +31,7 @@ export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelect
       </SelectTrigger>
       <SelectContent>
         {SUPPORTED_LANGUAGES.map((lang) => (
-          <SelectItem key={lang} value={lang}>
+          <SelectItem key={lang} value={lang} className='cursor-pointer'>
             <CountryDisplay countryCode={LANGUAGE[lang].code} countryName={LANGUAGE[lang].name} />
           </SelectItem>
         ))}

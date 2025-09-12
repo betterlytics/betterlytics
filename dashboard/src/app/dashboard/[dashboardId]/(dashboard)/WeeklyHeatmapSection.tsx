@@ -72,7 +72,7 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   }
 
   return (
-    <div className='bg-card border-border rounded-xl border px-1 py-6 shadow'>
+    <div className='bg-card border-border rounded-xl border px-1 py-3 shadow'>
       <div className='mb-8 flex items-center justify-between px-3'>
         <div>
           <h2 className='text-foreground mb-1 text-lg font-medium'>{t('sections.weeklyTrends')}</h2>

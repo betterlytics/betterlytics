@@ -89,7 +89,7 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
               <Button
                 variant='destructive'
                 disabled={isPending}
-                className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full sm:w-auto'
+                className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
               >
                 {isPending ? (
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -118,13 +118,15 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
               </div>
 
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending}>{t('dialog.cancel')}</AlertDialogCancel>
+                <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+                  {t('dialog.cancel')}
+                </AlertDialogCancel>
                 <AlertDialogAction asChild>
                   <Button
                     variant='destructive'
                     onClick={handleDeleteAccount}
                     disabled={isPending || !canDelete}
-                    className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full sm:w-auto'
+                    className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
                   >
                     {isPending ? (
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />

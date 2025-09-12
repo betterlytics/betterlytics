@@ -5,7 +5,7 @@ export type DataRetentionPreset = {
 };
 
 export const DATA_RETENTION_PRESETS: DataRetentionPreset[] = [
-  { value: 30, i18nKey: 'd30', fallback: '30 days' },
+  /*{ value: 30, i18nKey: 'd30', fallback: '30 days' } ,*/
   { value: 90, i18nKey: 'm3', fallback: '3 months' },
   { value: 180, i18nKey: 'm6', fallback: '6 months' },
   { value: 365, i18nKey: 'y1', fallback: '1 year' },

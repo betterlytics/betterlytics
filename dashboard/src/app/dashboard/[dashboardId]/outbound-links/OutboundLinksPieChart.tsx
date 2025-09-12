@@ -40,7 +40,7 @@ export default function OutboundLinksPieChart({ distributionPromise }: OutboundL
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
+        <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className='flex flex-1 items-center justify-center'>
         <BAPieChart data={distributionData} getColor={getOutboundLinkColor} getLabel={formatUrl} />
