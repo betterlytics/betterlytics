@@ -196,6 +196,7 @@
   html {
     scroll-behavior: smooth;
     background-color: var(--background);
+    height: 100vh;
   }
   body {
     @apply bg-background text-foreground;

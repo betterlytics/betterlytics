@@ -59,6 +59,8 @@ export default async function RootLayout({
             __html: JSON.stringify(organizationStructuredData),
           }}
         />
+        <meta name='theme-color' content='#f9f9f9' media='(prefers-color-scheme: light)' />
+        <meta name='theme-color' content='#121212' media='(prefers-color-scheme: dark)' />
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
