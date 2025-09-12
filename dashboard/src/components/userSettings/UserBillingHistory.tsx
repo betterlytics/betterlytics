@@ -30,7 +30,7 @@ export default function UserBillingHistory() {
   if (isLoading) {
     return (
       <SettingsCard icon={CreditCard} title={t('title')} description={t('description')}>
-        <div className='flex flex-col items-center justify-center py-4 text-center'>
+        <div className='flex min-h-[225px] flex-col items-center justify-center py-4 text-center'>
           <div className='mb-2 h-6 w-56'>
             <Skeleton className='h-6 w-56' />
           </div>
