@@ -1,7 +1,6 @@
 'use client';
 
 import { DeckGL } from '@deck.gl/react';
-
 import { FeatureCollection } from 'geojson';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
@@ -12,7 +11,6 @@ import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDro
 import { type GeoVisitor } from '@/entities/geography';
 import { ZoomButton, ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
 import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
-import { DeckGLBackgroundEvents } from './DeckGLBackgroundEvents';
 import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
 
 interface DeckGLMapProps {
@@ -31,10 +29,11 @@ const INITIAL_VIEW_STATE = {
 export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapProps) {
   const [geojson, setGeojson] = useState<FeatureCollection | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { setMapSelection } = useMapSelection();
+  const { hoveredFeatureRef, setMapSelection } = useMapSelection();
 
   // ---- Demo timeseries
   const visitorDataTimeseries: GeoVisitor[][] = useMemo(() => {
+    console.log('[Memo] visitorDataTimeseries recomputed');
     return Array.from({ length: 40 }).map((_, i) =>
       visitorData.map((d) => ({
         country_code: d.country_code,
@@ -44,6 +43,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   }, [visitorData]);
 
   const calculatedMaxVisitors = useMemo(() => {
+    console.log('[Memo] calculatedMaxVisitors recomputed');
     return Math.max(...visitorDataTimeseries.flatMap((frame) => frame.map((d) => d.visitors)));
   }, [visitorDataTimeseries]);
 
@@ -53,14 +53,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     zoom: initialZoom,
   } as any);
 
-  const {
-    position, // float progress for slider
-    frame, // discrete frame index
-    playing,
-    toggle,
-    stop,
-    scrub,
-  } = usePlayback({
+  const { position, frame, playing, toggle, stop, scrub } = usePlayback({
     frameCount: visitorDataTimeseries.length,
     speed,
   });
@@ -73,12 +66,14 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   }, []);
 
   const visitorDict = useMemo(() => {
+    console.log('[Memo] visitorDict recomputed for frame', frame);
     const currentFrame = visitorDataTimeseries[frame];
     return Object.fromEntries(currentFrame.map((d) => [d.country_code, d.visitors]));
   }, [visitorDataTimeseries, frame]);
 
   const handleZoom = useCallback(
     (zoomType: ZoomType) => {
+      console.log('[Callback] handleZoom', zoomType);
       setViewState((vs: any) => ({
         ...vs,
         zoom: Math.max(0, Math.min(20, vs.zoom + (+(zoomType === 'in') || -1))),
@@ -87,11 +82,54 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     [setViewState],
   );
 
+  const handleClick = useCallback(
+    (info: any) => {
+      if (info.object) {
+        setMapSelection({
+          clicked: {
+            longitude: info?.coordinate?.[0],
+            latitude: info?.coordinate?.[1],
+            geoVisitor: {
+              country_code: info.object.id as string,
+              visitors: visitorDict[info.object.id] ?? 0,
+            },
+          },
+        });
+      } else {
+        setMapSelection(null);
+      }
+    },
+    [visitorDict, setMapSelection],
+  );
+
+  const handleHover = useCallback(
+    (info: any) => {
+      const hoveredCountryCode = info.object?.id as string | undefined;
+      const prevHoveredCountryCode = hoveredFeatureRef?.current?.geoVisitor.country_code;
+
+      if (hoveredCountryCode === prevHoveredCountryCode) return;
+
+      if (hoveredCountryCode) {
+        setMapSelection({
+          hovered: {
+            geoVisitor: {
+              country_code: hoveredCountryCode,
+              visitors: visitorDict[hoveredCountryCode] ?? 0,
+            },
+          },
+        });
+      } else {
+        setMapSelection({ hovered: undefined });
+      }
+    },
+    [visitorDict, setMapSelection, hoveredFeatureRef],
+  );
+
   const layers = useCountriesLayer({
     geojson,
     visitorDict,
     playing,
-    frameInterval: 1000 / speed, // legacy consumers
+    frameInterval: 1000 / speed,
     baseInterval: 1000,
     calculatedMaxVisitors,
   });
@@ -100,44 +138,14 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
       <DeckGL
         viewState={viewState}
-        controller={{
-          doubleClickZoom: false,
-          dragRotate: false,
+        controller={{ doubleClickZoom: false, dragRotate: false }}
+        onViewStateChange={({ viewState }) => {
+          setViewState(viewState);
         }}
-        onViewStateChange={({ viewState }) => setViewState(viewState)}
-        onClick={(info, event) => {
-          if (info.object) {
-            setMapSelection({
-              clicked: {
-                longitude: info?.coordinate?.[0],
-                latitude: info?.coordinate?.[1],
-                geoVisitor: {
-                  country_code: info.object.id as string,
-                  visitors: visitorDict[info.object.id] ?? 0,
-                },
-              },
-            });
-          } else {
-            setMapSelection(null);
-          }
-        }}
-        onHover={(info, event) => {
-          if (info.object) {
-            setMapSelection({
-              hovered: {
-                geoVisitor: {
-                  country_code: info.object.id as string,
-                  visitors: visitorDict[info.object.id] ?? 0,
-                },
-              },
-            });
-          } else {
-            setMapSelection({ hovered: undefined });
-          }
-        }}
+        onClick={handleClick}
+        onHover={handleHover}
         layers={layers}
       >
-        {/* Global map CSS should be removed or renmaed*/}
         <style jsx global>
           {`
             .leaflet-container {
@@ -170,16 +178,11 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
             }
           `}
         </style>
-
-        {/* <DeckGLBackgroundEvents containerRef={containerRef} /> */}
       </DeckGL>
-      {/* Controls */}
+
       <div className='pointer-events-auto absolute bottom-10 left-[17rem] z-12 w-[calc(100%-20rem)]'>
         <MapActionbar
-          ticks={visitorDataTimeseries.map((_, i) => ({
-            label: `${i + 1}`,
-            value: i,
-          }))}
+          ticks={visitorDataTimeseries.map((_, i) => ({ label: `${i + 1}`, value: i }))}
           value={position}
           playing={playing}
           speed={speed}
@@ -189,6 +192,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
           onChangeSpeed={setSpeed}
         />
       </div>
+
       <div className='pointer-events-auto absolute top-3 left-[17rem] z-12 flex flex-col'>
         <ZoomButton
           key={'in'}
@@ -198,7 +202,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         />
         <ZoomButton key={'out'} onClick={() => handleZoom('out')} zoomType={'out'} />
       </div>
-      {/* Tooltip */}
+
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
       {viewState && <DeckGLPopup viewState={viewState} />}
     </div>

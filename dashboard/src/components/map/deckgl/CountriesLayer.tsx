@@ -22,7 +22,7 @@ export function CountriesLayer({
   baseInterval,
   calculatedMaxVisitors,
 }: CountriesLayerProps): GeoJsonLayer {
-  const { hoveredFeatureRef, clickedFeatureRef, setMapSelection } = useMapSelection();
+  const { hoveredFeatureRef, clickedFeatureRef } = useMapSelection();
   const style = useDeckGLMapStyle({ calculatedMaxVisitors });
 
   return new GeoJsonLayer({
@@ -35,7 +35,6 @@ export function CountriesLayer({
     getFillColor: (f) => {
       const iso = f.id as string;
       const visitors = visitorDict[iso] ?? 0;
-
       if (clickedFeatureRef?.current?.geoVisitor.country_code === iso) return style.selectedStyle(visitors).fill;
       if (hoveredFeatureRef?.current?.geoVisitor.country_code === iso) return style.hoveredStyle(visitors).fill;
       return style.originalStyle(visitors).fill;
@@ -46,29 +45,6 @@ export function CountriesLayer({
       if (clickedFeatureRef?.current?.geoVisitor.country_code === iso) return style.selectedStyle(visitors).line;
       if (hoveredFeatureRef?.current?.geoVisitor.country_code === iso) return style.hoveredStyle(visitors).line;
       return style.originalStyle(visitors).line;
-    },
-    onHover: (info) => {
-      if (info.object) {
-        setMapSelection({
-          hovered: {
-            geoVisitor: { country_code: info.object.id as string, visitors: visitorDict[info.object.id] ?? 0 },
-          },
-        });
-      } else {
-        setMapSelection({ hovered: undefined });
-      }
-    },
-    onClick: (info) => {
-      if (info.object) {
-        setMapSelection({
-          clicked: {
-            geoVisitor: { country_code: info.object.id as string, visitors: visitorDict[info.object.id] ?? 0 },
-          },
-        });
-      } else {
-        console.log('Clicking outside object');
-        setMapSelection({ clicked: undefined });
-      }
     },
     transitions: {
       getFillColor: {

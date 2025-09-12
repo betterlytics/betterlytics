@@ -12,7 +12,7 @@ export type DeckGLStickyTooltipProps = {
   containerRef: React.RefObject<HTMLDivElement | null>;
 };
 
-export default function DeckGLStickyTooltip({ size = 'sm', containerRef }: DeckGLStickyTooltipProps) {
+function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStickyTooltipProps) {
   const { hoveredFeature, clickedFeature } = useMapSelection();
   const tooltipId = useId();
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -43,7 +43,6 @@ export default function DeckGLStickyTooltip({ size = 'sm', containerRef }: DeckG
     };
 
     mapContainer.addEventListener('mousemove', onMouseMove);
-
     return () => {
       mapContainer.removeEventListener('mousemove', onMouseMove);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -71,3 +70,6 @@ export default function DeckGLStickyTooltip({ size = 'sm', containerRef }: DeckG
     document.body,
   );
 }
+
+const DeckGLStickyTooltip = React.memo(DeckGLStickyTooltipComponent);
+export default DeckGLStickyTooltip;

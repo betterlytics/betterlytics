@@ -3,8 +3,8 @@
 import { use } from 'react';
 import { getWorldMapDataAlpha2, getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import { useTranslations } from 'next-intl';
-import DeckGLMap from '@/components/map/deckgl/DeckGLMap';
 import { DeckGLMapSelectionProvider } from '@/contexts/DeckGLSelectionContextProvider';
+import DeckGLMapWrapper from '@/components/map/deckgl/DeckGLMapWrapper';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -19,7 +19,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
     <>
       <div className='h-full w-full'>
         <DeckGLMapSelectionProvider>
-          <DeckGLMap visitorData={mapData.visitorData} />
+          <DeckGLMapWrapper visitorData={mapData.visitorData} />
         </DeckGLMapSelectionProvider>
       </div>
 

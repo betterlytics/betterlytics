@@ -3,6 +3,7 @@ import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
 import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 interface DeckGLPopupProps {
   viewState: any; // the DeckGL viewState
@@ -10,15 +11,13 @@ interface DeckGLPopupProps {
   children?: React.ReactNode;
 }
 
-export function DeckGLPopup({ viewState, size = 'sm', children }: DeckGLPopupProps) {
-  const { clickedFeature } = useMapSelection();
-  console.log('clickedFeature: ', clickedFeature);
+function DeckGLPopupComponent({ viewState, size = 'sm', children }: DeckGLPopupProps) {
+  const { clickedFeatureRef } = useMapSelection();
+  const clickedFeature = clickedFeatureRef?.current;
   if (!clickedFeature) return null;
 
   const viewport = new WebMercatorViewport(viewState);
-
   const featureLatLng: [number, number] = [clickedFeature.longitude ?? 0, clickedFeature.latitude ?? 0];
-
   const [x, y] = viewport.project(featureLatLng);
 
   return (
@@ -45,3 +44,5 @@ export function DeckGLPopup({ viewState, size = 'sm', children }: DeckGLPopupPro
     </section>
   );
 }
+
+export const DeckGLPopup = React.memo(DeckGLPopupComponent);

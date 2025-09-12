@@ -42,17 +42,28 @@ export function DeckGLMapSelectionProvider({ children }: { children: React.React
 
   const setMapSelection = useCallback<React.Dispatch<Partial<MapFeatureSelection> | null>>((next) => {
     setSelection((prev) => {
-      if (next === null) return { clicked: undefined, hovered: undefined };
-      if (next.clicked) {
-        clickedFeatureRef.current = next.clicked;
+      if (next === null) {
+        clickedFeatureRef.current = undefined;
         hoveredFeatureRef.current = undefined;
-        const same = next.clicked.geoVisitor.country_code === prev.clicked?.geoVisitor.country_code;
-        return same
-          ? { hovered: { ...next.clicked }, clicked: undefined }
-          : { hovered: undefined, clicked: { ...next.clicked } };
+        return { clicked: undefined, hovered: undefined };
       }
-      if (prev.clicked) return { ...prev };
-      if (prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) return prev;
+
+      if (next.clicked) {
+        const same = next.clicked.geoVisitor.country_code === prev.clicked?.geoVisitor.country_code;
+        if (same) {
+          clickedFeatureRef.current = undefined;
+          hoveredFeatureRef.current = { ...next.clicked };
+          return { clicked: undefined, hovered: { ...next.clicked } };
+        } else {
+          clickedFeatureRef.current = next.clicked;
+          hoveredFeatureRef.current = undefined;
+          return { clicked: { ...next.clicked }, hovered: undefined };
+        }
+      }
+
+      if (prev.clicked || prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
+        return prev;
+      }
       hoveredFeatureRef.current = next.hovered;
       return { ...prev, hovered: next.hovered };
     });
