@@ -195,11 +195,13 @@
   }
   html {
     scroll-behavior: smooth;
+    background-color: var(--background);
   }
   body {
     @apply bg-background text-foreground;
     @apply tracking-wide;
     font-family: var(--font-roboto-sans);
+    background-color: var(--background);
   }
   code,
   pre {
