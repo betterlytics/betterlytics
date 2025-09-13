@@ -131,7 +131,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                         value={r.label}
                         dy={-12}
                         position='insideLeft'
-                        dx={8}
+                        dx={isMobile ? 32 : 8}
                         textAnchor='start'
                         fill={r.labelFill}
                       />
