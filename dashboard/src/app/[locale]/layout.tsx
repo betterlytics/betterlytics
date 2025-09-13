@@ -1,6 +1,7 @@
 import { Footer } from '@/components/footer/Footer';
 import PublicTopBar from '@/components/topbar/PublicTopBar';
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
+import ThemeToggleFab from '@/components/ThemeToggleFab';
 
 export default async function LocaleLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export default async function LocaleLayout({ children }: { children: React.React
       <PublicTopBar />
       <div className='flex flex-1 flex-col'>{children}</div>
       <Footer />
+      <ThemeToggleFab />
     </div>
   );
 }
