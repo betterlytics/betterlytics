@@ -56,12 +56,13 @@ function MultiProgressTable<T extends ProgressBarData>({
       );
     }
 
+    const someComparison = data.some((row) => row.comparisonValue);
+
     return (
       <div className='space-y-2'>
         {data.map((item, index) => {
           const relativePercentage = (item.value / maxVisitors) * 100;
           const percentage = (item.value / total) * 100;
-
           return (
             <div key={item.key ?? item.label} className='group relative'>
               <PropertyValueBar
@@ -73,6 +74,7 @@ function MultiProgressTable<T extends ProgressBarData>({
                   trendPercentage: item.trendPercentage,
                   comparisonValue: item.comparisonValue,
                 }}
+                respectComparison={someComparison}
                 icon={item.icon}
                 index={index + 1}
               />

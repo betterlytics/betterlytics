@@ -1,4 +1,4 @@
-import { formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { Progress } from '@/components/ui/progress';
 import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
@@ -16,9 +16,10 @@ interface PropertyValueBarProps {
   value: PropertyValue;
   icon?: React.ReactElement;
   index?: number;
+  respectComparison?: boolean;
 }
 
-export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) {
+export function PropertyValueBar({ value, icon, respectComparison, index }: PropertyValueBarProps) {
   return (
     <div className='group shadow-background relative rounded-sm shadow-xs transition-colors duration-200 hover:bg-[var(--accent)]/80'>
       <div className='relative h-7 overflow-hidden rounded-sm text-sm'>
@@ -45,8 +46,9 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
                 {formatPercentage(value.percentage)}
               </div>
             </div>
-            <span>{value.count.toLocaleString()}</span>
+            <span>{formatNumber(value.count)}</span>
             {value.comparisonValue && <TrendIndicator percentage={value.trendPercentage} />}
+            {!value.comparisonValue && respectComparison && <div className='size-3.5' />}
           </div>
         </div>
       </div>
