@@ -124,8 +124,8 @@ function MultiProgressTable<T extends ProgressBarData>({
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 px-2 pt-2 pb-0 sm:min-h-[400px] sm:px-6 sm:pt-3'>
       <CardHeader className='px-0 pb-0'>
-        <div className='flex flex-col justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row'>
-          <CardTitle className='flex-1 text-lg font-medium'>{title}</CardTitle>
+        <div className='flex flex-col items-center justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row'>
+          <CardTitle className='flex-1 text-base font-medium'>{title}</CardTitle>
           <Tabs value={activeTab} onValueChange={handleTabChange} className='flex h-8 items-center sm:items-end'>
             {tabsList}
           </Tabs>
