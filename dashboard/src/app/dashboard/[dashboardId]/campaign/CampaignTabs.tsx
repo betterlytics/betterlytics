@@ -43,7 +43,7 @@ export default function CampaignTabs({
 
   const renderTabs = () => (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className='h-8'>
-      <TabsList className='bg-secondary grid w-full grid-cols-3 gap-1 px-1 inset-shadow-sm'>
+      <TabsList className='bg-secondary dark:inset-shadow-background grid w-full grid-cols-3 gap-1 px-1 inset-shadow-sm'>
         <TabsTrigger
           value='overview'
           className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
