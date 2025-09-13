@@ -112,24 +112,22 @@ const SummaryCard = React.memo(
           </div>
         )}
 
-        <CardContent className='relative z-10 flex h-full flex-col space-y-0 px-3 py-2 sm:px-6'>
+        <CardContent className='relative z-10 flex h-full flex-col justify-between space-y-0 px-3 py-2 sm:px-6'>
           <div className='mb-2 flex items-center justify-between'>
-            <span className='text-foreground text-sm font-medium hyphens-auto lg:text-base'>{title}</span>
+            <span className='text-foreground text-base/tight font-medium hyphens-auto'>{title}</span>
             {onClick && (
               <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
                 <MousePointerClick className='text-foreground/60 h-4 w-4' />
               </div>
             )}
           </div>
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center justify-between gap-2'>
             {icon && <div className='text-foreground pt-1'>{icon}</div>}
-            <span className='text-foreground text-base font-bold tracking-tight sm:text-lg lg:text-2xl'>
-              {value}
-            </span>
+            <span className='text-foreground text-2xl font-bold tracking-tight'>{value}</span>
             {trendData && trendData.direction !== 'neutral' && (
               <Badge
                 variant='outline'
-                className={`text-foreground gap-1 text-xs ${
+                className={`text-foreground flex gap-0 p-0 text-xs ${
                   trendData.isPositive ? 'text-trend-up border-none' : 'text-trend-down border-none'
                 }`}
               >
