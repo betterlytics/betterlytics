@@ -254,3 +254,7 @@
     top: var(--topbar-height) !important;
   }
 }
+
+[data-slot='sheet-content'] > button.absolute.top-4.right-4 {
+  cursor: pointer;
+}
