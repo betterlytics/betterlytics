@@ -18,7 +18,7 @@ export default function ReferrersTableSection({ referrerTablePromise }: Referrer
   return (
     <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
       <CardHeader className='px-0 pb-0'>
-        <CardTitle className='text-lg font-medium'>{t('details')}</CardTitle>
+        <CardTitle className='text-base font-medium'>{t('details')}</CardTitle>
       </CardHeader>
       <CardContent className='px-0'>
         <ReferrerTable data={tableData} />
