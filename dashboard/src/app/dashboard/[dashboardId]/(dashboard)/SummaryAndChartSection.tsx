@@ -10,6 +10,7 @@ import {
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/utils/formatters';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
@@ -36,7 +37,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
   const cards: SummaryCardData[] = [
     {
       title: t('uniqueVisitors'),
-      value: summary.uniqueVisitors.toLocaleString(),
+      value: formatNumber(summary.uniqueVisitors),
       rawChartData: summary.visitorsChartData,
       valueField: 'unique_visitors',
       comparePercentage: summary.compareValues.uniqueVisitors,
@@ -46,7 +47,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: t('totalPageviews'),
-      value: summary.pageviews.toLocaleString(),
+      value: formatNumber(summary.pageviews),
       rawChartData: summary.pageviewsChartData,
       valueField: 'views',
       comparePercentage: summary.compareValues.pageviews,
@@ -56,7 +57,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: 'Sessions',
-      value: summary.sessions.toLocaleString(),
+      value: formatNumber(summary.sessions),
       rawChartData: summary.sessionsChartData,
       valueField: 'sessions',
       comparePercentage: summary.compareValues.sessions,
@@ -66,7 +67,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: 'Pages per Session',
-      value: summary.pagesPerSession.toLocaleString(),
+      value: formatNumber(summary.pagesPerSession),
       rawChartData: summary.pagesPerSessionChartData,
       valueField: 'pages_per_session',
       comparePercentage: summary.compareValues.pagesPerSession,

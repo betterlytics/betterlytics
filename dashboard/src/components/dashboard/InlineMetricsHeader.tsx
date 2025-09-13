@@ -49,7 +49,7 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
             type='button'
             onClick={card.onClick}
             aria-pressed={card.isActive}
-            className={`group relative flex w-auto min-w-fit flex-col overflow-hidden rounded-md border border-transparent px-3 py-4 pt-2 text-left transition-all duration-200 sm:flex-none sm:py-2 ${card.onClick ? 'cursor-pointer' : ''} ${
+            className={`group relative flex w-auto min-w-fit flex-col overflow-hidden rounded-md border border-transparent px-2 py-4 pt-2 text-left transition-all duration-200 sm:flex-none sm:py-2 2xl:px-3 ${card.onClick ? 'cursor-pointer' : ''} ${
               !card.isActive ? 'hover:bg-accent/40 hover:border-primary/20 hover:shadow-sm' : 'shadow-sm'
             } focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:outline-none`}
             style={{ background: card.isActive ? 'var(--card-interactive)' : undefined }}
@@ -92,10 +92,16 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
               </div>
             )}
 
-            <div className={pinFooter ? 'relative z-10 flex h-full flex-col' : 'relative z-10'}>
+            <div
+              className={
+                pinFooter
+                  ? 'relative z-10 flex h-full flex-col justify-between'
+                  : 'relative z-10 flex h-full flex-col justify-between'
+              }
+            >
               <div className='mb-1 flex items-center justify-between'>
                 <span
-                  className={`text-xs font-medium sm:text-sm ${
+                  className={`text-base/tight font-medium ${
                     card.isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
                   }`}
                 >
@@ -105,14 +111,14 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
                   <MousePointerClick className='text-muted-foreground/60 absolute top-0 right-0 h-4 w-4 opacity-0 group-hover:opacity-100' />
                 )}
               </div>
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center justify-between gap-2'>
                 {card.icon && <div className='text-muted-foreground pt-1'>{card.icon}</div>}
-                <span className='text-foreground text-base font-semibold tracking-tight group-hover:opacity-90 xl:text-xl'>
+                <span className='text-foreground text-2xl font-semibold tracking-tight group-hover:opacity-90'>
                   {card.value}
                 </span>
                 {trend && trend.direction !== 'neutral' && (
                   <span
-                    className={`inline-flex items-center gap-1 text-xs ${
+                    className={`inline-flex items-center text-xs ${
                       trend.isPositive ? 'text-trend-up' : 'text-trend-down'
                     } group-hover:opacity-90`}
                   >
