@@ -35,11 +35,7 @@ export function ChartTooltip({
 
   const name = label || payload[0].payload.name || payload[0].payload.label;
 
-  const labelColor =
-    (payload[0] as any)?.color ||
-    (payload[0] as any)?.fill ||
-    (payload[0] as any)?.stroke ||
-    'hsl(var(--primary))';
+  const labelColor = payload[0].payload.color;
 
   const value = payload[0].value;
 
@@ -53,9 +49,8 @@ export function ChartTooltip({
 
   const formattedDifference = formatDifference(value, previousValue || 0, hasComparison, formatter);
   const previousDateLabel = comparisonData ? labelFormatter(comparisonData.compareDate) : undefined;
-  const previousColor =
-    (payload && ((payload[1] as any)?.color || (payload[1] as any)?.fill || (payload[1] as any)?.stroke)) ||
-    'var(--chart-comparison)';
+  console.log(payload);
+  const previousColor = 'var(--chart-comparison)';
   return (
     <div
       className={cn(
