@@ -131,7 +131,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   return (
     <div className='container space-y-4 p-2 sm:p-6'>
       <DashboardHeader title={t('overview')}>
-        <DashboardFilters></DashboardFilters>
+        <DashboardFilters />
       </DashboardHeader>
 
       <Suspense>
