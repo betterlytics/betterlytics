@@ -43,7 +43,7 @@ function TabbedTable<TData>({
 
   return (
     <Card
-      className={`border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3 ${className}`}
+      className={`border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3 ${className}`}
     >
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='px-0 pb-0'>
@@ -84,7 +84,7 @@ function TabbedTable<TData>({
             </div>
           </div>
         </CardHeader>
-        <CardContent className='flex-1 px-0'>
+        <CardContent className='px-0'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
               <div className='overflow-x-auto'>
