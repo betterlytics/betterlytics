@@ -45,6 +45,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <meta name='theme-color' content='#fff' />
         {env.ENABLE_APP_TRACKING && (
           <Script
             async
