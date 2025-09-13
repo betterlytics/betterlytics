@@ -186,7 +186,7 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
       const compare =
         compareStartDate &&
         compareEndDate &&
-        (await getReferrerTableDataForSite(ctx.siteId, startDate, endDate, queryFilters, limit));
+        (await getReferrerTableDataForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit));
 
       return {
         data: toDataTable({ data, compare, categoryKey: 'source_name' }),
