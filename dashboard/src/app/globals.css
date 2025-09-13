@@ -199,13 +199,13 @@
   html {
     scroll-behavior: smooth;
     background-color: var(--background);
-    color-scheme: light dark;
+    color-scheme: light;
     @apply bg-background text-foreground;
   }
   html.dark {
     scroll-behavior: smooth;
     background-color: var(--background);
-    color-scheme: light dark;
+    color-scheme: dark;
     @apply bg-background text-foreground;
   }
   body {
