@@ -92,10 +92,16 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
               </div>
             )}
 
-            <div className={pinFooter ? 'relative z-10 flex h-full flex-col' : 'relative z-10'}>
+            <div
+              className={
+                pinFooter
+                  ? 'relative z-10 flex h-full flex-col justify-between'
+                  : 'relative z-10 flex h-full flex-col justify-between'
+              }
+            >
               <div className='mb-1 flex items-center justify-between'>
                 <span
-                  className={`text-xs font-medium sm:text-sm ${
+                  className={`text-base font-medium ${
                     card.isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
                   }`}
                 >
@@ -105,14 +111,14 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
                   <MousePointerClick className='text-muted-foreground/60 absolute top-0 right-0 h-4 w-4 opacity-0 group-hover:opacity-100' />
                 )}
               </div>
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center justify-between gap-2'>
                 {card.icon && <div className='text-muted-foreground pt-1'>{card.icon}</div>}
-                <span className='text-foreground text-base font-semibold tracking-tight group-hover:opacity-90 xl:text-xl'>
+                <span className='text-foreground text-xl font-semibold tracking-tight group-hover:opacity-90'>
                   {card.value}
                 </span>
                 {trend && trend.direction !== 'neutral' && (
                   <span
-                    className={`inline-flex items-center gap-1 text-xs ${
+                    className={`inline-flex items-center text-xs ${
                       trend.isPositive ? 'text-trend-up' : 'text-trend-down'
                     } group-hover:opacity-90`}
                   >
