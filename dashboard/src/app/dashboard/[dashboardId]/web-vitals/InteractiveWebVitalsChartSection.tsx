@@ -206,7 +206,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         headerRight={undefined}
         headerContent={
           <div>
-            <InlineMetricsHeader cards={cards} widthClass='sm:w-[228px] md:w-[270px]' pinFooter />
+            <InlineMetricsHeader cards={cards} pinFooter />
             <div className='mt-6 flex items-center justify-between gap-3 p-2 sm:justify-center sm:gap-6'>
               <div className='text-muted-foreground flex min-w-0 flex-1 items-center gap-2 text-sm font-medium sm:flex-none'>
                 <span className='truncate'>{t(METRIC_LABEL_KEYS[active])}</span>

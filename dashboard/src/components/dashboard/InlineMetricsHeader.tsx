@@ -32,12 +32,10 @@ function calculateTrend(comparePercentage?: number | null) {
 
 type InlineMetricsHeaderProps = {
   cards: SummaryCardData[];
-  widthClass?: string; // optional override for card width at breakpoints
   pinFooter?: boolean; // when true, stick footer (e.g., CWV bar) to bottom
 };
 
-export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: InlineMetricsHeaderProps) {
-  const widthClasses = widthClass || 'sm:w-[228px] md:w-[228px]';
+export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsHeaderProps) {
   return (
     <div className='grid grid-cols-2 gap-1 lg:grid-cols-3 xl:grid-flow-col xl:grid-cols-none'>
       {cards.map((card, idx) => {
