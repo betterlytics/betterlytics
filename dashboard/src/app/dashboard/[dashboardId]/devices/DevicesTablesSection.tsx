@@ -21,7 +21,7 @@ export default function DevicesTablesSection({ browserStatsPromise, osStatsPromi
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-2'>
       <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
         <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-lg font-medium'>{t('topOperatingSystems')}</CardTitle>
+          <CardTitle className='text-base font-medium'>{t('topOperatingSystems')}</CardTitle>
         </CardHeader>
         <CardContent className='px-0'>
           <OperatingSystemTable data={osStats} />
@@ -29,7 +29,7 @@ export default function DevicesTablesSection({ browserStatsPromise, osStatsPromi
       </Card>
       <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
         <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-lg font-medium'>{t('topBrowsers')}</CardTitle>
+          <CardTitle className='text-base font-medium'>{t('topBrowsers')}</CardTitle>
         </CardHeader>
         <CardContent className='px-0'>
           <BrowserTable data={browserStats} />

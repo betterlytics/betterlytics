@@ -29,7 +29,7 @@ export default function CampaignVisitorTrendChart({
     return (
       <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[350px] sm:px-6 sm:pt-3'>
         <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
+          <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
         </CardHeader>
         <CardContent className='px-0'>
           <div className='flex h-[300px] items-center justify-center'>
@@ -46,7 +46,7 @@ export default function CampaignVisitorTrendChart({
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
       <CardHeader className='px-0 pb-0'>
-        <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
+        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className='px-0'>
         <div style={{ width: '100%', height: 300 }} className='mt-10'>
