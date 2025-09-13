@@ -35,19 +35,15 @@ export function TableTrendIndicator({
   const isPositive = current - comparedData > 0;
   const color = isPositive ? 'text-trend-up' : 'text-trend-down';
   const Icon = isPositive ? ChevronUp : ChevronDown;
-  const sign = isPositive ? '+' : '-';
 
   return (
     <div className={cn('flex items-center gap-1 text-xs', color)}>
       <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
       {comparedData !== 0 && (
-        <>
+        <span className='flex gap-0'>
           <Icon className='h-3.5 w-3.5' fill={'currentColor'} />
-          <span>
-            {sign}
-            {Math.abs(percentage).toFixed(1)}%
-          </span>
-        </>
+          <span>{Math.abs(percentage).toFixed(1)}%</span>
+        </span>
       )}
     </div>
   );

@@ -21,7 +21,7 @@ interface PropertyValueBarProps {
 export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) {
   return (
     <div className='group relative rounded-sm transition-colors duration-200 hover:bg-[var(--accent)]/80'>
-      <div className='relative h-7 overflow-hidden rounded-sm text-xs xl:text-sm'>
+      <div className='relative h-7 overflow-hidden rounded-sm text-xs'>
         <Progress
           value={Math.max(value.relativePercentage, 2)}
           className='bg-muted/30 group-hover:bg-muted/40 [&>div]:bg-primary/30 h-full rounded-sm transition-colors duration-200'
@@ -29,14 +29,12 @@ export function PropertyValueBar({ value, icon, index }: PropertyValueBarProps) 
 
         <div className='absolute inset-0 z-10 flex items-center justify-between px-3'>
           <div className='flex max-w-[85%] items-center gap-2 truncate'>
-            {typeof index === 'number' && (
-              <span className='text-foreground w-3 font-mono font-medium'>{index}.</span>
-            )}
+            {typeof index === 'number' && <span className='text-foreground w-3 font-medium'>{index}.</span>}
             {icon && <span className='flex-shrink-0'>{icon}</span>}
-            <span className='text-foreground truncate font-mono font-medium'>{value.value}</span>
+            <span className='text-foreground truncate font-medium'>{value.value}</span>
           </div>
 
-          <div className='text-muted-foreground flex gap-2 font-mono'>
+          <div className='text-muted-foreground flex gap-2'>
             <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
               <div className='hidden gap-1 transition-all transition-discrete duration-200 group-hover:flex'>
                 {value.comparisonValue && (

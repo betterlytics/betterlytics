@@ -45,17 +45,17 @@ function TabbedTable<TData>({
     <Card className={`bg-card border-border rounded-xl border px-3 shadow sm:px-6 ${className}`}>
       <Tabs defaultValue={activeDefaultTab}>
         <CardHeader className='px-0 pb-0'>
-          <div className='relative grid grid-cols-1 gap-3 xl:grid-cols-2'>
+          <div className='relative grid grid-cols-1 items-center gap-3 xl:grid-cols-2'>
             <div
               className={cn('grid grid-cols-1 items-start gap-2 xl:grid-cols-2', searchColumn && 'sm:col-span-2')}
             >
-              <CardTitle className='mb-1 text-lg font-medium'>{title}</CardTitle>
+              <CardTitle className='mb-1 text-base font-medium'>{title}</CardTitle>
               <div className='flex'>
                 {headerActions && <div className='justify-self-end'>{headerActions}</div>}
               </div>
             </div>
             {searchColumn && (
-              <div className='w-full rounded-md sm:max-w-sm'>
+              <div className='flex h-9 w-full items-center rounded-md py-[3px] sm:max-w-sm'>
                 <Input
                   placeholder={t('searchPlaceholder', {
                     field: searchFieldLabel || String(searchColumn),
@@ -63,7 +63,7 @@ function TabbedTable<TData>({
                   onChange={(event) =>
                     tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)
                   }
-                  className='cursor-input row-start-3 w-full shadow-sm sm:row-start-2 sm:max-w-sm'
+                  className='cursor-input row-start-3 !h-[calc(100%-1px)] w-full !text-xs shadow-sm sm:row-start-2 sm:max-w-sm md:!text-xs'
                 />
               </div>
             )}
