@@ -68,9 +68,9 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
       className='top-0 h-screen border-t md:top-14 md:h-[calc(100vh-3.5rem)]'
     >
       <SidebarHeader className='bg-sidebar rounded-t-xl pt-2'></SidebarHeader>
-      <SidebarContent className='bg-sidebar overflow-x-hidden pl-1'>
+      <SidebarContent className='bg-sidebar overflow-x-hidden'>
         <SidebarGroup>
-          <SidebarGroupContent className='space-y-2 overflow-hidden px-2'>
+          <SidebarGroupContent className='overflow-hidden'>
             <Suspense fallback={<div className='bg-muted h-6 animate-pulse rounded' />}>
               <DashboardDropdown
                 currentDashboardPromise={currentDashboardPromise}
@@ -80,7 +80,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className='mx-0' />
 
         <SidebarGroup>
           <SidebarGroupContent>
