@@ -16,7 +16,7 @@ export default function ReferrersTableSection({ referrerTablePromise }: Referrer
 
   return (
     <div className='bg-card border-border rounded-xl border px-3 py-4 shadow sm:px-6'>
-      <div className='text-foreground mb-2 px-0 text-lg font-medium'>{t('details')}</div>
+      <div className='text-foreground mb-2 px-0 text-base font-medium'>{t('details')}</div>
       <ReferrerTable data={tableData} />
     </div>
   );

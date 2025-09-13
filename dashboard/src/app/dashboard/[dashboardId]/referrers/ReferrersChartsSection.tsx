@@ -33,7 +33,7 @@ export default function ReferrersChartsSection({
     <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
       <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3 xl:col-span-5'>
         <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-lg font-medium'>{t('trafficTrends')}</CardTitle>
+          <CardTitle className='text-base font-medium'>{t('trafficTrends')}</CardTitle>
         </CardHeader>
         <CardContent className='px-0'>
           <ReferrerTrafficTrendChart
@@ -46,7 +46,7 @@ export default function ReferrersChartsSection({
       </Card>
       <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3 xl:col-span-3'>
         <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-lg font-medium'>{t('distribution')}</CardTitle>
+          <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
         </CardHeader>
         <CardContent className='px-0'>
           <BAPieChart data={distributionData} getColor={getReferrerColor} getLabel={capitalizeFirstLetter} />
