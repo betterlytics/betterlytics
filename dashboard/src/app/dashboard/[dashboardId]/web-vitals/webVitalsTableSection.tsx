@@ -324,7 +324,7 @@ export default function WebVitalsTableSection({
     () => (
       <div className='flex w-full items-center gap-2'>
         <Select value={activeTab} onValueChange={setActiveTab}>
-          <SelectTrigger className='min-w-[140px] cursor-pointer'>
+          <SelectTrigger className='min-w-[180px] cursor-pointer'>
             <SelectValue placeholder='Select tab' />
           </SelectTrigger>
           <SelectContent>
