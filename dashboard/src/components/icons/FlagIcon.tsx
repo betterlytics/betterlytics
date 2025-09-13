@@ -29,10 +29,13 @@ function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps
     <span title={countryName || 'Unknown'} className='flex items-center justify-center'>
       <FlagComponent
         {...props}
-        className='shadow-foreground/80 dark:shadow-background/50 !h-[1.15em] !w-fit rounded-xs shadow-sm dark:rounded-none'
+        className='shadow-foreground/80 dark:shadow-background/50 inline-block !h-[1.15em] rounded-xs shadow-sm dark:rounded-none'
         style={{
           imageRendering: 'auto',
           shapeRendering: 'geometricPrecision',
+          height: '1.15em',
+          width: 'auto',
+          display: 'inline-block',
         }}
       />
     </span>
