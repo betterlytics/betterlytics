@@ -24,7 +24,7 @@ export function TableTrendIndicator({
 
   if (difference === 0 && current !== 0) {
     return (
-      <div className='flex items-center gap-1 text-xs'>
+      <div className='flex items-center gap-1 text-xs opacity-85'>
         <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
         <Minus className='h-3 w-3' />
         <span>0%</span>
@@ -38,9 +38,9 @@ export function TableTrendIndicator({
 
   return (
     <div className={cn('flex items-center gap-1 text-xs', color)}>
-      <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
+      <span className='text-foreground opacity-75'>vs {formatter(comparedData)}</span>
       {comparedData !== 0 && (
-        <span className='flex gap-0'>
+        <span className='flex items-center gap-0'>
           <Icon className='h-3.5 w-3.5' fill={'currentColor'} />
           <span>{Math.abs(percentage).toFixed(1)}%</span>
         </span>

@@ -70,7 +70,7 @@ export function DataTable<TData, TValue>({
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className={`text-foreground dark:bg-muted/50 px-3 py-3 text-left text-xs font-medium sm:px-6 ${
+                  className={`text-foreground dark:bg-muted/50 px-3 py-3 text-left text-sm font-medium sm:px-6 ${
                     header.column.getCanSort() ? 'hover:!bg-table-header-hover cursor-pointer select-none' : ''
                   }`}
                   onClick={header.column.getToggleSortingHandler()}
@@ -103,7 +103,7 @@ export function DataTable<TData, TValue>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className='px-3 py-3 text-xs text-slate-700 sm:px-6 dark:text-slate-300'
+                    className='px-3 py-3 text-sm text-slate-700 sm:px-6 dark:text-slate-300'
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
