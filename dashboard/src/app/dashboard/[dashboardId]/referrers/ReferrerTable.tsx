@@ -41,7 +41,7 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 };
 
 interface ReferrerTableProps {
-  data?: ToDataTable<'source_name', ReferrerTableRow>[];
+  data?: ToDataTable<'source_url', ReferrerTableRow>[];
 }
 
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
@@ -56,7 +56,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
   });
 
-  const columns: ColumnDef<ToDataTable<'source_name', ReferrerTableRow>>[] = [
+  const columns: ColumnDef<ToDataTable<'source_url', ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
       header: t('columns.source'),

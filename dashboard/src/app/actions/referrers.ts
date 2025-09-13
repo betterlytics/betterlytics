@@ -189,7 +189,7 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
         (await getReferrerTableDataForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit));
 
       return {
-        data: toDataTable({ data, compare, categoryKey: 'source_name' }),
+        data: toDataTable({ data, compare, categoryKey: 'source_url' }),
       };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);
