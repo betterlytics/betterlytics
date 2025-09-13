@@ -2,7 +2,7 @@ import { use } from 'react';
 import { fetchReferrerSummaryWithChartsDataForSite } from '@/app/actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
-import { formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 
 type ReferrersSummarySectionProps = {
@@ -22,7 +22,7 @@ export default function ReferrersSummarySection({
   const cards: SummaryCardData[] = [
     {
       title: t('referralSessions'),
-      value: summaryData.referralSessions.toLocaleString(),
+      value: formatNumber(summaryData.referralSessions),
       rawChartData: summaryData.referralSessionsChartData,
       valueField: 'referralSessions',
       chartColor: 'var(--chart-1)',
