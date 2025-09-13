@@ -56,12 +56,13 @@ function MultiProgressTable<T extends ProgressBarData>({
       );
     }
 
+    const someComparison = data.some((row) => row.comparisonValue);
+
     return (
       <div className='space-y-2'>
         {data.map((item, index) => {
           const relativePercentage = (item.value / maxVisitors) * 100;
           const percentage = (item.value / total) * 100;
-
           return (
             <div key={item.key ?? item.label} className='group relative'>
               <PropertyValueBar
@@ -73,6 +74,7 @@ function MultiProgressTable<T extends ProgressBarData>({
                   trendPercentage: item.trendPercentage,
                   comparisonValue: item.comparisonValue,
                 }}
+                respectComparison={someComparison}
                 icon={item.icon}
                 index={index + 1}
               />
@@ -124,7 +126,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:p-6 sm:pt-4'>
       <CardHeader className='px-0 pb-0'>
-        <div className='flex flex-col items-center justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row'>
+        <div className='flex flex-col justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row xl:items-center'>
           <CardTitle className='flex-1 text-base font-medium'>{title}</CardTitle>
           <Tabs value={activeTab} onValueChange={handleTabChange} className='flex h-8 items-center sm:items-end'>
             {tabsList}
