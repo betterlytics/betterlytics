@@ -41,7 +41,7 @@ export default function BrowserTable({ data }: BrowserTableProps) {
   ];
 
   return (
-    <div className='mt-4 overflow-x-auto'>
+    <div className='mt-2 overflow-x-auto'>
       <DataTable
         columns={columns}
         data={data}

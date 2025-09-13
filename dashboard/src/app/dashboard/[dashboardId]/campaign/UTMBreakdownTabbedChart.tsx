@@ -156,11 +156,11 @@ export default function UTMBreakdownTabbedChart({
   );
 
   return (
-    <Card className='bg-card border-border rounded-xl border shadow'>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
       <Tabs defaultValue='source'>
-        <CardHeader className='pb-0'>
+        <CardHeader className='px-0 pb-0'>
           <div className='flex flex-col items-center justify-between sm:flex-row'>
-            <CardTitle className='mb-1 text-lg font-medium'>{t('chart.title')}</CardTitle>
+            <CardTitle className='text-lg font-medium'>{t('chart.title')}</CardTitle>
             <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} gap-1`}>
               {tabs.map((tab) => (
                 <TabsTrigger
@@ -174,7 +174,7 @@ export default function UTMBreakdownTabbedChart({
             </TabsList>
           </div>
         </CardHeader>
-        <CardContent className='px-6 pt-0 pb-4'>
+        <CardContent className='px-0'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
               <UTMPieChart data={tab.data} dataKey={tab.dataKey} />
