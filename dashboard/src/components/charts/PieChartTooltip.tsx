@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type PiePayload = {
   name: string;
@@ -58,7 +58,7 @@ export function PieChartTooltip({
                 {formatPercentage(percentage)}
               </span>
             )}
-            {valueFormatter ? valueFormatter(value) : value}
+            {valueFormatter ? valueFormatter(value) : formatNumber(value)}
           </div>
         </div>
       </div>

@@ -18,6 +18,7 @@ import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { useTranslations } from 'next-intl';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { formatNumber } from '@/utils/formatters';
 
 interface ReferrerTrafficTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -65,7 +66,7 @@ export default function ReferrerTrafficTrendChart({
             axisLine={false}
             className='text-muted-foreground'
             tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-            tickFormatter={(value) => value.toLocaleString()}
+            tickFormatter={(value) => formatNumber(value)}
             width={40}
             mirror={isMobile}
           />
@@ -77,7 +78,7 @@ export default function ReferrerTrafficTrendChart({
                 label={props.label}
                 comparisonMap={comparisonMap}
                 granularity={granularity}
-                formatter={(value: number) => `${value.toLocaleString()} visitors`}
+                formatter={(value: number) => `${formatNumber(value)} visitors`}
               />
             )}
           />

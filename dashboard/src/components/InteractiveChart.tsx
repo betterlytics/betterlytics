@@ -6,6 +6,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { formatNumber } from '@/utils/formatters';
 
 interface ChartDataPoint {
   date: string | number;
@@ -28,7 +29,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
-        const text = formatValue ? formatValue(value) : value.toLocaleString();
+        const text = formatValue ? formatValue(value) : formatNumber(value);
         return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
       };
     }, [formatValue]);
