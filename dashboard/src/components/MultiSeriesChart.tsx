@@ -73,10 +73,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
           {headerContent && <div className='mb-2 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 py-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
-              <ComposedChart
-                data={data}
-                margin={{ top: 10, right: isMobile ? 4 : 22, left: isMobile ? 4 : 22, bottom: 0 }}
-              >
+              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
                 <XAxis
                   dataKey='date'
