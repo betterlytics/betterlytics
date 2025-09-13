@@ -25,7 +25,7 @@ impl Default for ValidationConfig {
             max_event_name_length: 100,               // Event name is usually short, but we should keep leeway for extra long event names
             max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
-            max_timestamp_drift_seconds: 300 * 1000000000,         // 5 minutes - we should allow for some clock drift to account for packet latency
+            max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
         }
     }
 }
