@@ -193,11 +193,20 @@
   * {
     @apply border-border outline-ring/50;
   }
+  :root {
+    color-scheme: light dark;
+  }
   html {
     scroll-behavior: smooth;
     background-color: var(--background);
-    /* Hint UA for built-in form controls and overscroll visuals */
     color-scheme: light dark;
+    @apply bg-background text-foreground;
+  }
+  html.dark {
+    scroll-behavior: smooth;
+    background-color: var(--background);
+    color-scheme: light dark;
+    @apply bg-background text-foreground;
   }
   body {
     @apply bg-background text-foreground;
