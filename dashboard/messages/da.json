@@ -1214,8 +1214,7 @@
         "allPages": "Alle sider",
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
-        "title": "Sideanalyse",
-        "filterByPathPlaceholder": "Filtrer efter sti..."
+        "title": "Sideanalyse"
       }
     },
     "referrers": {

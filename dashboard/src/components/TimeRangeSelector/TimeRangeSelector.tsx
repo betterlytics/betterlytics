@@ -155,7 +155,10 @@ export function TimeRangeSelector({
         <Button
           variant='secondary'
           role='combobox'
-          className={cn('min-w-[200px] cursor-pointer justify-between border shadow-sm', className)}
+          className={cn(
+            'bg-popover dark:bg-secondary min-w-[200px] cursor-pointer justify-between border shadow-sm',
+            className,
+          )}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />

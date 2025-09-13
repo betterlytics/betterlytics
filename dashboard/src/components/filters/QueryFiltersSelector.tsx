@@ -155,7 +155,7 @@ export default function QueryFiltersSelector() {
         <Button
           variant='secondary'
           role='combobox'
-          className={'min-w-[200px] cursor-pointer justify-between border shadow-sm'}
+          className={'dark:bg-secondary bg-popover min-w-[200px] cursor-pointer justify-between border shadow-sm'}
         >
           <div className='flex items-center gap-2'>
             <FilterIcon className='h-4 w-4' />

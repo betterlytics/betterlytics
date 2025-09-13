@@ -1210,8 +1210,7 @@
         "allPages": "All Pages",
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
-        "title": "Page Analytics",
-        "filterByPathPlaceholder": "Filter by path..."
+        "title": "Page Analytics"
       }
     },
     "referrers": {

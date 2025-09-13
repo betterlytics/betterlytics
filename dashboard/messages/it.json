@@ -1218,8 +1218,7 @@
         "allPages": "Tutte le pagine",
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",
-        "title": "Analisi pagine",
-        "filterByPathPlaceholder": "Filtra per percorso..."
+        "title": "Analisi pagine"
       }
     },
     "referrers": {
