@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { ChartSkeleton, SummaryCardsSkeleton, TableSkeleton } from '@/components/skeleton';
+import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import {
@@ -12,6 +12,8 @@ import {
 } from '@/app/actions';
 import InteractiveWebVitalsChartSection from './InteractiveWebVitalsChartSection';
 import WebVitalsTableSection from './webVitalsTableSection';
+import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type PageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -59,18 +61,14 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
     'browser',
   );
   const perOsPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'os');
-
+  const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-6 p-6'>
-      <DashboardFilters />
-      <Suspense
-        fallback={
-          <div className='space-y-6'>
-            <SummaryCardsSkeleton />
-            <ChartSkeleton />
-          </div>
-        }
-      >
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+      <DashboardHeader title={t('webVitals')}>
+        <DashboardFilters />
+      </DashboardHeader>
+
+      <Suspense fallback={<ChartSkeleton />}>
         <InteractiveWebVitalsChartSection summaryPromise={summaryPromise} seriesPromise={seriesPromise} />
       </Suspense>
       <Suspense fallback={<TableSkeleton />}>

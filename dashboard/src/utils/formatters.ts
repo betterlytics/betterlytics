@@ -44,8 +44,7 @@ export function capitalizeFirstLetter(string: string): string {
 export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, clsDecimals = 3): string {
   if (value === null || value === undefined) return '—';
   if (metric === 'CLS') {
-    const rounded = value.toFixed(clsDecimals);
-    return rounded.toString();
+    return Number(value.toFixed(clsDecimals)).toString();
   }
   return formatCompactFromMilliseconds(value);
 }

@@ -3,6 +3,7 @@ import { utcMinute } from 'd3-time';
 import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
 import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
+import { toDateTimeString } from '@/utils/dateFormatters';
 
 type DataToAreaChartProps<K extends string> = {
   dataKey: K;
@@ -22,7 +23,12 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
   };
 };
 
-function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRange }: DataToAreaChartProps<K>) {
+export function dataToAreaChart<K extends string>({
+  dataKey,
+  data,
+  granularity,
+  dateRange,
+}: DataToAreaChartProps<K>) {
   // Map date to value
   const groupedData = data.reduce(
     (group, row) => {
@@ -131,4 +137,18 @@ function createComparisonMap(
       compareValues: { [dataKey]: comparePoint.value[0] },
     };
   });
+}
+
+// Helper to generate padded sparkline-ready series from raw rows
+export function toSparklineSeries<K extends string>({
+  dataKey,
+  data,
+  granularity,
+  dateRange,
+}: DataToAreaChartProps<K>): Array<{ date: string } & Record<K, number>> {
+  const area = dataToAreaChart({ dataKey, data, granularity, dateRange });
+  return area.map((p) => ({
+    date: toDateTimeString(new Date(p.date)),
+    [dataKey]: p.value[0],
+  })) as Array<{ date: string } & Record<K, number>>;
 }

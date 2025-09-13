@@ -3,6 +3,9 @@ import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchPageAnalyticsCombinedAction } from '@/app/actions';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { ArrowRight } from 'lucide-react';
 
 type PageAnalyticsSectionProps = {
   analyticsCombinedPromise: ReturnType<typeof fetchPageAnalyticsCombinedAction>;
@@ -11,6 +14,7 @@ type PageAnalyticsSectionProps = {
 export default function PagesAnalyticsSection({ analyticsCombinedPromise }: PageAnalyticsSectionProps) {
   const pageAnalyticsCombined = use(analyticsCombinedPromise);
   const t = useTranslations('dashboard');
+  const dashboardId = useDashboardId();
 
   return (
     <MultiProgressTable
@@ -26,7 +30,6 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: t('emptyStates.noPageData'),
         },
         {
           key: 'entry',
@@ -37,7 +40,6 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: t('emptyStates.noEntryPagesData'),
         },
         {
           key: 'exit',
@@ -48,9 +50,17 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: t('emptyStates.noExitPagesData'),
         },
       ]}
+      footer={
+        <FilterPreservingLink
+          href={`/dashboard/${dashboardId}/pages`}
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.pages') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
     />
   );
 }

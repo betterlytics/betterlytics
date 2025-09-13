@@ -11,7 +11,7 @@ type CountryDisplayProps = {
 export const CountryDisplay = ({ countryCode, countryName, className }: CountryDisplayProps) => {
   return (
     <div className={cn(className, 'm-0 flex items-center gap-2 overflow-hidden p-0')}>
-      <FlagIcon countryCode={countryCode} countryName={countryName} className='flex-shrink-0' />
+      <FlagIcon countryCode={countryCode} countryName={countryName} />
       <span className='max-w-full truncate'>{countryName}</span>
     </div>
   );

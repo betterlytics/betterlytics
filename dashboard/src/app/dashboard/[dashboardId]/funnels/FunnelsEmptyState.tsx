@@ -40,7 +40,7 @@ export function FunnelsEmptyState() {
   const t = useTranslations('components.funnels.emptyState');
 
   return (
-    <div className='mx-auto flex min-h-[600px] max-w-md flex-col items-center justify-center px-4 text-center'>
+    <div className='mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 text-center'>
       <div className='mb-6'>
         <div className='relative'>
           <div className='mx-auto flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20'>
@@ -54,9 +54,7 @@ export function FunnelsEmptyState() {
 
       <h2 className='mb-3 text-2xl font-semibold'>{t('title')}</h2>
 
-      <p className='text-muted-foreground mb-6 leading-relaxed'>
-        {t('description')}
-      </p>
+      <p className='text-muted-foreground mb-6 leading-relaxed'>{t('description')}</p>
 
       <CreateFunnelDialog triggerText={t('createButton')} triggerVariant='default' />
 

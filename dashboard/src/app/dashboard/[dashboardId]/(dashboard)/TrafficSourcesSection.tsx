@@ -4,6 +4,9 @@ import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { ArrowRight } from 'lucide-react';
 
 type TrafficSourcesSectionProps = {
   trafficSourcesCombinedPromise: ReturnType<typeof fetchTrafficSourcesCombinedAction>;
@@ -12,6 +15,7 @@ type TrafficSourcesSectionProps = {
 export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }: TrafficSourcesSectionProps) {
   const trafficSourcesCombined = use(trafficSourcesCombinedPromise);
   const t = useTranslations('dashboard');
+  const dashboardId = useDashboardId();
 
   return (
     <MultiProgressTable
@@ -29,7 +33,6 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
               trendPercentage: item.change?.visits,
               comparisonValue: item.compare?.visits,
             })),
-          emptyMessage: t('emptyStates.noReferrerData'),
         },
         {
           key: 'sources',
@@ -40,7 +43,6 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
             trendPercentage: item.change?.visits,
             comparisonValue: item.compare?.visits,
           })),
-          emptyMessage: t('emptyStates.noSourceData'),
         },
         {
           key: 'channels',
@@ -51,9 +53,17 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
             trendPercentage: item.change?.visits,
             comparisonValue: item.compare?.visits,
           })),
-          emptyMessage: t('emptyStates.noChannelData'),
         },
       ]}
+      footer={
+        <FilterPreservingLink
+          href={`/dashboard/${dashboardId}/referrers`}
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.referrers') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
     />
   );
 }

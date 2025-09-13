@@ -11,14 +11,14 @@ export async function BillingNavigationBanner() {
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-4'>
             <Link
-              href='/dashboard'
+              href='/dashboards'
               className='text-muted-foreground hover:text-foreground flex items-center gap-2'
             >
               <ArrowLeft className='h-4 w-4' />
-              {t('backToDashboard')}
+              {t('backToDashboards')}
             </Link>
             <div className='bg-border h-4 w-px' />
-            <h1 className='text-xl font-semibold'>{t('title')}</h1>
+            <h1 className='text-lg font-semibold'>{t('title')}</h1>
           </div>
         </div>
       </div>

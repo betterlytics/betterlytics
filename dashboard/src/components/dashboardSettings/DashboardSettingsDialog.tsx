@@ -111,7 +111,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
         <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-6'>
           <TabsList className={`grid w-full grid-cols-${SETTINGS_TABS.length}`}>
             {SETTINGS_TABS.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id}>
+              <TabsTrigger key={tab.id} value={tab.id} className='cursor-pointer'>
                 {tab.id === 'data' ? t('tabs.data') : t('tabs.danger')}
               </TabsTrigger>
             ))}
@@ -127,7 +127,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
           })}
 
           <div className='flex justify-end border-t pt-6'>
-            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged}>
+            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged} className='cursor-pointer'>
               {isPendingSave ? (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               ) : (

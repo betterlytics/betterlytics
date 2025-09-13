@@ -79,7 +79,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
           )}
 
           <div className='flex justify-end pt-4'>
-            <Button type='submit' disabled={isPending} className='h-10 w-full cursor-pointer rounded-xl sm:w-auto'>
+            <Button type='submit' disabled={isPending} className='h-10 w-full cursor-pointer rounded-md sm:w-auto'>
               {isPending ? t('creatingDashboard') : t('createDashboardButton')}
             </Button>
           </div>

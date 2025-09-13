@@ -8,11 +8,11 @@ type PrefixInputProps = ComponentProps<typeof Input> & {
 
 export function PrefixInput({ prefix, className, ...restProps }: PrefixInputProps) {
   return (
-    <div className='bg-input flex items-center rounded-xl'>
-      <div className='text-muted-foreground border-card-foreground/20 bg-card-foreground/20 flex h-10 items-center rounded-s-xl border px-2 text-sm'>
+    <div className='bg-input flex items-center rounded-md'>
+      <div className='text-muted-foreground border-card-foreground/20 bg-card-foreground/20 flex h-10 items-center rounded-s-md border px-2 text-sm'>
         {prefix}
       </div>
-      <Input {...restProps} className={cn('h-10 rounded-s-none rounded-e-xl', className)} />
+      <Input {...restProps} className={cn('h-10 rounded-s-none rounded-e-md', className)} />
     </div>
   );
 }

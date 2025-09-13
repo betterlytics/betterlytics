@@ -37,7 +37,7 @@ export default function BATopbar() {
 
   return (
     <>
-      <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
+      <header className='bg-sidebar/95 supports-[backdrop-filter]:bg-sidebar/80 sticky top-0 z-50 w-full border-b backdrop-blur'>
         <div className='mx-auto flex h-(--topbar-height) items-center justify-between px-8'>
           <div className='flex items-center space-x-2'>
             <NextLink href='/dashboards' className='flex items-center space-x-2'>
@@ -55,7 +55,10 @@ export default function BATopbar() {
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' className='flex h-10 items-center space-x-2 rounded-full px-3'>
+                    <Button
+                      variant='ghost'
+                      className='flex h-10 cursor-pointer items-center space-x-2 rounded-full px-3'
+                    >
                       <span className='text-foreground hidden text-sm font-medium sm:block'>
                         {session.user?.name || t('userFallback')}
                       </span>

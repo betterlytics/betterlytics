@@ -149,23 +149,16 @@ export async function getPagesSummaryWithChartsForSite(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<PagesSummaryWithCharts> {
-  const dailyGranularity: GranularityRangeValues = 'day';
-
   const [pageAnalytics, pageviewsChartData, dailyAvgTimeData, dailyBounceRateData, sessionMetricsData] =
     await Promise.all([
       getPageAnalytics(siteId, startDate, endDate, queryFilters),
-      getTotalPageViewsForSite(siteId, startDate, endDate, dailyGranularity, queryFilters),
-      getDailyAverageTimeOnPageForSite(siteId, startDate, endDate, dailyGranularity, queryFilters),
-      getDailyBounceRateForSite(siteId, startDate, endDate, dailyGranularity, queryFilters),
-      getSessionMetrics(
-        siteId,
-        toDateTimeString(startDate),
-        toDateTimeString(endDate),
-        dailyGranularity,
-        queryFilters,
-      ),
+      getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters),
+      getDailyAverageTimeOnPageForSite(siteId, startDate, endDate, granularity, queryFilters),
+      getDailyBounceRateForSite(siteId, startDate, endDate, granularity, queryFilters),
+      getSessionMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), granularity, queryFilters),
     ]);
 
   const totalPages = pageAnalytics.length;

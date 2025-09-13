@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { useTranslations } from 'next-intl';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DeviceUsageTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -49,7 +50,8 @@ export default function DeviceUsageTrendChart({
   comparisonMap,
   granularity,
 }: DeviceUsageTrendChartProps) {
-  const t = useTranslations('components.devices.trends');
+  const t = useTranslations('dashboard.emptyStates');
+  const isMobile = useIsMobile();
 
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
@@ -63,25 +65,32 @@ export default function DeviceUsageTrendChart({
   }
 
   return (
-    <div className='w-full'>
+    <div className='mt-10 w-full'>
       <div className='h-[250px] w-full'>
-        <ResponsiveContainer width='100%' height='100%'>
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray='3 3' vertical={false} stroke='#f1f5f9' />
+        <ResponsiveContainer width='100%' height='100%' className='mt-4'>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 10, right: isMobile ? 4 : 22, left: isMobile ? 4 : 22, bottom: 0 }}
+          >
+            <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
             <XAxis
               dataKey='date'
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 12 }}
-              tickMargin={10}
+              className='text-muted-foreground'
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+              tickMargin={6}
+              minTickGap={100}
               tickFormatter={(value) => format(new Date(value), 'MMM dd')}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 12 }}
-              tickMargin={10}
+              className='text-muted-foreground'
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
               tickFormatter={(val) => val.toLocaleString()}
+              width={40}
+              mirror={isMobile}
             />
             <RechartsTooltip
               content={(props) => (

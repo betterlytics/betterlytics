@@ -57,11 +57,11 @@ const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: Ev
   const totalFormatted = formatNumber(totalCount);
 
   if (loadedCount >= totalCount) {
-    return t('showingPartial', { count: totalFormatted });
+    return t('showingAll', { count: totalFormatted });
   }
 
   return t('showingPartial', {
-    loaded: loadedCount.toLocaleString(),
+    loaded: formatNumber(loadedCount),
     total: totalFormatted,
   });
 };

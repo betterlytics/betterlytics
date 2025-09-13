@@ -17,6 +17,7 @@ import { QueryFilter } from '@/entities/filter';
 import { toPieChart } from '@/presenters/toPieChart';
 import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
 
 /**
  * Fetches the referrer distribution data for a site
@@ -115,9 +116,50 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
  * Fetches the summary data with charts for referrers including referral sessions, total sessions, top referrer source, avg session duration, and chart data
  */
 export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    granularity: GranularityRangeValues,
+    queryFilters: QueryFilter[],
+  ) => {
     try {
-      const data = await getReferrerSummaryWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+      const raw = await getReferrerSummaryWithChartsForSite(
+        ctx.siteId,
+        startDate,
+        endDate,
+        granularity,
+        queryFilters,
+      );
+
+      const dateRange = { start: startDate, end: endDate };
+
+      const referralSessionsChartData = toSparklineSeries({
+        data: raw.referralSessionsChartData,
+        granularity,
+        dataKey: 'referralSessions',
+        dateRange,
+      });
+      const referralPercentageChartData = toSparklineSeries({
+        data: raw.referralPercentageChartData,
+        granularity,
+        dataKey: 'referralPercentage',
+        dateRange,
+      });
+      const avgSessionDurationChartData = toSparklineSeries({
+        data: raw.avgSessionDurationChartData,
+        granularity,
+        dataKey: 'avgSessionDuration',
+        dateRange,
+      });
+
+      const data = {
+        ...raw,
+        referralSessionsChartData,
+        referralPercentageChartData,
+        avgSessionDurationChartData,
+      };
+
       return { data };
     } catch (error) {
       console.error('Error fetching referrer summary with charts data:', error);
@@ -144,10 +186,10 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
       const compare =
         compareStartDate &&
         compareEndDate &&
-        (await getReferrerTableDataForSite(ctx.siteId, startDate, endDate, queryFilters, limit));
+        (await getReferrerTableDataForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit));
 
       return {
-        data: toDataTable({ data, compare, categoryKey: 'source_name' }),
+        data: toDataTable({ data, compare, categoryKey: 'source_url' }),
       };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);

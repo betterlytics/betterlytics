@@ -1,5 +1,5 @@
 import { FunnelDetails, FunnelPreview } from '@/entities/funnels';
-import { formatQueryFilter } from '@/utils/queryFilterFormatters';
+import { QueryFilter } from '@/entities/filter';
 
 export type PresentedFunnel = {
   visitorCount: {
@@ -7,20 +7,20 @@ export type PresentedFunnel = {
     max: number;
   };
   steps: {
-    filter: string;
+    queryFilter: QueryFilter;
     visitors: number;
     visitorsRatio: number;
     dropoffCount: number;
     dropoffRatio: number;
-    step: string[];
+    stepFilters: QueryFilter[];
   }[];
   biggestDropOff: {
-    filter: string;
+    queryFilter: QueryFilter;
     visitors: number;
     visitorsRatio: number;
     dropoffCount: number;
     dropoffRatio: number;
-    step: string[];
+    stepFilters: QueryFilter[];
   };
   conversionRate: number;
   name: string;
@@ -28,7 +28,7 @@ export type PresentedFunnel = {
 
 export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel {
   const stepVisitors = funnel.queryFilters.map((filter, index) => ({
-    filter: formatQueryFilter(filter),
+    queryFilter: filter,
     visitors: funnel.visitors[index],
   }));
 
@@ -37,23 +37,23 @@ export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel
     max: Math.max(...(funnel.visitors.length > 0 ? funnel.visitors : [1])),
   };
 
-  const steps = stepVisitors.map(({ filter, visitors }, index) => {
+  const steps = stepVisitors.map(({ queryFilter, visitors }, index) => {
     const actualVisitors = visitors || 0;
 
     const nextStep = stepVisitors[index + 1]
       ? stepVisitors[index + 1]
-      : { visitors: visitorCount.max, filter: '' };
+      : { visitors: visitorCount.max, queryFilter: queryFilter };
 
     nextStep.visitors = nextStep.visitors || 0;
     const dropoffRatio = actualVisitors ? 1 - nextStep.visitors / (actualVisitors || 1) : 0;
 
     return {
-      filter,
+      queryFilter,
       visitors,
       visitorsRatio: actualVisitors / (visitorCount.max || 1),
       dropoffCount: actualVisitors - nextStep.visitors,
       dropoffRatio: dropoffRatio,
-      step: [filter, nextStep.filter],
+      stepFilters: [queryFilter, nextStep.queryFilter],
     };
   });
 

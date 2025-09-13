@@ -160,7 +160,7 @@ export default function LoginForm() {
         <button
           type='submit'
           disabled={isPending || isDialogOpen}
-          className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex w-full cursor-pointer justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
+          className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex h-10 w-full cursor-pointer justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
         >
           {isPending || isDialogOpen ? 'Signing in...' : 'Sign in'}
         </button>

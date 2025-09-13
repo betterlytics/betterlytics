@@ -20,7 +20,7 @@ export function ActiveUsersLabel() {
   });
 
   return (
-    <div className='text-muted-foreground flex items-center gap-4 pl-4.5 text-xs font-medium'>
+    <div className='text-muted-foreground flex items-center gap-4 pl-4 text-xs font-medium'>
       <div className='relative flex items-center justify-center pb-1'>
         <LiveIndicator />
       </div>

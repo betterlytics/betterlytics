@@ -131,17 +131,17 @@ export async function getReferrerSummaryWithChartsForSite(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ): Promise<ReferrerSummaryWithCharts> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  const dailyGranularity: GranularityRangeValues = 'day';
 
   const [referralSessionsChartData, referralPercentageChartData, avgSessionDurationChartData, topReferrerSource] =
     await Promise.all([
-      getDailyReferralSessions(siteId, formattedStart, formattedEnd, dailyGranularity, queryFilters),
-      getDailyReferralTrafficPercentage(siteId, formattedStart, formattedEnd, dailyGranularity, queryFilters),
-      getDailyReferralSessionDuration(siteId, formattedStart, formattedEnd, dailyGranularity, queryFilters),
+      getDailyReferralSessions(siteId, formattedStart, formattedEnd, granularity, queryFilters),
+      getDailyReferralTrafficPercentage(siteId, formattedStart, formattedEnd, granularity, queryFilters),
+      getDailyReferralSessionDuration(siteId, formattedStart, formattedEnd, granularity, queryFilters),
       getTopReferrerSource(siteId, formattedStart, formattedEnd, queryFilters),
     ]);
 

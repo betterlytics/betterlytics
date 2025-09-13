@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference, defaultDateLabelFormatter } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
+import { Separator } from '@/components/ui/separator';
 
 interface PayloadEntry {
   value: number;
@@ -58,91 +59,75 @@ export function StackedAreaChartTooltip({
   const sortedPayload = [...payload].sort((a, b) => getCurrentValue(b) - getCurrentValue(a));
 
   const totalTrend = getTrendInfo(currentTotal, compareTotal, hasComparison);
-  const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter);
+  const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false);
 
   return (
-    <div className='animate-in zoom-in-95 border-border bg-popover/95 min-w-[220px] rounded-lg border p-4 shadow-xl backdrop-blur-sm'>
-      <div className='border-border mb-3 border-b pb-2'>
-        <div className='space-y-1'>
-          <span className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
-            {labelFormatter(label, granularity)}
-          </span>
-          {hasComparison && comparisonData && (
-            <div className='text-muted-foreground text-xs'>
-              vs {labelFormatter(comparisonData.compareDate, granularity)}
-            </div>
-          )}
+    <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
+      <div className='mb-2'>
+        <div className='text-muted-foreground text-sm font-medium tracking-wide'>
+          {labelFormatter(label, granularity)}
         </div>
-      </div>
-
-      <div className='mb-3'>
-        <div className='flex items-start justify-between'>
-          <div>
-            <div className='text-muted-foreground mb-1 text-xs'>Current Total</div>
-            <div className='text-popover-foreground text-lg font-semibold'>{formatter(currentTotal)}</div>
-          </div>
-
-          {hasComparison && (
-            <div className='text-right'>
-              <div className='text-muted-foreground mb-1 text-xs'>Previous Total</div>
-              <div className='text-popover-foreground/80 text-sm'>{formatter(compareTotal)}</div>
-            </div>
-          )}
-        </div>
-
-        {hasComparison && totalDifference && (
-          <div className='mt-2'>
-            <div
-              className={cn(
-                'flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium',
-                totalTrend.bgColor,
-              )}
-            >
-              <totalTrend.icon className={cn('h-3 w-3', totalTrend.color)} />
-              <span className={totalTrend.color}>{totalDifference}</span>
-            </div>
+        {hasComparison && comparisonData && (
+          <div className='text-muted-foreground/60 mt-0.5 text-sm'>
+            {labelFormatter(comparisonData.compareDate, granularity)}
           </div>
         )}
       </div>
 
-      <div className='space-y-2'>
-        <div className='text-muted-foreground text-xs'>Breakdown</div>
-        <div className='space-y-2'>
-          {sortedPayload.map((entry, index) => {
-            const currentValue = getCurrentValue(entry);
-            const compareValue = getCompareValue(entry);
-            const trend = getTrendInfo(currentValue, compareValue, hasComparison);
-            const difference = formatDifference(currentValue, compareValue, hasComparison, formatter);
+      <Separator />
 
-            return (
-              <div key={entry.dataKey || index} className='space-y-1'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-2'>
-                    <div className='h-2 w-2 rounded-full' style={{ backgroundColor: entry.color }} />
-                    <span className='text-popover-foreground/80 text-sm'>{entry.name || entry.dataKey}</span>
-                  </div>
+      <div className='mt-2 space-y-2'>
+        {sortedPayload.map((entry, index) => {
+          const currentValue = getCurrentValue(entry);
+          const compareValue = getCompareValue(entry);
+          const trend = getTrendInfo(currentValue, compareValue, hasComparison);
+          const difference = formatDifference(currentValue, compareValue, hasComparison, formatter, false);
+
+          return (
+            <div key={entry.dataKey || index} className='space-y-1'>
+              <div className='flex items-center justify-between gap-3'>
+                <div className='flex items-center gap-2'>
+                  <div className='h-2 w-2 rounded-full' style={{ backgroundColor: entry.color }} />
+                  <span className='text-popover-foreground text-sm'>{entry.name || entry.dataKey}</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  {hasComparison && (
+                    <>
+                      {difference && (
+                        <div className='flex items-center gap-1 text-sm font-medium'>
+                          <trend.icon className={cn('h-3 w-3', trend.color)} fill='currentColor' />
+                          <span className={trend.color}>{difference}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                   <span className='text-popover-foreground text-sm font-medium'>{formatter(currentValue)}</span>
                 </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
-                {hasComparison && (
-                  <div className='ml-4 flex items-center justify-between text-xs'>
-                    <span className='text-muted-foreground'>vs {formatter(compareValue)}</span>
-                    {difference && (
-                      <div
-                        className={cn(
-                          'ml-1 flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium',
-                          trend.bgColor,
-                        )}
-                      >
-                        <trend.icon className={cn('h-3 w-3', trend.color)} />
-                        <span className={trend.color}>{difference}</span>
-                      </div>
-                    )}
+      <div className='mt-3'>
+        <div className='flex items-center justify-between gap-3'>
+          <div className='flex items-center gap-2'>
+            <div className='w-2 shrink-0' />
+            <span className='text-popover-foreground text-sm font-medium'>Total</span>
+          </div>
+          <div className='flex items-center gap-2'>
+            {hasComparison && (
+              <>
+                {totalDifference && (
+                  <div className='flex items-center gap-1 text-sm font-medium'>
+                    <totalTrend.icon className={cn('h-3 w-3', totalTrend.color)} fill='currentColor' />
+                    <span className={totalTrend.color}>{totalDifference}</span>
                   </div>
                 )}
-              </div>
-            );
-          })}
+              </>
+            )}
+            <span className='text-popover-foreground text-sm font-medium'>{formatter(currentTotal)}</span>
+          </div>
         </div>
       </div>
     </div>

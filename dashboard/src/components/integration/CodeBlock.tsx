@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useRef } from 'react';
 import Prism from 'prismjs';
@@ -21,8 +21,11 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   }, [code, language]);
 
   return (
-    <pre ref={codeRef} className={`language-${language} bg-neutral-900 p-4 rounded-md overflow-x-auto text-sm`}>
+    <pre
+      ref={codeRef}
+      className={`language-${language} dark:bg-input/30 overflow-x-auto rounded-md bg-transparent p-4 text-sm`}
+    >
       <code className={`language-${language}`}>{code}</code>
     </pre>
   );
-} 
+}

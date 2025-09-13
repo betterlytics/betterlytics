@@ -33,7 +33,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   tableRef,
 }: DataTableProps<TData, TValue>) {
-  const t = useTranslations('components.dataTable');
+  const t = useTranslations('dashboard.emptyStates');
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
@@ -57,18 +57,21 @@ export function DataTable<TData, TValue>({
   }, []);
 
   return (
-    <div className={`rounded-lg ${className || ''} overflow-hidden border border-gray-200 dark:border-slate-700`}>
+    <div
+      className={`rounded-lg ${className || ''} dark:border-secondary overflow-hidden border border-gray-200 dark:border-2`}
+    >
       <Table>
-        <TableHeader className='bg-gray-50 dark:bg-slate-800'>
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className='border-b border-gray-200 dark:border-slate-700'>
+            <TableRow
+              key={headerGroup.id}
+              className='border-muted-foreground bg-table-header hover:bg-table-header border-b'
+            >
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className={`px-4 py-3 text-left text-sm font-medium text-slate-500 dark:text-slate-400 ${
-                    header.column.getCanSort()
-                      ? 'cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-slate-700'
-                      : ''
+                  className={`text-foreground dark:bg-muted/50 px-3 py-3 text-left text-sm font-medium sm:px-6 ${
+                    header.column.getCanSort() ? 'hover:!bg-table-header-hover cursor-pointer select-none' : ''
                   }`}
                   onClick={header.column.getToggleSortingHandler()}
                 >
@@ -89,7 +92,7 @@ export function DataTable<TData, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className='divide-y divide-gray-200 bg-white dark:divide-slate-700 dark:bg-slate-900'>
+        <TableBody className='divide-secondary divide-y'>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
@@ -98,7 +101,10 @@ export function DataTable<TData, TValue>({
                 onClick={() => onRowClick && onRowClick(row)}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className='px-4 py-3 text-sm text-slate-700 dark:text-slate-300'>
+                  <TableCell
+                    key={cell.id}
+                    className='px-3 py-3 text-sm text-slate-700 sm:px-6 dark:text-slate-300'
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -106,11 +112,13 @@ export function DataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className='h-24 px-4 py-3 text-center text-gray-500 dark:text-slate-400'
-              >
-                {t('noResults')}
+              <TableCell colSpan={columns.length}>
+                <div className='flex h-[300px] items-center justify-center'>
+                  <div className='text-center'>
+                    <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+                    <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+                  </div>
+                </div>
               </TableCell>
             </TableRow>
           )}

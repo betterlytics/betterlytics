@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { fetchFunnelDetailsAction } from '@/app/actions';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
+import { formatQueryFilter } from '@/utils/queryFilterFormatters';
 
 type FunnelSummarySectionProps = {
   funnelPromise: ReturnType<typeof fetchFunnelDetailsAction>;
@@ -12,6 +13,10 @@ type FunnelSummarySectionProps = {
 export default function FunnelSummarySection({ funnelPromise }: FunnelSummarySectionProps) {
   const funnel = use(funnelPromise);
   const t = useTranslations('components.funnels.details');
+  const tFilters = useTranslations('components.filters');
+
+  const firstFilter = formatQueryFilter(funnel.biggestDropOff.stepFilters[0], tFilters);
+  const secondFilter = formatQueryFilter(funnel.biggestDropOff.stepFilters[1], tFilters);
 
   const cards: SummaryCardData[] = [
     {
@@ -30,8 +35,8 @@ export default function FunnelSummarySection({ funnelPromise }: FunnelSummarySec
       title: t('summary.biggestDropOff'),
       value: (
         <span className='flex overflow-hidden overflow-x-auto text-sm text-ellipsis'>
-          {funnel.biggestDropOff.step[0]} <ArrowRight className='mx-1 max-w-[1rem] min-w-[1rem]' />{' '}
-          {funnel.biggestDropOff.step[1]}
+          {firstFilter} <ArrowRight className='mx-1 max-w-[1rem] min-w-[1rem]' />{' '}
+          {secondFilter}
         </span>
       ),
     },

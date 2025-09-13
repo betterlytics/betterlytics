@@ -2,6 +2,8 @@ import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
+type RefreshIntervalValue = 'off' | '30s' | '60s' | '120s';
+
 type TimeRangeContextProps = {
   startDate: Date;
   endDate: Date;
@@ -13,6 +15,8 @@ type TimeRangeContextProps = {
   compareStartDate?: Date;
   compareEndDate?: Date;
   setCompareDateRange: (startDate: Date, endDate: Date) => void;
+  autoRefreshInterval: RefreshIntervalValue;
+  setAutoRefreshInterval: Dispatch<SetStateAction<RefreshIntervalValue>>;
 };
 
 const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRangeContextProps);
@@ -33,6 +37,7 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
     defaultFilters.compareStartDate,
   );
   const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(defaultFilters.compareEndDate);
+  const [autoRefreshInterval, setAutoRefreshInterval] = React.useState<RefreshIntervalValue>('off');
 
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
     setStartDate(newStartDate);
@@ -57,6 +62,8 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         compareStartDate,
         compareEndDate,
         setCompareDateRange: handleSetCompareDateRange,
+        autoRefreshInterval,
+        setAutoRefreshInterval,
       }}
     >
       {children}

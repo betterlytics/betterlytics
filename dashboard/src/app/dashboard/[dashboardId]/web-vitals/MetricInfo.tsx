@@ -1,8 +1,8 @@
 'use client';
 
 import { Info } from 'lucide-react';
-import { TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import { formatCWV } from '@/utils/formatters';
 import type { CoreWebVitalName } from '@/entities/webVitals';
@@ -18,7 +18,7 @@ export default function MetricInfo({ metric, iconClassName = 'h-4 w-4', triggerC
   const t = useTranslations('components.webVitals');
   return (
     <TooltipProvider delayDuration={250}>
-      <TooltipPrimitive.Root>
+      <Tooltip>
         <TooltipTrigger asChild>
           <button
             type='button'
@@ -28,10 +28,13 @@ export default function MetricInfo({ metric, iconClassName = 'h-4 w-4', triggerC
             <Info className={iconClassName} />
           </button>
         </TooltipTrigger>
-        <TooltipContent side='bottom'>
+        <TooltipContent
+          side='bottom'
+          className='border-border bg-popover/95 text-popover-foreground rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
+        >
           <div className='max-w-[260px] space-y-2'>
-            <p className='text-primary-foreground/90'>{t(`info.descriptions.${metric}`)}</p>
-            <div className='bg-primary-foreground/20 h-px' />
+            <p className='text-popover-foreground/90'>{t(`info.descriptions.${metric}`)}</p>
+            <Separator className='bg-popover-foreground/20' />
             <div className='text-[11px] leading-4'>
               <div>
                 <span className='opacity-80'>{t('info.good')}:</span> ≤{' '}
@@ -44,7 +47,7 @@ export default function MetricInfo({ metric, iconClassName = 'h-4 w-4', triggerC
             </div>
           </div>
         </TooltipContent>
-      </TooltipPrimitive.Root>
+      </Tooltip>
     </TooltipProvider>
   );
 }

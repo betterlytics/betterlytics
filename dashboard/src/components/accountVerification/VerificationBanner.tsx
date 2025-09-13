@@ -77,7 +77,7 @@ export function VerificationBanner({
                 variant='ghost'
                 size='sm'
                 onClick={handleDismiss}
-                className='h-8 w-8 flex-shrink-0 p-0 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200'
+                className='h-8 w-8 flex-shrink-0 cursor-pointer p-0 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200'
               >
                 <X className='h-4 w-4' />
                 <span className='sr-only'>{t('dismiss')}</span>
@@ -92,7 +92,7 @@ export function VerificationBanner({
                 size='sm'
                 onClick={handleResendVerification}
                 disabled={isPending}
-                className='flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-900/50'
+                className='flex cursor-pointer items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-900/50'
               >
                 <Mail className='h-4 w-4' />
                 {isPending ? t('sending') : t('resend')}

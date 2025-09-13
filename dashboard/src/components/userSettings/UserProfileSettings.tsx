@@ -100,7 +100,12 @@ export default function UserProfileSettings() {
             <Input id='email' type='email' value={email} disabled readOnly />
           </div>
 
-          <Button type='submit' disabled={isPending || !isFormChanged} className='w-full sm:w-auto' tabIndex={4}>
+          <Button
+            type='submit'
+            disabled={isPending || !isFormChanged}
+            className='w-full cursor-pointer sm:w-auto'
+            tabIndex={4}
+          >
             {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
             {t('updateButton')}
           </Button>
