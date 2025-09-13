@@ -8,6 +8,7 @@ import { getDeviceColor, getDeviceLabel } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type DevicesChartsSectionProps = {
   deviceBreakdownPromise: ReturnType<typeof fetchDeviceTypeBreakdownAction>;
@@ -25,26 +26,32 @@ export default function DevicesChartsSection({
 
   return (
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
-      <div className='bg-card border-border rounded-xl border px-1 py-6 shadow sm:px-6 xl:col-span-5'>
-        <h2 className='text-foreground mb-1 px-5 text-lg font-medium sm:px-0'>{t('deviceUsageTrend')}</h2>
-        <DeviceUsageTrendChart
-          chartData={deviceUsageTrend.data}
-          categories={deviceUsageTrend.categories}
-          comparisonMap={deviceUsageTrend.comparisonMap}
-          granularity={granularity}
-        />
-      </div>
-      <div className='bg-card border-border rounded-xl border p-6 shadow xl:col-span-3'>
-        <h2 className='text-foreground mb-1 text-lg font-medium'>{t('deviceTypes')}</h2>
-        <div className='mt-6'>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3 xl:col-span-5'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-lg font-medium'>{t('deviceUsageTrend')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
+          <DeviceUsageTrendChart
+            chartData={deviceUsageTrend.data}
+            categories={deviceUsageTrend.categories}
+            comparisonMap={deviceUsageTrend.comparisonMap}
+            granularity={granularity}
+          />
+        </CardContent>
+      </Card>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3 xl:col-span-3'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-lg font-medium'>{t('deviceTypes')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
           <BAPieChart
             data={deviceBreakdown}
             getColor={getDeviceColor}
             getLabel={getDeviceLabel}
             getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
           />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

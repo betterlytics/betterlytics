@@ -5,6 +5,7 @@ import BrowserTable from '@/components/analytics/BrowserTable';
 import OperatingSystemTable from '@/components/analytics/OperatingSystemTable';
 import { fetchBrowserBreakdownAction, fetchOperatingSystemBreakdownAction } from '@/app/actions';
 import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type DevicesTablesSectionProps = {
   browserStatsPromise: ReturnType<typeof fetchBrowserBreakdownAction>;
@@ -18,14 +19,22 @@ export default function DevicesTablesSection({ browserStatsPromise, osStatsPromi
 
   return (
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-2'>
-      <div className='bg-card border-border rounded-xl border px-3 py-6 shadow sm:px-6'>
-        <h2 className='text-foreground mb-1 px-0 text-lg font-medium'>{t('topOperatingSystems')}</h2>
-        <OperatingSystemTable data={osStats} />
-      </div>
-      <div className='bg-card border-border rounded-xl border px-3 py-6 shadow sm:px-6'>
-        <h2 className='text-foreground mb-1 px-0 text-lg font-medium'>{t('topBrowsers')}</h2>
-        <BrowserTable data={browserStats} />
-      </div>
+      <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-lg font-medium'>{t('topOperatingSystems')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
+          <OperatingSystemTable data={osStats} />
+        </CardContent>
+      </Card>
+      <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-lg font-medium'>{t('topBrowsers')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
+          <BrowserTable data={browserStats} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
