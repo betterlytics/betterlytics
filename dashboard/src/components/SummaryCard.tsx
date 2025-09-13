@@ -73,7 +73,7 @@ const SummaryCard = React.memo(
 
     return (
       <Card
-        className={`group relative overflow-hidden rounded-xl py-4 transition-all duration-200 ${
+        className={`group relative overflow-hidden rounded-xl py-0 transition-all duration-200 ${
           onClick
             ? 'hover:border-primary/40 hover:bg-accent/20 cursor-pointer hover:scale-[1.02] hover:shadow-lg'
             : ''
@@ -112,9 +112,9 @@ const SummaryCard = React.memo(
           </div>
         )}
 
-        <CardContent className='relative z-10 flex h-full flex-col justify-between space-y-0 px-3 py-2 sm:px-6'>
-          <div className='mb-2 flex items-center justify-between'>
-            <span className='text-foreground text-base/tight font-medium hyphens-auto'>{title}</span>
+        <CardContent className='relative z-10 flex h-full flex-col justify-between space-y-0 px-2 py-2 pb-4 sm:px-3 sm:pb-3'>
+          <div className='mb-1 flex items-center justify-between'>
+            <span className='text-foreground text-sm font-medium hyphens-auto lg:text-base'>{title}</span>
             {onClick && (
               <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
                 <MousePointerClick className='text-foreground/60 h-4 w-4' />
