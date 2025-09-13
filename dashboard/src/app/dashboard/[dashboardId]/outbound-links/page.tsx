@@ -4,7 +4,6 @@ import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import {
   fetchOutboundLinksAnalyticsAction,
-  fetchOutboundLinksSummaryWithChartsAction,
   fetchOutboundClicksChartAction,
   fetchOutboundLinksDistributionAction,
 } from '@/app/actions/outboundLinks';
@@ -14,7 +13,6 @@ import OutboundLinksChartSection from './OutboundLinksChartSection';
 import OutboundLinksPieChart from './OutboundLinksPieChart';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { ActiveQueryFilters } from '@/components/filters/ActiveQueryFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 
@@ -67,8 +65,6 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
       <DashboardHeader title={t('outboundLinks')}>
         <DashboardFilters />
       </DashboardHeader>
-
-      <ActiveQueryFilters />
 
       <div className='grid grid-cols-1 gap-4 xl:grid-cols-3'>
         <Suspense fallback={<ChartSkeleton />}>
