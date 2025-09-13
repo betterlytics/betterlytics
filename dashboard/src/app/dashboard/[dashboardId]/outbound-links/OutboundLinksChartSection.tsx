@@ -21,7 +21,7 @@ export default function OutboundLinksChartSection({ outboundClicksChartPromise }
       <CardHeader className='px-0 pb-0'>
         <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='px-0'>
+      <CardContent className='mt-4 px-0'>
         <OutboundLinksTrendChart
           chartData={chartData.data}
           comparisonMap={chartData.comparisonMap}

@@ -50,9 +50,9 @@ export default function OutboundLinksTrendChart({
   }
 
   return (
-    <div className='mt-10 h-[300px] w-full'>
+    <div className='h-[300px] w-full'>
       <ResponsiveContainer width='100%' height='100%' className='mt-4'>
-        <AreaChart data={chartData} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
+        <AreaChart data={chartData} margin={{ top: 10, bottom: 0, right: 1 }}>
           <defs>
             <linearGradient id={`gradient-outbound`} x1='0' y1='0' x2='0' y2='1'>
               <stop offset='5%' stopColor={color} stopOpacity={0.3} />
