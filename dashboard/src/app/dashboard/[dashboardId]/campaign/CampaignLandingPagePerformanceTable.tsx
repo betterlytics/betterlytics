@@ -6,6 +6,7 @@ import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CampaignLandingPagePerformanceTableProps {
   data: CampaignLandingPagePerformanceItem[];
@@ -57,11 +58,13 @@ export default function CampaignLandingPagePerformanceTable({ data }: CampaignLa
     },
   ];
   return (
-    <div className='bg-card border-border col-span-1 rounded-xl border px-3 py-6 shadow sm:px-6 lg:col-span-3'>
-      <h2 className='text-foreground mb-1 px-0 text-lg font-medium'>{t('title')}</h2>
-      <div className='mt-4'>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
+      <CardHeader className='px-0 pb-0'>
+        <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
+      </CardHeader>
+      <CardContent className='px-0'>
         <DataTable columns={columns} data={data} defaultSorting={[{ id: 'visitors', desc: true }]} />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
