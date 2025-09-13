@@ -9,6 +9,7 @@ import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
+import { formatNumber } from '@/utils/formatters';
 
 type TableOutboundLinkRow = Awaited<ReturnType<typeof fetchOutboundLinksAnalyticsAction>>[number];
 
@@ -45,7 +46,7 @@ export default function OutboundLinksTableSection({
       {
         accessorKey: 'clicks',
         header: t('uniqueClicks'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='clicks' />,
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='clicks' formatter={formatNumber} />,
         accessorFn: (row) => row.current.clicks,
       },
       {
@@ -57,7 +58,9 @@ export default function OutboundLinksTableSection({
       {
         accessorKey: 'source_url_count',
         header: t('sourcePages'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='source_url_count' />,
+        cell: ({ row }) => (
+          <TableCompareCell row={row.original} dataKey='source_url_count' formatter={formatNumber} />
+        ),
         accessorFn: (row) => row.current.source_url_count,
       },
     ],
@@ -67,7 +70,7 @@ export default function OutboundLinksTableSection({
   return (
     <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
       <CardHeader className='px-0 pb-0'>
-        <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
+        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className='px-0'>
         <DataTable data={outboundLinksData} columns={columns} />

@@ -8,7 +8,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ title, children }: DashboardHeaderProps) {
   return (
     <div className='mb-4 flex flex-col justify-between gap-2 lg:flex-row'>
-      <h1 className='pt-1 text-2xl font-semibold sm:pl-1'>{title}</h1>
+      <h1 className='pt-1 text-xl font-semibold sm:pl-1'>{title}</h1>
       {children}
     </div>
   );
