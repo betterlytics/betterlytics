@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
+import { formatNumber } from '@/utils/formatters';
 
 interface ChartTooltipProps {
   payload?: {
@@ -70,7 +71,9 @@ export function ChartTooltip({
             <div className='bg-primary h-2 w-2 rounded-full' style={{ background: labelColor }} />
             <span className='text-popover-foreground text-sm'>{labelFormatter(name)}</span>
           </div>
-          <div className='text-popover-foreground text-sm font-medium'>{formatter ? formatter(value) : value}</div>
+          <div className='text-popover-foreground text-sm font-medium'>
+            {formatter ? formatter(value) : formatNumber(value)}
+          </div>
         </div>
 
         {hasComparison && previousDateLabel !== undefined && (
@@ -80,7 +83,7 @@ export function ChartTooltip({
               <span className='text-popover-foreground/60 text-sm'>{previousDateLabel}</span>
             </div>
             <div className='text-popover-foreground/60 text-sm'>
-              {formatter ? formatter(previousValue as number) : (previousValue as number)}
+              {formatter ? formatter(previousValue as number) : formatNumber(previousValue as number)}
             </div>
           </div>
         )}
