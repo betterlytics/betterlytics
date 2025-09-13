@@ -57,7 +57,7 @@ export default function UsageUpgradeBanner({ billingDataPromise }: UsageUpgradeB
             <Button
               asChild
               size='sm'
-              className='h-7 bg-white/80 px-4 py-1 text-xs font-semibold text-red-600 shadow-sm hover:bg-gray-100'
+              className='h-7 cursor-pointer bg-white/80 px-4 py-1 text-xs font-semibold text-red-600 shadow-sm hover:bg-gray-100'
             >
               <Link href='/billing'>{t('upgradeCta')}</Link>
             </Button>
