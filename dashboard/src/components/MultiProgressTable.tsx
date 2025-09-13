@@ -106,7 +106,7 @@ function MultiProgressTable<T extends ProgressBarData>({
           <TabsTrigger
             key={tab.key}
             value={tab.key}
-            className='hover:bg-accent cursor-pointer px-3 py-1 text-xs font-medium'
+            className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
           >
             {tab.label}
           </TabsTrigger>
