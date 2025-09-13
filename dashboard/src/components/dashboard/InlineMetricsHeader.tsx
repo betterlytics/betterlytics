@@ -101,7 +101,7 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
             >
               <div className='mb-1 flex items-center justify-between'>
                 <span
-                  className={`text-base font-medium ${
+                  className={`text-base/tight font-medium ${
                     card.isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
                   }`}
                 >
@@ -113,7 +113,7 @@ export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: In
               </div>
               <div className='flex items-center justify-between gap-2'>
                 {card.icon && <div className='text-muted-foreground pt-1'>{card.icon}</div>}
-                <span className='text-foreground text-xl font-semibold tracking-tight group-hover:opacity-90'>
+                <span className='text-foreground text-2xl font-semibold tracking-tight group-hover:opacity-90'>
                   {card.value}
                 </span>
                 {trend && trend.direction !== 'neutral' && (
