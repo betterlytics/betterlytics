@@ -50,7 +50,7 @@ export default function CampaignPerformanceTable({ data }: CampaignPerformanceTa
   ];
 
   return (
-    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-4'>
       <CardHeader className='px-0 pb-0'>
         <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
       </CardHeader>
