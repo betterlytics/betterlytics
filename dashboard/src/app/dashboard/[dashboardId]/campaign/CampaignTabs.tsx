@@ -43,17 +43,23 @@ export default function CampaignTabs({
 
   const renderTabs = () => (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className='h-8'>
-      <TabsList className='bg-muted/30 inline-grid h-8 w-fit grid-cols-3 gap-1 px-3'>
-        <TabsTrigger value='overview' className='hover:bg-accent cursor-pointer px-3 py-1 text-xs font-medium'>
+      <TabsList className='bg-secondary grid w-full grid-cols-3 gap-1 px-1 inset-shadow-sm'>
+        <TabsTrigger
+          value='overview'
+          className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+        >
           {t('overview')}
         </TabsTrigger>
         <TabsTrigger
           value='utmBreakdowns'
-          className='hover:bg-accent cursor-pointer px-3 py-1 text-xs font-medium'
+          className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
         >
           {t('utmBreakdowns')}
         </TabsTrigger>
-        <TabsTrigger value='landingPages' className='hover:bg-accent cursor-pointer px-3 py-1 text-xs font-medium'>
+        <TabsTrigger
+          value='landingPages'
+          className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+        >
           {t('landingPages')}
         </TabsTrigger>
       </TabsList>

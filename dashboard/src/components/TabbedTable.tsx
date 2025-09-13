@@ -84,7 +84,7 @@ function TabbedTable<TData>({
             <div className='flex w-full items-center gap-4 sm:justify-end'>
               {tabsRowLeftMobile && <div className='w-full sm:hidden'>{tabsRowLeftMobile}</div>}
               <TabsList
-                className={`grid grid-cols-${tabs.length} bg-muted/30 w-full gap-1 px-0 ${hideTabsListOnMobile ? 'hidden sm:grid' : ''}`}
+                className={`grid grid-cols-${tabs.length} bg-secondary w-full gap-1 px-1 inset-shadow-sm ${hideTabsListOnMobile ? 'hidden sm:grid' : ''}`}
               >
                 {tabs.map((tab) => (
                   <TabsTrigger
