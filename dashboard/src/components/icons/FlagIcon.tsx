@@ -26,7 +26,7 @@ function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps
   }
 
   return (
-    <span title={countryName || 'Unknown'} className='flex items-center justify-center'>
+    <span title={countryName || 'Unknown'} className='relative flex items-center justify-center'>
       <FlagComponent
         {...props}
         className='shadow-foreground/80 dark:shadow-background/50 inline-block !h-[1.15em] rounded-xs shadow-sm dark:rounded-none'
@@ -38,6 +38,7 @@ function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps
           display: 'inline-block',
         }}
       />
+      <div className='absolute h-full w-full rounded-xs border border-x-gray-900/40 border-y-gray-900/30 bg-gradient-to-b from-white/20 to-white/5 bg-origin-padding dark:rounded-none'></div>
     </span>
   );
 }
