@@ -39,7 +39,7 @@ type InlineMetricsHeaderProps = {
 export default function InlineMetricsHeader({ cards, widthClass, pinFooter }: InlineMetricsHeaderProps) {
   const widthClasses = widthClass || 'sm:w-[228px] md:w-[228px]';
   return (
-    <div className='grid grid-cols-2 gap-1 px-1 lg:grid-cols-3 xl:grid-flow-col xl:grid-cols-none'>
+    <div className='grid grid-cols-2 gap-1 lg:grid-cols-3 xl:grid-flow-col xl:grid-cols-none'>
       {cards.map((card, idx) => {
         const trend = calculateTrend(card.comparePercentage);
 

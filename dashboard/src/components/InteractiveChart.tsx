@@ -35,7 +35,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const isMobile = useIsMobile();
     return (
-      <Card className='pt-2 sm:pt-4'>
+      <Card className='px-2 pt-2 pb-4 sm:pt-4 sm:pb-5'>
         {title && (
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pt-2 pb-2'>
             <CardTitle className='text-lg font-medium'>{title}</CardTitle>
@@ -44,12 +44,9 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
-          <div className='h-80 px-2 py-1 md:px-4'>
+          <div className='h-80 py-1 sm:px-2 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
-              <ComposedChart
-                data={data}
-                margin={{ top: 10, right: isMobile ? 4 : 22, left: isMobile ? 4 : 22, bottom: 0 }}
-              >
+              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
                     <stop offset='5%' stopColor={color} stopOpacity={0.3} />
