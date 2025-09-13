@@ -23,12 +23,7 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
   };
 };
 
-export function dataToAreaChart<K extends string>({
-  dataKey,
-  data,
-  granularity,
-  dateRange,
-}: DataToAreaChartProps<K>) {
+function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRange }: DataToAreaChartProps<K>) {
   // Map date to value
   const groupedData = data.reduce(
     (group, row) => {
