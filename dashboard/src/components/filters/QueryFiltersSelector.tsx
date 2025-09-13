@@ -130,7 +130,9 @@ export default function QueryFiltersSelector() {
           <Button
             variant='secondary'
             role='combobox'
-            className={'min-w-[200px] cursor-pointer justify-between border shadow-sm'}
+            className={
+              'dark:bg-secondary bg-popover min-w-[200px] cursor-pointer justify-between border shadow-sm'
+            }
           >
             <div className='flex items-center gap-2'>
               <FilterIcon className='h-4 w-4' />
@@ -139,7 +141,7 @@ export default function QueryFiltersSelector() {
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='bg-secondary top-[40%] max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto p-4'>
+        <DialogContent className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto px-2 py-3'>
           <DialogHeader>
             <DialogTitle>{t('selector.title')}</DialogTitle>
           </DialogHeader>
