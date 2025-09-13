@@ -103,7 +103,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[80vh] overflow-y-auto sm:max-w-[700px]'>
+      <DialogContent className='max-h-[80vh] overflow-y-auto p-3 sm:max-w-[700px] sm:p-6'>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
