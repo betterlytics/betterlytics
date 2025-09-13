@@ -41,49 +41,52 @@ function MultiProgressTable<T extends ProgressBarData>({
     setActiveTab(value);
   }, []);
 
-  const renderProgressList = useCallback((data: T[]) => {
-    const maxVisitors = Math.max(...data.map((item) => item.value), 1);
-    const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
+  const renderProgressList = useCallback(
+    (data: T[]) => {
+      const maxVisitors = Math.max(...data.map((item) => item.value), 1);
+      const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
 
-    if (data.length === 0) {
-      return (
-        <div className='flex h-[300px] items-center justify-center'>
-          <div className='text-center'>
-            <p className='text-muted-foreground mb-1'>{t('noData')}</p>
-            <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+      if (data.length === 0) {
+        return (
+          <div className='flex h-[300px] items-center justify-center'>
+            <div className='text-center'>
+              <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+              <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+            </div>
           </div>
+        );
+      }
+
+      const someComparison = data.some((row) => row.comparisonValue);
+
+      return (
+        <div className='space-y-2'>
+          {data.map((item, index) => {
+            const relativePercentage = (item.value / maxVisitors) * 100;
+            const percentage = (item.value / total) * 100;
+            return (
+              <div key={item.key ?? item.label} className='group relative'>
+                <PropertyValueBar
+                  value={{
+                    value: item.label,
+                    count: item.value,
+                    relativePercentage: Math.max(relativePercentage, 2),
+                    percentage: percentage,
+                    trendPercentage: item.trendPercentage,
+                    comparisonValue: item.comparisonValue,
+                  }}
+                  respectComparison={someComparison}
+                  icon={item.icon}
+                  index={index + 1}
+                />
+              </div>
+            );
+          })}
         </div>
       );
-    }
-
-    const someComparison = data.some((row) => row.comparisonValue);
-
-    return (
-      <div className='space-y-2'>
-        {data.map((item, index) => {
-          const relativePercentage = (item.value / maxVisitors) * 100;
-          const percentage = (item.value / total) * 100;
-          return (
-            <div key={item.key ?? item.label} className='group relative'>
-              <PropertyValueBar
-                value={{
-                  value: item.label,
-                  count: item.value,
-                  relativePercentage: Math.max(relativePercentage, 2),
-                  percentage: percentage,
-                  trendPercentage: item.trendPercentage,
-                  comparisonValue: item.comparisonValue,
-                }}
-                respectComparison={someComparison}
-                icon={item.icon}
-                index={index + 1}
-              />
-            </div>
-          );
-        })}
-      </div>
-    );
-  }, []);
+    },
+    [t],
+  );
 
   const renderTabContent = useCallback(
     (tab: TabConfig<T>) => {
