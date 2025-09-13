@@ -67,8 +67,8 @@ function TabbedTable<TData>({
                 />
               </div>
             )}
-            <div className='flex items-center gap-4 overflow-auto sm:justify-end'>
-              <TabsList className={`bg-muted/30 flex h-8 gap-1`}>
+            <div className='flex w-full items-center gap-4 sm:justify-end'>
+              <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 w-full gap-1 px-0`}>
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.key}
