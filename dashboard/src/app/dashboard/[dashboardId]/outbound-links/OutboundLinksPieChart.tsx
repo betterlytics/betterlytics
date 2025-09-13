@@ -38,11 +38,11 @@ export default function OutboundLinksPieChart({ distributionPromise }: OutboundL
   const t = useTranslations('components.outboundLinks.pieChart');
 
   return (
-    <Card className='h-full'>
-      <CardHeader>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-3'>
+      <CardHeader className='px-0 pb-0'>
         <CardTitle className='text-lg font-medium'>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='flex flex-1 items-center justify-center'>
+      <CardContent className='flex flex-1 items-center justify-center px-0'>
         <BAPieChart data={distributionData} getColor={getOutboundLinkColor} getLabel={formatUrl} />
       </CardContent>
     </Card>
