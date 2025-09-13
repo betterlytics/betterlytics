@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
 import InfoTooltip from '@/app/dashboard/[dashboardId]/web-vitals/InfoTooltip';
 import { useTranslations } from 'next-intl';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
@@ -275,9 +276,9 @@ export default function WebVitalsTableSection({
     [data, devices, countries, browsers, operatingSystems, defaultSorting, t],
   );
 
-  const headerActions = useMemo(
+  const percentileButtons = useMemo(
     () => (
-      <div className='inline-flex flex-row items-center gap-2'>
+      <div className='inline-grid grid-cols-2 gap-2 sm:inline-flex sm:flex-row sm:items-center sm:gap-2'>
         {[
           { key: 'p50' as PercentileKey, label: 'P50', color: 'var(--cwv-p50)' },
           { key: 'p75' as PercentileKey, label: 'P75', color: 'var(--cwv-p75)' },
@@ -286,7 +287,7 @@ export default function WebVitalsTableSection({
         ].map((d) => {
           const isOn = activePercentile === d.key;
           const classes =
-            'inline-flex items-center justify-center gap-1.5 rounded-md border px-2 py-1 mt-1 text-xs font-medium min-w-[56px] sm:min-w-0 cursor-pointer ' +
+            'inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium sm:w-auto ' +
             (isOn
               ? 'bg-primary/10 border-primary/20 text-popover-foreground'
               : 'bg-muted/30 border-border text-muted-foreground');
@@ -312,5 +313,44 @@ export default function WebVitalsTableSection({
     [activePercentile],
   );
 
-  return <TabbedTable title={t('title')} tabs={tabs} defaultTab='pages' headerActions={headerActions} />;
+  const headerActions = useMemo(
+    () => <div className='hidden sm:block'>{percentileButtons}</div>,
+    [percentileButtons],
+  );
+
+  const [activeTab, setActiveTab] = useState<string>('pages');
+
+  const mobileTabsRowLeft = useMemo(
+    () => (
+      <div className='flex w-full items-center gap-2'>
+        <Select value={activeTab} onValueChange={setActiveTab}>
+          <SelectTrigger className='min-w-[180px] cursor-pointer'>
+            <SelectValue placeholder='Select tab' />
+          </SelectTrigger>
+          <SelectContent>
+            {tabs.map((tab) => (
+              <SelectItem key={tab.key} value={tab.key} className='cursor-pointer'>
+                {tab.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className='ml-auto shrink-0'>{percentileButtons}</div>
+      </div>
+    ),
+    [activeTab, tabs, percentileButtons],
+  );
+
+  return (
+    <TabbedTable
+      title={t('title')}
+      tabs={tabs}
+      defaultTab='pages'
+      tabValue={activeTab}
+      onTabValueChange={setActiveTab}
+      headerActions={headerActions}
+      tabsRowLeftMobile={mobileTabsRowLeft}
+      hideTabsListOnMobile
+    />
+  );
 }

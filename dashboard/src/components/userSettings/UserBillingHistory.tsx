@@ -31,19 +31,19 @@ export default function UserBillingHistory() {
     return (
       <SettingsCard icon={CreditCard} title={t('title')} description={t('description')}>
         <div className='flex min-h-[225px] flex-col items-center justify-center py-4 text-center'>
-          <div className='mb-2 h-6 w-56'>
-            <Skeleton className='h-6 w-56' />
+          <div className='mb-2 h-6 w-full max-w-[14rem]'>
+            <Skeleton className='h-6 w-full' />
           </div>
-          <div className='mb-6 h-4 w-80'>
-            <Skeleton className='h-4 w-80' />
+          <div className='mb-6 h-4 w-full max-w-[18rem]'>
+            <Skeleton className='h-4 w-full' />
           </div>
-          <div className='h-9 w-44'>
-            <Skeleton className='h-9 w-44' />
+          <div className='h-9 w-full max-w-[11rem]'>
+            <Skeleton className='h-9 w-full' />
           </div>
         </div>
         <div className='mt-6 border-t pt-4'>
-          <div className='mx-auto h-4 w-72'>
-            <Skeleton className='mx-auto h-4 w-72' />
+          <div className='mx-auto h-4 w-full max-w-[18rem]'>
+            <Skeleton className='mx-auto h-4 w-full' />
           </div>
         </div>
       </SettingsCard>

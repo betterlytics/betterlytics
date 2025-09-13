@@ -26,6 +26,10 @@ interface TabbedTableProps<TData> {
   headerActions?: ReactNode;
   searchColumn?: string;
   searchFieldLabel?: string;
+  tabValue?: string;
+  onTabValueChange?: (value: string) => void;
+  tabsRowLeftMobile?: ReactNode;
+  hideTabsListOnMobile?: boolean;
 }
 
 function TabbedTable<TData>({
@@ -36,6 +40,10 @@ function TabbedTable<TData>({
   headerActions,
   searchColumn,
   searchFieldLabel,
+  tabValue,
+  onTabValueChange,
+  tabsRowLeftMobile,
+  hideTabsListOnMobile,
 }: TabbedTableProps<TData>) {
   const activeDefaultTab = defaultTab || tabs[0]?.key;
   const tableRef = useRef<Table<TData> | null>(null);
@@ -45,7 +53,11 @@ function TabbedTable<TData>({
     <Card
       className={`border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-4 ${className}`}
     >
-      <Tabs defaultValue={activeDefaultTab}>
+      <Tabs
+        {...(tabValue !== undefined && onTabValueChange
+          ? { value: tabValue, onValueChange: onTabValueChange }
+          : { defaultValue: activeDefaultTab })}
+      >
         <CardHeader className='px-0 pb-0'>
           <div className='relative grid grid-cols-1 items-center gap-2 xl:grid-cols-2'>
             <div
@@ -70,7 +82,10 @@ function TabbedTable<TData>({
               </div>
             )}
             <div className='flex w-full items-center gap-4 sm:justify-end'>
-              <TabsList className={`grid grid-cols-${tabs.length} bg-muted/30 w-full gap-1 px-0`}>
+              {tabsRowLeftMobile && <div className='w-full sm:hidden'>{tabsRowLeftMobile}</div>}
+              <TabsList
+                className={`grid grid-cols-${tabs.length} bg-muted/30 w-full gap-1 px-0 ${hideTabsListOnMobile ? 'hidden sm:grid' : ''}`}
+              >
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.key}
