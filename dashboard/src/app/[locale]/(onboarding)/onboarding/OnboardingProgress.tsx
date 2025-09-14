@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { Stepper } from '@/components/ui/stepper';
 import { useCallback, useMemo } from 'react';
 

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { generateSEO } from '@/lib/seo';
 import { authOptions } from '@/lib/auth';
-import RegisterForm from '@/app/[locale]/register/RegisterForm';
+import RegisterForm from '@/app/[locale]/(public)/register/RegisterForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
