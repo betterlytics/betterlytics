@@ -1,0 +1,87 @@
+---
+title: "Outbound Links"
+description: "Enable outbound link tracking. Choose domain or full URL mode, configure via script or npm, and analyze in your dashboard."
+---
+
+import { Callout } from "nextra/components";
+
+# Outbound Links Integration
+
+Track when users click links that take them off your site. Use this to understand referral traffic you send to partners, social platforms, or external resources.
+
+<Callout type="info">
+Want to learn how to use the dashboard page? Read: [Outbound Links in your dashboard](/dashboard/outbound-links).
+</Callout>
+
+## Quick start
+
+### Using the script tag
+
+Set the `data-outbound-links` attribute on your analytics script. Supported values:
+
+- `off` – disable outbound link tracking
+- `domain` – only the external origin (default)
+- `full` – origin + path
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://betterlytics.io/track"
+  data-outbound-links="domain"
+></script>
+```
+
+### Using the npm package
+
+Outbound links are enabled by default, you can select the mode to specify what data is collected:
+
+```ts
+import betterlytics from '@betterlytics/tracker';
+
+betterlytics.init('your-site-id', {
+  outboundLinksMode: 'domain', // 'domain' (default) | 'full'
+});
+```
+
+To collect full URLs, change the mode to `full`:
+
+```ts
+betterlytics.init('your-site-id', {
+  outboundLinksMode: 'full',
+});
+```
+
+To disable the collection of outbound links:
+
+```ts
+betterlytics.init('your-site-id', {
+  disableOutboundLinks: true,
+});
+```
+
+## What gets collected
+
+When enabled, clicks on `<a>` elements that navigate to a different hostname are captured as `outbound_link` events.
+
+- `domain` mode: only the external origin (e.g., `https://youtube.com`)
+- `full` mode: origin + path (e.g., `https://youtube.com/watch?v=dQw4w9WgXcQ`)
+
+<Callout type="warning">
+Privacy note: Consider using `domain` mode to avoid sending full paths that may contain sensitive information.
+</Callout>
+
+## Verification
+
+- Click an external link; in the dashboard, go to **Dashboard > Outbound Links**
+- Use a broader time range if you don’t see data immediately
+
+## Troubleshooting
+
+- **No events:** Ensure the attribute or addon is set correctly, and the link host differs from your current site host.
+- **Custom link components:** Ensure clicks bubble to an anchor element or dispatch the event yourself.
+
+---
+
+**Next steps**: Explore your [Outbound Links dashboard](/dashboard/outbound-links) to analyze destinations and click trends.
