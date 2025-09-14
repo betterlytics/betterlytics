@@ -87,6 +87,8 @@ function computeScoreForRowPercentile(
   let weightSum = 0;
   (['LCP', 'CLS', 'FCP', 'TTFB', 'INP'] as CoreWebVitalName[]).forEach((metric) => {
     const value = percentiles[metric]?.[percentileIndex] ?? null;
+    if (value == null) return;
+
     const [good, meh] = CWV_THRESHOLDS[metric];
     const s = scoreForMetric(value, good, meh);
     const w = METRIC_WEIGHTS[metric];
