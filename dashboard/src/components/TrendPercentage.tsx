@@ -1,12 +1,15 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { formatPercentage } from '@/utils/formatters';
+import { TrendIndicator } from './TrendIndicator';
 
 type TrendPercentageProps = {
   percentage?: number;
+  withIcon?: boolean;
   withParenthesis?: boolean;
 };
 
-const TrendPercentage = React.memo(({ percentage, withParenthesis }: TrendPercentageProps) => {
+const TrendPercentage = React.memo(({ percentage, withIcon, withParenthesis }: TrendPercentageProps) => {
   if (percentage === undefined) {
     return null;
   }
@@ -16,17 +19,18 @@ const TrendPercentage = React.memo(({ percentage, withParenthesis }: TrendPercen
   }
 
   const isPositive = percentage > 0;
-  const sign = isPositive ? '+' : '-';
+  const sign = withIcon ? <TrendIndicator percentage={percentage} /> : isPositive ? '+' : '-';
   const color = isPositive ? 'text-trend-up' : 'text-trend-down';
 
   const absValue = Math.abs(percentage);
-  const formatted = absValue % 1 ? absValue.toFixed(1) : absValue.toFixed(0);
+  const formatted = formatPercentage(absValue);
 
   return (
-    <span className={cn(color)}>
+    <span className={cn('inline-flex items-center', color)}>
       {withParenthesis && '('}
       {sign}
-      {formatted}%{withParenthesis && ')'}
+      {formatted}
+      {withParenthesis && ')'}
     </span>
   );
 });
