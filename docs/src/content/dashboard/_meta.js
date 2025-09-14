@@ -6,5 +6,7 @@ export default {
   devices: "Device Breakdown",
   events: "Events Page",
   funnels: "Funnels",
+  "web-vitals": "Web Vitals",
+  filtering: "Filtering",
   "metrics-glossary": "Metrics Glossary",
 };
