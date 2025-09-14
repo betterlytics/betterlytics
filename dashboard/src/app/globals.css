@@ -117,10 +117,10 @@
 
 .dark {
   /* Match provided palette */
-  --background: oklch(18.22% 0 0); /* background */
+  --background: hsl(222, 5%, 6.5%); /* background */
   --foreground: oklch(0.95 0.01 265);
 
-  --card: hsl(0 0% 10.5%); /* card */
+  --card: hsl(240, 3%, 10%); /* card */
   --card-foreground: oklch(0.95 0.01 265);
   --card-interactive: hsl(0 0% 15%);
 
@@ -163,7 +163,7 @@
   --cwv-threshold-ni: oklch(80% 0.18 80);
   --cwv-threshold-poor: rgb(212, 89, 81);
 
-  --sidebar: hsl(0 0% 10.5%); /* Slightly darker than main background */
+  --sidebar: hsl(240, 3%, 10%); /* Slightly darker than main background */
   --sidebar-foreground: oklch(0.95 0.01 265);
   --sidebar-primary: oklch(56% 0.196 268.74); /* blue-700 */
   --sidebar-primary-foreground: white;

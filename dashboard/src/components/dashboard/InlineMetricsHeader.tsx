@@ -62,7 +62,7 @@ export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsH
             {card.rawChartData && card.valueField && (
               <div
                 className={cn(
-                  'pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-50 transition duration-150 group-hover:opacity-90',
+                  'pointer-events-none absolute inset-x-0 bottom-0 h-10 opacity-60 transition duration-150 group-hover:opacity-90',
                   { 'opacity-100': card.isActive },
                 )}
               >
@@ -73,8 +73,8 @@ export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsH
                   >
                     <defs>
                       <linearGradient id={`inline-gradient-${idx}`} x1='0' y1='0' x2='0' y2='1'>
-                        <stop offset='0%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.3} />
-                        <stop offset='100%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.05} />
+                        <stop offset='0%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.5} />
+                        <stop offset='100%' stopColor={card.chartColor ?? 'var(--chart-1)'} stopOpacity={0.1} />
                       </linearGradient>
                     </defs>
                     <Area

@@ -21,11 +21,11 @@ interface PropertyValueBarProps {
 
 export function PropertyValueBar({ value, icon, respectComparison, index }: PropertyValueBarProps) {
   return (
-    <div className='group shadow-background relative rounded-sm shadow-xs transition-colors duration-200 hover:bg-[var(--accent)]/80'>
+    <div className='group shadow-foreground/20 dark:shadow-background relative rounded-sm shadow-xs transition-colors duration-200 hover:bg-[var(--accent)]/80'>
       <div className='relative h-7 overflow-hidden rounded-sm text-sm'>
         <Progress
           value={Math.max(value.relativePercentage, 2)}
-          className='bg-muted/30 group-hover:bg-muted/40 [&>div]:bg-primary/30 h-full rounded-sm transition-colors duration-200'
+          className='bg-muted/30 group-hover:bg-muted/40 [&>div]:bg-primary/35 h-full rounded-sm transition-colors duration-200'
         />
 
         <div className='absolute inset-0 z-10 flex items-center justify-between px-3'>
