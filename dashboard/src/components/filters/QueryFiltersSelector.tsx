@@ -131,7 +131,7 @@ export default function QueryFiltersSelector() {
             variant='secondary'
             role='combobox'
             className={
-              'dark:bg-secondary bg-popover min-w-[200px] cursor-pointer justify-between border shadow-sm'
+              'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
             }
           >
             <div className='flex items-center gap-2'>
@@ -157,7 +157,9 @@ export default function QueryFiltersSelector() {
         <Button
           variant='secondary'
           role='combobox'
-          className={'dark:bg-secondary bg-popover min-w-[200px] cursor-pointer justify-between border shadow-sm'}
+          className={
+            'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
+          }
         >
           <div className='flex items-center gap-2'>
             <FilterIcon className='h-4 w-4' />
