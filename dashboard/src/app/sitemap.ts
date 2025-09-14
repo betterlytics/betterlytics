@@ -29,6 +29,7 @@ const PAGES: PageCfg[] = [
   { path: '/docs/installation/self-hosting', changeFrequency: 'monthly', priority: 0.6, localized: false },
   { path: '/docs/integration/custom-events', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/dynamic-urls', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/integration/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/referrers', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/geography', changeFrequency: 'monthly', priority: 0.8, localized: false },
@@ -44,7 +45,6 @@ const PAGES: PageCfg[] = [
   { path: '/docs/pricing/changing-plans', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/managing-subscription', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/cancellation', changeFrequency: 'monthly', priority: 0.8, localized: false },
-  { path: '/docs/integration/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
 ];
 
 const localizedPath = (path: string, locale: SupportedLanguages) => {
