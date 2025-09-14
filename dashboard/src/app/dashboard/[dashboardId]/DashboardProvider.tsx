@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { TimeRangeContextProvider } from '@/contexts/TimeRangeContextProvider';
 import { QueryFiltersContextProvider } from '@/contexts/QueryFiltersContextProvider';
 import { SettingsProvider } from '@/contexts/SettingsProvider';
@@ -10,8 +10,6 @@ import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
 import { getDashboardSettingsAction } from '@/app/actions/dashboardSettings';
 import DashboardLoading from '@/components/loading/DashboardLoading';
-import { useRouter } from 'next/navigation';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
