@@ -61,15 +61,14 @@ export function DataTable<TData, TValue>({
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow
-              key={headerGroup.id}
-              className='border-muted-foreground bg-table-header hover:bg-table-header border-b'
-            >
+            <TableRow key={headerGroup.id} className='border-muted-foreground bg-accent hover:bg-accent border-b'>
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className={`text-foreground dark:bg-muted/50 px-3 py-3 text-left text-sm font-medium sm:px-6 ${
-                    header.column.getCanSort() ? 'hover:!bg-table-header-hover cursor-pointer select-none' : ''
+                  className={`text-foreground bg-muted/50 px-3 py-3 text-left text-sm font-medium sm:px-6 ${
+                    header.column.getCanSort()
+                      ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
+                      : ''
                   }`}
                   onClick={header.column.getToggleSortingHandler()}
                 >

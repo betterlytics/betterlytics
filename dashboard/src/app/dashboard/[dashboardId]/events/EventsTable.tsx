@@ -231,15 +231,15 @@ export function EventsTable({ data }: EventsTableProps) {
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className='border-muted-foreground bg-table-header hover:bg-table-header border-b'
+                  className='border-muted-foreground bg-accent hover:bg-accent border-b'
                 >
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'text-foreground dark:bg-muted/50 px-4 py-3 text-left text-sm font-medium',
+                        'text-foreground bg-muted/50 px-4 py-3 text-left text-sm font-medium',
                         header.column.getCanSort()
-                          ? 'hover:!bg-table-header-hover cursor-pointer select-none'
+                          ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
                           : '',
                       )}
                       onClick={header.column.getToggleSortingHandler()}
