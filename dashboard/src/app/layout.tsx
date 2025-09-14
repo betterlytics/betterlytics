@@ -53,6 +53,7 @@ export default async function RootLayout({
             data-site-id={env.APP_TRACKING_SITE_ID}
             data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
             data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*'
+            data-web-vitals='true'
           />
         )}
         <script
