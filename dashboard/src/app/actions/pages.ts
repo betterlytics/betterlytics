@@ -16,6 +16,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
+import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 
 export const fetchPageAnalyticsAction = withDashboardAuthContext(
   async (
@@ -105,31 +106,11 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
         queryFilters,
       ));
 
-    const comparePercentage = (key: keyof typeof data) => {
-      if (!compare) {
-        return null;
-      }
-
-      if (typeof data[key] !== 'number' || typeof compare[key] !== 'number') {
-        throw new Error('Invalid data');
-      }
-
-      const current = data[key];
-      const previous = compare[key];
-
-      if (previous === 0) {
-        return null;
-      }
-
-      return ((current - previous) / previous) * 100;
-    };
-
-    const compareValues = {
-      pagesPerSession: comparePercentage('pagesPerSession'),
-      totalPageviews: comparePercentage('totalPageviews'),
-      avgTimeOnPage: comparePercentage('avgTimeOnPage'),
-      avgBounceRate: comparePercentage('avgBounceRate'),
-    };
+    const compareValues = toPartialPercentageCompare({
+      data,
+      compare,
+      keys: ['pagesPerSession', 'totalPageviews', 'avgTimeOnPage', 'avgBounceRate'] as const,
+    });
 
     const dateRange = { start: startDate, end: endDate };
 
