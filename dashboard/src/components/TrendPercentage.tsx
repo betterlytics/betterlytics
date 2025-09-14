@@ -26,7 +26,7 @@ const TrendPercentage = React.memo(({ percentage, withIcon, withParenthesis }: T
   const formatted = formatPercentage(absValue);
 
   return (
-    <span className={cn('inline-flex items-center', color)}>
+    <span className={cn('inline-flex items-center gap-0', color)}>
       {withParenthesis && '('}
       {sign}
       {formatted}

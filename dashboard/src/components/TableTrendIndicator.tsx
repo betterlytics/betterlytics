@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
-import { ChevronDown, ChevronUp, Minus } from 'lucide-react';
+import { Minus } from 'lucide-react';
+import { TrendPercentage } from './TrendPercentage';
 
 type TableTrendIndicatorProps = {
   current: number;
@@ -32,19 +32,10 @@ export function TableTrendIndicator({
     );
   }
 
-  const isPositive = current - comparedData > 0;
-  const color = isPositive ? 'text-trend-up' : 'text-trend-down';
-  const Icon = isPositive ? ChevronUp : ChevronDown;
-
   return (
-    <div className={cn('flex items-center gap-1 text-xs', color)}>
+    <div className='flex items-center gap-1 text-xs'>
       <span className='text-foreground opacity-75'>vs {formatter(comparedData)}</span>
-      {comparedData !== 0 && (
-        <span className='flex items-center gap-0'>
-          <Icon className='h-3.5 w-3.5' fill={'currentColor'} />
-          <span>{Math.abs(percentage).toFixed(1)}%</span>
-        </span>
-      )}
+      {comparedData !== 0 && <TrendPercentage percentage={percentage} withIcon />}
     </div>
   );
 }
