@@ -31,7 +31,7 @@ export default function ReferrersChartsSection({
 
   return (
     <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
         <CardHeader className='px-0 pb-0'>
           <CardTitle className='text-base font-medium'>{t('trafficTrends')}</CardTitle>
         </CardHeader>
@@ -44,7 +44,7 @@ export default function ReferrersChartsSection({
           />
         </CardContent>
       </Card>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
         <CardHeader className='px-0 pb-0'>
           <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
         </CardHeader>

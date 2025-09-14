@@ -73,10 +73,10 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   }
 
   return (
-    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 px-2 pt-2 pb-0 sm:min-h-[400px] sm:px-6 sm:pt-3'>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
       <CardHeader className='px-0 pb-1'>
         <div className='flex flex-row items-center justify-between gap-2'>
-          <CardTitle className='text-lg font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
+          <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
           <div className='flex h-8 min-w-0 items-center'>
             <div className='w-48 sm:w-48'>
               <Select value={selectedMetric} onValueChange={onMetricChange}>

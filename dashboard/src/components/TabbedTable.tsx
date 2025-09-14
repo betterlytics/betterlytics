@@ -51,7 +51,7 @@ function TabbedTable<TData>({
 
   return (
     <Card
-      className={`border-border flex min-h-[300px] flex-col gap-1 p-2 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 ${className}`}
+      className={`border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 ${className}`}
     >
       <Tabs
         {...(tabValue !== undefined && onTabValueChange

@@ -59,10 +59,10 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     }, [formatValue]);
     const isMobile = useIsMobile();
     return (
-      <Card className='px-1 pt-1 sm:pt-4'>
+      <Card className='px-2 pt-2 pb-4 sm:pt-4 sm:pb-5'>
         {(title || headerRight) && (
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-lg font-semibold'>
+            <CardTitle className='text-base font-medium'>
               <span className='inline-flex items-center gap-2'>{title}</span>
             </CardTitle>
             {headerRight && <div className='flex items-center gap-2'>{headerRight}</div>}
