@@ -1,3 +1,13 @@
+const DEVICE_TYPES = ['mobile', 'tablet', 'laptop', 'desktop', 'unknown'] as const;
+
+const DEVICE_COLOR_MAP: Record<string, string> = {
+  mobile: '#22c55e', // green-500
+  tablet: '#f59e0b', // amber-500
+  laptop: '#8b5cf6', // violet-500
+  desktop: '#3b82f6', // blue-500
+  unknown: '#9ca3af', // gray-400
+};
+
 /**
  * Generate a consistent hash code from a string
  * This is used to get a consistent color for a device type across users
@@ -49,11 +59,12 @@ export function getDeviceLabel(deviceType: string): string {
  * - Generates unique colors for other types using hashing
  */
 export function getDeviceColor(deviceType: string): string {
-  if (!deviceType) return '#94A3B8'; // Gray for unknown
+  deviceType = deviceType.toLowerCase();
 
-  const displayLabel = getDeviceLabel(deviceType).toLowerCase();
+  if (!DEVICE_TYPES.includes(deviceType as (typeof DEVICE_TYPES)[number])) return DEVICE_COLOR_MAP.unknown;
 
-  // Generate a unique color based on the display label
-  const hash = hashString(displayLabel);
+  if (DEVICE_COLOR_MAP[deviceType]) return DEVICE_COLOR_MAP[deviceType];
+
+  const hash = hashString(deviceType);
   return generateColorFromHash(hash);
 }
