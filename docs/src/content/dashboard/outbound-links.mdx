@@ -1,0 +1,48 @@
+---
+title: "Outbound Links"
+description: "Analyze where users click to leave your site. Learn how to view destinations, trends, and segment by filters."
+---
+
+import { Callout } from "nextra/components";
+
+# Outbound Links in Your Dashboard
+
+Outbound link analytics shows which external destinations your visitors click. Use this to understand partner engagement, social traffic you send, or which resources attract attention.
+
+## Accessing Outbound Links
+
+Go to **Dashboard > Outbound Links**. Filters and time range at the top affect all data on this page.
+
+## What you’ll see
+
+- **Destinations table** – top external domains or full URLs, with clicks and trends
+- **Trend chart** – clicks over time for outbound links
+- **Distribution breakdown** – share of clicks by destination
+
+
+## Modes: domain vs full URL
+
+Outbound links can be collected in two modes:
+
+- **Domain**: only the origin is captured (example: `https://youtube.com`)
+- **Full**: origin + path is captured (example: `https://youtube.com/watch?v=dQw4w9WgXcQ`)
+
+<Callout type="warning">
+Privacy note: Prefer **domain** mode to avoid collecting full paths that may contain sensitive information.
+</Callout>
+
+## Filtering
+
+Use dashboard filters to analyze segments:
+
+- Time range
+- Query filters like Country, Device, Browser, OS, URL patterns
+
+## Troubleshooting
+
+- **No data**: Ensure outbound link tracking is enabled in your snippet or npm init ([see Integration docs](/integration/outbound-links)) and test with a link to a different hostname.
+- **Custom links**: If you wrap anchors in custom components, ensure clicks bubble to an `<a>` element.
+
+---
+
+**Related**: Learn how to [enable outbound link tracking](/integration/outbound-links) via script or npm.
