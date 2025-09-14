@@ -4,13 +4,13 @@ import { formatPercentage } from '@/utils/formatters';
 import { TrendIndicator } from './TrendIndicator';
 
 type TrendPercentageProps = {
-  percentage?: number;
+  percentage?: number | null;
   withIcon?: boolean;
   withParenthesis?: boolean;
 };
 
 const TrendPercentage = React.memo(({ percentage, withIcon, withParenthesis }: TrendPercentageProps) => {
-  if (percentage === undefined) {
+  if (percentage === undefined || percentage === null) {
     return null;
   }
 
