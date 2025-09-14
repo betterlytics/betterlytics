@@ -49,8 +49,8 @@ export function ChartTooltip({
 
   const formattedDifference = formatDifference(value, previousValue || 0, hasComparison, formatter);
   const previousDateLabel = comparisonData ? labelFormatter(comparisonData.compareDate) : undefined;
-  console.log(payload);
   const previousColor = 'var(--chart-comparison)';
+
   return (
     <div
       className={cn(

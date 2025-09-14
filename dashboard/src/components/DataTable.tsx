@@ -57,9 +57,7 @@ export function DataTable<TData, TValue>({
   }, []);
 
   return (
-    <div
-      className={`rounded-lg ${className || ''} dark:border-secondary overflow-hidden border border-gray-200 dark:border-2`}
-    >
+    <div className={`rounded-lg ${className || ''} border-border overflow-hidden border`}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

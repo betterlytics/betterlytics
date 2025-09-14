@@ -50,7 +50,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
             <Button
               variant='ghost'
               onClick={() => handlePathClick(path)}
-              className='cursor-pointer bg-transparent p-0 px-3 text-left text-sm font-medium transition-colors'
+              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors'
               title={t('filterByPath', { path })}
             >
               {path}
