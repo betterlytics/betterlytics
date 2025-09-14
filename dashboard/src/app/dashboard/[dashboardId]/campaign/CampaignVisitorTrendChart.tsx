@@ -9,6 +9,7 @@ import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/utils/formatters';
 
 interface CampaignVisitorTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -68,7 +69,7 @@ export default function CampaignVisitorTrendChart({
                 axisLine={false}
                 className='text-muted-foreground'
                 tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-                tickFormatter={(value) => value.toLocaleString()}
+                tickFormatter={(value) => formatNumber(value)}
                 width={40}
               />
               <Tooltip
@@ -79,7 +80,7 @@ export default function CampaignVisitorTrendChart({
                     label={props.label}
                     comparisonMap={comparisonMap}
                     granularity={granularity}
-                    formatter={(value: number) => `${value.toLocaleString()} visitors`}
+                    formatter={(value: number) => `${formatNumber(value)} visitors`}
                   />
                 )}
               />

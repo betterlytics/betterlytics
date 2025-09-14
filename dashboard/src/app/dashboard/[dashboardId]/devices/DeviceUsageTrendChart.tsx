@@ -12,7 +12,7 @@ import {
 import React from 'react';
 import { getDeviceColor } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';
-import { capitalizeFirstLetter } from '@/utils/formatters';
+import { capitalizeFirstLetter, formatNumber } from '@/utils/formatters';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
 import { format } from 'date-fns';
 import { type ComparisonMapping } from '@/types/charts';
@@ -88,7 +88,7 @@ export default function DeviceUsageTrendChart({
               axisLine={false}
               className='text-muted-foreground'
               tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-              tickFormatter={(val) => val.toLocaleString()}
+              tickFormatter={(val) => formatNumber(val)}
               width={40}
               mirror={isMobile}
             />
@@ -100,7 +100,7 @@ export default function DeviceUsageTrendChart({
                   label={props.label}
                   comparisonMap={comparisonMap}
                   granularity={granularity}
-                  formatter={(value) => value.toLocaleString()}
+                  formatter={(value) => formatNumber(value)}
                 />
               )}
             />
