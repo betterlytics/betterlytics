@@ -78,7 +78,7 @@ All selections instantly update the charts and tables.
 
 ## Troubleshooting
 
-- **No data**: Ensure Web Vitals collection is enabled in your tracking snippet [(see Integration docs)](/integration/web-vitals). Give it a few minutes after deployment. Metrics are collected once per page lifecycle when visibility changes or the page is hidden.
+- **No data**: Ensure Web Vitals collection is enabled in your tracking snippet ([see Integration docs](/integration/web-vitals)). Give it a few minutes after deployment. Metrics are collected once per page lifecycle when visibility changes or the page is hidden.
 - **Low samples**: Field data depends on real traffic. Broaden the time range or remove filters.
 - **INP missing locally**: INP requires a user interaction; test on real pages with clicks/typing.
 - **SPA data**: Currently only initial page load CWV is collected. The client‑side navigations don’t consistently re‑trigger LCP/FCP and can produce misleading values and is therefore excluded.
