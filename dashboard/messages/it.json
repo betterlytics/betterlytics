@@ -1179,7 +1179,6 @@
       },
       "details": {
         "title": "Analisi funnel",
-        "description": "Analisi dettagliata delle conversioni del funnel",
         "steps": "passaggi",
         "users": "utenti",
         "dropped": "abbandoni",

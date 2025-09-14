@@ -1171,7 +1171,6 @@
       },
       "details": {
         "title": "Funnel Analysis",
-        "description": "Detailed funnel conversion analysis",
         "steps": "steps",
         "users": "users",
         "dropped": "dropped",
