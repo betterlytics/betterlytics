@@ -20,7 +20,7 @@ export function GranularitySection({
   const t = useTranslations('components.timeRange');
   return (
     <div>
-      <h3 className='text-text mb-2 text-sm font-medium'>{t('granularity')}</h3>
+      <h3 className='mb-2 text-sm font-medium'>{t('granularity')}</h3>
       <div className='grid grid-cols-2 gap-2'>
         {GRANULARITY_RANGE_PRESETS.map((gran) => {
           const isAllowed = allowedGranularities.includes(gran.value);

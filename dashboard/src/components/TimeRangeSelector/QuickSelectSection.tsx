@@ -18,7 +18,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
   ): preset is TimeRangePreset & { value: Exclude<TimeRangeValue, 'custom'> } => preset.value !== 'custom';
   return (
     <div>
-      <h3 className='text-text mb-2 text-sm font-medium'>{t('quickSelect')}</h3>
+      <h3 className='mb-2 text-sm font-medium'>{t('quickSelect')}</h3>
       <div className='grid grid-cols-2 gap-2'>
         {TIME_RANGE_PRESETS.filter(isNonCustomPreset).map((preset) => (
           <Button
