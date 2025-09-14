@@ -7,7 +7,11 @@ import { Callout } from "nextra/components";
 
 # Core Web Vitals in Your Dashboard
 
-Core Web Vitals (CWV) are user‑centric performance metrics from Google that measure real‑world loading, interactivity, and visual stability. Betterlytics captures CWV from your visitors’ browsers and visualizes them so you can find regressions, compare segments, and prioritize fixes.
+Core Web Vitals (CWV) are user‑centric performance metrics from Google that measure real‑world loading, interactivity, and visual stability. Betterlytics captures CWV from your visitors' browsers and visualizes them so you can find regressions, compare segments, and prioritize fixes.
+
+<Callout type="info">
+Core Web Vitals in your dashboard come from **real user monitoring (RUM)**. Unlike Lighthouse, which runs synthetic tests, these values reflect real visitors' devices and conditions.
+</Callout>
 
 ## What we measure
 
@@ -25,7 +29,7 @@ Values are aggregated from field data and shown at the 50th, 75th, 90th, and 99t
 
 ## Accessing Web Vitals
 
-Go to **Dashboard > Web Vitals**. At the top you’ll find the standard **Filters** and **Time range** controls. All filters apply to every chart and table on this page.
+Navigate to **Dashboard > Web Vitals** to view your page's Core Web Vitals metrics.
 
 ## Summary and trends
 
@@ -57,11 +61,7 @@ These match the thresholds configured in Betterlytics and industry guidance.
 
 ## How data is collected
 
-When enabled, the tracking script loads the official `web-vitals` library in the browser and batches CWV metrics. Metrics are sent once per page lifecycle and appear in the dashboard within moments.
-
-<Callout type="info">
-Real user monitoring (RUM): values reflect actual visitors, devices, networks, and pages; not lab tests.
-</Callout>
+When enabled, the tracking script loads the official `web-vitals` library in the browser and batches CWV metrics. Metrics are sent once per page lifecycle.
 
 <Callout type="warning">
 Single‑page applications (SPAs): Currently only initial page load CWV is collected. Client‑side navigations don’t consistently re‑trigger LCP/FCP and can produce misleading values. We’re working on an experimental SPA CWV approach and will update this page when it ships.
