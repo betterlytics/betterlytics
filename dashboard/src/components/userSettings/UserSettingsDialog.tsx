@@ -173,11 +173,15 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-          <TabsList className='flex w-full'>
+          <TabsList className='bg-secondary dark:inset-shadow-background flex w-full gap-1 px-1 inset-shadow-sm'>
             {availableTabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <TabsTrigger key={tab.id} value={tab.id} className='flex cursor-pointer items-center gap-2'>
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground flex cursor-pointer items-center gap-2 rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+                >
                   <Icon className='h-4 w-4' />
                   <span className='hidden lg:inline'>{tab.label}</span>
                 </TabsTrigger>
