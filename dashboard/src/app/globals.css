@@ -202,7 +202,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    @apply tracking-wide;
+    @apply tracking-normal;
     font-family: var(--font-roboto-sans);
     background-color: var(--background);
   }
