@@ -35,7 +35,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const isMobile = useIsMobile();
     return (
-      <Card className='px-2 pt-2 pb-4 sm:pt-4 sm:pb-5'>
+      <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 py-1 sm:px-2 md:px-4'>

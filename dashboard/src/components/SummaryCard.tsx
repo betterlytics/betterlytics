@@ -87,7 +87,7 @@ const SummaryCard = React.memo(
           </div>
         )}
 
-        <CardContent className='relative z-10 flex h-full flex-col justify-between space-y-0 px-2 py-2 pb-4 sm:px-6 sm:pt-3 sm:pb-3'>
+        <CardContent className='relative z-10 flex h-full flex-col justify-between space-y-0 px-3 py-3 pb-4 sm:px-6 sm:pt-3 sm:pb-3'>
           <div className='mb-1 flex items-center justify-between'>
             <span className='text-foreground text-sm font-medium hyphens-auto lg:text-base'>{title}</span>
             {onClick && (
