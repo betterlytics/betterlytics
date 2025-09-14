@@ -35,32 +35,29 @@ Set the `data-outbound-links` attribute on your analytics script. Supported valu
 
 ### Using the npm package
 
-Enable outbound links via `addons` when initializing:
+Outbound links are enabled by default, you can select the mode to specify what data is collected:
 
 ```ts
 import betterlytics from '@betterlytics/tracker';
 
 betterlytics.init('your-site-id', {
-  addons: ['outbound-links'],
-  outboundLinks: 'domain', // 'off' | 'domain' | 'full'
+  outboundLinksMode: 'domain', // 'domain' (default) | 'full'
 });
 ```
 
-To collect full URLs:
+To collect full URLs, change the mode to `full`:
 
 ```ts
 betterlytics.init('your-site-id', {
-  addons: ['outbound-links'],
-  outboundLinks: 'full',
+  outboundLinksMode: 'full',
 });
 ```
 
-To disable:
+To disable the collection of outbound links:
 
 ```ts
 betterlytics.init('your-site-id', {
-  addons: [], // or omit 'outbound-links'
-  outboundLinks: 'off',
+  disableOutboundLinks: true,
 });
 ```
 
