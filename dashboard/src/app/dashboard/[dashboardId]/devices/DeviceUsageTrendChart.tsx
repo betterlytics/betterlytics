@@ -10,7 +10,7 @@ import {
   Tooltip as RechartsTooltip,
 } from 'recharts';
 import React from 'react';
-import { getDeviceColor } from '@/utils/deviceColors';
+import { getDeviceColor } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
