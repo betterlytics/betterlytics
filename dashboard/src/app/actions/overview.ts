@@ -1,11 +1,6 @@
 'use server';
 
-import {
-  TopEntryPageRow,
-  TopExitPageRow,
-  PageAnalyticsCombined,
-  PageAnalyticsCombinedSchema,
-} from '@/entities/pages';
+import { TopEntryPageRow, TopExitPageRow, PageAnalyticsCombinedSchema } from '@/entities/pages';
 import {
   getTopPagesForSite,
   getTotalPageViewsForSite,
@@ -22,6 +17,7 @@ import { getSessionMetrics } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
+import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
   async (
@@ -111,33 +107,18 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
         queryFilters,
       ));
 
-    const comparePercentage = (key: keyof typeof data) => {
-      if (!compare) {
-        return null;
-      }
-
-      if (typeof data[key] !== 'number' || typeof compare[key] !== 'number') {
-        throw new Error('Invalid data');
-      }
-
-      const current = data[key];
-      const previous = compare[key];
-
-      if (previous === 0) {
-        return null;
-      }
-
-      return ((current - previous) / previous) * 100;
-    };
-
-    const compareValues = {
-      uniqueVisitors: comparePercentage('uniqueVisitors'),
-      pageviews: comparePercentage('pageviews'),
-      sessions: comparePercentage('sessions'),
-      pagesPerSession: comparePercentage('pagesPerSession'),
-      avgVisitDuration: comparePercentage('avgVisitDuration'),
-      bounceRate: comparePercentage('bounceRate'),
-    };
+    const compareValues = toPartialPercentageCompare({
+      data,
+      compare,
+      keys: [
+        'uniqueVisitors',
+        'pageviews',
+        'sessions',
+        'pagesPerSession',
+        'avgVisitDuration',
+        'bounceRate',
+      ] as const,
+    });
 
     const dateRange = { start: startDate, end: endDate };
 

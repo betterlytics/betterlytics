@@ -3,7 +3,6 @@ import { utcMinute } from 'd3-time';
 import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
 import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 type DataToAreaChartProps<K extends string> = {
   dataKey: K;
@@ -140,10 +139,10 @@ export function toSparklineSeries<K extends string>({
   data,
   granularity,
   dateRange,
-}: DataToAreaChartProps<K>): Array<{ date: string } & Record<K, number>> {
+}: DataToAreaChartProps<K>): Array<{ date: Date } & Record<K, number>> {
   const area = dataToAreaChart({ dataKey, data, granularity, dateRange });
   return area.map((p) => ({
-    date: toDateTimeString(new Date(p.date)),
+    date: new Date(p.date),
     [dataKey]: p.value[0],
-  })) as Array<{ date: string } & Record<K, number>>;
+  })) as Array<{ date: Date } & Record<K, number>>;
 }
