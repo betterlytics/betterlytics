@@ -87,6 +87,10 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
             captionLayout='dropdown'
             className='[&_button]:cursor-pointer [&_select]:cursor-pointer'
             disabled={(date) => date > new Date()}
+            classNames={{
+              dropdowns:
+                'w-full flex flex-row-reverse items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5 rdp-dropdowns',
+            }}
           />
         </PopoverContent>
       </Popover>
