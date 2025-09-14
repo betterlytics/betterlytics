@@ -1204,8 +1204,8 @@
       "summary": {
         "pagesPerSession": "Sider pr. session",
         "totalPageviews": "Samlede sidevisninger",
-        "avgTimeOnPage": "Gennemsnitlig tid på side",
-        "avgBounceRate": "Gennemsnitlig afvisningsprocent"
+        "avgTimeOnPage": "Gns. tid på side",
+        "avgBounceRate": "Gns. afvisningsprocent"
       },
       "table": {
         "path": "Sti",
@@ -1213,7 +1213,7 @@
         "visitors": "Besøgende",
         "pageviews": "Sidevisninger",
         "bounceRate": "Afvisningsprocent",
-        "avgTime": "Gennemsnitlig tid",
+        "avgTime": "Gns. tid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
         "allPages": "Alle sider",

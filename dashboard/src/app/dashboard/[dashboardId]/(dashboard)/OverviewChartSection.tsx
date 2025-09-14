@@ -12,6 +12,7 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
+import { formatPercentage } from '@/utils/formatters';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
@@ -45,12 +46,12 @@ export default function OverviewChartSection({
         color: 'var(--chart-1)',
       },
       sessions: {
-        title: 'Sessions',
+        title: t('metrics.sessions'),
         valueField: 'sessions',
         color: 'var(--chart-1)',
       },
       pagesPerSession: {
-        title: 'Pages per Session',
+        title: t('metrics.pagesPerSession'),
         valueField: 'pages_per_session',
         color: 'var(--chart-1)',
       },
@@ -63,13 +64,13 @@ export default function OverviewChartSection({
         title: t('metrics.bounceRate'),
         valueField: 'bounce_rate',
         color: 'var(--chart-1)',
-        formatValue: (value: number) => `${value}%`,
+        formatValue: formatPercentage,
       },
       avgDuration: {
         title: t('metrics.avgVisitDuration'),
         valueField: 'avg_visit_duration',
         color: 'var(--chart-1)',
-        formatValue: (value: number) => formatDuration(value),
+        formatValue: formatDuration,
       },
     }),
     [t],
