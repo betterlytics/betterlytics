@@ -17,6 +17,7 @@ import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/utils/formatters';
 
 interface OutboundLinksTrendChartProps {
   chartData: Array<{ date: number; value: number[] }>;
@@ -75,7 +76,7 @@ export default function OutboundLinksTrendChart({
             axisLine={false}
             className='text-muted-foreground'
             tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-            tickFormatter={(value) => value.toLocaleString()}
+            tickFormatter={formatNumber}
             width={40}
             mirror={isMobile}
           />
@@ -83,7 +84,7 @@ export default function OutboundLinksTrendChart({
             content={
               <ChartTooltip
                 labelFormatter={(date) => defaultDateLabelFormatter(date, granularity)}
-                formatter={formatValue}
+                formatter={formatValue ?? formatNumber}
                 comparisonMap={comparisonMap}
                 title={tooltipTitle}
               />

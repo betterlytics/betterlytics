@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { ChevronUp, ChevronDown, MousePointerClick } from 'lucide-react';
+import { MousePointerClick } from 'lucide-react';
 import type { SummaryCardData } from './SummaryCardsSection';
 import { cn } from '@/lib/utils';
+import { TrendPercentage } from '@/components/TrendPercentage';
 
 interface ChartDatum {
   date: string;
@@ -115,17 +116,8 @@ export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsH
                   {card.value}
                 </span>
                 {trend && trend.direction !== 'neutral' && (
-                  <span
-                    className={`inline-flex items-center text-xs ${
-                      trend.isPositive ? 'text-trend-up' : 'text-trend-down'
-                    } group-hover:opacity-90`}
-                  >
-                    {trend.direction === 'up' ? (
-                      <ChevronUp className='h-3.5 w-3.5' fill='currentColor' />
-                    ) : (
-                      <ChevronDown className='h-3.5 w-3.5' fill='currentColor' />
-                    )}
-                    {trend.percentage.toFixed(1)}%
+                  <span className='text-xs'>
+                    <TrendPercentage percentage={trend?.percentage} withIcon />
                   </span>
                 )}
               </div>

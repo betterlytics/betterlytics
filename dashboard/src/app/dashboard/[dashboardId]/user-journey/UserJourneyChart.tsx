@@ -4,6 +4,7 @@ import { SankeyData } from '@/entities/userJourney';
 import { useTranslations } from 'next-intl';
 import { Sankey, Rectangle, ResponsiveContainer, Layer, Text } from 'recharts';
 import { useState, useRef, useEffect, useMemo, memo, useCallback } from 'react';
+import { formatNumber } from '@/utils/formatters';
 
 const Colors = {
   primary: '#0ea5e9', // Blue - Color of root nodes
@@ -313,7 +314,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
               </span>
             </div>
             <div className='text-popover-foreground/80 text-xs'>
-              {t('sessions')}: {tooltip.content.value.toLocaleString()}
+              {t('sessions')}: {formatNumber(tooltip.content.value)}
             </div>
           </div>
         </div>

@@ -56,7 +56,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       onClick: () => handleMetricChange('pageviews'),
     },
     {
-      title: 'Sessions',
+      title: t('sessions'),
       value: formatNumber(summary.sessions),
       rawChartData: summary.sessionsChartData,
       valueField: 'sessions',
@@ -66,7 +66,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
       onClick: () => handleMetricChange('sessions'),
     },
     {
-      title: 'Pages per Session',
+      title: t('pagesPerSession'),
       value: formatNumber(summary.pagesPerSession),
       rawChartData: summary.pagesPerSessionChartData,
       valueField: 'pages_per_session',

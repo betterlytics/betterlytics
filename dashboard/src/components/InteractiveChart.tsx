@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ResponsiveContainer, Area, XAxis, YAxis, CartesianGrid, Tooltip, Line, ComposedChart } from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
@@ -14,7 +14,6 @@ interface ChartDataPoint {
 }
 
 interface InteractiveChartProps {
-  title?: string;
   data: ChartDataPoint[];
   color: string;
   formatValue?: (value: number) => string;
@@ -25,7 +24,7 @@ interface InteractiveChartProps {
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
-  ({ title, data, color, formatValue, granularity, comparisonMap, headerContent, tooltipTitle }) => {
+  ({ data, color, formatValue, granularity, comparisonMap, headerContent, tooltipTitle }) => {
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
@@ -37,12 +36,6 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const isMobile = useIsMobile();
     return (
       <Card className='px-2 pt-2 pb-4 sm:pt-4 sm:pb-5'>
-        {title && (
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pt-2 pb-2'>
-            <CardTitle className='text-lg font-medium'>{title}</CardTitle>
-          </CardHeader>
-        )}
-
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 py-1 sm:px-2 md:px-4'>

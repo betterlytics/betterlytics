@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useId, useMemo } from 'react';
+import React, { useId } from 'react';
 import { ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronUp, ChevronDown, MousePointerClick } from 'lucide-react';
+import { MousePointerClick } from 'lucide-react';
+import { TrendPercentage } from './TrendPercentage';
 
 interface ChartData {
   date: string;
@@ -30,31 +31,6 @@ interface SummaryCardProps<T extends ChartData = ChartData> {
   onClick?: () => void;
 }
 
-interface TrendData {
-  direction: 'up' | 'down' | 'neutral';
-  percentage: number;
-  isPositive: boolean;
-}
-
-function calculateTrend(comparePercentage?: number | null): TrendData | null {
-  if (comparePercentage === null || comparePercentage === undefined) {
-    return null;
-  }
-
-  const absPercentage = Math.abs(comparePercentage);
-
-  let direction: 'up' | 'down' | 'neutral' = 'neutral';
-  if (absPercentage > 0) {
-    direction = comparePercentage > 0 ? 'up' : 'down';
-  }
-
-  return {
-    direction,
-    percentage: absPercentage,
-    isPositive: comparePercentage > 0,
-  };
-}
-
 const SummaryCard = React.memo(
   <T extends ChartData = ChartData>({
     title,
@@ -69,7 +45,6 @@ const SummaryCard = React.memo(
     onClick,
   }: SummaryCardProps<T>) => {
     const gradientId = useId();
-    const trendData = useMemo(() => calculateTrend(comparePercentage), [comparePercentage]);
 
     return (
       <Card
@@ -124,21 +99,9 @@ const SummaryCard = React.memo(
           <div className='flex items-center justify-between gap-2'>
             {icon && <div className='text-foreground pt-1'>{icon}</div>}
             <span className='text-foreground text-2xl font-bold tracking-tight'>{value}</span>
-            {trendData && trendData.direction !== 'neutral' && (
-              <Badge
-                variant='outline'
-                className={`text-foreground flex gap-0 p-0 text-xs ${
-                  trendData.isPositive ? 'text-trend-up border-none' : 'text-trend-down border-none'
-                }`}
-              >
-                {trendData.direction === 'up' ? (
-                  <ChevronUp className='h-3 w-3' fill='currentColor' />
-                ) : (
-                  <ChevronDown className='h-3 w-3' fill='currentColor' />
-                )}
-                <span>{trendData.percentage.toFixed(1)}%</span>
-              </Badge>
-            )}
+            <Badge variant='outline' className='border-none p-0 text-xs'>
+              <TrendPercentage percentage={comparePercentage} withIcon />
+            </Badge>
           </div>
           {footer && <div className='mt-auto pt-3'>{footer}</div>}
         </CardContent>

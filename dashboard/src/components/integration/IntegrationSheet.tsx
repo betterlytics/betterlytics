@@ -279,7 +279,7 @@ export default App;
                 </div>
 
                 <Tabs defaultValue='html' className='w-full'>
-                  <TabsList className='bg-muted border-border grid w-full grid-cols-3 shadow-sm'>
+                  <TabsList className='bg-muted border-border dark:inset-shadow-background grid w-full grid-cols-3 inset-shadow-sm'>
                     <TabsTrigger
                       value='html'
                       className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
@@ -357,7 +357,7 @@ export default App;
                     </Button>
                   </div>
                   <Tabs defaultValue='npm' className='w-full'>
-                    <TabsList className='bg-muted border-border mb-2 grid w-full grid-cols-4 shadow-sm'>
+                    <TabsList className='bg-muted border-border dark:inset-shadow-background mb-2 grid w-full grid-cols-4 inset-shadow-sm'>
                       <TabsTrigger
                         value='npm'
                         className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'

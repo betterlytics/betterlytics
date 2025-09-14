@@ -5,7 +5,7 @@ import { fetchPagesSummaryWithChartsAction } from '@/app/actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useTranslations } from 'next-intl';
-import { formatNumber } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type PagesSummarySectionProps = {
   pagesSummaryWithChartsPromise: ReturnType<typeof fetchPagesSummaryWithChartsAction>;
@@ -42,7 +42,7 @@ export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: P
     },
     {
       title: t('avgBounceRate'),
-      value: `${summaryWithCharts.avgBounceRate}%`,
+      value: formatPercentage(summaryWithCharts.avgBounceRate),
       rawChartData: summaryWithCharts.bounceRateChartData,
       comparePercentage: summaryWithCharts.compareValues.avgBounceRate,
       valueField: 'value',
