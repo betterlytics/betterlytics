@@ -23,7 +23,7 @@ export function CreateDashboardCard({
           aria-label={t('createCard.title')}
           className='group border-border/70 hover:border-primary/30 focus-visible:border-primary/40 h-full cursor-pointer items-center justify-center border-2 border-dashed p-6 text-center transition-all outline-none hover:scale-[1.01] hover:shadow-lg focus-visible:scale-[1.01] focus-visible:shadow-lg'
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === 'Enter') {
               e.preventDefault();
               (e.currentTarget as HTMLElement).click();
             }
