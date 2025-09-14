@@ -2,6 +2,7 @@ import { getUserBillingData } from '@/actions/billing';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { getPlanNameKey } from '@/lib/billing/plans';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 export default async function PlanQuota({
   billingDataPromise,
@@ -31,13 +32,13 @@ export default async function PlanQuota({
       </div>
 
       <div className='text-2xl font-semibold'>
-        {current.toLocaleString()}
-        <span className='text-muted-foreground text-base font-normal'> / {limit.toLocaleString()}</span>
+        {formatNumber(current)}
+        <span className='text-muted-foreground text-base font-normal'> / {formatNumber(limit)}</span>
       </div>
 
       <div className='flex items-center justify-between text-xs'>
         <span className='text-muted-foreground'>{planLabel}</span>
-        <span>{percentage}%</span>
+        <span>{formatPercentage(percentage)}</span>
       </div>
 
       <div className='bg-muted h-1.5 w-full rounded'>
