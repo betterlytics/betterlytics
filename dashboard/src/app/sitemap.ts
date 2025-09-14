@@ -38,11 +38,13 @@ const PAGES: PageCfg[] = [
   { path: '/docs/dashboard/funnels', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/metrics-glossary', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/filtering', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/upgrading', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/changing-plans', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/managing-subscription', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/cancellation', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/integration/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
 ];
 
 const localizedPath = (path: string, locale: SupportedLanguages) => {
