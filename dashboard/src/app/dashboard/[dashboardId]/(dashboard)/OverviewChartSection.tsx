@@ -111,7 +111,6 @@ export default function OverviewChartSection({
 
   return (
     <InteractiveChart
-      title={undefined}
       data={chartData}
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
