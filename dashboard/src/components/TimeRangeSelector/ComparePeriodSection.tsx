@@ -41,7 +41,7 @@ export function ComparePeriodSection({
         <>
           <Separator className='my-4' />
           <div>
-            <h3 className='text-text mb-2 text-sm font-medium'>{t('compareToPeriod')}</h3>
+            <h3 className='mb-2 text-sm font-medium'>{t('compareToPeriod')}</h3>
             <div className='grid gap-4'>
               <DateRangePicker
                 onDateRangeSelect={(range) => {
