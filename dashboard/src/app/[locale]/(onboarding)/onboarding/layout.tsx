@@ -6,7 +6,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
   return (
-    <div className='bg-background absolute top-0 left-0 z-[1000] h-svh max-h-dvh w-svw max-w-dvw overflow-x-hidden overflow-y-auto'>
+    <div className='bg-background min-h-svh w-full overflow-x-hidden'>
       <div className='bg-background relative my-auto h-auto w-full'>
         <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
           <div className='pointer-events-none static inset-0 overflow-hidden'>
@@ -15,8 +15,8 @@ export default async function OnboardingLayout({ children }: { children: React.R
             <div className='animate-spin-slow absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-gradient-to-r from-blue-500/3 to-purple-500/3 blur-3xl'></div>
           </div>
           <div className='flex min-h-svh w-full flex-col items-center'>
-            <div className='container mx-auto flex min-h-svh max-w-4xl flex-col px-4'>
-              <div className='flex flex-1 flex-col'>{children}</div>
+            <div className='container mx-auto flex w-full max-w-4xl flex-1 flex-col px-4'>
+              <div className='mb-6 flex flex-1 flex-col'>{children}</div>
               <OnboardingFooter />
             </div>
           </div>
