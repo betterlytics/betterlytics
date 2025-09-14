@@ -33,20 +33,20 @@ To disable later, remove the attribute or set `data-web-vitals="false"`.
 
 ### Using the npm package
 
-Enable Web Vitals by adding it to `addons` when initializing:
+Web Vitals is disabled by default. Enable Web Vitals:
 
 ```ts
 import betterlytics from '@betterlytics/tracker';
 
 betterlytics.init('your-site-id', {
-  addons: ['web-vitals'],
+  enableWebVitals: true, // true | false (default)
 });
 ```
 
-To disable Web Vitals, omit `'web-vitals'` from `addons` (or remove it):
+To disable Web Vitals, omit `enableWebVitals`, or set `enableWebVitals` to false:
 
 ```ts
-betterlytics.init('your-site-id');
+betterlytics.init('your-site-id', {});
 ```
 
 See the package docs for the full API and options: [@betterlytics/tracker on npm](https://www.npmjs.com/package/@betterlytics/tracker).
