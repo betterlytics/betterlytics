@@ -4,7 +4,7 @@ import { useBARouter } from '@/hooks/use-ba-router';
 import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard';
 import { Button } from '@/components/ui/button';
 import { Zap } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useBillingData } from '@/hooks/useBillingData';
 import { useTranslations } from 'next-intl';
 
@@ -24,8 +24,41 @@ export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsPr
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center py-8'>
-        <Spinner />
+      <div className='space-y-6'>
+        <div>
+          <div className='h-5 w-40'>
+            <Skeleton className='h-5 w-40' />
+          </div>
+          <div className='mt-2 h-4 w-72'>
+            <Skeleton className='h-4 w-72' />
+          </div>
+        </div>
+
+        <div className='bg-card rounded-lg border p-4'>
+          <div className='h-6 w-48'>
+            <Skeleton className='h-6 w-48' />
+          </div>
+          <div className='mt-2 h-4 w-64'>
+            <Skeleton className='h-4 w-64' />
+          </div>
+          <div className='mt-4 h-32 w-full'>
+            <Skeleton className='h-32 w-full' />
+          </div>
+        </div>
+
+        <div className='bg-card flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between'>
+          <div className='space-y-1'>
+            <div className='h-4 w-40'>
+              <Skeleton className='h-4 w-40' />
+            </div>
+            <div className='h-4 w-64'>
+              <Skeleton className='h-4 w-64' />
+            </div>
+          </div>
+          <div className='h-9 w-28'>
+            <Skeleton className='h-9 w-28' />
+          </div>
+        </div>
       </div>
     );
   }
@@ -55,7 +88,7 @@ export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsPr
           </h4>
           <p className='text-muted-foreground text-sm'>{t('cta.upgradeHint')}</p>
         </div>
-        <Button onClick={handleViewPlans} size='sm'>
+        <Button onClick={handleViewPlans} size='sm' className='cursor-pointer'>
           {t('cta.viewPlans')}
         </Button>
       </div>

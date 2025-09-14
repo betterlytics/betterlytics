@@ -20,7 +20,7 @@ export function GranularitySection({
   const t = useTranslations('components.timeRange');
   return (
     <div>
-      <h3 className='mb-2 text-sm font-medium text-gray-500'>{t('granularity')}</h3>
+      <h3 className='mb-2 text-sm font-medium'>{t('granularity')}</h3>
       <div className='grid grid-cols-2 gap-2'>
         {GRANULARITY_RANGE_PRESETS.map((gran) => {
           const isAllowed = allowedGranularities.includes(gran.value);
@@ -30,7 +30,7 @@ export function GranularitySection({
               variant={selectedGranularity === gran.value ? 'default' : 'outline'}
               onClick={() => isAllowed && onGranularitySelect(gran.value)}
               disabled={!isAllowed}
-              className={cn('w-full', !isAllowed && 'cursor-not-allowed opacity-50')}
+              className={cn('w-full cursor-pointer', !isAllowed && 'cursor-not-allowed opacity-50')}
             >
               {t(`granularityLabels.${gran.value}`)}
             </Button>

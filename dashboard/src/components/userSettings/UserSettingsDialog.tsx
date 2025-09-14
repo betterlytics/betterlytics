@@ -126,7 +126,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[700px]'>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <Spinner />
             <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
@@ -139,7 +139,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   if (error) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[700px]'>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <AlertTriangle className='text-destructive h-8 w-8' />
             <div className='text-center'>
@@ -155,7 +155,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   if (!settings) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[700px]'>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
           <div className='flex items-center justify-center py-8'>
             <span>{tDialog('noSettings')}</span>
           </div>
@@ -166,20 +166,24 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[80vh] overflow-y-auto sm:max-w-[700px]'>
+      <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto p-3 sm:p-6 md:max-w-11/12 md:min-w-[700px] lg:max-w-[900px] lg:min-w-[900px]'>
         <DialogHeader>
           <DialogTitle>{tDialog('title')}</DialogTitle>
           <DialogDescription>{tDialog('description')}</DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-          <TabsList className='flex w-full'>
+          <TabsList className='bg-secondary dark:inset-shadow-background flex w-full gap-1 px-1 inset-shadow-sm'>
             {availableTabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <TabsTrigger key={tab.id} value={tab.id} className='flex items-center gap-2'>
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground flex cursor-pointer items-center gap-2 rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+                >
                   <Icon className='h-4 w-4' />
-                  <span className='hidden sm:inline'>{tab.label}</span>
+                  <span className='hidden lg:inline'>{tab.label}</span>
                 </TabsTrigger>
               );
             })}
@@ -188,7 +192,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           {availableTabs.map((tab) => {
             const Component = tab.component;
             return (
-              <TabsContent key={tab.id} value={tab.id} className='mt-6'>
+              <TabsContent key={tab.id} value={tab.id} className='mt-6 min-h-[420px]'>
                 <Component formData={formData} onUpdate={handleUpdate} onCloseDialog={handleCloseDialog} />
               </TabsContent>
             );
@@ -196,10 +200,10 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
         </Tabs>
 
         <div className='flex justify-end space-x-2 border-t pt-4'>
-          <Button variant='outline' onClick={() => onOpenChange(false)}>
+          <Button variant='outline' onClick={() => onOpenChange(false)} className='cursor-pointer'>
             {tDialog('buttons.cancel')}
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || !isFormChanged}>
+          <Button onClick={handleSave} disabled={isSaving || !isFormChanged} className='cursor-pointer'>
             {isSaving ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />

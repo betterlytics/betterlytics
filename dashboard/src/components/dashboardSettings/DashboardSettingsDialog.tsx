@@ -103,15 +103,21 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[80vh] overflow-y-auto sm:max-w-[700px]'>
+      <DialogContent className='max-h-[80vh] overflow-y-auto p-3 sm:max-w-[700px] sm:p-6'>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-6'>
-          <TabsList className={`grid w-full grid-cols-${SETTINGS_TABS.length}`}>
+          <TabsList
+            className={`grid w-full grid-cols-${SETTINGS_TABS.length} bg-secondary dark:inset-shadow-background gap-1 px-1 inset-shadow-sm`}
+          >
             {SETTINGS_TABS.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id}>
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+              >
                 {tab.id === 'data' ? t('tabs.data') : t('tabs.danger')}
               </TabsTrigger>
             ))}
@@ -127,7 +133,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
           })}
 
           <div className='flex justify-end border-t pt-6'>
-            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged}>
+            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged} className='cursor-pointer'>
               {isPendingSave ? (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               ) : (

@@ -24,12 +24,12 @@ export default function DataSettings({ formData, onUpdate }: DataSettingsProps) 
           value={formData.dataRetentionDays?.toString() || '365'}
           onValueChange={(value) => onUpdate({ dataRetentionDays: parseInt(value) })}
         >
-          <SelectTrigger className='w-full'>
+          <SelectTrigger className='border-border w-full cursor-pointer'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {DATA_RETENTION_PRESETS.map((preset) => (
-              <SelectItem key={preset.value} value={preset.value.toString()}>
+              <SelectItem key={preset.value} value={preset.value.toString()} className='cursor-pointer'>
                 {(() => {
                   try {
                     return t(`presets.${preset.i18nKey}`);

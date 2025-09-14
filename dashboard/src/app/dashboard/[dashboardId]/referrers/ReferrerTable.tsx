@@ -41,7 +41,7 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 };
 
 interface ReferrerTableProps {
-  data?: ToDataTable<'source_name', ReferrerTableRow>[];
+  data?: ToDataTable<'source_url', ReferrerTableRow>[];
 }
 
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
@@ -56,7 +56,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
   });
 
-  const columns: ColumnDef<ToDataTable<'source_name', ReferrerTableRow>>[] = [
+  const columns: ColumnDef<ToDataTable<'source_url', ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
       header: t('columns.source'),
@@ -128,10 +128,10 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
           {(Object.values(ReferrerTab) as ReferrerTabKey[]).map((value) => (
             <button
               key={value}
-              className={`border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
+              className={`cursor-pointer border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
                 activeTab === value
-                  ? 'border-gray-800 text-gray-800'
-                  : 'border-transparent text-gray-600 hover:border-gray-300'
+                  ? 'border-primary text-muted-foreground'
+                  : 'text-muted-foreground hover:border-primary border-transparent'
               }`}
               onClick={() => setActiveTab(value)}
             >

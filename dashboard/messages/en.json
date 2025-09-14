@@ -627,7 +627,7 @@
       },
       "openSource": {
         "titleEmphasis": "Open Source",
-        "titleRest": "& Community Driven",
+        "titleRest": "Community Driven",
         "subtitle": "Transparent, community-driven development. Join our contributors, request features, or adapt the platform to your unique requirements.",
         "starOnGithub": "Star on GitHub",
         "viewDocs": "View Documentation",
@@ -772,11 +772,12 @@
     "sections": {
       "topPages": "Top Pages",
       "geography": "Geography",
-      "devicesBreakdown": "Devices Breakdown",
+      "devicesBreakdown": "Devices",
       "trafficSources": "Traffic Sources",
       "customEvents": "Custom Events",
       "weeklyTrends": "Weekly Trends"
     },
+    "goTo": "Go to {section}",
     "tabs": {
       "pages": "Pages",
       "userJourney": "User Journey",
@@ -788,25 +789,16 @@
       "worldMap": "World Map",
       "browsers": "Browsers",
       "devices": "Devices",
-      "operatingSystems": "Operating Systems",
+      "operatingSystems": "OS",
       "referrers": "Referrers",
       "sources": "Sources",
       "channels": "Channels",
       "events": "Events"
     },
     "emptyStates": {
-      "noPageData": "No page data available",
-      "noEntryPagesData": "No entry pages data available",
-      "noExitPagesData": "No exit pages data available",
-      "noCountryData": "No country data available",
-      "noWorldMapData": "No world map data available",
-      "noBrowserData": "No browser data available",
-      "noDeviceData": "No device data available",
-      "noOperatingSystemData": "No operating system data available",
-      "noReferrerData": "No referrer data available",
-      "noSourceData": "No source data available",
-      "noChannelData": "No channel data available",
-      "noCustomEventsData": "No custom events data available"
+      "adjustTimeRange": "Adjust time range or filters",
+      "noUserJourneyData": "No user journey data available",
+      "noData": "No data available"
     }
   },
   "devicesPage": {
@@ -817,7 +809,11 @@
     "title": "Your Dashboards",
     "subtitle": "Manage and monitor analytics for all your websites.",
     "emptyTitle": "No dashboards yet",
-    "emptyDescription": "Create your first dashboard to start tracking analytics for your website."
+    "emptyDescription": "Create your first dashboard to start tracking analytics for your website.",
+    "createCard": {
+      "title": "Create Dashboard",
+      "description": "Add a new dashboard"
+    }
   },
   "charts": {
     "tooltip": {
@@ -885,7 +881,7 @@
         "upgradeCta": "Upgrade Now"
       },
       "navigation": {
-        "backToDashboard": "Back to Dashboard",
+        "backToDashboards": "Back to Dashboards",
         "title": "Choose Your Plan"
       },
       "page": {
@@ -945,6 +941,11 @@
         "manage": "Manage Subscription",
         "reactivate": "Reactivate Subscription",
         "cancel": "Cancel Subscription"
+      },
+      "planNames": {
+        "growth": "Growth Plan",
+        "professional": "Pro Plan",
+        "enterprise": "Enterprise"
       }
     },
     "dataTable": {
@@ -983,12 +984,6 @@
     },
 
     "devices": {
-      "summary": {
-        "distinctDeviceTypes": "Distinct Device Types",
-        "mostPopularDevice": "Most Popular Device",
-        "mostPopularOperatingSystem": "Most Popular Operating System",
-        "mostPopularBrowser": "Most Popular Browser"
-      },
       "tables": {
         "columns": {
           "os": "Operating System",
@@ -997,15 +992,12 @@
           "percentage": "Percentage"
         },
         "topOperatingSystems": "Top Operating Systems",
-        "mostCommonOperatingSystems": "Most common operating systems",
-        "topBrowsers": "Top Browsers",
-        "mostCommonBrowsers": "Most common browsers"
+        "topBrowsers": "Top Browsers"
       },
       "charts": {
         "deviceTypes": "Device Types",
         "visitorsByDeviceCategory": "Visitors by device category",
-        "deviceUsageTrend": "Device Usage Trend",
-        "visitorTrendsByDeviceType": "Visitor trends by device type"
+        "deviceUsageTrend": "Device Usage Trend"
       },
       "trends": {
         "noData": "No trend data available",
@@ -1024,7 +1016,6 @@
       },
       "performance": {
         "title": "Campaign Performance",
-        "description": "Key metrics for your campaigns",
         "columns": {
           "campaignName": "Campaign Name",
           "visitors": "Visitors",
@@ -1040,12 +1031,10 @@
       },
       "utm": {
         "table": {
-          "title": "UTM Parameter Breakdown",
-          "description": "Campaign performance across different UTM parameters"
+          "title": "UTM Parameter Breakdown"
         },
         "chart": {
-          "title": "UTM Distribution",
-          "description": "Visual breakdown of UTM parameter performance"
+          "title": "UTM Distribution"
         },
         "tabs": {
           "source": "Source",
@@ -1069,7 +1058,6 @@
       },
       "landing": {
         "title": "Campaign Landing Page Performance",
-        "description": "Key metrics for campaign landing pages",
         "columns": {
           "campaignName": "Campaign Name",
           "landingPageUrl": "Landing Page URL",
@@ -1183,7 +1171,6 @@
       },
       "details": {
         "title": "Funnel Analysis",
-        "description": "Detailed funnel conversion analysis",
         "steps": "steps",
         "users": "users",
         "dropped": "dropped",
@@ -1227,9 +1214,7 @@
         "allPages": "All Pages",
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
-        "title": "Page Analytics",
-        "description": "Analyze top pages, entry/exit performance, and engagement to optimize content.",
-        "filterByPathPlaceholder": "Filter by path..."
+        "title": "Page Analytics"
       }
     },
     "referrers": {
@@ -1245,13 +1230,10 @@
       },
       "charts": {
         "distribution": "Referrer Distribution",
-        "trafficByCategory": "Traffic sources by category",
-        "trafficTrends": "Referral Traffic Trends",
-        "trafficBySourceOverTime": "Traffic by source over time"
+        "trafficTrends": "Referral Traffic Trends"
       },
       "table": {
         "details": "Referrer Details",
-        "detailsDescription": "Detailed breakdown of traffic sources",
         "tabs": {
           "all": "All",
           "search": "Search",
@@ -1284,7 +1266,6 @@
       },
       "steps": "Steps",
       "topJourneys": "Top {journeys} Journeys",
-      "noData": "No journey data available for the selected criteria.",
       "sessions": "Sessions"
     },
     "outboundLinks": {
@@ -1302,11 +1283,11 @@
         "sourcePages": "Source Pages"
       },
       "chart": {
-        "title": "Unique Outbound Clicks Over Time"
+        "title": "Unique Outbound Clicks Over Time",
+        "tooltipTitle": "Unique Outbound Clicks"
       },
       "pieChart": {
-        "title": "Outbound Links Distribution",
-        "description": "Top outbound links by unique clicks"
+        "title": "Outbound Links Distribution"
       }
     },
     "webVitals": {
@@ -1656,7 +1637,7 @@
           "description": "Just add one line of code or install our npm package. No cookies, no pop-ups."
         },
         "feature2": {
-          "title": "Free forever",
+          "title": "Free to get started",
           "description": "10,000 events per month. No credit card. No commitment."
         },
         "feature3": {

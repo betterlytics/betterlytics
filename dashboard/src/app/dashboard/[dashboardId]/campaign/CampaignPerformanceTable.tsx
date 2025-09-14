@@ -4,6 +4,7 @@ import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CampaignPerformanceTableProps {
   data: CampaignPerformance[];
@@ -49,10 +50,13 @@ export default function CampaignPerformanceTable({ data }: CampaignPerformanceTa
   ];
 
   return (
-    <div className='bg-card border-border rounded-lg border p-6 shadow'>
-      <h2 className='text-foreground mb-1 text-lg font-bold'>{t('title')}</h2>
-      <p className='text-muted-foreground mb-4 text-sm'>{t('description')}</p>
-      <DataTable columns={columns} data={data} defaultSorting={[{ id: 'visitors', desc: true }]} />
-    </div>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-0'>
+        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+      </CardHeader>
+      <CardContent className='px-0'>
+        <DataTable columns={columns} data={data} defaultSorting={[{ id: 'visitors', desc: true }]} />
+      </CardContent>
+    </Card>
   );
 }

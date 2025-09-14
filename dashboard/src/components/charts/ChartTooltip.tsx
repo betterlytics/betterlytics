@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
-import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/utils/formatters';
 
 interface ChartTooltipProps {
   payload?: {
@@ -16,6 +16,7 @@ interface ChartTooltipProps {
   label?: Date;
   className?: string;
   comparisonMap?: ComparisonMapping[];
+  title?: string;
 }
 
 export function ChartTooltip({
@@ -26,12 +27,12 @@ export function ChartTooltip({
   labelFormatter,
   className,
   comparisonMap,
+  title,
 }: ChartTooltipProps) {
-  const t = useTranslations('charts.tooltip');
-
   if (!active || !payload || !payload.length) {
     return null;
   }
+
   const name = label || payload[0].payload.name || payload[0].payload.label;
 
   const labelColor = payload[0].payload.color;
@@ -45,51 +46,48 @@ export function ChartTooltip({
 
   const hasComparison = previousValue !== undefined;
   const trendInfo = getTrendInfo(value, previousValue || 0, hasComparison);
-  const { icon: TrendIcon, color: trendColor, bgColor: trendBgColor } = trendInfo;
 
   const formattedDifference = formatDifference(value, previousValue || 0, hasComparison, formatter);
+  const previousDateLabel = comparisonData ? labelFormatter(comparisonData.compareDate) : undefined;
+  const previousColor = 'var(--chart-comparison)';
+
   return (
     <div
       className={cn(
-        'border-border bg-popover/95 min-w-[200px] rounded-lg border p-4 shadow-xl backdrop-blur-sm',
+        'border-border bg-popover/95 min-w-[200px] rounded-lg border p-3 shadow-xl backdrop-blur-sm',
         'animate-in fade-in-0 zoom-in-95 duration-200',
         className,
       )}
     >
-      <div className='border-border mb-3 border-b pb-2'>
-        <div className='mb-1 flex items-center gap-2'>
-          <div className='bg-primary h-2 w-2 rounded-full' style={{ background: labelColor }}></div>
-          <span className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
-            {labelFormatter(name)}
-          </span>
+      {title && <div className='text-popover-foreground mb-2 text-sm font-medium'>{title}</div>}
+      <div className='space-y-1.5'>
+        <div className='flex items-center justify-between gap-3'>
+          <div className='flex items-center gap-2'>
+            <div className='bg-primary h-2 w-2 rounded-full' style={{ background: labelColor }} />
+            <span className='text-popover-foreground text-sm'>{labelFormatter(name)}</span>
+          </div>
+          <div className='text-popover-foreground text-sm font-medium'>
+            {formatter ? formatter(value) : formatNumber(value)}
+          </div>
         </div>
-        {hasComparison && comparisonData && (
-          <div className='text-muted-foreground text-xs'>
-            {t('vs')} {labelFormatter(comparisonData.compareDate)}
+
+        {hasComparison && previousDateLabel !== undefined && (
+          <div className='flex items-center justify-between gap-3'>
+            <div className='flex items-center gap-2'>
+              <div className='bg-muted-foreground/40 h-2 w-2 rounded-full' style={{ background: previousColor }} />
+              <span className='text-popover-foreground/60 text-sm'>{previousDateLabel}</span>
+            </div>
+            <div className='text-popover-foreground/60 text-sm'>
+              {formatter ? formatter(previousValue as number) : formatNumber(previousValue as number)}
+            </div>
           </div>
         )}
       </div>
 
-      <div className='mb-3'>
-        <div className='text-muted-foreground mb-1 text-xs'>{t('currentPeriod')}</div>
-        <div className='text-popover-foreground text-lg font-semibold'>{formatter ? formatter(value) : value}</div>
-      </div>
-
-      {previousValue !== undefined && (
-        <div className='space-y-2'>
-          <div className='text-muted-foreground text-xs'>{t('previousPeriod')}</div>
-          <div className='flex items-center justify-between'>
-            <span className='text-popover-foreground/80 text-sm'>
-              {formatter ? formatter(previousValue) : previousValue}
-            </span>
-          </div>
-
-          {formattedDifference && (
-            <div className={cn('flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium', trendBgColor)}>
-              <TrendIcon className={cn('h-3 w-3', trendColor)} />
-              <span className={trendColor}>{formattedDifference}</span>
-            </div>
-          )}
+      {formattedDifference && (
+        <div className='mt-2 flex items-center gap-1 text-sm'>
+          <trendInfo.icon className={cn('h-3.5 w-3.5', trendInfo.color)} fill='currentColor' />
+          <span className={cn('font-semibold', trendInfo.color)}>{formattedDifference}</span>
         </div>
       )}
     </div>

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { TableSkeleton, SummaryCardsSkeleton, ChartSkeleton } from '@/components/skeleton';
+import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import SummaryAndChartSection from './SummaryAndChartSection';
 import PagesAnalyticsSection from './PagesAnalyticsSection';
 import GeographySection from './GeographySection';
@@ -25,6 +25,8 @@ import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { NoDataBanner } from '@/app/dashboard/[dashboardId]/NoDataBanner';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { getTranslations } from 'next-intl/server';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -60,7 +62,15 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   });
 
   const summaryAndChartPromise = Promise.all([
-    fetchSummaryStatsAction(dashboardId, startDate, endDate, queryFilters),
+    fetchSummaryStatsAction(
+      dashboardId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      compareStartDate,
+      compareEndDate,
+    ),
     fetchUniqueVisitorsAction(
       dashboardId,
       startDate,
@@ -116,48 +126,36 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     compareEndDate,
   );
 
+  const t = await getTranslations('dashboard.sidebar');
+
   return (
-    <div className='container space-y-6 p-6'>
-      <DashboardFilters />
+    <div className='container space-y-4 p-2 sm:p-6'>
+      <DashboardHeader title={t('overview')}>
+        <DashboardFilters />
+      </DashboardHeader>
 
       <Suspense>
         <NoDataBanner />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <div className='space-y-6'>
-            <SummaryCardsSkeleton />
-            <ChartSkeleton />
-          </div>
-        }
-      >
+      <Suspense fallback={<ChartSkeleton />}>
         <SummaryAndChartSection data={summaryAndChartPromise} />
       </Suspense>
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
         <Suspense fallback={<TableSkeleton />}>
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} />
         </Suspense>
-      </div>
+        <Suspense fallback={<TableSkeleton />}>
+          <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
+        </Suspense>
 
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
-        <div className='flex-1 lg:flex-[2]'>
-          <Suspense fallback={<TableSkeleton />}>
-            <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
-          </Suspense>
-        </div>
-        <div className='flex-1'>
-          <Suspense fallback={<TableSkeleton />}>
-            <TrafficSourcesSection trafficSourcesCombinedPromise={trafficSourcesPromise} />
-          </Suspense>
-        </div>
-      </div>
-
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+        <Suspense fallback={<TableSkeleton />}>
+          <TrafficSourcesSection trafficSourcesCombinedPromise={trafficSourcesPromise} />
+        </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <CustomEventsSection customEventsPromise={customEventsPromise} />
         </Suspense>

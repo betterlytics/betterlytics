@@ -781,6 +781,7 @@
       "customEvents": "Eventi personalizzati",
       "weeklyTrends": "Andamenti settimanali"
     },
+    "goTo": "Vai a {section}",
     "tabs": {
       "pages": "Pagine",
       "userJourney": "Percorso utente",
@@ -799,18 +800,9 @@
       "events": "Eventi"
     },
     "emptyStates": {
-      "noPageData": "Nessun dato di pagina disponibile",
-      "noEntryPagesData": "Nessun dato sulle pagine di ingresso disponibile",
-      "noExitPagesData": "Nessun dato sulle pagine di uscita disponibile",
-      "noCountryData": "Nessun dato per paese disponibile",
-      "noWorldMapData": "Nessun dato per la mappa mondiale disponibile",
-      "noBrowserData": "Nessun dato per browser disponibile",
-      "noDeviceData": "Nessun dato per dispositivo disponibile",
-      "noOperatingSystemData": "Nessun dato per sistema operativo disponibile",
-      "noReferrerData": "Nessun dato per sito di riferimento disponibile",
-      "noSourceData": "Nessun dato per fonte disponibile",
-      "noChannelData": "Nessun dato per canale disponibile",
-      "noCustomEventsData": "Nessun dato per eventi personalizzati disponibile"
+      "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri",
+      "noUserJourneyData": "Nessun dato per percorso utente disponibile",
+      "noData": "Nessun dato disponibile"
     }
   },
   "devicesPage": {
@@ -821,7 +813,11 @@
     "title": "Le tue dashboard",
     "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
     "emptyTitle": "Nessuna dashboard ancora",
-    "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito."
+    "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito.",
+    "createCard": {
+      "title": "Crea dashboard",
+      "description": "Aggiungi una nuova dashboard"
+    }
   },
   "componentsBilling": {
     "dashboards": {
@@ -893,7 +889,7 @@
         "upgradeCta": "Esegui upgrade"
       },
       "navigation": {
-        "backToDashboard": "Torna alla dashboard",
+        "backToDashboards": "Torna alle dashboards",
         "title": "Scegli il tuo piano"
       },
       "page": {
@@ -953,6 +949,11 @@
         "manage": "Gestisci abbonamento",
         "reactivate": "Riattiva abbonamento",
         "cancel": "Annulla abbonamento"
+      },
+      "planNames": {
+        "growth": "Piano Growth",
+        "professional": "Piano Pro",
+        "enterprise": "Enterprise"
       }
     },
     "dataTable": {
@@ -991,12 +992,6 @@
     },
 
     "devices": {
-      "summary": {
-        "distinctDeviceTypes": "Tipi di dispositivo distinti",
-        "mostPopularDevice": "Dispositivo più popolare",
-        "mostPopularOperatingSystem": "Sistema operativo più popolare",
-        "mostPopularBrowser": "Browser più popolare"
-      },
       "tables": {
         "columns": {
           "os": "Sistema operativo",
@@ -1005,15 +1000,12 @@
           "percentage": "Percentuale"
         },
         "topOperatingSystems": "Sistemi operativi principali",
-        "mostCommonOperatingSystems": "Sistemi operativi più comuni",
-        "topBrowsers": "Browser principali",
-        "mostCommonBrowsers": "Browser più comuni"
+        "topBrowsers": "Browser principali"
       },
       "charts": {
         "deviceTypes": "Tipo di dispositivo",
         "visitorsByDeviceCategory": "Visitatori per categoria dispositivo",
-        "deviceUsageTrend": "Tendenza utilizzo dispositivi",
-        "visitorTrendsByDeviceType": "Tendenza visitatori per tipo dispositivo"
+        "deviceUsageTrend": "Tendenza utilizzo dispositivi"
       },
       "trends": {
         "noData": "Nessun dato di tendenza disponibile",
@@ -1032,7 +1024,6 @@
       },
       "performance": {
         "title": "Performance campagna",
-        "description": "Metriche chiave per le tue campagne",
         "columns": {
           "campaignName": "Nome campagna",
           "visitors": "Visitatori",
@@ -1048,12 +1039,10 @@
       },
       "utm": {
         "table": {
-          "title": "Ripartizione parametri UTM",
-          "description": "Performance campagna sui diversi parametri UTM"
+          "title": "Ripartizione parametri UTM"
         },
         "chart": {
-          "title": "Distribuzione UTM",
-          "description": "Ripartizione visiva delle performance dei parametri UTM"
+          "title": "Distribuzione UTM"
         },
         "tabs": {
           "source": "Sorgente",
@@ -1077,7 +1066,6 @@
       },
       "landing": {
         "title": "Performance pagine di destinazione campagna",
-        "description": "Metriche chiave per le pagine di destinazione delle campagne",
         "columns": {
           "campaignName": "Nome campagna",
           "landingPageUrl": "URL pagina di destinazione",
@@ -1191,7 +1179,6 @@
       },
       "details": {
         "title": "Analisi funnel",
-        "description": "Analisi dettagliata delle conversioni del funnel",
         "steps": "passaggi",
         "users": "utenti",
         "dropped": "abbandoni",
@@ -1235,9 +1222,7 @@
         "allPages": "Tutte le pagine",
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",
-        "title": "Analisi pagine",
-        "description": "Analizza le pagine principali, le prestazioni di ingresso/uscita e il coinvolgimento per ottimizzare i contenuti.",
-        "filterByPathPlaceholder": "Filtra per percorso..."
+        "title": "Analisi pagine"
       }
     },
     "referrers": {
@@ -1253,13 +1238,10 @@
       },
       "charts": {
         "distribution": "Distribuzione siti di riferimento",
-        "trafficByCategory": "Fonti di traffico per categoria",
-        "trafficTrends": "Trend traffico di riferimento",
-        "trafficBySourceOverTime": "Traffico per fonte nel tempo"
+        "trafficTrends": "Trend traffico di riferimento"
       },
       "table": {
         "details": "Dettagli sito di riferimento",
-        "detailsDescription": "Analisi dettagliata delle fonti di traffico",
         "tabs": {
           "all": "Tutti",
           "search": "Ricerca",
@@ -1292,7 +1274,6 @@
       },
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
-      "noData": "Nessun dato di percorso disponibile per i criteri selezionati.",
       "sessions": "Sessioni"
     },
     "outboundLinks": {
@@ -1310,11 +1291,11 @@
         "sourcePages": "Pagine sorgente"
       },
       "chart": {
-        "title": "Clic in uscita unici nel tempo"
+        "title": "Clic in uscita unici nel tempo",
+        "tooltipTitle": "Clic in uscita unici"
       },
       "pieChart": {
-        "title": "Distribuzione link in uscita",
-        "description": "Link in uscita principali per clic unici"
+        "title": "Distribuzione link in uscita"
       }
     },
     "webVitals": {
@@ -1664,7 +1645,7 @@
           "description": "Aggiungi una riga di codice o installa il nostro pacchetto npm. Niente cookie, niente pop‑up."
         },
         "feature2": {
-          "title": "Gratis per sempre",
+          "title": "Gratis per iniziare",
           "description": "10.000 eventi al mese. Nessuna carta di credito. Nessun vincolo."
         },
         "feature3": {

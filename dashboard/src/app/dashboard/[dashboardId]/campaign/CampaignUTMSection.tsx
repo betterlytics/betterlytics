@@ -23,7 +23,7 @@ export default function CampaignUTMSection({
   termBreakdownPromise,
 }: CampaignUTMSectionProps) {
   return (
-    <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+    <div className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
       <div className='lg:col-span-2'>
         <UTMBreakdownTabbedTable
           sourceBreakdownPromise={sourceBreakdownPromise}

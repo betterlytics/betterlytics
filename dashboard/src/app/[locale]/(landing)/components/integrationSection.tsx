@@ -69,7 +69,7 @@ export async function IntegrationSection() {
 
         <div className='mt-12 text-center'>
           <Button size='lg' className='mb-4' asChild>
-            <ExternalLink href='/docs' title={t('guideTitle')}>
+            <ExternalLink href='/docs/installation/cloud-hosting' title={t('guideTitle')}>
               {t('guideButton')}
             </ExternalLink>
           </Button>

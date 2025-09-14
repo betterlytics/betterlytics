@@ -11,6 +11,7 @@ import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/filter';
 import { HeatmapSkeleton } from '@/components/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -72,34 +73,40 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   }
 
   return (
-    <div className='bg-card border-border rounded-lg border p-6 shadow'>
-      <div className='mb-8 flex items-center justify-between'>
-        <div>
-          <h2 className='text-foreground mb-1 text-lg font-bold'>{t('sections.weeklyTrends')}</h2>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-1'>
+        <div className='flex flex-row items-center justify-between gap-2'>
+          <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
+          <div className='flex h-8 min-w-0 items-center'>
+            <div className='w-48 sm:w-48'>
+              <Select value={selectedMetric} onValueChange={onMetricChange}>
+                <SelectTrigger size='sm' className='w-full cursor-pointer'>
+                  <span className='block truncate'>
+                    <SelectValue placeholder='Select metric' />
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {metricOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value} className='cursor-pointer'>
+                      {metricLabelByMetric[opt.value as HeatmapMetric]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
-        <div className='w-36'>
-          <Select value={selectedMetric} onValueChange={onMetricChange}>
-            <SelectTrigger className='w-full'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {metricOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {metricLabelByMetric[opt.value as HeatmapMetric]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      </CardHeader>
 
-      <HeatmapGrid
-        data={current?.matrix ?? []}
-        maxValue={current?.maxValue ?? 1}
-        metricLabel={selectedMetricLabel}
-        metric={selectedMetric}
-      />
-    </div>
+      <CardContent className='px-0'>
+        <HeatmapGrid
+          data={current?.matrix ?? []}
+          maxValue={current?.maxValue ?? 1}
+          metricLabel={selectedMetricLabel}
+          metric={selectedMetric}
+        />
+      </CardContent>
+    </Card>
   );
 }
 
@@ -135,7 +142,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
   );
 
   return (
-    <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-1 gap-y-1'>
+    <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-1 gap-y-1 pb-3'>
       <div></div>
       {dayLabels.map((label) => (
         <div
@@ -148,7 +155,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
 
       {Array.from({ length: 24 }).map((_, hourIndex) => (
         <Fragment key={`hour-${hourIndex}`}>
-          <div className='text-muted-foreground flex h-2.5 items-center justify-end pr-2 text-xs leading-none'>
+          <div className='text-muted-foreground flex h-2.5 items-center justify-end pr-1 text-xs leading-none'>
             {hourIndex % 3 === 1 ? `${String(hourIndex).padStart(2, '0')}:00` : ''}
           </div>
           {Array.from({ length: 7 }).map((_, dayIndex) => {

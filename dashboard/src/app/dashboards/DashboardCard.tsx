@@ -25,8 +25,11 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
   };
 
   return (
-    <Card className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'>
-      <div className='block h-full' onClick={handleCardClick}>
+    <Card
+      className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'
+      onClick={handleCardClick}
+    >
+      <div className='block h-full'>
         <CardHeader className='pb-4'>
           <div className='flex items-start justify-between'>
             <div className='flex items-center gap-3'>

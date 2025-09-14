@@ -104,12 +104,12 @@ function SetupTotp() {
   return (
     <AlertDialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button className='w-full sm:w-auto' disabled={isPending || isDialogOpen}>
+        <Button className='w-full cursor-pointer sm:w-auto' disabled={isPending || isDialogOpen}>
           {isPending || isDialogOpen ? <Loader2 className='h-4 w-4 animate-spin' /> : t('enable')}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
-        className='max-h-[90vh] w-80 overflow-y-auto'
+        className='max-h-[90vh] w-86 overflow-y-auto'
         onOpenAutoFocus={handleDialogOpenAutoFocus}
       >
         <AlertDialogHeader>
@@ -142,8 +142,10 @@ function SetupTotp() {
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>{t('cancel')}</AlertDialogCancel>
-            <Button type='submit' disabled={isPending || totp.length !== 6}>
+            <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+              {t('cancel')}
+            </AlertDialogCancel>
+            <Button type='submit' disabled={isPending || totp.length !== 6} className='cursor-pointer'>
               {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('confirm')}
             </Button>
           </AlertDialogFooter>

@@ -5,6 +5,7 @@ import { fetchPagesSummaryWithChartsAction } from '@/app/actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useTranslations } from 'next-intl';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type PagesSummarySectionProps = {
   pagesSummaryWithChartsPromise: ReturnType<typeof fetchPagesSummaryWithChartsAction>;
@@ -17,31 +18,35 @@ export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: P
   const cards: SummaryCardData[] = [
     {
       title: t('pagesPerSession'),
-      value: summaryWithCharts.pagesPerSession.toLocaleString(),
+      value: formatNumber(summaryWithCharts.pagesPerSession),
       rawChartData: summaryWithCharts.pagesPerSessionChartData,
+      comparePercentage: summaryWithCharts.compareValues.pagesPerSession,
       valueField: 'value',
       chartColor: 'var(--chart-1)',
     },
     {
       title: t('totalPageviews'),
-      value: summaryWithCharts.totalPageviews.toLocaleString(),
+      value: formatNumber(summaryWithCharts.totalPageviews),
       rawChartData: summaryWithCharts.pageviewsChartData,
+      comparePercentage: summaryWithCharts.compareValues.totalPageviews,
       valueField: 'views',
-      chartColor: 'var(--chart-2)',
+      chartColor: 'var(--chart-1)',
     },
     {
       title: t('avgTimeOnPage'),
       value: formatDuration(summaryWithCharts.avgTimeOnPage),
       rawChartData: summaryWithCharts.avgTimeChartData,
+      comparePercentage: summaryWithCharts.compareValues.avgTimeOnPage,
       valueField: 'value',
-      chartColor: 'var(--chart-3)',
+      chartColor: 'var(--chart-1)',
     },
     {
       title: t('avgBounceRate'),
-      value: `${summaryWithCharts.avgBounceRate}%`,
+      value: formatPercentage(summaryWithCharts.avgBounceRate),
       rawChartData: summaryWithCharts.bounceRateChartData,
+      comparePercentage: summaryWithCharts.compareValues.avgBounceRate,
       valueField: 'value',
-      chartColor: 'var(--chart-4)',
+      chartColor: 'var(--chart-1)',
     },
   ];
 

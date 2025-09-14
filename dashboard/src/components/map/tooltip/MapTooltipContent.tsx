@@ -4,6 +4,7 @@ import { SupportedLanguages } from '@/constants/i18n';
 import { GeoVisitor } from '@/entities/geography';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
+import { formatNumber } from '@/utils/formatters';
 import React from 'react';
 
 export type MapTooltipContentProps = {
@@ -32,7 +33,7 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTo
       />
       <div className='flex gap-1 text-sm whitespace-nowrap'>
         <span className='text-muted-foreground'>{label}:</span>
-        <span className='text-foreground'>{geoVisitor.visitors}</span>
+        <span className='text-foreground'>{formatNumber(geoVisitor.visitors)}</span>
       </div>
     </div>
   );

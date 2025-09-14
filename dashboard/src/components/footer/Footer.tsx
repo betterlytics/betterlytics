@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
+import { FooterLanguageSelector } from './FooterLanguageSelector';
 
 export async function Footer() {
   const t = await getTranslations('public.footer');
@@ -12,9 +13,12 @@ export async function Footer() {
         <div className='grid gap-8 md:grid-cols-4'>
           <div>
             <div className='mb-4'>
-              <Logo variant='simple' showText textSize='lg' priority />
+              <Link href='/' className='flex items-center space-x-2'>
+                <Logo variant='icon' showText textSize='md' priority />
+              </Link>
             </div>
-            <p className='text-muted-foreground text-sm'>{t('blurb')}</p>
+            <p className='text-muted-foreground mb-6 text-sm'>{t('blurb')}</p>
+            <FooterLanguageSelector />
           </div>
           <div>
             <h3 className='mb-4 font-semibold'>{t('company')}</h3>

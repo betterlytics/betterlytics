@@ -40,15 +40,8 @@ export const CampaignDataKey = {
   CONTENT: 'content',
 } as const;
 
-function UTMPieChart({
-  data,
-  dataKey,
-  emptyMessage,
-}: {
-  data: CampaignBreakdownItem[];
-  dataKey: string;
-  emptyMessage: string;
-}) {
+function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey: string }) {
+  const t = useTranslations('dashboard.emptyStates');
   const chartData = useMemo((): ChartDataItem[] => {
     if (!data || data.length === 0) return [];
     const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);
@@ -67,7 +60,10 @@ function UTMPieChart({
   if (chartData.length === 0) {
     return (
       <div className='flex min-h-[300px] items-center justify-center'>
-        <p className='text-muted-foreground text-sm'>{emptyMessage}</p>
+        <div className='text-center'>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+        </div>
       </div>
     );
   }
@@ -136,55 +132,54 @@ export default function UTMBreakdownTabbedChart({
         label: t('tabs.source'),
         data: sourceBreakdown,
         dataKey: CampaignDataKey.SOURCE,
-        emptyMessage: t('empty.source'),
       },
       {
         key: 'medium',
         label: t('tabs.medium'),
         data: mediumBreakdown,
         dataKey: CampaignDataKey.MEDIUM,
-        emptyMessage: t('empty.medium'),
       },
       {
         key: 'content',
         label: t('tabs.content'),
         data: contentBreakdown,
         dataKey: CampaignDataKey.CONTENT,
-        emptyMessage: t('empty.content'),
       },
       {
         key: 'term',
         label: t('tabs.terms'),
         data: termBreakdown,
         dataKey: CampaignDataKey.TERM,
-        emptyMessage: t('empty.term'),
       },
     ],
     [sourceBreakdown, mediumBreakdown, contentBreakdown, termBreakdown, t],
   );
 
   return (
-    <Card className='bg-card border-border rounded-lg border shadow'>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
       <Tabs defaultValue='source'>
-        <CardHeader className='pb-0'>
+        <CardHeader className='px-0 pb-0'>
           <div className='flex flex-col items-center justify-between sm:flex-row'>
-            <div>
-              <CardTitle className='mb-1 text-lg font-semibold'>{t('chart.title')}</CardTitle>
-              <p className='text-muted-foreground text-sm'>{t('chart.description')}</p>
-            </div>
-            <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
+            <CardTitle className='text-base font-medium'>{t('chart.title')}</CardTitle>
+            <TabsList
+              className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} dark:inset-shadow-background gap-1 inset-shadow-sm`}
+            >
               {tabs.map((tab) => (
-                <TabsTrigger key={tab.key} value={tab.key} className='px-3 py-1 text-xs font-medium'>
+                <TabsTrigger
+                  key={tab.key}
+                  value={tab.key}
+                  className='hover:bg-accent cursor-pointer px-3 py-1 text-xs font-medium'
+                >
                   {tab.label}
                 </TabsTrigger>
               ))}
             </TabsList>
           </div>
         </CardHeader>
-        <CardContent className='px-6 pt-0 pb-4'>
+        <CardContent className='px-0'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
-              <UTMPieChart data={tab.data} dataKey={tab.dataKey} emptyMessage={tab.emptyMessage} />
+              <UTMPieChart data={tab.data} dataKey={tab.dataKey} />
             </TabsContent>
           ))}
         </CardContent>

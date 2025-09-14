@@ -768,7 +768,7 @@
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
       "bounceRate": "Afvisningsprocent",
-      "avgVisitDuration": "Gennemsnitlig besøgstid",
+      "avgVisitDuration": "Gns. besøgstid",
       "sessions": "Sessioner",
       "pagesPerSession": "Sider pr. session",
       "sessionDuration": "Sessionsvarighed"
@@ -781,6 +781,7 @@
       "customEvents": "Brugerdefinerede hændelser",
       "weeklyTrends": "Ugentlige trends"
     },
+    "goTo": "Gå til {section}",
     "tabs": {
       "pages": "Sider",
       "userJourney": "Brugerrejse",
@@ -799,18 +800,9 @@
       "events": "Hændelser"
     },
     "emptyStates": {
-      "noPageData": "Ingen sidedata tilgængelig",
-      "noEntryPagesData": "Ingen indgangssidedata tilgængelig",
-      "noExitPagesData": "Ingen udgangssidedata tilgængelig",
-      "noCountryData": "Ingen landedata tilgængelig",
-      "noWorldMapData": "Ingen verdenskortdata tilgængelig",
-      "noBrowserData": "Ingen browserdata tilgængelig",
-      "noDeviceData": "Ingen enhedsdata tilgængelig",
-      "noOperatingSystemData": "Ingen operativsystemdata tilgængelig",
-      "noReferrerData": "Ingen henvisningsdata tilgængelig",
-      "noSourceData": "Ingen kildedata tilgængelig",
-      "noChannelData": "Ingen kanaldata tilgængelig",
-      "noCustomEventsData": "Ingen brugerdefinerede hændelsesdata tilgængelig"
+      "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",
+      "noUserJourneyData": "Ingen brugerrejse data tilgængelig",
+      "noData": "Ingen data tilgængelig"
     }
   },
   "devicesPage": {
@@ -821,7 +813,11 @@
     "title": "Dine dashboards",
     "subtitle": "Administrér og overvåg analyse for alle dine websites.",
     "emptyTitle": "Ingen dashboards endnu",
-    "emptyDescription": "Opret dit første dashboard for at begynde at spore analyse for din hjemmeside."
+    "emptyDescription": "Opret dit første dashboard for at begynde at indsamle analysedata for din hjemmeside.",
+    "createCard": {
+      "title": "Opret dashboard",
+      "description": "Tilføj et nyt dashboard"
+    }
   },
   "charts": {
     "tooltip": {
@@ -889,7 +885,7 @@
         "upgradeCta": "Opgrader nu"
       },
       "navigation": {
-        "backToDashboard": "Tilbage til dashboard",
+        "backToDashboards": "Tilbage til dashboards",
         "title": "Vælg din plan"
       },
       "page": {
@@ -949,6 +945,11 @@
         "manage": "Administrér abonnement",
         "reactivate": "Genaktivér abonnement",
         "cancel": "Annullér abonnement"
+      },
+      "planNames": {
+        "growth": "Growth-plan",
+        "professional": "Pro-plan",
+        "enterprise": "Enterprise"
       }
     },
     "dataTable": {
@@ -987,12 +988,6 @@
     },
 
     "devices": {
-      "summary": {
-        "distinctDeviceTypes": "Unikke enhedstyper",
-        "mostPopularDevice": "Mest populære enhed",
-        "mostPopularOperatingSystem": "Mest populære operativsystem",
-        "mostPopularBrowser": "Mest populære browser"
-      },
       "tables": {
         "columns": {
           "os": "Operativsystem",
@@ -1001,15 +996,12 @@
           "percentage": "Procent"
         },
         "topOperatingSystems": "Top operativsystemer",
-        "mostCommonOperatingSystems": "Mest anvendte operativsystemer",
-        "topBrowsers": "Top browsere",
-        "mostCommonBrowsers": "Mest anvendte browsere"
+        "topBrowsers": "Top browsere"
       },
       "charts": {
         "deviceTypes": "Enhedstyper",
         "visitorsByDeviceCategory": "Besøgende efter enhedskategori",
-        "deviceUsageTrend": "Enhedsanvendelsestrend",
-        "visitorTrendsByDeviceType": "Besøgendetrends efter enhedstype"
+        "deviceUsageTrend": "Enhedsanvendelsestrend"
       },
       "trends": {
         "noData": "Ingen trenddata tilgængelig",
@@ -1028,7 +1020,6 @@
       },
       "performance": {
         "title": "Kampagneperformance",
-        "description": "Nøgletal for dine kampagner",
         "columns": {
           "campaignName": "Kampagnenavn",
           "visitors": "Besøgende",
@@ -1044,12 +1035,10 @@
       },
       "utm": {
         "table": {
-          "title": "UTM-parameteropdeling",
-          "description": "Kampagneperformance på tværs af UTM-parametre"
+          "title": "UTM-parameteropdeling"
         },
         "chart": {
-          "title": "UTM-fordeling",
-          "description": "Visuel opdeling af UTM-parameter performance"
+          "title": "UTM-fordeling"
         },
         "tabs": {
           "source": "Kilde",
@@ -1073,7 +1062,6 @@
       },
       "landing": {
         "title": "Kampagne landingsside-performance",
-        "description": "Nøgletal for kampagne-landingssider",
         "columns": {
           "campaignName": "Kampagnenavn",
           "landingPageUrl": "Landingsside-URL",
@@ -1187,7 +1175,6 @@
       },
       "details": {
         "title": "Tragtanalyse",
-        "description": "Detaljeret tragt-konverteringsanalyse",
         "steps": "trin",
         "users": "brugere",
         "dropped": "frafald",
@@ -1216,8 +1203,8 @@
       "summary": {
         "pagesPerSession": "Sider pr. session",
         "totalPageviews": "Samlede sidevisninger",
-        "avgTimeOnPage": "Gennemsnitlig tid på side",
-        "avgBounceRate": "Gennemsnitlig afvisningsprocent"
+        "avgTimeOnPage": "Gns. tid på side",
+        "avgBounceRate": "Gns. afvisningsprocent"
       },
       "table": {
         "path": "Sti",
@@ -1225,15 +1212,13 @@
         "visitors": "Besøgende",
         "pageviews": "Sidevisninger",
         "bounceRate": "Afvisningsprocent",
-        "avgTime": "Gennemsnitlig tid",
+        "avgTime": "Gns. tid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
         "allPages": "Alle sider",
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
-        "title": "Sideanalyse",
-        "description": "Analyser top sider, indgangs-/udgangsperformance og engagement for at optimere indhold.",
-        "filterByPathPlaceholder": "Filtrer efter sti..."
+        "title": "Sideanalyse"
       }
     },
     "referrers": {
@@ -1242,9 +1227,7 @@
       },
       "charts": {
         "distribution": "Henvisningsfordeling",
-        "trafficByCategory": "Trafik efter kilde kategori",
-        "trafficTrends": "Henvisningstrafik trends",
-        "trafficBySourceOverTime": "Trafik efter kilde over tid"
+        "trafficTrends": "Henvisningstrafik trends"
       },
       "summary": {
         "referralSessions": "Henvisningssessioner",
@@ -1255,7 +1238,6 @@
       },
       "table": {
         "details": "Henvisningsdetaljer",
-        "detailsDescription": "Detaljeret opdeling af trafikkilder",
         "tabs": {
           "all": "Alle",
           "search": "Søgning",
@@ -1288,7 +1270,6 @@
       },
       "steps": "Trin",
       "topJourneys": "Top {journeys} rejser",
-      "noData": "Ingen rejsedata tilgængelig for de valgte kriterier.",
       "sessions": "Sessioner"
     },
     "outboundLinks": {
@@ -1306,11 +1287,11 @@
         "sourcePages": "Kildesider"
       },
       "chart": {
-        "title": "Unikke udgående klik over tid"
+        "title": "Unikke udgående klik over tid",
+        "tooltipTitle": "Unikke udgående klik"
       },
       "pieChart": {
-        "title": "Udgående links fordeling",
-        "description": "Top udgående links efter unikke klik"
+        "title": "Udgående links fordeling"
       }
     },
     "webVitals": {
@@ -1660,7 +1641,7 @@
           "description": "Bare tilføj én linje kode eller installer vores npm‑pakke. Ingen cookies, ingen pop‑ups."
         },
         "feature2": {
-          "title": "Gratis for altid",
+          "title": "Gratis at komme i gang",
           "description": "10.000 events pr. måned. Ingen kreditkort. Ingen binding."
         },
         "feature3": {

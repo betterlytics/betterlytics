@@ -15,6 +15,7 @@ import ReferrersTableSection from './ReferrersTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type ReferrersPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -36,6 +37,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     dashboardId,
     startDate,
     endDate,
+    granularity,
     queryFilters,
   );
   const distributionPromise = fetchReferrerSourceAggregationDataForSite(
@@ -64,27 +66,18 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     compareStartDate,
     compareEndDate,
   );
-
-  const tTabs = await getTranslations('dashboard.tabs');
-  const tPage = await getTranslations('components.referrers.page');
-
+  const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>{tTabs('referrers')}</h1>
-          <p className='text-muted-foreground text-sm'>{tPage('description')}</p>
-        </div>
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+      <DashboardHeader title={t('referrers')}>
         <DashboardFilters />
-      </div>
-
+      </DashboardHeader>
       <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
         <ReferrersSummarySection referrerSummaryWithChartsPromise={referrerSummaryWithChartsPromise} />
       </Suspense>
-
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
@@ -92,7 +85,6 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
       >
         <ReferrersChartsSection distributionPromise={distributionPromise} trendPromise={trendPromise} />
       </Suspense>
-
       <Suspense fallback={<TableSkeleton />}>
         <ReferrersTableSection referrerTablePromise={tablePromise} />
       </Suspense>

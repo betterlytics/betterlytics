@@ -1,7 +1,8 @@
 'use client';
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
-import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
+import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
+import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import CoreWebVitalBar from '@/components/dashboard/CoreWebVitalBar';
 import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/webVitals';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
@@ -194,21 +195,29 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
 
   return (
     <div className='space-y-6'>
-      <SummaryCardsSection className='lg:grid-cols-5' cards={cards} />
       <MultiSeriesChart
-        title={
-          <span className='flex items-center gap-2'>
-            {t(METRIC_LABEL_KEYS[active])}
-            <MetricInfo metric={active} />
-          </span>
-        }
+        title={undefined}
         data={chartData}
         granularity={granularity}
         formatValue={(v) => formatCWV(active, Number(v))}
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
         series={activeSeries}
         referenceLines={referenceLines}
-        headerRight={<SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />}
+        headerRight={undefined}
+        headerContent={
+          <div>
+            <InlineMetricsHeader cards={cards} pinFooter />
+            <div className='mt-6 flex items-center justify-between gap-3 p-2 sm:justify-center sm:gap-6'>
+              <div className='text-muted-foreground flex min-w-0 flex-1 items-center gap-2 text-sm font-medium sm:flex-none'>
+                <span className='truncate'>{t(METRIC_LABEL_KEYS[active])}</span>
+                <MetricInfo metric={active} />
+              </div>
+              <div className='ml-auto sm:ml-0'>
+                <SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />
+              </div>
+            </div>
+          </div>
+        }
       />
     </div>
   );
@@ -224,7 +233,7 @@ function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
   const isAnyEnabled = useMemo(() => enabledKeys.size, [enabledKeys]);
 
   return (
-    <div className='flex flex-wrap items-center gap-2'>
+    <div className='grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center'>
       {defs.map((d) => {
         const isOn = enabledKeys.has(d.dataKey);
         return (
@@ -235,7 +244,7 @@ function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
             disabled={!isAnyEnabled}
             aria-pressed={isOn}
             className={cn(
-              'inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium',
+              'inline-flex w-full cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium sm:w-auto',
               isOn
                 ? 'bg-primary/10 border-primary/20 text-popover-foreground disabled:opacity-50'
                 : 'bg-muted/30 border-border text-muted-foreground',

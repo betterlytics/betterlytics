@@ -11,6 +11,7 @@ import { getReferrerColor } from '@/utils/referrerColors';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type ReferrersChartsSectionProps = {
   distributionPromise: ReturnType<typeof fetchReferrerSourceAggregationDataForSite>;
@@ -29,22 +30,28 @@ export default function ReferrersChartsSection({
   const distributionData = distributionResult.data;
 
   return (
-    <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-      <div className='bg-card border-border rounded-lg border p-4 shadow'>
-        <div className='text-foreground mb-2 font-medium'>{t('distribution')}</div>
-        <p className='text-muted-foreground mb-4 text-xs'>{t('trafficByCategory')}</p>
-        <BAPieChart data={distributionData} getColor={getReferrerColor} getLabel={capitalizeFirstLetter} />
-      </div>
-      <div className='bg-card border-border rounded-lg border p-4 shadow'>
-        <div className='text-foreground mb-2 font-medium'>{t('trafficTrends')}</div>
-        <p className='text-muted-foreground mb-4 text-xs'>{t('trafficBySourceOverTime')}</p>
-        <ReferrerTrafficTrendChart
-          chartData={trendResult.data}
-          categories={trendResult.categories}
-          comparisonMap={trendResult.comparisonMap}
-          granularity={granularity}
-        />
-      </div>
+    <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-base font-medium'>{t('trafficTrends')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
+          <ReferrerTrafficTrendChart
+            chartData={trendResult.data}
+            categories={trendResult.categories}
+            comparisonMap={trendResult.comparisonMap}
+            granularity={granularity}
+          />
+        </CardContent>
+      </Card>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
+          <BAPieChart data={distributionData} getColor={getReferrerColor} getLabel={capitalizeFirstLetter} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

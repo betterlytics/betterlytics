@@ -6,6 +6,8 @@ import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 interface CampaignLandingPagePerformanceTableProps {
   data: CampaignLandingPagePerformanceItem[];
@@ -38,12 +40,12 @@ export default function CampaignLandingPagePerformanceTable({ data }: CampaignLa
     {
       accessorKey: 'visitors',
       header: t('columns.visitors'),
-      cell: ({ row }) => <div>{row.original.visitors.toLocaleString()}</div>,
+      cell: ({ row }) => <div>{formatNumber(row.original.visitors)}</div>,
     },
     {
       accessorKey: 'bounceRate',
       header: t('columns.bounceRate'),
-      cell: ({ row }) => <div>{row.original.bounceRate.toFixed(1)}%</div>,
+      cell: ({ row }) => <div>{formatPercentage(row.original.bounceRate)}</div>,
     },
     {
       accessorKey: 'avgSessionDuration',
@@ -53,14 +55,17 @@ export default function CampaignLandingPagePerformanceTable({ data }: CampaignLa
     {
       accessorKey: 'pagesPerSession',
       header: t('columns.pagesPerSession'),
-      cell: ({ row }) => <div>{row.original.pagesPerSession.toFixed(1)}</div>,
+      cell: ({ row }) => <div>{formatNumber(row.original.pagesPerSession)}</div>,
     },
   ];
   return (
-    <div className='bg-card border-border col-span-1 rounded-lg border p-6 shadow lg:col-span-3'>
-      <h2 className='text-foreground mb-1 text-lg font-bold'>{t('title')}</h2>
-      <p className='text-muted-foreground mb-4 text-sm'>{t('description')}</p>
-      <DataTable columns={columns} data={data} defaultSorting={[{ id: 'visitors', desc: true }]} />
-    </div>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-0'>
+        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+      </CardHeader>
+      <CardContent className='px-0'>
+        <DataTable columns={columns} data={data} defaultSorting={[{ id: 'visitors', desc: true }]} />
+      </CardContent>
+    </Card>
   );
 }

@@ -65,7 +65,7 @@ function PasswordField({
           type='button'
           variant='ghost'
           size='sm'
-          className='absolute top-1/2 right-2 h-8 w-8 -translate-y-1/2 p-0'
+          className='absolute top-1/2 right-2 h-8 w-8 -translate-y-1/2 cursor-pointer p-0'
           onClick={onToggleVisibility}
           disabled={disabled}
           tabIndex={-1}
@@ -207,7 +207,7 @@ export default function UserSecuritySettings() {
           <Button
             type='submit'
             disabled={isPending || !isFormFilled || !hasPassword}
-            className='w-full sm:w-auto'
+            className='w-full cursor-pointer sm:w-auto'
             tabIndex={4}
           >
             {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}

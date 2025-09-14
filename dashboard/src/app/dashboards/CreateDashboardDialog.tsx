@@ -22,9 +22,10 @@ import { useTranslations } from 'next-intl';
 
 interface CreateDashboardDialogProps {
   dashboardStatsPromise: ReturnType<typeof getUserDashboardStatsAction>;
+  trigger?: React.ReactElement;
 }
 
-export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboardDialogProps) {
+export function CreateDashboardDialog({ dashboardStatsPromise, trigger }: CreateDashboardDialogProps) {
   const [open, setOpen] = useState(false);
   const [domain, setDomain] = useState<string>('');
   const [validationError, setValidationError] = useState<string>('');
@@ -85,7 +86,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
 
   const canCreateMore = dashboardStats.success && dashboardStats.data.canCreateMore;
 
-  const createButton = (
+  const defaultButton = (
     <Button variant='outline' className='gap-2' disabled={!canCreateMore}>
       {canCreateMore ? (
         <>
@@ -101,11 +102,17 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
     </Button>
   );
 
-  const triggerElement = canCreateMore ? (
-    createButton
+  const triggerElement = trigger ?? defaultButton;
+
+  const maybeWrappedTrigger = canCreateMore ? (
+    triggerElement
   ) : (
     <Tooltip>
-      <TooltipTrigger asChild>{createButton}</TooltipTrigger>
+      <TooltipTrigger asChild>
+        <div className='pointer-events-none opacity-60' aria-disabled='true'>
+          {triggerElement}
+        </div>
+      </TooltipTrigger>
       <TooltipContent>
         <p>{t('limitTooltip')}</p>
       </TooltipContent>
@@ -114,7 +121,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise }: CreateDashboard
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{triggerElement}</DialogTrigger>
+      <DialogTrigger asChild>{maybeWrappedTrigger}</DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>

@@ -8,6 +8,7 @@ import { getDeviceColor, getDeviceLabel } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type DevicesChartsSectionProps = {
   deviceBreakdownPromise: ReturnType<typeof fetchDeviceTypeBreakdownAction>;
@@ -24,27 +25,33 @@ export default function DevicesChartsSection({
   const t = useTranslations('components.devices.charts');
 
   return (
-    <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-      <div className='bg-card border-border rounded-lg border p-6 shadow'>
-        <h2 className='text-foreground mb-1 text-lg font-bold'>{t('deviceTypes')}</h2>
-        <p className='text-muted-foreground mb-4 text-sm'>{t('visitorsByDeviceCategory')}</p>
-        <BAPieChart
-          data={deviceBreakdown}
-          getColor={getDeviceColor}
-          getLabel={getDeviceLabel}
-          getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
-        />
-      </div>
-      <div className='bg-card border-border rounded-lg border p-6 shadow'>
-        <h2 className='text-foreground mb-1 text-lg font-bold'>{t('deviceUsageTrend')}</h2>
-        <p className='text-muted-foreground mb-4 text-sm'>{t('visitorTrendsByDeviceType')}</p>
-        <DeviceUsageTrendChart
-          chartData={deviceUsageTrend.data}
-          categories={deviceUsageTrend.categories}
-          comparisonMap={deviceUsageTrend.comparisonMap}
-          granularity={granularity}
-        />
-      </div>
+    <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-base font-medium'>{t('deviceUsageTrend')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
+          <DeviceUsageTrendChart
+            chartData={deviceUsageTrend.data}
+            categories={deviceUsageTrend.categories}
+            comparisonMap={deviceUsageTrend.comparisonMap}
+            granularity={granularity}
+          />
+        </CardContent>
+      </Card>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
+        <CardHeader className='px-0 pb-0'>
+          <CardTitle className='text-base font-medium'>{t('deviceTypes')}</CardTitle>
+        </CardHeader>
+        <CardContent className='px-0'>
+          <BAPieChart
+            data={deviceBreakdown}
+            getColor={getDeviceColor}
+            getLabel={getDeviceLabel}
+            getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

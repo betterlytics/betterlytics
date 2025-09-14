@@ -21,7 +21,7 @@ const formatEventProperties = (jsonString: string) => {
     return Object.entries(props)
       .slice(0, MAX_PROPERTIES_DISPLAY)
       .map(([key, value]) => (
-        <Badge key={key} variant='secondary' className='text-xs font-normal'>
+        <Badge key={key} variant='secondary' className='border-border border text-xs font-normal shadow-xs'>
           <span className='text-muted-foreground'>{key}:</span>
           <span className='ml-1'>{String(value)}</span>
         </Badge>
@@ -82,7 +82,7 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
             <div className='flex items-center gap-2'>
               <h3 className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</h3>
               <div className='bg-muted-foreground/40 h-1 w-1 rounded-full' />
-              <Badge variant='secondary' className='text-xs font-medium'>
+              <Badge variant='secondary' className='border-border border text-xs font-medium shadow-xs'>
                 {formatTimeAgo(new Date(event.timestamp))}
               </Badge>
             </div>
@@ -119,7 +119,7 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
             )}
 
             <MetadataItem icon={ExternalLink}>
-              <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
+              <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium shadow-xs'>
                 {formatUrl(event.url)}
               </span>
             </MetadataItem>
