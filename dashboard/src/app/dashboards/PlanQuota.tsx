@@ -1,5 +1,7 @@
 import { getUserBillingData } from '@/actions/billing';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { getPlanNameKey } from '@/lib/billing/plans';
 
 export default async function PlanQuota({
   billingDataPromise,
@@ -12,30 +14,25 @@ export default async function PlanQuota({
   const { current, limit } = billing.data.usage;
   const percentage = Math.min(100, Math.round((current / Math.max(1, limit)) * 100));
   const tier = billing.data.subscription.tier;
-  const planLabel =
-    tier === 'professional'
-      ? 'Pro Plan'
-      : tier === 'growth'
-        ? 'Growth Plan'
-        : tier === 'enterprise'
-          ? 'Enterprise'
-          : 'Plan';
+  const t = await getTranslations('components.billing');
+  const planKey = getPlanNameKey(tier);
+  const planLabel = planKey ? t(`planNames.${planKey}`) : t('currentPlan.plan');
 
   return (
     <div className='flex w-full min-w-0 flex-col gap-2 rounded-md py-1 text-sm sm:min-w-[280px]'>
       <div className='flex items-center justify-between'>
-        <div className='font-medium'>Events</div>
+        <div className='font-medium'>{t('currentPlan.eventUsage')}</div>
         <Link
           href='/billing'
           className='text-primary hover:text-primary/90 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium'
         >
-          Manage
+          {t('currentPlan.manage')}
         </Link>
       </div>
 
       <div className='text-2xl font-semibold'>
-        {current}
-        <span className='text-muted-foreground text-base font-normal'> / {limit}</span>
+        {current.toLocaleString()}
+        <span className='text-muted-foreground text-base font-normal'> / {limit.toLocaleString()}</span>
       </div>
 
       <div className='flex items-center justify-between text-xs'>
@@ -47,7 +44,7 @@ export default async function PlanQuota({
         <div
           className='bg-primary h-1.5 rounded'
           style={{ width: `${percentage}%` }}
-          aria-label='Plan usage'
+          aria-label={t('currentPlan.eventUsage')}
           role='progressbar'
           aria-valuemin={0}
           aria-valuemax={limit}

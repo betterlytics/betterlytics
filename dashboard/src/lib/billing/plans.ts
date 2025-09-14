@@ -186,6 +186,20 @@ export const EVENT_RANGES = [
 export type EventRange = (typeof EVENT_RANGES)[number];
 export type TierName = 'growth' | 'professional' | 'enterprise';
 
+export const TIER_TO_PLANNAME_KEY: Record<TierName, 'growth' | 'professional' | 'enterprise'> = {
+  growth: 'growth',
+  professional: 'professional',
+  enterprise: 'enterprise',
+} as const;
+
+export function getPlanNameKey(tier?: string | null): keyof typeof TIER_TO_PLANNAME_KEY | null {
+  if (!tier) return null;
+  if ((['growth', 'professional', 'enterprise'] as string[]).includes(tier)) {
+    return TIER_TO_PLANNAME_KEY[tier as TierName];
+  }
+  return null;
+}
+
 export function getTierConfigFromLookupKey(lookupKey: string): { tier: TierName; eventLimit: number } {
   for (const range of EVENT_RANGES) {
     if (range.growth.lookup_key === lookupKey) {

@@ -945,6 +945,11 @@
         "manage": "Administrér abonnement",
         "reactivate": "Genaktivér abonnement",
         "cancel": "Annullér abonnement"
+      },
+      "planNames": {
+        "growth": "Growth-plan",
+        "professional": "Pro-plan",
+        "enterprise": "Enterprise"
       }
     },
     "dataTable": {

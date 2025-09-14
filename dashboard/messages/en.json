@@ -941,6 +941,11 @@
         "manage": "Manage Subscription",
         "reactivate": "Reactivate Subscription",
         "cancel": "Cancel Subscription"
+      },
+      "planNames": {
+        "growth": "Growth Plan",
+        "professional": "Pro Plan",
+        "enterprise": "Enterprise"
       }
     },
     "dataTable": {

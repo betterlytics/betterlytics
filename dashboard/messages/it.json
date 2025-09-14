@@ -949,6 +949,11 @@
         "manage": "Gestisci abbonamento",
         "reactivate": "Riattiva abbonamento",
         "cancel": "Annulla abbonamento"
+      },
+      "planNames": {
+        "growth": "Piano Growth",
+        "professional": "Piano Pro",
+        "enterprise": "Enterprise"
       }
     },
     "dataTable": {
