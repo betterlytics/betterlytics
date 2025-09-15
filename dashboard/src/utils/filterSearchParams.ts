@@ -7,6 +7,7 @@ import {
   getEndDateWithGranularity,
   getStartDateWithGranularity,
 } from './timeRanges';
+import { FilterQueryParams } from '@/entities/filterQueryParams';
 
 type Filters = {
   queryFilters: (QueryFilter & { id: string })[];
@@ -96,9 +97,60 @@ async function decodeFromParams(paramsPromise: Promise<{ filters: string }>) {
   return decode(filters);
 }
 
+function filterVariable(key: string, value: unknown) {
+  // Check if filters are required or if they already match the default filters
+  const defaultFilters = getDefaultFilters();
+  if (key in defaultFilters && JSON.stringify(value) === JSON.stringify(defaultFilters[key as keyof Filters])) {
+    return false;
+  }
+
+  // Filter non-value values
+  if (value === undefined || value === null) {
+    return false;
+  }
+
+  // Filter empty objects (except dates)
+  if (typeof value === 'object') {
+    if (value instanceof Date) {
+      return true;
+    }
+
+    return Object.keys(value).length !== 0;
+  }
+
+  // Keep remaining
+  return true;
+}
+
+// Encode different values in different formats
+function encodeValue(value: unknown) {
+  switch (typeof value) {
+    case 'number':
+    case 'boolean':
+    case 'string':
+      return value.toString();
+    case 'object':
+      if (value instanceof Date) {
+        return value.toISOString();
+      }
+      return JSON.stringify(value);
+  }
+  throw new Error(`Unknown type for: ${value}`);
+}
+
+function newEncode(params: FilterQueryParams) {
+  return Object.entries(params)
+    .filter(([key, value]) => filterVariable(key, value))
+    .map(([key, value]) => [key, encodeValue(value)]);
+}
+
+async function newDecode() {}
+
 export const BAFilterSearchParams = {
   encode,
   decode,
   decodeFromParams,
   getDefaultFilters,
+  newEncode,
+  newDecode,
 };

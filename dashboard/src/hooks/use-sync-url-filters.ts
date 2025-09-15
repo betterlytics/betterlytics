@@ -74,6 +74,22 @@ export function useSyncURLFilters() {
         compareEndDate: compareEnabled && compareStartDate && compareEndDate ? compareEndDate : undefined,
         compareEnabled: compareEnabled,
       });
+      const test = BAFilterSearchParams.newEncode({
+        queryFilters,
+        startDate,
+        endDate,
+        granularity,
+        userJourney: {
+          numberOfSteps,
+          numberOfJourneys,
+        },
+        compareStartDate: compareEnabled && compareStartDate && compareEndDate ? compareStartDate : undefined,
+        compareEndDate: compareEnabled && compareStartDate && compareEndDate ? compareEndDate : undefined,
+        compareEnabled: compareEnabled,
+      });
+
+      console.log(test);
+      console.log(new URLSearchParams(test).toString());
 
       const params = new URLSearchParams(searchParams?.toString() ?? '');
       params.set(URL_PARAM_NAME, encodedFilters);
