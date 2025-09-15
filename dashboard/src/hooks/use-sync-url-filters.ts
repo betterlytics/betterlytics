@@ -6,8 +6,6 @@ import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 
-const URL_PARAM_NAME = 'filters';
-
 const URL_SEARCH_PARAMS = [
   'queryFilters',
   'granularity',
