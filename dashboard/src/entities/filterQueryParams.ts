@@ -20,3 +20,4 @@ export const FilterQueryParamsSchema = z.object({
 });
 
 export type FilterQueryParams = z.infer<typeof FilterQueryParamsSchema>;
+export type FilterQuerySearchParams = Partial<Record<keyof FilterQueryParams, string>>;

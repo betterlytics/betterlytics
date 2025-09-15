@@ -8,6 +8,17 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 
 const URL_PARAM_NAME = 'filters';
 
+const URL_SEARCH_PARAMS = [
+  'queryFilters',
+  'granularity',
+  'startDate',
+  'endDate',
+  'compareEnabled',
+  'compareStartDate',
+  'compareEndDate',
+  'userJourney',
+] as const;
+
 export function useSyncURLFilters() {
   const router = useBARouter();
   const searchParams = useSearchParams();
@@ -29,10 +40,14 @@ export function useSyncURLFilters() {
 
   useEffect(() => {
     try {
-      const encodedFilters = searchParams?.get(URL_PARAM_NAME);
-      const filters = encodedFilters
-        ? BAFilterSearchParams.decode(encodedFilters)
-        : BAFilterSearchParams.getDefaultFilters();
+      const encodedFilterEntries = URL_SEARCH_PARAMS.map(
+        (param) => [param, searchParams.get(param)] as const,
+      ).filter(([_key, value]) => Boolean(value));
+
+      const encoded = Object.fromEntries(encodedFilterEntries);
+
+      const filters = BAFilterSearchParams.newDecode(encoded);
+
       if (filters.startDate && filters.endDate) {
         setPeriod(filters.startDate, filters.endDate);
       }
@@ -61,7 +76,7 @@ export function useSyncURLFilters() {
 
   useEffect(() => {
     try {
-      const encodedFilters = BAFilterSearchParams.encode({
+      const newlyEncodedFilters = BAFilterSearchParams.newEncode({
         queryFilters,
         startDate,
         endDate,
@@ -74,25 +89,9 @@ export function useSyncURLFilters() {
         compareEndDate: compareEnabled && compareStartDate && compareEndDate ? compareEndDate : undefined,
         compareEnabled: compareEnabled,
       });
-      const test = BAFilterSearchParams.newEncode({
-        queryFilters,
-        startDate,
-        endDate,
-        granularity,
-        userJourney: {
-          numberOfSteps,
-          numberOfJourneys,
-        },
-        compareStartDate: compareEnabled && compareStartDate && compareEndDate ? compareStartDate : undefined,
-        compareEndDate: compareEnabled && compareStartDate && compareEndDate ? compareEndDate : undefined,
-        compareEnabled: compareEnabled,
-      });
-
-      console.log(test);
-      console.log(new URLSearchParams(test).toString());
 
       const params = new URLSearchParams(searchParams?.toString() ?? '');
-      params.set(URL_PARAM_NAME, encodedFilters);
+      newlyEncodedFilters.forEach(([key, value]) => params.set(key, value));
       router.replace(`?${params.toString()}`);
     } catch (error) {
       console.error('Failed to add filters:', error);
