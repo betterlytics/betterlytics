@@ -19,7 +19,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
   return (
     <div>
       <h3 className='mb-2 text-sm font-medium'>{t('quickSelect')}</h3>
-      <div className='grid grid-cols-2 gap-2'>
+      <div className='grid grid-cols-1 gap-2'>
         {TIME_RANGE_PRESETS.filter(isNonCustomPreset).map((preset) => (
           <Button
             key={preset.value}
