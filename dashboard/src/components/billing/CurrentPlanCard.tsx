@@ -113,7 +113,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         </div>
       </div>
 
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-wrap items-center gap-2'>
         <div className='text-muted-foreground flex items-center gap-2 text-sm'>
           <Calendar size={14} />
           {isCanceled ? (
@@ -123,8 +123,8 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
           )}
         </div>
 
-        {showManagementButtons && billingData.isExistingPaidSubscriber && (
-          <div className='flex gap-2'>
+        {showManagementButtons && (
+          <div className='flex w-full flex-wrap justify-start gap-2 sm:ml-auto sm:w-auto sm:justify-end'>
             <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
               <ExternalLink className='mr-2 h-4 w-4' />
               {isCanceled ? t('reactivate') : t('manage')}
