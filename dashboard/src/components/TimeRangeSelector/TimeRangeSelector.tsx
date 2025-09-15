@@ -12,19 +12,12 @@ import { TIME_RANGE_PRESETS } from '@/utils/timeRanges';
 import { QuickSelectSection } from './QuickSelectSection';
 import { GranularitySection } from './GranularitySection';
 import { DateRangeSection } from './DateRangeSection';
-import { ComparePeriodSection } from './ComparePeriodSection';
 import { useTimeRangeState } from './hooks/useTimeRangeState';
 import { TempState, useTimeRangeHandlers } from './hooks/useTimeRangeHandlers';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 
-export function TimeRangeSelector({
-  className = '',
-  showComparison = true,
-}: {
-  className?: string;
-  showComparison?: boolean;
-}) {
+export function TimeRangeSelector({ className = '' }: { className?: string }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
@@ -50,19 +43,13 @@ export function TimeRangeSelector({
     [context],
   );
 
-  const {
-    handleQuickSelect,
-    handleGranularitySelect,
-    handleCustomDateRangeSelect,
-    handleCompareEnabledChange,
-    handleCompareDateRangeSelect,
-    handleApply,
-  } = useTimeRangeHandlers({
-    tempState,
-    updateTempState,
-    allowedGranularities,
-    onApply: handleApplyChanges,
-  });
+  const { handleQuickSelect, handleGranularitySelect, handleCustomDateRangeSelect, handleApply } =
+    useTimeRangeHandlers({
+      tempState,
+      updateTempState,
+      allowedGranularities,
+      onApply: handleApplyChanges,
+    });
 
   const handlePopoverOpenChange = (open: boolean) => {
     setIsPopoverOpen(open);
@@ -103,16 +90,6 @@ export function TimeRangeSelector({
         endDate={tempState.customEnd}
         onDateRangeSelect={handleCustomDateRangeSelect}
       />
-
-      {showComparison && (
-        <ComparePeriodSection
-          compareEnabled={tempState.compareEnabled}
-          onCompareEnabledChange={handleCompareEnabledChange}
-          compareStartDate={tempState.compareStart}
-          compareEndDate={tempState.compareEnd}
-          onDateRangeSelect={handleCompareDateRangeSelect}
-        />
-      )}
 
       <Separator className='my-4' />
       <div className='flex justify-end'>
