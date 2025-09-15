@@ -15,10 +15,16 @@ interface DateRangePickerProps {
   range: DateRange | undefined;
   onDateRangeSelect: (dateRange: DateRange | undefined) => void;
   id?: string;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function DateRangePicker({ range, onDateRangeSelect, trigger, open, onOpenChange }: DateRangePickerProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const isOpen = isControlled ? open : internalOpen;
+  const setIsOpen = (next: boolean) => (isControlled ? onOpenChange?.(next) : setInternalOpen(next));
 
   const isMobile = useIsMobile();
 
@@ -57,22 +63,26 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
     <div className='space-y-1'>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant={'outline'}
-            className={cn(
-              'w-full cursor-pointer truncate text-left font-normal',
-              !range && 'text-muted-foreground',
-            )}
-          >
-            <CalendarIcon className='h-4 w-4' />
-            <div className='ml-2'>
-              {range?.from && range?.to ? (
-                `${format(range.from, 'PP')} - ${format(range.to, 'PP')}`
-              ) : (
-                <span>Pick a date</span>
+          {trigger ? (
+            trigger
+          ) : (
+            <Button
+              variant={'outline'}
+              className={cn(
+                'w-full cursor-pointer truncate text-left font-normal',
+                !range && 'text-muted-foreground',
               )}
-            </div>
-          </Button>
+            >
+              <CalendarIcon className='h-4 w-4' />
+              <div className='ml-2'>
+                {range?.from && range?.to ? (
+                  `${format(range.from, 'PP')} - ${format(range.to, 'PP')}`
+                ) : (
+                  <span>{'Select custom range'}</span>
+                )}
+              </div>
+            </Button>
+          )}
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
           <Calendar
