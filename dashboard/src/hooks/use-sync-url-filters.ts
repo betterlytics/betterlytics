@@ -46,7 +46,7 @@ export function useSyncURLFilters() {
 
       const encoded = Object.fromEntries(encodedFilterEntries);
 
-      const filters = BAFilterSearchParams.newDecode(encoded);
+      const filters = BAFilterSearchParams.decode(encoded);
 
       if (filters.startDate && filters.endDate) {
         setPeriod(filters.startDate, filters.endDate);
@@ -76,7 +76,7 @@ export function useSyncURLFilters() {
 
   useEffect(() => {
     try {
-      const newlyEncodedFilters = BAFilterSearchParams.newEncode({
+      const newlyEncodedFilters = BAFilterSearchParams.encode({
         queryFilters,
         startDate,
         endDate,

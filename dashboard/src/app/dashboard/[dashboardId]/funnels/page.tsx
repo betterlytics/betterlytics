@@ -44,7 +44,7 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate } = await BAFilterSearchParams.decode(await searchParams);
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
   const t = await getTranslations('dashboard.sidebar');
   return (

@@ -29,8 +29,9 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, granularity, compareStartDate, compareEndDate } = await BAFilterSearchParams.decode(
+    await searchParams,
+  );
 
   const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
   const sourceBreakdownPromise = fetchCampaignSourceBreakdownAction(dashboardId, startDate, endDate);

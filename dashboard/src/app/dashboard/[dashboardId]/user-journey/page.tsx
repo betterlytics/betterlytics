@@ -24,8 +24,7 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, userJourney, queryFilters } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, userJourney, queryFilters } = await BAFilterSearchParams.decode(await searchParams);
 
   const userJourneyPromise = fetchUserJourneyAction(
     dashboardId,

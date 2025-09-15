@@ -27,8 +27,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters, granularity } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, queryFilters, granularity } = await BAFilterSearchParams.decode(await searchParams);
 
   const summaryPromise = fetchCoreWebVitalsSummaryAction(dashboardId, startDate, endDate, queryFilters);
   const seriesPromise = fetchCoreWebVitalChartDataAction(

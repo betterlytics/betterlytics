@@ -20,7 +20,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, queryFilters } = await BAFilterSearchParams.decode(await searchParams);
 
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
 

@@ -34,16 +34,6 @@ function getDefaultFilters(): FilterQueryParams {
   };
 }
 
-async function decodeFromParams(paramsPromise: Promise<{ filters: string }>) {
-  const { filters } = await paramsPromise;
-
-  if (!filters) {
-    return getDefaultFilters();
-  }
-
-  return decode(filters);
-}
-
 function filterVariable(key: string, value: unknown) {
   const defaultFilters = getDefaultFilters();
 
@@ -53,7 +43,10 @@ function filterVariable(key: string, value: unknown) {
   }
 
   // Check if filters are required or if they already match the default filters
-  if (key in defaultFilters && JSON.stringify(value) === JSON.stringify(defaultFilters[key as keyof Filters])) {
+  if (
+    key in defaultFilters &&
+    JSON.stringify(value) === JSON.stringify(defaultFilters[key as keyof FilterQueryParams])
+  ) {
     return false;
   }
 
@@ -139,7 +132,6 @@ function decode(params: FilterQuerySearchParams) {
 }
 
 export const BAFilterSearchParams = {
-  decodeFromParams,
   getDefaultFilters,
   encode,
   decode,

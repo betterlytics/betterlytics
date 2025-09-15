@@ -25,7 +25,7 @@ export default async function FunnelPage({ params, searchParams }: FunnelPagePro
     redirect('/');
   }
 
-  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate } = await BAFilterSearchParams.decode(await searchParams);
 
   const { dashboardId, funnelId } = await params;
   const funnelPromise = fetchFunnelDetailsAction(dashboardId, funnelId, startDate, endDate);

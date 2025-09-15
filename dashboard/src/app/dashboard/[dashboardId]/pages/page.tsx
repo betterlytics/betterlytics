@@ -30,7 +30,7 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
 
   const { dashboardId } = await params;
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+    await BAFilterSearchParams.decode(await searchParams);
 
   const pagesSummaryWithChartsPromise = fetchPagesSummaryWithChartsAction(
     dashboardId,

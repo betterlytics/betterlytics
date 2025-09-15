@@ -31,7 +31,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
 
   const { dashboardId } = await params;
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+    await BAFilterSearchParams.decode(await searchParams);
 
   const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(
     dashboardId,

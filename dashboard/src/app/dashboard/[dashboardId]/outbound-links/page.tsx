@@ -30,7 +30,7 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
 
   const { dashboardId } = await params;
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+    await BAFilterSearchParams.decode(await searchParams);
 
   const outboundLinksAnalyticsPromise = fetchOutboundLinksAnalyticsAction(
     dashboardId,

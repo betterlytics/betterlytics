@@ -24,8 +24,9 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = await BAFilterSearchParams.decode(
+    await searchParams,
+  );
 
   const eventsPromise = fetchCustomEventsOverviewAction(
     dashboardId,

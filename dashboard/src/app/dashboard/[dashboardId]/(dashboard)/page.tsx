@@ -43,7 +43,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const { dashboardId } = await params;
 
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.newDecode(await searchParams);
+    BAFilterSearchParams.decode(await searchParams);
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
     dashboardId,
