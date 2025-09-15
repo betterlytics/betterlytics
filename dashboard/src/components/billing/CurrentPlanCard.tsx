@@ -123,7 +123,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
           )}
         </div>
 
-        {showManagementButtons && (
+        {showManagementButtons && billingData.isExistingPaidSubscriber && (
           <div className='flex w-full flex-wrap justify-start gap-2 sm:ml-auto sm:w-auto sm:justify-end'>
             <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
               <ExternalLink className='mr-2 h-4 w-4' />
