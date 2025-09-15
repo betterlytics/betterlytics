@@ -23,9 +23,9 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
         {TIME_RANGE_PRESETS.filter(isNonCustomPreset).map((preset) => (
           <Button
             key={preset.value}
-            variant={selectedRange === preset.value ? 'default' : 'outline'}
+            variant={selectedRange === preset.value ? 'default' : 'ghost'}
             onClick={() => onRangeSelect(preset.value)}
-            className='w-full cursor-pointer px-3 text-center'
+            className='w-full cursor-pointer justify-start px-3'
           >
             {t(`presets.${preset.value}`)}
           </Button>

@@ -79,19 +79,18 @@ export function TimeRangeSelector({ className = '' }: { className?: string }) {
     <div className='space-y-6 p-0 sm:p-0'>
       <QuickSelectSection selectedRange={tempState.range} onRangeSelect={handleQuickSelect} />
       <Separator className='my-4' />
-      <GranularitySection
-        selectedGranularity={tempState.granularity}
-        allowedGranularities={allowedGranularities}
-        onGranularitySelect={handleGranularitySelect}
-      />
-      <Separator className='my-4' />
       <DateRangeSection
         startDate={tempState.customStart}
         endDate={tempState.customEnd}
         onDateRangeSelect={handleCustomDateRangeSelect}
       />
-
       <Separator className='my-4' />
+      <GranularitySection
+        selectedGranularity={tempState.granularity}
+        allowedGranularities={allowedGranularities}
+        onGranularitySelect={handleGranularitySelect}
+      />
+
       <div className='flex justify-end'>
         <Button className='cursor-pointer' onClick={handleApplyAndClose}>
           {t('apply')}
@@ -147,7 +146,7 @@ export function TimeRangeSelector({ className = '' }: { className?: string }) {
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[350px] max-w-[calc(100svw-48px)] space-y-6 border p-6 shadow-2xl' align='end'>
+      <PopoverContent className='w-[200px] max-w-[calc(100svw-48px)] space-y-6 border p-3 shadow-2xl' align='end'>
         {content}
       </PopoverContent>
     </Popover>
