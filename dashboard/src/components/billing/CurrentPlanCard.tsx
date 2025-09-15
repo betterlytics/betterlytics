@@ -74,12 +74,12 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
       </div>
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <div className='space-y-3'>
+        <div className='flex justify-between sm:block sm:space-y-3'>
           <div>
             <div className='text-muted-foreground text-sm'>{t('plan')}</div>
             <div className='font-semibold capitalize'>{subscription.tier}</div>
           </div>
-          <div>
+          <div className='text-right sm:text-left'>
             <div className='text-muted-foreground text-sm'>{t('monthlyPrice')}</div>
             <div className='font-semibold'>
               {subscription.pricePerMonth === 0
