@@ -74,7 +74,7 @@ export function useSyncURLFilters() {
 
   useEffect(() => {
     try {
-      const newlyEncodedFilters = BAFilterSearchParams.encode({
+      const encodedFilters = BAFilterSearchParams.encode({
         queryFilters,
         startDate,
         endDate,
@@ -89,7 +89,7 @@ export function useSyncURLFilters() {
       });
 
       const params = new URLSearchParams(searchParams?.toString() ?? '');
-      newlyEncodedFilters.forEach(([key, value]) => params.set(key, value));
+      encodedFilters.forEach(([key, value]) => params.set(key, value));
       router.replace(`?${params.toString()}`);
     } catch (error) {
       console.error('Failed to add filters:', error);
