@@ -128,6 +128,11 @@ function decode(params: FilterQuerySearchParams) {
     ...decoded,
   };
 
+  if (filters.compareEnabled === false) {
+    filters.compareStartDate = undefined;
+    filters.compareEndDate = undefined;
+  }
+
   return FilterQueryParamsSchema.parse(filters);
 }
 
