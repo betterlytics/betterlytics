@@ -11,12 +11,10 @@ export const FilterQueryParamsSchema = z.object({
   compareEnabled: z.boolean().optional(),
   compareStartDate: z.date().optional(),
   compareEndDate: z.date().optional(),
-  userJourney: z
-    .object({
-      numberOfSteps: z.number(),
-      numberOfJourneys: z.number(),
-    })
-    .optional(),
+  userJourney: z.object({
+    numberOfSteps: z.number(),
+    numberOfJourneys: z.number(),
+  }),
 });
 
 export type FilterQueryParams = z.infer<typeof FilterQueryParamsSchema>;
