@@ -8,6 +8,7 @@ import {
   endOfHour,
   startOfHour,
   roundToNearestMinutes,
+  differenceInCalendarDays,
 } from 'date-fns';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 
@@ -133,4 +134,26 @@ export function getCompareRangeForTimePresets(value: Omit<TimeRangeValue, 'custo
     compareStart,
     compareEnd,
   };
+}
+
+export type ComparePreset = 'previous_period' | 'previous_year';
+
+export function getCompareRangeForPreset(
+  currentStart: Date,
+  currentEnd: Date,
+  preset: ComparePreset,
+): { startDate: Date; endDate: Date } {
+  const days = differenceInCalendarDays(currentEnd, currentStart) + 1;
+
+  if (preset === 'previous_period') {
+    const prevEnd = endOfDay(new Date(currentStart.getTime() - 1));
+    const prevStart = startOfDay(new Date(prevEnd.getTime() - (days - 1) * 86400000));
+    return { startDate: prevStart, endDate: prevEnd };
+  }
+
+  const start = new Date(currentStart);
+  start.setFullYear(start.getFullYear() - 1);
+  const end = new Date(start);
+  end.setDate(start.getDate() + (days - 1));
+  return { startDate: startOfDay(start), endDate: endOfDay(end) };
 }

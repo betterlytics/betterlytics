@@ -3,7 +3,12 @@
 import { useCallback } from 'react';
 import { differenceInCalendarDays, endOfDay, startOfDay } from 'date-fns';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { TimeRangeValue, getDateRangeForTimePresets } from '@/utils/timeRanges';
+import {
+  TimeRangeValue,
+  getDateRangeForTimePresets,
+  getCompareRangeForPreset,
+  ComparePreset,
+} from '@/utils/timeRanges';
 import {
   GranularityRangeValues,
   getAllowedGranularities,
@@ -52,28 +57,16 @@ export function useImmediateTimeRange() {
     (enable: boolean) => {
       ctx.setCompareEnabled(enable);
       if (!enable) return;
-      const days = differenceInCalendarDays(ctx.endDate, ctx.startDate) + 1;
-      const prevEnd = endOfDay(new Date(ctx.startDate.getTime() - 1));
-      const prevStart = startOfDay(new Date(prevEnd.getTime() - (days - 1) * 86400000));
-      ctx.setCompareDateRange(prevStart, prevEnd);
+      const { startDate, endDate } = getCompareRangeForPreset(ctx.startDate, ctx.endDate, 'previous_period');
+      ctx.setCompareDateRange(startDate, endDate);
     },
     [ctx],
   );
 
   const setComparePreset = useCallback(
-    (preset: 'previous_period' | 'previous_year') => {
-      const days = differenceInCalendarDays(ctx.endDate, ctx.startDate) + 1;
-      if (preset === 'previous_period') {
-        const prevEnd = endOfDay(new Date(ctx.startDate.getTime() - 1));
-        const prevStart = startOfDay(new Date(prevEnd.getTime() - (days - 1) * 86400000));
-        ctx.setCompareDateRange(prevStart, prevEnd);
-      } else {
-        const start = new Date(ctx.startDate);
-        start.setFullYear(start.getFullYear() - 1);
-        const end = new Date(start);
-        end.setDate(start.getDate() + (days - 1));
-        ctx.setCompareDateRange(startOfDay(start), endOfDay(end));
-      }
+    (preset: ComparePreset) => {
+      const { startDate, endDate } = getCompareRangeForPreset(ctx.startDate, ctx.endDate, preset);
+      ctx.setCompareDateRange(startDate, endDate);
     },
     [ctx],
   );
@@ -98,5 +91,3 @@ export function useImmediateTimeRange() {
     setCompareCustomStart,
   };
 }
-
-
