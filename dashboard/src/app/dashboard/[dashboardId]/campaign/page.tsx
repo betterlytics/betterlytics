@@ -15,10 +15,11 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type CampaignPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function CampaignPage({ params, searchParams }: CampaignPageParams) {
@@ -29,8 +30,9 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, granularity, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
+    await searchParams,
+  );
 
   const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
   const sourceBreakdownPromise = fetchCampaignSourceBreakdownAction(dashboardId, startDate, endDate);

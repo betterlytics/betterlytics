@@ -1,4 +1,6 @@
-export type GranularityRangeValues = 'minute_15' | 'minute_30' | 'hour' | 'day';
+export const GRANULARITY_RANGE_VALUES = ['minute_15', 'minute_30', 'hour', 'day'] as const;
+
+export type GranularityRangeValues = (typeof GRANULARITY_RANGE_VALUES)[number];
 
 export interface GranularityRangePreset {
   label: string;

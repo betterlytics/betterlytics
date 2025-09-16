@@ -27,10 +27,11 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { NoDataBanner } from '@/app/dashboard/[dashboardId]/NoDataBanner';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function DashboardPage({ params, searchParams }: DashboardPageParams) {
@@ -40,8 +41,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     redirect('/');
   }
   const { dashboardId } = await params;
+
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+    BAFilterSearchParams.decode(await searchParams);
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
     dashboardId,
