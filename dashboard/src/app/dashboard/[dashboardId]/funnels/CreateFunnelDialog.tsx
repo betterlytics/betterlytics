@@ -25,6 +25,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useQueryFilters } from '@/hooks/use-query-filters';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { useTranslations } from 'next-intl';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type FunnelMetadata = {
   name: string;
@@ -40,6 +41,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.funnels.create');
+  const isMobile = useIsMobile();
 
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: t('defaultName'),
@@ -60,7 +62,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
 
   const debouncedFunnelPages = useDebounce(processedQueryFilters, 500);
 
-  const isPreviewEnabled = debouncedFunnelPages.length >= 2;
+  const isPreviewEnabled = !isMobile && debouncedFunnelPages.length >= 2;
 
   const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
     queryKey: ['funnelPreview', dashboardId, queryFilters, metadata.isStrict],
@@ -146,18 +148,20 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
               </div>
             </div>
           </div>
-          <div className='bg-card flex h-full flex-grow flex-col overflow-hidden rounded-lg p-4 shadow'>
-            <div className='mb-4 flex items-center justify-between'>
-              <h3 className='text-card-foreground text-lg font-semibold'>{t('livePreview')}</h3>
+          {!isMobile && (
+            <div className='bg-card flex h-full flex-grow flex-col overflow-hidden rounded-lg p-4 shadow'>
+              <div className='mb-4 flex items-center justify-between'>
+                <h3 className='text-card-foreground text-lg font-semibold'>{t('livePreview')}</h3>
+              </div>
+              <div className='scrollbar-thin flex-1 overflow-y-auto'>
+                <FunnelPreviewDisplay
+                  funnelDetails={funnelPreviewData}
+                  funnelName={metadata.name}
+                  isLoading={isPreviewLoading}
+                />
+              </div>
             </div>
-            <div className='scrollbar-thin flex-1 overflow-y-auto'>
-              <FunnelPreviewDisplay
-                funnelDetails={funnelPreviewData}
-                funnelName={metadata.name}
-                isLoading={isPreviewLoading}
-              />
-            </div>
-          </div>
+          )}
         </div>
         <DialogFooter className='mt-auto pt-2'>
           <Button type='submit' onClick={submit} disabled={queryFilters.length < 2} className='cursor-pointer'>

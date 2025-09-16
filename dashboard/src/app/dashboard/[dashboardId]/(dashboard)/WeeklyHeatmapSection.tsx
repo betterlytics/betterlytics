@@ -78,9 +78,9 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
         <div className='flex flex-row items-center justify-between gap-2'>
           <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
           <div className='flex h-8 min-w-0 items-center'>
-            <div className='w-48 sm:w-48'>
+            <div className='w-40 sm:w-48'>
               <Select value={selectedMetric} onValueChange={onMetricChange}>
-                <SelectTrigger size='sm' className='w-full cursor-pointer'>
+                <SelectTrigger size='sm' className='w-full cursor-pointer overflow-hidden'>
                   <span className='block truncate'>
                     <SelectValue placeholder='Select metric' />
                   </span>
