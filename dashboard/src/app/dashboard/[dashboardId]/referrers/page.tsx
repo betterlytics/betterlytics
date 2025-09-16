@@ -16,10 +16,11 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type ReferrersPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function ReferrersPage({ params, searchParams }: ReferrersPageParams) {
@@ -31,7 +32,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
 
   const { dashboardId } = await params;
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    await BAFilterSearchParams.decode(await searchParams);
+    BAFilterSearchParams.decode(await searchParams);
 
   const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(
     dashboardId,

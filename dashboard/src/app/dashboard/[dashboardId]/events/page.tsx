@@ -10,10 +10,11 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type EventsPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function EventsPage({ params, searchParams }: EventsPageParams) {
@@ -24,7 +25,7 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = await BAFilterSearchParams.decode(
+  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
     await searchParams,
   );
 

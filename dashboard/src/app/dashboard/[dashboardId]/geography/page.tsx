@@ -6,10 +6,11 @@ import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import GeographySection from '@/app/dashboard/[dashboardId]/geography/GeographySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function GeographyPage({ params, searchParams }: GeographyPageParams) {
@@ -20,7 +21,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters } = await BAFilterSearchParams.decode(await searchParams);
+  const { startDate, endDate, queryFilters } = BAFilterSearchParams.decode(await searchParams);
 
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
 
