@@ -8,6 +8,7 @@ import WebsiteSetup from './steps/WebsiteSetup';
 import Integration from './steps/Integration';
 import { getProviders } from 'next-auth/react';
 import Logo from '@/components/logo';
+import { Link } from '@/i18n/navigation';
 
 type Steps = 'account' | 'website' | 'integration';
 
@@ -22,7 +23,9 @@ export default function OnboardingPage({ initialStep, providers }: OnboardingPag
   return (
     <main className='relative mb-0 flex w-full flex-1 flex-col items-center gap-2 pt-6'>
       <div className='mb-2 flex w-full justify-center md:mb-6'>
-        <Logo variant='simple' showText textSize='lg' priority />
+        <Link href='/' className='flex items-center space-x-2'>
+          <Logo variant='simple' showText textSize='lg' priority />
+        </Link>
       </div>
       <OnboardingProgress step={step} />
       <AnimatePresence mode='wait'>

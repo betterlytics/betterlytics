@@ -143,7 +143,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
           </motion.li>
         </motion.ul>
       </div>
-      <div className='bg-card col-span-2 space-y-3 rounded-lg border p-6 shadow-sm md:col-span-1'>
+      <div className='bg-card col-span-2 space-y-3 rounded-lg border p-3 py-4 pb-5 shadow-sm sm:p-6 md:col-span-1'>
         <h2 className='text-center text-2xl font-semibold'>{t('form.title')}</h2>
         {error && (
           <div
