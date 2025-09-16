@@ -8,6 +8,8 @@ import {
   getDateRangeForTimePresets,
   getCompareRangeForPreset,
   ComparePreset,
+  getStartDateWithGranularity,
+  getEndDateWithGranularity,
 } from '@/utils/timeRanges';
 import {
   GranularityRangeValues,
@@ -21,11 +23,11 @@ export function useImmediateTimeRange() {
   const setPresetRange = useCallback(
     (preset: Exclude<TimeRangeValue, 'custom'>) => {
       const { startDate, endDate } = getDateRangeForTimePresets(preset);
-      const s = startOfDay(startDate);
-      const e = endOfDay(endDate);
-      const allowed = getAllowedGranularities(s, e);
+      const allowed = getAllowedGranularities(startDate, endDate);
       const nextGranularity = getValidGranularityFallback(ctx.granularity, allowed);
-      ctx.setPeriod(s, e);
+      const alignedStart = getStartDateWithGranularity(startDate, nextGranularity);
+      const alignedEnd = getEndDateWithGranularity(endDate, nextGranularity);
+      ctx.setPeriod(alignedStart, alignedEnd);
       if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
     },
     [ctx],
@@ -34,11 +36,13 @@ export function useImmediateTimeRange() {
   const setCustomRange = useCallback(
     (from?: Date, to?: Date) => {
       if (!from || !to) return;
-      const s = startOfDay(from);
-      const e = endOfDay(to);
-      const allowed = getAllowedGranularities(s, e);
+      const startDate = startOfDay(from);
+      const endDate = endOfDay(to);
+      const allowed = getAllowedGranularities(startDate, endDate);
       const nextGranularity = getValidGranularityFallback(ctx.granularity, allowed);
-      ctx.setPeriod(s, e);
+      const alignedStart = getStartDateWithGranularity(startDate, nextGranularity);
+      const alignedEnd = getEndDateWithGranularity(endDate, nextGranularity);
+      ctx.setPeriod(alignedStart, alignedEnd);
       if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
     },
     [ctx],
@@ -48,6 +52,11 @@ export function useImmediateTimeRange() {
     (g: GranularityRangeValues) => {
       const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
       if (!allowed.includes(g)) return;
+      const alignedStart = getStartDateWithGranularity(ctx.startDate, g);
+      const alignedEnd = getEndDateWithGranularity(ctx.endDate, g);
+      if (alignedStart.getTime() !== ctx.startDate.getTime() || alignedEnd.getTime() !== ctx.endDate.getTime()) {
+        ctx.setPeriod(alignedStart, alignedEnd);
+      }
       ctx.setGranularity(g);
     },
     [ctx],
