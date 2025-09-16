@@ -54,10 +54,9 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
           <Separator className='my-2' />
           <div className='space-y-2'>
             <div className='text-sm font-medium'>{t('compareToPeriod')}</div>
-            {/* Custom: pick START only; end auto-derived to match main duration */}
             <DateRangeSection
               startDate={ctx.compareStartDate}
-              endDate={ctx.compareStartDate}
+              endDate={ctx.compareEndDate}
               onDateRangeSelect={(from) => actions.setCompareCustomStart(from)}
             />
             <p className='text-muted-foreground text-xs'>Same length as main range</p>
