@@ -60,6 +60,11 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   });
 
   useEffect(() => {
+    //! TODO: Update more gracefully
+    setMapSelection(null);
+  }, [playing, frame]);
+
+  useEffect(() => {
     fetch('/data/countries.geo.json')
       .then((res) => res.json())
       .then((data) => setGeojson(data))
@@ -87,7 +92,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
 
   const handleClick = useCallback(
     (info: any) => {
-      if (info.object) {
+      if (info.object && !playing) {
         setMapSelection({
           clicked: {
             longitude: info?.coordinate?.[0],
@@ -102,7 +107,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         setMapSelection(null);
       }
     },
-    [visitorDict, setMapSelection],
+    [visitorDict, setMapSelection, playing],
   );
 
   const handleHover = useCallback(
@@ -110,7 +115,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
       const hoveredCountryCode = info.object?.id as string | undefined;
       const prevHoveredCountryCode = hoveredFeatureRef?.current?.geoVisitor.country_code;
 
-      if (hoveredCountryCode === prevHoveredCountryCode) return;
+      if (hoveredCountryCode === prevHoveredCountryCode || playing) return;
 
       if (hoveredCountryCode) {
         setMapSelection({
@@ -125,7 +130,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         setMapSelection({ hovered: undefined });
       }
     },
-    [visitorDict, setMapSelection, hoveredFeatureRef],
+    [visitorDict, setMapSelection, hoveredFeatureRef, playing],
   );
 
   const layers = CountriesLayer({

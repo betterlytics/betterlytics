@@ -10,6 +10,7 @@ import { Globe, Link } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
 import { ToDataTable } from '@/presenters/toDataTable';
 import { TableCompareCell } from '@/components/TableCompareCell';
+import { useTranslations } from 'next-intl';
 
 export const ReferrerTab = {
   All: 'all',
@@ -40,11 +41,12 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 };
 
 interface ReferrerTableProps {
-  data?: ToDataTable<'source_name', ReferrerTableRow>[];
+  data?: ToDataTable<'source_url', ReferrerTableRow>[];
 }
 
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
   const [activeTab, setActiveTab] = useState<ReferrerTabKey>(ReferrerTab.All);
+  const t = useTranslations('components.referrers.table');
 
   const totalVisits = data.reduce((sum, row) => sum + row.current.visits, 0);
 
@@ -54,10 +56,10 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
   });
 
-  const columns: ColumnDef<ToDataTable<'source_name', ReferrerTableRow>>[] = [
+  const columns: ColumnDef<ToDataTable<'source_url', ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
-      header: 'Source',
+      header: t('columns.source'),
       cell: ({ row }) => {
         const data = row.original.current;
         return (
@@ -71,8 +73,8 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
               {data.source_url
                 ? data.source_url
                 : data.source_type.toLowerCase() === 'direct'
-                  ? 'Direct'
-                  : 'Unknown'}
+                  ? t('columns.direct')
+                  : t('columns.unknown')}
             </div>
           </div>
         );
@@ -80,18 +82,18 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     },
     {
       accessorKey: 'source_type',
-      header: 'Type',
+      header: t('columns.type'),
       cell: ({ row }) => <SourceTypeBadge type={row.original.current.source_type} />,
     },
     {
       accessorKey: 'visits',
-      header: 'Visits',
+      header: t('columns.visits'),
       cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visits' formatter={formatNumber} />,
       accessorFn: (row) => row.current.visits,
     },
     {
       id: 'percentage',
-      header: 'Percentage',
+      header: t('columns.percentage'),
       accessorFn: (row) => {
         if (totalVisits === 0) {
           return 0;
@@ -103,7 +105,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     },
     {
       accessorKey: 'bounce_rate',
-      header: 'Bounce Rate',
+      header: t('columns.bounceRate'),
       cell: ({ row }) => (
         <TableCompareCell row={row.original} dataKey='bounce_rate' formatter={formatPercentage} />
       ),
@@ -111,7 +113,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     },
     {
       accessorKey: 'avg_visit_duration',
-      header: 'Avg. Visit Duration',
+      header: t('columns.avgVisitDuration'),
       cell: ({ row }) => (
         <TableCompareCell row={row.original} dataKey='avg_visit_duration' formatter={formatDuration} />
       ),
@@ -123,17 +125,17 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     <div>
       <div className='border-border mb-4 border-b'>
         <div className='flex space-x-4 overflow-x-auto'>
-          {(Object.entries(ReferrerTab) as [ReferrerTabValue, ReferrerTabKey][]).map(([key, value]) => (
+          {(Object.values(ReferrerTab) as ReferrerTabKey[]).map((value) => (
             <button
               key={value}
-              className={`border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
+              className={`cursor-pointer border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap ${
                 activeTab === value
-                  ? 'border-gray-800 text-gray-800'
-                  : 'border-transparent text-gray-600 hover:border-gray-300'
+                  ? 'border-primary text-muted-foreground'
+                  : 'text-muted-foreground hover:border-primary border-transparent'
               }`}
               onClick={() => setActiveTab(value)}
             >
-              {key}
+              {t(`tabs.${value}`)}
             </button>
           ))}
         </div>

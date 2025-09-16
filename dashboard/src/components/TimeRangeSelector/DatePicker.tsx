@@ -27,7 +27,9 @@ export function DatePicker({ label, date, onDateSelect, disabled, id }: DatePick
 
   return (
     <div className='space-y-1'>
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className='text-muted-foreground'>
+        {label}
+      </Label>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button

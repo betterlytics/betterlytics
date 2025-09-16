@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ReactNode, useRef } from 'react';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface TabDefinition<TData> {
   key: string;
@@ -18,48 +19,79 @@ interface TabDefinition<TData> {
 }
 
 interface TabbedTableProps<TData> {
-  title: string;
-  description?: string;
+  title: ReactNode;
   tabs: TabDefinition<TData>[];
   defaultTab?: string;
   className?: string;
   headerActions?: ReactNode;
   searchColumn?: string;
+  searchFieldLabel?: string;
+  tabValue?: string;
+  onTabValueChange?: (value: string) => void;
+  tabsRowLeftMobile?: ReactNode;
+  hideTabsListOnMobile?: boolean;
 }
 
 function TabbedTable<TData>({
   title,
-  description,
   tabs,
   defaultTab,
   className = '',
   headerActions,
   searchColumn,
+  searchFieldLabel,
+  tabValue,
+  onTabValueChange,
+  tabsRowLeftMobile,
+  hideTabsListOnMobile,
 }: TabbedTableProps<TData>) {
   const activeDefaultTab = defaultTab || tabs[0]?.key;
   const tableRef = useRef<Table<TData> | null>(null);
+  const t = useTranslations('components.tabbedTable');
 
   return (
-    <Card className={`bg-card border-border rounded-lg border shadow ${className}`}>
-      <Tabs defaultValue={activeDefaultTab}>
-        <CardHeader className='pb-0'>
-          <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-            <div className={cn(searchColumn && 'sm:col-span-2')}>
-              <CardTitle className='mb-1 text-lg font-semibold'>{title}</CardTitle>
-              {description && <p className='text-muted-foreground text-sm'>{description}</p>}
+    <Card
+      className={`border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 ${className}`}
+    >
+      <Tabs
+        {...(tabValue !== undefined && onTabValueChange
+          ? { value: tabValue, onValueChange: onTabValueChange }
+          : { defaultValue: activeDefaultTab })}
+      >
+        <CardHeader className='px-0 pb-0'>
+          <div className='relative grid grid-cols-1 items-center gap-2 xl:grid-cols-2'>
+            <div
+              className={cn('grid grid-cols-1 items-start gap-1 xl:grid-cols-2', searchColumn && 'sm:col-span-2')}
+            >
+              <CardTitle className='text-base font-medium'>{title}</CardTitle>
+              <div className='flex'>
+                {headerActions && <div className='justify-self-end'>{headerActions}</div>}
+              </div>
             </div>
             {searchColumn && (
-              <Input
-                placeholder={`Filter by ${searchColumn}...`}
-                onChange={(event) => tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)}
-                className='row-start-3 max-w-sm sm:row-start-2'
-              />
+              <div className='flex h-9 w-full items-center rounded-md sm:max-w-sm'>
+                <Input
+                  placeholder={t('searchPlaceholder', {
+                    field: searchFieldLabel || String(searchColumn),
+                  })}
+                  onChange={(event) =>
+                    tableRef.current?.getColumn(searchColumn)?.setFilterValue(event.target.value)
+                  }
+                  className='cursor-input row-start-3 !h-[calc(100%-1px)] w-full !text-xs shadow-sm sm:row-start-2 sm:max-w-sm md:!text-xs'
+                />
+              </div>
             )}
-            <div className='flex items-center justify-center gap-4 sm:justify-end'>
-              {headerActions && <div>{headerActions}</div>}
-              <TabsList className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length}`}>
+            <div className='flex w-full items-center gap-4 sm:justify-end'>
+              {tabsRowLeftMobile && <div className='w-full sm:hidden'>{tabsRowLeftMobile}</div>}
+              <TabsList
+                className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background w-full gap-1 px-1 inset-shadow-sm ${hideTabsListOnMobile ? 'hidden sm:grid' : ''}`}
+              >
                 {tabs.map((tab) => (
-                  <TabsTrigger key={tab.key} value={tab.key} className='px-3 py-1 text-xs font-medium'>
+                  <TabsTrigger
+                    key={tab.key}
+                    value={tab.key}
+                    className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+                  >
                     {tab.label}
                   </TabsTrigger>
                 ))}
@@ -67,24 +99,16 @@ function TabbedTable<TData>({
             </div>
           </div>
         </CardHeader>
-        <CardContent className='px-6 pt-0 pb-4'>
+        <CardContent className='px-0'>
           {tabs.map((tab) => (
             <TabsContent key={tab.key} value={tab.key}>
               <div className='overflow-x-auto'>
-                {tab.data.length === 0 ? (
-                  <div className='flex h-32 items-center justify-center'>
-                    <p className='text-muted-foreground text-sm'>
-                      {tab.emptyMessage || `No ${tab.label.toLowerCase()} data available`}
-                    </p>
-                  </div>
-                ) : (
-                  <DataTable
-                    columns={tab.columns}
-                    data={tab.data}
-                    defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
-                    tableRef={tableRef}
-                  />
-                )}
+                <DataTable
+                  columns={tab.columns}
+                  data={tab.data}
+                  defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
+                  tableRef={tableRef}
+                />
               </div>
             </TabsContent>
           ))}

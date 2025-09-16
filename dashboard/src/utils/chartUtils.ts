@@ -1,10 +1,10 @@
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { timeFormat } from 'd3-time-format';
 import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
 
 export interface TrendInfo {
-  icon: typeof TrendingUp | typeof TrendingDown | typeof Minus;
+  icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
   color: string;
   bgColor: string;
 }
@@ -16,10 +16,10 @@ export function getTrendInfo(current: number, previous: number, hasComparison: b
 
   const diff = current - previous;
   if (diff > 0) {
-    return { icon: TrendingUp, color: 'text-green-400', bgColor: 'bg-green-500/10' };
+    return { icon: ChevronUp, color: 'text-trend-up', bgColor: 'bg-green-500/10' };
   }
   if (diff < 0) {
-    return { icon: TrendingDown, color: 'text-red-400', bgColor: 'bg-red-500/10' };
+    return { icon: ChevronDown, color: 'text-trend-down', bgColor: 'bg-red-500/10' };
   }
   return { icon: Minus, color: 'text-gray-400', bgColor: 'bg-gray-500/10' };
 }
@@ -29,6 +29,7 @@ export function formatDifference(
   previous: number,
   hasComparison: boolean,
   formatter?: (value: number) => string,
+  includePreviousNumber: boolean = true,
 ): string | null {
   if (!hasComparison || previous === 0) return null;
 
@@ -38,9 +39,12 @@ export function formatDifference(
   const sign = diff > 0 ? '+' : '';
   const formattedDiff = formatter ? formatter(diff) : diff.toString();
 
-  if (previous !== 0) {
-    const percentage = ((diff / previous) * 100).toFixed(1);
-    return `${sign}${formattedDiff} (${sign}${percentage}%)`;
+  const percentage = ((diff / previous) * 100).toFixed(1);
+
+  if (previous !== 0 && includePreviousNumber) {
+    return `${sign}${percentage}% (${sign}${formattedDiff})`;
+  } else if (!includePreviousNumber) {
+    return `${sign}${percentage}%`;
   }
 
   return `${sign}${formattedDiff}`;
@@ -50,11 +54,11 @@ export function formatDifference(
  * Formats the date based on the granularity
  */
 export function defaultDateLabelFormatter(date: string | number, granularity?: GranularityRangeValues) {
-  const formatter = granularityDateFormmatter(granularity);
+  const formatter = granularityDateFormatter(granularity);
   return formatter(new Date(date));
 }
 
-export function granularityDateFormmatter(granularity?: GranularityRangeValues) {
+export function granularityDateFormatter(granularity?: GranularityRangeValues) {
   if (granularity === undefined || granularity === 'day') {
     return timeFormat('%b %d');
   }

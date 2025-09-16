@@ -60,3 +60,42 @@ export function formatTimeAgo(date: Date): string {
     return 'Recently';
   }
 }
+
+/**
+ * Formats seconds as either full seconds (two decimals) or milliseconds when < 1 second.
+ * Examples: 1.02 seconds, 1.20 seconds, 800 ms, 340 ms
+ */
+export function formatShortSeconds(seconds: number): string {
+  if (!Number.isFinite(seconds)) return '-';
+  if (Math.abs(seconds) < 1) {
+    const ms = Math.round(seconds * 1000);
+    return `${ms} ms`;
+  }
+  return `${new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(seconds)} seconds`;
+}
+
+/**
+ * Formats milliseconds as a short human string, using seconds or ms as appropriate.
+ */
+export function formatShortFromMilliseconds(milliseconds: number): string {
+  return formatShortSeconds(milliseconds / 1000);
+}
+
+// Compact duration formatters (short units: s/ms)
+export function formatCompactSeconds(seconds: number): string {
+  if (!Number.isFinite(seconds)) return '-';
+  if (Math.abs(seconds) < 1) {
+    return `${Math.round(seconds * 1000)} ms`;
+  }
+  return `${new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(seconds)} s`;
+}
+
+export function formatCompactFromMilliseconds(milliseconds: number): string {
+  return formatCompactSeconds(milliseconds / 1000);
+}

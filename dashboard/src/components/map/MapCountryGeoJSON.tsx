@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface MapCountryGeoJSONProps {
   GeoJSON: typeof GeoJSON;
@@ -31,8 +32,10 @@ export default function MapCountryGeoJSON({
   style,
 }: MapCountryGeoJSONProps) {
   const { setMapSelection } = useMapSelection();
-
+  const locale = useLocale();
+  const t = useTranslations('components.geography');
   const ref = useRef({ setMapSelection });
+
   useEffect(() => {
     ref.current = { setMapSelection };
   }, [setMapSelection]);
@@ -70,7 +73,9 @@ export default function MapCountryGeoJSON({
           if (!(popupContainer as any)._reactRoot) {
             (popupContainer as any)._reactRoot = createRoot(popupContainer);
           }
-          (popupContainer as any)._reactRoot.render(<MapTooltipContent geoVisitor={geoVisitor} size={size} />);
+          (popupContainer as any)._reactRoot.render(
+            <MapTooltipContent locale={locale} geoVisitor={geoVisitor} size={size} label={t('visitors')} />,
+          );
 
           requestAnimationFrame(() => {
             layer.getPopup()?.update();
@@ -78,8 +83,15 @@ export default function MapCountryGeoJSON({
         },
       });
     },
-    [size, style, visitorData],
+    [size, style, visitorData, locale],
   );
 
-  return <GeoJSON key={visitorData.length} data={geoData} onEachFeature={onEachFeature} {...DEFAULT_OPTS} />;
+  return (
+    <GeoJSON
+      key={`${visitorData.length}-${locale}`}
+      data={geoData}
+      onEachFeature={onEachFeature}
+      {...DEFAULT_OPTS}
+    />
+  );
 }

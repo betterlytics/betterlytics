@@ -1,11 +1,6 @@
 'use server';
 
-import {
-  TopEntryPageRow,
-  TopExitPageRow,
-  PageAnalyticsCombined,
-  PageAnalyticsCombinedSchema,
-} from '@/entities/pages';
+import { TopEntryPageRow, TopExitPageRow, PageAnalyticsCombinedSchema } from '@/entities/pages';
 import {
   getTopPagesForSite,
   getTotalPageViewsForSite,
@@ -20,8 +15,9 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { getSessionMetrics } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { toAreaChart } from '@/presenters/toAreaChart';
+import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
+import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
   async (
@@ -90,8 +86,82 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
 
 // Enhanced summary stats action that includes chart data
 export const fetchSummaryStatsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
-    return getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    granularity: GranularityRangeValues,
+    queryFilters: QueryFilter[],
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const compare =
+      compareStartDate &&
+      compareEndDate &&
+      (await getSummaryStatsWithChartsForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+      ));
+
+    const compareValues = toPartialPercentageCompare({
+      data,
+      compare,
+      keys: [
+        'uniqueVisitors',
+        'pageviews',
+        'sessions',
+        'pagesPerSession',
+        'avgVisitDuration',
+        'bounceRate',
+      ] as const,
+    });
+
+    const dateRange = { start: startDate, end: endDate };
+
+    return {
+      ...data,
+      visitorsChartData: toSparklineSeries({
+        data: data.visitorsChartData,
+        granularity,
+        dataKey: 'unique_visitors',
+        dateRange,
+      }),
+      pageviewsChartData: toSparklineSeries({
+        data: data.pageviewsChartData,
+        granularity,
+        dataKey: 'views',
+        dateRange,
+      }),
+      sessionsChartData: toSparklineSeries({
+        data: data.sessionsChartData,
+        granularity,
+        dataKey: 'sessions',
+        dateRange,
+      }),
+      bounceRateChartData: toSparklineSeries({
+        data: data.bounceRateChartData,
+        granularity,
+        dataKey: 'bounce_rate',
+        dateRange,
+      }),
+      avgVisitDurationChartData: toSparklineSeries({
+        data: data.avgVisitDurationChartData,
+        granularity,
+        dataKey: 'avg_visit_duration',
+        dateRange,
+      }),
+      pagesPerSessionChartData: toSparklineSeries({
+        data: data.pagesPerSessionChartData,
+        granularity,
+        dataKey: 'pages_per_session',
+        dateRange,
+      }),
+      compareValues,
+    };
   },
 );
 
@@ -143,6 +213,34 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         data,
         granularity,
         dataKey: 'bounce_rate',
+        dateRange: {
+          start: startDate,
+          end: endDate,
+        },
+        compare,
+        compareDateRange: {
+          start: compareStartDate,
+          end: compareEndDate,
+        },
+      }),
+      pagesPerSession: toAreaChart({
+        data,
+        granularity,
+        dataKey: 'pages_per_session',
+        dateRange: {
+          start: startDate,
+          end: endDate,
+        },
+        compare,
+        compareDateRange: {
+          start: compareStartDate,
+          end: compareEndDate,
+        },
+      }),
+      sessions: toAreaChart({
+        data,
+        granularity,
+        dataKey: 'sessions',
         dateRange: {
           start: startDate,
           end: endDate,

@@ -47,3 +47,22 @@ export function toDataTable<K extends string, D>({ categoryKey, data, compare }:
     } as ToDataTable<K, D>;
   });
 }
+
+// Helper to pivot key->value pairs into a single row for a category
+export function pivotByCategory<K extends string, M extends string, VKey extends string, V = unknown>(
+  rows: Array<Record<K, string> & Record<M, string> & Record<VKey, V>>,
+  categoryKey: K,
+  metricKey: M,
+  valueKey: VKey,
+) {
+  const map = new Map<string, Record<string, unknown>>();
+  for (const r of rows) {
+    const cat = r[categoryKey];
+    const metric = r[metricKey];
+    const value = r[valueKey];
+    const current = map.get(cat) || { [categoryKey]: cat };
+    current[metric] = value;
+    map.set(cat, current);
+  }
+  return Array.from(map.values()) as Array<Record<K, string> & Record<string, unknown>>;
+}

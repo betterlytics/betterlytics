@@ -125,41 +125,29 @@ export function useTimeRangeHandlers({
     [updateTempState, allowedGranularities, tempState.range],
   );
 
-  const handleStartDateSelect = useCallback(
-    (date: Date | undefined) => {
-      if (!date) return;
-      const newStart = startOfDay(date);
-      let newEnd = tempState.customEnd && endOfDay(tempState.customEnd);
+  const handleCustomDateRangeSelect = useCallback(
+    (from: Date | undefined, to: Date | undefined) => {
+      if (!to) {
+        if (from) {
+          return updateTempState({
+            range: 'custom',
+            customStart: startOfDay(from),
+            customEnd: undefined,
+          });
+        }
+      }
 
-      // Preserve duration by default when moving the start date
-      if (tempState.customStart && tempState.customEnd) {
-        const previousDurationMs =
-          endOfDay(tempState.customEnd).getTime() - startOfDay(tempState.customStart).getTime();
-        const safeDurationMs = Math.max(previousDurationMs, 0);
-        const computedEnd = new Date(newStart.getTime() + safeDurationMs);
-        const todayEnd = endOfDay(new Date());
-        newEnd = computedEnd.getTime() > todayEnd.getTime() ? todayEnd : endOfDay(computedEnd);
+      if (!from || !to) {
+        return;
       }
 
       updateTempState({
         range: 'custom',
-        customStart: newStart,
-        customEnd: newEnd,
+        customStart: startOfDay(from),
+        customEnd: endOfDay(to),
       });
     },
-    [updateTempState, tempState.customStart, tempState.customEnd],
-  );
-
-  const handleEndDateSelect = useCallback(
-    (date: Date | undefined) => {
-      if (!date) return;
-      updateTempState({
-        range: 'custom',
-        customEnd: endOfDay(date),
-        customStart: tempState.customStart && startOfDay(tempState.customStart),
-      });
-    },
-    [updateTempState, tempState.customStart],
+    [updateTempState],
   );
 
   const handleCompareEnabledChange = useCallback(
@@ -169,31 +157,44 @@ export function useTimeRangeHandlers({
     [updateTempState],
   );
 
-  const handleCompareStartDateSelect = useCallback(
-    (date: Date | undefined) => {
-      updateTempState({
-        range: 'custom',
-        compareStart: date,
-      });
-    },
-    [updateTempState, tempState],
-  );
+  const handleCompareDateRangeSelect = useCallback(
+    (from: Date | undefined, to: Date | undefined) => {
+      if (!to) {
+        if (from) {
+          return updateTempState({
+            range: 'custom',
+            compareStart: startOfDay(from),
+            compareEnd: undefined,
+          });
+        }
+      }
 
-  const handleCompareEndDateSelect = useCallback(
-    (date: Date | undefined) => {
-      if (!date || !tempState.customStart || !tempState.customEnd) {
+      if (!from || !to) {
         return;
       }
 
-      const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
+      // On end date select
+      if (
+        tempState.compareEnd &&
+        startOfDay(tempState.compareEnd).getTime() !== startOfDay(to).getTime() &&
+        tempState.customEnd &&
+        tempState.customStart
+      ) {
+        const timeDifference = tempState.customEnd.getTime() - tempState.customStart.getTime();
 
-      const compareEnd = getDateWithTimeOfDay(date, tempState.customEnd);
-      const compareStart = new Date(compareEnd.getTime() - timeDifference);
+        const compareEnd = getDateWithTimeOfDay(to, tempState.customEnd);
+        const compareStart = new Date(compareEnd.getTime() - timeDifference);
+        return updateTempState({
+          range: 'custom',
+          compareStart,
+          compareEnd,
+        });
+      }
 
       updateTempState({
         range: 'custom',
-        compareStart,
-        compareEnd,
+        compareStart: startOfDay(from),
+        compareEnd: endOfDay(to),
       });
     },
     [updateTempState, tempState],
@@ -251,11 +252,9 @@ export function useTimeRangeHandlers({
   return {
     handleQuickSelect,
     handleGranularitySelect,
-    handleStartDateSelect,
-    handleEndDateSelect,
+    handleCustomDateRangeSelect,
     handleCompareEnabledChange,
-    handleCompareStartDateSelect,
-    handleCompareEndDateSelect,
+    handleCompareDateRangeSelect,
     handleApply,
   };
 }

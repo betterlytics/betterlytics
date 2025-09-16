@@ -16,6 +16,7 @@ import { ComparePeriodSection } from './ComparePeriodSection';
 import { useTimeRangeState } from './hooks/useTimeRangeState';
 import { TempState, useTimeRangeHandlers } from './hooks/useTimeRangeHandlers';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTranslations } from 'next-intl';
 
 export function TimeRangeSelector({
   className = '',
@@ -26,6 +27,7 @@ export function TimeRangeSelector({
 }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const isMobile = useIsMobile();
+  const t = useTranslations('components.timeRange');
 
   const { context, currentActivePreset, tempState, allowedGranularities, updateTempState, resetTempState } =
     useTimeRangeState();
@@ -51,11 +53,9 @@ export function TimeRangeSelector({
   const {
     handleQuickSelect,
     handleGranularitySelect,
-    handleStartDateSelect,
-    handleEndDateSelect,
+    handleCustomDateRangeSelect,
     handleCompareEnabledChange,
-    handleCompareStartDateSelect,
-    handleCompareEndDateSelect,
+    handleCompareDateRangeSelect,
     handleApply,
   } = useTimeRangeHandlers({
     tempState,
@@ -83,24 +83,25 @@ export function TimeRangeSelector({
       return `${startLabel} - ${endLabel}`;
     }
     const preset = TIME_RANGE_PRESETS.find((p) => p.value === currentActivePreset);
-    return preset ? preset.label : 'Date Range';
+    if (!preset) return t('dateRange');
+    if (preset.value === 'custom') return t('dateRange');
+    return t(`presets.${preset.value}` as const);
   };
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
       <QuickSelectSection selectedRange={tempState.range} onRangeSelect={handleQuickSelect} />
-
+      <Separator className='my-4' />
       <GranularitySection
         selectedGranularity={tempState.granularity}
         allowedGranularities={allowedGranularities}
         onGranularitySelect={handleGranularitySelect}
       />
-
+      <Separator className='my-4' />
       <DateRangeSection
         startDate={tempState.customStart}
         endDate={tempState.customEnd}
-        onStartDateSelect={handleStartDateSelect}
-        onEndDateSelect={handleEndDateSelect}
+        onDateRangeSelect={handleCustomDateRangeSelect}
       />
 
       {showComparison && (
@@ -109,14 +110,15 @@ export function TimeRangeSelector({
           onCompareEnabledChange={handleCompareEnabledChange}
           compareStartDate={tempState.compareStart}
           compareEndDate={tempState.compareEnd}
-          onCompareStartDateSelect={handleCompareStartDateSelect}
-          onCompareEndDateSelect={handleCompareEndDateSelect}
+          onDateRangeSelect={handleCompareDateRangeSelect}
         />
       )}
 
       <Separator className='my-4' />
       <div className='flex justify-end'>
-        <Button onClick={handleApplyAndClose}>Apply</Button>
+        <Button className='cursor-pointer' onClick={handleApplyAndClose}>
+          {t('apply')}
+        </Button>
       </div>
     </div>
   );
@@ -126,9 +128,12 @@ export function TimeRangeSelector({
       <Dialog open={isPopoverOpen} onOpenChange={handlePopoverOpenChange}>
         <DialogTrigger asChild>
           <Button
-            variant='outline'
+            variant='secondary'
             role='combobox'
-            className={cn('min-w-[200px] justify-between shadow-sm', className)}
+            className={cn(
+              'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]',
+              className,
+            )}
           >
             <div className='flex items-center gap-2'>
               <CalendarIcon className='h-4 w-4' />
@@ -137,9 +142,9 @@ export function TimeRangeSelector({
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
         </DialogTrigger>
-        <DialogContent className='max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto p-6'>
+        <DialogContent className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto px-3 py-4'>
           <DialogHeader>
-            <DialogTitle>Date range</DialogTitle>
+            <DialogTitle>{t('dateRange')}</DialogTitle>
           </DialogHeader>
           {content}
         </DialogContent>
@@ -151,9 +156,12 @@ export function TimeRangeSelector({
     <Popover open={isPopoverOpen} onOpenChange={handlePopoverOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant='outline'
+          variant='secondary'
           role='combobox'
-          className={cn('min-w-[200px] justify-between shadow-sm', className)}
+          className={cn(
+            'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]',
+            className,
+          )}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />
@@ -162,7 +170,7 @@ export function TimeRangeSelector({
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[415px] max-w-[calc(100svw-48px)] space-y-6 p-6' align='end'>
+      <PopoverContent className='w-[350px] max-w-[calc(100svw-48px)] space-y-6 border p-6 shadow-2xl' align='end'>
         {content}
       </PopoverContent>
     </Popover>

@@ -1,6 +1,7 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
-import { ChartTooltip } from './charts/ChartTooltip';
+import PieChartTooltip from './charts/PieChartTooltip';
 import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
 
 interface ChartDataPoint {
@@ -18,12 +19,13 @@ interface BAPieChartProps {
 }
 
 const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getIcon, formatValue, getLabel }) => {
+  const t = useTranslations('dashboard.emptyStates');
   if (data.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>No trend data available</p>
-          <p className='text-muted-foreground/70 text-xs'>Try adjusting the time range or filters</p>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
         </div>
       </div>
     );
@@ -49,7 +51,15 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getI
               <Cell key={`cell-${entry.name}`} fill={getColor(entry.name)} />
             ))}
           </Pie>
-          <Tooltip content={<ChartTooltip labelFormatter={capitalizeFirstLetter} />} formatter={formatValue} />
+          <Tooltip
+            content={
+              <PieChartTooltip
+                valueFormatter={formatValue}
+                labelFormatter={capitalizeFirstLetter}
+                renderIcon={getIcon}
+              />
+            }
+          />
         </PieChart>
       </ResponsiveContainer>
       <div className='mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2'>

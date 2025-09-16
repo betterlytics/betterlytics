@@ -13,6 +13,8 @@ import {
 import CampaignTabs from './CampaignTabs';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type CampaignPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -45,15 +47,13 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
   const termBreakdownPromise = fetchCampaignTermBreakdownAction(dashboardId, startDate, endDate);
   const landingPagePerformancePromise = fetchCampaignLandingPagePerformanceAction(dashboardId, startDate, endDate);
 
+  const t = await getTranslations('dashboard.sidebar');
+
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Campaigns</h1>
-          <p className='text-muted-foreground text-sm'>Campaign performance analytics and insights</p>
-        </div>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+      <DashboardHeader title={t('campaigns')}>
         <DashboardFilters />
-      </div>
+      </DashboardHeader>
 
       <CampaignTabs
         campaignPerformancePromise={campaignPerformancePromise}

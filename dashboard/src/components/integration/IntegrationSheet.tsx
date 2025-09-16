@@ -221,7 +221,7 @@ export default App;
                     <Button
                       variant='ghost'
                       size='sm'
-                      className='text-muted-foreground hover:text-foreground h-8 gap-1.5 text-xs'
+                      className='text-muted-foreground hover:text-foreground h-8 cursor-pointer gap-1.5 text-xs'
                       onClick={() => handleCopy(siteId, 'siteId')}
                     >
                       {copiedIdentifier === 'siteId' ? (
@@ -239,7 +239,7 @@ export default App;
                   </div>
                   <div
                     id='siteIdDisplay'
-                    className='bg-input border-border text-foreground w-full rounded-md border p-2 text-sm'
+                    className='dark:bg-input/30 border-border text-foreground w-full rounded-md border bg-transparent p-3 text-sm shadow-sm'
                     aria-readonly='true'
                   >
                     {siteId}
@@ -254,7 +254,7 @@ export default App;
                     <Button
                       variant='ghost'
                       size='sm'
-                      className='text-muted-foreground hover:text-foreground h-8 gap-1.5 text-xs'
+                      className='text-muted-foreground hover:text-foreground h-8 cursor-pointer gap-1.5 text-xs'
                       onClick={() => handleCopy(trackingScript, 'trackingScript')}
                     >
                       {copiedIdentifier === 'trackingScript' ? (
@@ -272,46 +272,46 @@ export default App;
                   </div>
                   <div
                     id='trackingScriptDisplay'
-                    className='bg-input border-border text-foreground w-full overflow-x-auto rounded-md border p-2 text-sm'
+                    className='dark:bg-input/30 border-border text-foreground w-full overflow-x-auto rounded-md border bg-transparent p-3 text-sm shadow-sm'
                   >
                     {trackingScript}
                   </div>
                 </div>
 
                 <Tabs defaultValue='html' className='w-full'>
-                  <TabsList className='bg-muted border-border grid w-full grid-cols-3'>
+                  <TabsList className='bg-muted border-border dark:inset-shadow-background grid w-full grid-cols-3 inset-shadow-sm'>
                     <TabsTrigger
                       value='html'
-                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground'
+                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
                     >
                       HTML
                     </TabsTrigger>
                     <TabsTrigger
                       value='nextjs'
-                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground'
+                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
                     >
                       Next.js
                     </TabsTrigger>
                     <TabsTrigger
                       value='react'
-                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground'
+                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
                     >
                       React
                     </TabsTrigger>
                   </TabsList>
-                  <TabsContent value='html' className='bg-card border-border rounded-md p-4'>
+                  <TabsContent value='html' className='bg-card border-border rounded-md border p-4 shadow-sm'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
                       <Code className='text-muted-foreground mr-2 h-4 w-4' /> {t('htmlInstallation')}
                     </h3>
                     <CodeBlock code={htmlExample} language='html' />
                   </TabsContent>
-                  <TabsContent value='nextjs' className='bg-card border-border rounded-md p-4'>
+                  <TabsContent value='nextjs' className='bg-card border-border rounded-md border p-4 shadow-sm'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
                       <Code className='text-muted-foreground mr-2 h-4 w-4' /> {t('nextjsInstallation')}
                     </h3>
                     <CodeBlock code={nextJsExample} language='javascript' />
                   </TabsContent>
-                  <TabsContent value='react' className='bg-card border-border rounded-md p-4'>
+                  <TabsContent value='react' className='bg-card border-border rounded-md border p-4 shadow-sm'>
                     <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
                       <Code className='text-muted-foreground mr-2 h-4 w-4' /> {t('reactInstallation')}
                     </h3>
@@ -340,7 +340,7 @@ export default App;
                     <Button
                       variant='ghost'
                       size='sm'
-                      className='text-muted-foreground hover:text-foreground h-8 gap-1.5 text-xs'
+                      className='text-muted-foreground hover:text-foreground h-8 cursor-pointer gap-1.5 text-xs'
                       onClick={() => handleCopy(siteId, 'siteId')}
                     >
                       {copiedIdentifier === 'siteId' ? (
@@ -356,27 +356,51 @@ export default App;
                       )}
                     </Button>
                   </div>
-                  <Tabs defaultValue='npm' className='mb-2 w-full'>
-                    <TabsList className='bg-muted border-border mb-2 grid w-full grid-cols-4'>
-                      <TabsTrigger value='npm'>npm</TabsTrigger>
-                      <TabsTrigger value='pnpm'>pnpm</TabsTrigger>
-                      <TabsTrigger value='yarn'>yarn</TabsTrigger>
-                      <TabsTrigger value='bun'>bun</TabsTrigger>
+                  <Tabs defaultValue='npm' className='w-full'>
+                    <TabsList className='bg-muted border-border dark:inset-shadow-background mb-2 grid w-full grid-cols-4 inset-shadow-sm'>
+                      <TabsTrigger
+                        value='npm'
+                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
+                      >
+                        npm
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value='pnpm'
+                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
+                      >
+                        pnpm
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value='yarn'
+                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
+                      >
+                        yarn
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value='bun'
+                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
+                      >
+                        bun
+                      </TabsTrigger>
                     </TabsList>
-                    <TabsContent value='npm'>
-                      <CodeBlock code='npm install @betterlytics/tracker' language='html' />
-                    </TabsContent>
-                    <TabsContent value='pnpm'>
-                      <CodeBlock code='pnpm add @betterlytics/tracker' language='html' />
-                    </TabsContent>
-                    <TabsContent value='yarn'>
-                      <CodeBlock code='yarn add @betterlytics/tracker' language='html' />
-                    </TabsContent>
-                    <TabsContent value='bun'>
-                      <CodeBlock code='bun add @betterlytics/tracker' language='html' />
-                    </TabsContent>
+                    <div className='bg-card border-border rounded-md border p-4 shadow-sm'>
+                      <TabsContent value='npm'>
+                        <CodeBlock code='npm install @betterlytics/tracker' language='html' />
+                      </TabsContent>
+                      <TabsContent value='pnpm'>
+                        <CodeBlock code='pnpm add @betterlytics/tracker' language='html' />
+                      </TabsContent>
+                      <TabsContent value='yarn'>
+                        <CodeBlock code='yarn add @betterlytics/tracker' language='html' />
+                      </TabsContent>
+                      <TabsContent value='bun'>
+                        <CodeBlock code='bun add @betterlytics/tracker' language='html' />
+                      </TabsContent>
+                      <div className='mt-2'>
+                        <CodeBlock code={nodeExample} language='javascript' />
+                      </div>
+                    </div>
                   </Tabs>
-                  <CodeBlock code={nodeExample} language='javascript' />
                 </div>
                 <Separator />
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
@@ -447,6 +471,7 @@ export default App;
               onClick={handleVerifyInstallation}
               disabled={isVerifying || !siteId}
               size='sm'
+              className='cursor-pointer'
             >
               {isVerifying ? (
                 <>

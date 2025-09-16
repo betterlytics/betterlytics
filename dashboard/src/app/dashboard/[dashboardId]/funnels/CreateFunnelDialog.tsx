@@ -25,6 +25,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useQueryFilters } from '@/hooks/use-query-filters';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { useTranslations } from 'next-intl';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type FunnelMetadata = {
   name: string;
@@ -40,6 +41,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.funnels.create');
+  const isMobile = useIsMobile();
 
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: t('defaultName'),
@@ -60,7 +62,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
 
   const debouncedFunnelPages = useDebounce(processedQueryFilters, 500);
 
-  const isPreviewEnabled = debouncedFunnelPages.length >= 2;
+  const isPreviewEnabled = !isMobile && debouncedFunnelPages.length >= 2;
 
   const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
     queryKey: ['funnelPreview', dashboardId, queryFilters, metadata.isStrict],
@@ -82,7 +84,10 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant || 'outline'}>
+        <Button
+          variant={triggerVariant || 'secondary'}
+          className='border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
+        >
           <Plus className='size-5' />
           {triggerText || t('createFunnel')}
         </Button>
@@ -114,7 +119,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                 <div className='flex h-9 flex-grow items-center justify-center'>
                   <Switch
                     id='strict-mode'
-                    className='bg-input placeholder:text-muted-foreground my-auto'
+                    className='bg-input placeholder:text-muted-foreground my-auto cursor-pointer'
                     checked={metadata.isStrict}
                     onCheckedChange={(checked: boolean) => setMetadata((prev) => ({ ...prev, isStrict: checked }))}
                   />
@@ -132,28 +137,34 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                   />
                 ))}
                 <div className='mt-auto'>
-                  <Button variant='outline' onClick={addEmptyQueryFilter} className='whitespace-nowrap'>
+                  <Button
+                    variant='outline'
+                    onClick={addEmptyQueryFilter}
+                    className='cursor-pointer whitespace-nowrap'
+                  >
                     <PlusIcon className='mr-2 h-4 w-4' /> {t('addStep')}
                   </Button>
                 </div>
               </div>
             </div>
           </div>
-          <div className='bg-card flex h-full flex-grow flex-col overflow-hidden rounded-lg p-4 shadow'>
-            <div className='mb-4 flex items-center justify-between'>
-              <h3 className='text-card-foreground text-lg font-semibold'>{t('livePreview')}</h3>
+          {!isMobile && (
+            <div className='bg-card flex h-full flex-grow flex-col overflow-hidden rounded-lg p-4 shadow'>
+              <div className='mb-4 flex items-center justify-between'>
+                <h3 className='text-card-foreground text-lg font-semibold'>{t('livePreview')}</h3>
+              </div>
+              <div className='scrollbar-thin flex-1 overflow-y-auto'>
+                <FunnelPreviewDisplay
+                  funnelDetails={funnelPreviewData}
+                  funnelName={metadata.name}
+                  isLoading={isPreviewLoading}
+                />
+              </div>
             </div>
-            <div className='scrollbar-thin flex-1 overflow-y-auto'>
-              <FunnelPreviewDisplay
-                funnelDetails={funnelPreviewData}
-                funnelName={metadata.name}
-                isLoading={isPreviewLoading}
-              />
-            </div>
-          </div>
+          )}
         </div>
         <DialogFooter className='mt-auto pt-2'>
-          <Button type='submit' onClick={submit} disabled={queryFilters.length < 2}>
+          <Button type='submit' onClick={submit} disabled={queryFilters.length < 2} className='cursor-pointer'>
             {t('create')}
           </Button>
         </DialogFooter>

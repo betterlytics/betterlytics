@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
-import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
+import { Minus } from 'lucide-react';
+import { TrendPercentage } from './TrendPercentage';
 
 type TableTrendIndicatorProps = {
   current: number;
@@ -24,7 +24,7 @@ export function TableTrendIndicator({
 
   if (difference === 0 && current !== 0) {
     return (
-      <div className='flex items-center gap-1 text-xs'>
+      <div className='flex items-center gap-1 text-xs opacity-85'>
         <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
         <Minus className='h-3 w-3' />
         <span>0%</span>
@@ -32,23 +32,10 @@ export function TableTrendIndicator({
     );
   }
 
-  const isPositive = current - comparedData > 0;
-  const color = isPositive ? 'text-green-400' : 'text-red-400';
-  const Icon = isPositive ? TrendingUp : TrendingDown;
-  const sign = isPositive ? '+' : '-';
-
   return (
-    <div className={cn('flex items-center gap-1 text-xs', color)}>
-      <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
-      {comparedData !== 0 && (
-        <>
-          <Icon className='h-3 w-3' />
-          <span>
-            {sign}
-            {Math.abs(percentage).toFixed(1)}%
-          </span>
-        </>
-      )}
+    <div className='flex items-center gap-1 text-xs'>
+      <span className='text-foreground opacity-75'>vs {formatter(comparedData)}</span>
+      {comparedData !== 0 && <TrendPercentage percentage={percentage} withIcon />}
     </div>
   );
 }

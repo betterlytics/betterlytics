@@ -2,7 +2,8 @@
 
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
-import InteractiveChart from '@/components/InteractiveChart';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import OutboundLinksTrendChart from '@/app/dashboard/[dashboardId]/outbound-links/OutboundLinksTrendChart';
 import { fetchOutboundClicksChartAction } from '@/app/actions/outboundLinks';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
@@ -16,12 +17,19 @@ export default function OutboundLinksChartSection({ outboundClicksChartPromise }
   const t = useTranslations('components.outboundLinks.chart');
 
   return (
-    <InteractiveChart
-      title={t('title')}
-      data={chartData.data}
-      color='var(--chart-1)'
-      granularity={granularity}
-      comparisonMap={chartData.comparisonMap}
-    />
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-0'>
+        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+      </CardHeader>
+      <CardContent className='mt-4 px-0'>
+        <OutboundLinksTrendChart
+          chartData={chartData.data}
+          comparisonMap={chartData.comparisonMap}
+          granularity={granularity}
+          color='var(--chart-1)'
+          tooltipTitle={t('tooltipTitle')}
+        />
+      </CardContent>
+    </Card>
   );
 }

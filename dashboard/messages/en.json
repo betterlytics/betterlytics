@@ -627,7 +627,7 @@
       },
       "openSource": {
         "titleEmphasis": "Open Source",
-        "titleRest": "& Community Driven",
+        "titleRest": "Community Driven",
         "subtitle": "Transparent, community-driven development. Join our contributors, request features, or adapt the platform to your unique requirements.",
         "starOnGithub": "Star on GitHub",
         "viewDocs": "View Documentation",
@@ -725,7 +725,7 @@
       "prioritySupport": "Priority support",
       "dedicatedSupport": "Dedicated support & help",
       "slaGuarantee": "SLA guarantee",
-      "everythingInStarter": "Everything in Starter",
+      "everythingInStarter": "Everything in Growth",
       "everythingInProfessional": "Everything in Professional"
     },
     "cta": {
@@ -757,48 +757,62 @@
       "devices": "Devices",
       "campaigns": "Campaigns",
       "events": "Events",
-      "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}"
+      "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}",
+      "webVitals": "Web Vitals"
     },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",
       "bounceRate": "Bounce Rate",
-      "avgVisitDuration": "Avg. Visit Duration"
+      "avgVisitDuration": "Avg. Visit Duration",
+      "sessions": "Sessions",
+      "pagesPerSession": "Pages per Session",
+      "sessionDuration": "Session Duration"
     },
     "sections": {
       "topPages": "Top Pages",
       "geography": "Geography",
-      "devicesBreakdown": "Devices Breakdown",
+      "devicesBreakdown": "Devices",
       "trafficSources": "Traffic Sources",
-      "customEvents": "Custom Events"
+      "customEvents": "Custom Events",
+      "weeklyTrends": "Weekly Trends"
     },
+    "goTo": "Go to {section}",
     "tabs": {
       "pages": "Pages",
+      "userJourney": "User Journey",
+      "funnels": "Funnels",
+      "campaigns": "Campaigns",
       "entryPages": "Entry Pages",
       "exitPages": "Exit Pages",
       "topCountries": "Top Countries",
       "worldMap": "World Map",
       "browsers": "Browsers",
       "devices": "Devices",
-      "operatingSystems": "Operating Systems",
+      "operatingSystems": "OS",
       "referrers": "Referrers",
       "sources": "Sources",
       "channels": "Channels",
       "events": "Events"
     },
     "emptyStates": {
-      "noPageData": "No page data available",
-      "noEntryPagesData": "No entry pages data available",
-      "noExitPagesData": "No exit pages data available",
-      "noCountryData": "No country data available",
-      "noWorldMapData": "No world map data available",
-      "noBrowserData": "No browser data available",
-      "noDeviceData": "No device data available",
-      "noOperatingSystemData": "No operating system data available",
-      "noReferrerData": "No referrer data available",
-      "noSourceData": "No source data available",
-      "noChannelData": "No channel data available",
-      "noCustomEventsData": "No custom events data available"
+      "adjustTimeRange": "Adjust time range or filters",
+      "noUserJourneyData": "No user journey data available",
+      "noData": "No data available"
+    }
+  },
+  "devicesPage": {
+    "title": "Devices",
+    "description": "Visitor device breakdown and usage analytics"
+  },
+  "dashboardsPage": {
+    "title": "Your Dashboards",
+    "subtitle": "Manage and monitor analytics for all your websites.",
+    "emptyTitle": "No dashboards yet",
+    "emptyDescription": "Create your first dashboard to start tracking analytics for your website.",
+    "createCard": {
+      "title": "Create Dashboard",
+      "description": "Add a new dashboard"
     }
   },
   "charts": {
@@ -820,18 +834,170 @@
     "en": "English"
   },
   "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Mon.",
+        "tueShort": "Tue.",
+        "wedShort": "Wed.",
+        "thuShort": "Thu.",
+        "friShort": "Fri.",
+        "satShort": "Sat.",
+        "sunShort": "Sun."
+      }
+    },
+    "dashboards": {
+      "createDialog": {
+        "title": "Create New Dashboard",
+        "description": "Enter your website domain to start tracking analytics.",
+        "label": {
+          "domain": "Website Domain"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Enter your domain without https:// or www."
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "create": "Create Dashboard",
+          "creating": "Creating..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard created! Setting up integration...",
+          "createFailed": "Failed to create dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Invalid domain"
+        },
+        "limitTooltip": "You've reached your dashboard limit. Upgrade your plan to create more dashboards."
+      }
+    },
+    "billing": {
+      "usageBanner": {
+        "title": "Usage Limit Exceeded:",
+        "body": "You've used <strong>{current}</strong> events out of your <strong>{limit}</strong> event limit ({percentage} over your {plan} plan).",
+        "upgradeHint": "Upgrade to ensure all your analytics data remains accessible",
+        "upgradeCta": "Upgrade Now"
+      },
+      "navigation": {
+        "backToDashboards": "Back to Dashboards",
+        "title": "Choose Your Plan"
+      },
+      "page": {
+        "heading": "Upgrade your plan",
+        "subheading": "Choose the perfect plan for your analytics needs."
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "subtitle": "Everything you need to know about our pricing and plans",
+        "items": {
+          "changePlan": {
+            "q": "Can I change my plan anytime?",
+            "a": "Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we will prorate the billing accordingly."
+          },
+          "exceedLimit": {
+            "q": "What happens if I exceed my event limit?",
+            "a": "We will continue tracking your events and you will receive an email notification when you exceed your limit. If you exceed your limits for more than 30 days, there is a chance that your excessive tracked data will be deleted."
+          },
+          "annualBilling": {
+            "q": "Do you offer annual billing?",
+            "a": "Currently we offer monthly billing only. Annual billing with discounts is coming soon!"
+          },
+          "freeOption": {
+            "q": "Is there a free option?",
+            "a": "Yes! Our Growth plan includes 10,000 free events per month forever. No credit card required to get started."
+          },
+          "cancelAnytime": {
+            "q": "Can I cancel anytime?",
+            "a": "Absolutely. You can cancel your subscription at any time. Your plan will remain active until the end of your current billing period."
+          },
+          "paymentMethods": {
+            "q": "What payment methods do you accept?",
+            "a": "We accept all major credit cards (Visa, MasterCard, American Express) and support secure payments through our payment processor."
+          }
+        }
+      },
+      "interactive": {
+        "checkoutCanceled": "Checkout was canceled. You can try again anytime.",
+        "contactForCustomPlan": "Please contact us for a custom plan",
+        "planSelectionFailed": "Failed to process plan selection, please try again.",
+        "subscriptionChangesNote": "Changes to your subscription will be processed immediately through Stripe's secure billing portal.",
+        "freePlanNote": "Start with our free plan - no credit card required."
+      },
+      "currentPlan": {
+        "title": "Current Plan",
+        "canceledBannerTitle": "Subscription Canceled",
+        "canceledBannerBody": "Your subscription will remain active until {date}. You can reactivate anytime before then.",
+        "description": "Your current subscription details",
+        "plan": "Plan",
+        "monthlyPrice": "Monthly Price",
+        "free": "Free",
+        "eventUsage": "Event Usage",
+        "usageProgress": "{current} of {limit} events",
+        "resetsInDays": "Resets in {days} days",
+        "expiresInDays": "Expires in {days} days",
+        "canceled": "Canceled",
+        "manage": "Manage Subscription",
+        "reactivate": "Reactivate Subscription",
+        "cancel": "Cancel Subscription"
+      },
+      "planNames": {
+        "growth": "Growth Plan",
+        "professional": "Pro Plan",
+        "enterprise": "Enterprise"
+      }
+    },
+    "dataTable": {
+      "noResults": "No results."
+    },
+    "timeRange": {
+      "quickSelect": "Quick select",
+      "granularity": "Granularity",
+      "currentPeriod": "Current period",
+      "compareWithPrevious": "Compare with previous period",
+      "compareToPeriod": "Compare to period",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "dateRange": "Date range",
+      "presets": {
+        "24h": "Last 24 hours",
+        "3d": "Last 3 days",
+        "7d": "Last 7 days",
+        "28d": "Last 28 days",
+        "3mo": "Last 3 months",
+        "6mo": "Last 6 months"
+      },
+      "granularityLabels": {
+        "day": "Day",
+        "hour": "Hour",
+        "minute_30": "30 min",
+        "minute_15": "15 min"
+      },
+      "apply": "Apply"
+    },
+    "loading": {
+      "dashboard": {
+        "initializing": "Initializing Dashboard",
+        "loadingSettings": "Loading your dashboard settings..."
+      }
+    },
+
     "devices": {
       "tables": {
+        "columns": {
+          "os": "Operating System",
+          "browser": "Browser",
+          "visitors": "Visitors",
+          "percentage": "Percentage"
+        },
         "topOperatingSystems": "Top Operating Systems",
-        "mostCommonOperatingSystems": "Most common operating systems",
-        "topBrowsers": "Top Browsers",
-        "mostCommonBrowsers": "Most common browsers"
+        "topBrowsers": "Top Browsers"
       },
       "charts": {
         "deviceTypes": "Device Types",
         "visitorsByDeviceCategory": "Visitors by device category",
-        "deviceUsageTrend": "Device Usage Trend",
-        "visitorTrendsByDeviceType": "Visitor trends by device type"
+        "deviceUsageTrend": "Device Usage Trend"
       },
       "trends": {
         "noData": "No trend data available",
@@ -843,9 +1009,70 @@
         "overview": "Overview",
         "utmBreakdowns": "UTM Breakdowns",
         "landingPages": "Landing Pages"
+      },
+      "page": {
+        "title": "Campaigns",
+        "description": "Campaign performance analytics and insights"
+      },
+      "performance": {
+        "title": "Campaign Performance",
+        "columns": {
+          "campaignName": "Campaign Name",
+          "visitors": "Visitors",
+          "bounceRate": "Bounce Rate",
+          "avgSessionDuration": "Avg. Session Duration",
+          "pagesPerSession": "Pages / Session"
+        }
+      },
+      "trend": {
+        "title": "Campaign Visitor Trend",
+        "description": "Visitor trends over time by campaign",
+        "empty": "No campaign visitor trend data available."
+      },
+      "utm": {
+        "table": {
+          "title": "UTM Parameter Breakdown"
+        },
+        "chart": {
+          "title": "UTM Distribution"
+        },
+        "tabs": {
+          "source": "Source",
+          "medium": "Medium",
+          "content": "Content",
+          "terms": "Terms"
+        },
+        "empty": {
+          "source": "No source breakdown data available for campaigns",
+          "medium": "No medium breakdown data available for campaigns",
+          "content": "No content breakdown data available for campaigns",
+          "term": "No term breakdown data available for campaigns"
+        },
+        "columns": {
+          "dimension": "Dimension",
+          "visitors": "Visitors",
+          "bounceRate": "Bounce Rate",
+          "avgSessionDuration": "Avg. Session Duration",
+          "pagesPerSession": "Pages / Session"
+        }
+      },
+      "landing": {
+        "title": "Campaign Landing Page Performance",
+        "columns": {
+          "campaignName": "Campaign Name",
+          "landingPageUrl": "Landing Page URL",
+          "visitors": "Visitors",
+          "bounceRate": "Bounce Rate",
+          "avgSessionDuration": "Avg. Session Duration",
+          "pagesPerSession": "Pages / Session"
+        }
       }
     },
     "events": {
+      "page": {
+        "title": "Events",
+        "description": "Analytics and insights for your custom events"
+      },
       "log": {
         "waiting": "Waiting for events...",
         "realTimeDesc": "Events will appear here in real-time as they occur",
@@ -871,6 +1098,47 @@
         "uniqueEvents": "Unique Events"
       }
     },
+    "tabbedTable": {
+      "searchPlaceholder": "Filter by {field}..."
+    },
+    "filters": {
+      "type": "Type",
+      "operator": "Operator",
+      "is": "is",
+      "isNot": "is not",
+      "columns": {
+        "url": "URL",
+        "device_type": "Device type",
+        "country_code": "Country",
+        "browser": "Browser",
+        "os": "Operating system",
+        "referrer_source": "Referrer source",
+        "referrer_source_name": "Referrer name",
+        "referrer_search_term": "Referrer term",
+        "referrer_url": "Referrer URL",
+        "utm_source": "UTM source",
+        "utm_medium": "UTM medium",
+        "utm_campaign": "UTM campaign",
+        "utm_term": "UTM term",
+        "utm_content": "UTM content",
+        "custom_event_name": "Event",
+        "event_type": "Event type"
+      },
+      "selector": {
+        "triggerLabel": "Filters",
+        "title": "Filters",
+        "emptyNoneSelected": "No filters selected - apply to save",
+        "addFilter": "Add filter",
+        "cancel": "Cancel",
+        "apply": "Apply",
+        "empty": {
+          "title": "No active filters",
+          "description": "Add filters to refine your analytics data and focus on specific segments.",
+          "addFirst": "Add your first filter",
+          "common": "Common filters: Country, Browser, URL, Device"
+        }
+      }
+    },
     "funnels": {
       "list": {
         "steps": "steps",
@@ -892,6 +1160,39 @@
         "create": "Create",
         "successMessage": "Funnel created!",
         "errorMessage": "Funnel creation failed!"
+      },
+      "page": {
+        "title": "Funnels",
+        "description": "Analyze user conversion paths"
+      },
+      "preview": {
+        "loading": "Loading preview...",
+        "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
+      },
+      "details": {
+        "title": "Funnel Analysis",
+        "steps": "steps",
+        "users": "users",
+        "dropped": "dropped",
+        "summary": {
+          "overallConversion": "Overall conversion",
+          "totalVisitors": "Total visitors",
+          "totalCompleted": "Total completed",
+          "biggestDropOff": "Biggest drop-off"
+        }
+      },
+      "emptyState": {
+        "title": "No funnels created yet",
+        "description": "Track user journeys through your site and identify where visitors drop off. Create your first funnel to start analyzing conversion paths and optimize your user experience.",
+        "createButton": "Create your first Funnel",
+        "features": {
+          "trackSteps": "Track conversion steps",
+          "trackStepsDesc": "Monitor user progress through custom filters",
+          "identifyDropoffs": "Identify drop-off points",
+          "identifyDropoffsDesc": "Find where users abandon their journey",
+          "optimizeConversions": "Optimize conversions",
+          "optimizeConversionsDesc": "Improve your product based on data insights"
+        }
       }
     },
     "pages": {
@@ -913,20 +1214,44 @@
         "allPages": "All Pages",
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
-        "title": "Page Analytics",
-        "description": "Analytics for all tracked pages"
+        "title": "Page Analytics"
       }
     },
     "referrers": {
+      "page": {
+        "description": "Analyze referral sources, traffic share, and performance trends."
+      },
+      "summary": {
+        "referralSessions": "Referral Sessions",
+        "referralTrafficPct": "Referral Traffic %",
+        "topReferrerSource": "Top Referrer Source",
+        "avgSessionDuration": "Avg. Session Duration",
+        "none": "None"
+      },
       "charts": {
         "distribution": "Referrer Distribution",
-        "trafficByCategory": "Traffic sources by category",
-        "trafficTrends": "Referral Traffic Trends",
-        "trafficBySourceOverTime": "Traffic by source over time"
+        "trafficTrends": "Referral Traffic Trends"
       },
       "table": {
         "details": "Referrer Details",
-        "detailsDescription": "Detailed breakdown of traffic sources"
+        "tabs": {
+          "all": "All",
+          "search": "Search",
+          "social": "Social",
+          "direct": "Direct",
+          "email": "Email",
+          "other": "Other"
+        },
+        "columns": {
+          "source": "Source",
+          "type": "Type",
+          "visits": "Visits",
+          "percentage": "Percentage",
+          "bounceRate": "Bounce Rate",
+          "avgVisitDuration": "Avg. Visit Duration",
+          "direct": "Direct",
+          "unknown": "Unknown"
+        }
       }
     },
     "geography": {
@@ -944,9 +1269,13 @@
       }
     },
     "userJourney": {
+      "page": {
+        "title": "User Journey",
+        "description": "Visualize how users navigate across key paths."
+      },
       "steps": "Steps",
       "topJourneys": "Top {journeys} Journeys",
-      "noData": "No journey data available for the selected criteria."
+      "sessions": "Sessions"
     },
     "outboundLinks": {
       "summary": {
@@ -963,14 +1292,71 @@
         "sourcePages": "Source Pages"
       },
       "chart": {
-        "title": "Unique Outbound Clicks Over Time"
+        "title": "Unique Outbound Clicks Over Time",
+        "tooltipTitle": "Unique Outbound Clicks"
       },
       "pieChart": {
-        "title": "Outbound Links Distribution",
-        "description": "Top outbound links by unique clicks"
+        "title": "Outbound Links Distribution"
+      }
+    },
+    "webVitals": {
+      "metrics": {
+        "CLS": "Cumulative Layout Shift",
+        "LCP": "Largest Contentful Paint",
+        "INP": "Interaction to Next Paint",
+        "FCP": "First Contentful Paint",
+        "TTFB": "Time to First Byte"
+      },
+      "thresholds": {
+        "good": "Good",
+        "needsImprovement": "Needs improvement"
+      },
+      "table": {
+        "title": "Performance breakdown",
+        "performance": "Performance",
+        "performanceAria": "About performance score",
+        "performanceDescr": "Performance score (0–100) based on the following metric weights: LCP 30%, CLS 15%, FCP 15%, TTFB 10%, INP 30%.",
+        "performanceGreat": "Great: ≥ {min}",
+        "performanceOkay": "Okay: ≥ {min}",
+        "performancePoor": "Poor: < {min}",
+        "opportunity": "Opportunity",
+        "opportunityAria": "About opportunity",
+        "opportunityDescr": "Traffic-weighted potential improvement: traffic share × (100 − Performance).",
+        "opportunityNote": "Changes with the selected percentile (P50/P75/P90/P99)",
+        "pageloads": "Pageloads",
+        "badges": {
+          "great": "Great",
+          "okay": "Okay",
+          "poor": "Poor"
+        },
+        "tabs": {
+          "page": "Page",
+          "deviceType": "Device Type",
+          "country": "Country",
+          "browser": "Browser",
+          "operatingSystem": "Operating System",
+          "pages": "Pages",
+          "devices": "Devices",
+          "countries": "Countries",
+          "browsers": "Browsers",
+          "operatingSystems": "Operating Systems"
+        }
+      },
+      "info": {
+        "aboutMetricAria": "About metric",
+        "good": "Good",
+        "needsImprovement": "Needs improvement",
+        "descriptions": {
+          "CLS": "Measures visual stability. CLS captures how much content unexpectedly shifts while the page loads.",
+          "LCP": "Measures loading performance. LCP is the moment the largest text or image becomes visible.",
+          "INP": "Measures responsiveness. INP is the time from a user action until the next visual update.",
+          "FCP": "Shows when the first piece of content appears on the screen during page load.",
+          "TTFB": "Measures server response speed — the time from request until the first byte is received."
+        }
       }
     },
     "integration": {
+      "integrationSetup": "Integration Setup",
       "title": "Website Integration",
       "description": "Add the tracking script to your website to start collecting analytics data",
       "fullyIntegrated": "Fully Integrated",
@@ -1003,7 +1389,333 @@
       "troubleshooting": "Troubleshooting",
       "contactSupport": "Contact Support",
       "verifying": "Verifying...",
-      "verifyInstallation": "Verify Installation"
+      "verifyInstallation": "Verify Installation",
+      "noDataBanner": {
+        "title": "Integration Required",
+        "description": "Your dashboard is ready, but we're not receiving any analytics data yet. Complete the integration setup to start tracking visitors.",
+        "setup": "Setup Integration",
+        "dismiss": "Dismiss"
+      }
+    },
+    "settingsButton": {
+      "dashboardSettings": "Dashboard Settings"
+    },
+    "accountVerification": {
+      "banner": {
+        "title": "Please verify your email address",
+        "body": "Hi {name}! We sent a verification email to <strong>{email}</strong>. Please click the link in the email to verify your account.",
+        "resend": "Resend verification email",
+        "sending": "Sending...",
+        "sentLabel": "Email sent! Please check your inbox.",
+        "help": "Can't find the email? Check your spam folder or wait a few minutes for delivery.",
+        "dismiss": "Dismiss",
+        "toastSuccess": "Verification email sent! Please check your inbox.",
+        "toastFailure": "Failed to send verification email"
+      },
+      "requiredModal": {
+        "title": "Email Verification Required",
+        "subtitle": "Please verify your email to upgrade your plan",
+        "whyTitle": "Why verify your email?",
+        "whyItems": {
+          "secureBilling": "Secure billing and payment confirmations",
+          "notifications": "Important account notifications and alerts",
+          "security": "Enhanced account security and recovery"
+        },
+        "verifyLine": "Hi {name}, we need to verify your email address <strong>{email}</strong> before you can upgrade to a paid plan.",
+        "sentTitle": "Verification email sent!",
+        "sentInfo": "Please check your inbox and spam folder. The verification link will expire in 24 hours.",
+        "cancel": "Cancel",
+        "continue": "Continue to Dashboard"
+      }
+    },
+    "settingsPopover": {
+      "title": "Quick Settings",
+      "theme": "Theme",
+      "advanced": "Advanced Settings"
+    },
+    "topbar": {
+      "userMenu": {
+        "userFallback": "User",
+        "dashboards": "Dashboards",
+        "upgradePlan": "Upgrade Plan",
+        "settings": "Settings",
+        "documentation": "Documentation",
+        "documentationTitle": "Complete Betterlytics Documentation",
+        "logout": "Log out"
+      }
+    },
+    "sidebar": {
+      "dashboardDropdown": {
+        "switch": "Switch Dashboard",
+        "viewAll": "View all Dashboards"
+      }
+    },
+    "userSettings": {
+      "tabs": {
+        "profile": "Profile",
+        "preferences": "Preferences",
+        "usage": "Usage",
+        "billing": "Billing",
+        "security": "Security",
+        "danger": "Danger Zone"
+      },
+      "dialog": {
+        "title": "User Settings",
+        "description": "Manage your account settings and preferences.",
+        "loading": "Loading settings...",
+        "loadFailed": "Failed to load settings",
+        "noSettings": "No settings found",
+        "buttons": {
+          "cancel": "Cancel",
+          "saving": "Saving...",
+          "saveChanges": "Save Changes"
+        },
+        "toast": {
+          "success": "Settings saved successfully!",
+          "error": "Failed to save settings. Please try again."
+        }
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Change your personal information",
+        "nameLabel": "Name",
+        "namePlaceholder": "Enter your name",
+        "optional": "Optional",
+        "emailLabel": "Email",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "updateButton": "Update Profile",
+        "toast": {
+          "success": "Profile updated successfully",
+          "error": "Failed to update profile. Please try again."
+        }
+      },
+      "preferences": {
+        "appearance": {
+          "title": "Appearance",
+          "description": "Customize the visual appearance of your dashboard",
+          "themeLabel": "Theme",
+          "light": "Light",
+          "dark": "Dark",
+          "system": "System"
+        },
+        "avatar": {
+          "label": "Avatar",
+          "none": "None",
+          "gravatar": "Gravatar",
+          "note": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
+          "noteIntro": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
+          "terms": "you agree to their terms"
+        },
+        "localization": {
+          "title": "Localization",
+          "description": "Set your language preferences",
+          "language": "Language"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Configure your notification preferences",
+          "emailNotifications": "Email notifications",
+          "marketingEmails": "Marketing emails"
+        }
+      },
+      "usage": {
+        "title": "Usage & Plan",
+        "description": "Monitor your current usage and manage your subscription plan.",
+        "cta": {
+          "needMore": "Need more events?",
+          "upgradeHint": "Upgrade your plan to get more events and unlock additional features.",
+          "viewPlans": "View Plans"
+        },
+        "error": "Unable to load usage data"
+      },
+      "billingPortal": {
+        "title": "Billing Portal",
+        "description": "Manage your billing details and access your full billing history",
+        "access": "Access Billing Portal",
+        "accessButton": "Open Billing Portal",
+        "explainer": "View all past invoices, update payment methods, and manage your billing through Stripe's secure customer portal.",
+        "notAvailable": "Billing portal will be available once you upgrade to a paid plan.",
+        "needHelp": "Need help with billing?",
+        "contactSupport": "Contact support",
+        "loading": "Loading billing information...",
+        "toastError": "Failed to open billing portal, please try again."
+      },
+      "security": {
+        "title": "Password & Authentication",
+        "description": "Change your account password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmNewPassword": "Confirm New Password",
+        "passwordHelp": "Password must be at least 8 characters long",
+        "passwordsMatch": "Passwords match",
+        "changePassword": "Change Password",
+        "passwordManagedByOAuth": "Password managed by OAuth",
+        "toast": {
+          "success": "Password updated successfully"
+        },
+        "totp": {
+          "title": "Two-Factor Authentication",
+          "description": "Add an extra layer of security to your account by requiring a second form of verification in addition to your password",
+          "enable": "Enable 2FA",
+          "instructions": "To enable 2FA, scan the QR code with your authenticator app or use the <setup>setup key</setup> to manually configure it, then enter the verification code below.",
+          "cancel": "Cancel",
+          "confirm": "Confirm",
+          "enabled": "Enabled",
+          "disable": "Disable",
+          "disableTitle": "Disable 2FA",
+          "disableDescription": "Are you sure you want to disable two-factor authentication for your account?",
+          "disabledSuccess": "Two-factor authentication disabled successfully",
+          "disableFailed": "Failed to disable two-factor authentication. Please try again."
+        }
+      },
+      "danger": {
+        "title": "Delete Account",
+        "description": "Permanently delete your account and all associated data",
+        "warning": "Warning: This action cannot be undone",
+        "details": "This will permanently delete your account, remove access to all dashboards, and delete all your personal settings.",
+        "delete": "Delete Account",
+        "dialog": {
+          "title": "Delete Account Permanently",
+          "description": "Are you absolutely sure you want to delete your account? This action cannot be undone and will permanently:",
+          "li1": "Delete all your personal information",
+          "li2": "Remove access to all your dashboards",
+          "li3": "Delete all your account settings",
+          "li4": "Sign you out of all devices",
+          "cancel": "Cancel",
+          "confirm": "Delete Account Permanently"
+        },
+        "toast": {
+          "success": "Account deleted successfully",
+          "error": "Failed to delete account. Please try again.",
+          "unable": "Unable to delete account. Please try signing in again."
+        }
+      }
+    },
+    "dashboardSettingsDialog": {
+      "title": "Dashboard Settings",
+      "description": "Configure your dashboard preferences and data collection settings.",
+      "loading": "Loading settings...",
+      "saveChanges": "Save Changes",
+      "toastSuccess": "Settings saved successfully",
+      "toastError": "Failed to save settings",
+      "tabs": {
+        "data": "Data",
+        "danger": "Danger Zone"
+      },
+      "data": {
+        "title": "Data Management",
+        "description": "Configure data retention and collection preferences",
+        "retentionLabel": "Data Retention Period",
+        "retentionHelp": "How long to keep analytics data before automatic deletion",
+        "presets": {
+          "d30": "30 days",
+          "m3": "3 months",
+          "m6": "6 months",
+          "y1": "1 year",
+          "y2": "2 years",
+          "y3": "3 years"
+        }
+      },
+      "danger": {
+        "title": "Delete Dashboard",
+        "description": "Permanently delete dashboard",
+        "warning": "Warning: This action cannot be undone",
+        "deleteButton": "Delete Dashboard",
+        "dialog": {
+          "title": "Delete Dashboard",
+          "description": "Are you sure you want to delete this dashboard? This action cannot be undone.",
+          "cancel": "Cancel",
+          "confirm": "Delete Dashboard"
+        }
+      }
+    }
+  },
+  "onboarding": {
+    "main": {
+      "registrationDisabled": {
+        "title": "Registration Disabled",
+        "description": "Registration is currently disabled on this instance.",
+        "backToSignIn": "Back to Sign In"
+      }
+    },
+    "account": {
+      "features": {
+        "feature1": {
+          "title": "Get started in under 2 minutes",
+          "description": "Just add one line of code or install our npm package. No cookies, no pop-ups."
+        },
+        "feature2": {
+          "title": "Free to get started",
+          "description": "10,000 events per month. No credit card. No commitment."
+        },
+        "feature3": {
+          "title": "Privacy-first & open source",
+          "description": "Cookieless, GDPR-compliant, and EU-hosted. Transparent and secure."
+        }
+      },
+      "form": {
+        "title": "Create your account",
+        "signUpWith": "Sign up with",
+        "termsAgreement": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+        "orDivider": "or",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Enter your email",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password (min. 8 characters)",
+        "confirmPasswordLabel": "Confirm Password",
+        "confirmPasswordPlaceholder": "Confirm your password",
+        "continueButton": "Continue",
+        "creatingAccount": "Creating account...",
+        "signingUpGoogle": "Signing up...",
+        "signingUpGitHub": "Signing up...",
+        "googleButton": "Google",
+        "gitHubButton": "GitHub",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "registrationSuccessfulButSignInFailed": "Registration successful, but sign in failed. Please try signing in manually.",
+        "signUpError": "An error occurred during sign up. Please try again.",
+        "checkInput": "Please check your input"
+      }
+    },
+    "website": {
+      "title": "Set up your dashboard",
+      "description": "Tell us about the website you want to track",
+      "domainLabel": "Domain",
+      "domainPlaceholder": "example.com",
+      "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
+      "createDashboardButton": "Create Dashboard",
+      "creatingDashboard": "Creating Dashboard...",
+      "dashboardCreatedSuccess": "Dashboard created successfully!",
+      "failedToCreateDashboard": "Failed to create dashboard. Please try again."
+    },
+    "integration": {
+      "siteId": {
+        "title": "Your Site ID",
+        "description": "This unique identifier connects your website to your dashboard",
+        "installationVerified": "✓ Installation Verified",
+        "waitingForInstallation": "Waiting for Installation"
+      },
+      "instructions": {
+        "title": "Installation Instructions",
+        "description": "Choose the method that matches your website setup",
+        "htmlTab": "HTML",
+        "nextjsTab": "Next.js",
+        "reactTab": "React",
+        "npmTab": "npm",
+        "htmlDescription": "Add to your HTML {head} section",
+        "nextjsDescription": "Add to your root layout",
+        "reactDescription": "Add to your main App component",
+        "npmDescription": "Install the npm package",
+        "npmInstallFirst": "First, install the package:",
+        "npmThenInitialize": "Then initialize it in your code:"
+      },
+      "buttons": {
+        "goToDashboard": "🎉 to Dashboard...",
+        "skipForNow": "Skip for Now",
+        "continueToDashboard": "Continue to Dashboard"
+      },
+      "redirectingIn": "Redirecting in {seconds}...",
+      "noSiteId": "No site ID found. Please complete the previous steps first."
     }
   }
 }

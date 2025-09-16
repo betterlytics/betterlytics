@@ -7,6 +7,7 @@ import { resendVerificationEmailAction } from '@/app/actions/verification';
 import { toast } from 'sonner';
 import { ShieldCheck, Mail, CheckCircle } from 'lucide-react';
 import { getDisplayName } from '@/utils/userUtils';
+import { useTranslations } from 'next-intl';
 
 interface VerificationRequiredModalProps {
   isOpen: boolean;
@@ -23,6 +24,8 @@ export function VerificationRequiredModal({
 }: VerificationRequiredModalProps) {
   const [isPending, startTransition] = useTransition();
   const [emailSent, setEmailSent] = useState(false);
+  const t = useTranslations('components.accountVerification.requiredModal');
+  const tBanner = useTranslations('components.accountVerification.banner');
 
   const handleResendVerification = () => {
     startTransition(async () => {
@@ -30,13 +33,13 @@ export function VerificationRequiredModal({
         const result = await resendVerificationEmailAction({ email: userEmail });
 
         if (result.success) {
-          toast.success('Verification email sent! Please check your inbox.');
+          toast.success(tBanner('toastSuccess'));
           setEmailSent(true);
         } else {
           toast.error(result.error);
         }
       } catch (error) {
-        toast.error('Failed to send verification email');
+        toast.error(tBanner('toastFailure'));
       }
     });
   };
@@ -50,62 +53,63 @@ export function VerificationRequiredModal({
               <ShieldCheck className='h-5 w-5 text-blue-600 dark:text-blue-400' />
             </div>
             <div>
-              <DialogTitle className='text-lg'>Email Verification Required</DialogTitle>
-              <DialogDescription>Please verify your email to upgrade your plan</DialogDescription>
+              <DialogTitle className='text-lg'>{t('title')}</DialogTitle>
+              <DialogDescription>{t('subtitle')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className='space-y-4'>
           <div className='rounded-lg bg-blue-50 p-4 dark:bg-blue-950/50'>
-            <h3 className='mb-2 font-medium text-blue-900 dark:text-blue-100'>Why verify your email?</h3>
+            <h3 className='mb-2 font-medium text-blue-900 dark:text-blue-100'>{t('whyTitle')}</h3>
             <ul className='space-y-1 text-sm text-blue-700 dark:text-blue-200'>
               <li className='flex items-start gap-2'>
                 <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                <span>Secure billing and payment confirmations</span>
+                <span>{t('whyItems.secureBilling')}</span>
               </li>
               <li className='flex items-start gap-2'>
                 <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                <span>Important account notifications and alerts</span>
+                <span>{t('whyItems.notifications')}</span>
               </li>
               <li className='flex items-start gap-2'>
                 <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                <span>Enhanced account security and recovery</span>
+                <span>{t('whyItems.security')}</span>
               </li>
             </ul>
           </div>
 
           <div className='text-center'>
             <p className='text-muted-foreground mb-4 text-sm'>
-              Hi {getDisplayName(userName, userEmail)}, we need to verify your email address{' '}
-              <strong>{userEmail}</strong> before you can upgrade to a paid plan.
+              {t.rich('verifyLine', {
+                name: getDisplayName(userName, userEmail),
+                email: userEmail,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
 
             {!emailSent ? (
               <Button onClick={handleResendVerification} disabled={isPending} className='w-full' size='lg'>
                 <Mail className='mr-2 h-4 w-4' />
-                {isPending ? 'Sending...' : 'Resend Verification Email'}
+                {isPending ? tBanner('sending') : tBanner('resend')}
               </Button>
             ) : (
               <div className='space-y-3'>
                 <div className='flex items-center justify-center gap-2 text-green-600 dark:text-green-400'>
                   <CheckCircle className='h-4 w-4' />
-                  <span className='text-sm font-medium'>Verification email sent!</span>
+                  <span className='text-sm font-medium'>{t('sentTitle')}</span>
                 </div>
-                <p className='text-muted-foreground text-xs'>
-                  Please check your inbox and spam folder. The verification link will expire in 24 hours.
-                </p>
+                <p className='text-muted-foreground text-xs'>{t('sentInfo')}</p>
               </div>
             )}
           </div>
 
           <div className='flex'>
             <Button variant='outline' onClick={onClose} className='flex-1'>
-              Cancel
+              {t('cancel')}
             </Button>
             {emailSent && (
               <Button onClick={onClose} className='flex-1'>
-                Continue to Dashboard
+                {t('continue')}
               </Button>
             )}
           </div>

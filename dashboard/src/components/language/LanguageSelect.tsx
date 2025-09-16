@@ -1,11 +1,9 @@
 'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as React from 'react';
-
-import { type FlagIconProps } from '@/components/icons/FlagIcon';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
+import { SUPPORTED_LANGUAGES, SupportedLanguages, LANGUAGE_METADATA } from '@/constants/i18n';
 
 type LanguageSelectProps = {
   onUpdate: React.Dispatch<SupportedLanguages>;
@@ -13,26 +11,26 @@ type LanguageSelectProps = {
   id?: string;
 };
 
-const LANGUAGE = {
-  da: { name: 'Dansk', code: 'DK' },
-  en: { name: 'English', code: 'GB' },
-  it: { name: 'Italiano', code: 'IT' },
-} satisfies Record<SupportedLanguages, { name: string; code: FlagIconProps['countryCode'] }>;
-
 export function LanguageSelect({ onUpdate, value: language, id }: LanguageSelectProps) {
   return (
     <Select value={language} onValueChange={onUpdate}>
-      <SelectTrigger id={id}>
+      <SelectTrigger id={id} className='cursor-pointer'>
         <SelectValue>
           {language && (
-            <CountryDisplay countryCode={LANGUAGE[language].code} countryName={LANGUAGE[language].name} />
+            <CountryDisplay
+              countryCode={LANGUAGE_METADATA[language].code}
+              countryName={LANGUAGE_METADATA[language].name}
+            />
           )}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {SUPPORTED_LANGUAGES.map((lang) => (
-          <SelectItem key={lang} value={lang}>
-            <CountryDisplay countryCode={LANGUAGE[lang].code} countryName={LANGUAGE[lang].name} />
+          <SelectItem key={lang} value={lang} className='cursor-pointer'>
+            <CountryDisplay
+              countryCode={LANGUAGE_METADATA[lang].code}
+              countryName={LANGUAGE_METADATA[lang].name}
+            />
           </SelectItem>
         ))}
       </SelectContent>

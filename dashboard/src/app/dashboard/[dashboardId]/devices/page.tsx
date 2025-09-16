@@ -3,18 +3,18 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import {
-  fetchDeviceSummaryAction,
   fetchDeviceTypeBreakdownAction,
   fetchBrowserBreakdownAction,
   fetchOperatingSystemBreakdownAction,
   fetchDeviceUsageTrendAction,
 } from '@/app/actions';
-import { SummaryCardsSkeleton, TableSkeleton, ChartSkeleton } from '@/components/skeleton';
-import DevicesSummarySection from './DevicesSummarySection';
+import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import DevicesChartsSection from './DevicesChartsSection';
 import DevicesTablesSection from './DevicesTablesSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type DevicesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -32,7 +32,6 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
-  const deviceSummaryPromise = fetchDeviceSummaryAction(dashboardId, startDate, endDate, queryFilters);
   const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(
     dashboardId,
     startDate,
@@ -67,25 +66,24 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     compareEndDate,
   );
 
-  return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Devices</h1>
-          <p className='text-muted-foreground text-sm'>Visitor device breakdown and usage analytics</p>
-        </div>
-        <DashboardFilters />
-      </div>
+  const t = await getTranslations('dashboard.sidebar');
 
-      <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
-        <DevicesSummarySection deviceSummaryPromise={deviceSummaryPromise} />
-      </Suspense>
+  return (
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+      <DashboardHeader title={t('devices')}>
+        <DashboardFilters />
+      </DashboardHeader>
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-            <ChartSkeleton />
-            <ChartSkeleton />
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-3'>
+            <div className='md:col-span-2'>
+              <ChartSkeleton />
+            </div>
+
+            <div className='md:col-span-1'>
+              <ChartSkeleton />
+            </div>
           </div>
         }
       >
@@ -97,7 +95,7 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
             <TableSkeleton />
             <TableSkeleton />
           </div>

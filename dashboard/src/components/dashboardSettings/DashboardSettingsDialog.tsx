@@ -13,6 +13,7 @@ import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import DataDashboardSettings from '@/components/dashboardSettings/DashboardDataSettings';
 import DangerZoneDashboardSettings from '@/components/dashboardSettings/DashboardDangerZoneSettings';
 import useIsChanged from '@/hooks/use-is-changed';
+import { useTranslations } from 'next-intl';
 
 interface SettingsTabConfig {
   id: string;
@@ -64,6 +65,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
   const [activeTab, setActiveTab] = useState(SETTINGS_TABS[0].id);
   const [isPendingSave, startTransitionSave] = useTransition();
   const isFormChanged = useIsChanged(formData, settings);
+  const t = useTranslations('components.dashboardSettingsDialog');
 
   useEffect(() => {
     if (settings) {
@@ -80,10 +82,10 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
       try {
         await updateDashboardSettingsAction(dashboardId, formData);
         await refreshSettings();
-        toast.success('Settings saved successfully');
+        toast.success(t('toastSuccess'));
         onOpenChange(false);
       } catch {
-        toast.error('Failed to save settings');
+        toast.error(t('toastError'));
       }
     });
   };
@@ -93,7 +95,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
       <div className='flex items-center justify-center py-16'>
         <div className='flex flex-col items-center'>
           <div className='border-accent border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4'></div>
-          <p className='text-foreground'>Loading settings...</p>
+          <p className='text-foreground'>{t('loading')}</p>
         </div>
       </div>
     );
@@ -101,16 +103,22 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-h-[80vh] overflow-y-auto sm:max-w-[700px]'>
+      <DialogContent className='max-h-[80vh] overflow-y-auto p-3 sm:max-w-[700px] sm:p-6'>
         <DialogHeader>
-          <DialogTitle>Dashboard Settings</DialogTitle>
-          <DialogDescription>Configure your dashboard preferences and data collection settings.</DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-6'>
-          <TabsList className={`grid w-full grid-cols-${SETTINGS_TABS.length}`}>
+          <TabsList
+            className={`grid w-full grid-cols-${SETTINGS_TABS.length} bg-secondary dark:inset-shadow-background gap-1 px-1 inset-shadow-sm`}
+          >
             {SETTINGS_TABS.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id}>
-                {tab.label}
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+              >
+                {tab.id === 'data' ? t('tabs.data') : t('tabs.danger')}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -125,13 +133,13 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
           })}
 
           <div className='flex justify-end border-t pt-6'>
-            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged}>
+            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged} className='cursor-pointer'>
               {isPendingSave ? (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               ) : (
                 <Save className='mr-2 h-4 w-4' />
               )}
-              Save Changes
+              {t('saveChanges')}
             </Button>
           </div>
         </Tabs>

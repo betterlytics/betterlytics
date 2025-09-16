@@ -31,7 +31,7 @@ export const FilterPreservingLink = forwardRef<HTMLAnchorElement, FilterPreservi
       <Link
         ref={ref}
         href={hrefWithFilters}
-        className={cn(className, isOnPage && 'border-primary bg-primary/10 border-l-3')}
+        className={cn(className, isOnPage && 'border-primary bg-secondary border-l-[3px]')}
         onClick={onClick}
         {...linkProps}
       >

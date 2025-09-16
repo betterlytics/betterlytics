@@ -7,9 +7,12 @@ import { createStripeCustomerPortalSession } from '@/actions/stripe';
 import { toast } from 'sonner';
 import { useBillingData } from '@/hooks/useBillingData';
 import SettingsCard from '@/components/SettingsCard';
+import { useTranslations } from 'next-intl';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function UserBillingHistory() {
   const { billingData, isLoading } = useBillingData();
+  const t = useTranslations('components.userSettings.billingPortal');
 
   const handleViewBillingHistory = async () => {
     try {
@@ -20,48 +23,54 @@ export default function UserBillingHistory() {
         throw new Error('No customer portal URL received');
       }
     } catch {
-      toast.error('Failed to open billing portal, please try again.');
+      toast.error(t('toastError'));
     }
   };
 
   if (isLoading) {
     return (
-      <div className='py-8 text-center'>
-        <p className='text-muted-foreground'>Loading billing information...</p>
-      </div>
+      <SettingsCard icon={CreditCard} title={t('title')} description={t('description')}>
+        <div className='flex min-h-[225px] flex-col items-center justify-center py-4 text-center'>
+          <div className='mb-2 h-6 w-full max-w-[14rem]'>
+            <Skeleton className='h-6 w-full' />
+          </div>
+          <div className='mb-6 h-4 w-full max-w-[18rem]'>
+            <Skeleton className='h-4 w-full' />
+          </div>
+          <div className='h-9 w-full max-w-[11rem]'>
+            <Skeleton className='h-9 w-full' />
+          </div>
+        </div>
+        <div className='mt-6 border-t pt-4'>
+          <div className='mx-auto h-4 w-full max-w-[18rem]'>
+            <Skeleton className='mx-auto h-4 w-full' />
+          </div>
+        </div>
+      </SettingsCard>
     );
   }
 
   return (
-    <SettingsCard
-      icon={CreditCard}
-      title='Billing Portal'
-      description='Manage your billing details and access your full billing history'
-    >
-      <div className='flex flex-col items-center justify-center py-4 text-center'>
-        <h3 className='mb-2 text-lg font-medium'>Access Billing Portal</h3>
-        <p className='text-muted-foreground mb-6 text-sm'>
-          View all past invoices, update payment methods, and manage your billing through Stripe&apos;s secure
-          customer portal.
-        </p>
+    <SettingsCard icon={CreditCard} title={t('title')} description={t('description')}>
+      <div className='flex min-h-[225px] flex-col items-center justify-center py-4 text-center'>
+        <h3 className='mb-2 text-lg font-medium'>{t('access')}</h3>
+        <p className='text-muted-foreground mb-6 text-sm'>{t('explainer')}</p>
 
         {billingData?.isExistingPaidSubscriber ? (
-          <Button onClick={handleViewBillingHistory} className='flex items-center gap-2'>
+          <Button onClick={handleViewBillingHistory} className='flex cursor-pointer items-center gap-2'>
             <ExternalLinkIcon className='h-4 w-4' />
-            Open Billing Portal
+            {t('accessButton')}
           </Button>
         ) : (
-          <p className='text-muted-foreground text-sm'>
-            Billing portal will be available once you upgrade to a paid plan.
-          </p>
+          <p className='text-muted-foreground text-sm'>{t('notAvailable')}</p>
         )}
       </div>
 
       <div className='mt-6 border-t pt-4'>
         <p className='text-muted-foreground text-center text-sm'>
-          Need help with billing?{' '}
+          {t('needHelp')}{' '}
           <ExternalLink href='mailto:support@betterlytics.io' className='text-primary hover:underline'>
-            Contact support
+            {t('contactSupport')}
           </ExternalLink>
         </p>
       </div>

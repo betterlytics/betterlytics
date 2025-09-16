@@ -1,3 +1,7 @@
+import { CoreWebVitalName } from '@/entities/webVitals';
+import { formatCompactFromMilliseconds } from './dateFormatters';
+import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
+
 /**
  * Format a number to a presentable string with K/M suffix
  * @param num The number to format
@@ -6,15 +10,15 @@
  */
 export function formatNumber(num: number, decimalPlaces = 1): string {
   if (num === undefined || num === null) return '-';
-  
+
   if (num >= 1000000) {
     return `${(num / 1000000).toFixed(decimalPlaces)}M`;
   }
-  
+
   if (num >= 1000) {
     return `${(num / 1000).toFixed(decimalPlaces)}K`;
   }
-  
+
   return num.toString();
 }
 
@@ -35,4 +39,21 @@ export function formatPercentage(num: number, decimalPlaces = 1): string {
  */
 export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, clsDecimals = 3): string {
+  if (value === null || value === undefined) return '—';
+  if (metric === 'CLS') {
+    return Number(value.toFixed(clsDecimals)).toString();
+  }
+  return formatCompactFromMilliseconds(value);
+}
+
+export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null | undefined): string | undefined {
+  if (value === null || value === undefined) return undefined;
+  const [goodThreshold, niThreshold] = CWV_THRESHOLDS[metric] ?? [];
+  if (goodThreshold === undefined || niThreshold === undefined) return undefined;
+  if (value > niThreshold) return 'var(--cwv-threshold-poor)';
+  if (value > goodThreshold) return 'var(--cwv-threshold-ni)';
+  return 'var(--cwv-threshold-good)';
 }

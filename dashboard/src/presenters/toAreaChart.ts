@@ -132,3 +132,17 @@ function createComparisonMap(
     };
   });
 }
+
+// Helper to generate padded sparkline-ready series from raw rows
+export function toSparklineSeries<K extends string>({
+  dataKey,
+  data,
+  granularity,
+  dateRange,
+}: DataToAreaChartProps<K>): Array<{ date: Date } & Record<K, number>> {
+  const area = dataToAreaChart({ dataKey, data, granularity, dateRange });
+  return area.map((p) => ({
+    date: new Date(p.date),
+    [dataKey]: p.value[0],
+  })) as Array<{ date: Date } & Record<K, number>>;
+}

@@ -1,0 +1,88 @@
+---
+title: "Web Vitals"
+description: "Understand Core Web Vitals in your dashboard, how they’re calculated, and how to analyze them by page, device, country, browser, and more."
+---
+
+import { Callout } from "nextra/components";
+
+# Core Web Vitals in Your Dashboard
+
+Core Web Vitals (CWV) are user‑centric performance metrics from Google that measure real‑world loading, interactivity, and visual stability. Betterlytics captures CWV from your visitors' browsers and visualizes them so you can find regressions, compare segments, and prioritize fixes.
+
+<Callout type="info">
+Core Web Vitals in your dashboard come from **real user monitoring (RUM)**. Unlike Lighthouse, which runs synthetic tests, these values reflect real visitors' devices and conditions.
+</Callout>
+
+## What we measure
+
+We collect the current set of Core Web Vitals and closely related metrics:
+
+- **LCP** (Largest Contentful Paint)
+- **INP** (Interaction to Next Paint)
+- **CLS** (Cumulative Layout Shift)
+- **FCP** (First Contentful Paint)
+- **TTFB** (Time to First Byte)
+
+See definitions and thresholds in the [Metrics Glossary](/dashboard/metrics-glossary#core-web-vitals).
+
+Values are aggregated from field data and shown at the 50th, 75th, 90th, and 99th percentiles where relevant. Thresholds follow guidance from `web.dev`.
+
+## Accessing Web Vitals
+
+Navigate to **Dashboard > Web Vitals** to view your page's Core Web Vitals metrics.
+
+## Summary and trends
+
+- **Summary tiles** show the p75 for each metric and whether your values are considered Good, Needs Improvement, or Poor.
+- **Interactive chart** lets you toggle metrics and view p50/p75/p90/p99 over time to spot regressions.
+
+
+## Drilldowns by dimension
+
+Identify problem areas with dimension tables. Each dimension shows p50/p75/p90/p99, samples, a composite score, and optimization opportunity:
+
+- **Pages** – URLs with slow LCP/INP/CLS
+- **Device type** – desktop, mobile, tablet differences
+- **Country** – geo performance outliers
+- **Browser** – engine-specific issues
+- **OS** – platform‑level patterns
+
+See how we compute the [composite score](/dashboard/metrics-glossary#composite-score) and [optimization opportunity](/dashboard/metrics-glossary#optimization-opportunity).
+
+## Interpreting thresholds
+
+- **LCP**: Good ≤ 2.5s, Needs improvement ≤ 4s
+- **INP**: Good ≤ 200ms, Needs improvement ≤ 500ms
+- **CLS**: Good ≤ 0.1, Needs improvement ≤ 0.25
+- **FCP**: Good ≤ 1.8s, Needs improvement ≤ 3s
+- **TTFB**: Good ≤ 800ms, Needs improvement ≤ 1.8s
+
+These match the thresholds configured in Betterlytics and industry guidance.
+
+## How data is collected
+
+When enabled, the tracking script loads the official `web-vitals` library in the browser and batches CWV metrics. Metrics are sent once per page lifecycle.
+
+<Callout type="warning">
+Single‑page applications (SPAs): Currently only initial page load CWV is collected. Client‑side navigations don’t consistently re‑trigger LCP/FCP and can produce misleading values. We’re working on an experimental SPA CWV approach and will update this page when it ships.
+</Callout>
+
+## Filtering
+
+Use the standard dashboard filters to compare segments:
+
+- **Time range** to focus on releases
+- **Query filters** for URL patterns, country codes, device types, browsers, OS, and more
+
+All selections instantly update the charts and tables.
+
+## Troubleshooting
+
+- **No data**: Ensure Web Vitals collection is enabled in your tracking snippet ([see Integration docs](/integration/web-vitals)). Give it a few minutes after deployment. Metrics are collected once per page lifecycle when visibility changes or the page is hidden.
+- **Low samples**: Field data depends on real traffic. Broaden the time range or remove filters.
+- **INP missing locally**: INP requires a user interaction; test on real pages with clicks/typing.
+- **SPA data**: Currently only initial page load CWV is collected. The client‑side navigations don’t consistently re‑trigger LCP/FCP and can produce misleading values and is therefore excluded.
+
+---
+
+**Related**: Learn how to [enable or disable Web Vitals collection](/integration/web-vitals) in your tracking setup.

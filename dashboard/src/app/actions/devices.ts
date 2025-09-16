@@ -3,11 +3,10 @@
 import {
   getDeviceTypeBreakdownForSite,
   getBrowserBreakdownForSite,
-  getDeviceSummaryForSite,
   getOperatingSystemBreakdownForSite,
   getDeviceUsageTrendForSite,
 } from '@/services/devices';
-import { BrowserStats, DeviceSummary, DeviceBreakdownCombinedSchema } from '@/entities/devices';
+import { BrowserStats, DeviceBreakdownCombinedSchema } from '@/entities/devices';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
@@ -104,17 +103,6 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
         categoryKey: 'os',
       }),
     };
-  },
-);
-
-export const fetchDeviceSummaryAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-  ): Promise<DeviceSummary> => {
-    return getDeviceSummaryForSite(ctx.siteId, startDate, endDate, queryFilters);
   },
 );
 

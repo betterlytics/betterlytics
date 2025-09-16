@@ -1,21 +1,24 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { IntegrationSheet } from "./IntegrationSheet";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { IntegrationSheet } from './IntegrationSheet';
+import { useTranslations } from 'next-intl';
 
 export function IntegrationButton() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const t = useTranslations('components.integration');
 
   return (
     <>
-      <Button onClick={() => setIsSheetOpen(true)} variant="outline">
-        Integration Setup
+      <Button
+        onClick={() => setIsSheetOpen(true)}
+        variant='secondary'
+        className='border-border cursor-pointer border-1 shadow-sm'
+      >
+        {t('integrationSetup')}
       </Button>
-      <IntegrationSheet
-        open={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
-      />
+      <IntegrationSheet open={isSheetOpen} onOpenChange={setIsSheetOpen} />
     </>
   );
-} 
+}

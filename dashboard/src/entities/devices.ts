@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const DeviceTypeSchema = z.object({
   device_type: z.string(),
@@ -27,25 +27,6 @@ export const OperatingSystemStatsSchema = z.object({
   percentage: z.number(),
 });
 
-export const DeviceSummarySchema = z.object({
-    distinctDeviceCount: z.number(),
-    topDevice: z.object({
-        name: z.string(),
-        visitors: z.number(),
-        percentage: z.number(),
-    }),
-    topBrowser: z.object({
-        name: z.string(),
-        visitors: z.number(),
-        percentage: z.number(),
-    }),
-    topOs: z.object({
-        name: z.string(),
-        visitors: z.number(),
-        percentage: z.number(),
-    }),
-});
-
 export const DeviceUsageTrendRowSchema = z.object({
   date: z.string(),
   device_type: z.string(),
@@ -63,6 +44,5 @@ export type BrowserStats = z.infer<typeof BrowserStatsSchema>;
 export type OperatingSystemInfo = z.infer<typeof OperatingSystemInfoSchema>;
 export type OperatingSystemStats = z.infer<typeof OperatingSystemStatsSchema>;
 export type DeviceType = z.infer<typeof DeviceTypeSchema>;
-export type DeviceSummary = z.infer<typeof DeviceSummarySchema>;
 export type DeviceUsageTrendRow = z.infer<typeof DeviceUsageTrendRowSchema>;
 export type DeviceBreakdownCombined = z.infer<typeof DeviceBreakdownCombinedSchema>;

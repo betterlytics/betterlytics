@@ -4,8 +4,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { Button } from '@/components/ui/button';
-import { formatPercentage } from '@/utils/formatters';
-import TabbedTable, { TabDefinition } from '@/components/TabbedTable';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
+import TabbedTable from '@/components/TabbedTable';
 import { fetchPageAnalyticsAction } from '@/app/actions/pages';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
@@ -50,7 +50,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
             <Button
               variant='ghost'
               onClick={() => handlePathClick(path)}
-              className='cursor-pointer bg-transparent text-left font-medium transition-colors'
+              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors'
               title={t('filterByPath', { path })}
             >
               {path}
@@ -61,13 +61,13 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       {
         accessorKey: 'visitors',
         header: t('visitors'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' />,
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={formatNumber} />,
         accessorFn: (row) => row.current.visitors,
       },
       {
         accessorKey: 'pageviews',
         header: t('pageviews'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' />,
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' formatter={formatNumber} />,
         accessorFn: (row) => row.current.pageviews,
       },
       {
@@ -171,10 +171,10 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
   return (
     <TabbedTable
       title={t('title')}
-      description={t('description')}
       tabs={tableTabs}
       defaultTab='all'
       searchColumn='path'
+      searchFieldLabel={t('path')}
     />
   );
 }

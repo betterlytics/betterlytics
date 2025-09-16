@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
+import { useTranslations } from 'next-intl';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
@@ -24,6 +25,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
   const dashboardId = useDashboardId();
   const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations('components.sidebar.dashboardDropdown');
 
   const currentDashboard = use(currentDashboardPromise);
   const allDashboards = use(allDashboardsPromise);
@@ -40,7 +42,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
-          className='hover:bg-accent/50 h-auto w-full min-w-0 justify-between border px-2.5 py-1.5 text-sm font-medium'
+          className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium'
         >
           <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden'>
             <Globe className='text-muted-foreground h-4 w-4 flex-shrink-0' />{' '}
@@ -53,7 +55,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
       <DropdownMenuContent align='start' className='w-56'>
         <div className='px-2 py-1.5'>
-          <p className='text-muted-foreground text-xs font-medium'>Switch Dashboard</p>
+          <p className='text-muted-foreground text-xs font-medium'>{t('switch')}</p>
         </div>
         <DropdownMenuSeparator />
 
@@ -61,12 +63,14 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
           <DropdownMenuItem
             key={dashboard.id}
             onClick={() => handleDashboardSwitch(dashboard.id)}
-            className={`cursor-pointer ${dashboard.id === dashboardId ? 'bg-accent' : ''}`}
+            className={`focus:text-foreground cursor-pointer ${
+              dashboard.id === dashboardId ? 'bg-secondary' : ''
+            }`}
           >
             <div className='flex w-full items-center gap-2'>
               <Globe className='text-muted-foreground h-4 w-4' />
               <span className='flex-1 truncate'>{dashboard.domain}</span>
-              {dashboard.id === dashboardId && <div className='h-2 w-2 flex-shrink-0 rounded-full bg-green-500' />}
+              {dashboard.id === dashboardId && <div className='bg-primary h-2 w-2 flex-shrink-0 rounded-full' />}
             </div>
           </DropdownMenuItem>
         ))}
@@ -76,7 +80,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
         <DropdownMenuItem onClick={() => router.push('/dashboards')} className='cursor-pointer'>
           <div className='flex w-full items-center gap-2'>
             <List className='text-muted-foreground h-4 w-4' />
-            <span>View all Dashboards</span>
+            <span>{t('viewAll')}</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

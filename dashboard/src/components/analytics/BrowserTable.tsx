@@ -7,16 +7,18 @@ import { BrowserIcon } from '@/components/icons';
 import type { ToDataTable } from '@/presenters/toDataTable';
 import { TableCompareCell } from '../TableCompareCell';
 import { formatPercentage } from '@/utils/formatters';
+import { useTranslations } from 'next-intl';
 
 interface BrowserTableProps {
   data: ToDataTable<'browser', BrowserStats>[];
 }
 
 export default function BrowserTable({ data }: BrowserTableProps) {
+  const tCols = useTranslations('components.devices.tables.columns');
   const columns: ColumnDef<ToDataTable<'browser', BrowserStats>>[] = [
     {
       accessorKey: 'browser',
-      header: 'Browser',
+      header: tCols('browser'),
       cell: ({ row }) => (
         <div className='flex items-center gap-2'>
           <BrowserIcon name={row.original.browser} className='h-4 w-4' />
@@ -26,20 +28,20 @@ export default function BrowserTable({ data }: BrowserTableProps) {
     },
     {
       accessorKey: 'visitors',
-      header: 'Visitors',
+      header: tCols('visitors'),
       cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' />,
       accessorFn: (row) => row.current.visitors,
     },
     {
       accessorKey: 'percentage',
-      header: 'Percentage',
+      header: tCols('percentage'),
       cell: ({ row }) => <TableCompareCell row={row.original} dataKey='percentage' formatter={formatPercentage} />,
       accessorFn: (row) => row.current.percentage,
     },
   ];
 
   return (
-    <div className='overflow-x-auto'>
+    <div className='mt-2 overflow-x-auto'>
       <DataTable
         columns={columns}
         data={data}

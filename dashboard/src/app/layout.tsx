@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, Inter_Tight } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { env } from '@/lib/env';
@@ -8,14 +8,16 @@ import { generateStructuredData } from '@/lib/seo';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
+import ThemeColorUpdater from '@/app/ThemeColorUpdater';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const robotoSans = Inter({
+  variable: '--font-roboto-sans',
   subsets: ['latin'],
+  weight: '400',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const robotoMono = Inter_Tight({
+  variable: '--font-roboto-mono',
   subsets: ['latin'],
 });
 
@@ -43,6 +45,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <meta name='theme-color' content='#fff' />
         {env.ENABLE_APP_TRACKING && (
           <Script
             async
@@ -50,6 +53,7 @@ export default async function RootLayout({
             data-site-id={env.APP_TRACKING_SITE_ID}
             data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
             data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*'
+            data-web-vitals='true'
           />
         )}
         <script
@@ -59,8 +63,9 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
+        <ThemeColorUpdater />
         <NextIntlClientProvider>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

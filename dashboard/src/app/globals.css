@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-roboto-sans);
+  --font-mono: var(--font-roboto-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -38,6 +38,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-trend-up: var(--trend-up);
+  --color-trend-down: var(--trend-down);
+  --color-flagicon-border: var(--flagicon-border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -48,11 +51,12 @@
 :root {
   --radius: 0.5rem;
 
-  --background: white;
+  --background: #f9f9f9;
   --foreground: oklch(0.2 0.01 265);
 
-  --card: white;
+  --card: #fdfdfd;
   --card-foreground: oklch(0.2 0.01 265);
+  --card-interactive: oklch(96% 0.005 260);
 
   --popover: white;
   --popover-foreground: oklch(0.15 0 0);
@@ -60,20 +64,20 @@
   --primary: oklch(62% 0.17 268.71); /* Our main blue (blue-600) */
   --primary-foreground: white;
 
-  --secondary: oklch(91.62% 0.04 268.53); /* blue-100 */
-  --secondary-foreground: oklch(50% 0.222 268.78); /* blue-800 */
+  --secondary: oklch(97% 0 0); /* blue-100 */
+  --secondary-foreground: oklch(0.25 0 0); /* blue-800 */
 
   --muted: oklch(96% 0 0);
   --muted-foreground: oklch(0.5 0 0);
 
-  --accent: oklch(95% 0 0);
-  --accent-foreground: oklch(0.2 0 0);
+  --accent: oklch(97% 0 0);
+  --accent-foreground: oklch(0.25 0 0);
 
   --destructive: oklch(0.65 0.25 30);
   --destructive-foreground: white;
 
-  --border: oklch(93% 0 0);
-  --input: oklch(93% 0 0);
+  --border: oklch(87% 0 0);
+  --input: oklch(90% 0 0);
   --ring: oklch(74% 0.118 268.64);
 
   --chart-1: oklch(62% 0.17 268.71); /* blue-600 - Primary blue */
@@ -82,6 +86,16 @@
   --chart-4: oklch(0.6 0.18 80); /* Yellow-green */
   --chart-5: oklch(0.6 0.18 40); /* Orange */
   --chart-comparison: oklch(0.7 0.02 265); /* Neutral gray */
+
+  /* Core Web Vitals percentile series */
+  --cwv-p50: oklch(85% 0.08 255); /* light blue */
+  --cwv-p75: oklch(72% 0.12 258);
+  --cwv-p90: oklch(62% 0.16 262);
+  --cwv-p99: oklch(52% 0.2 266); /* darker blue */
+  /* CWV threshold line colors */
+  --cwv-threshold-good: rgb(14, 148, 70); /* green */
+  --cwv-threshold-ni: oklch(80% 0.18 80); /* amber */
+  --cwv-threshold-poor: rgb(207, 51, 23); /* red */
 
   --sidebar: white; /* Whiter sidebar for light mode */
   --sidebar-foreground: oklch(0.2 0.01 265);
@@ -96,35 +110,40 @@
 
   --map-feature-border-hovered: #77dd77; /* oklch(0.6 0.18 130); Green*/
   --map-feature-border-clicked: #ffc067; /* Orange */
+  
+  --trend-up: rgb(14, 148, 70);
+  --trend-down: rgb(207, 51, 23);
 }
 
 .dark {
-  --background: oklch(0.15 0.02 265); /* Dark blue-gray background */
-  --foreground: oklch(0.95 0.01 265); /* Off-white text */
+  /* Match provided palette */
+  --background: hsl(222, 5%, 6.5%); /* background */
+  --foreground: oklch(0.95 0.01 265);
 
-  --card: oklch(0.2 0.03 265); /* Slightly lighter than background */
+  --card: hsl(240, 3%, 10%); /* card */
   --card-foreground: oklch(0.95 0.01 265);
+  --card-interactive: hsl(0 0% 15%);
 
-  --popover: oklch(0.2 0.03 265);
+  --popover: hsl(0 0% 15%);
   --popover-foreground: oklch(0.95 0.01 265);
 
   --primary: oklch(56% 0.196 268.74); /* blue-700 */
   --primary-foreground: white;
 
-  --secondary: oklch(0.25 0.04 266); /* Deeper blue */
+  --secondary: hsl(0 0% 15%);
   --secondary-foreground: oklch(0.95 0.01 265);
 
-  --muted: oklch(0.25 0.02 265);
-  --muted-foreground: oklch(0.75 0.02 265);
+  --muted: hsl(0 0% 12%);
+  --muted-foreground: oklch(0.86 0.02 265);
 
-  --accent: oklch(0.3 0.05 266);
-  --accent-foreground: oklch(0.95 0.01 265);
+  --accent: hsl(0 0% 20%);
+  --accent-foreground: hsl(0 0% 90%);
 
-  --destructive: oklch(0.7 0.2 20);
+  --destructive: oklch(0.7 0.2171 19.06);
   --destructive-foreground: white;
 
-  --border: oklch(0.3 0.02 266);
-  --input: oklch(0.3 0.02 266);
+  --border: hsl(0 0% 22%);
+  --input: hsl(0, 0%, 30%);
   --ring: oklch(50% 0.222 268.78); /* blue-800 */
 
   --chart-1: oklch(56% 0.196 268.74); /* blue-700 - Primary blue */
@@ -134,7 +153,17 @@
   --chart-5: oklch(0.7 0.25 320); /* Purple */
   --chart-comparison: oklch(0.65 0.02 265); /* Slightly lighter gray */
 
-  --sidebar: oklch(0.13 0.02 265); /* Slightly darker than main background */
+  /* Core Web Vitals percentile series */
+  --cwv-p50: oklch(82% 0.1 255);
+  --cwv-p75: oklch(74% 0.12 258);
+  --cwv-p90: oklch(68% 0.16 262);
+  --cwv-p99: oklch(62% 0.2 266);
+  /* CWV threshold line colors */
+  --cwv-threshold-good: rgb(88, 207, 146);
+  --cwv-threshold-ni: oklch(80% 0.18 80);
+  --cwv-threshold-poor: rgb(212, 89, 81);
+
+  --sidebar: hsl(240, 3%, 10%); /* Slightly darker than main background */
   --sidebar-foreground: oklch(0.95 0.01 265);
   --sidebar-primary: oklch(56% 0.196 268.74); /* blue-700 */
   --sidebar-primary-foreground: white;
@@ -143,21 +172,43 @@
   --sidebar-border: oklch(0.3 0.02 266);
   --sidebar-ring: oklch(50% 0.222 268.78); /* blue-800 */
 
-  --flagicon-border: oklch(0.75 0.02 265 / 0.5);
+  --flagicon-border: oklch(68.273% 0.0186 267.741 / 0.281);
 
   --map-feature-border-hovered: #77dd77; /* Green */
   --map-feature-border-clicked: #ffc067; /* Orange */
+  
+  --trend-up: rgb(88, 207, 146);
+  --trend-down: rgb(212, 89, 81);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+  :root {
+    color-scheme: light dark;
   }
   html {
     scroll-behavior: smooth;
+    background-color: var(--background);
+    color-scheme: light;
+    @apply bg-background text-foreground;
+  }
+  html.dark {
+    scroll-behavior: smooth;
+    background-color: var(--background);
+    color-scheme: dark;
+    @apply bg-background text-foreground;
+  }
+  body {
+    @apply bg-background text-foreground;
+    @apply tracking-normal;
+    font-family: var(--font-roboto-sans);
+    background-color: var(--background);
+  }
+  code,
+  pre {
+    font-family: var(--font-roboto-mono);
   }
 }
 
@@ -194,4 +245,8 @@
   #nprogress .bar {
     top: var(--topbar-height) !important;
   }
+}
+
+[data-slot='sheet-content'] > button.absolute.top-4.right-4 {
+  cursor: pointer;
 }

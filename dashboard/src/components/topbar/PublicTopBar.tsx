@@ -58,11 +58,13 @@ export default function PublicTopBar() {
                 </div>
               ) : session ? (
                 <NextLink href='/dashboards'>
-                  <Button variant='default'>{t('goToDashboard')}</Button>
+                  <Button variant='default' className='cursor-pointer'>
+                    {t('goToDashboard')}
+                  </Button>
                 </NextLink>
               ) : !isOnSignInPage ? (
                 <Link href='/signin'>
-                  <Button>{t('getStarted')}</Button>
+                  <Button className='cursor-pointer'>{t('getStarted')}</Button>
                 </Link>
               ) : null}
             </div>
@@ -99,13 +101,13 @@ export default function PublicTopBar() {
               <div className='border-t pt-3'>
                 {session ? (
                   <NextLink href='/dashboards' onClick={closeMobileMenu}>
-                    <Button variant='default' className='w-full'>
+                    <Button variant='default' className='w-full cursor-pointer'>
                       {t('goToDashboard')}
                     </Button>
                   </NextLink>
                 ) : !isOnSignInPage ? (
                   <Link href='/signin' onClick={closeMobileMenu}>
-                    <Button className='w-full'>{t('getStarted')}</Button>
+                    <Button className='w-full cursor-pointer'>{t('getStarted')}</Button>
                   </Link>
                 ) : null}
               </div>

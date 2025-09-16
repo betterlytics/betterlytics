@@ -107,6 +107,7 @@ export async function getSessionMetrics(
     )
     SELECT 
       date,
+      count() as sessions,
       if(count() > 0, 
         round((count() - countIf(page_count > 1)) / count() * 100, 1), 
         0

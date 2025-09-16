@@ -121,6 +121,71 @@ This guide explains how all metrics in your Betterlytics dashboard are calculate
 ### Browser and Operating System
 **Definition:** What browsers and operating systems your visitors use (the minor version of the browser is not included in the browser and operating system metrics for privacy reasons).
 
+## Core Web Vitals
+
+Core Web Vitals are user‑centric performance metrics captured from real users (RUM) with the official `web-vitals` library. In the dashboard, they are summarized using percentiles (p50/p75/p90/p99); p75 is commonly used for pass/fail thresholds.
+
+### LCP (Largest Contentful Paint)
+**What it measures:** Loading performance – when the largest text or image becomes visible.
+
+**Thresholds:**
+- Good: ≤ 2.5s
+- Needs improvement: ≤ 4.0s
+- Poor: > 4.0s
+
+### INP (Interaction to Next Paint)
+**What it measures:** Responsiveness – time from user interaction until the next visual update.
+
+**Thresholds:**
+- Good: ≤ 200ms
+- Needs improvement: ≤ 500ms
+- Poor: > 500ms
+
+### CLS (Cumulative Layout Shift)
+**What it measures:** Visual stability – how much content unexpectedly shifts during load.
+
+**Thresholds:**
+- Good: ≤ 0.1
+- Needs improvement: ≤ 0.25
+- Poor: > 0.25
+
+### FCP (First Contentful Paint)
+**What it measures:** When the first piece of content renders on screen.
+
+**Thresholds:**
+- Good: ≤ 1.8s
+- Needs improvement: ≤ 3.0s
+- Poor: > 3.0s
+
+### TTFB (Time to First Byte)
+**What it measures:** Server responsiveness – time from request start until the first byte is received.
+
+**Thresholds:**
+- Good: ≤ 800ms
+- Needs improvement: ≤ 1.8s
+- Poor: > 1.8s
+
+### Composite score
+**Definition:** A weighted blend (0–100) that summarizes multiple Web Vitals into a single value at each percentile (p50/p75/p90/p99).
+
+- Each metric (LCP, INP, CLS, FCP, TTFB) is first mapped to a 0–100 score using the same Good/Needs improvement/Poor thresholds shown above.
+- We then compute a weighted average to prioritize user‑impacting metrics:
+  - LCP: 0.30
+  - INP: 0.30
+  - CLS: 0.15
+  - FCP: 0.15
+  - TTFB: 0.10
+
+Higher scores are better. This provides a quick way to compare performance across pages, devices, countries, browsers, and OS.
+
+### Optimization opportunity
+**Definition:** Estimated impact headroom for a row at each percentile, based on its traffic share and current composite score.
+
+- Traffic share = samples for the row ÷ total samples on the page
+- Opportunity ≈ traffic share × (100 − composite score)
+
+Higher values indicate bigger potential impact if you improve that row’s performance.
+
 ## Data Quality and Accuracy
 
 ### Bot Filtering

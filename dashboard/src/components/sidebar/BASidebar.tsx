@@ -9,12 +9,15 @@ import {
   DollarSign,
   Route,
   ExternalLink as ExternalLinkIcon,
+  BarChart,
+  Gauge,
 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
@@ -25,11 +28,12 @@ import {
 import SettingsButton from '../SettingsButton';
 import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Suspense } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
 import { DashboardDropdown } from './DashboardDropdown';
+
 import { getTranslations } from 'next-intl/server';
+import { ActiveUsersLabel } from './ActiveUsersLabel';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -40,16 +44,20 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
   const allDashboardsPromise = getAllUserDashboardsAction();
   const t = await getTranslations('dashboard.sidebar');
 
-  const navItems = [
+  const analyticsItems = [
     { name: t('overview'), href: '', icon: <LayoutDashboard size={18} /> },
     { name: t('pages'), href: '/pages', icon: <FileText size={18} /> },
     { name: t('referrers'), href: '/referrers', icon: <Link2 size={18} /> },
     { name: t('outboundLinks'), href: '/outbound-links', icon: <ExternalLinkIcon size={18} /> },
     { name: t('geography'), href: '/geography', icon: <Globe size={18} /> },
-    { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
-    { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
     { name: t('devices'), href: '/devices', icon: <Smartphone size={18} /> },
     { name: t('campaigns'), href: '/campaign', icon: <DollarSign size={18} /> },
+    { name: t('webVitals'), href: '/web-vitals', icon: <Gauge size={18} /> },
+  ];
+
+  const behaviorItems = [
+    { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
+    { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
     { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
   ];
 
@@ -59,10 +67,10 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
       collapsible='icon'
       className='top-0 h-screen border-t md:top-14 md:h-[calc(100vh-3.5rem)]'
     >
-      <SidebarHeader className='bg-background rounded-t-xl pt-2'></SidebarHeader>
-      <SidebarContent className='bg-background overflow-x-hidden pl-1'>
+      <SidebarHeader className='bg-sidebar rounded-t-xl pt-2'></SidebarHeader>
+      <SidebarContent className='bg-sidebar overflow-x-hidden'>
         <SidebarGroup>
-          <SidebarGroupContent className='space-y-2 overflow-hidden px-2'>
+          <SidebarGroupContent className='overflow-hidden'>
             <Suspense fallback={<div className='bg-muted h-6 animate-pulse rounded' />}>
               <DashboardDropdown
                 currentDashboardPromise={currentDashboardPromise}
@@ -72,16 +80,39 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className='mx-0' />
 
         <SidebarGroup>
           <SidebarGroupContent>
             <Suspense fallback={null}>
               <ActiveUsersLabel />
             </Suspense>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-            <SidebarMenu className='mt-3'>
-              {navItems.map((item) => (
+        <SidebarGroup>
+          <SidebarGroupLabel>Analytics</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {analyticsItems.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild>
+                    <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
+                      <span>{item.icon}</span>
+                      <span>{item.name}</span>
+                    </FilterPreservingLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Behavior</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {behaviorItems.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>
                     <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>

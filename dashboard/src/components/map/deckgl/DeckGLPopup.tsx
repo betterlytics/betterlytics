@@ -4,6 +4,7 @@ import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface DeckGLPopupProps {
   viewState: any; // the DeckGL viewState
@@ -13,6 +14,9 @@ interface DeckGLPopupProps {
 
 function DeckGLPopupComponent({ viewState, size = 'sm', children }: DeckGLPopupProps) {
   const { clickedFeatureRef } = useMapSelection();
+  const locale = useLocale();
+  const t = useTranslations('components.geography');
+
   const clickedFeature = clickedFeatureRef?.current;
   if (!clickedFeature) return null;
 
@@ -37,7 +41,12 @@ function DeckGLPopupComponent({ viewState, size = 'sm', children }: DeckGLPopupP
       )}
     >
       <div className='leaflet-popup-content'>
-        <MapTooltipContent geoVisitor={clickedFeature?.geoVisitor} size={size} />
+        <MapTooltipContent
+          geoVisitor={clickedFeature?.geoVisitor}
+          size={size}
+          locale={locale}
+          label={t('visitors')}
+        />
         {children}
       </div>
       <MapTooltipTip />

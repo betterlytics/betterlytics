@@ -6,6 +6,7 @@ import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
 import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
+import { useLocale, useTranslations } from 'next-intl';
 
 export type DeckGLStickyTooltipProps = {
   size?: 'sm' | 'lg';
@@ -15,9 +16,12 @@ export type DeckGLStickyTooltipProps = {
 function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStickyTooltipProps) {
   const { hoveredFeature, clickedFeature } = useMapSelection();
   const tooltipId = useId();
+  const rafRef = useRef<number>(0);
+  const locale = useLocale();
+  const t = useTranslations('components.geography');
+
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const latestMouseRef = useRef({ x: 0, y: 0 });
-  const rafRef = useRef<number>(0);
 
   useEffect(() => {
     if (tooltipRef.current) {
@@ -63,7 +67,12 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       )}
     >
       <div className='leaflet-popup-content rounded-lg'>
-        <MapTooltipContent geoVisitor={hoveredFeature.geoVisitor} size={size} />
+        <MapTooltipContent
+          geoVisitor={hoveredFeature.geoVisitor}
+          size={size}
+          locale={locale}
+          label={t('visitors')}
+        />
       </div>
       <MapTooltipTip />
     </section>,

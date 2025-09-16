@@ -14,6 +14,14 @@ if (result.error) {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  async headers() {
+    return [
+      {
+        source: '/dashboard/:path*',
+        headers: [{ key: 'X-Accel-Buffering', value: 'no' }],
+      },
+    ];
+  },
 };
 
 export default createNextIntlPlugin()(nextConfig);

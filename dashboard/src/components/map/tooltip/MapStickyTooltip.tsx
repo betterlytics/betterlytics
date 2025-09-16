@@ -5,6 +5,7 @@ import { useMap } from 'react-leaflet/hooks';
 import MapTooltipContent from './MapTooltipContent';
 import MapTooltipTip from './MapTooltipTip';
 import { cn } from '@/lib/utils';
+import { useLocale, useTranslations } from 'next-intl';
 
 export type MapStickyTooltip = {
   size?: 'sm' | 'lg';
@@ -14,6 +15,8 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
   const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelection();
   const map = useMap();
   const tooltipId = useId();
+  const locale = useLocale();
+  const t = useTranslations('components.geography');
 
   const tooltipRef = useRef<HTMLElement | null>(null);
   const latestMouseRef = useRef({ x: 0, y: 0 });
@@ -54,7 +57,12 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       )}
     >
       <div className='leaflet-popup-content'>
-        <MapTooltipContent geoVisitor={hoveredFeature?.geoVisitor} size={size} />
+        <MapTooltipContent
+          geoVisitor={hoveredFeature?.geoVisitor}
+          size={size}
+          locale={locale}
+          label={t('visitors')}
+        />
       </div>
       <MapTooltipTip />
     </section>,

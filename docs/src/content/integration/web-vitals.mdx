@@ -1,0 +1,72 @@
+---
+title: "Web Vitals"
+description: "Enable or disable Core Web Vitals collection with the Betterlytics tracker. Learn configuration options and best practices."
+---
+
+import { Callout } from "nextra/components";
+
+# Web Vitals Integration
+
+Betterlytics can capture Core Web Vitals (CWV) from your users' browsers using the official `web-vitals` library. Metrics are captured from real visitors (RUM), not synthetic tests. Tools like Lighthouse simulate a single device and network, which often results in different values than field data. This page explains how to turn it on or off, and recommended settings.
+
+<Callout type="info">
+Want to learn how to use the Web Vitals dashboard? Read the guide: [Core Web Vitals in your dashboard](/dashboard/web-vitals).
+</Callout>
+
+## Quick start
+
+### Using the script tag
+
+Add `data-web-vitals="true"` to your analytics script to enable CWV collection:
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://betterlytics.io/track"
+  data-web-vitals="true"
+></script>
+```
+
+To disable later, remove the attribute or set `data-web-vitals="false"`.
+
+### Using the npm package
+
+Web Vitals is disabled by default. Enable Web Vitals:
+
+```ts
+import betterlytics from '@betterlytics/tracker';
+
+betterlytics.init('your-site-id', {
+  enableWebVitals: true, // true | false (default)
+});
+```
+
+To disable Web Vitals, omit `enableWebVitals`, or set `enableWebVitals` to false:
+
+```ts
+betterlytics.init('your-site-id', {});
+```
+
+See the package docs for the full API and options: [@betterlytics/tracker on npm](https://www.npmjs.com/package/@betterlytics/tracker).
+
+## What gets collected
+
+When enabled, the tracker loads `web-vitals` and records these metrics once per page lifecycle when visibility changes or the page is hidden:
+
+- LCP, INP, CLS, FCP, TTFB
+
+See definitions and thresholds in the [Metrics Glossary](/dashboard/metrics-glossary#core-web-vitals).
+
+<Callout type="info">
+Metrics are reported on visibility change or pagehide to capture stable final values.
+</Callout>
+
+<Callout type="warning">
+Single‑page applications (SPAs): Today we only collect CWV on the initial page load. Client‑side route changes (soft navigations) usually don’t re‑trigger LCP/FCP in a meaningful way, so we exclude them to avoid misleading values. We’re working on an experimental SPA CWV collection and will update these docs when it’s available.
+</Callout>
+
+---
+
+**Next steps**: Explore your [Web Vitals dashboard](/dashboard/web-vitals) to find regressions and prioritize fixes.

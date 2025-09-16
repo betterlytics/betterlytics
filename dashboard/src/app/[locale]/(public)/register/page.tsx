@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { generateSEO } from '@/lib/seo';
 import { authOptions } from '@/lib/auth';
-import RegisterForm from '@/app/[locale]/register/RegisterForm';
+import RegisterForm from '@/app/[locale]/(public)/register/RegisterForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
@@ -65,6 +65,9 @@ export default async function RegisterPage() {
       </div>
     );
   }
+
+  // Redirect to new onboarding flow
+  redirect('/onboarding');
 
   return (
     <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
