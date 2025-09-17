@@ -53,7 +53,6 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
       </div>
       <Separator className='my-2' />
       <div className='space-y-2'>
-        <div className='text-sm font-medium'>{t('compareToPeriod')}</div>
         <DateRangeSection
           startDate={ctx.compareStartDate}
           endDate={ctx.compareEndDate}
