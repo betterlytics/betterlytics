@@ -10,7 +10,6 @@ export const FilterQueryParamsSchema = z.object({
   granularity: z.enum(GRANULARITY_RANGE_VALUES),
   startDate: z.date(),
   endDate: z.date(),
-  compareEnabled: z.boolean().optional(),
   compareStartDate: z.date().optional(),
   compareEndDate: z.date().optional(),
   interval: z.enum(TIME_RANGE_VALUES),

@@ -54,7 +54,7 @@ export function useTimeRangeState() {
       granularity: context.granularity,
       customStart,
       customEnd,
-      compareEnabled: context.compareEnabled,
+      compareEnabled: context.compareMode !== 'off',
       compareStart: context.compareStartDate,
       compareEnd: context.compareEndDate,
     };

@@ -16,8 +16,6 @@ type TimeRangeContextProps = {
   setGranularity: Dispatch<SetStateAction<GranularityRangeValues>>;
   interval: TimeRangeValue;
   setInterval: Dispatch<SetStateAction<TimeRangeValue>>;
-  compareEnabled: boolean;
-  setCompareEnabled: Dispatch<SetStateAction<boolean>>;
   compareMode: CompareMode;
   setCompareMode: Dispatch<SetStateAction<CompareMode>>;
   compareStartDate?: Date;
@@ -41,7 +39,6 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
 
   const [granularity, setGranularity] = React.useState<GranularityRangeValues>(defaultFilters.granularity);
   const [interval, setInterval] = React.useState<TimeRangeValue>(defaultFilters.interval);
-  const [compareEnabled, setCompareEnabled] = React.useState<boolean>(Boolean(defaultFilters.compareEnabled));
   const [compareMode, setCompareMode] = React.useState<CompareMode>(defaultFilters.compare);
   const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(
     defaultFilters.compareStartDate,
@@ -69,9 +66,9 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDate, endDate]);
 
-  // Invariant: when compare is enabled, enforce equal-length compare range
+  // Invariant: when compare is custom, enforce equal-length compare range
   useEffect(() => {
-    if (!compareEnabled || !compareStartDate) return;
+    if (compareMode !== 'custom' || !compareStartDate) return;
     const days = differenceInCalendarDays(endDate, startDate) + 1;
     const start = startOfDay(compareStartDate);
     const desiredEnd = endOfDay(new Date(start.getTime() + (days - 1) * 86400000));
@@ -80,11 +77,11 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
       setCompareEndDate(desiredEnd);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [compareEnabled, startDate, endDate, compareStartDate]);
+  }, [compareMode, startDate, endDate, compareStartDate]);
 
   // Invariant: when compare mode is derived (previous/year), recompute compare range when main period changes
   useEffect(() => {
-    if (!compareEnabled || !isDerivedCompareMode(compareMode)) return;
+    if (!isDerivedCompareMode(compareMode)) return;
     const derived = deriveCompareRange(startDate, endDate, compareMode);
     if (!derived) return;
 
@@ -96,7 +93,7 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
       setCompareEndDate(derived.endDate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [compareEnabled, compareMode, startDate, endDate]);
+  }, [compareMode, startDate, endDate]);
 
   return (
     <TimeRangeContext.Provider
@@ -108,8 +105,6 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         setGranularity,
         interval,
         setInterval,
-        compareEnabled,
-        setCompareEnabled,
         compareMode,
         setCompareMode,
         compareStartDate,

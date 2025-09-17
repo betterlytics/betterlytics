@@ -63,7 +63,6 @@ export function useImmediateTimeRange() {
 
   const enableCompare = useCallback(
     (enable: boolean) => {
-      ctx.setCompareEnabled(enable);
       if (!enable) {
         ctx.setCompareMode('off');
         return;

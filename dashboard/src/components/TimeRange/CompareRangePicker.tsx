@@ -22,7 +22,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
   const actions = useImmediateTimeRange();
 
   const label = () => {
-    if (!ctx.compareEnabled || !ctx.compareStartDate || !ctx.compareEndDate) return t('compareWithPrevious');
+    if (ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate) return t('compareWithPrevious');
     return `${ctx.compareStartDate.toLocaleDateString()} - ${ctx.compareEndDate.toLocaleDateString()}`;
   };
 
@@ -30,10 +30,10 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
     <div className='space-y-6 p-0 sm:p-0'>
       <div className='flex items-center justify-between'>
         <span className='text-sm'>{t('compareWithPrevious')}</span>
-        <Switch checked={ctx.compareEnabled} onCheckedChange={actions.enableCompare} />
+        <Switch checked={ctx.compareMode !== 'off'} onCheckedChange={actions.enableCompare} />
       </div>
 
-      {ctx.compareEnabled && (
+      {ctx.compareMode !== 'off' && (
         <>
           <div className='grid gap-2'>
             <Button

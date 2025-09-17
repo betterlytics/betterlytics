@@ -37,7 +37,7 @@ export function TimeRangeSelector({
       const { granularity, compareEnabled, customStart, customEnd, compareStart, compareEnd } = finalState;
 
       context.setGranularity(granularity);
-      context.setCompareEnabled(compareEnabled);
+      context.setCompareMode(compareEnabled ? 'previous' : 'off');
 
       if (customStart && customEnd) {
         context.setPeriod(customStart, customEnd);

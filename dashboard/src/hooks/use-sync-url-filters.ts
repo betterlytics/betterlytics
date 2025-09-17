@@ -11,7 +11,6 @@ const URL_SEARCH_PARAMS = [
   'granularity',
   'startDate',
   'endDate',
-  'compareEnabled',
   'compareStartDate',
   'compareEndDate',
   'interval',
@@ -30,11 +29,9 @@ export function useSyncURLFilters() {
     granularity,
     setPeriod,
     setGranularity,
-    compareEnabled,
     compareStartDate,
     compareEndDate,
     setCompareDateRange,
-    setCompareEnabled,
     interval,
     setInterval,
     compareMode,
@@ -75,17 +72,13 @@ export function useSyncURLFilters() {
       if (filters.compare) {
         if (filters.compare === 'off') {
           setCompareMode('off');
-          setCompareEnabled(false);
         } else if (filters.compare === 'previous') {
           setCompareMode('previous');
-          setCompareEnabled(true);
         } else if (filters.compare === 'year') {
           setCompareMode('year');
-          setCompareEnabled(true);
         } else if (filters.compare === 'custom') {
           setCompareMode('custom');
           if (filters.compareStartDate && filters.compareEndDate) {
-            setCompareEnabled(true);
             setCompareDateRange(filters.compareStartDate, filters.compareEndDate);
           }
         }
@@ -108,9 +101,10 @@ export function useSyncURLFilters() {
           numberOfSteps,
           numberOfJourneys,
         },
-        compareStartDate: compareEnabled && compareStartDate && compareEndDate ? compareStartDate : undefined,
-        compareEndDate: compareEnabled && compareStartDate && compareEndDate ? compareEndDate : undefined,
-        compareEnabled: compareEnabled,
+        // Only include compare dates for custom mode when both are present
+        compareStartDate:
+          compareMode !== 'off' && compareStartDate && compareEndDate ? compareStartDate : undefined,
+        compareEndDate: compareMode !== 'off' && compareStartDate && compareEndDate ? compareEndDate : undefined,
       });
 
       const params = new URLSearchParams(searchParams?.toString() ?? '');
@@ -125,7 +119,6 @@ export function useSyncURLFilters() {
     queryFilters,
     startDate,
     endDate,
-    compareEnabled,
     compareStartDate,
     compareEndDate,
     granularity,

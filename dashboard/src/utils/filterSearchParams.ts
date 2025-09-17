@@ -30,7 +30,6 @@ function getDefaultFilters(): FilterQueryParams {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
-    compareEnabled: true,
     compareStartDate: compareStart,
     compareEndDate: compareEnd,
   };
@@ -78,7 +77,6 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
     case 'compareStartDate':
     case 'compareEndDate':
       return (value as Date).toISOString();
-    case 'compareEnabled':
     case 'queryFilters':
     case 'userJourney':
       return JSON.stringify(value);
@@ -109,7 +107,6 @@ function decodeValue<Key extends keyof FilterQueryParams>(
     case 'compareStartDate':
     case 'compareEndDate':
       return new Date(value);
-    case 'compareEnabled':
     case 'queryFilters':
     case 'userJourney':
       return JSON.parse(value);
@@ -138,7 +135,7 @@ function decode(params: FilterQuerySearchParams) {
     ...decoded,
   };
 
-  if (filters.compareEnabled === false) {
+  if (filters.compare === 'off') {
     filters.compareStartDate = undefined;
     filters.compareEndDate = undefined;
   }
