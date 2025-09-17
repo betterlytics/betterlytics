@@ -11,10 +11,8 @@ interface DateRangeSectionProps {
 }
 
 export function DateRangeSection({ startDate, endDate, onDateRangeSelect }: DateRangeSectionProps) {
-  const t = useTranslations('components.timeRange');
   return (
     <div>
-      <h3 className='mb-2 text-sm font-medium'>{t('currentPeriod')}</h3>
       <div className='grid gap-4'>
         <DateRangePicker
           onDateRangeSelect={(range) => {

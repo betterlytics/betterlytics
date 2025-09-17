@@ -25,7 +25,13 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
 
   const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
 
-  const label = () => `${ctx.startDate.toLocaleDateString()} - ${ctx.endDate.toLocaleDateString()}`;
+  const label = () => {
+    if (ctx.interval === 'custom') {
+      const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+      return `${ctx.startDate.toLocaleDateString(undefined, opts)} - ${ctx.endDate.toLocaleDateString(undefined, opts)}`;
+    }
+    return `${ctx.startDate.toLocaleDateString()} - ${ctx.endDate.toLocaleDateString()}`;
+  };
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
@@ -37,16 +43,16 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         }}
       />
       <Separator className='my-4' />
-      <GranularitySection
-        selectedGranularity={ctx.granularity}
-        allowedGranularities={allowed}
-        onGranularitySelect={actions.setGranularity}
-      />
-      <Separator className='my-4' />
       <DateRangeSection
         startDate={ctx.startDate}
         endDate={ctx.endDate}
         onDateRangeSelect={actions.setCustomRange}
+      />
+      <Separator className='my-4' />
+      <GranularitySection
+        selectedGranularity={ctx.granularity}
+        allowedGranularities={allowed}
+        onGranularitySelect={actions.setGranularity}
       />
     </div>
   );
@@ -70,7 +76,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
             <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
           </Button>
         </DialogTrigger>
-        <DialogContent className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto px-3 py-4'>
+        <DialogContent className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[350px] overflow-y-auto px-3 py-4'>
           <DialogHeader>
             <DialogTitle>{t('dateRange')}</DialogTitle>
           </DialogHeader>
@@ -98,7 +104,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
           <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[350px] max-w-[calc(100svw-48px)] space-y-6 border p-6 shadow-2xl' align='end'>
+      <PopoverContent className='w-[200px] max-w-[calc(100svw-48px)] space-y-6 border p-1 shadow-2xl' align='end'>
         {content}
       </PopoverContent>
     </Popover>

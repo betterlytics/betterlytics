@@ -58,20 +58,13 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant={'outline'}
+            variant={'ghost'}
             className={cn(
               'w-full cursor-pointer truncate text-left font-normal',
               !range && 'text-muted-foreground',
             )}
           >
-            <CalendarIcon className='h-4 w-4' />
-            <div className='ml-2'>
-              {range?.from && range?.to ? (
-                `${format(range.from, 'PP')} - ${format(range.to, 'PP')}`
-              ) : (
-                <span>Pick a date</span>
-              )}
-            </div>
+            <span>Custom period</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
