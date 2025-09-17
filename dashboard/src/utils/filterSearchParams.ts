@@ -4,13 +4,15 @@ import {
   getEndDateWithGranularity,
   getStartDateWithGranularity,
 } from './timeRanges';
-import { getCompareRangeForTimePresets } from './compareRanges';
+import { deriveCompareRange } from './compareRanges';
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
   let { startDate, endDate } = getDateRangeForTimePresets('24h');
-  let { compareStart, compareEnd } = getCompareRangeForTimePresets('24h');
+  const derived = deriveCompareRange(startDate, endDate, 'previous');
+  let compareStart = derived?.startDate ?? startDate;
+  let compareEnd = derived?.endDate ?? endDate;
 
   startDate = getStartDateWithGranularity(startDate, granularity);
   endDate = getEndDateWithGranularity(endDate, granularity);

@@ -13,18 +13,13 @@ export function isDerivedCompareMode(mode: CompareMode): mode is 'previous' | 'y
   return mode === 'previous' || mode === 'year';
 }
 
+// Deprecated: prefer deriveCompareRange with CompareMode
 export function getCompareRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>) {
   const { startDate, endDate } = getDateRangeForTimePresets(value);
-
   const durationMs = endDate.getTime() - startDate.getTime();
-
   const compareEnd = subSeconds(startDate, 1);
   const compareStart = subMilliseconds(startDate, durationMs);
-
-  return {
-    compareStart,
-    compareEnd,
-  };
+  return { compareStart, compareEnd };
 }
 
 export function deriveCompareRange(
