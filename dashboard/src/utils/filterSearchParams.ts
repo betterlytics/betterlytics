@@ -1,12 +1,10 @@
-import { QueryFilter } from '@/entities/filter';
-import { GranularityRangeValues, getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
 import {
-  getCompareRangeForTimePresets,
   getDateRangeForTimePresets,
   getDateWithTimeOfDay,
   getEndDateWithGranularity,
   getStartDateWithGranularity,
 } from './timeRanges';
+import { getCompareRangeForTimePresets } from './compareRanges';
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 function getDefaultFilters(): FilterQueryParams {
@@ -24,6 +22,8 @@ function getDefaultFilters(): FilterQueryParams {
     startDate,
     endDate,
     granularity,
+    interval: '24h',
+    compare: 'previous',
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
@@ -82,6 +82,10 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
       return JSON.stringify(value);
     case 'granularity':
       return value as FilterQueryParams['granularity'];
+    case 'interval':
+      return value as FilterQueryParams['interval'];
+    case 'compare':
+      return value as FilterQueryParams['compare'];
   }
 
   throw new Error(`Unknown filter key "${key}"`);
@@ -109,6 +113,10 @@ function decodeValue<Key extends keyof FilterQueryParams>(
       return JSON.parse(value);
     case 'granularity':
       return value as FilterQueryParams['granularity'];
+    case 'interval':
+      return value as FilterQueryParams['interval'];
+    case 'compare':
+      return value as FilterQueryParams['compare'];
   }
 
   throw new Error(`Unknown filter key "${key}"`);

@@ -14,6 +14,8 @@ const URL_SEARCH_PARAMS = [
   'compareEnabled',
   'compareStartDate',
   'compareEndDate',
+  'interval',
+  'compare',
   'userJourney',
 ] as const;
 
@@ -33,13 +35,17 @@ export function useSyncURLFilters() {
     compareEndDate,
     setCompareDateRange,
     setCompareEnabled,
+    interval,
+    setInterval,
+    compareMode,
+    setCompareMode,
   } = useTimeRangeContext();
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
 
   useEffect(() => {
     try {
       const encodedFilterEntries = URL_SEARCH_PARAMS.map(
-        (param) => [param, searchParams.get(param)] as const,
+        (param) => [param, searchParams?.get(param)] as const,
       ).filter(([_key, value]) => Boolean(value));
 
       const encoded = Object.fromEntries(encodedFilterEntries);
@@ -52,6 +58,9 @@ export function useSyncURLFilters() {
       if (filters.granularity) {
         setGranularity(filters.granularity);
       }
+      if (filters.interval) {
+        setInterval(filters.interval);
+      }
       if (filters.queryFilters) {
         setQueryFilters(filters.queryFilters);
       }
@@ -63,9 +72,23 @@ export function useSyncURLFilters() {
           setNumberOfJourneys(filters.userJourney.numberOfJourneys);
         }
       }
-      setCompareEnabled(Boolean(filters.compareEnabled));
-      if (filters.compareStartDate && filters.compareEndDate) {
-        setCompareDateRange(filters.compareStartDate, filters.compareEndDate);
+      if (filters.compare) {
+        if (filters.compare === 'off') {
+          setCompareMode('off');
+          setCompareEnabled(false);
+        } else if (filters.compare === 'previous') {
+          setCompareMode('previous');
+          setCompareEnabled(true);
+        } else if (filters.compare === 'year') {
+          setCompareMode('year');
+          setCompareEnabled(true);
+        } else if (filters.compare === 'custom') {
+          setCompareMode('custom');
+          if (filters.compareStartDate && filters.compareEndDate) {
+            setCompareEnabled(true);
+            setCompareDateRange(filters.compareStartDate, filters.compareEndDate);
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to set filters:', error);
@@ -79,6 +102,8 @@ export function useSyncURLFilters() {
         startDate,
         endDate,
         granularity,
+        interval,
+        compare: compareMode,
         userJourney: {
           numberOfSteps,
           numberOfJourneys,
@@ -104,6 +129,8 @@ export function useSyncURLFilters() {
     compareStartDate,
     compareEndDate,
     granularity,
+    interval,
+    compareMode,
     numberOfSteps,
     numberOfJourneys,
   ]);

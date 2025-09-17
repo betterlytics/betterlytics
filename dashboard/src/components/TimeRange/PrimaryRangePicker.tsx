@@ -30,7 +30,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
       <QuickSelectSection
-        selectedRange={'custom'}
+        selectedRange={ctx.interval}
         onRangeSelect={(v) => {
           if (v === 'custom') return;
           actions.setPresetRange(v);

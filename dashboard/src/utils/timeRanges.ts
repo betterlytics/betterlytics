@@ -2,17 +2,16 @@ import {
   subDays,
   subMonths,
   subSeconds,
-  subMilliseconds,
   endOfDay,
   startOfDay,
   endOfHour,
   startOfHour,
   roundToNearestMinutes,
-  differenceInCalendarDays,
 } from 'date-fns';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 
-export type TimeRangeValue = '24h' | '3d' | '7d' | '28d' | '3mo' | '6mo' | 'custom';
+export const TIME_RANGE_VALUES = ['24h', '3d', '7d', '28d', '3mo', '6mo', 'custom'] as const;
+export type TimeRangeValue = (typeof TIME_RANGE_VALUES)[number];
 export type TimeGrouping = 'minute' | 'hour' | 'day';
 
 export interface TimeRangePreset {
@@ -120,40 +119,4 @@ export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>
     throw Error('Unknown preset');
   }
   return preset.getRange();
-}
-
-export function getCompareRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>) {
-  const { startDate, endDate } = getDateRangeForTimePresets(value);
-
-  const durationMs = endDate.getTime() - startDate.getTime();
-
-  const compareEnd = subSeconds(startDate, 1);
-  const compareStart = subMilliseconds(startDate, durationMs);
-
-  return {
-    compareStart,
-    compareEnd,
-  };
-}
-
-export type ComparePreset = 'previous_period' | 'previous_year';
-
-export function getCompareRangeForPreset(
-  currentStart: Date,
-  currentEnd: Date,
-  preset: ComparePreset,
-): { startDate: Date; endDate: Date } {
-  const days = differenceInCalendarDays(currentEnd, currentStart) + 1;
-
-  if (preset === 'previous_period') {
-    const prevEnd = endOfDay(new Date(currentStart.getTime() - 1));
-    const prevStart = startOfDay(new Date(prevEnd.getTime() - (days - 1) * 86400000));
-    return { startDate: prevStart, endDate: prevEnd };
-  }
-
-  const start = new Date(currentStart);
-  start.setFullYear(start.getFullYear() - 1);
-  const end = new Date(start);
-  end.setDate(start.getDate() + (days - 1));
-  return { startDate: startOfDay(start), endDate: endOfDay(end) };
 }

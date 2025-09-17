@@ -6,8 +6,6 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import {
   TimeRangeValue,
   getDateRangeForTimePresets,
-  getCompareRangeForPreset,
-  ComparePreset,
   getStartDateWithGranularity,
   getEndDateWithGranularity,
 } from '@/utils/timeRanges';
@@ -28,6 +26,7 @@ export function useImmediateTimeRange() {
       const alignedStart = getStartDateWithGranularity(startDate, nextGranularity);
       const alignedEnd = getEndDateWithGranularity(endDate, nextGranularity);
       ctx.setPeriod(alignedStart, alignedEnd);
+      if (ctx.interval !== preset) ctx.setInterval(preset);
       if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
     },
     [ctx],
@@ -65,17 +64,18 @@ export function useImmediateTimeRange() {
   const enableCompare = useCallback(
     (enable: boolean) => {
       ctx.setCompareEnabled(enable);
-      if (!enable) return;
-      const { startDate, endDate } = getCompareRangeForPreset(ctx.startDate, ctx.endDate, 'previous_period');
-      ctx.setCompareDateRange(startDate, endDate);
+      if (!enable) {
+        ctx.setCompareMode('off');
+        return;
+      }
+      ctx.setCompareMode('previous');
     },
     [ctx],
   );
 
   const setComparePreset = useCallback(
-    (preset: ComparePreset) => {
-      const { startDate, endDate } = getCompareRangeForPreset(ctx.startDate, ctx.endDate, preset);
-      ctx.setCompareDateRange(startDate, endDate);
+    (preset: 'previous' | 'year') => {
+      ctx.setCompareMode(preset);
     },
     [ctx],
   );

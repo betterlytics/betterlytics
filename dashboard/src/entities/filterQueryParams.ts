@@ -1,6 +1,8 @@
 import z from 'zod';
 
 import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
+import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
+import { COMPARE_URL_MODES } from '@/utils/compareRanges';
 import { QueryFilterSchema } from '@/entities/filter';
 
 export const FilterQueryParamsSchema = z.object({
@@ -11,6 +13,8 @@ export const FilterQueryParamsSchema = z.object({
   compareEnabled: z.boolean().optional(),
   compareStartDate: z.date().optional(),
   compareEndDate: z.date().optional(),
+  interval: z.enum(TIME_RANGE_VALUES),
+  compare: z.enum(COMPARE_URL_MODES),
   userJourney: z.object({
     numberOfSteps: z.number(),
     numberOfJourneys: z.number(),

@@ -37,15 +37,15 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
         <>
           <div className='grid gap-2'>
             <Button
-              variant='outline'
-              onClick={() => actions.setComparePreset('previous_period')}
+              variant={ctx.compareMode === 'previous' ? 'default' : 'outline'}
+              onClick={() => actions.setComparePreset('previous')}
               className='cursor-pointer'
             >
               Previous period
             </Button>
             <Button
-              variant='outline'
-              onClick={() => actions.setComparePreset('previous_year')}
+              variant={ctx.compareMode === 'year' ? 'default' : 'outline'}
+              onClick={() => actions.setComparePreset('year')}
               className='cursor-pointer'
             >
               Previous year
