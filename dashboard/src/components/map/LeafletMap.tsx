@@ -12,10 +12,12 @@ import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { Spinner } from '../ui/spinner';
 import { useTranslations } from 'next-intl';
+import { ScaleType } from '@/hooks/use-color-scales';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
   maxVisitors?: number;
+  colorScaleType?: ScaleType;
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
@@ -28,6 +30,7 @@ export default function LeafletMap({
   showZoomControls,
   showLegend = true,
   size = 'sm',
+  colorScaleType = 'log10',
   initialZoom,
 }: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
@@ -39,8 +42,7 @@ export default function LeafletMap({
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('components.geography');
-  const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
-  const style = useMapStyle({ calculatedMaxVisitors });
+  const style = useMapStyle({ maxVisitors: maxVisitors || 1 });
 
   useEffect(() => {
     startTransition(() => {

@@ -35,6 +35,7 @@ export default async function WorldMapCard() {
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
           <LeafletMap
             visitorData={MOCK_WORLD_GEOVISITORS}
+            colorScaleType='linear'
             showZoomControls={false}
             showLegend={false}
             initialZoom={1}
@@ -45,12 +46,12 @@ export default async function WorldMapCard() {
         <div className='border-border/60 border-t pt-3'>
           <div className='flex items-center justify-between text-xs'>
             <span className='text-muted-foreground'>{t('topCountries')}</span>
-            <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-1 overflow-hidden'>
+            <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-3 overflow-hidden pr-2'>
               {Array.from({ length: 2 }).map((_, i) => (
                 <CountryCol
                   key={MOCK_WORLD_GEOVISITORS[i].country_code}
                   geoVisitor={MOCK_WORLD_GEOVISITORS[i]}
-                  locale={locale}
+                  locale={locale as SupportedLanguages}
                 />
               ))}
             </div>
