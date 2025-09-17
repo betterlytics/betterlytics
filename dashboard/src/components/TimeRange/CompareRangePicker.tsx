@@ -5,7 +5,6 @@ import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
@@ -28,41 +27,40 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
-      <div className='flex items-center justify-between'>
-        <span className='text-sm'>{t('compareWithPrevious')}</span>
-        <Switch checked={ctx.compareMode !== 'off'} onCheckedChange={actions.enableCompare} />
+      <div className='grid gap-2'>
+        <Button
+          variant={ctx.compareMode === 'off' ? 'default' : 'outline'}
+          className='cursor-pointer'
+          aria-pressed={ctx.compareMode === 'off'}
+          onClick={() => actions.enableCompare(ctx.compareMode === 'off')}
+        >
+          Disable compare
+        </Button>
+        <Button
+          variant={ctx.compareMode === 'previous' ? 'default' : 'outline'}
+          onClick={() => actions.setComparePreset('previous')}
+          className='cursor-pointer'
+        >
+          Previous period
+        </Button>
+        <Button
+          variant={ctx.compareMode === 'year' ? 'default' : 'outline'}
+          onClick={() => actions.setComparePreset('year')}
+          className='cursor-pointer'
+        >
+          Previous year
+        </Button>
       </div>
-
-      {ctx.compareMode !== 'off' && (
-        <>
-          <div className='grid gap-2'>
-            <Button
-              variant={ctx.compareMode === 'previous' ? 'default' : 'outline'}
-              onClick={() => actions.setComparePreset('previous')}
-              className='cursor-pointer'
-            >
-              Previous period
-            </Button>
-            <Button
-              variant={ctx.compareMode === 'year' ? 'default' : 'outline'}
-              onClick={() => actions.setComparePreset('year')}
-              className='cursor-pointer'
-            >
-              Previous year
-            </Button>
-          </div>
-          <Separator className='my-2' />
-          <div className='space-y-2'>
-            <div className='text-sm font-medium'>{t('compareToPeriod')}</div>
-            <DateRangeSection
-              startDate={ctx.compareStartDate}
-              endDate={ctx.compareEndDate}
-              onDateRangeSelect={(from) => actions.setCompareCustomStart(from)}
-            />
-            <p className='text-muted-foreground text-xs'>Same length as main range</p>
-          </div>
-        </>
-      )}
+      <Separator className='my-2' />
+      <div className='space-y-2'>
+        <div className='text-sm font-medium'>{t('compareToPeriod')}</div>
+        <DateRangeSection
+          startDate={ctx.compareStartDate}
+          endDate={ctx.compareEndDate}
+          onDateRangeSelect={(from) => actions.setCompareCustomStart(from)}
+        />
+        <p className='text-muted-foreground text-xs'>Same length as main range</p>
+      </div>
     </div>
   );
 
