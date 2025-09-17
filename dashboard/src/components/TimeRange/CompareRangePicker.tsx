@@ -21,7 +21,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
   const actions = useImmediateTimeRange();
 
   const label = () => {
-    if (ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate) return t('compareWithPrevious');
+    if (ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate) return 'Disabled';
     return `${ctx.compareStartDate.toLocaleDateString()} - ${ctx.compareEndDate.toLocaleDateString()}`;
   };
 
