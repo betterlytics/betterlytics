@@ -82,6 +82,7 @@ export function useImmediateTimeRange() {
   const setCompareCustomStart = useCallback(
     (customStart?: Date) => {
       if (!customStart) return;
+      ctx.setCompareMode('custom');
       const days = differenceInCalendarDays(ctx.endDate, ctx.startDate) + 1;
       const start = startOfDay(customStart);
       const end = endOfDay(new Date(start.getTime() + (days - 1) * 86400000));
