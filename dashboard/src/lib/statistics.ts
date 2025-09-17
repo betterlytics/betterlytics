@@ -23,15 +23,15 @@ export function interpolatedQuantile(values: number[], q: number): number {
  * Rounds up a maximum value to a "nice" human-readable number.
  *
  * Uses D3's `scaleLinear().nice()` under the hood, which adjusts the domain
- * so that tick marks and legend values are cleanly rounded.
+ * so that values are cleanly rounded.
  *
  * Examples:
  * - niceMax(604.3222) → 700
  * - niceMax(9732) → 10000
  * - niceMax(0.84) → 1
  *
- * @param value The raw maximum value (e.g. from quantile computation)
- * @returns A rounded "nice" maximum value suitable for axes or legends
+ * @param value The raw maximum value
+ * @returns A rounded "nice" maximum value suitable for human-eyes to read.
  */
 export function niceMax(value: number): number {
   return scaleLinear().domain([0, value]).nice().domain()[1];
