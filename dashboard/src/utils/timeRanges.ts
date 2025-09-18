@@ -11,7 +11,6 @@ import {
   endOfMonth,
   subHours,
   startOfYear,
-  endOfYear,
 } from 'date-fns';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 
@@ -23,16 +22,12 @@ export const TIME_RANGE_VALUES = [
   '1h',
   // week-ish ranges
   '24h',
-  '3d',
   '7d',
-  '14d',
-  '30d',
+  '28d',
+  '90d',
   // month/quarter/half/year ranges
   'mtd',
   'last_month',
-  'qtd',
-  '3mo',
-  '6mo',
   'ytd',
   '1y',
   'custom',
@@ -79,7 +74,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Last hour',
+    label: 'Past hour',
     value: '1h',
     getRange: () => {
       const end = new Date();
@@ -88,21 +83,11 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Last 24 hours',
+    label: 'Past 24 hours',
     value: '24h',
     getRange: () => {
       const end = new Date();
       const start = subDays(end, 1);
-      return { startDate: start, endDate: end };
-    },
-  },
-  {
-    label: 'Last 3 days',
-    value: '3d',
-    getRange: () => {
-      const now = new Date();
-      const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subDays(now, 2));
       return { startDate: start, endDate: end };
     },
   },
@@ -117,22 +102,22 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Last 14 days',
-    value: '14d',
+    label: 'Last 28 days',
+    value: '28d',
     getRange: () => {
       const now = new Date();
       const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subDays(now, 13));
+      const start = startOfDay(subDays(now, 27));
       return { startDate: start, endDate: end };
     },
   },
   {
-    label: 'Last 30 days',
-    value: '30d',
+    label: 'Last 90 days',
+    value: '90d',
     getRange: () => {
       const now = new Date();
       const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subDays(now, 29));
+      const start = startOfDay(subDays(now, 89));
       return { startDate: start, endDate: end };
     },
   },
@@ -155,39 +140,6 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
       const lastMonthEnd = endOfMonth(subMonths(now, 1));
       const end = subSeconds(lastMonthEnd, 1);
       const start = startOfMonth(subMonths(now, 1));
-      return { startDate: start, endDate: end };
-    },
-  },
-  {
-    label: 'Quarter to date',
-    value: 'qtd',
-    getRange: () => {
-      const now = new Date();
-      // start of current quarter: months 0,3,6,9
-      const month = now.getMonth();
-      const quarterStartMonth = Math.floor(month / 3) * 3;
-      const start = startOfDay(new Date(now.getFullYear(), quarterStartMonth, 1));
-      const end = subSeconds(endOfDay(now), 1);
-      return { startDate: start, endDate: end };
-    },
-  },
-  {
-    label: 'Last 3 months',
-    value: '3mo',
-    getRange: () => {
-      const now = new Date();
-      const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subMonths(now, 3));
-      return { startDate: start, endDate: end };
-    },
-  },
-  {
-    label: 'Last 6 months',
-    value: '6mo',
-    getRange: () => {
-      const now = new Date();
-      const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subMonths(now, 6));
       return { startDate: start, endDate: end };
     },
   },

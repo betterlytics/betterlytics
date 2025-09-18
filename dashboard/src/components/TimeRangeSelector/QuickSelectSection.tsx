@@ -21,16 +21,13 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
 
   const groups: Array<Array<Exclude<TimeRangeValue, 'custom'> | 'realtime'>> = [
     // Real-time / intraday
-    ['realtime', '1h', '24h', 'today'],
+    ['realtime', '1h', '24h', 'today', 'yesterday'],
 
     // Recent days/weeks (rolling windows)
-    ['3d', '7d', '14d', '30d'],
+    ['7d', '28d', '90d'],
 
     // Monthly (calendar / rolling)
-    ['mtd', 'last_month', '3mo', '6mo'],
-
-    // Quarterly / Yearly
-    ['qtd', 'ytd', '1y'],
+    ['mtd', 'last_month', 'ytd', '1y'],
   ];
 
   const renderButton = (value: Exclude<TimeRangeValue, 'custom'>) => {

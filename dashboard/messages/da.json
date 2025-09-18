@@ -968,19 +968,15 @@
         "today": "I dag",
         "yesterday": "I går",
         "realtime": "Realtid",
-        "1h": "Sidste time",
+        "1h": "Seneste time",
         "24h": "Seneste 24 timer",
-        "3d": "Seneste 3 dage",
         "7d": "Seneste 7 dage",
-        "14d": "Seneste 14 dage",
-        "30d": "Seneste 30 dage",
+        "28d": "Seneste 28 dage",
+        "90d": "Seneste 90 dage",
         "mtd": "Måned til dato",
         "last_month": "Sidste måned",
-        "qtd": "Kvartal til dato",
         "ytd": "År til dato",
-        "1y": "Seneste 12 måneder",
-        "3mo": "Seneste 3 måneder",
-        "6mo": "Seneste 6 måneder"
+        "1y": "Seneste 12 måneder"
       },
       "granularityLabels": {
         "day": "Dag",
