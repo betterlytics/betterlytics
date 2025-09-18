@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from '@/utils/granularityRanges';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
 interface GranularitySectionProps {
@@ -17,30 +18,35 @@ export function GranularitySection({
   onGranularitySelect,
 }: GranularitySectionProps) {
   const t = useTranslations('components.timeRange');
+  const ordered = GRANULARITY_RANGE_PRESETS.slice().reverse();
+
   return (
-    <div>
-      <h3 className='mb-2 text-sm font-medium'>{t('granularity')}</h3>
-      <Select
-        value={selectedGranularity}
-        onValueChange={(value) => onGranularitySelect(value as GranularityRangeValues)}
-      >
-        <SelectTrigger className='w-full'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {GRANULARITY_RANGE_PRESETS.slice()
-            .reverse()
-            .map((gran) => (
-              <SelectItem
-                key={gran.value}
-                value={gran.value}
-                disabled={!allowedGranularities.includes(gran.value)}
-              >
-                {t(`granularityLabels.${gran.value}`)}
-              </SelectItem>
-            ))}
-        </SelectContent>
-      </Select>
+    <div className='mt-2 w-full'>
+      <div className='bg-secondary dark:inset-shadow-background grid w-full grid-cols-4 items-center gap-0.5 rounded-sm border p-0.5 shadow-sm dark:inset-shadow-xs'>
+        {ordered.map((gran) => {
+          const isActive = selectedGranularity === gran.value;
+          const isAllowed = allowedGranularities.includes(gran.value);
+          return (
+            <Button
+              key={gran.value}
+              type='button'
+              variant='ghost'
+              size='sm'
+              className={cn(
+                'h-7 w-full rounded-[4px] border border-transparent px-2 text-[10px] font-medium',
+                !isAllowed && 'cursor-not-allowed opacity-50 hover:opacity-50',
+                !isActive && 'text-muted-foreground hover:bg-accent',
+                isActive && 'bg-input text-foreground border-border hover:bg-input hover:dark:bg-input shadow-sm',
+              )}
+              disabled={!isAllowed}
+              aria-pressed={isActive}
+              onClick={() => isAllowed && onGranularitySelect(gran.value)}
+            >
+              {t(`granularityLabels.${gran.value}`)}
+            </Button>
+          );
+        })}
+      </div>
     </div>
   );
 }

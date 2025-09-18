@@ -15,9 +15,10 @@ interface DateRangePickerProps {
   range: DateRange | undefined;
   onDateRangeSelect: (dateRange: DateRange | undefined) => void;
   id?: string;
+  showSameLengthHint?: boolean;
 }
 
-export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerProps) {
+export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint = false }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const isMobile = useIsMobile();
@@ -54,13 +55,13 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
   );
 
   return (
-    <div className='space-y-1'>
+    <div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
             variant={'ghost'}
             className={cn(
-              'w-full cursor-pointer truncate text-left font-normal',
+              'h-8 w-full cursor-pointer justify-start truncate rounded-sm px-2 font-normal',
               !range && 'text-muted-foreground',
             )}
           >
@@ -85,6 +86,9 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
                 'w-full flex flex-row-reverse items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5 rdp-dropdowns',
             }}
           />
+          {showSameLengthHint && (
+            <p className='text-muted-foreground pb-2 text-center text-xs'>Same length as main range</p>
+          )}
         </PopoverContent>
       </Popover>
     </div>

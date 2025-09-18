@@ -15,6 +15,7 @@ import { QuickSelectSection } from '@/components/TimeRangeSelector/QuickSelectSe
 import { GranularitySection } from '@/components/TimeRangeSelector/GranularitySection';
 import { DateRangeSection } from '@/components/TimeRangeSelector/DateRangeSection';
 import { getAllowedGranularities } from '@/utils/granularityRanges';
+import { TIME_RANGE_PRESETS } from '@/utils/timeRanges';
 
 export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -30,8 +31,11 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
       const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
       return `${ctx.startDate.toLocaleDateString(undefined, opts)} - ${ctx.endDate.toLocaleDateString(undefined, opts)}`;
     }
-    return `${ctx.startDate.toLocaleDateString()} - ${ctx.endDate.toLocaleDateString()}`;
+    const preset = TIME_RANGE_PRESETS.find((p) => p.value === ctx.interval);
+    return preset?.label ?? ctx.interval;
   };
+
+  const titleText = `${ctx.startDate.toLocaleString()} - ${ctx.endDate.toLocaleString()}`;
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
@@ -42,13 +46,13 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
           actions.setPresetRange(v);
         }}
       />
-      <Separator className='my-4' />
+      <Separator className='my-1' />
       <DateRangeSection
         startDate={ctx.startDate}
         endDate={ctx.endDate}
         onDateRangeSelect={actions.setCustomRange}
       />
-      <Separator className='my-4' />
+      <Separator className='my-1' />
       <GranularitySection
         selectedGranularity={ctx.granularity}
         allowedGranularities={allowed}
@@ -68,6 +72,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
               'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]',
               className,
             )}
+            title={titleText}
           >
             <div className='flex items-center gap-2'>
               <CalendarIcon className='h-4 w-4' />
@@ -96,6 +101,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
             'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]',
             className,
           )}
+          title={titleText}
         >
           <div className='flex items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />

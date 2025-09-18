@@ -41,7 +41,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
         key={preset.value}
         variant={selectedRange === preset.value ? 'default' : 'ghost'}
         onClick={() => onRangeSelect(preset.value)}
-        className='w-full cursor-pointer justify-start px-3 text-center'
+        className='h-8 w-full cursor-pointer justify-start rounded-sm px-2 text-center'
       >
         {t(`presets.${preset.value}`)}
       </Button>
@@ -49,15 +49,13 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
   };
 
   return (
-    <div>
-      <div className='grid grid-cols-1 gap-1'>
-        {groups.map((values, idx) => (
-          <React.Fragment key={idx}>
-            {values.map((v) => renderButton(v))}
-            {idx < groups.length - 1 && <Separator className='my-1' />}
-          </React.Fragment>
-        ))}
-      </div>
+    <div className='m-0 grid grid-cols-1 gap-1'>
+      {groups.map((values, idx) => (
+        <React.Fragment key={idx}>
+          {values.map((v) => renderButton(v))}
+          {idx < groups.length - 1 && <Separator className='my-0' />}
+        </React.Fragment>
+      ))}
     </div>
   );
 }
