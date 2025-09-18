@@ -1,18 +1,20 @@
 'use client';
 
+import DashboardFilters from '@/components/dashboard/DashboardFilters';
+import { MapActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
+import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
+import { type ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
+import { CountriesLayer } from '@/components/map/deckgl/CountriesLayer';
+import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
+import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
+import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
+import { type GeoVisitor } from '@/entities/geography';
+import { usePlayback } from '@/hooks/deckgl/use-playback';
+import { LinearInterpolator } from '@deck.gl/core';
 import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection } from 'geojson';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
-import { CountriesLayer } from '@/components/map/deckgl/CountriesLayer';
-import { MapActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
-import { usePlayback } from '@/hooks/deckgl/use-playback';
-import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
-import { type GeoVisitor } from '@/entities/geography';
-import { ZoomButton, ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
-import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
-import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
-import { LinearInterpolator } from '@deck.gl/core';
+import { ZoomControls } from './controls/ZoomControls';
 
 interface DeckGLMapProps {
   visitorData: GeoVisitor[];
@@ -189,7 +191,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         </style>
       </DeckGL>
 
-      <div className='pointer-events-auto absolute bottom-10 left-[17rem] z-12 w-[calc(100%-20rem)]'>
+      <div className='pointer-events-auto absolute bottom-8 left-[17rem] z-12 w-[calc(100%-18rem)]'>
         <MapActionbar
           ticks={visitorDataTimeseries.map((_, i) => ({ label: `${i + 1}`, value: i }))}
           value={position}
@@ -202,16 +204,15 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         />
       </div>
 
-      <div className='pointer-events-auto absolute top-3 left-[17rem] z-12 flex flex-col'>
-        <ZoomButton
-          key={'in'}
-          className={'border-b-border border-b-[0.5px]'}
-          onClick={() => handleZoom('in')}
-          zoomType={'in'}
-        />
-        <ZoomButton key={'out'} onClick={() => handleZoom('out')} zoomType={'out'} />
+      <div className='pointer-events-auto absolute top-3 left-[17rem] z-12'>
+        <ZoomControls onZoom={handleZoom} />
       </div>
 
+      <div className='fixed top-16 right-4 z-30'>
+        <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
+          <DashboardFilters />
+        </div>
+      </div>
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
       {viewState && <DeckGLPopup viewState={viewState} />}
     </div>
