@@ -63,3 +63,10 @@ export default async function DashboardsPage() {
     </div>
   );
 }
+
+export async function generateMetadata() {
+  const t = await getTranslations('dashboardsPage');
+  return {
+    title: `Betterlytics | ${t('title')}`,
+  };
+}

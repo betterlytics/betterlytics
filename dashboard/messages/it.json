@@ -1636,6 +1636,9 @@
         "backToSignIn": "Torna all'accesso"
       }
     },
+    "page": {
+      "title": "Betterlytics | Registrazione"
+    },
     "account": {
       "features": {
         "feature1": {

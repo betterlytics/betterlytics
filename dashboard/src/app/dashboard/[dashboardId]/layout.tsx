@@ -6,7 +6,7 @@ import { DashboardProvider } from './DashboardProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
 import { TrackingScript } from './TrackingScript';
-import { fetchSiteId } from '@/app/actions';
+import { fetchSiteId, getCurrentDashboardAction } from '@/app/actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { IntegrationManager } from './IntegrationManager';
@@ -81,4 +81,13 @@ export default async function DashboardLayout({ children, params }: DashboardLay
       </DashboardProvider>
     </PublicEnvironmentVariablesProvider>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ dashboardId: string }> }) {
+  const { dashboardId } = await params;
+  const dashboard = await getCurrentDashboardAction(dashboardId);
+
+  return {
+    title: `Betterlytics | ${dashboard.domain}`,
+  };
 }
