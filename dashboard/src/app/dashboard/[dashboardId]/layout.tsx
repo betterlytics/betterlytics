@@ -85,9 +85,9 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
 export async function generateMetadata({ params }: { params: Promise<{ dashboardId: string }> }) {
   const { dashboardId } = await params;
-  const dashboard = getCurrentDashboardAction(dashboardId);
+  const dashboard = await getCurrentDashboardAction(dashboardId);
 
   return {
-    title: `Betterlytics | ${(await dashboard).domain}`,
+    title: `Betterlytics | ${dashboard.domain}`,
   };
 }
