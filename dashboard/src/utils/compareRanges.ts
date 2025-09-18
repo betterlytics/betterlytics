@@ -30,10 +30,10 @@ export function deriveCompareRange(
 ): { startDate: Date; endDate: Date } | undefined {
   if (mode === 'off') return undefined;
   if (mode === 'previous') {
-    const days = differenceInCalendarDays(mainEnd, mainStart) + 1;
-    const prevEnd = endOfDay(new Date(mainStart.getTime() - 1));
-    const prevStart = startOfDay(new Date(prevEnd.getTime() - (days - 1) * 86400000));
-    return { startDate: prevStart, endDate: prevEnd };
+    const durationMs = mainEnd.getTime() - mainStart.getTime();
+    const compareEnd = subSeconds(mainStart, 1);
+    const compareStart = subMilliseconds(mainStart, durationMs);
+    return { startDate: compareStart, endDate: compareEnd };
   }
   if (mode === 'year') {
     const start = new Date(mainStart);

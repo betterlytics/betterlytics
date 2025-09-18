@@ -9,10 +9,6 @@ import {
   endOfMonth,
   addMonths,
   subMonths,
-  startOfQuarter,
-  endOfQuarter,
-  addQuarters,
-  subQuarters,
   startOfYear,
   endOfYear,
   addYears,
@@ -125,15 +121,6 @@ export function useImmediateTimeRange() {
         new Date(targetStart.getFullYear(), targetStart.getMonth(), targetEndDay),
         ctx.endDate,
       );
-    } else if (interval === 'qtd') {
-      const quarterStart = startOfQuarter(ctx.startDate);
-      const targetStart = startOfQuarter(subQuarters(quarterStart, 1));
-      const offsetDays = differenceInCalendarDays(ctx.endDate, quarterStart);
-      const targetQuarterEnd = endOfQuarter(targetStart);
-      let candidateEnd = getDateWithTimeOfDay(addDays(targetStart, offsetDays), ctx.endDate);
-      if (candidateEnd.getTime() > targetQuarterEnd.getTime()) candidateEnd = targetQuarterEnd;
-      rawStart = targetStart;
-      rawEnd = candidateEnd;
     } else if (interval === 'ytd') {
       const yearStart = startOfYear(ctx.startDate);
       const targetStart = startOfYear(subYears(yearStart, 1));
@@ -181,15 +168,6 @@ export function useImmediateTimeRange() {
         new Date(targetStart.getFullYear(), targetStart.getMonth(), targetEndDay),
         ctx.endDate,
       );
-    } else if (interval === 'qtd') {
-      const quarterStart = startOfQuarter(ctx.startDate);
-      const targetStart = startOfQuarter(addQuarters(quarterStart, 1));
-      const offsetDays = differenceInCalendarDays(ctx.endDate, quarterStart);
-      const targetQuarterEnd = endOfQuarter(targetStart);
-      let candidateEnd = getDateWithTimeOfDay(addDays(targetStart, offsetDays), ctx.endDate);
-      if (candidateEnd.getTime() > targetQuarterEnd.getTime()) candidateEnd = targetQuarterEnd;
-      rawStart = targetStart;
-      rawEnd = candidateEnd;
     } else if (interval === 'ytd') {
       const yearStart = startOfYear(ctx.startDate);
       const targetStart = startOfYear(addYears(yearStart, 1));
