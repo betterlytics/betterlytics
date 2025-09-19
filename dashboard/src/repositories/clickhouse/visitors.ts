@@ -95,19 +95,45 @@ export async function getSessionMetrics(
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
-    WITH per_session AS (
-      SELECT
-        session_id,
-        countIf(event_type = 'pageview') as page_count,
-        min(timestamp) AS custom_date,
-        max(timestamp) AS session_end,
-        dateDiff('second', min(timestamp), max(timestamp)) AS duration_seconds
+    WITH windowed_all AS (
+      SELECT session_id, timestamp, event_type
       FROM analytics.events
       WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+        AND timestamp BETWEEN {start:DateTime} - INTERVAL 30 MINUTE AND {end:DateTime} + INTERVAL 60 MINUTE
+    ),
+    bounds AS (
+      SELECT
+        session_id,
+        minIf(timestamp, timestamp >= {start:DateTime}) AS session_start,
+        countIf(timestamp >= {start:DateTime} - INTERVAL 30 MINUTE AND timestamp < {start:DateTime}) > 0 AS has_pre_start,
+        max(timestamp) AS session_end_seen,
+        countIf(event_type = 'pageview') AS page_count_all
+      FROM windowed_all
       GROUP BY session_id
-      ORDER BY custom_date DESC
+    ),
+    windowed_filtered AS (
+      SELECT session_id, timestamp
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND ${SQL.AND(filters)}
+    ),
+    has_filtered AS (
+      SELECT session_id, 1 AS has_filtered_in_range
+      FROM windowed_filtered
+      GROUP BY session_id
+    ),
+    included AS (
+      SELECT
+        b.session_id,
+        b.session_start AS custom_date,
+        b.session_end_seen,
+        b.page_count_all AS page_count,
+        dateDiff('second', b.session_start, b.session_end_seen) AS duration_seconds
+      FROM bounds b
+      INNER JOIN has_filtered h USING session_id
+      WHERE b.session_start > toDateTime(0)
+        AND b.has_pre_start = 0
     )
     SELECT
       ${granularityFunc('custom_date', startDate)} as date,
@@ -127,7 +153,7 @@ export async function getSessionMetrics(
         number_of_page_views / sessions,
         0
       ) AS pages_per_session
-    FROM per_session
+    FROM included
     GROUP BY date
     ORDER BY date DESC
     LIMIT 10080;
@@ -156,19 +182,45 @@ export async function getSessionRangeMetrics(
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
-    WITH per_session AS (
-      SELECT
-        session_id,
-        countIf(event_type = 'pageview') as page_count,
-        min(timestamp) AS custom_date,
-        max(timestamp) AS session_end,
-        dateDiff('second', min(timestamp), max(timestamp)) AS duration_seconds
+    WITH windowed_all AS (
+      SELECT session_id, timestamp, event_type
       FROM analytics.events
       WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+        AND timestamp BETWEEN {start:DateTime} - INTERVAL 30 MINUTE AND {end:DateTime} + INTERVAL 60 MINUTE
+    ),
+    bounds AS (
+      SELECT
+        session_id,
+        minIf(timestamp, timestamp >= {start:DateTime}) AS session_start,
+        countIf(timestamp >= {start:DateTime} - INTERVAL 30 MINUTE AND timestamp < {start:DateTime}) > 0 AS has_pre_start,
+        max(timestamp) AS session_end_seen,
+        countIf(event_type = 'pageview') AS page_count_all
+      FROM windowed_all
       GROUP BY session_id
-      ORDER BY custom_date DESC
+    ),
+    windowed_filtered AS (
+      SELECT session_id, timestamp
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND ${SQL.AND(filters)}
+    ),
+    has_filtered AS (
+      SELECT session_id, 1 AS has_filtered_in_range
+      FROM windowed_filtered
+      GROUP BY session_id
+    ),
+    included AS (
+      SELECT
+        b.session_id,
+        b.session_start,
+        b.session_end_seen,
+        b.page_count_all AS page_count,
+        dateDiff('second', b.session_start, b.session_end_seen) AS duration_seconds
+      FROM bounds b
+      INNER JOIN has_filtered h USING session_id
+      WHERE b.session_start > toDateTime(0)
+        AND b.has_pre_start = 0
     )
     SELECT
       count() AS sessions,
@@ -187,7 +239,7 @@ export async function getSessionRangeMetrics(
         number_of_page_views / sessions,
         0
       ) AS pages_per_session
-    FROM per_session
+    FROM included
     LIMIT 1;
   `;
 
