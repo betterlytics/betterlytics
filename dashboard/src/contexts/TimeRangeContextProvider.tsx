@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useCallback, useMemo, useEffect } from 'react';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { TimeRangeValue } from '@/utils/timeRanges';
+import { getDateWithTimeOfDay, TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode, deriveCompareRange, isDerivedCompareMode } from '@/utils/compareRanges';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { differenceInCalendarDays, endOfDay, startOfDay } from 'date-fns';
@@ -70,8 +70,8 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
   useEffect(() => {
     if (compareMode !== 'custom' || !compareStartDate) return;
     const days = differenceInCalendarDays(endDate, startDate) + 1;
-    const start = startOfDay(compareStartDate);
-    const desiredEnd = endOfDay(new Date(start.getTime() + (days - 1) * 86400000));
+    const start = getDateWithTimeOfDay(compareStartDate, startDate);
+    const desiredEnd = getDateWithTimeOfDay(new Date(start.getTime() + (days - 1) * 86400000), endDate);
     if (!compareEndDate || compareEndDate.getTime() !== desiredEnd.getTime()) {
       setCompareStartDate(start);
       setCompareEndDate(desiredEnd);
