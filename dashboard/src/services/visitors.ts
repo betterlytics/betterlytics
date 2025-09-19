@@ -1,6 +1,11 @@
 'server-only';
 
-import { getUniqueVisitors, getSessionMetrics, getActiveUsersCount } from '@/repositories/clickhouse';
+import {
+  getUniqueVisitors,
+  getSessionMetrics,
+  getActiveUsersCount,
+  getSessionRangeMetrics,
+} from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { SummaryStatsWithChartsSchema } from '@/entities/stats';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -26,34 +31,24 @@ export async function getSummaryStatsWithChartsForSite(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
 ) {
-  const [visitorsChartData, pageviewsChartData, sessionMetricsChartData] = await Promise.all([
-    getUniqueVisitorsForSite(siteId, startDate, endDate, granularity, queryFilters),
-    getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters),
-    getSessionMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), granularity, queryFilters),
-  ]);
+  const [visitorsChartData, pageviewsChartData, sessionMetricsChartData, sessionMetricsRangeData] =
+    await Promise.all([
+      getUniqueVisitorsForSite(siteId, startDate, endDate, granularity, queryFilters),
+      getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters),
+      getSessionMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), granularity, queryFilters),
+      getSessionRangeMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters),
+    ]);
 
   const uniqueVisitors = visitorsChartData.reduce((sum: number, row) => sum + row.unique_visitors, 0);
   const pageviews = pageviewsChartData.reduce((sum: number, row) => sum + row.views, 0);
 
-  const totalSessions = sessionMetricsChartData.reduce((sum: number, row) => sum + row.sessions, 0);
+  const totalSessions = sessionMetricsRangeData.sessions;
 
-  const totalBounceRate =
-    sessionMetricsChartData.length > 0
-      ? sessionMetricsChartData.reduce((sum: number, row) => sum + row.bounce_rate, 0) /
-        sessionMetricsChartData.length
-      : 0;
+  const totalBounceRate = sessionMetricsRangeData.bounce_rate;
 
-  const totalAvgVisitDuration =
-    sessionMetricsChartData.length > 0
-      ? sessionMetricsChartData.reduce((sum: number, row) => sum + row.avg_visit_duration, 0) /
-        sessionMetricsChartData.length
-      : 0;
+  const totalAvgVisitDuration = sessionMetricsRangeData.avg_visit_duration;
 
-  const avgPagesPerSession =
-    sessionMetricsChartData.length > 0
-      ? sessionMetricsChartData.reduce((sum: number, row) => sum + row.pages_per_session, 0) /
-        sessionMetricsChartData.length
-      : 0;
+  const avgPagesPerSession = sessionMetricsRangeData.pages_per_session;
 
   const statsWithCharts = {
     uniqueVisitors,
