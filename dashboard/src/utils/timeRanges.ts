@@ -49,7 +49,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const start = startOfHour(now);
-      const end = subSeconds(endOfHour(now), 1);
+      const end = endOfHour(now);
       return { startDate: start, endDate: end };
     },
   },
@@ -59,7 +59,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const start = startOfDay(now);
-      const end = subSeconds(endOfDay(now), 1);
+      const end = endOfDay(now);
       return { startDate: start, endDate: end };
     },
   },
@@ -68,8 +68,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: 'yesterday',
     getRange: () => {
       const now = new Date();
-      const end = subSeconds(endOfDay(subDays(now, 1)), 1);
       const start = startOfDay(subDays(now, 1));
+      const end = endOfDay(subDays(now, 1));
       return { startDate: start, endDate: end };
     },
   },
@@ -96,8 +96,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '7d',
     getRange: () => {
       const now = new Date();
-      const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subDays(now, 6));
+      const end = now;
+      const start = subDays(now, 7);
       return { startDate: start, endDate: end };
     },
   },
@@ -106,8 +106,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '28d',
     getRange: () => {
       const now = new Date();
-      const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subDays(now, 27));
+      const end = now;
+      const start = subDays(now, 28);
       return { startDate: start, endDate: end };
     },
   },
@@ -116,8 +116,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '90d',
     getRange: () => {
       const now = new Date();
-      const end = subSeconds(endOfDay(now), 1);
-      const start = startOfDay(subDays(now, 89));
+      const end = now;
+      const start = subDays(now, 90);
       return { startDate: start, endDate: end };
     },
   },
@@ -128,7 +128,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const start = startOfMonth(now);
-      const end = subSeconds(endOfDay(now), 1);
+      const end = now;
       return { startDate: start, endDate: end };
     },
   },
@@ -138,7 +138,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const lastMonthEnd = endOfMonth(subMonths(now, 1));
-      const end = subSeconds(lastMonthEnd, 1);
+      const end = lastMonthEnd;
       const start = startOfMonth(subMonths(now, 1));
       return { startDate: start, endDate: end };
     },
@@ -149,7 +149,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const start = startOfYear(now);
-      const end = subSeconds(endOfDay(now), 1);
+      const end = endOfDay(now);
       return { startDate: start, endDate: end };
     },
   },
@@ -158,7 +158,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '1y',
     getRange: () => {
       const now = new Date();
-      const end = subSeconds(endOfDay(now), 1);
+      const end = endOfDay(now);
       const start = startOfDay(subMonths(now, 12));
       return { startDate: start, endDate: end };
     },
@@ -179,18 +179,22 @@ export function getDateWithTimeOfDay(date: Date, timeOfDayDate: Date) {
 }
 
 export function getStartDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
-  if (granularity === 'day') return startOfDay(date);
-  if (granularity === 'hour') return startOfHour(date);
+  const alignedDate = roundToNearestMinutes(date);
+
+  if (granularity === 'day') return startOfDay(alignedDate);
+  if (granularity === 'hour') return startOfHour(alignedDate);
   const nearestTo = getMinuteStep(granularity);
-  return roundToNearestMinutes(date, { nearestTo, roundingMethod: 'floor' });
+  return roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'floor' });
 }
 
 export function getEndDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
-  if (granularity === 'day') return endOfDay(date);
-  if (granularity === 'hour') return endOfHour(date);
+  const alignedDate = roundToNearestMinutes(date);
+
+  if (granularity === 'day') return subDays(endOfDay(alignedDate), 1);
+  if (granularity === 'hour') return subHours(endOfHour(alignedDate), 1);
 
   const nearestTo = getMinuteStep(granularity);
-  return subSeconds(roundToNearestMinutes(date, { nearestTo, roundingMethod: 'ceil' }), 1);
+  return subSeconds(roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'floor' }), 1);
 }
 
 export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>): {
