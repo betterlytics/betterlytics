@@ -1517,8 +1517,6 @@
         }
       },
       "usage": {
-        "title": "Utilizzo e piano",
-        "description": "Monitora l'utilizzo corrente e gestisci il tuo piano di abbonamento.",
         "cta": {
           "needMore": "Hai bisogno di più eventi?",
           "upgradeHint": "Aggiorna il tuo piano per ottenere più eventi e sbloccare funzionalità aggiuntive.",
