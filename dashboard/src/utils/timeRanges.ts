@@ -128,7 +128,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const start = startOfMonth(now);
-      const end = now;
+      const end = endOfDay(now);
       return { startDate: start, endDate: end };
     },
   },
