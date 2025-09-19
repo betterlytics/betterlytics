@@ -86,7 +86,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
       <DialogTrigger asChild>
         <Button
           variant={triggerVariant || 'secondary'}
-          className='border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
+          className='border-input dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer justify-between border shadow-xs transition-[color,box-shadow]'
         >
           <Plus className='size-5' />
           {triggerText || t('createFunnel')}
