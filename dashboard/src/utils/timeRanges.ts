@@ -96,8 +96,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '7d',
     getRange: () => {
       const now = new Date();
-      const end = endOfDay(now);
-      const start = subDays(now, 6);
+      const end = now;
+      const start = subDays(now, 7);
       return { startDate: start, endDate: end };
     },
   },
@@ -106,8 +106,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '28d',
     getRange: () => {
       const now = new Date();
-      const end = endOfDay(now);
-      const start = subDays(now, 27);
+      const end = now;
+      const start = subDays(now, 28);
       return { startDate: start, endDate: end };
     },
   },
@@ -116,8 +116,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '90d',
     getRange: () => {
       const now = new Date();
-      const end = endOfDay(now);
-      const start = subDays(now, 89);
+      const end = now;
+      const start = subDays(now, 90);
       return { startDate: start, endDate: end };
     },
   },
@@ -128,7 +128,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const start = startOfMonth(now);
-      const end = endOfDay(now);
+      const end = now;
       return { startDate: start, endDate: end };
     },
   },
@@ -149,7 +149,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     getRange: () => {
       const now = new Date();
       const start = startOfYear(now);
-      const end = endOfDay(now);
+      const end = now;
       return { startDate: start, endDate: end };
     },
   },
@@ -158,7 +158,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     value: '1y',
     getRange: () => {
       const now = new Date();
-      const end = endOfDay(now);
+      const end = now;
       const start = startOfDay(subMonths(now, 12));
       return { startDate: start, endDate: end };
     },
