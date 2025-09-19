@@ -156,13 +156,6 @@
   // Track initial page view
   trackEvent("pageview");
 
-  // Track page visibility changes
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") {
-      trackEvent("pageview");
-    }
-  });
-
   // Track SPA navigation
   if (window.history.pushState) {
     // Override pushState to track navigation
