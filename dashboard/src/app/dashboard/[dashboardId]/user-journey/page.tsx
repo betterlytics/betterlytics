@@ -10,10 +10,11 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { UserJourneyFilters } from './UserJourneyFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type UserJourneyPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function UserJourneyPage({ params, searchParams }: UserJourneyPageParams) {
@@ -24,15 +25,14 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, userJourney, queryFilters } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, userJourney, queryFilters } = BAFilterSearchParams.decode(await searchParams);
 
   const userJourneyPromise = fetchUserJourneyAction(
     dashboardId,
     startDate,
     endDate,
-    userJourney.numberOfSteps,
-    userJourney.numberOfJourneys,
+    userJourney?.numberOfSteps,
+    userJourney?.numberOfJourneys,
     queryFilters,
   );
 

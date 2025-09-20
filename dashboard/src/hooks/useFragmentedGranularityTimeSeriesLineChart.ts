@@ -66,8 +66,9 @@ export function useFragmentedGranularityTimeSeriesLineChart<K extends string>({
     return {
       day: timeFormat('%B %d, %Y'),
       hour: timeFormat('%H:%M, %B %d, %Y'),
-      minute_15: timeFormat('%H:%M, %B %d, %Y'),
       minute_30: timeFormat('%H:%M, %B %d, %Y'),
+      minute_15: timeFormat('%H:%M, %B %d, %Y'),
+      minute_1: timeFormat('%H:%M, %B %d, %Y'),
     }[granularity];
   }, [granularity]);
 

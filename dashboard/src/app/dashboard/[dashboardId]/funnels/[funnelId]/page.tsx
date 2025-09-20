@@ -12,10 +12,11 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type FunnelPageProps = {
   params: Promise<{ dashboardId: string; funnelId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function FunnelPage({ params, searchParams }: FunnelPageProps) {
@@ -25,7 +26,7 @@ export default async function FunnelPage({ params, searchParams }: FunnelPagePro
     redirect('/');
   }
 
-  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams);
 
   const { dashboardId, funnelId } = await params;
   const funnelPromise = fetchFunnelDetailsAction(dashboardId, funnelId, startDate, endDate);

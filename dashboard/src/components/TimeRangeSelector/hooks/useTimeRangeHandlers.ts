@@ -3,12 +3,12 @@
 import { useCallback, useEffect } from 'react';
 import {
   TimeRangeValue,
-  getCompareRangeForTimePresets,
   getDateRangeForTimePresets,
   getDateWithTimeOfDay,
   getEndDateWithGranularity,
   getStartDateWithGranularity,
 } from '@/utils/timeRanges';
+import { getCompareRangeForTimePresets } from '@/utils/compareRanges';
 import {
   GranularityRangeValues,
   getAllowedGranularities,

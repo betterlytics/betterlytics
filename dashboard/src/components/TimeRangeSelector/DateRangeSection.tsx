@@ -8,24 +8,27 @@ interface DateRangeSectionProps {
   startDate: Date | undefined;
   endDate: Date | undefined;
   onDateRangeSelect: (from: Date | undefined, to: Date | undefined) => void;
+  showSameLengthHint?: boolean;
 }
 
-export function DateRangeSection({ startDate, endDate, onDateRangeSelect }: DateRangeSectionProps) {
-  const t = useTranslations('components.timeRange');
+export function DateRangeSection({
+  startDate,
+  endDate,
+  onDateRangeSelect,
+  showSameLengthHint = false,
+}: DateRangeSectionProps) {
   return (
-    <div>
-      <h3 className='mb-2 text-sm font-medium'>{t('currentPeriod')}</h3>
-      <div className='grid gap-4'>
-        <DateRangePicker
-          onDateRangeSelect={(range) => {
-            onDateRangeSelect(range?.from, range?.to);
-          }}
-          range={{
-            from: startDate,
-            to: endDate,
-          }}
-        />
-      </div>
+    <div className='m-0 grid gap-4'>
+      <DateRangePicker
+        onDateRangeSelect={(range) => {
+          onDateRangeSelect(range?.from, range?.to);
+        }}
+        range={{
+          from: startDate,
+          to: endDate,
+        }}
+        showSameLengthHint={showSameLengthHint}
+      />
     </div>
   );
 }

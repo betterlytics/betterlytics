@@ -76,34 +76,46 @@ export default function OverviewChartSection({
     [t],
   );
 
-  const { chartData, comparisonMap } = useMemo(() => {
+  const { chartData, comparisonMap, incomplete } = useMemo(() => {
     switch (activeMetric) {
       case 'visitors':
-        return { chartData: visitorsData.data, comparisonMap: visitorsData.comparisonMap };
+        return {
+          chartData: visitorsData.data,
+          comparisonMap: visitorsData.comparisonMap,
+          incomplete: visitorsData.incomplete,
+        };
       case 'sessions':
         return {
           chartData: sessionMetricsData.sessions.data,
           comparisonMap: sessionMetricsData.sessions.comparisonMap,
+          incomplete: sessionMetricsData.sessions.incomplete,
         };
       case 'pageviews':
-        return { chartData: pageviewsData.data, comparisonMap: pageviewsData.comparisonMap };
+        return {
+          chartData: pageviewsData.data,
+          comparisonMap: pageviewsData.comparisonMap,
+          incomplete: pageviewsData.incomplete,
+        };
       case 'pagesPerSession':
         return {
           chartData: sessionMetricsData.pagesPerSession.data,
           comparisonMap: sessionMetricsData.pagesPerSession.comparisonMap,
+          incomplete: sessionMetricsData.pagesPerSession.incomplete,
         };
       case 'bounceRate':
         return {
           chartData: sessionMetricsData.bounceRate.data,
           comparisonMap: sessionMetricsData.bounceRate.comparisonMap,
+          incomplete: sessionMetricsData.bounceRate.incomplete,
         };
       case 'avgDuration':
         return {
           chartData: sessionMetricsData.avgVisitDuration.data,
           comparisonMap: sessionMetricsData.avgVisitDuration.comparisonMap,
+          incomplete: sessionMetricsData.avgVisitDuration.incomplete,
         };
       default:
-        return { chartData: [], comparisonMap: undefined };
+        return { chartData: [], comparisonMap: undefined, incomplete: undefined };
     }
   }, [activeMetric, visitorsData, pageviewsData, sessionMetricsData]);
 
@@ -113,6 +125,7 @@ export default function OverviewChartSection({
   return (
     <InteractiveChart
       data={chartData}
+      incomplete={incomplete}
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
       granularity={granularity}
