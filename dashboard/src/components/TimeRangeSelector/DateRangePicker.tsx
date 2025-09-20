@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTranslations } from 'next-intl';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
@@ -22,6 +23,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
   const [isOpen, setIsOpen] = useState(false);
 
   const isMobile = useIsMobile();
+  const t = useTranslations('components.timeRange');
 
   const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
 
@@ -65,7 +67,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
               !range && 'text-muted-foreground',
             )}
           >
-            <span>Custom period</span>
+            <span>{t('customPeriod')}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
@@ -87,7 +89,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
             }}
           />
           {showSameLengthHint && (
-            <p className='text-muted-foreground pb-2 text-center text-xs'>Same length as main range</p>
+            <p className='text-muted-foreground pb-2 text-center text-xs'>{t('sameLengthAsMain')}</p>
           )}
         </PopoverContent>
       </Popover>

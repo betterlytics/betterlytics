@@ -8,11 +8,13 @@ import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
 import { useIsTablet } from '@/hooks/use-is-tablet';
+import { useTranslations } from 'next-intl';
 
 export function TimeRangeToolbar({ showComparison = true }: { showComparison?: boolean }) {
   const actions = useImmediateTimeRange();
   const ctx = useTimeRangeContext();
   const isSmallScreen = useIsTablet();
+  const t = useTranslations('components.timeRange');
 
   return (
     <div className='flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center'>
@@ -34,24 +36,24 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
           <div className='order-2 grid grid-cols-2 gap-2'>
             <Button
               variant='secondary'
-              aria-label='Previous period'
-              title='Previous period'
+              aria-label={t('previousPeriod')}
+              title={t('previousPeriod')}
               className='border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent h-8 w-full cursor-pointer items-center justify-center gap-2 border bg-transparent shadow-xs transition-[color,box-shadow]'
               onClick={actions.shiftPreviousPeriod}
               disabled={ctx.interval === 'realtime'}
             >
               <ChevronLeftIcon className='h-4 w-4' />
-              <span className='text-sm'>Previous period</span>
+              <span className='text-sm'>{t('previousPeriod')}</span>
             </Button>
             <Button
               variant='secondary'
-              aria-label='Next period'
-              title='Next period'
+              aria-label={t('nextPeriod')}
+              title={t('nextPeriod')}
               className='border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent h-8 w-full cursor-pointer items-center justify-center gap-2 border bg-transparent shadow-xs transition-[color,box-shadow]'
               onClick={actions.shiftNextPeriod}
               disabled={ctx.interval === 'realtime' || !actions.canShiftNextPeriod()}
             >
-              <span className='text-sm'>Next period</span>
+              <span className='text-sm'>{t('nextPeriod')}</span>
               <ChevronRightIcon className='h-4 w-4' />
             </Button>
           </div>
@@ -62,8 +64,8 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
             <Button
               variant='ghost'
               size='icon'
-              aria-label='Previous period'
-              title='Previous period'
+              aria-label={t('previousPeriod')}
+              title={t('previousPeriod')}
               className='h-8 w-7 cursor-pointer p-0'
               onClick={actions.shiftPreviousPeriod}
               disabled={ctx.interval === 'realtime'}
@@ -73,8 +75,8 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
             <Button
               variant='ghost'
               size='icon'
-              aria-label='Next period'
-              title='Next period'
+              aria-label={t('nextPeriod')}
+              title={t('nextPeriod')}
               className='h-8 w-7 cursor-pointer p-0'
               onClick={actions.shiftNextPeriod}
               disabled={ctx.interval === 'realtime' || !actions.canShiftNextPeriod()}

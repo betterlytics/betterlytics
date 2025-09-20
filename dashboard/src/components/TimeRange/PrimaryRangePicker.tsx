@@ -28,14 +28,18 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
 
   const label = useMemo(
-    () => () =>
-      formatPrimaryRangeLabel({
+    () => () => {
+      if (ctx.interval !== 'custom' && ctx.offset === 0) {
+        return t(`presets.${ctx.interval}`);
+      }
+      return formatPrimaryRangeLabel({
         interval: ctx.interval,
         offset: ctx.offset,
         startDate: ctx.startDate,
         endDate: ctx.endDate,
-      }),
-    [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate],
+      });
+    },
+    [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate, t],
   );
 
   const titleText = `${ctx.startDate.toLocaleString()} - ${ctx.endDate.toLocaleString()}`;

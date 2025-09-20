@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarIcon, ChevronDownIcon, ScaleIcon } from 'lucide-react';
+import { ChevronDownIcon, ScaleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -22,9 +21,9 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
   const actions = useImmediateTimeRange();
 
   const label = () => {
-    if (ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate) return 'Disabled';
+    if (ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate) return t('disabled');
     if (isDerivedCompareMode(ctx.compareMode)) {
-      return ctx.compareMode === 'previous' ? 'Previous period' : 'Previous year';
+      return ctx.compareMode === 'previous' ? t('previousPeriod') : t('previousYear');
     }
     const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
     return `${ctx.compareStartDate.toLocaleDateString(undefined, opts)} - ${ctx.compareEndDate.toLocaleDateString(
@@ -35,7 +34,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
   const titleText =
     ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate
-      ? 'Disabled'
+      ? t('disabled')
       : `${ctx.compareStartDate.toLocaleString()} - ${ctx.compareEndDate.toLocaleString()}`;
 
   const content = (
@@ -50,7 +49,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
             setOpen(false);
           }}
         >
-          Disable compare
+          {t('disableCompare')}
         </Button>
         <Button
           variant={ctx.compareMode === 'previous' ? 'default' : 'ghost'}
@@ -60,7 +59,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
           }}
           className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
         >
-          Previous period
+          {t('previousPeriod')}
         </Button>
         <Button
           variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
@@ -70,7 +69,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
           }}
           className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
         >
-          Previous year
+          {t('previousYear')}
         </Button>
         <DateRangeSection
           startDate={ctx.compareStartDate}
