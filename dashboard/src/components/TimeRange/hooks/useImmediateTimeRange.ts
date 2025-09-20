@@ -42,7 +42,12 @@ export function useImmediateTimeRange() {
       ctx.setPeriod(alignedStart, alignedEnd);
       ctx.setOffset(0);
       if (ctx.interval !== preset) ctx.setInterval(preset);
-      if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
+
+      if (preset === 'realtime' || preset === '1h') {
+        ctx.setGranularity('minute_1');
+      } else {
+        if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
+      }
     },
     [ctx],
   );

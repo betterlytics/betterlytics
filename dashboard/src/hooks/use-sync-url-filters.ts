@@ -14,6 +14,7 @@ const URL_SEARCH_PARAMS = [
   'compareStartDate',
   'compareEndDate',
   'interval',
+  'offset',
   'compare',
   'userJourney',
 ] as const;
@@ -60,7 +61,7 @@ export function useSyncURLFilters() {
       if (filters.interval) {
         setInterval(filters.interval);
       }
-      if (filters.offset) {
+      if (filters.offset !== undefined) {
         setOffset(filters.offset);
       }
       if (filters.queryFilters) {

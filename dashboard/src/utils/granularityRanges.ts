@@ -1,4 +1,4 @@
-export const GRANULARITY_RANGE_VALUES = ['minute_15', 'minute_30', 'hour', 'day'] as const;
+export const GRANULARITY_RANGE_VALUES = ['minute_1', 'minute_15', 'minute_30', 'hour', 'day'] as const;
 
 export type GranularityRangeValues = (typeof GRANULARITY_RANGE_VALUES)[number];
 
@@ -35,7 +35,7 @@ export function getAllowedGranularities(startDate: Date, endDate: Date): Granula
   const twoHoursMs = 2 * 60 * 60 * 1000;
 
   if (durationMs >= oneWeekMs) return ['day'];
-  if (durationMs <= twoHoursMs) return ['minute_15', 'minute_30'];
+  if (durationMs <= twoHoursMs) return ['minute_1'];
   if (durationMs <= twelveHoursMs) return ['hour', 'minute_30', 'minute_15'];
   if (durationMs <= twoDaysMs) return ['hour', 'minute_30', 'minute_15'];
   return ['day', 'hour'];
@@ -50,6 +50,7 @@ export function getValidGranularityFallback(
   }
 
   const fallbackOrder: Record<GranularityRangeValues, GranularityRangeValues[]> = {
+    minute_1: ['minute_1', 'minute_15'],
     minute_15: ['minute_15', 'minute_30', 'hour', 'day'],
     minute_30: ['minute_30', 'hour', 'day'],
     hour: ['hour', 'minute_30', 'minute_15', 'day'],
@@ -57,11 +58,13 @@ export function getValidGranularityFallback(
   };
 
   const found = fallbackOrder[currentGranularity].find((g) => allowedGranularities.includes(g));
-  return found ?? 'day';
+  return found ?? allowedGranularities[0] ?? 'day';
 }
 
-export function getMinuteStep(granularity: GranularityRangeValues): 15 | 30 {
+export function getMinuteStep(granularity: GranularityRangeValues): 1 | 15 | 30 {
   switch (granularity) {
+    case 'minute_1':
+      return 1;
     case 'minute_15':
       return 15;
     case 'minute_30':

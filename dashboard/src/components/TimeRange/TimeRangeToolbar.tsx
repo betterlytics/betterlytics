@@ -21,6 +21,7 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
           title='Previous period'
           className='h-8 w-7 cursor-pointer p-0'
           onClick={actions.shiftPreviousPeriod}
+          disabled={ctx.interval === 'realtime'}
         >
           <ChevronLeftIcon className='h-4 w-4' />
         </Button>
@@ -31,6 +32,7 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
           title='Next period'
           className='h-8 w-7 cursor-pointer p-0'
           onClick={actions.shiftNextPeriod}
+          disabled={ctx.interval === 'realtime'}
         >
           <ChevronRightIcon className='h-4 w-4' />
         </Button>

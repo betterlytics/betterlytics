@@ -978,7 +978,8 @@
         "day": "Day",
         "hour": "Hour",
         "minute_30": "30 min",
-        "minute_15": "15 min"
+        "minute_15": "15 min",
+        "minute_1": "1 min"
       },
       "apply": "Apply"
     },

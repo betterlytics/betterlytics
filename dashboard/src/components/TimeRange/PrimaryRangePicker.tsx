@@ -63,6 +63,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         selectedGranularity={ctx.granularity}
         allowedGranularities={allowed}
         onGranularitySelect={actions.setGranularity}
+        disabled={ctx.interval === 'realtime' || ctx.interval === '1h'}
       />
     </div>
   );

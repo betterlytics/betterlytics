@@ -145,6 +145,10 @@ function decode(params: FilterQuerySearchParams) {
     filters.compareEndDate = undefined;
   }
 
+  if (filters.interval === 'realtime') {
+    filters.endDate = new Date();
+  }
+
   return FilterQueryParamsSchema.parse(filters);
 }
 

@@ -11,6 +11,7 @@ import {
   endOfMonth,
   subHours,
   startOfYear,
+  subMinutes,
 } from 'date-fns';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 
@@ -44,11 +45,11 @@ export interface TimeRangePreset {
 export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
   // Short ranges
   {
-    label: 'Real-time',
+    label: 'Realtime',
     value: 'realtime',
     getRange: () => {
       const end = new Date();
-      const start = subHours(end, 1);
+      const start = subMinutes(end, 30);
       return { startDate: start, endDate: end };
     },
   },

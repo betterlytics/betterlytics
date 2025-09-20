@@ -10,12 +10,14 @@ interface GranularitySectionProps {
   selectedGranularity: GranularityRangeValues;
   allowedGranularities: GranularityRangeValues[];
   onGranularitySelect: (granularity: GranularityRangeValues) => void;
+  disabled?: boolean;
 }
 
 export function GranularitySection({
   selectedGranularity,
   allowedGranularities,
   onGranularitySelect,
+  disabled,
 }: GranularitySectionProps) {
   const t = useTranslations('components.timeRange');
   const ordered = GRANULARITY_RANGE_PRESETS.slice().reverse();
@@ -24,7 +26,7 @@ export function GranularitySection({
     <div className='mt-2 w-full'>
       <div className='bg-secondary dark:inset-shadow-background grid w-full grid-cols-4 items-center gap-0.5 rounded-sm border p-0.5 shadow-sm dark:inset-shadow-xs'>
         {ordered.map((gran) => {
-          const isActive = selectedGranularity === gran.value;
+          const isActive = selectedGranularity === gran.value && !disabled;
           const isAllowed = allowedGranularities.includes(gran.value);
           return (
             <Button
@@ -38,7 +40,7 @@ export function GranularitySection({
                 !isActive && 'text-muted-foreground hover:bg-accent',
                 isActive && 'bg-input text-foreground border-border hover:bg-input hover:dark:bg-input shadow-sm',
               )}
-              disabled={!isAllowed}
+              disabled={!isAllowed || disabled}
               aria-pressed={isActive}
               onClick={() => isAllowed && onGranularitySelect(gran.value)}
             >
