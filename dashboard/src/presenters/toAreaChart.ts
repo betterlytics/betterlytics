@@ -125,9 +125,14 @@ export function toAreaChart<K extends string>({
   const comparisonMap = createComparisonMap(chartData, compareChart, dataKey);
 
   const dataSeries = shouldSplitForIncomplete ? maskPrimaryAfterIndex(chartData, firstIncompleteIndex) : chartData;
+
   const incomplete = currentIncomplete
-    ? chartData.slice(firstIncompleteIndex > 0 ? firstIncompleteIndex - 1 : 0)
+    ? currentIncomplete.map((point, i) => ({
+        date: point.date,
+        value: [...point.value, ...compareChart[firstIncompleteIndex - 1 + i].value],
+      }))
     : undefined;
+
   return {
     data: dataSeries,
     comparisonMap,
