@@ -34,6 +34,9 @@
   // Track current path for SPA navigation
   var currentPath = window.location.pathname;
 
+  // Track max scroll depth during the page view
+  var maxCapturedScroll = 0;
+
   function normalize(url) {
     var urlObj = new URL(url);
     var pathname = urlObj.pathname;
@@ -161,6 +164,9 @@
     // Override pushState to track navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
+      // Send scroll depth event before changing
+      sendScrollDepthEvent();
+
       originalPushState.apply(this, arguments);
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
@@ -207,4 +213,39 @@
       }
     });
   }
+
+  // Update max captured scroll
+  window.addEventListener("scroll", () => {
+    maxCapturedScroll = Math.max(
+      window.scrollY || document.documentElement.scrollTop,
+      maxCapturedScroll
+    );
+  });
+
+  function calcScrollDepth() {
+    const scrollTopNow = window.scrollY || document.documentElement.scrollTop;
+
+    const scrollTop = Math.max(maxCapturedScroll, scrollTopNow);
+
+    const windowHeight = window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
+
+    if (docHeight === 0) {
+      return 100;
+    }
+
+    return 100 * (scrollTop / (docHeight - windowHeight));
+  }
+
+  function sendScrollDepthEvent() {
+    const scrollDepth = calcScrollDepth();
+    trackEvent("scroll_depth", { scroll_depth: scrollDepth });
+    // Reset tracked scroll depth
+    maxCapturedScroll = 0;
+  }
+
+  // Track scroll depth on page-hide
+  window.addEventListener("pagehide", () => {
+    sendScrollDepthEvent();
+  });
 })();
