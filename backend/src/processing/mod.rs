@@ -193,10 +193,7 @@ impl EventProcessor {
     /// Handle different event types
     async fn handle_event_types(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let event_name = processed.event.raw.event_name.clone();
-        if event_name == "scroll_depth" {
-            processed.event_type = "scroll_depth".to_string();
-            processed.scroll_depth = processed.event.raw.scroll_depth;
-        } else if processed.event.raw.is_custom_event {
+         if processed.event.raw.is_custom_event {
             processed.event_type = "custom".to_string();
             processed.custom_event_name = event_name;
             processed.custom_event_json = processed.event.raw.properties.clone();
@@ -216,6 +213,9 @@ impl EventProcessor {
             processed.cwv_inp = processed.event.raw.cwv_inp;
             processed.cwv_fcp = processed.event.raw.cwv_fcp;
             processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
+        } else if event_name == "scroll_depth" {
+            processed.event_type = "scroll_depth".to_string();
+            processed.scroll_depth = processed.event.raw.scroll_depth;
         } else {
             processed.event_type = event_name;
         }
