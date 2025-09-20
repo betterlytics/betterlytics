@@ -32,6 +32,7 @@ function getDefaultFilters(): FilterQueryParams {
     },
     compareStartDate: compareStart,
     compareEndDate: compareEnd,
+    offset: 0,
   };
 }
 
@@ -84,6 +85,8 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
       return value as FilterQueryParams['granularity'];
     case 'interval':
       return value as FilterQueryParams['interval'];
+    case 'offset':
+      return (value as number).toString();
     case 'compare':
       return value as FilterQueryParams['compare'];
   }
@@ -114,6 +117,8 @@ function decodeValue<Key extends keyof FilterQueryParams>(
       return value as FilterQueryParams['granularity'];
     case 'interval':
       return value as FilterQueryParams['interval'];
+    case 'offset':
+      return Number(value);
     case 'compare':
       return value as FilterQueryParams['compare'];
   }

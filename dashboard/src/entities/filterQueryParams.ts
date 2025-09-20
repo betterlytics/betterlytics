@@ -13,6 +13,7 @@ export const FilterQueryParamsSchema = z.object({
   compareStartDate: z.date().optional(),
   compareEndDate: z.date().optional(),
   interval: z.enum(TIME_RANGE_VALUES),
+  offset: z.number().int().optional(),
   compare: z.enum(COMPARE_URL_MODES),
   userJourney: z.object({
     numberOfSteps: z.number(),

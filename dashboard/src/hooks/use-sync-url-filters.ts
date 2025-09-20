@@ -34,6 +34,8 @@ export function useSyncURLFilters() {
     setCompareDateRange,
     interval,
     setInterval,
+    offset,
+    setOffset,
     compareMode,
     setCompareMode,
   } = useTimeRangeContext();
@@ -57,6 +59,9 @@ export function useSyncURLFilters() {
       }
       if (filters.interval) {
         setInterval(filters.interval);
+      }
+      if (filters.offset) {
+        setOffset(filters.offset);
       }
       if (filters.queryFilters) {
         setQueryFilters(filters.queryFilters);
@@ -96,6 +101,7 @@ export function useSyncURLFilters() {
         endDate,
         granularity,
         interval,
+        offset,
         compare: compareMode,
         userJourney: {
           numberOfSteps,
@@ -123,6 +129,7 @@ export function useSyncURLFilters() {
     compareEndDate,
     granularity,
     interval,
+    offset,
     compareMode,
     numberOfSteps,
     numberOfJourneys,

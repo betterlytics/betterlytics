@@ -16,6 +16,8 @@ type TimeRangeContextProps = {
   setGranularity: Dispatch<SetStateAction<GranularityRangeValues>>;
   interval: TimeRangeValue;
   setInterval: Dispatch<SetStateAction<TimeRangeValue>>;
+  offset: number;
+  setOffset: Dispatch<SetStateAction<number>>;
   compareMode: CompareMode;
   setCompareMode: Dispatch<SetStateAction<CompareMode>>;
   compareStartDate?: Date;
@@ -39,6 +41,7 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
 
   const [granularity, setGranularity] = React.useState<GranularityRangeValues>(defaultFilters.granularity);
   const [interval, setInterval] = React.useState<TimeRangeValue>(defaultFilters.interval);
+  const [offset, setOffset] = React.useState<number>(0);
   const [compareMode, setCompareMode] = React.useState<CompareMode>(defaultFilters.compare);
   const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(
     defaultFilters.compareStartDate,
@@ -105,6 +108,8 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         setGranularity,
         interval,
         setInterval,
+        offset,
+        setOffset,
         compareMode,
         setCompareMode,
         compareStartDate,

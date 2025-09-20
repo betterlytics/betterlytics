@@ -40,6 +40,7 @@ export function useImmediateTimeRange() {
       const alignedStart = getStartDateWithGranularity(startDate, nextGranularity);
       const alignedEnd = getEndDateWithGranularity(endDate, nextGranularity);
       ctx.setPeriod(alignedStart, alignedEnd);
+      ctx.setOffset(0);
       if (ctx.interval !== preset) ctx.setInterval(preset);
       if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
     },
@@ -57,6 +58,7 @@ export function useImmediateTimeRange() {
       const alignedEnd = getEndDateWithGranularity(endDate, nextGranularity);
       ctx.setPeriod(alignedStart, alignedEnd);
       ctx.setInterval('custom');
+      ctx.setOffset(0);
       if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
     },
     [ctx],
@@ -141,6 +143,11 @@ export function useImmediateTimeRange() {
       rawStart = new Date(ctx.startDate.getTime() - delta);
       rawEnd = new Date(ctx.endDate.getTime() - delta);
     }
+
+    if (interval !== 'custom') {
+      ctx.setOffset((offset) => offset - 1);
+    }
+
     const allowed = getAllowedGranularities(rawStart, rawEnd);
     const nextGranularity = getValidGranularityFallback(ctx.granularity, allowed);
     const alignedStart = getStartDateWithGranularity(rawStart, nextGranularity);
@@ -188,6 +195,11 @@ export function useImmediateTimeRange() {
       rawStart = new Date(ctx.startDate.getTime() + delta);
       rawEnd = new Date(ctx.endDate.getTime() + delta);
     }
+
+    if (interval !== 'custom') {
+      ctx.setOffset((offset) => offset + 1);
+    }
+
     const allowed = getAllowedGranularities(rawStart, rawEnd);
     const nextGranularity = getValidGranularityFallback(ctx.granularity, allowed);
     const alignedStart = getStartDateWithGranularity(rawStart, nextGranularity);

@@ -32,7 +32,13 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
       return `${ctx.startDate.toLocaleDateString(undefined, opts)} - ${ctx.endDate.toLocaleDateString(undefined, opts)}`;
     }
     const preset = TIME_RANGE_PRESETS.find((p) => p.value === ctx.interval);
-    return preset?.label ?? ctx.interval;
+    const presentedLabelInterval = preset?.label ?? ctx.interval;
+
+    if (ctx.offset === 0) {
+      return presentedLabelInterval;
+    }
+    const sign = ctx.offset > 0 ? '+' : '-';
+    return `${presentedLabelInterval} ${sign} ${Math.abs(ctx.offset)}`;
   };
 
   const titleText = `${ctx.startDate.toLocaleString()} - ${ctx.endDate.toLocaleString()}`;
