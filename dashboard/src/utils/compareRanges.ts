@@ -1,5 +1,5 @@
 import { getDateRangeForTimePresets, TimeRangeValue } from '@/utils/timeRanges';
-import { differenceInCalendarDays, endOfDay, startOfDay, subMilliseconds, subSeconds } from 'date-fns';
+import { subMilliseconds, subSeconds, subYears } from 'date-fns';
 
 export const COMPARE_URL_MODES = ['previous', 'year', 'off', 'custom'] as const;
 export type CompareMode = (typeof COMPARE_URL_MODES)[number];
@@ -36,11 +36,9 @@ export function deriveCompareRange(
     return { startDate: compareStart, endDate: compareEnd };
   }
   if (mode === 'year') {
-    const start = new Date(mainStart);
-    start.setFullYear(start.getFullYear() - 1);
-    const end = new Date(start);
-    end.setDate(start.getDate() + differenceInCalendarDays(mainEnd, mainStart));
-    return { startDate: startOfDay(start), endDate: endOfDay(end) };
+    const start = subYears(mainStart, 1);
+    const end = subYears(mainEnd, 1);
+    return { startDate: start, endDate: end };
   }
   if (mode === 'custom' && custom?.startDate && custom?.endDate) {
     return { startDate: custom.startDate, endDate: custom.endDate };
