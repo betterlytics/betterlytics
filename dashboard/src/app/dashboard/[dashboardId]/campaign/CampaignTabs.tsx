@@ -5,7 +5,7 @@ import CampaignOverviewSection from './CampaignOverviewSection';
 import CampaignUTMSection from './CampaignUTMSection';
 import CampaignLandingPagesSection from './CampaignLandingPagesSection';
 import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   fetchCampaignPerformanceAction,
   fetchCampaignVisitorTrendAction,
@@ -15,6 +15,7 @@ import {
   fetchCampaignTermBreakdownAction,
   fetchCampaignLandingPagePerformanceAction,
 } from '@/app/actions';
+import { useTranslations } from 'next-intl';
 
 type TabValue = 'overview' | 'utmBreakdowns' | 'landingPages';
 
@@ -38,37 +39,40 @@ export default function CampaignTabs({
   landingPagePerformancePromise,
 }: CampaignTabsProps) {
   const [activeTab, setActiveTab] = useState<TabValue>('overview');
-  const { dictionary } = useDictionary();
-
-  const renderTabButton = (tabValue: TabValue, label: string) => (
-    <button
-      key={tabValue}
-      onClick={() => setActiveTab(tabValue)}
-      className={`rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none ${
-        activeTab === tabValue
-          ? 'bg-primary text-primary-foreground'
-          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-      }`}
-    >
-      {label}
-    </button>
-  );
+  const t = useTranslations('components.campaign.tabs');
 
   return (
     <div>
-      <div className='border-border border-b'>
-        <nav className='-mb-px flex space-x-4' aria-label='Tabs'>
-          {renderTabButton('overview', dictionary.t('components.campaign.tabs.overview'))}
-          {renderTabButton('utmBreakdowns', dictionary.t('components.campaign.tabs.utmBreakdowns'))}
-          {renderTabButton('landingPages', dictionary.t('components.campaign.tabs.landingPages'))}
-        </nav>
+      <div className='border-border border-b pb-3'>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className='h-8'>
+          <TabsList className='bg-secondary dark:inset-shadow-background grid w-full grid-cols-3 gap-1 px-1 inset-shadow-sm'>
+            <TabsTrigger
+              value='overview'
+              className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+            >
+              {t('overview')}
+            </TabsTrigger>
+            <TabsTrigger
+              value='utmBreakdowns'
+              className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+            >
+              {t('utmBreakdowns')}
+            </TabsTrigger>
+            <TabsTrigger
+              value='landingPages'
+              className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+            >
+              {t('landingPages')}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <div className='mt-6'>
         {activeTab === 'overview' && (
           <Suspense
             fallback={
-              <div className='space-y-6'>
+              <div className='space-y-3'>
                 <TableSkeleton />
                 <ChartSkeleton />
               </div>
@@ -84,9 +88,9 @@ export default function CampaignTabs({
         {activeTab === 'utmBreakdowns' && (
           <Suspense
             fallback={
-              <div className='space-y-6'>
+              <div className='space-y-3'>
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+                  <div key={i} className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
                     <div className='lg:col-span-2'>
                       <TableSkeleton />
                     </div>

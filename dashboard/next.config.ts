@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 import * as path from 'path';
 import dotenv from 'dotenv';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 // Load environment variables from the root directory
 const rootDir = path.resolve(process.cwd(), '..');
@@ -13,6 +14,14 @@ if (result.error) {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  async headers() {
+    return [
+      {
+        source: '/dashboard/:path*',
+        headers: [{ key: 'X-Accel-Buffering', value: 'no' }],
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+export default createNextIntlPlugin()(nextConfig);

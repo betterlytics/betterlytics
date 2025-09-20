@@ -1,0 +1,5 @@
+@media (min-width: 768px) {
+  #nprogress .bar {
+    top: 0 !important;
+  }
+}

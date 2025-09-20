@@ -5,15 +5,15 @@ import { useBARouter } from '@/hooks/use-ba-router';
 import { Dashboard } from '@/entities/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Globe, Calendar, Settings } from 'lucide-react';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
 import { useFormattedDate } from '@/hooks/use-formatted-date';
+import { useTranslations } from 'next-intl';
 
 interface DashboardCardProps {
   dashboard: Dashboard;
 }
 
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
-  const { dictionary } = useDictionary();
+  const t = useTranslations('misc');
   const router = useBARouter();
 
   const { formattedDate, loading: loadingDate } = useFormattedDate(dashboard.createdAt, {
@@ -25,8 +25,11 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
   };
 
   return (
-    <Card className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'>
-      <div className='block h-full' onClick={handleCardClick}>
+    <Card
+      className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'
+      onClick={handleCardClick}
+    >
+      <div className='block h-full'>
         <CardHeader className='pb-4'>
           <div className='flex items-start justify-between'>
             <div className='flex items-center gap-3'>
@@ -53,10 +56,10 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
               </div>
               <span className='text-muted-foreground text-xs'>
                 {loadingDate ? (
-                  dictionary.misc.loading
+                  t('loading')
                 ) : (
                   <>
-                    {dictionary.misc.created} <span className='text-foreground'>{formattedDate}</span>
+                    {t('created')} <span className='text-foreground'>{formattedDate}</span>
                   </>
                 )}
               </span>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Minus } from 'lucide-react';
 
 type TrendIndicatorProps = {
   percentage?: number;
@@ -14,18 +14,18 @@ const TrendIndicator = React.memo(({ percentage }: TrendIndicatorProps) => {
   if (percentage === 0) {
     return (
       <div className='flex items-center'>
-        <Minus className='h-3 w-3' />
+        <Minus className='h-3.5 w-3.5' />
       </div>
     );
   }
 
   const isPositive = percentage > 0;
-  const Icon = isPositive ? TrendingUp : TrendingDown;
-  const color = isPositive ? 'text-green-400' : 'text-red-400';
+  const Icon = isPositive ? ChevronUp : ChevronDown;
+  const color = isPositive ? 'text-trend-up' : 'text-trend-down';
 
   return (
     <div className='flex items-center'>
-      <Icon className={cn('h-3 w-3', color)} />
+      <Icon className={cn('h-3.5 w-3.5', color)} fill='currentColor' />
     </div>
   );
 });

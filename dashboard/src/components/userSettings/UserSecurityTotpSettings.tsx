@@ -21,8 +21,10 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 import ExternalLink from '@/components/ExternalLink';
+import { useTranslations } from 'next-intl';
 
 function SetupTotp() {
+  const t = useTranslations('components.userSettings.security.totp');
   const isMobile = useIsMobile();
   const totpInputRef = useRef<HTMLInputElement>(null);
   const { update: setSession } = useSession();
@@ -102,24 +104,22 @@ function SetupTotp() {
   return (
     <AlertDialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button className='w-full sm:w-auto' disabled={isPending || isDialogOpen}>
-          {isPending || isDialogOpen ? <Loader2 className='h-4 w-4 animate-spin' /> : 'Enable 2FA'}
+        <Button className='w-full cursor-pointer sm:w-auto' disabled={isPending || isDialogOpen}>
+          {isPending || isDialogOpen ? <Loader2 className='h-4 w-4 animate-spin' /> : t('enable')}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
-        className='max-h-[90vh] w-80 overflow-y-auto'
+        className='max-h-[90vh] w-86 overflow-y-auto'
         onOpenAutoFocus={handleDialogOpenAutoFocus}
       >
         <AlertDialogHeader>
-          <AlertDialogTitle>Enable 2FA</AlertDialogTitle>
+          <AlertDialogTitle>{t('enable')}</AlertDialogTitle>
           <AlertDialogDescription>
-            To enable 2FA, scan the QR code with your authenticator app
-            {!isMobile && (
-              <>
-                {' or use the '}
+            {t.rich('instructions', {
+              setup: (chunk) => (
                 <Tooltip>
                   <TooltipTrigger asChild className='border-b-primary cursor-pointer border-0 border-b-2'>
-                    <strong>setup key</strong>
+                    <strong>{chunk}</strong>
                   </TooltipTrigger>
                   <TooltipContent className='flex flex-row items-center'>
                     <code>{totpSecret}</code>
@@ -128,10 +128,8 @@ function SetupTotp() {
                     </button>
                   </TooltipContent>
                 </Tooltip>
-                {' to manually configure it'}
-              </>
-            )}
-            , then enter the verification code below.
+              ),
+            })}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -144,9 +142,11 @@ function SetupTotp() {
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <Button type='submit' disabled={isPending || totp.length !== 6}>
-              {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : 'Confirm'}
+            <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+              {t('cancel')}
+            </AlertDialogCancel>
+            <Button type='submit' disabled={isPending || totp.length !== 6} className='cursor-pointer'>
+              {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('confirm')}
             </Button>
           </AlertDialogFooter>
         </form>
@@ -156,6 +156,7 @@ function SetupTotp() {
 }
 
 function DisableTotp() {
+  const t = useTranslations('components.userSettings.security.totp');
   const { update: setSession } = useSession();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -166,9 +167,9 @@ function DisableTotp() {
       if (disabled.success) {
         await setSession({ totpEnabled: false });
         setIsDialogOpen(false);
-        toast.success('Two-factor authentication disabled successfully');
+        toast.success(t('disabledSuccess'));
       } else {
-        toast.error('Failed to disabled two-factor authentication. Please try again.');
+        toast.error(t('disableFailed'));
       }
     });
   };
@@ -177,7 +178,7 @@ function DisableTotp() {
     <div className='flex space-x-2'>
       <div className='flex items-center gap-1 text-sm text-green-600'>
         <Check className='h-3 w-3' />
-        <span>Enabled</span>
+        <span>{t('enabled')}</span>
       </div>
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogTrigger asChild>
@@ -187,19 +188,17 @@ function DisableTotp() {
         </AlertDialogTrigger>
         <AlertDialogContent className='w-80'>
           <AlertDialogHeader>
-            <AlertDialogTitle className='flex items-center gap-2'>Disable 2FA</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to disable two-factor authentication for your account?
-            </AlertDialogDescription>
+            <AlertDialogTitle className='flex items-center gap-2'>{t('disableTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('disableDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDisableTotp}
               disabled={isPending}
               className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
             >
-              {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : 'Disable'}
+              {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('disable')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -210,13 +209,10 @@ function DisableTotp() {
 
 export default function UserSecurityTotpSettings() {
   const { data: session } = useSession();
+  const t = useTranslations('components.userSettings.security.totp');
 
   return (
-    <SettingsCard
-      icon={KeySquare}
-      title='Two-Factor Authentication'
-      description='Add an extra layer of security to your account by requiring a second form of verification in addition to your password'
-    >
+    <SettingsCard icon={KeySquare} title={t('title')} description={t('description')}>
       {session?.user.totpEnabled ? <DisableTotp /> : <SetupTotp />}
     </SettingsCard>
   );

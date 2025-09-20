@@ -33,6 +33,12 @@ pub struct EventRow {
     pub event_type: EventType,
     pub custom_event_name: String,
     pub custom_event_json: String,
+    pub outbound_link_url: String,
+    pub cwv_cls: Option<f32>,
+    pub cwv_lcp: Option<f32>,
+    pub cwv_inp: Option<f32>,
+    pub cwv_fcp: Option<f32>,
+    pub cwv_ttfb: Option<f32>,
     pub scroll_depth: Option<f32>,
 }
 
@@ -42,7 +48,9 @@ pub struct EventRow {
 pub enum EventType {
     Pageview = 1,
     Custom = 2,
-    ScrollDepth = 3,
+    OutboundLink = 3,
+    Cwv = 4,
+    ScrollDepth = 5,
 }
 
 impl EventRow {
@@ -74,6 +82,12 @@ impl EventRow {
             event_type: event.event_type.parse().unwrap(),
             custom_event_name: event.custom_event_name,
             custom_event_json: event.custom_event_json,
+            outbound_link_url: event.outbound_link_url,
+            cwv_cls: event.cwv_cls,
+            cwv_lcp: event.cwv_lcp,
+            cwv_inp: event.cwv_inp,
+            cwv_fcp: event.cwv_fcp,
+            cwv_ttfb: event.cwv_ttfb,
             scroll_depth: event.scroll_depth,
         }
     }

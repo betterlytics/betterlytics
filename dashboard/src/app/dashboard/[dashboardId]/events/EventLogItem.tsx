@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { EventLogEntry } from '@/entities/events';
 import { formatTimeAgo } from '@/utils/dateFormatters';
 import { DeviceIcon, BrowserIcon, FlagIcon, FlagIconProps } from '@/components/icons';
+import { useLocale } from 'next-intl';
+import { getCountryName } from '@/utils/countryCodes';
 
 const MAX_PROPERTIES_DISPLAY = 3;
 
@@ -19,7 +21,7 @@ const formatEventProperties = (jsonString: string) => {
     return Object.entries(props)
       .slice(0, MAX_PROPERTIES_DISPLAY)
       .map(([key, value]) => (
-        <Badge key={key} variant='secondary' className='text-xs font-normal'>
+        <Badge key={key} variant='secondary' className='border-border border text-xs font-normal shadow-xs'>
           <span className='text-muted-foreground'>{key}:</span>
           <span className='ml-1'>{String(value)}</span>
         </Badge>
@@ -63,6 +65,8 @@ const MetadataItem = React.memo(
 MetadataItem.displayName = 'MetadataItem';
 
 export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd, onRef }: EventLogItemProps) {
+  const locale = useLocale();
+
   return (
     <div
       className='group hover:bg-muted/40 hover:border-l-primary/50 relative border-l-2 border-l-transparent p-4 transition-all duration-200'
@@ -78,7 +82,7 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
             <div className='flex items-center gap-2'>
               <h3 className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</h3>
               <div className='bg-muted-foreground/40 h-1 w-1 rounded-full' />
-              <Badge variant='secondary' className='text-xs font-medium'>
+              <Badge variant='secondary' className='border-border border text-xs font-medium shadow-xs'>
                 {formatTimeAgo(new Date(event.timestamp))}
               </Badge>
             </div>
@@ -102,13 +106,20 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
             )}
 
             {event.country_code && (
-              <MetadataItem icon={<FlagIcon countryCode={event.country_code as FlagIconProps['countryCode']} />}>
+              <MetadataItem
+                icon={
+                  <FlagIcon
+                    countryCode={event.country_code as FlagIconProps['countryCode']}
+                    countryName={getCountryName(event.country_code, locale)}
+                  />
+                }
+              >
                 <span className='font-medium uppercase'>{event.country_code}</span>
               </MetadataItem>
             )}
 
             <MetadataItem icon={ExternalLink}>
-              <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
+              <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium shadow-xs'>
                 {formatUrl(event.url)}
               </span>
             </MetadataItem>

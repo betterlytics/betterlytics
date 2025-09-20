@@ -286,6 +286,8 @@ async fn run_inserter_worker(
             site_id = %row.site_id, 
             visitor_id = %row.visitor_id,
             session_id = %row.session_id,
+            event_type = ?row.event_type,
+            custom_event_name = ?row.custom_event_name,
             url = %row.url, 
             timestamp = %row.timestamp, 
             device_type = %row.device_type,

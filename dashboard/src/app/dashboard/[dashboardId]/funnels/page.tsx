@@ -5,14 +5,36 @@ import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
 import FunnelsListSection from './FunnelsListSection';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
-import TimeRangeSelector from '@/components/TimeRangeSelector';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import DashboardFilters from '@/components/dashboard/DashboardFilters';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { getTranslations } from 'next-intl/server';
+import TimeRangeSelector from '@/components/TimeRangeSelector';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
   searchParams: Promise<{ filters: string }>;
 };
+
+type FunnelsHeaderProps = {
+  funnelsPromise: ReturnType<typeof fetchFunnelsAction>;
+  title: string;
+};
+
+async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
+  const funnels = await funnelsPromise;
+  if (funnels.length === 0) return null;
+
+  return (
+    <DashboardHeader title={title}>
+      <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-3 sm:flex-row'>
+        <CreateFunnelDialog />
+        <TimeRangeSelector showComparison={false} />
+      </div>
+    </DashboardHeader>
+  );
+}
 
 export default async function FunnelsPage({ params, searchParams }: FunnelsPageParams) {
   const session = await getServerSession(authOptions);
@@ -24,19 +46,12 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   const { dashboardId } = await params;
   const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
-
+  const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 xl:flex-row xl:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Funnels</h1>
-          <p className='text-muted-foreground text-sm'>Analyze user conversion paths</p>
-        </div>
-        <div className='flex flex-col-reverse gap-4 lg:flex-row lg:justify-end xl:items-center'>
-          <CreateFunnelDialog />
-          <TimeRangeSelector />
-        </div>
-      </div>
+    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+      <Suspense fallback={null}>
+        <FunnelsHeader funnelsPromise={funnelsPromise} title={t('funnels')} />
+      </Suspense>
 
       <Suspense
         fallback={

@@ -10,6 +10,7 @@ import { createStripeCustomerPortalSession } from '@/actions/stripe';
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
 import { toast } from 'sonner';
 import type { UserBillingData } from '@/entities/billing';
+import { useTranslations } from 'next-intl';
 
 interface CurrentPlanCardProps {
   billingData: UserBillingData;
@@ -18,6 +19,7 @@ interface CurrentPlanCardProps {
 
 export function CurrentPlanCard({ billingData, showManagementButtons = false }: CurrentPlanCardProps) {
   const { subscription, usage } = billingData;
+  const t = useTranslations('components.billing.currentPlan');
 
   const isCanceled = subscription.cancelAtPeriodEnd;
   const isActive = subscription.status === 'active';
@@ -41,10 +43,9 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         <div className='flex items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-950'>
           <AlertCircle className='h-5 w-5 flex-shrink-0 text-orange-600 dark:text-orange-400' />
           <div className='flex-1'>
-            <p className='text-sm font-medium text-orange-800 dark:text-orange-200'>Subscription Canceled</p>
+            <p className='text-sm font-medium text-orange-800 dark:text-orange-200'>{t('canceledBannerTitle')}</p>
             <p className='text-xs text-orange-700 dark:text-orange-300'>
-              Your subscription will remain active until {subscription.currentPeriodEnd.toLocaleDateString()}. You
-              can reactivate anytime before then.
+              {t('canceledBannerBody', { date: subscription.currentPeriodEnd.toLocaleDateString() })}
             </p>
           </div>
         </div>
@@ -53,10 +54,10 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         <div className='flex-1'>
           <div className='flex items-center gap-2'>
             <TrendingUp size={16} className='text-muted-foreground' />
-            <h3 className='text-lg font-semibold'>Current Plan</h3>
+            <h3 className='text-lg font-semibold'>{t('title')}</h3>
             {isCanceled ? (
               <Badge variant='destructive' className='capitalize'>
-                Canceled
+                {t('canceled')}
               </Badge>
             ) : (
               <Badge variant={isActive ? 'default' : 'secondary'} className='capitalize'>
@@ -65,26 +66,24 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
             )}
           </div>
           {isCanceled ? (
-            <p className='text-muted-foreground text-sm'>
-              Your subscription will remain active until {subscription.currentPeriodEnd.toLocaleDateString()}
-            </p>
+            <p className='text-muted-foreground text-sm'>{t('expiresInDays', { days: usage.daysUntilReset })}</p>
           ) : (
-            <p className='text-muted-foreground text-sm'>Your current subscription details</p>
+            <p className='text-muted-foreground text-sm'>{t('description')}</p>
           )}
         </div>
       </div>
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <div className='space-y-3'>
+        <div className='flex justify-between sm:block sm:space-y-3'>
           <div>
-            <div className='text-muted-foreground text-sm'>Plan</div>
+            <div className='text-muted-foreground text-sm'>{t('plan')}</div>
             <div className='font-semibold capitalize'>{subscription.tier}</div>
           </div>
-          <div>
-            <div className='text-muted-foreground text-sm'>Monthly Price</div>
+          <div className='text-right sm:text-left'>
+            <div className='text-muted-foreground text-sm'>{t('monthlyPrice')}</div>
             <div className='font-semibold'>
               {subscription.pricePerMonth === 0
-                ? 'Free'
+                ? t('free')
                 : formatPrice(subscription.pricePerMonth, subscription.currency)}
             </div>
           </div>
@@ -93,13 +92,16 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
             <TrendingUp size={16} className='text-muted-foreground' />
-            <span className='text-sm font-medium'>Event Usage</span>
+            <span className='text-sm font-medium'>{t('eventUsage')}</span>
           </div>
 
           <div className='space-y-2'>
             <div className='flex items-center justify-between text-sm'>
               <span className='text-muted-foreground'>
-                {formatNumber(usage.current)} of {formatNumber(usage.limit)} events
+                {t('usageProgress', {
+                  current: formatNumber(usage.current),
+                  limit: formatNumber(usage.limit),
+                })}
               </span>
               <span className={`font-medium ${usage.isOverLimit ? 'text-red-500' : 'text-foreground'}`}>
                 {formatPercentage(usage.usagePercentage)}
@@ -111,28 +113,28 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         </div>
       </div>
 
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-wrap items-center gap-2'>
         <div className='text-muted-foreground flex items-center gap-2 text-sm'>
           <Calendar size={14} />
           {isCanceled ? (
-            <span>Expires in {usage.daysUntilReset} days</span>
+            <span>{t('expiresInDays', { days: usage.daysUntilReset })}</span>
           ) : (
-            <span>Resets in {usage.daysUntilReset} days</span>
+            <span>{t('resetsInDays', { days: usage.daysUntilReset })}</span>
           )}
         </div>
 
         {showManagementButtons && billingData.isExistingPaidSubscriber && (
-          <div className='flex gap-2'>
+          <div className='flex w-full flex-wrap justify-start gap-2 sm:ml-auto sm:w-auto sm:justify-end'>
             <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
               <ExternalLink className='mr-2 h-4 w-4' />
-              {isCanceled ? 'Reactivate Subscription' : 'Manage Subscription'}
+              {isCanceled ? t('reactivate') : t('manage')}
             </Button>
 
             {!isCanceled && (
               <CancelSubscriptionDialog tier={subscription.tier} isActive={isActive}>
                 <Button variant='outline' size='sm' disabled={!isActive} className='flex items-center gap-2'>
                   <AlertTriangle className='h-4 w-4' />
-                  Cancel Subscription
+                  {t('cancel')}
                 </Button>
               </CancelSubscriptionDialog>
             )}

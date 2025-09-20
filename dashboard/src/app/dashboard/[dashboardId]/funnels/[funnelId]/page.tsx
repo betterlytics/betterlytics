@@ -9,6 +9,9 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { SummaryCardsSkeleton } from '@/components/skeleton';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getTranslations } from 'next-intl/server';
+import { Card, CardContent } from '@/components/ui/card';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type FunnelPageProps = {
   params: Promise<{ dashboardId: string; funnelId: string }>;
@@ -27,29 +30,31 @@ export default async function FunnelPage({ params, searchParams }: FunnelPagePro
   const { dashboardId, funnelId } = await params;
   const funnelPromise = fetchFunnelDetailsAction(dashboardId, funnelId, startDate, endDate);
 
+  const t = await getTranslations('components.funnels.details');
+
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Funnel Analysis</h1>
-          <p className='text-muted-foreground text-sm'>Detailed funnel conversion analysis</p>
-        </div>
+    <div className='container space-y-4 p-2 sm:p-6'>
+      <DashboardHeader title={t('title')}>
         <DashboardFilters />
-      </div>
+      </DashboardHeader>
 
-      <div className='bg-card grid gap-6 rounded-md border p-5 lg:grid-cols-3'>
-        <div className='col-span-3 lg:col-span-2'>
-          <Suspense fallback={<FunnelSkeleton />}>
-            <FunnelStepsSection funnelPromise={funnelPromise} />
-          </Suspense>
-        </div>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
+        <CardContent className='px-0'>
+          <div className='grid gap-6 lg:grid-cols-3'>
+            <div className='col-span-3 lg:col-span-2'>
+              <Suspense fallback={<FunnelSkeleton />}>
+                <FunnelStepsSection funnelPromise={funnelPromise} />
+              </Suspense>
+            </div>
 
-        <div className='col-span-3 lg:col-span-1 lg:border-l lg:pl-6'>
-          <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
-            <FunnelSummarySection funnelPromise={funnelPromise} />
-          </Suspense>
-        </div>
-      </div>
+            <div className='col-span-3 lg:col-span-1 lg:border-l lg:pl-6'>
+              <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
+                <FunnelSummarySection funnelPromise={funnelPromise} />
+              </Suspense>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

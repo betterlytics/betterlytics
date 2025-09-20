@@ -25,6 +25,14 @@ pub struct RawTrackingEvent {
     pub screen_resolution: String,
     /// Timestamp of the event
     pub timestamp: u64,
+    /// Outbound link URL (only for outbound_link events)
+    pub outbound_link_url: Option<String>,
+    /// Core Web Vitals metrics (only for cwv events)
+    pub cwv_cls: Option<f32>,
+    pub cwv_lcp: Option<f32>,
+    pub cwv_inp: Option<f32>,
+    pub cwv_fcp: Option<f32>,
+    pub cwv_ttfb: Option<f32>,
     /// Scroll depth percentage (0-100)
     pub scroll_depth: Option<f32>,
 }

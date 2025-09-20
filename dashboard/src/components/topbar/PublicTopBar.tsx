@@ -2,22 +2,19 @@
 
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { useBARouter } from '@/hooks/use-ba-router';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
+import { useTranslations } from 'next-intl';
+import NextLink from 'next/link';
 
 export default function PublicTopBar() {
+  const t = useTranslations('public.nav');
   const { data: session, status } = useSession();
-  const router = useBARouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const handleSignIn = () => {
-    router.push('/signin');
-  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -42,16 +39,16 @@ export default function PublicTopBar() {
           <nav className='hidden items-center space-x-6 md:flex'>
             <ExternalLink
               href='/docs'
-              title='Complete Betterlytics Documentation'
+              title={t('documentation')}
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              Documentation
+              {t('documentation')}
             </ExternalLink>
             <Link
               href='/#pricing'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              Pricing
+              {t('pricing')}
             </Link>
 
             <div className='flex items-center space-x-4'>
@@ -60,12 +57,14 @@ export default function PublicTopBar() {
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
               ) : session ? (
-                <Link href='/dashboards'>
-                  <Button variant='default'>Go to Dashboard</Button>
-                </Link>
+                <NextLink href='/dashboards'>
+                  <Button variant='default' className='cursor-pointer'>
+                    {t('goToDashboard')}
+                  </Button>
+                </NextLink>
               ) : !isOnSignInPage ? (
                 <Link href='/signin'>
-                  <Button onClick={handleSignIn}>Get Started</Button>
+                  <Button className='cursor-pointer'>{t('getStarted')}</Button>
                 </Link>
               ) : null}
             </div>
@@ -84,33 +83,31 @@ export default function PublicTopBar() {
           <div className='border-t md:hidden'>
             <nav className='space-y-3 py-4'>
               <Link
-                href='#pricing'
+                href='/#pricing'
                 onClick={closeMobileMenu}
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
               >
-                Pricing
+                {t('pricing')}
               </Link>
               <ExternalLink
                 href='/docs'
                 onClick={closeMobileMenu}
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
-                title='Complete Betterlytics Documentation'
+                title={t('documentation')}
               >
-                Documentation
+                {t('documentation')}
               </ExternalLink>
 
               <div className='border-t pt-3'>
                 {session ? (
-                  <Link href='/dashboards' onClick={closeMobileMenu}>
-                    <Button variant='default' className='w-full'>
-                      Go to Dashboard
+                  <NextLink href='/dashboards' onClick={closeMobileMenu}>
+                    <Button variant='default' className='w-full cursor-pointer'>
+                      {t('goToDashboard')}
                     </Button>
-                  </Link>
+                  </NextLink>
                 ) : !isOnSignInPage ? (
                   <Link href='/signin' onClick={closeMobileMenu}>
-                    <Button onClick={handleSignIn} className='w-full'>
-                      Get Started
-                    </Button>
+                    <Button className='w-full cursor-pointer'>{t('getStarted')}</Button>
                   </Link>
                 ) : null}
               </div>

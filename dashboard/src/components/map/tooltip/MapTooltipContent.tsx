@@ -1,17 +1,21 @@
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { SupportedLanguages } from '@/constants/i18n';
 import { GeoVisitor } from '@/entities/geography';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
+import { formatNumber } from '@/utils/formatters';
 import React from 'react';
 
 export type MapTooltipContentProps = {
   geoVisitor?: GeoVisitor;
   className?: string;
+  label: string;
+  locale: SupportedLanguages;
   size: 'sm' | 'lg';
 };
 
-function MapTooltipContent({ geoVisitor, size, className }: MapTooltipContentProps) {
+function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
 
   return (
@@ -25,11 +29,11 @@ function MapTooltipContent({ geoVisitor, size, className }: MapTooltipContentPro
       <CountryDisplay
         className='text-sm font-bold'
         countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
-        countryName={getCountryName(geoVisitor.country_code)}
+        countryName={getCountryName(geoVisitor.country_code, locale)}
       />
       <div className='flex gap-1 text-sm whitespace-nowrap'>
-        <span className='text-muted-foreground'>Visitors:</span>
-        <span className='text-foreground'>{geoVisitor.visitors}</span>
+        <span className='text-muted-foreground'>{label}:</span>
+        <span className='text-foreground'>{formatNumber(geoVisitor.visitors)}</span>
       </div>
     </div>
   );

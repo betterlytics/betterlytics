@@ -17,6 +17,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getProviders } from 'next-auth/react';
 import ExternalLink from '@/components/ExternalLink';
+import { GoogleIcon, GitHubIcon } from '@/components/icons';
 
 export default function LoginForm() {
   const router = useBARouter();
@@ -130,9 +131,17 @@ export default function LoginForm() {
           />
         </div>
         <div>
-          <label htmlFor='password' className='text-foreground mb-2 block text-sm font-medium'>
-            Password
-          </label>
+          <div className='mb-2 flex items-center justify-between'>
+            <label htmlFor='password' className='text-foreground block text-sm font-medium'>
+              Password
+            </label>
+            <ExternalLink
+              href='/forgot-password'
+              className='text-primary hover:text-primary/80 text-sm font-medium underline'
+            >
+              Forgot your password?
+            </ExternalLink>
+          </div>
           <input
             id='password'
             name='password'
@@ -151,19 +160,10 @@ export default function LoginForm() {
         <button
           type='submit'
           disabled={isPending || isDialogOpen}
-          className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
+          className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex h-10 w-full cursor-pointer justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
         >
           {isPending || isDialogOpen ? 'Signing in...' : 'Sign in'}
         </button>
-      </div>
-
-      <div className='text-center'>
-        <ExternalLink
-          href='/forgot-password'
-          className='text-primary hover:text-primary/80 text-sm font-medium underline'
-        >
-          Forgot your password?
-        </ExternalLink>
       </div>
 
       {providers?.google || providers?.github ? (
@@ -180,34 +180,9 @@ export default function LoginForm() {
           <button
             type='button'
             onClick={() => handleOAuthLogin('google')}
-            className='font-roboto transition-border relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none'
+            className='font-roboto transition-border relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none'
           >
-            <svg width='40' height='40' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <g clipPath='url(#clip0_760_7199)'>
-                <path
-                  d='M31.6 20.2273C31.6 19.5182 31.5364 18.8364 31.4182 18.1818H22V22.05H27.3818C27.15 23.3 26.4455 24.3591 25.3864 25.0682V27.5773H28.6182C30.5091 25.8364 31.6 23.2727 31.6 20.2273V20.2273Z'
-                  fill='#4285F4'
-                />
-                <path
-                  d='M22 30C24.7 30 26.9636 29.1045 28.6181 27.5773L25.3863 25.0682C24.4909 25.6682 23.3454 26.0227 22 26.0227C19.3954 26.0227 17.1909 24.2636 16.4045 21.9H13.0636V24.4909C14.7091 27.7591 18.0909 30 22 30Z'
-                  fill='#34A853'
-                />
-                <path
-                  d='M16.4045 21.9C16.2045 21.3 16.0909 20.6591 16.0909 20C16.0909 19.3409 16.2045 18.7 16.4045 18.1V15.5091H13.0636C12.3864 16.8591 12 18.3864 12 20C12 21.6136 12.3864 23.1409 13.0636 24.4909L16.4045 21.9V21.9Z'
-                  fill='#FBBC04'
-                />
-                <path
-                  d='M22 13.9773C23.4681 13.9773 24.7863 14.4818 25.8227 15.4727L28.6909 12.6045C26.9591 10.9909 24.6954 10 22 10C18.0909 10 14.7091 12.2409 13.0636 15.5091L16.4045 18.1C17.1909 15.7364 19.3954 13.9773 22 13.9773Z'
-                  fill='#E94235'
-                />
-              </g>
-
-              <defs>
-                <clipPath id='clip0_760_7199'>
-                  <rect width='20' height='20' fill='white' transform='translate(12 10)' />
-                </clipPath>
-              </defs>
-            </svg>
+            <GoogleIcon />
 
             <span className='font-roboto grow-0 truncate align-top font-medium'>
               {isGooglePending ? 'Signing in...' : 'Continue with Google'}
@@ -220,12 +195,9 @@ export default function LoginForm() {
           <button
             type='button'
             onClick={() => handleOAuthLogin('github')}
-            className='font-roboto transition-border relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border border-[#747775] bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none'
+            className='font-roboto transition-border relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none'
           >
-            {/* GitHub Octocat logo */}
-            <svg width='40' height='22' viewBox='0 0 24 24' fill='currentColor'>
-              <path d='M12 0C5.37 0 0 5.38 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.263.82-.583 0-.287-.011-1.244-.017-2.444-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.089-.746.083-.731.083-.731 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.419-1.305.762-1.605-2.665-.303-5.466-1.334-5.466-5.93 0-1.31.47-2.383 1.236-3.223-.124-.303-.536-1.523.117-3.176 0 0 1.01-.323 3.3 1.23.956-.266 1.98-.399 3-.405 1.02.006 2.044.139 3 .405 2.29-1.553 3.3-1.23 3.3-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.912 1.235 3.223 0 4.61-2.803 5.625-5.475 5.92.43.372.814 1.102.814 2.222 0 1.605-.015 2.898-.015 3.293 0 .322.216.697.825.578C20.565 21.796 24 17.297 24 12c0-6.62-5.38-12-12-12z' />
-            </svg>
+            <GitHubIcon />
 
             <span className='font-roboto grow-0 truncate align-top font-medium'>
               {isGithubPending ? 'Signing in...' : 'Continue with GitHub'}

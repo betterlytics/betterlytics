@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { ZodError } from 'zod';
 import SettingsCard from '@/components/SettingsCard';
 import UserSecurityTotpSettings from '@/components/userSettings/UserSecurityTotpSettings';
+import { useTranslations } from 'next-intl';
 
 const INITIAL_PASSWORD_STATE: ChangePasswordData = {
   currentPassword: '',
@@ -64,7 +65,7 @@ function PasswordField({
           type='button'
           variant='ghost'
           size='sm'
-          className='absolute top-1/2 right-2 h-8 w-8 -translate-y-1/2 p-0'
+          className='absolute top-1/2 right-2 h-8 w-8 -translate-y-1/2 cursor-pointer p-0'
           onClick={onToggleVisibility}
           disabled={disabled}
           tabIndex={-1}
@@ -90,6 +91,7 @@ export default function UserSecuritySettings() {
   });
   const [passwords, setPasswords] = useState<ChangePasswordData>(INITIAL_PASSWORD_STATE);
   const [errors, setErrors] = useState<Partial<Record<keyof ChangePasswordData, string>>>({});
+  const t = useTranslations('components.userSettings.security');
 
   const resetForm = () => {
     setPasswords(INITIAL_PASSWORD_STATE);
@@ -110,7 +112,7 @@ export default function UserSecuritySettings() {
         });
 
         if (result.success) {
-          toast.success('Password updated successfully');
+          toast.success(t('toast.success'));
           resetForm();
         } else {
           toast.error(result.error.message);
@@ -153,11 +155,11 @@ export default function UserSecuritySettings() {
 
   return (
     <div className='space-y-6'>
-      <SettingsCard icon={Lock} title='Password & Authentication' description='Change your account password'>
+      <SettingsCard icon={Lock} title={t('title')} description={t('description')}>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <PasswordField
             id='currentPassword'
-            label='Current Password'
+            label={t('currentPassword')}
             value={passwords.currentPassword}
             onChange={(value) => handlePasswordChange('currentPassword', value)}
             showPassword={showPasswords.current}
@@ -170,7 +172,7 @@ export default function UserSecuritySettings() {
 
           <PasswordField
             id='newPassword'
-            label='New Password'
+            label={t('newPassword')}
             value={passwords.newPassword}
             onChange={(value) => handlePasswordChange('newPassword', value)}
             showPassword={showPasswords.new}
@@ -179,12 +181,12 @@ export default function UserSecuritySettings() {
             disabled={isPending || !hasPassword}
             tabIndex={2}
             autoComplete='new-password'
-            helpText='Password must be at least 8 characters long'
+            helpText={t('passwordHelp')}
           />
 
           <PasswordField
             id='confirmPassword'
-            label='Confirm New Password'
+            label={t('confirmNewPassword')}
             value={passwords.confirmPassword}
             onChange={(value) => handlePasswordChange('confirmPassword', value)}
             showPassword={showPasswords.confirm}
@@ -198,18 +200,18 @@ export default function UserSecuritySettings() {
           {showPasswordsMatch && (
             <div className='flex items-center gap-1 text-sm text-green-600'>
               <Check className='h-3 w-3' />
-              <span>Passwords match</span>
+              <span>{t('passwordsMatch')}</span>
             </div>
           )}
 
           <Button
             type='submit'
             disabled={isPending || !isFormFilled || !hasPassword}
-            className='w-full sm:w-auto'
+            className='w-full cursor-pointer sm:w-auto'
             tabIndex={4}
           >
             {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            {hasPassword ? 'Change Password' : 'Password managed by OAuth'}
+            {hasPassword ? t('changePassword') : t('passwordManagedByOAuth')}
           </Button>
         </form>
       </SettingsCard>

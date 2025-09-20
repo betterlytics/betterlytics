@@ -1,0 +1,1716 @@
+{
+  "public": {
+    "about": {
+      "aboutUs": "Om Betterlytics",
+      "intro": "Vi bygger fremtidens webanalyse: privacy-first, open source og designet til det moderne web. Ikke mere at vælge mellem stærke indsigter og at respektere dine besøgendes privatliv.",
+      "sections": {
+        "howWeStarted": {
+          "title": "Hvordan vi startede",
+          "p1": "Betterlytics blev født ud af reel frustration. Vores team udviklede et Vendor Management System, da vi ramte en mur med webanalyse. Hver løsning vi vurderede, tvang os til det samme umulige valg: enten kompromittere vores brugeres privatliv eller nøjes med utilstrækkelige indsigter.",
+          "p2": "Traditionelle analyseværktøjer tvinger dig til at vælge mellem dybdegående indsigter og brugernes privatliv. Vi mener, det er et falsk valg. Betterlytics beviser, at du kan få stærke, handlingsorienterede indsigter og samtidig være fuldt privatlivs-kompatibel og respektfuld over for dine besøgende.",
+          "p3": "Det, der startede som en løsning på vores egne behov, blev til noget langt større: en mission om at bygge analyseværktøjer, der respekterer både website-ejere og deres besøgende. Hver funktion er designet med privatliv og performance som lige vigtige prioriteter."
+        },
+        "whyPrivacyFirst": {
+          "title": "Hvorfor privacy-first analyse er vigtigt",
+          "p1": "Webanalyseindustrien har i alt for lang tid været domineret af overvågningskapitalisme. Store analyseudbydere indsamler enorme mængder persondata, sporer brugere på tværs af websites og bruger disse oplysninger til at opbygge detaljerede adfærdsprofiler til reklameformål.",
+          "p2": "Vi mener ikke, at website-ejere skal gå på kompromis med deres besøgendes privatliv for at forstå, hvordan deres site performer. Betterlytics indsamler kun de nødvendige metrics: ingen cookies, ingen persondata, ingen cross-site tracking. Dine besøgendes privatliv respekteres som standard."
+        },
+        "builtInOpen": {
+          "title": "Bygget i det åbne",
+          "p1": "Betterlytics er fuldstændig open source under AGPL-3.0 licensen. Det handler ikke kun om transparens, men om ansvarlighed. Alle kan inspicere vores kode, verificere vores privacy-udsagn og bidrage til at gøre platformen bedre.",
+          "p2": "Open source betyder også frihed. Du kan self-host'e Betterlytics på din egen infrastruktur og sikre fuld kontrol over dine data. Ingen vendor lock-in, ingen pludselige politikændringer, ingen uventede prisstigninger."
+        },
+        "privacyPerformance": {
+          "title": "Privatliv og performance i perfekt balance",
+          "p1": "Vi går lige meget op i privatliv og performance, fordi din hjemmesides hastighed er lige så vigtig som dine besøgendes privatliv. Vores tracking-script er under 2KB i størrelse. Sammenlign det med Google Analytics' script, der er over 45KB. Bygget med moderne webstandarder og optimeret til hastighed, så Betterlytics ikke gør dit site langsomt.",
+          "p2": "Under motorhjelmen bruger vi cutting-edge teknologi: Rust til højtydende databehandling, ClickHouse til lynhurtige analytiske forespørgsler og Next.js 15 til en moderne, responsiv dashboard-oplevelse. Hver teknisk beslutning prioriterer både privatliv og systemperformance."
+        },
+        "builtForEveryone": {
+          "title": "Bygget til alle",
+          "p1": "Uanset om du driver en personlig blog, en voksende SaaS-platform, en e-handelsbutik eller et enterprise-website, er Betterlytics designet til at opfylde dine behov. Vi forstår, at forskellige organisationer har forskellige krav – fra simple trafikindsigter til kompleks analyse af brugerrejser.",
+          "p2": "Integration tager minutter, ikke timer. Vores dashboard er intuitivt og veldokumenteret og viser dig det, du behøver, uden unødig kompleksitet. Selvom vi endnu ikke har et offentligt API, er alle dashboard-funktioner grundigt dokumenteret, så du får mest muligt ud af din analyse."
+        },
+        "privacyRegulations": {
+          "title": "Privatlivsregler gjort simple",
+          "p1": "GDPR, CCPA, PECR kompatibel. Privatlivsregler bør ikke være et compliance-mareridt. Fordi Betterlytics ikke indsamler persondata eller bruger cookies, er du compliant som standard. Ingen cookiebannere, intet samtykkestyring nødvendigt.",
+          "p2": "Denne enkelhed gælder også for dine brugere. De kan fokusere på dit indhold i stedet for at blive afbrudt af privatlivsmeddelelser og samtykkeformularer. En bedre oplevelse for alle.",
+          "p3Prefix": "Vi holder til i EU, og al databehandling foregår inden for EU's grænser. Dine data forlader aldrig EU, hvilket sikrer fuld overholdelse af GDPR. For detaljer om, hvordan vi håndterer dine data, se vores",
+          "privacyPolicyLabel": "privatlivspolitik"
+        },
+        "communityDriven": {
+          "title": "Fællesskabsdrevet udvikling",
+          "p1": "Betterlytics vokser gennem feedback og bidrag fra fællesskabet. Vi lytter til udviklere, implementerer ønskede funktioner og vedligeholder platformen baseret på reelle brugerbehov – ikke investorers krav eller reklameindtægter. Tak til vores community for feedback og bidrag.",
+          "p2": "Vores bæredygtige forretningsmodel betyder, at vi kan fokusere på at bygge den bedst mulige analyseplatform. Vi finansieres af vores brugere – ikke ved at sælge deres data. Denne incitaments-justering sikrer, at vi altid prioriterer privatliv og performance."
+        },
+        "future": {
+          "title": "Fremtiden for webanalyse",
+          "quote": "Vi mener, at virksomheder skal kunne forstå deres målgruppe uden at ofre privatliv eller gå på kompromis med etik. Analyse kan være både kraftfuld og respektfuld fra design.",
+          "p1": "Denne vision driver alt, hvad vi bygger. Hver funktion, hver optimering, hver beslutning er styret af vores engagement i privacy-first analyse, som alle kan stole på og bruge."
+        }
+      },
+      "cta": {
+        "title": "Klar til at komme i gang?",
+        "lead": "Deltag i det voksende fællesskab af virksomheder, der nægter at gå på kompromis med privatliv.",
+        "getStarted": "Kom i gang gratis",
+        "viewDocs": "Se dokumentation",
+        "docsTitle": "Komplet Betterlytics-dokumentation"
+      }
+    },
+    "contact": {
+      "title": "Kontakt os",
+      "intro": "Spørgsmål om Betterlytics? Har du brug for hjælp til din analyseopsætning? Vores team er klar til at hjælpe.",
+      "getInTouch": {
+        "title": "Tag kontakt",
+        "description": "Uanset om du har brug for teknisk support, har spørgsmål til vores funktioner, eller vil drøfte enterprise-løsninger, er vi her for at hjælpe. Vælg den metode, der passer dig bedst:"
+      },
+      "methods": {
+        "email": {
+          "title": "E-mail",
+          "description": "hello@betterlytics.io"
+        },
+        "github": {
+          "title": "GitHub",
+          "description": "github.com/betterlytics/betterlytics"
+        },
+        "discord": {
+          "title": "Discord",
+          "description": "Deltag i vores Discord-server"
+        },
+        "bluesky": {
+          "title": "Bluesky",
+          "description": "@betterlytics.bsky.social"
+        }
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "items": {
+          "integrate": {
+            "question": "Hvordan integrerer jeg Betterlytics på min hjemmeside?",
+            "answer": "Integrationen er simpel! Tilføj blot vores mikro-script-tag til din hjemmeside eller installer vores NPM-pakke. Se vores dokumentation for detaljerede opsætningsvejledninger til alle større frameworks."
+          },
+          "gdpr": {
+            "question": "Er Betterlytics virkelig GDPR-kompatibel?",
+            "answer": "Ja, helt sikkert! Vi bruger ikke cookies, indsamler ikke persondata, og al databehandling sker i overensstemmelse med GDPR, CCPA og andre persondatabestemmelser."
+          },
+          "migrate": {
+            "question": "Kan jeg migrere fra Google Analytics?",
+            "answer": "Ikke endnu! Men vi arbejder hårdt på at implementere denne funktion og vil levere en migrationsvejledning og værktøjer til at hjælpe dig med overgangen fra Google Analytics."
+          },
+          "freePlan": {
+            "question": "Hvad er inkluderet i den gratis plan?",
+            "answer": "Den gratis self-hosted plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger."
+          },
+          "cloud": {
+            "question": "Hvordan fungerer cloud-hosting?",
+            "answer": "Vores cloud-hosting giver en fuldt administreret Betterlytics-instans med automatiske opdateringer, backups og 99,9% oppetid. Ingen serveradministration krævet!"
+          },
+          "support": {
+            "question": "Tilbyder I support til self-hosted installationer?",
+            "answer": "Delvist! Vi yder community-support via GitHub og Discord for self-hosted installationer, men vores prioritet er at støtte vores cloud-hosting kunder."
+          }
+        }
+      },
+      "cta": {
+        "lead": "Kan du ikke finde det, du søger?",
+        "docsLinkText": "Se vores fulde dokumentation →",
+        "docsLinkTitle": "Komplet Betterlytics-dokumentation"
+      }
+    },
+    "privacy": {
+      "title": "Betterlytics privatlivspolitik",
+      "lastUpdated": "Sidst opdateret:",
+      "tldr": {
+        "title": "Kort fortalt",
+        "body": "For besøgende på websites bruger vi ikke cookies og indsamler ingen persondata. Hvis du vælger at oprette en konto, beder vi kun om det absolut nødvendige og deler det kun med tjenester, der er nødvendige for, at appen fungerer."
+      },
+      "scope": {
+        "title": "Denne politik omfatter",
+        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics' hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for din privatlivspolitik, databehandling og juridisk overholdelse."
+      },
+      "intro": {
+        "p1": "Hos Betterlytics er vi engagerede i at overholde GDPR, CCPA, PECR og andre privatlivsregler. Privatlivet for dine data — og det er dine data, ikke vores! — er vigtigt for os. Vi holder til i EU, og al databehandling foregår inden for EU's grænser.",
+        "p2": "I denne politik beskriver vi, hvilke data vi indsamler og hvorfor, hvordan dine data håndteres, og dine rettigheder. Vi lover, at vi aldrig sælger dine data – aldrig har gjort det og vil aldrig gøre det."
+      },
+      "visitor": {
+        "title": "Som besøgende på websites, der bruger Betterlytics",
+        "lead": "Besøgendes privatliv er vigtigt for os. Vi har designet vores analysesystem til at være helt cookiefrit og privacy-fokuseret. Som besøgende på websites, der bruger Betterlytics:",
+        "li1": "Der indsamles ingen personlige oplysninger",
+        "li2": "Der lagres ingen cookies i din browser",
+        "li3": "Ingen oplysninger deles med, sendes til eller sælges til tredjepart",
+        "li4": "Ingen oplysninger deles med reklamevirksomheder",
+        "li5": "Ingen oplysninger udnyttes til personlige eller adfærdsmæssige profiler",
+        "li6": "Ingen oplysninger monetariseres",
+        "li7": "Alle indsamlede data er aggregerede og anonymiserede"
+      },
+      "anonymous": {
+        "title": "Hvilke anonyme data vi indsamler og hvorfor",
+        "pageViews": {
+          "title": "Sidevisninger og navigation",
+          "body": "Vi sporer hvilke sider, der besøges, og navigationsmønstre for at hjælpe ejere med at forstå, hvordan indholdet forbruges. Vi indsamler URL-sti (uden query-parametre for at undgå utilsigtet tracking af følsomme data) og henviserinformation."
+        },
+        "deviceBrowser": {
+          "title": "Enheds- og browserinformation",
+          "body": "Vi parser user agent-strengen for at bestemme browsertype, operativsystem og enhedskategori (mobil, tablet, desktop, laptop). Skærmopløsning kategoriseres (lille, mellem, stor) frem for at gemme præcise værdier."
+        },
+        "geographic": {
+          "title": "Geografisk information",
+          "body": "Vi bestemmer besøgendes land ud fra IP-adresse via en GeoIP-database. Selve IP-adressen anonymiseres straks ved at fjerne sidste oktet (IPv4) eller kun bruge de første 64 bit (IPv6), før nogen behandling."
+        },
+        "anonymousId": {
+          "title": "Anonym besøgsidentifikation",
+          "body": "Vi genererer en anonym besøgsfingeraftryk ved hjælp af et kryptografisk hash af den anonymiserede IP, kategoriseret skærmopløsning, browsernavn og en dagligt roterende salt. Det gør det muligt at tælle unikke besøgende uden at spore individer. Fingeraftrykket ændres dagligt for at sikre langvarig anonymitet."
+        },
+        "sessionTracking": {
+          "title": "Sessionstracking",
+          "body": "Vi sporer sessioner for at forstå, hvordan besøgende engagerer sig med websites. Sessioner udløber automatisk efter 30 minutters inaktivitet og lagres kun i serverhukommelse, aldrig i cookies eller browser-lager."
+        }
+      },
+      "processStore": {
+        "title": "Hvordan vi behandler og lagrer data",
+        "li1": "EU-baseret hosting: Al data behandles og lagres på servere i EU, hvilket sikrer GDPR-overholdelse.",
+        "li2": "Straks anonymisering: IP-adresser anonymiseres straks ved modtagelse, før nogen behandling eller lagring.",
+        "li3": "Ingen cross-site tracking: Hvert websites data er isoleret og spores separat med unikke site-ID'er.",
+        "li4": "Aggregeret rapportering: Alle rapporter viser kun aggregerede data uden muligheden for at identificere individer.",
+        "li5": "Daglig fingeraftryk-rotation: Besøgsfingeraftryk ændres dagligt og forhindrer langvarig sporing."
+      },
+      "customer": {
+        "title": "Som kunde og abonnent på Betterlytics",
+        "lead": "Vores ledende princip er kun at indsamle det, vi har brug for, og kun behandle information for at levere den tjeneste, du har tilmeldt dig.",
+        "whatWeCollect": {
+          "title": "Hvad vi indsamler og hvorfor",
+          "email": "E-mailadresse: Kræves for at oprette en konto, sende vigtige servicebeskeder og yde kundesupport.",
+          "auth": "Godkendelsesdata: Sikker sessions-token for at holde dig logget ind i dit dashboard.",
+          "websiteConfig": "Website-konfiguration: Domænenavne og site-indstillinger, du konfigurerer til din analyse-tracking.",
+          "usage": "Brugsdata: Hvordan du bruger vores dashboard til at forbedre vores service og yde support."
+        },
+        "thirdParty": {
+          "title": "Tredjepartstjenester",
+          "intro": "Vi bruger et begrænset antal betroede, EU-baserede tjenesteudbydere:",
+          "li1": "Betalingsbehandling (hvis relevant) via EU-kompatible betalingsudbydere",
+          "li2": "E-mail levering til transaktionelle e-mails og notifikationer",
+          "outro": "Vi deler kun de nødvendige oplysninger med disse udbydere og forpligter dem kontraktligt til at beskytte dine data i henhold til GDPR."
+        }
+      },
+      "dataRetention": {
+        "title": "Opbevaring af data",
+        "li1": "Sletning af konto: Når du sletter din konto, slettes ALLE data permanent med det samme – både dine persondata (e-mail, betalingsinfo, kontoindstillinger) OG al website-analysedata. Ingen undtagelser, ingen opbevaringsperiode.",
+        "li2": "Annullering af abonnement (uden sletning af konto): Hvis du annullerer dit abonnement, men beholder din konto, opbevarer vi dine analysedata i op til 1 måned i tilfælde af reaktivering, hvorefter de slettes permanent.",
+        "li3": "Sessionsdata: Besøgssessioner lagres kun i serverhukommelse og udløber automatisk efter 30 minutters inaktivitet.",
+        "footer": "Du har altid ret til øjeblikkelig sletning af alle data."
+      },
+      "rights": {
+        "title": "Dine rettigheder under GDPR",
+        "intro": "Som registreret under GDPR har du følgende rettigheder:",
+        "li1": "Indsigtsret: Anmod om en kopi af dine persondata",
+        "li2": "Ret til berigtigelse: Ret unøjagtige persondata",
+        "li3": "Ret til sletning: Anmod om sletning af dine persondata",
+        "li4": "Ret til begrænsning af behandling: Begræns hvordan vi bruger dine data",
+        "li5": "Ret til dataportabilitet: Modtag dine data i et portabelt format",
+        "li6": "Ret til indsigelse: Gør indsigelse mod behandling baseret på legitime interesser",
+        "li7": "Ret til at trække samtykke tilbage: Træk samtykke til databehandling tilbage",
+        "contact": "For at udøve nogen af disse rettigheder, kontakt os på privacy@betterlytics.io"
+      },
+      "noCookies": {
+        "title": "Ingen cookies-politik",
+        "body": "Betterlytics bruger ikke cookies til at spore website-besøgende. Vi opnår al nødvendig analysefunktionalitet gennem cookiefri, server-side behandling. Det betyder, at websites, der bruger Betterlytics, ikke behøver at vise cookiebannere for vores analyse-tracking."
+      },
+      "security": {
+        "title": "Datasikkerhed",
+        "li1": "Al datatransmission er krypteret med TLS 1.3",
+        "li2": "Data i hvile er krypteret med branchestandarder",
+        "li3": "Adgang til data er strengt begrænset til autoriseret personale",
+        "li4": "Alle servere befinder sig i sikre EU-datacentre"
+      },
+      "changes": {
+        "title": "Ændringer i denne privatlivspolitik",
+        "body": "Vi kan opdatere denne politik efter behov for at overholde relevante regler og afspejle nye praksisser. Når vi foretager væsentlige ændringer, informerer vi vores kunder via e-mail og annoncerer dem på vores website."
+      },
+      "contact": {
+        "title": "Kontakt os",
+        "lead": "Hvis du har spørgsmål, kommentarer eller bekymringer om denne privatlivspolitik, dine data eller dine rettigheder vedrørende dine oplysninger, kontakt os:",
+        "email": "E-mail:",
+        "address": "Adresse:",
+        "footer1": "🇪🇺 Fremstillet og hostet i EU",
+        "footer2": "Forpligtet til privatliv, transparens og GDPR-overholdelse"
+      }
+    },
+    "terms": {
+      "title": "Betterlytics vilkår for tjenesten",
+      "lastUpdated": "Sidst opdateret:",
+      "scope": {
+        "title": "Disse vilkår omfatter",
+        "body": "Disse vilkår for tjenesten gælder udelukkende for Betterlytics' hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. De gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine vilkår, databehandling og juridisk overholdelse."
+      },
+      "intro": {
+        "p1": "Tak fordi du bruger Betterlytics! Når vi siger 'virksomhed', 'vi', 'vores', 'os', 'service' eller 'tjenester' i dette dokument, henviser vi til Betterlytics og vores privatlivsfokuserede webanalyseplatform.",
+        "p2": "Vi kan opdatere disse vilkår i fremtiden. Når vi foretager væsentlige ændringer, informerer vi vores kunder via e-mail og annoncerer dem på vores website. Når du bruger vores service – nu eller i fremtiden – accepterer du de nyeste vilkår.",
+        "p3": "Hvis du ikke accepterer disse vilkår, skal du ikke bruge denne service. Overtrædelse af vilkårene nedenfor kan medføre lukning af din konto."
+      },
+      "account": {
+        "title": "Konto-vilkår",
+        "li1": "Sikkerhedsansvar: Du er ansvarlig for at opretholde sikkerheden for din konto og adgangskode. Betterlytics kan ikke holdes ansvarlig for tab eller skader som følge af manglende overholdelse af denne sikkerhedsforpligtelse.",
+        "li2": "Kontoaktivitet: Du er ansvarlig for enhver aktivitet, der foregår under din konto, inklusive aktivitet fra teammedlemmer, du inviterer.",
+        "li3": "Juridisk overholdelse: Du må ikke bruge vores service til ulovlige formål eller til at overtræde love i din jurisdiktion.",
+        "li4": "Registreringskrav: Du skal angive en gyldig e-mailadresse for at gennemføre tilmeldingen. Du skal være et menneske – konti registreret af bots eller automatiserede metoder er ikke tilladt.",
+        "li5": "Ejerskab af website: Du skal eje eller have udtrykkelig tilladelse til at installere vores analyse-script på ethvert website, du sporer med Betterlytics.",
+        "li6": "Datakvalitet: Du accepterer at afgive korrekte oplysninger om dine websites og ikke bevidst sende falske eller vildledende data til vores service.",
+        "li7": "Alderskrav: Du skal være mindst 18 år for at bruge vores service. Hvis du er mellem 13-17 år, må du kun bruge vores service med forældres samtykke."
+      },
+      "acceptableUse": {
+        "title": "Acceptabel brug",
+        "intro": "Betterlytics er designet til legitim website-analyse og er bygget som et open source-projekt for transparens. Du accepterer ikke at bruge vores service til at:",
+        "li1": "Spor besøgende uden deres viden eller i strid med privatlivslovgivning",
+        "li2": "Indsamle personligt identificerbare oplysninger (vores system er designet til at forhindre dette)",
+        "li3": "Generere kunstig eller bot-trafik for at øge statistik eller misbruge vores infrastruktur",
+        "li4": "Spor websites, du ikke ejer, uden udtrykkelig tilladelse",
+        "li5": "Misbruge vores infrastruktur, omgå rate-limits eller sende defekt data, der kan skade vores systemer",
+        "li6": "Bruge vores service til at skade, chikanere eller krænke privatlivet for nogen",
+        "li7": "Overtræde gældende love, herunder GDPR, CCPA eller andre privatlivsregler"
+      },
+      "payment": {
+        "title": "Betaling, refusion og ændringer af plan",
+        "freeTierTitle": "Gratis plan",
+        "freeTierBody": "Vi tilbyder en permanent gratis plan med en månedlig grænse for events som angivet på vores prisside. Intet kreditkort er påkrævet for den gratis plan. Vi sælger aldrig dine data – uanset hvilken plan du bruger.",
+        "billingTitle": "Fakturering",
+        "billingBody": "Du kan bruge vores gratis plan ubegrænset inden for de månedlige grænser. For højere forbrug skal du opgradere til en betalt plan og betale forud. Hvis du overskrider planens grænser uden at opgradere, risikerer du at miste overskydende data. Hvis betalte konti er forfaldne, fryser vi kontoen, indtil betaling sker.",
+        "limitsTitle": "Event-grænser",
+        "limitsBody": "Hver plan inkluderer en månedlig grænse for events (sidevisninger, brugerdefinerede events osv.). Ubrugte events overføres ikke til næste måned. Du vil aldrig blive opkrævet ekstra for lejlighedsvise trafikspidser. Hvis du konsekvent overskrider grænserne i to på hinanden følgende måneder, kontakter vi dig for at drøfte opgradering.",
+        "planChangesTitle": "Ændringer af plan",
+        "planChangesBody": "Du kan op- eller nedgradere din plan når som helst. Opgraderinger træder i kraft med det samme. Nedgraderinger kan medføre tab af funktioner eller kapacitet. Vi er ikke ansvarlige for datatab som følge af nedgraderinger.",
+        "refundsTitle": "Refusioner",
+        "refundsBody": "Alle gebyrer er ikke-refunderbare. Hvis du dog oplever væsentlige serviceproblemer inden for de første 30 dage, så kontakt os – vi finder en fair løsning sammen."
+      },
+      "cancellation": {
+        "title": "Opsigelse og ophør",
+        "importantTitle": "Vigtigt: To typer opsigelse",
+        "li1": "Opsigelse af abonnement: Beholder din konto men stopper fakturering. Analyser beholdes i 1 måned.",
+        "li2": "Sletning af konto: Sletter alt permanent med det samme, inklusive alle analysedata.",
+        "howToTitle": "Sådan opsiger du",
+        "howToBody": "Du kan opsige dit abonnement eller slette din konto helt via dine kontoindstillinger. En e-mail anmodning alene betragtes ikke som en korrekt opsigelse.",
+        "whatHappensTitle": "Hvad sker der ved opsigelse",
+        "whLi1": "Opsigelse af abonnement: Træder i kraft ved udgangen af den aktuelle faktureringsperiode. Du bliver ikke opkrævet igen. Dine analysedata bliver utilgængelige, men bevares i 1 måned, hvis du vender tilbage – derefter slettes de permanent.",
+        "whLi2": "Sletning af konto: Alle data (personlige og analyse) slettes permanent med det samme. Dette kan ikke fortrydes.",
+        "ourRightTitle": "Vores ret til at afslutte",
+        "ourRightBody": "Vi forbeholder os retten til at suspendere eller afslutte din konto ved overtrædelse af vilkårene, ulovlig aktivitet eller misbrug af vores service eller team. Vi giver besked, når det er muligt, men øjeblikkelig afslutning kan være nødvendig i alvorlige tilfælde."
+      },
+      "serviceMods": {
+        "title": "Serviceændringer og priser",
+        "li1": "Serviceændringer: Vi forbeholder os retten til at ændre eller afbryde dele af servicen med eller uden varsel. Vi kommunikerer væsentlige ændringer, der påvirker din brug, på forhånd, når det er muligt.",
+        "li2": "Prisændringer: Vi kan ændre vores prisstruktur. Eksisterende kunder er typisk undtaget fra prisstigninger, men vi forbeholder os retten til at ændre priser for alle kunder med mindst 30 dages varsel via e-mail.",
+        "li3": "Feature-opdateringer: Vi forbedrer løbende servicen med nye funktioner og forbedringer. Nogle funktioner kan kræve opgradering."
+      },
+      "dataOwnership": {
+        "title": "Dataejerskab og privatliv",
+        "yourRightsTitle": "Dine datarettigheder",
+        "yourRightsBody": "Du ejer 100% af dine analysedata. Vi gør ikke krav på immaterielle rettigheder over dine websitedata og vil aldrig sælge eller dele dem med tredjeparter.",
+        "dpaTitle": "Databehandleraftale",
+        "dpaBodyPrefix": "For enterprise-kunder og GDPR-overholdelse er vores omfattende Databehandleraftale (DPA) tilgængelig på",
+        "dpaBodySuffix": ". DPA'en er en del af disse vilkår og regulerer, hvordan vi behandler data på dine vegne.",
+        "whatWeCollectTitle": "Hvad vi indsamler",
+        "whatWeCollectBody": "Vores service er designet til at være privacy-first og cookiefri. Vi indsamler kun anonyme, aggregerede data som beskrevet i vores privatlivspolitik. Vi indsamler ikke personligt identificerbare oplysninger.",
+        "yourResponsibilitiesTitle": "Dine forpligtelser",
+        "yrLi1": "Sørg for, at din brug af vores service overholder gældende privatlivslove (GDPR, CCPA osv.)",
+        "yrLi2": "Opdater din privatlivspolitik med brugen af Betterlytics til anonym analyse (typisk kræves intet cookiebanner, da vores service er cookiefri)",
+        "yrLi3": "Forsøg ikke at sende følsomme oplysninger (kreditkort, persondata osv.) gennem vores service, inkl. i URL-stier eller query-parametre.",
+        "yrLi4": "Oprethold sikkerheden for din konto og rapportér straks uautoriseret adgang",
+        "ourCommitmentsTitle": "Vores forpligtelser",
+        "ocLi1": "Behandle dine data kun som beskrevet i vores privatlivspolitik",
+        "ocLi2": "Implementere passende sikkerhedsforanstaltninger for at beskytte dine data",
+        "ocLi3": "Aldrig sælge, dele eller monetarisere dine analysedata",
+        "ocLi4": "Leverer EU-baseret hosting og behandling for GDPR-overholdelse",
+        "ocLi5": "Slette dine data øjeblikkeligt ved sletning af konto"
+      },
+      "sla": {
+        "title": "Service niveau og support",
+        "availabilityTitle": "Tilgængelighed",
+        "availabilityBody": "Vi bestræber os på høj tilgængelighed, men leverer servicen \"som den er\" og \"som tilgængelig\". Vi garanterer ikke oppetid, men arbejder hårdt for pålidelighed.",
+        "supportTitle": "Support",
+        "supportBody": "Teknisk support tilbydes via e-mail efter rimelig indsats. Vi bestræber os på hurtige svar men garanterer ikke specifikke svartider.",
+        "bugsTitle": "Fejl og problemer",
+        "bugsBody": "Vi tester vores funktioner grundigt, men software er aldrig perfekt. Vi registrerer rapporterede fejl og prioriterer rettelser – især for sikkerheds- eller privatlivsproblemer. Ikke alle fejl rettes med det samme."
+      },
+      "liability": {
+        "title": "Ansvar og ansvarsfraskrivelser",
+        "p1": "Du accepterer udtrykkeligt, at Betterlytics ikke er ansvarlig for direkte, indirekte, tilfældige, særlige eller følgeskader, herunder men ikke begrænset til:",
+        "li1": "Tab af fortjeneste, goodwill, brug, data eller andre immaterielle tab",
+        "li2": "Brugen af eller manglende evne til at bruge vores tjenester",
+        "li3": "Uautoriseret adgang til eller ændring af dine data",
+        "li4": "Udtalelser eller adfærd fra tredjepart",
+        "li5": "Enhver anden sag i forbindelse med disse vilkår eller vores tjenester",
+        "note": "Hvad det betyder: Selvom vi arbejder hårdt på at levere pålidelig, privatlivsfokuseret analyse, er teknologi ikke perfekt, og ting kan gå galt. Ved at bruge Betterlytics accepterer du, at vi ikke kan holdes ansvarlige for eventuelle forretningsmæssige tab eller problemer, der kan skyldes serviceproblemer. Vi vil vinde din tillid gennem transparens, stærk sikkerhed og fokus på privatliv.",
+        "p2": "Denne aftale er underlagt EU-lovgivningen og den jurisdiktion, hvor Betterlytics er juridisk etableret."
+      },
+      "ip": {
+        "title": "Intellektuelle rettigheder",
+        "li1": "Dit indhold: Du beholder alle rettigheder til det indhold, du leverer til vores service. Dine websitedata forbliver dine.",
+        "li2": "Vores service: Udseende, oplevelse og funktionalitet af Betterlytics er vores intellektuelle ejendom. Du må ikke kopiere, modificere eller reverse-engineere vores service.",
+        "li3": "Feedback: Hvis du giver feedback eller forslag, accepterer du, at vi kan bruge og indarbejde det uden betaling eller attributtering.",
+        "li4": "Varemærker: 'Betterlytics' og vores logo er vores varemærker. Du må ikke bruge dem uden skriftlig tilladelse, bortset fra at identificere vores service i forbindelse med legitim brug.",
+        "li5": "Open source-komponenter: Vores analyse-script og kernekomponenter er udgivet under open source-licenser. Dette giver ikke rettigheder til vores hostede service, varemærker eller proprietær infrastruktur."
+      },
+      "updates": {
+        "title": "Opdateringer og kommunikation",
+        "p1": "Vi kan opdatere disse vilkår fra tid til anden. Når vi foretager væsentlige ændringer:",
+        "li1": "Vi informerer dig via e-mail mindst 30 dage i forvejen",
+        "li2": "Vi offentliggør opdateringer på vores website",
+        "li3": "Fortsat brug efter ikrafttrædelse udgør accept",
+        "li4": "Hvis du ikke er enig i ændringerne, kan du opsige din konto"
+      },
+      "contact": {
+        "title": "Kontakt os",
+        "lead": "Hvis du har spørgsmål til disse vilkår, kontakt os:",
+        "email": "E-mail:",
+        "support": "Support:",
+        "address": "Adresse:",
+        "footer1": "🇪🇺 Fremstillet og hostet i EU",
+        "footer2": "Privatlivsfokuseret analyse, du kan stole på"
+      }
+    },
+    "dpa": {
+      "title": "Databehandleraftale (DPA)",
+      "lastUpdated": "Sidst opdateret:",
+      "scope": {
+        "title": "Denne DPA omfatter",
+        "body": "Denne databehandleraftale gælder udelukkende for Betterlytics' hostede cloud-tjeneste på betterlytics.io og vores officielle domæner. Den gælder ikke for self-hostede installationer af vores open source software. Hvis du self-hoster Betterlytics, er du selv ansvarlig for dine databehandleraftaler og juridisk overholdelse."
+      },
+      "whyDifferent": {
+        "title": "Hvorfor denne DPA er anderledes",
+        "body": "I modsætning til traditionelle analysetjenester er Betterlytics designet til at være anonymt fra design. Vi behandler ingen persondata, hvilket gør denne DPA til en af de enkleste i branchen."
+      },
+      "intro": {
+        "title": "1. Introduktion",
+        "p1": "Denne databehandleraftale (\"DPA\") er en del af Betterlytics' vilkår for tjenesten og regulerer databehandling, når du bruger vores analysetjeneste. Aftalen er designet til at sikre overholdelse af GDPR og anden relevant databeskyttelseslovgivning.",
+        "p2": "Vigtigt: Betterlytics er specifikt designet til kun at behandle anonyme, aggregerede data. Ingen persondata indsamles, lagres eller behandles af vores service."
+      },
+      "definitions": {
+        "title": "2. Definitioner",
+        "controller": "\"Dataansvarlig\": Dig (kunden), der fastlægger formål og midler til behandling af data fra dine website-besøgende.",
+        "processor": "\"Databehandler\": Betterlytics, der behandler data på dine vegne efter dine instrukser.",
+        "processing": "\"Behandling\": I vores tilfælde indsamling og analyse af anonyme, aggregerede website-analysedata.",
+        "personalData": "\"Persondata\": Ikke relevant – Betterlytics er designet til at undgå behandling af persondata."
+      },
+      "processingDetails": {
+        "title": "3. Detaljer om databehandling",
+        "naturePurposeTitle": "3.1 Behandlingens karakter og formål",
+        "npLi1": "Levering af anonym website-analyse og besøgsindsigter",
+        "npLi2": "Generering af aggregerede rapporter om trafik og brugsmønstre",
+        "npLi3": "Registrering og filtrering af bot-trafik for nøjagtig statistik",
+        "categoriesTitle": "3.2 Datakategorier",
+        "categoriesIntro": "Kun anonyme data:",
+        "catLi1": "Anonymiserede IP-adresser (sidste oktet fjernes straks)",
+        "catLi2": "Kategoriserede skærmopløsninger (små/mellem/store)",
+        "catLi3": "Browser- og operativsystemoplysninger",
+        "catLi4": "Geografiske data på landeniveau",
+        "catLi5": "Side-URL'er og henviserinformation",
+        "catLi6": "Dagligt roterende besøgsfingeraftryk (anonym identifikation)",
+        "subjectsTitle": "3.3 Registrerede personer",
+        "subjectsBody": "Ikke relevant – vores system er designet til at forhindre identifikation af individer. Al data behandles kun i aggregeret og anonym form.",
+        "locationTitle": "3.4 Behandlingssted",
+        "locationBody": "Al databehandling foregår i EU på servere i sikre EU-datacentre."
+      },
+      "instructions": {
+        "title": "4. Dine instrukser",
+        "intro": "Ved at bruge Betterlytics instruerer du os i at:",
+        "li1": "Indsamle anonym analysedata fra dine website-besøgende",
+        "li2": "Behandle disse data for at generere website-analyse og indsigter",
+        "li3": "Opbevare data i løbet af dit abonnement",
+        "li4": "Slette alle data øjeblikkeligt ved sletning af konto",
+        "li5": "Give dig rapporter og adgang til dine data"
+      },
+      "security": {
+        "title": "5. Sikkerhedsforanstaltninger",
+        "intro": "Betterlytics implementerer passende tekniske og organisatoriske foranstaltninger for at sikre datasikkerhed:",
+        "li1": "Al datatransmission krypteres med TLS 1.2/1.3",
+        "li2": "Data i hvile krypteres efter branchestandard",
+        "li3": "Adgangskontrol begrænser dataadgang til autoriseret personale",
+        "li4": "Regelmæssige sikkerhedsrevisioner og opdateringer",
+        "li5": "EU-baserede servere i sikre datacentre",
+        "li6": "Straks anonymisering af IP ved indsamling"
+      },
+      "subprocessors": {
+        "title": "6. Underbehandlere",
+        "intro": "Betterlytics kan engagere følgende kategorier af underbehandlere:",
+        "li1": "Infrastrukturudbydere: EU-baseret cloud-hosting og infrastruktur",
+        "notice": "Vi informerer dig om ændringer i underbehandlere og indhenter samtykke, hvor loven kræver det."
+      },
+      "rights": {
+        "title": "7. Registreredes rettigheder",
+        "body": "Ikke relevant: Da Betterlytics kun behandler anonyme data, gælder individuelle rettigheder (indsigt, berigtigelse, sletning m.v.) ikke for vores analysedata. Besøgende kan ikke identificeres i vores system, hvilket gør individuelle anmodninger umulige at opfylde."
+      },
+      "breach": {
+        "title": "8. Underretning om brud på persondatasikkerheden",
+        "intro": "I det usandsynlige tilfælde af en sikkerhedshændelse, der påvirker vores service:",
+        "li1": "Vi underretter dig inden for 72 timer efter, at vi bliver opmærksomme på hændelsen",
+        "li2": "Vi giver detaljer om hændelsen og vores afhjælpende foranstaltninger",
+        "li3": "Vi hjælper med eventuelle påkrævede underretninger til datatilsyn",
+        "li4": "Bemærk: Risikoen for individer er minimal, da vi kun behandler anonyme data"
+      },
+      "deletion": {
+        "title": "9. Sletning og tilbagelevering af data",
+        "accountTitle": "Sletning af konto",
+        "accountBody": "Alle data (personlige og analyse) slettes permanent med det samme ved sletning af konto.",
+        "subscriptionTitle": "Opsigelse af abonnement",
+        "subscriptionBody": "Analyser opbevares i 1 måned i tilfælde af, at du vender tilbage, hvorefter de slettes permanent.",
+        "exportTitle": "Dataeksport",
+        "exportBody": "Du kan eksportere dine analysedata til enhver tid via dit dashboard."
+      },
+      "compliance": {
+        "title": "10. Revision og compliance",
+        "intro": "Betterlytics opretholder compliance gennem:",
+        "li1": "Regelmæssige interne sikkerheds- og privatlivsvurderinger",
+        "li2": "Transparent, open source-kodebase for teknisk verifikation",
+        "li3": "Offentlig privatlivspolitik og vilkår for tjenesten",
+        "li4": "Forpligtelse til at samarbejde om rimelige revisionsanmodninger fra enterprise-kunder"
+      },
+      "contact": {
+        "title": "Kontakt vedr. DPA",
+        "lead": "For spørgsmål om denne DPA eller databehandlingspraksis:",
+        "legal": "Juridiske henvendelser:",
+        "technical": "Tekniske spørgsmål:",
+        "footer": "Denne DPA accepteres automatisk, når du bruger Betterlytics, og er en del af vores vilkår. 🇪🇺 Anonymt fra design – Fremstillet og hostet i EU"
+      }
+    },
+    "auth": {
+      "signin": {
+        "title": "Log ind på din konto",
+        "subtitle": "Få adgang til dit analyse-dashboard",
+        "errors": {
+          "CredentialsSignin": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
+          "default": "Der opstod en fejl under login. Prøv venligst igen."
+        },
+        "cta": {
+          "noAccount": "Har du ikke en konto?",
+          "createOne": "Opret en"
+        }
+      },
+      "register": {
+        "title": "Opret din konto",
+        "subtitle": "Begynd at spore din analyse i dag",
+        "cta": {
+          "haveAccount": "Har du allerede en konto?",
+          "signIn": "Log ind"
+        },
+        "disabled": {
+          "title": "Registrering deaktiveret",
+          "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
+          "backToSignIn": "Tilbage til login"
+        }
+      },
+      "forgotPassword": {
+        "title": "Nulstil din adgangskode",
+        "subtitle": "Indtast din e-mail, så sender vi et link til nulstilling af adgangskode",
+        "cta": {
+          "remember": "Kan du huske din adgangskode?",
+          "backToSignIn": "Tilbage til login"
+        }
+      },
+      "resetPassword": {
+        "invalid": {
+          "title": "Ugyldigt nulstillingslink",
+          "description": "Dette link til nulstilling af adgangskode er ugyldigt eller mangler et token.",
+          "note": "Anmod venligst om et nyt link til nulstilling af adgangskode.",
+          "requestLink": "Anmod om nyt nulstillingslink"
+        },
+        "expired": {
+          "title": "Nulstillingslink udløbet",
+          "description": "Dette link til nulstilling af adgangskode er udløbet eller ugyldigt.",
+          "info": "Links til nulstilling af adgangskode udløber efter 1 time af sikkerhedshensyn. Anmod venligst om et nyt.",
+          "requestLink": "Anmod om nyt nulstillingslink"
+        },
+        "form": {
+          "title": "Angiv din nye adgangskode",
+          "description": "Indtast din nye adgangskode nedenfor"
+        },
+        "cta": {
+          "remember": "Kan du huske din adgangskode?",
+          "backToSignIn": "Tilbage til login"
+        }
+      },
+      "verifyEmail": {
+        "invalid": {
+          "title": "Ugyldigt bekræftelseslink",
+          "description": "Bekræftelseslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen.",
+          "backToSignIn": "Tilbage til login"
+        },
+        "failed": {
+          "title": "Bekræftelse mislykkedes",
+          "expiredInfo": "Bekræftelseslinks udløber efter 24 timer af sikkerhedshensyn. Du kan anmode om et nyt og prøve igen.",
+          "genericFallback": "Der opstod en fejl under bekræftelsen."
+        },
+        "buttons": {
+          "returnToDashboard": "Tilbage til dashboard",
+          "backToSignIn": "Tilbage til login"
+        },
+        "helpLine": "Har du brug for hjælp? Kontakt support på support@betterlytics.io"
+      }
+    },
+    "landing": {
+      "seo": {
+        "title": "Betterlytics | Simpel, cookiefri, privatlivsvenlig webanalyse",
+        "description": "Betterlytics er et privacy-first alternativ til Google Analytics. Få GDPR-kompatible, cookiefri indsigter uden invasiv tracking. Simpelt, open source og let at bruge."
+      },
+      "hero": {
+        "badge": "Open source • GDPR-kompatibel • Cookiefri",
+        "titleTop": "Privacy-first",
+        "titleBottom": "webanalyse",
+        "description": "Få stærke indsigter uden at gå på kompromis med dine brugeres privatliv. GDPR-kompatibel, cookiefri analyse, der respekterer brugernes privatliv og leverer de data, du har brug for.",
+        "ctaPrimary": "Kom i gang gratis",
+        "ctaGithub": "Se på GitHub"
+      },
+      "framework": {
+        "title": "Fungerer med dine favoritværktøjer",
+        "subtitle": "Universel kompatibilitet – virker med ethvert website, framework eller platform",
+        "footer": "Og mange flere... Hvis det kører på nettet, understøtter vi det!"
+      },
+      "principles": {
+        "titleEmphasis": "Højtydende",
+        "titleRest": "analyse, der respekterer privatliv",
+        "subtitle": "Realtidsindsigter, lynhurtig performance og fuld privatlivsoverholdelse for alle",
+        "features": {
+          "euGdpr": {
+            "title": "EU-baseret og GDPR-kompatibel",
+            "description": "Servere hostet i EU med strenge databeskyttelsesstandarder. Fuld GDPR-overholdelse med anonym datainindsamling og robuste privacy-garantier."
+          },
+          "noConsent": {
+            "title": "Intet samtykkebanner nødvendigt",
+            "description": "Fuldt anonym analyse betyder ingen cookiebannere, ingen GDPR-samtykkeformularer og ingen friktion for brugere. Installer og begynd at spore med det samme."
+          },
+          "dataOwnership": {
+            "title": "Fuld dataejerskab",
+            "description": "Dine data forbliver dine for altid. Self-host med vores open source-version eller brug vores sikre cloud-infrastruktur."
+          },
+          "realtime": {
+            "title": "Realtids forretningsindsigter",
+            "description": "Lynhurtig besøgs- og konverteringsanalyse på tværs af verden. Smukke dashboards hjælper dig med at træffe datadrevne beslutninger med det samme."
+          },
+          "lightweight": {
+            "title": "Letvægts og udviklervenlig",
+            "description": "Under 1KB script, open source-kodebase og omfattende API'er. Bygget af udviklere til udviklere."
+          },
+          "simpleSetup": {
+            "title": "Simpel opsætning, kraftfulde funktioner",
+            "description": "Én linje integration til ethvert website. Avanceret tilpasning og enterprise-funktioner tilgængelige."
+          }
+        }
+      },
+      "showcase": {
+        "titleEmphasis": "Kraftfulde funktioner",
+        "titleRest": "lige ved hånden",
+        "subtitle": "Udforsk hele arsenalet af analysefunktioner",
+        "docsButton": "Udforsk alle funktioner",
+        "docsTitle": "Komplet Betterlytics-dokumentation"
+      },
+      "integration": {
+        "titleStart": "Kom i gang på",
+        "titleEmphasis": "under 2 minutter",
+        "subtitle": "Tilføj vores letvægts-script og begynd at indsamle cookiefri, privatlivsvenlig analyse med det samme. Ingen cookies, ingen persondata, intet samtykkebanner nødvendigt.",
+        "cards": {
+          "script": {
+            "title": "Simpelt script-tag",
+            "description": "Tilføj én linje til din HTML og begynd at spore med det samme. Virker med ethvert website eller CMS.",
+            "features": {
+              "f1": "Én linjes installation",
+              "f2": "Virker overalt",
+              "f3": "Ingen build-proces nødvendig"
+            }
+          },
+          "framework": {
+            "title": "Klar til frameworks",
+            "description": "Native support til React, Next.js, Vue og andre moderne frameworks med TypeScript.",
+            "features": { "f1": "TypeScript support", "f2": "Framework-komponenter", "f3": "Tree-shakeable" }
+          },
+          "selfHosted": {
+            "title": "Self-hosted mulighed",
+            "description": "Udrul på din egen infrastruktur med Docker for fuldt dataejerskab og kontrol.",
+            "features": { "f1": "Docker-udrulning", "f2": "Fuld kontrol", "f3": "GDPR-kompatibel" }
+          }
+        },
+        "guideButton": "Se integrationsguide",
+        "guideTitle": "Betterlytics integrationsguide",
+        "footer": "Detaljerede installationsinstruktioner til alle platforme og frameworks"
+      },
+      "openSource": {
+        "titleEmphasis": "Open source",
+        "titleRest": "fællesskabsdrevet",
+        "subtitle": "Transparent, fællesskabsdrevet udvikling. Deltag som bidragyder, ønsk funktioner eller tilpas platformen til dine behov.",
+        "starOnGithub": "Giv en stjerne på GitHub",
+        "viewDocs": "Se dokumentation",
+        "docsTitle": "Komplet Betterlytics-dokumentation"
+      },
+      "pricing": {
+        "titleEmphasis": "Simpel, skalerbar",
+        "titleRest": "prissætning",
+        "subtitle": "Trafikbaserede planer, der matcher din vækst. Start gratis, skalér når du vokser.",
+        "footer": "Start med vores gratis plan – intet kreditkort krævet."
+      },
+      "cards": {
+        "advancedFilters": {
+          "title": "Avancerede filtre",
+          "description": "Segmentér din analysedata efter enhver dimension for at finde handlingsklare indsigter."
+        },
+        "trafficSources": {
+          "title": "Trafikkilder",
+          "description": "Find ud af, hvor dine besøgende kommer fra, og optimer din markedsføring.",
+          "totalVisitors": "Samlede besøgende",
+          "thisMonth": "denne måned",
+          "visitorsLabel": "besøgende",
+          "sources": {
+            "googleSearch": "Google-søgning",
+            "direct": "Direkte",
+            "socialMedia": "Sociale medier",
+            "email": "E-mail",
+            "other": "Andet"
+          }
+        },
+        "funnels": {
+          "title": "Tragte",
+          "description": "Følg konverteringsraten for dine vigtigste brugerrejser.",
+          "total": "I alt",
+          "dropOff": "frafald",
+          "sinceLastWeek": "siden sidste uge"
+        },
+        "events": {
+          "title": "Realtidshændelser",
+          "description": "Spor alle brugerinteraktioner, når de sker, med detaljeret hændelseslogning.",
+          "showing": "Viser {loaded} af {total} hændelser"
+        },
+        "journeys": {
+          "title": "Brugerrejser",
+          "description": "Følg flere brugerforløb og se, hvordan besøgende navigerer på dit site."
+        },
+        "worldMap": {
+          "title": "Geografisk analyse",
+          "description": "Se hvor dine besøgende kommer fra i hele verden.",
+          "topCountries": "Toplande"
+        }
+      }
+    },
+    "nav": {
+      "documentation": "Dokumentation",
+      "pricing": "Priser",
+      "goToDashboard": "Gå til dashboard",
+      "getStarted": "Kom i gang"
+    },
+    "footer": {
+      "blurb": "Privacy-first webanalyse til det moderne web. GDPR-kompatibel, cookiefri og open source.",
+      "company": "Virksomhed",
+      "resources": "Ressourcer",
+      "connect": "Forbind",
+      "about": "Om",
+      "contact": "Kontakt",
+      "privacyPolicy": "Privatlivspolitik",
+      "termsOfService": "Servicevilkår",
+      "dpa": "Databehandleraftale",
+      "documentation": "Dokumentation",
+      "pricing": "Priser",
+      "github": "GitHub",
+      "bluesky": "Bluesky",
+      "discord": "Discord",
+      "copyright": "© {year} Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licens."
+    }
+  },
+  "pricingCards": {
+    "periodPerMonth": "/måned",
+    "descriptions": {
+      "growth": "Perfekt til små websites og personlige projekter",
+      "professional": "Avancerede funktioner til voksende virksomheder",
+      "enterprise": "Komplet løsning til store organisationer"
+    },
+    "features": {
+      "upToEventsPerMonth": "Op til {events} events/måned",
+      "allFeatures": "Alle dashboard- og analysefunktioner",
+      "oneSite": "1 hjemmeside",
+      "upTo50Sites": "Op til 50 hjemmesider",
+      "unlimitedSites": "Ubegrænsede hjemmesider",
+      "retention1PlusYear": "1+ års dataopbevaring",
+      "retention3PlusYears": "3+ års dataopbevaring",
+      "retention5PlusYears": "5+ års dataopbevaring",
+      "emailSupport": "E-mail support",
+      "prioritySupport": "Prioriteret support",
+      "dedicatedSupport": "Dedikeret support og hjælp",
+      "slaGuarantee": "SLA-garanti",
+      "everythingInStarter": "Alt i Growth",
+      "everythingInProfessional": "Alt i Professional"
+    },
+    "cta": {
+      "getStartedForFree": "Kom i gang gratis",
+      "contactSales": "Kontakt salg",
+      "getStarted": "Kom i gang",
+      "currentPlan": "Nuværende plan",
+      "changeToThisPlan": "Skift til denne plan",
+      "contactUs": "Kontakt os"
+    },
+    "badges": {
+      "mostPopular": "Mest populær",
+      "current": "Nuværende"
+    },
+    "labels": {
+      "free": "Gratis",
+      "custom": "Tilpasset"
+    }
+  },
+  "dashboard": {
+    "sidebar": {
+      "overview": "Oversigt",
+      "pages": "Sider",
+      "referrers": "Henvisninger",
+      "outboundLinks": "Udgående links",
+      "userJourney": "Brugerrejse",
+      "geography": "Geografi",
+      "devices": "Enheder",
+      "campaigns": "Kampagner",
+      "events": "Hændelser",
+      "funnels": "Tragter",
+      "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
+      "webVitals": "Web Vitals"
+    },
+    "metrics": {
+      "uniqueVisitors": "Unikke besøgende",
+      "totalPageviews": "Samlede sidevisninger",
+      "bounceRate": "Afvisningsprocent",
+      "avgVisitDuration": "Gns. besøgstid",
+      "sessions": "Sessioner",
+      "pagesPerSession": "Sider pr. session",
+      "sessionDuration": "Sessionsvarighed"
+    },
+    "sections": {
+      "topPages": "Top sider",
+      "geography": "Geografi",
+      "devicesBreakdown": "Enhedsopdeling",
+      "trafficSources": "Trafikkilder",
+      "customEvents": "Brugerdefinerede hændelser",
+      "weeklyTrends": "Ugentlige trends"
+    },
+    "goTo": "Gå til {section}",
+    "tabs": {
+      "pages": "Sider",
+      "userJourney": "Brugerrejse",
+      "funnels": "Tragter",
+      "campaigns": "Kampagner",
+      "entryPages": "Indgangssider",
+      "exitPages": "Udgangssider",
+      "topCountries": "Top lande",
+      "worldMap": "Verdenskort",
+      "browsers": "Browsere",
+      "devices": "Enheder",
+      "operatingSystems": "Operativsystemer",
+      "referrers": "Henvisninger",
+      "sources": "Kilder",
+      "channels": "Kanaler",
+      "events": "Hændelser"
+    },
+    "emptyStates": {
+      "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",
+      "noUserJourneyData": "Ingen brugerrejse data tilgængelig",
+      "noData": "Ingen data tilgængelig"
+    }
+  },
+  "devicesPage": {
+    "title": "Enheder",
+    "description": "Opdeling af besøgendes enheder og anvendelsesanalyse"
+  },
+  "dashboardsPage": {
+    "title": "Dine dashboards",
+    "subtitle": "Administrér og overvåg analyse for alle dine websites.",
+    "emptyTitle": "Ingen dashboards endnu",
+    "emptyDescription": "Opret dit første dashboard for at begynde at indsamle analysedata for din hjemmeside.",
+    "createCard": {
+      "title": "Opret dashboard",
+      "description": "Tilføj et nyt dashboard"
+    }
+  },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Nuværende periode",
+      "previousPeriod": "Forrige periode"
+    }
+  },
+  "misc": {
+    "loading": "Indlæser...",
+    "error": "Der opstod en fejl",
+    "app": "Applikation",
+    "created": "Oprettet",
+    "unknown": "Ukendt"
+  },
+  "languages": {
+    "da": "Dansk",
+    "en": "Engelsk"
+  },
+  "components": {
+    "weeklyHeatmap": {
+      "days": {
+        "monShort": "Man.",
+        "tueShort": "Tir.",
+        "wedShort": "Ons.",
+        "thuShort": "Tor.",
+        "friShort": "Fre.",
+        "satShort": "Lør.",
+        "sunShort": "Søn."
+      }
+    },
+    "dashboards": {
+      "createDialog": {
+        "title": "Opret nyt dashboard",
+        "description": "Indtast dit website-domæne for at begynde at spore analyse.",
+        "label": {
+          "domain": "Website-domæne"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Indtast dit domæne uden https:// eller www."
+        },
+        "buttons": {
+          "cancel": "Annuller",
+          "create": "Opret dashboard",
+          "creating": "Opretter..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard oprettet! Opsætter integration...",
+          "createFailed": "Kunne ikke oprette dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Ugyldigt domæne"
+        },
+        "limitTooltip": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards."
+      }
+    },
+    "billing": {
+      "usageBanner": {
+        "title": "Forbrugsgrænse overskredet:",
+        "body": "Du har brugt <strong>{current}</strong> events ud af din grænse på <strong>{limit}</strong> events ({percentage} over din {plan}-plan).",
+        "upgradeHint": "Opgrader for at sikre, at alle dine analysedata forbliver tilgængelige",
+        "upgradeCta": "Opgrader nu"
+      },
+      "navigation": {
+        "backToDashboards": "Tilbage til dashboards",
+        "title": "Vælg din plan"
+      },
+      "page": {
+        "heading": "Opgrader din plan",
+        "subheading": "Vælg den perfekte plan til dine analysebehov."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "subtitle": "Alt du behøver at vide om vores priser og planer",
+        "items": {
+          "changePlan": {
+            "q": "Kan jeg ændre min plan når som helst?",
+            "a": "Ja! Du kan op- eller nedgradere din plan når som helst. Ændringer træder i kraft med det samme, og vi forholdsmæssigt justerer faktureringen."
+          },
+          "exceedLimit": {
+            "q": "Hvad sker der, hvis jeg overskrider min event-grænse?",
+            "a": "Vi fortsætter med at spore dine events og sender en e-mail, når du overskrider din grænse. Hvis du overskrider grænsen i mere end 30 dage, kan overskydende data blive slettet."
+          },
+          "annualBilling": {
+            "q": "Tilbyder I årlig fakturering?",
+            "a": "Lige nu tilbyder vi kun månedlig fakturering. Årlig fakturering med rabat kommer snart!"
+          },
+          "freeOption": {
+            "q": "Er der en gratis mulighed?",
+            "a": "Ja! Vores Growth-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for at komme i gang."
+          },
+          "cancelAnytime": {
+            "q": "Kan jeg opsige når som helst?",
+            "a": "Helt sikkert. Du kan opsige dit abonnement når som helst. Din plan forbliver aktiv indtil slutningen af din nuværende faktureringsperiode."
+          },
+          "paymentMethods": {
+            "q": "Hvilke betalingsmetoder accepterer I?",
+            "a": "Vi accepterer alle større kreditkort (Visa, MasterCard, American Express) og understøtter sikre betalinger via vores betalingsudbyder."
+          }
+        }
+      },
+      "interactive": {
+        "checkoutCanceled": "Betalingen blev annulleret. Du kan prøve igen når som helst.",
+        "contactForCustomPlan": "Kontakt os for en tilpasset plan",
+        "planSelectionFailed": "Kunne ikke behandle valg af plan. Prøv igen.",
+        "subscriptionChangesNote": "Ændringer i dit abonnement behandles straks gennem Stripes sikre faktureringsportal.",
+        "freePlanNote": "Start med vores gratis plan – intet kreditkort krævet."
+      },
+      "currentPlan": {
+        "title": "Nuværende plan",
+        "canceledBannerTitle": "Abonnement annulleret",
+        "canceledBannerBody": "Dit abonnement forbliver aktivt indtil {date}. Du kan genaktivere når som helst inden da.",
+        "description": "Detaljer for din nuværende abonnement",
+        "plan": "Plan",
+        "monthlyPrice": "Månedlig pris",
+        "free": "Gratis",
+        "eventUsage": "Event-forbrug",
+        "usageProgress": "{current} af {limit} events",
+        "resetsInDays": "Nulstilles om {days} dage",
+        "expiresInDays": "Udløber om {days} dage",
+        "canceled": "Annulleret",
+        "manage": "Administrér abonnement",
+        "reactivate": "Genaktivér abonnement",
+        "cancel": "Annullér abonnement"
+      },
+      "planNames": {
+        "growth": "Growth-plan",
+        "professional": "Pro-plan",
+        "enterprise": "Enterprise"
+      }
+    },
+    "dataTable": {
+      "noResults": "Ingen resultater."
+    },
+    "timeRange": {
+      "quickSelect": "Hurtig valg",
+      "granularity": "Granularitet",
+      "currentPeriod": "Nuværende periode",
+      "compareWithPrevious": "Sammenlign med tidligere periode",
+      "compareToPeriod": "Sammenligningsperiode",
+      "startDate": "Startdato",
+      "endDate": "Slutdato",
+      "dateRange": "Datointerval",
+      "presets": {
+        "24h": "Seneste 24 timer",
+        "3d": "Seneste 3 dage",
+        "7d": "Seneste 7 dage",
+        "28d": "Seneste 28 dage",
+        "3mo": "Seneste 3 måneder",
+        "6mo": "Seneste 6 måneder"
+      },
+      "granularityLabels": {
+        "day": "Dag",
+        "hour": "Time",
+        "minute_30": "30 min",
+        "minute_15": "15 min"
+      },
+      "apply": "Anvend"
+    },
+    "loading": {
+      "dashboard": {
+        "initializing": "Initialiserer dashboard",
+        "loadingSettings": "Indlæser dine dashboard-indstillinger..."
+      }
+    },
+
+    "devices": {
+      "tables": {
+        "columns": {
+          "os": "Operativsystem",
+          "browser": "Browser",
+          "visitors": "Besøgende",
+          "percentage": "Procent"
+        },
+        "topOperatingSystems": "Top operativsystemer",
+        "topBrowsers": "Top browsere"
+      },
+      "charts": {
+        "deviceTypes": "Enhedstyper",
+        "visitorsByDeviceCategory": "Besøgende efter enhedskategori",
+        "deviceUsageTrend": "Enhedsanvendelsestrend"
+      },
+      "trends": {
+        "noData": "Ingen trenddata tilgængelig",
+        "adjustTimeRange": "Prøv at justere tidsperioden eller filtre"
+      }
+    },
+    "campaign": {
+      "tabs": {
+        "overview": "Oversigt",
+        "utmBreakdowns": "UTM-opdeling",
+        "landingPages": "Landingssider"
+      },
+      "page": {
+        "title": "Kampagner",
+        "description": "Kampagneperformance analyser og indsigter"
+      },
+      "performance": {
+        "title": "Kampagneperformance",
+        "columns": {
+          "campaignName": "Kampagnenavn",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
+      },
+      "trend": {
+        "title": "Kampagne-besøgendetrend",
+        "description": "Besøgendetrends over tid pr. kampagne",
+        "empty": "Ingen trenddata for kampagnebesøgende tilgængelig."
+      },
+      "utm": {
+        "table": {
+          "title": "UTM-parameteropdeling"
+        },
+        "chart": {
+          "title": "UTM-fordeling"
+        },
+        "tabs": {
+          "source": "Kilde",
+          "medium": "Medium",
+          "content": "Indhold",
+          "terms": "Termer"
+        },
+        "empty": {
+          "source": "Ingen kildeopdeling tilgængelig for kampagner",
+          "medium": "Ingen medium-opdeling tilgængelig for kampagner",
+          "content": "Ingen indholdsopdeling tilgængelig for kampagner",
+          "term": "Ingen term-opdeling tilgængelig for kampagner"
+        },
+        "columns": {
+          "dimension": "Dimension",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
+      },
+      "landing": {
+        "title": "Kampagne landingsside-performance",
+        "columns": {
+          "campaignName": "Kampagnenavn",
+          "landingPageUrl": "Landingsside-URL",
+          "visitors": "Besøgende",
+          "bounceRate": "Afvisningsprocent",
+          "avgSessionDuration": "Gns. sessionsvarighed",
+          "pagesPerSession": "Sider pr. session"
+        }
+      }
+    },
+    "events": {
+      "page": {
+        "title": "Hændelser",
+        "description": "Analyser og indsigter for dine brugerdefinerede hændelser"
+      },
+      "log": {
+        "waiting": "Venter på hændelser...",
+        "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",
+        "loadingMore": "Indlæser flere hændelser...",
+        "noEvents": "Ingen hændelser fundet",
+        "showingAll": "Viser alle {count} hændelser",
+        "showingPartial": "Viser {loaded} af {total} hændelser",
+        "title": "Hændelseslog",
+        "description": "Realtids aktivitetssporing",
+        "loading": "Indlæser hændelser..."
+      },
+      "table": {
+        "eventName": "Hændelsesnavn",
+        "count": "Antal",
+        "uniqueUsers": "Unikke brugere",
+        "avgPerUser": "Gennemsnit pr. bruger",
+        "lastSeen": "Sidst set",
+        "percentage": "Procent",
+        "noEvents": "Ingen hændelser fundet",
+        "noEventsDesc": "Ingen brugerdefinerede hændelser blev sporet i denne tidsperiode. Hændelser vil vises her, når de begynder at blive registreret.",
+        "eventDetails": "Hændelsesdetaljer",
+        "uniqueEvent": "Unik hændelse",
+        "uniqueEvents": "Unikke hændelser"
+      }
+    },
+    "tabbedTable": {
+      "searchPlaceholder": "Filtrer efter {field}..."
+    },
+    "filters": {
+      "type": "Type",
+      "operator": "Operator",
+      "is": "er",
+      "isNot": "er ikke",
+      "columns": {
+        "url": "URL",
+        "device_type": "Enhedstype",
+        "country_code": "Landekode",
+        "browser": "Browser",
+        "os": "Operativsystem",
+        "referrer_source": "Henvisningskilde",
+        "referrer_source_name": "Henvisningsnavn",
+        "referrer_search_term": "Henvisningssøgeterm",
+        "referrer_url": "Henvisnings-URL",
+        "utm_source": "UTM-kilde",
+        "utm_medium": "UTM-medium",
+        "utm_campaign": "UTM-kampagne",
+        "utm_term": "UTM-term",
+        "utm_content": "UTM-indhold",
+        "custom_event_name": "Hændelse",
+        "event_type": "Type"
+      },
+      "selector": {
+        "triggerLabel": "Filtre",
+        "title": "Filtre",
+        "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
+        "addFilter": "Tilføj filter",
+        "cancel": "Annuller",
+        "apply": "Anvend",
+        "empty": {
+          "title": "Ingen aktive filtre",
+          "description": "Tilføj filtre for at forfine dine analysedata og fokusere på specifikke segmenter.",
+          "addFirst": "Tilføj dit første filter",
+          "common": "Almindelige filtre: Land, Browser, URL, Enhed"
+        }
+      }
+    },
+    "funnels": {
+      "list": {
+        "steps": "trin",
+        "conversionRate": "Konverteringsrate",
+        "completed": "Fuldført",
+        "totalUsers": "Totale brugere",
+        "largestDropOff": "Største frafald"
+      },
+      "create": {
+        "defaultName": "Min nye tragt",
+        "createFunnel": "Opret tragt",
+        "createFunnelLower": "Opret tragt",
+        "description": "Opret en ny tragt til dit websted.",
+        "name": "Navn",
+        "namePlaceholder": "Mit tragtnavn",
+        "strictMode": "Strikt tilstand",
+        "addStep": "Tilføj trin",
+        "livePreview": "Live forhåndsvisning (sidste 24 timer)",
+        "create": "Opret",
+        "successMessage": "Tragt oprettet!",
+        "errorMessage": "Tragtoprettelse mislykkedes!"
+      },
+      "page": {
+        "title": "Tragter",
+        "description": "Analyser brugerens konverteringsforløb"
+      },
+      "preview": {
+        "loading": "Indlæser forhåndsvisning...",
+        "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
+      },
+      "details": {
+        "title": "Tragtanalyse",
+        "steps": "trin",
+        "users": "brugere",
+        "dropped": "frafald",
+        "summary": {
+          "overallConversion": "Samlet konvertering",
+          "totalVisitors": "Samlede besøgende",
+          "totalCompleted": "Samlet fuldført",
+          "biggestDropOff": "Største frafald"
+        }
+      },
+      "emptyState": {
+        "title": "Ingen tragter oprettet endnu",
+        "description": "Spor brugerrejser gennem dit site og identificér hvor besøgende falder fra. Opret din første tragt for at begynde at analysere konverteringsstier og optimere din brugeroplevelse.",
+        "createButton": "Opret din første tragt",
+        "features": {
+          "trackSteps": "Spor konverteringstrin",
+          "trackStepsDesc": "Overvåg brugernes fremgang gennem brugerdefinerede filtre",
+          "identifyDropoffs": "Identificér frafaldspoints",
+          "identifyDropoffsDesc": "Find hvor brugerne forlader deres rejse",
+          "optimizeConversions": "Optimér konverteringer",
+          "optimizeConversionsDesc": "Forbedre dit produkt baseret på dataindsigter"
+        }
+      }
+    },
+    "pages": {
+      "summary": {
+        "pagesPerSession": "Sider pr. session",
+        "totalPageviews": "Samlede sidevisninger",
+        "avgTimeOnPage": "Gns. tid på side",
+        "avgBounceRate": "Gns. afvisningsprocent"
+      },
+      "table": {
+        "path": "Sti",
+        "filterByPath": "Filtrer efter {path}",
+        "visitors": "Besøgende",
+        "pageviews": "Sidevisninger",
+        "bounceRate": "Afvisningsprocent",
+        "avgTime": "Gns. tid",
+        "entryRate": "Indgangsrate",
+        "exitRate": "Udgangsrate",
+        "allPages": "Alle sider",
+        "entryPages": "Indgangssider",
+        "exitPages": "Udgangssider",
+        "title": "Sideanalyse"
+      }
+    },
+    "referrers": {
+      "page": {
+        "description": "Analyser henvisningskilder, trafikandel og præstationstrends."
+      },
+      "charts": {
+        "distribution": "Henvisningsfordeling",
+        "trafficTrends": "Henvisningstrafik trends"
+      },
+      "summary": {
+        "referralSessions": "Henvisningssessioner",
+        "referralTrafficPct": "Henvisningstrafik %",
+        "topReferrerSource": "Top henvisningskilde",
+        "avgSessionDuration": "Gns. sessionsvarighed",
+        "none": "Ingen"
+      },
+      "table": {
+        "details": "Henvisningsdetaljer",
+        "tabs": {
+          "all": "Alle",
+          "search": "Søgning",
+          "social": "Social",
+          "direct": "Direkte",
+          "email": "E-mail",
+          "other": "Andet"
+        },
+        "columns": {
+          "source": "Kilde",
+          "type": "Type",
+          "visits": "Besøg",
+          "percentage": "Procent",
+          "bounceRate": "Afvisningsprocent",
+          "avgVisitDuration": "Gns. besøgstid",
+          "direct": "Direkte",
+          "unknown": "Ukendt"
+        }
+      }
+    },
+    "geography": {
+      "noData": "Ingen geografiske data tilgængelige for den valgte periode",
+      "loading": "Indlæser kort...",
+      "visitors": "Besøgende"
+    },
+    "userJourney": {
+      "page": {
+        "title": "Brugerrejse",
+        "description": "Visualisér hvordan brugere navigerer mellem vigtige stier."
+      },
+      "steps": "Trin",
+      "topJourneys": "Top {journeys} rejser",
+      "sessions": "Sessioner"
+    },
+    "outboundLinks": {
+      "summary": {
+        "totalUniqueClicks": "Samlede unikke klik",
+        "uniqueVisitors": "Unikke besøgende",
+        "topDomain": "Top domæne",
+        "topSourcePage": "Top kildeside"
+      },
+      "table": {
+        "title": "Udgående link performance",
+        "destinationUrl": "Destinations-URL",
+        "uniqueClicks": "Unikke klik",
+        "topReferrerPage": "Top henvisningsside",
+        "sourcePages": "Kildesider"
+      },
+      "chart": {
+        "title": "Unikke udgående klik over tid",
+        "tooltipTitle": "Unikke udgående klik"
+      },
+      "pieChart": {
+        "title": "Udgående links fordeling"
+      }
+    },
+    "webVitals": {
+      "metrics": {
+        "CLS": "Cumulative Layout Shift",
+        "LCP": "Largest Contentful Paint",
+        "INP": "Interaction to Next Paint",
+        "FCP": "First Contentful Paint",
+        "TTFB": "Time to First Byte"
+      },
+      "thresholds": {
+        "good": "God",
+        "needsImprovement": "Behøver forbedring"
+      },
+      "table": {
+        "title": "Performance-opdeling",
+        "performance": "Ydelse",
+        "performanceAria": "Om performance score",
+        "performanceDescr": "Performance-score (0–100) baseret på følgende vægte: LCP 30%, CLS 15%, FCP 15%, TTFB 10%, INP 30%.",
+        "performanceGreat": "God: ≥ {min}",
+        "performanceOkay": "Okay: ≥ {min}",
+        "performancePoor": "Dårlig: < {min}",
+        "opportunity": "Potentiale",
+        "opportunityAria": "Om potentiale",
+        "opportunityDescr": "Trafikvægtet potentiel forbedring: trafikandel × (100 − Performance).",
+        "opportunityNote": "Ændres med det valgte percentil (P50/P75/P90/P99)",
+        "pageloads": "Sideindlæsninger",
+        "badges": {
+          "great": "God",
+          "okay": "Okay",
+          "poor": "Dårlig"
+        },
+        "tabs": {
+          "page": "Side",
+          "deviceType": "Enhedstype",
+          "country": "Land",
+          "browser": "Browser",
+          "operatingSystem": "Operativsystem",
+          "pages": "Sider",
+          "devices": "Enheder",
+          "countries": "Lande",
+          "browsers": "Browsere",
+          "operatingSystems": "Operativsystemer"
+        }
+      },
+      "info": {
+        "aboutMetricAria": "Om metric",
+        "good": "God",
+        "needsImprovement": "Behøver forbedring",
+        "descriptions": {
+          "CLS": "Måler visuel stabilitet. CLS fanger hvor meget indhold uventet flytter sig under indlæsning.",
+          "LCP": "Måler indlæsningsperformance. LCP er det øjeblik, hvor den største tekst eller det største billede bliver synligt.",
+          "INP": "Måler responsivitet. INP er tiden fra en brugerhandling til næste visuelle opdatering.",
+          "FCP": "Viser hvornår det første indhold vises på skærmen under indlæsning.",
+          "TTFB": "Måler serverens svartid — tiden fra forespørgsel til første byte modtages."
+        }
+      }
+    },
+    "integration": {
+      "integrationSetup": "Integrationsopsætning",
+      "title": "Hjemmeside integration",
+      "description": "Tilføj sporingsskriptet til din hjemmeside for at begynde at indsamle analytiske data",
+      "fullyIntegrated": "Fuldt integreret",
+      "notFullyIntegrated": "Ikke fuldt integreret",
+      "loadingDetails": "Indlæser integrationsdetaljer...",
+      "unableToLoadSiteId": "Kan ikke indlæse site-ID",
+      "failedToCopy": "Kunne ikke kopiere",
+      "important": "Vigtigt",
+      "headSectionNote": "Tilføj dette script til {head}-sektionen af din rod-layout eller individuelle sider.",
+      "npmPackageNote": "Eller installer vores <npm>npm</npm> pakke <package>@betterlytics/tracker</package> for nem opsætning til Node-projekter.",
+      "yourSiteId": "Dit site-ID",
+      "trackingScript": "Sporingsskript",
+      "copied": "Kopieret",
+      "copy": "Kopier",
+      "htmlInstallation": "HTML installation",
+      "nextjsInstallation": "Next.js installation",
+      "reactInstallation": "React installation",
+      "initializeNpmPackage": "Initialiser ved hjælp af vores <npm>npm</npm> pakke",
+      "integrationStatus": "Integrationsstatus",
+      "trackProgress": "Spor dit fremskridt",
+      "accountCreated": "Konto oprettet",
+      "accountReady": "Din konto er klar",
+      "siteIdGenerated": "Site-ID genereret",
+      "uniqueIdentifier": "Din unikke identifikator",
+      "dataReceiving": "Datamodtagelse",
+      "analyticsDataFlowing": "Analytiske data flyder",
+      "needHelp": "Brug for hjælp?",
+      "resourcesToGetStarted": "Ressourcer til at komme i gang",
+      "documentation": "Dokumentation",
+      "troubleshooting": "Problemløsning",
+      "contactSupport": "Kontakt support",
+      "verifying": "Verificerer...",
+      "verifyInstallation": "Verificer installation",
+      "noDataBanner": {
+        "title": "Integration påkrævet",
+        "description": "Dit dashboard er klart, men vi modtager endnu ikke nogen analysedata. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
+        "setup": "Opsæt integration",
+        "dismiss": "Skjul"
+      }
+    },
+    "settingsButton": {
+      "dashboardSettings": "Dashboard-indstillinger"
+    },
+    "accountVerification": {
+      "banner": {
+        "title": "Bekræft venligst din e-mailadresse",
+        "body": "Hej {name}! Vi har sendt en bekræftelsesmail til <strong>{email}</strong>. Klik på linket i e-mailen for at bekræfte din konto.",
+        "resend": "Send bekræftelsesmail igen",
+        "sending": "Sender...",
+        "sentLabel": "E-mail sendt! Tjek din indbakke.",
+        "help": "Kan du ikke finde e-mailen? Tjek din spammappe eller vent et par minutter.",
+        "dismiss": "Skjul",
+        "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
+        "toastFailure": "Kunne ikke sende bekræftelsesmail"
+      },
+      "requiredModal": {
+        "title": "E-mailbekræftelse påkrævet",
+        "subtitle": "Bekræft din e-mail for at opgradere din plan",
+        "whyTitle": "Hvorfor bekræfte din e-mail?",
+        "whyItems": {
+          "secureBilling": "Sikker fakturering og betalingsbekræftelser",
+          "notifications": "Vigtige kontonotifikationer og advarsler",
+          "security": "Forbedret kontosikkerhed og gendannelse"
+        },
+        "verifyLine": "Hej {name}, vi skal bekræfte din e-mailadresse <strong>{email}</strong>, før du kan opgradere til en betalt plan.",
+        "sentTitle": "Bekræftelsesmail sendt!",
+        "sentInfo": "Tjek din indbakke og spammappe. Bekræftelseslinket udløber om 24 timer.",
+        "cancel": "Annuller",
+        "continue": "Fortsæt til dashboard"
+      }
+    },
+    "settingsPopover": {
+      "title": "Hurtige indstillinger",
+      "theme": "Tema",
+      "advanced": "Avancerede indstillinger"
+    },
+    "topbar": {
+      "userMenu": {
+        "userFallback": "Bruger",
+        "dashboards": "Dashboards",
+        "upgradePlan": "Opgrader plan",
+        "settings": "Indstillinger",
+        "documentation": "Dokumentation",
+        "documentationTitle": "Komplet Betterlytics-dokumentation",
+        "logout": "Log ud"
+      }
+    },
+    "sidebar": {
+      "dashboardDropdown": {
+        "switch": "Skift dashboard",
+        "viewAll": "Se alle dashboards"
+      }
+    },
+    "userSettings": {
+      "tabs": {
+        "profile": "Profil",
+        "preferences": "Præferencer",
+        "usage": "Forbrug",
+        "billing": "Fakturering",
+        "security": "Sikkerhed",
+        "danger": "Farezone"
+      },
+      "dialog": {
+        "title": "Brugerindstillinger",
+        "description": "Administrér dine kontoinstillinger og præferencer.",
+        "loading": "Indlæser indstillinger...",
+        "loadFailed": "Kunne ikke indlæse indstillinger",
+        "noSettings": "Ingen indstillinger fundet",
+        "buttons": {
+          "cancel": "Annuller",
+          "saving": "Gemmer...",
+          "saveChanges": "Gem ændringer"
+        },
+        "toast": {
+          "success": "Indstillinger gemt!",
+          "error": "Kunne ikke gemme indstillinger. Prøv igen."
+        }
+      },
+      "profile": {
+        "title": "Profil",
+        "description": "Redigér dine personlige oplysninger",
+        "nameLabel": "Navn",
+        "namePlaceholder": "Indtast dit navn",
+        "optional": "Valgfrit",
+        "emailLabel": "E-mail",
+        "verified": "Bekræftet",
+        "unverified": "Ikke bekræftet",
+        "updateButton": "Opdater profil",
+        "toast": {
+          "success": "Profil opdateret",
+          "error": "Kunne ikke opdatere profil. Prøv igen."
+        }
+      },
+      "preferences": {
+        "appearance": {
+          "title": "Udseende",
+          "description": "Tilpas det visuelle udtryk for dit dashboard",
+          "themeLabel": "Tema",
+          "light": "Lyst",
+          "dark": "Mørkt",
+          "system": "System"
+        },
+        "avatar": {
+          "label": "Avatar",
+          "none": "Ingen",
+          "gravatar": "Gravatar",
+          "note": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
+          "noteIntro": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
+          "terms": "du accepterer deres vilkår"
+        },
+        "localization": {
+          "title": "Lokalisering",
+          "description": "Vælg dit sprog",
+          "language": "Sprog"
+        },
+        "notifications": {
+          "title": "Notifikationer",
+          "description": "Konfigurer dine notifikationspræferencer",
+          "emailNotifications": "E-mail notifikationer",
+          "marketingEmails": "Marketing-e-mails"
+        }
+      },
+      "usage": {
+        "title": "Forbrug og plan",
+        "description": "Overvåg dit aktuelle forbrug og administrér dit abonnement.",
+        "cta": {
+          "needMore": "Brug for flere events?",
+          "upgradeHint": "Opgrader din plan for at få flere events og låse op for flere funktioner.",
+          "viewPlans": "Se planer"
+        },
+        "error": "Kan ikke indlæse forbrugsdata"
+      },
+      "billingPortal": {
+        "title": "Faktureringsportal",
+        "description": "Administrér dine faktureringsoplysninger og se din fulde fakturahistorik",
+        "access": "Adgang til faktureringsportal",
+        "accessButton": "Åbn faktureringsportal",
+        "explainer": "Se tidligere fakturaer, opdatér betalingsmetoder og administrér din fakturering via Stripes sikre kundeportal.",
+        "notAvailable": "Faktureringsportalen er tilgængelig, når du opgraderer til en betalt plan.",
+        "needHelp": "Brug for hjælp til fakturering?",
+        "contactSupport": "Kontakt support",
+        "loading": "Indlæser faktureringsoplysninger...",
+        "toastError": "Kunne ikke åbne faktureringsportal, prøv igen."
+      },
+      "security": {
+        "title": "Adgangskode og godkendelse",
+        "description": "Skift din kontoadgangskode",
+        "currentPassword": "Nuværende adgangskode",
+        "newPassword": "Ny adgangskode",
+        "confirmNewPassword": "Bekræft ny adgangskode",
+        "passwordHelp": "Adgangskoden skal være mindst 8 tegn",
+        "passwordsMatch": "Adgangskoderne matcher",
+        "changePassword": "Skift adgangskode",
+        "passwordManagedByOAuth": "Adgangskode håndteres af OAuth",
+        "toast": {
+          "success": "Adgangskode opdateret"
+        },
+        "totp": {
+          "title": "To-faktor-godkendelse",
+          "description": "Tilføj et ekstra sikkerhedslag ved at kræve en ekstra godkendelse ud over din adgangskode",
+          "enable": "Aktivér 2FA",
+          "instructions": "For at aktivere 2FA skal du scanne QR-koden med din autentificeringsapp eller bruge <setup>opsætningsnøglen</setup> til manuel konfiguration og derefter indtaste verifikationskoden nedenfor.",
+          "cancel": "Annuller",
+          "confirm": "Bekræft",
+          "enabled": "Aktiveret",
+          "disable": "Deaktivér",
+          "disableTitle": "Deaktivér 2FA",
+          "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
+          "disabledSuccess": "To-faktor-godkendelse deaktiveret",
+          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen."
+        }
+      },
+      "danger": {
+        "title": "Slet konto",
+        "description": "Slet din konto og alle tilknyttede data permanent",
+        "warning": "Advarsel: Denne handling kan ikke fortrydes",
+        "details": "Dette vil permanent slette din konto, fjerne adgang til alle dashboards og slette alle dine personlige indstillinger.",
+        "delete": "Slet konto",
+        "dialog": {
+          "title": "Slet konto permanent",
+          "description": "Er du helt sikker på, at du vil slette din konto? Denne handling kan ikke fortrydes og vil permanent:",
+          "li1": "Slette alle dine personlige oplysninger",
+          "li2": "Fjerne adgang til alle dine dashboards",
+          "li3": "Slette alle dine kontoindstillinger",
+          "li4": "Logge dig ud af alle enheder",
+          "cancel": "Annuller",
+          "confirm": "Slet konto permanent"
+        },
+        "toast": {
+          "success": "Konto slettet",
+          "error": "Kunne ikke slette konto. Prøv igen.",
+          "unable": "Kan ikke slette konto. Prøv at logge ind igen."
+        }
+      }
+    },
+    "dashboardSettingsDialog": {
+      "title": "Dashboardindstillinger",
+      "description": "Konfigurer dine dashboard-præferencer og dataindsamlingsindstillinger.",
+      "loading": "Indlæser indstillinger...",
+      "saveChanges": "Gem ændringer",
+      "toastSuccess": "Indstillinger gemt",
+      "toastError": "Kunne ikke gemme indstillinger",
+      "tabs": {
+        "data": "Data",
+        "danger": "Farezone"
+      },
+      "data": {
+        "title": "Datahåndtering",
+        "description": "Konfigurer dataopbevaring og indsamling",
+        "retentionLabel": "Periode for dataopbevaring",
+        "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
+        "presets": {
+          "d30": "30 dage",
+          "m3": "3 måneder",
+          "m6": "6 måneder",
+          "y1": "1 år",
+          "y2": "2 år",
+          "y3": "3 år"
+        }
+      },
+      "danger": {
+        "title": "Slet dashboard",
+        "description": "Slet dashboard permanent",
+        "warning": "Advarsel: Denne handling kan ikke fortrydes",
+        "deleteButton": "Slet dashboard",
+        "dialog": {
+          "title": "Slet dashboard",
+          "description": "Er du sikker på, at du vil slette dette dashboard? Denne handling kan ikke fortrydes.",
+          "cancel": "Annuller",
+          "confirm": "Slet dashboard"
+        }
+      }
+    }
+  },
+  "onboarding": {
+    "main": {
+      "registrationDisabled": {
+        "title": "Registrering deaktiveret",
+        "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
+        "backToSignIn": "Tilbage til log ind"
+      }
+    },
+    "account": {
+      "features": {
+        "feature1": {
+          "title": "Kom i gang på under 2 minutter",
+          "description": "Bare tilføj én linje kode eller installer vores npm‑pakke. Ingen cookies, ingen pop‑ups."
+        },
+        "feature2": {
+          "title": "Gratis at komme i gang",
+          "description": "10.000 events pr. måned. Ingen kreditkort. Ingen binding."
+        },
+        "feature3": {
+          "title": "Privatliv først & open source",
+          "description": "Cookieless, GDPR‑kompatibel og EU‑hostet. Gennemsigtigt og sikkert."
+        }
+      },
+      "form": {
+        "title": "Opret din konto",
+        "signUpWith": "Tilmeld dig med",
+        "termsAgreement": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
+        "orDivider": "eller",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Indtast din email",
+        "passwordLabel": "Adgangskode",
+        "passwordPlaceholder": "Indtast din adgangskode (min. 8 tegn)",
+        "confirmPasswordLabel": "Bekræft adgangskode",
+        "confirmPasswordPlaceholder": "Bekræft din adgangskode",
+        "continueButton": "Fortsæt",
+        "creatingAccount": "Opretter konto...",
+        "signingUpGoogle": "Tilmelder...",
+        "signingUpGitHub": "Tilmelder...",
+        "googleButton": "Google",
+        "gitHubButton": "GitHub",
+        "passwordsDoNotMatch": "Adgangskoder matcher ikke",
+        "registrationSuccessfulButSignInFailed": "Registrering lykkedes, men log ind mislykkedes. Prøv at logge ind manuelt.",
+        "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
+        "checkInput": "Tjek venligst dit input"
+      }
+    },
+    "website": {
+      "title": "Opsæt dit dashboard",
+      "description": "Fortæl os om det website, du vil spore",
+      "domainLabel": "Domæne",
+      "domainPlaceholder": "eksempel.dk",
+      "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "createDashboardButton": "Opret dashboard",
+      "creatingDashboard": "Opretter dashboard...",
+      "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",
+      "failedToCreateDashboard": "Kunne ikke oprette dashboard. Prøv igen."
+    },
+    "integration": {
+      "siteId": {
+        "title": "Dit site-ID",
+        "description": "Dette unikke identifikator forbinder dit website til dit dashboard",
+        "installationVerified": "✓ Installation verificeret",
+        "waitingForInstallation": "Venter på installation"
+      },
+      "instructions": {
+        "title": "Installationsinstruktioner",
+        "description": "Vælg den metode, der matcher din website-opsætning",
+        "htmlTab": "HTML",
+        "nextjsTab": "Next.js",
+        "reactTab": "React",
+        "npmTab": "npm",
+        "htmlDescription": "Tilføj til din HTML {head} sektion",
+        "nextjsDescription": "Tilføj til dit rod-layout",
+        "reactDescription": "Tilføj til din main App-komponent",
+        "npmDescription": "Installer npm-pakken",
+        "npmInstallFirst": "Først, installer pakken:",
+        "npmThenInitialize": "Derefter initialiser den i din kode:"
+      },
+      "buttons": {
+        "goToDashboard": "🎉 til dashboard...",
+        "skipForNow": "Spring over for nu",
+        "continueToDashboard": "Fortsæt til dashboard"
+      },
+      "redirectingIn": "Omdirigerer om {seconds}...",
+      "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
+    }
+  }
+}

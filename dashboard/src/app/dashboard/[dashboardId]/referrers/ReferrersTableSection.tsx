@@ -3,7 +3,8 @@
 import { use } from 'react';
 import ReferrerTable from '@/app/dashboard/[dashboardId]/referrers/ReferrerTable';
 import { fetchReferrerTableDataForSite } from '@/app/actions';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type ReferrersTableSectionProps = {
   referrerTablePromise: ReturnType<typeof fetchReferrerTableDataForSite>;
@@ -12,13 +13,16 @@ type ReferrersTableSectionProps = {
 export default function ReferrersTableSection({ referrerTablePromise }: ReferrersTableSectionProps) {
   const tableResult = use(referrerTablePromise);
   const tableData = tableResult.data;
-  const { dictionary } = useDictionary();
+  const t = useTranslations('components.referrers.table');
 
   return (
-    <div className='bg-card border-border rounded-lg border p-4 shadow'>
-      <div className='text-foreground mb-2 font-medium'>{dictionary.t('components.referrers.table.details')}</div>
-      <p className='text-muted-foreground mb-4 text-xs'>{dictionary.t('components.referrers.table.detailsDescription')}</p>
-      <ReferrerTable data={tableData} />
-    </div>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-0'>
+        <CardTitle className='text-base font-medium'>{t('details')}</CardTitle>
+      </CardHeader>
+      <CardContent className='px-0'>
+        <ReferrerTable data={tableData} />
+      </CardContent>
+    </Card>
   );
 }

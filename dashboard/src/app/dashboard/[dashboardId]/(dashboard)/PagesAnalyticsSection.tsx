@@ -2,7 +2,10 @@
 import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchPageAnalyticsCombinedAction } from '@/app/actions';
 import { use } from 'react';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { ArrowRight } from 'lucide-react';
 
 type PageAnalyticsSectionProps = {
   analyticsCombinedPromise: ReturnType<typeof fetchPageAnalyticsCombinedAction>;
@@ -10,47 +13,54 @@ type PageAnalyticsSectionProps = {
 
 export default function PagesAnalyticsSection({ analyticsCombinedPromise }: PageAnalyticsSectionProps) {
   const pageAnalyticsCombined = use(analyticsCombinedPromise);
-  const { dictionary } = useDictionary();
+  const t = useTranslations('dashboard');
+  const dashboardId = useDashboardId();
 
   return (
     <MultiProgressTable
-      title={dictionary.t('dashboard.sections.topPages')}
+      title={t('sections.topPages')}
       defaultTab='pages'
       tabs={[
         {
           key: 'pages',
-          label: dictionary.t('dashboard.tabs.pages'),
+          label: t('tabs.pages'),
           data: pageAnalyticsCombined.topPages.map((page) => ({
             label: page.url,
             value: page.current.visitors,
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: dictionary.t('dashboard.emptyStates.noPageData'),
         },
         {
           key: 'entry',
-          label: dictionary.t('dashboard.tabs.entryPages'),
+          label: t('tabs.entryPages'),
           data: pageAnalyticsCombined.topEntryPages.map((page) => ({
             label: page.url,
             value: page.current.visitors,
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: dictionary.t('dashboard.emptyStates.noEntryPagesData'),
         },
         {
           key: 'exit',
-          label: dictionary.t('dashboard.tabs.exitPages'),
+          label: t('tabs.exitPages'),
           data: pageAnalyticsCombined.topExitPages.map((page) => ({
             label: page.url,
             value: page.current.visitors,
             trendPercentage: page.change?.visitors,
             comparisonValue: page.compare?.visitors,
           })),
-          emptyMessage: dictionary.t('dashboard.emptyStates.noExitPagesData'),
         },
       ]}
+      footer={
+        <FilterPreservingLink
+          href={`/dashboard/${dashboardId}/pages`}
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.pages') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
     />
   );
 }

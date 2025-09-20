@@ -1,14 +1,16 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
+import { formatPercentage } from '@/utils/formatters';
+import { TrendIndicator } from './TrendIndicator';
 
 type TrendPercentageProps = {
-  percentage?: number;
+  percentage?: number | null;
+  withIcon?: boolean;
   withParenthesis?: boolean;
 };
 
-const TrendPercentage = React.memo(({ percentage, withParenthesis }: TrendPercentageProps) => {
-  if (percentage === undefined) {
+const TrendPercentage = React.memo(({ percentage, withIcon, withParenthesis }: TrendPercentageProps) => {
+  if (percentage === undefined || percentage === null) {
     return null;
   }
 
@@ -17,17 +19,18 @@ const TrendPercentage = React.memo(({ percentage, withParenthesis }: TrendPercen
   }
 
   const isPositive = percentage > 0;
-  const sign = isPositive ? '+' : '-';
-  const color = isPositive ? 'text-green-400' : 'text-red-400';
+  const sign = withIcon ? <TrendIndicator percentage={percentage} /> : isPositive ? '+' : '-';
+  const color = isPositive ? 'text-trend-up' : 'text-trend-down';
 
   const absValue = Math.abs(percentage);
-  const formatted = absValue % 1 ? absValue.toFixed(1) : absValue.toFixed(0);
+  const formatted = formatPercentage(absValue);
 
   return (
-    <span className={cn(color)}>
+    <span className={cn('inline-flex items-center gap-0', color)}>
       {withParenthesis && '('}
       {sign}
-      {formatted}%{withParenthesis && ')'}
+      {formatted}
+      {withParenthesis && ')'}
     </span>
   );
 });

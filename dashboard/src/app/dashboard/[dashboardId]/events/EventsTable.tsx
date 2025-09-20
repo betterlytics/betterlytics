@@ -23,7 +23,7 @@ import { formatPercentage } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
 import type { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { TableCompareCell } from '@/components/TableCompareCell';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
 
 type TableEventRow = Awaited<ReturnType<typeof fetchCustomEventsOverviewAction>>[number];
 
@@ -44,7 +44,8 @@ interface EventRowWithExpansion extends TableEventRow {
 }
 
 export function EventsTable({ data }: EventsTableProps) {
-  const { dictionary } = useDictionary();
+  const t = useTranslations('components.events.table');
+
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const [expandedRows, setExpandedRows] = useState<ExpandedRowState>({});
@@ -95,7 +96,7 @@ export function EventsTable({ data }: EventsTableProps) {
     () => [
       {
         accessorKey: 'event_name',
-        header: dictionary.t('components.events.table.eventName'),
+        header: t('eventName'),
         cell: ({ row }) => {
           const event = row.original;
           return (
@@ -122,25 +123,25 @@ export function EventsTable({ data }: EventsTableProps) {
       },
       {
         accessorKey: 'count',
-        header: dictionary.t('components.events.table.count'),
+        header: t('count'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='count' />,
         accessorFn: (row) => row.current.count,
       },
       {
         accessorKey: 'unique_users',
-        header: dictionary.t('components.events.table.uniqueUsers'),
+        header: t('uniqueUsers'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='unique_users' />,
         accessorFn: (row) => row.current.unique_users,
       },
       {
         accessorKey: 'avg_per_user',
-        header: dictionary.t('components.events.table.avgPerUser'),
+        header: t('avgPerUser'),
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avg_per_user' />,
         accessorFn: (row) => row.current.avg_per_user,
       },
       {
         accessorKey: 'last_seen',
-        header: dictionary.t('components.events.table.lastSeen'),
+        header: t('lastSeen'),
         cell: ({ row }) => {
           const timeAgo = formatTimeAgo(new Date(row.original.current.last_seen));
 
@@ -160,7 +161,7 @@ export function EventsTable({ data }: EventsTableProps) {
       },
       {
         id: 'percentage',
-        header: dictionary.t('components.events.table.percentage'),
+        header: t('percentage'),
         cell: ({ row }) => {
           const percentage = calculatePercentage(row.original.current.count, row.original.totalEvents);
           return (
@@ -175,9 +176,10 @@ export function EventsTable({ data }: EventsTableProps) {
           const percentageB = calculatePercentage(rowB.original.current.count, rowB.original.totalEvents);
           return percentageA - percentageB;
         },
+        accessorFn: (row) => calculatePercentage(row.current.count, row.totalEvents),
       },
     ],
-    [dictionary],
+    [t],
   );
 
   const table = useReactTable({
@@ -199,10 +201,8 @@ export function EventsTable({ data }: EventsTableProps) {
             <div className='bg-muted/30 mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full'>
               <Activity className='text-primary h-8 w-8' />
             </div>
-            <h3 className='text-foreground mb-3 text-lg font-semibold'>{dictionary.t('components.events.table.noEvents')}</h3>
-            <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>
-              {dictionary.t('components.events.table.noEventsDesc')}
-            </p>
+            <h3 className='text-foreground mb-3 text-lg font-semibold'>{t('noEvents')}</h3>
+            <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>{t('noEventsDesc')}</p>
           </div>
         </CardContent>
       </Card>
@@ -210,37 +210,41 @@ export function EventsTable({ data }: EventsTableProps) {
   }
 
   return (
-    <Card className='border-border/50 overflow-hidden'>
-      <CardHeader>
+    <Card className='border-border/50 overflow-hidden px-3 sm:px-6'>
+      <CardHeader className='px-0'>
         <CardTitle className='flex items-center gap-3'>
           <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
             <Activity className='text-primary h-4 w-4' />
           </div>
           <div className='flex items-center gap-3'>
-            <span>{dictionary.t('components.events.table.eventDetails')}</span>
+            <span>{t('eventDetails')}</span>
             <Badge variant='secondary' className='text-xs font-normal'>
-              {data.length} {data.length === 1 ? dictionary.t('components.events.table.uniqueEvent') : dictionary.t('components.events.table.uniqueEvents')}
+              {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}
             </Badge>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className='p-6'>
-        <div className='overflow-hidden rounded-lg border border-gray-200 dark:border-slate-700'>
+      <CardContent className='px-0'>
+        <div className='dark:border-secondary overflow-hidden rounded-lg border border-gray-200 dark:border-2'>
           <Table>
-            <TableHeader className='bg-gray-50 dark:bg-slate-800'>
+            <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className='border-b border-gray-200 dark:border-slate-700'>
+                <TableRow
+                  key={headerGroup.id}
+                  className='border-muted-foreground bg-accent hover:bg-accent border-b'
+                >
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400',
-                        header.column.getCanSort() &&
-                          'cursor-pointer select-none hover:bg-gray-200 dark:hover:bg-slate-700',
+                        'text-foreground bg-muted/50 px-4 py-3 text-left text-sm font-medium',
+                        header.column.getCanSort()
+                          ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
+                          : '',
                       )}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className={cn('flex items-center')}>
+                      <div className='flex items-center'>
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
                           <div className='ml-2 flex h-4 w-4 items-center justify-center'>
@@ -259,7 +263,7 @@ export function EventsTable({ data }: EventsTableProps) {
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody className='divide-y divide-gray-200 bg-white dark:divide-slate-700 dark:bg-slate-900'>
+            <TableBody className='divide-secondary divide-y'>
               {table.getRowModel().rows.map((row) => {
                 const event = row.original;
                 const isExpanded = event.isExpanded;
@@ -268,13 +272,12 @@ export function EventsTable({ data }: EventsTableProps) {
                   <React.Fragment key={row.id}>
                     <TableRow
                       className={cn(
-                        'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800/50',
-                        isExpanded && 'bg-primary/5',
+                        'hover:bg-accent/30 dark:hover:bg-accent/60 hover:ring-border/60 cursor-pointer transition-colors hover:ring-1',
                       )}
                       onClick={() => toggleRow(event.event_name)}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className='px-4 py-3 text-sm text-slate-700 dark:text-slate-300'>
+                        <TableCell key={cell.id} className='text-foreground px-4 py-3 text-sm'>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}

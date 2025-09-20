@@ -1,42 +1,29 @@
 'use client';
 
 import React from 'react';
-import { DatePicker } from './DatePicker';
+import { useTranslations } from 'next-intl';
+import { DateRangePicker } from './DateRangePicker';
 
 interface DateRangeSectionProps {
   startDate: Date | undefined;
   endDate: Date | undefined;
-  onStartDateSelect: (date: Date | undefined) => void;
-  onEndDateSelect: (date: Date | undefined) => void;
+  onDateRangeSelect: (from: Date | undefined, to: Date | undefined) => void;
 }
 
-export function DateRangeSection({
-  startDate,
-  endDate,
-  onStartDateSelect,
-  onEndDateSelect,
-}: DateRangeSectionProps) {
+export function DateRangeSection({ startDate, endDate, onDateRangeSelect }: DateRangeSectionProps) {
+  const t = useTranslations('components.timeRange');
   return (
     <div>
-      <h3 className='mb-2 text-sm font-medium text-gray-500'>Current period</h3>
-      <div className='grid grid-cols-2 gap-4'>
-        <DatePicker
-          label='Start date'
-          date={startDate}
-          onDateSelect={(date) => date && onStartDateSelect(date)}
-          disabled={(date) => date > new Date()}
-          id='startDateInput'
-        />
-        <DatePicker
-          label='End date'
-          date={endDate}
-          onDateSelect={(date) => date && onEndDateSelect(date)}
-          disabled={(date) => {
-            if (date > new Date()) return true;
-            if (startDate && date < startDate) return true;
-            return false;
+      <h3 className='mb-2 text-sm font-medium'>{t('currentPeriod')}</h3>
+      <div className='grid gap-4'>
+        <DateRangePicker
+          onDateRangeSelect={(range) => {
+            onDateRangeSelect(range?.from, range?.to);
           }}
-          id='endDateInput'
+          range={{
+            from: startDate,
+            to: endDate,
+          }}
         />
       </div>
     </div>

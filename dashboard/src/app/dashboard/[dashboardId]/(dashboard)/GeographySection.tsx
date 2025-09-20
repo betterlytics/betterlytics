@@ -5,7 +5,10 @@ import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/act
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { ArrowRight } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -15,45 +18,57 @@ type GeographySectionProps = {
 export default function GeographySection({ worldMapPromise, topCountriesPromise }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
   const topCountries = use(topCountriesPromise);
-  const { dictionary } = useDictionary();
+  const t = useTranslations('dashboard');
+  const dashboardId = useDashboardId();
+  const locale = useLocale();
 
   return (
     <MultiProgressTable
-      title={dictionary.t('dashboard.sections.geography')}
+      title={t('sections.geography')}
       defaultTab='countries'
       tabs={[
         {
           key: 'countries',
-          label: dictionary.t('dashboard.tabs.topCountries'),
+          label: t('tabs.topCountries'),
           data: topCountries.map((country) => ({
-            label: getCountryName(country.country_code),
+            label: getCountryName(country.country_code, locale),
+            key: country.country_code,
             value: country.current.visitors,
             trendPercentage: country.change?.visitors,
             comparisonValue: country.compare?.visitors,
-            icon: <FlagIcon countryCode={country.country_code as FlagIconProps['countryCode']} />,
+            icon: (
+              <FlagIcon
+                countryCode={country.country_code as FlagIconProps['countryCode']}
+                countryName={getCountryName(country.country_code, locale)}
+              />
+            ),
           })),
-          emptyMessage: dictionary.t('dashboard.emptyStates.noCountryData'),
         },
         {
           key: 'worldmap',
-          label: dictionary.t('dashboard.tabs.worldMap'),
+          label: t('tabs.worldMap'),
           data: [],
-          emptyMessage: dictionary.t('dashboard.emptyStates.noWorldMapData'),
-          customContent: worldMapData ? (
+          customContent: (
             <div className='h-[280px] w-full'>
               <LeafletMap
                 visitorData={worldMapData.visitorData}
                 maxVisitors={worldMapData.maxVisitors}
                 showZoomControls={false}
+                initialZoom={1}
               />
-            </div>
-          ) : (
-            <div className='text-muted-foreground py-12 text-center'>
-              {dictionary.t('dashboard.emptyStates.noWorldMapData')}
             </div>
           ),
         },
       ]}
+      footer={
+        <FilterPreservingLink
+          href={`/dashboard/${dashboardId}/geography`}
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.geography') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
     />
   );
 }

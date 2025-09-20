@@ -48,6 +48,8 @@ pub enum ValidationError {
     PayloadTooLarge(String),
     #[error("Invalid JSON: {0}")]
     InvalidJson(String),
+    #[error("Invalid outbound link URL: {0}")]
+    InvalidOutboundLinkUrl(String),
     #[error("Invalid scroll depth: {0}")]
     InvalidScrollDepth(String),
 }
@@ -90,6 +92,14 @@ impl EventValidator {
         self.validate_required_fields(raw_event)?;
         self.validate_payload_sizes(raw_event)?;
         self.validate_formats(raw_event, ip_address)?;
+        
+        if raw_event.event_name == "outbound_link" {
+            self.validate_outbound_link_url(raw_event)?;
+        }
+
+        if raw_event.event_name.eq_ignore_ascii_case("cwv") {
+            self.validate_cwv_fields(raw_event)?;
+        }
 
         if !raw_event.properties.is_empty() {
             self.validate_properties_json(&raw_event.properties)?;
@@ -214,6 +224,61 @@ impl EventValidator {
 
         Ok(())
     }
+    
+    fn validate_outbound_link_url(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        let outbound_url = match &raw_event.outbound_link_url {
+            Some(url) => url,
+            None => return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL required for outbound_link events".to_string())),
+        };
+
+        if outbound_url.is_empty() {
+            return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL cannot be empty".to_string()));
+        }
+
+        // Check length using existing max_url_length config
+        if outbound_url.len() > self.config.max_url_length {
+            return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL too long".to_string()));
+        }
+
+        if contains_control_characters(outbound_url) {
+            return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL contains invalid control characters".to_string()));
+        }
+
+        // Validate URL format
+        let parsed_url = match Url::parse(outbound_url) {
+            Ok(url) => url,
+            Err(_) => return Err(ValidationError::InvalidOutboundLinkUrl("Invalid outbound link URL format".to_string())),
+        };
+
+        // Only allow http/https protocols for security
+        match parsed_url.scheme() {
+            "http" | "https" => {},
+            _ => return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL must use http or https protocol".to_string())),
+        }
+
+        // Validate that it's actually external (different domain from source)
+        if let Ok(source_url) = Url::parse(&raw_event.url) {
+            if let (Some(source_domain), Some(outbound_domain)) = (source_url.domain(), parsed_url.domain()) {
+                if source_domain == outbound_domain {
+                    return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL must be external (different domain)".to_string()));
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Validate Core Web Vitals fields when present
+    fn validate_cwv_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        fn valid_f32(v: f32) -> bool { v.is_finite() }
+
+        if let Some(v) = raw_event.cwv_cls { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_cls".to_string())); } }
+        if let Some(v) = raw_event.cwv_lcp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_lcp".to_string())); } }
+        if let Some(v) = raw_event.cwv_inp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_inp".to_string())); } }
+        if let Some(v) = raw_event.cwv_fcp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_fcp".to_string())); } }
+        if let Some(v) = raw_event.cwv_ttfb { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_ttfb".to_string())); } }
+        Ok(())
+    }
 
     /// Log sanitized rejection details for debugging
     fn log_sanitized_rejection(
@@ -248,6 +313,7 @@ impl EventValidator {
             ValidationError::InvalidUserAgent(_) => "invalid_user_agent",
             ValidationError::PayloadTooLarge(_) => "payload_too_large",
             ValidationError::InvalidJson(_) => "invalid_json",
+            ValidationError::InvalidOutboundLinkUrl(_) => "invalid_outbound_link_url",
             ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
         }
     }

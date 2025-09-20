@@ -13,7 +13,8 @@ import PagesSummarySection from '@/app/dashboard/[dashboardId]/pages/PagesSummar
 import PagesTableSection from './PagesTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { ActiveQueryFilters } from '@/components/filters/ActiveQueryFilters';
+import { getTranslations } from 'next-intl/server';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 type PagesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -28,14 +29,17 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } =
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
   const pagesSummaryWithChartsPromise = fetchPagesSummaryWithChartsAction(
     dashboardId,
     startDate,
     endDate,
+    granularity,
     queryFilters,
+    compareStartDate,
+    compareEndDate,
   );
   const pageAnalyticsPromise = fetchPageAnalyticsAction(
     dashboardId,
@@ -61,16 +65,12 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
     compareStartDate,
     compareEndDate,
   );
-
+  const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-6 p-6'>
-      <div className='flex flex-col justify-between gap-y-4 lg:flex-row lg:items-center'>
-        <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold'>Pages</h1>
-          <p className='text-muted-foreground text-sm'>Analytics and insights for your website</p>
-        </div>
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+      <DashboardHeader title={t('pages')}>
         <DashboardFilters />
-      </div>
+      </DashboardHeader>
 
       <Suspense fallback={<SummaryCardsSkeleton />}>
         <PagesSummarySection pagesSummaryWithChartsPromise={pagesSummaryWithChartsPromise} />

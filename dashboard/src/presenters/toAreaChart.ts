@@ -1,13 +1,8 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { utcMinute } from 'd3-time';
+import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
 import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
-
-const IntervalFunctions = {
-  day: utcDay,
-  hour: utcHour,
-  minute: utcMinute,
-} as const;
 
 type DataToAreaChartProps<K extends string> = {
   dataKey: K;
@@ -40,7 +35,7 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
   const chartData = [];
 
   // Find the time interval of input based on specified granularity
-  const intervalFunc = IntervalFunctions[granularity];
+  const intervalFunc = getTimeIntervalForGranularity(granularity);
 
   const { start, end } = {
     start: utcMinute(dateRange.start),
@@ -136,4 +131,18 @@ function createComparisonMap(
       compareValues: { [dataKey]: comparePoint.value[0] },
     };
   });
+}
+
+// Helper to generate padded sparkline-ready series from raw rows
+export function toSparklineSeries<K extends string>({
+  dataKey,
+  data,
+  granularity,
+  dateRange,
+}: DataToAreaChartProps<K>): Array<{ date: Date } & Record<K, number>> {
+  const area = dataToAreaChart({ dataKey, data, granularity, dateRange });
+  return area.map((p) => ({
+    date: new Date(p.date),
+    [dataKey]: p.value[0],
+  })) as Array<{ date: Date } & Record<K, number>>;
 }

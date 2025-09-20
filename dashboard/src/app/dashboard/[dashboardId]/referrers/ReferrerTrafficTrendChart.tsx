@@ -16,6 +16,9 @@ import ReferrerLegend from './ReferrerLegend';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
+import { useTranslations } from 'next-intl';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { formatNumber } from '@/utils/formatters';
 
 interface ReferrerTrafficTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -30,36 +33,42 @@ export default function ReferrerTrafficTrendChart({
   comparisonMap,
   granularity,
 }: ReferrerTrafficTrendChartProps) {
+  const t = useTranslations('dashboard.emptyStates');
+  const isMobile = useIsMobile();
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>No trend data available</p>
-          <p className='text-muted-foreground/70 text-xs'>Try adjusting the time range or filters</p>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className='h-[300px] w-full'>
-      <ResponsiveContainer width='100%' height='100%'>
-        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray='3 3' vertical={false} stroke='var(--color-border)' />
+    <div className='mt-10 h-[300px] w-full'>
+      <ResponsiveContainer width='100%' height='100%' className='mt-4'>
+        <AreaChart data={chartData} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
+          <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
           <XAxis
             dataKey='date'
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 12 }}
-            tickMargin={10}
+            className='text-muted-foreground'
+            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+            tickMargin={6}
+            minTickGap={100}
             tickFormatter={(value) => format(new Date(value), 'MMM dd')}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 12 }}
-            tickMargin={10}
-            tickFormatter={(value) => value.toLocaleString()}
+            className='text-muted-foreground'
+            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+            tickFormatter={(value) => formatNumber(value)}
+            width={40}
+            mirror={isMobile}
           />
           <RechartsTooltip
             content={(props) => (
@@ -69,7 +78,7 @@ export default function ReferrerTrafficTrendChart({
                 label={props.label}
                 comparisonMap={comparisonMap}
                 granularity={granularity}
-                formatter={(value: number) => `${value.toLocaleString()} visitors`}
+                formatter={(value: number) => `${formatNumber(value)} visitors`}
               />
             )}
           />

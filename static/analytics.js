@@ -20,6 +20,9 @@
         };
       }) ?? [];
 
+  // "off" | "domain" | "full" (defaults to "domain")
+  var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
+
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
   }
@@ -53,17 +56,6 @@
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
-    // Generate visitor ID from browser fingerprint
-    var visitorId = (function (fingerprint) {
-      var hash = 0;
-      for (var i = 0; i < fingerprint.length; i++) {
-        var char = fingerprint.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash;
-      }
-      return Math.abs(hash).toString(16);
-    })(userAgent + screenResolution);
-
     // Send tracking data
     fetch(serverUrl, {
       method: "POST",
@@ -80,7 +72,6 @@
         referrer: referrer,
         user_agent: userAgent,
         screen_resolution: screenResolution,
-        visitor_id: visitorId,
         timestamp: Math.floor(Date.now() / 1000),
         ...overrides,
       }),
@@ -103,15 +94,67 @@
     window.betterlytics.event.apply(this, queuedEvents[i]);
   }
 
+  // Web Vitals batching (send once per page lifecycle)
+  if (script.getAttribute("data-web-vitals") === "true") {
+    var cwvQueue = new Map();
+    var cwvFlushed = false;
+
+    function addCwvMetric(m) {
+      cwvQueue.set(m.name, {
+        name: m.name,
+        value: m.value,
+        id: m.id,
+        rating: m.rating,
+        delta: m.delta,
+        navigationType: m.navigationType,
+      });
+    }
+
+    function flushCwvQueue() {
+      if (cwvFlushed || cwvQueue.size === 0) return;
+      cwvFlushed = true;
+      var metrics = Array.from(cwvQueue.values());
+      var byName = metrics.reduce(function (acc, m) {
+        acc[m.name] = m.value;
+        return acc;
+      }, {});
+      trackEvent("cwv", {
+        cwv_cls: byName.CLS,
+        cwv_lcp: byName.LCP,
+        cwv_inp: byName.INP,
+        cwv_fcp: byName.FCP,
+        cwv_ttfb: byName.TTFB,
+      });
+      cwvQueue.clear();
+    }
+
+    // Flush on visibility change to hidden and on pagehide (Safari/iOS)
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") {
+        flushCwvQueue();
+      }
+    });
+    window.addEventListener("pagehide", function () {
+      flushCwvQueue();
+    });
+
+    var s = document.createElement("script");
+    s.src = "https://unpkg.com/web-vitals@5/dist/web-vitals.iife.js";
+    s.async = true;
+    s.onload = function () {
+      if (typeof webVitals !== "undefined") {
+        webVitals.onCLS(addCwvMetric);
+        webVitals.onINP(addCwvMetric);
+        webVitals.onLCP(addCwvMetric);
+        webVitals.onFCP(addCwvMetric);
+        webVitals.onTTFB(addCwvMetric);
+      }
+    };
+    document.head.appendChild(s);
+  }
+
   // Track initial page view
   trackEvent("pageview");
-
-  // Track page visibility changes
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") {
-      trackEvent("pageview");
-    }
-  });
 
   // Track SPA navigation
   if (window.history.pushState) {
@@ -135,25 +178,33 @@
   }
 
   // Outbound link tracking
-  function isOutboundLink(link) {
-    try {
-      var linkUrl = new URL(link.href, window.location.href);
-      return (
-        linkUrl.hostname !== window.location.hostname && linkUrl.hostname !== ""
-      );
-    } catch (e) {
-      return false;
+  function parseOutboundLink(link) {
+    var linkUrl = URL.parse(link.href, window.location.origin);
+    if (
+      linkUrl &&
+      linkUrl.hostname !== window.location.hostname &&
+      linkUrl.hostname !== ""
+    ) {
+      return outboundLinks === "domain"
+        ? linkUrl.origin
+        : linkUrl.origin + linkUrl.pathname;
     }
+    return false;
   }
 
-  // Set up outbound link click tracking
-  document.addEventListener("click", function (event) {
-    var target = event.target.closest("a");
-
-    if (target && target.href && isOutboundLink(target)) {
-      trackEvent("outbound_link", {
-        outbound_link_url: target.href,
-      });
-    }
-  });
+  // Only enable if outbounds is set to "domain" or "full"
+  if (["domain", "full"].includes(outboundLinks)) {
+    // Set up outbound link click tracking
+    document.addEventListener("click", function (event) {
+      var target = event.target.closest("a");
+      if (target && target.href) {
+        const parsed = parseOutboundLink(target);
+        if (parsed) {
+          trackEvent("outbound_link", {
+            outbound_link_url: parsed,
+          });
+        }
+      }
+    });
+  }
 })();

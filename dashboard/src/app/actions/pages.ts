@@ -15,6 +15,8 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toDataTable } from '@/presenters/toDataTable';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
+import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 
 export const fetchPageAnalyticsAction = withDashboardAuthContext(
   async (
@@ -83,8 +85,63 @@ export const fetchExitPageAnalyticsAction = withDashboardAuthContext(
 );
 
 export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
-    return getPagesSummaryWithChartsForSite(ctx.siteId, startDate, endDate, queryFilters);
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    granularity: GranularityRangeValues,
+    queryFilters: QueryFilter[],
+    compareStartDate?: Date,
+    compareEndDate?: Date,
+  ) => {
+    const data = await getPagesSummaryWithChartsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const compare =
+      compareStartDate &&
+      compareEndDate &&
+      (await getPagesSummaryWithChartsForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+      ));
+
+    const compareValues = toPartialPercentageCompare({
+      data,
+      compare,
+      keys: ['pagesPerSession', 'totalPageviews', 'avgTimeOnPage', 'avgBounceRate'] as const,
+    });
+
+    const dateRange = { start: startDate, end: endDate };
+
+    return {
+      ...data,
+      pagesPerSessionChartData: toSparklineSeries({
+        data: data.pagesPerSessionChartData,
+        granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      avgTimeChartData: toSparklineSeries({
+        data: data.avgTimeChartData,
+        granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      bounceRateChartData: toSparklineSeries({
+        data: data.bounceRateChartData,
+        granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      pageviewsChartData: toSparklineSeries({
+        data: data.pageviewsChartData,
+        granularity,
+        dataKey: 'views',
+        dateRange,
+      }),
+      compareValues,
+    };
   },
 );
 

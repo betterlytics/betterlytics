@@ -4,7 +4,8 @@ import { use } from 'react';
 import { fetchPagesSummaryWithChartsAction } from '@/app/actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
-import { useDictionary } from '@/contexts/DictionaryContextProvider';
+import { useTranslations } from 'next-intl';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type PagesSummarySectionProps = {
   pagesSummaryWithChartsPromise: ReturnType<typeof fetchPagesSummaryWithChartsAction>;
@@ -12,36 +13,40 @@ type PagesSummarySectionProps = {
 
 export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: PagesSummarySectionProps) {
   const summaryWithCharts = use(pagesSummaryWithChartsPromise);
-  const { dictionary } = useDictionary();
+  const t = useTranslations('components.pages.summary');
 
   const cards: SummaryCardData[] = [
     {
-      title: dictionary.t('components.pages.summary.pagesPerSession'),
-      value: summaryWithCharts.pagesPerSession.toLocaleString(),
+      title: t('pagesPerSession'),
+      value: formatNumber(summaryWithCharts.pagesPerSession),
       rawChartData: summaryWithCharts.pagesPerSessionChartData,
+      comparePercentage: summaryWithCharts.compareValues.pagesPerSession,
       valueField: 'value',
       chartColor: 'var(--chart-1)',
     },
     {
-      title: dictionary.t('components.pages.summary.totalPageviews'),
-      value: summaryWithCharts.totalPageviews.toLocaleString(),
+      title: t('totalPageviews'),
+      value: formatNumber(summaryWithCharts.totalPageviews),
       rawChartData: summaryWithCharts.pageviewsChartData,
+      comparePercentage: summaryWithCharts.compareValues.totalPageviews,
       valueField: 'views',
-      chartColor: 'var(--chart-2)',
+      chartColor: 'var(--chart-1)',
     },
     {
-      title: dictionary.t('components.pages.summary.avgTimeOnPage'),
+      title: t('avgTimeOnPage'),
       value: formatDuration(summaryWithCharts.avgTimeOnPage),
       rawChartData: summaryWithCharts.avgTimeChartData,
+      comparePercentage: summaryWithCharts.compareValues.avgTimeOnPage,
       valueField: 'value',
-      chartColor: 'var(--chart-3)',
+      chartColor: 'var(--chart-1)',
     },
     {
-      title: dictionary.t('components.pages.summary.avgBounceRate'),
-      value: `${summaryWithCharts.avgBounceRate}%`,
+      title: t('avgBounceRate'),
+      value: formatPercentage(summaryWithCharts.avgBounceRate),
       rawChartData: summaryWithCharts.bounceRateChartData,
+      comparePercentage: summaryWithCharts.compareValues.avgBounceRate,
       valueField: 'value',
-      chartColor: 'var(--chart-4)',
+      chartColor: 'var(--chart-1)',
     },
   ];
 

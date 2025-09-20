@@ -16,8 +16,8 @@ export function PropertyRow({ property, isExpanded, onToggle }: PropertyRowProps
     <div className='relative space-y-3'>
       <div
         className={cn(
-          'flex cursor-pointer items-center gap-3 rounded px-3 py-2 transition-all duration-200',
-          isExpanded ? 'bg-background/30' : 'hover:bg-background/25',
+          'hover:ring-border/60 flex cursor-pointer items-center gap-3 rounded px-3 py-2 transition-colors hover:ring-1',
+          isExpanded ? 'bg-accent/40 hover:bg-accent/60' : 'hover:bg-accent/40 dark:hover:bg-accent/60',
         )}
         onClick={(e) => {
           e.stopPropagation();

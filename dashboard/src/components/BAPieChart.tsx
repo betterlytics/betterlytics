@@ -1,6 +1,7 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
-import { ChartTooltip } from './charts/ChartTooltip';
+import PieChartTooltip from './charts/PieChartTooltip';
 import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
 
 interface ChartDataPoint {
@@ -17,13 +18,14 @@ interface BAPieChartProps {
   formatValue?: (value: number) => string;
 }
 
-const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getIcon, formatValue }) => {
+const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getIcon, formatValue, getLabel }) => {
+  const t = useTranslations('dashboard.emptyStates');
   if (data.length === 0) {
     return (
       <div className='flex h-[300px] items-center justify-center'>
         <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>No trend data available</p>
-          <p className='text-muted-foreground/70 text-xs'>Try adjusting the time range or filters</p>
+          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
+          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
         </div>
       </div>
     );
@@ -49,21 +51,32 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(({ data, getColor, getI
               <Cell key={`cell-${entry.name}`} fill={getColor(entry.name)} />
             ))}
           </Pie>
-          <Tooltip content={<ChartTooltip labelFormatter={capitalizeFirstLetter} />} formatter={formatValue} />
+          <Tooltip
+            content={
+              <PieChartTooltip
+                valueFormatter={formatValue}
+                labelFormatter={capitalizeFirstLetter}
+                renderIcon={getIcon}
+              />
+            }
+          />
         </PieChart>
       </ResponsiveContainer>
       <div className='mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2'>
-        {data.map((entry) => (
+        {data.slice(0, 4).map((entry) => (
           <div key={entry.name} className='flex items-center gap-1 text-sm'>
             <span
               className='inline-block h-3 w-3 rounded-full'
               style={{ backgroundColor: getColor(entry.name) }}
             ></span>
             {getIcon && getIcon(entry.name)}
-            <span className='text-foreground font-medium'>{capitalizeFirstLetter(entry.name)}</span>
+            <span className='text-foreground font-medium'>
+              {getLabel?.(entry.name) ?? capitalizeFirstLetter(entry.name)}
+            </span>
             <span className='text-muted-foreground'>{formatPercentage(entry.percentage)}</span>
           </div>
         ))}
+        {data.length > 4 && '...'}
       </div>
     </div>
   );
