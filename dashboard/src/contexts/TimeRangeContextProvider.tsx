@@ -3,7 +3,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { getDateWithTimeOfDay, TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode, deriveCompareRange, isDerivedCompareMode } from '@/utils/compareRanges';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { differenceInCalendarDays, endOfDay, startOfDay } from 'date-fns';
+import { addDays, differenceInCalendarDays } from 'date-fns';
 import { getAllowedGranularities, getValidGranularityFallback } from '@/utils/granularityRanges';
 
 type RefreshIntervalValue = 'off' | '30s' | '60s' | '120s';
@@ -72,9 +72,9 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
   // Invariant: when compare is custom, enforce equal-length compare range
   useEffect(() => {
     if (compareMode !== 'custom' || !compareStartDate) return;
-    const days = differenceInCalendarDays(endDate, startDate) + 1;
+    const days = differenceInCalendarDays(endDate, startDate);
     const start = getDateWithTimeOfDay(compareStartDate, startDate);
-    const desiredEnd = getDateWithTimeOfDay(new Date(start.getTime() + (days - 1) * 86400000), endDate);
+    const desiredEnd = getDateWithTimeOfDay(addDays(start.getTime(), days), endDate);
     if (!compareEndDate || compareEndDate.getTime() !== desiredEnd.getTime()) {
       setCompareStartDate(start);
       setCompareEndDate(desiredEnd);
