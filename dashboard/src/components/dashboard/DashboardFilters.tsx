@@ -16,7 +16,7 @@ export default function DashboardFilters({ children, showComparison = true }: Da
 
   return (
     <div className='space-y-2'>
-      <div className='flex flex-col-reverse justify-end gap-x-8 gap-y-2 sm:flex-row'>
+      <div className='flex flex-col justify-end gap-x-8 gap-y-2 sm:flex-row'>
         {!isMobile && <div className='flex gap-4'>{children}</div>}
         <QueryFiltersSelector />
         <TimeRangeToolbar showComparison={showComparison} />

@@ -73,14 +73,14 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
             variant='secondary'
             role='combobox'
             className={cn(
-              'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]',
+              'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent w-full min-w-0 cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]',
               className,
             )}
             title={titleText}
           >
-            <div className='flex items-center gap-2'>
+            <div className='flex min-w-0 flex-1 items-center gap-2'>
               <CalendarIcon className='h-4 w-4' />
-              <span>{label()}</span>
+              <span className='truncate'>{label()}</span>
             </div>
             <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
           </Button>
@@ -107,9 +107,9 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
           )}
           title={titleText}
         >
-          <div className='flex items-center gap-2'>
+          <div className='flex min-w-0 flex-1 items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />
-            <span>{label()}</span>
+            <span className='truncate'>{label()}</span>
           </div>
           <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>

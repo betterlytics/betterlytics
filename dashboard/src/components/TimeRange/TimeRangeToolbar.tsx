@@ -17,7 +17,20 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
     <div className='flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center'>
       {isMobile ? (
         <>
-          <div className='order-1 grid grid-cols-2 gap-2'>
+          <div className='order-1 grid grid-cols-1 gap-2'>
+            <div className='flex w-full items-center gap-2'>
+              <PrimaryRangePicker className='min-w-0 flex-1' />
+              {showComparison && (
+                <>
+                  <span className='sr-only'>Compare</span>
+                  <CompareRangePicker
+                    className={cn(ctx.compareMode === 'off' ? 'opacity-80' : '', 'min-w-0 flex-1')}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+          <div className='order-2 grid grid-cols-2 gap-2'>
             <Button
               variant='secondary'
               aria-label='Previous period'
@@ -41,16 +54,6 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
               <ChevronRightIcon className='h-4 w-4' />
             </Button>
           </div>
-          <div className='order-2 w-full'>
-            <PrimaryRangePicker className='w-full' />
-          </div>
-          {showComparison && (
-            <div className='order-3 flex w-full items-center gap-2'>
-              <span className='sr-only'>Compare</span>
-              <span className='text-muted-foreground hidden px-1 text-sm select-none sm:inline'>vs</span>
-              <CompareRangePicker className={cn(ctx.compareMode === 'off' ? 'opacity-80' : '', 'w-full')} />
-            </div>
-          )}
         </>
       ) : (
         <>
