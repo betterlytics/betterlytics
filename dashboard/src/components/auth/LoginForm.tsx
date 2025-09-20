@@ -128,6 +128,7 @@ export default function LoginForm() {
             className='border-input bg-background text-foreground focus:ring-ring placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none'
             placeholder='Enter your email'
             disabled={isDialogOpen}
+            tabIndex={1}
           />
         </div>
         <div>
@@ -138,6 +139,7 @@ export default function LoginForm() {
             <ExternalLink
               href='/forgot-password'
               className='text-primary hover:text-primary/80 text-sm font-medium underline'
+              tabIndex={2}
             >
               Forgot your password?
             </ExternalLink>
@@ -152,6 +154,7 @@ export default function LoginForm() {
             className='border-input bg-background text-foreground focus:ring-ring placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none'
             placeholder='Enter your password'
             disabled={isDialogOpen}
+            tabIndex={1}
           />
         </div>
       </div>
@@ -159,6 +162,7 @@ export default function LoginForm() {
       <div>
         <button
           type='submit'
+          tabIndex={1}
           disabled={isPending || isDialogOpen}
           className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex h-10 w-full cursor-pointer justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
         >
@@ -179,8 +183,9 @@ export default function LoginForm() {
         {providers?.google && (
           <button
             type='button'
+            tabIndex={1}
             onClick={() => handleOAuthLogin('google')}
-            className='font-roboto transition-border relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none'
+            className='font-roboto transition-border focus:ring-ring relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none focus:border-transparent focus:ring-2 focus:outline-none'
           >
             <GoogleIcon />
 
@@ -194,8 +199,9 @@ export default function LoginForm() {
         {providers?.github && (
           <button
             type='button'
+            tabIndex={1}
             onClick={() => handleOAuthLogin('github')}
-            className='font-roboto transition-border relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none'
+            className='font-roboto transition-border focus:ring-ring relative box-border flex h-10 w-full max-w-[400px] min-w-min cursor-pointer appearance-none items-center justify-center rounded-md border bg-white bg-none px-3 text-center align-middle text-sm tracking-[0.25px] whitespace-nowrap text-[#1f1f1f] transition-colors transition-shadow duration-200 ease-in-out outline-none select-none focus:border-transparent focus:ring-2 focus:outline-none'
           >
             <GitHubIcon />
 

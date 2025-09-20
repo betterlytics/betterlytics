@@ -91,7 +91,11 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             <div className='mt-6 text-center'>
               <p className='text-muted-foreground text-sm'>
                 {t('cta.noAccount')}{' '}
-                <Link href='/onboarding' className='text-primary hover:text-primary/80 font-medium underline'>
+                <Link
+                  href='/onboarding'
+                  className='text-primary hover:text-primary/80 font-medium underline'
+                  tabIndex={2}
+                >
                   {t('cta.createOne')}
                 </Link>
               </p>
