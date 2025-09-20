@@ -47,9 +47,8 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Real-time',
     value: 'realtime',
     getRange: () => {
-      const now = new Date();
-      const start = startOfHour(now);
-      const end = endOfHour(now);
+      const end = new Date();
+      const start = subHours(end, 1);
       return { startDate: start, endDate: end };
     },
   },
