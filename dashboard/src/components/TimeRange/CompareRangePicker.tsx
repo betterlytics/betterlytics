@@ -45,20 +45,29 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
           variant={ctx.compareMode === 'off' ? 'default' : 'ghost'}
           className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
           aria-pressed={ctx.compareMode === 'off'}
-          onClick={() => actions.enableCompare(ctx.compareMode === 'off')}
+          onClick={() => {
+            actions.enableCompare(ctx.compareMode === 'off');
+            setOpen(false);
+          }}
         >
           Disable compare
         </Button>
         <Button
           variant={ctx.compareMode === 'previous' ? 'default' : 'ghost'}
-          onClick={() => actions.setComparePreset('previous')}
+          onClick={() => {
+            actions.setComparePreset('previous');
+            setOpen(false);
+          }}
           className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
         >
           Previous period
         </Button>
         <Button
           variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
-          onClick={() => actions.setComparePreset('year')}
+          onClick={() => {
+            actions.setComparePreset('year');
+            setOpen(false);
+          }}
           className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
         >
           Previous year
@@ -66,7 +75,10 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
         <DateRangeSection
           startDate={ctx.compareStartDate}
           endDate={ctx.compareEndDate}
-          onDateRangeSelect={(from) => actions.setCompareCustomStart(from)}
+          onDateRangeSelect={(from) => {
+            actions.setCompareCustomStart(from);
+            setOpen(false);
+          }}
           showSameLengthHint
         />
       </div>
