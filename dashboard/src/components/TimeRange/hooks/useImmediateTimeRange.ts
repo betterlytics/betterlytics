@@ -32,6 +32,71 @@ import {
 export function useImmediateTimeRange() {
   const ctx = useTimeRangeContext();
 
+  const computeShiftedRange = useCallback(
+    (direction: 'previous' | 'next') => {
+      const interval = ctx.interval;
+      let rawStart = ctx.startDate;
+      let rawEnd = ctx.endDate;
+
+      if (interval === 'mtd') {
+        const currentMonthStart = startOfMonth(ctx.startDate);
+        const targetStart =
+          direction === 'previous'
+            ? startOfMonth(subMonths(currentMonthStart, 1))
+            : startOfMonth(addMonths(currentMonthStart, 1));
+
+        if (direction === 'next') {
+          const todayMonthStart = startOfMonth(new Date());
+          if (targetStart.getTime() > todayMonthStart.getTime()) {
+            return null; // would navigate into a future MTD
+          }
+        }
+
+        const targetMonthDays = endOfMonth(targetStart).getDate();
+        const endDay = ctx.endDate.getDate();
+        const targetEndDay = Math.min(endDay, targetMonthDays);
+        rawStart = targetStart;
+        rawEnd = getDateWithTimeOfDay(
+          new Date(targetStart.getFullYear(), targetStart.getMonth(), targetEndDay),
+          ctx.endDate,
+        );
+      } else if (interval === 'ytd') {
+        const yearStart = startOfYear(ctx.startDate);
+        const targetStart =
+          direction === 'previous' ? startOfYear(subYears(yearStart, 1)) : startOfYear(addYears(yearStart, 1));
+        const offsetDays = differenceInCalendarDays(ctx.endDate, yearStart);
+        const targetYearEnd = endOfYear(targetStart);
+        let candidateEnd = getDateWithTimeOfDay(addDays(targetStart, offsetDays), ctx.endDate);
+        if (candidateEnd.getTime() > targetYearEnd.getTime()) candidateEnd = targetYearEnd;
+        rawStart = targetStart;
+        rawEnd = candidateEnd;
+      } else if (interval === 'last_month') {
+        const monthStart = startOfMonth(ctx.startDate);
+        const targetStart =
+          direction === 'previous'
+            ? startOfMonth(subMonths(monthStart, 1))
+            : startOfMonth(addMonths(monthStart, 1));
+        rawStart = targetStart;
+        rawEnd = endOfMonth(targetStart);
+      } else {
+        const delta = ctx.endDate.getTime() - ctx.startDate.getTime();
+        rawStart = new Date(ctx.startDate.getTime() + (direction === 'previous' ? -delta : delta));
+        rawEnd = new Date(ctx.endDate.getTime() + (direction === 'previous' ? -delta : delta));
+      }
+
+      if (direction === 'next') {
+        // Prevent navigating into a future period beyond the current day
+        const todayEnd = endOfDay(new Date());
+        if (rawEnd.getTime() > todayEnd.getTime()) {
+          return null;
+        }
+      }
+
+      return { rawStart, rawEnd } as const;
+    },
+    [ctx],
+  );
+
   const setPresetRange = useCallback(
     (preset: Exclude<TimeRangeValue, 'custom'>) => {
       const { startDate, endDate } = getDateRangeForTimePresets(preset);
@@ -114,42 +179,11 @@ export function useImmediateTimeRange() {
   );
 
   const shiftPreviousPeriod = useCallback(() => {
-    const interval = ctx.interval;
-    let rawStart = ctx.startDate;
-    let rawEnd = ctx.endDate;
+    const computed = computeShiftedRange('previous');
+    if (!computed) return;
+    const { rawStart, rawEnd } = computed;
 
-    if (interval === 'mtd') {
-      const currentMonthStart = startOfMonth(ctx.startDate);
-      const targetStart = startOfMonth(subMonths(currentMonthStart, 1));
-      const targetMonthDays = endOfMonth(targetStart).getDate();
-      const endDay = ctx.endDate.getDate();
-      const targetEndDay = Math.min(endDay, targetMonthDays);
-      rawStart = targetStart;
-      rawEnd = getDateWithTimeOfDay(
-        new Date(targetStart.getFullYear(), targetStart.getMonth(), targetEndDay),
-        ctx.endDate,
-      );
-    } else if (interval === 'ytd') {
-      const yearStart = startOfYear(ctx.startDate);
-      const targetStart = startOfYear(subYears(yearStart, 1));
-      const offsetDays = differenceInCalendarDays(ctx.endDate, yearStart);
-      const targetYearEnd = endOfYear(targetStart);
-      let candidateEnd = getDateWithTimeOfDay(addDays(targetStart, offsetDays), ctx.endDate);
-      if (candidateEnd.getTime() > targetYearEnd.getTime()) candidateEnd = targetYearEnd;
-      rawStart = targetStart;
-      rawEnd = candidateEnd;
-    } else if (interval === 'last_month') {
-      const monthStart = startOfMonth(ctx.startDate);
-      const targetStart = startOfMonth(subMonths(monthStart, 1));
-      rawStart = targetStart;
-      rawEnd = endOfMonth(targetStart);
-    } else {
-      const delta = ctx.endDate.getTime() - ctx.startDate.getTime();
-      rawStart = new Date(ctx.startDate.getTime() - delta);
-      rawEnd = new Date(ctx.endDate.getTime() - delta);
-    }
-
-    if (interval !== 'custom') {
+    if (ctx.interval !== 'custom') {
       ctx.setOffset((offset) => offset - 1);
     }
 
@@ -159,55 +193,14 @@ export function useImmediateTimeRange() {
     const alignedEnd = getEndDateWithGranularity(rawEnd, nextGranularity);
     ctx.setPeriod(alignedStart, alignedEnd);
     if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
-  }, [ctx]);
+  }, [computeShiftedRange, ctx]);
 
   const shiftNextPeriod = useCallback(() => {
-    const interval = ctx.interval;
-    let rawStart = ctx.startDate;
-    let rawEnd = ctx.endDate;
+    const computed = computeShiftedRange('next');
+    if (!computed) return;
+    const { rawStart, rawEnd } = computed;
 
-    if (interval === 'mtd') {
-      const currentMonthStart = startOfMonth(ctx.startDate);
-      const targetStart = startOfMonth(addMonths(currentMonthStart, 1));
-      const todayMonthStart = startOfMonth(new Date());
-      if (targetStart.getTime() > todayMonthStart.getTime()) {
-        return; // prevent navigating into a future MTD
-      }
-      const targetMonthDays = endOfMonth(targetStart).getDate();
-      const endDay = ctx.endDate.getDate();
-      const targetEndDay = Math.min(endDay, targetMonthDays);
-      rawStart = targetStart;
-      rawEnd = getDateWithTimeOfDay(
-        new Date(targetStart.getFullYear(), targetStart.getMonth(), targetEndDay),
-        ctx.endDate,
-      );
-    } else if (interval === 'ytd') {
-      const yearStart = startOfYear(ctx.startDate);
-      const targetStart = startOfYear(addYears(yearStart, 1));
-      const offsetDays = differenceInCalendarDays(ctx.endDate, yearStart);
-      const targetYearEnd = endOfYear(targetStart);
-      let candidateEnd = getDateWithTimeOfDay(addDays(targetStart, offsetDays), ctx.endDate);
-      if (candidateEnd.getTime() > targetYearEnd.getTime()) candidateEnd = targetYearEnd;
-      rawStart = targetStart;
-      rawEnd = candidateEnd;
-    } else if (interval === 'last_month') {
-      const monthStart = startOfMonth(ctx.startDate);
-      const targetStart = startOfMonth(addMonths(monthStart, 1));
-      rawStart = targetStart;
-      rawEnd = endOfMonth(targetStart);
-    } else {
-      const delta = ctx.endDate.getTime() - ctx.startDate.getTime();
-      rawStart = new Date(ctx.startDate.getTime() + delta);
-      rawEnd = new Date(ctx.endDate.getTime() + delta);
-    }
-
-    // Prevent navigating into a future period beyond the current day
-    const todayEnd = endOfDay(new Date());
-    if (rawEnd.getTime() > todayEnd.getTime()) {
-      return;
-    }
-
-    if (interval !== 'custom') {
+    if (ctx.interval !== 'custom') {
       ctx.setOffset((offset) => offset + 1);
     }
 
@@ -217,7 +210,11 @@ export function useImmediateTimeRange() {
     const alignedEnd = getEndDateWithGranularity(rawEnd, nextGranularity);
     ctx.setPeriod(alignedStart, alignedEnd);
     if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
-  }, [ctx]);
+  }, [computeShiftedRange, ctx]);
+
+  const canShiftNextPeriod = useCallback(() => {
+    return computeShiftedRange('next') !== null;
+  }, [computeShiftedRange]);
 
   return {
     setPresetRange,
@@ -228,5 +225,6 @@ export function useImmediateTimeRange() {
     setCompareCustomStart,
     shiftPreviousPeriod,
     shiftNextPeriod,
+    canShiftNextPeriod,
   };
 }
