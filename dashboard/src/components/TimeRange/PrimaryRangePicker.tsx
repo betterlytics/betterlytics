@@ -16,6 +16,7 @@ import { GranularitySection } from '@/components/TimeRangeSelector/GranularitySe
 import { DateRangeSection } from '@/components/TimeRangeSelector/DateRangeSection';
 import { getAllowedGranularities } from '@/utils/granularityRanges';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
+import { LiveIndicator } from '@/components/live-indicator';
 
 export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -110,6 +111,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
           <div className='flex min-w-0 flex-1 items-center gap-2'>
             <CalendarIcon className='h-4 w-4' />
             <span className='truncate'>{label()}</span>
+            {ctx.interval === 'realtime' && <LiveIndicator className='relative top-auto right-auto' />}
           </div>
           <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
