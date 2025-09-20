@@ -20,7 +20,7 @@ import { useTranslations } from 'next-intl';
 import { formatNumber } from '@/utils/formatters';
 
 interface OutboundLinksTrendChartProps {
-  chartData: Array<{ date: number; value: number[] }>;
+  chartData: Array<{ date: number; value: (number | null)[] }>;
   comparisonMap?: ComparisonMapping[];
   granularity?: GranularityRangeValues;
   color: string;
