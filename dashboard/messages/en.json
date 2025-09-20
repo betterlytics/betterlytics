@@ -972,7 +972,7 @@
         "mtd": "Month to date",
         "last_month": "Last month",
         "ytd": "Year to date",
-        "1y": "Last 12 months"
+        "1y": "Past Year"
       },
       "granularityLabels": {
         "day": "Day",

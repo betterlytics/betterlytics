@@ -74,7 +74,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Past hour',
+    label: 'Past Hour',
     value: '1h',
     getRange: () => {
       const end = new Date();
@@ -83,7 +83,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Past 24 hours',
+    label: 'Past 24 Hours',
     value: '24h',
     getRange: () => {
       const end = endOfHour(new Date());
@@ -92,7 +92,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Last 7 days',
+    label: 'Last 7 Days',
     value: '7d',
     getRange: () => {
       const end = new Date();
@@ -101,7 +101,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Last 28 days',
+    label: 'Last 28 Days',
     value: '28d',
     getRange: () => {
       const end = new Date();
@@ -129,7 +129,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Last month',
+    label: 'Last Month',
     value: 'last_month',
     getRange: () => {
       const now = new Date();
@@ -140,7 +140,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Year to date',
+    label: 'Year to Date',
     value: 'ytd',
     getRange: () => {
       const now = new Date();
@@ -150,7 +150,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     },
   },
   {
-    label: 'Last 12 months',
+    label: 'Past Year',
     value: '1y',
     getRange: () => {
       const now = new Date();

@@ -3,6 +3,9 @@ import { utcMinute } from 'd3-time';
 import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
 import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
+import { getIncompleteSplit, maskPrimaryAfterIndex } from './utils';
+
+export type ChartPoint = { date: number; value: Array<number | null> };
 
 type DataToAreaChartProps<K extends string> = {
   dataKey: K;
@@ -20,6 +23,7 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
     start?: Date;
     end?: Date;
   };
+  bucketIncomplete?: boolean;
 };
 
 function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRange }: DataToAreaChartProps<K>) {
@@ -58,8 +62,9 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
 }
 
 type AreaChartResult = {
-  data: Array<{ date: number; value: number[] }>;
+  data: Array<{ date: number; value: Array<number | null> }>;
   comparisonMap?: ComparisonMapping[];
+  incomplete?: Array<{ date: number; value: Array<number | null> }>;
 };
 
 export function toAreaChart<K extends string>({
@@ -69,6 +74,7 @@ export function toAreaChart<K extends string>({
   granularity,
   dateRange,
   compareDateRange,
+  bucketIncomplete,
 }: ToAreaChartProps<K>): AreaChartResult {
   const chart = dataToAreaChart({
     dataKey,
@@ -77,8 +83,16 @@ export function toAreaChart<K extends string>({
     dateRange,
   });
 
+  const now = Date.now();
+  const {
+    firstIncompleteIndex,
+    shouldSplit: shouldSplitForIncomplete,
+    solid: solidCurrent,
+    incomplete: currentIncomplete,
+  } = getIncompleteSplit(chart, granularity, now, bucketIncomplete);
+
   if (compare === undefined) {
-    return { data: chart };
+    return { data: solidCurrent, incomplete: currentIncomplete };
   }
 
   if (
@@ -100,7 +114,7 @@ export function toAreaChart<K extends string>({
   });
 
   if (chart.length !== compareChart.length) {
-    return { data: chart };
+    return { data: solidCurrent, incomplete: currentIncomplete };
   }
 
   const chartData = chart.map((point, index) => ({
@@ -110,9 +124,14 @@ export function toAreaChart<K extends string>({
 
   const comparisonMap = createComparisonMap(chartData, compareChart, dataKey);
 
+  const dataSeries = shouldSplitForIncomplete ? maskPrimaryAfterIndex(chartData, firstIncompleteIndex) : chartData;
+  const incomplete = currentIncomplete
+    ? chartData.slice(firstIncompleteIndex > 0 ? firstIncompleteIndex - 1 : 0)
+    : undefined;
   return {
-    data: chartData,
+    data: dataSeries,
     comparisonMap,
+    incomplete,
   };
 }
 
