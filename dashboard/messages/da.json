@@ -976,7 +976,7 @@
         "mtd": "Måned til dato",
         "last_month": "Sidste måned",
         "ytd": "År til dato",
-        "1y": "Seneste 12 måneder"
+        "1y": "Seneste år"
       },
       "granularityLabels": {
         "day": "Dag",

@@ -50,6 +50,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         onRangeSelect={(v) => {
           if (v === 'custom') return;
           actions.setPresetRange(v);
+          setOpen(false);
         }}
       />
       <Separator className='my-1' />

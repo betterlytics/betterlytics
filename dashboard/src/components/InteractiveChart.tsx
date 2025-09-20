@@ -10,11 +10,12 @@ import { formatNumber } from '@/utils/formatters';
 
 interface ChartDataPoint {
   date: string | number;
-  value: number[];
+  value: Array<number | null>;
 }
 
 interface InteractiveChartProps {
   data: ChartDataPoint[];
+  incomplete?: ChartDataPoint[];
   color: string;
   formatValue?: (value: number) => string;
   granularity?: GranularityRangeValues;
@@ -24,7 +25,7 @@ interface InteractiveChartProps {
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
-  ({ data, color, formatValue, granularity, comparisonMap, headerContent, tooltipTitle }) => {
+  ({ data, incomplete, color, formatValue, granularity, comparisonMap, headerContent, tooltipTitle }) => {
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
@@ -60,6 +61,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   }
                   minTickGap={100}
                   tickMargin={6}
+                  allowDuplicatedCategory={false}
                 />
                 <YAxis
                   fontSize={12}
@@ -84,12 +86,24 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                 />
                 <Area
                   type='linear'
+                  data={data}
                   dataKey={'value.0'}
                   stroke={color}
                   strokeWidth={2}
                   fillOpacity={1}
                   fill={'url(#gradient-value)'}
                 />
+                {incomplete && incomplete.length >= 2 ? (
+                  <Line
+                    type='linear'
+                    data={incomplete}
+                    dataKey={'value.0'}
+                    stroke={color}
+                    strokeWidth={2}
+                    strokeDasharray='4 4'
+                    dot={false}
+                  />
+                ) : null}
                 <Line
                   type='linear'
                   dataKey={'value.1'}
