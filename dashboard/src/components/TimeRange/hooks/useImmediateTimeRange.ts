@@ -56,6 +56,7 @@ export function useImmediateTimeRange() {
       const alignedStart = getStartDateWithGranularity(startDate, nextGranularity);
       const alignedEnd = getEndDateWithGranularity(endDate, nextGranularity);
       ctx.setPeriod(alignedStart, alignedEnd);
+      ctx.setInterval('custom');
       if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
     },
     [ctx],
