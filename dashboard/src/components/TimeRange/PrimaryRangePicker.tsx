@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -15,7 +15,7 @@ import { QuickSelectSection } from '@/components/TimeRangeSelector/QuickSelectSe
 import { GranularitySection } from '@/components/TimeRangeSelector/GranularitySection';
 import { DateRangeSection } from '@/components/TimeRangeSelector/DateRangeSection';
 import { getAllowedGranularities } from '@/utils/granularityRanges';
-import { TIME_RANGE_PRESETS } from '@/utils/timeRanges';
+import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 
 export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -26,20 +26,16 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
 
   const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
 
-  const label = () => {
-    if (ctx.interval === 'custom') {
-      const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-      return `${ctx.startDate.toLocaleDateString(undefined, opts)} - ${ctx.endDate.toLocaleDateString(undefined, opts)}`;
-    }
-    const preset = TIME_RANGE_PRESETS.find((p) => p.value === ctx.interval);
-    const presentedLabelInterval = preset?.label ?? ctx.interval;
-
-    if (ctx.offset === 0) {
-      return presentedLabelInterval;
-    }
-    const sign = ctx.offset > 0 ? '+' : '-';
-    return `${presentedLabelInterval} ${sign} ${Math.abs(ctx.offset)}`;
-  };
+  const label = useMemo(
+    () => () =>
+      formatPrimaryRangeLabel({
+        interval: ctx.interval,
+        offset: ctx.offset,
+        startDate: ctx.startDate,
+        endDate: ctx.endDate,
+      }),
+    [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate],
+  );
 
   const titleText = `${ctx.startDate.toLocaleString()} - ${ctx.endDate.toLocaleString()}`;
 
