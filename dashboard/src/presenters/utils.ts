@@ -24,13 +24,14 @@ export function splitSeriesForIncomplete(
   incomplete: ChartPoint[] | undefined;
 } {
   if (firstIncompleteIndex === -1) return { solid: chart, incomplete: undefined };
+
   const startIndex = firstIncompleteIndex > 0 ? firstIncompleteIndex - 1 : 0;
+
   return {
     solid: chart.slice(0, firstIncompleteIndex),
-    incomplete: chart.slice(startIndex),
+    incomplete: chart.slice(startIndex, firstIncompleteIndex + 1), // only prev + first incomplete
   };
 }
-
 export function maskPrimaryAfterIndex(chart: ChartPoint[], firstIncompleteIndex: number): ChartPoint[] {
   if (firstIncompleteIndex === -1) return chart;
   return chart.map((point, index) =>
