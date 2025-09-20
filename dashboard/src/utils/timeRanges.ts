@@ -95,7 +95,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Last 7 days',
     value: '7d',
     getRange: () => {
-      const end = endOfDay(new Date());
+      const end = new Date();
       const start = subDays(end, 7);
       return { startDate: start, endDate: end };
     },
@@ -104,7 +104,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Last 28 days',
     value: '28d',
     getRange: () => {
-      const end = endOfDay(new Date());
+      const end = new Date();
       const start = subDays(end, 28);
       return { startDate: start, endDate: end };
     },
@@ -113,7 +113,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Last 90 days',
     value: '90d',
     getRange: () => {
-      const end = endOfDay(new Date());
+      const end = new Date();
       const start = subDays(end, 90);
       return { startDate: start, endDate: end };
     },
