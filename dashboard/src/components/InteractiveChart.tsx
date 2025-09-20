@@ -44,7 +44,11 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
               <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='5%' stopColor={color} stopOpacity={0.3} />
+                    <stop offset='5%' stopColor={color} stopOpacity={0.35} />
+                    <stop offset='95%' stopColor={color} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id={`gradient-incomplete`} x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='5%' stopColor={color} stopOpacity={0.09} />
                     <stop offset='95%' stopColor={color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -93,6 +97,16 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   fillOpacity={1}
                   fill={'url(#gradient-value)'}
                 />
+                {incomplete && incomplete.length >= 2 ? (
+                  <Area
+                    type='linear'
+                    data={incomplete}
+                    dataKey={'value.0'}
+                    stroke='none'
+                    fillOpacity={1}
+                    fill={'url(#gradient-incomplete)'}
+                  />
+                ) : null}
                 {incomplete && incomplete.length >= 2 ? (
                   <Line
                     type='linear'
