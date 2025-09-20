@@ -7,16 +7,17 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsTablet } from '@/hooks/use-is-tablet';
 
 export function TimeRangeToolbar({ showComparison = true }: { showComparison?: boolean }) {
   const actions = useImmediateTimeRange();
   const ctx = useTimeRangeContext();
-  const isMobile = useIsMobile();
+  const isSmallScreen = useIsTablet();
+
   return (
     <div className='flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center'>
-      {isMobile ? (
-        <>
+      {isSmallScreen ? (
+        <div className='grid grid-cols-1 gap-2'>
           <div className='order-1 grid grid-cols-1 gap-2'>
             <div className='flex w-full items-center gap-2'>
               <PrimaryRangePicker className='min-w-0 flex-1' />
@@ -54,7 +55,7 @@ export function TimeRangeToolbar({ showComparison = true }: { showComparison?: b
               <ChevronRightIcon className='h-4 w-4' />
             </Button>
           </div>
-        </>
+        </div>
       ) : (
         <>
           <div className='flex items-center gap-0 self-start sm:mr-1'>
