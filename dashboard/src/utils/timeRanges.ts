@@ -77,7 +77,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Past hour',
     value: '1h',
     getRange: () => {
-      const end = endOfHour(new Date());
+      const end = new Date();
       const start = subHours(end, 1);
       return { startDate: start, endDate: end };
     },
