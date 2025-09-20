@@ -201,6 +201,12 @@ export function useImmediateTimeRange() {
       rawEnd = new Date(ctx.endDate.getTime() + delta);
     }
 
+    // Prevent navigating into a future period beyond the current day
+    const todayEnd = endOfDay(new Date());
+    if (rawEnd.getTime() > todayEnd.getTime()) {
+      return;
+    }
+
     if (interval !== 'custom') {
       ctx.setOffset((offset) => offset + 1);
     }
