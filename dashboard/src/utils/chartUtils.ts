@@ -54,8 +54,11 @@ export function formatDifference(
  * Formats the date based on the granularity
  */
 export function defaultDateLabelFormatter(date: string | number, granularity?: GranularityRangeValues) {
-  const formatter = granularityDateFormatter(granularity);
-  return formatter(new Date(date));
+  const d = new Date(date);
+  if (granularity === undefined || granularity === 'day') {
+    return timeFormat('%a, %b %d')(d);
+  }
+  return timeFormat('%a, %b %d, %H:%M')(d);
 }
 
 export function granularityDateFormatter(granularity?: GranularityRangeValues) {
