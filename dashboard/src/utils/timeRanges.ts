@@ -87,7 +87,7 @@ export const TIME_RANGE_PRESETS: TimeRangePreset[] = [
     label: 'Past 24 Hours',
     value: '24h',
     getRange: () => {
-      const end = endOfHour(new Date());
+      const end = new Date();
       const start = subDays(end, 1);
       return { startDate: start, endDate: end };
     },
@@ -181,7 +181,7 @@ export function getStartDateWithGranularity(date: Date, granularity: Granularity
   if (granularity === 'day') return startOfDay(alignedDate);
   if (granularity === 'hour') return startOfHour(alignedDate);
   const nearestTo = getMinuteStep(granularity);
-  return roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'floor' });
+  return roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'ceil' });
 }
 
 export function getEndDateWithGranularity(date: Date, granularity: GranularityRangeValues) {
@@ -191,7 +191,7 @@ export function getEndDateWithGranularity(date: Date, granularity: GranularityRa
   if (granularity === 'hour') return subHours(endOfHour(alignedDate), 1);
 
   const nearestTo = getMinuteStep(granularity);
-  return subSeconds(roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'floor' }), 1);
+  return subSeconds(roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'ceil' }), 1);
 }
 
 export function getDateRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>): {
