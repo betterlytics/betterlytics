@@ -150,7 +150,7 @@ export async function getSessionMetrics(
           0
       ) AS bounce_rate,
       if (number_of_page_views > 0,
-        number_of_page_views / sessions,
+        round(number_of_page_views / sessions, 1),
         0
       ) AS pages_per_session
     FROM included
@@ -236,7 +236,7 @@ export async function getSessionRangeMetrics(
           0
       ) AS bounce_rate,
       if (number_of_page_views > 0,
-        number_of_page_views / sessions,
+        round(number_of_page_views / sessions, 1),
         0
       ) AS pages_per_session
     FROM included
