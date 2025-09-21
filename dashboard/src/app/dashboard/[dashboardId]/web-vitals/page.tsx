@@ -65,7 +65,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('webVitals')}>
-        <DashboardFilters />
+        <DashboardFilters showComparison={false} />
       </DashboardHeader>
 
       <Suspense fallback={<ChartSkeleton />}>

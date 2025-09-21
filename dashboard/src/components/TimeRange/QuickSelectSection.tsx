@@ -20,13 +20,8 @@ export function QuickSelectSection({ selectedRange, onRangeSelect }: QuickSelect
   const byValue = new Map(TIME_RANGE_PRESETS.filter(isNonCustomPreset).map((p) => [p.value, p]));
 
   const groups: Array<Array<Exclude<TimeRangeValue, 'custom'> | 'realtime'>> = [
-    // Real-time / intraday
     ['realtime', '1h', '24h', 'today', 'yesterday'],
-
-    // Recent days/weeks (rolling windows)
     ['7d', '28d', '90d'],
-
-    // Monthly (calendar / rolling)
     ['mtd', 'last_month', 'ytd', '1y'],
   ];
 

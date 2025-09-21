@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useTranslations } from 'next-intl';
 import { DateRangePicker } from './DateRangePicker';
 
 interface DateRangeSectionProps {

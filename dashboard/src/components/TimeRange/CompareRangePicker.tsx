@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { isDerivedCompareMode } from '@/utils/compareRanges';
-import { DateRangeSection } from '@/components/TimeRangeSelector/DateRangeSection';
+import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 

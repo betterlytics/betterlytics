@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { addMonths, format, startOfDay } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { addMonths, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
