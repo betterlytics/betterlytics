@@ -819,36 +819,6 @@
       "description": "Aggiungi una nuova dashboard"
     }
   },
-  "componentsBilling": {
-    "dashboards": {
-      "createDialog": {
-        "title": "Crea nuova dashboard",
-        "description": "Inserisci il dominio del tuo sito per iniziare a tracciare le analitiche.",
-        "label": {
-          "domain": "Dominio del sito web"
-        },
-        "placeholder": {
-          "domain": "example.com"
-        },
-        "helper": {
-          "domain": "Inserisci il dominio senza https:// o www."
-        },
-        "buttons": {
-          "cancel": "Annulla",
-          "create": "Crea dashboard",
-          "creating": "Creazione in corso..."
-        },
-        "toast": {
-          "createdInitializing": "Dashboard creata! Configurazione integrazione...",
-          "createFailed": "Impossibile creare la dashboard."
-        },
-        "errors": {
-          "invalidDomain": "Dominio non valido"
-        },
-        "limitTooltip": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
-      }
-    }
-  },
 
   "charts": {
     "tooltip": {
@@ -879,6 +849,34 @@
         "friShort": "Ven.",
         "satShort": "Sab.",
         "sunShort": "Dom."
+      }
+    },
+    "dashboards": {
+      "createDialog": {
+        "title": "Crea nuova dashboard",
+        "description": "Inserisci il dominio del tuo sito per iniziare a tracciare le analitiche.",
+        "label": {
+          "domain": "Dominio del sito web"
+        },
+        "placeholder": {
+          "domain": "example.com"
+        },
+        "helper": {
+          "domain": "Inserisci il dominio senza https:// o www."
+        },
+        "buttons": {
+          "cancel": "Annulla",
+          "create": "Crea dashboard",
+          "creating": "Creazione in corso..."
+        },
+        "toast": {
+          "createdInitializing": "Dashboard creata! Configurazione integrazione...",
+          "createFailed": "Impossibile creare la dashboard."
+        },
+        "errors": {
+          "invalidDomain": "Dominio non valido"
+        },
+        "limitTooltip": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
       }
     },
     "billing": {
@@ -1637,6 +1635,9 @@
         "description": "La registrazione è attualmente disabilitata su questa istanza.",
         "backToSignIn": "Torna all'accesso"
       }
+    },
+    "page": {
+      "title": "Betterlytics | Registrazione"
     },
     "account": {
       "features": {

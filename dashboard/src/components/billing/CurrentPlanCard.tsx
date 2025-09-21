@@ -74,12 +74,12 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
       </div>
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <div className='space-y-3'>
+        <div className='flex justify-between sm:block sm:space-y-3'>
           <div>
             <div className='text-muted-foreground text-sm'>{t('plan')}</div>
             <div className='font-semibold capitalize'>{subscription.tier}</div>
           </div>
-          <div>
+          <div className='text-right sm:text-left'>
             <div className='text-muted-foreground text-sm'>{t('monthlyPrice')}</div>
             <div className='font-semibold'>
               {subscription.pricePerMonth === 0
@@ -123,7 +123,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
           )}
         </div>
 
-        {showManagementButtons && (
+        {showManagementButtons && billingData.isExistingPaidSubscriber && (
           <div className='flex w-full flex-wrap justify-start gap-2 sm:ml-auto sm:w-auto sm:justify-end'>
             <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
               <ExternalLink className='mr-2 h-4 w-4' />

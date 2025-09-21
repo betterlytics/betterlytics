@@ -6,7 +6,16 @@ import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 
-const URL_PARAM_NAME = 'filters';
+const URL_SEARCH_PARAMS = [
+  'queryFilters',
+  'granularity',
+  'startDate',
+  'endDate',
+  'compareEnabled',
+  'compareStartDate',
+  'compareEndDate',
+  'userJourney',
+] as const;
 
 export function useSyncURLFilters() {
   const router = useBARouter();
@@ -29,10 +38,14 @@ export function useSyncURLFilters() {
 
   useEffect(() => {
     try {
-      const encodedFilters = searchParams?.get(URL_PARAM_NAME);
-      const filters = encodedFilters
-        ? BAFilterSearchParams.decode(encodedFilters)
-        : BAFilterSearchParams.getDefaultFilters();
+      const encodedFilterEntries = URL_SEARCH_PARAMS.map(
+        (param) => [param, searchParams.get(param)] as const,
+      ).filter(([_key, value]) => Boolean(value));
+
+      const encoded = Object.fromEntries(encodedFilterEntries);
+
+      const filters = BAFilterSearchParams.decode(encoded);
+
       if (filters.startDate && filters.endDate) {
         setPeriod(filters.startDate, filters.endDate);
       }
@@ -76,7 +89,9 @@ export function useSyncURLFilters() {
       });
 
       const params = new URLSearchParams(searchParams?.toString() ?? '');
-      params.set(URL_PARAM_NAME, encodedFilters);
+
+      URL_SEARCH_PARAMS.forEach((key) => params.delete(key));
+      encodedFilters.forEach(([key, value]) => params.set(key, value));
       router.replace(`?${params.toString()}`);
     } catch (error) {
       console.error('Failed to add filters:', error);
