@@ -9,6 +9,7 @@ import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
 import { getTranslations } from 'next-intl/server';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -66,7 +67,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   };
 
   return (
-    <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
+    <div className='bg-background flex items-center justify-center px-4 py-12 sm:px-6 sm:pt-20 lg:px-8'>
       <VerificationSuccessHandler />
 
       <div className='w-full max-w-md space-y-8'>
@@ -77,31 +78,33 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('title')}</h2>
           <p className='text-muted-foreground mt-2 text-sm'>{t('subtitle')}</p>
         </div>
-        <div className='bg-card rounded-lg border p-8 shadow-sm'>
-          {error && (
-            <div
-              className='bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-md border px-4 py-3'
-              role='alert'
-            >
-              <span className='block sm:inline'>{getErrorMessage(error)}</span>
-            </div>
-          )}
-          <LoginForm />
-          {registrationEnabled && (
-            <div className='mt-6 text-center'>
-              <p className='text-muted-foreground text-sm'>
-                {t('cta.noAccount')}{' '}
-                <Link
-                  href='/onboarding'
-                  className='text-primary hover:text-primary/80 font-medium underline'
-                  tabIndex={2}
-                >
-                  {t('cta.createOne')}
-                </Link>
-              </p>
-            </div>
-          )}
-        </div>
+        <Card className='p-0 shadow-sm'>
+          <CardContent className='p-3 py-8 sm:p-8'>
+            {error && (
+              <div
+                className='bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-md border px-4 py-3'
+                role='alert'
+              >
+                <span className='block sm:inline'>{getErrorMessage(error)}</span>
+              </div>
+            )}
+            <LoginForm />
+            {registrationEnabled && (
+              <div className='mt-6 text-center'>
+                <p className='text-muted-foreground text-sm'>
+                  {t('cta.noAccount')}{' '}
+                  <Link
+                    href='/onboarding'
+                    className='text-primary hover:text-primary/80 font-medium underline'
+                    tabIndex={2}
+                  >
+                    {t('cta.createOne')}
+                  </Link>
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

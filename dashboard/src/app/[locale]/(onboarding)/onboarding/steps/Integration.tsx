@@ -157,8 +157,8 @@ function App() {
 export default App;`;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className='p-3 py-4 pb-5 shadow-sm sm:p-6'>
+      <CardHeader className='p-0'>
         <CardTitle className='flex justify-between text-base font-medium'>
           {t('siteId.title')}{' '}
           <div className='flex justify-center'>
@@ -194,7 +194,7 @@ export default App;`;
         </CardTitle>
         <CardDescription className='text-sm'>{t('siteId.description')}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className='p-0'>
         <div className='bg-muted flex items-center justify-between rounded-md border p-3'>
           <code className='font-mono text-sm'>{dashboard.siteId}</code>
           <Button
@@ -210,7 +210,7 @@ export default App;`;
 
       <Separator />
 
-      <CardHeader>
+      <CardHeader className='p-0'>
         <CardTitle className='flex items-center justify-between text-base font-medium'>
           <span>{t('instructions.title')}</span>
           <ExternalLink
@@ -224,7 +224,7 @@ export default App;`;
         </CardTitle>
         <CardDescription className='text-sm'>{t('instructions.description')}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className='p-0'>
         <Tabs defaultValue='html' className='w-full gap-4'>
           <TabsList className='grid w-full grid-cols-4'>
             <TabsTrigger value='html' className='cursor-pointer'>
@@ -303,7 +303,7 @@ export default App;`;
           </TabsContent>
         </Tabs>
       </CardContent>
-      <CardFooter className='gap-4'>
+      <CardFooter className='gap-4 p-0'>
         <div className='relative flex w-full justify-end'>
           <AnimatePresence mode='wait'>
             {isVerified ? (
