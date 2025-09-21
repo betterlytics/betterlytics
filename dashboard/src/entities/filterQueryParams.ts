@@ -15,6 +15,7 @@ export const FilterQueryParamsSchema = z.object({
   interval: z.enum(TIME_RANGE_VALUES),
   offset: z.number().int().optional(),
   compare: z.enum(COMPARE_URL_MODES),
+  compareAlignWeekdays: z.boolean().optional().default(false),
   userJourney: z.object({
     numberOfSteps: z.number(),
     numberOfJourneys: z.number(),

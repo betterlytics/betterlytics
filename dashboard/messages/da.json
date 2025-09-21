@@ -993,7 +993,8 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "apply": "Anvend"
+      "apply": "Anvend",
+      "matchDayOfWeek": "Match ugedag"
     },
     "loading": {
       "dashboard": {

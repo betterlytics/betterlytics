@@ -23,6 +23,8 @@ type TimeRangeContextProps = {
   compareStartDate?: Date;
   compareEndDate?: Date;
   setCompareDateRange: (startDate: Date, endDate: Date) => void;
+  compareAlignWeekdays: boolean;
+  setCompareAlignWeekdays: Dispatch<SetStateAction<boolean>>;
   autoRefreshInterval: RefreshIntervalValue;
   setAutoRefreshInterval: Dispatch<SetStateAction<RefreshIntervalValue>>;
 };
@@ -48,6 +50,7 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
   );
   const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(defaultFilters.compareEndDate);
   const [autoRefreshInterval, setAutoRefreshInterval] = React.useState<RefreshIntervalValue>('off');
+  const [compareAlignWeekdays, setCompareAlignWeekdays] = React.useState<boolean>(false);
 
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
     setStartDate(newStartDate);
@@ -82,10 +85,10 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compareMode, startDate, endDate, compareStartDate]);
 
-  // Invariant: when compare mode is derived (previous/year), recompute compare range when main period changes
+  // Invariant: when compare mode is derived (previous/year), recompute compare range when main period or alignment changes
   useEffect(() => {
     if (!isDerivedCompareMode(compareMode)) return;
-    const derived = deriveCompareRange(startDate, endDate, compareMode);
+    const derived = deriveCompareRange(startDate, endDate, compareMode, undefined, compareAlignWeekdays);
     if (!derived) return;
 
     if (
@@ -96,7 +99,7 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
       setCompareEndDate(derived.endDate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [compareMode, startDate, endDate]);
+  }, [compareMode, startDate, endDate, compareAlignWeekdays]);
 
   return (
     <TimeRangeContext.Provider
@@ -115,6 +118,8 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         compareStartDate,
         compareEndDate,
         setCompareDateRange: handleSetCompareDateRange,
+        compareAlignWeekdays,
+        setCompareAlignWeekdays,
         autoRefreshInterval,
         setAutoRefreshInterval,
       }}

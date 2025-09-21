@@ -26,6 +26,7 @@ function getDefaultFilters(): FilterQueryParams {
     granularity,
     interval: '24h',
     compare: 'previous',
+    compareAlignWeekdays: false,
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
@@ -89,6 +90,8 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
       return (value as number).toString();
     case 'compare':
       return value as FilterQueryParams['compare'];
+    case 'compareAlignWeekdays':
+      return (value as boolean) ? '1' : '0';
   }
 
   throw new Error(`Unknown filter key "${key}"`);
@@ -121,6 +124,8 @@ function decodeValue<Key extends keyof FilterQueryParams>(
       return Number(value);
     case 'compare':
       return value as FilterQueryParams['compare'];
+    case 'compareAlignWeekdays':
+      return value === '1' || value === 'true';
   }
 
   throw new Error(`Unknown filter key "${key}"`);

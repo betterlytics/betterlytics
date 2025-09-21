@@ -226,5 +226,6 @@ export function useImmediateTimeRange() {
     shiftPreviousPeriod,
     shiftNextPeriod,
     canShiftNextPeriod,
+    setCompareAlignWeekdays: ctx.setCompareAlignWeekdays,
   };
 }

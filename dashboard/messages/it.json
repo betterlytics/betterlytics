@@ -995,7 +995,8 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "apply": "Applica"
+      "apply": "Applica",
+      "matchDayOfWeek": "Allinea giorno della settimana"
     },
     "loading": {
       "dashboard": {

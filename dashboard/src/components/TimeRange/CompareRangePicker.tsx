@@ -12,6 +12,8 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { isDerivedCompareMode } from '@/utils/compareRanges';
 import { DateRangeSection } from '@/components/TimeRangeSelector/DateRangeSection';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 
 export function CompareRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -81,6 +83,25 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
           showSameLengthHint
         />
       </div>
+
+      <Separator className='my-1' />
+
+      <button
+        type='button'
+        className='flex w-full cursor-pointer items-center justify-between rounded-sm p-2 text-left'
+        onClick={() => actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays)}
+        aria-pressed={ctx.compareAlignWeekdays}
+        aria-label={t('matchDayOfWeek')}
+      >
+        <div className='text-sm'>{t('matchDayOfWeek')}</div>
+        <Switch
+          checked={ctx.compareAlignWeekdays}
+          onCheckedChange={(checked) => actions.setCompareAlignWeekdays(Boolean(checked))}
+          onClick={(e) => e.stopPropagation()}
+          aria-label={t('matchDayOfWeek')}
+          className='cursor-pointer'
+        />
+      </button>
     </div>
   );
 

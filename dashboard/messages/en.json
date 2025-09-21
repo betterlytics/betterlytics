@@ -989,7 +989,8 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "apply": "Apply"
+      "apply": "Apply",
+      "matchDayOfWeek": "Match Day of Week"
     },
     "loading": {
       "dashboard": {

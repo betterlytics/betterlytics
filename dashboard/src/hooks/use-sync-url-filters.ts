@@ -16,6 +16,7 @@ const URL_SEARCH_PARAMS = [
   'interval',
   'offset',
   'compare',
+  'compareAlignWeekdays',
   'userJourney',
 ] as const;
 
@@ -39,6 +40,8 @@ export function useSyncURLFilters() {
     setOffset,
     compareMode,
     setCompareMode,
+    compareAlignWeekdays,
+    setCompareAlignWeekdays,
   } = useTimeRangeContext();
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
 
@@ -89,6 +92,9 @@ export function useSyncURLFilters() {
           }
         }
       }
+      if (filters.compareAlignWeekdays !== undefined) {
+        setCompareAlignWeekdays(Boolean(filters.compareAlignWeekdays));
+      }
     } catch (error) {
       console.error('Failed to set filters:', error);
     }
@@ -104,6 +110,7 @@ export function useSyncURLFilters() {
         interval,
         offset,
         compare: compareMode,
+        compareAlignWeekdays,
         userJourney: {
           numberOfSteps,
           numberOfJourneys,
@@ -132,6 +139,7 @@ export function useSyncURLFilters() {
     interval,
     offset,
     compareMode,
+    compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
   ]);
