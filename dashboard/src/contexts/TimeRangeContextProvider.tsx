@@ -6,8 +6,6 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { addDays, differenceInCalendarDays } from 'date-fns';
 import { getAllowedGranularities, getValidGranularityFallback } from '@/utils/granularityRanges';
 
-type RefreshIntervalValue = 'off' | '30s' | '60s' | '120s';
-
 type TimeRangeContextProps = {
   startDate: Date;
   endDate: Date;
@@ -25,8 +23,6 @@ type TimeRangeContextProps = {
   setCompareDateRange: (startDate: Date, endDate: Date) => void;
   compareAlignWeekdays: boolean;
   setCompareAlignWeekdays: Dispatch<SetStateAction<boolean>>;
-  autoRefreshInterval: RefreshIntervalValue;
-  setAutoRefreshInterval: Dispatch<SetStateAction<RefreshIntervalValue>>;
 };
 
 const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRangeContextProps);
@@ -49,7 +45,6 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
     defaultFilters.compareStartDate,
   );
   const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(defaultFilters.compareEndDate);
-  const [autoRefreshInterval, setAutoRefreshInterval] = React.useState<RefreshIntervalValue>('off');
   const [compareAlignWeekdays, setCompareAlignWeekdays] = React.useState<boolean>(false);
 
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
@@ -120,8 +115,6 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         setCompareDateRange: handleSetCompareDateRange,
         compareAlignWeekdays,
         setCompareAlignWeekdays,
-        autoRefreshInterval,
-        setAutoRefreshInterval,
       }}
     >
       {children}
