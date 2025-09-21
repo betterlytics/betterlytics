@@ -1,4 +1,3 @@
-import { getDateRangeForTimePresets, TimeRangeValue } from '@/utils/timeRanges';
 import { addDays, startOfDay, subMilliseconds, subSeconds, subYears } from 'date-fns';
 
 export const COMPARE_URL_MODES = ['previous', 'year', 'off', 'custom'] as const;
@@ -11,15 +10,6 @@ export interface CompareCustomRange {
 
 export function isDerivedCompareMode(mode: CompareMode): mode is 'previous' | 'year' {
   return mode === 'previous' || mode === 'year';
-}
-
-// Deprecated: prefer deriveCompareRange with CompareMode
-export function getCompareRangeForTimePresets(value: Omit<TimeRangeValue, 'custom'>) {
-  const { startDate, endDate } = getDateRangeForTimePresets(value);
-  const durationMs = endDate.getTime() - startDate.getTime();
-  const compareEnd = subSeconds(startDate, 1);
-  const compareStart = subMilliseconds(startDate, durationMs);
-  return { compareStart, compareEnd };
 }
 
 export function deriveCompareRange(

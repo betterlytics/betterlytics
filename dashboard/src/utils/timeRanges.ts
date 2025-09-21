@@ -35,7 +35,6 @@ export const TIME_RANGE_VALUES = [
   'custom',
 ] as const;
 export type TimeRangeValue = (typeof TIME_RANGE_VALUES)[number];
-export type TimeGrouping = 'minute' | 'hour' | 'day';
 
 export interface TimeRangePreset {
   label: string;
