@@ -125,7 +125,9 @@ export function useSyncURLFilters() {
 
       URL_SEARCH_PARAMS.forEach((key) => params.delete(key));
       encodedFilters.forEach(([key, value]) => params.set(key, value));
-      router.replace(`?${params.toString()}`, { scroll: false });
+
+      const updateRouteTimeout = setTimeout(() => router.replace(`?${params.toString()}`, { scroll: false }), 10);
+      return () => clearTimeout(updateRouteTimeout);
     } catch (error) {
       console.error('Failed to add filters:', error);
     }
