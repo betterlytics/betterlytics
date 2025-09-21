@@ -1,4 +1,5 @@
 import { type WeeklyHeatmapRow } from '@/entities/weeklyHeatmap';
+import { computeNormalizedMax } from '@/lib/statistics';
 
 export type WeeklyHeatmapMatrix = {
   weekday: number; // 1-7 (Mon..Sun)
@@ -10,7 +11,13 @@ export type PresentedWeeklyHeatmap = {
   maxValue: number;
 };
 
-export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): PresentedWeeklyHeatmap {
+/**
+ * Converts raw weekly heatmap rows into a matrix format suitable for presentation.
+ * @param rows Raw weekly heatmap data rows
+ * @param hiQuantile Quantile cutoff for normalization (0..1)
+ * @returns The presented weekly heatmap with matrix and maxValue
+ */
+export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[], hiQuantile: number = 0.9): PresentedWeeklyHeatmap {
   const matrix: Record<number, number[]> = {
     1: Array(24).fill(0),
     2: Array(24).fill(0),
@@ -28,7 +35,10 @@ export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[]): PresentedWeekly
   const orderedWeekdays: Array<keyof typeof matrix> = [1, 2, 3, 4, 5, 6, 7];
   const resultMatrix = orderedWeekdays.map((key) => ({ weekday: Number(key), hours: matrix[key] }));
 
-  const maxFromRows = Math.max(...rows.map((r) => r.value), 0);
+  const maxFromRows = computeNormalizedMax(
+    rows.map((r) => r.value),
+    hiQuantile,
+  );
 
   return { matrix: resultMatrix, maxValue: maxFromRows };
 }

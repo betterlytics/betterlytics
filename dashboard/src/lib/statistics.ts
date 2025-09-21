@@ -20,6 +20,19 @@ export function interpolatedQuantile(values: number[], q: number): number {
 }
 
 /**
+ * Computes a normalized maximum value for a range of numbers,
+ * based on a quantile cutoff to reduce outlier influence.
+ */
+export function computeNormalizedMax(values: number[], hiQuantile: number): number {
+  if (values.length === 0) return 1;
+  const maxRaw = Math.max(...values, 1);
+  if (values.length <= 10) return maxRaw;
+
+  const q = interpolatedQuantile(values, hiQuantile);
+  return Math.max(q, 1);
+}
+
+/**
  * Rounds up a maximum value to a "nice" human-readable number.
  *
  * Uses D3's `scaleLinear().nice()` under the hood, which adjusts the domain

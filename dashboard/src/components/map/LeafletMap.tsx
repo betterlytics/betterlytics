@@ -42,7 +42,7 @@ export default function LeafletMap({
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('components.geography');
-  const style = useMapStyle({ maxVisitors: maxVisitors || 1 });
+  const style = useMapStyle({ maxVisitors: maxVisitors || 1, scaleType: colorScaleType });
 
   useEffect(() => {
     startTransition(() => {
