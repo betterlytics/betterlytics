@@ -86,10 +86,17 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
       <Separator className='my-1' />
 
-      <button
-        type='button'
+      <div
+        role='button'
+        tabIndex={0}
         className='flex w-full cursor-pointer items-center justify-between rounded-sm p-2 text-left'
         onClick={() => actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays);
+          }
+        }}
         aria-pressed={ctx.compareAlignWeekdays}
         aria-label={t('matchDayOfWeek')}
       >
@@ -101,7 +108,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
           aria-label={t('matchDayOfWeek')}
           className='cursor-pointer'
         />
-      </button>
+      </div>
     </div>
   );
 
