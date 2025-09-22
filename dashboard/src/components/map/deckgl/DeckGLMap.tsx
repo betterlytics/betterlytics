@@ -8,16 +8,17 @@ import { CountriesLayer } from '@/components/map/deckgl/CountriesLayer';
 import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
 import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
-import { type GeoVisitor } from '@/entities/geography';
+import { type GeoVisitor, type TimeGeoVisitors } from '@/entities/geography';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { LinearInterpolator } from '@deck.gl/core';
 import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection } from 'geojson';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ZoomControls } from './controls/ZoomControls';
+import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 
 interface DeckGLMapProps {
-  visitorData: GeoVisitor[];
+  visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
   initialZoom?: number;
 }
 
@@ -34,20 +35,28 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   const containerRef = useRef<HTMLDivElement>(null);
   const { hoveredFeatureRef, setMapSelection } = useMapSelection();
 
-  // ---- Demo timeseries
-  const visitorDataTimeseries: GeoVisitor[][] = useMemo(() => {
-    console.log('[Memo] visitorDataTimeseries recomputed');
-    return Array.from({ length: 40 }).map((_, i) =>
-      visitorData.map((d) => ({
-        country_code: d.country_code,
-        visitors: Math.max(0, Math.round(d.visitors * (0.5 + 0.5 * Math.sin((i / 40) * Math.PI * 2)))),
-      })),
-    );
+  const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
+    const timeseries: TimeGeoVisitors[] = [];
+
+    for (const timeData of visitorData.data) {
+      const visitors: GeoVisitor[] = Object.entries(timeData)
+        .filter(([key]) => key !== 'date')
+        .map(([country_code, visitors]) => ({
+          country_code,
+          visitors,
+        }));
+
+      timeseries.push({
+        visitors: visitors,
+        date: new Date(timeData.date),
+      });
+    }
+
+    return timeseries;
   }, [visitorData]);
 
   const calculatedMaxVisitors = useMemo(() => {
-    console.log('[Memo] calculatedMaxVisitors recomputed');
-    return Math.max(...visitorDataTimeseries.flatMap((frame) => frame.map((d) => d.visitors)));
+    return Math.max(...visitorDataTimeseries.flatMap((frame) => frame.visitors.map((d) => d.visitors)));
   }, [visitorDataTimeseries]);
 
   const [speed, setSpeed] = useState(1 as PlaybackSpeed);
@@ -76,7 +85,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   const visitorDict = useMemo(() => {
     console.log('[Memo] visitorDict recomputed for frame', frame);
     const currentFrame = visitorDataTimeseries[frame];
-    return Object.fromEntries(currentFrame.map((d) => [d.country_code, d.visitors]));
+    return Object.fromEntries(currentFrame.visitors.map((d) => [d.country_code, d.visitors]));
   }, [visitorDataTimeseries, frame]);
 
   const handleZoom = useCallback((zoomType: ZoomType) => {
@@ -193,6 +202,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
 
       <div className='pointer-events-auto absolute bottom-8 left-[17rem] z-12 w-[calc(100%-18rem)]'>
         <MapActionbar
+          // TODO: Add proper date labels
           ticks={visitorDataTimeseries.map((_, i) => ({ label: `${i + 1}`, value: i }))}
           value={position}
           playing={playing}

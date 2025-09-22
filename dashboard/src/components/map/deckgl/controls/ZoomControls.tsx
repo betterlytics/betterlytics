@@ -22,7 +22,7 @@ export function ZoomControls({ onZoom }: ZoomControlsProps) {
       onTouchEnd={() => animateTo(0.8)}
       style={{
         scale,
-        opacity: useTransform(scale, [0.8, 1], [0.5, 0.8]),
+        opacity: useTransform(scale, [0.8, 1], [0.6, 1]),
       }}
     >
       <ZoomButton

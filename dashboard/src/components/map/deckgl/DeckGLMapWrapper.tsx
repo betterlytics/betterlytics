@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 import type { GeoVisitor } from '@/entities/geography';
+import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 
 // Dynamically import the DeckGLMap component
 const DynamicDeckGLMap = dynamic(() => import('@/components/map/deckgl/DeckGLMap'), {
@@ -11,7 +12,7 @@ const DynamicDeckGLMap = dynamic(() => import('@/components/map/deckgl/DeckGLMap
 });
 
 interface DeckGLMapWrapperProps {
-  visitorData: GeoVisitor[];
+  visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
   initialZoom?: number;
 }
 

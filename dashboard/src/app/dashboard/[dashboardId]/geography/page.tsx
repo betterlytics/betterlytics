@@ -2,9 +2,8 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
-import { getWorldMapDataAlpha2, getWorldMapGranularityTimeseries } from '@/app/actions/geography';
+import { getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import GeographySection from '@/app/dashboard/[dashboardId]/geography/GeographySection';
-import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
 type GeographyPageParams = {
@@ -23,15 +22,11 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   const { startDate, endDate, queryFilters, granularity } =
     await BAFilterSearchParams.decodeFromParams(searchParams);
 
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
-
-  const test = await getWorldMapGranularityTimeseries(
+  const worldMapPromise = getWorldMapGranularityTimeseries(
     dashboardId,
     { startDate, endDate, queryFilters },
     granularity,
   );
-
-  console.log(test);
 
   return (
     <div className='fixed inset-0 top-14 w-full'>

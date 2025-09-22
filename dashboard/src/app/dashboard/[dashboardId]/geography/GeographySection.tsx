@@ -7,8 +7,7 @@ import { DeckGLMapSelectionProvider } from '@/contexts/DeckGLSelectionContextPro
 import DeckGLMapWrapper from '@/components/map/deckgl/DeckGLMapWrapper';
 
 type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
-  // worldMapTimeseries: ReturnType<typeof getWorldMapGranularityTimeseries>;
+  worldMapPromise: ReturnType<typeof getWorldMapGranularityTimeseries>;
 };
 
 export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
@@ -19,11 +18,11 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
     <>
       <div className='h-full w-full'>
         <DeckGLMapSelectionProvider>
-          <DeckGLMapWrapper visitorData={mapData.visitorData} />
+          <DeckGLMapWrapper visitorData={mapData} />
         </DeckGLMapSelectionProvider>
       </div>
 
-      {mapData.visitorData.length === 0 && (
+      {mapData.data.length === 0 && (
         <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
           <p className='text-sm text-amber-700'>{t('noData')}</p>
         </div>

@@ -31,7 +31,7 @@ export function MapActionbar<TValue>({
       initialScale={0.8}
       hoverScale={1}
       opacityRange={[0.8, 1]}
-      opacityValues={[0.5, 0.8]}
+      opacityValues={[0.6, 1]}
       className='bg-background flex flex-col gap-2 rounded-xl p-2 shadow-md'
     >
       <div className='flex items-center gap-3'>
