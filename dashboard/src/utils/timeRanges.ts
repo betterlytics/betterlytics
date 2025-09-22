@@ -178,7 +178,7 @@ export function getStartDateWithGranularity(date: Date, granularity: Granularity
   const alignedDate = roundToNearestMinutes(date);
 
   if (granularity === 'day') return startOfDay(alignedDate);
-  if (granularity === 'hour') return startOfHour(alignedDate);
+  if (granularity === 'hour') return roundToNearestHours(alignedDate, { roundingMethod: 'ceil', nearestTo: 1 });
   const nearestTo = getMinuteStep(granularity);
   return roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'ceil' });
 }
