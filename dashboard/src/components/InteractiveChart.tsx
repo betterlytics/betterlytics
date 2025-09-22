@@ -22,10 +22,21 @@ interface InteractiveChartProps {
   comparisonMap?: ComparisonMapping[];
   headerContent?: React.ReactNode;
   tooltipTitle?: string;
+  labelPaddingLeft?: number;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
-  ({ data, incomplete, color, formatValue, granularity, comparisonMap, headerContent, tooltipTitle }) => {
+  ({
+    data,
+    incomplete,
+    color,
+    formatValue,
+    granularity,
+    comparisonMap,
+    headerContent,
+    tooltipTitle,
+    labelPaddingLeft,
+  }) => {
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
@@ -41,7 +52,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 py-1 sm:px-2 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
-              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
+              <ComposedChart
+                data={data}
+                margin={{ top: 10, left: isMobile ? 0 : (labelPaddingLeft ?? 6), bottom: 0, right: 1 }}
+              >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
                     <stop offset='5%' stopColor={color} stopOpacity={0.35} />

@@ -132,6 +132,7 @@ export default function OverviewChartSection({
       comparisonMap={comparisonMap}
       headerContent={cards ? <InlineMetricsHeader cards={cards} /> : undefined}
       tooltipTitle={currentMetricConfig.title}
+      labelPaddingLeft={activeMetric === 'avgDuration' ? 20 : undefined}
     />
   );
 }
