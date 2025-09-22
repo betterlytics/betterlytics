@@ -7,14 +7,14 @@ import FunnelsListSection from './FunnelsListSection';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import TimeRangeSelector from '@/components/TimeRangeSelector';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import DashboardFilters from '@/components/dashboard/DashboardFilters';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 type FunnelsHeaderProps = {
@@ -30,7 +30,7 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
     <DashboardHeader title={title}>
       <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-3 sm:flex-row'>
         <CreateFunnelDialog />
-        <TimeRangeSelector showComparison={false} />
+        <DashboardFilters showComparison={false} />
       </div>
     </DashboardHeader>
   );
@@ -44,7 +44,7 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate } = await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams);
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
   const t = await getTranslations('dashboard.sidebar');
   return (

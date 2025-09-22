@@ -961,26 +961,42 @@
       "quickSelect": "Selezione rapida",
       "granularity": "Granularità",
       "currentPeriod": "Periodo corrente",
+      "disabled": "Disattivato",
+      "disableCompare": "Disattiva confronto",
+      "previousPeriod": "Periodo precedente",
+      "previousYear": "Anno precedente",
+      "nextPeriod": "Periodo successivo",
+      "customPeriod": "Periodo personalizzato",
+      "sameLengthAsMain": "Stessa durata dell'intervallo principale",
+      "vs": "vs",
       "compareWithPrevious": "Confronta con il periodo precedente",
       "compareToPeriod": "Periodo di confronto",
       "startDate": "Data di inizio",
       "endDate": "Data di fine",
       "dateRange": "Intervallo date",
       "presets": {
+        "today": "Oggi",
+        "yesterday": "Ieri",
+        "realtime": "Tempo reale",
+        "1h": "Ultima ora",
         "24h": "Ultime 24 ore",
-        "3d": "Ultimi 3 giorni",
         "7d": "Ultimi 7 giorni",
         "28d": "Ultimi 28 giorni",
-        "3mo": "Ultimi 3 mesi",
-        "6mo": "Ultimi 6 mesi"
+        "90d": "Ultimi 90 giorni",
+        "mtd": "Mese ad oggi",
+        "last_month": "Mese scorso",
+        "ytd": "Anno ad oggi",
+        "1y": "Ultimi 12 mesi"
       },
       "granularityLabels": {
         "day": "Giorno",
         "hour": "Ora",
         "minute_30": "30 min",
-        "minute_15": "15 min"
+        "minute_15": "15 min",
+        "minute_1": "1 min"
       },
-      "apply": "Applica"
+      "apply": "Applica",
+      "matchDayOfWeek": "Allinea giorno della settimana"
     },
     "loading": {
       "dashboard": {
@@ -1517,8 +1533,6 @@
         }
       },
       "usage": {
-        "title": "Utilizzo e piano",
-        "description": "Monitora l'utilizzo corrente e gestisci il tuo piano di abbonamento.",
         "cta": {
           "needMore": "Hai bisogno di più eventi?",
           "upgradeHint": "Aggiorna il tuo piano per ottenere più eventi e sbloccare funzionalità aggiuntive.",
@@ -1635,6 +1649,9 @@
         "description": "La registrazione è attualmente disabilitata su questa istanza.",
         "backToSignIn": "Torna all'accesso"
       }
+    },
+    "page": {
+      "title": "Betterlytics | Registrazione"
     },
     "account": {
       "features": {

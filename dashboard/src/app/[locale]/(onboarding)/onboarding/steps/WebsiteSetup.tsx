@@ -49,7 +49,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
 
   return (
     <div className='flex justify-center'>
-      <div className='bg-card space-y-6 rounded-lg border p-6 md:w-xl'>
+      <div className='bg-card space-y-6 rounded-lg border p-3 py-4 pb-5 shadow-sm sm:p-6 md:w-xl'>
         <div>
           <h2 className='text-2xl font-semibold'>{t('title')}</h2>
           <p className='text-muted-foreground mt-2'>{t('description')}</p>
