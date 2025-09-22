@@ -13,6 +13,7 @@ import {
   startOfYear,
   subMinutes,
   endOfMinute,
+  addHours,
 } from 'date-fns';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 
@@ -187,7 +188,7 @@ export function getEndDateWithGranularity(date: Date, granularity: GranularityRa
   const alignedDate = roundToNearestMinutes(date);
 
   if (granularity === 'day') return subDays(endOfDay(alignedDate), 1);
-  if (granularity === 'hour') return subHours(endOfHour(alignedDate), 1);
+  if (granularity === 'hour') return subSeconds(startOfHour(addHours(date, 1)), 1);
 
   const nearestTo = getMinuteStep(granularity);
   return subSeconds(roundToNearestMinutes(alignedDate, { nearestTo, roundingMethod: 'ceil' }), 1);
