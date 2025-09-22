@@ -165,6 +165,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
         onHover={handleHover}
         useDevicePixels={false} /* Disable for performance gains */
         layers={layers}
+        style={{ position: 'fixed' }}
       >
         <style jsx global>
           {`
