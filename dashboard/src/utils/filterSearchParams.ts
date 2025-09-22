@@ -45,6 +45,11 @@ function filterVariable(key: string, value: unknown) {
     return false;
   }
 
+  // Don't filter dates
+  if (value instanceof Date) {
+    return true;
+  }
+
   // Check if filters are required or if they already match the default filters
   if (
     key in defaultFilters &&
@@ -60,10 +65,6 @@ function filterVariable(key: string, value: unknown) {
 
   // Filter empty objects (except dates)
   if (typeof value === 'object') {
-    if (value instanceof Date) {
-      return true;
-    }
-
     return Object.keys(value).length !== 0;
   }
 
