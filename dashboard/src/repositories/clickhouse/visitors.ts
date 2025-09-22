@@ -146,7 +146,7 @@ export async function getSessionMetrics(
           0
       ) AS avg_visit_duration,
       if (sessions > 0,
-          (sessions - sessions_with_multiple_page_views) / sessions,
+          100 * (sessions - sessions_with_multiple_page_views) / sessions,
           0
       ) AS bounce_rate,
       if (number_of_page_views > 0,
