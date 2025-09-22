@@ -25,15 +25,6 @@ export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsPr
   if (isLoading) {
     return (
       <div className='space-y-6'>
-        <div>
-          <div className='h-5 w-40'>
-            <Skeleton className='h-5 w-40' />
-          </div>
-          <div className='mt-2 h-4 w-72'>
-            <Skeleton className='h-4 w-72' />
-          </div>
-        </div>
-
         <div className='bg-card rounded-lg border p-4'>
           <div className='h-6 w-48'>
             <Skeleton className='h-6 w-48' />
@@ -73,11 +64,6 @@ export default function UserUsageSettings({ onCloseDialog }: UserUsageSettingsPr
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h3 className='text-lg font-medium'>{t('title')}</h3>
-        <p className='text-muted-foreground text-sm'>{t('description')}</p>
-      </div>
-
       <CurrentPlanCard billingData={billingData} showManagementButtons={true} />
 
       <div className='bg-card flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between'>

@@ -1527,8 +1527,6 @@
         }
       },
       "usage": {
-        "title": "Usage & Plan",
-        "description": "Monitor your current usage and manage your subscription plan.",
         "cta": {
           "needMore": "Need more events?",
           "upgradeHint": "Upgrade your plan to get more events and unlock additional features.",
@@ -1645,6 +1643,9 @@
         "description": "Registration is currently disabled on this instance.",
         "backToSignIn": "Back to Sign In"
       }
+    },
+    "page": {
+      "title": "Betterlytics | Onboarding"
     },
     "account": {
       "features": {

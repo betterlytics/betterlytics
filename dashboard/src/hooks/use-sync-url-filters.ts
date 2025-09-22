@@ -48,7 +48,7 @@ export function useSyncURLFilters() {
   useEffect(() => {
     try {
       const encodedFilterEntries = URL_SEARCH_PARAMS.map(
-        (param) => [param, searchParams?.get(param)] as const,
+        (param) => [param, searchParams.get(param)] as const,
       ).filter(([_key, value]) => Boolean(value));
 
       const encoded = Object.fromEntries(encodedFilterEntries);
