@@ -1,6 +1,5 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
-import { timeFormat } from 'd3-time-format';
 import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
 
 export interface TrendInfo {
@@ -53,17 +52,50 @@ export function formatDifference(
 /*
  * Formats the date based on the granularity
  */
-export function defaultDateLabelFormatter(date: string | number, granularity?: GranularityRangeValues) {
-  const formatter = granularityDateFormatter(granularity);
-  return formatter(new Date(date));
+export function defaultDateLabelFormatter(
+  date: string | number,
+  granularity?: GranularityRangeValues,
+  locale?: string,
+) {
+  const d = new Date(date);
+  if (granularity === undefined || granularity === 'day') {
+    return new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: '2-digit',
+    }).format(d);
+  }
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'short',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(d);
 }
 
-export function granularityDateFormatter(granularity?: GranularityRangeValues) {
+export function granularityDateFormatter(granularity?: GranularityRangeValues, locale?: string) {
   if (granularity === undefined || granularity === 'day') {
-    return timeFormat('%b %d');
+    return (date: Date) =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: '2-digit',
+      }).format(date);
   }
 
-  return timeFormat('%b %d - %H:%M');
+  return (date: Date) => {
+    const datePart = new Intl.DateTimeFormat(locale, {
+      month: 'short',
+      day: '2-digit',
+    }).format(date);
+    const timePart = new Intl.DateTimeFormat(locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(date);
+    return `${datePart} - ${timePart}`;
+  };
 }
 
 export function getTimeIntervalForGranularity(granularity: GranularityRangeValues): TimeInterval {

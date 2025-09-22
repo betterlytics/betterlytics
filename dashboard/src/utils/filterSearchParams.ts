@@ -1,18 +1,18 @@
-import { QueryFilter } from '@/entities/filter';
-import { GranularityRangeValues, getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
 import {
-  getCompareRangeForTimePresets,
   getDateRangeForTimePresets,
   getDateWithTimeOfDay,
   getEndDateWithGranularity,
   getStartDateWithGranularity,
 } from './timeRanges';
+import { deriveCompareRange } from './compareRanges';
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
   let { startDate, endDate } = getDateRangeForTimePresets('24h');
-  let { compareStart, compareEnd } = getCompareRangeForTimePresets('24h');
+  const derived = deriveCompareRange(startDate, endDate, 'previous');
+  let compareStart = derived?.startDate ?? startDate;
+  let compareEnd = derived?.endDate ?? endDate;
 
   startDate = getStartDateWithGranularity(startDate, granularity);
   endDate = getEndDateWithGranularity(endDate, granularity);
@@ -24,13 +24,16 @@ function getDefaultFilters(): FilterQueryParams {
     startDate,
     endDate,
     granularity,
+    interval: '24h',
+    compare: 'previous',
+    compareAlignWeekdays: false,
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
-    compareEnabled: true,
     compareStartDate: compareStart,
     compareEndDate: compareEnd,
+    offset: 0,
   };
 }
 
@@ -40,6 +43,11 @@ function filterVariable(key: string, value: unknown) {
   // Check if filters are actual filters
   if (key in defaultFilters === false) {
     return false;
+  }
+
+  // Don't filter dates
+  if (value instanceof Date) {
+    return true;
   }
 
   // Check if filters are required or if they already match the default filters
@@ -57,10 +65,6 @@ function filterVariable(key: string, value: unknown) {
 
   // Filter empty objects (except dates)
   if (typeof value === 'object') {
-    if (value instanceof Date) {
-      return true;
-    }
-
     return Object.keys(value).length !== 0;
   }
 
@@ -76,12 +80,19 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
     case 'compareStartDate':
     case 'compareEndDate':
       return (value as Date).toISOString();
-    case 'compareEnabled':
     case 'queryFilters':
     case 'userJourney':
       return JSON.stringify(value);
     case 'granularity':
       return value as FilterQueryParams['granularity'];
+    case 'interval':
+      return value as FilterQueryParams['interval'];
+    case 'offset':
+      return (value as number).toString();
+    case 'compare':
+      return value as FilterQueryParams['compare'];
+    case 'compareAlignWeekdays':
+      return (value as boolean) ? '1' : '0';
   }
 
   throw new Error(`Unknown filter key "${key}"`);
@@ -103,12 +114,19 @@ function decodeValue<Key extends keyof FilterQueryParams>(
     case 'compareStartDate':
     case 'compareEndDate':
       return new Date(value);
-    case 'compareEnabled':
     case 'queryFilters':
     case 'userJourney':
       return JSON.parse(value);
     case 'granularity':
       return value as FilterQueryParams['granularity'];
+    case 'interval':
+      return value as FilterQueryParams['interval'];
+    case 'offset':
+      return Number(value);
+    case 'compare':
+      return value as FilterQueryParams['compare'];
+    case 'compareAlignWeekdays':
+      return value === '1' || value === 'true';
   }
 
   throw new Error(`Unknown filter key "${key}"`);
@@ -128,7 +146,7 @@ function decode(params: FilterQuerySearchParams) {
     ...decoded,
   };
 
-  if (filters.compareEnabled === false) {
+  if (filters.compare === 'off') {
     filters.compareStartDate = undefined;
     filters.compareEndDate = undefined;
   }

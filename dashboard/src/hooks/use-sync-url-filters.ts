@@ -11,9 +11,12 @@ const URL_SEARCH_PARAMS = [
   'granularity',
   'startDate',
   'endDate',
-  'compareEnabled',
   'compareStartDate',
   'compareEndDate',
+  'interval',
+  'offset',
+  'compare',
+  'compareAlignWeekdays',
   'userJourney',
 ] as const;
 
@@ -28,11 +31,17 @@ export function useSyncURLFilters() {
     granularity,
     setPeriod,
     setGranularity,
-    compareEnabled,
     compareStartDate,
     compareEndDate,
     setCompareDateRange,
-    setCompareEnabled,
+    interval,
+    setInterval,
+    offset,
+    setOffset,
+    compareMode,
+    setCompareMode,
+    compareAlignWeekdays,
+    setCompareAlignWeekdays,
   } = useTimeRangeContext();
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
 
@@ -52,6 +61,12 @@ export function useSyncURLFilters() {
       if (filters.granularity) {
         setGranularity(filters.granularity);
       }
+      if (filters.interval) {
+        setInterval(filters.interval);
+      }
+      if (filters.offset !== undefined) {
+        setOffset(filters.offset);
+      }
       if (filters.queryFilters) {
         setQueryFilters(filters.queryFilters);
       }
@@ -63,9 +78,22 @@ export function useSyncURLFilters() {
           setNumberOfJourneys(filters.userJourney.numberOfJourneys);
         }
       }
-      setCompareEnabled(Boolean(filters.compareEnabled));
-      if (filters.compareStartDate && filters.compareEndDate) {
-        setCompareDateRange(filters.compareStartDate, filters.compareEndDate);
+      if (filters.compare) {
+        if (filters.compare === 'off') {
+          setCompareMode('off');
+        } else if (filters.compare === 'previous') {
+          setCompareMode('previous');
+        } else if (filters.compare === 'year') {
+          setCompareMode('year');
+        } else if (filters.compare === 'custom') {
+          setCompareMode('custom');
+          if (filters.compareStartDate && filters.compareEndDate) {
+            setCompareDateRange(filters.compareStartDate, filters.compareEndDate);
+          }
+        }
+      }
+      if (filters.compareAlignWeekdays !== undefined) {
+        setCompareAlignWeekdays(Boolean(filters.compareAlignWeekdays));
       }
     } catch (error) {
       console.error('Failed to set filters:', error);
@@ -79,20 +107,27 @@ export function useSyncURLFilters() {
         startDate,
         endDate,
         granularity,
+        interval,
+        offset,
+        compare: compareMode,
+        compareAlignWeekdays,
         userJourney: {
           numberOfSteps,
           numberOfJourneys,
         },
-        compareStartDate: compareEnabled && compareStartDate && compareEndDate ? compareStartDate : undefined,
-        compareEndDate: compareEnabled && compareStartDate && compareEndDate ? compareEndDate : undefined,
-        compareEnabled: compareEnabled,
+        // Only include compare dates for custom mode when both are present
+        compareStartDate:
+          compareMode !== 'off' && compareStartDate && compareEndDate ? compareStartDate : undefined,
+        compareEndDate: compareMode !== 'off' && compareStartDate && compareEndDate ? compareEndDate : undefined,
       });
 
       const params = new URLSearchParams(searchParams?.toString() ?? '');
 
       URL_SEARCH_PARAMS.forEach((key) => params.delete(key));
       encodedFilters.forEach(([key, value]) => params.set(key, value));
-      router.replace(`?${params.toString()}`);
+
+      const updateRouteTimeout = setTimeout(() => router.replace(`?${params.toString()}`, { scroll: false }), 10);
+      return () => clearTimeout(updateRouteTimeout);
     } catch (error) {
       console.error('Failed to add filters:', error);
     }
@@ -100,10 +135,13 @@ export function useSyncURLFilters() {
     queryFilters,
     startDate,
     endDate,
-    compareEnabled,
     compareStartDate,
     compareEndDate,
     granularity,
+    interval,
+    offset,
+    compareMode,
+    compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
   ]);

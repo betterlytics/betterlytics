@@ -33,6 +33,11 @@ export function ChartTooltip({
     return null;
   }
 
+  const primaryValue = payload[0].payload.value[0];
+  if (primaryValue == null) {
+    return null;
+  }
+
   const name = label || payload[0].payload.name || payload[0].payload.label;
 
   const labelColor = payload[0].payload.color;

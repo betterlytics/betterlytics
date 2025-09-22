@@ -16,6 +16,7 @@ import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocale } from 'next-intl';
 
 interface ChartDataPoint {
   date: string | number;
@@ -50,7 +51,8 @@ interface MultiSeriesChartProps {
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
   ({ title, data, granularity, formatValue, series, referenceLines, headerRight, headerContent, yDomain }) => {
-    const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
+    const locale = useLocale();
+    const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
         const text = formatValue ? formatValue(value) : value.toLocaleString();
@@ -103,7 +105,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                 <Tooltip
                   content={
                     <MultiLineChartTooltip
-                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity)}
+                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
                       formatter={formatValue}
                     />
                   }

@@ -959,26 +959,42 @@
       "quickSelect": "Hurtig valg",
       "granularity": "Granularitet",
       "currentPeriod": "Nuværende periode",
+      "disabled": "Deaktiveret",
+      "disableCompare": "Deaktiver sammenligning",
+      "previousPeriod": "Forrige periode",
+      "previousYear": "Forrige år",
+      "nextPeriod": "Næste periode",
+      "customPeriod": "Brugerdefineret periode",
+      "sameLengthAsMain": "Samme længde som hovedinterval",
+      "vs": "vs",
       "compareWithPrevious": "Sammenlign med tidligere periode",
       "compareToPeriod": "Sammenligningsperiode",
       "startDate": "Startdato",
       "endDate": "Slutdato",
       "dateRange": "Datointerval",
       "presets": {
+        "today": "I dag",
+        "yesterday": "I går",
+        "realtime": "Realtid",
+        "1h": "Seneste time",
         "24h": "Seneste 24 timer",
-        "3d": "Seneste 3 dage",
         "7d": "Seneste 7 dage",
         "28d": "Seneste 28 dage",
-        "3mo": "Seneste 3 måneder",
-        "6mo": "Seneste 6 måneder"
+        "90d": "Seneste 90 dage",
+        "mtd": "Måned til dato",
+        "last_month": "Sidste måned",
+        "ytd": "År til dato",
+        "1y": "Seneste år"
       },
       "granularityLabels": {
         "day": "Dag",
         "hour": "Time",
         "minute_30": "30 min",
-        "minute_15": "15 min"
+        "minute_15": "15 min",
+        "minute_1": "1 min"
       },
-      "apply": "Anvend"
+      "apply": "Anvend",
+      "matchDayOfWeek": "Match ugedag"
     },
     "loading": {
       "dashboard": {
