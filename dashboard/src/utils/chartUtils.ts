@@ -52,16 +52,20 @@ export function formatDifference(
 /*
  * Formats the date based on the granularity
  */
-export function defaultDateLabelFormatter(date: string | number, granularity?: GranularityRangeValues) {
+export function defaultDateLabelFormatter(
+  date: string | number,
+  granularity?: GranularityRangeValues,
+  locale?: string,
+) {
   const d = new Date(date);
   if (granularity === undefined || granularity === 'day') {
-    return new Intl.DateTimeFormat(undefined, {
+    return new Intl.DateTimeFormat(locale, {
       weekday: 'short',
       month: 'short',
       day: '2-digit',
     }).format(d);
   }
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     weekday: 'short',
     month: 'short',
     day: '2-digit',
@@ -71,21 +75,21 @@ export function defaultDateLabelFormatter(date: string | number, granularity?: G
   }).format(d);
 }
 
-export function granularityDateFormatter(granularity?: GranularityRangeValues) {
+export function granularityDateFormatter(granularity?: GranularityRangeValues, locale?: string) {
   if (granularity === undefined || granularity === 'day') {
     return (date: Date) =>
-      new Intl.DateTimeFormat(undefined, {
+      new Intl.DateTimeFormat(locale, {
         month: 'short',
         day: '2-digit',
       }).format(date);
   }
 
   return (date: Date) => {
-    const datePart = new Intl.DateTimeFormat(undefined, {
+    const datePart = new Intl.DateTimeFormat(locale, {
       month: 'short',
       day: '2-digit',
     }).format(date);
-    const timePart = new Intl.DateTimeFormat(undefined, {
+    const timePart = new Intl.DateTimeFormat(locale, {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,

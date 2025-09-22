@@ -7,6 +7,7 @@ import { type ComparisonMapping } from '@/types/charts';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
+import { useLocale } from 'next-intl';
 
 interface ChartDataPoint {
   date: string | number;
@@ -37,7 +38,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     tooltipTitle,
     labelPaddingLeft,
   }) => {
-    const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
+    const locale = useLocale();
+    const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
         const text = formatValue ? formatValue(value) : formatNumber(value);
@@ -95,7 +97,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                 <Tooltip
                   content={
                     <ChartTooltip
-                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity)}
+                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
                       formatter={formatValue}
                       comparisonMap={comparisonMap}
                       title={tooltipTitle}
