@@ -1,6 +1,5 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
-import { timeFormat } from 'd3-time-format';
 import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
 
 export interface TrendInfo {
@@ -56,17 +55,43 @@ export function formatDifference(
 export function defaultDateLabelFormatter(date: string | number, granularity?: GranularityRangeValues) {
   const d = new Date(date);
   if (granularity === undefined || granularity === 'day') {
-    return timeFormat('%a, %b %d')(d);
+    return new Intl.DateTimeFormat(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: '2-digit',
+    }).format(d);
   }
-  return timeFormat('%a, %b %d, %H:%M')(d);
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(d);
 }
 
 export function granularityDateFormatter(granularity?: GranularityRangeValues) {
   if (granularity === undefined || granularity === 'day') {
-    return timeFormat('%b %d');
+    return (date: Date) =>
+      new Intl.DateTimeFormat(undefined, {
+        month: 'short',
+        day: '2-digit',
+      }).format(date);
   }
 
-  return timeFormat('%b %d - %H:%M');
+  return (date: Date) => {
+    const datePart = new Intl.DateTimeFormat(undefined, {
+      month: 'short',
+      day: '2-digit',
+    }).format(date);
+    const timePart = new Intl.DateTimeFormat(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(date);
+    return `${datePart} - ${timePart}`;
+  };
 }
 
 export function getTimeIntervalForGranularity(granularity: GranularityRangeValues): TimeInterval {
