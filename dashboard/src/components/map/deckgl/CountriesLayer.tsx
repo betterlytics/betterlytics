@@ -1,6 +1,6 @@
 import type { FeatureCollection } from 'geojson';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
-import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
+import { useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
 import { useMemo } from 'react';
 import { GeoJsonLayer, PathLayer } from '@deck.gl/layers';
 import { PathStyleExtension } from '@deck.gl/extensions';
@@ -22,10 +22,9 @@ export function CountriesLayer({
   baseInterval,
   calculatedMaxVisitors,
 }: CountriesLayerProps) {
-  const { hoveredFeature, clickedFeature } = useMapSelection();
+  const { hovered: hoveredFeature, clicked: clickedFeature } = useMapSelectionState();
   const style = useDeckGLMapStyle({ calculatedMaxVisitors });
 
-  // Precompute lookup map once
   const featureLookup = useMemo(() => {
     if (!geojson) return new Map<string, GeoJSON.Feature>();
     const map = new Map<string, GeoJSON.Feature>();

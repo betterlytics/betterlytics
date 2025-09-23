@@ -7,7 +7,7 @@ import { type ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
 import { CountriesLayer } from '@/components/map/deckgl/CountriesLayer';
 import { DeckGLPopup } from '@/components/map/deckgl/DeckGLPopup';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
-import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
+import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
 import { type GeoVisitor, type TimeGeoVisitors } from '@/entities/geography';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { LinearInterpolator } from '@deck.gl/core';
@@ -33,7 +33,7 @@ const INITIAL_VIEW_STATE = {
 export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapProps) {
   const [geojson, setGeojson] = useState<FeatureCollection | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { hoveredFeatureRef, setMapSelection } = useMapSelection();
+  const { hoveredFeatureRef, setMapSelection } = useMapSelectionActions();
 
   const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
     const timeseries: TimeGeoVisitors[] = [];

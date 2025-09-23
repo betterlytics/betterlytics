@@ -1,6 +1,7 @@
+// DeckGLSelectionContextProvider.tsx
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
 
 export type GeoVisitor = {
   country_code: string;
@@ -18,27 +19,36 @@ interface MapFeatureSelection {
   clicked?: MapFeatureVisitor;
 }
 
-interface MapSelectionContextType {
-  hoveredFeature?: MapFeatureVisitor;
-  clickedFeature?: MapFeatureVisitor;
-  hoveredFeatureRef?: React.RefObject<MapFeatureVisitor | undefined>;
-  clickedFeatureRef?: React.RefObject<MapFeatureVisitor | undefined>;
+type StateCtx = {
+  hovered?: MapFeatureVisitor;
+  clicked?: MapFeatureVisitor;
+};
+
+type ActionsCtx = {
   setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
+  hoveredFeatureRef: React.RefObject<MapFeatureVisitor | undefined>;
+  clickedFeatureRef: React.RefObject<MapFeatureVisitor | undefined>;
+};
+
+const SelectionStateContext = createContext<StateCtx | undefined>(undefined);
+const SelectionActionsContext = createContext<ActionsCtx | undefined>(undefined);
+
+export function useMapSelectionState() {
+  const ctx = useContext(SelectionStateContext);
+  if (!ctx) throw new Error('useSelectionState must be used within DeckGLMapSelectionProvider');
+  return ctx;
 }
-
-const DeckGLMapSelectionContext = createContext<MapSelectionContextType | undefined>(undefined);
-
-export function useMapSelection(): MapSelectionContextType {
-  const ctx = useContext(DeckGLMapSelectionContext);
-  if (!ctx) throw new Error('useMapSelection must be used within DeckGLMapSelectionContextProvider');
+export function useMapSelectionActions() {
+  const ctx = useContext(SelectionActionsContext);
+  if (!ctx) throw new Error('useSelectionActions must be used within DeckGLMapSelectionProvider');
   return ctx;
 }
 
 export function DeckGLMapSelectionProvider({ children }: { children: React.ReactNode }) {
   const [selection, setSelection] = useState<MapFeatureSelection>({});
 
-  const hoveredFeatureRef = React.useRef<MapFeatureVisitor | undefined>(undefined);
-  const clickedFeatureRef = React.useRef<MapFeatureVisitor | undefined>(undefined);
+  const hoveredFeatureRef = useRef<MapFeatureVisitor | undefined>(undefined);
+  const clickedFeatureRef = useRef<MapFeatureVisitor | undefined>(undefined);
 
   const setMapSelection = useCallback<React.Dispatch<Partial<MapFeatureSelection> | null>>((next) => {
     setSelection((prev) => {
@@ -49,8 +59,7 @@ export function DeckGLMapSelectionProvider({ children }: { children: React.React
       }
 
       if (next.clicked) {
-        const same = next.clicked.geoVisitor.country_code === prev.clicked?.geoVisitor.country_code;
-        if (same) {
+        if (next.clicked.geoVisitor.country_code === prev.clicked?.geoVisitor.country_code) {
           clickedFeatureRef.current = undefined;
           hoveredFeatureRef.current = { ...next.clicked };
           return { clicked: undefined, hovered: { ...next.clicked } };
@@ -69,17 +78,20 @@ export function DeckGLMapSelectionProvider({ children }: { children: React.React
     });
   }, []);
 
+  const stateValue = useMemo(
+    () => ({ hovered: selection.hovered, clicked: selection.clicked }),
+    [selection.hovered, selection.clicked],
+  );
+
+  // depends on stable refs to avoid re-renders
+  const actionsValue = useMemo(
+    () => ({ setMapSelection, hoveredFeatureRef, clickedFeatureRef }),
+    [setMapSelection],
+  );
+
   return (
-    <DeckGLMapSelectionContext.Provider
-      value={{
-        hoveredFeature: selection.hovered,
-        clickedFeature: selection.clicked,
-        hoveredFeatureRef,
-        clickedFeatureRef,
-        setMapSelection,
-      }}
-    >
-      {children}
-    </DeckGLMapSelectionContext.Provider>
+    <SelectionActionsContext.Provider value={actionsValue}>
+      <SelectionStateContext.Provider value={stateValue}>{children}</SelectionStateContext.Provider>
+    </SelectionActionsContext.Provider>
   );
 }

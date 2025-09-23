@@ -2,7 +2,7 @@
 
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useMapSelection } from '@/contexts/DeckGLSelectionContextProvider';
+import { useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
 import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,7 @@ export type DeckGLStickyTooltipProps = {
 };
 
 function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStickyTooltipProps) {
-  const { hoveredFeature, clickedFeature } = useMapSelection();
+  const { hovered: hoveredFeature, clicked: clickedFeature } = useMapSelectionState();
   const tooltipId = useId();
   const rafRef = useRef<number>(0);
   const locale = useLocale();
