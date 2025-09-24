@@ -192,6 +192,243 @@
     return false;
   }
 
+  // Session Replay (rrweb) - feature flagged via data-replay="true"
+  var enableReplay =
+    (script.getAttribute("data-replay") || "false").toLowerCase() === "true";
+  var replaySamplePct = parseInt(
+    script.getAttribute("data-replay-sample") || "0",
+    10
+  );
+  if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
+    replaySamplePct = 0;
+  }
+  var apiBase = null;
+  try {
+    apiBase = new URL(serverUrl).origin;
+  } catch (e) {}
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = function () {
+        resolve();
+      };
+      s.onerror = function (err) {
+        reject(err);
+      };
+      document.head.appendChild(s);
+    });
+  }
+
+  function getOrCreateVisitorId() {
+    try {
+      var key = "betterlytics_vid";
+      var existing = localStorage.getItem(key);
+      if (existing && existing.length > 0) return existing;
+      var id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem(key, id);
+      return id;
+    } catch (e) {
+      return "anon";
+    }
+  }
+
+  function getDeviceTypeFromWidth(width) {
+    if (width <= 575) return "mobile";
+    if (width <= 991) return "tablet";
+    if (width <= 1439) return "laptop";
+    return "desktop";
+  }
+
+  function nowSec() {
+    return Math.floor(Date.now() / 1000);
+  }
+
+  (function initSessionReplay() {
+    if (!enableReplay || !apiBase) return;
+    if (replaySamplePct > 0 && Math.random() * 100 >= replaySamplePct) return;
+
+    var rrLoaded = false;
+    var recordingStop = null;
+    var buffer = [];
+    var segmentIdx = 0;
+    var sizeBytes = 0;
+    var startedAt = Date.now();
+    var lastActivity = Date.now();
+    var flushTimer = null;
+    var maxChunkMs = 15000;
+    var visId = getOrCreateVisitorId();
+    var replaySessionIdKey = "betterlytics_replay_session";
+    var stored = null;
+    try {
+      stored = JSON.parse(sessionStorage.getItem(replaySessionIdKey) || "null");
+    } catch (e) {}
+    var needNew =
+      !stored || !stored.id || Date.now() - (stored.last || 0) > 15 * 60 * 1000;
+    var replaySession = needNew
+      ? {
+          id: Math.random().toString(36).slice(2) + Date.now().toString(36),
+          last: Date.now(),
+        }
+      : stored;
+    try {
+      sessionStorage.setItem(replaySessionIdKey, JSON.stringify(replaySession));
+    } catch (e) {}
+
+    function markActivity() {
+      lastActivity = Date.now();
+      try {
+        replaySession.last = lastActivity;
+        sessionStorage.setItem(
+          replaySessionIdKey,
+          JSON.stringify(replaySession)
+        );
+      } catch (e) {}
+    }
+
+    ["mousemove", "keydown", "scroll", "click", "visibilitychange"].forEach(
+      function (ev) {
+        window.addEventListener(ev, markActivity, { passive: true });
+      }
+    );
+
+    function flush(force) {
+      if (buffer.length === 0) return Promise.resolve();
+      var events = buffer;
+      buffer = [];
+      var packed =
+        window.rrwebPack && window.rrwebPack.pack
+          ? window.rrwebPack.pack(events)
+          : events;
+      var json = JSON.stringify(packed);
+      var bytes = new TextEncoder().encode(json);
+
+      return fetch(apiBase + "/replay/presign/put", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          site_id: siteId,
+          session_id: replaySession.id,
+          segment_idx: segmentIdx,
+          content_type: "application/json",
+        }),
+      })
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (resp) {
+          segmentIdx += 1;
+          sizeBytes += bytes.byteLength;
+          return fetch(resp.url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: bytes,
+          });
+        })
+        .catch(function (e) {
+          // On failure, re-queue events into the next buffer to avoid loss
+          try {
+            buffer = events.concat(buffer);
+          } catch (_) {}
+        });
+    }
+
+    function startFlushLoop() {
+      if (flushTimer) clearInterval(flushTimer);
+      flushTimer = setInterval(function () {
+        if (Date.now() - lastActivity > 15 * 60 * 1000) {
+          // idle cutoff: stop recording and finalize
+          stopRecording(true);
+          return;
+        }
+        if (buffer.length > 0) {
+          flush(false);
+        }
+      }, Math.max(3000, maxChunkMs));
+    }
+
+    function stopRecording(finalize) {
+      try {
+        if (recordingStop) {
+          recordingStop();
+          recordingStop = null;
+        }
+      } catch (e) {}
+      if (flushTimer) {
+        clearInterval(flushTimer);
+        flushTimer = null;
+      }
+      flush(true)
+        .then(function () {
+          if (!finalize) return;
+          return fetch(apiBase + "/replay/finalize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              site_id: siteId,
+              session_id: replaySession.id,
+              visitor_id: visId,
+              started_at: Math.floor(startedAt / 1000),
+              ended_at: nowSec(),
+              country_code: null,
+              device_type: getDeviceTypeFromWidth(window.screen.width),
+              ua_family: navigator.userAgent,
+              pages: 0,
+              errors: 0,
+              size_bytes: sizeBytes,
+              segment_count: segmentIdx,
+              sample_rate: replaySamplePct,
+              has_network_logs: false,
+            }),
+          }).catch(function () {});
+        })
+        .catch(function () {});
+    }
+
+    function startRecording() {
+      if (!window.rrweb || rrLoaded) return;
+      rrLoaded = true;
+      recordingStop = window.rrweb.record({
+        emit: function (e) {
+          buffer.push(e);
+          markActivity();
+        },
+        checkoutEveryNms: 5 * 60 * 1000,
+        maskAllInputs: true,
+        maskInputOptions: {
+          text: true,
+          password: true,
+          email: true,
+          number: true,
+        },
+        blockClass: "rr-block",
+        ignoreClass: "rr-ignore",
+        maskTextSelector: "input[type=password], [data-rrweb-mask]",
+        sampling: { mousemove: 50, input: "last", media: 25 },
+      });
+      startFlushLoop();
+    }
+
+    // Load rrweb from the same directory as this script, then start
+    var rrLocalUrl = new URL("rrweb.min.js", script.src).href;
+    loadScript(rrLocalUrl)
+      .then(function () {
+        startRecording();
+      })
+      .catch(function () {});
+
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") {
+        stopRecording(true);
+      }
+    });
+    window.addEventListener("pagehide", function () {
+      stopRecording(true);
+    });
+  })();
+
   // Only enable if outbounds is set to "domain" or "full"
   if (["domain", "full"].includes(outboundLinks)) {
     // Set up outbound link click tracking

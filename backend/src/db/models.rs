@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum_macros::EnumString;
 use crate::processing::ProcessedEvent;
+use chrono::{NaiveDateTime};
 
 // Ensure field order exactly matches ClickHouse table schema
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -39,6 +40,30 @@ pub struct EventRow {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
+pub struct SessionReplayRow {
+    pub site_id: String,
+    pub session_id: String,
+    pub visitor_id: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub started_at: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub ended_at: DateTime<Utc>,
+    pub duration: u32,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    pub country_code: Option<String>,
+    pub device_type: String,
+    pub ua_family: String,
+    pub pages: u16,
+    pub errors: u16,
+    pub size_bytes: u64,
+    pub segment_count: u16,
+    pub s3_prefix: String,
+    pub sample_rate: u8,
+    pub has_network_logs: u8,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]

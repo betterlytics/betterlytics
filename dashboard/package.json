@@ -72,6 +72,7 @@
     "react-leaflet": "^5.0.0",
     "react-qr-code": "^2.0.18",
     "recharts": "^2.15.3",
+    "rrweb-player": "1.0.0-alpha.4",
     "server-only": "^0.0.1",
     "sonner": "^2.0.3",
     "stripe": "^18.2.1",
