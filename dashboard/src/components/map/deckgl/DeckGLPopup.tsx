@@ -1,5 +1,5 @@
 import { WebMercatorViewport } from '@deck.gl/core';
-import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
+import { useMapSelectionActions, useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
 import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
@@ -14,11 +14,12 @@ interface DeckGLPopupProps {
 
 function DeckGLPopupComponent({ viewState, size = 'sm', children }: DeckGLPopupProps) {
   const { clickedFeatureRef } = useMapSelectionActions();
+  const { clicked } = useMapSelectionState();
   const locale = useLocale();
   const t = useTranslations('components.geography');
 
   const clickedFeature = clickedFeatureRef?.current;
-  if (!clickedFeature) return null;
+  if (!clickedFeature || !clicked) return null;
 
   const viewport = new WebMercatorViewport(viewState);
   const featureLatLng: [number, number] = [clickedFeature.longitude ?? 0, clickedFeature.latitude ?? 0];

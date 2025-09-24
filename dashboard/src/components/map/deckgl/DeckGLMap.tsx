@@ -83,7 +83,6 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   }, []);
 
   const visitorDict = useMemo(() => {
-    console.log('[Memo] visitorDict recomputed for frame', frame);
     const currentFrame = visitorDataTimeseries[frame];
     return Object.fromEntries(currentFrame.visitors.map((d) => [d.country_code, d.visitors]));
   }, [visitorDataTimeseries, frame]);
@@ -148,6 +147,7 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     geojson,
     visitorDict,
     playing,
+    frame,
     frameInterval: 1000 / speed,
     baseInterval: 1000,
     calculatedMaxVisitors,

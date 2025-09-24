@@ -3,7 +3,6 @@ import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
 import { useMemo } from 'react';
 import { GeoJsonLayer, PathLayer } from '@deck.gl/layers';
-import { PathStyleExtension } from '@deck.gl/extensions';
 
 interface CountriesLayerProps {
   geojson: FeatureCollection | null;
@@ -12,6 +11,7 @@ interface CountriesLayerProps {
   frameInterval: number;
   baseInterval: number;
   calculatedMaxVisitors: number;
+  frame: number;
 }
 
 export function CountriesLayer({
@@ -21,88 +21,126 @@ export function CountriesLayer({
   frameInterval,
   baseInterval,
   calculatedMaxVisitors,
+  frame,
 }: CountriesLayerProps) {
   const { hovered: hoveredFeature, clicked: clickedFeature } = useMapSelectionState();
   const style = useDeckGLMapStyle({ calculatedMaxVisitors });
 
-  const featureLookup = useMemo(() => {
-    if (!geojson) return new Map<string, GeoJSON.Feature>();
-    const map = new Map<string, GeoJSON.Feature>();
-    geojson.features.forEach((f) => map.set(f.id as string, f));
+  const outlineCache = useMemo(() => {
+    const map = new Map<string, Array<{ path: number[][] }>>();
+    if (!geojson) return map;
+
+    for (const f of geojson.features) {
+      const iso = f.id as string;
+      const entries: Array<{ path: number[][] }> = [];
+      if (f.geometry.type === 'Polygon') {
+        entries.push({ path: (f.geometry.coordinates as number[][][])[0] });
+      } else if (f.geometry.type === 'MultiPolygon') {
+        (f.geometry.coordinates as number[][][][]).forEach((poly) => entries.push({ path: poly[0] }));
+      }
+      map.set(iso, entries);
+    }
     return map;
   }, [geojson]);
 
-  const pathData = useMemo(() => {
-    const arr: Array<GeoJSON.Feature & { path: number[][] }> = [];
-
-    const addFeaturePaths = (countryCode?: string) => {
-      if (!countryCode) return;
-      const f = featureLookup.get(countryCode);
-      if (!f) return;
-
-      if (f.geometry.type === 'Polygon') {
-        arr.push({ ...f, path: f.geometry.coordinates[0] });
-      } else if (f.geometry.type === 'MultiPolygon') {
-        f.geometry.coordinates.forEach((poly) => arr.push({ ...f, path: poly[0] }));
-      }
-    };
-
-    addFeaturePaths(hoveredFeature?.geoVisitor.country_code);
-    addFeaturePaths(clickedFeature?.geoVisitor.country_code);
-
-    return arr;
-  }, [featureLookup, hoveredFeature?.geoVisitor.country_code, clickedFeature?.geoVisitor.country_code]);
-
-  const mainLayer = useMemo(() => {
+  const fillLayer = useMemo(() => {
     if (!geojson) return null;
+
     return new GeoJsonLayer({
-      id: 'deckgl-countries-layer',
+      id: 'countries-fill',
       data: geojson,
       filled: true,
-      stroked: true,
+      stroked: false,
       pickable: true,
-      lineWidthMinPixels: 1,
+      autoHighlight: false,
+
       getFillColor: (f: any) => {
         const iso = f.id as string;
         const visitors = visitorDict[iso] ?? 0;
         return style.originalStyle(visitors).fill;
       },
+
+      transitions: {
+        getFillColor: { duration: playing ? frameInterval : baseInterval / 5, easing: (t: number) => t * t },
+      },
+      updateTriggers: {
+        getFillColor: frame,
+      },
+    });
+  }, [geojson, frame, visitorDict, style, playing, frameInterval]);
+
+  // static country borders
+  const strokeBaseLayer = useMemo(() => {
+    if (!geojson) return null;
+
+    return new GeoJsonLayer({
+      id: 'countries-stroke',
+      data: geojson,
+      filled: false,
+      stroked: true,
+      pickable: false,
+      lineWidthMinPixels: 1,
+
       getLineColor: (f: any) => {
         const iso = f.id as string;
         const visitors = visitorDict[iso] ?? 0;
         return style.originalStyle(visitors).line;
       },
-      transitions: {
-        getFillColor: {
-          duration: playing ? frameInterval : baseInterval / 5,
-          easing: (t: number) => t * t,
-        },
-      },
+
       updateTriggers: {
-        getFillColor: visitorDict,
-        getLineColor: visitorDict,
+        getLineColor: frame,
       },
     });
-  }, [geojson, visitorDict, style, playing, frameInterval, baseInterval]);
+  }, [geojson, visitorDict, style]);
 
-  const highlightLayer = useMemo(() => {
-    if (!pathData.length) return null;
+  const hoverPathData = useMemo(
+    () => (hoveredFeature ? (outlineCache.get(hoveredFeature.geoVisitor.country_code) ?? []) : []),
+    [outlineCache, hoveredFeature?.geoVisitor.country_code],
+  );
+
+  const hoverLayer = useMemo(() => {
+    if (!hoverPathData.length) return null;
 
     return new PathLayer({
-      id: 'highlight-paths',
-      data: pathData,
+      id: 'hover-outline',
+      data: hoverPathData,
       pickable: false,
-      getPath: (f: any) => f.path, // outer ring
-      getColor: (f: any) =>
-        f.id === clickedFeature?.geoVisitor.country_code ? style.selectedStyle().line : style.hoveredStyle().line,
+      getPath: (f: any) => f.path,
+      getColor: style.hoveredStyle(1).line,
       getWidth: 2,
       widthUnits: 'pixels',
-      extensions: [new PathStyleExtension({})],
+      widthMinPixels: 2,
+      parameters: { depthTest: false }, // keep visible over fill
       updateTriggers: {
-        getColor: [hoveredFeature?.geoVisitor?.country_code, clickedFeature?.geoVisitor?.country_code],
+        getColor: hoveredFeature?.geoVisitor?.country_code,
       },
     });
-  }, [pathData, hoveredFeature?.geoVisitor?.country_code, clickedFeature?.geoVisitor?.country_code, style]);
+  }, [hoverPathData, hoveredFeature?.geoVisitor?.country_code, style]);
 
-  return [mainLayer, highlightLayer].filter(Boolean) as GeoJsonLayer[];
+  const clickedPathData = useMemo(
+    () => (clickedFeature ? (outlineCache.get(clickedFeature.geoVisitor.country_code) ?? []) : []),
+    [outlineCache, clickedFeature?.geoVisitor.country_code],
+  );
+
+  const clickedLayer = useMemo(() => {
+    if (!clickedPathData.length) return null;
+
+    return new PathLayer({
+      id: 'clicked-outline',
+      data: clickedPathData,
+      pickable: false,
+      getPath: (f: any) => f.path,
+      getColor: style.selectedStyle(1).line,
+      getWidth: 2,
+      widthUnits: 'pixels',
+      widthMinPixels: 2,
+      parameters: { depthTest: false }, // keep visible over fill
+      updateTriggers: {
+        getColor: clickedFeature?.geoVisitor?.country_code,
+      },
+    });
+  }, [clickedPathData, clickedFeature?.geoVisitor?.country_code, style]);
+
+  // NOTE: Order matters
+  return [fillLayer, strokeBaseLayer, hoverLayer, clickedLayer].filter(Boolean) as any[];
 }

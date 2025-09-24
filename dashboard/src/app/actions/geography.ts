@@ -128,7 +128,10 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
         granularity,
       );
 
-      const test = toStackedAreaChart({
+      //! TODO: include dataToWorldmap
+      // return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
+
+      return toStackedAreaChart({
         data: geoVisitors,
         categoryKey: 'country_code',
         valueKey: 'visitors',
@@ -138,11 +141,6 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
           end: endDate,
         },
       });
-
-      console.log(test);
-
-      return test;
-      // return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
     } catch (error) {
       console.error('Error fetching visitor map data:', error);
       throw new Error('Failed to fetch visitor map data');
