@@ -7,18 +7,10 @@ CREATE TABLE IF NOT EXISTS analytics.session_replays (
     duration UInt32,
     date Date DEFAULT toDate(started_at),
 
-    country_code Nullable(String),
-    device_type LowCardinality(String),
-    ua_family LowCardinality(String),
-
-    pages UInt16,
-    errors UInt16,
-
     size_bytes UInt64,
     segment_count UInt16,
     s3_prefix String,
-    sample_rate UInt8,
-    has_network_logs UInt8 DEFAULT 0,
+	sample_rate UInt8,
     start_url String
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(date)

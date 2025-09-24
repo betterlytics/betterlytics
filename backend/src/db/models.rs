@@ -53,16 +53,10 @@ pub struct SessionReplayRow {
     pub duration: u32,
     #[serde(with = "clickhouse::serde::chrono::date")]
     pub date: NaiveDate,
-    pub country_code: Option<String>,
-    pub device_type: String,
-    pub ua_family: String,
-    pub pages: u16,
-    pub errors: u16,
     pub size_bytes: u64,
     pub segment_count: u16,
     pub s3_prefix: String,
     pub sample_rate: u8,
-    pub has_network_logs: u8,
     pub start_url: String,
 }
 

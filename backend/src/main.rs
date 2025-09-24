@@ -299,15 +299,9 @@ struct FinalizeRequest {
     visitor_id: String,
     started_at: i64,
     ended_at: i64,
-    country_code: Option<String>,
-    device_type: Option<String>,
-    ua_family: Option<String>,
-    pages: Option<u16>,
-    errors: Option<u16>,
     size_bytes: u64,
     segment_count: u16,
     sample_rate: Option<u8>,
-    has_network_logs: Option<bool>,
     start_url: Option<String>,
 }
 
@@ -329,16 +323,10 @@ async fn finalize_session_replay(
         ended_at: ended,
         duration,
         date,
-        country_code: req.country_code,
-        device_type: req.device_type.unwrap_or_else(|| "unknown".to_string()),
-        ua_family: req.ua_family.unwrap_or_else(|| "unknown".to_string()),
-        pages: req.pages.unwrap_or(0),
-        errors: req.errors.unwrap_or(0),
         size_bytes: req.size_bytes,
         segment_count: req.segment_count,
         s3_prefix,
         sample_rate: req.sample_rate.unwrap_or(100),
-        has_network_logs: if req.has_network_logs.unwrap_or(false) { 1 } else { 0 },
         start_url: req.start_url.unwrap_or_else(|| "".to_string()),
     };
 

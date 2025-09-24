@@ -330,16 +330,9 @@
               visitor_id: visId,
               started_at: Math.floor(startedAt / 1000),
               ended_at: nowSec(),
-              // Keep finalize lean; server can enrich from events table later
-              country_code: null,
-              device_type: null,
-              ua_family: null,
-              pages: 0,
-              errors: 0,
               size_bytes: sizeBytes,
               segment_count: segmentIdx,
               sample_rate: replaySamplePct,
-              has_network_logs: false,
               start_url: normalize(window.location.href),
             }),
           }).catch(function () {});
