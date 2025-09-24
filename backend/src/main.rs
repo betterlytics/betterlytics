@@ -115,9 +115,9 @@ async fn main() {
         .route("/site-id", get(generate_site_id_handler))
         // Session replay storage routes
         .route("/replay/presign/put", post(presign_put_segment))
-        .route("/replay/presign/get", post(presign_get_segment))
         .route("/replay/finalize", post(finalize_session_replay))
         .route("/metrics", get(metrics_handler))
+        // Session replay helper routes
         .fallback(fallback_handler)
         .with_state((db, processor, metrics_collector, validator, s3_service))
         .layer(CorsLayer::permissive());
@@ -238,38 +238,58 @@ async fn generate_site_id_handler() -> impl IntoResponse {
 #[derive(serde::Deserialize)]
 struct PresignPutRequest {
     site_id: String,
-    session_id: String,
-    segment_idx: u32,
+    screen_resolution: Option<String>,
     content_type: Option<String>,
     content_encoding: Option<String>,
     ttl_secs: Option<u64>,
 }
 
 #[derive(serde::Serialize)]
-struct PresignResponse { url: String, key: String }
+struct PresignPutResponse { url: String, key: String, session_id: String, visitor_id: String }
 
 async fn presign_put_segment(
     State((_, _, _, _, s3)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Json(req): Json<PresignPutRequest>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let key = s3.object_key_for_segment(&req.site_id, &req.session_id, req.segment_idx);
-    let url = s3.presign_put(&key, req.content_type.as_deref().unwrap_or("application/json"), req.content_encoding.as_deref(), req.ttl_secs.unwrap_or(60)).await
+    let ip_address = crate::parse_ip(headers.clone()).unwrap_or(addr.ip()).to_string();
+    let user_agent = headers
+        .get(axum::http::header::USER_AGENT)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    let parsed = ua_parser::parse_user_agent(user_agent);
+    let device_type_from_res = req.screen_resolution.as_deref().and_then(|sr| sr.split_once('x')).and_then(|(w, _)| w.trim().parse::<u32>().ok()).map(|width| {
+        if width <= 575 { "mobile".to_string() }
+        else if width <= 991 { "tablet".to_string() }
+        else if width <= 1439 { "laptop".to_string() }
+        else { "desktop".to_string() }
+    });
+    let fingerprint = analytics::generate_fingerprint(
+        &ip_address,
+        device_type_from_res.as_deref(),
+        Some(parsed.browser.as_str()),
+        parsed.browser_version.as_deref(),
+        Some(parsed.os.as_str()),
+    );
+    let session_id = session::get_or_create_session_id(&req.site_id, &fingerprint)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok(Json(PresignResponse { url, key }))
-}
 
-#[derive(serde::Deserialize)]
-struct PresignGetRequest { key: String, ttl_secs: Option<u64> }
+    // Build timestamp-based key
+    let epoch_ms = chrono::Utc::now().timestamp_millis();
+    let suffix: String = nanoid::nanoid!(2);
+    let filename = format!("{:013}-{}.json", epoch_ms, suffix);
+    let key = format!("site/{}/sess/{}/{}", req.site_id, session_id, filename);
 
-async fn presign_get_segment(
-    State((_, _, _, _, s3)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
-    Json(req): Json<PresignGetRequest>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let url = s3.presign_get(&req.key, req.ttl_secs.unwrap_or(60)).await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok(Json(PresignResponse { url, key: req.key }))
+    let url = s3.presign_put(
+        &key,
+        req.content_type.as_deref().unwrap_or("application/json"),
+        req.content_encoding.as_deref(),
+        req.ttl_secs.unwrap_or(60),
+    ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint }))
 }
 
 #[derive(serde::Deserialize)]
@@ -288,6 +308,7 @@ struct FinalizeRequest {
     segment_count: u16,
     sample_rate: Option<u8>,
     has_network_logs: Option<bool>,
+    start_url: Option<String>,
 }
 
 async fn finalize_session_replay(
@@ -318,6 +339,7 @@ async fn finalize_session_replay(
         s3_prefix,
         sample_rate: req.sample_rate.unwrap_or(100),
         has_network_logs: if req.has_network_logs.unwrap_or(false) { 1 } else { 0 },
+        start_url: req.start_url.unwrap_or_else(|| "".to_string()),
     };
 
     db.upsert_session_replay(row).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;

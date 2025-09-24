@@ -222,26 +222,6 @@
     });
   }
 
-  function getOrCreateVisitorId() {
-    try {
-      var key = "betterlytics_vid";
-      var existing = localStorage.getItem(key);
-      if (existing && existing.length > 0) return existing;
-      var id = Math.random().toString(36).slice(2) + Date.now().toString(36);
-      localStorage.setItem(key, id);
-      return id;
-    } catch (e) {
-      return "anon";
-    }
-  }
-
-  function getDeviceTypeFromWidth(width) {
-    if (width <= 575) return "mobile";
-    if (width <= 991) return "tablet";
-    if (width <= 1439) return "laptop";
-    return "desktop";
-  }
-
   function nowSec() {
     return Math.floor(Date.now() / 1000);
   }
@@ -259,33 +239,11 @@
     var lastActivity = Date.now();
     var flushTimer = null;
     var maxChunkMs = 15000;
-    var visId = getOrCreateVisitorId();
-    var replaySessionIdKey = "betterlytics_replay_session";
-    var stored = null;
-    try {
-      stored = JSON.parse(sessionStorage.getItem(replaySessionIdKey) || "null");
-    } catch (e) {}
-    var needNew =
-      !stored || !stored.id || Date.now() - (stored.last || 0) > 15 * 60 * 1000;
-    var replaySession = needNew
-      ? {
-          id: Math.random().toString(36).slice(2) + Date.now().toString(36),
-          last: Date.now(),
-        }
-      : stored;
-    try {
-      sessionStorage.setItem(replaySessionIdKey, JSON.stringify(replaySession));
-    } catch (e) {}
+    var visId = null;
+    var replaySession = { id: null };
 
     function markActivity() {
       lastActivity = Date.now();
-      try {
-        replaySession.last = lastActivity;
-        sessionStorage.setItem(
-          replaySessionIdKey,
-          JSON.stringify(replaySession)
-        );
-      } catch (e) {}
     }
 
     ["mousemove", "keydown", "scroll", "click", "visibilitychange"].forEach(
@@ -310,8 +268,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           site_id: siteId,
-          session_id: replaySession.id,
-          segment_idx: segmentIdx,
+          screen_resolution: window.screen.width + "x" + window.screen.height,
           content_type: "application/json",
         }),
       })
@@ -319,7 +276,8 @@
           return r.json();
         })
         .then(function (resp) {
-          segmentIdx += 1;
+          if (!replaySession.id) replaySession.id = resp.session_id;
+          if (!visId) visId = resp.visitor_id;
           sizeBytes += bytes.byteLength;
           return fetch(resp.url, {
             method: "PUT",
@@ -372,15 +330,17 @@
               visitor_id: visId,
               started_at: Math.floor(startedAt / 1000),
               ended_at: nowSec(),
+              // Keep finalize lean; server can enrich from events table later
               country_code: null,
-              device_type: getDeviceTypeFromWidth(window.screen.width),
-              ua_family: navigator.userAgent,
+              device_type: null,
+              ua_family: null,
               pages: 0,
               errors: 0,
               size_bytes: sizeBytes,
               segment_count: segmentIdx,
               sample_rate: replaySamplePct,
               has_network_logs: false,
+              start_url: normalize(window.location.href),
             }),
           }).catch(function () {});
         })

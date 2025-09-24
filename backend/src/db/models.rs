@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum_macros::EnumString;
 use crate::processing::ProcessedEvent;
-use chrono::{NaiveDateTime};
 
 // Ensure field order exactly matches ClickHouse table schema
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -64,6 +63,7 @@ pub struct SessionReplayRow {
     pub s3_prefix: String,
     pub sample_rate: u8,
     pub has_network_logs: u8,
+    pub start_url: String,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]

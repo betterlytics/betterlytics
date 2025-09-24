@@ -1,10 +1,10 @@
 use std::time::Duration;
-use anyhow::{Result, bail};
+use anyhow::Result;
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::{Client, config::Region};
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
 use aws_sdk_s3::presigning::PresigningConfig;
-use aws_sdk_s3::types::ServerSideEncryption;
+// use aws_sdk_s3::types::ServerSideEncryption;
 use crate::config::Config;
 
 #[derive(Clone, Debug)]
@@ -23,7 +23,7 @@ impl S3Service {
         let bucket = cfg.s3_bucket.clone().ok_or_else(|| anyhow::anyhow!("S3_BUCKET not set"))?;
 
         // Base loader
-        let mut loader = aws_config::defaults(BehaviorVersion::latest()).region(Region::new(region.clone()));
+        let loader = aws_config::defaults(BehaviorVersion::latest()).region(Region::new(region.clone()));
 
         // Credentials override if provided (useful for local S3 like MinIO)
         let mut creds_opt = None;
@@ -63,20 +63,6 @@ impl S3Service {
         let cfg = PresigningConfig::expires_in(Duration::from_secs(ttl_secs))?;
         let presigned = req.presigned(cfg).await?;
         Ok(presigned.uri().to_string())
-    }
-
-    pub async fn presign_get(&self, key: &str, ttl_secs: u64) -> Result<String> {
-        let req = self.client
-            .get_object()
-            .bucket(&self.bucket)
-            .key(key);
-        let cfg = PresigningConfig::expires_in(Duration::from_secs(ttl_secs))?;
-        let presigned = req.presigned(cfg).await?;
-        Ok(presigned.uri().to_string())
-    }
-
-    pub fn object_key_for_segment(&self, site_id: &str, session_id: &str, segment_idx: u32) -> String {
-        format!("site/{}/sess/{}/{:06}.json", site_id, session_id, segment_idx)
     }
 }
 

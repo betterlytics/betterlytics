@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS analytics.session_replays (
     segment_count UInt16,
     s3_prefix String,
     sample_rate UInt8,
-    has_network_logs UInt8 DEFAULT 0
+    has_network_logs UInt8 DEFAULT 0,
+    start_url String
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(date)
 ORDER BY (site_id, date, started_at, session_id);
