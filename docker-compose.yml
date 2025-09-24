@@ -70,28 +70,6 @@ services:
       - minio_data:/data
     command: server /data --address ":9001" --console-address ":9002"
 
-  minio-cors:
-    image: amazon/aws-cli:latest
-    container_name: minio-cors
-    depends_on:
-      - minio
-    restart: "no"
-    environment:
-      AWS_ACCESS_KEY_ID: minioadmin
-      AWS_SECRET_ACCESS_KEY: minioadmin
-      AWS_DEFAULT_REGION: us-east-1
-    volumes:
-      - ./minio-config/cors.json:/config/cors.json:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      set -euo pipefail;
-      until aws --endpoint-url http://minio:9001 s3 ls >/dev/null 2>&1; do
-        echo "waiting for minio..."; sleep 2;
-      done;
-      aws --endpoint-url http://minio:9001 s3api create-bucket --bucket betterlytics-replays || true;
-      aws --endpoint-url http://minio:9001 s3api put-bucket-cors --bucket betterlytics-replays --cors-configuration file:///config/cors.json;
-      echo "Applied bucket CORS for betterlytics-replays";
-
 volumes:
   clickhouse_data:
   clickhouse_users:
