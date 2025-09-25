@@ -5,15 +5,12 @@ CREATE TABLE IF NOT EXISTS analytics.session_replays (
     started_at DateTime,
     ended_at DateTime,
     duration UInt32,
-    date Date DEFAULT toDate(started_at),
-
+    date Date,
     size_bytes UInt64,
     segment_count UInt16,
     s3_prefix String,
-	sample_rate UInt8,
+    sample_rate UInt8,
     start_url String
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(ended_at)
 PARTITION BY toYYYYMM(date)
-ORDER BY (site_id, date, started_at, session_id);
-
-
+ORDER BY (site_id, session_id);

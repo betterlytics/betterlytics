@@ -23,6 +23,7 @@ mod ua_parser;
 mod metrics;
 mod validation;
 mod storage;
+mod session_replay;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use db::{Database, SharedDatabase};
@@ -114,8 +115,8 @@ async fn main() {
         .route("/track", post(track_event))
         .route("/site-id", get(generate_site_id_handler))
         // Session replay storage routes
-        .route("/replay/presign/put", post(presign_put_segment))
-        .route("/replay/finalize", post(finalize_session_replay))
+        .route("/replay/presign/put", post(session_replay::presign_put_segment))
+        .route("/replay/finalize", post(session_replay::finalize_session_replay))
         .route("/metrics", get(metrics_handler))
         // Session replay helper routes
         .fallback(fallback_handler)
@@ -235,101 +236,3 @@ async fn generate_site_id_handler() -> impl IntoResponse {
     Json(generate_site_id())
 }
 
-#[derive(serde::Deserialize)]
-struct PresignPutRequest {
-    site_id: String,
-    screen_resolution: Option<String>,
-    content_type: Option<String>,
-    content_encoding: Option<String>,
-    ttl_secs: Option<u64>,
-}
-
-#[derive(serde::Serialize)]
-struct PresignPutResponse { url: String, key: String, session_id: String, visitor_id: String }
-
-async fn presign_put_segment(
-    State((_, _, _, _, s3)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
-    Json(req): Json<PresignPutRequest>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let ip_address = crate::parse_ip(headers.clone()).unwrap_or(addr.ip()).to_string();
-    let user_agent = headers
-        .get(axum::http::header::USER_AGENT)
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("");
-    let parsed = ua_parser::parse_user_agent(user_agent);
-    let device_type_from_res = req.screen_resolution.as_deref().and_then(|sr| sr.split_once('x')).and_then(|(w, _)| w.trim().parse::<u32>().ok()).map(|width| {
-        if width <= 575 { "mobile".to_string() }
-        else if width <= 991 { "tablet".to_string() }
-        else if width <= 1439 { "laptop".to_string() }
-        else { "desktop".to_string() }
-    });
-    let fingerprint = analytics::generate_fingerprint(
-        &ip_address,
-        device_type_from_res.as_deref(),
-        Some(parsed.browser.as_str()),
-        parsed.browser_version.as_deref(),
-        Some(parsed.os.as_str()),
-    );
-    let session_id = session::get_or_create_session_id(&req.site_id, &fingerprint)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-
-    // Build timestamp-based key
-    let epoch_ms = chrono::Utc::now().timestamp_millis();
-    let suffix: String = nanoid::nanoid!(2);
-    let filename = format!("{:013}-{}.json", epoch_ms, suffix);
-    let key = format!("site/{}/sess/{}/{}", req.site_id, session_id, filename);
-
-    let url = s3.presign_put(
-        &key,
-        req.content_type.as_deref().unwrap_or("application/json"),
-        req.content_encoding.as_deref(),
-        req.ttl_secs.unwrap_or(60),
-    ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-
-    Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint }))
-}
-
-#[derive(serde::Deserialize)]
-struct FinalizeRequest {
-    site_id: String,
-    session_id: String,
-    visitor_id: String,
-    started_at: i64,
-    ended_at: i64,
-    size_bytes: u64,
-    segment_count: u16,
-    sample_rate: Option<u8>,
-    start_url: Option<String>,
-}
-
-async fn finalize_session_replay(
-    State((db, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
-    Json(req): Json<FinalizeRequest>,
-) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let started = chrono::DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
-    let ended = chrono::DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
-    let duration = (req.ended_at - req.started_at).max(0) as u32;
-    let date = started.date_naive();
-    let s3_prefix = format!("site/{}/sess/{}/", req.site_id, req.session_id);
-
-    let row = crate::db::SessionReplayRow {
-        site_id: req.site_id,
-        session_id: req.session_id,
-        visitor_id: req.visitor_id,
-        started_at: started,
-        ended_at: ended,
-        duration,
-        date,
-        size_bytes: req.size_bytes,
-        segment_count: req.segment_count,
-        s3_prefix,
-        sample_rate: req.sample_rate.unwrap_or(100),
-        start_url: req.start_url.unwrap_or_else(|| "".to_string()),
-    };
-
-    db.upsert_session_replay(row).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    Ok(StatusCode::OK)
-}

@@ -50,6 +50,30 @@
     return url;
   }
 
+  function encodeReplayChunk(json) {
+    var encoder = new TextEncoder();
+    var rawBytes = encoder.encode(json);
+    if (typeof CompressionStream === "undefined") {
+      return Promise.resolve({ bytes: rawBytes, encoding: null });
+    }
+    try {
+      var stream = new CompressionStream("gzip");
+      var writable = stream.writable.getWriter();
+      writable.write(rawBytes);
+      writable.close();
+      return new Response(stream.readable)
+        .arrayBuffer()
+        .then(function (buf) {
+          return { bytes: new Uint8Array(buf), encoding: "gzip" };
+        })
+        .catch(function () {
+          return { bytes: rawBytes, encoding: null };
+        });
+    } catch (e) {
+      return Promise.resolve({ bytes: rawBytes, encoding: null });
+    }
+  }
+
   function trackEvent(eventName, overrides = {}) {
     var url = normalize(window.location.href);
     var referrer = document.referrer || null;
@@ -233,12 +257,12 @@
     var rrLoaded = false;
     var recordingStop = null;
     var buffer = [];
-    var segmentIdx = 0;
     var sizeBytes = 0;
     var startedAt = Date.now();
     var lastActivity = Date.now();
     var flushTimer = null;
     var maxChunkMs = 15000;
+    var idleCutoffMs = 30 * 60 * 1000;
     var visId = null;
     var replaySession = { id: null };
 
@@ -261,32 +285,44 @@
           ? window.rrwebPack.pack(events)
           : events;
       var json = JSON.stringify(packed);
-      var bytes = new TextEncoder().encode(json);
 
-      return fetch(apiBase + "/replay/presign/put", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          site_id: siteId,
-          screen_resolution: window.screen.width + "x" + window.screen.height,
-          content_type: "application/json",
-        }),
-      })
-        .then(function (r) {
-          return r.json();
-        })
-        .then(function (resp) {
-          if (!replaySession.id) replaySession.id = resp.session_id;
-          if (!visId) visId = resp.visitor_id;
-          sizeBytes += bytes.byteLength;
-          return fetch(resp.url, {
-            method: "PUT",
+      return encodeReplayChunk(json)
+        .then(function (payload) {
+          var presignPayload = {
+            site_id: siteId,
+            screen_resolution: window.screen.width + "x" + window.screen.height,
+            content_type: "application/json",
+          };
+          if (payload.encoding) {
+            presignPayload.content_encoding = payload.encoding;
+          }
+
+          return fetch(apiBase + "/replay/presign/put", {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: bytes,
-          });
+            body: JSON.stringify(presignPayload),
+          })
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (resp) {
+              if (!replaySession.id) replaySession.id = resp.session_id;
+              if (!visId) visId = resp.visitor_id;
+              sizeBytes += payload.bytes.byteLength;
+              var headers = {
+                "Content-Type": "application/json",
+              };
+              if (payload.encoding) {
+                headers["Content-Encoding"] = payload.encoding;
+              }
+              return fetch(resp.url, {
+                method: "PUT",
+                headers: headers,
+                body: payload.bytes,
+              });
+            });
         })
         .catch(function (e) {
-          // On failure, re-queue events into the next buffer to avoid loss
           try {
             buffer = events.concat(buffer);
           } catch (_) {}
@@ -296,7 +332,7 @@
     function startFlushLoop() {
       if (flushTimer) clearInterval(flushTimer);
       flushTimer = setInterval(function () {
-        if (Date.now() - lastActivity > 15 * 60 * 1000) {
+        if (Date.now() - lastActivity > idleCutoffMs) {
           // idle cutoff: stop recording and finalize
           stopRecording(true);
           return;
@@ -321,6 +357,7 @@
       flush(true)
         .then(function () {
           if (!finalize) return;
+          if (!replaySession.id || !visId) return;
           return fetch(apiBase + "/replay/finalize", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -331,10 +368,10 @@
               started_at: Math.floor(startedAt / 1000),
               ended_at: nowSec(),
               size_bytes: sizeBytes,
-              segment_count: segmentIdx,
               sample_rate: replaySamplePct,
               start_url: normalize(window.location.href),
             }),
+            keepalive: true,
           }).catch(function () {});
         })
         .catch(function () {});
@@ -374,7 +411,7 @@
 
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden") {
-        stopRecording(true);
+        flush(true);
       }
     });
     window.addEventListener("pagehide", function () {

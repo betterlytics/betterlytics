@@ -4,13 +4,14 @@ use aws_config::BehaviorVersion;
 use aws_sdk_s3::{Client, config::Region};
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
 use aws_sdk_s3::presigning::PresigningConfig;
-// use aws_sdk_s3::types::ServerSideEncryption;
+use aws_sdk_s3::types::ServerSideEncryption;
 use crate::config::Config;
 
 #[derive(Clone, Debug)]
 pub struct S3Service {
     pub client: Client,
     pub bucket: String,
+    pub sse_enabled: bool,
 }
 
 impl S3Service {
@@ -47,19 +48,36 @@ impl S3Service {
 
         let s3_config = s3_builder.build();
         let client = Client::from_conf(s3_config);
+        let sse_enabled = cfg.s3_sse_enabled;
 
-        Ok(Some(Self { client, bucket }))
+        Ok(Some(Self { client, bucket, sse_enabled }))
     }
 
-    pub async fn presign_put(&self, key: &str, content_type: &str, content_encoding: Option<&str>, ttl_secs: u64) -> Result<String> {
+    pub fn build_replay_object_key(&self, site_id: &str, session_id: &str) -> String {
+        let epoch_ms = chrono::Utc::now().timestamp_millis();
+        let suffix: String = nanoid::nanoid!(6);
+        let filename = format!("{:013}-{}.json", epoch_ms, suffix);
+        format!("site/{}/sess/{}/{}", site_id, session_id, filename)
+    }
+
+    pub async fn presign_replay_put(
+        &self,
+        key: &str,
+        content_type: &str,
+        content_encoding: Option<&str>,
+        ttl_secs: u64,
+    ) -> Result<String> {
         let mut req = self.client
             .put_object()
             .bucket(&self.bucket)
             .key(key)
-            .content_type(content_type)
-            ;
-        if let Some(enc) = content_encoding { req = req.content_encoding(enc); }
-
+            .content_type(content_type);
+        if let Some(enc) = content_encoding {
+            req = req.content_encoding(enc);
+        }
+        if self.sse_enabled {
+            req = req.server_side_encryption(ServerSideEncryption::Aes256);
+        }
         let cfg = PresigningConfig::expires_in(Duration::from_secs(ttl_secs))?;
         let presigned = req.presigned(cfg).await?;
         Ok(presigned.uri().to_string())
