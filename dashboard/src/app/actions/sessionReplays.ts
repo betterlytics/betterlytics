@@ -18,6 +18,6 @@ type FetchReplaySegmentsPayload = {
 
 export const fetchReplaySegmentsAction = withDashboardAuthContext(
   async (_ctx: AuthContext, payload: FetchReplaySegmentsPayload) => {
-    return getSignedReplaySegments(payload.prefix, payload.ttlSeconds ?? 60);
+    return getSignedReplaySegments(payload.prefix, payload.ttlSeconds ?? 300);
   },
 );

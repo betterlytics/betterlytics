@@ -13,6 +13,6 @@ export async function getSessionReplaysForSite(siteId: string, startDate: Date, 
 
 const s3Repository = new S3ReplaySegmentsRepository();
 
-export async function getSignedReplaySegments(prefix: string, ttlSeconds = 60) {
+export async function getSignedReplaySegments(prefix: string, ttlSeconds = 300) {
   return s3Repository.listAndPresign(prefix, ttlSeconds);
 }

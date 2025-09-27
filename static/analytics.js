@@ -261,7 +261,13 @@
     var startedAt = Date.now();
     var lastActivity = Date.now();
     var flushTimer = null;
-    var maxChunkMs = 15000;
+    var maxChunkMs = 30000;
+    var maxUncompressedBytes = 250 * 1024;
+    var maxEventsPerChunk = 5000;
+    var approxBytes = 0;
+    var eventCount = 0;
+    var isFlushing = false;
+    var ongoingFlush = null;
     var idleCutoffMs = 30 * 60 * 1000;
     var visId = null;
     var replaySession = { id: null };
@@ -278,11 +284,15 @@
 
     function flush() {
       if (buffer.length === 0) return Promise.resolve();
+      if (isFlushing) return ongoingFlush || Promise.resolve();
+      isFlushing = true;
       var events = buffer;
       buffer = [];
       var json = JSON.stringify(events);
+      approxBytes = 0;
+      eventCount = 0;
 
-      return encodeReplayChunk(json)
+      ongoingFlush = encodeReplayChunk(json)
         .then(function (payload) {
           var presignPayload = {
             site_id: siteId,
@@ -322,7 +332,12 @@
           try {
             buffer = events.concat(buffer);
           } catch (_) {}
+        })
+        .finally(function () {
+          isFlushing = false;
+          ongoingFlush = null;
         });
+      return ongoingFlush;
     }
 
     function startFlushLoop() {
@@ -376,10 +391,33 @@
     function startRecording() {
       if (!window.rrweb || rrLoaded) return;
       rrLoaded = true;
+      var isCoarsePointer = false;
+      try {
+        isCoarsePointer = !!(
+          window.matchMedia && window.matchMedia("(pointer: coarse)").matches
+        );
+      } catch (_) {}
+
+      function estimateEventSize(ev) {
+        try {
+          return JSON.stringify(ev).length | 0;
+        } catch (_) {
+          return 0;
+        }
+      }
+
       recordingStop = window.rrweb.record({
         emit: function (e) {
           buffer.push(e);
+          eventCount += 1;
+          approxBytes += estimateEventSize(e) + 1; // +1 for separator overhead
           markActivity();
+          if (
+            eventCount >= maxEventsPerChunk ||
+            approxBytes >= maxUncompressedBytes
+          ) {
+            flush();
+          }
         },
         checkoutEveryNms: 5 * 60 * 1000,
         maskAllInputs: true,
@@ -391,8 +429,17 @@
         },
         blockClass: "rr-block",
         ignoreClass: "rr-ignore",
-        maskTextSelector: "input[type=password], [data-rrweb-mask]",
-        sampling: { mousemove: 50, input: "last", media: 25 },
+        maskTextSelector: `
+          input[type=password],
+          [data-rrweb-mask],
+          [contenteditable="true"]
+        `,
+        sampling: {
+          mousemove: isCoarsePointer ? 0 : 50,
+          input: "last",
+          media: 10,
+          scroll: 75,
+        },
       });
       startFlushLoop();
     }
