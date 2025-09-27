@@ -263,9 +263,7 @@
     var flushTimer = null;
     var maxChunkMs = 30000;
     var maxUncompressedBytes = 250 * 1024;
-    var maxEventsPerChunk = 5000;
     var approxBytes = 0;
-    var eventCount = 0;
     var isFlushing = false;
     var ongoingFlush = null;
     var idleCutoffMs = 30 * 60 * 1000;
@@ -276,11 +274,16 @@
       lastActivity = Date.now();
     }
 
-    ["mousemove", "keydown", "scroll", "click", "visibilitychange"].forEach(
-      function (ev) {
-        window.addEventListener(ev, markActivity, { passive: true });
-      }
-    );
+    [
+      "mousemove",
+      "keydown",
+      "scroll",
+      "click",
+      "pointerdown",
+      "touchstart",
+    ].forEach(function (ev) {
+      window.addEventListener(ev, markActivity, { passive: true });
+    });
 
     function flush() {
       if (buffer.length === 0) return Promise.resolve();
@@ -290,7 +293,6 @@
       buffer = [];
       var json = JSON.stringify(events);
       approxBytes = 0;
-      eventCount = 0;
 
       ongoingFlush = encodeReplayChunk(json)
         .then(function (payload) {
@@ -409,13 +411,8 @@
       recordingStop = window.rrweb.record({
         emit: function (e) {
           buffer.push(e);
-          eventCount += 1;
           approxBytes += estimateEventSize(e) + 1; // +1 for separator overhead
-          markActivity();
-          if (
-            eventCount >= maxEventsPerChunk ||
-            approxBytes >= maxUncompressedBytes
-          ) {
+          if (approxBytes >= maxUncompressedBytes) {
             flush();
           }
         },
