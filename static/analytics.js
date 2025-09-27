@@ -276,15 +276,11 @@
       }
     );
 
-    function flush(force) {
+    function flush() {
       if (buffer.length === 0) return Promise.resolve();
       var events = buffer;
       buffer = [];
-      var packed =
-        window.rrwebPack && window.rrwebPack.pack
-          ? window.rrwebPack.pack(events)
-          : events;
-      var json = JSON.stringify(packed);
+      var json = JSON.stringify(events);
 
       return encodeReplayChunk(json)
         .then(function (payload) {
@@ -338,7 +334,7 @@
           return;
         }
         if (buffer.length > 0) {
-          flush(false);
+          flush();
         }
       }, Math.max(3000, maxChunkMs));
     }
@@ -354,7 +350,7 @@
         clearInterval(flushTimer);
         flushTimer = null;
       }
-      flush(true)
+      flush()
         .then(function () {
           if (!finalize) return;
           if (!replaySession.id || !visId) return;
@@ -411,8 +407,11 @@
 
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden") {
-        flush(true);
+        flush();
       }
+    });
+    window.addEventListener("beforeunload", function () {
+      stopRecording(true);
     });
     window.addEventListener("pagehide", function () {
       stopRecording(true);

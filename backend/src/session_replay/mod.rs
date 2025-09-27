@@ -10,6 +10,8 @@ use crate::analytics;
 use crate::session;
 use crate::storage::s3::S3Service;
 use crate::ua_parser;
+use chrono::{DateTime, Utc};
+
 use crate::db::{SharedDatabase, SessionReplayRow};
 use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
@@ -17,7 +19,11 @@ use crate::validation::EventValidator;
 
 #[derive(Clone)]
 pub struct FinalizeMeta {
-    pub last_ended_at: i64,
+    pub started_at: DateTime<Utc>,
+    pub ended_at: DateTime<Utc>,
+    pub size_bytes: u64,
+    pub sample_rate: u8,
+    pub start_url: String,
 }
 
 static FINALIZE_CACHE: Lazy<Cache<String, FinalizeMeta>> = Lazy::new(|| {
@@ -104,33 +110,50 @@ pub async fn finalize_session_replay(
     Json(req): Json<FinalizeRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let key = cache_key(&req.site_id, &req.session_id);
-    if let Some(meta) = FINALIZE_CACHE.get(&key) {
-        if req.ended_at <= meta.last_ended_at {
-            return Ok(StatusCode::OK);
-        }
-    }
-
     let started = chrono::DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = chrono::DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
-    let duration = (req.ended_at - req.started_at).max(0) as u32;
-    let date = started.date_naive();
+    let mut meta = if let Some(existing) = FINALIZE_CACHE.get(&key) {
+        if req.ended_at <= existing.ended_at.timestamp() && req.size_bytes <= existing.size_bytes {
+            return Ok(StatusCode::OK);
+        }
+        existing
+    } else {
+        FinalizeMeta {
+            started_at: started,
+            ended_at: ended,
+            size_bytes: req.size_bytes,
+            sample_rate: req.sample_rate.unwrap_or(100),
+            start_url: req.start_url.clone().unwrap_or_default(),
+        }
+    };
+
+    meta.started_at = meta.started_at.min(started);
+    meta.ended_at = meta.ended_at.max(ended);
+    meta.size_bytes = meta.size_bytes.saturating_add(req.size_bytes);
+    meta.sample_rate = req.sample_rate.unwrap_or(meta.sample_rate);
+    if meta.start_url.is_empty() {
+        meta.start_url = req.start_url.clone().unwrap_or_default();
+    }
+
+    let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
+    let date = meta.started_at.date_naive();
     let s3_prefix = format!("site/{}/sess/{}/", req.site_id, req.session_id);
 
     let row = SessionReplayRow {
         site_id: req.site_id,
         session_id: req.session_id,
         visitor_id: req.visitor_id,
-        started_at: started,
-        ended_at: ended,
+        started_at: meta.started_at,
+        ended_at: meta.ended_at,
         duration,
         date,
-        size_bytes: req.size_bytes,
+        size_bytes: meta.size_bytes,
         s3_prefix,
-        sample_rate: req.sample_rate.unwrap_or(100),
-        start_url: req.start_url.unwrap_or_else(|| "".to_string()),
+        sample_rate: meta.sample_rate,
+        start_url: meta.start_url.clone(),
     };
 
     db.upsert_session_replay(row).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
-    FINALIZE_CACHE.insert(key, FinalizeMeta { last_ended_at: req.ended_at });
+    FINALIZE_CACHE.insert(key, meta);
     Ok(StatusCode::OK)
 }
