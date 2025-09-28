@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import { formatDuration } from '@/utils/dateFormatters';
 import { ReferrerTableRow } from '@/entities/referrers';
 import { getReferrerColor } from '@/utils/referrerColors';
@@ -71,7 +71,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
                 <Link className='h-4 w-4 text-gray-500' />
               )}
               {data.source_url
-                ? data.source_url
+                ? formatString(data.source_url)
                 : data.source_type.toLowerCase() === 'direct'
                   ? t('columns.direct')
                   : t('columns.unknown')}

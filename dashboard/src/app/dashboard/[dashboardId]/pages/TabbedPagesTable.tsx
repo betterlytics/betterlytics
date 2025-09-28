@@ -4,7 +4,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { Button } from '@/components/ui/button';
-import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import TabbedTable from '@/components/TabbedTable';
 import { fetchPageAnalyticsAction } from '@/app/actions/pages';
 import { TableCompareCell } from '@/components/TableCompareCell';
@@ -53,7 +53,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
               className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors'
               title={t('filterByPath', { path })}
             >
-              {path}
+              {formatString(path)}
             </Button>
           );
         },
