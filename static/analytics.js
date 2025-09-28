@@ -429,7 +429,8 @@
         maskTextSelector: `
           input[type=password],
           [data-rrweb-mask],
-          [contenteditable="true"]
+          [contenteditable="true"],
+          *
         `,
         sampling: {
           mousemove: isCoarsePointer ? 0 : 50,
