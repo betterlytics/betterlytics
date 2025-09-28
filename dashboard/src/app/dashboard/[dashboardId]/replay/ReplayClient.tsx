@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import type { eventWithTime } from '@rrweb/types';
+import { EventType } from '@rrweb/types';
 
 const INITIAL_PREFETCH_CONCURRENCY = 4;
 
@@ -50,7 +51,6 @@ export default function ReplayClient({ dashboardId }: Props) {
   const nextSegmentIndex = useRef(0);
   const originTimestampRef = useRef<number | null>(null);
   const lastTimestampRef = useRef<number>(-Infinity);
-  const seenEventKeysRef = useRef<Set<string>>(new Set());
 
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
@@ -104,7 +104,7 @@ export default function ReplayClient({ dashboardId }: Props) {
   }, []);
 
   const primePlayerWithSegment = useCallback((events: eventWithTime[], session: SessionWithSegments) => {
-    const normalized = normalizeAndDedupeEvents(events, seenEventKeysRef.current, lastTimestampRef.current);
+    const normalized = normalizeEvents(events);
     if (normalized.length === 0) return;
     originTimestampRef.current = normalized[0]?.timestamp ?? null;
     playerRef.current?.loadInitialEvents(normalized);
@@ -122,7 +122,7 @@ export default function ReplayClient({ dashboardId }: Props) {
     if (!events.length) {
       return;
     }
-    const normalized = normalizeAndDedupeEvents(events, seenEventKeysRef.current, lastTimestampRef.current);
+    const normalized = normalizeEvents(events);
     if (normalized.length === 0) return;
     playerRef.current?.appendEvents(normalized);
     lastTimestampRef.current = Math.max(lastTimestampRef.current, normalized[normalized.length - 1]!.timestamp);
@@ -305,21 +305,7 @@ export default function ReplayClient({ dashboardId }: Props) {
   );
 }
 
-function normalizeAndDedupeEvents(
-  events: eventWithTime[],
-  seenKeys: Set<string>,
-  lastTimestamp: number,
-): eventWithTime[] {
+function normalizeEvents(events: eventWithTime[]): eventWithTime[] {
   // sort by timestamp to ensure order
-  const sorted = [...events].sort((a, b) => a.timestamp - b.timestamp);
-  const result: eventWithTime[] = [];
-  for (const ev of sorted) {
-    // skip obviously out-of-order events prior to last seen timestamp
-    if (ev.timestamp < lastTimestamp) continue;
-    const key = `${ev.type}:${(ev as any).data?.id ?? ''}:${ev.timestamp}`;
-    if (seenKeys.has(key)) continue;
-    seenKeys.add(key);
-    result.push(ev);
-  }
-  return result;
+  return [...events].sort((a, b) => a.timestamp - b.timestamp);
 }
