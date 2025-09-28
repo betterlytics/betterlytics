@@ -1364,9 +1364,6 @@
           "FCP": "Viser hvornår det første indhold vises på skærmen under indlæsning.",
           "TTFB": "Måler serverens svartid — tiden fra forespørgsel til første byte modtages."
         }
-      },
-      "data": {
-        "noData": "Ingen data fundet. Check om den er aktiveret."
       }
     },
     "integration": {

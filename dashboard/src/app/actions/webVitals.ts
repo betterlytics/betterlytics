@@ -7,12 +7,11 @@ import {
   getAllCoreWebVitalPercentilesTimeseries,
   getCoreWebVitalsSummaryForSite,
   getCoreWebVitalsPreparedByDimension,
-  getHasCoreWebVitalsData,
 } from '@/services/webVitals';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { CoreWebVitalName } from '@/entities/webVitals';
 import { toPercentileLinesByMetric, type PercentilePoint } from '@/presenters/toMultiLine';
-import { toDataTable } from '@/presenters/toDataTable';
+import { pivotByCategory, toDataTable } from '@/presenters/toDataTable';
 import { type CWVDimension } from '@/entities/webVitals';
 
 export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
@@ -20,10 +19,6 @@ export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
     return getCoreWebVitalsSummaryForSite(ctx.siteId, startDate, endDate, queryFilters);
   },
 );
-
-export const fetchHasCoreWebVitalsData = withDashboardAuthContext(async (ctx: AuthContext) => {
-  return getHasCoreWebVitalsData(ctx.siteId);
-});
 
 export const fetchCoreWebVitalChartDataAction = withDashboardAuthContext(
   async (
