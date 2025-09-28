@@ -56,7 +56,12 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
       if (!playerRef.current || events.length === 0) {
         return;
       }
-      events.forEach((event) => playerRef.current?.addEvent(event));
+      // Use try/catch to avoid noisy console errors if player was disposed mid-loop
+      try {
+        events.forEach((event) => playerRef.current?.addEvent(event));
+      } catch (_err) {
+        // Swallow errors when the underlying replayer has been destroyed
+      }
     },
     seekTo(timeOffset) {
       if (!playerRef.current) {

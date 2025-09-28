@@ -155,6 +155,7 @@ export default function ReplayClient({ dashboardId }: Props) {
           const events = await loadSegment(segment, controller.signal);
 
           if (!events.length) continue;
+          if (controller.signal.aborted) break;
 
           appendSegmentToPlayer(events, session);
           nextSegmentIndex.current += 1;
@@ -198,6 +199,8 @@ export default function ReplayClient({ dashboardId }: Props) {
         const [firstSegment, ...rest] = manifest;
         const initialEvents = await loadSegment(firstSegment, controller.signal);
 
+        if (controller.signal.aborted) return;
+
         if (!initialEvents.length) {
           setError('First segment is empty');
           return;
@@ -240,7 +243,7 @@ export default function ReplayClient({ dashboardId }: Props) {
         <SessionReplayList
           sessions={sessions}
           selectedSessionId={selectedSession?.session_id}
-          onSelect={loadSession}
+          onSelect={(session) => setSelectedSession({ ...session, manifest: [] })}
         />
       </div>
 
