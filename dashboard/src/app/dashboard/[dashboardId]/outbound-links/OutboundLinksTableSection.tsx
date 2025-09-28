@@ -9,7 +9,7 @@ import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { formatNumber } from '@/utils/formatters';
+import { formatNumber, formatString } from '@/utils/formatters';
 
 type TableOutboundLinkRow = Awaited<ReturnType<typeof fetchOutboundLinksAnalyticsAction>>[number];
 
@@ -37,7 +37,7 @@ export default function OutboundLinksTableSection({
               rel='noopener noreferrer'
               className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
             >
-              {row.original.current.outbound_link_url}
+              {formatString(row.original.current.outbound_link_url)}
             </ExternalLink>
           </div>
         ),
@@ -52,7 +52,9 @@ export default function OutboundLinksTableSection({
       {
         accessorKey: 'top_source_url',
         header: t('topReferrerPage'),
-        cell: ({ row }) => <span className='text-sm break-all'>{row.original.current.top_source_url}</span>,
+        cell: ({ row }) => (
+          <span className='text-sm break-all'>{formatString(row.original.current.top_source_url)}</span>
+        ),
         accessorFn: (row) => row.current.top_source_url,
       },
       {

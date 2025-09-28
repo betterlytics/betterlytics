@@ -33,12 +33,27 @@ export function formatPercentage(num: number, decimalPlaces = 1): string {
 }
 
 /**
+ * Format a string, adds ellipsis to middle of string instead of end
+ */
+export function formatString(value: string, maxLength: number = 10) {
+  if (value.length <= maxLength) {
+    return value;
+  }
+  const half = Math.floor(maxLength / 2);
+
+  const start = value.slice(0, half);
+  const end = value.slice(-half);
+
+  return `${start}...${end}`;
+}
+
+/**
  * Capitalize the first letter of a string
- * @param string The string to capitalize
+ * @param value The string to capitalize
  * @returns The string with the first letter capitalized
  */
-export function capitalizeFirstLetter(string: string): string {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+export function capitalizeFirstLetter(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, clsDecimals = 3): string {
