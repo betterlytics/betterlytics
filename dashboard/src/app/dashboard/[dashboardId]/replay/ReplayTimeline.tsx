@@ -152,7 +152,7 @@ function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
   sorted.forEach((m, index) => {
     if (!current || current.label !== m.label) {
       current = {
-        id: `group-${index}`,
+        id: `group-${index}-${m.label}-${Math.round(m.timestamp)}`,
         label: m.label,
         count: 1,
         start: m.timestamp,
