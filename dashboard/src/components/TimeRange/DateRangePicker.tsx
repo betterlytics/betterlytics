@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { addMonths, format, startOfDay } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { addMonths, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -10,17 +9,20 @@ import { cn } from '@/lib/utils';
 import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTranslations } from 'next-intl';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
   onDateRangeSelect: (dateRange: DateRange | undefined) => void;
   id?: string;
+  showSameLengthHint?: boolean;
 }
 
-export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerProps) {
+export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint = false }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const isMobile = useIsMobile();
+  const t = useTranslations('components.timeRange');
 
   const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
 
@@ -54,24 +56,17 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
   );
 
   return (
-    <div className='space-y-1'>
+    <div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant={'outline'}
+            variant={'ghost'}
             className={cn(
-              'w-full cursor-pointer truncate text-left font-normal',
+              'h-8 w-full cursor-pointer justify-start truncate rounded-sm px-2 font-normal',
               !range && 'text-muted-foreground',
             )}
           >
-            <CalendarIcon className='h-4 w-4' />
-            <div className='ml-2'>
-              {range?.from && range?.to ? (
-                `${format(range.from, 'PP')} - ${format(range.to, 'PP')}`
-              ) : (
-                <span>Pick a date</span>
-              )}
-            </div>
+            <span>{t('customPeriod')}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
@@ -92,6 +87,9 @@ export function DateRangePicker({ range, onDateRangeSelect }: DateRangePickerPro
                 'w-full flex flex-row-reverse items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5 rdp-dropdowns',
             }}
           />
+          {showSameLengthHint && (
+            <p className='text-muted-foreground pb-2 text-center text-xs'>{t('sameLengthAsMain')}</p>
+          )}
         </PopoverContent>
       </Popover>
     </div>

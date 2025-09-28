@@ -955,26 +955,42 @@
       "quickSelect": "Quick select",
       "granularity": "Granularity",
       "currentPeriod": "Current period",
+      "disabled": "Disabled",
+      "disableCompare": "Disable Compare",
+      "previousPeriod": "Previous Period",
+      "previousYear": "Previous Year",
+      "nextPeriod": "Next Period",
+      "customPeriod": "Custom Period",
+      "sameLengthAsMain": "Same length as main range",
+      "vs": "vs",
       "compareWithPrevious": "Compare with previous period",
-      "compareToPeriod": "Compare to period",
+      "compareToPeriod": "Compare to Period",
       "startDate": "Start date",
       "endDate": "End date",
       "dateRange": "Date range",
       "presets": {
-        "24h": "Last 24 hours",
-        "3d": "Last 3 days",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "realtime": "Realtime",
+        "1h": "Past hour",
+        "24h": "Past 24 hours",
         "7d": "Last 7 days",
         "28d": "Last 28 days",
-        "3mo": "Last 3 months",
-        "6mo": "Last 6 months"
+        "90d": "Last 90 days",
+        "mtd": "Month to date",
+        "last_month": "Last month",
+        "ytd": "Year to date",
+        "1y": "Past Year"
       },
       "granularityLabels": {
         "day": "Day",
         "hour": "Hour",
         "minute_30": "30 min",
-        "minute_15": "15 min"
+        "minute_15": "15 min",
+        "minute_1": "1 min"
       },
-      "apply": "Apply"
+      "apply": "Apply",
+      "matchDayOfWeek": "Match Day of Week"
     },
     "loading": {
       "dashboard": {
@@ -1511,8 +1527,6 @@
         }
       },
       "usage": {
-        "title": "Usage & Plan",
-        "description": "Monitor your current usage and manage your subscription plan.",
         "cta": {
           "needMore": "Need more events?",
           "upgradeHint": "Upgrade your plan to get more events and unlock additional features.",
@@ -1629,6 +1643,9 @@
         "description": "Registration is currently disabled on this instance.",
         "backToSignIn": "Back to Sign In"
       }
+    },
+    "page": {
+      "title": "Betterlytics | Onboarding"
     },
     "account": {
       "features": {

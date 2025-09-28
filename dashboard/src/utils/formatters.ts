@@ -19,7 +19,7 @@ export function formatNumber(num: number, decimalPlaces = 1): string {
     return `${(num / 1000).toFixed(decimalPlaces)}K`;
   }
 
-  return num.toString();
+  return (Math.round(num * 1000) / 1000).toString();
 }
 
 /**
