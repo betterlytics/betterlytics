@@ -16,7 +16,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import type { eventWithTime } from '@rrweb/types';
-import { EventType } from '@rrweb/types';
 
 const INITIAL_PREFETCH_CONCURRENCY = 4;
 
@@ -50,7 +49,6 @@ export default function ReplayClient({ dashboardId }: Props) {
   const inFlightController = useRef<AbortController | null>(null);
   const nextSegmentIndex = useRef(0);
   const originTimestampRef = useRef<number | null>(null);
-  const lastTimestampRef = useRef<number>(-Infinity);
 
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
@@ -108,7 +106,6 @@ export default function ReplayClient({ dashboardId }: Props) {
     if (normalized.length === 0) return;
     originTimestampRef.current = normalized[0]?.timestamp ?? null;
     playerRef.current?.loadInitialEvents(normalized);
-    lastTimestampRef.current = normalized[normalized.length - 1]!.timestamp;
     const origin = originTimestampRef.current ?? normalized[0]?.timestamp ?? 0;
     const markers = buildTimelineMarkers(normalized, origin).map((marker, index) => ({
       ...marker,
@@ -125,7 +122,6 @@ export default function ReplayClient({ dashboardId }: Props) {
     const normalized = normalizeEvents(events);
     if (normalized.length === 0) return;
     playerRef.current?.appendEvents(normalized);
-    lastTimestampRef.current = Math.max(lastTimestampRef.current, normalized[normalized.length - 1]!.timestamp);
     const origin = originTimestampRef.current ?? normalized[0]?.timestamp ?? 0;
     const markers = buildTimelineMarkers(normalized, origin).map((marker, index) => ({
       ...marker,
@@ -146,35 +142,25 @@ export default function ReplayClient({ dashboardId }: Props) {
   const prefetchSegments = useCallback(
     async (session: SessionWithSegments, startIndex: number) => {
       const manifest = session.manifest;
-      if (!manifest.length || startIndex >= manifest.length) {
-        return;
-      }
+      if (!manifest.length || startIndex >= manifest.length) return;
 
       const controller = new AbortController();
       inFlightController.current = controller;
 
+      setIsPrefetching(true);
+      nextSegmentIndex.current = startIndex;
+
       try {
-        setIsPrefetching(true);
-        const queue = manifest.slice(startIndex);
-        nextSegmentIndex.current = startIndex;
+        for (let i = startIndex; i < manifest.length; i++) {
+          const segment = manifest[i];
+          const events = await loadSegment(segment, controller.signal);
 
-        while (queue.length > 0) {
-          const batch = queue.splice(0, INITIAL_PREFETCH_CONCURRENCY);
-          const batchEvents = await Promise.all(
-            batch.map(async (segment) => {
-              const data = await loadSegment(segment, controller.signal);
-              return { segment, data } as const;
-            }),
-          );
+          if (!events.length) continue;
 
-          if (controller.signal.aborted) {
-            return;
-          }
+          appendSegmentToPlayer(events, session);
+          nextSegmentIndex.current += 1;
 
-          batchEvents.forEach(({ data }) => {
-            nextSegmentIndex.current += 1;
-            appendSegmentToPlayer(data, session);
-          });
+          if (controller.signal.aborted) break;
         }
       } catch (error) {
         if (!(error instanceof DOMException && error.name === 'AbortError')) {
@@ -293,13 +279,17 @@ export default function ReplayClient({ dashboardId }: Props) {
           <h2 className='text-lg font-semibold'>Replay</h2>
           {(isLoadingEvents || isPrefetching) && <Spinner size='sm' />}
         </div>
-        <div className='overflow-hidden rounded border'>
-          <ReplayPlayer ref={playerRef} />
+        <div className='grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_360px]'>
+          <div className='overflow-hidden rounded border'>
+            <ReplayPlayer ref={playerRef} />
+          </div>
+          {timelineContent && (
+            <ScrollArea className='border-border/50 max-h-[480px] rounded-lg border p-4'>
+              {timelineContent}
+            </ScrollArea>
+          )}
         </div>
         {error && <p className='text-sm text-red-500'>{error}</p>}
-        {timelineContent && (
-          <ScrollArea className='border-border/50 rounded-lg border p-4'>{timelineContent}</ScrollArea>
-        )}
       </div>
     </div>
   );
