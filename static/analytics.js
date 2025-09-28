@@ -108,6 +108,25 @@
     });
   }
 
+  // Emit a rrweb custom event for pageview and optionally force a full snapshot (useful for SPA route changes)
+  function emitReplayPageview(url, takeSnapshot) {
+    try {
+      if (window.rrweb && window.rrweb.record) {
+        if (typeof window.rrweb.record.addCustomEvent === "function") {
+          window.rrweb.record.addCustomEvent("Pageview", {
+            url: normalize(url),
+          });
+        }
+        if (
+          takeSnapshot &&
+          typeof window.rrweb.record.takeFullSnapshot === "function"
+        ) {
+          window.rrweb.record.takeFullSnapshot();
+        }
+      }
+    } catch (_) {}
+  }
+
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
 
   window.betterlytics = {
@@ -193,6 +212,7 @@
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
         trackEvent("pageview");
+        emitReplayPageview(window.location.href, true);
       }
     };
 
@@ -201,6 +221,7 @@
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
         trackEvent("pageview");
+        emitReplayPageview(window.location.href, true);
       }
     });
   }
@@ -440,12 +461,15 @@
           *
         `,
         sampling: {
-          mousemove: isCoarsePointer ? 0 : 50,
+          mousemove: isCoarsePointer ? false : 120,
           input: "last",
-          media: 10,
-          scroll: 75,
+          media: 250,
+          scroll: 150,
+          mouseInteraction: true,
         },
       });
+      // Add an initial pageview marker (no snapshot here; rrweb already emitted initial FullSnapshot)
+      emitReplayPageview(window.location.href, false);
       startFlushLoop();
     }
 
