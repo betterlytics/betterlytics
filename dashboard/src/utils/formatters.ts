@@ -35,7 +35,7 @@ export function formatPercentage(num: number, decimalPlaces = 1): string {
 /**
  * Format a string, adds ellipsis to middle of string instead of end
  */
-export function formatString(value: string, maxLength: number = 10) {
+export function formatString(value: string, maxLength: number = 50) {
   if (value.length <= maxLength) {
     return value;
   }
