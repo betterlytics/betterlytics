@@ -49,6 +49,8 @@ export default function ReplayClient({ dashboardId }: Props) {
   const inFlightController = useRef<AbortController | null>(null);
   const nextSegmentIndex = useRef(0);
   const originTimestampRef = useRef<number | null>(null);
+  const lastTimestampRef = useRef<number>(-Infinity);
+  const seenEventKeysRef = useRef<Set<string>>(new Set());
 
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
@@ -102,24 +104,30 @@ export default function ReplayClient({ dashboardId }: Props) {
   }, []);
 
   const primePlayerWithSegment = useCallback((events: eventWithTime[], session: SessionWithSegments) => {
-    originTimestampRef.current = events[0]?.timestamp ?? null;
-    playerRef.current?.loadInitialEvents(events);
-    const origin = originTimestampRef.current ?? events[0]?.timestamp ?? 0;
-    const markers = buildTimelineMarkers(events, origin).map((marker, index) => ({
+    const normalized = normalizeAndDedupeEvents(events, seenEventKeysRef.current, lastTimestampRef.current);
+    if (normalized.length === 0) return;
+    originTimestampRef.current = normalized[0]?.timestamp ?? null;
+    playerRef.current?.loadInitialEvents(normalized);
+    lastTimestampRef.current = normalized[normalized.length - 1]!.timestamp;
+    const origin = originTimestampRef.current ?? normalized[0]?.timestamp ?? 0;
+    const markers = buildTimelineMarkers(normalized, origin).map((marker, index) => ({
       ...marker,
       id: `manifest-${session.session_id}-${index}`,
     }));
     setTimelineMarkers(markers);
-    setDurationMs(calcDurationMs(events));
+    setDurationMs(calcDurationMs(normalized));
   }, []);
 
   const appendSegmentToPlayer = useCallback((events: eventWithTime[], session: SessionWithSegments) => {
     if (!events.length) {
       return;
     }
-    playerRef.current?.appendEvents(events);
-    const origin = originTimestampRef.current ?? events[0]?.timestamp ?? 0;
-    const markers = buildTimelineMarkers(events, origin).map((marker, index) => ({
+    const normalized = normalizeAndDedupeEvents(events, seenEventKeysRef.current, lastTimestampRef.current);
+    if (normalized.length === 0) return;
+    playerRef.current?.appendEvents(normalized);
+    lastTimestampRef.current = Math.max(lastTimestampRef.current, normalized[normalized.length - 1]!.timestamp);
+    const origin = originTimestampRef.current ?? normalized[0]?.timestamp ?? 0;
+    const markers = buildTimelineMarkers(normalized, origin).map((marker, index) => ({
       ...marker,
       id: `manifest-${session.session_id}-${nextSegmentIndex.current}-${index}`,
     }));
@@ -132,7 +140,7 @@ export default function ReplayClient({ dashboardId }: Props) {
       });
       return Array.from(dedupedByTime.values()).sort((a, b) => a.timestamp - b.timestamp);
     });
-    setDurationMs((prev) => Math.max(prev, calcDurationMs(events)));
+    setDurationMs((prev) => Math.max(prev, calcDurationMs(normalized)));
   }, []);
 
   const prefetchSegments = useCallback(
@@ -295,4 +303,23 @@ export default function ReplayClient({ dashboardId }: Props) {
       </div>
     </div>
   );
+}
+
+function normalizeAndDedupeEvents(
+  events: eventWithTime[],
+  seenKeys: Set<string>,
+  lastTimestamp: number,
+): eventWithTime[] {
+  // sort by timestamp to ensure order
+  const sorted = [...events].sort((a, b) => a.timestamp - b.timestamp);
+  const result: eventWithTime[] = [];
+  for (const ev of sorted) {
+    // skip obviously out-of-order events prior to last seen timestamp
+    if (ev.timestamp < lastTimestamp) continue;
+    const key = `${ev.type}:${(ev as any).data?.id ?? ''}:${ev.timestamp}`;
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    result.push(ev);
+  }
+  return result;
 }

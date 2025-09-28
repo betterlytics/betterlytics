@@ -1,5 +1,9 @@
 // Betterlytics - Privacy-focused, cookieless analytics
 (function () {
+  if (window.__betterlytics_replay_initialized__) {
+    return;
+  }
+  window.__betterlytics_replay_initialized__ = true;
   // Get the script element and required attributes
   var script =
     document.currentScript ||
@@ -255,6 +259,7 @@
     if (replaySamplePct > 0 && Math.random() * 100 >= replaySamplePct) return;
 
     var rrLoaded = false;
+    var initializedOnce = false;
     var recordingStop = null;
     var buffer = [];
     var sizeBytes = 0;
@@ -392,6 +397,8 @@
 
     function startRecording() {
       if (!window.rrweb || rrLoaded) return;
+      if (initializedOnce) return; // guard against duplicate start
+      initializedOnce = true;
       rrLoaded = true;
       var isCoarsePointer = false;
       try {
