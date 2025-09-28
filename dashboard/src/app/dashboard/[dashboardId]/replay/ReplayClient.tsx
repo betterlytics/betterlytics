@@ -236,18 +236,12 @@ export default function ReplayClient({ dashboardId }: Props) {
 
   return (
     <div className='grid min-h-0 w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)_320px] xl:grid-cols-[320px_minmax(0,1fr)_360px]'>
-      <div className='flex min-h-0 flex-col'>
-        <div className='bg-muted/40 border-border/60 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border'>
-          <div className='scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent min-h-0 flex-1 overflow-y-auto px-2 py-2'>
-            <SessionReplayList
-              sessions={sessions}
-              selectedSessionId={selectedSession?.session_id}
-              onSelect={loadSession}
-              isFetching={sessionQuery.isFetching}
-              isLoading={sessionQuery.isLoading}
-            />
-          </div>
-        </div>
+      <div className='min-h-0'>
+        <SessionReplayList
+          sessions={sessions}
+          selectedSessionId={selectedSession?.session_id}
+          onSelect={loadSession}
+        />
       </div>
 
       <div className='bg-background relative flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm lg:aspect-video'>
@@ -255,14 +249,12 @@ export default function ReplayClient({ dashboardId }: Props) {
         {error && <p className='text-sm text-red-500'>{error}</p>}
       </div>
 
-      <div className='flex min-h-0 flex-col gap-2'>
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ReplayTimeline
-            markers={timelineMarkers}
-            currentTime={currentTime}
-            onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
-          />
-        </div>
+      <div className='min-h-0'>
+        <ReplayTimeline
+          markers={timelineMarkers}
+          currentTime={currentTime}
+          onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
+        />
         {isPrefetching && <p className='text-muted-foreground px-1 text-xs'>Prefetching remaining segments…</p>}
       </div>
     </div>
