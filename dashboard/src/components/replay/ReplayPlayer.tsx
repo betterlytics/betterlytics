@@ -3,9 +3,10 @@
 import { useEffect, useRef } from 'react';
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
+import type { eventWithTime } from '@rrweb/types';
 
 type ReplayPlayerProps = {
-  events: unknown[];
+  events: eventWithTime[];
 };
 
 export function ReplayPlayer({ events }: ReplayPlayerProps) {
