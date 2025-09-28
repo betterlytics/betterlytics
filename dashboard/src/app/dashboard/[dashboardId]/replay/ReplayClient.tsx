@@ -12,7 +12,6 @@ import {
   type TimelineMarker,
 } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
 import { Spinner } from '@/components/ui/spinner';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import type { eventWithTime } from '@rrweb/types';
@@ -251,25 +250,8 @@ export default function ReplayClient({ dashboardId }: Props) {
     return sessions.filter((session) => session.duration >= effectiveMinDuration);
   }, [effectiveMinDuration, sessions]);
 
-  const timelineContent = useMemo(() => {
-    if (!selectedSession) {
-      return null;
-    }
-
-    return (
-      <div className='space-y-3'>
-        <ReplayTimeline
-          markers={timelineMarkers}
-          currentTime={currentTime}
-          onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
-        />
-        {isPrefetching && <p className='text-muted-foreground text-xs'>Prefetching remaining segments…</p>}
-      </div>
-    );
-  }, [currentTime, durationMs, isPrefetching, selectedSession, timelineMarkers]);
-
   return (
-    <div className='grid w-full gap-6 lg:grid-cols-[320px_1fr] xl:grid-cols-[320px_minmax(0,1fr)]'>
+    <div className='grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)_320px] xl:grid-cols-[320px_minmax(0,1fr)_360px]'>
       <div className='flex min-h-0 flex-col'>
         <div className='bg-muted/40 border-border/60 flex h-screen flex-col overflow-hidden rounded-lg border'>
           <div className='bg-muted/60 sticky top-0 z-10 flex items-center justify-between gap-3 border-b px-4 py-3'>
@@ -287,7 +269,6 @@ export default function ReplayClient({ dashboardId }: Props) {
                   value={minDurationFilter}
                   onChange={(event) => setMinDurationFilter(event.target.value)}
                   placeholder='30'
-                  defaultValue='30'
                   className='border-border bg-background focus:border-primary focus:ring-primary text-foreground h-8 w-32 rounded border px-2 py-1 text-xs shadow-sm transition outline-none focus:ring-1'
                 />
                 <span className='text-muted-foreground text-xs'>s</span>
@@ -312,14 +293,18 @@ export default function ReplayClient({ dashboardId }: Props) {
         </div>
       </div>
 
-      <div className='flex min-h-0 w-full flex-col space-y-4'>
-        <div className='grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_360px]'>
-          <div className='w-full overflow-hidden rounded border'>
-            <ReplayPlayer ref={playerRef} />
-          </div>
-          {timelineContent && <div className='flex min-h-0 flex-col'>{timelineContent}</div>}
-        </div>
+      <div className='bg-background relative flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm lg:aspect-video'>
+        <ReplayPlayer ref={playerRef} />
         {error && <p className='text-sm text-red-500'>{error}</p>}
+      </div>
+
+      <div className='flex min-h-0 flex-col gap-2'>
+        <ReplayTimeline
+          markers={timelineMarkers}
+          currentTime={currentTime}
+          onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
+        />
+        {isPrefetching && <p className='text-muted-foreground px-1 text-xs'>Prefetching remaining segments…</p>}
       </div>
     </div>
   );
