@@ -17,3 +17,15 @@ export const SessionReplaySchema = z.object({
 export const SessionReplayArraySchema = SessionReplaySchema.array();
 
 export type SessionReplay = z.infer<typeof SessionReplaySchema>;
+
+export const ReplaySegmentManifestEntrySchema = z.object({
+  key: z.string(),
+  url: z.string(),
+  sizeBytes: z.number(),
+  lastModified: z.string().optional(),
+});
+
+export const ReplaySegmentManifestSchema = ReplaySegmentManifestEntrySchema.array();
+
+export type ReplaySegmentManifestEntry = z.infer<typeof ReplaySegmentManifestEntrySchema>;
+export type ReplaySegmentManifest = z.infer<typeof ReplaySegmentManifestSchema>;

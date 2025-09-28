@@ -4,14 +4,10 @@ import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getS3Client } from '@/lib/s3-client';
 import { s3Env } from '@/lib/env';
-
-export type PresignedReplaySegment = {
-  key: string;
-  url: string;
-};
+import type { ReplaySegmentManifestEntry } from '@/entities/sessionReplays';
 
 export class S3ReplaySegmentsRepository {
-  async listAndPresign(prefix: string, ttlSeconds = 60): Promise<PresignedReplaySegment[]> {
+  async listAndPresign(prefix: string, ttlSeconds = 60): Promise<ReplaySegmentManifestEntry[]> {
     if (!s3Env.enabled) {
       throw new Error('S3 is disabled');
     }
@@ -28,19 +24,27 @@ export class S3ReplaySegmentsRepository {
     });
 
     const listed = await client.send(listCommand);
-    const contents = (listed.Contents ?? []).filter((obj): obj is { Key: string } => Boolean(obj.Key));
+    const contents = (listed.Contents ?? []).filter(
+      (obj): obj is { Key: string; Size?: number; LastModified?: Date } => Boolean(obj.Key),
+    );
 
     contents.sort((a, b) => a.Key.localeCompare(b.Key));
 
     const segments = await Promise.all(
-      contents.map(async ({ Key }) => {
+      contents.map(async ({ Key, Size, LastModified }) => {
         const command = new GetObjectCommand({
           Bucket: s3Env.bucket,
           Key,
         });
 
         const url = await getSignedUrl(client, command, { expiresIn: ttlSeconds });
-        return { key: Key, url } satisfies PresignedReplaySegment;
+        const entry: ReplaySegmentManifestEntry = {
+          key: Key,
+          url,
+          sizeBytes: Size ?? 0,
+          ...(LastModified ? { lastModified: LastModified.toISOString() } : {}),
+        };
+        return entry;
       }),
     );
 
