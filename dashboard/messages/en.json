@@ -1360,6 +1360,9 @@
           "FCP": "Shows when the first piece of content appears on the screen during page load.",
           "TTFB": "Measures server response speed — the time from request until the first byte is received."
         }
+      },
+      "data": {
+        "noData": "No data found. Ensure feature is enabled."
       }
     },
     "integration": {
