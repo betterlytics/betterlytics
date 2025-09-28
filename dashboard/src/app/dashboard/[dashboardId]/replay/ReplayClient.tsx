@@ -312,9 +312,9 @@ export default function ReplayClient({ dashboardId }: Props) {
         </div>
       </div>
 
-      <div className='flex min-h-0 flex-col space-y-4'>
+      <div className='flex min-h-0 w-full flex-col space-y-4'>
         <div className='grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_360px]'>
-          <div className='overflow-hidden rounded border'>
+          <div className='w-full overflow-hidden rounded border'>
             <ReplayPlayer ref={playerRef} />
           </div>
           {timelineContent && <div className='flex min-h-0 flex-col'>{timelineContent}</div>}

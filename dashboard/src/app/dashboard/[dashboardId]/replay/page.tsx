@@ -9,7 +9,7 @@ export default async function Page({ params }: PageProps) {
   const { dashboardId } = await params;
 
   return (
-    <div className='space-y-4 p-6'>
+    <div className='w-full space-y-4 p-4'>
       <h1 className='text-xl font-semibold'>Session Replay</h1>
       <ReplayClient dashboardId={dashboardId} />
     </div>
