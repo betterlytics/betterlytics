@@ -10,11 +10,19 @@ export type ReplayPlayerHandle = {
   appendEvents: (events: eventWithTime[]) => void;
   seekTo: (timeOffset: number) => void;
   getCurrentTime: () => number | undefined;
+  play: () => void;
+  pause: () => void;
+  setSpeed: (speed: number) => void;
+  isPlaying: () => boolean;
   reset: () => void;
 };
 
 type ReplayPlayerProps = {
   onReady?: () => void;
+};
+
+const getReplayer = (playerRef: React.RefObject<rrwebPlayer | null>) => {
+  return playerRef.current?.getReplayer();
 };
 
 const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.ForwardedRef<ReplayPlayerHandle>) => {
@@ -47,7 +55,12 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
 
       playerRef.current = new rrwebPlayer({
         target: containerRef.current,
-        props: { events },
+        props: {
+          events,
+          autoPlay: false,
+          showController: false,
+          speedOption: [1, 2, 4, 8],
+        },
       });
 
       onReady?.();
@@ -75,6 +88,32 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
       }
       const replayer = playerRef.current.getReplayer();
       return typeof replayer.getCurrentTime === 'function' ? replayer.getCurrentTime() : undefined;
+    },
+    play() {
+      playerRef.current?.play();
+    },
+    pause() {
+      playerRef.current?.pause();
+    },
+    setSpeed(speed: number) {
+      const player = playerRef.current;
+      if (!player) return;
+
+      // Try direct setSpeed first
+      const maybeSetSpeed = (player as unknown as { setSpeed?: (s: number) => void }).setSpeed;
+      if (typeof maybeSetSpeed === 'function') {
+        maybeSetSpeed(speed);
+        return;
+      }
+
+      // Fallback to replayer config
+      const replayer = getReplayer(playerRef);
+      replayer?.setConfig?.({ speed });
+    },
+    isPlaying() {
+      const isPlaying = () =>
+        !(playerRef.current?.getReplayer?.() as unknown as { isPaused?: () => boolean })?.isPaused?.();
+      return isPlaying();
     },
     reset() {
       destroyPlayer();

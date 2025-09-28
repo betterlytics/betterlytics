@@ -11,7 +11,8 @@ import {
   buildTimelineMarkers,
   type TimelineMarker,
 } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
-import { Spinner } from '@/components/ui/spinner';
+import { ReplayControls } from '@/app/dashboard/[dashboardId]/replay/ReplayControls';
+import { useReplayControls } from '@/app/dashboard/[dashboardId]/replay/utils/useReplayControls';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import type { eventWithTime } from '@rrweb/types';
@@ -135,7 +136,12 @@ export default function ReplayClient({ dashboardId }: Props) {
       });
       return Array.from(dedupedByTime.values()).sort((a, b) => a.timestamp - b.timestamp);
     });
-    setDurationMs((prev) => Math.max(prev, calcDurationMs(normalized)));
+    setDurationMs((prev) => {
+      const origin = originTimestampRef.current ?? normalized[0]?.timestamp ?? 0;
+      const lastTs = normalized[normalized.length - 1]?.timestamp ?? origin;
+      const totalDuration = Math.max(0, lastTs - origin);
+      return Math.max(prev, totalDuration);
+    });
   }, []);
 
   const prefetchSegments = useCallback(
@@ -237,6 +243,16 @@ export default function ReplayClient({ dashboardId }: Props) {
 
   const sessions = sessionQuery.data ?? [];
 
+  const controls = useReplayControls(playerRef);
+  useEffect(() => {
+    controls.setDurationMs(durationMs);
+  }, [durationMs]);
+  useEffect(() => {
+    controls.setCurrentTime(currentTime);
+  }, [currentTime]);
+
+  const handleJump = useCallback((timestamp: number) => playerRef.current?.seekTo(timestamp), []);
+
   return (
     <div className='grid min-h-0 w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)_320px] xl:grid-cols-[320px_minmax(0,1fr)_360px]'>
       <div className='min-h-0'>
@@ -249,15 +265,22 @@ export default function ReplayClient({ dashboardId }: Props) {
 
       <div className='bg-background relative flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm lg:aspect-video'>
         <ReplayPlayer ref={playerRef} />
+        <ReplayControls
+          isPlaying={controls.isPlaying}
+          currentTime={controls.currentTime}
+          durationMs={controls.durationMs}
+          speed={controls.speed}
+          onTogglePlay={controls.playPause}
+          onSeekRatio={controls.seekToRatio}
+          onSpeedChange={controls.setSpeed}
+          markers={timelineMarkers}
+          className='absolute inset-x-0 bottom-0'
+        />
         {error && <p className='text-sm text-red-500'>{error}</p>}
       </div>
 
       <div className='min-h-0'>
-        <ReplayTimeline
-          markers={timelineMarkers}
-          currentTime={currentTime}
-          onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
-        />
+        <ReplayTimeline markers={timelineMarkers} currentTime={currentTime} onJump={handleJump} />
         {isPrefetching && <p className='text-muted-foreground px-1 text-xs'>Prefetching remaining segments…</p>}
       </div>
     </div>
