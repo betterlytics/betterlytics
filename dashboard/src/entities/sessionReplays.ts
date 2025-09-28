@@ -12,6 +12,10 @@ export const SessionReplaySchema = z.object({
   s3_prefix: z.string(),
   sample_rate: z.number(),
   start_url: z.string(),
+  device_type: z.string().optional().default(''),
+  browser: z.string().optional().default(''),
+  os: z.string().optional().default(''),
+  country_code: z.string().optional().nullable(),
 });
 
 export const SessionReplayArraySchema = SessionReplaySchema.array();

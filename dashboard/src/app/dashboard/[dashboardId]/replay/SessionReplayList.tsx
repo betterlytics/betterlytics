@@ -3,6 +3,9 @@
 import { SessionReplay } from '@/entities/sessionReplays';
 import { cn } from '@/lib/utils';
 import { Clock, HardDrive, ListVideo } from 'lucide-react';
+import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon, type FlagIconProps } from '@/components/icons';
+import { useLocale } from 'next-intl';
+import { getCountryName } from '@/utils/countryCodes';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ListPanel, type ListPanelItem } from '@/app/dashboard/[dashboardId]/replay/ListPanel';
 
@@ -13,6 +16,7 @@ type SessionReplayListProps = {
 };
 
 export function SessionReplayList({ sessions, selectedSessionId, onSelect }: SessionReplayListProps) {
+  const locale = useLocale();
   const headerRight = (
     <div className='flex items-center gap-2'>
       <label htmlFor='duration-seconds' className='text-muted-foreground sr-only'>
@@ -62,6 +66,33 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
             <span className='inline-flex items-center gap-1'>
               <HardDrive className='h-3 w-3' /> {sizeLabel}
             </span>
+            {session.device_type && (
+              <span className='inline-flex items-center gap-1'>
+                <DeviceIcon type={session.device_type} />
+                <span className='capitalize'>{session.device_type}</span>
+              </span>
+            )}
+            {session.browser && (
+              <span className='inline-flex items-center gap-1'>
+                <BrowserIcon name={session.browser} />
+                <span className='capitalize'>{session.browser}</span>
+              </span>
+            )}
+            {session.os && (
+              <span className='inline-flex items-center gap-1'>
+                <OSIcon name={session.os} />
+                <span className='capitalize'>{session.os}</span>
+              </span>
+            )}
+            {session.country_code && (
+              <span className='inline-flex items-center gap-1'>
+                <FlagIcon
+                  countryCode={session.country_code as FlagIconProps['countryCode']}
+                  countryName={getCountryName(session.country_code, locale)}
+                />
+                <span className='font-medium uppercase'>{session.country_code}</span>
+              </span>
+            )}
             <span className='inline-flex items-center gap-1'>
               {format(startedAt, 'PPpp')} – {format(endedAt, 'PPpp')}
             </span>

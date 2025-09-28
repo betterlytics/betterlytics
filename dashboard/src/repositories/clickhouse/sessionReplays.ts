@@ -12,21 +12,36 @@ export async function getSessionReplays(
 ): Promise<SessionReplay[]> {
   const query = safeSql`
     SELECT
-      site_id,
-      session_id,
-      visitor_id,
-      started_at,
-      ended_at,
-      duration,
-      date,
-      size_bytes,
-      s3_prefix,
-      sample_rate,
-      start_url
-    FROM analytics.session_replays FINAL
-    WHERE site_id = {site_id:String}
-      AND started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-    ORDER BY started_at DESC
+      r.site_id,
+      r.session_id,
+      r.visitor_id,
+      r.started_at,
+      r.ended_at,
+      r.duration,
+      r.date,
+      r.size_bytes,
+      r.s3_prefix,
+      r.sample_rate,
+      r.start_url,
+      e.device_type,
+      e.browser,
+      e.os,
+      e.country_code
+    FROM analytics.session_replays AS r FINAL
+    LEFT JOIN (
+      SELECT
+        site_id,
+        session_id,
+        any(device_type) AS device_type,
+        any(browser) AS browser,
+        any(os) AS os,
+        any(country_code) AS country_code
+      FROM analytics.events
+      GROUP BY site_id, session_id
+    ) AS e USING (site_id, session_id)
+    WHERE r.site_id = {site_id:String}
+      AND r.started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+    ORDER BY r.started_at DESC
     LIMIT 500
   `;
 
