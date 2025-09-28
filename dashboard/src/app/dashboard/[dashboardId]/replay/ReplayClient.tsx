@@ -16,6 +16,7 @@ import { useReplayControls } from '@/app/dashboard/[dashboardId]/replay/utils/us
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import type { eventWithTime } from '@rrweb/types';
+import { useUrlSearchParam } from '@/hooks/use-sync-url-filters';
 
 const INITIAL_PREFETCH_CONCURRENCY = 4;
 
@@ -49,7 +50,6 @@ export default function ReplayClient({ dashboardId }: Props) {
   const inFlightController = useRef<AbortController | null>(null);
   const nextSegmentIndex = useRef(0);
   const originTimestampRef = useRef<number | null>(null);
-
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
 
@@ -57,21 +57,26 @@ export default function ReplayClient({ dashboardId }: Props) {
     queryKey: ['session-replays', dashboardId, startDate, endDate, queryFilters],
     queryFn: () => fetchSessionReplaysAction(dashboardId, startDate, endDate),
   });
+  const sessions = sessionQuery.data ?? [];
+  const [sessionIdParam, setSessionIdParam] = useUrlSearchParam('sessionId');
 
   useEffect(() => {
-    if (!sessionQuery.data || sessionQuery.data.length === 0) {
+    const sessions = sessionQuery.data ?? [];
+    if (sessions.length === 0) {
       setSelectedSession(null);
       return;
     }
 
-    const [first] = sessionQuery.data;
+    const chosen =
+      (sessionIdParam ? sessions.find((s) => s.session_id === sessionIdParam) : undefined) ?? sessions[0];
+
     setSelectedSession((prev) => {
-      if (prev && prev.session_id === first.session_id && prev.manifest) {
+      if (prev && prev.session_id === chosen.session_id && prev.manifest) {
         return prev;
       }
-      return { ...first, manifest: [] };
+      return { ...chosen, manifest: [] } as SessionWithSegments;
     });
-  }, [sessionQuery.data]);
+  }, [sessionIdParam, sessionQuery.data]);
 
   useEffect(() => {
     setTimelineMarkers([]);
@@ -241,8 +246,6 @@ export default function ReplayClient({ dashboardId }: Props) {
     };
   }, [loadSession, resetPlayerState, selectedSession?.session_id]);
 
-  const sessions = sessionQuery.data ?? [];
-
   const controls = useReplayControls(playerRef);
   useEffect(() => {
     controls.setDurationMs(durationMs);
@@ -259,7 +262,10 @@ export default function ReplayClient({ dashboardId }: Props) {
         <SessionReplayList
           sessions={sessions}
           selectedSessionId={selectedSession?.session_id}
-          onSelect={(session) => setSelectedSession({ ...session, manifest: [] })}
+          onSelect={(session) => {
+            setSessionIdParam(session.session_id);
+            setSelectedSession({ ...session, manifest: [] });
+          }}
         />
       </div>
 
