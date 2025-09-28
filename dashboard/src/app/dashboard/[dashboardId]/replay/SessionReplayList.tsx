@@ -23,7 +23,7 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
   }
 
   return (
-    <div className='scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent flex-1 overflow-y-auto pr-2'>
+    <div className='flex-1'>
       <ul className='space-y-2'>
         {sessions.map((session) => {
           const startedAt = new Date(session.started_at);

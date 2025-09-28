@@ -44,6 +44,7 @@ export default function ReplayClient({ dashboardId }: Props) {
   const [timelineMarkers, setTimelineMarkers] = useState<TimelineMarker[]>([]);
   const [currentTime, setCurrentTime] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
+  const [minDurationFilter, setMinDurationFilter] = useState('');
 
   const playerRef = useRef<ReplayPlayerHandle | null>(null);
   const inFlightController = useRef<AbortController | null>(null);
@@ -235,6 +236,21 @@ export default function ReplayClient({ dashboardId }: Props) {
 
   const sessions = sessionQuery.data ?? [];
 
+  const effectiveMinDuration = useMemo(() => {
+    const parsed = Number.parseInt(minDurationFilter, 10);
+    if (Number.isNaN(parsed) || parsed < 0) {
+      return 0;
+    }
+    return parsed;
+  }, [minDurationFilter]);
+
+  const filteredSessions = useMemo(() => {
+    if (effectiveMinDuration === 0) {
+      return sessions;
+    }
+    return sessions.filter((session) => session.duration >= effectiveMinDuration);
+  }, [effectiveMinDuration, sessions]);
+
   const timelineContent = useMemo(() => {
     if (!selectedSession) {
       return null;
@@ -244,7 +260,6 @@ export default function ReplayClient({ dashboardId }: Props) {
       <div className='space-y-3'>
         <ReplayTimeline
           markers={timelineMarkers}
-          durationMs={durationMs}
           currentTime={currentTime}
           onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
         />
@@ -255,39 +270,54 @@ export default function ReplayClient({ dashboardId }: Props) {
 
   return (
     <div className='grid w-full gap-6 lg:grid-cols-[320px_1fr] xl:grid-cols-[320px_minmax(0,1fr)]'>
-      <div className='flex flex-col'>
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-lg font-semibold'>Sessions</h2>
-          {sessionQuery.isFetching && <Spinner size='sm' />}
-        </div>
-        {sessionQuery.isLoading ? (
-          <div className='text-muted-foreground flex flex-1 items-center justify-center rounded-lg border border-dashed p-6 text-sm'>
-            <Spinner />
-            <span className='ml-2'>Loading sessions...</span>
+      <div className='flex min-h-0 flex-col'>
+        <div className='bg-muted/40 border-border/60 flex h-screen flex-col overflow-hidden rounded-lg border'>
+          <div className='bg-muted/60 sticky top-0 z-10 flex items-center justify-between gap-3 border-b px-4 py-3'>
+            <label
+              htmlFor='min-duration-filter'
+              className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-tight'
+            >
+              Min Duration
+              <span className='flex items-center gap-1'>
+                <input
+                  id='min-duration-filter'
+                  type='number'
+                  min={0}
+                  inputMode='numeric'
+                  value={minDurationFilter}
+                  onChange={(event) => setMinDurationFilter(event.target.value)}
+                  placeholder='30'
+                  defaultValue='30'
+                  className='border-border bg-background focus:border-primary focus:ring-primary text-foreground h-8 w-32 rounded border px-2 py-1 text-xs shadow-sm transition outline-none focus:ring-1'
+                />
+                <span className='text-muted-foreground text-xs'>s</span>
+              </span>
+            </label>
+            {sessionQuery.isFetching && <Spinner size='sm' />}
           </div>
-        ) : (
-          <SessionReplayList
-            sessions={sessions}
-            selectedSessionId={selectedSession?.session_id}
-            onSelect={loadSession}
-          />
-        )}
+          <div className='scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent min-h-0 flex-1 overflow-y-auto px-2 py-2'>
+            {sessionQuery.isLoading ? (
+              <div className='text-muted-foreground flex h-full items-center justify-center rounded-lg border border-dashed p-6 text-sm'>
+                <Spinner />
+                <span className='ml-2'>Loading sessions...</span>
+              </div>
+            ) : (
+              <SessionReplayList
+                sessions={filteredSessions}
+                selectedSessionId={selectedSession?.session_id}
+                onSelect={loadSession}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className='space-y-4'>
-        <div className='flex items-center justify-between'>
-          <h2 className='text-lg font-semibold'>Replay</h2>
-          {(isLoadingEvents || isPrefetching) && <Spinner size='sm' />}
-        </div>
-        <div className='grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_360px]'>
+      <div className='flex min-h-0 flex-col space-y-4'>
+        <div className='grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_360px]'>
           <div className='overflow-hidden rounded border'>
             <ReplayPlayer ref={playerRef} />
           </div>
-          {timelineContent && (
-            <ScrollArea className='border-border/50 max-h-[480px] rounded-lg border p-4'>
-              {timelineContent}
-            </ScrollArea>
-          )}
+          {timelineContent && <div className='flex min-h-0 flex-col'>{timelineContent}</div>}
         </div>
         {error && <p className='text-sm text-red-500'>{error}</p>}
       </div>

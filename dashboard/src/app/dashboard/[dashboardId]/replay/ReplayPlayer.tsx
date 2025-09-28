@@ -82,7 +82,7 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
     };
   }, []);
 
-  return <div ref={containerRef} className='h-[480px] w-full bg-white' />;
+  return <div ref={containerRef} className='flex h-full w-full items-center justify-center bg-white' />;
 };
 
 export const ReplayPlayer = forwardRef(ReplayPlayerComponent);
