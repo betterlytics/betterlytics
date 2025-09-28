@@ -173,7 +173,7 @@ export function ReplayTimeline({ markers, currentTime = 0, onJump }: ReplayTimel
   const totalEvents = markers.length;
 
   return (
-    <div className='bg-muted/40 border-border/60 flex h-screen flex-col overflow-hidden rounded-lg border'>
+    <div className='bg-muted/40 border-border/60 flex h-full min-h-0 flex-col overflow-hidden rounded-lg border'>
       <div className='bg-muted/60 sticky top-0 z-10 border-b px-4 py-3'>
         <h3 className='text-muted-foreground text-sm font-medium tracking-tight'>Timeline</h3>
         <p className='text-muted-foreground mt-1 text-xs'>

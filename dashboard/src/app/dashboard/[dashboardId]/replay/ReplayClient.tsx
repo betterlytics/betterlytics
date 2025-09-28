@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchReplaySegmentsAction, fetchSessionReplaysAction } from '@/app/actions/sessionReplays';
 import type { ReplaySegmentManifestEntry, SessionReplay } from '@/entities/sessionReplays';
@@ -43,7 +43,6 @@ export default function ReplayClient({ dashboardId }: Props) {
   const [timelineMarkers, setTimelineMarkers] = useState<TimelineMarker[]>([]);
   const [currentTime, setCurrentTime] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
-  const [minDurationFilter, setMinDurationFilter] = useState('');
 
   const playerRef = useRef<ReplayPlayerHandle | null>(null);
   const inFlightController = useRef<AbortController | null>(null);
@@ -235,60 +234,18 @@ export default function ReplayClient({ dashboardId }: Props) {
 
   const sessions = sessionQuery.data ?? [];
 
-  const effectiveMinDuration = useMemo(() => {
-    const parsed = Number.parseInt(minDurationFilter, 10);
-    if (Number.isNaN(parsed) || parsed < 0) {
-      return 0;
-    }
-    return parsed;
-  }, [minDurationFilter]);
-
-  const filteredSessions = useMemo(() => {
-    if (effectiveMinDuration === 0) {
-      return sessions;
-    }
-    return sessions.filter((session) => session.duration >= effectiveMinDuration);
-  }, [effectiveMinDuration, sessions]);
-
   return (
-    <div className='grid w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)_320px] xl:grid-cols-[320px_minmax(0,1fr)_360px]'>
+    <div className='grid min-h-0 w-full gap-6 lg:grid-cols-[320px_minmax(0,1fr)_320px] xl:grid-cols-[320px_minmax(0,1fr)_360px]'>
       <div className='flex min-h-0 flex-col'>
-        <div className='bg-muted/40 border-border/60 flex h-screen flex-col overflow-hidden rounded-lg border'>
-          <div className='bg-muted/60 sticky top-0 z-10 flex items-center justify-between gap-3 border-b px-4 py-3'>
-            <label
-              htmlFor='min-duration-filter'
-              className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-tight'
-            >
-              Min Duration
-              <span className='flex items-center gap-1'>
-                <input
-                  id='min-duration-filter'
-                  type='number'
-                  min={0}
-                  inputMode='numeric'
-                  value={minDurationFilter}
-                  onChange={(event) => setMinDurationFilter(event.target.value)}
-                  placeholder='30'
-                  className='border-border bg-background focus:border-primary focus:ring-primary text-foreground h-8 w-32 rounded border px-2 py-1 text-xs shadow-sm transition outline-none focus:ring-1'
-                />
-                <span className='text-muted-foreground text-xs'>s</span>
-              </span>
-            </label>
-            {sessionQuery.isFetching && <Spinner size='sm' />}
-          </div>
+        <div className='bg-muted/40 border-border/60 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border'>
           <div className='scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent min-h-0 flex-1 overflow-y-auto px-2 py-2'>
-            {sessionQuery.isLoading ? (
-              <div className='text-muted-foreground flex h-full items-center justify-center rounded-lg border border-dashed p-6 text-sm'>
-                <Spinner />
-                <span className='ml-2'>Loading sessions...</span>
-              </div>
-            ) : (
-              <SessionReplayList
-                sessions={filteredSessions}
-                selectedSessionId={selectedSession?.session_id}
-                onSelect={loadSession}
-              />
-            )}
+            <SessionReplayList
+              sessions={sessions}
+              selectedSessionId={selectedSession?.session_id}
+              onSelect={loadSession}
+              isFetching={sessionQuery.isFetching}
+              isLoading={sessionQuery.isLoading}
+            />
           </div>
         </div>
       </div>
@@ -299,11 +256,13 @@ export default function ReplayClient({ dashboardId }: Props) {
       </div>
 
       <div className='flex min-h-0 flex-col gap-2'>
-        <ReplayTimeline
-          markers={timelineMarkers}
-          currentTime={currentTime}
-          onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
-        />
+        <div className='min-h-0 flex-1 overflow-hidden'>
+          <ReplayTimeline
+            markers={timelineMarkers}
+            currentTime={currentTime}
+            onJump={(timestamp) => playerRef.current?.seekTo(timestamp)}
+          />
+        </div>
         {isPrefetching && <p className='text-muted-foreground px-1 text-xs'>Prefetching remaining segments…</p>}
       </div>
     </div>
