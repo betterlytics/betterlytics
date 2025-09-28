@@ -7,10 +7,27 @@ type ListPanelProps = {
   subtitle?: React.ReactNode;
   headerRight?: React.ReactNode;
   className?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  items?: ListPanelItem[];
+  empty?: React.ReactNode;
+  listClassName?: string;
 };
 
-export function ListPanel({ title, subtitle, headerRight, className, children }: ListPanelProps) {
+export type ListPanelItem = {
+  id: string;
+  content: React.ReactNode;
+};
+
+export function ListPanel({
+  title,
+  subtitle,
+  headerRight,
+  className,
+  children,
+  items,
+  empty,
+  listClassName,
+}: ListPanelProps) {
   return (
     <div
       className={cn(
@@ -25,7 +42,21 @@ export function ListPanel({ title, subtitle, headerRight, className, children }:
         </div>
         {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
       </div>
-      <div className='flex-1 overflow-y-auto px-2 py-2'>{children}</div>
+      <div className='flex-1 overflow-y-auto px-2 py-2'>
+        {items ? (
+          items.length === 0 ? (
+            (empty ?? null)
+          ) : (
+            <ul className={cn('flex flex-col', listClassName)}>
+              {items.map((item) => (
+                <li key={item.id}>{item.content}</li>
+              ))}
+            </ul>
+          )
+        ) : (
+          children
+        )}
+      </div>
     </div>
   );
 }
