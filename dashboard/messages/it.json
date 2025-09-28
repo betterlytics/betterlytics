@@ -1366,6 +1366,9 @@
           "FCP": "Mostra quando il primo contenuto appare sullo schermo durante il caricamento della pagina.",
           "TTFB": "Misura la velocità di risposta del server — il tempo dalla richiesta alla ricezione del primo byte."
         }
+      },
+      "data": {
+        "noData": "Nessun dato trovato. Assicurati che la funzione sia abilitata."
       }
     },
     "integration": {
