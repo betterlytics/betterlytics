@@ -43,7 +43,7 @@ type PlayerEventTarget = {
 const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.ForwardedRef<ReplayPlayerHandle>) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<rrwebPlayer | null>(null);
-  const pendingListenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
+  const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
 
   const destroyPlayer = () => {
     if (playerRef.current) {
@@ -80,10 +80,9 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
         },
       });
 
-      // Attach any listeners that were added before the player was ready
+      // Attach any previously registered listeners to the new player instance
       const target = playerRef.current as unknown as PlayerEventTarget;
-      pendingListenersRef.current.forEach(({ type, listener }) => target.addEventListener(type, listener));
-      pendingListenersRef.current = [];
+      listenersRef.current.forEach(({ type, listener }) => target.addEventListener(type, listener));
 
       onReady?.();
     },
@@ -124,21 +123,19 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
     addEventListener(type, listener) {
       const target = playerRef.current;
       const wrapped = listener as unknown as EventListener;
+      listenersRef.current.push({ type, listener: wrapped });
       if (target) {
-        target.addEventListener(type, wrapped);
-      } else {
-        pendingListenersRef.current.push({ type, listener: wrapped });
+        (target as unknown as PlayerEventTarget).addEventListener(type, wrapped);
       }
     },
     removeEventListener(type, listener) {
-      const target = playerRef.current as PlayerEventTarget | null;
+      const target = playerRef.current as unknown as PlayerEventTarget | null;
       const wrapped = listener as unknown as EventListener;
       if (target) {
         target.removeEventListener(type, wrapped);
       }
-      pendingListenersRef.current = pendingListenersRef.current.filter(
-        (l) => !(l.type === type && l.listener === wrapped),
-      );
+
+      listenersRef.current = listenersRef.current.filter((l) => !(l.type === type && l.listener === wrapped));
     },
   }));
 
