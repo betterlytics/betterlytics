@@ -76,6 +76,7 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
           autoPlay: false,
           showController: false,
           speedOption: [1, 2, 4, 8],
+          skipInactive: true,
         },
       });
 
