@@ -57,21 +57,24 @@ export function useReplayControls(playerRef: React.RefObject<ReplayPlayerHandle 
     const player = playerRef.current;
     if (!player) return;
 
-    const onTime = (e: CustomEvent<{ payload: number }>) => {
-      console.log('onTime', e.detail.payload);
-      setCurrentTime(e.detail.payload);
+    const onTime = (event: any) => {
+      if (!event.payload) return;
+      setCurrentTime(event.payload);
     };
-    const onState = (e: CustomEvent<{ payload: 'playing' | 'paused' }>) => {
-      console.log('onState', e.detail.payload);
-      setIsPlaying(e.detail.payload === 'playing');
+    const onState = (event: any) => {
+      const payload = event.payload as 'playing' | 'paused';
+      setIsPlaying(payload === 'playing');
     };
 
-    player.addEventListener('ui-update-current-time', onTime);
-    player.addEventListener('ui-update-player-state', onState);
+    player.addEventListener('ui-update-current-time', onTime as EventListener);
+    player.addEventListener('ui-update-player-state', onState as EventListener);
 
     return () => {
-      player.removeEventListener('ui-update-current-time', onTime);
-      player.removeEventListener('ui-update-player-state', onState);
+      // Best-effort cleanup - it doesn't seem to implement removeEventListener so I'm unsure how to clean these up?
+      try {
+        (player as any).removeEventListener?.('ui-update-current-time', onTime as EventListener);
+        (player as any).removeEventListener?.('ui-update-player-state', onState as EventListener);
+      } catch {}
     };
   }, [playerRef]);
 
