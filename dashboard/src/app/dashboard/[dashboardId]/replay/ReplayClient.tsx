@@ -268,7 +268,7 @@ export default function ReplayClient({ dashboardId }: Props) {
         />
       </div>
 
-      <div className='bg-background relative flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm lg:aspect-video'>
+      <div className='bg-background rr-block relative flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm lg:aspect-video'>
         <ReplayPlayer ref={playerRef} />
         <ReplayControls
           isPlaying={controls.isPlaying}
