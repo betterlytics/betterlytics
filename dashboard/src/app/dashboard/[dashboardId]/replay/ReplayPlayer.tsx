@@ -13,21 +13,37 @@ export type ReplayPlayerHandle = {
   play: () => void;
   pause: () => void;
   setSpeed: (speed: number) => void;
-  isPlaying: () => boolean;
   reset: () => void;
+  addEventListener: <K extends PlayerEventName>(
+    type: K,
+    listener: (e: CustomEvent<{ payload: PlayerEventDetailMap[K] }>) => void,
+  ) => void;
+  removeEventListener: <K extends PlayerEventName>(
+    type: K,
+    listener: (e: CustomEvent<{ payload: PlayerEventDetailMap[K] }>) => void,
+  ) => void;
 };
 
 type ReplayPlayerProps = {
   onReady?: () => void;
 };
 
-const getReplayer = (playerRef: React.RefObject<rrwebPlayer | null>) => {
-  return playerRef.current?.getReplayer();
+type PlayerEventName = 'ui-update-current-time' | 'ui-update-player-state' | 'ui-update-progress';
+type PlayerEventDetailMap = {
+  'ui-update-current-time': number;
+  'ui-update-player-state': 'playing' | 'paused';
+  'ui-update-progress': number;
+};
+
+type PlayerEventTarget = {
+  addEventListener: (type: string, listener: EventListener) => void;
+  removeEventListener: (type: string, listener: EventListener) => void;
 };
 
 const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.ForwardedRef<ReplayPlayerHandle>) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<rrwebPlayer | null>(null);
+  const pendingListenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
 
   const destroyPlayer = () => {
     if (playerRef.current) {
@@ -63,6 +79,11 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
         },
       });
 
+      // Attach any listeners that were added before the player was ready
+      const target = playerRef.current as unknown as PlayerEventTarget;
+      pendingListenersRef.current.forEach(({ type, listener }) => target.addEventListener(type, listener));
+      pendingListenersRef.current = [];
+
       onReady?.();
     },
     appendEvents(events) {
@@ -72,9 +93,7 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
       // Use try/catch to avoid noisy console errors if player was disposed mid-loop
       try {
         events.forEach((event) => playerRef.current?.addEvent(event));
-      } catch (_err) {
-        // Swallow errors when the underlying replayer has been destroyed
-      }
+      } catch (_err) {}
     },
     seekTo(timeOffset) {
       if (!playerRef.current) {
@@ -96,27 +115,29 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
       playerRef.current?.pause();
     },
     setSpeed(speed: number) {
-      const player = playerRef.current;
-      if (!player) return;
-
-      // Try direct setSpeed first
-      const maybeSetSpeed = (player as unknown as { setSpeed?: (s: number) => void }).setSpeed;
-      if (typeof maybeSetSpeed === 'function') {
-        maybeSetSpeed(speed);
-        return;
-      }
-
-      // Fallback to replayer config
-      const replayer = getReplayer(playerRef);
-      replayer?.setConfig?.({ speed });
-    },
-    isPlaying() {
-      const isPlaying = () =>
-        !(playerRef.current?.getReplayer?.() as unknown as { isPaused?: () => boolean })?.isPaused?.();
-      return isPlaying();
+      playerRef.current?.setSpeed(speed);
     },
     reset() {
       destroyPlayer();
+    },
+    addEventListener(type, listener) {
+      const target = playerRef.current;
+      const wrapped = listener as unknown as EventListener;
+      if (target) {
+        target.addEventListener(type, wrapped);
+      } else {
+        pendingListenersRef.current.push({ type, listener: wrapped });
+      }
+    },
+    removeEventListener(type, listener) {
+      const target = playerRef.current as PlayerEventTarget | null;
+      const wrapped = listener as unknown as EventListener;
+      if (target) {
+        target.removeEventListener(type, wrapped);
+      }
+      pendingListenersRef.current = pendingListenersRef.current.filter(
+        (l) => !(l.type === type && l.listener === wrapped),
+      );
     },
   }));
 

@@ -23,43 +23,16 @@ export function useReplayControls(playerRef: React.RefObject<ReplayPlayerHandle 
   const [speed, setSpeedState] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
-  const rafRef = useRef<number | null>(null);
-
-  const cancelRaf = () => {
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-  };
-
-  const tick = useCallback(() => {
-    const player = playerRef.current;
-    if (!player) return;
-    const t = player.getCurrentTime();
-    if (typeof t === 'number') {
-      setCurrentTime(t);
-    }
-    if (player.isPlaying()) {
-      rafRef.current = requestAnimationFrame(tick);
-    } else {
-      cancelRaf();
-      setIsPlaying(false);
-    }
-  }, [playerRef]);
 
   const playPause = useCallback(() => {
     const player = playerRef.current;
     if (!player) return;
-    if (player.isPlaying()) {
+    if (isPlaying) {
       player.pause();
-      setIsPlaying(false);
-      cancelRaf();
     } else {
       player.play();
-      setIsPlaying(true);
-      rafRef.current = requestAnimationFrame(tick);
     }
-  }, [playerRef, tick]);
+  }, [playerRef, isPlaying]);
 
   const setSpeed = useCallback(
     (s: number) => {
@@ -80,7 +53,27 @@ export function useReplayControls(playerRef: React.RefObject<ReplayPlayerHandle 
     [playerRef, durationMs],
   );
 
-  useEffect(() => () => cancelRaf(), []);
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+
+    const onTime = (e: CustomEvent<{ payload: number }>) => {
+      console.log('onTime', e.detail.payload);
+      setCurrentTime(e.detail.payload);
+    };
+    const onState = (e: CustomEvent<{ payload: 'playing' | 'paused' }>) => {
+      console.log('onState', e.detail.payload);
+      setIsPlaying(e.detail.payload === 'playing');
+    };
+
+    player.addEventListener('ui-update-current-time', onTime);
+    player.addEventListener('ui-update-player-state', onState);
+
+    return () => {
+      player.removeEventListener('ui-update-current-time', onTime);
+      player.removeEventListener('ui-update-player-state', onState);
+    };
+  }, [playerRef]);
 
   return useMemo(
     () => ({

@@ -192,8 +192,7 @@ export default function ReplayClient({ dashboardId }: Props) {
       resetPlayerState();
 
       try {
-        const prefix = session.s3_prefix.endsWith('/') ? session.s3_prefix : `${session.s3_prefix}`;
-        const manifest = await fetchReplaySegmentsAction(dashboardId, { prefix });
+        const manifest = await fetchReplaySegmentsAction(dashboardId, { prefix: session.s3_prefix });
 
         if (manifest.length === 0) {
           setError('No segments found for this session');
