@@ -179,35 +179,8 @@ function ReplayTimelineComponent({ markers, currentTime = 0, onJump }: ReplayTim
       groups.map((group) => {
         const isActive = currentTime >= group.start && currentTime < group.end + 2000;
         return {
-          id: group.id,
-          content: (
-            <button
-              type='button'
-              onClick={() => onJump(group.jumpTo)}
-              className={cn(
-                'hover:bg-primary/10 focus-visible:ring-primary/40 group flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-                isActive && 'bg-primary/10 text-primary hover:bg-primary/10',
-              )}
-            >
-              <span className='text-muted-foreground w-8 shrink-0 text-left text-[11px] tabular-nums'>
-                {formatDuration(group.start)}
-              </span>
-              <span className='flex h-5 w-5 shrink-0 items-center justify-center'>{group.icon}</span>
-              <div className='min-w-0 flex-1 text-left'>
-                <div className='flex items-center gap-2'>
-                  <span className='truncate text-xs font-medium'>{group.label}</span>
-                  {group.count > 1 && (
-                    <span className='text-muted-foreground text-[11px] whitespace-nowrap'>(×{group.count})</span>
-                  )}
-                </div>
-                {group.end > group.start && (
-                  <div className='text-muted-foreground mt-0.5 text-[11px]'>
-                    {formatDurationPrecise(group.end - group.start)}
-                  </div>
-                )}
-              </div>
-            </button>
-          ),
+          group,
+          isActive,
         };
       }),
     [groups, currentTime, onJump],
@@ -226,28 +199,9 @@ function ReplayTimelineComponent({ markers, currentTime = 0, onJump }: ReplayTim
       items={items}
       listClassName='divide-border/60 divide-y'
       empty={emptyState}
+      onJump={onJump}
     />
   );
 }
 
 export const ReplayTimeline = memo(ReplayTimelineComponent);
-
-function formatDuration(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
-function formatDurationPrecise(ms: number): string {
-  if (ms < 1000) {
-    return `${(ms / 1000).toFixed(4)} s`;
-  }
-  if (ms < 60_000) {
-    return `${(ms / 1000).toFixed(2)} s`;
-  }
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}m ${seconds}s`;
-}

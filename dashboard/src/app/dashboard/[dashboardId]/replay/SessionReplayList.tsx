@@ -7,7 +7,7 @@ import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon, type FlagIconProps } from '@
 import { useLocale } from 'next-intl';
 import { getCountryName } from '@/utils/countryCodes';
 import { format, formatDistanceToNow } from 'date-fns';
-import { ListPanel, type ListPanelItem } from '@/app/dashboard/[dashboardId]/replay/ListPanel';
+import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -113,7 +113,7 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
   );
 
   return (
-    <ListPanel
+    <SessionListPanel
       title='Sessions'
       subtitle={`${sessions.length} sessions`}
       headerRight={headerRight}
