@@ -1,10 +1,11 @@
 'use client';
 
 import { ChevronDown, Pause, Play } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import { memo, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
-import { markerBgClassForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
+import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
+import { useTheme } from 'next-themes';
 
 type Props = {
   isPlaying: boolean;
@@ -25,6 +26,33 @@ function formatClock(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
+function createMarkerCanvas(theme: string | undefined, durationMs: number, markers?: TimelineMarker[]) {
+  if (durationMs <= 0 || !markers || markers.length === 0) {
+    return;
+  }
+
+  const canvas = document.getElementById('marker-canvas') as HTMLCanvasElement | null;
+  if (canvas === null) {
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  if (ctx === null) {
+    return;
+  }
+
+  const resolvedTheme = theme || 'light';
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  console.log('Drawing', canvas.width, canvas.height);
+  markers.forEach((marker) => {
+    ctx.fillStyle = markerFillColorForLabel(resolvedTheme, marker.label);
+    const left = canvas.width * (marker.timestamp / durationMs);
+    ctx.fillRect(left, 0, 4, 40);
+  });
+}
+
 function ReplayControlsComponent({
   isPlaying,
   currentTime,
@@ -38,14 +66,10 @@ function ReplayControlsComponent({
 }: Props) {
   const ratio = durationMs > 0 ? Math.max(0, Math.min(1, currentTime / durationMs)) : 0;
 
-  const markerPositions = useMemo(() => {
-    if (durationMs <= 0 || markers.length === 0) return [] as { id: string; left: string; className: string }[];
-    return markers.map((m) => ({
-      id: m.id,
-      left: `${(m.timestamp / durationMs) * 100}%`,
-      className: markerBgClassForLabel(m.label),
-    }));
-  }, [markers, durationMs]);
+  const { resolvedTheme } = useTheme();
+  useEffect(() => {
+    createMarkerCanvas(resolvedTheme, durationMs, markers);
+  }, [durationMs, markers, resolvedTheme]);
 
   return (
     <div className={cn('bg-muted/60 border-border/60 flex items-center gap-3 border-t px-3 py-2', className)}>
@@ -63,15 +87,10 @@ function ReplayControlsComponent({
           {formatClock(currentTime)}
         </div>
         <div className='relative flex-1'>
-          <div className='pointer-events-none absolute inset-x-2 -top-1.5 flex h-2 items-center gap-1'>
-            {markerPositions.map((p) => (
-              <div
-                key={p.id}
-                className={cn('h-1 w-1 rounded-full', p.className)}
-                style={{ left: p.left, position: 'absolute' }}
-              />
-            ))}
-          </div>
+          <canvas
+            className='bg-red pointer-events-none absolute inset-x-2 -top-1.5 z-[1000] flex h-4 w-full items-center gap-1'
+            id='marker-canvas'
+          />
           <input
             type='range'
             min={0}

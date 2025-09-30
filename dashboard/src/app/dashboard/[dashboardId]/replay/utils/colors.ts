@@ -21,3 +21,38 @@ export function markerBgClassForLabel(label: string): string {
       return 'bg-muted-foreground';
   }
 }
+
+const colorMap: Record<string, Record<string, string>> = {
+  light: {
+    primary: `oklch(62% 0.17 268.71)`,
+    'Mouse Interaction': `#0ea5e9`,
+    Selection: `#10b981`,
+    'DOM Mutation': `#8b5cf6`,
+    'Full snapshot': `#8b5cf6`,
+    Scroll: `#f59e0b`,
+    Navigation: `oklch(62% 0.17 268.71)`,
+    Input: `#f43f5e`,
+    Pageview: `#0ea5e9`,
+    default: `oklch(0.5 0 0)`,
+  },
+  dark: {
+    primary: `oklch(56% 0.196 268.74)`,
+    'Mouse Interaction': `#38bdf8`,
+    Selection: `#34d399`,
+    'DOM Mutation': `#a78bfa`,
+    'Full snapshot': `#a78bfa`,
+    Scroll: `#fbbf24`,
+    Navigation: `oklch(56% 0.196 268.74)`,
+    Input: `#fb7185`,
+    Pageview: `#38bdf8`,
+    default: `oklch(0.86 0.02 265)`,
+  },
+};
+
+export function markerFillColorForLabel(theme: string, label: string): string {
+  const themeMap = colorMap[theme];
+  const c = themeMap[label];
+  if (c) return c;
+
+  return themeMap.default;
+}
