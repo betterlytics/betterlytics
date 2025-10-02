@@ -47,6 +47,15 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
 
   const destroyPlayer = () => {
     if (playerRef.current) {
+      try {
+        playerRef.current.pause();
+      } catch {}
+
+      try {
+        const target = playerRef.current as unknown as PlayerEventTarget;
+        listenersRef.current.forEach(({ type, listener }) => target.removeEventListener(type, listener));
+      } catch {}
+
       const maybeDestroy = playerRef.current as unknown as { destroy?: () => void };
       maybeDestroy.destroy?.();
       playerRef.current = null;

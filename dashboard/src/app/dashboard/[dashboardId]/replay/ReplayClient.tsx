@@ -50,6 +50,7 @@ export default function ReplayClient({ dashboardId }: Props) {
   const inFlightController = useRef<AbortController | null>(null);
   const nextSegmentIndex = useRef(0);
   const originTimestampRef = useRef<number | null>(null);
+  const currentSessionIdRef = useRef<string | null>(null);
   const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
 
@@ -59,6 +60,8 @@ export default function ReplayClient({ dashboardId }: Props) {
   });
   const sessions = sessionQuery.data ?? [];
   const [sessionIdParam, setSessionIdParam] = useUrlSearchParam('sessionId');
+
+  const controls = useReplayControls(playerRef);
 
   useEffect(() => {
     const sessions = sessionQuery.data ?? [];
@@ -95,6 +98,7 @@ export default function ReplayClient({ dashboardId }: Props) {
     setTimelineMarkers([]);
     setCurrentTime(0);
     setDurationMs(0);
+    controls.resetUiState();
   }, [resetActiveRequest]);
 
   const loadSegment = useCallback(async (segment: ReplaySegmentManifestEntry, signal: AbortSignal) => {
@@ -107,6 +111,7 @@ export default function ReplayClient({ dashboardId }: Props) {
   }, []);
 
   const primePlayerWithSegment = useCallback((events: eventWithTime[], session: SessionWithSegments) => {
+    if (currentSessionIdRef.current !== session.session_id) return;
     const normalized = normalizeEvents(events);
     if (normalized.length === 0) return;
     originTimestampRef.current = normalized[0]?.timestamp ?? null;
@@ -121,6 +126,7 @@ export default function ReplayClient({ dashboardId }: Props) {
   }, []);
 
   const appendSegmentToPlayer = useCallback((events: eventWithTime[], session: SessionWithSegments) => {
+    if (currentSessionIdRef.current !== session.session_id) return;
     if (!events.length) {
       return;
     }
@@ -189,6 +195,7 @@ export default function ReplayClient({ dashboardId }: Props) {
     async (session: SessionReplay) => {
       setIsLoadingEvents(true);
       setError('');
+      currentSessionIdRef.current = session.session_id;
       resetPlayerState();
 
       try {
@@ -245,7 +252,6 @@ export default function ReplayClient({ dashboardId }: Props) {
     };
   }, [loadSession, resetPlayerState, selectedSession?.session_id]);
 
-  const controls = useReplayControls(playerRef);
   useEffect(() => {
     controls.setDurationMs(durationMs);
   }, [durationMs]);
@@ -263,6 +269,7 @@ export default function ReplayClient({ dashboardId }: Props) {
           selectedSessionId={selectedSession?.session_id}
           onSelect={(session) => {
             setSessionIdParam(session.session_id);
+            resetPlayerState();
             setSelectedSession({ ...session, manifest: [] });
           }}
         />
@@ -285,7 +292,7 @@ export default function ReplayClient({ dashboardId }: Props) {
       </div>
 
       <div className='min-h-0'>
-        <ReplayTimeline markers={timelineMarkers} currentTime={currentTime} onJump={handleJump} />
+        <ReplayTimeline markers={timelineMarkers} onJump={handleJump} />
         {isPrefetching && <p className='text-muted-foreground px-1 text-xs'>Prefetching remaining segments…</p>}
       </div>
     </div>

@@ -19,7 +19,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.setAttribute('data-dynamic-urls', '/dashboard/*');
     script.setAttribute('data-outbound-links', 'full');
     script.setAttribute('data-web-vitals', 'true');
-    script.setAttribute('data-replay', 'true');
+    script.setAttribute('data-replay', 'false');
     script.setAttribute('data-replay-sample', '100');
     document.head.appendChild(script);
 

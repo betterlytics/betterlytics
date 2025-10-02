@@ -4,7 +4,7 @@ import type { eventWithTime } from '@rrweb/types';
 import { memo, useMemo } from 'react';
 import { EventType, IncrementalSource } from '@rrweb/types';
 import { cn } from '@/lib/utils';
-import { ListPanel, type ListPanelItem } from '@/app/dashboard/[dashboardId]/replay/ListPanel';
+import { ListPanel } from '@/app/dashboard/[dashboardId]/replay/ListPanel';
 import {
   MousePointer2,
   MousePointerSquareDashed,
@@ -28,7 +28,6 @@ export type TimelineMarker = TimelineMarkerDescriptor & {
 
 type ReplayTimelineProps = {
   markers: TimelineMarker[];
-  currentTime?: number;
   onJump: (timestamp: number) => void;
 };
 
@@ -170,21 +169,9 @@ function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
   return groups;
 }
 
-function ReplayTimelineComponent({ markers, currentTime = 0, onJump }: ReplayTimelineProps) {
+function ReplayTimelineComponent({ markers, onJump }: ReplayTimelineProps) {
   const groups = useMemo(() => buildGroups(markers), [markers]);
   const totalEvents = markers.length;
-
-  const items: ListPanelItem[] = useMemo(
-    () =>
-      groups.map((group) => {
-        const isActive = currentTime >= group.start && currentTime < group.end + 2000;
-        return {
-          group,
-          isActive,
-        };
-      }),
-    [groups, currentTime, onJump],
-  );
 
   const emptyState = (
     <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
@@ -196,7 +183,7 @@ function ReplayTimelineComponent({ markers, currentTime = 0, onJump }: ReplayTim
     <ListPanel
       title='Timeline'
       subtitle={`${totalEvents} events captured (${groups.length} groups)`}
-      items={items}
+      groups={groups}
       listClassName='divide-border/60 divide-y'
       empty={emptyState}
       onJump={onJump}

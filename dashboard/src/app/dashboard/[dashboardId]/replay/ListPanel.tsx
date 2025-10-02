@@ -1,6 +1,7 @@
 'use client';
 
 import { List, RowComponentProps } from 'react-window';
+import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -11,7 +12,7 @@ type ListPanelProps = {
   headerRight?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
-  items?: ListPanelItem[];
+  groups?: TimelineGroup[];
   empty?: React.ReactNode;
   listClassName?: string;
 };
@@ -27,7 +28,7 @@ export function ListPanel({
   headerRight,
   className,
   children,
-  items,
+  groups,
   empty,
   listClassName,
   onJump,
@@ -46,22 +47,17 @@ export function ListPanel({
         </div>
         {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
       </div>
-      <div className='max-h-svh flex-1 overflow-y-auto px-2 py-2'>
-        {items ? (
-          items.length === 0 ? (
+      <div className='max-h-svh flex-1 px-2 py-2'>
+        {groups ? (
+          groups.length === 0 ? (
             (empty ?? null)
           ) : (
             <List
               rowComponent={RenderGroup}
-              rowCount={items.length}
-              rowHeight={25}
-              rowProps={{ groups: items, onJump }}
+              rowCount={groups.length}
+              rowHeight={40}
+              rowProps={useMemo(() => ({ groups, onJump }), [groups, onJump])}
             />
-            // <ul className={cn('flex flex-col', listClassName)}>
-            //   {items.map((item) => (
-            //     <li key={item.id}>{item.content}</li>
-            //   ))}
-            // </ul>
           )
         ) : (
           children
@@ -82,19 +78,19 @@ type TimelineGroup = {
 };
 
 type RenderGroupProps = RowComponentProps<{
-  groups: ListPanelItem[];
+  groups: TimelineGroup[];
   onJump: (timestamp: number) => void;
 }>;
 
-function RenderGroup({ groups, onJump, index }: RenderGroupProps) {
-  const { group, isActive } = groups[index];
+function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
+  const group = groups[index];
   return (
     <button
       type='button'
       onClick={() => onJump(group.jumpTo)}
+      style={style as React.CSSProperties}
       className={cn(
         'hover:bg-primary/10 focus-visible:ring-primary/40 group flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-        isActive && 'bg-primary/10 text-primary hover:bg-primary/10',
       )}
     >
       <span className='text-muted-foreground w-8 shrink-0 text-left text-[11px] tabular-nums'>

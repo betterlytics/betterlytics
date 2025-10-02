@@ -45,7 +45,6 @@ function createMarkerCanvas(theme: string | undefined, durationMs: number, marke
   const resolvedTheme = theme || 'light';
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  console.log('Drawing', canvas.width, canvas.height);
   markers.forEach((marker) => {
     ctx.fillStyle = markerFillColorForLabel(resolvedTheme, marker.label);
     const left = canvas.width * (marker.timestamp / durationMs);

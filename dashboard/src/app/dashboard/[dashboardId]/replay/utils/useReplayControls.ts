@@ -16,6 +16,7 @@ export type ReplayControlsApi = ReplayControlsState & {
   seekToRatio: (ratio: number) => void; // 0..1
   setDurationMs: (ms: number) => void;
   setCurrentTime: (ms: number) => void;
+  resetUiState: () => void;
 };
 
 export function useReplayControls(playerRef: React.RefObject<ReplayPlayerHandle | null>): ReplayControlsApi {
@@ -89,6 +90,12 @@ export function useReplayControls(playerRef: React.RefObject<ReplayPlayerHandle 
       seekToRatio,
       setDurationMs,
       setCurrentTime,
+      resetUiState: () => {
+        setIsPlaying(false);
+        setSpeedState(1);
+        setCurrentTime(0);
+        setDurationMs(0);
+      },
     }),
     [isPlaying, speed, currentTime, durationMs, playPause, setSpeed, seekToRatio],
   );
