@@ -14,6 +14,7 @@ export type UsePlayerStateReturn = {
   timelineMarkers: ReturnType<typeof useReplayTimeline>['timelineMarkers'];
   currentTime: number;
   durationMs: number;
+  eventsRef: React.RefObject<eventWithTime[]>;
   setCurrentTime: (time: number) => void;
   loadSession: (session: SessionWithSegments) => Promise<void>;
   jumpTo: (timestamp: number) => void;
@@ -25,6 +26,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
   const [isPrefetching, startPrefetchingTransition] = useTransition();
   const currentSessionIdRef = useRef<string | null>(null);
   const nextSegmentIndex = useRef(0);
+  const eventsRef = useRef<eventWithTime[]>([]);
 
   const segmentLoader = useSegmentLoader(dashboardId);
   const timeline = useReplayTimeline();
@@ -44,6 +46,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
         }
 
         const normalized = [...initialEvents].sort((a, b) => a.timestamp - b.timestamp);
+        eventsRef.current = normalized;
         playerRef.current?.loadInitialEvents(normalized);
         timeline.initializeTimeline(normalized, session.session_id);
         nextSegmentIndex.current = 1;
@@ -74,6 +77,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
             if (!events.length) continue;
 
             const normalized = [...events].sort((a, b) => a.timestamp - b.timestamp);
+            eventsRef.current = [...eventsRef.current, ...normalized];
             playerRef.current?.appendEvents(normalized);
             timeline.appendToTimeline(normalized, session.session_id);
             nextSegmentIndex.current = i + 1;
@@ -116,6 +120,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
     timeline.reset();
     currentSessionIdRef.current = null;
     nextSegmentIndex.current = 0;
+    eventsRef.current = [];
   }, [segmentLoader, timeline]);
 
   return {
@@ -130,5 +135,6 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
     loadSession,
     jumpTo,
     reset,
+    eventsRef,
   };
 }

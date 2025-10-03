@@ -4,6 +4,9 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
 import type { eventWithTime } from '@rrweb/types';
+import { useResizeObserver } from '@/hooks/use-resize-observer';
+import { UsePlayerStateReturn } from './hooks/usePlayerState';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export type ReplayPlayerHandle = {
   loadInitialEvents: (events: eventWithTime[]) => void;
@@ -26,6 +29,7 @@ export type ReplayPlayerHandle = {
 
 type ReplayPlayerProps = {
   onReady?: () => void;
+  playerState: UsePlayerStateReturn;
 };
 
 type PlayerEventName = 'ui-update-current-time' | 'ui-update-player-state' | 'ui-update-progress';
@@ -40,7 +44,10 @@ type PlayerEventTarget = {
   removeEventListener: (type: string, listener: EventListener) => void;
 };
 
-const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.ForwardedRef<ReplayPlayerHandle>) => {
+const ReplayPlayerComponent = (
+  { onReady, playerState }: ReplayPlayerProps,
+  ref: React.ForwardedRef<ReplayPlayerHandle>,
+) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<rrwebPlayer | null>(null);
   const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
@@ -66,17 +73,15 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
     }
   }, []);
 
-  useImperativeHandle(ref, () => ({
-    loadInitialEvents(events) {
-      if (!containerRef.current) {
-        throw new Error('Replay container not mounted');
+  const size = useDebounce(useResizeObserver(containerRef), 200);
+
+  const recreatePlayer = useCallback(
+    (events: eventWithTime[]) => {
+      if (!containerRef.current || events.length === 0) {
+        return;
       }
 
       destroyPlayer();
-
-      if (events.length === 0) {
-        return;
-      }
 
       playerRef.current = new rrwebPlayer({
         target: containerRef.current,
@@ -86,6 +91,8 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
           showController: false,
           speedOption: [1, 2, 4, 8],
           skipInactive: true,
+          width: size.width,
+          height: size.height,
         },
       });
 
@@ -94,6 +101,23 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
       listenersRef.current.forEach(({ type, listener }) => target.addEventListener(type, listener));
 
       onReady?.();
+    },
+    [destroyPlayer, size, onReady],
+  );
+
+  useEffect(() => recreatePlayer(playerState.eventsRef.current), [size]);
+
+  useImperativeHandle(ref, () => ({
+    loadInitialEvents(events) {
+      if (!containerRef.current) {
+        throw new Error('Replay container not mounted');
+      }
+
+      if (events.length === 0) {
+        return;
+      }
+
+      recreatePlayer(events);
     },
     appendEvents(events) {
       if (!playerRef.current || events.length === 0) {
@@ -147,6 +171,10 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
       listenersRef.current = listenersRef.current.filter((l) => !(l.type === type && l.listener === wrapped));
     },
   }));
+
+  useEffect(() => {
+    playerRef.current?.triggerResize();
+  }, [size]);
 
   useEffect(() => {
     return () => {
