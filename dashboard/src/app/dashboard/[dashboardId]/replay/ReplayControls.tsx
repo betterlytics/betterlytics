@@ -87,7 +87,7 @@ function ReplayControlsComponent({
         </div>
         <div className='relative flex-1'>
           <canvas
-            className='bg-red pointer-events-none absolute inset-x-2 -top-1.5 z-[1000] flex h-4 w-full items-center gap-1'
+            className='bg-red pointer-events-none absolute -top-1.5 z-[1000] flex h-4 w-full items-center'
             id='marker-canvas'
           />
           <input
