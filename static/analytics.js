@@ -295,6 +295,10 @@
     var idleCutoffMs = 30 * 60 * 1000;
     var visId = null;
     var replaySession = { id: null };
+    var consecutiveFlushErrors = 0;
+    var maxConsecutiveFlushErrors = 3;
+    var replayDisabled = false;
+    var discardSession = false;
 
     function markActivity() {
       lastActivity = Date.now();
@@ -312,6 +316,7 @@
     });
 
     function flush() {
+      if (replayDisabled) return Promise.resolve();
       if (buffer.length === 0) return Promise.resolve();
       if (isFlushing) return ongoingFlush || Promise.resolve();
       isFlushing = true;
@@ -342,7 +347,6 @@
             .then(function (resp) {
               if (!replaySession.id) replaySession.id = resp.session_id;
               if (!visId) visId = resp.visitor_id;
-              sizeBytes += payload.bytes.byteLength;
               var headers = {
                 "Content-Type": "application/json",
               };
@@ -353,12 +357,30 @@
                 method: "PUT",
                 headers: headers,
                 body: payload.bytes,
+              }).then(function (putResp) {
+                if (!putResp || putResp.status >= 400) {
+                  throw new Error();
+                }
+                sizeBytes += payload.bytes.byteLength;
+                consecutiveFlushErrors = 0;
+                return putResp;
               });
             });
         })
         .catch(function (e) {
           try {
-            buffer = events.concat(buffer);
+            consecutiveFlushErrors += 1;
+            if (consecutiveFlushErrors >= maxConsecutiveFlushErrors) {
+              discardSession = true;
+              replayDisabled = true;
+              buffer = [];
+              approxBytes = 0;
+              try {
+                stopRecording(false);
+              } catch (_) {}
+            } else {
+              buffer = events.concat(buffer);
+            }
           } catch (_) {}
         })
         .finally(function () {
@@ -395,6 +417,7 @@
       }
       flush()
         .then(function () {
+          if (discardSession) return; // never finalize discarded sessions
           if (!finalize) return;
           if (!replaySession.id || !visId) return;
           return fetch(apiBase + "/replay/finalize", {
