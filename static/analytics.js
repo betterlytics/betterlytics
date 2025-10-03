@@ -248,8 +248,15 @@
     script.getAttribute("data-replay-sample") || "0",
     10
   );
+  var minReplayDurationSec = parseInt(
+    script.getAttribute("data-replay-min-duration") || "0",
+    10
+  );
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
     replaySamplePct = 0;
+  }
+  if (isNaN(minReplayDurationSec) || minReplayDurationSec < 0) {
+    minReplayDurationSec = 0;
   }
   var apiBase = null;
   try {
@@ -300,6 +307,13 @@
     var replayDisabled = false;
     var discardSession = false;
 
+    function hasReachedMinDuration() {
+      if (!minReplayDurationSec) return true;
+      return (
+        Math.floor((Date.now() - startedAt) / 1000) >= minReplayDurationSec
+      );
+    }
+
     function markActivity() {
       lastActivity = Date.now();
     }
@@ -322,6 +336,11 @@
       isFlushing = true;
       var events = buffer;
       buffer = [];
+      if (!hasReachedMinDuration()) {
+        buffer = events.concat(buffer);
+        isFlushing = false;
+        return Promise.resolve();
+      }
       var json = JSON.stringify(events);
       approxBytes = 0;
 
@@ -417,8 +436,9 @@
       }
       flush()
         .then(function () {
-          if (discardSession) return; // never finalize discarded sessions
+          if (discardSession) return;
           if (!finalize) return;
+          if (!hasReachedMinDuration()) return;
           if (!replaySession.id || !visId) return;
           return fetch(apiBase + "/replay/finalize", {
             method: "POST",
