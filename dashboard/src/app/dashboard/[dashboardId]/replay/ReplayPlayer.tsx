@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
 import type { eventWithTime } from '@rrweb/types';
@@ -45,7 +45,7 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
   const playerRef = useRef<rrwebPlayer | null>(null);
   const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
 
-  const destroyPlayer = () => {
+  const destroyPlayer = useCallback(() => {
     if (playerRef.current) {
       try {
         playerRef.current.pause();
@@ -64,7 +64,7 @@ const ReplayPlayerComponent = ({ onReady }: ReplayPlayerProps, ref: React.Forwar
     if (containerRef.current) {
       containerRef.current.innerHTML = '';
     }
-  };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     loadInitialEvents(events) {

@@ -1,0 +1,70 @@
+import { useCallback, useEffect, useState } from 'react';
+import { type UsePlayerStateReturn } from './usePlayerState';
+
+export function useReplayPlayer(playerState: UsePlayerStateReturn) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeedState] = useState(1);
+
+  const playPause = useCallback(() => {
+    const player = playerState.playerRef.current;
+    if (!player) return;
+    if (isPlaying) {
+      player.pause();
+    } else {
+      player.play();
+    }
+  }, [playerState.playerRef, isPlaying]);
+
+  const setSpeed = useCallback(
+    (s: number) => {
+      setSpeedState(s);
+      playerState.playerRef.current?.setSpeed(s);
+    },
+    [playerState.playerRef],
+  );
+
+  const seekToRatio = useCallback(
+    (ratio: number) => {
+      const duration = playerState.durationMs;
+      const clamped = Math.max(0, Math.min(1, ratio));
+      const target = Math.floor(duration * clamped);
+      playerState.playerRef.current?.seekTo(target);
+      playerState.setCurrentTime(target);
+    },
+    [playerState],
+  );
+
+  useEffect(() => {
+    const player = playerState.playerRef.current;
+    if (!player) return;
+
+    const onTime = (event: any) => {
+      if (event.payload) {
+        playerState.setCurrentTime(event.payload);
+      }
+    };
+
+    const onState = (event: any) => {
+      const payload = event.payload as 'playing' | 'paused';
+      setIsPlaying(payload === 'playing');
+    };
+
+    player.addEventListener('ui-update-current-time', onTime as EventListener);
+    player.addEventListener('ui-update-player-state', onState as EventListener);
+
+    return () => {
+      try {
+        (player as any).removeEventListener?.('ui-update-current-time', onTime as EventListener);
+        (player as any).removeEventListener?.('ui-update-player-state', onState as EventListener);
+      } catch {}
+    };
+  }, [playerState]);
+
+  return {
+    isPlaying,
+    speed,
+    setSpeed,
+    playPause,
+    seekToRatio,
+  };
+}

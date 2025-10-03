@@ -1,0 +1,134 @@
+'use client';
+
+import { useCallback, useRef, useTransition } from 'react';
+import type { ReplayPlayerHandle } from '@/app/dashboard/[dashboardId]/replay/ReplayPlayer';
+import type { eventWithTime } from '@rrweb/types';
+import { useSegmentLoader, type SessionWithSegments } from './useSegmentLoader';
+import { useReplayTimeline } from './useReplayTimeline';
+
+export type UsePlayerStateReturn = {
+  playerRef: React.RefObject<ReplayPlayerHandle | null>;
+  isLoadingSegments: boolean;
+  isPrefetching: boolean;
+  error: string | null;
+  timelineMarkers: ReturnType<typeof useReplayTimeline>['timelineMarkers'];
+  currentTime: number;
+  durationMs: number;
+  setCurrentTime: (time: number) => void;
+  loadSession: (session: SessionWithSegments) => Promise<void>;
+  jumpTo: (timestamp: number) => void;
+  reset: () => void;
+};
+
+export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
+  const playerRef = useRef<ReplayPlayerHandle | null>(null);
+  const [isPrefetching, startPrefetchingTransition] = useTransition();
+  const currentSessionIdRef = useRef<string | null>(null);
+  const nextSegmentIndex = useRef(0);
+
+  const segmentLoader = useSegmentLoader(dashboardId);
+  const timeline = useReplayTimeline();
+
+  const loadInitialSegment = useCallback(
+    async (session: SessionWithSegments): Promise<void> => {
+      if (session.manifest.length === 0) return;
+      const controller = new AbortController();
+      const firstSegment = session.manifest[0];
+
+      try {
+        const initialEvents = await segmentLoader.loadSegment(firstSegment, controller.signal);
+        if (controller.signal.aborted || currentSessionIdRef.current !== session.session_id) return;
+
+        if (!initialEvents.length) {
+          throw new Error('First segment is empty');
+        }
+
+        const normalized = [...initialEvents].sort((a, b) => a.timestamp - b.timestamp);
+        playerRef.current?.loadInitialEvents(normalized);
+        timeline.initializeTimeline(normalized, session.session_id);
+        nextSegmentIndex.current = 1;
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          throw error;
+        }
+      }
+    },
+    [segmentLoader, timeline],
+  );
+
+  const prefetchRemainingSegments = useCallback(
+    (session: SessionWithSegments) => {
+      if (nextSegmentIndex.current >= session.manifest.length) return;
+
+      startPrefetchingTransition(async () => {
+        const controller = new AbortController();
+
+        try {
+          for (let i = nextSegmentIndex.current; i < session.manifest.length; i++) {
+            if (currentSessionIdRef.current !== session.session_id) break;
+
+            const segment = session.manifest[i];
+            const events = await segmentLoader.loadSegment(segment, controller.signal);
+
+            if (controller.signal.aborted || currentSessionIdRef.current !== session.session_id) break;
+            if (!events.length) continue;
+
+            const normalized = [...events].sort((a, b) => a.timestamp - b.timestamp);
+            playerRef.current?.appendEvents(normalized);
+            timeline.appendToTimeline(normalized, session.session_id);
+            nextSegmentIndex.current = i + 1;
+          }
+        } catch (error) {
+          if (!(error instanceof DOMException && error.name === 'AbortError')) {
+            console.error('Error prefetching segments:', error);
+          }
+        }
+      });
+    },
+    [segmentLoader, timeline],
+  );
+
+  const loadSession = useCallback(
+    async (session: SessionWithSegments): Promise<void> => {
+      currentSessionIdRef.current = session.session_id;
+      nextSegmentIndex.current = 0;
+
+      segmentLoader.abortLoading();
+      playerRef.current?.reset();
+      timeline.reset();
+
+      await loadInitialSegment(session);
+
+      if (session.manifest.length > 1) {
+        prefetchRemainingSegments(session);
+      }
+    },
+    [segmentLoader, timeline, loadInitialSegment, prefetchRemainingSegments],
+  );
+
+  const jumpTo = useCallback((timestamp: number) => {
+    playerRef.current?.seekTo(timestamp);
+  }, []);
+
+  const reset = useCallback(() => {
+    segmentLoader.abortLoading();
+    playerRef.current?.reset();
+    timeline.reset();
+    currentSessionIdRef.current = null;
+    nextSegmentIndex.current = 0;
+  }, [segmentLoader, timeline]);
+
+  return {
+    playerRef,
+    isLoadingSegments: segmentLoader.isLoading,
+    isPrefetching,
+    error: segmentLoader.error,
+    timelineMarkers: timeline.timelineMarkers,
+    currentTime: timeline.currentTime,
+    durationMs: timeline.durationMs,
+    setCurrentTime: timeline.setCurrentTime,
+    loadSession,
+    jumpTo,
+    reset,
+  };
+}
