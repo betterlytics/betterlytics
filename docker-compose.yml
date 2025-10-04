@@ -56,7 +56,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - 9001:9001 # S3 API
+      - 9002:9002 # Web UI
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_API_CORS_ALLOW_ORIGIN: "http://localhost:3000,http://localhost:3006,*"
+    volumes:
+      - minio_data:/data
+    command: server /data --address ":9001" --console-address ":9002"
+
 volumes:
   clickhouse_data:
   clickhouse_users:
   postgres_data:
+  minio_data:

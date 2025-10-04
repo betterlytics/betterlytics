@@ -11,6 +11,7 @@ import {
   ExternalLink as ExternalLinkIcon,
   BarChart,
   Gauge,
+  Video,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -59,6 +60,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
     { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
     { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
+    { name: 'replay', href: '/replay', icon: <Video size={18} /> },
   ];
 
   return (

@@ -6,6 +6,7 @@ use crate::geoip::GeoIpService;
 use crate::session;
 use crate::bot_detection;
 use crate::referrer::{ReferrerInfo, parse_referrer};
+use crate::url_utils::extract_domain_and_path_from_url;
 use url::Url;
 use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
@@ -76,7 +77,7 @@ impl EventProcessor {
             return Ok(());
         }
 
-        let (domain, path) = self.extract_domain_and_path_from_url(&raw_url);
+        let (domain, path) = extract_domain_and_path_from_url(&raw_url);
         debug!("Extracted domain '{:?}' and path '{}' from URL '{}'", domain, path, raw_url);
 
         let mut processed = ProcessedEvent {
@@ -164,30 +165,6 @@ impl EventProcessor {
     }
 
     /// Extract domain and path from a URL string.
-    fn extract_domain_and_path_from_url(&self, url_str: &str) -> (Option<String>, String) {
-        match Url::parse(url_str) {
-            Ok(url) => {
-                let domain = url.domain().map(|d| d.to_string());
-                let path = if url.path().is_empty() {
-                    "/".to_string()
-                } else {
-                    url.path().to_string()
-                };
-                (domain, path)
-            },
-            Err(_) => {
-                // Since we get URLs from window.location.href, this should never happen
-                // But we'll try to handle it gracefully by treating the entire string as a path
-                debug!("Failed to parse URL '{}', treating as path-only", url_str);
-                if url_str.starts_with('/') {
-                    (None, url_str.to_string())
-                } else {
-                    (None, format!("/{}", url_str))
-                }
-            }
-        }
-    }
-
     /// Handle different event types
     async fn handle_event_types(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let event_name = processed.event.raw.event_name.clone();
