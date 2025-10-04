@@ -104,10 +104,8 @@ const ReplayPlayerComponent = (
 
       onReady?.();
     },
-    [destroyPlayer, size, onReady],
+    [destroyPlayer, size, onReady, playerState.isSkippingInactive],
   );
-
-  useEffect(() => recreatePlayer(playerState.eventsRef.current), [size]);
 
   useImperativeHandle(ref, () => ({
     loadInitialEvents(events) {
@@ -134,7 +132,11 @@ const ReplayPlayerComponent = (
       if (!playerRef.current) {
         return;
       }
-      playerRef.current.goto(timeOffset, false);
+      try {
+        playerRef.current.goto(timeOffset, false);
+      } catch (error) {
+        console.warn('Failed to seek to time:', timeOffset, error);
+      }
     },
     getCurrentTime() {
       if (!playerRef.current) {
@@ -178,8 +180,9 @@ const ReplayPlayerComponent = (
   }));
 
   useEffect(() => {
+    recreatePlayer(playerState.eventsRef.current);
     playerRef.current?.triggerResize();
-  }, [size]);
+  }, [size, playerState.eventsRef, playerRef]);
 
   useEffect(() => {
     return () => {

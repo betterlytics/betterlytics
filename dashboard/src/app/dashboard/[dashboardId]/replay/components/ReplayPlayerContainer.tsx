@@ -12,7 +12,8 @@ type ReplayPlayerContainerProps = {
 };
 
 export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContainerProps) {
-  const { isPlaying, speed, setSkipInactivity, playPause, seekToRatio, setSpeed } = useReplayPlayer(playerState);
+  const { isPlaying, speed, currentTime, setSkipInactivity, playPause, seekToRatio, setSpeed } =
+    useReplayPlayer(playerState);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -55,7 +56,7 @@ export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContai
       <ReplayPlayer ref={playerState.playerRef} playerState={playerState} />
       <ReplayControls
         isPlaying={isPlaying}
-        currentTime={playerState.currentTime}
+        currentTime={currentTime}
         durationMs={playerState.durationMs}
         speed={speed}
         onTogglePlay={playPause}
