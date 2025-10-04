@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { type UsePlayerStateReturn } from './usePlayerState';
 
 export function useReplayPlayer(playerState: UsePlayerStateReturn) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeedState] = useState(1);
+  const appliedSkipStateRef = useRef(playerState.isSkippingInactive);
 
   const playPause = useCallback(() => {
     const player = playerState.playerRef.current;
@@ -60,11 +61,36 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
     };
   }, [playerState]);
 
+  const setSkipInactive = useCallback(
+    (enabled: boolean) => {
+      playerState.setSkippingInactive(enabled);
+    },
+    [playerState],
+  );
+
+  useEffect(() => {
+    const player = playerState.playerRef.current;
+    if (!player) {
+      appliedSkipStateRef.current = playerState.isSkippingInactive;
+      return;
+    }
+
+    if (appliedSkipStateRef.current === playerState.isSkippingInactive) {
+      return;
+    }
+
+    if (typeof player.toggleSkipInactive === 'function') {
+      player.toggleSkipInactive();
+      appliedSkipStateRef.current = playerState.isSkippingInactive;
+    }
+  }, [playerState.isSkippingInactive, playerState.playerRef]);
+
   return {
     isPlaying,
     speed,
     setSpeed,
     playPause,
     seekToRatio,
+    setSkipInactivity: setSkipInactive,
   };
 }

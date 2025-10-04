@@ -11,7 +11,7 @@ type ReplayPlayerContainerProps = {
 };
 
 export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContainerProps) {
-  const { isPlaying, speed, playPause, seekToRatio, setSpeed } = useReplayPlayer(playerState);
+  const { isPlaying, speed, setSkipInactivity, playPause, seekToRatio, setSpeed } = useReplayPlayer(playerState);
 
   return (
     <div className='bg-background rr-block relative flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'>
@@ -22,6 +22,8 @@ export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContai
         durationMs={playerState.durationMs}
         speed={speed}
         onTogglePlay={playPause}
+        isSkippingInactivity={playerState.isSkippingInactive}
+        onSkipInactivityChange={setSkipInactivity}
         onSeekRatio={seekToRatio}
         onSpeedChange={setSpeed}
         markers={playerState.timelineMarkers}

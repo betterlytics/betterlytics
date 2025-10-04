@@ -1,9 +1,13 @@
 'use client';
 
+import { useMemo, useState } from 'react';
+
 import { SessionReplay } from '@/entities/sessionReplays';
 import { Clock, ListVideo } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon, type FlagIconProps } from '@/components/icons';
 import { useLocale } from 'next-intl';
@@ -20,8 +24,29 @@ type SessionReplayListProps = {
 
 export function SessionReplayList({ sessions, selectedSessionId, onSelect }: SessionReplayListProps) {
   const locale = useLocale();
+  const [minDurationFilter, setMinDurationFilter] = useState('');
 
-  const items: ListPanelItem[] = sessions.map((session) => {
+  const normalizedMinDuration = Math.max(0, Number.parseInt(minDurationFilter || '0', 10) || 0);
+
+  const filteredSessions = useMemo(
+    () => sessions.filter((s) => s.duration >= normalizedMinDuration),
+    [sessions, normalizedMinDuration],
+  );
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '') {
+      setMinDurationFilter('');
+      return;
+    }
+
+    const nextValue = Number.parseInt(value, 10);
+    if (Number.isFinite(nextValue) && nextValue >= 0) {
+      setMinDurationFilter(String(nextValue));
+    }
+  };
+
+  const items: ListPanelItem[] = filteredSessions.map((session) => {
     const startedAt = new Date(session.started_at);
     const durationLabel = formatDuration(session.duration);
     const countryName = session.country_code ? getCountryName(session.country_code, locale) : null;
@@ -55,11 +80,9 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
               </span>
             </div>
 
-            <p className='text-foreground mt-2 w-full truncate text-sm font-semibold'>
-              {session.start_url || 'Unknown URL'}
-            </p>
+            <p className='text-foreground mt-3 w-full truncate text-xs'>{session.start_url || 'Unknown URL'}</p>
 
-            <div className='text-muted-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
+            <div className='text-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
               {session.country_code ? (
                 <span
                   className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
@@ -119,8 +142,22 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
   return (
     <SessionListPanel
       title='Sessions'
-      subtitle={`${sessions.length} sessions`}
-      headerRight={null}
+      subtitle={`${filteredSessions.length} sessions`}
+      headerRight={
+        <div className='flex items-center gap-2'>
+          <Input
+            id='session-duration-filter'
+            type='number'
+            min={0}
+            value={minDurationFilter}
+            onChange={handleDurationChange}
+            placeholder='Min duration (s)'
+            aria-label='Filter sessions by minimum duration in seconds'
+            inputMode='numeric'
+            className='cursor-input h-8 w-36 !text-xs shadow-sm md:!text-xs'
+          />
+        </div>
+      }
       items={items}
       empty={emptyState}
     />

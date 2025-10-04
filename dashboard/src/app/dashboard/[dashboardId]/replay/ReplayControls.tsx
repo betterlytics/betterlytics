@@ -1,11 +1,13 @@
 'use client';
 
 import { ChevronDown, Pause, Play } from 'lucide-react';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useId } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
 import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
 import { useTheme } from 'next-themes';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 type Props = {
   isPlaying: boolean;
@@ -13,6 +15,8 @@ type Props = {
   durationMs: number;
   speed: number;
   onTogglePlay: () => void;
+  isSkippingInactivity?: boolean;
+  onSkipInactivityChange?: (value: boolean) => void;
   onSeekRatio: (ratio: number) => void; // 0..1
   onSpeedChange: (speed: number) => void;
   markers?: TimelineMarker[];
@@ -58,6 +62,8 @@ function ReplayControlsComponent({
   durationMs,
   speed,
   onTogglePlay,
+  isSkippingInactivity = false,
+  onSkipInactivityChange,
   onSeekRatio,
   onSpeedChange,
   markers = [],
@@ -70,6 +76,8 @@ function ReplayControlsComponent({
     createMarkerCanvas(resolvedTheme, durationMs, markers);
   }, [durationMs, markers, resolvedTheme]);
 
+  const skipInactivityId = useId();
+
   return (
     <div className={cn('bg-muted/60 border-border/60 flex items-center gap-3 border-t px-3 py-2', className)}>
       <button
@@ -80,6 +88,19 @@ function ReplayControlsComponent({
       >
         {isPlaying ? <Pause className='h-4 w-4' /> : <Play className='h-4 w-4' />}
       </button>
+
+      <div className='flex items-center gap-2 pl-1 text-[11px]'>
+        <Switch
+          id={skipInactivityId}
+          checked={isSkippingInactivity}
+          onCheckedChange={(checked) => onSkipInactivityChange?.(checked)}
+          className='h-[18px] w-9'
+          disabled={onSkipInactivityChange === undefined}
+        />
+        <Label htmlFor={skipInactivityId} className='text-muted-foreground text-[11px] font-normal'>
+          Skip inactivity
+        </Label>
+      </div>
 
       <div className='flex min-w-0 flex-1 items-center gap-2'>
         <div className='text-muted-foreground w-12 shrink-0 text-right text-[11px] tabular-nums'>

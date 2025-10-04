@@ -17,6 +17,7 @@ export type ReplayPlayerHandle = {
   pause: () => void;
   setSpeed: (speed: number) => void;
   reset: () => void;
+  toggleSkipInactive?: () => void;
   addEventListener: <K extends PlayerEventName>(
     type: K,
     listener: (e: CustomEvent<{ payload: PlayerEventDetailMap[K] }>) => void,
@@ -30,6 +31,7 @@ export type ReplayPlayerHandle = {
 type ReplayPlayerProps = {
   onReady?: () => void;
   playerState: UsePlayerStateReturn;
+  skipInactive?: boolean;
 };
 
 type PlayerEventName = 'ui-update-current-time' | 'ui-update-player-state' | 'ui-update-progress';
@@ -90,7 +92,7 @@ const ReplayPlayerComponent = (
           autoPlay: false,
           showController: false,
           speedOption: [1, 2, 4, 8],
-          skipInactive: true,
+          skipInactive: playerState.isSkippingInactive,
           width: size.width,
           height: size.height,
         },
@@ -152,6 +154,9 @@ const ReplayPlayerComponent = (
     },
     reset() {
       destroyPlayer();
+    },
+    toggleSkipInactive() {
+      playerRef.current?.toggleSkipInactive?.();
     },
     addEventListener(type, listener) {
       const target = playerRef.current;
