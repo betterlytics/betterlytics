@@ -252,6 +252,14 @@
     script.getAttribute("data-replay-min-duration") || "0",
     10
   );
+  var idleCutoffMs = (function () {
+    var secs = parseInt(
+      script.getAttribute("data-replay-idle-cutoff") || "600",
+      10
+    );
+    if (isNaN(secs) || secs < 1) secs = 600;
+    return secs * 1000;
+  })();
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
     replaySamplePct = 0;
   }
@@ -300,7 +308,6 @@
     var approxBytes = 0;
     var isFlushing = false;
     var ongoingFlush = null;
-    var idleCutoffMs = 30 * 60 * 1000;
     var visId = null;
     var replaySession = { id: null };
     var consecutiveFlushErrors = 0;
