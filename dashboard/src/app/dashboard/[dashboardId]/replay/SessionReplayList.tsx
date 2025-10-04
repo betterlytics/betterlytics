@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { SessionReplay } from '@/entities/sessionReplays';
 import { Spinner } from '@/components/ui/spinner';
-import { Clock, ListVideo } from 'lucide-react';
+import { Clock, HelpCircle, ListVideo } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -97,44 +97,45 @@ export function SessionReplayList({
 
             <div className='text-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
               {session.country_code ? (
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
-                  title={countryName ?? undefined}
-                  aria-label={countryName ? `Country ${countryName}` : undefined}
+                <SessionDataIconBadge
+                  title={countryName ?? 'Unknown'}
+                  ariaLabel={countryName ? `Country ${countryName}` : 'Unknown'}
                 >
                   <FlagIcon
                     countryCode={session.country_code as FlagIconProps['countryCode']}
                     countryName={countryName ?? ''}
                   />
-                </span>
-              ) : null}
+                </SessionDataIconBadge>
+              ) : (
+                <EmptySessionData />
+              )}
               {session.browser ? (
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
+                <SessionDataIconBadge
                   title={`Browser ${session.browser}`}
-                  aria-label={`Browser ${session.browser}`}
+                  ariaLabel={`Browser ${session.browser}`}
                 >
                   <BrowserIcon name={session.browser} />
-                </span>
-              ) : null}
+                </SessionDataIconBadge>
+              ) : (
+                <EmptySessionData />
+              )}
               {session.os ? (
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
-                  title={`OS ${session.os}`}
-                  aria-label={`OS ${session.os}`}
-                >
+                <SessionDataIconBadge title={`OS ${session.os}`} ariaLabel={`OS ${session.os}`}>
                   <OSIcon name={session.os} />
-                </span>
-              ) : null}
+                </SessionDataIconBadge>
+              ) : (
+                <EmptySessionData />
+              )}
               {session.device_type ? (
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
+                <SessionDataIconBadge
                   title={`Device ${session.device_type}`}
-                  aria-label={`Device ${session.device_type}`}
+                  ariaLabel={`Device ${session.device_type}`}
                 >
                   <DeviceIcon type={session.device_type} />
-                </span>
-              ) : null}
+                </SessionDataIconBadge>
+              ) : (
+                <EmptySessionData />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -184,5 +185,33 @@ export function SessionReplayList({
       hasNextPage={hasNextPage}
       empty={emptyState}
     />
+  );
+}
+
+function SessionDataIconBadge({
+  children,
+  title,
+  ariaLabel,
+}: {
+  children: React.ReactNode;
+  title: string;
+  ariaLabel: string;
+}) {
+  return (
+    <span
+      className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
+      title={title}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </span>
+  );
+}
+
+function EmptySessionData() {
+  return (
+    <SessionDataIconBadge title='Unknown' ariaLabel='Unknown'>
+      <HelpCircle size='1rem' />
+    </SessionDataIconBadge>
   );
 }
