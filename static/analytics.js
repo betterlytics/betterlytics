@@ -523,6 +523,8 @@
           [contenteditable="true"],
           *
         `,
+        blockSelector:
+          "svg[class^='recharts'], svg[class*=' recharts'], .recharts-wrapper, img, iframe",
         slimDOMOptions: {
           script: true,
           comment: true,
@@ -538,7 +540,7 @@
         sampling: {
           mousemove: isCoarsePointer ? false : 120,
           input: "last",
-          media: 250,
+          media: 1000,
           scroll: 150,
           mouseInteraction: true,
         },
