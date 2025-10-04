@@ -15,6 +15,7 @@ import { getCountryName } from '@/utils/countryCodes';
 import { formatDistanceToNow } from 'date-fns';
 import { formatDuration } from '@/utils/dateFormatters';
 import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
+import { capitalizeFirstLetter } from '@/utils/formatters';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -85,7 +86,7 @@ export function SessionReplayList({
         >
           <CardContent className='px-3 py-3'>
             <div className='text-muted-foreground flex w-full items-center justify-between gap-3 text-xs'>
-              <span>Started {formatDistanceToNow(startedAt, { addSuffix: true })}</span>
+              <span>{capitalizeFirstLetter(formatDistanceToNow(startedAt, { addSuffix: true }))}</span>
               <span className='inline-flex items-center gap-1 font-medium'>
                 <Clock className='h-3 w-3' aria-hidden='true' />
                 {durationLabel}
