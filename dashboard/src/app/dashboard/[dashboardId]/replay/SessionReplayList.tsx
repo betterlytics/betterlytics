@@ -1,12 +1,15 @@
 'use client';
 
 import { SessionReplay } from '@/entities/sessionReplays';
+import { Clock, ListVideo } from 'lucide-react';
+
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Clock, HardDrive, ListVideo } from 'lucide-react';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon, type FlagIconProps } from '@/components/icons';
 import { useLocale } from 'next-intl';
 import { getCountryName } from '@/utils/countryCodes';
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
+import { formatDuration } from '@/utils/dateFormatters';
 import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 
 type SessionReplayListProps = {
@@ -17,87 +20,88 @@ type SessionReplayListProps = {
 
 export function SessionReplayList({ sessions, selectedSessionId, onSelect }: SessionReplayListProps) {
   const locale = useLocale();
-  const headerRight = (
-    <div className='flex items-center gap-2'>
-      <label htmlFor='duration-seconds' className='text-muted-foreground sr-only'>
-        Duration (s)
-      </label>
-      <input
-        id='duration-seconds'
-        type='number'
-        inputMode='numeric'
-        placeholder='Duration (s)'
-        className='bg-background border-input text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-primary/40 h-8 w-36 rounded-md border px-2 text-xs outline-none focus-visible:ring-2'
-      />
-    </div>
-  );
 
   const items: ListPanelItem[] = sessions.map((session) => {
     const startedAt = new Date(session.started_at);
-    const endedAt = new Date(session.ended_at);
-    const durationLabel = `${Math.floor(session.duration / 60)}m ${session.duration % 60}s`;
-    const sizeLabel = `${(session.size_bytes / 1024 / 1024).toFixed(1)} MB`;
+    const durationLabel = formatDuration(session.duration);
+    const countryName = session.country_code ? getCountryName(session.country_code, locale) : null;
 
     return {
       id: session.session_id,
       content: (
-        <button
-          type='button'
+        <Card
+          role='button'
+          tabIndex={0}
           onClick={() => onSelect(session)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              onSelect(session);
+            }
+          }}
+          aria-pressed={selectedSessionId === session.session_id}
           className={cn(
-            'border-border/60 group bg-background hover:border-primary/40 flex w-full flex-col rounded-lg border p-3 text-left shadow-sm transition hover:shadow-md',
-            selectedSessionId === session.session_id && 'border-primary bg-primary/5 shadow-md',
+            'border-border/60 bg-muted/40 hover:border-primary/40 hover:bg-primary/10 focus-visible:ring-primary/40 group focus-visible:ring-offset-background flex w-full cursor-pointer flex-col rounded-md transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+            selectedSessionId === session.session_id && 'border-primary bg-primary/10 hover:bg-primary/20',
+            '!gap-0 !py-0',
           )}
         >
-          <div className='flex items-center justify-between gap-3'>
-            <div className='min-w-0 flex-1'>
-              <p className='truncate text-sm font-semibold'>{session.start_url || 'Unknown URL'}</p>
-              <p className='text-muted-foreground text-xs'>
-                Started {formatDistanceToNow(startedAt, { addSuffix: true })}
-              </p>
+          <CardContent className='px-3 py-3'>
+            <div className='text-muted-foreground flex w-full items-center justify-between gap-3 text-xs'>
+              <span>Started {formatDistanceToNow(startedAt, { addSuffix: true })}</span>
+              <span className='inline-flex items-center gap-1 font-medium'>
+                <Clock className='h-3 w-3' aria-hidden='true' />
+                {durationLabel}
+              </span>
             </div>
-            <span className='text-muted-foreground text-xs font-medium'>#{session.session_id.slice(0, 6)}</span>
-          </div>
 
-          <div className='text-muted-foreground mt-3 flex flex-wrap items-center gap-3 text-xs'>
-            <span className='inline-flex items-center gap-1'>
-              <Clock className='h-3 w-3' /> {durationLabel}
-            </span>
-            <span className='inline-flex items-center gap-1'>
-              <HardDrive className='h-3 w-3' /> {sizeLabel}
-            </span>
-            {session.device_type && (
-              <span className='inline-flex items-center gap-1'>
-                <DeviceIcon type={session.device_type} />
-                <span className='capitalize'>{session.device_type}</span>
-              </span>
-            )}
-            {session.browser && (
-              <span className='inline-flex items-center gap-1'>
-                <BrowserIcon name={session.browser} />
-                <span className='capitalize'>{session.browser}</span>
-              </span>
-            )}
-            {session.os && (
-              <span className='inline-flex items-center gap-1'>
-                <OSIcon name={session.os} />
-                <span className='capitalize'>{session.os}</span>
-              </span>
-            )}
-            {session.country_code && (
-              <span className='inline-flex items-center gap-1'>
-                <FlagIcon
-                  countryCode={session.country_code as FlagIconProps['countryCode']}
-                  countryName={getCountryName(session.country_code, locale)}
-                />
-                <span className='font-medium uppercase'>{session.country_code}</span>
-              </span>
-            )}
-            <span className='inline-flex items-center gap-1'>
-              {format(startedAt, 'PPpp')} – {format(endedAt, 'PPpp')}
-            </span>
-          </div>
-        </button>
+            <p className='text-foreground mt-2 w-full truncate text-sm font-semibold'>
+              {session.start_url || 'Unknown URL'}
+            </p>
+
+            <div className='text-muted-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
+              {session.country_code ? (
+                <span
+                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
+                  title={countryName ?? undefined}
+                  aria-label={countryName ? `Country ${countryName}` : undefined}
+                >
+                  <FlagIcon
+                    countryCode={session.country_code as FlagIconProps['countryCode']}
+                    countryName={countryName ?? ''}
+                  />
+                </span>
+              ) : null}
+              {session.browser ? (
+                <span
+                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
+                  title={`Browser ${session.browser}`}
+                  aria-label={`Browser ${session.browser}`}
+                >
+                  <BrowserIcon name={session.browser} />
+                </span>
+              ) : null}
+              {session.os ? (
+                <span
+                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
+                  title={`OS ${session.os}`}
+                  aria-label={`OS ${session.os}`}
+                >
+                  <OSIcon name={session.os} />
+                </span>
+              ) : null}
+              {session.device_type ? (
+                <span
+                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
+                  title={`Device ${session.device_type}`}
+                  aria-label={`Device ${session.device_type}`}
+                >
+                  <DeviceIcon type={session.device_type} />
+                </span>
+              ) : null}
+            </div>
+          </CardContent>
+        </Card>
       ),
     };
   });
@@ -116,9 +120,8 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
     <SessionListPanel
       title='Sessions'
       subtitle={`${sessions.length} sessions`}
-      headerRight={headerRight}
+      headerRight={null}
       items={items}
-      listClassName='space-y-2'
       empty={emptyState}
     />
   );

@@ -1,6 +1,8 @@
 'use client';
 
 import { List, RowComponentProps } from 'react-window';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 type ListPanelProps = {
@@ -11,7 +13,6 @@ type ListPanelProps = {
   children?: React.ReactNode;
   items?: ListPanelItem[];
   empty?: React.ReactNode;
-  listClassName?: string;
 };
 
 export type ListPanelItem = {
@@ -27,34 +28,30 @@ export function SessionListPanel({
   children,
   items,
   empty,
-  listClassName,
 }: ListPanelProps) {
   return (
-    <div
-      className={cn(
-        'bg-muted/40 border-border/60 flex h-full min-h-0 flex-col overflow-hidden rounded-lg border',
-        className,
-      )}
-    >
-      <div className='bg-muted/60 sticky top-0 z-10 flex items-center justify-between gap-3 border-b px-4 py-3'>
-        <div>
-          <h3 className='text-foreground text-sm font-medium tracking-tight'>{title}</h3>
-          {subtitle ? <p className='text-muted-foreground mt-1 text-xs'>{subtitle}</p> : null}
+    <Card className={cn('flex h-full min-h-0 flex-col !gap-0 overflow-hidden !p-0', className)}>
+      <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3'>
+        <div className='space-y-1'>
+          <CardTitle className='text-sm font-medium tracking-tight'>{title}</CardTitle>
+          {subtitle ? <CardDescription className='text-xs leading-relaxed'>{subtitle}</CardDescription> : null}
         </div>
         {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
-      </div>
-      <div className='max-h-[calc(100svh-250px)] flex-1 px-2 py-2'>
-        {items ? (
-          items.length === 0 ? (
-            (empty ?? null)
+      </CardHeader>
+      <CardContent className='flex flex-1 flex-col !px-0 !py-0'>
+        <div className='flex max-h-[calc(100svh-250px)] flex-1 flex-col px-2 py-2'>
+          {items ? (
+            items.length === 0 ? (
+              (empty ?? null)
+            ) : (
+              <List rowComponent={RenderItem} rowCount={items.length} rowHeight={115} rowProps={{ items }} />
+            )
           ) : (
-            <List rowComponent={RenderItem} rowCount={items.length} rowHeight={170} rowProps={{ items }} />
-          )
-        ) : (
-          children
-        )}
-      </div>
-    </div>
+            children
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
