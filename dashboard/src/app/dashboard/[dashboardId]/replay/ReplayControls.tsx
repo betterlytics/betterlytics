@@ -1,13 +1,16 @@
 'use client';
 
-import { ChevronDown, Maximize2, Minimize2, Pause, Play } from 'lucide-react';
-import { memo, useEffect, useId } from 'react';
+import { Maximize2, Minimize2, Pause, Play } from 'lucide-react';
+import { memo, useEffect, useId, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
 import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
 import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 
 type Props = {
   isPlaying: boolean;
@@ -81,27 +84,38 @@ function ReplayControlsComponent({
   }, [durationMs, markers, resolvedTheme]);
 
   const skipInactivityId = useId();
+  const playbackOptions = useMemo(
+    () => [
+      { label: '1x', value: 1 },
+      { label: '2x', value: 2 },
+      { label: '4x', value: 4 },
+      { label: '8x', value: 8 },
+    ],
+    [],
+  );
 
   return (
     <div className={cn('bg-muted/60 border-border/60 flex items-center gap-3 border-t px-3 py-2', className)}>
-      <button
+      <Button
         type='button'
         aria-label={isPlaying ? 'Pause' : 'Play'}
-        className='bg-background hover:bg-accent text-foreground focus-visible:ring-primary/50 inline-flex h-7 w-7 items-center justify-center rounded-md border text-sm shadow-sm transition-colors focus-visible:ring-2 focus-visible:outline-none'
+        size='icon'
+        variant='outline'
         onClick={onTogglePlay}
+        className='h-7 w-7 cursor-pointer'
       >
         {isPlaying ? <Pause className='h-4 w-4' /> : <Play className='h-4 w-4' />}
-      </button>
+      </Button>
 
       <div className='flex items-center gap-2 pl-1 text-[11px]'>
         <Switch
           id={skipInactivityId}
           checked={isSkippingInactivity}
           onCheckedChange={(checked) => onSkipInactivityChange?.(checked)}
-          className='h-4 w-8'
           disabled={onSkipInactivityChange === undefined}
+          className='cursor-pointer'
         />
-        <Label htmlFor={skipInactivityId} className='text-muted-foreground text-[11px] font-normal'>
+        <Label htmlFor={skipInactivityId} className='text-muted-foreground cursor-pointer text-[11px] font-normal'>
           Skip inactivity
         </Label>
       </div>
@@ -115,15 +129,13 @@ function ReplayControlsComponent({
             className='bg-red pointer-events-none absolute -top-1.5 z-[1000] flex h-4 w-full items-center'
             id='marker-canvas'
           />
-          <input
-            type='range'
-            min={0}
+          <Slider
+            aria-label='Seek'
+            value={[Math.round(ratio * 1000)]}
             max={1000}
             step={1}
-            aria-label='Seek'
-            value={Math.round(ratio * 1000)}
-            onChange={(e) => onSeekRatio(Number(e.target.value) / 1000)}
-            className='range-sm range accent-primary w-full'
+            onValueChange={([value]) => onSeekRatio((value as number) / 1000)}
+            className='h-6 w-full cursor-pointer'
           />
         </div>
         <div className='text-muted-foreground w-12 shrink-0 text-[11px] tabular-nums'>
@@ -133,28 +145,34 @@ function ReplayControlsComponent({
 
       <div className='flex items-center gap-2'>
         <div className='relative'>
-          <select
-            aria-label='Playback speed'
-            value={speed}
-            onChange={(e) => onSpeedChange(Number(e.target.value))}
-            className='bg-background text-foreground hover:bg-accent focus-visible:ring-primary/50 peer block h-7 appearance-none rounded-md border px-2 pr-6 text-xs shadow-sm focus-visible:ring-2 focus-visible:outline-none'
-          >
-            <option value={1}>1x</option>
-            <option value={2}>2x</option>
-            <option value={4}>4x</option>
-            <option value={8}>8x</option>
-          </select>
-          <ChevronDown className='text-muted-foreground pointer-events-none absolute top-1.5 right-1.5 h-4 w-4' />
+          <Select value={String(speed)} onValueChange={(value) => onSpeedChange(Number(value))}>
+            <SelectTrigger
+              size='sm'
+              aria-label='Playback speed'
+              className='h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer gap-1 px-2 py-0 text-xs leading-none'
+            >
+              <SelectValue placeholder='Speed' />
+            </SelectTrigger>
+            <SelectContent className='min-w-[60px]'>
+              {playbackOptions.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)} className='cursor-pointer text-xs'>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         {onToggleFullscreen && (
-          <button
+          <Button
             type='button'
             aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            className='bg-background hover:bg-accent text-foreground focus-visible:ring-primary/50 inline-flex h-7 w-7 items-center justify-center rounded-md border text-sm shadow-sm transition-colors focus-visible:ring-2 focus-visible:outline-none'
+            size='icon'
+            variant='outline'
             onClick={onToggleFullscreen}
+            className='h-7 w-7 cursor-pointer'
           >
             {isFullscreen ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
-          </button>
+          </Button>
         )}
       </div>
     </div>
