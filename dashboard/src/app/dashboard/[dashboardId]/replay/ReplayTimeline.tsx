@@ -3,7 +3,6 @@
 import type { eventWithTime } from '@rrweb/types';
 import { memo, useMemo } from 'react';
 import { EventType, IncrementalSource } from '@rrweb/types';
-import { cn } from '@/lib/utils';
 import { ListPanel } from '@/app/dashboard/[dashboardId]/replay/ListPanel';
 import {
   MousePointer2,
@@ -29,6 +28,8 @@ export type TimelineMarker = TimelineMarkerDescriptor & {
 type ReplayTimelineProps = {
   markers: TimelineMarker[];
   onJump: (timestamp: number) => void;
+  className?: string;
+  isSessionSelected?: boolean;
 };
 
 export function buildTimelineMarkers(
@@ -169,13 +170,13 @@ function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
   return groups;
 }
 
-function ReplayTimelineComponent({ markers, onJump }: ReplayTimelineProps) {
+function ReplayTimelineComponent({ markers, onJump, className, isSessionSelected = false }: ReplayTimelineProps) {
   const groups = useMemo(() => buildGroups(markers), [markers]);
   const totalEvents = markers.length;
 
-  const emptyState = (
-    <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
-      No key events detected yet.
+  const timelineEmptyState = (
+    <div className='text-muted-foreground flex h-full items-center justify-center px-4 py-10 text-xs'>
+      {isSessionSelected ? 'No key events detected in this replay yet.' : 'Select a replay to view its timeline.'}
     </div>
   );
 
@@ -184,8 +185,9 @@ function ReplayTimelineComponent({ markers, onJump }: ReplayTimelineProps) {
       title='Timeline'
       subtitle={`${totalEvents} events captured (${groups.length} groups)`}
       groups={groups}
-      listClassName='divide-border/60 divide-y'
-      empty={emptyState}
+      empty={timelineEmptyState}
+      className={className}
+      rowHeight={44}
       onJump={onJump}
     />
   );

@@ -1,8 +1,9 @@
 'use client';
 
 import { List, RowComponentProps } from 'react-window';
-
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { formatDurationPrecise, formatTimestamp } from '@/utils/dateFormatters';
 
 type ListPanelProps = {
   title: string;
@@ -14,11 +15,7 @@ type ListPanelProps = {
   groups?: TimelineGroup[];
   empty?: React.ReactNode;
   listClassName?: string;
-};
-
-export type ListPanelItem = {
-  group: TimelineGroup;
-  isActive: boolean;
+  rowHeight?: number;
 };
 
 export function ListPanel({
@@ -31,38 +28,37 @@ export function ListPanel({
   empty,
   listClassName,
   onJump,
+  rowHeight = 40,
 }: ListPanelProps) {
   return (
-    <div
-      className={cn(
-        'bg-muted/40 border-border/60 flex h-full min-h-0 flex-col overflow-hidden rounded-lg border',
-        className,
-      )}
-    >
-      <div className='bg-muted/60 sticky top-0 z-10 flex items-center justify-between gap-3 border-b px-4 py-3'>
-        <div>
-          <h3 className='text-foreground text-sm font-medium tracking-tight'>{title}</h3>
-          {subtitle ? <p className='text-muted-foreground mt-1 text-xs'>{subtitle}</p> : null}
+    <Card className={cn('flex h-full min-h-0 flex-col !gap-0 overflow-hidden !p-0', className)}>
+      <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3'>
+        <div className='space-y-1'>
+          <CardTitle className='text-sm font-medium tracking-tight'>{title}</CardTitle>
+          {subtitle ? <CardDescription className='text-xs leading-relaxed'>{subtitle}</CardDescription> : null}
         </div>
         {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
-      </div>
-      <div className='max-h-[calc(100svh-250px)] flex-1 px-2 py-2'>
-        {groups ? (
-          groups.length === 0 ? (
-            (empty ?? null)
+      </CardHeader>
+      <CardContent className='flex flex-1 flex-col !px-0 !py-0'>
+        <div className='flex max-h-[calc(100svh-250px)] flex-1 flex-col px-2 py-2'>
+          {groups ? (
+            groups.length === 0 ? (
+              (empty ?? null)
+            ) : (
+              <List
+                className={listClassName}
+                rowComponent={RenderGroup}
+                rowCount={groups.length}
+                rowHeight={rowHeight}
+                rowProps={{ groups, onJump }}
+              />
+            )
           ) : (
-            <List
-              rowComponent={RenderGroup}
-              rowCount={groups.length}
-              rowHeight={40}
-              rowProps={{ groups, onJump }}
-            />
-          )
-        ) : (
-          children
-        )}
-      </div>
-    </div>
+            children
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -89,11 +85,11 @@ function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
       onClick={() => onJump(group.jumpTo)}
       style={style as React.CSSProperties}
       className={cn(
-        'hover:bg-primary/10 focus-visible:ring-primary/40 group flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+        'hover:bg-primary/10 focus-visible:ring-primary/40 group flex w-full cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-left text-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
       )}
     >
       <span className='text-muted-foreground w-8 shrink-0 text-left text-[11px] tabular-nums'>
-        {formatDuration(group.start)}
+        {formatTimestamp(group.start)}
       </span>
       <span className='flex h-5 w-5 shrink-0 items-center justify-center'>{group.icon}</span>
       <div className='min-w-0 flex-1 text-left'>
@@ -111,24 +107,4 @@ function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
       </div>
     </button>
   );
-}
-
-function formatDuration(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
-function formatDurationPrecise(ms: number): string {
-  if (ms < 1000) {
-    return `${(ms / 1000).toFixed(4)} s`;
-  }
-  if (ms < 60_000) {
-    return `${(ms / 1000).toFixed(2)} s`;
-  }
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}m ${seconds}s`;
 }

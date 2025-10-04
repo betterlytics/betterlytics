@@ -99,3 +99,29 @@ export function formatCompactSeconds(seconds: number): string {
 export function formatCompactFromMilliseconds(milliseconds: number): string {
   return formatCompactSeconds(milliseconds / 1000);
 }
+
+/*
+ * Format a timestamp in the format of mm:ss
+ */
+export function formatTimestamp(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+/*
+ * Format a duration with more precision such as 0.0600 s
+ */
+export function formatDurationPrecise(ms: number): string {
+  if (ms < 1000) {
+    return `${(ms / 1000).toFixed(4)}s`;
+  }
+  if (ms < 60_000) {
+    return `${(ms / 1000).toFixed(2)}s`;
+  }
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m ${seconds}s`;
+}
