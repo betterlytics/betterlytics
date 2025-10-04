@@ -24,7 +24,7 @@ export function useSessionManager(dashboardId: string): UseSessionManagerReturn 
 
   const sessionQuery = useQuery({
     queryKey: ['session-replays', dashboardId, startDate, endDate, queryFilters],
-    queryFn: () => fetchSessionReplaysAction(dashboardId, startDate, endDate),
+    queryFn: () => fetchSessionReplaysAction(dashboardId, startDate, endDate, queryFilters),
   });
 
   const sessions = sessionQuery.data ?? [];

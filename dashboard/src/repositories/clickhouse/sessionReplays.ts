@@ -1,15 +1,20 @@
 'use server';
 
 import { clickhouse } from '@/lib/clickhouse';
-import { safeSql } from '@/lib/safe-sql';
+import { safeSql, SQL } from '@/lib/safe-sql';
 import { DateTimeString } from '@/types/dates';
 import { SessionReplayArraySchema, SessionReplay } from '@/entities/sessionReplays';
+import { BAQuery } from '@/lib/ba-query';
+import { QueryFilter } from '@/entities/filter';
 
 export async function getSessionReplays(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  queryFilters: QueryFilter[],
 ): Promise<SessionReplay[]> {
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
   const query = safeSql`
     SELECT
       r.site_id,
@@ -41,6 +46,7 @@ export async function getSessionReplays(
     ) AS e USING (site_id, session_id)
     WHERE r.site_id = {site_id:String}
       AND r.started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND ${SQL.AND(filters)}
     ORDER BY r.started_at DESC
     LIMIT 500
   `;
