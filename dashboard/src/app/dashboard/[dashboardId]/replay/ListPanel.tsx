@@ -47,7 +47,7 @@ export function ListPanel({
         </div>
         {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
       </div>
-      <div className='max-h-svh flex-1 px-2 py-2'>
+      <div className='max-h-[calc(100svh-250px)] flex-1 px-2 py-2'>
         {groups ? (
           groups.length === 0 ? (
             (empty ?? null)

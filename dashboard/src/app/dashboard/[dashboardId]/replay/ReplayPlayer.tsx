@@ -182,7 +182,12 @@ const ReplayPlayerComponent = (
     };
   }, []);
 
-  return <div ref={containerRef} className='flex h-full w-full items-center justify-center bg-white' />;
+  return (
+    <div
+      ref={containerRef}
+      className='flex h-full w-full items-center justify-center dark:[&_.rr-player]:!bg-black'
+    />
+  );
 };
 
 export const ReplayPlayer = forwardRef(ReplayPlayerComponent);

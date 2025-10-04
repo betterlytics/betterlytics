@@ -1,5 +1,8 @@
 'use client';
 
+import { List, RowComponentProps } from 'react-window';
+import { useMemo } from 'react';
+
 import { cn } from '@/lib/utils';
 
 type ListPanelProps = {
@@ -42,21 +45,35 @@ export function SessionListPanel({
         </div>
         {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
       </div>
-      <div className='flex-1 overflow-y-auto px-2 py-2'>
+      <div className='max-h-[calc(100svh-250px)] flex-1 px-2 py-2'>
         {items ? (
           items.length === 0 ? (
             (empty ?? null)
           ) : (
-            <ul className={cn('flex flex-col', listClassName)}>
-              {items.map((item) => (
-                <li key={item.id}>{item.content}</li>
-              ))}
-            </ul>
+            <List
+              rowComponent={RenderItem}
+              rowCount={items.length}
+              rowHeight={170}
+              rowProps={useMemo(() => ({ items }), [items])}
+            />
           )
         ) : (
           children
         )}
       </div>
+    </div>
+  );
+}
+
+type RenderItemProps = RowComponentProps<{
+  items: ListPanelItem[];
+}>;
+
+function RenderItem({ items, index, style }: RenderItemProps) {
+  const item = items[index];
+  return (
+    <div style={style as React.CSSProperties} className='pb-2'>
+      {item.content}
     </div>
   );
 }

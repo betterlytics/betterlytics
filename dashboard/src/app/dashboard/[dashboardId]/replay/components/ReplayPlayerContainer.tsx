@@ -14,7 +14,7 @@ export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContai
   const { isPlaying, speed, playPause, seekToRatio, setSpeed } = useReplayPlayer(playerState);
 
   return (
-    <div className='bg-background rr-block relative flex min-h-0 flex-col overflow-hidden rounded-lg border shadow-sm lg:aspect-video'>
+    <div className='bg-background rr-block relative flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'>
       <ReplayPlayer ref={playerState.playerRef} playerState={playerState} />
       <ReplayControls
         isPlaying={isPlaying}
