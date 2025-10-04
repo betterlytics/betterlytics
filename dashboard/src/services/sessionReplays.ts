@@ -11,11 +11,13 @@ export async function getSessionReplaysForSite(
   startDate: Date,
   endDate: Date,
   queryFilters: QueryFilter[],
+  limit: number,
+  offset: number,
 ) {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
-  return getSessionReplays(siteId, formattedStart, formattedEnd, queryFilters);
+  return getSessionReplays(siteId, formattedStart, formattedEnd, queryFilters, limit, offset);
 }
 
 const s3Repository = new S3ReplaySegmentsRepository();

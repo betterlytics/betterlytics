@@ -12,6 +12,8 @@ export async function getSessionReplays(
   startDate: DateTimeString,
   endDate: DateTimeString,
   queryFilters: QueryFilter[],
+  limit: number,
+  offset: number,
 ): Promise<SessionReplay[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -49,7 +51,7 @@ export async function getSessionReplays(
       AND r.started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND ${SQL.AND(filters)}
     ORDER BY r.started_at DESC
-    LIMIT 500
+    LIMIT {limit:UInt32} OFFSET {offset:UInt32}
   `;
 
   const result = await clickhouse
@@ -59,6 +61,8 @@ export async function getSessionReplays(
         site_id: siteId,
         start_date: startDate,
         end_date: endDate,
+        limit,
+        offset,
       },
     })
     .toPromise();

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchSessionReplaysAction } from '@/app/actions/sessionReplays';
 import type { SessionReplay } from '@/entities/sessionReplays';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
@@ -14,7 +14,12 @@ export type UseSessionManagerReturn = {
   isLoading: boolean;
   error: string | null;
   selectSession: (session: SessionReplay) => void;
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
 };
+
+const PAGE_SIZE = 20;
 
 export function useSessionManager(dashboardId: string): UseSessionManagerReturn {
   const [selectedSession, setSelectedSession] = useState<SessionReplay | null>(null);
@@ -22,12 +27,19 @@ export function useSessionManager(dashboardId: string): UseSessionManagerReturn 
   const { queryFilters } = useQueryFiltersContext();
   const [sessionIdParam, setSessionIdParam] = useUrlSearchParam('sessionId');
 
-  const sessionQuery = useQuery({
-    queryKey: ['session-replays', dashboardId, startDate, endDate, queryFilters],
-    queryFn: () => fetchSessionReplaysAction(dashboardId, startDate, endDate, queryFilters),
+  const sessionQuery = useInfiniteQuery({
+    queryKey: ['session-replays', dashboardId, startDate, endDate, PAGE_SIZE, queryFilters],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchSessionReplaysAction(dashboardId, startDate, endDate, PAGE_SIZE, pageParam, queryFilters),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage: SessionReplay[], allPages: SessionReplay[][]) =>
+      lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,
   });
 
-  const sessions = sessionQuery.data ?? [];
+  const sessions = useMemo(
+    () => sessionQuery.data?.pages.flatMap((page: SessionReplay[]) => page) ?? [],
+    [sessionQuery.data],
+  );
 
   useEffect(() => {
     if (sessions.length === 0) {
@@ -55,7 +67,12 @@ export function useSessionManager(dashboardId: string): UseSessionManagerReturn 
     sessions,
     selectedSession,
     isLoading: sessionQuery.isLoading,
-    error: sessionQuery.error?.message ?? null,
+    error: (sessionQuery.error as Error | null)?.message ?? null,
     selectSession,
+    fetchNextPage: () => {
+      if (sessionQuery.hasNextPage && !sessionQuery.isFetchingNextPage) void sessionQuery.fetchNextPage();
+    },
+    hasNextPage: sessionQuery.hasNextPage ?? false,
+    isFetchingNextPage: sessionQuery.isFetchingNextPage,
   };
 }

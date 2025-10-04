@@ -15,6 +15,9 @@ export function ReplaySessionPanel({ sessionManager, onSelectSession }: ReplaySe
         sessions={sessionManager.sessions}
         selectedSessionId={sessionManager.selectedSession?.session_id}
         onSelect={onSelectSession}
+        onLoadMore={sessionManager.fetchNextPage}
+        isFetchingMore={sessionManager.isFetchingNextPage}
+        hasNextPage={sessionManager.hasNextPage}
       />
     </div>
   );

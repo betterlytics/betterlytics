@@ -11,9 +11,11 @@ export const fetchSessionReplaysAction = withDashboardAuthContext(
     ctx: AuthContext,
     startDate: Date,
     endDate: Date,
+    limit: number,
+    offset: number,
     queryFilters: QueryFilter[],
   ): Promise<SessionReplay[]> => {
-    return getSessionReplaysForSite(ctx.siteId, startDate, endDate, queryFilters);
+    return getSessionReplaysForSite(ctx.siteId, startDate, endDate, queryFilters, limit, offset);
   },
 );
 

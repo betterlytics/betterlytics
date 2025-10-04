@@ -20,9 +20,19 @@ type SessionReplayListProps = {
   sessions: SessionReplay[];
   selectedSessionId?: string;
   onSelect: (session: SessionReplay) => void;
+  onLoadMore?: () => void;
+  isFetchingMore?: boolean;
+  hasNextPage?: boolean;
 };
 
-export function SessionReplayList({ sessions, selectedSessionId, onSelect }: SessionReplayListProps) {
+export function SessionReplayList({
+  sessions,
+  selectedSessionId,
+  onSelect,
+  onLoadMore,
+  isFetchingMore,
+  hasNextPage,
+}: SessionReplayListProps) {
   const locale = useLocale();
   const [minDurationFilter, setMinDurationFilter] = useState('');
 
@@ -159,6 +169,9 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
         </div>
       }
       items={items}
+      onReachEnd={onLoadMore}
+      isFetchingMore={isFetchingMore}
+      hasNextPage={hasNextPage}
       empty={emptyState}
     />
   );
