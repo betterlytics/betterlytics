@@ -1,7 +1,6 @@
 'use client';
 
 import { List, RowComponentProps } from 'react-window';
-import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -47,7 +46,7 @@ export function ListPanel({
         </div>
         {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
       </div>
-      <div className='max-h-svh flex-1 px-2 py-2'>
+      <div className='max-h-[calc(100svh-250px)] flex-1 px-2 py-2'>
         {groups ? (
           groups.length === 0 ? (
             (empty ?? null)
@@ -56,7 +55,7 @@ export function ListPanel({
               rowComponent={RenderGroup}
               rowCount={groups.length}
               rowHeight={40}
-              rowProps={useMemo(() => ({ groups, onJump }), [groups, onJump])}
+              rowProps={{ groups, onJump }}
             />
           )
         ) : (
