@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Pause, Play } from 'lucide-react';
+import { ChevronDown, Maximize2, Minimize2, Pause, Play } from 'lucide-react';
 import { memo, useEffect, useId } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
@@ -21,6 +21,8 @@ type Props = {
   onSpeedChange: (speed: number) => void;
   markers?: TimelineMarker[];
   className?: string;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 };
 
 function formatClock(ms: number): string {
@@ -68,6 +70,8 @@ function ReplayControlsComponent({
   onSpeedChange,
   markers = [],
   className,
+  isFullscreen = false,
+  onToggleFullscreen,
 }: Props) {
   const ratio = durationMs > 0 ? Math.max(0, Math.min(1, currentTime / durationMs)) : 0;
 
@@ -127,19 +131,31 @@ function ReplayControlsComponent({
         </div>
       </div>
 
-      <div className='relative'>
-        <select
-          aria-label='Playback speed'
-          value={speed}
-          onChange={(e) => onSpeedChange(Number(e.target.value))}
-          className='bg-background text-foreground hover:bg-accent focus-visible:ring-primary/50 peer block h-7 appearance-none rounded-md border px-2 pr-6 text-xs shadow-sm focus-visible:ring-2 focus-visible:outline-none'
-        >
-          <option value={1}>1x</option>
-          <option value={2}>2x</option>
-          <option value={4}>4x</option>
-          <option value={8}>8x</option>
-        </select>
-        <ChevronDown className='text-muted-foreground pointer-events-none absolute top-1.5 right-1.5 h-4 w-4' />
+      <div className='flex items-center gap-2'>
+        <div className='relative'>
+          <select
+            aria-label='Playback speed'
+            value={speed}
+            onChange={(e) => onSpeedChange(Number(e.target.value))}
+            className='bg-background text-foreground hover:bg-accent focus-visible:ring-primary/50 peer block h-7 appearance-none rounded-md border px-2 pr-6 text-xs shadow-sm focus-visible:ring-2 focus-visible:outline-none'
+          >
+            <option value={1}>1x</option>
+            <option value={2}>2x</option>
+            <option value={4}>4x</option>
+            <option value={8}>8x</option>
+          </select>
+          <ChevronDown className='text-muted-foreground pointer-events-none absolute top-1.5 right-1.5 h-4 w-4' />
+        </div>
+        {onToggleFullscreen && (
+          <button
+            type='button'
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            className='bg-background hover:bg-accent text-foreground focus-visible:ring-primary/50 inline-flex h-7 w-7 items-center justify-center rounded-md border text-sm shadow-sm transition-colors focus-visible:ring-2 focus-visible:outline-none'
+            onClick={onToggleFullscreen}
+          >
+            {isFullscreen ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
+          </button>
+        )}
       </div>
     </div>
   );
