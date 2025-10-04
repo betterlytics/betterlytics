@@ -291,7 +291,7 @@
     var recordingStop = null;
     var buffer = [];
     var sizeBytes = 0;
-    var totalEventCount = 0;
+    var uploadedEventCount = 0;
     var startedAt = Date.now();
     var lastActivity = Date.now();
     var flushTimer = null;
@@ -343,6 +343,7 @@
         return Promise.resolve();
       }
       var json = JSON.stringify(events);
+      var flushedEventCount = events.length;
       approxBytes = 0;
 
       ongoingFlush = encodeReplayChunk(json)
@@ -381,7 +382,7 @@
                 if (!putResp || putResp.status >= 400) {
                   throw new Error();
                 }
-                totalEventCount += events.length;
+                uploadedEventCount += flushedEventCount;
                 sizeBytes += payload.bytes.byteLength;
                 consecutiveFlushErrors = 0;
                 return putResp;
@@ -411,6 +412,14 @@
       return ongoingFlush;
     }
 
+    function flushAll() {
+      return flush().then(function () {
+        if (replayDisabled) return;
+        if (buffer.length === 0) return;
+        return flushAll();
+      });
+    }
+
     function startFlushLoop() {
       if (flushTimer) clearInterval(flushTimer);
       flushTimer = setInterval(function () {
@@ -436,7 +445,7 @@
         clearInterval(flushTimer);
         flushTimer = null;
       }
-      flush()
+      flushAll()
         .then(function () {
           if (discardSession) return;
           if (!finalize) return;
@@ -454,10 +463,14 @@
               size_bytes: sizeBytes,
               sample_rate: replaySamplePct,
               start_url: normalize(window.location.href),
-              event_count: totalEventCount,
+              event_count: uploadedEventCount,
             }),
             keepalive: true,
-          }).catch(function () {});
+          })
+            .catch(function () {})
+            .finally(function () {
+              uploadedEventCount = 0;
+            });
         })
         .catch(function () {});
     }
