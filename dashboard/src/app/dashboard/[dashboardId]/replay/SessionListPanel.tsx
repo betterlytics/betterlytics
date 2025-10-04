@@ -1,8 +1,6 @@
 'use client';
 
 import { List, RowComponentProps } from 'react-window';
-import { useMemo } from 'react';
-
 import { cn } from '@/lib/utils';
 
 type ListPanelProps = {
@@ -50,12 +48,7 @@ export function SessionListPanel({
           items.length === 0 ? (
             (empty ?? null)
           ) : (
-            <List
-              rowComponent={RenderItem}
-              rowCount={items.length}
-              rowHeight={170}
-              rowProps={useMemo(() => ({ items }), [items])}
-            />
+            <List rowComponent={RenderItem} rowCount={items.length} rowHeight={170} rowProps={{ items }} />
           )
         ) : (
           children
