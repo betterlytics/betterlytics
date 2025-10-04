@@ -1,7 +1,6 @@
 'use client';
 
 import { List, RowComponentProps } from 'react-window';
-import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -56,7 +55,7 @@ export function ListPanel({
               rowComponent={RenderGroup}
               rowCount={groups.length}
               rowHeight={40}
-              rowProps={useMemo(() => ({ groups, onJump }), [groups, onJump])}
+              rowProps={{ groups, onJump }}
             />
           )
         ) : (
