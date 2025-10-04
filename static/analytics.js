@@ -260,6 +260,14 @@
     if (isNaN(secs) || secs < 1) secs = 600;
     return secs * 1000;
   })();
+  var maxDurationMs = (function () {
+    var secs = parseInt(
+      script.getAttribute("data-replay-max-duration") || "1200",
+      10
+    );
+    if (isNaN(secs) || secs < 1) secs = 1200;
+    return secs * 1000;
+  })();
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
     replaySamplePct = 0;
   }
@@ -431,7 +439,10 @@
       if (flushTimer) clearInterval(flushTimer);
       flushTimer = setInterval(function () {
         if (Date.now() - lastActivity > idleCutoffMs) {
-          // idle cutoff: stop recording and finalize
+          stopRecording(true);
+          return;
+        }
+        if (Date.now() - startedAt > maxDurationMs) {
           stopRecording(true);
           return;
         }
