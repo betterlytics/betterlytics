@@ -129,13 +129,15 @@ function ReplayControlsComponent({
             className='bg-red pointer-events-none absolute -top-1.5 z-[1000] flex h-4 w-full items-center'
             id='marker-canvas'
           />
-          <Slider
-            aria-label='Seek'
-            value={[Math.round(ratio * 1000)]}
+          <input
+            type='range'
+            min={0}
             max={1000}
             step={1}
-            onValueChange={([value]) => onSeekRatio((value as number) / 1000)}
-            className='h-6 w-full cursor-pointer'
+            aria-label='Seek'
+            value={Math.round(ratio * 1000)}
+            onChange={(e) => onSeekRatio(Number(e.target.value) / 1000)}
+            className='range-sm range accent-primary w-full cursor-pointer'
           />
         </div>
         <div className='text-muted-foreground w-12 shrink-0 text-[11px] tabular-nums'>
