@@ -88,7 +88,6 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
   return {
     isPlaying,
     speed,
-    isSkippingInactivity: playerState.isSkippingInactive,
     setSpeed,
     playPause,
     seekToRatio,

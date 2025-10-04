@@ -11,19 +11,18 @@ type ReplayPlayerContainerProps = {
 };
 
 export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContainerProps) {
-  const { isPlaying, speed, isSkippingInactivity, setSkipInactivity, playPause, seekToRatio, setSpeed } =
-    useReplayPlayer(playerState);
+  const { isPlaying, speed, setSkipInactivity, playPause, seekToRatio, setSpeed } = useReplayPlayer(playerState);
 
   return (
     <div className='bg-background rr-block relative flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'>
-      <ReplayPlayer ref={playerState.playerRef} playerState={playerState} skipInactive={isSkippingInactivity} />
+      <ReplayPlayer ref={playerState.playerRef} playerState={playerState} />
       <ReplayControls
         isPlaying={isPlaying}
         currentTime={playerState.currentTime}
         durationMs={playerState.durationMs}
         speed={speed}
         onTogglePlay={playPause}
-        isSkippingInactivity={isSkippingInactivity}
+        isSkippingInactivity={playerState.isSkippingInactive}
         onSkipInactivityChange={setSkipInactivity}
         onSeekRatio={seekToRatio}
         onSpeedChange={setSpeed}

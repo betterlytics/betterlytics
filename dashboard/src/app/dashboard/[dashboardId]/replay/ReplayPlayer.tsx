@@ -47,7 +47,7 @@ type PlayerEventTarget = {
 };
 
 const ReplayPlayerComponent = (
-  { onReady, playerState, skipInactive = true }: ReplayPlayerProps,
+  { onReady, playerState }: ReplayPlayerProps,
   ref: React.ForwardedRef<ReplayPlayerHandle>,
 ) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -92,7 +92,7 @@ const ReplayPlayerComponent = (
           autoPlay: false,
           showController: false,
           speedOption: [1, 2, 4, 8],
-          skipInactive,
+          skipInactive: playerState.isSkippingInactive,
           width: size.width,
           height: size.height,
         },
