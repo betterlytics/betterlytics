@@ -24,6 +24,7 @@ pub struct FinalizeMeta {
     pub size_bytes: u64,
     pub sample_rate: u8,
     pub start_url: String,
+    pub event_count: u32,
 }
 
 static FINALIZE_CACHE: Lazy<Cache<String, FinalizeMeta>> = Lazy::new(|| {
@@ -103,6 +104,7 @@ pub struct FinalizeRequest {
     pub size_bytes: u64,
     pub sample_rate: Option<u8>,
     pub start_url: Option<String>,
+    pub event_count: Option<u32>,
 }
 
 pub async fn finalize_session_replay(
@@ -112,6 +114,7 @@ pub async fn finalize_session_replay(
     let key = cache_key(&req.site_id, &req.session_id);
     let started = chrono::DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = chrono::DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
+    let incoming_event_count = req.event_count.unwrap_or_default();
     let mut meta = if let Some(existing) = FINALIZE_CACHE.get(&key) {
         if req.ended_at <= existing.ended_at.timestamp() && req.size_bytes <= existing.size_bytes {
             return Ok(StatusCode::OK);
@@ -124,6 +127,7 @@ pub async fn finalize_session_replay(
             size_bytes: req.size_bytes,
             sample_rate: req.sample_rate.unwrap_or(100),
             start_url: req.start_url.clone().unwrap_or_default(),
+            event_count: incoming_event_count,
         }
     };
 
@@ -131,6 +135,7 @@ pub async fn finalize_session_replay(
     meta.ended_at = meta.ended_at.max(ended);
     meta.size_bytes = meta.size_bytes.saturating_add(req.size_bytes);
     meta.sample_rate = req.sample_rate.unwrap_or(meta.sample_rate);
+    meta.event_count = meta.event_count.max(incoming_event_count);
     if meta.start_url.is_empty() {
         meta.start_url = req.start_url.clone().unwrap_or_default();
     }
@@ -148,6 +153,7 @@ pub async fn finalize_session_replay(
         duration,
         date,
         size_bytes: meta.size_bytes,
+        event_count: meta.event_count,
         s3_prefix,
         sample_rate: meta.sample_rate,
         start_url: meta.start_url.clone(),

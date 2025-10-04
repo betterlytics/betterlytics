@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS analytics.session_replays (
     duration UInt32,
     date Date,
     size_bytes UInt64,
-    segment_count UInt16,
+    event_count UInt32,
     s3_prefix String,
     sample_rate UInt8,
     start_url String

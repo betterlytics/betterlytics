@@ -291,6 +291,7 @@
     var recordingStop = null;
     var buffer = [];
     var sizeBytes = 0;
+    var totalEventCount = 0;
     var startedAt = Date.now();
     var lastActivity = Date.now();
     var flushTimer = null;
@@ -380,6 +381,7 @@
                 if (!putResp || putResp.status >= 400) {
                   throw new Error();
                 }
+                totalEventCount += events.length;
                 sizeBytes += payload.bytes.byteLength;
                 consecutiveFlushErrors = 0;
                 return putResp;
@@ -452,6 +454,7 @@
               size_bytes: sizeBytes,
               sample_rate: replaySamplePct,
               start_url: normalize(window.location.href),
+              event_count: totalEventCount,
             }),
             keepalive: true,
           }).catch(function () {});

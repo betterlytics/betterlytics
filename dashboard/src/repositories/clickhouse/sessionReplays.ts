@@ -25,6 +25,7 @@ export async function getSessionReplays(
       r.duration,
       r.date,
       r.size_bytes,
+      r.event_count,
       r.s3_prefix,
       r.sample_rate,
       r.start_url,
