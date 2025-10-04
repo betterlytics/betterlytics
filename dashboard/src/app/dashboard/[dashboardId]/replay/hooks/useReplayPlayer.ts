@@ -4,6 +4,7 @@ import { type UsePlayerStateReturn } from './usePlayerState';
 export function useReplayPlayer(playerState: UsePlayerStateReturn) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeedState] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
   const appliedSkipStateRef = useRef(playerState.isSkippingInactive);
 
   const playPause = useCallback(() => {
@@ -29,10 +30,10 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
       const duration = playerState.durationMs;
       const clamped = Math.max(0, Math.min(1, ratio));
       const target = Math.floor(duration * clamped);
+      setCurrentTime(target);
       playerState.playerRef.current?.seekTo(target);
-      playerState.setCurrentTime(target);
     },
-    [playerState],
+    [playerState.durationMs, playerState.playerRef],
   );
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
 
     const onTime = (event: any) => {
       if (event.payload) {
-        playerState.setCurrentTime(event.payload);
+        setCurrentTime(event.payload);
       }
     };
 
@@ -59,13 +60,13 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
         (player as any).removeEventListener?.('ui-update-player-state', onState as EventListener);
       } catch {}
     };
-  }, [playerState]);
+  }, [playerState.playerRef]);
 
   const setSkipInactive = useCallback(
     (enabled: boolean) => {
       playerState.setSkippingInactive(enabled);
     },
-    [playerState],
+    [playerState.setSkippingInactive],
   );
 
   useEffect(() => {
@@ -88,6 +89,7 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
   return {
     isPlaying,
     speed,
+    currentTime,
     setSpeed,
     playPause,
     seekToRatio,

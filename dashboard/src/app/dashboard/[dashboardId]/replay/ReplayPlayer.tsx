@@ -104,10 +104,8 @@ const ReplayPlayerComponent = (
 
       onReady?.();
     },
-    [destroyPlayer, size, onReady],
+    [destroyPlayer, size, onReady, playerState.isSkippingInactive],
   );
-
-  useEffect(() => recreatePlayer(playerState.eventsRef.current), [size]);
 
   useImperativeHandle(ref, () => ({
     loadInitialEvents(events) {
@@ -178,8 +176,9 @@ const ReplayPlayerComponent = (
   }));
 
   useEffect(() => {
+    recreatePlayer(playerState.eventsRef.current);
     playerRef.current?.triggerResize();
-  }, [size]);
+  }, [size, playerState.eventsRef, playerRef]);
 
   useEffect(() => {
     return () => {

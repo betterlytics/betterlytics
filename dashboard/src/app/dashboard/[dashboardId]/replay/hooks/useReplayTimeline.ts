@@ -16,17 +16,14 @@ function calcDurationMs(events: eventWithTime[], origin: number): number {
 
 export type UseReplayTimelineReturn = {
   timelineMarkers: TimelineMarker[];
-  currentTime: number;
   durationMs: number;
   initializeTimeline: (events: eventWithTime[], sessionId: string) => void;
   appendToTimeline: (events: eventWithTime[], sessionId: string) => void;
-  setCurrentTime: (time: number) => void;
   reset: () => void;
 };
 
 export function useReplayTimeline(): UseReplayTimelineReturn {
   const [timelineMarkers, setTimelineMarkers] = useState<TimelineMarker[]>([]);
-  const [currentTime, setCurrentTime] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
   const originTimestampRef = useRef<number | null>(null);
 
@@ -42,7 +39,6 @@ export function useReplayTimeline(): UseReplayTimelineReturn {
     }));
 
     setTimelineMarkers(markers);
-    setCurrentTime(0);
   }, []);
 
   const appendToTimeline = useCallback((events: eventWithTime[], sessionId: string) => {
@@ -74,18 +70,15 @@ export function useReplayTimeline(): UseReplayTimelineReturn {
 
   const reset = useCallback(() => {
     setTimelineMarkers([]);
-    setCurrentTime(0);
     setDurationMs(0);
     originTimestampRef.current = null;
   }, []);
 
   return {
     timelineMarkers,
-    currentTime,
     durationMs,
     initializeTimeline,
     appendToTimeline,
-    setCurrentTime,
     reset,
   };
 }

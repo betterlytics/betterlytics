@@ -12,10 +12,8 @@ export type UsePlayerStateReturn = {
   isPrefetching: boolean;
   error: string | null;
   timelineMarkers: ReturnType<typeof useReplayTimeline>['timelineMarkers'];
-  currentTime: number;
   durationMs: number;
   eventsRef: React.RefObject<eventWithTime[]>;
-  setCurrentTime: (time: number) => void;
   isSkippingInactive: boolean;
   setSkippingInactive: (value: boolean) => void;
   loadSession: (session: SessionWithSegments) => Promise<void>;
@@ -59,7 +57,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
         }
       }
     },
-    [segmentLoader, timeline],
+    [segmentLoader, timeline.initializeTimeline],
   );
 
   const prefetchRemainingSegments = useCallback(
@@ -92,7 +90,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
         }
       });
     },
-    [segmentLoader, timeline],
+    [segmentLoader, timeline.appendToTimeline],
   );
 
   const loadSession = useCallback(
@@ -110,7 +108,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
         prefetchRemainingSegments(session);
       }
     },
-    [segmentLoader, timeline, loadInitialSegment, prefetchRemainingSegments],
+    [segmentLoader, timeline.reset, loadInitialSegment, prefetchRemainingSegments],
   );
 
   const jumpTo = useCallback((timestamp: number) => {
@@ -124,7 +122,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
     currentSessionIdRef.current = null;
     nextSegmentIndex.current = 0;
     eventsRef.current = [];
-  }, [segmentLoader, timeline]);
+  }, [segmentLoader, timeline.reset]);
 
   return {
     playerRef,
@@ -132,9 +130,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
     isPrefetching,
     error: segmentLoader.error,
     timelineMarkers: timeline.timelineMarkers,
-    currentTime: timeline.currentTime,
     durationMs: timeline.durationMs,
-    setCurrentTime: timeline.setCurrentTime,
     isSkippingInactive,
     setSkippingInactive,
     loadSession,
