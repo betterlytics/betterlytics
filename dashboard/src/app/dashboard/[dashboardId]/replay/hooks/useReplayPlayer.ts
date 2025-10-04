@@ -27,13 +27,22 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
 
   const seekToRatio = useCallback(
     (ratio: number) => {
+      const player = playerState.playerRef.current;
+      if (!player) return;
+
       const duration = playerState.durationMs;
       const clamped = Math.max(0, Math.min(1, ratio));
       const target = Math.floor(duration * clamped);
+
       setCurrentTime(target);
-      playerState.playerRef.current?.seekTo(target);
+
+      if (isPlaying) {
+        player.pause();
+      }
+
+      player.seekTo(target);
     },
-    [playerState.durationMs, playerState.playerRef],
+    [playerState.durationMs, playerState.playerRef, isPlaying],
   );
 
   useEffect(() => {

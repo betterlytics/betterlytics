@@ -132,7 +132,11 @@ const ReplayPlayerComponent = (
       if (!playerRef.current) {
         return;
       }
-      playerRef.current.goto(timeOffset, false);
+      try {
+        playerRef.current.goto(timeOffset, false);
+      } catch (error) {
+        console.warn('Failed to seek to time:', timeOffset, error);
+      }
     },
     getCurrentTime() {
       if (!playerRef.current) {
