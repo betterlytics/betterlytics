@@ -98,7 +98,7 @@ function ReplayControlsComponent({
           id={skipInactivityId}
           checked={isSkippingInactivity}
           onCheckedChange={(checked) => onSkipInactivityChange?.(checked)}
-          className='h-[18px] w-9'
+          className='h-4 w-8'
           disabled={onSkipInactivityChange === undefined}
         />
         <Label htmlFor={skipInactivityId} className='text-muted-foreground text-[11px] font-normal'>
