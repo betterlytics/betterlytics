@@ -18,6 +18,7 @@ export function ReplaySessionPanel({ sessionManager, onSelectSession }: ReplaySe
         onLoadMore={sessionManager.fetchNextPage}
         isFetchingMore={sessionManager.isFetchingNextPage}
         hasNextPage={sessionManager.hasNextPage}
+        isLoadingInitial={sessionManager.isLoading}
       />
     </div>
   );

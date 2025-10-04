@@ -3,11 +3,11 @@
 import { useMemo, useState } from 'react';
 
 import { SessionReplay } from '@/entities/sessionReplays';
+import { Spinner } from '@/components/ui/spinner';
 import { Clock, ListVideo } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon, type FlagIconProps } from '@/components/icons';
 import { useLocale } from 'next-intl';
@@ -23,6 +23,7 @@ type SessionReplayListProps = {
   onLoadMore?: () => void;
   isFetchingMore?: boolean;
   hasNextPage?: boolean;
+  isLoadingInitial?: boolean;
 };
 
 export function SessionReplayList({
@@ -32,6 +33,7 @@ export function SessionReplayList({
   onLoadMore,
   isFetchingMore,
   hasNextPage,
+  isLoadingInitial,
 }: SessionReplayListProps) {
   const locale = useLocale();
   const [minDurationFilter, setMinDurationFilter] = useState('');
@@ -139,7 +141,14 @@ export function SessionReplayList({
     };
   });
 
-  const emptyState = (
+  const emptyState = isLoadingInitial ? (
+    <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
+      <div className='flex flex-col items-center gap-1'>
+        <Spinner size='sm' />
+        <span>Loading sessions…</span>
+      </div>
+    </div>
+  ) : (
     <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
       <div className='flex flex-col items-center'>
         <ListVideo className='text-muted-foreground/70 mb-3 h-8 w-8' />
