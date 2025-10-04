@@ -36,10 +36,6 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
 
       setCurrentTime(target);
 
-      if (isPlaying) {
-        player.pause();
-      }
-
       player.seekTo(target);
     },
     [playerState.durationMs, playerState.playerRef, isPlaying],
