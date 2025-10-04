@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useTransition } from 'react';
+import { useCallback, useRef, useTransition, useState } from 'react';
 import type { ReplayPlayerHandle } from '@/app/dashboard/[dashboardId]/replay/ReplayPlayer';
 import type { eventWithTime } from '@rrweb/types';
 import { useSegmentLoader, type SessionWithSegments } from './useSegmentLoader';
@@ -16,6 +16,8 @@ export type UsePlayerStateReturn = {
   durationMs: number;
   eventsRef: React.RefObject<eventWithTime[]>;
   setCurrentTime: (time: number) => void;
+  isSkippingInactive: boolean;
+  setSkippingInactive: (value: boolean) => void;
   loadSession: (session: SessionWithSegments) => Promise<void>;
   jumpTo: (timestamp: number) => void;
   reset: () => void;
@@ -27,6 +29,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
   const currentSessionIdRef = useRef<string | null>(null);
   const nextSegmentIndex = useRef(0);
   const eventsRef = useRef<eventWithTime[]>([]);
+  const [isSkippingInactive, setSkippingInactive] = useState(true);
 
   const segmentLoader = useSegmentLoader(dashboardId);
   const timeline = useReplayTimeline();
@@ -132,6 +135,8 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
     currentTime: timeline.currentTime,
     durationMs: timeline.durationMs,
     setCurrentTime: timeline.setCurrentTime,
+    isSkippingInactive,
+    setSkippingInactive,
     loadSession,
     jumpTo,
     reset,
