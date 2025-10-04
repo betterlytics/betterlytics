@@ -80,11 +80,9 @@ export function SessionReplayList({ sessions, selectedSessionId, onSelect }: Ses
               </span>
             </div>
 
-            <p className='text-foreground mt-2 w-full truncate text-sm font-semibold'>
-              {session.start_url || 'Unknown URL'}
-            </p>
+            <p className='text-foreground mt-3 w-full truncate text-xs'>{session.start_url || 'Unknown URL'}</p>
 
-            <div className='text-muted-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
+            <div className='text-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
               {session.country_code ? (
                 <span
                   className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
