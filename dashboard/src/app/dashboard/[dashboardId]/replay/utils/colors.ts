@@ -8,7 +8,7 @@ export function markerBgClassForLabel(label: string): string {
       return 'bg-emerald-500 dark:bg-emerald-400';
     case 'DOM Mutation':
     case 'Full snapshot':
-      return 'bg-violet-500 dark:bg-violet-400';
+      return 'bg-green-500 dark:bg-green-400';
     case 'Scroll':
       return 'bg-amber-500 dark:bg-amber-400';
     case 'Navigation':
@@ -40,7 +40,7 @@ const colorMap: Record<string, Record<string, string>> = {
     'Mouse Interaction': `#38bdf8`,
     Selection: `#34d399`,
     'DOM Mutation': `#a78bfa`,
-    'Full snapshot': `#a78bfa`,
+    'Full snapshot': `#05df72`,
     Scroll: `#fbbf24`,
     Navigation: `oklch(56% 0.196 268.74)`,
     Input: `#fb7185`,

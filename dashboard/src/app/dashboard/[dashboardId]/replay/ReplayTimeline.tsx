@@ -13,6 +13,7 @@ import {
   Keyboard,
   Eye,
   Tag,
+  Camera,
 } from 'lucide-react';
 
 export type TimelineMarkerDescriptor = {
@@ -125,7 +126,7 @@ function iconForLabel(label: string): React.ReactNode {
     case 'Input':
       return <Keyboard className={`${ICON_BASE_CLASS} text-rose-500 dark:text-rose-400`} />;
     case 'Full snapshot':
-      return <FilePen className={`${ICON_BASE_CLASS} text-violet-500 dark:text-violet-400`} />;
+      return <Camera className={`${ICON_BASE_CLASS} text-green-500 dark:text-green-400`} />;
     case 'Pageview':
       return <Eye className={`${ICON_BASE_CLASS} text-sky-500 dark:text-sky-400`} />;
     default:
