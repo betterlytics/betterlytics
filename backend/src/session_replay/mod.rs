@@ -16,6 +16,7 @@ use crate::db::{SharedDatabase, SessionReplayRow};
 use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::EventValidator;
+use crate::url_utils::extract_domain_and_path_from_url;
 
 #[derive(Clone)]
 pub struct FinalizeMeta {
@@ -114,6 +115,15 @@ pub async fn finalize_session_replay(
     let key = cache_key(&req.site_id, &req.session_id);
     let started = chrono::DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = chrono::DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
+    let normalized_start_url = req
+        .start_url
+        .as_deref()
+        .map(|url| {
+            let (_, path) = extract_domain_and_path_from_url(url);
+            path
+        })
+        .unwrap_or_default();
+
     let mut meta = if let Some(existing) = FINALIZE_CACHE.get(&key) {
         if req.ended_at <= existing.ended_at.timestamp() && req.size_bytes <= existing.size_bytes {
             return Ok(StatusCode::OK);
@@ -125,7 +135,7 @@ pub async fn finalize_session_replay(
             ended_at: ended,
             size_bytes: req.size_bytes,
             sample_rate: req.sample_rate.unwrap_or(100),
-            start_url: req.start_url.clone().unwrap_or_default(),
+            start_url: normalized_start_url.clone(),
             event_count: 0,
         }
     };
@@ -136,7 +146,7 @@ pub async fn finalize_session_replay(
     meta.sample_rate = req.sample_rate.unwrap_or(meta.sample_rate);
     meta.event_count = meta.event_count.saturating_add(req.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
-        meta.start_url = req.start_url.clone().unwrap_or_default();
+        meta.start_url = normalized_start_url.clone();
     }
 
     let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
