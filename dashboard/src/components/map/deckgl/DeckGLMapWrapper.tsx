@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic';
 import React from 'react';
-import type { GeoVisitor } from '@/entities/geography';
 import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 
 // Dynamically import the DeckGLMap component
