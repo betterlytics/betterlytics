@@ -86,6 +86,13 @@ export function buildTimelineMarkers(
         }
 
         if (source === IncrementalSource.Input) {
+          const data = event.data as Record<string, unknown> | undefined;
+          const hasTextChange = Boolean(data && 'text' in data);
+          const hasCheckedChange = Boolean(data && 'isChecked' in data);
+          if (!hasTextChange && !hasCheckedChange) {
+            return null;
+          }
+
           return {
             label: 'Input',
             timestamp: timeFromStart,
