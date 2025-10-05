@@ -46,12 +46,12 @@ export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStylePro
         ? {
             fillColor: fillColorScale?.(visitors) ?? MAP_VISITOR_COLORS.NO_VISITORS,
             color: borderColorScale?.(visitors) ?? MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
-            weight: 1.5,
+            weight: 0.6,
           }
         : {
             fillColor: MAP_VISITOR_COLORS.NO_VISITORS,
             color: MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
-            weight: 1.3,
+            weight: 0.5,
           }),
       fillOpacity: 0.8,
       opacity: 1,
@@ -63,7 +63,7 @@ export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStylePro
     (visitors: number) => ({
       ...originalStyle(visitors),
       color: MAP_FEATURE_BORDER_COLORS.CLICKED,
-      weight: 2,
+      weight: 1.5,
       fillOpacity: 1,
     }),
     [originalStyle],

@@ -120,7 +120,7 @@
 
   --graph-fill-low: oklch(85% 0.08 255);
   --graph-fill-medium: oklch(62% 0.16 262);
-  --graph-fill-high: oklch(52% 0.2 266);
+  --graph-fill-high: oklch(42.4% 45.25% 265.638);
   --graph-fill-none: oklch(71.4% 4.75% 261.325);
 
   --weekly-heatmap-fill-none: oklch(80.4% 4.75% 261.325);
@@ -197,7 +197,7 @@
 
   --graph-fill-low: oklch(78% 0.118 268.64);
   --graph-fill-medium: oklch(55% 0.17 268.71);
-  --graph-fill-high: oklch(35% 0.222 268.78);
+  --graph-fill-high: oklch(40% 45.25% 265.638);
   --graph-fill-none: oklch(65.4% 4.75% 261.325); /* Neutral gray */
 
   --weekly-heatmap-fill-none: oklch(75.4% 12% 261.325);
