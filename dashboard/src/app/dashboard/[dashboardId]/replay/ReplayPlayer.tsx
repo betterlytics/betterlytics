@@ -179,13 +179,16 @@ const ReplayPlayerComponent = (
 
           try {
             playerRef.current?.goto(timeOffset);
+            return;
           } catch (retryError) {
             console.warn(
               `Could not seek to exact time after type ${fallbackEventType}, staying at type ${fallbackEventType} event`,
             );
+            playerRef.current?.goto(closestEventBefore);
           }
         } catch (typeError) {
           console.warn(`Failed to seek to type ${fallbackEventType} event:`, typeError);
+          playerRef.current?.goto(closestEventBefore);
         }
       }
     },
