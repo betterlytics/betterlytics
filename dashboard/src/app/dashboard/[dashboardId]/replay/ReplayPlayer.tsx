@@ -55,7 +55,7 @@ const ReplayPlayerComponent = (
   const playerRef = useRef<rrwebPlayer | null>(null);
   const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
 
-  const findClosestEvent = useCallback(
+  const findClosestEventBefore = useCallback(
     (timeOffset: number, eventType: number = 2) => {
       const events = playerState.eventsRef.current;
       if (events.length === 0) {
@@ -65,23 +65,17 @@ const ReplayPlayerComponent = (
       const originTimestamp = events[0]?.timestamp ?? 0;
       const targetAbsoluteTime = originTimestamp + timeOffset;
 
-      const filteredEvents = events.filter((e) => e.type === eventType);
+      const filteredEvents = events.filter((e) => e.type === eventType && e.timestamp <= targetAbsoluteTime);
 
       if (filteredEvents.length === 0) {
         return null;
       }
 
       let closestEvent = filteredEvents[0];
-      let minDiff = Math.abs(closestEvent.timestamp - targetAbsoluteTime);
 
       for (const event of filteredEvents) {
-        const diff = Math.abs(event.timestamp - targetAbsoluteTime);
-        if (diff < minDiff) {
-          minDiff = diff;
+        if (event.timestamp <= targetAbsoluteTime && event.timestamp > closestEvent.timestamp) {
           closestEvent = event;
-        }
-        if (event.timestamp > targetAbsoluteTime) {
-          break;
         }
       }
 
@@ -171,13 +165,28 @@ const ReplayPlayerComponent = (
       try {
         playerRef.current.goto(timeOffset);
       } catch (error) {
+        const fallbackEventType = 2;
+        console.warn(`Direct seek failed, using type ${fallbackEventType} fallback strategy:`, error);
         recreatePlayer(playerState.eventsRef.current, isPlaying);
+
+        const closestEventBefore = findClosestEventBefore(timeOffset, fallbackEventType);
+        if (closestEventBefore === null) {
+          return;
+        }
+
         try {
-          const closestTypeTimeOffset = findClosestEvent(timeOffset);
-          if (closestTypeTimeOffset !== null) {
-            playerRef.current.goto(closestTypeTimeOffset);
+          playerRef.current?.goto(closestEventBefore);
+
+          try {
+            playerRef.current?.goto(timeOffset);
+          } catch (retryError) {
+            console.warn(
+              `Could not seek to exact time after type ${fallbackEventType}, staying at type ${fallbackEventType} event`,
+            );
           }
-        } catch {}
+        } catch (typeError) {
+          console.warn(`Failed to seek to type ${fallbackEventType} event:`, typeError);
+        }
       }
     },
     getCurrentTime() {
