@@ -138,28 +138,8 @@ const ReplayPlayerComponent = (
     [destroyPlayer, size, onReady, playerState.isSkippingInactive],
   );
 
-  useImperativeHandle(ref, () => ({
-    loadInitialEvents(events) {
-      if (!containerRef.current) {
-        throw new Error('Replay container not mounted');
-      }
-
-      if (events.length === 0) {
-        return;
-      }
-
-      recreatePlayer(events);
-    },
-    appendEvents(events) {
-      if (!playerRef.current || events.length === 0) {
-        return;
-      }
-      // Use try/catch to avoid noisy console errors if player was disposed mid-loop
-      try {
-        events.forEach((event) => playerRef.current?.addEvent(event));
-      } catch (_err) {}
-    },
-    seekTo(timeOffset) {
+  const seekTo = useCallback(
+    (timeOffset: number) => {
       if (!playerRef.current) {
         return;
       }
@@ -197,6 +177,33 @@ const ReplayPlayerComponent = (
         recreatePlayer(playerState.eventsRef.current, isPlaying);
         playerRef.current?.goto(closestEventBefore);
       }
+    },
+    [recreatePlayer, playerRef, findClosestEventBefore],
+  );
+
+  useImperativeHandle(ref, () => ({
+    loadInitialEvents(events) {
+      if (!containerRef.current) {
+        throw new Error('Replay container not mounted');
+      }
+
+      if (events.length === 0) {
+        return;
+      }
+
+      recreatePlayer(events);
+    },
+    appendEvents(events) {
+      if (!playerRef.current || events.length === 0) {
+        return;
+      }
+      // Use try/catch to avoid noisy console errors if player was disposed mid-loop
+      try {
+        events.forEach((event) => playerRef.current?.addEvent(event));
+      } catch (_err) {}
+    },
+    seekTo(timeOffset) {
+      return seekTo(timeOffset);
     },
     getCurrentTime() {
       if (!playerRef.current) {
@@ -251,12 +258,12 @@ const ReplayPlayerComponent = (
 
     if (typeof previousTime === 'number') {
       try {
-        playerRef.current?.goto(previousTime);
+        seekTo(previousTime);
       } catch {}
     }
 
     playerRef.current?.triggerResize();
-  }, [size, playerState.eventsRef, playerRef]);
+  }, [size, playerState.eventsRef, playerRef, seekTo]);
 
   useEffect(() => {
     return () => {
