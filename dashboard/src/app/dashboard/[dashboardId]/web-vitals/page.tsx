@@ -14,10 +14,11 @@ import InteractiveWebVitalsChartSection from './InteractiveWebVitalsChartSection
 import WebVitalsTableSection from './webVitalsTableSection';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
 type PageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<{ filters: string }>;
+  searchParams: Promise<FilterQuerySearchParams>;
 };
 
 export default async function WebVitalsPage({ params, searchParams }: PageParams) {
@@ -27,8 +28,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters, granularity } =
-    await BAFilterSearchParams.decodeFromParams(searchParams);
+  const { startDate, endDate, queryFilters, granularity } = BAFilterSearchParams.decode(await searchParams);
 
   const summaryPromise = fetchCoreWebVitalsSummaryAction(dashboardId, startDate, endDate, queryFilters);
   const seriesPromise = fetchCoreWebVitalChartDataAction(
@@ -65,7 +65,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('webVitals')}>
-        <DashboardFilters />
+        <DashboardFilters showComparison={false} />
       </DashboardHeader>
 
       <Suspense fallback={<ChartSkeleton />}>

@@ -7,25 +7,39 @@ import { type ComparisonMapping } from '@/types/charts';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
+import { useLocale } from 'next-intl';
 
 interface ChartDataPoint {
   date: string | number;
-  value: number[];
+  value: Array<number | null>;
 }
 
 interface InteractiveChartProps {
   data: ChartDataPoint[];
+  incomplete?: ChartDataPoint[];
   color: string;
   formatValue?: (value: number) => string;
   granularity?: GranularityRangeValues;
   comparisonMap?: ComparisonMapping[];
   headerContent?: React.ReactNode;
   tooltipTitle?: string;
+  labelPaddingLeft?: number;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
-  ({ data, color, formatValue, granularity, comparisonMap, headerContent, tooltipTitle }) => {
-    const axisFormatter = useMemo(() => granularityDateFormatter(granularity), [granularity]);
+  ({
+    data,
+    incomplete,
+    color,
+    formatValue,
+    granularity,
+    comparisonMap,
+    headerContent,
+    tooltipTitle,
+    labelPaddingLeft,
+  }) => {
+    const locale = useLocale();
+    const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
         const text = formatValue ? formatValue(value) : formatNumber(value);
@@ -40,10 +54,17 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 py-1 sm:px-2 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
-              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
+              <ComposedChart
+                data={data}
+                margin={{ top: 10, left: isMobile ? 0 : (labelPaddingLeft ?? 6), bottom: 0, right: 1 }}
+              >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='5%' stopColor={color} stopOpacity={0.3} />
+                    <stop offset='5%' stopColor={color} stopOpacity={0.35} />
+                    <stop offset='95%' stopColor={color} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id={`gradient-incomplete`} x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='5%' stopColor={color} stopOpacity={0.09} />
                     <stop offset='95%' stopColor={color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -60,6 +81,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   }
                   minTickGap={100}
                   tickMargin={6}
+                  allowDuplicatedCategory={false}
                 />
                 <YAxis
                   fontSize={12}
@@ -75,7 +97,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                 <Tooltip
                   content={
                     <ChartTooltip
-                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity)}
+                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
                       formatter={formatValue}
                       comparisonMap={comparisonMap}
                       title={tooltipTitle}
@@ -84,12 +106,34 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                 />
                 <Area
                   type='linear'
+                  data={data}
                   dataKey={'value.0'}
                   stroke={color}
                   strokeWidth={2}
                   fillOpacity={1}
                   fill={'url(#gradient-value)'}
                 />
+                {incomplete && incomplete.length >= 2 ? (
+                  <Area
+                    type='linear'
+                    data={incomplete}
+                    dataKey={'value.0'}
+                    stroke='none'
+                    fillOpacity={1}
+                    fill={'url(#gradient-incomplete)'}
+                  />
+                ) : null}
+                {incomplete && incomplete.length >= 2 ? (
+                  <Line
+                    type='linear'
+                    data={incomplete}
+                    dataKey={'value.0'}
+                    stroke={color}
+                    strokeWidth={2}
+                    strokeDasharray='4 4'
+                    dot={false}
+                  />
+                ) : null}
                 <Line
                   type='linear'
                   dataKey={'value.1'}

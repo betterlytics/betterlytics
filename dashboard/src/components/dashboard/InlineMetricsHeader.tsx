@@ -12,25 +12,6 @@ interface ChartDatum {
   [key: string]: string | number;
 }
 
-function calculateTrend(comparePercentage?: number | null) {
-  if (comparePercentage === null || comparePercentage === undefined) {
-    return null;
-  }
-
-  const absPercentage = Math.abs(comparePercentage);
-
-  let direction: 'up' | 'down' | 'neutral' = 'neutral';
-  if (absPercentage > 0) {
-    direction = comparePercentage > 0 ? 'up' : 'down';
-  }
-
-  return {
-    direction,
-    percentage: absPercentage,
-    isPositive: comparePercentage > 0,
-  };
-}
-
 type InlineMetricsHeaderProps = {
   cards: SummaryCardData[];
   pinFooter?: boolean; // when true, stick footer (e.g., CWV bar) to bottom
@@ -40,8 +21,6 @@ export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsH
   return (
     <div className='grid grid-cols-2 gap-1 lg:grid-cols-3 xl:grid-flow-col xl:grid-cols-none'>
       {cards.map((card, idx) => {
-        const trend = calculateTrend(card.comparePercentage);
-
         return (
           <button
             key={`${card.title}-${idx}`}
@@ -115,11 +94,9 @@ export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsH
                 <span className='text-foreground text-2xl font-semibold tracking-tight group-hover:opacity-90'>
                   {card.value}
                 </span>
-                {trend && trend.direction !== 'neutral' && (
-                  <span className='text-xs'>
-                    <TrendPercentage percentage={trend?.percentage} withIcon />
-                  </span>
-                )}
+                <span className='text-xs'>
+                  <TrendPercentage percentage={card.comparePercentage} withIcon />
+                </span>
               </div>
               {card.footer && <div className={pinFooter ? 'mt-auto pt-2' : 'mt-2'}>{card.footer}</div>}
             </div>
