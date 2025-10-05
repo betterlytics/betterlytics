@@ -21,7 +21,7 @@ export type CountryCodeFormat = (typeof CountryCodeFormat)[keyof typeof CountryC
 export function dataToWorldMap(
   data: GeoVisitor[],
   format: CountryCodeFormat,
-  hiQuantile: number = 0.975,
+  hiQuantile: number = 0.99,
 ): WorldMapResponse {
   const transformerFunction =
     format === CountryCodeFormat.ToAlpha2

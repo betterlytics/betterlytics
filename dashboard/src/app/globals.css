@@ -108,11 +108,22 @@
 
   --flagicon-border: oklch(0.5 0 0 / 0.5);
 
+  --map-feature-border-low: oklch(90% 0.118 268.64);
+  --map-feature-border-medium: oklch(60% 0.17 268.71);
+  --map-feature-border-high: oklch(50% 0.222 268.78);
   --map-feature-border-hovered: oklch(0.6 0.18 130); /* Green */
   --map-feature-border-clicked: oklch(0.6 0.18 40); /* Orange */
+  --map-feature-border-none: oklch(86.7% 0% 89.876);
 
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
+
+  --graph-fill-low: oklch(85% 0.08 255);
+  --graph-fill-medium: oklch(62% 0.16 262);
+  --graph-fill-high: oklch(52% 0.2 266);
+  --graph-fill-none: oklch(71.4% 4.75% 261.325);
+
+  --weekly-heatmap-fill-none: oklch(80.4% 4.75% 261.325);
 }
 
 .dark {
@@ -174,11 +185,22 @@
 
   --flagicon-border: oklch(68.273% 0.0186 267.741 / 0.281);
 
+  --map-feature-border-low: oklch(85% 0.118 268.64);
+  --map-feature-border-medium: oklch(65% 0.17 268.71);
+  --map-feature-border-high: oklch(45% 0.222 268.78);
   --map-feature-border-hovered: oklch(0.7 0.2 130); /* Green */
   --map-feature-border-clicked: oklch(0.7 0.25 40); /* Orange */
+  --map-feature-border-none: oklch(86.7% 0% 89.876);
 
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
+
+  --graph-fill-low: oklch(78% 0.118 268.64);
+  --graph-fill-medium: oklch(55% 0.17 268.71);
+  --graph-fill-high: oklch(35% 0.222 268.78);
+  --graph-fill-none: oklch(65.4% 4.75% 261.325); /* Neutral gray */
+
+  --weekly-heatmap-fill-none: oklch(75.4% 12% 261.325);
 }
 
 @layer base {

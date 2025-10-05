@@ -12,7 +12,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/filter';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useColorScales, type ScaleType } from '@/hooks/use-color-scales';
+import { useColorScale, type ScaleType } from '@/hooks/use-color-scale';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -134,12 +134,15 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric, scaleType = 'log10' 
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 
-  const { colorScale } = useColorScales({ maxVisitors: maxValue, scaleType });
+  const colorScale = useColorScale({
+    maxVisitors: maxValue,
+    scaleType,
+  });
 
   const getCellStyle = useCallback(
     (value: number): CSSProperties => {
-      if (value <= 0) {
-        return {};
+      if (value <= 0 || !colorScale) {
+        return { backgroundColor: 'var(--weekly-heatmap-fill-none)', opacity: 0.85 };
       }
       return { backgroundColor: colorScale(value) };
     },

@@ -17,7 +17,10 @@ export type PresentedWeeklyHeatmap = {
  * @param hiQuantile Quantile cutoff for normalization (0..1)
  * @returns The presented weekly heatmap with matrix and maxValue
  */
-export function toWeeklyHeatmapMatrix(rows: WeeklyHeatmapRow[], hiQuantile: number = 0.9): PresentedWeeklyHeatmap {
+export function toWeeklyHeatmapMatrix(
+  rows: WeeklyHeatmapRow[],
+  hiQuantile: number = 0.99,
+): PresentedWeeklyHeatmap {
   const matrix: Record<number, number[]> = {
     1: Array(24).fill(0),
     2: Array(24).fill(0),

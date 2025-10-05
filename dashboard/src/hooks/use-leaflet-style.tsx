@@ -3,30 +3,49 @@
 import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { ScaleLinear } from 'd3-scale';
 import type { PathOptions } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { type JSX, useCallback, useMemo } from 'react';
-import { useColorScales, UseColorScalesProps } from './use-color-scales';
+import { ColorScale, useColorScale, UseColorScaleProps } from '@/hooks/use-color-scale';
 
-export type UseMapStyleProps = UseColorScalesProps;
+export type UseMapStyleProps = Omit<UseColorScaleProps, 'colors'>;
 export type FeatureStyle = PathOptions;
 export type MapColorScale = ScaleLinear<string, string, never>;
 
-export interface MapStyle extends ReturnType<typeof useColorScales> {
+export interface MapStyle {
   originalStyle: (visitors: number) => FeatureStyle;
   selectedStyle: (visitors: number) => FeatureStyle;
   hoveredStyle: (visitors: number) => FeatureStyle;
   LeafletCSS: JSX.Element;
+  fillColorScale: ColorScale | null;
+  borderColorScale: ColorScale | null;
 }
 
 export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle {
-  const scales = useColorScales({ maxVisitors, scaleType });
+  const fillColorScale = useColorScale({
+    maxVisitors,
+    scaleType,
+    colors: [
+      MAP_VISITOR_COLORS.LOW_VISITORS,
+      MAP_VISITOR_COLORS.MEDIUM_VISITORS,
+      MAP_VISITOR_COLORS.HIGH_VISITORS,
+    ],
+  });
+
+  const borderColorScale = useColorScale({
+    maxVisitors,
+    scaleType,
+    colors: [
+      MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
+      MAP_FEATURE_BORDER_COLORS.MEDIUM_VISITORS,
+      MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
+    ],
+  });
 
   const originalStyle = useCallback(
     (visitors: number) => ({
       ...(visitors
         ? {
-            fillColor: scales.colorScale(visitors),
-            color: scales.borderColorScale(visitors),
+            fillColor: fillColorScale?.(visitors) ?? MAP_VISITOR_COLORS.NO_VISITORS,
+            color: borderColorScale?.(visitors) ?? MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
             weight: 1.5,
           }
         : {
@@ -37,7 +56,7 @@ export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStylePro
       fillOpacity: 0.8,
       opacity: 1,
     }),
-    [scales.borderColorScale, scales.colorScale],
+    [fillColorScale, borderColorScale],
   );
 
   const selectedStyle = useCallback(
@@ -95,5 +114,5 @@ export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStylePro
     );
   }, []);
 
-  return { originalStyle, selectedStyle, hoveredStyle, LeafletCSS, ...scales };
+  return { originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale };
 }

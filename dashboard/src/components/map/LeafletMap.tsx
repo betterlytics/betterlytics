@@ -12,7 +12,7 @@ import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { Spinner } from '../ui/spinner';
 import { useTranslations } from 'next-intl';
-import { ScaleType } from '@/hooks/use-color-scales';
+import type { ScaleType } from '@/hooks/use-color-scale';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
