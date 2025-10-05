@@ -1,12 +1,12 @@
 'use client';
 
 import { PlaybackButton } from '@/components/map/deckgl/controls/PlayButton';
-import { TimeSlider } from '@/components/map/deckgl/controls/TimeSlider';
+import { TimeSlider, type TimeSliderTick } from '@/components/map/deckgl/controls/TimeSlider';
 import { PlaybackSpeed, PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import { ScaleMotion } from '@/components/ScaleMotion';
 
-type MapActionbarProps<TValue> = {
-  ticks: { label: string; value: TValue }[];
+export type MapPlayActionbarProps<TValue> = {
+  ticks: TimeSliderTick<TValue>[];
   value: number; // float playback position
   playing: boolean;
   speed: PlaybackSpeed;
@@ -16,7 +16,7 @@ type MapActionbarProps<TValue> = {
   onChangeSpeed: (speed: PlaybackSpeed) => void;
 };
 
-export function MapActionbar<TValue>({
+export function MapPlayActionbar<TValue>({
   ticks,
   value,
   playing,
@@ -25,7 +25,7 @@ export function MapActionbar<TValue>({
   onStop,
   onScrub,
   onChangeSpeed,
-}: MapActionbarProps<TValue>) {
+}: MapPlayActionbarProps<TValue>) {
   return (
     <ScaleMotion
       initialScale={0.8}

@@ -52,8 +52,6 @@ export function CountriesLayer({
       filled: true,
       stroked: false,
       pickable: true,
-      autoHighlight: true,
-      highlightColor: style.hoveredStyle(1).line,
 
       getFillColor: (f: any) => {
         const iso = f.id as string;
@@ -117,6 +115,30 @@ export function CountriesLayer({
     });
   }, [clickedPathData, clickedFeature?.geoVisitor?.country_code, style]);
 
+  const hoverPathData = useMemo(
+    () => (hoveredFeature ? (outlineCache.get(hoveredFeature.geoVisitor.country_code) ?? []) : []),
+    [outlineCache, hoveredFeature?.geoVisitor.country_code],
+  );
+
+  const hoverLayer = useMemo(() => {
+    if (!hoverPathData.length) return null;
+
+    return new PathLayer({
+      id: 'hover-outline',
+      data: hoverPathData,
+      pickable: false,
+      getPath: (f: any) => f.path,
+      getColor: style.hoveredStyle(1).line,
+      getWidth: 2,
+      widthUnits: 'pixels',
+      widthMinPixels: 2,
+      parameters: { depthTest: false }, // keep visible over fill
+      updateTriggers: {
+        getColor: hoveredFeature?.geoVisitor?.country_code,
+      },
+    });
+  }, [hoverPathData, hoveredFeature?.geoVisitor?.country_code, style]);
+
   // NOTE: Order matters
-  return [fillLayer, strokeBaseLayer, clickedLayer].filter(Boolean) as any[];
+  return [fillLayer, strokeBaseLayer, clickedLayer, hoverLayer].filter(Boolean) as any[];
 }

@@ -4,8 +4,13 @@ import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { Badge } from '@/components/ui/badge';
 
+export type TimeSliderTick<TValue> = {
+  label: React.ReactNode;
+  value: TValue;
+};
+
 export type TimeSliderProps<TValue> = {
-  ticks: { label: string; value: TValue }[]; // Array of ticks
+  ticks: TimeSliderTick<TValue>[];
   value: number; // Current slider position
   playing?: boolean;
   playbackSpeed?: number;
@@ -13,69 +18,70 @@ export type TimeSliderProps<TValue> = {
 };
 
 export function TimeSlider<TValue>({ ticks, value, playing = false, onScrub }: TimeSliderProps<TValue>) {
-  const index = Math.floor(value);
+  const intervals = ticks.length - 1;
 
-  // Create an array of refs for each label
-  const labelRefs = React.useRef<(HTMLSpanElement | null)[]>([]);
+  // Thumb index (round to nearest tick)
+  const index = Math.round(value);
 
-  // This will store the label widths
-  const [labelWidths, setLabelWidths] = React.useState<number[]>(new Array(ticks.length).fill(0));
+  // Hover state for tooltip below track
+  const [hoverValue, setHoverValue] = React.useState<number | null>(null);
 
-  // Get the label widths after render
-  React.useEffect(() => {
-    const widths = labelRefs.current.map((ref) => ref?.getBoundingClientRect().width || 0);
-    setLabelWidths(widths);
-  }, [ticks]);
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clampedX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+
+    const percent = clampedX / rect.width;
+    const hoverIndex = Math.round(percent * intervals);
+    setHoverValue(Math.min(hoverIndex, intervals));
+  };
+
+  const handleMouseLeave = () => setHoverValue(null);
 
   return (
     <div className='relative flex w-full flex-col items-center'>
       <SliderPrimitive.Root
         min={0}
-        max={ticks.length - 1}
-        step={0.01} // allows smooth positions
+        max={intervals}
+        step={0.01}
         value={[value]}
         onValueChange={([val]) => {
-          onScrub?.(Math.floor(val));
+          onScrub?.(Math.round(val)); // always round to nearest tick
         }}
         className='relative flex w-full touch-none items-center select-none'
       >
-        <SliderPrimitive.Track className='bg-primary/25 relative h-1.5 w-full grow overflow-hidden rounded-full'>
+        {/* Track */}
+        <SliderPrimitive.Track
+          className='bg-primary/25 relative h-1.5 w-full grow overflow-hidden rounded-full'
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           <SliderPrimitive.Range className='bg-primary/80 absolute h-full' />
         </SliderPrimitive.Track>
 
+        {/* Hover tooltip below track */}
+        {hoverValue !== null && ticks[hoverValue] && (
+          <Badge
+            className='bg-primary/90 text-primary-foreground pointer-events-none absolute top-3 mt-1 w-fit rounded-none text-xs shadow'
+            style={{
+              left: `calc(${(hoverValue / intervals) * 100}%)`,
+              transform: 'translateX(-50%)',
+            }}
+          >
+            {ticks[hoverValue].label}
+          </Badge>
+        )}
+
+        {/* Thumb */}
         <SliderPrimitive.Thumb className='group border-secondary/80 bg-primary focus-visible:ring-ring block h-4 w-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
           <Badge
-            className={`bg-primary absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform ${playing ? 'scale-100' : 'scale-0 group-hover:scale-100'}`}
+            className={`bg-primary absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl transition-transform ${
+              playing ? 'scale-100' : 'scale-0 group-hover:scale-100'
+            }`}
           >
-            {ticks[index]?.label}
+            {ticks[index] && ticks[index].label}
           </Badge>
         </SliderPrimitive.Thumb>
       </SliderPrimitive.Root>
-
-      {/* Render the tick marks with labels */}
-      <div className='absolute top-0 right-0 left-0 mx-1.5 mt-2 flex justify-between text-xs'>
-        {ticks.map((tick, tickIndex) => {
-          const positionPercent = (tickIndex / (ticks.length - 1)) * 100;
-          const labelWidth = labelWidths[tickIndex];
-          const offset = labelWidth > 0 ? labelWidth / ((ticks.length - 1) / 20) : 0; // Half of label width for centering
-
-          return (
-            <span
-              key={tick.label}
-              ref={(el) => {
-                labelRefs.current[tickIndex] = el;
-              }}
-              style={{
-                left: `calc(${positionPercent}% - ${offset - 4}px)`, // Fine-tune for last label
-                transform: 'translateX(-50%)', // Ensure labels are centered properly over tick marks
-              }}
-              className='absolute'
-            >
-              {tick.label}
-            </span>
-          );
-        })}
-      </div>
     </div>
   );
 }

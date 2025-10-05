@@ -1,7 +1,7 @@
 'use client';
 
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { MapActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
+import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import { type ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
 import { CountriesLayer } from '@/components/map/deckgl/CountriesLayer';
@@ -82,6 +82,21 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
       .catch((err) => console.error('Error loading geojson:', err));
   }, []);
 
+  const tickProps = useMemo(
+    () =>
+      visitorDataTimeseries.map((tgeo, i) => ({
+        label: tgeo.date.toLocaleString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        value: tgeo.date,
+      })),
+    visitorDataTimeseries,
+  );
+
   const visitorDict = useMemo(() => {
     const currentFrame = visitorDataTimeseries[frame];
     return Object.fromEntries(currentFrame.visitors.map((d) => [d.country_code, d.visitors]));
@@ -128,14 +143,18 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
       if (hoveredCountryCode === prev || playing) return;
 
       if (hoveredCountryCode) {
-        hoveredFeatureRef.current = {
-          geoVisitor: {
-            country_code: hoveredCountryCode,
-            visitors: visitorDict[hoveredCountryCode] ?? 0,
+        setMapSelection({
+          hovered: {
+            geoVisitor: {
+              country_code: hoveredCountryCode,
+              visitors: visitorDict[hoveredCountryCode] ?? 0,
+            },
           },
-        };
+        });
       } else {
-        hoveredFeatureRef.current = undefined;
+        setMapSelection({
+          hovered: undefined,
+        });
       }
     },
     [visitorDict, hoveredFeatureRef, playing],
@@ -151,9 +170,12 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
     calculatedMaxVisitors,
   });
 
+  const deckRef = useRef<any>(null);
+
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
       <DeckGL
+        ref={deckRef}
         viewState={viewState}
         controller={{ doubleClickZoom: false, dragRotate: false }}
         onViewStateChange={({ viewState }) => {
@@ -200,9 +222,8 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
       </DeckGL>
 
       <div className='pointer-events-auto absolute bottom-8 left-[17rem] z-12 w-[calc(100%-18rem)]'>
-        <MapActionbar
-          // TODO: Add proper date labels
-          ticks={visitorDataTimeseries.map((_, i) => ({ label: `${i + 1}`, value: i }))}
+        <MapPlayActionbar
+          ticks={tickProps}
           value={position}
           playing={playing}
           speed={speed}
