@@ -77,7 +77,7 @@ export default function LeafletMap({
     return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
   }, [mapComponents]);
 
-  if (isPending || !mapComponents || !worldGeoJson) {
+  if (isPending || !mapComponents || !worldGeoJson || !style) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
@@ -104,12 +104,14 @@ export default function LeafletMap({
         maxZoom={7}
         attributionControl={false}
       >
-        <MapSelectionContextProvider style={style}>
-          <MapBackgroundLayer Polygon={Polygon} />
-          <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
-          <MapStickyTooltip size={size} />
-          {showLegend && <MapLegend maxVisitors={maxVisitors} />}
-        </MapSelectionContextProvider>
+        {
+          <MapSelectionContextProvider style={style}>
+            <MapBackgroundLayer Polygon={Polygon} />
+            <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
+            <MapStickyTooltip size={size} />
+            {showLegend && <MapLegend maxVisitors={maxVisitors} />}
+          </MapSelectionContextProvider>
+        }
       </MapContainer>
     </div>
   );

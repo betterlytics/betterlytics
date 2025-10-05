@@ -19,7 +19,7 @@ export interface MapStyle {
   borderColorScale: ColorScale | null;
 }
 
-export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle {
+export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle | null {
   const fillColorScale = useColorScale({
     maxVisitors,
     scaleType,
@@ -113,6 +113,8 @@ export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStylePro
       </style>
     );
   }, []);
+
+  if (!fillColorScale || !borderColorScale) return null;
 
   return { originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale };
 }
