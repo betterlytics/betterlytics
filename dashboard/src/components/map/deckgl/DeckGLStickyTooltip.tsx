@@ -2,7 +2,8 @@
 
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
+import * as ReactDOM from 'react-dom/client';
+import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
 import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
@@ -14,20 +15,16 @@ export type DeckGLStickyTooltipProps = {
 };
 
 function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStickyTooltipProps) {
-  const { hovered: hoveredFeature, clicked: clickedFeature } = useMapSelectionState();
-  const tooltipId = useId();
-  const rafRef = useRef<number>(0);
-  const locale = useLocale();
-  const t = useTranslations('components.geography');
+  const { hoveredFeatureRef, clickedFeatureRef } = useMapSelectionActions();
 
+  const tooltipId = useId();
   const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<ReactDOM.Root | null>(null);
+  const rafRef = useRef<number>(0);
   const latestMouseRef = useRef({ x: 0, y: 0 });
 
-  useEffect(() => {
-    if (tooltipRef.current) {
-      tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
-    }
-  }, [clickedFeature]);
+  const locale = useLocale();
+  const t = useTranslations('components.geography');
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -35,25 +32,59 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
 
     const onMouseMove = (e: MouseEvent) => {
       latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
-
-      if (!rafRef.current) {
-        rafRef.current = requestAnimationFrame(() => {
-          if (tooltipRef.current) {
-            tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
-          }
-          rafRef.current = 0;
-        });
-      }
     };
 
     mapContainer.addEventListener('mousemove', onMouseMove);
     return () => {
       mapContainer.removeEventListener('mousemove', onMouseMove);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [containerRef]);
 
-  if (!hoveredFeature || clickedFeature) return null;
+  useEffect(() => {
+    const node = tooltipRef.current;
+    if (!node) return;
+
+    const contentDiv = node.querySelector('.tooltip-content') as HTMLElement;
+    if (!contentDiv) return;
+
+    // only create root once
+    if (!rootRef.current) {
+      rootRef.current = ReactDOM.createRoot(contentDiv);
+    }
+
+    let lastHovered: typeof hoveredFeatureRef.current | null = null;
+
+    const loop = () => {
+      rafRef.current = requestAnimationFrame(loop);
+
+      const hovered = hoveredFeatureRef.current;
+      const clicked = clickedFeatureRef.current;
+      const { x, y } = latestMouseRef.current;
+
+      node.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -100%)`;
+
+      if (!hovered || clicked) {
+        node.style.display = 'none';
+        lastHovered = null;
+        return;
+      }
+
+      node.style.display = 'flex';
+
+      if (hovered !== lastHovered && rootRef.current) {
+        lastHovered = hovered;
+        rootRef.current.render(
+          <MapTooltipContent geoVisitor={hovered.geoVisitor} size={size} locale={locale} label={t('visitors')} />,
+        );
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [t, locale]);
 
   return createPortal(
     <section
@@ -66,14 +97,7 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
         'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
       )}
     >
-      <div className='leaflet-popup-content rounded-lg'>
-        <MapTooltipContent
-          geoVisitor={hoveredFeature.geoVisitor}
-          size={size}
-          locale={locale}
-          label={t('visitors')}
-        />
-      </div>
+      <div className='leaflet-popup-content tooltip-content rounded-lg' />
       <MapTooltipTip />
     </section>,
     document.body,

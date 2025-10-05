@@ -31,7 +31,7 @@ function DeckGLPopupComponent({ viewState, size = 'sm', children }: DeckGLPopupP
       aria-hidden={false}
       style={{
         left: x,
-        top: y,
+        top: y - 52,
         transform: 'translate(-50%, -100%)',
         pointerEvents: 'auto',
       }}

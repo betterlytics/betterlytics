@@ -77,7 +77,7 @@ export function useDeckGLMapStyle({ calculatedMaxVisitors }: UseDeckGLMapStylePr
 
   const hoveredStyle = useCallback(
     (_visitors?: number) => ({
-      line: toRgbaTuple(MAP_FEATURE_BORDER_COLORS.HOVERED, 255),
+      line: toRgbaTuple('#CCE6CC', 255), //! TODO MAP_FEATURE_BORDER_COLORS.HOVERED
     }),
     [],
   );

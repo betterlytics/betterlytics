@@ -123,24 +123,22 @@ export default function DeckGLMap({ visitorData, initialZoom = 1.5 }: DeckGLMapP
   const handleHover = useCallback(
     (info: any) => {
       const hoveredCountryCode = info.object?.id as string | undefined;
-      const prevHoveredCountryCode = hoveredFeatureRef?.current?.geoVisitor.country_code;
+      const prev = hoveredFeatureRef.current?.geoVisitor.country_code;
 
-      if (hoveredCountryCode === prevHoveredCountryCode || playing) return;
+      if (hoveredCountryCode === prev || playing) return;
 
       if (hoveredCountryCode) {
-        setMapSelection({
-          hovered: {
-            geoVisitor: {
-              country_code: hoveredCountryCode,
-              visitors: visitorDict[hoveredCountryCode] ?? 0,
-            },
+        hoveredFeatureRef.current = {
+          geoVisitor: {
+            country_code: hoveredCountryCode,
+            visitors: visitorDict[hoveredCountryCode] ?? 0,
           },
-        });
+        };
       } else {
-        setMapSelection({ hovered: undefined });
+        hoveredFeatureRef.current = undefined;
       }
     },
-    [visitorDict, setMapSelection, hoveredFeatureRef, playing],
+    [visitorDict, hoveredFeatureRef, playing],
   );
 
   const layers = CountriesLayer({
