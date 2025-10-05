@@ -82,10 +82,7 @@ export function buildTimelineMarkers(
         }
 
         if (source === IncrementalSource.Mutation) {
-          return {
-            label: 'DOM Mutation',
-            timestamp: timeFromStart,
-          } satisfies TimelineMarkerDescriptor;
+          return null;
         }
 
         if (source === IncrementalSource.Input) {
