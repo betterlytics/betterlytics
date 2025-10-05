@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type UsePlayerStateReturn } from './usePlayerState';
 
-export function useReplayPlayer(playerState: UsePlayerStateReturn) {
+export function useReplayPlayer(playerState: UsePlayerStateReturn, sessionId?: string) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeedState] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
@@ -90,6 +90,11 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn) {
       appliedSkipStateRef.current = playerState.isSkippingInactive;
     }
   }, [playerState.isSkippingInactive, playerState.playerRef]);
+
+  useEffect(() => {
+    setCurrentTime(0);
+    setIsPlaying(false);
+  }, [sessionId]);
 
   return {
     isPlaying,

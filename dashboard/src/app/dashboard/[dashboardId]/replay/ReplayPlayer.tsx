@@ -32,6 +32,7 @@ type ReplayPlayerProps = {
   onReady?: () => void;
   playerState: UsePlayerStateReturn;
   skipInactive?: boolean;
+  isPlaying?: boolean;
 };
 
 type PlayerEventName = 'ui-update-current-time' | 'ui-update-player-state' | 'ui-update-progress';
@@ -47,12 +48,47 @@ type PlayerEventTarget = {
 };
 
 const ReplayPlayerComponent = (
-  { onReady, playerState }: ReplayPlayerProps,
+  { onReady, playerState, isPlaying }: ReplayPlayerProps,
   ref: React.ForwardedRef<ReplayPlayerHandle>,
 ) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<rrwebPlayer | null>(null);
   const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
+
+  const findClosestEvent = useCallback(
+    (timeOffset: number, eventType: number = 2) => {
+      const events = playerState.eventsRef.current;
+      if (events.length === 0) {
+        return null;
+      }
+
+      const originTimestamp = events[0]?.timestamp ?? 0;
+      const targetAbsoluteTime = originTimestamp + timeOffset;
+
+      const filteredEvents = events.filter((e) => e.type === eventType);
+
+      if (filteredEvents.length === 0) {
+        return null;
+      }
+
+      let closestEvent = filteredEvents[0];
+      let minDiff = Math.abs(closestEvent.timestamp - targetAbsoluteTime);
+
+      for (const event of filteredEvents) {
+        const diff = Math.abs(event.timestamp - targetAbsoluteTime);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestEvent = event;
+        }
+        if (event.timestamp > targetAbsoluteTime) {
+          break;
+        }
+      }
+
+      return closestEvent.timestamp - originTimestamp;
+    },
+    [playerState.eventsRef],
+  );
 
   const destroyPlayer = useCallback(() => {
     if (playerRef.current) {
@@ -78,7 +114,7 @@ const ReplayPlayerComponent = (
   const size = useDebounce(useResizeObserver(containerRef), 200);
 
   const recreatePlayer = useCallback(
-    (events: eventWithTime[]) => {
+    (events: eventWithTime[], autoPlay?: boolean) => {
       if (!containerRef.current || events.length === 0) {
         return;
       }
@@ -89,7 +125,7 @@ const ReplayPlayerComponent = (
         target: containerRef.current,
         props: {
           events,
-          autoPlay: false,
+          autoPlay: autoPlay ?? false,
           showController: false,
           speedOption: [1, 2, 4, 8],
           skipInactive: playerState.isSkippingInactive,
@@ -135,7 +171,13 @@ const ReplayPlayerComponent = (
       try {
         playerRef.current.goto(timeOffset);
       } catch (error) {
-        console.warn('Failed to seek to time:', timeOffset, error);
+        recreatePlayer(playerState.eventsRef.current, isPlaying);
+        try {
+          const closestTypeTimeOffset = findClosestEvent(timeOffset);
+          if (closestTypeTimeOffset !== null) {
+            playerRef.current.goto(closestTypeTimeOffset);
+          }
+        } catch {}
       }
     },
     getCurrentTime() {

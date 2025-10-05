@@ -8,12 +8,15 @@ import { useReplayPlayer } from '../hooks/useReplayPlayer';
 
 type ReplayPlayerContainerProps = {
   playerState: UsePlayerStateReturn;
+  sessionId?: string;
   error?: string | null;
 };
 
-export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContainerProps) {
-  const { isPlaying, speed, currentTime, setSkipInactivity, playPause, seekToRatio, setSpeed } =
-    useReplayPlayer(playerState);
+export function ReplayPlayerContainer({ playerState, sessionId, error }: ReplayPlayerContainerProps) {
+  const { isPlaying, speed, currentTime, setSkipInactivity, playPause, seekToRatio, setSpeed } = useReplayPlayer(
+    playerState,
+    sessionId,
+  );
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -53,7 +56,7 @@ export function ReplayPlayerContainer({ playerState, error }: ReplayPlayerContai
       ref={containerRef}
       className='bg-background rr-block relative flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'
     >
-      <ReplayPlayer ref={playerState.playerRef} playerState={playerState} />
+      <ReplayPlayer ref={playerState.playerRef} playerState={playerState} isPlaying={isPlaying} />
       <ReplayControls
         isPlaying={isPlaying}
         currentTime={currentTime}

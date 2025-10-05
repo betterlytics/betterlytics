@@ -45,7 +45,11 @@ export function SessionReplayContainer({ dashboardId }: SessionReplayContainerPr
   return (
     <div className='grid h-[calc(100svh-150px)] w-full gap-3 lg:grid-cols-[280px_minmax(0,1fr)_300px]'>
       <ReplaySessionPanel sessionManager={sessionManager} onSelectSession={handleSelectSession} />
-      <ReplayPlayerContainer playerState={playerState} error={combinedError} />
+      <ReplayPlayerContainer
+        playerState={playerState}
+        sessionId={sessionManager.selectedSession?.session_id}
+        error={combinedError}
+      />
       <ReplayTimelinePanel playerState={playerState} />
     </div>
   );
