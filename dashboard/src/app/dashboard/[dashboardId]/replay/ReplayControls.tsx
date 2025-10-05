@@ -1,6 +1,6 @@
 'use client';
 
-import { Maximize2, Minimize2, Pause, Play } from 'lucide-react';
+import { Maximize2, Minimize2, Pause, Play, ChevronDown } from 'lucide-react';
 import { memo, useEffect, useId, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
@@ -10,7 +10,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
 
 type Props = {
   isPlaying: boolean;
@@ -147,22 +146,40 @@ function ReplayControlsComponent({
 
       <div className='flex items-center gap-2'>
         <div className='relative'>
-          <Select value={String(speed)} onValueChange={(value) => onSpeedChange(Number(value))}>
-            <SelectTrigger
-              size='sm'
-              aria-label='Playback speed'
-              className='h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer gap-1 px-2 py-0 text-xs leading-none'
-            >
-              <SelectValue placeholder='Speed' />
-            </SelectTrigger>
-            <SelectContent className='min-w-[60px]'>
-              {playbackOptions.map((option) => (
-                <SelectItem key={option.value} value={String(option.value)} className='cursor-pointer text-xs'>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isFullscreen ? (
+            <>
+              <select
+                aria-label='Playback speed'
+                value={String(speed)}
+                onChange={(e) => onSpeedChange(Number(e.target.value))}
+                className='border-input focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer appearance-none rounded-md border bg-transparent px-2 pr-6 text-xs leading-none shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
+              >
+                {playbackOptions.map((option) => (
+                  <option key={option.value} value={String(option.value)}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className='pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 opacity-50' />
+            </>
+          ) : (
+            <Select value={String(speed)} onValueChange={(value) => onSpeedChange(Number(value))}>
+              <SelectTrigger
+                size='sm'
+                aria-label='Playback speed'
+                className='h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer gap-1 px-2 py-0 text-xs leading-none'
+              >
+                <SelectValue placeholder='Speed' />
+              </SelectTrigger>
+              <SelectContent className='min-w-[60px]'>
+                {playbackOptions.map((option) => (
+                  <SelectItem key={option.value} value={String(option.value)} className='cursor-pointer text-xs'>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
         {onToggleFullscreen && (
           <Button
