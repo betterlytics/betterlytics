@@ -7,6 +7,7 @@ import type { eventWithTime } from '@rrweb/types';
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { UsePlayerStateReturn } from './hooks/usePlayerState';
 import { useDebounce } from '@/hooks/useDebounce';
+import { toast } from 'sonner';
 
 export type ReplayPlayerHandle = {
   loadInitialEvents: (events: eventWithTime[]) => void;
@@ -188,6 +189,11 @@ const ReplayPlayerComponent = (
         } catch (typeError) {
           console.warn(`Failed to seek to type ${fallbackEventType} event:`, typeError);
         }
+        toast.warning('Something went wrong, starting from nearest snapshot', {
+          position: 'bottom-right',
+          richColors: true,
+          duration: 2000,
+        });
         recreatePlayer(playerState.eventsRef.current, isPlaying);
         playerRef.current?.goto(closestEventBefore);
       }
