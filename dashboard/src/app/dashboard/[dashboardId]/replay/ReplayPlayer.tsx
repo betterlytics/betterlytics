@@ -240,7 +240,21 @@ const ReplayPlayerComponent = (
   }));
 
   useEffect(() => {
-    recreatePlayer(playerState.eventsRef.current);
+    const previousTime = (() => {
+      const existing = playerRef.current;
+      if (!existing) return undefined;
+      const replayer = existing.getReplayer();
+      return typeof replayer.getCurrentTime === 'function' ? replayer.getCurrentTime() : undefined;
+    })();
+
+    recreatePlayer(playerState.eventsRef.current, isPlaying);
+
+    if (typeof previousTime === 'number') {
+      try {
+        playerRef.current?.goto(previousTime);
+      } catch {}
+    }
+
     playerRef.current?.triggerResize();
   }, [size, playerState.eventsRef, playerRef]);
 
