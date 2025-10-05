@@ -114,7 +114,5 @@ export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStylePro
     );
   }, []);
 
-  if (!fillColorScale || !borderColorScale) return null;
-
   return { originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale };
 }

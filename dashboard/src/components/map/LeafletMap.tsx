@@ -77,7 +77,7 @@ export default function LeafletMap({
     return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
   }, [mapComponents]);
 
-  if (isPending || !mapComponents || !worldGeoJson || !style) {
+  if (isPending || !mapComponents || !worldGeoJson || !style?.borderColorScale || !style?.fillColorScale) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
