@@ -22,10 +22,11 @@ export const fetchSessionReplaysAction = withDashboardAuthContext(
 type FetchReplaySegmentsPayload = {
   prefix: string;
   ttlSeconds?: number;
+  cutoffIso?: string;
 };
 
 export const fetchReplaySegmentsAction = withDashboardAuthContext(
   async (_ctx: AuthContext, payload: FetchReplaySegmentsPayload): Promise<ReplaySegmentManifest> => {
-    return getReplaySegmentManifest(payload.prefix, payload.ttlSeconds ?? 300);
+    return getReplaySegmentManifest(payload.prefix, payload.ttlSeconds ?? 300, payload.cutoffIso);
   },
 );
