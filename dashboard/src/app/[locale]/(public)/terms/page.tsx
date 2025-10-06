@@ -68,18 +68,9 @@ export default async function TermsPage() {
           </div>
 
           <div className='space-y-8 px-6 py-8'>
-            <section className='border-primary bg-accent rounded-r-lg border-l-4 p-6'>
-              <h2 className='text-accent-foreground mb-3 text-xl font-semibold'>
-                <span className='mr-2'>1.</span>
-                {t('scope.title')}
-              </h2>
-              <p className='text-accent-foreground'>
-                <span className='mr-2'>1.1</span>
-                {t('scope.body')}
-              </p>
-            </section>
-
             <section className='space-y-4'>
+              <Heading num={1}>{t('scope.title')}</Heading>
+              <NumberedP num='1.1'>{t('scope.body')}</NumberedP>
               <NumberedP num='1.2'>{t('intro.p1')}</NumberedP>
               <NumberedP num='1.3'>{t('intro.p2')}</NumberedP>
               <NumberedP num='1.4'>{t('intro.p3')}</NumberedP>
@@ -143,16 +134,10 @@ export default async function TermsPage() {
               <Heading num={5}>{t('cancellation.title')}</Heading>
               <div className='space-y-4'>
                 <div className='border-primary bg-accent rounded-r-lg border-l-4 p-4'>
-                  <Subheading num='5.1'>{t('cancellation.importantTitle')}</Subheading>
+                  {t('cancellation.importantTitle')}
                   <ul className='text-accent-foreground list-none space-y-1 text-sm'>
-                    <li>
-                      <span className='mr-2'>5.1.1</span>
-                      {t('cancellation.li1')}
-                    </li>
-                    <li>
-                      <span className='mr-2'>5.1.2</span>
-                      {t('cancellation.li2')}
-                    </li>
+                    <li>{t('cancellation.li1')}</li>
+                    <li>{t('cancellation.li2')}</li>
                   </ul>
                 </div>
 
@@ -165,6 +150,12 @@ export default async function TermsPage() {
                   <NumberedLi num='5.3.2'>{t('cancellation.whLi2')}</NumberedLi>
                 </ul>
 
+                <div className='border-primary bg-accent rounded-r-lg border-l-4 p-4'>
+                  <ul className='text-accent-foreground list-none space-y-1 text-sm'>
+                    <li>{t('cancellation.residualCopies')}</li>
+                  </ul>
+                </div>
+
                 <Subheading num='5.4'>{t('cancellation.ourRightTitle')}</Subheading>
                 <NumberedP num='5.4'>{t('cancellation.ourRightBody')}</NumberedP>
               </div>
@@ -176,6 +167,7 @@ export default async function TermsPage() {
                 <NumberedLi num='6.1'>{t('serviceMods.li1')}</NumberedLi>
                 <NumberedLi num='6.2'>{t('serviceMods.li2')}</NumberedLi>
                 <NumberedLi num='6.3'>{t('serviceMods.li3')}</NumberedLi>
+                <NumberedLi num='6.4'>{t('serviceMods.li4')}</NumberedLi>
               </ul>
             </section>
 
@@ -197,21 +189,21 @@ export default async function TermsPage() {
                   {t('dataOwnership.dpaBodySuffix')}
                 </NumberedP>
 
-                <Subheading num='7.5'>{t('dataOwnership.yourResponsibilitiesTitle')}</Subheading>
+                <Subheading num='7.4'>{t('dataOwnership.yourResponsibilitiesTitle')}</Subheading>
                 <ul className='list-none space-y-2'>
-                  <NumberedLi num='7.5.1'>{t('dataOwnership.yrLi1')}</NumberedLi>
-                  <NumberedLi num='7.5.2'>{t('dataOwnership.yrLi2')}</NumberedLi>
-                  <NumberedLi num='7.5.3'>{t('dataOwnership.yrLi3')}</NumberedLi>
-                  <NumberedLi num='7.5.4'>{t('dataOwnership.yrLi4')}</NumberedLi>
+                  <NumberedLi num='7.4.1'>{t('dataOwnership.yrLi1')}</NumberedLi>
+                  <NumberedLi num='7.4.2'>{t('dataOwnership.yrLi2')}</NumberedLi>
+                  <NumberedLi num='7.4.3'>{t('dataOwnership.yrLi3')}</NumberedLi>
+                  <NumberedLi num='7.4.4'>{t('dataOwnership.yrLi4')}</NumberedLi>
                 </ul>
 
-                <Subheading num='7.6'>{t('dataOwnership.ourCommitmentsTitle')}</Subheading>
+                <Subheading num='7.5'>{t('dataOwnership.ourCommitmentsTitle')}</Subheading>
                 <ul className='list-none space-y-2'>
-                  <NumberedLi num='7.6.1'>{t('dataOwnership.ocLi1')}</NumberedLi>
-                  <NumberedLi num='7.6.2'>{t('dataOwnership.ocLi2')}</NumberedLi>
-                  <NumberedLi num='7.6.3'>{t('dataOwnership.ocLi3')}</NumberedLi>
-                  <NumberedLi num='7.6.4'>{t('dataOwnership.ocLi4')}</NumberedLi>
-                  <NumberedLi num='7.6.5'>{t('dataOwnership.ocLi5')}</NumberedLi>
+                  <NumberedLi num='7.5.1'>{t('dataOwnership.ocLi1')}</NumberedLi>
+                  <NumberedLi num='7.5.2'>{t('dataOwnership.ocLi2')}</NumberedLi>
+                  <NumberedLi num='7.5.3'>{t('dataOwnership.ocLi3')}</NumberedLi>
+                  <NumberedLi num='7.5.4'>{t('dataOwnership.ocLi4')}</NumberedLi>
+                  <NumberedLi num='7.5.5'>{t('dataOwnership.ocLi5')}</NumberedLi>
                 </ul>
               </div>
             </section>
@@ -248,6 +240,9 @@ export default async function TermsPage() {
                 <NumberedP num='9.4'>{t('liability.p3')}</NumberedP>
                 <NumberedP num='9.5'>{t('liability.p4')}</NumberedP>
                 <NumberedP num='9.6'>{t('liability.p5')}</NumberedP>
+                <NumberedP num='9.7'>{t('liability.p6')}</NumberedP>
+                <NumberedP num='9.8'>{t('liability.p7')}</NumberedP>
+                <NumberedP num='9.9'>{t('liability.p8')}</NumberedP>
               </div>
             </section>
 
@@ -264,8 +259,8 @@ export default async function TermsPage() {
 
             <section>
               <Heading num={11}>{t('updates.title')}</Heading>
-              <NumberedP num='11.1'>{t('updates.p1')}</NumberedP>
               <ul className='list-none space-y-2'>
+                <NumberedLi num='11.1'>{t('updates.p1')}</NumberedLi>
                 <NumberedLi num='11.2'>{t('updates.li1')}</NumberedLi>
                 <NumberedLi num='11.3'>{t('updates.li2')}</NumberedLi>
                 <NumberedLi num='11.4'>{t('updates.li3')}</NumberedLi>

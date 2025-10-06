@@ -243,7 +243,7 @@
       },
       "intro": {
         "p1": "Thank you for using Betterlytics! When we say \"company\", \"we\", \"our\", \"us\", \"service\" or \"services\" in this document, we are referring to Betterlytics and our privacy-focused web analytics platform.",
-        "p2": "When we say \"customer\", \"you\", \"your\", \"yours\" or \"you're\" in this document, we are referring to the entity, individual, or organization that signs up for Betterlytics and installs our analytics script on their website(s) to use our service.",
+        "p2": "When we say \"customer\", \"you\", \"your\", \"yours\" or \"you're\" in this document, we are referring to the entity, individual, or organization that signs up for Betterlytics and installs our analytics script(s) on their website(s) to use our service.",
         "p3": "We may update these Terms of Service in the future. Whenever we make significant changes to our policies, we will notify our customers via email and announce them on our website. When you use our service, now or in the future, you are agreeing to the latest Terms of Service.",
         "p4": "If you do not agree to these Terms of Service, do not use this service. Violation of any of the terms below may result in the termination of your account."
       },
@@ -294,6 +294,7 @@
         "whatHappensTitle": "What Happens When You Cancel",
         "whLi1": "Subscription cancellation: Your cancellation takes effect at the end of your current billing period. You won't be charged again. Your analytics data becomes inaccessible but is retained for 1 month in case you return, then permanently deleted.",
         "whLi2": "Account deletion: All data (personal and analytics) is permanently deleted immediately. This cannot be undone.",
+        "residualCopies": "Residual copies of deleted data may remain in encrypted backups for up to 30 days for disaster recovery purposes but will not be used or accessed.",
         "ourRightTitle": "Our Right to Terminate",
         "ourRightBody": "We reserve the right to suspend or terminate your account for violation of these terms, illegal activity, or abuse of our service or team members. We will provide notice when possible, but immediate termination may be necessary in severe cases."
       },
@@ -301,7 +302,8 @@
         "title": "Service Modifications and Pricing",
         "li1": "Service changes: We reserve the right to modify or discontinue any part of the service with or without notice. We will communicate significant changes affecting your usage in advance when possible.",
         "li2": "Pricing changes: We may change our pricing structure. Existing customers are typically exempt from price increases, but we reserve the right to change prices for all customers with at least 30 days notice via email.",
-        "li3": "Feature updates: We regularly improve our service with new features and enhancements. Some features may require plan upgrades."
+        "li3": "Feature updates: We regularly improve our service with new features and enhancements. Some features may require plan upgrades.",
+        "li4": "Beta features: Beta or experimental features may be offered for testing. These are provided without warranty and may be modified or discontinued at any time."
       },
       "dataOwnership": {
         "title": "Data Ownership and Privacy",
@@ -343,10 +345,13 @@
         "li4": "Statements or conduct of any third party",
         "li5": "Any other matter relating to these Terms or our services",
         "note": "What this means: While we work hard to provide reliable, privacy-focused analytics, technology isn't perfect and things can go wrong. By using Betterlytics, you understand that we can't be held responsible for any business losses or problems that might result from service issues. We're committed to earning your trust through transparency, strong security practices, and putting your privacy first.",
-        "p2": "These Terms are governed by the laws of the Kingdom of Denmark and applicable laws of the European Union.",
-        "p3": "The courts of Copenhagen, Denmark have exclusive jurisdiction over disputes.",
-        "p4": "Parties will first attempt to resolve issues amicably. If unresolved, disputes may be submitted to arbitration in Denmark or another mutually agreed EU forum.",
-        "p5": "Our total liability shall not exceed the amount you paid in the past 12 months"
+        "p2": "No Warranty:  The Service is provided \"as is\" and \"as available,\" without warranties of any kind, whether express, implied, or statutory, including but not limited to implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement.",
+        "p3": "Indemnification: You agree to indemnify, defend, and hold harmless Betterlytics, its affiliates, employees, and contractors from and against any claims, damages, liabilities, costs, and expenses (including reasonable legal fees) arising from your use of the Service, your violation of these Terms, or your violation of any law or third-party rights.",
+        "p4": "Force Majeure: Neither party shall be liable for any failure or delay in performance due to circumstances beyond reasonable control, including but not limited to acts of nature, power outages, internet failures, labor disputes, or government restrictions.",
+        "p5": "These Terms are governed by the laws of the Kingdom of Denmark and applicable laws of the European Union.",
+        "p6": "The courts of Copenhagen, Denmark have exclusive jurisdiction over disputes.",
+        "p7": "Parties will first attempt to resolve issues amicably. If unresolved, disputes may be submitted to arbitration in Denmark or another mutually agreed EU forum.",
+        "p8": "Our total liability shall not exceed the amount you paid in the past 12 months"
       },
       "ip": {
         "title": "Intellectual Property",
