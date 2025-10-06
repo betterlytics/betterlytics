@@ -22,6 +22,20 @@
         };
       }) ?? [];
 
+  var disableReplayOnUrls =
+    script
+      .getAttribute("data-disable-replay-on-urls")
+      ?.split(",")
+      .map(function (p) {
+        p = p.trim();
+        return {
+          original: p,
+          regex: new RegExp(
+            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`
+          ),
+        };
+      }) ?? [];
+
   var scriptsBaseUrl =
     script.getAttribute("data-scripts-base-url") ?? "http://localhost:3006";
 
@@ -80,25 +94,16 @@
     return url;
   }
 
-  // Track SPA navigation
-  if (window.history.pushState) {
-    // Override pushState to track navigation
-    var originalPushState = history.pushState;
-    history.pushState = function () {
-      originalPushState.apply(this, arguments);
-      if (currentPath !== window.location.pathname) {
-        currentPath = window.location.pathname;
-        emitReplayPageview(window.location.href, true);
+  function isReplayEnabledOnPage() {
+    var urlObj = new URL(window.location.href);
+    var pathname = urlObj.pathname;
+    for (var i = 0; i < disableReplayOnUrls.length; i++) {
+      var match = disableReplayOnUrls[i].regex.exec(pathname);
+      if (match) {
+        return false;
       }
-    };
-
-    // Track popstate (back/forward navigation)
-    window.addEventListener("popstate", function () {
-      if (currentPath !== window.location.pathname) {
-        currentPath = window.location.pathname;
-        emitReplayPageview(window.location.href, true);
-      }
-    });
+    }
+    return true;
   }
 
   // Emit a rrweb custom event for pageview and optionally force a full snapshot (useful for SPA route changes)
@@ -155,6 +160,7 @@
     var rrLoaded = false;
     var initializedOnce = false;
     var recordingStop = null;
+    var isRecording = false;
     var buffer = [];
     var sizeBytes = 0;
     var uploadedEventCount = 0;
@@ -340,7 +346,12 @@
               uploadedEventCount = 0;
             });
         })
-        .catch(function () {});
+        .catch(function () {})
+        .finally(function () {
+          rrLoaded = false;
+          initializedOnce = false;
+          isRecording = false;
+        });
     }
 
     function startRecording() {
@@ -416,6 +427,7 @@
       // Add an initial pageview marker (no snapshot here; rrweb already emitted initial FullSnapshot)
       emitReplayPageview(window.location.href, false);
       startFlushLoop();
+      isRecording = true;
     }
 
     function loadScript(src) {
@@ -437,7 +449,11 @@
     var rrLocalUrl = `${scriptsBaseUrl}/rrweb.min.js`;
     loadScript(rrLocalUrl)
       .then(function () {
-        startRecording();
+        if (isReplayEnabledOnPage()) {
+          startRecording();
+        } else {
+          stopRecording(true);
+        }
       })
       .catch(function () {});
 
@@ -452,5 +468,40 @@
     window.addEventListener("pagehide", function () {
       stopRecording(true);
     });
+
+    // Track SPA navigation
+    if (window.history.pushState) {
+      // Override pushState to track navigation
+      var originalPushState = history.pushState;
+      history.pushState = function () {
+        originalPushState.apply(this, arguments);
+        if (currentPath !== window.location.pathname) {
+          currentPath = window.location.pathname;
+          if (isReplayEnabledOnPage()) {
+            if (isRecording === false) {
+              startRecording();
+            }
+            emitReplayPageview(window.location.href, true);
+          } else {
+            stopRecording(true);
+          }
+        }
+      };
+
+      // Track popstate (back/forward navigation)
+      window.addEventListener("popstate", function () {
+        if (currentPath !== window.location.pathname) {
+          currentPath = window.location.pathname;
+          if (isReplayEnabledOnPage()) {
+            if (isRecording === false) {
+              startRecording();
+            }
+            emitReplayPageview(window.location.href, true);
+          } else {
+            stopRecording(true);
+          }
+        }
+      });
+    }
   })();
 })();
