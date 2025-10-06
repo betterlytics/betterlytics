@@ -47,7 +47,10 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
             const controller = new AbortController();
             inFlightController.current = controller;
 
-            const manifest = await fetchReplaySegmentsAction(dashboardId, { prefix: session.s3_prefix });
+            const manifest = await fetchReplaySegmentsAction(dashboardId, {
+              prefix: session.s3_prefix,
+              cutoffIso: session.ended_at,
+            });
 
             if (controller.signal.aborted) {
               resolve(null);
