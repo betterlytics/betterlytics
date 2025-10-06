@@ -1257,6 +1257,7 @@
     "geography": {
       "noData": "No geographic data available for the selected period",
       "loading": "Loading map...",
+      "loadingMessage": "Please wait while we load the map data",
       "visitors": "Visitors",
       "playback": {
         "play": "Play",

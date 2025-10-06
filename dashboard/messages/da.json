@@ -1260,7 +1260,8 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "loading": "Indlæser kort...",
+      "loading": "Initialiserer verdenskort...",
+      "loadingMessage": "Vent venligst imens verdenskortet indlæses",
       "visitors": "Besøgende",
       "playback": {
         "play": "Afspil",
