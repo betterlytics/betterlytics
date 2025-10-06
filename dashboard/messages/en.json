@@ -243,8 +243,9 @@
       },
       "intro": {
         "p1": "Thank you for using Betterlytics! When we say \"company\", \"we\", \"our\", \"us\", \"service\" or \"services\" in this document, we are referring to Betterlytics and our privacy-focused web analytics platform.",
-        "p2": "We may update these Terms of Service in the future. Whenever we make significant changes to our policies, we will notify our customers via email and announce them on our website. When you use our service, now or in the future, you are agreeing to the latest Terms of Service.",
-        "p3": "If you do not agree to these Terms of Service, do not use this service. Violation of any of the terms below may result in the termination of your account."
+        "p2": "When we say \"customer\", \"you\", \"your\", \"yours\" or \"you're\" in this document, we are referring to the entity, individual, or organization that signs up for Betterlytics and installs our analytics script on their website(s) to use our service.",
+        "p3": "We may update these Terms of Service in the future. Whenever we make significant changes to our policies, we will notify our customers via email and announce them on our website. When you use our service, now or in the future, you are agreeing to the latest Terms of Service.",
+        "p4": "If you do not agree to these Terms of Service, do not use this service. Violation of any of the terms below may result in the termination of your account."
       },
       "account": {
         "title": "Account Terms",
@@ -260,12 +261,13 @@
         "title": "Acceptable Use",
         "intro": "Betterlytics is designed for legitimate website analytics and is built as an open source project for transparency. You agree not to use our service to:",
         "li1": "Track visitors without their knowledge or in violation of privacy laws",
-        "li2": "Collect personally identifiable information (our system is designed to prevent this)",
+        "li2": "Collect personally identifiable information (PII), which includes any data that can directly or indirectly identify an individual. By default, Betterlytics does not collect PII. Certain features (e.g., session replays, custom events that include user identifiers) may involve pseudo-anonymous or personal data, in which case customers are responsible for ensuring compliance with applicable privacy laws.",
         "li3": "Generate artificial or bot traffic to inflate statistics or abuse our infrastructure",
         "li4": "Track websites you don't own without explicit permission",
         "li5": "Abuse our service infrastructure, bypass rate limits, or send malformed data that could harm our systems",
         "li6": "Use our service to harm, harass, or violate the privacy of any individual",
-        "li7": "Violate any applicable laws, including GDPR, CCPA, or other privacy regulations"
+        "li7": "Violate any applicable laws, including GDPR, CCPA, or other relevant privacy/data protection laws",
+        "li8": "Resell, sublicense, or provide the Service (or substantial parts thereof) to third parties as a hosted analytics service without prior written consent"
       },
       "payment": {
         "title": "Payment, Refunds, and Plan Changes",
@@ -278,7 +280,9 @@
         "planChangesTitle": "Plan Changes",
         "planChangesBody": "You can upgrade or downgrade your plan at any time. Upgrades take effect immediately. Downgrading may result in loss of features or capacity. We do not accept liability for any data loss resulting from plan downgrades.",
         "refundsTitle": "Refunds",
-        "refundsBody": "All fees are non-refundable. However, if you experience significant service issues within the first 30 days, please contact us and we'll work with you to find a fair solution."
+        "refundsBody": "All fees are non-refundable. However, if you experience significant service issues within the first 30 days, please contact us and we'll work with you to find a fair solution.",
+        "overdueTitle": "Overdue Payments",
+        "overdueBody": "If payment is overdue, we may suspend access until you settle your balance."
       },
       "cancellation": {
         "title": "Cancellation and Termination",
@@ -303,11 +307,11 @@
         "title": "Data Ownership and Privacy",
         "yourRightsTitle": "Your Data Rights",
         "yourRightsBody": "You own 100% of your analytics data. We claim no intellectual property rights over your website data and will never sell or share it with third parties.",
+        "anonymousDataTitle": "Anonymous Analytics",
+        "anonymousDataBody": "By default, analytics data collected through Betterlytics is anonymized and designed to prevent the identification of individual visitors. Personally identifiable information is not collected or stored unless customers enable specific features (e.g., session replays, custom identifiers) that may involve pseudo-anonymous or personal data. We act as a data processor when handling personal or pseudo-anonymous data you provide (e.g., in features like session replays). You are the data controller and must ensure compliance with GDPR, CCPA, or other applicable data laws (e.g. obtaining consent, disclosing in your privacy policy).",
         "dpaTitle": "Data Processing Agreement",
         "dpaBodyPrefix": "For enterprise customers and GDPR compliance, our comprehensive Data Processing Agreement (DPA) is available at",
         "dpaBodySuffix": ". The DPA forms part of these Terms of Service and governs how we process data on your behalf.",
-        "whatWeCollectTitle": "What We Collect",
-        "whatWeCollectBody": "Our service is designed to be privacy-first and cookieless. We collect only anonymous, aggregated data as detailed in our Privacy Policy. We do not collect personally identifiable information.",
         "yourResponsibilitiesTitle": "Your Responsibilities",
         "yrLi1": "Ensure your use of our service complies with all applicable privacy laws (GDPR, CCPA, etc.)",
         "yrLi2": "Update your privacy policy to mention the use of Betterlytics for anonymous analytics (note: no cookie consent banner is typically required since our service is cookieless)",
@@ -323,7 +327,8 @@
       "sla": {
         "title": "Service Level and Support",
         "availabilityTitle": "Service Availability",
-        "availabilityBody": "We strive for high availability but provide the service on an \"as is\" and \"as available\" basis. We make no guarantees about uptime, though we work hard to maintain reliable service.",
+        "availabilityBody": "We strive for high availability but provide the service on an \"as is\" and \"as available\" basis. We do not guarantee uninterrupted operation or error-free performance.",
+        "availabilityBodySuffix": "We may schedule maintenance; we'll endeavor to give advance notice.",
         "supportTitle": "Support",
         "supportBody": "Technical support is provided via email on a reasonable effort basis. We aim to respond promptly but do not guarantee specific response times.",
         "bugsTitle": "Bugs and Issues",
@@ -338,23 +343,25 @@
         "li4": "Statements or conduct of any third party",
         "li5": "Any other matter relating to these Terms or our services",
         "note": "What this means: While we work hard to provide reliable, privacy-focused analytics, technology isn't perfect and things can go wrong. By using Betterlytics, you understand that we can't be held responsible for any business losses or problems that might result from service issues. We're committed to earning your trust through transparency, strong security practices, and putting your privacy first.",
-        "p2": "This agreement shall be governed by the laws of the European Union and the jurisdiction where Betterlytics is legally established."
+        "p2": "These Terms are governed by the laws of the Kingdom of Denmark and applicable laws of the European Union.",
+        "p3": "The courts of Copenhagen, Denmark have exclusive jurisdiction over disputes.",
+        "p4": "Parties will first attempt to resolve issues amicably. If unresolved, disputes may be submitted to arbitration in Denmark or another mutually agreed EU forum.",
+        "p5": "Our total liability shall not exceed the amount you paid in the past 12 months"
       },
       "ip": {
         "title": "Intellectual Property",
         "li1": "Your content: You retain all rights to any content you provide to our service. Your website data remains yours.",
-        "li2": "Our service: The look, feel, and functionality of Betterlytics is our intellectual property. You may not copy, modify, or reverse engineer our service.",
-        "li3": "Feedback: If you provide feedback or suggestions about our service, you agree that we may use and incorporate that feedback without payment or attribution.",
+        "li2": "Our service: We hold all IP rights in the Service, user interface, infrastructure, trademarks, and proprietary software not covered by the AGPL.",
+        "li3": "Feedback: If you suggest features, improvements, or feedback, you grant us a perpetual, royalty-free license to use, modify, and incorporate that feedback without obligation to you.",
         "li4": "Trademarks: \"Betterlytics\" and our logo are our trademarks. You may not use them without written permission, except to identify our service in connection with your legitimate use.",
-        "li5": "Open source components: Our analytics script and core components are released under open source licenses. This does not grant rights to our hosted service, trademarks, or proprietary infrastructure."
+        "li5": "Open source components: Our open source parts are licensed under AGPL-3.0; this does not extend to our hosted backend, infrastructure, or service components not included in the public repositories."
       },
       "updates": {
         "title": "Updates and Communication",
-        "p1": "We may update these Terms of Service from time to time. When we make significant changes:",
-        "li1": "We will notify you via email at least 30 days in advance",
-        "li2": "We will post updates on our website",
-        "li3": "Continued use of our service after changes take effect constitutes acceptance",
-        "li4": "If you don't agree with changes, you may cancel your account"
+        "p1": "We may revise these Terms from time to time.",
+        "li1": "If we make material changes, we will notify you at least 30 days in advance via email.",
+        "li2": "Your continued use after changes take effect constitutes acceptance.",
+        "li3": "If you disagree, you may cancel your account before the changes take effect."
       },
       "contact": {
         "title": "Contact Us",
