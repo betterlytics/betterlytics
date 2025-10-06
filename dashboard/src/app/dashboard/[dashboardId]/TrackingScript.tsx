@@ -16,6 +16,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.src = `${PUBLIC_ANALYTICS_BASE_URL}/analytics.js`;
     script.setAttribute('data-site-id', siteId);
     script.setAttribute('data-server-url', `${PUBLIC_TRACKING_SERVER_ENDPOINT}/track`);
+    script.setAttribute('data-scripts-base-url', PUBLIC_ANALYTICS_BASE_URL);
     script.setAttribute('data-dynamic-urls', '/dashboard/*');
     script.setAttribute('data-outbound-links', 'full');
     script.setAttribute('data-web-vitals', 'true');
