@@ -507,14 +507,6 @@
         "li2": "Any disputes regarding data processing will be governed by the laws of the European Union, with courts in Copenhagen, Denmark having exclusive jurisdiction.",
         "li3": "This DPA is effective as of the last update date above and remains in effect while the customer uses Betterlytics services."
       },
-      "compliance": {
-        "title": "10. Audits and Compliance",
-        "intro": "Betterlytics maintains compliance through:",
-        "li1": "Regular internal security and privacy assessments",
-        "li2": "Transparent, open-source codebase for technical verification",
-        "li3": "Public privacy policy and terms of service",
-        "li4": "Commitment to cooperate with reasonable audit requests from enterprise customers"
-      },
       "contact": {
         "title": "Contact for DPA Matters",
         "lead": "For questions about this DPA or data processing practices:",
