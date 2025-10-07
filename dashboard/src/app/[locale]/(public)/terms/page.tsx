@@ -205,6 +205,7 @@ export default async function TermsPage() {
                   <NumberedLi num='7.5.4'>{t('dataOwnership.ocLi4')}</NumberedLi>
                   <NumberedLi num='7.5.5'>{t('dataOwnership.ocLi5')}</NumberedLi>
                 </ul>
+                <NumberedP num='7.6'>{t('dataOwnership.finalRemarks')}</NumberedP>
               </div>
             </section>
 

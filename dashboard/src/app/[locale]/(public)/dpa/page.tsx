@@ -21,6 +21,34 @@ export default async function DPAPage() {
   const locale = await getLocale();
   const seoConfig = { ...SEO_CONFIGS.dpa, title: t('title') } as const;
 
+  const Heading = ({ num, children }: { num: number; children: React.ReactNode }) => (
+    <h2 className='text-foreground mb-4 text-2xl font-semibold'>
+      <span className='mr-2'>{num}.</span>
+      {children}
+    </h2>
+  );
+
+  const Subheading = ({ num, children }: { num: string; children: React.ReactNode }) => (
+    <h4 className='text-foreground font-semibold'>
+      <span className='mr-2'>{num}</span>
+      {children}
+    </h4>
+  );
+
+  const NumberedP = ({ num, children }: { num: string; children: React.ReactNode }) => (
+    <p className='text-foreground leading-relaxed'>
+      <span className='mr-2'>{num}</span>
+      {children}
+    </p>
+  );
+
+  const NumberedLi = ({ num, children }: { num: string; children: React.ReactNode }) => (
+    <li className='text-foreground'>
+      <span className='mr-2'>{num}</span>
+      {children}
+    </li>
+  );
+
   return (
     <div className='bg-background min-h-screen py-12'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
@@ -39,158 +67,155 @@ export default async function DPAPage() {
           </div>
 
           <div className='space-y-8 px-6 py-8'>
-            <section className='border-primary bg-accent rounded-r-lg border-l-4 p-6'>
-              <h2 className='text-accent-foreground mb-3 text-xl font-semibold'>{t('scope.title')}</h2>
-              <p className='text-accent-foreground'>{t('scope.body')}</p>
-            </section>
-
-            <section className='border-primary bg-secondary rounded-r-lg border-l-4 p-6'>
-              <h2 className='text-secondary-foreground mb-3 text-xl font-semibold'>{t('whyDifferent.title')}</h2>
-              <p className='text-secondary-foreground'>{t('whyDifferent.body')}</p>
-            </section>
-
-            <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('intro.title')}</h2>
-              <p className='text-foreground mb-4 leading-relaxed'>{t('intro.p1')}</p>
-              <p className='text-foreground leading-relaxed'>{t('intro.p2')}</p>
-            </section>
-
-            <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('definitions.title')}</h2>
-              <div className='space-y-4'>
-                <div className='bg-muted rounded-lg p-4'>
-                  <p className='text-foreground'>{t('definitions.controller')}</p>
-                </div>
-                <div className='bg-muted rounded-lg p-4'>
-                  <p className='text-foreground'>{t('definitions.processor')}</p>
-                </div>
-                <div className='bg-muted rounded-lg p-4'>
-                  <p className='text-foreground'>{t('definitions.processing')}</p>
-                </div>
-                <div className='bg-muted rounded-lg p-4'>
-                  <p className='text-foreground'>{t('definitions.personalData')}</p>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('processingDetails.title')}</h2>
-
-              <h3 className='text-foreground mb-3 text-lg font-semibold'>
-                {t('processingDetails.naturePurposeTitle')}
-              </h3>
-              <ul className='text-foreground mb-6 list-disc space-y-2 pl-6'>
-                <li>{t('processingDetails.npLi1')}</li>
-                <li>{t('processingDetails.npLi2')}</li>
-                <li>{t('processingDetails.npLi3')}</li>
-              </ul>
-
-              <h3 className='text-foreground mb-3 text-lg font-semibold'>
-                {t('processingDetails.categoriesTitle')}
-              </h3>
-              <div className='bg-muted mb-6 rounded-lg p-4'>
-                <p className='text-foreground mb-2'>{t('processingDetails.categoriesIntro')}</p>
-                <ul className='text-muted-foreground list-disc space-y-1 pl-6 text-sm'>
-                  <li>{t('processingDetails.catLi1')}</li>
-                  <li>{t('processingDetails.catLi2')}</li>
-                  <li>{t('processingDetails.catLi3')}</li>
-                  <li>{t('processingDetails.catLi4')}</li>
-                  <li>{t('processingDetails.catLi5')}</li>
-                  <li>{t('processingDetails.catLi6')}</li>
-                </ul>
-              </div>
-
-              <h3 className='text-foreground mb-3 text-lg font-semibold'>
-                {t('processingDetails.subjectsTitle')}
-              </h3>
-              <p className='text-foreground mb-6'>{t('processingDetails.subjectsBody')}</p>
-
-              <h3 className='text-foreground mb-3 text-lg font-semibold'>
-                {t('processingDetails.locationTitle')}
-              </h3>
-              <p className='text-foreground'>{t('processingDetails.locationBody')}</p>
-            </section>
-
-            <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('instructions.title')}</h2>
-              <p className='text-foreground mb-4'>{t('instructions.intro')}</p>
-              <ul className='text-foreground list-disc space-y-2 pl-6'>
-                <li>{t('instructions.li1')}</li>
-                <li>{t('instructions.li2')}</li>
-                <li>{t('instructions.li3')}</li>
-                <li>{t('instructions.li4')}</li>
-                <li>{t('instructions.li5')}</li>
+            <section className='space-y-3'>
+              <Heading num={1}>{t('scope.title')}</Heading>
+              <NumberedP num='1.1'>{t('scope.body')}</NumberedP>
+              <NumberedP num='1.2'>{t('scope.appliesTo')}</NumberedP>
+              <ul className='list-none space-y-2'>
+                <NumberedLi num='1.3'>{t('scope.li1')}</NumberedLi>
+                <NumberedLi num='1.4'>{t('scope.li2')}</NumberedLi>
               </ul>
             </section>
 
             <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('security.title')}</h2>
-              <p className='text-foreground mb-4'>{t('security.intro')}</p>
-              <ul className='text-foreground list-disc space-y-2 pl-6'>
-                <li>{t('security.li1')}</li>
-                <li>{t('security.li2')}</li>
-                <li>{t('security.li3')}</li>
-                <li>{t('security.li4')}</li>
-                <li>{t('security.li5')}</li>
-                <li>{t('security.li6')}</li>
+              <Heading num={2}>{t('definitions.title')}</Heading>
+              <ul className='list-none space-y-2'>
+                <NumberedLi num='2.1'>{t('definitions.controller')}</NumberedLi>
+                <NumberedLi num='2.2'>{t('definitions.processor')}</NumberedLi>
+                <NumberedLi num='2.3'>{t('definitions.processing')}</NumberedLi>
+                <NumberedLi num='2.4'>{t('definitions.personalData')}</NumberedLi>
+                <NumberedLi num='2.5'>{t('definitions.subprocessor')}</NumberedLi>
+              </ul>
+            </section>
+
+            <section className='space-y-4'>
+              <Heading num={3}>{t('processingDetails.title')}</Heading>
+
+              <Subheading num='3.1'>{t('processingDetails.naturePurposeTitle')}</Subheading>
+              <ul className='list-none space-y-2'>
+                <NumberedLi num='3.1.1'>{t('processingDetails.npLi1')}</NumberedLi>
+                <NumberedLi num='3.1.2'>{t('processingDetails.npLi2')}</NumberedLi>
+                <NumberedLi num='3.1.3'>{t('processingDetails.npLi3')}</NumberedLi>
+              </ul>
+
+              <Subheading num='3.2'>{t('processingDetails.categoriesTitle')}</Subheading>
+              <NumberedP num='3.2.1'>{t('processingDetails.categoriesIntro')}</NumberedP>
+              <ul className='text-foreground list-disc space-y-1 pl-6 text-sm'>
+                <li>{t('processingDetails.catLi1')}</li>
+                <li>{t('processingDetails.catLi2')}</li>
+                <li>{t('processingDetails.catLi3')}</li>
+                <li>{t('processingDetails.catLi4')}</li>
+                <li>{t('processingDetails.catLi5')}</li>
+                <li>{t('processingDetails.catLi6')}</li>
+              </ul>
+
+              <NumberedP num='3.2.2'>{t('processingDetails.personalDataTitle')}</NumberedP>
+              <ul className='text-foreground list-disc space-y-1 pl-6 text-sm'>
+                <li>{t('processingDetails.pdLi1')}</li>
+                <li>{t('processingDetails.pdLi2')}</li>
+                <li>{t('processingDetails.pdLi3')}</li>
+                <li>{t('processingDetails.pdLi4')}</li>
+              </ul>
+
+              <Subheading num='3.3'>{t('processingDetails.subjectsTitle')}</Subheading>
+              <ul className='list-none space-y-2'>
+                <NumberedLi num='3.3.1'>{t('processingDetails.sLi1')}</NumberedLi>
+                <NumberedLi num='3.3.2'>{t('processingDetails.sLi2')}</NumberedLi>
+                <NumberedLi num='3.3.3'>{t('processingDetails.sLi3')}</NumberedLi>
+              </ul>
+
+              <Subheading num='3.4'>{t('processingDetails.locationTitle')}</Subheading>
+              <NumberedP num='3.4.1'>{t('processingDetails.locationBody')}</NumberedP>
+            </section>
+
+            <section>
+              <Heading num={4}>{t('dataController.title')}</Heading>
+              <NumberedP num='4.1'>{t('dataController.intro')}</NumberedP>
+              <ul className='list-disc space-y-2 pl-6'>
+                <li className='text-foreground'>{t('dataController.li1')}</li>
+                <li className='text-foreground'>{t('dataController.li2')}</li>
+                <li className='text-foreground'>{t('dataController.li3')}</li>
+                <li className='text-foreground'>{t('dataController.li4')}</li>
+                <li className='text-foreground'>{t('dataController.li5')}</li>
+              </ul>
+            </section>
+            <section>
+              <Heading num={5}>{t('dataProcessor.title')}</Heading>
+              <p className='text-foreground'>{t('dataProcessor.intro')}</p>
+              <ul className='list-none space-y-2 pt-2'>
+                <NumberedLi num='5.1'>{t('dataProcessor.li1')}</NumberedLi>
+                <NumberedLi num='5.2'>{t('dataProcessor.li2')}</NumberedLi>
+              </ul>
+              <ul className='list-disc space-y-2 pl-6'>
+                <li className='text-foreground'>{t('dataProcessor.li21')}</li>
+                <li className='text-foreground'>{t('dataProcessor.li22')}</li>
+                <li className='text-foreground'>{t('dataProcessor.li23')}</li>
+                <li className='text-foreground'>{t('dataProcessor.li25')}</li>
+                <li className='text-foreground'>{t('dataProcessor.li26')}</li>
+              </ul>
+              <ul className='list-none space-y-2 pt-2'>
+                <NumberedLi num='5.3'>{t('dataProcessor.li3')}</NumberedLi>
+                <NumberedLi num='5.4'>{t('dataProcessor.li4')}</NumberedLi>
               </ul>
             </section>
 
             <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('subprocessors.title')}</h2>
-              <p className='text-foreground mb-4'>{t('subprocessors.intro')}</p>
-              <div className='space-y-3'>
-                <div className='bg-muted rounded-lg p-4'>
-                  <p className='text-foreground'>{t('subprocessors.li1')}</p>
-                </div>
-              </div>
-              <p className='text-foreground mt-4'>{t('subprocessors.notice')}</p>
+              <Heading num={6}>{t('subprocessors.title')}</Heading>
+              <NumberedP num='6.1'>{t('subprocessors.intro')}</NumberedP>
+              <ul className='text-foreground list-disc space-y-1 pl-6 text-sm'>
+                <li>{t('subprocessors.li1')}</li>
+                <li>{t('subprocessors.li2')}</li>
+                <li>{t('subprocessors.li3')}</li>
+              </ul>
+              <NumberedP num='6.2'>{t('subprocessors.notice')}</NumberedP>
             </section>
 
             <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('rights.title')}</h2>
-              <div className='border-primary bg-accent rounded-r-lg border-l-4 p-4'>
-                <p className='text-accent-foreground'>{t('rights.body')}</p>
-              </div>
+              <Heading num={7}>{t('rights.title')}</Heading>
+              <ul className='list-none space-y-2'>
+                <NumberedLi num='7.1'>{t('rights.li1')}</NumberedLi>
+                <NumberedLi num='7.2'>{t('rights.li2')}</NumberedLi>
+              </ul>
             </section>
 
             <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('breach.title')}</h2>
-              <p className='text-foreground mb-4'>{t('breach.intro')}</p>
-              <ul className='text-foreground list-disc space-y-2 pl-6'>
+              <Heading num={8}>{t('breach.title')}</Heading>
+              <NumberedP num='8.1'>{t('breach.intro')}</NumberedP>
+              <ul className='list-disc space-y-2 pl-6'>
                 <li>{t('breach.li1')}</li>
                 <li>{t('breach.li2')}</li>
-                <li>{t('breach.li3')}</li>
-                <li>{t('breach.li4')}</li>
               </ul>
             </section>
 
             <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('deletion.title')}</h2>
+              <Heading num={9}>{t('deletion.title')}</Heading>
               <div className='space-y-4'>
-                <div className='bg-muted rounded-lg p-4'>
-                  <h4 className='text-foreground mb-2 font-semibold'>{t('deletion.accountTitle')}</h4>
-                  <p className='text-muted-foreground text-sm'>{t('deletion.accountBody')}</p>
+                <div>
+                  <Subheading num='9.1'>{t('deletion.accountTitle')}</Subheading>
+                  <p className='text-foreground'>{t('deletion.accountBody')}</p>
                 </div>
-                <div className='bg-muted rounded-lg p-4'>
-                  <h4 className='text-foreground mb-2 font-semibold'>{t('deletion.subscriptionTitle')}</h4>
-                  <p className='text-muted-foreground text-sm'>{t('deletion.subscriptionBody')}</p>
-                </div>
-                <div className='bg-muted rounded-lg p-4'>
-                  <h4 className='text-foreground mb-2 font-semibold'>{t('deletion.exportTitle')}</h4>
-                  <p className='text-muted-foreground text-sm'>{t('deletion.exportBody')}</p>
+                <div>
+                  <Subheading num='9.2'>{t('deletion.subscriptionTitle')}</Subheading>
+                  <p className='text-foreground'>{t('deletion.subscriptionBody')}</p>
                 </div>
               </div>
             </section>
 
             <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('compliance.title')}</h2>
-              <p className='text-foreground mb-4'>{t('compliance.intro')}</p>
-              <ul className='text-foreground list-disc space-y-2 pl-6'>
-                <li>{t('compliance.li1')}</li>
-                <li>{t('compliance.li2')}</li>
-                <li>{t('compliance.li3')}</li>
-                <li>{t('compliance.li4')}</li>
+              <Heading num={10}>{t('liability.title')}</Heading>
+              <ul className='list-none space-y-2'>
+                <NumberedLi num='10.1'>{t('liability.li1')}</NumberedLi>
+                <NumberedLi num='10.2'>{t('liability.li2')}</NumberedLi>
+                <NumberedLi num='10.3'>{t('liability.li3')}</NumberedLi>
+              </ul>
+            </section>
+
+            <section>
+              <Heading num={11}>{t('misc.title')}</Heading>
+              <ul className='list-none space-y-2'>
+                <NumberedLi num='11.1'>{t('misc.li1')}</NumberedLi>
+                <NumberedLi num='11.2'>{t('misc.li2')}</NumberedLi>
+                <NumberedLi num='11.3'>{t('misc.li3')}</NumberedLi>
               </ul>
             </section>
 

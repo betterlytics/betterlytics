@@ -134,13 +134,15 @@
       "visitor": {
         "title": "As a visitor to websites using Betterlytics",
         "lead": "The privacy of website visitors is important to us. We have designed our analytics system to be completely cookieless and privacy-focused. As a visitor to websites using Betterlytics:",
-        "li1": "No personal information is collected",
-        "li2": "No cookies are stored in your browser",
-        "li3": "No information is shared with, sent to or sold to third-parties",
-        "li4": "No information is shared with advertising companies",
-        "li5": "No information is mined and harvested for personal and behavioral trends",
-        "li6": "No information is monetized",
-        "li7": "All data collected is aggregated and anonymized"
+        "li1": "By default, Betterlytics does not collect personal information or use cookies.",
+        "li2": "No cookies or browser storage are ever used or stored.",
+        "li3": "No information is shared with, sent to or sold to third-parties.",
+        "li4": "No information is shared with advertising companies.",
+        "li5": "No information is mined and harvested for personal and behavioral trends.",
+        "li6": "No information is monetized.",
+        "finalRemarks1": "All analytics data is aggregated and anonymized to prevent identification of individual visitors. Certain optional features (such as session replay, custom identifiers, or user event tracking) may enable website owners to collect additional data, which could include personal or pseudo-anonymous information depending on configuration. In such cases, the website owner — not Betterlytics — is the data controller and is responsible for obtaining consent and ensuring compliance with applicable privacy laws (such as GDPR or CCPA).",
+        "finalRemarks2": "While Betterlytics is designed to collect only anonymized data by default, it is possible that personal data may be accidentally transmitted by website owners — for example, via URL paths, query parameters, or custom event data. In such cases, Betterlytics acts as a data processor of the received data and processes it solely according to our standard procedures. Website owners remain the data controllers and are responsible for masking or removing personal data and ensuring compliance with applicable privacy laws (such as GDPR or CCPA). We encourage website owners to follow best practices to prevent personal data from being sent accidentally. For more information about responsibilities related to the use of Betterlytics and optional features, please refer to our Terms of Service.",
+        "finalRemarks3": "When processing website visitor data that includes personal or pseudo-anonymous information on behalf of our customers, Betterlytics acts as a data processor under GDPR, and the website owner acts as the data controller responsible for determining the lawful basis for processing and ensuring compliance."
       },
       "anonymous": {
         "title": "What anonymous data we collect and why",
@@ -163,7 +165,8 @@
         "sessionTracking": {
           "title": "Session Tracking",
           "body": "We track sessions to understand how visitors engage with websites. Sessions automatically expire after 30 minutes of inactivity and are stored only in server memory, never in cookies or browser storage."
-        }
+        },
+        "finalRemarks": "This section describes Betterlytics' default, anonymized data collection. Customers who enable optional features that collect additional data are responsible for ensuring their own compliance with data protection laws."
       },
       "processStore": {
         "title": "How we process and store data",
@@ -189,7 +192,9 @@
           "li1": "Payment processing (if applicable) through EU-compliant payment processors",
           "li2": "Email delivery for transactional emails and notifications",
           "outro": "We only share the minimum necessary information with these providers and contractually bind them to protect your data according to GDPR standards."
-        }
+        },
+        "cookieUse": "Betterlytics uses cookies strictly for necessary service functionality. These cookies are not used for analytics or marketing purposes.",
+        "responsibility": "Website owners are responsible for ensuring their use of Betterlytics complies with applicable privacy laws. For more details, please see our Terms of Service and Data Processing Agreement."
       },
       "dataRetention": {
         "title": "Data retention",
@@ -261,7 +266,7 @@
         "title": "Acceptable Use",
         "intro": "Betterlytics is designed for legitimate website analytics and is built as an open source project for transparency. You agree not to use our service to:",
         "li1": "Track visitors without their knowledge or in violation of privacy laws",
-        "li2": "Collect personally identifiable information (PII), which includes any data that can directly or indirectly identify an individual. By default, Betterlytics does not collect PII. Certain features (e.g., session replays, custom events that include user identifiers) may involve pseudo-anonymous or personal data, in which case customers are responsible for ensuring compliance with applicable privacy laws.",
+        "li2": "Collect or process personally identifiable information (PII) unless you have a lawful basis to do so under applicable privacy laws (such as valid user consent). By default, Betterlytics is designed to avoid collecting PII. Certain optional features — such as session replay, custom identifiers, or user event tracking — or accidental inclusion of personal data in URLs, query parameters, or event payloads, may result in the collection of personal or pseudo-anonymous information. In such cases, the website owner — not Betterlytics — is the data controller and is responsible for masking, obtaining consent, and ensuring compliance with applicable privacy laws (such as GDPR or CCPA).",
         "li3": "Generate artificial or bot traffic to inflate statistics or abuse our infrastructure",
         "li4": "Track websites you don't own without explicit permission",
         "li5": "Abuse our service infrastructure, bypass rate limits, or send malformed data that could harm our systems",
@@ -324,7 +329,8 @@
         "ocLi2": "Implement appropriate security measures to protect your data",
         "ocLi3": "Never sell, share, or monetize your analytics data",
         "ocLi4": "Provide EU-based hosting and processing for GDPR compliance",
-        "ocLi5": "Delete your data immediately upon account deletion"
+        "ocLi5": "Delete your data immediately upon account deletion",
+        "finalRemarks": "Your use of Betterlytics is also governed by our Privacy Policy, which explains how we collect, process, and store data, including website visitor analytics and your account information. By using our service, you agree to the practices described in the Privacy Policy in addition to these Terms of Service."
       },
       "sla": {
         "title": "Service Level and Support",
@@ -383,54 +389,75 @@
       "lastUpdated": "Last updated:",
       "scope": {
         "title": "Scope of This DPA",
-        "body": "This Data Processing Agreement applies exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. It does not apply to self-hosted installations of our open source software. If you self-host Betterlytics, you are responsible for your own data processing agreements and legal compliance."
-      },
-      "whyDifferent": {
-        "title": "Why This DPA Is Different",
-        "body": "Unlike traditional analytics services, Betterlytics is designed to be anonymous-by-design. We process no personal data, making this one of the simplest DPAs in the analytics industry."
+        "body": "This Data Processing Agreement (“DPA”) forms part of the Betterlytics Terms of Service and governs the processing of data when you use the Betterlytics hosted cloud service available at betterlytics.io and our official domains. This DPA does not apply to self-hosted installations of our open source software; if you self-host Betterlytics, you are responsible for your own data processing agreements and compliance with applicable laws.",
+        "appliesTo": "This DPA applies to the processing of website visitor data collected via Betterlytics analytics scripts, including both:",
+        "li1": "Anonymous data (default, anonymized analytics), and",
+        "li2": "Personal or pseudo-anonymous data (optional features, or any accidental inclusion of personal or pseudo-anonymous data in URLs, query parameters, or event payloads), e.g., session replay, custom identifiers, or custom events."
       },
       "intro": {
-        "title": "1. Introduction",
+        "title": "Introduction",
         "p1": "This Data Processing Agreement (\"DPA\") forms part of the Betterlytics Terms of Service and governs the processing of data when you use our analytics service. This agreement is designed to ensure compliance with the General Data Protection Regulation (GDPR) and other applicable data protection laws.",
         "p2": "Important: Betterlytics is specifically designed to process only anonymous, aggregated data. No personal data is collected, stored, or processed by our service."
       },
       "definitions": {
-        "title": "2. Definitions",
+        "title": "Definitions",
         "controller": "\"Data Controller\": You (the customer) who determines the purposes and means of processing data from your website visitors.",
-        "processor": "\"Data Processor\": Betterlytics, who processes data on your behalf according to your instructions.",
-        "processing": "\"Processing\": In our case, the collection and analysis of anonymous, aggregated website analytics data.",
-        "personalData": "\"Personal Data\": Not applicable - Betterlytics is designed to avoid processing any personal data."
+        "processor": "\"Data Processor\": Betterlytics, who processes data on your behalf according to your instructions and this DPA.",
+        "processing": "\"Processing\": Collection, storage, analysis, and reporting of website visitor data.",
+        "personalData": "\"Personal Data\": Any information relating to an identified or identifiable natural person. In Betterlytics, this includes any data collected via optional features or accidentally included in default tracking (URLs, query parameters, or event payloads).",
+        "subprocessor": "\"Subprocessor\": Any third-party service engaged by Betterlytics to assist with data processing."
       },
       "processingDetails": {
-        "title": "3. Data Processing Details",
-        "naturePurposeTitle": "3.1 Nature and Purpose of Processing",
-        "npLi1": "Providing anonymous website analytics and visitor insights",
+        "title": "Data Processing Details",
+        "naturePurposeTitle": "Nature and Purpose",
+        "body": "Betterlytics will process data on behalf of the Data Controller solely for the following purposes:",
+        "npLi1": "Providing analytics on website traffic and visitor behavior.",
         "npLi2": "Generating aggregated reports on website traffic and usage patterns",
         "npLi3": "Detecting and filtering bot traffic for accurate statistics",
-        "categoriesTitle": "3.2 Categories of Data",
-        "categoriesIntro": "Anonymous data only:",
+        "categoriesTitle": "Categories of Data",
+        "categoriesIntro": "Anonymous data (default):",
         "catLi1": "Anonymized IP addresses (last octet removed immediately)",
         "catLi2": "Bucketed screen resolutions (small/medium/large categories)",
         "catLi3": "Browser and operating system information",
-        "catLi4": "Country-level geographic data",
+        "catLi4": "Country and City-level geographic data",
         "catLi5": "Page URLs and referrer information",
         "catLi6": "Daily-rotating visitor fingerprints (anonymous identification)",
-        "subjectsTitle": "3.3 Data Subjects",
-        "subjectsBody": "Not applicable - our system is designed to prevent identification of individual data subjects. All data is processed in aggregate and anonymous form only.",
-        "locationTitle": "3.4 Processing Location",
-        "locationBody": "All data processing occurs within the European Union on servers located in secure EU data centers."
+        "subjectsTitle": "Data Subjects",
+        "sLi1": "Website visitors whose data is captured by the Betterlytics scripts.",
+        "sLi2": "When only anonymous data is collected, data subjects cannot be identified.",
+        "sLi3": "For optional features or accidental inclusion of personal/pseudo-anonymous data, data subjects may be identifiable. The Data Controller is responsible for lawful processing.",
+        "locationTitle": "Processing Location",
+        "locationBody": "All processing occurs on servers located within the European Union.",
+        "personalDataTitle": "Optional personal/pseudo-anonymous data:",
+        "pdLi1": "Session replay data containing user interaction details",
+        "pdLi2": "Custom event data containing user identifiers or PII",
+        "pdLi3": "Visitor identifiers or custom identifiers",
+        "pdLi4": "Potential personal/pseudo-anonymous data (via optional features or accidental inclusion in default tracking)"
       },
-      "instructions": {
-        "title": "4. Your Instructions",
-        "intro": "By using Betterlytics, you instruct us to:",
-        "li1": "Collect anonymous analytics data from your website visitors",
-        "li2": "Process this data to generate website analytics and insights",
-        "li3": "Store the data for the duration of your subscription",
-        "li4": "Delete all data immediately upon account deletion",
-        "li5": "Provide you with analytics reports and access to your data"
+      "dataController": {
+        "title": "Obligations of the Data Controller",
+        "intro": "The Data Controller must:",
+        "li1": "Ensure that its use of Betterlytics is lawful under GDPR, CCPA, and other applicable data protection laws.",
+        "li2": "Determine the lawful basis for processing personal/pseudo-anonymous data collected via optional features or accidentally in default tracking.",
+        "li3": "Update its website privacy policy to disclose the use of Betterlytics and any optional features that may collect personal or pseudo-anonymous data.",
+        "li4": "Mask or remove personal data from URLs, query parameters, or custom events to prevent accidental collection.",
+        "li5": "Ensure that end users are provided appropriate privacy notices and consent mechanisms where required."
+      },
+      "dataProcessor": {
+        "title": "Obligations of the Data Processor (Betterlytics)",
+        "intro": "Betterlytics will:",
+        "li1": "Process data only on documented instructions from the Data Controller.",
+        "li2": "Implement appropriate technical and organizational measures to ensure data security, including:",
+        "li21": "TLS 1.2/1.3 encryption for data in transit",
+        "li22": "Industry-standard encryption for data at rest",
+        "li23": "Access controls limiting data access to authorized personnel only",
+        "li25": "EU-based servers in secure data centers",
+        "li26": "Immediate IP anonymization at data collection point",
+        "li3": "Assist the Data Controller in responding to requests from data subjects when personal/pseudo-anonymous data is processed.",
+        "li4": "Delete all analytics data immediately upon account deletion."
       },
       "security": {
-        "title": "5. Security Measures",
+        "title": "Security Measures",
         "intro": "Betterlytics implements appropriate technical and organizational measures to ensure data security:",
         "li1": "All data transmission encrypted using TLS 1.2/1.3",
         "li2": "Data at rest encrypted using industry-standard encryption",
@@ -440,31 +467,42 @@
         "li6": "Immediate IP anonymization at data collection point"
       },
       "subprocessors": {
-        "title": "6. Subprocessors",
-        "intro": "Betterlytics may engage the following categories of subprocessors:",
-        "li1": "Infrastructure providers: EU-based cloud hosting and infrastructure services",
-        "notice": "We will notify you of any changes to our subprocessors and obtain your consent where required by law."
+        "title": "Subprocessors",
+        "intro": "Betterlytics may engage subprocessors to perform parts of the processing, including:",
+        "li1": "EU-based cloud hosting and infrastructure providers",
+        "li2": "Payment processors (for account billing)",
+        "li3": "Email delivery services",
+        "notice": "Betterlytics will maintain a current list of subprocessors and notify the Data Controller of any additions or changes."
       },
       "rights": {
-        "title": "7. Data Subject Rights",
-        "body": "Not applicable: Since Betterlytics processes only anonymous data, individual data subject rights (access, rectification, erasure, etc.) do not apply to our analytics data. Visitors cannot be identified in our system, making individual rights requests impossible to fulfill."
+        "title": "Data Subject Rights",
+        "li1": "For anonymous data: Data subject rights do not apply, as individuals cannot be identified.",
+        "li2": "When personal or pseudo-anonymous data is collected—whether through optional features (e.g., session replay, custom identifiers, custom events) or accidentally included in default tracking (URLs, query parameters, or event payloads)—Betterlytics will assist the Data Controller in fulfilling data subject rights under GDPR. This includes requests for access, correction, deletion, restriction of processing, or objection, as applicable."
       },
       "breach": {
-        "title": "8. Data Breach Notification",
+        "title": "Data Breach Notification",
         "intro": "In the unlikely event of a security incident affecting our service:",
-        "li1": "We will notify you within 72 hours of becoming aware of any incident",
-        "li2": "We will provide details of the incident and our response measures",
-        "li3": "We will assist with any required notifications to data protection authorities",
-        "li4": "Note: Risk to individuals is minimal given our anonymous-only data processing"
+        "li1": "Betterlytics will notify the Data Controller within 72 hours of discovering any personal data breach affecting optional features that process personal/pseudo-anonymous data.",
+        "li2": "Notifications will include details of the breach, potential impact, and mitigation measures."
       },
       "deletion": {
-        "title": "9. Data Deletion and Return",
+        "title": "Data Deletion",
         "accountTitle": "Account Deletion",
-        "accountBody": "All data (personal and analytics) is permanently deleted immediately upon account deletion.",
+        "accountBody": "All data, including optional personal/pseudo-anonymous data, is permanently deleted immediately.",
         "subscriptionTitle": "Subscription Cancellation",
-        "subscriptionBody": "Analytics data is retained for 1 month in case you return, then permanently deleted.",
-        "exportTitle": "Data Export",
-        "exportBody": "You can export your analytics data at any time through your dashboard."
+        "subscriptionBody": "Data is retained for 1 month in case the account is reactivated, then permanently deleted."
+      },
+      "liability": {
+        "title": "Liability and Indemnification",
+        "li1": "Betterlytics is liable only for processing performed outside the instructions of the Data Controller or in breach of this DPA.",
+        "li2": "The Data Controller is responsible for ensuring lawful use of optional features that may process personal or pseudo-anonymous data.",
+        "li3": "Data Controller agrees to indemnify Betterlytics for any claims arising from unlawful use of any feature provided by Betterlytics."
+      },
+      "misc": {
+        "title": "Miscellaneous",
+        "li1": "This DPA forms part of the Terms of Service.",
+        "li2": "Any disputes regarding data processing will be governed by the laws of the European Union, with courts in Copenhagen, Denmark having exclusive jurisdiction.",
+        "li3": "This DPA is effective as of the last update date above and remains in effect while the customer uses Betterlytics services."
       },
       "compliance": {
         "title": "10. Audits and Compliance",
