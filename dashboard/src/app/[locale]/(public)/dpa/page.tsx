@@ -64,6 +64,7 @@ export default async function DPAPage() {
                 day: 'numeric',
               })}
             </p>
+            <p className='text-muted-foreground mt-2 text-sm'>{t('translationDisclaimer')}</p>
           </div>
 
           <div className='space-y-8 px-6 py-8'>

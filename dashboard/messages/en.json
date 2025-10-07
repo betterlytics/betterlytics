@@ -117,6 +117,7 @@
       }
     },
     "privacy": {
+      "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Betterlytics Privacy Policy",
       "lastUpdated": "Last updated:",
       "tldr": {
@@ -240,6 +241,7 @@
       }
     },
     "terms": {
+      "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Betterlytics Terms of Service",
       "lastUpdated": "Last updated:",
       "scope": {
@@ -385,6 +387,7 @@
       }
     },
     "dpa": {
+      "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Data Processing Agreement (DPA)",
       "lastUpdated": "Last updated:",
       "scope": {
