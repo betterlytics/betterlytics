@@ -45,7 +45,7 @@
     10
   );
   var minReplayDurationSec = parseInt(
-    script.getAttribute("data-replay-min-duration") || "0",
+    script.getAttribute("data-replay-min-duration") || "15",
     10
   );
   var idleCutoffMs = (function () {
