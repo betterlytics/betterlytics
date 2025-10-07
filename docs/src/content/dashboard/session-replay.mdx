@@ -64,6 +64,7 @@ A condensed marker strip is also rendered over the seek bar so you can see activ
 - **Segments missing**: The player loads segments progressively. If the first segment is empty or fetch fails, the session may not load.
 - **Choppy seek**: Seeking reconstructs DOM snapshots. If direct seek fails, we fall back to the nearest snapshot automatically.
 - **Low sample rate**: Increase `data-replay-sample` if you need more coverage.
+- **Retention**: Session replays are stored for 60 days. After 60 days they are permanently deleted and cannot be retrieved.
 
 ---
 
