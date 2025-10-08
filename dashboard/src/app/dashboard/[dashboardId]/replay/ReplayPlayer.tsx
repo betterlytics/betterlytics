@@ -307,7 +307,7 @@ const ReplayPlayerComponent = (
         }}
         ref={redactedContainerRef}
       >
-        <span className='bg-background rounded-md border-2 px-6 py-3 text-2xl shadow'>
+        <span className='bg-background rounded-md border-2 px-6 py-3 text-lg shadow'>
           Recording disabled on this page
         </span>
       </div>
