@@ -807,7 +807,8 @@
       "campaigns": "Campagne",
       "events": "Eventi",
       "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
-      "webVitals": "Web Vitals"
+      "webVitals": "Web Vitals",
+      "sessionReplay": "Replay sessioni"
     },
     "metrics": {
       "uniqueVisitors": "Visitatori unici",
@@ -1423,20 +1424,20 @@
         "unknown": "Sconosciuto",
         "unknownUrl": "URL sconosciuto",
         "endOfList": "Hai raggiunto la fine",
-        "loadingMore": "Caricamento più…",
-        "scrollToLoadMore": "Scorri per caricare più",
+        "loadingMore": "Caricamento altri…",
+        "scrollToLoadMore": "Scorri per caricare altro",
         "empty": {
-          "title": "Nessuna replay sessione disponibile",
+          "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         }
       },
       "eventTimeline": {
-        "header": "Timeline",
+        "header": "Cronologia",
         "subHeader": "{count} eventi catturati ({groupCount} gruppi)",
         "prefetching": "Caricamento restanti segmenti…",
         "emptyReplay": {
-          "title": "Nessun evento importante rilevato in questa replay ancora.",
-          "noSessionSelected": "Seleziona una replay per visualizzare la timeline."
+          "title": "Nessun evento significativo rilevato in questa sessione replay.",
+          "noSessionSelected": "Seleziona una sessione replay per visualizzare la cronologia."
         }
       },
       "events": {
@@ -1444,14 +1445,14 @@
         "mouseInteraction": "Interazione mouse",
         "selection": "Selezione",
         "scroll": "Scorrimento",
-        "input": "Input",
+        "input": "Inserimento",
         "pageview": "Visualizzazione pagina",
-        "blacklisted": "Blacklisted"
+        "blacklisted": "Nascosto"
       },
       "player": {
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
-        "seekAria": "Cerca"
+        "seekAria": "Vai a posizione"
       }
     },
     "integration": {

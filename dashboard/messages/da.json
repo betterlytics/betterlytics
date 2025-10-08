@@ -807,7 +807,8 @@
       "events": "Hændelser",
       "funnels": "Tragter",
       "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
-      "webVitals": "Web Vitals"
+      "webVitals": "Web Vitals",
+      "sessionReplay": "Sessionsafspilninger"
     },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
@@ -1420,7 +1421,7 @@
         "loading": "Indlæser sessioner…",
         "unknown": "Ukendt",
         "unknownUrl": "Ukendt URL",
-        "endOfList": "Du har nået slutningen",
+        "endOfList": "Du er nået slutningen",
         "loadingMore": "Indlæser flere…",
         "scrollToLoadMore": "Scroll ned for at indlæse flere",
         "empty": {
