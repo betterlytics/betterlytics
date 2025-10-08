@@ -101,7 +101,7 @@ export default async function DPAPage() {
 
               <Subheading num='3.2'>{t('processingDetails.categoriesTitle')}</Subheading>
               <NumberedP num='3.2.1'>{t('processingDetails.categoriesIntro')}</NumberedP>
-              <ul className='text-foreground list-disc space-y-1 pl-6 text-sm'>
+              <ul className='text-foreground list-disc space-y-1 pl-6'>
                 <li>{t('processingDetails.catLi1')}</li>
                 <li>{t('processingDetails.catLi2')}</li>
                 <li>{t('processingDetails.catLi3')}</li>
@@ -111,7 +111,7 @@ export default async function DPAPage() {
               </ul>
 
               <NumberedP num='3.2.2'>{t('processingDetails.personalDataTitle')}</NumberedP>
-              <ul className='text-foreground list-disc space-y-1 pl-6 text-sm'>
+              <ul className='text-foreground list-disc space-y-1 pl-6'>
                 <li>{t('processingDetails.pdLi1')}</li>
                 <li>{t('processingDetails.pdLi2')}</li>
                 <li>{t('processingDetails.pdLi3')}</li>
@@ -163,7 +163,7 @@ export default async function DPAPage() {
             <section>
               <Heading num={6}>{t('subprocessors.title')}</Heading>
               <NumberedP num='6.1'>{t('subprocessors.intro')}</NumberedP>
-              <ul className='text-foreground list-disc space-y-1 pl-6 text-sm'>
+              <ul className='text-foreground list-disc space-y-1 pl-6'>
                 <li>{t('subprocessors.li1')}</li>
                 <li>{t('subprocessors.li2')}</li>
                 <li>{t('subprocessors.li3')}</li>
