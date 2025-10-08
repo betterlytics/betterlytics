@@ -1413,6 +1413,47 @@
         }
       }
     },
+    "sessionReplay": {
+      "sessionList": {
+        "header": "Sessioni",
+        "subHeader": "{count} sessioni",
+        "durationFilter": "Durata minima (s)",
+        "durationFilterAria": "Filtra sessioni per durata minima in secondi",
+        "loading": "Caricamento sessioni…",
+        "unknown": "Sconosciuto",
+        "unknownUrl": "URL sconosciuto",
+        "endOfList": "Hai raggiunto la fine",
+        "loadingMore": "Caricamento più…",
+        "scrollToLoadMore": "Scorri per caricare più",
+        "empty": {
+          "title": "Nessuna replay sessione disponibile",
+          "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
+        }
+      },
+      "eventTimeline": {
+        "header": "Timeline",
+        "subHeader": "{count} eventi catturati ({groupCount} gruppi)",
+        "prefetching": "Caricamento restanti segmenti…",
+        "emptyReplay": {
+          "title": "Nessun evento importante rilevato in questa replay ancora.",
+          "noSessionSelected": "Seleziona una replay per visualizzare la timeline."
+        }
+      },
+      "events": {
+        "fullSnapshot": "Snapshot completo",
+        "mouseInteraction": "Interazione mouse",
+        "selection": "Selezione",
+        "scroll": "Scorrimento",
+        "input": "Input",
+        "pageview": "Visualizzazione pagina",
+        "blacklisted": "Blacklisted"
+      },
+      "player": {
+        "skipInactive": "Salta inattività",
+        "playbackSpeedAria": "Velocità di riproduzione",
+        "seekAria": "Cerca"
+      }
+    },
     "integration": {
       "integrationSetup": "Configurazione integrazione",
       "title": "Integrazione sito",

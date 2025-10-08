@@ -1411,6 +1411,47 @@
         }
       }
     },
+    "sessionReplay": {
+      "sessionList": {
+        "header": "Sessioner",
+        "subHeader": "{count} sessioner",
+        "durationFilter": "Min. varighed (s)",
+        "durationFilterAria": "Filtrer sessioner efter minimum varighed i sekunder",
+        "loading": "Indlæser sessioner…",
+        "unknown": "Ukendt",
+        "unknownUrl": "Ukendt URL",
+        "endOfList": "Du har nået slutningen",
+        "loadingMore": "Indlæser flere…",
+        "scrollToLoadMore": "Scroll ned for at indlæse flere",
+        "empty": {
+          "title": "Ingen session replays tilgængelige",
+          "description": "Prøv at udvide din tidsperiode eller juster filtrene."
+        }
+      },
+      "eventTimeline": {
+        "header": "Tidslinje",
+        "subHeader": "{count} events captureret ({groupCount} grupper)",
+        "prefetching": "Indlæser resterende segmenter…",
+        "emptyReplay": {
+          "title": "Ingen vigtige events fundet i denne replay endnu.",
+          "noSessionSelected": "Vælg en replay for at se tidslinjen."
+        }
+      },
+      "events": {
+        "fullSnapshot": "Fuld snapshot",
+        "mouseInteraction": "Museinteraktion",
+        "selection": "Markering",
+        "scroll": "Rulning",
+        "input": "Indtastning",
+        "pageview": "Sidevisning",
+        "blacklisted": "Sortlistet"
+      },
+      "player": {
+        "skipInactive": "Spring over inaktivitet",
+        "playbackSpeedAria": "Afspilningshastighed",
+        "seekAria": "Søg"
+      }
+    },
     "integration": {
       "integrationSetup": "Integrationsopsætning",
       "title": "Hjemmeside integration",
