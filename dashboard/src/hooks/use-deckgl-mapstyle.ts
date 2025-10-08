@@ -5,7 +5,7 @@ import { ScaleLinear, scaleLinear } from 'd3-scale';
 import { useCallback, useMemo } from 'react';
 import { color as d3color } from 'd3-color';
 
-export type UseDeckGLMapStyleProps = { calculatedMaxVisitors: number };
+export type UseDeckGLMapStyleProps = { maxVisitors: number };
 export type MapColorScale = ScaleLinear<string, string, never>;
 
 export type DeckGLColor = [number, number, number, number];
@@ -36,29 +36,29 @@ function toRgbaTuple(colorOrVar: string, alpha = 255): DeckGLColor {
   return [c.r, c.g, c.b, alpha];
 }
 
-export function useDeckGLMapStyle({ calculatedMaxVisitors }: UseDeckGLMapStyleProps): DeckGLMapStyle {
+export function useDeckGLMapStyle({ maxVisitors }: UseDeckGLMapStyleProps): DeckGLMapStyle {
   const colorScale = useMemo(
     () =>
       scaleLinear<string>()
-        .domain([0, 1, calculatedMaxVisitors])
+        .domain([0, 1, maxVisitors])
         .range([
           MAP_VISITOR_COLORS.NO_VISITORS,
           MAP_VISITOR_COLORS.LOW_VISITORS,
           MAP_VISITOR_COLORS.HIGH_VISITORS,
         ]),
-    [calculatedMaxVisitors],
+    [maxVisitors],
   );
 
   const featureBorderColorScale = useMemo(
     () =>
       scaleLinear<string>()
-        .domain([0, 1, calculatedMaxVisitors])
+        .domain([0, 1, maxVisitors])
         .range([
           MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
           MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
           MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
         ]),
-    [calculatedMaxVisitors],
+    [maxVisitors],
   );
 
   const originalStyle = useCallback(

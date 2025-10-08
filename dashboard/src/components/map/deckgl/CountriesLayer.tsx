@@ -1,30 +1,32 @@
 import type { FeatureCollection } from 'geojson';
-import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
+import { DeckGLMapStyle, useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
 import { useMemo } from 'react';
-import { GeoJsonLayer, PathLayer } from '@deck.gl/layers';
+import { GeoJsonLayer, type GeoJsonLayerProps, PathLayer } from '@deck.gl/layers';
 
-interface CountriesLayerProps {
+export type GeoJsonAnimation = {
+  duration: number;
+  easing: (t: number) => number;
+};
+
+export type CountriesLayerProps = {
   geojson: FeatureCollection | null;
-  visitorDict: Record<string, number>;
-  playing: boolean;
-  frameInterval: number;
-  baseInterval: number;
-  calculatedMaxVisitors: number;
+  visitorData: Record<string, number>;
+  fillAnimation?: GeoJsonAnimation;
+  outlineAnimation?: GeoJsonAnimation;
+  style: DeckGLMapStyle;
   frame: number;
-}
+};
 
 export function CountriesLayer({
   geojson,
-  visitorDict,
-  playing,
-  frameInterval,
-  baseInterval,
-  calculatedMaxVisitors,
+  visitorData,
+  style,
   frame,
+  fillAnimation,
+  outlineAnimation,
 }: CountriesLayerProps) {
   const { hovered: hoveredFeature, clicked: clickedFeature } = useMapSelectionState();
-  const style = useDeckGLMapStyle({ calculatedMaxVisitors });
 
   const outlineCache = useMemo(() => {
     const map = new Map<string, Array<{ path: number[][] }>>();
@@ -55,17 +57,17 @@ export function CountriesLayer({
 
       getFillColor: (f: any) => {
         const iso = f.id as string;
-        const visitors = visitorDict[iso] ?? 0;
+        const visitors = visitorData[iso] ?? 0;
         return style.originalStyle(visitors).fill;
       },
       transitions: {
-        getFillColor: { duration: playing ? frameInterval : baseInterval / 5, easing: (t: number) => t * t },
+        getFillColor: fillAnimation,
       },
       updateTriggers: {
         getFillColor: frame,
       },
     });
-  }, [geojson, frame, visitorDict, style, playing, frameInterval]);
+  }, [geojson, frame, visitorData, style]);
 
   // static country borders
   const strokeBaseLayer = useMemo(() => {
@@ -81,15 +83,17 @@ export function CountriesLayer({
 
       getLineColor: (f: any) => {
         const iso = f.id as string;
-        const visitors = visitorDict[iso] ?? 0;
+        const visitors = visitorData[iso] ?? 0;
         return style.originalStyle(visitors).line;
       },
-
+      transitions: {
+        getLineColor: outlineAnimation,
+      },
       updateTriggers: {
         getLineColor: frame,
       },
     });
-  }, [geojson, visitorDict, style, frame]);
+  }, [geojson, visitorData, style, frame]);
 
   const clickedPathData = useMemo(
     () => (clickedFeature ? (outlineCache.get(clickedFeature.geoVisitor.country_code) ?? []) : []),
