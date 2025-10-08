@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSessionManager } from '../hooks/useSessionManager';
 import { usePlayerState } from '../hooks/usePlayerState';
 import { useSegmentLoader } from '../hooks/useSegmentLoader';

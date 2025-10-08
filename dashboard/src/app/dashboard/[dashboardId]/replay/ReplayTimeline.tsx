@@ -15,6 +15,7 @@ import {
   Tag,
   Camera,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export type TimelineMarkerDescriptor = {
   label: string;
@@ -176,19 +177,24 @@ function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
 }
 
 function ReplayTimelineComponent({ markers, onJump, className, isSessionSelected = false }: ReplayTimelineProps) {
+  const t = useTranslations('components.sessionReplay.eventTimeline');
+
   const groups = useMemo(() => buildGroups(markers), [markers]);
   const totalEvents = markers.length;
 
-  const timelineEmptyState = (
-    <div className='text-muted-foreground flex h-full items-center justify-center px-4 py-10 text-xs'>
-      {isSessionSelected ? 'No key events detected in this replay yet.' : 'Select a replay to view its timeline.'}
-    </div>
+  const timelineEmptyState = useMemo(
+    () => (
+      <div className='text-muted-foreground flex h-full items-center justify-center px-4 py-10 text-xs'>
+        {isSessionSelected ? t('emptyReplay.title') : t('emptyReplay.noSessionSelected')}
+      </div>
+    ),
+    [t, isSessionSelected],
   );
 
   return (
     <ListPanel
-      title='Timeline'
-      subtitle={`${totalEvents} events captured (${groups.length} groups)`}
+      title={t('header')}
+      subtitle={t('subHeader', { count: totalEvents, groupCount: groups.length })}
       groups={groups}
       empty={timelineEmptyState}
       className={className}

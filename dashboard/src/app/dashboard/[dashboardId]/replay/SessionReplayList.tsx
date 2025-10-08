@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon, type FlagIconProps } from '@/components/icons';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { getCountryName } from '@/utils/countryCodes';
 import { formatDistanceToNow } from 'date-fns';
 import { formatDuration } from '@/utils/dateFormatters';
@@ -38,6 +38,7 @@ export function SessionReplayList({
 }: SessionReplayListProps) {
   const locale = useLocale();
   const [minDurationFilter, setMinDurationFilter] = useState('');
+  const t = useTranslations('components.sessionReplay.sessionList');
 
   const normalizedMinDuration = Math.max(0, Number.parseInt(minDurationFilter || '0', 10) || 0);
 
@@ -93,13 +94,13 @@ export function SessionReplayList({
               </span>
             </div>
 
-            <p className='text-foreground mt-3 w-full truncate text-xs'>{session.start_url || 'Unknown URL'}</p>
+            <p className='text-foreground mt-3 w-full truncate text-xs'>{session.start_url || t('unknownUrl')}</p>
 
             <div className='text-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
               {session.country_code ? (
                 <SessionDataIconBadge
-                  title={countryName ?? 'Unknown'}
-                  ariaLabel={countryName ? `Country ${countryName}` : 'Unknown'}
+                  title={countryName ?? t('unknown')}
+                  ariaLabel={countryName ? `Country ${countryName}` : t('unknown')}
                 >
                   <FlagIcon
                     countryCode={session.country_code as FlagIconProps['countryCode']}
@@ -147,23 +148,23 @@ export function SessionReplayList({
     <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
       <div className='flex flex-col items-center gap-1'>
         <Spinner size='sm' />
-        <span>Loading sessions…</span>
+        <span>{t('loading')}</span>
       </div>
     </div>
   ) : (
     <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
       <div className='flex flex-col items-center'>
         <ListVideo className='text-muted-foreground/70 mb-3 h-8 w-8' />
-        <p className='font-medium'>No session replays available</p>
-        <p className='mt-1 text-xs'>Try expanding your time range or adjusting filters.</p>
+        <p className='font-medium'>{t('empty.title')}</p>
+        <p className='mt-1 text-xs'>{t('empty.description')}</p>
       </div>
     </div>
   );
 
   return (
     <SessionListPanel
-      title='Sessions'
-      subtitle={`${filteredSessions.length} sessions`}
+      title={t('header')}
+      subtitle={t('subHeader', { count: filteredSessions.length })}
       headerRight={
         <div className='flex items-center gap-2'>
           <Input
@@ -172,8 +173,8 @@ export function SessionReplayList({
             min={0}
             value={minDurationFilter}
             onChange={handleDurationChange}
-            placeholder='Min duration (s)'
-            aria-label='Filter sessions by minimum duration in seconds'
+            placeholder={t('durationFilter')}
+            aria-label={t('durationFilterAria')}
             inputMode='numeric'
             className='cursor-input h-8 w-36 !text-xs shadow-sm md:!text-xs'
           />
@@ -209,8 +210,9 @@ function SessionDataIconBadge({
 }
 
 function EmptySessionData() {
+  const t = useTranslations('components.sessionReplay.sessionList');
   return (
-    <SessionDataIconBadge title='Unknown' ariaLabel='Unknown'>
+    <SessionDataIconBadge title={t('unknown')} ariaLabel={t('unknown')}>
       <HelpCircle size='1rem' />
     </SessionDataIconBadge>
   );

@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   isPlaying: boolean;
@@ -75,6 +76,7 @@ function ReplayControlsComponent({
   isFullscreen = false,
   onToggleFullscreen,
 }: Props) {
+  const t = useTranslations('components.sessionReplay.player');
   const ratio = durationMs > 0 ? Math.max(0, Math.min(1, currentTime / durationMs)) : 0;
 
   const { resolvedTheme } = useTheme();
@@ -115,7 +117,7 @@ function ReplayControlsComponent({
           className='cursor-pointer'
         />
         <Label htmlFor={skipInactivityId} className='text-muted-foreground cursor-pointer text-[11px] font-normal'>
-          Skip inactivity
+          {t('skipInactive')}
         </Label>
       </div>
 
@@ -133,7 +135,7 @@ function ReplayControlsComponent({
             min={0}
             max={1000}
             step={1}
-            aria-label='Seek'
+            aria-label={t('seekAria')}
             value={Math.round(ratio * 1000)}
             onChange={(e) => onSeekRatio(Number(e.target.value) / 1000)}
             className='range-sm range accent-primary w-full cursor-pointer'
@@ -149,7 +151,7 @@ function ReplayControlsComponent({
           {isFullscreen ? (
             <>
               <select
-                aria-label='Playback speed'
+                aria-label={t('playbackSpeedAria')}
                 value={String(speed)}
                 onChange={(e) => onSpeedChange(Number(e.target.value))}
                 className='border-input focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer appearance-none rounded-md border bg-transparent px-2 pr-6 text-xs leading-none shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
@@ -166,10 +168,10 @@ function ReplayControlsComponent({
             <Select value={String(speed)} onValueChange={(value) => onSpeedChange(Number(value))}>
               <SelectTrigger
                 size='sm'
-                aria-label='Playback speed'
+                aria-label={t('playbackSpeedAria')}
                 className='h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer gap-1 px-2 py-0 text-xs leading-none'
               >
-                <SelectValue placeholder='Speed' />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent className='min-w-[60px]'>
                 {playbackOptions.map((option) => (
