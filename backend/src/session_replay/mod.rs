@@ -38,13 +38,16 @@ fn cache_key(site_id: &str, session_id: &str) -> String {
     format!("{}:{}", site_id, session_id)
 }
 
+const PRESIGNED_PUT_TTL_SECS: u64 = 30;
+const MAX_CONTENT_LENGTH_BYTES: u64 = 1 * 1024 * 1024;
+const CONTENT_TYPE: &str = "application/json";
+
 #[derive(serde::Deserialize)]
 pub struct PresignPutRequest {
     pub site_id: String,
     pub screen_resolution: Option<String>,
-    pub content_type: Option<String>,
     pub content_encoding: Option<String>,
-    pub ttl_secs: Option<u64>,
+    pub content_length: u64,
 }
 
 #[derive(serde::Serialize)]
@@ -84,12 +87,20 @@ pub async fn presign_put_segment(
     let session_id = session::get_or_create_session_id(&req.site_id, &fingerprint)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
+    if req.content_length == 0 || req.content_length > MAX_CONTENT_LENGTH_BYTES {
+        return Err((StatusCode::BAD_REQUEST, "invalid content_length".to_string()));
+    }
+
     let key = s3.build_replay_object_key(&req.site_id, &session_id);
     let url = s3.presign_replay_put(
         &key,
-        req.content_type.as_deref().unwrap_or("application/json"),
-        req.content_encoding.as_deref(),
-        req.ttl_secs.unwrap_or(60),
+        CONTENT_TYPE,
+        match req.content_encoding.as_deref() {
+            Some("gzip") => Some("gzip"),
+            _ => None,
+        },
+        req.content_length,
+        PRESIGNED_PUT_TTL_SECS,
     ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint }))

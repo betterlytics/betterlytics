@@ -45,7 +45,7 @@
     10
   );
   var minReplayDurationSec = parseInt(
-    script.getAttribute("data-replay-min-duration") || "0",
+    script.getAttribute("data-replay-min-duration") || "15",
     10
   );
   var idleCutoffMs = (function () {
@@ -178,7 +178,7 @@
     var lastActivity = Date.now();
     var flushTimer = null;
     var maxChunkMs = 30000;
-    var maxUncompressedBytes = 250 * 1024;
+    var maxUncompressedBytes = 1 * 1024 * 1024;
     var approxBytes = 0;
     var isFlushing = false;
     var ongoingFlush = null;
@@ -232,10 +232,10 @@
           var presignPayload = {
             site_id: siteId,
             screen_resolution: window.screen.width + "x" + window.screen.height,
-            content_type: "application/json",
+            content_length: payload.bytes.byteLength,
           };
-          if (payload.encoding) {
-            presignPayload.content_encoding = payload.encoding;
+          if (payload.encoding === "gzip") {
+            presignPayload.content_encoding = "gzip";
           }
 
           return fetch(apiBase + "/replay/presign/put", {
@@ -252,8 +252,8 @@
               var headers = {
                 "Content-Type": "application/json",
               };
-              if (payload.encoding) {
-                headers["Content-Encoding"] = payload.encoding;
+              if (payload.encoding === "gzip") {
+                headers["Content-Encoding"] = "gzip";
               }
               return fetch(resp.url, {
                 method: "PUT",

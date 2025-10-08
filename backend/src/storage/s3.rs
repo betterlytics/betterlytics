@@ -65,6 +65,7 @@ impl S3Service {
         key: &str,
         content_type: &str,
         content_encoding: Option<&str>,
+        content_length: u64,
         ttl_secs: u64,
     ) -> Result<String> {
         let mut req = self.client
@@ -72,6 +73,7 @@ impl S3Service {
             .bucket(&self.bucket)
             .key(key)
             .content_type(content_type);
+        req = req.content_length(content_length as i64);
         if let Some(enc) = content_encoding {
             req = req.content_encoding(enc);
         }
