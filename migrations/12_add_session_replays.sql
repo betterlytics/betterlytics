@@ -13,4 +13,5 @@ CREATE TABLE IF NOT EXISTS analytics.session_replays (
     start_url String
 ) ENGINE = ReplacingMergeTree(ended_at)
 PARTITION BY toYYYYMM(date)
-ORDER BY (site_id, session_id);
+ORDER BY (site_id, session_id)
+MODIFY TTL date + INTERVAL 2 MONTH DELETE;
