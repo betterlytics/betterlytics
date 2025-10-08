@@ -168,7 +168,7 @@
     var lastActivity = Date.now();
     var flushTimer = null;
     var maxChunkMs = 30000;
-    var maxUncompressedBytes = 250 * 1024;
+    var maxUncompressedBytes = 1 * 1024 * 1024;
     var approxBytes = 0;
     var isFlushing = false;
     var ongoingFlush = null;
@@ -222,6 +222,7 @@
           var presignPayload = {
             site_id: siteId,
             screen_resolution: window.screen.width + "x" + window.screen.height,
+            content_length: payload.bytes.byteLength,
           };
           if (payload.encoding === "gzip") {
             presignPayload.content_encoding = "gzip";
