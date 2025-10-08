@@ -38,13 +38,14 @@ fn cache_key(site_id: &str, session_id: &str) -> String {
     format!("{}:{}", site_id, session_id)
 }
 
+const PRESIGNED_PUT_TTL_SECS: u64 = 30;
+
 #[derive(serde::Deserialize)]
 pub struct PresignPutRequest {
     pub site_id: String,
     pub screen_resolution: Option<String>,
     pub content_type: Option<String>,
     pub content_encoding: Option<String>,
-    pub ttl_secs: Option<u64>,
 }
 
 #[derive(serde::Serialize)]
@@ -89,7 +90,7 @@ pub async fn presign_put_segment(
         &key,
         req.content_type.as_deref().unwrap_or("application/json"),
         req.content_encoding.as_deref(),
-        req.ttl_secs.unwrap_or(60),
+        PRESIGNED_PUT_TTL_SECS,
     ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint }))
