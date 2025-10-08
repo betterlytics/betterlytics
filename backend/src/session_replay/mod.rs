@@ -39,12 +39,12 @@ fn cache_key(site_id: &str, session_id: &str) -> String {
 }
 
 const PRESIGNED_PUT_TTL_SECS: u64 = 30;
+const CONTENT_TYPE: &str = "application/json";
 
 #[derive(serde::Deserialize)]
 pub struct PresignPutRequest {
     pub site_id: String,
     pub screen_resolution: Option<String>,
-    pub content_type: Option<String>,
     pub content_encoding: Option<String>,
 }
 
@@ -88,8 +88,11 @@ pub async fn presign_put_segment(
     let key = s3.build_replay_object_key(&req.site_id, &session_id);
     let url = s3.presign_replay_put(
         &key,
-        req.content_type.as_deref().unwrap_or("application/json"),
-        req.content_encoding.as_deref(),
+        CONTENT_TYPE,
+        match req.content_encoding.as_deref() {
+            Some("gzip") => Some("gzip"),
+            _ => None,
+        },
         PRESIGNED_PUT_TTL_SECS,
     ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 

@@ -222,10 +222,9 @@
           var presignPayload = {
             site_id: siteId,
             screen_resolution: window.screen.width + "x" + window.screen.height,
-            content_type: "application/json",
           };
-          if (payload.encoding) {
-            presignPayload.content_encoding = payload.encoding;
+          if (payload.encoding === "gzip") {
+            presignPayload.content_encoding = "gzip";
           }
 
           return fetch(apiBase + "/replay/presign/put", {
@@ -242,8 +241,8 @@
               var headers = {
                 "Content-Type": "application/json",
               };
-              if (payload.encoding) {
-                headers["Content-Encoding"] = payload.encoding;
+              if (payload.encoding === "gzip") {
+                headers["Content-Encoding"] = "gzip";
               }
               return fetch(resp.url, {
                 method: "PUT",
