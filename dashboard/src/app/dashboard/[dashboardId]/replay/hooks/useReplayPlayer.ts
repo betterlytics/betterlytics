@@ -56,13 +56,23 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn, sessionId?: s
       setIsPlaying(payload === 'playing');
     };
 
+    const onEventCast = (event: any) => {
+      if (event.type === 5 && event.data.tag === 'Blacklist') {
+        player.redact();
+      } else {
+        player.unredact();
+      }
+    };
+
     player.addEventListener('ui-update-current-time', onTime as EventListener);
     player.addEventListener('ui-update-player-state', onState as EventListener);
+    player.addEventListener('event-cast', onEventCast as EventListener);
 
     return () => {
       try {
         (player as any).removeEventListener?.('ui-update-current-time', onTime as EventListener);
         (player as any).removeEventListener?.('ui-update-player-state', onState as EventListener);
+        (player as any).removeEventListener?.('event-cast', onEventCast as EventListener);
       } catch {}
     };
   }, [playerState.playerRef]);

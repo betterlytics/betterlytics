@@ -125,6 +125,16 @@
     } catch (_) {}
   }
 
+  function emitReplayBlacklist() {
+    try {
+      if (window.rrweb && window.rrweb.record) {
+        if (typeof window.rrweb.record.addCustomEvent === "function") {
+          window.rrweb.record.addCustomEvent("Blacklist", {});
+        }
+      }
+    } catch {}
+  }
+
   function nowSec() {
     return Math.floor(Date.now() / 1000);
   }
@@ -452,6 +462,7 @@
         if (isReplayEnabledOnPage()) {
           startRecording();
         } else {
+          emitReplayBlacklist();
           stopRecording(true);
         }
       })
@@ -483,6 +494,7 @@
             }
             emitReplayPageview(window.location.href, true);
           } else {
+            emitReplayBlacklist();
             stopRecording(true);
           }
         }
@@ -498,6 +510,7 @@
             }
             emitReplayPageview(window.location.href, true);
           } else {
+            emitReplayBlacklist();
             stopRecording(true);
           }
         }
