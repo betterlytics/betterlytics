@@ -125,6 +125,16 @@
     } catch (_) {}
   }
 
+  function emitReplayBlacklist() {
+    try {
+      if (window.rrweb && window.rrweb.record) {
+        if (typeof window.rrweb.record.addCustomEvent === "function") {
+          window.rrweb.record.addCustomEvent("Blacklist", {});
+        }
+      }
+    } catch {}
+  }
+
   function nowSec() {
     return Math.floor(Date.now() / 1000);
   }
@@ -165,6 +175,7 @@
     var sizeBytes = 0;
     var uploadedEventCount = 0;
     var startedAt = Date.now();
+    var firstActivity = null;
     var lastActivity = Date.now();
     var flushTimer = null;
     var maxChunkMs = 30000;
@@ -332,8 +343,8 @@
               site_id: siteId,
               session_id: replaySession.id,
               visitor_id: visId,
-              started_at: Math.floor(startedAt / 1000),
-              ended_at: nowSec(),
+              started_at: Math.floor(firstActivity / 1000),
+              ended_at: Math.floor(lastActivity / 1000),
               size_bytes: sizeBytes,
               sample_rate: replaySamplePct,
               start_url: normalize(window.location.href),
@@ -376,6 +387,9 @@
 
       recordingStop = window.rrweb.record({
         emit: function (e) {
+          if (firstActivity === null) {
+            firstActivity = Date.now();
+          }
           buffer.push(e);
           approxBytes += estimateEventSize(e) + 1; // +1 for separator overhead
           if (approxBytes >= maxUncompressedBytes) {
@@ -452,6 +466,7 @@
         if (isReplayEnabledOnPage()) {
           startRecording();
         } else {
+          emitReplayBlacklist();
           stopRecording(true);
         }
       })
@@ -483,6 +498,7 @@
             }
             emitReplayPageview(window.location.href, true);
           } else {
+            emitReplayBlacklist();
             stopRecording(true);
           }
         }
@@ -498,6 +514,7 @@
             }
             emitReplayPageview(window.location.href, true);
           } else {
+            emitReplayBlacklist();
             stopRecording(true);
           }
         }

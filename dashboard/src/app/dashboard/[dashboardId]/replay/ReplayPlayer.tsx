@@ -27,6 +27,8 @@ export type ReplayPlayerHandle = {
     type: K,
     listener: (e: CustomEvent<{ payload: PlayerEventDetailMap[K] }>) => void,
   ) => void;
+  redact: () => void;
+  unredact: () => void;
 };
 
 type ReplayPlayerProps = {
@@ -36,11 +38,12 @@ type ReplayPlayerProps = {
   isPlaying?: boolean;
 };
 
-type PlayerEventName = 'ui-update-current-time' | 'ui-update-player-state' | 'ui-update-progress';
+type PlayerEventName = 'ui-update-current-time' | 'ui-update-player-state' | 'ui-update-progress' | 'event-cast';
 type PlayerEventDetailMap = {
   'ui-update-current-time': number;
   'ui-update-player-state': 'playing' | 'paused';
   'ui-update-progress': number;
+  'event-cast': eventWithTime;
 };
 
 type PlayerEventTarget = {
@@ -55,6 +58,8 @@ const ReplayPlayerComponent = (
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<rrwebPlayer | null>(null);
   const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
+  const redactedRef = useRef<boolean>(false);
+  const redactedContainerRef = useRef<HTMLDivElement | null>(null);
 
   const findClosestEventBefore = useCallback(
     (timeOffset: number, eventType: number = 2) => {
@@ -244,6 +249,24 @@ const ReplayPlayerComponent = (
 
       listenersRef.current = listenersRef.current.filter((l) => !(l.type === type && l.listener === wrapped));
     },
+    redact() {
+      if (redactedRef.current === false && containerRef.current) {
+        containerRef.current.style = `filter: blur(10px) !important;`;
+        redactedRef.current = true;
+        if (redactedContainerRef.current) {
+          redactedContainerRef.current.style = 'visibility: visible;';
+        }
+      }
+    },
+    unredact() {
+      if (redactedRef.current === true && containerRef.current) {
+        containerRef.current.style = '';
+        redactedRef.current = false;
+        if (redactedContainerRef.current) {
+          redactedContainerRef.current.style = 'visibility: hidden;';
+        }
+      }
+    },
   }));
 
   useEffect(() => {
@@ -272,10 +295,23 @@ const ReplayPlayerComponent = (
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className='flex h-full w-full items-center justify-center dark:[&_.rr-player]:!bg-black'
-    />
+    <>
+      <div
+        ref={containerRef}
+        className='flex h-full w-full items-center justify-center dark:[&_.rr-player]:!bg-black'
+      />
+      <div
+        className='absolute flex h-full w-full items-center justify-center pb-20'
+        style={{
+          visibility: 'hidden',
+        }}
+        ref={redactedContainerRef}
+      >
+        <span className='bg-background rounded-md border-2 px-6 py-3 text-lg shadow'>
+          Recording disabled on this page
+        </span>
+      </div>
+    </>
   );
 };
 

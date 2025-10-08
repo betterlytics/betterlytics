@@ -14,6 +14,7 @@ import {
   Eye,
   Tag,
   Camera,
+  Lock,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -134,6 +135,8 @@ function iconForLabel(label: string): React.ReactNode {
       return <Camera className={`${ICON_BASE_CLASS} text-green-500 dark:text-green-400`} />;
     case 'Pageview':
       return <Eye className={`${ICON_BASE_CLASS} text-sky-500 dark:text-sky-400`} />;
+    case 'Blacklist':
+      return <Lock className={`${ICON_BASE_CLASS} text-gray-500 dark:text-gray-400`} />;
     default:
       return <Tag className={`${ICON_BASE_CLASS} text-muted-foreground`} />;
   }
