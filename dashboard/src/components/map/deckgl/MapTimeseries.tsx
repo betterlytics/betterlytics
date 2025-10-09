@@ -3,7 +3,7 @@
 import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
-import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
+import { DeckGLMapSelectionProvider, useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
 import { type GeoVisitor, type TimeGeoVisitors } from '@/entities/geography';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -11,6 +11,10 @@ import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useTranslations } from 'next-intl';
 import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
+import { ZoomControls } from './controls/ZoomControls';
+import { useSetMapViewState, DeckGLMapViewStateProvider } from '@/contexts/DeckGLViewStateProvider';
+import { ZoomType } from './controls/ZoomButton';
+import { DeckGLPopup } from './DeckGLPopup';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
@@ -156,7 +160,11 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
           onChangeSpeed={setSpeed}
         />
       </div>
+      <div className='pointer-events-auto absolute top-3 left-[17rem] z-12'>
+        <ZoomControls />
+      </div>
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
+      <DeckGLPopup />
     </div>
   );
 }

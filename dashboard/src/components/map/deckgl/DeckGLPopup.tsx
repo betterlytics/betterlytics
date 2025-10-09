@@ -5,21 +5,22 @@ import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useMapViewState } from '@/contexts/DeckGLViewStateProvider';
 
 interface DeckGLPopupProps {
-  viewState: any; // the DeckGL viewState
   size?: 'sm' | 'lg';
   children?: React.ReactNode;
 }
 
-function DeckGLPopupComponent({ viewState, size = 'sm', children }: DeckGLPopupProps) {
+function DeckGLPopupComponent({ size = 'sm', children }: DeckGLPopupProps) {
+  const viewState = useMapViewState();
   const { clickedFeatureRef } = useMapSelectionActions();
   const { clicked } = useMapSelectionState();
   const locale = useLocale();
   const t = useTranslations('components.geography');
 
   const clickedFeature = clickedFeatureRef?.current;
-  if (!clickedFeature || !clicked) return null;
+  if (!clickedFeature || !clicked || !viewState) return null;
 
   const viewport = new WebMercatorViewport(viewState);
   const featureLatLng: [number, number] = [clickedFeature.longitude ?? 0, clickedFeature.latitude ?? 0];

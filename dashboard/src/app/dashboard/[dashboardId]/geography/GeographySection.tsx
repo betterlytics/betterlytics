@@ -8,6 +8,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import MapTimeseries from '@/components/map/deckgl/MapTimeseries';
 import dynamic from 'next/dynamic';
 import DashboardLoading from '@/components/loading/DashboardLoading';
+import { DeckGLMapViewStateProvider } from '@/contexts/DeckGLViewStateProvider';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapGranularityTimeseries>;
@@ -25,9 +26,11 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
   return (
     <>
       <div className='h-full w-full'>
-        <DeckGLMapSelectionProvider>
-          <DynamicMapTimeseries visitorData={mapData} />
-        </DeckGLMapSelectionProvider>
+        <DeckGLMapViewStateProvider>
+          <DeckGLMapSelectionProvider>
+            <DynamicMapTimeseries visitorData={mapData} />
+          </DeckGLMapSelectionProvider>
+        </DeckGLMapViewStateProvider>
         <div className='fixed top-16 right-4 z-30'>
           <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
             <DashboardFilters />

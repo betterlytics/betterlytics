@@ -4,11 +4,9 @@ import { CountriesLayer, type GeoJsonAnimation } from '@/components/map/deckgl/C
 import { LinearInterpolator } from '@deck.gl/core';
 import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection } from 'geojson';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
-import { DeckGLPopup } from './DeckGLPopup';
-import { ZoomControls } from './controls/ZoomControls';
-import { ZoomType } from './controls/ZoomButton';
+import { useMapViewState, useSetMapViewState } from '@/contexts/DeckGLViewStateProvider';
 
 export interface DeckGLMapProps {
   visitorData: {
@@ -22,20 +20,6 @@ export interface DeckGLMapProps {
   onHover: (info: any) => void;
 }
 
-const INITIAL_ZOOM_STATE = {
-  transitionDuration: 250, // zoom speed
-  transitionInterpolator: new LinearInterpolator(['zoom']),
-  zoom: 1.5,
-};
-
-const INITIAL_VIEW_STATE = {
-  longitude: 0,
-  latitude: 20,
-  pitch: 0,
-  bearing: 0,
-  ...INITIAL_ZOOM_STATE,
-};
-
 export default function DeckGLClient({
   visitorData,
   outlineAnimation,
@@ -46,22 +30,8 @@ export default function DeckGLClient({
   onHover,
 }: DeckGLMapProps) {
   const [geojson, setGeojson] = useState<FeatureCollection | null>(null);
-
-  const [viewState, setViewState] = useState({
-    ...INITIAL_VIEW_STATE,
-  } as any);
-
-  const handleZoom = useCallback((zoomType: ZoomType) => {
-    setViewState((vs: any) => {
-      const zoom = Math.max(0, Math.min(20, vs.zoom + (zoomType === 'in' ? 1 : -1)));
-      return {
-        ...vs,
-        zoom,
-        transitionDuration: 300, // zoom speed
-        // transitionInterpolator: new LinearInterpolator(['zoom']),
-      };
-    });
-  }, []);
+  const viewState = useMapViewState();
+  const setViewState = useSetMapViewState();
 
   useEffect(() => {
     fetch('/data/countries.geo.json')
@@ -83,15 +53,15 @@ export default function DeckGLClient({
 
   return (
     <>
-      <div className='pointer-events-auto absolute top-3 left-[17rem] z-12'>
-        <ZoomControls onZoom={handleZoom} />
-      </div>
       <DeckGL
         ref={deckRef}
         viewState={viewState}
         controller={{ doubleClickZoom: false, dragRotate: false }}
-        onViewStateChange={({ viewState }) => {
-          setViewState(viewState);
+        onViewStateChange={({ viewState: vs, interactionState }) => {
+          // Only update if user is interacting
+          if (!interactionState.inTransition || interactionState.isZooming) {
+            setViewState(vs);
+          }
         }}
         onClick={onClick}
         onHover={onHover}
@@ -132,7 +102,6 @@ export default function DeckGLClient({
           `}
         </style>
       </DeckGL>
-      {viewState && <DeckGLPopup viewState={viewState} />}
     </>
   );
 }
