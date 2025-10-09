@@ -135,10 +135,6 @@
     } catch {}
   }
 
-  function nowSec() {
-    return Math.floor(Date.now() / 1000);
-  }
-
   function encodeReplayChunk(json) {
     var encoder = new TextEncoder();
     var rawBytes = encoder.encode(json);
@@ -167,194 +163,244 @@
     if (!apiBase) return;
     if (replaySamplePct > 0 && Math.random() * 100 >= replaySamplePct) return;
 
-    var rrLoaded = false;
-    var initializedOnce = false;
-    var recordingStop = null;
-    var isRecording = false;
-    var buffer = [];
-    var sizeBytes = 0;
-    var uploadedEventCount = 0;
-    var startedAt = Date.now();
-    var firstActivity = null;
-    var lastActivity = Date.now();
-    var flushTimer = null;
-    var maxChunkMs = 30000;
-    var maxUncompressedBytes = 1 * 1024 * 1024;
-    var approxBytes = 0;
-    var isFlushing = false;
-    var ongoingFlush = null;
-    var visId = null;
-    var replaySession = { id: null };
-    var consecutiveFlushErrors = 0;
-    var maxConsecutiveFlushErrors = 3;
-    var replayDisabled = false;
-    var discardSession = false;
+    var state = {
+      initialized: false,
+      recordingStop: null,
+      isRecording: false,
+      disabled: false,
+      buffer: [],
+      approxBytes: 0,
+      sizeBytes: 0,
+      uploadedEventCount: 0,
+      startedAt: Date.now(),
+      firstActivity: null,
+      lastActivity: Date.now(),
+      flushTimer: null,
+      ongoingFlush: null,
+      visId: null,
+      replaySession: { id: null },
+      consecutiveFlushErrors: 0,
+    };
+
+    var config = {
+      maxChunkMs: 30000,
+      maxUncompressedBytes: 1 * 1024 * 1024,
+      maxConsecutiveFlushErrors: 3,
+    };
 
     function hasReachedMinDuration() {
       if (!minReplayDurationSec) return true;
       return (
-        Math.floor((Date.now() - startedAt) / 1000) >= minReplayDurationSec
+        Math.floor((Date.now() - state.startedAt) / 1000) >=
+        minReplayDurationSec
       );
     }
 
+    function fetchPresignedUrl(payload) {
+      var presignPayload = {
+        site_id: siteId,
+        screen_resolution: window.screen.width + "x" + window.screen.height,
+        content_length: payload.bytes.byteLength,
+      };
+      if (payload.encoding === "gzip") {
+        presignPayload.content_encoding = "gzip";
+      }
+
+      return fetch(apiBase + "/replay/presign/put", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(presignPayload),
+      })
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (resp) {
+          return { presignResp: resp, payload: payload };
+        });
+    }
+
+    function uploadToS3(data) {
+      var presignResp = data.presignResp;
+      var payload = data.payload;
+
+      if (!state.replaySession.id)
+        state.replaySession.id = presignResp.session_id;
+      if (!state.visId) state.visId = presignResp.visitor_id;
+
+      var headers = {
+        "Content-Type": "application/json",
+      };
+      if (payload.encoding === "gzip") {
+        headers["Content-Encoding"] = "gzip";
+      }
+
+      return fetch(presignResp.url, {
+        method: "PUT",
+        headers: headers,
+        body: payload.bytes,
+      }).then(function (putResp) {
+        if (!putResp || putResp.status >= 400) {
+          throw new Error();
+        }
+        return { putResp: putResp, payload: payload };
+      });
+    }
+
+    function handleUploadSuccess(data, flushedEventCount) {
+      state.uploadedEventCount += flushedEventCount;
+      state.sizeBytes += data.payload.bytes.byteLength;
+      state.consecutiveFlushErrors = 0;
+    }
+
+    function handleFlushError(events) {
+      state.consecutiveFlushErrors += 1;
+      if (state.consecutiveFlushErrors >= config.maxConsecutiveFlushErrors) {
+        state.disabled = true;
+        state.buffer = [];
+        state.approxBytes = 0;
+        try {
+          stopRecording(false);
+        } catch (_) {}
+      } else {
+        state.buffer = events.concat(state.buffer);
+      }
+    }
+
     function flush() {
-      if (replayDisabled) return Promise.resolve();
-      if (buffer.length === 0) return Promise.resolve();
-      if (isFlushing) return ongoingFlush || Promise.resolve();
-      isFlushing = true;
-      var events = buffer;
-      buffer = [];
+      if (state.disabled) return Promise.resolve();
+      if (state.buffer.length === 0) return Promise.resolve();
+      if (state.ongoingFlush) return state.ongoingFlush;
+
+      var events = state.buffer;
+      state.buffer = [];
+
       if (!hasReachedMinDuration()) {
-        buffer = events.concat(buffer);
-        isFlushing = false;
+        state.buffer = events.concat(state.buffer);
         return Promise.resolve();
       }
+
       var json = JSON.stringify(events);
       var flushedEventCount = events.length;
-      approxBytes = 0;
+      state.approxBytes = 0;
 
-      ongoingFlush = encodeReplayChunk(json)
-        .then(function (payload) {
-          var presignPayload = {
-            site_id: siteId,
-            screen_resolution: window.screen.width + "x" + window.screen.height,
-            content_length: payload.bytes.byteLength,
-          };
-          if (payload.encoding === "gzip") {
-            presignPayload.content_encoding = "gzip";
-          }
-
-          return fetch(apiBase + "/replay/presign/put", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(presignPayload),
-          })
-            .then(function (r) {
-              return r.json();
-            })
-            .then(function (resp) {
-              if (!replaySession.id) replaySession.id = resp.session_id;
-              if (!visId) visId = resp.visitor_id;
-              var headers = {
-                "Content-Type": "application/json",
-              };
-              if (payload.encoding === "gzip") {
-                headers["Content-Encoding"] = "gzip";
-              }
-              return fetch(resp.url, {
-                method: "PUT",
-                headers: headers,
-                body: payload.bytes,
-              }).then(function (putResp) {
-                if (!putResp || putResp.status >= 400) {
-                  throw new Error();
-                }
-                uploadedEventCount += flushedEventCount;
-                sizeBytes += payload.bytes.byteLength;
-                consecutiveFlushErrors = 0;
-                return putResp;
-              });
-            });
+      state.ongoingFlush = encodeReplayChunk(json)
+        .then(fetchPresignedUrl)
+        .then(uploadToS3)
+        .then(function (data) {
+          handleUploadSuccess(data, flushedEventCount);
         })
-        .catch(function (e) {
+        .catch(function () {
           try {
-            consecutiveFlushErrors += 1;
-            if (consecutiveFlushErrors >= maxConsecutiveFlushErrors) {
-              discardSession = true;
-              replayDisabled = true;
-              buffer = [];
-              approxBytes = 0;
-              try {
-                stopRecording(false);
-              } catch (_) {}
-            } else {
-              buffer = events.concat(buffer);
-            }
+            handleFlushError(events);
           } catch (_) {}
         })
         .finally(function () {
-          isFlushing = false;
-          ongoingFlush = null;
+          state.ongoingFlush = null;
         });
-      return ongoingFlush;
+      return state.ongoingFlush;
     }
 
     function flushAll() {
       return flush().then(function () {
-        if (replayDisabled) return;
-        if (buffer.length === 0) return;
+        if (state.disabled) return;
+        if (state.buffer.length === 0) return;
         return flushAll();
       });
     }
 
     function startFlushLoop() {
-      if (flushTimer) clearInterval(flushTimer);
-      flushTimer = setInterval(function () {
-        if (Date.now() - lastActivity > idleCutoffMs) {
+      if (state.flushTimer) clearInterval(state.flushTimer);
+      state.flushTimer = setInterval(function () {
+        if (Date.now() - state.lastActivity > idleCutoffMs) {
           stopRecording(true);
           return;
         }
-        if (Date.now() - startedAt > maxDurationMs) {
+        if (Date.now() - state.startedAt > maxDurationMs) {
           stopRecording(true);
           return;
         }
-        if (buffer.length > 0) {
+        if (state.buffer.length > 0) {
           flush();
         }
-      }, Math.max(3000, maxChunkMs));
+      }, Math.max(3000, config.maxChunkMs));
+    }
+
+    function finalizeSession() {
+      if (state.disabled) return;
+      if (!hasReachedMinDuration()) return;
+      if (!state.replaySession.id || !state.visId) return;
+
+      return fetch(apiBase + "/replay/finalize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          site_id: siteId,
+          session_id: state.replaySession.id,
+          visitor_id: state.visId,
+          started_at: Math.floor(state.firstActivity / 1000),
+          ended_at: Math.floor(state.lastActivity / 1000),
+          size_bytes: state.sizeBytes,
+          sample_rate: replaySamplePct,
+          start_url: normalize(window.location.href),
+          event_count: state.uploadedEventCount,
+        }),
+        keepalive: true,
+      })
+        .catch(function () {})
+        .finally(function () {
+          state.uploadedEventCount = 0;
+        });
     }
 
     function stopRecording(finalize) {
       try {
-        if (recordingStop) {
-          recordingStop();
-          recordingStop = null;
+        if (state.recordingStop) {
+          state.recordingStop();
+          state.recordingStop = null;
         }
       } catch (e) {}
-      if (flushTimer) {
-        clearInterval(flushTimer);
-        flushTimer = null;
+      if (state.flushTimer) {
+        clearInterval(state.flushTimer);
+        state.flushTimer = null;
       }
       flushAll()
         .then(function () {
-          if (discardSession) return;
-          if (!finalize) return;
-          if (!hasReachedMinDuration()) return;
-          if (!replaySession.id || !visId) return;
-          return fetch(apiBase + "/replay/finalize", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              site_id: siteId,
-              session_id: replaySession.id,
-              visitor_id: visId,
-              started_at: Math.floor(firstActivity / 1000),
-              ended_at: Math.floor(lastActivity / 1000),
-              size_bytes: sizeBytes,
-              sample_rate: replaySamplePct,
-              start_url: normalize(window.location.href),
-              event_count: uploadedEventCount,
-            }),
-            keepalive: true,
-          })
-            .catch(function () {})
-            .finally(function () {
-              uploadedEventCount = 0;
-            });
+          if (finalize) {
+            return finalizeSession();
+          }
         })
         .catch(function () {})
         .finally(function () {
-          rrLoaded = false;
-          initializedOnce = false;
-          isRecording = false;
+          state.initialized = false;
+          state.isRecording = false;
         });
     }
 
+    function estimateEventSize(ev) {
+      try {
+        return JSON.stringify(ev).length | 0;
+      } catch (_) {
+        return 0;
+      }
+    }
+
+    function handleRecordingEmit(e) {
+      state.firstActivity = Math.min(
+        state.firstActivity ?? e.timestamp,
+        e.timestamp
+      );
+      state.lastActivity = Math.max(state.lastActivity, e.timestamp);
+      state.buffer.push(e);
+      state.approxBytes += estimateEventSize(e) + 1;
+      if (state.approxBytes >= config.maxUncompressedBytes) {
+        flush();
+      }
+    }
+
     function startRecording() {
-      if (!window.rrweb || rrLoaded) return;
-      if (initializedOnce) return; // guard against duplicate start
-      initializedOnce = true;
-      rrLoaded = true;
+      if (!window.rrweb || state.initialized) return;
+      state.initialized = true;
+
       var isCoarsePointer = false;
       try {
         isCoarsePointer = !!(
@@ -362,24 +408,8 @@
         );
       } catch (_) {}
 
-      function estimateEventSize(ev) {
-        try {
-          return JSON.stringify(ev).length | 0;
-        } catch (_) {
-          return 0;
-        }
-      }
-
-      recordingStop = window.rrweb.record({
-        emit: function (e) {
-          firstActivity = Math.min(firstActivity ?? e.timestamp, e.timestamp);
-          lastActivity = Math.max(lastActivity, e.timestamp);
-          buffer.push(e);
-          approxBytes += estimateEventSize(e) + 1; // +1 for separator overhead
-          if (approxBytes >= maxUncompressedBytes) {
-            flush();
-          }
-        },
+      state.recordingStop = window.rrweb.record({
+        emit: handleRecordingEmit,
         checkoutEveryNms: 5 * 60 * 1000,
         maskAllInputs: true,
         maskInputOptions: {
@@ -422,10 +452,9 @@
           mouseInteraction: true,
         },
       });
-      // Add an initial pageview marker (no snapshot here; rrweb already emitted initial FullSnapshot)
       emitReplayPageview(window.location.href, false);
       startFlushLoop();
-      isRecording = true;
+      state.isRecording = true;
     }
 
     function loadScript(src) {
@@ -433,17 +462,50 @@
         var s = document.createElement("script");
         s.src = src;
         s.async = true;
-        s.onload = function () {
-          resolve();
-        };
-        s.onerror = function (err) {
-          reject(err);
-        };
+        s.onload = resolve;
+        s.onerror = reject;
         document.head.appendChild(s);
       });
     }
 
-    // Load rrweb from the same directory as this script, then start
+    function handleNavigationChange() {
+      if (currentPath === window.location.pathname) return;
+      currentPath = window.location.pathname;
+
+      if (isReplayEnabledOnPage()) {
+        if (state.isRecording === false) {
+          startRecording();
+        }
+        emitReplayPageview(window.location.href, true);
+      } else {
+        emitReplayBlacklist();
+        stopRecording(true);
+      }
+    }
+
+    function setupEventListeners() {
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") {
+          flush();
+        }
+      });
+      window.addEventListener("beforeunload", function () {
+        stopRecording(true);
+      });
+      window.addEventListener("pagehide", function () {
+        stopRecording(true);
+      });
+
+      if (window.history.pushState) {
+        var originalPushState = history.pushState;
+        history.pushState = function () {
+          originalPushState.apply(this, arguments);
+          handleNavigationChange();
+        };
+        window.addEventListener("popstate", handleNavigationChange);
+      }
+    }
+
     var rrLocalUrl = `${scriptsBaseUrl}/rrweb.min.js`;
     loadScript(rrLocalUrl)
       .then(function () {
@@ -456,53 +518,6 @@
       })
       .catch(function () {});
 
-    document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "hidden") {
-        flush();
-      }
-    });
-    window.addEventListener("beforeunload", function () {
-      stopRecording(true);
-    });
-    window.addEventListener("pagehide", function () {
-      stopRecording(true);
-    });
-
-    // Track SPA navigation
-    if (window.history.pushState) {
-      // Override pushState to track navigation
-      var originalPushState = history.pushState;
-      history.pushState = function () {
-        originalPushState.apply(this, arguments);
-        if (currentPath !== window.location.pathname) {
-          currentPath = window.location.pathname;
-          if (isReplayEnabledOnPage()) {
-            if (isRecording === false) {
-              startRecording();
-            }
-            emitReplayPageview(window.location.href, true);
-          } else {
-            emitReplayBlacklist();
-            stopRecording(true);
-          }
-        }
-      };
-
-      // Track popstate (back/forward navigation)
-      window.addEventListener("popstate", function () {
-        if (currentPath !== window.location.pathname) {
-          currentPath = window.location.pathname;
-          if (isReplayEnabledOnPage()) {
-            if (isRecording === false) {
-              startRecording();
-            }
-            emitReplayPageview(window.location.href, true);
-          } else {
-            emitReplayBlacklist();
-            stopRecording(true);
-          }
-        }
-      });
-    }
+    setupEventListeners();
   })();
 })();
