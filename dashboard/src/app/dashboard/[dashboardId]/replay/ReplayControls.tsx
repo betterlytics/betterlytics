@@ -1,7 +1,7 @@
 'use client';
 
 import { Maximize2, Minimize2, Pause, Play, ChevronDown } from 'lucide-react';
-import { memo, useEffect, useId, useMemo } from 'react';
+import { memo, useCallback, useEffect, useId, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
 import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
@@ -61,6 +61,32 @@ function createMarkerCanvas(theme: string | undefined, durationMs: number, marke
   });
 }
 
+function createRangeCanvas(theme: string | undefined, currentTime: number, durationMs: number) {
+  if (durationMs <= 0) {
+    return;
+  }
+
+  const canvas = document.getElementById('range-canvas') as HTMLCanvasElement | null;
+  if (canvas === null) {
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  if (ctx === null) {
+    return;
+  }
+
+  const resolvedTheme = theme || 'light';
+
+  ctx.fillStyle = resolvedTheme === 'light' ? '#CCCCCC' : '#222222';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = 'oklch(56% 0.196 268.74)';
+  const left = canvas.width * (currentTime / durationMs);
+  ctx.fillRect(0, 0, left, 500);
+}
+
 function ReplayControlsComponent({
   isPlaying,
   currentTime,
@@ -80,9 +106,26 @@ function ReplayControlsComponent({
   const ratio = durationMs > 0 ? Math.max(0, Math.min(1, currentTime / durationMs)) : 0;
 
   const { resolvedTheme } = useTheme();
+
   useEffect(() => {
     createMarkerCanvas(resolvedTheme, durationMs, markers);
   }, [durationMs, markers, resolvedTheme]);
+
+  useEffect(() => {
+    createRangeCanvas(resolvedTheme, currentTime, durationMs);
+  }, [durationMs, currentTime, resolvedTheme]);
+
+  const onRangeClick = useCallback(
+    (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+
+      const ratio = Math.max(Math.min(x / rect.width, 1), 0);
+
+      onSeekRatio(ratio);
+    },
+    [onSeekRatio],
+  );
 
   const skipInactivityId = useId();
   const playbackOptions = useMemo(
@@ -127,19 +170,10 @@ function ReplayControlsComponent({
         </div>
         <div className='relative flex-1'>
           <canvas
-            className='bg-red pointer-events-none absolute -top-1.5 z-[1000] flex h-4 w-full items-center'
+            className='pointer-events-none absolute -top-1.5 z-[1000] flex h-4 w-full items-center'
             id='marker-canvas'
           />
-          <input
-            type='range'
-            min={0}
-            max={1000}
-            step={1}
-            aria-label={t('seekAria')}
-            value={Math.round(ratio * 1000)}
-            onChange={(e) => onSeekRatio(Number(e.target.value) / 1000)}
-            className='range-sm range accent-primary w-full cursor-pointer'
-          />
+          <canvas className='z-[1000] h-3 w-full cursor-pointer border' id='range-canvas' onClick={onRangeClick} />
         </div>
         <div className='text-muted-foreground w-12 shrink-0 text-[11px] tabular-nums'>
           {formatClock(durationMs)}
