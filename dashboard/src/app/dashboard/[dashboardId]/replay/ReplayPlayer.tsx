@@ -62,7 +62,7 @@ const ReplayPlayerComponent = (
   const redactedContainerRef = useRef<HTMLDivElement | null>(null);
 
   const findClosestEventBefore = useCallback(
-    (timeOffset: number, eventType: number = 2) => {
+    (timeOffset: number, eventType?: number) => {
       const events = playerState.eventsRef.current;
       if (events.length === 0) {
         return null;
@@ -71,7 +71,9 @@ const ReplayPlayerComponent = (
       const originTimestamp = events[0]?.timestamp ?? 0;
       const targetAbsoluteTime = originTimestamp + timeOffset;
 
-      const filteredEvents = events.filter((e) => e.type === eventType && e.timestamp <= targetAbsoluteTime);
+      const filteredEvents = events.filter(
+        (e) => (eventType === undefined ? true : e.type === eventType) && e.timestamp <= targetAbsoluteTime,
+      );
 
       if (filteredEvents.length === 0) {
         return null;
@@ -85,9 +87,23 @@ const ReplayPlayerComponent = (
         }
       }
 
-      return closestEvent.timestamp - originTimestamp;
+      return closestEvent;
     },
     [playerState.eventsRef],
+  );
+
+  const findClosestEventBeforeTimestamp = useCallback(
+    (timeOffset: number, eventType?: number) => {
+      const events = playerState.eventsRef.current;
+      if (events.length === 0) {
+        return null;
+      }
+
+      const originTimestamp = events[0]?.timestamp ?? 0;
+
+      return findClosestEventBefore(timeOffset, eventType)!.timestamp - originTimestamp;
+    },
+    [findClosestEventBefore, playerState.eventsRef],
   );
 
   const destroyPlayer = useCallback(() => {
@@ -143,28 +159,65 @@ const ReplayPlayerComponent = (
     [destroyPlayer, size, onReady, playerState.isSkippingInactive],
   );
 
+  const redactBlacklisted = useCallback(() => {
+    if (redactedRef.current === false && containerRef.current) {
+      containerRef.current.style = `filter: blur(10px) !important;`;
+      redactedRef.current = true;
+      if (redactedContainerRef.current) {
+        redactedContainerRef.current.style = 'visibility: visible;';
+      }
+    }
+  }, []);
+
+  const unredactBlacklisted = useCallback(() => {
+    if (redactedRef.current === true && containerRef.current) {
+      containerRef.current.style = '';
+      redactedRef.current = false;
+      if (redactedContainerRef.current) {
+        redactedContainerRef.current.style = 'visibility: hidden;';
+      }
+    }
+  }, []);
+
   const seekTo = useCallback(
     (timeOffset: number) => {
       if (!playerRef.current) {
         return;
       }
+      const closestEventBefore = findClosestEventBefore(timeOffset);
+
+      const shouldRedact =
+        closestEventBefore && closestEventBefore.type === 5 && closestEventBefore.data.tag === 'Blacklist';
+
       try {
         playerRef.current.goto(timeOffset);
+
+        if (shouldRedact) {
+          redactBlacklisted();
+        } else {
+          unredactBlacklisted();
+        }
+        return;
       } catch (error) {
         const fallbackEventType = 2;
         console.warn(`Direct seek failed, using type ${fallbackEventType} fallback strategy:`, error);
         recreatePlayer(playerState.eventsRef.current, isPlaying);
 
-        const closestEventBefore = findClosestEventBefore(timeOffset, fallbackEventType);
-        if (closestEventBefore === null) {
+        const closestFullPaintBefore = findClosestEventBeforeTimestamp(timeOffset, fallbackEventType);
+        if (closestFullPaintBefore === null) {
           return;
         }
 
         try {
-          playerRef.current?.goto(closestEventBefore);
+          playerRef.current?.goto(closestFullPaintBefore);
 
           try {
             playerRef.current?.goto(timeOffset);
+            if (shouldRedact) {
+              redactBlacklisted();
+            } else {
+              unredactBlacklisted();
+            }
             return;
           } catch (retryError) {
             console.warn(
@@ -180,10 +233,17 @@ const ReplayPlayerComponent = (
           duration: 2000,
         });
         recreatePlayer(playerState.eventsRef.current, isPlaying);
-        playerRef.current?.goto(closestEventBefore);
+        playerRef.current?.goto(closestFullPaintBefore);
       }
     },
-    [recreatePlayer, playerRef, findClosestEventBefore],
+    [
+      recreatePlayer,
+      playerRef,
+      findClosestEventBefore,
+      findClosestEventBeforeTimestamp,
+      redactBlacklisted,
+      unredactBlacklisted,
+    ],
   );
 
   useImperativeHandle(ref, () => ({
@@ -250,22 +310,10 @@ const ReplayPlayerComponent = (
       listenersRef.current = listenersRef.current.filter((l) => !(l.type === type && l.listener === wrapped));
     },
     redact() {
-      if (redactedRef.current === false && containerRef.current) {
-        containerRef.current.style = `filter: blur(10px) !important;`;
-        redactedRef.current = true;
-        if (redactedContainerRef.current) {
-          redactedContainerRef.current.style = 'visibility: visible;';
-        }
-      }
+      redactBlacklisted();
     },
     unredact() {
-      if (redactedRef.current === true && containerRef.current) {
-        containerRef.current.style = '';
-        redactedRef.current = false;
-        if (redactedContainerRef.current) {
-          redactedContainerRef.current.style = 'visibility: hidden;';
-        }
-      }
+      unredactBlacklisted();
     },
   }));
 
