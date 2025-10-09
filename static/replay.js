@@ -197,21 +197,6 @@
       );
     }
 
-    function markActivity() {
-      lastActivity = Date.now();
-    }
-
-    [
-      "mousemove",
-      "keydown",
-      "scroll",
-      "click",
-      "pointerdown",
-      "touchstart",
-    ].forEach(function (ev) {
-      window.addEventListener(ev, markActivity, { passive: true });
-    });
-
     function flush() {
       if (replayDisabled) return Promise.resolve();
       if (buffer.length === 0) return Promise.resolve();
@@ -387,9 +372,8 @@
 
       recordingStop = window.rrweb.record({
         emit: function (e) {
-          if (firstActivity === null) {
-            firstActivity = Date.now();
-          }
+          firstActivity = Math.min(firstActivity ?? e.timestamp, e.timestamp);
+          lastActivity = Math.max(lastActivity, e.timestamp);
           buffer.push(e);
           approxBytes += estimateEventSize(e) + 1; // +1 for separator overhead
           if (approxBytes >= maxUncompressedBytes) {
