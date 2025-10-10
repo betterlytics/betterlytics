@@ -2,7 +2,7 @@ import { EventLogEntry } from '@/entities/events';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock } from 'lucide-react';
-import { EventLogItem } from '@/app/dashboard/[dashboardId]/events/EventLogItem';
+import { EventLogItem } from '@/app/(protected)/dashboard/[dashboardId]/events/EventLogItem';
 import { getTranslations } from 'next-intl/server';
 
 export default async function EventTrackingCard() {
