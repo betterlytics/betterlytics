@@ -50,6 +50,8 @@ pub enum ValidationError {
     InvalidJson(String),
     #[error("Invalid outbound link URL: {0}")]
     InvalidOutboundLinkUrl(String),
+    #[error("Invalid scroll depth: {0}")]
+    InvalidScrollDepth(String),
 }
 
 #[derive(Debug, Clone)]
@@ -99,9 +101,12 @@ impl EventValidator {
             self.validate_cwv_fields(raw_event)?;
         }
 
-        // only present for custom events
         if !raw_event.properties.is_empty() {
             self.validate_properties_json(&raw_event.properties)?;
+        }
+
+        if raw_event.event_name == "scroll_depth" {
+            self.validate_scroll_depth_event(raw_event)?;
         }
 
         Ok(ValidatedTrackingEvent {
@@ -207,6 +212,19 @@ impl EventValidator {
         }
     }
 
+    fn validate_scroll_depth_event(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        let scroll_depth = match &raw_event.scroll_depth {
+            Some(depth) => depth,
+            None => return Err(ValidationError::InvalidScrollDepth("Missing scroll_depth value".to_string())),
+        };
+
+        if *scroll_depth < 0.0 || *scroll_depth > 100.0 {
+            return Err(ValidationError::InvalidScrollDepth("scroll_depth must be between 0 and 100".to_string()));
+        }
+
+        Ok(())
+    }
+    
     fn validate_outbound_link_url(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         let outbound_url = match &raw_event.outbound_link_url {
             Some(url) => url,
@@ -296,6 +314,7 @@ impl EventValidator {
             ValidationError::PayloadTooLarge(_) => "payload_too_large",
             ValidationError::InvalidJson(_) => "invalid_json",
             ValidationError::InvalidOutboundLinkUrl(_) => "invalid_outbound_link_url",
+            ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
         }
     }
 

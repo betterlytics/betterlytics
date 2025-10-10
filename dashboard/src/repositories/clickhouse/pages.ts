@@ -172,16 +172,32 @@ export async function getPageMetrics(
           AND ${SQL.AND(filters)}
         GROUP BY session_id
       ),
+      page_scroll_depth AS (
+        SELECT
+          session_id,
+          url,
+          avg(scroll_depth) as scroll_depth
+        FROM analytics.events
+        WHERE site_id = {site_id:String}
+          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+          AND event_type = 'scroll_depth'
+          AND ${SQL.AND(filters)}
+        GROUP BY session_id, url 
+      ),
       page_aggregates AS (
         SELECT pvd.path, uniq(pvd.session_id) as visitors, count() as pageviews,
                 avgIf(pvd.duration_seconds, pvd.duration_seconds IS NOT NULL) as avg_time_seconds,
-                countIf(spc.page_count = 1) as single_page_sessions
-        FROM page_view_durations pvd JOIN session_page_counts spc ON pvd.session_id = spc.session_id
+                countIf(spc.page_count = 1) as single_page_sessions,
+                avgIf(psd.scroll_depth, psd.scroll_depth IS NOT NULL) as scroll_depth
+        FROM page_view_durations pvd
+        JOIN session_page_counts spc ON pvd.session_id = spc.session_id
+        JOIN page_scroll_depth psd ON pvd.session_id = psd.session_id AND pvd.path = psd.url
         GROUP BY pvd.path
       )
     SELECT path, visitors, pageviews, 
            if(visitors > 0, round(single_page_sessions / visitors * 100, 2), 0) as bounceRate,
-            avg_time_seconds as avgTime
+            avg_time_seconds as avgTime,
+            scroll_depth as scrollDepth
     FROM page_aggregates ORDER BY visitors DESC, pageviews DESC LIMIT 100
   `;
 
@@ -204,6 +220,7 @@ export async function getPageMetrics(
     pageviews: Number(row.pageviews),
     bounceRate: row.bounceRate,
     avgTime: row.avgTime,
+    scrollDepth: Number(row.scrollDepth),
   }));
 
   return PageAnalyticsSchema.array().parse(mappedResults);
