@@ -182,3 +182,23 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
 
   return rows.map((r) => CoreWebVitalsAllPercentilesPerDimensionRowSchema.parse(r));
 }
+
+export async function hasCoreWebVitalsData(siteId: string): Promise<boolean> {
+  const query = safeSql`
+    SELECT 1
+    FROM analytics.events 
+    WHERE site_id = {site_id:String} AND event_type = 'cwv'
+    LIMIT 1
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+      },
+    })
+    .toPromise();
+
+  return result.length > 0;
+}
