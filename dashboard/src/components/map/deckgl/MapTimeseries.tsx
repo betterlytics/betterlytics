@@ -52,7 +52,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const [speed, setSpeed] = useState(1 as PlaybackSpeed);
 
-  const { position, frame, playing, toggle, stop, scrub } = usePlayback({
+  const { position, frame, playing, toggle, scrub } = usePlayback({
     frameCount: visitorDataTimeseries.length,
     speed,
   });
@@ -147,21 +147,18 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         fillAnimation={visitorChangeAnimation}
         outlineAnimation={visitorChangeAnimation}
       />
-      <div className='pointer-events-auto absolute bottom-8 left-[17rem] z-12 w-[calc(100%-18rem)]'>
-        <MapPlayActionbar
-          ticks={tickProps}
-          value={position}
-          playing={playing}
-          speed={speed}
-          onTogglePlay={toggle}
-          onStop={stop}
-          onScrub={scrub}
-          onChangeSpeed={setSpeed}
-        />
-      </div>
-      <div className='pointer-events-auto absolute top-3 left-[17rem] z-12'>
-        <ZoomControls />
-      </div>
+      <MapPlayActionbar
+        className='pointer-events-auto absolute bottom-8 left-[17rem] z-12 w-[calc(100%-18rem)]'
+        ticks={tickProps}
+        value={position}
+        playing={playing}
+        speed={speed}
+        onTogglePlay={toggle}
+        onScrub={scrub}
+        onChangeSpeed={setSpeed}
+      />
+
+      <ZoomControls className='pointer-events-auto absolute top-3 left-[17rem] z-12' />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
       <DeckGLPopup />
     </div>

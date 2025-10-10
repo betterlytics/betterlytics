@@ -3,6 +3,7 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export type TimeSliderTick<TValue> = {
   label: React.ReactNode;
@@ -14,10 +15,17 @@ export type TimeSliderProps<TValue> = {
   value: number; // Current slider position
   playing?: boolean;
   playbackSpeed?: number;
+  hovering?: boolean;
   onScrub?: (index: number) => void; // user clicks/drag
 };
 
-export function TimeSlider<TValue>({ ticks, value, playing = false, onScrub }: TimeSliderProps<TValue>) {
+export function TimeSlider<TValue>({
+  ticks,
+  value,
+  playing = false,
+  hovering = false,
+  onScrub,
+}: TimeSliderProps<TValue>) {
   const intervals = ticks.length - 1;
 
   // Thumb index (round to nearest tick)
@@ -73,13 +81,22 @@ export function TimeSlider<TValue>({ ticks, value, playing = false, onScrub }: T
 
         {/* Thumb */}
         <SliderPrimitive.Thumb className='group border-secondary/80 bg-primary focus-visible:ring-ring block h-5 w-5 cursor-pointer rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
-          <Badge
-            className={`bg-primary absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl transition-transform ${
-              playing ? 'scale-100' : 'scale-0 group-hover:scale-100'
-            }`}
-          >
-            {ticks[index] && ticks[index].label}
-          </Badge>
+          <AnimatePresence>
+            {(hovering || playing) && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+              >
+                <Badge
+                  className={`bg-primary absolute -top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl transition-transform`}
+                >
+                  {ticks[index] && ticks[index].label}
+                </Badge>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </SliderPrimitive.Thumb>
       </SliderPrimitive.Root>
     </div>

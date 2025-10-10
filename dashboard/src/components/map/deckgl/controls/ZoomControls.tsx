@@ -4,8 +4,13 @@ import React from 'react';
 import { ZoomButton, ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { INITIAL_ZOOM_STATE, useSetMapViewState } from '@/contexts/DeckGLViewStateProvider';
+import { cn } from '@/lib/utils';
 
-export function ZoomControls() {
+export type ZoomControlsProps = {
+  className: React.ComponentProps<'div'>['className'];
+};
+
+export function ZoomControls({ className }: ZoomControlsProps) {
   const scale = useMotionValue(0.8);
   const setViewState = useSetMapViewState();
 
@@ -22,7 +27,6 @@ export function ZoomControls() {
       const newZoom = Math.max(0, Math.min(20, currentZoom + (zoomType === 'in' ? 1 : -1)));
 
       return {
-        ...vs, // preserve other view state properties like longitude, etc.
         zoom: newZoom,
       };
     });
@@ -30,7 +34,7 @@ export function ZoomControls() {
 
   return (
     <motion.div
-      className='flex flex-col'
+      className={cn(className, 'flex flex-col')}
       onHoverStart={() => animateTo(1)}
       onHoverEnd={() => animateTo(0.8)}
       onTouchStart={() => animateTo(1)}

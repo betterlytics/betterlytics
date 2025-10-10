@@ -26,12 +26,12 @@ export function PlaybackSpeedDropdown({
     open: { clipPath: 'circle(1000px at 50% 50%)', transition: { type: 'spring', stiffness: 20, restDelta: 2 } },
     closed: {
       clipPath: 'circle(30px at 50% 50%)',
-      transition: { type: 'spring', stiffness: 400, damping: 40, delay: 0.1 },
+      transition: { type: 'spring', stiffness: 400, damping: 40, delay: 0.05 },
     },
   };
 
   const staggerItemsVariant: Variants = {
-    open: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+    open: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
     closed: { transition: { staggerChildren: 0.05, staggerDirection: -1 } },
   };
 
@@ -65,7 +65,7 @@ export function PlaybackSpeedDropdown({
               <motion.li
                 key={s}
                 variants={slideInItemsVariant}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <DropdownMenuItem onClick={() => onChange(s)} className='cursor-pointer rounded px-3 py-1'>
