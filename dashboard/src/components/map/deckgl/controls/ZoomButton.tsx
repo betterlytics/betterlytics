@@ -26,15 +26,20 @@ export const isZoomType = (value: any): value is ZoomType => {
 export type ZoomButtonProps = {
   zoomType: ZoomType;
   onClick: () => void;
-  className?: string;
-};
+} & React.ComponentProps<'button'>;
 
-export function ZoomButton({ zoomType, onClick, className }: ZoomButtonProps) {
+export function ZoomButton({ zoomType, onClick, className, style }: ZoomButtonProps) {
   const Icon = useMemo(() => getComponent(zoomType), [zoomType]);
   const t = useTranslations(`components.geography.zoom`);
 
   return (
-    <Button size='sm' className={cn(className, 'rounded-none')} onClick={onClick} title={t(zoomType)}>
+    <Button
+      size='sm'
+      style={style}
+      className={cn(className, 'cursor-pointer rounded-none')}
+      onClick={onClick}
+      title={t(zoomType)}
+    >
       {Icon && isZoomType(zoomType) && <Icon fill={'var(--secondary)'} />}
     </Button>
   );

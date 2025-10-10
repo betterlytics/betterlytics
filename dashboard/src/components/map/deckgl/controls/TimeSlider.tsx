@@ -51,7 +51,7 @@ export function TimeSlider<TValue>({ ticks, value, playing = false, onScrub }: T
       >
         {/* Track */}
         <SliderPrimitive.Track
-          className='bg-primary/25 relative h-1.5 w-full grow overflow-hidden rounded-full'
+          className='bg-primary/25 relative h-2 w-full grow cursor-pointer overflow-hidden rounded-full'
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -72,7 +72,7 @@ export function TimeSlider<TValue>({ ticks, value, playing = false, onScrub }: T
         )}
 
         {/* Thumb */}
-        <SliderPrimitive.Thumb className='group border-secondary/80 bg-primary focus-visible:ring-ring block h-4 w-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
+        <SliderPrimitive.Thumb className='group border-secondary/80 bg-primary focus-visible:ring-ring block h-5 w-5 cursor-pointer rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
           <Badge
             className={`bg-primary absolute -top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl transition-transform ${
               playing ? 'scale-100' : 'scale-0 group-hover:scale-100'

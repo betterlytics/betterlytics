@@ -34,7 +34,7 @@ export function PlaybackButton({ playbackType, onClick }: PlaybackButtonProps) {
   const t = useTranslations(`components.geography.playback`);
 
   return (
-    <Button size='sm' onClick={onClick} title={t(playbackType)}>
+    <Button size='sm' onClick={onClick} title={t(playbackType)} className='cursor-pointer'>
       {Icon && isPlaybackType(playbackType) && <Icon fill={'var(--foreground)'} />}
     </Button>
   );

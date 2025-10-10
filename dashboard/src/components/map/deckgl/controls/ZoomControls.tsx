@@ -24,10 +24,6 @@ export function ZoomControls() {
       return {
         ...vs, // preserve other view state properties like longitude, etc.
         zoom: newZoom,
-
-        // Not working smoothly since it snaps back cause of extra state update ..
-        // transitionDuration: INITIAL_ZOOM_STATE.transitionDuration,
-        // transitionInterpolator: INITIAL_ZOOM_STATE.transitionInterpolator,
       };
     });
   };

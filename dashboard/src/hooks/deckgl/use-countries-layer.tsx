@@ -1,15 +1,15 @@
-import type { FeatureCollection } from 'geojson';
-import { DeckGLMapStyle, useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
+import { DeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
+import { GeoJsonLayer, PathLayer } from '@deck.gl/layers';
+import type { FeatureCollection } from 'geojson';
 import { useMemo } from 'react';
-import { GeoJsonLayer, type GeoJsonLayerProps, PathLayer } from '@deck.gl/layers';
 
 export type GeoJsonAnimation = {
   duration: number;
   easing: (t: number) => number;
 };
 
-export type CountriesLayerProps = {
+export type UseCountriesLayerProps = {
   geojson: FeatureCollection | null;
   visitorData: Record<string, number>;
   fillAnimation?: GeoJsonAnimation;
@@ -18,14 +18,14 @@ export type CountriesLayerProps = {
   frame: number;
 };
 
-export function CountriesLayer({
+export function useCountriesLayer({
   geojson,
   visitorData,
   style,
   frame,
   fillAnimation,
   outlineAnimation,
-}: CountriesLayerProps) {
+}: UseCountriesLayerProps) {
   const { hovered: hoveredFeature, clicked: clickedFeature } = useMapSelectionState();
 
   const outlineCache = useMemo(() => {
@@ -132,7 +132,7 @@ export function CountriesLayer({
       data: hoverPathData,
       pickable: false,
       getPath: (f: any) => f.path,
-      getColor: style.hoveredStyle(1).line,
+      getColor: style.hoveredStyle().line,
       getWidth: 2,
       widthUnits: 'pixels',
       widthMinPixels: 2,

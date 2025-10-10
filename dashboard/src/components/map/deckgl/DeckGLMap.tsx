@@ -1,12 +1,11 @@
 'use client';
 
-import { CountriesLayer, type GeoJsonAnimation } from '@/components/map/deckgl/CountriesLayer';
-import { LinearInterpolator } from '@deck.gl/core';
+import { useMapViewState, useSetMapViewState } from '@/contexts/DeckGLViewStateProvider';
+import { useCountriesLayer, type GeoJsonAnimation } from '@/hooks/deckgl/use-countries-layer';
+import { DeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
-import { DeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
-import { useMapViewState, useSetMapViewState } from '@/contexts/DeckGLViewStateProvider';
 
 export interface DeckGLMapProps {
   visitorData: {
@@ -40,7 +39,7 @@ export default function DeckGLClient({
       .catch((err) => console.error('Error loading geojson:', err));
   }, []);
 
-  const layers = CountriesLayer({
+  const layers = useCountriesLayer({
     geojson,
     visitorData,
     frame,
@@ -69,6 +68,7 @@ export default function DeckGLClient({
         layers={layers}
         style={{ position: 'fixed' }}
       >
+        {/* TODO: CLean up */}
         <style jsx global>
           {`
             .leaflet-container {

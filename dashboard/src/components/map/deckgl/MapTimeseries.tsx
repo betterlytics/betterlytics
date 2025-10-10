@@ -3,7 +3,7 @@
 import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
-import { DeckGLMapSelectionProvider, useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
+import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
 import { type GeoVisitor, type TimeGeoVisitors } from '@/entities/geography';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -12,8 +12,6 @@ import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useTranslations } from 'next-intl';
 import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
 import { ZoomControls } from './controls/ZoomControls';
-import { useSetMapViewState, DeckGLMapViewStateProvider } from '@/contexts/DeckGLViewStateProvider';
-import { ZoomType } from './controls/ZoomButton';
 import { DeckGLPopup } from './DeckGLPopup';
 
 export type MapTimeseries = {
@@ -64,6 +62,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     setMapSelection(null);
   }, [playing, frame]);
 
+  //! TODO: Toggle date format by time-granularity
   const tickProps = useMemo(
     () =>
       visitorDataTimeseries.map((tgeo, i) => ({

@@ -32,11 +32,10 @@ export function MapPlayActionbar<TValue>({
       hoverScale={1}
       opacityRange={[0.8, 1]}
       opacityValues={[0.6, 1]}
-      className='bg-background flex flex-col gap-2 rounded-xl p-2 shadow-md'
+      className='bg-background flex flex-col gap-2 rounded-xl p-3 shadow-md'
     >
       <div className='flex items-center gap-3'>
         <PlaybackButton onClick={onTogglePlay} playbackType={playing ? 'pause' : 'play'} />
-        <PlaybackButton onClick={onStop} playbackType='stop' />
         <TimeSlider ticks={ticks} value={value} playing={playing} onScrub={onScrub} />
         <PlaybackSpeedDropdown speed={speed} onChange={onChangeSpeed} />
       </div>
