@@ -68,9 +68,10 @@ export function useDeckGLMapStyle({ maxVisitors }: UseDeckGLMapStyleProps): Deck
     }),
     [colorScale, featureBorderColorScale],
   );
+
   const selectedStyle = useCallback(
     (_visitors?: number) => ({
-      line: toRgbaTuple(MAP_FEATURE_BORDER_COLORS.CLICKED, 255),
+      line: toRgbaTuple('#ffc067', 255),
     }),
     [],
   );

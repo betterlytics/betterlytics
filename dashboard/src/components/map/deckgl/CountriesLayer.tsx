@@ -108,7 +108,7 @@ export function CountriesLayer({
       data: clickedPathData,
       pickable: false,
       getPath: (f: any) => f.path,
-      getColor: style.selectedStyle(1).line,
+      getColor: style.selectedStyle().line,
       getWidth: 2,
       widthUnits: 'pixels',
       widthMinPixels: 2,
