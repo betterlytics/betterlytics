@@ -1,6 +1,6 @@
 'use client';
 
-import { PlaybackButton } from '@/components/map/deckgl/controls/PlayButton';
+import { PlaybackButton } from '@/components/map/deckgl/controls/PlaybackButton';
 import { TimeSlider, type TimeSliderTick } from '@/components/map/deckgl/controls/TimeSlider';
 import { PlaybackSpeed, PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import { ScaleMotion } from '@/components/ScaleMotion';

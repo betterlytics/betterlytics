@@ -48,7 +48,7 @@ export function PlaybackSpeedDropdown({
 
       <DropdownMenuContent
         asChild
-        align='start'
+        align='center'
         side='top'
         usePortal={false}
         className='w-auto min-w-0 overflow-hidden rounded-md p-1'
@@ -65,8 +65,9 @@ export function PlaybackSpeedDropdown({
               <motion.li
                 key={s}
                 variants={slideInItemsVariant}
-                whileHover={{ scale: 1.15 }}
+                whileHover={{ scale: 1.125 }}
                 whileTap={{ scale: 0.95 }}
+                className='px-1'
               >
                 <DropdownMenuItem onClick={() => onChange(s)} className='cursor-pointer rounded px-3 py-1'>
                   x{s}
