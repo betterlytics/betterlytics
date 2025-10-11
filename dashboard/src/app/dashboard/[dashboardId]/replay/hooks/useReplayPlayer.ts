@@ -46,8 +46,9 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn, sessionId?: s
     if (!player) return;
 
     const onTime = (event: any) => {
-      if (event.payload) {
-        setCurrentTime(event.payload);
+      const payload = event?.payload;
+      if (typeof payload === 'number' && Number.isFinite(payload)) {
+        setCurrentTime(Math.max(0, payload));
       }
     };
 
