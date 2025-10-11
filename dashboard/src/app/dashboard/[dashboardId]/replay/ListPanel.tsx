@@ -32,7 +32,7 @@ export function ListPanel({
 }: ListPanelProps) {
   return (
     <Card className={cn('flex h-full min-h-0 flex-col !gap-0 overflow-hidden !p-0', className)}>
-      <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3'>
+      <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3 !pb-3'>
         <div className='space-y-1'>
           <CardTitle className='text-sm font-medium tracking-tight'>{title}</CardTitle>
           {subtitle ? <CardDescription className='text-xs leading-relaxed'>{subtitle}</CardDescription> : null}
