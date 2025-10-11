@@ -43,7 +43,7 @@ export function SessionReplayContainer({ dashboardId }: SessionReplayContainerPr
   const combinedError = sessionManager.error || segmentLoader.error || playerState.error;
 
   return (
-    <div className='grid h-[calc(100svh-150px)] w-full gap-3 lg:grid-cols-[280px_minmax(0,1fr)_300px]'>
+    <div className='grid h-[calc(100svh-150px)] w-full gap-3 lg:grid-cols-[260px_minmax(0,1fr)_280px]'>
       <ReplaySessionPanel sessionManager={sessionManager} onSelectSession={handleSelectSession} />
       <ReplayPlayerContainer
         playerState={playerState}
