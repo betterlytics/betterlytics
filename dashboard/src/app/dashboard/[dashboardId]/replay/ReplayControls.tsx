@@ -208,7 +208,7 @@ function ReplayControlsComponent({
         <canvas className='pointer-events-none z-[1000] flex h-1.5 w-full items-center' id='marker-canvas' />
         {hoverTooltipX && (
           <div
-            className='bg-background absolute flex h-8 w-16 items-center justify-center rounded-md border text-sm shadow-md'
+            className='dark:bg-secondary absolute flex h-8 w-16 items-center justify-center rounded-md border bg-white text-sm shadow-md'
             style={{
               top: -30,
               left: hoverTooltipX.x - 32,
