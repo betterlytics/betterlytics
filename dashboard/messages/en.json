@@ -1276,7 +1276,17 @@
     "geography": {
       "noData": "No geographic data available for the selected period",
       "loading": "Loading map...",
-      "visitors": "Visitors"
+      "loadingMessage": "Please wait while we load the map data",
+      "visitors": "Visitors",
+      "playback": {
+        "play": "Play",
+        "stop": "Stop",
+        "pause": "Pause"
+      },
+      "zoom": {
+        "in": "Zoom In",
+        "out": "Zoom Out"
+      }
     },
     "userJourney": {
       "page": {

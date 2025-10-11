@@ -1282,7 +1282,16 @@
     "geography": {
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
-      "visitors": "Visitatori"
+      "visitors": "Visitatori",
+      "playback": {
+        "play": "Riproduci",
+        "stop": "Interrompi",
+        "pause": "Pausa"
+      },
+      "zoom": {
+        "in": "Zoom avanti",
+        "out": "Zoom indietro"
+      }
     },
     "userJourney": {
       "page": {

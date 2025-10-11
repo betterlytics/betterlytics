@@ -1,0 +1,108 @@
+'use client';
+
+import React, { useEffect, useId, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import * as ReactDOM from 'react-dom/client';
+import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
+import MapTooltipContent from '../tooltip/MapTooltipContent';
+import MapTooltipTip from '../tooltip/MapTooltipTip';
+import { cn } from '@/lib/utils';
+import { useLocale, useTranslations } from 'next-intl';
+
+export type DeckGLStickyTooltipProps = {
+  size?: 'sm' | 'lg';
+  containerRef: React.RefObject<HTMLDivElement | null>;
+};
+
+function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStickyTooltipProps) {
+  const { hoveredFeatureRef, clickedFeatureRef } = useMapSelectionActions();
+
+  const tooltipId = useId();
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<ReactDOM.Root | null>(null);
+  const rafRef = useRef<number>(0);
+  const latestMouseRef = useRef({ x: 0, y: 0 });
+
+  const locale = useLocale();
+  const t = useTranslations('components.geography');
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const mapContainer = containerRef.current;
+
+    const onMouseMove = (e: MouseEvent) => {
+      latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
+    };
+
+    mapContainer.addEventListener('mousemove', onMouseMove);
+    return () => {
+      mapContainer.removeEventListener('mousemove', onMouseMove);
+    };
+  }, [containerRef]);
+
+  useEffect(() => {
+    const node = tooltipRef.current;
+    if (!node) return;
+
+    const contentDiv = node.querySelector('.tooltip-content') as HTMLElement;
+    if (!contentDiv) return;
+
+    // only create root once
+    if (!rootRef.current) {
+      rootRef.current = ReactDOM.createRoot(contentDiv);
+    }
+
+    let lastHovered: typeof hoveredFeatureRef.current | null = null;
+
+    const loop = () => {
+      rafRef.current = requestAnimationFrame(loop);
+
+      const hovered = hoveredFeatureRef.current;
+      const clicked = clickedFeatureRef.current;
+      const { x, y } = latestMouseRef.current;
+
+      node.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -100%)`;
+
+      if (!hovered || clicked) {
+        node.style.display = 'none';
+        lastHovered = null;
+        return;
+      }
+
+      node.style.display = 'flex';
+
+      if (hovered !== lastHovered && rootRef.current) {
+        lastHovered = hovered;
+        rootRef.current.render(
+          <MapTooltipContent geoVisitor={hovered.geoVisitor} size={size} locale={locale} label={t('visitors')} />,
+        );
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [t, locale]);
+
+  return createPortal(
+    <section
+      id={tooltipId}
+      ref={tooltipRef}
+      role='tooltip'
+      aria-hidden={false}
+      className={cn(
+        'map-sticky-tooltip leaflet-popup-content-wrapper',
+        'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
+      )}
+    >
+      <div className='leaflet-popup-content tooltip-content rounded-lg' />
+      <MapTooltipTip />
+    </section>,
+    document.body,
+  );
+}
+
+const DeckGLStickyTooltip = React.memo(DeckGLStickyTooltipComponent);
+export default DeckGLStickyTooltip;
