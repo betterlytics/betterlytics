@@ -37,6 +37,22 @@ function formatClock(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
+function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+
+  const displayWidth = Math.round(rect.width * dpr);
+  const displayHeight = Math.round(rect.height * dpr);
+
+  // Only resize if needed
+  if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+  }
+
+  return dpr;
+}
+
 function createMarkerCanvas(
   theme: string | undefined,
   loadedDurationMs: number,
@@ -59,6 +75,9 @@ function createMarkerCanvas(
   if (ctx === null) {
     return;
   }
+
+  const dpr = resizeCanvasToDisplaySize(canvas);
+  ctx.scale(dpr, dpr);
 
   const resolvedTheme = theme || 'light';
 
@@ -92,6 +111,9 @@ function createRangeCanvas(
   if (ctx === null) {
     return;
   }
+
+  const dpr = resizeCanvasToDisplaySize(canvas);
+  ctx.scale(dpr, dpr);
 
   const resolvedTheme = theme || 'light';
 
