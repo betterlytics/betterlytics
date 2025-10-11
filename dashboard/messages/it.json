@@ -1431,6 +1431,14 @@
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         }
       },
+      "playerTopbar": {
+        "startLabel": "Inizio:",
+        "startUrlTitle": "URL iniziale (prima pagina di questa sessione)",
+        "countryAria": "Paese {name}",
+        "browserAria": "Browser {name}",
+        "osAria": "Sistema operativo {name}",
+        "deviceAria": "Dispositivo {name}"
+      },
       "eventTimeline": {
         "header": "Cronologia",
         "subHeader": "{count} eventi catturati ({groupCount} gruppi)",

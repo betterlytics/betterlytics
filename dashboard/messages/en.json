@@ -1425,6 +1425,14 @@
           "description": "Try expanding your time range or adjusting filters."
         }
       },
+      "playerTopbar": {
+        "startLabel": "Start:",
+        "startUrlTitle": "Start URL (first page of this session)",
+        "countryAria": "Country {name}",
+        "browserAria": "Browser {name}",
+        "osAria": "OS {name}",
+        "deviceAria": "Device {name}"
+      },
       "eventTimeline": {
         "header": "Timeline",
         "subHeader": "{count} events captured ({groupCount} groups)",

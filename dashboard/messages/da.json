@@ -1429,6 +1429,14 @@
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         }
       },
+      "playerTopbar": {
+        "startLabel": "Start:",
+        "startUrlTitle": "Start-URL (første side i denne session)",
+        "countryAria": "Land {name}",
+        "browserAria": "Browser {name}",
+        "osAria": "Operativsystem {name}",
+        "deviceAria": "Enhed {name}"
+      },
       "eventTimeline": {
         "header": "Tidslinje",
         "subHeader": "{count} events indsamlet ({groupCount} grupper)",

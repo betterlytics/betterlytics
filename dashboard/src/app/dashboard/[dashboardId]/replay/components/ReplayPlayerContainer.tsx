@@ -6,6 +6,7 @@ import { ReplayControls } from '@/app/dashboard/[dashboardId]/replay/ReplayContr
 import type { SessionReplay } from '@/entities/sessionReplays';
 import type { UsePlayerStateReturn } from '../hooks/usePlayerState';
 import { useReplayPlayer } from '../hooks/useReplayPlayer';
+import { ReplayTopbar } from './ReplayTopbar';
 
 type ReplayPlayerContainerProps = {
   playerState: UsePlayerStateReturn;
@@ -65,6 +66,7 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
       className='bg-background flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'
       ref={containerRef}
     >
+      <ReplayTopbar session={session} />
       <div className='rr-block relative flex flex-1 flex-col overflow-hidden' onClick={onPlayerClick}>
         <ReplayPlayer ref={playerState.playerRef} playerState={playerState} isPlaying={isPlaying} />
       </div>

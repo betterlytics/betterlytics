@@ -125,3 +125,15 @@ export function formatDurationPrecise(ms: number): string {
   const seconds = totalSeconds % 60;
   return `${minutes}m ${seconds}s`;
 }
+
+// Formats a date/time to a locale-aware human-readable string
+export function formatLocalDateTime(
+  date: string | Date | undefined | null,
+  locale?: string,
+  options?: Intl.DateTimeFormatOptions,
+): string | undefined {
+  if (!date) return undefined;
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return undefined;
+  return new Intl.DateTimeFormat(locale, options).format(d);
+}
