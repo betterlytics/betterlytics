@@ -48,7 +48,7 @@ export function useSyncURLFilters() {
   useEffect(() => {
     try {
       const encodedFilterEntries = URL_SEARCH_PARAMS.map(
-        (param) => [param, searchParams.get(param)] as const,
+        (param) => [param, searchParams?.get(param) ?? undefined] as const,
       ).filter(([_key, value]) => Boolean(value));
 
       const encoded = Object.fromEntries(encodedFilterEntries);
@@ -145,4 +145,23 @@ export function useSyncURLFilters() {
     numberOfSteps,
     numberOfJourneys,
   ]);
+}
+
+export function useUrlSearchParam(paramKey: string) {
+  const router = useBARouter();
+  const searchParams = useSearchParams();
+
+  const value = searchParams?.get?.(paramKey) ?? undefined;
+
+  function setValue(next: string | undefined) {
+    const params = new URLSearchParams(searchParams?.toString?.() ?? '');
+    if (next === undefined || next === null || next === '') {
+      params.delete(paramKey);
+    } else {
+      params.set(paramKey, next);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }
+
+  return [value, setValue] as const;
 }

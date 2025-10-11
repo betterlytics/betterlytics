@@ -1,5 +1,10 @@
 // Betterlytics - Privacy-focused, cookieless analytics
 (function () {
+  if (window.__betterlytics_analytics_initialized__) {
+    return;
+  }
+  window.__betterlytics_analytics_initialized__ = true;
+
   // Get the script element and required attributes
   var script =
     document.currentScript ||
@@ -20,8 +25,24 @@
         };
       }) ?? [];
 
+  var scriptsBaseUrl =
+    script.getAttribute("data-scripts-base-url") ?? "https://betterlytics.io";
+
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
+
+  var coreWebVitals = script.getAttribute("data-web-vitals") === "true";
+
+  var enableReplay = script.getAttribute("data-replay") === "true";
+
+  var replaySamplePct = parseInt(
+    script.getAttribute("data-replay-sample") || "0",
+    10
+  );
+
+  if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
+    replaySamplePct = 0;
+  }
 
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
@@ -94,8 +115,24 @@
     window.betterlytics.event.apply(this, queuedEvents[i]);
   }
 
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+
+      s.onload = function () {
+        resolve();
+      };
+      s.onerror = function (err) {
+        reject(err);
+      };
+      document.head.appendChild(s);
+    });
+  }
+
   // Web Vitals batching (send once per page lifecycle)
-  if (script.getAttribute("data-web-vitals") === "true") {
+  if (coreWebVitals) {
     var cwvQueue = new Map();
     var cwvFlushed = false;
 
@@ -206,5 +243,13 @@
         }
       }
     });
+  }
+
+  // Replay
+  if (enableReplay) {
+    // Sample
+    if (Math.round(Math.random() * 100) < replaySamplePct) {
+      loadScript(`${scriptsBaseUrl}/replay.js`);
+    }
   }
 })();

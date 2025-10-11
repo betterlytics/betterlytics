@@ -1,0 +1,71 @@
+---
+title: "Session Replay"
+description: "Use Session Replay to watch real user sessions. Learn access paths, timeline markers, controls, skip inactivity, DOM inspection, and limits."
+---
+
+import { Callout } from "nextra/components";
+
+# Session Replay in Your Dashboard
+
+Session Replay lets you watch real user sessions recorded with privacy‑aware defaults. Use it to debug UX issues, verify designs, and correlate with analytics.
+
+## Accessing replays
+
+Go to: **Dashboard > Session Replay**. Select a session in the left panel to load the player and timeline.
+
+- Use global filters (time range, query filters) to narrow sessions by URL pattern, device type, country, browser, OS, etc.
+- The list shows duration, start time, and start URL for each session.
+
+## Player and controls
+
+The player uses `rrweb-player` with custom controls:
+
+- **Play/Pause**: start or stop playback.
+- **Seek bar**: drag to jump within the session.
+- **Speed**: 1x, 2x, 4x, 8x.
+- **Skip inactivity**: when enabled, the player jumps over long idle periods to focus on activity.
+- **Fullscreen**: expand the replay to fill your screen.
+
+<Callout type="info">
+We also provide idle detection client‑side to stop recording when the user is inactive for a long period.
+</Callout>
+
+## Timeline and event breakdown
+
+The right panel groups key events detected in the session. You can click a group to jump to that moment.
+
+Below is the list of all key events shown in the timeline:
+
+- **Full snapshot**: a baseline snapshot of the DOM.
+- **Mouse interaction**: clicks, taps, movement, and significant interactions.
+- **Selection**: text selection events.
+- **Scroll**: scroll activity.
+- **Input**: user inputs (values are masked by default).
+- **Pageview**: event emitted on initial load and SPA navigations.
+- **Redacted**: user enters a page where recording is disabled.
+
+A condensed marker strip is also rendered over the seek bar so you can see activity distribution at a glance.
+
+## DOM inspection and privacy
+
+- Sensitive inputs are masked by default; you can additionally mark elements with `[data-rrweb-mask]` or block entire regions with `.rr-block` or `.rr-ignore` in your app.
+- The replay avoids recording heavy or sensitive third‑party visuals (e.g., charts, iframes) via blocking selectors.
+- For deep inspection, pause and seek to any point; the player renders the DOM from that moment.
+
+## Duration limits and idle cutoff
+
+- Replays stop when either the user is idle for the configured cutoff or the max duration is reached.
+- Typical defaults: idle cutoff 600s (10 minutes), max duration 1200s (20 minutes); both are configurable in your script attributes.
+- Very short sessions may be discarded if they don’t meet the minimum duration you set.
+
+## Troubleshooting
+
+- **No sessions found**: Ensure replay is enabled in your tracking script and storage is configured on the backend. Recordings may not appear in the dashboard until the user reloads, leaves the page or their session ends.
+- **Segments missing**: The player loads segments progressively. If the first segment is empty or fetch fails, the session may not load.
+- **Choppy seek**: Seeking reconstructs DOM snapshots. If direct seek fails, we fall back to the nearest snapshot automatically.
+- **Low sample rate**: Increase `data-replay-sample` if you need more coverage.
+- **Retention**: Session replays are stored for 60 days. After 60 days they are permanently deleted and cannot be retrieved.
+
+---
+
+**Related**: Learn how to [enable and configure Session Replay](/integration/session-replay).

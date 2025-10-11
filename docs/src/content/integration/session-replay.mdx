@@ -1,0 +1,110 @@
+---
+title: "Session Replay"
+description: "Enable and configure session replays with Betterlytics. Learn script attributes, options, privacy controls, and best practices."
+---
+
+import { Callout } from "nextra/components";
+
+# Session Replay Integration
+
+Betterlytics captures privacy‑aware session replays from real users. Replays help you debug UX issues by watching what users actually experienced, alongside your analytics metrics.
+
+## Quick start
+
+### Using the script tag
+
+Add `data-replay="true"` to your analytics script to enable replays. You can also control sampling and limits with additional attributes.
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://betterlytics.io/track"
+  data-replay="true"
+  data-replay-sample="20"           
+  data-replay-min-duration="5"      
+  data-replay-idle-cutoff="600"     
+  data-replay-max-duration="1200"   
+  data-dynamic-urls="/product/**,/user/*/settings" 
+  data-disable-replay-on-urls="/admin/**,/billing/**"
+>
+</script>
+```
+
+- **data-replay**: turn session replay on.
+- **data-replay-sample**: percentage of traffic to record (0–100). If omitted or invalid, defaults to 0 (off).
+- **data-replay-min-duration**: minimum seconds required before we upload a replay (prevents ultra‑short sessions). Default 15s.
+- **data-replay-idle-cutoff**: seconds of no activity before we automatically stop and finalize. Default 600s.
+- **data-replay-max-duration**: maximum seconds to record before we stop and finalize. Default 1200s.
+- **data-dynamic-urls**: comma‑separated patterns to normalize SPA routes (supports `*` and `**`) for better grouping.
+- **data-disable-replay-on-urls**: comma‑separated patterns where replay is disabled (privacy‑sensitive areas, admin, billing, etc.).
+ 
+### Using the npm package
+
+Coming soon...
+
+## What gets collected
+
+When enabled, the tracker records:
+
+- DOM snapshots and incremental updates
+- Mouse interactions, selections, scrolls
+- Inputs (values masked), media interactions, and navigation markers
+
+Privacy defaults (what we mask by default):
+
+- All text content in the page
+- All form input values (passwords, emails, numbers, search, selects, etc.)
+- Content in `contenteditable` elements
+
+How to control visibility:
+
+- Mask additional elements by adding the attribute `[data-rrweb-mask]` to any element in your app.
+- Block entire regions from recording by adding the class `.rr-block`.
+- Ignore non‑essential elements and events by adding the class `.rr-ignore`.
+
+You can opt‑out on specific pages using `data-disable-replay-on-urls`.
+
+## Availability
+
+- Replays are uploaded in the background while the session is active.
+- They typically appear in the dashboard shortly after the user leaves the page or becomes inactive.
+- Sessions include duration, size, and a start URL to help you identify them.
+- Retention: Session replays are stored for 60 days. After 60 days they are permanently deleted and cannot be retrieved.
+
+## Duration, idle and sampling
+
+- We stop recording when either:
+  - no activity has occurred for `data-replay-idle-cutoff` seconds, or
+  - total recording time exceeds `data-replay-max-duration` seconds.
+- Finalization only happens if `data-replay-min-duration` is met.
+- Sampling: if `data-replay-sample` is set to `N`, only approximately N% of eligible sessions will record.
+
+## SPA behavior and route changes
+
+- We emit a custom `Pageview` event and may capture a fresh snapshot on client‑side navigations to make timelines meaningful on SPAs.
+- Use `data-dynamic-urls` to normalize variable path segments for aggregation (e.g. `/product/**`).
+
+## Disabling on sensitive pages
+
+Use `data-disable-replay-on-urls` patterns to disable recording on routes like `/admin/**`, `/settings/security`, or payment flows.
+
+```html
+<script
+  ...
+  data-disable-replay-on-urls="/admin/**,/billing/**,/settings/security"
+></script>
+```
+
+## Best practices
+
+- Start with low sampling (5–10%) and increase gradually.
+- Keep `idle-cutoff` and `max-duration` conservative to reduce cost.
+- Use route disabling for sensitive flows (auth, billing, support tools).
+- Use `[data-rrweb-mask]`, `.rr-block`, and `.rr-ignore` in your app markup to protect sensitive UI parts.
+
+---
+
+**Next steps**: Learn how to view and analyze replays in the [Session Replay dashboard](/dashboard/session-replay).
+
