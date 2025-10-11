@@ -1448,7 +1448,7 @@
         "blacklisted": "Sortlistet"
       },
       "player": {
-        "skipInactive": "Spring over inaktivitet",
+        "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Afspilningshastighed",
         "seekAria": "Søg"
       }
