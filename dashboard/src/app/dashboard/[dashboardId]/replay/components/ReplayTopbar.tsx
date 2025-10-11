@@ -29,7 +29,7 @@ export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbar
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className='bg-muted/30 text-foreground/90 flex items-center justify-between border-b px-3 py-2 text-xs'>
+      <div className='bg-muted/60 border-border/60 flex items-center justify-between border-b px-3 py-2 text-xs'>
         <div className='flex max-w-[400px] items-center gap-1 truncate'>
           {session?.start_url && (
             <div className='flex items-center gap-1 truncate' title={t('startUrlTitle')}>
