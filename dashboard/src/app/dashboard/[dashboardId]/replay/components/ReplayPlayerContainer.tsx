@@ -7,6 +7,7 @@ import type { SessionReplay } from '@/entities/sessionReplays';
 import type { UsePlayerStateReturn } from '../hooks/usePlayerState';
 import { useReplayPlayer } from '../hooks/useReplayPlayer';
 import { ReplayTopbar } from './ReplayTopbar';
+import PausePlayIndicatorOverlay, { PausePlayIndicatorOverlayHandle } from './PausePlayIndicatorOverlay';
 
 type ReplayPlayerContainerProps = {
   playerState: UsePlayerStateReturn;
@@ -21,6 +22,7 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
   );
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const overlayRef = useRef<PausePlayIndicatorOverlayHandle | null>(null);
 
   const handleFullscreenChange = useCallback(() => {
     const element = containerRef.current;
@@ -56,9 +58,11 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
   const onPlayerClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.preventDefault();
+      const willPlay = !isPlaying;
+      overlayRef.current?.show(willPlay ? 'play' : 'pause');
       playPause();
     },
-    [playPause],
+    [playPause, isPlaying],
   );
 
   return (
@@ -67,8 +71,9 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
       ref={containerRef}
     >
       <ReplayTopbar session={session} />
-      <div className='rr-block relative flex flex-1 flex-col overflow-hidden' onClick={onPlayerClick}>
+      <div className='rr-block relative flex flex-1 flex-col overflow-hidden select-none' onClick={onPlayerClick}>
         <ReplayPlayer ref={playerState.playerRef} playerState={playerState} isPlaying={isPlaying} />
+        <PausePlayIndicatorOverlay ref={overlayRef} />
       </div>
       <ReplayControls
         isPlaying={isPlaying}
