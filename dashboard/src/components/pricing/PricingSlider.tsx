@@ -1,6 +1,7 @@
 'use client';
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
+import { useTranslations } from 'next-intl';
 
 interface PricingSliderProps {
   currentRange: EventRange;
@@ -15,10 +16,11 @@ export function PricingSlider({
   handleSliderChange,
   className = '',
 }: PricingSliderProps) {
+  const t = useTranslations('pricingSlider');
   return (
     <div className={className}>
       <div className='mb-4 text-center'>
-        <div className='text-muted-foreground mb-2 text-sm'>Monthly Events</div>
+        <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
         <div className='text-3xl font-bold'>{currentRange.label}</div>
       </div>
 

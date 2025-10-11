@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { TimeRangeContextProvider } from '@/contexts/TimeRangeContextProvider';
+import React, { useEffect } from 'react';
+import { TimeRangeContextProvider, useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { QueryFiltersContextProvider } from '@/contexts/QueryFiltersContextProvider';
 import { SettingsProvider } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -11,6 +11,7 @@ import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextPr
 import { getDashboardSettingsAction } from '@/app/actions/dashboardSettings';
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { useTranslations } from 'next-intl';
+import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
         <QueryFiltersContextProvider>
           <UserJourneyFilterProvider>
             <SyncURLFilters />
+            <RealtimeRefresh />
             {children}
           </UserJourneyFilterProvider>
         </QueryFiltersContextProvider>
@@ -45,5 +47,19 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
 
 function SyncURLFilters() {
   useSyncURLFilters();
+  return undefined;
+}
+
+function RealtimeRefresh() {
+  const { interval } = useTimeRangeContext();
+  const { setPresetRange } = useImmediateTimeRange();
+
+  useEffect(() => {
+    if (interval === 'realtime') {
+      const refreshInterval = setInterval(() => setPresetRange('realtime'), 30_000);
+      return () => clearInterval(refreshInterval);
+    }
+  }, [interval]);
+
   return undefined;
 }

@@ -42,6 +42,7 @@ export function PlaybackSpeedDropdown({
 
   return (
     <DropdownMenu modal={false} onOpenChange={(open) => setIsOpen(open)}>
+      {/* TODO: Add localization to trigger and modify styling */}
       <DropdownMenuTrigger className='bg-secondary cursor-pointer rounded-md px-2 py-1 text-sm'>
         Speed: x{speed}
       </DropdownMenuTrigger>

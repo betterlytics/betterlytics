@@ -709,6 +709,9 @@
       "copyright": "© {year} Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licens."
     }
   },
+  "pricingSlider": {
+    "monthlyEvents": "Månedlige events"
+  },
   "pricingCards": {
     "periodPerMonth": "/måned",
     "descriptions": {
@@ -959,26 +962,42 @@
       "quickSelect": "Hurtig valg",
       "granularity": "Granularitet",
       "currentPeriod": "Nuværende periode",
+      "disabled": "Deaktiveret",
+      "disableCompare": "Deaktiver sammenligning",
+      "previousPeriod": "Forrige periode",
+      "previousYear": "Forrige år",
+      "nextPeriod": "Næste periode",
+      "customPeriod": "Brugerdefineret periode",
+      "sameLengthAsMain": "Samme længde som hovedinterval",
+      "vs": "vs",
       "compareWithPrevious": "Sammenlign med tidligere periode",
       "compareToPeriod": "Sammenligningsperiode",
       "startDate": "Startdato",
       "endDate": "Slutdato",
       "dateRange": "Datointerval",
       "presets": {
+        "today": "I dag",
+        "yesterday": "I går",
+        "realtime": "Realtid",
+        "1h": "Seneste time",
         "24h": "Seneste 24 timer",
-        "3d": "Seneste 3 dage",
         "7d": "Seneste 7 dage",
         "28d": "Seneste 28 dage",
-        "3mo": "Seneste 3 måneder",
-        "6mo": "Seneste 6 måneder"
+        "90d": "Seneste 90 dage",
+        "mtd": "Måned til dato",
+        "last_month": "Sidste måned",
+        "ytd": "År til dato",
+        "1y": "Seneste år"
       },
       "granularityLabels": {
         "day": "Dag",
         "hour": "Time",
         "minute_30": "30 min",
-        "minute_15": "15 min"
+        "minute_15": "15 min",
+        "minute_1": "1 min"
       },
-      "apply": "Anvend"
+      "apply": "Anvend",
+      "matchDayOfWeek": "Match ugedag"
     },
     "loading": {
       "dashboard": {
@@ -1525,8 +1544,6 @@
         }
       },
       "usage": {
-        "title": "Forbrug og plan",
-        "description": "Overvåg dit aktuelle forbrug og administrér dit abonnement.",
         "cta": {
           "needMore": "Brug for flere events?",
           "upgradeHint": "Opgrader din plan for at få flere events og låse op for flere funktioner.",
@@ -1643,6 +1660,9 @@
         "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
         "backToSignIn": "Tilbage til log ind"
       }
+    },
+    "page": {
+      "title": "Betterlytics | Registering"
     },
     "account": {
       "features": {

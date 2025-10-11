@@ -81,22 +81,22 @@ export function TimeSlider<TValue>({
 
         {/* Thumb */}
         <SliderPrimitive.Thumb className='group border-secondary/80 bg-primary focus-visible:ring-ring block h-5 w-5 cursor-pointer rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
-          <AnimatePresence>
-            {(hovering || playing) && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-              >
-                <Badge
-                  className={`bg-primary absolute -top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl transition-transform`}
-                >
-                  {ticks[index] && ticks[index].label}
-                </Badge>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <motion.div
+            animate={{
+              opacity: hovering || playing ? 1 : 0,
+              scale: hovering || playing ? 1 : 0.95,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 40,
+              mass: 0.8,
+              delay: hovering || playing ? 0.15 : 0, // Delay on enter
+            }}
+            className='absolute -top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 [transform:translateZ(0)]'
+          >
+            <Badge className='bg-primary rounded-xl'>{ticks[index] && ticks[index].label}</Badge>
+          </motion.div>
         </SliderPrimitive.Thumb>
       </SliderPrimitive.Root>
     </div>

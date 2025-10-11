@@ -1,6 +1,11 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { DailyUniqueVisitorsRow, DailyUniqueVisitorsRowSchema } from '@/entities/visitors';
-import { DailySessionMetricsRow, DailySessionMetricsRowSchema } from '@/entities/sessionMetrics';
+import {
+  DailySessionMetricsRow,
+  DailySessionMetricsRowSchema,
+  RangeSessionMetrics,
+  RangeSessionMetricsSchema,
+} from '@/entities/sessionMetrics';
 import { DateString } from '@/types/dates';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
@@ -90,40 +95,68 @@ export async function getSessionMetrics(
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
-    WITH session_data AS (
+    WITH windowed_all AS (
+      SELECT session_id, timestamp, event_type
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} - INTERVAL 30 MINUTE AND {end:DateTime} + INTERVAL 60 MINUTE
+    ),
+    bounds AS (
       SELECT
         session_id,
-        ${granularityFunc('timestamp', startDate)} as date,
-        count() as page_count,
-        if(count() > 1,
-          dateDiff('second', min(timestamp), max(timestamp)),
-          0
-        ) as duration_seconds
+        minIf(timestamp, timestamp >= {start:DateTime}) AS session_start,
+        countIf(timestamp >= {start:DateTime} - INTERVAL 30 MINUTE AND timestamp < {start:DateTime}) > 0 AS has_pre_start,
+        max(timestamp) AS session_end_seen,
+        countIf(event_type = 'pageview') AS page_count_all
+      FROM windowed_all
+      GROUP BY session_id
+    ),
+    windowed_filtered AS (
+      SELECT session_id, timestamp
       FROM analytics.events
       WHERE site_id = {site_id:String}
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
         AND ${SQL.AND(filters)}
-      GROUP BY session_id, date
+    ),
+    has_filtered AS (
+      SELECT session_id, 1 AS has_filtered_in_range
+      FROM windowed_filtered
+      GROUP BY session_id
+    ),
+    included AS (
+      SELECT
+        b.session_id,
+        b.session_start AS custom_date,
+        b.session_end_seen,
+        b.page_count_all AS page_count,
+        dateDiff('second', b.session_start, b.session_end_seen) AS duration_seconds
+      FROM bounds b
+      INNER JOIN has_filtered h USING session_id
+      WHERE b.session_start > toDateTime(0)
+        AND b.has_pre_start = 0
     )
-    SELECT 
-      date,
-      count() as sessions,
-      if(count() > 0, 
-        round((count() - countIf(page_count > 1)) / count() * 100, 1), 
+    SELECT
+      ${granularityFunc('custom_date', startDate)} as date,
+      count() AS sessions,
+      countIf(page_count > 1) AS sessions_with_multiple_page_views,
+      sum(page_count) AS number_of_page_views,
+      sum(duration_seconds) AS sum_duration,
+      if (sessions_with_multiple_page_views > 0,
+          round(sum_duration / sessions_with_multiple_page_views),
+          0
+      ) AS avg_visit_duration,
+      if (sessions > 0,
+          100 * (sessions - sessions_with_multiple_page_views) / sessions,
+          0
+      ) AS bounce_rate,
+      if (number_of_page_views > 0,
+        round(number_of_page_views / sessions, 1),
         0
-      ) as bounce_rate,
-      if(countIf(page_count > 1) > 0,
-        round(avgIf(duration_seconds, page_count > 1), 0),
-        0
-      ) as avg_visit_duration,
-      if(count() > 0,
-        round(sum(page_count) / count(), 1),
-        0
-      ) as pages_per_session
-    FROM session_data
+      ) AS pages_per_session
+    FROM included
     GROUP BY date
-    ORDER BY date ASC
-    LIMIT 10080
+    ORDER BY date DESC
+    LIMIT 10080;
   `;
 
   const result = (await clickhouse
@@ -138,6 +171,90 @@ export async function getSessionMetrics(
     .toPromise()) as any[];
 
   return result.map((row) => DailySessionMetricsRowSchema.parse(row));
+}
+
+export async function getSessionRangeMetrics(
+  siteId: string,
+  startDate: DateString,
+  endDate: DateString,
+  queryFilters: QueryFilter[],
+): Promise<RangeSessionMetrics> {
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  const queryResponse = safeSql`
+    WITH windowed_all AS (
+      SELECT session_id, timestamp, event_type
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} - INTERVAL 30 MINUTE AND {end:DateTime} + INTERVAL 60 MINUTE
+    ),
+    bounds AS (
+      SELECT
+        session_id,
+        minIf(timestamp, timestamp >= {start:DateTime}) AS session_start,
+        countIf(timestamp >= {start:DateTime} - INTERVAL 30 MINUTE AND timestamp < {start:DateTime}) > 0 AS has_pre_start,
+        max(timestamp) AS session_end_seen,
+        countIf(event_type = 'pageview') AS page_count_all
+      FROM windowed_all
+      GROUP BY session_id
+    ),
+    windowed_filtered AS (
+      SELECT session_id, timestamp
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND ${SQL.AND(filters)}
+    ),
+    has_filtered AS (
+      SELECT session_id, 1 AS has_filtered_in_range
+      FROM windowed_filtered
+      GROUP BY session_id
+    ),
+    included AS (
+      SELECT
+        b.session_id,
+        b.session_start,
+        b.session_end_seen,
+        b.page_count_all AS page_count,
+        dateDiff('second', b.session_start, b.session_end_seen) AS duration_seconds
+      FROM bounds b
+      INNER JOIN has_filtered h USING session_id
+      WHERE b.session_start > toDateTime(0)
+        AND b.has_pre_start = 0
+    )
+    SELECT
+      count() AS sessions,
+      countIf(page_count > 1) AS sessions_with_multiple_page_views,
+      sum(page_count) AS number_of_page_views,
+      sum(duration_seconds) AS sum_duration,
+      if (sessions_with_multiple_page_views > 0,
+          round(sum_duration / sessions_with_multiple_page_views),
+          0
+      ) AS avg_visit_duration,
+      if (sessions > 0,
+          100 * (sessions - sessions_with_multiple_page_views) / sessions,
+          0
+      ) AS bounce_rate,
+      if (number_of_page_views > 0,
+        round(number_of_page_views / sessions, 1),
+        0
+      ) AS pages_per_session
+    FROM included
+    LIMIT 1;
+  `;
+
+  const result = await clickhouse
+    .query(queryResponse.taggedSql, {
+      params: {
+        ...queryResponse.taggedParams,
+        site_id: siteId,
+        start: startDate,
+        end: endDate,
+      },
+    })
+    .toPromise();
+
+  return RangeSessionMetricsSchema.parse(result[0]);
 }
 
 export async function getActiveUsersCount(siteId: string, minutesWindow: number = 5): Promise<number> {

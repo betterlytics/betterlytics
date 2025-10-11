@@ -4,7 +4,7 @@ import { use, useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
-import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
+import { formatCWV, formatString, getCwvStatusColor } from '@/utils/formatters';
 import MetricInfo from '@/app/dashboard/[dashboardId]/web-vitals/MetricInfo';
 import type { CoreWebVitalName } from '@/entities/webVitals';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/webVitals';
@@ -149,7 +149,7 @@ export default function WebVitalsTableSection({
           cell: ({ row }) => (
             <div className='flex max-w-[480px] items-center gap-2 truncate'>
               {renderIcon && <span className='shrink-0'>{renderIcon(row.original.key)}</span>}
-              <span className='truncate'>{row.original.key}</span>
+              <span className='truncate'>{formatString(row.original.key)}</span>
             </div>
           ),
         },

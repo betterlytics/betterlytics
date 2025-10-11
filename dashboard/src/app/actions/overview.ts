@@ -48,6 +48,7 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
+      bucketIncomplete: endDate.getTime() > Date.now(),
     });
   },
 );
@@ -80,6 +81,7 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
+      bucketIncomplete: endDate.getTime() > Date.now(),
     });
   },
 );
@@ -208,6 +210,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
+        bucketIncomplete: endDate.getTime() > Date.now(),
       }),
       bounceRate: toAreaChart({
         data,
@@ -222,6 +225,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
+        bucketIncomplete: endDate.getTime() > Date.now(),
       }),
       pagesPerSession: toAreaChart({
         data,
@@ -236,6 +240,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
+        bucketIncomplete: endDate.getTime() > Date.now(),
       }),
       sessions: toAreaChart({
         data,
@@ -250,6 +255,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
+        bucketIncomplete: endDate.getTime() > Date.now(),
       }),
     };
   },

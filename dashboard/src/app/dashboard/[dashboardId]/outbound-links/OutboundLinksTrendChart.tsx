@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -10,17 +11,17 @@ import {
   Tooltip as RechartsTooltip,
   Line,
 } from 'recharts';
-import { format } from 'date-fns';
 import { ChartTooltip } from '@/components/charts/ChartTooltip';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber } from '@/utils/formatters';
+import { format } from 'date-fns';
 
 interface OutboundLinksTrendChartProps {
-  chartData: Array<{ date: number; value: number[] }>;
+  chartData: Array<{ date: number; value: (number | null)[] }>;
   comparisonMap?: ComparisonMapping[];
   granularity?: GranularityRangeValues;
   color: string;
@@ -37,6 +38,7 @@ export default function OutboundLinksTrendChart({
   formatValue,
 }: OutboundLinksTrendChartProps) {
   const t = useTranslations('dashboard.emptyStates');
+  const locale = useLocale();
   const isMobile = useIsMobile();
 
   if (!chartData || chartData.length === 0) {
@@ -83,7 +85,7 @@ export default function OutboundLinksTrendChart({
           <RechartsTooltip
             content={
               <ChartTooltip
-                labelFormatter={(date) => defaultDateLabelFormatter(date, granularity)}
+                labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
                 formatter={formatValue ?? formatNumber}
                 comparisonMap={comparisonMap}
                 title={tooltipTitle}
