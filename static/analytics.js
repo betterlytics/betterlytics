@@ -35,6 +35,15 @@
 
   var enableReplay = script.getAttribute("data-replay") === "true";
 
+  var replaySamplePct = parseInt(
+    script.getAttribute("data-replay-sample") || "0",
+    10
+  );
+
+  if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
+    replaySamplePct = 0;
+  }
+
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
   }
@@ -238,7 +247,9 @@
 
   // Replay
   if (enableReplay) {
-    console.log("Attempting to load:", `${scriptsBaseUrl}/replay.js`);
-    loadScript(`${scriptsBaseUrl}/replay.js`);
+    // Sample
+    if (Math.round(Math.random() * 100) < replaySamplePct) {
+      loadScript(`${scriptsBaseUrl}/replay.js`);
+    }
   }
 })();
