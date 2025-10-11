@@ -186,7 +186,7 @@ function ReplayControlsComponent({
         </div>
 
         <div className='flex gap-2'>
-          <div className='flex items-center gap-2 rounded border px-1 text-[11px]'>
+          <div className='flex items-center gap-2 rounded px-1 text-[11px]'>
             <Switch
               id={skipInactivityId}
               checked={isSkippingInactivity}
