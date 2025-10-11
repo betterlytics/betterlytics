@@ -1,7 +1,7 @@
 'use client';
 
 import { Maximize2, Minimize2, Pause, Play, ChevronDown } from 'lucide-react';
-import { memo, useCallback, useEffect, useId, useMemo } from 'react';
+import { memo, useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
 import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
@@ -171,6 +171,26 @@ function ReplayControlsComponent({
     [onSeekRatio],
   );
 
+  const [hoverTooltipX, setHoverTooltipX] = useState<{ x: number; timestamp: number } | null>(null);
+  const onRangeHover = useCallback(
+    (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+      if (!session?.duration) {
+        return;
+      }
+
+      const rect = event.currentTarget.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+
+      const ratio = Math.max(Math.min(x / rect.width, 1), 0);
+      const timestamp = ratio * session.duration * 1000;
+      setHoverTooltipX({
+        x,
+        timestamp,
+      });
+    },
+    [session?.duration],
+  );
+
   const skipInactivityId = useId();
   const playbackOptions = useMemo(
     () => [
@@ -186,7 +206,24 @@ function ReplayControlsComponent({
     <div className={cn('bg-muted/60 border-border/60 flex flex-col gap-1 border-t px-3 py-2', className)}>
       <div className='relative flex-1 space-y-1'>
         <canvas className='pointer-events-none z-[1000] flex h-1.5 w-full items-center' id='marker-canvas' />
-        <canvas className='z-[1000] h-2 w-full cursor-pointer border' id='range-canvas' onClick={onRangeClick} />
+        {hoverTooltipX && (
+          <div
+            className='bg-background absolute flex h-8 w-16 items-center justify-center rounded-md border text-sm shadow-md'
+            style={{
+              top: -30,
+              left: hoverTooltipX.x - 32,
+            }}
+          >
+            {formatClock(hoverTooltipX.timestamp)}
+          </div>
+        )}
+        <canvas
+          className='z-[1000] h-2 w-full cursor-pointer border'
+          id='range-canvas'
+          onClick={onRangeClick}
+          onMouseMove={onRangeHover}
+          onMouseLeave={() => setHoverTooltipX(null)}
+        />
       </div>
 
       <div className='flex items-center justify-between'>
