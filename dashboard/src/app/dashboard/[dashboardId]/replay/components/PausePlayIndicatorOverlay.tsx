@@ -8,7 +8,7 @@ export type PausePlayIndicatorOverlayHandle = {
 };
 
 const PausePlayIndicatorOverlayComponent = (
-  _props: {},
+  _props: unknown,
   ref: React.ForwardedRef<PausePlayIndicatorOverlayHandle>,
 ) => {
   const [visible, setVisible] = useState(false);
