@@ -54,10 +54,12 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
 
   return (
     <div
+      className='bg-background flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'
       ref={containerRef}
-      className='bg-background rr-block relative flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'
     >
-      <ReplayPlayer ref={playerState.playerRef} playerState={playerState} isPlaying={isPlaying} />
+      <div className='rr-block relative flex flex-1 flex-col overflow-hidden'>
+        <ReplayPlayer ref={playerState.playerRef} playerState={playerState} isPlaying={isPlaying} />
+      </div>
       <ReplayControls
         isPlaying={isPlaying}
         currentTime={currentTime}
@@ -72,7 +74,6 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
         session={session}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
-        className='absolute inset-x-0 bottom-0'
       />
       {error && <p className='text-sm text-red-500'>{error}</p>}
     </div>
