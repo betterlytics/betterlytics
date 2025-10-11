@@ -47,7 +47,7 @@ export function SessionReplayContainer({ dashboardId }: SessionReplayContainerPr
       <ReplaySessionPanel sessionManager={sessionManager} onSelectSession={handleSelectSession} />
       <ReplayPlayerContainer
         playerState={playerState}
-        sessionId={sessionManager.selectedSession?.session_id}
+        session={sessionManager.selectedSession}
         error={combinedError}
       />
       <ReplayTimelinePanel playerState={playerState} />

@@ -3,19 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ReplayPlayer } from '@/app/dashboard/[dashboardId]/replay/ReplayPlayer';
 import { ReplayControls } from '@/app/dashboard/[dashboardId]/replay/ReplayControls';
+import type { SessionReplay } from '@/entities/sessionReplays';
 import type { UsePlayerStateReturn } from '../hooks/usePlayerState';
 import { useReplayPlayer } from '../hooks/useReplayPlayer';
 
 type ReplayPlayerContainerProps = {
   playerState: UsePlayerStateReturn;
-  sessionId?: string;
+  session?: SessionReplay | null;
   error?: string | null;
 };
 
-export function ReplayPlayerContainer({ playerState, sessionId, error }: ReplayPlayerContainerProps) {
+export function ReplayPlayerContainer({ playerState, session, error }: ReplayPlayerContainerProps) {
   const { isPlaying, speed, currentTime, setSkipInactivity, playPause, seekToRatio, setSpeed } = useReplayPlayer(
     playerState,
-    sessionId,
+    session?.session_id,
   );
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -68,6 +69,7 @@ export function ReplayPlayerContainer({ playerState, sessionId, error }: ReplayP
         onSeekRatio={seekToRatio}
         onSpeedChange={setSpeed}
         markers={playerState.timelineMarkers}
+        session={session}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
         className='absolute inset-x-0 bottom-0'

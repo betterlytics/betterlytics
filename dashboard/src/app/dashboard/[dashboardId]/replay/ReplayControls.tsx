@@ -5,6 +5,7 @@ import { memo, useCallback, useEffect, useId, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
 import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
+import type { SessionReplay } from '@/entities/sessionReplays';
 import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -22,6 +23,7 @@ type Props = {
   onSkipInactivityChange?: (value: boolean) => void;
   onSeekRatio: (ratio: number) => void; // 0..1
   onSpeedChange: (speed: number) => void;
+  session?: SessionReplay | null;
   markers?: TimelineMarker[];
   className?: string;
   isFullscreen?: boolean;
@@ -35,10 +37,17 @@ function formatClock(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-function createMarkerCanvas(theme: string | undefined, durationMs: number, markers?: TimelineMarker[]) {
-  if (durationMs <= 0 || !markers || markers.length === 0) {
+function createMarkerCanvas(
+  theme: string | undefined,
+  loadedDurationMs: number,
+  expectedDurationMs?: number,
+  markers?: TimelineMarker[],
+) {
+  if (!expectedDurationMs || loadedDurationMs <= 0 || !markers || markers.length === 0) {
     return;
   }
+
+  const durationMs = Math.max(loadedDurationMs, 1000 * expectedDurationMs);
 
   const canvas = document.getElementById('marker-canvas') as HTMLCanvasElement | null;
   if (canvas === null) {
@@ -57,14 +66,21 @@ function createMarkerCanvas(theme: string | undefined, durationMs: number, marke
   markers.forEach((marker) => {
     ctx.fillStyle = markerFillColorForLabel(resolvedTheme, marker.label);
     const left = canvas.width * (marker.timestamp / durationMs);
-    ctx.fillRect(left, 0, 4, 40);
+    ctx.fillRect(left, 0, 4, 500);
   });
 }
 
-function createRangeCanvas(theme: string | undefined, currentTime: number, durationMs: number) {
-  if (durationMs <= 0) {
+function createRangeCanvas(
+  theme: string | undefined,
+  currentTime: number,
+  loadedDurationMs: number,
+  expectedDurationMs?: number,
+) {
+  if (!expectedDurationMs || loadedDurationMs <= 0) {
     return;
   }
+
+  const durationMs = Math.max(loadedDurationMs, 1000 * expectedDurationMs);
 
   const canvas = document.getElementById('range-canvas') as HTMLCanvasElement | null;
   if (canvas === null) {
@@ -79,9 +95,16 @@ function createRangeCanvas(theme: string | undefined, currentTime: number, durat
 
   const resolvedTheme = theme || 'light';
 
-  ctx.fillStyle = resolvedTheme === 'light' ? '#CCCCCC' : '#222222';
+  // Clear
+  ctx.fillStyle = resolvedTheme === 'light' ? '#EEEEEE' : '#111111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Fill loaded
+  ctx.fillStyle = resolvedTheme === 'light' ? '#CCCCCC' : '#222222';
+  const leftLoaded = canvas.width * (loadedDurationMs / durationMs);
+  ctx.fillRect(0, 0, leftLoaded, 500);
+
+  // Fill current
   ctx.fillStyle = 'oklch(56% 0.196 268.74)';
   const left = canvas.width * (currentTime / durationMs);
   ctx.fillRect(0, 0, left, 500);
@@ -97,23 +120,22 @@ function ReplayControlsComponent({
   onSkipInactivityChange,
   onSeekRatio,
   onSpeedChange,
+  session,
   markers = [],
   className,
   isFullscreen = false,
   onToggleFullscreen,
 }: Props) {
   const t = useTranslations('components.sessionReplay.player');
-  const ratio = durationMs > 0 ? Math.max(0, Math.min(1, currentTime / durationMs)) : 0;
 
   const { resolvedTheme } = useTheme();
+  useEffect(() => {
+    createMarkerCanvas(resolvedTheme, durationMs, session?.duration, markers);
+  }, [durationMs, markers, resolvedTheme, session]);
 
   useEffect(() => {
-    createMarkerCanvas(resolvedTheme, durationMs, markers);
-  }, [durationMs, markers, resolvedTheme]);
-
-  useEffect(() => {
-    createRangeCanvas(resolvedTheme, currentTime, durationMs);
-  }, [durationMs, currentTime, resolvedTheme]);
+    createRangeCanvas(resolvedTheme, currentTime, durationMs, session?.duration);
+  }, [durationMs, currentTime, resolvedTheme, session]);
 
   const onRangeClick = useCallback(
     (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -139,96 +161,101 @@ function ReplayControlsComponent({
   );
 
   return (
-    <div className={cn('bg-muted/60 border-border/60 flex items-center gap-3 border-t px-3 py-2', className)}>
-      <Button
-        type='button'
-        aria-label={isPlaying ? 'Pause' : 'Play'}
-        size='icon'
-        variant='outline'
-        onClick={onTogglePlay}
-        className='h-7 w-7 cursor-pointer'
-      >
-        {isPlaying ? <Pause className='h-4 w-4' /> : <Play className='h-4 w-4' />}
-      </Button>
-
-      <div className='flex items-center gap-2 pl-1 text-[11px]'>
-        <Switch
-          id={skipInactivityId}
-          checked={isSkippingInactivity}
-          onCheckedChange={(checked) => onSkipInactivityChange?.(checked)}
-          disabled={onSkipInactivityChange === undefined}
-          className='cursor-pointer'
-        />
-        <Label htmlFor={skipInactivityId} className='text-muted-foreground cursor-pointer text-[11px] font-normal'>
-          {t('skipInactive')}
-        </Label>
+    <div className={cn('bg-muted/60 border-border/60 flex flex-col gap-1 border-t px-3 py-2', className)}>
+      <div className='relative flex-1 space-y-1'>
+        <canvas className='pointer-events-none z-[1000] flex h-1.5 w-full items-center' id='marker-canvas' />
+        <canvas className='z-[1000] h-2 w-full cursor-pointer border' id='range-canvas' onClick={onRangeClick} />
       </div>
 
-      <div className='flex min-w-0 flex-1 items-center gap-2'>
-        <div className='text-muted-foreground w-12 shrink-0 text-right text-[11px] tabular-nums'>
-          {formatClock(currentTime)}
-        </div>
-        <div className='relative flex-1'>
-          <canvas
-            className='pointer-events-none absolute -top-1.5 z-[1000] flex h-4 w-full items-center'
-            id='marker-canvas'
-          />
-          <canvas className='z-[1000] h-3 w-full cursor-pointer border' id='range-canvas' onClick={onRangeClick} />
-        </div>
-        <div className='text-muted-foreground w-12 shrink-0 text-[11px] tabular-nums'>
-          {formatClock(durationMs)}
-        </div>
-      </div>
-
-      <div className='flex items-center gap-2'>
-        <div className='relative'>
-          {isFullscreen ? (
-            <>
-              <select
-                aria-label={t('playbackSpeedAria')}
-                value={String(speed)}
-                onChange={(e) => onSpeedChange(Number(e.target.value))}
-                className='border-input focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer appearance-none rounded-md border bg-transparent px-2 pr-6 text-xs leading-none shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
-              >
-                {playbackOptions.map((option) => (
-                  <option key={option.value} value={String(option.value)}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className='pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 opacity-50' />
-            </>
-          ) : (
-            <Select value={String(speed)} onValueChange={(value) => onSpeedChange(Number(value))}>
-              <SelectTrigger
-                size='sm'
-                aria-label={t('playbackSpeedAria')}
-                className='h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer gap-1 px-2 py-0 text-xs leading-none'
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className='min-w-[60px]'>
-                {playbackOptions.map((option) => (
-                  <SelectItem key={option.value} value={String(option.value)} className='cursor-pointer text-xs'>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-        {onToggleFullscreen && (
+      <div className='flex items-center justify-between'>
+        <div className='flex items-center gap-4'>
           <Button
             type='button'
-            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
             size='icon'
-            variant='outline'
-            onClick={onToggleFullscreen}
+            variant='ghost'
+            onClick={onTogglePlay}
             className='h-7 w-7 cursor-pointer'
           >
-            {isFullscreen ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
+            {isPlaying ? <Pause className='h-4 w-4' /> : <Play className='h-4 w-4' />}
           </Button>
-        )}
+
+          <div className='text-muted-foreground flex min-w-0 flex-1 items-center gap-2 text-xs tabular-nums'>
+            {formatClock(currentTime)} / {formatClock(durationMs)}
+          </div>
+        </div>
+
+        <div className='flex gap-2'>
+          <div className='flex items-center gap-2 rounded border px-1 text-[11px]'>
+            <Switch
+              id={skipInactivityId}
+              checked={isSkippingInactivity}
+              onCheckedChange={(checked) => onSkipInactivityChange?.(checked)}
+              disabled={onSkipInactivityChange === undefined}
+              className='cursor-pointer'
+            />
+            <Label
+              htmlFor={skipInactivityId}
+              className='text-muted-foreground cursor-pointer text-[11px] font-normal'
+            >
+              {t('skipInactive')}
+            </Label>
+          </div>
+          <div className='flex items-center gap-2'>
+            <div className='relative'>
+              {isFullscreen ? (
+                <>
+                  <select
+                    aria-label={t('playbackSpeedAria')}
+                    value={String(speed)}
+                    onChange={(e) => onSpeedChange(Number(e.target.value))}
+                    className='border-input focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 h-7 max-h-7 min-h-0 min-w-[60px] cursor-pointer appearance-none rounded-md border bg-transparent px-2 pr-6 text-xs leading-none shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50'
+                  >
+                    {playbackOptions.map((option) => (
+                      <option key={option.value} value={String(option.value)}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className='pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 opacity-50' />
+                </>
+              ) : (
+                <Select value={String(speed)} onValueChange={(value) => onSpeedChange(Number(value))}>
+                  <SelectTrigger
+                    size='sm'
+                    aria-label={t('playbackSpeedAria')}
+                    className='h-7 max-h-7 min-h-0 min-w-[40px] cursor-pointer gap-1 px-2 py-0 text-xs leading-none'
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className='min-w-[60px]'>
+                    {playbackOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={String(option.value)}
+                        className='cursor-pointer text-xs'
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+            {onToggleFullscreen && (
+              <Button
+                type='button'
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                size='icon'
+                variant='ghost'
+                onClick={onToggleFullscreen}
+                className='h-7 w-7 cursor-pointer'
+              >
+                {isFullscreen ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
