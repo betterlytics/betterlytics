@@ -52,12 +52,20 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
     }
   }, []);
 
+  const onPlayerClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      event.preventDefault();
+      playPause();
+    },
+    [playPause],
+  );
+
   return (
     <div
       className='bg-background flex h-full flex-col overflow-hidden rounded-lg border shadow-sm'
       ref={containerRef}
     >
-      <div className='rr-block relative flex flex-1 flex-col overflow-hidden'>
+      <div className='rr-block relative flex flex-1 flex-col overflow-hidden' onClick={onPlayerClick}>
         <ReplayPlayer ref={playerState.playerRef} playerState={playerState} isPlaying={isPlaying} />
       </div>
       <ReplayControls
