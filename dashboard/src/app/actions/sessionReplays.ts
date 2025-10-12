@@ -27,6 +27,12 @@ type FetchReplaySegmentsPayload = {
 
 export const fetchReplaySegmentsAction = withDashboardAuthContext(
   async (_ctx: AuthContext, payload: FetchReplaySegmentsPayload): Promise<ReplaySegmentManifest> => {
-    return getReplaySegmentManifest(payload.prefix, payload.ttlSeconds ?? 300, payload.cutoffIso);
+    if (!payload.prefix.includes(_ctx.siteId)) {
+      throw new Error('Invalid prefix');
+    }
+
+    const ttlSeconds = 300;
+
+    return getReplaySegmentManifest(payload.prefix, ttlSeconds, payload.cutoffIso);
   },
 );
