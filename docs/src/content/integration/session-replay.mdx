@@ -13,9 +13,11 @@ Betterlytics captures privacy‑aware session replays from real users. Replays h
 
 ### Using the script tag
 
-Session Replay is disabled by default. You must explicitly set `data-replay="true"` to activate it.
+<Callout type="warning">
+Session Replay is disabled by default. Set `data-replay="true"` to activate it. In many jurisdictions (e.g., EU), consent may be required under GDPR and/or the ePrivacy Directive. Ensure you only enable replay after consent is granted. If you do not call the consent API `window.betterlytics.setReplayConsent(true)`, you must render the script with `data-consent-replay="true"` for replay to load (subject to sampling).
+</Callout>
 
-Add `data-replay="true"` to your analytics script to enable replays. You can also control sampling and limits with additional attributes.
+Add `data-replay="true"` to your analytics script to enable replays. You can also control sampling and limits with additional attributes. See the configuration reference below for all available flags.
 
 ```html
 <script
@@ -25,6 +27,7 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
   data-server-url="https://betterlytics.io/track"
   data-replay="true"
   data-replay-sample="20"           
+  data-consent-replay="true"
   data-replay-min-duration="5"      
   data-replay-idle-cutoff="600"     
   data-replay-max-duration="1200"   
@@ -34,15 +37,20 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 </script>
 ```
 
-- **data-replay**: turn session replay on.
-- **data-replay-sample**: percentage of traffic to record (0–100). If omitted or invalid, defaults to 0 (off).
-- **data-replay-min-duration**: minimum seconds required before we upload a replay (prevents ultra‑short sessions). Default 15s.
-- **data-replay-idle-cutoff**: seconds of no activity before we automatically stop and finalize. Default 600s.
-- **data-replay-max-duration**: maximum seconds to record before we stop and finalize. Default 1200s.
-- **data-dynamic-urls**: comma‑separated patterns to normalize SPA routes (supports `*` and `**`) for better grouping.
-- **data-disable-replay-on-urls**: comma‑separated patterns where replay is disabled (privacy‑sensitive areas, admin, billing, etc.).
-- **data-scripts-base-url**: advanced/self‑hosting only. Base URL to load `replay.js` from when replay is enabled. Defaults to our CDN.
- 
+### Configuration reference
+
+| Attribute | Type | Default | Description |
+| --- | --- | --- | --- |
+| `data-replay` | boolean | `false` | Enables session replay. |
+| `data-consent-replay` | boolean | `false` | Indicates consent is already granted; loads replay if sampled. Otherwise use the consent API. |
+| `data-replay-sample` | number (0–100) | `5` | Percent of eligible sessions to record. |
+| `data-replay-min-duration` | seconds | `15` | Minimum recording length required to upload/finalize. |
+| `data-replay-idle-cutoff` | seconds | `600` | Auto‑stop after this many seconds of inactivity. |
+| `data-replay-max-duration` | seconds | `1200` | Hard cap on total recording length. |
+| `data-dynamic-urls` | string list | — | Comma‑separated SPA normalization patterns (supports `*` and `**`). |
+| `data-disable-replay-on-urls` | string list | — | Comma‑separated patterns where recording is disabled. |
+| `data-scripts-base-url` | string (URL) | Betterlytics CDN | Base to load `replay.js` when replay is enabled. |
+
 ### Using the npm package
 
 Coming soon...
@@ -83,7 +91,7 @@ This deterministic masking ensures personal or sensitive data (names, messages, 
 
 ### Consent
 
-Depending on your region and policies, you may need user consent before enabling session replay. Betterlytics provides a lightweight consent API:
+Depending on your region and policies, you may need user consent before enabling session replay. Betterlytics provides a lightweight consent API, or you can signal consent via a script attribute:
 
 ```html
 <!-- Your analytics script with replay enabled -->
@@ -107,6 +115,8 @@ Notes:
 - Replay loads only when both consent is granted and sampling chooses the session.
 - Sampling decisions are cached client‑side for a short period to avoid resampling each pageview.
 
+Alternatively, set `data-consent-replay="true"` on the analytics script when you render it only after consent is granted (e.g., via your CMP). This attribute bypasses the need to call `setReplayConsent`, and replay will load immediately if the session is sampled.
+
 <Callout type="info">
 Depending on your region or your users’, you may be required to obtain consent before enabling session replay. We recommend integrating it only after your consent banner logic allows analytics tracking.
 </Callout>
@@ -120,17 +130,19 @@ Session Replay operates with privacy‑first defaults:
 - Developers can extend masking or blocking with `[data-rrweb-mask]`, `.rr-block`, and `.rr-ignore`.
 - The feature is designed to comply with major data protection regulations (e.g., GDPR, CCPA) when used with user consent and proper disclosure in your site’s privacy policy.
 
-### Network and storage safeguards
+## Storage and Security
 
-- Replays are not video recordings. They are structured DOM event timelines that the player reconstructs client‑side.
+- Replays are not video recordings; they are structured DOM event timelines reconstructed client‑side.
 - Sensitive text and input values never leave the browser in readable form; masked values are persisted.
+- Recordings are encrypted in transit and at rest.
+- Retention: 60 days. After expiration, sessions are permanently deleted and cannot be recovered.
 
 ## Availability
 
 - Replays are uploaded in the background while the session is active.
 - They typically appear in the dashboard shortly after the user leaves the page or becomes inactive.
 - Sessions include duration, size, and a start URL to help you identify them.
-- Retention: Session replays are stored for 60 days. After 60 days they are permanently deleted and cannot be retrieved.
+ 
 
 ## Duration, idle and sampling
 
@@ -156,11 +168,13 @@ Use `data-disable-replay-on-urls` patterns to disable recording on routes like `
 ></script>
 ```
 
-## Data lifecycle
+## Troubleshooting integration
 
-- Recordings are encrypted in transit and at rest.
-- Retention: 60 days (configurable for enterprise plans).
-- After expiration, sessions are permanently deleted and cannot be recovered.
+- Recordings not appearing: verify `data-replay="true"`, `data-replay-sample` > 0, and that consent is granted (via `window.betterlytics.setReplayConsent(true)` or `data-consent-replay="true"`). Very short sessions are dropped if `data-replay-min-duration` isn’t met; recordings typically appear after the user leaves the page or hits idle cutoff.
+- Consent not applied: if you rely on a CMP, either call `setReplayConsent(true)` after consent resolves, or render the script with `data-consent-replay="true"` only after consent is granted.
+- Disabled by route pattern: check `data-disable-replay-on-urls`; ensure current URL doesn’t match a disabled pattern.
+- Sampling too low: raise `data-replay-sample` during testing (e.g., 100) and revert later.
+- Script loading: if self‑hosting, confirm `data-scripts-base-url` is correct and `replay.js` is reachable.
 
 ## Best practices
 

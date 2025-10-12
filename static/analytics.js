@@ -37,7 +37,7 @@
   var consentReplay = script.getAttribute("data-consent-replay") === "true";
 
   var replaySamplePct = parseInt(
-    script.getAttribute("data-replay-sample") || "0",
+    script.getAttribute("data-replay-sample") || "5",
     10
   );
 

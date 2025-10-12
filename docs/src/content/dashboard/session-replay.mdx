@@ -21,12 +21,12 @@ Go to: **Dashboard > Session Replay**. Select a session in the left panel to loa
 The player uses `rrweb-player` with custom controls:
 
 - **Play/Pause**: start or stop playback.
-- **Seek bar**: drag to jump within the session.
-- **Speed**: 1x, 2x, 4x, 8x.
-- **Skip inactivity**: when enabled, the player jumps over long idle periods to focus on activity.
+- **Seek bar**: drag to jump to any point within the session recording.
+- **Playback speed**: Toggle between 1x, 2x, 4x, 8x playback speeds.
+- **Skip inactivity**: Automatically fast-forward through idle periods.
 - **Fullscreen**: expand the replay to fill your screen.
 
-Masked text is rendered as `*` in the player to visually indicate redaction.
+Masked text is shown as `*` in the player to visually indicate redaction.
 
 <Callout type="info">
 We also provide idle detection client‑side to stop recording when the user is inactive for a long period.
@@ -80,9 +80,3 @@ Session Replay operates with privacy‑first defaults:
 ---
 
 **Related**: Learn how to [enable and configure Session Replay](/integration/session-replay).
-
-## Data lifecycle
-
-- Recordings are encrypted in transit and at rest.
-- Retention: 60 days (configurable for enterprise plans).
-- After expiration, sessions are permanently deleted and cannot be recovered.
