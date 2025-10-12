@@ -309,7 +309,7 @@
           }
         }
 
-        var sampled = Math.round(Math.random() * 100) < replaySamplePct;
+        var sampled = Math.round(Math.random() * 100) <= replaySamplePct;
 
         localStorage.setItem(
           REPLAY_STORAGE_KEY,
@@ -317,7 +317,7 @@
         );
         return sampled;
       } catch (e) {
-        return Math.round(Math.random() * 100) < replaySamplePct;
+        return Math.round(Math.random() * 100) <= replaySamplePct;
       }
     }
 
