@@ -834,7 +834,8 @@
     "error": "Der opstod en fejl",
     "app": "Applikation",
     "created": "Oprettet",
-    "unknown": "Ukendt"
+    "unknown": "Ukendt",
+    "speed": "Hastighed"
   },
   "languages": {
     "da": "Dansk",
@@ -1283,9 +1284,13 @@
       "loadingMessage": "Vent venligst imens verdenskortet indlæses",
       "visitors": "Besøgende",
       "playback": {
-        "play": "Afspil",
-        "stop": "Stop",
-        "pause": "Pause"
+        "play": "Start afspilning af kortet",
+        "stop": "Stop afspilning af kortet",
+        "pause": "Sæt kortets afspilning på pause",
+        "speed": {
+          "label": "Hastighed",
+          "tooltip": "Vælg kortets afspilnings hastighed"
+        }
       },
       "zoom": {
         "in": "Zoom ind",

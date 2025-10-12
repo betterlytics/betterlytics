@@ -8,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
+import { useTranslations } from 'next-intl';
 
 export const PLAYBACK_SPEEDS = [2, 1.75, 1.5, 1.25, 1, 0.75, 0.5, 0.25] as const;
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
@@ -21,6 +22,7 @@ export function PlaybackSpeedDropdown({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations('components.geography.playback.speed');
 
   const expandContainerVariant: Variants = {
     open: { clipPath: 'circle(1000px at 50% 50%)', transition: { type: 'spring', stiffness: 20, restDelta: 2 } },
@@ -42,9 +44,12 @@ export function PlaybackSpeedDropdown({
 
   return (
     <DropdownMenu modal={false} onOpenChange={(open) => setIsOpen(open)}>
-      {/* TODO: Add localization to trigger and modify styling */}
-      <DropdownMenuTrigger className='bg-secondary cursor-pointer rounded-md px-2 py-1 text-sm'>
-        Speed: x{speed}
+      <DropdownMenuTrigger
+        title={t('tooltip')}
+        className='bg-secondary hover:bg-accent flex cursor-pointer flex-col rounded-md px-3 py-1.5 text-sm'
+      >
+        <span className='font-mono text-xs font-light'>{`${t('label')}`}</span>
+        <span className='font-medium'>x{speed}</span>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent

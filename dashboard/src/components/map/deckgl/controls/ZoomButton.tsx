@@ -34,7 +34,7 @@ export function ZoomButton({ zoomType, onClick, className, style }: ZoomButtonPr
 
   return (
     <motion.div
-      whileTap={{ scale: 0.95 }}
+      whileTap={{ scale: 0.9 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className='w-full'
     >

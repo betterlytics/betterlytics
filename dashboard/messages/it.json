@@ -1284,9 +1284,13 @@
       "loading": "Caricamento mappa...",
       "visitors": "Visitatori",
       "playback": {
-        "play": "Riproduci",
-        "stop": "Interrompi",
-        "pause": "Pausa"
+        "play": "Avvia la riproduzione della mappa",
+        "stop": "Interrompi la riproduzione della mappa",
+        "pause": "Pausa la riproduzione della mappa",
+        "speed": {
+          "label": "Velocità",
+          "tooltip": ""
+        }
       },
       "zoom": {
         "in": "Zoom avanti",

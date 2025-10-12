@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import MorphedIcon from '@/components/icons/MorphedIcon';
+import { useTranslations } from 'next-intl';
 
 export type PlaybackButtonProps = {
   playbackType: 'play' | 'pause';
@@ -24,12 +25,13 @@ const SVG_PATHS = {
 
 export function PlaybackButton({ playbackType, className, style, onClick }: PlaybackButtonProps) {
   const isPlaying = playbackType === 'pause';
+  const t = useTranslations('components.geography.playback');
 
   return (
     <Button
       size='sm'
       onClick={onClick}
-      title={isPlaying ? 'Pause' : 'Play'}
+      title={isPlaying ? t('pause') : t('play')}
       className={cn('cursor-pointer', className)}
       style={style}
     >

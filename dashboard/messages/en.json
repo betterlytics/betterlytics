@@ -1279,9 +1279,13 @@
       "loadingMessage": "Please wait while we load the map data",
       "visitors": "Visitors",
       "playback": {
-        "play": "Play",
-        "stop": "Stop",
-        "pause": "Pause"
+        "play": "Start playback of the map",
+        "stop": "Stop playback of the map",
+        "pause": "Pause the playback of the map",
+        "speed": {
+          "label": "Speed",
+          "tooltip": "Choose the playback speed for the map"
+        }
       },
       "zoom": {
         "in": "Zoom In",

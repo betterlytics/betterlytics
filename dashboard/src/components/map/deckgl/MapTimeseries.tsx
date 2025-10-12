@@ -16,6 +16,9 @@ import { DeckGLPopup } from './DeckGLPopup';
 import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { UI } from 'react-day-picker';
+import { cn } from '@/lib/utils';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
@@ -26,8 +29,8 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { hoveredFeatureRef, setMapSelection } = useMapSelectionActions();
-  const t = useTranslations('components.geography');
   const { granularity } = useTimeRangeContext();
+  const isMobile = useIsMobile();
 
   const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
     const timeseries: TimeGeoVisitors[] = [];
@@ -67,14 +70,13 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     setMapSelection(null);
   }, [playing, frame]);
 
-  //! TODO: Toggle date format by time-granularity
   const tickProps = useMemo(
     () =>
       visitorDataTimeseries.map((tgeo, i) => ({
         label: <DateTimeSliderLabel value={tgeo.date} granularity={granularity} />,
         value: tgeo.date,
       })),
-    [visitorDataTimeseries], // Make sure this is an array in dependencies
+    [visitorDataTimeseries],
   );
 
   const visitorDict = useMemo(() => {
@@ -135,6 +137,8 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     [speed, playing, animationDurationBaseline],
   );
 
+  const sidebarOffset = useMemo(() => (isMobile ? '0' : '17rem'), [isMobile]);
+
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
       <DeckGLMap
@@ -147,7 +151,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         outlineAnimation={visitorChangeAnimation}
       />
       <MapPlayActionbar
-        className='pointer-events-auto fixed bottom-8 left-[17rem] z-[1000] w-[calc(100%-18rem)]'
+        className={cn('pointer-events-auto fixed bottom-8 z-12 w-[calc(100%-18rem)]', `left-[${sidebarOffset}]`)}
         ticks={tickProps}
         value={position}
         playing={playing}
@@ -157,7 +161,9 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         onChangeSpeed={setSpeed}
       />
 
-      <ZoomControls className='pointer-events-auto absolute top-3 left-[17rem] z-12' />
+      <ZoomControls
+        className={cn('pointer-events-auto absolute top-3 left-[17rem] z-12', `left-[${sidebarOffset}]`)}
+      />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
       <DeckGLPopup />
     </div>
