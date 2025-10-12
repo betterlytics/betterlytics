@@ -274,7 +274,7 @@
   if (enableReplay) {
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
-    var ONE_DAY_MS = 24 * 60 * 60 * 1000;
+    var THIRTY_MIN_MS = 30 * 60 * 1000;
     var replayLoaded = false;
 
     function checkReplayConsent() {
@@ -300,7 +300,11 @@
           var data = JSON.parse(stored);
           var age = now - data.timestamp;
 
-          if (age < ONE_DAY_MS) {
+          if (age < THIRTY_MIN_MS) {
+            localStorage.setItem(
+              REPLAY_STORAGE_KEY,
+              JSON.stringify({ sampled: data.sampled, timestamp: now })
+            );
             return data.sampled;
           }
         }
