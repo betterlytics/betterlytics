@@ -1449,7 +1449,7 @@
         "scroll": "Scroll",
         "input": "Input",
         "pageview": "Pageview",
-        "blacklisted": "Blacklisted"
+        "blacklist": "Blacklisted"
       },
       "player": {
         "skipInactive": "Skip inactivity",

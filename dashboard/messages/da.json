@@ -1453,7 +1453,7 @@
         "scroll": "Rulning",
         "input": "Indtastning",
         "pageview": "Sidevisning",
-        "blacklisted": "Sortlistet"
+        "blacklist": "Sortlistet"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",

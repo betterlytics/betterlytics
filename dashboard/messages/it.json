@@ -1455,7 +1455,7 @@
         "scroll": "Scorrimento",
         "input": "Inserimento",
         "pageview": "Visualizzazione pagina",
-        "blacklisted": "Nascosto"
+        "blacklist": "Nascosto"
       },
       "player": {
         "skipInactive": "Salta inattività",
