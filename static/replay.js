@@ -165,6 +165,7 @@
       lastActivity: Date.now(),
       flushTimer: null,
       ongoingFlush: null,
+      stopping: false,
       visId: null,
       replaySession: { id: null },
       consecutiveFlushErrors: 0,
@@ -343,6 +344,8 @@
     }
 
     function stopRecording(finalize) {
+      if (state.stopping) return;
+      state.stopping = true;
       try {
         if (state.recordingStop) {
           state.recordingStop();
@@ -363,6 +366,7 @@
         .finally(function () {
           state.initialized = false;
           state.isRecording = false;
+          state.stopping = false;
         });
     }
 
