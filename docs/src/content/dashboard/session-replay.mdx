@@ -26,6 +26,8 @@ The player uses `rrweb-player` with custom controls:
 - **Skip inactivity**: when enabled, the player jumps over long idle periods to focus on activity.
 - **Fullscreen**: expand the replay to fill your screen.
 
+Masked text is rendered as `*` in the player to visually indicate redaction.
+
 <Callout type="info">
 We also provide idle detection client‑side to stop recording when the user is inactive for a long period.
 </Callout>
@@ -52,6 +54,15 @@ A condensed marker strip is also rendered over the seek bar so you can see activ
 - The replay avoids recording heavy or sensitive third‑party visuals (e.g., charts, iframes) via blocking selectors.
 - For deep inspection, pause and seek to any point; the player renders the DOM from that moment.
 
+### Privacy and Compliance
+
+Session Replay operates with privacy‑first defaults:
+
+- All text content and form inputs are masked before transmission.
+- Raw user data (keystrokes, messages, or identifiers) are never captured in readable form.
+- Developers can extend masking or blocking with `[data-rrweb-mask]`, `.rr-block`, and `.rr-ignore`.
+- The feature is designed to comply with major data protection regulations (e.g., GDPR, CCPA) when used with user consent and proper disclosure in your site’s privacy policy.
+
 ## Duration limits and idle cutoff
 
 - Replays stop when either the user is idle for the configured cutoff or the max duration is reached.
@@ -69,3 +80,9 @@ A condensed marker strip is also rendered over the seek bar so you can see activ
 ---
 
 **Related**: Learn how to [enable and configure Session Replay](/integration/session-replay).
+
+## Data lifecycle
+
+- Recordings are encrypted in transit and at rest.
+- Retention: 60 days (configurable for enterprise plans).
+- After expiration, sessions are permanently deleted and cannot be recovered.
