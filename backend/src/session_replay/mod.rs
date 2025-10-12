@@ -56,6 +56,7 @@ pub struct PresignPutResponse {
     pub key: String,
     pub session_id: String,
     pub visitor_id: String,
+    pub sse: bool,
 }
 
 pub async fn presign_put_segment(
@@ -103,7 +104,7 @@ pub async fn presign_put_segment(
         PRESIGNED_PUT_TTL_SECS,
     ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
-    Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint }))
+    Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint, sse: s3.sse_enabled }))
 }
 
 #[derive(serde::Deserialize)]

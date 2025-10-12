@@ -233,6 +233,9 @@
       if (payload.encoding === "gzip") {
         headers["Content-Encoding"] = "gzip";
       }
+      if (presignResp && presignResp.sse) {
+        headers["x-amz-server-side-encryption"] = "AES256";
+      }
 
       return fetch(presignResp.url, {
         method: "PUT",
