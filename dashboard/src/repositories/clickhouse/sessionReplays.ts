@@ -3,7 +3,7 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { SessionReplayArraySchema, SessionReplay } from '@/entities/sessionReplays';
+import { SessionReplay, SessionReplayArraySchema } from '@/entities/sessionReplays';
 import { BAQuery } from '@/lib/ba-query';
 import { QueryFilter } from '@/entities/filter';
 
@@ -29,7 +29,6 @@ export async function getSessionReplays(
       r.size_bytes,
       r.event_count,
       r.s3_prefix,
-      r.sample_rate,
       r.start_url,
       e.device_type,
       e.browser,

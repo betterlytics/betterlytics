@@ -23,7 +23,6 @@ pub struct FinalizeMeta {
     pub started_at: DateTime<Utc>,
     pub ended_at: DateTime<Utc>,
     pub size_bytes: u64,
-    pub sample_rate: u8,
     pub start_url: String,
     pub event_count: u32,
 }
@@ -115,7 +114,6 @@ pub struct FinalizeRequest {
     pub started_at: i64,
     pub ended_at: i64,
     pub size_bytes: u64,
-    pub sample_rate: Option<u8>,
     pub start_url: Option<String>,
     pub event_count: Option<u32>,
 }
@@ -146,7 +144,6 @@ pub async fn finalize_session_replay(
             started_at: started,
             ended_at: ended,
             size_bytes: req.size_bytes,
-            sample_rate: req.sample_rate.unwrap_or(100),
             start_url: normalized_start_url.clone(),
             event_count: 0,
         }
@@ -155,7 +152,6 @@ pub async fn finalize_session_replay(
     meta.started_at = meta.started_at.min(started);
     meta.ended_at = meta.ended_at.max(ended);
     meta.size_bytes = meta.size_bytes.saturating_add(req.size_bytes);
-    meta.sample_rate = req.sample_rate.unwrap_or(meta.sample_rate);
     meta.event_count = meta.event_count.saturating_add(req.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
         meta.start_url = normalized_start_url.clone();
@@ -176,7 +172,6 @@ pub async fn finalize_session_replay(
         size_bytes: meta.size_bytes,
         event_count: meta.event_count,
         s3_prefix,
-        sample_rate: meta.sample_rate,
         start_url: meta.start_url.clone(),
     };
 

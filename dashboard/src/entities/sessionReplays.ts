@@ -12,7 +12,6 @@ export const SessionReplaySchema = z.object({
   size_bytes: z.number(),
   event_count: z.number(),
   s3_prefix: z.string(),
-  sample_rate: z.number(),
   start_url: z.string(),
   device_type: z.string().optional().default(''),
   browser: z.string().optional().default(''),

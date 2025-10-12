@@ -60,14 +60,6 @@
     if (isNaN(secs) || secs < 1) secs = 1200;
     return secs * 1000;
   })();
-  var replaySamplePct = parseInt(
-    script.getAttribute("data-replay-sample") || "0",
-    10
-  );
-
-  if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
-    replaySamplePct = 0;
-  }
   if (isNaN(minReplayDurationSec) || minReplayDurationSec < 0) {
     minReplayDurationSec = 0;
   }
@@ -343,7 +335,6 @@
           started_at: Math.floor(state.firstActivity / 1000),
           ended_at: Math.floor(state.lastActivity / 1000),
           size_bytes: state.sizeBytes,
-          sample_rate: replaySamplePct,
           start_url: normalize(window.location.href),
           event_count: state.uploadedEventCount,
         }),

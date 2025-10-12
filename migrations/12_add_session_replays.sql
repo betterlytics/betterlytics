@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS analytics.session_replays (
     size_bytes UInt64,
     event_count UInt32,
     s3_prefix String,
-    sample_rate UInt8,
     start_url String
 ) ENGINE = ReplacingMergeTree(ended_at)
 PARTITION BY toYYYYMM(date)
