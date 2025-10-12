@@ -15,6 +15,7 @@ export type UsePlayerStateReturn = {
   durationMs: number;
   eventsRef: React.RefObject<eventWithTime[]>;
   isSkippingInactive: boolean;
+  inactivitiesRef: React.RefObject<InactivityPeriod[]>;
   setSkippingInactive: (value: boolean) => void;
   loadSession: (session: SessionWithSegments) => Promise<void>;
   jumpTo: (timestamp: number) => void;
@@ -28,6 +29,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
   const nextSegmentIndex = useRef(0);
   const eventsRef = useRef<eventWithTime[]>([]);
   const [isSkippingInactive, setSkippingInactive] = useState(true);
+  const inactivitiesRef = useRef<InactivityPeriod[]>([]);
 
   const segmentLoader = useSegmentLoader(dashboardId);
   const timeline = useReplayTimeline();
@@ -83,6 +85,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
             timeline.appendToTimeline(normalized, session.session_id);
             nextSegmentIndex.current = i + 1;
           }
+          inactivitiesRef.current = getInactivityPeriods(eventsRef.current);
         } catch (error) {
           if (!(error instanceof DOMException && error.name === 'AbortError')) {
             console.error('Error prefetching segments:', error);
@@ -122,6 +125,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
     currentSessionIdRef.current = null;
     nextSegmentIndex.current = 0;
     eventsRef.current = [];
+    inactivitiesRef.current = [];
   }, [segmentLoader, timeline.reset]);
 
   return {
@@ -133,9 +137,37 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
     durationMs: timeline.durationMs,
     isSkippingInactive,
     setSkippingInactive,
+    inactivitiesRef,
     loadSession,
     jumpTo,
     reset,
     eventsRef,
   };
+}
+
+// Unused but intended to be used in future for more robust inactivity handling
+type InactivityPeriod = {
+  start: number;
+  end: number;
+};
+
+function getInactivityPeriods(events: eventWithTime[]) {
+  if (!events || events.length === 0) return [];
+
+  const inactivities: InactivityPeriod[] = [];
+
+  const inactivityThreshold = 8000;
+  for (let i = 0; i < events.length - 1; i++) {
+    const currentEvent = events[i];
+    const nextEvent = events[i + 1];
+
+    if (nextEvent.timestamp - currentEvent.timestamp >= inactivityThreshold) {
+      inactivities.push({
+        start: currentEvent.timestamp,
+        end: nextEvent.timestamp,
+      });
+    }
+  }
+
+  return inactivities;
 }

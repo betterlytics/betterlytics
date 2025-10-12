@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type UsePlayerStateReturn } from './usePlayerState';
+import { eventWithTime } from '@rrweb/types';
 
 export function useReplayPlayer(playerState: UsePlayerStateReturn, sessionId?: string) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -58,11 +59,7 @@ export function useReplayPlayer(playerState: UsePlayerStateReturn, sessionId?: s
     };
 
     const onEventCast = (event: any) => {
-      if (event.type === 5 && event.data.tag === 'Blacklist') {
-        player.redact();
-      } else {
-        player.unredact();
-      }
+      player.handleEvent(event as eventWithTime);
     };
 
     player.addEventListener('ui-update-current-time', onTime as EventListener);

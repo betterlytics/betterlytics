@@ -27,8 +27,7 @@ export type ReplayPlayerHandle = {
     type: K,
     listener: (e: CustomEvent<{ payload: PlayerEventDetailMap[K] }>) => void,
   ) => void;
-  redact: () => void;
-  unredact: () => void;
+  handleEvent: (event: eventWithTime) => void;
 };
 
 type ReplayPlayerProps = {
@@ -60,6 +59,9 @@ const ReplayPlayerComponent = (
   const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
   const redactedRef = useRef<boolean>(false);
   const redactedContainerRef = useRef<HTMLDivElement | null>(null);
+  const speedRef = useRef<number>(1);
+  const skipInactivityRef = useRef<boolean>(playerState.isSkippingInactive);
+  const isSkippingInactivityRef = useRef<boolean>(false);
 
   const findClosestEventBefore = useCallback(
     (timeOffset: number, eventType?: number) => {
@@ -68,8 +70,7 @@ const ReplayPlayerComponent = (
         return null;
       }
 
-      const originTimestamp = events[0]?.timestamp ?? 0;
-      const targetAbsoluteTime = originTimestamp + timeOffset;
+      const targetAbsoluteTime = (events[0]?.timestamp ?? 0) + timeOffset;
 
       const filteredEvents = events.filter(
         (e) => (eventType === undefined ? true : e.type === eventType) && e.timestamp <= targetAbsoluteTime,
@@ -156,7 +157,7 @@ const ReplayPlayerComponent = (
 
       onReady?.();
     },
-    [destroyPlayer, size, onReady, playerState.isSkippingInactive],
+    [destroyPlayer, size, onReady],
   );
 
   const redactBlacklisted = useCallback(() => {
@@ -179,6 +180,17 @@ const ReplayPlayerComponent = (
     }
   }, []);
 
+  const handleEvent = useCallback(
+    (event: eventWithTime) => {
+      if (event.type === 5 && event.data.tag === 'Blacklist') {
+        redactBlacklisted();
+      } else {
+        unredactBlacklisted();
+      }
+    },
+    [redactBlacklisted, unredactBlacklisted],
+  );
+
   const seekTo = useCallback(
     (timeOffset: number) => {
       if (!playerRef.current) {
@@ -186,17 +198,13 @@ const ReplayPlayerComponent = (
       }
       const closestEventBefore = findClosestEventBefore(timeOffset);
 
-      const shouldRedact =
-        closestEventBefore && closestEventBefore.type === 5 && closestEventBefore.data.tag === 'Blacklist';
-
       try {
         playerRef.current.goto(timeOffset);
 
-        if (shouldRedact) {
-          redactBlacklisted();
-        } else {
-          unredactBlacklisted();
+        if (closestEventBefore) {
+          handleEvent(closestEventBefore);
         }
+
         return;
       } catch (error) {
         const fallbackEventType = 2;
@@ -213,10 +221,8 @@ const ReplayPlayerComponent = (
 
           try {
             playerRef.current?.goto(timeOffset);
-            if (shouldRedact) {
-              redactBlacklisted();
-            } else {
-              unredactBlacklisted();
+            if (closestEventBefore) {
+              handleEvent(closestEventBefore);
             }
             return;
           } catch (retryError) {
@@ -236,15 +242,16 @@ const ReplayPlayerComponent = (
         playerRef.current?.goto(closestFullPaintBefore);
       }
     },
-    [
-      recreatePlayer,
-      playerRef,
-      findClosestEventBefore,
-      findClosestEventBeforeTimestamp,
-      redactBlacklisted,
-      unredactBlacklisted,
-    ],
+    [recreatePlayer, playerRef, findClosestEventBefore, findClosestEventBeforeTimestamp, handleEvent],
   );
+
+  const getCurrentTime = useCallback(() => {
+    if (!playerRef.current) {
+      return undefined;
+    }
+    const replayer = playerRef.current.getReplayer();
+    return typeof replayer.getCurrentTime === 'function' ? replayer.getCurrentTime() : undefined;
+  }, []);
 
   useImperativeHandle(ref, () => ({
     loadInitialEvents(events) {
@@ -271,11 +278,7 @@ const ReplayPlayerComponent = (
       return seekTo(timeOffset);
     },
     getCurrentTime() {
-      if (!playerRef.current) {
-        return undefined;
-      }
-      const replayer = playerRef.current.getReplayer();
-      return typeof replayer.getCurrentTime === 'function' ? replayer.getCurrentTime() : undefined;
+      return getCurrentTime();
     },
     play() {
       playerRef.current?.play();
@@ -284,13 +287,20 @@ const ReplayPlayerComponent = (
       playerRef.current?.pause();
     },
     setSpeed(speed: number) {
+      speedRef.current = speed;
       playerRef.current?.setSpeed(speed);
     },
     reset() {
       destroyPlayer();
     },
     toggleSkipInactive() {
-      playerRef.current?.toggleSkipInactive?.();
+      skipInactivityRef.current = !skipInactivityRef.current;
+
+      if (skipInactivityRef.current) {
+        const currentTime = getCurrentTime();
+        recreatePlayer(playerState.eventsRef.current, isPlaying);
+        seekTo(currentTime ?? 0);
+      }
     },
     addEventListener(type, listener) {
       const target = playerRef.current;
@@ -309,11 +319,12 @@ const ReplayPlayerComponent = (
 
       listenersRef.current = listenersRef.current.filter((l) => !(l.type === type && l.listener === wrapped));
     },
-    redact() {
-      redactBlacklisted();
-    },
-    unredact() {
-      unredactBlacklisted();
+    handleEvent(event: eventWithTime) {
+      if (event.type === 5 && event.data.tag === 'Blacklist') {
+        redactBlacklisted();
+      } else {
+        unredactBlacklisted();
+      }
     },
   }));
 
