@@ -147,7 +147,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         outlineAnimation={visitorChangeAnimation}
       />
       <MapPlayActionbar
-        className='pointer-events-auto absolute bottom-8 left-[17rem] z-12 w-[calc(100%-18rem)]'
+        className='pointer-events-auto fixed bottom-8 left-[17rem] z-[1000] w-[calc(100%-18rem)]'
         ticks={tickProps}
         value={position}
         playing={playing}
