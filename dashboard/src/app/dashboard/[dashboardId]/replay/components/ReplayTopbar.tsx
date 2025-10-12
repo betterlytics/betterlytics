@@ -7,6 +7,7 @@ import { getCountryName } from '@/utils/countryCodes';
 import { useLocale, useTranslations } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { capitalizeFirstLetter } from '@/utils/formatters';
 
 type ReplayTopbarProps = {
   session?: SessionReplay | null;
@@ -65,7 +66,7 @@ export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbar
                   <BrowserIcon name={session.browser} className='h-3.5 w-3.5' />
                 </span>
               </TooltipTrigger>
-              <TooltipContent side='bottom'>{session.browser}</TooltipContent>
+              <TooltipContent side='bottom'>{capitalizeFirstLetter(session.browser)}</TooltipContent>
             </Tooltip>
           )}
           {session?.os && (
@@ -78,7 +79,7 @@ export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbar
                   <OSIcon name={session.os} className='h-3.5 w-3.5' />
                 </span>
               </TooltipTrigger>
-              <TooltipContent side='bottom'>{session.os}</TooltipContent>
+              <TooltipContent side='bottom'>{capitalizeFirstLetter(session.os)}</TooltipContent>
             </Tooltip>
           )}
           {session?.device_type && (
@@ -91,7 +92,7 @@ export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbar
                   <DeviceIcon type={session.device_type} className='h-3.5 w-3.5' />
                 </span>
               </TooltipTrigger>
-              <TooltipContent side='bottom'>{session.device_type}</TooltipContent>
+              <TooltipContent side='bottom'>{capitalizeFirstLetter(session.device_type)}</TooltipContent>
             </Tooltip>
           )}
         </div>
