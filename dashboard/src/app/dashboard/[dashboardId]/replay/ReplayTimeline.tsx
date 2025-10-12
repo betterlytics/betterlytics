@@ -15,6 +15,8 @@ import {
   Tag,
   Camera,
   Lock,
+  PlayCircle,
+  Expand,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -87,6 +89,20 @@ export function buildTimelineMarkers(
           return null;
         }
 
+        if (source === IncrementalSource.ViewportResize) {
+          return {
+            label: 'Viewport Resize',
+            timestamp: timeFromStart,
+          } satisfies TimelineMarkerDescriptor;
+        }
+
+        if (source === IncrementalSource.MediaInteraction) {
+          return {
+            label: 'Media Interaction',
+            timestamp: timeFromStart,
+          } satisfies TimelineMarkerDescriptor;
+        }
+
         if (source === IncrementalSource.Input) {
           const data = event.data as Record<string, unknown> | undefined;
           const hasTextChange = Boolean(data && 'text' in data);
@@ -133,6 +149,10 @@ function iconForLabel(label: string): React.ReactNode {
       return <Keyboard className={`${ICON_BASE_CLASS} text-rose-500 dark:text-rose-400`} />;
     case 'Full snapshot':
       return <Camera className={`${ICON_BASE_CLASS} text-green-500 dark:text-green-400`} />;
+    case 'Viewport Resize':
+      return <Expand className={`${ICON_BASE_CLASS} text-indigo-500 dark:text-indigo-400`} />;
+    case 'Media Interaction':
+      return <PlayCircle className={`${ICON_BASE_CLASS} text-orange-500 dark:text-orange-400`} />;
     case 'Pageview':
       return <Eye className={`${ICON_BASE_CLASS} text-sky-500 dark:text-sky-400`} />;
     case 'Blacklist':
