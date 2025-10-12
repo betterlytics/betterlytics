@@ -103,12 +103,36 @@
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
 
+  var replayConsentCallbacks = [];
+
   window.betterlytics = {
     event: (eventName, eventProps = {}) =>
       trackEvent(eventName, {
         is_custom_event: true,
         properties: JSON.stringify(eventProps),
       }),
+    setReplayConsent: function (consented) {
+      var CONSENT_KEY = "betterlytics:replay_consent";
+      try {
+        if (consented) {
+          localStorage.setItem(
+            CONSENT_KEY,
+            JSON.stringify({
+              consented: true,
+              source: "custom",
+              timestamp: Date.now(),
+            })
+          );
+        } else {
+          localStorage.removeItem(CONSENT_KEY);
+        }
+        for (var i = 0; i < replayConsentCallbacks.length; i++) {
+          replayConsentCallbacks[i](consented);
+        }
+      } catch (e) {
+        console.error("Failed to set replay consent:", e);
+      }
+    },
   };
 
   for (var i = 0; i < queuedEvents.length; i++) {
@@ -247,9 +271,78 @@
 
   // Replay
   if (enableReplay) {
-    // Sample
-    if (Math.round(Math.random() * 100) < replaySamplePct) {
-      loadScript(`${scriptsBaseUrl}/replay.js`);
+    var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
+    var CONSENT_KEY = "betterlytics:replay_consent";
+    var ONE_DAY_MS = 24 * 60 * 60 * 1000;
+    var replayLoaded = false;
+
+    function checkReplayConsent() {
+      try {
+        var stored = localStorage.getItem(CONSENT_KEY);
+        if (stored) {
+          var data = JSON.parse(stored);
+          return data.consented === true && data.source === "custom";
+        }
+      } catch (e) {}
+      return false;
     }
+
+    function shouldSample() {
+      try {
+        var stored = localStorage.getItem(REPLAY_STORAGE_KEY);
+        var now = Date.now();
+
+        if (stored) {
+          var data = JSON.parse(stored);
+          var age = now - data.timestamp;
+
+          if (age < ONE_DAY_MS) {
+            return data.sampled;
+          }
+        }
+
+        var sampled = Math.round(Math.random() * 100) < replaySamplePct;
+        if (sampled) {
+          localStorage.setItem(
+            REPLAY_STORAGE_KEY,
+            JSON.stringify({ sampled: true, timestamp: now })
+          );
+        } else {
+          localStorage.removeItem(REPLAY_STORAGE_KEY);
+        }
+        return sampled;
+      } catch (e) {
+        return Math.round(Math.random() * 100) < replaySamplePct;
+      }
+    }
+
+    function initReplay() {
+      if (replayLoaded) return;
+
+      var hasCustomConsent = checkReplayConsent();
+
+      if (hasCustomConsent) {
+        if (shouldSample()) {
+          replayLoaded = true;
+          loadScript(`${scriptsBaseUrl}/replay.js`);
+        }
+      }
+    }
+
+    replayConsentCallbacks.push(function (consented) {
+      if (consented && !replayLoaded && shouldSample()) {
+        replayLoaded = true;
+        loadScript(`${scriptsBaseUrl}/replay.js`);
+      } else if (!consented && replayLoaded && window.__betterlytics_replay__) {
+        if (
+          window.__betterlytics_replay__.stop &&
+          typeof window.__betterlytics_replay__.stop === "function"
+        ) {
+          window.__betterlytics_replay__.stop();
+        }
+      }
+    });
+
+    initReplay();
   }
 })();
