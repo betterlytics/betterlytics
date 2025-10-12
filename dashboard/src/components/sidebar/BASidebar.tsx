@@ -135,7 +135,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
                         <span>{item.name}</span>
                       </div>
 
-                      {item.key === 'sessionReplay' && <Badge variant='outline'>New</Badge>}
+                      {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
