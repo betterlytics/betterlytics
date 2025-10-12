@@ -55,7 +55,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
       href: '/outbound-links',
       icon: <ExternalLinkIcon size={18} />,
     },
-    { name: t('geography'), href: '/geography', icon: <Globe size={18} /> },
+    { name: t('geography'), key: 'geography', href: '/geography', icon: <Globe size={18} /> },
     { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={18} /> },
     { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} /> },
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
@@ -64,7 +64,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
   const behaviorItems = [
     { name: t('userJourney'), key: 'userJourney', href: '/user-journey', icon: <Route size={18} /> },
     { name: t('funnels'), key: 'funnels', href: '/funnels', icon: <Funnel size={18} /> },
-    { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
+    { name: t('events'), key: 'events', href: '/events', icon: <CircleDot size={18} /> },
     { name: t('sessionReplay'), key: 'sessionReplay', href: '/replay', icon: <Video size={18} /> },
   ];
 
