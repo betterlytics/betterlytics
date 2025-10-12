@@ -31,7 +31,7 @@ export async function getReplaySegmentManifest(
 
   if (!cutoffIso) return manifest;
 
-  const cutoff = Date.parse(cutoffIso.replace(' ', 'T') + 'Z') + 1_000;
+  const cutoff = Date.parse(cutoffIso.replace(' ', 'T') + 'Z') + 2_000;
 
   if (Number.isNaN(cutoff)) return manifest;
 
