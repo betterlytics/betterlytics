@@ -22,6 +22,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.setAttribute('data-web-vitals', 'true');
     script.setAttribute('data-replay', 'true');
     script.setAttribute('data-replay-sample', '100');
+    script.setAttribute('data-consent-replay', 'true');
     script.setAttribute('data-disable-replay-on-urls', '/dashboard/*/replay');
     document.head.appendChild(script);
 

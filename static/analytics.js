@@ -34,6 +34,7 @@
   var coreWebVitals = script.getAttribute("data-web-vitals") === "true";
 
   var enableReplay = script.getAttribute("data-replay") === "true";
+  var consentReplay = script.getAttribute("data-consent-replay") === "true";
 
   var replaySamplePct = parseInt(
     script.getAttribute("data-replay-sample") || "0",
@@ -277,6 +278,9 @@
     var replayLoaded = false;
 
     function checkReplayConsent() {
+      if (consentReplay) {
+        return true;
+      }
       try {
         var stored = localStorage.getItem(CONSENT_KEY);
         if (stored) {
@@ -302,14 +306,11 @@
         }
 
         var sampled = Math.round(Math.random() * 100) < replaySamplePct;
-        if (sampled) {
-          localStorage.setItem(
-            REPLAY_STORAGE_KEY,
-            JSON.stringify({ sampled: true, timestamp: now })
-          );
-        } else {
-          localStorage.removeItem(REPLAY_STORAGE_KEY);
-        }
+
+        localStorage.setItem(
+          REPLAY_STORAGE_KEY,
+          JSON.stringify({ sampled, timestamp: now })
+        );
         return sampled;
       } catch (e) {
         return Math.round(Math.random() * 100) < replaySamplePct;
