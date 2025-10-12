@@ -120,7 +120,10 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {behaviorItems.map((item) => (
-                <SidebarMenuItem key={item.key}>
+                <SidebarMenuItem
+                  key={item.key}
+                  className={item.key === 'sessionReplay' ? 'hidden md:list-item' : undefined}
+                >
                   <SidebarMenuButton asChild>
                     <FilterPreservingLink
                       href={`/dashboard/${dashboardId}${item.href}`}
