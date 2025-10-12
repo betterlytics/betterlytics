@@ -113,6 +113,9 @@
 
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
+
+  --time-slider-thumb: oklch(62% 0.17 268.71);
+  --time-slider-tick: oklch(72% 0.1 268.74);
 }
 
 .dark {
@@ -179,6 +182,9 @@
 
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
+
+  --time-slider-thumb: oklch(56% 0.196 268.74);
+  --time-slider-tick: oklch(62% 0.1 268.74);
 }
 
 @layer base {

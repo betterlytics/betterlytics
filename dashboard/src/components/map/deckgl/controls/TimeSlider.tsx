@@ -3,7 +3,8 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { Badge } from '@/components/ui/badge';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import MapTooltipTip from '../../tooltip/MapTooltipTip';
 
 export type TimeSliderTick<TValue> = {
   label: React.ReactNode;
@@ -69,7 +70,7 @@ export function TimeSlider<TValue>({
         {/* Hover tooltip below track */}
         {hoverValue !== null && ticks[hoverValue] && (
           <Badge
-            className='bg-primary/90 text-primary-foreground pointer-events-none absolute top-3 mt-1 w-fit rounded-none text-xs shadow'
+            className='text-primary-foreground pointer-events-none absolute top-3 z-[11] mt-1 w-fit rounded-none bg-[var(--time-slider-tick)] text-xs shadow'
             style={{
               left: `calc(${(hoverValue / intervals) * 100}%)`,
               transform: 'translateX(-50%)',
@@ -80,7 +81,7 @@ export function TimeSlider<TValue>({
         )}
 
         {/* Thumb */}
-        <SliderPrimitive.Thumb className='group border-secondary/80 bg-primary focus-visible:ring-ring block h-5 w-5 cursor-pointer rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
+        <SliderPrimitive.Thumb className='group border-secondary/80 focus-visible:ring-ring block h-5 w-5 cursor-pointer rounded-full border bg-[var(--time-slider-thumb)] shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
           <motion.div
             animate={{
               opacity: hovering || playing ? 1 : 0,
@@ -93,9 +94,10 @@ export function TimeSlider<TValue>({
               mass: 0.8,
               delay: hovering || playing ? 0.15 : 0, // Delay on enter
             }}
-            className='absolute -top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 [transform:translateZ(0)]'
+            className='absolute -top-5 left-1/2 z-[11] -translate-1/2 [transform:translateZ(0)]'
           >
             <Badge className='bg-primary rounded-xl'>{ticks[index] && ticks[index].label}</Badge>
+            <MapTooltipTip className='border-t-primary mx-auto' />
           </motion.div>
         </SliderPrimitive.Thumb>
       </SliderPrimitive.Root>

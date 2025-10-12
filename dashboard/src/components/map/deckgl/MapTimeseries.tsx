@@ -13,6 +13,9 @@ import { useTranslations } from 'next-intl';
 import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
 import { ZoomControls } from './controls/ZoomControls';
 import { DeckGLPopup } from './DeckGLPopup';
+import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
+import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
@@ -21,8 +24,10 @@ export type MapTimeseries = {
 
 export default function MapTimeseries({ visitorData, animationDurationBaseline = 1000 }: MapTimeseries) {
   const containerRef = useRef<HTMLDivElement>(null);
+
   const { hoveredFeatureRef, setMapSelection } = useMapSelectionActions();
   const t = useTranslations('components.geography');
+  const { granularity } = useTimeRangeContext();
 
   const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
     const timeseries: TimeGeoVisitors[] = [];
@@ -66,16 +71,10 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   const tickProps = useMemo(
     () =>
       visitorDataTimeseries.map((tgeo, i) => ({
-        label: tgeo.date.toLocaleString(undefined, {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
+        label: <DateTimeSliderLabel value={tgeo.date} granularity={granularity} />,
         value: tgeo.date,
       })),
-    visitorDataTimeseries,
+    [visitorDataTimeseries], // Make sure this is an array in dependencies
   );
 
   const visitorDict = useMemo(() => {

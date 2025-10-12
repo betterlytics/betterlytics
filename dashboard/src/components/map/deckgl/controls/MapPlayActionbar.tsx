@@ -18,6 +18,7 @@ export type MapPlayActionbarProps<TValue> = {
   className?: string;
 };
 
+/** TODO: Add actionbar portal to ensure items are layered above in UI */
 export function MapPlayActionbar<TValue>({
   ticks,
   value,
