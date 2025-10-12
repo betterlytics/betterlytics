@@ -1,11 +1,12 @@
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { z } from 'zod';
 
 export const SessionReplaySchema = z.object({
   site_id: z.string(),
   session_id: z.string(),
   visitor_id: z.string(),
-  started_at: z.string(),
-  ended_at: z.string(),
+  started_at: z.string().transform((val) => parseClickHouseDate(val)),
+  ended_at: z.string().transform((val) => parseClickHouseDate(val)),
   duration: z.number(),
   date: z.string(),
   size_bytes: z.number(),

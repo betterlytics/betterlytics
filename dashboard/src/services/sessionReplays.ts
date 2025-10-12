@@ -25,13 +25,13 @@ const s3Repository = new S3ReplaySegmentsRepository();
 export async function getReplaySegmentManifest(
   prefix: string,
   ttlSeconds = 300,
-  cutoffIso?: string,
+  cutoffIso?: Date,
 ): Promise<ReplaySegmentManifest> {
   const manifest = await s3Repository.listAndPresign(prefix, ttlSeconds);
 
   if (!cutoffIso) return manifest;
 
-  const cutoff = Date.parse(cutoffIso.replace(' ', 'T') + 'Z') + 2_000; // + 2s for account for drift (math floor in ended at)
+  const cutoff = cutoffIso.getTime() + 2_000; // + 2s for account for drift (math floor in ended at)
 
   if (Number.isNaN(cutoff)) return manifest;
 

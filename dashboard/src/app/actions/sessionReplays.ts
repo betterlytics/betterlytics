@@ -22,7 +22,7 @@ export const fetchSessionReplaysAction = withDashboardAuthContext(
 type FetchReplaySegmentsPayload = {
   prefix: string;
   ttlSeconds?: number;
-  cutoffIso?: string;
+  cutoffIso?: Date;
 };
 
 export const fetchReplaySegmentsAction = withDashboardAuthContext(
