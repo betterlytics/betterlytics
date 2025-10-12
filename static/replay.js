@@ -36,10 +36,6 @@
         };
       }) ?? [];
 
-  var scriptsBaseUrl =
-    script.getAttribute("data-scripts-base-url") ?? "http://localhost:3006";
-
-  // Session Replay (rrweb) - feature flagged via data-replay="true"
   var minReplayDurationSec = parseInt(
     script.getAttribute("data-replay-min-duration") || "15",
     10
