@@ -163,7 +163,6 @@
       startedAt: Date.now(),
       firstActivity: null,
       lastActivity: Date.now(),
-      bufferMaxTs: 0,
       flushTimer: null,
       ongoingFlush: null,
       stopping: false,
@@ -194,9 +193,6 @@
       };
       if (payload.encoding === "gzip") {
         presignPayload.content_encoding = "gzip";
-      }
-      if (payload.segment_end_ms) {
-        presignPayload.segment_end_ms = payload.segment_end_ms;
       }
 
       return fetch(apiBase + "/replay/presign/put", {
@@ -269,8 +265,6 @@
 
       var events = state.buffer;
       state.buffer = [];
-      var segmentEndMs = state.bufferMaxTs || 0;
-      state.bufferMaxTs = 0;
 
       if (!hasReachedMinDuration()) {
         state.buffer = events.concat(state.buffer);
@@ -280,13 +274,8 @@
       var json = JSON.stringify(events);
       var flushedEventCount = events.length;
       state.approxBytes = 0;
-      if (!segmentEndMs) segmentEndMs = state.lastActivity;
 
       state.ongoingFlush = encodeReplayChunk(json)
-        .then(function (enc) {
-          enc.segment_end_ms = segmentEndMs;
-          return enc;
-        })
         .then(fetchPresignedUrl)
         .then(uploadToS3)
         .then(function (data) {
@@ -396,9 +385,6 @@
       );
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
       state.buffer.push(e);
-      if (e && typeof e.timestamp === "number") {
-        if (e.timestamp > state.bufferMaxTs) state.bufferMaxTs = e.timestamp;
-      }
       state.approxBytes += estimateEventSize(e) + 1;
       if (state.approxBytes >= config.maxUncompressedBytes) {
         flush();

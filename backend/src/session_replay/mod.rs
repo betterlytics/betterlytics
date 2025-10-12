@@ -47,7 +47,6 @@ pub struct PresignPutRequest {
     pub screen_resolution: Option<String>,
     pub content_encoding: Option<String>,
     pub content_length: u64,
-    pub segment_end_ms: Option<i64>,
 }
 
 #[derive(serde::Serialize)]
@@ -92,7 +91,7 @@ pub async fn presign_put_segment(
         return Err((StatusCode::BAD_REQUEST, "invalid content_length".to_string()));
     }
 
-    let key = s3.build_replay_object_key(&req.site_id, &session_id, req.segment_end_ms);
+    let key = s3.build_replay_object_key(&req.site_id, &session_id);
     let url = s3.presign_replay_put(
         &key,
         CONTENT_TYPE,

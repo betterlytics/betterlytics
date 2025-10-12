@@ -53,8 +53,8 @@ impl S3Service {
         Ok(Some(Self { client, bucket, sse_enabled }))
     }
 
-    pub fn build_replay_object_key(&self, site_id: &str, session_id: &str, epoch_ms_override: Option<i64>) -> String {
-        let epoch_ms = epoch_ms_override.unwrap_or_else(|| chrono::Utc::now().timestamp_millis());
+    pub fn build_replay_object_key(&self, site_id: &str, session_id: &str) -> String {
+        let epoch_ms = chrono::Utc::now().timestamp_millis();
         let suffix: String = nanoid::nanoid!(6);
         let filename = format!("{:013}-{}.json", epoch_ms, suffix);
         format!("site/{}/sess/{}/{}", site_id, session_id, filename)
