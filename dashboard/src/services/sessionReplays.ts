@@ -31,7 +31,7 @@ export async function getReplaySegmentManifest(
 
   if (!cutoffIso) return manifest;
 
-  const cutoff = Date.parse(cutoffIso.replace(' ', 'T') + 'Z') + 2_000;
+  const cutoff = Date.parse(cutoffIso.replace(' ', 'T') + 'Z') + 2_000; // + 2s for account for drift (math floor in ended at)
 
   if (Number.isNaN(cutoff)) return manifest;
 
