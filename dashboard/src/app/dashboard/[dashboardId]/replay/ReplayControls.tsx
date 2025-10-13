@@ -2,7 +2,6 @@
 
 import { Maximize2, Minimize2, Pause, Play, ChevronDown } from 'lucide-react';
 import { memo, useCallback, useEffect, useId, useMemo, useState } from 'react';
-import { cn } from '@/lib/utils';
 import type { TimelineMarker } from '@/app/dashboard/[dashboardId]/replay/ReplayTimeline';
 import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
 import type { SessionReplay } from '@/entities/sessionReplays';
@@ -25,7 +24,6 @@ type Props = {
   onSpeedChange: (speed: number) => void;
   session?: SessionReplay | null;
   markers?: TimelineMarker[];
-  className?: string;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
 };
@@ -44,13 +42,12 @@ function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   const displayWidth = Math.round(rect.width * dpr);
   const displayHeight = Math.round(rect.height * dpr);
 
-  // Only resize if needed
   if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
     canvas.width = displayWidth;
     canvas.height = displayHeight;
   }
 
-  return dpr;
+  return { dpr, cssWidth: rect.width, cssHeight: rect.height };
 }
 
 function createMarkerCanvas(
@@ -76,16 +73,18 @@ function createMarkerCanvas(
     return;
   }
 
-  const dpr = resizeCanvasToDisplaySize(canvas);
-  ctx.scale(dpr, dpr);
+  const { dpr, cssWidth, cssHeight } = resizeCanvasToDisplaySize(canvas);
+  // Reset transform then apply DPR scaling so 1 unit = 1 CSS pixel
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const resolvedTheme = theme || 'light';
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, cssWidth, cssHeight);
   markers.forEach((marker) => {
     ctx.fillStyle = markerFillColorForLabel(resolvedTheme, marker.label);
-    const left = canvas.width * (marker.timestamp / durationMs);
-    ctx.fillRect(left, 0, 4, 500);
+    const left = cssWidth * (marker.timestamp / durationMs);
+    ctx.fillRect(left, 0, 4, cssHeight);
   });
 }
 
@@ -112,24 +111,26 @@ function createRangeCanvas(
     return;
   }
 
-  const dpr = resizeCanvasToDisplaySize(canvas);
-  ctx.scale(dpr, dpr);
+  const { dpr, cssWidth, cssHeight } = resizeCanvasToDisplaySize(canvas);
+  // Reset transform then apply DPR scaling so 1 unit = 1 CSS pixel
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const resolvedTheme = theme || 'light';
 
-  // Clear
+  // Clear background
   ctx.fillStyle = resolvedTheme === 'light' ? '#EEEEEE' : '#111111';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, cssWidth, cssHeight);
 
   // Fill loaded
   ctx.fillStyle = resolvedTheme === 'light' ? '#CCCCCC' : '#222222';
-  const leftLoaded = canvas.width * (loadedDurationMs / durationMs);
-  ctx.fillRect(0, 0, leftLoaded, 500);
+  const leftLoaded = cssWidth * (loadedDurationMs / durationMs);
+  ctx.fillRect(0, 0, leftLoaded, cssHeight);
 
   // Fill current
   ctx.fillStyle = 'oklch(56% 0.196 268.74)';
-  const left = canvas.width * (currentTime / durationMs);
-  ctx.fillRect(0, 0, left, 500);
+  const left = cssWidth * (currentTime / durationMs);
+  ctx.fillRect(0, 0, left, cssHeight);
 }
 
 function ReplayControlsComponent({
@@ -144,7 +145,6 @@ function ReplayControlsComponent({
   onSpeedChange,
   session,
   markers = [],
-  className,
   isFullscreen = false,
   onToggleFullscreen,
 }: Props) {
@@ -158,6 +158,16 @@ function ReplayControlsComponent({
   useEffect(() => {
     createRangeCanvas(resolvedTheme, currentTime, durationMs, session?.duration);
   }, [durationMs, currentTime, resolvedTheme, session]);
+
+  // Redraw on viewport resize/zoom changes so DPR and sizes stay in sync
+  useEffect(() => {
+    const handleResize = () => {
+      createMarkerCanvas(resolvedTheme, durationMs, session?.duration, markers);
+      createRangeCanvas(resolvedTheme, currentTime, durationMs, session?.duration);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [resolvedTheme, durationMs, currentTime, session?.duration]);
 
   const onRangeClick = useCallback(
     (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -203,7 +213,7 @@ function ReplayControlsComponent({
   );
 
   return (
-    <div className={cn('bg-muted/60 border-border/60 flex flex-col gap-1 border-t px-3 py-2', className)}>
+    <div className='bg-muted/60 border-border/60 flex flex-col gap-1 border-t px-3 py-2'>
       <div className='relative flex-1 space-y-1'>
         <canvas className='pointer-events-none z-[1000] flex h-1.5 w-full items-center' id='marker-canvas' />
         {hoverTooltipX && (
