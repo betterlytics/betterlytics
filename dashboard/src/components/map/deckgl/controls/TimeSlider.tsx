@@ -96,7 +96,7 @@ export function TimeSlider<TValue>({
             className='absolute -top-5 left-1/2 z-[11] -translate-1/2 [transform:translateZ(0)]'
           >
             <Badge className='bg-primary rounded-xl'>{ticks[index] && ticks[index].label}</Badge>
-            <MapTooltipTip className='border-t-primary mx-auto' />
+            <MapTooltipTip className='border-t-primary mx-auto !-mt-1' />
           </motion.div>
         </SliderPrimitive.Thumb>
       </SliderPrimitive.Root>

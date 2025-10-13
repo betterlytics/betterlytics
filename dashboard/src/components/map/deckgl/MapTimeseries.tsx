@@ -9,15 +9,12 @@ import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
-import { useTranslations } from 'next-intl';
 import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
 import { ZoomControls } from './controls/ZoomControls';
 import { DeckGLPopup } from './DeckGLPopup';
 import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
-import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { UI } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 
 export type MapTimeseries = {

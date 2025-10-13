@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
+import { MotionText } from '@/components/animation/MotionText';
 
 export const PLAYBACK_SPEEDS = [2, 1.75, 1.5, 1.25, 1, 0.75, 0.5, 0.25] as const;
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
@@ -49,7 +50,7 @@ export function PlaybackSpeedDropdown({
         className='bg-secondary hover:bg-accent flex cursor-pointer flex-col rounded-md px-3 py-1.5 text-sm'
       >
         <span className='font-mono text-xs font-light'>{t('label')}</span>
-        <span className='font-medium'>x{speed}</span>
+        <MotionText text={`x${speed}`} className='mx-auto gap-0 font-medium' />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent

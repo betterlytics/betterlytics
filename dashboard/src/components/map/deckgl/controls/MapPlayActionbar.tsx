@@ -29,7 +29,7 @@ export function MapPlayActionbar<TValue>({
   onScrub,
   onChangeSpeed,
 }: MapPlayActionbarProps<TValue>) {
-  const [hovering, setHovering] = useState(false); // tooltip hover for TimeSlider
+  const [hovering, setHovering] = useState(false);
 
   return createPortal(
     <ScaleMotion
@@ -41,7 +41,7 @@ export function MapPlayActionbar<TValue>({
       onHoverStartComplete={() => setHovering(true)}
       startTransition={{ duration: 0.2, ease: 'easeOut' }}
       endTransition={{ duration: 0.2, ease: 'easeOut' }}
-      className={cn(className, 'bg-background flex flex-col gap-2 rounded-xl p-1 shadow-md')}
+      className={cn(className, 'bg-background flex flex-col gap-2 rounded-xl px-4 py-2 shadow-md')}
     >
       <div className='flex items-center gap-3'>
         <PlaybackButton onClick={onTogglePlay} playbackType={playing ? 'pause' : 'play'} />
