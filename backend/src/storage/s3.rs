@@ -20,7 +20,7 @@ impl S3Service {
             return Ok(None);
         }
 
-        let region = cfg.s3_region.clone().unwrap_or_else(|| "us-east-1".to_string());
+        let region = cfg.s3_region.clone().unwrap_or_else(|| "eu-central-1".to_string());
         let bucket = cfg.s3_bucket.clone().ok_or_else(|| anyhow::anyhow!("S3_BUCKET not set"))?;
 
         // Base loader
