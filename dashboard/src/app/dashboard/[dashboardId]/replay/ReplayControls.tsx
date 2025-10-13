@@ -50,6 +50,15 @@ function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   return { dpr, cssWidth: rect.width, cssHeight: rect.height };
 }
 
+function applyCanvasTransform(canvas: HTMLCanvasElement, dpr: number) {
+  const ctx = canvas.getContext('2d');
+  if (ctx === null) {
+    return;
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
 function createMarkerCanvas(
   theme: string | undefined,
   loadedDurationMs: number,
@@ -63,20 +72,11 @@ function createMarkerCanvas(
   const durationMs = Math.max(loadedDurationMs, 1000 * expectedDurationMs);
 
   const canvas = document.getElementById('marker-canvas') as HTMLCanvasElement | null;
-  if (canvas === null) {
-    return;
-  }
-
-  const ctx = canvas.getContext('2d');
-
-  if (ctx === null) {
-    return;
-  }
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return;
 
   const { dpr, cssWidth, cssHeight } = resizeCanvasToDisplaySize(canvas);
-  // Reset transform then apply DPR scaling so 1 unit = 1 CSS pixel
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  applyCanvasTransform(canvas, dpr);
 
   const resolvedTheme = theme || 'light';
 
@@ -101,20 +101,11 @@ function createRangeCanvas(
   const durationMs = Math.max(loadedDurationMs, 1000 * expectedDurationMs);
 
   const canvas = document.getElementById('range-canvas') as HTMLCanvasElement | null;
-  if (canvas === null) {
-    return;
-  }
-
-  const ctx = canvas.getContext('2d');
-
-  if (ctx === null) {
-    return;
-  }
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return;
 
   const { dpr, cssWidth, cssHeight } = resizeCanvasToDisplaySize(canvas);
-  // Reset transform then apply DPR scaling so 1 unit = 1 CSS pixel
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  applyCanvasTransform(canvas, dpr);
 
   const resolvedTheme = theme || 'light';
 
