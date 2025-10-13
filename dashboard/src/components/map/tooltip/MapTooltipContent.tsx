@@ -1,4 +1,3 @@
-import { MotionText } from '@/components/animation/MotionText';
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
 import { SupportedLanguages } from '@/constants/i18n';
@@ -34,12 +33,7 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTo
       />
       <div className='flex gap-1 text-sm whitespace-nowrap'>
         <span className='text-muted-foreground'>{label}:</span>
-        <MotionText
-          text={formatNumber(geoVisitor.visitors)}
-          className='text-foreground font-inherit align-baseline leading-5 tabular-nums'
-          charClassName='align-baseline'
-          punchy={false}
-        />
+        <span className='text-foreground'>{formatNumber(geoVisitor.visitors)}</span>
       </div>
     </div>
   );
