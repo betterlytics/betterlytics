@@ -8175,8 +8175,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
 })({});
 //# sourceMappingURL=rrweb.min.js.map
 
-
-
 // Betterlytics
 (function () {
   if (window.__betterlytics_replay_initialized__) {
@@ -8573,11 +8571,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
     function startRecording() {
       if (!window.rrweb || state.initialized) {
-        console.log("startRecording return", window.rrweb, state.initialized);
         return;
       }
 
-      console.log("startRecording", window.rrweb, state.initialized);
       state.initialized = true;
 
       var isCoarsePointer = false;
@@ -8677,10 +8673,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
     setupEventListeners();
 
     if (isReplayEnabledOnPage()) {
-      console.log("isReplayEnabledOnPage startRecording");
       startRecording();
     } else {
-      console.log("isReplayEnabledOnPage emitReplayBlacklist");
       emitReplayBlacklist();
       stopRecording(true);
     }
