@@ -64,7 +64,7 @@ export default function DeckGLClient({
         }}
         onClick={onClick}
         onHover={onHover}
-        useDevicePixels={false} /* Disable for performance gains */
+        useDevicePixels={true} /* Disable for performance gains */
         layers={layers}
         style={{ position: 'fixed' }}
       >

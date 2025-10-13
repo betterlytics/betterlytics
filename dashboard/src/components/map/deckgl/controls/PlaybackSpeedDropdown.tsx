@@ -48,7 +48,7 @@ export function PlaybackSpeedDropdown({
         title={t('tooltip')}
         className='bg-secondary hover:bg-accent flex cursor-pointer flex-col rounded-md px-3 py-1.5 text-sm'
       >
-        <span className='font-mono text-xs font-light'>{`${t('label')}`}</span>
+        <span className='font-mono text-xs font-light'>{t('label')}</span>
         <span className='font-medium'>x{speed}</span>
       </DropdownMenuTrigger>
 
