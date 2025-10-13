@@ -19,6 +19,8 @@ import {
   Expand,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
+import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
 
 export type TimelineMarkerDescriptor = {
   label: string;
@@ -140,38 +142,36 @@ export function buildTimelineMarkers(
     .filter((marker): marker is TimelineMarkerDescriptor => Boolean(marker));
 }
 
-function iconForLabel(label: string): React.ReactNode {
+function iconForLabel(label: string, theme: 'light' | 'dark'): React.ReactNode {
   const ICON_BASE_CLASS = 'h-5 w-5';
+
+  const color = markerFillColorForLabel(theme, label);
 
   switch (label) {
     case 'Mouse Interaction':
-      return <MousePointer2 className={`${ICON_BASE_CLASS} text-sky-500 dark:text-sky-400`} />;
+      return <MousePointer2 className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Selection':
-      return <MousePointerSquareDashed className={`${ICON_BASE_CLASS} text-emerald-500 dark:text-emerald-400`} />;
-    case 'DOM Mutation':
-      return <FilePen className={`${ICON_BASE_CLASS} text-violet-500 dark:text-violet-400`} />;
+      return <MousePointerSquareDashed className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Scroll':
-      return <ScrollText className={`${ICON_BASE_CLASS} text-amber-500 dark:text-amber-400`} />;
-    case 'Navigation':
-      return <Route className={`${ICON_BASE_CLASS} text-primary`} />;
+      return <ScrollText className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Input':
-      return <Keyboard className={`${ICON_BASE_CLASS} text-rose-500 dark:text-rose-400`} />;
+      return <Keyboard className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Full snapshot':
-      return <Camera className={`${ICON_BASE_CLASS} text-green-500 dark:text-green-400`} />;
+      return <Camera className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Viewport Resize':
-      return <Expand className={`${ICON_BASE_CLASS} text-indigo-500 dark:text-indigo-400`} />;
+      return <Expand className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Media Interaction':
-      return <PlayCircle className={`${ICON_BASE_CLASS} text-orange-500 dark:text-orange-400`} />;
+      return <PlayCircle className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Pageview':
-      return <Eye className={`${ICON_BASE_CLASS} text-sky-500 dark:text-sky-400`} />;
+      return <Eye className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Blacklist':
-      return <Lock className={`${ICON_BASE_CLASS} text-gray-500 dark:text-gray-400`} />;
+      return <Lock className={ICON_BASE_CLASS} style={{ color }} />;
     default:
-      return <Tag className={`${ICON_BASE_CLASS} text-muted-foreground`} />;
+      return <Tag className={ICON_BASE_CLASS} style={{ color }} />;
   }
 }
 
-function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
+function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark'): TimelineGroup[] {
   if (markers.length === 0) return [];
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
   const groups: TimelineGroup[] = [];
@@ -186,7 +186,7 @@ function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
         start: m.timestamp,
         end: m.timestamp,
         jumpTo: m.timestamp,
-        icon: iconForLabel(m.label),
+        icon: iconForLabel(m.label, theme),
       };
       groups.push(current);
     } else {
@@ -201,7 +201,10 @@ function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
 function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }: ReplayTimelineProps) {
   const t = useTranslations('components.sessionReplay.eventTimeline');
 
-  const groups = useMemo(() => buildGroups(markers), [markers]);
+  const { resolvedTheme } = useTheme();
+  const theme: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light';
+
+  const groups = useMemo(() => buildGroups(markers, theme), [markers, theme]);
   const totalEvents = markers.length;
 
   const timelineEmptyState = useMemo(
