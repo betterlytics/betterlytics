@@ -66,7 +66,7 @@ const ReplayPlayerComponent = (
   const isSkippingInactivityRef = useRef<boolean>(false);
 
   const findClosestEventBefore = useCallback(
-    (timeOffset: number, eventType?: number) => {
+    (timeOffset: number, eventTypes?: EventType | EventType[]) => {
       const events = playerState.eventsRef.current;
       if (events.length === 0) {
         return null;
@@ -74,8 +74,12 @@ const ReplayPlayerComponent = (
 
       const targetAbsoluteTime = (events[0]?.timestamp ?? 0) + timeOffset;
 
+      const typesArray =
+        eventTypes === undefined ? undefined : Array.isArray(eventTypes) ? eventTypes : [eventTypes];
+
       const filteredEvents = events.filter(
-        (e) => (eventType === undefined ? true : e.type === eventType) && e.timestamp <= targetAbsoluteTime,
+        (e) =>
+          (typesArray === undefined ? true : typesArray.includes(e.type)) && e.timestamp <= targetAbsoluteTime,
       );
 
       if (filteredEvents.length === 0) {
@@ -96,7 +100,7 @@ const ReplayPlayerComponent = (
   );
 
   const findClosestEventBeforeTimestamp = useCallback(
-    (timeOffset: number, eventType?: number) => {
+    (timeOffset: number, eventType?: EventType) => {
       const events = playerState.eventsRef.current;
       if (events.length === 0) {
         return null;
@@ -198,7 +202,8 @@ const ReplayPlayerComponent = (
       if (!playerRef.current) {
         return;
       }
-      const closestEventBefore = findClosestEventBefore(timeOffset);
+
+      const closestEventBefore = findClosestEventBefore(timeOffset, [EventType.Custom, EventType.FullSnapshot]);
 
       try {
         playerRef.current.goto(timeOffset);
@@ -209,7 +214,7 @@ const ReplayPlayerComponent = (
 
         return;
       } catch (error) {
-        const fallbackEventType = 2;
+        const fallbackEventType = EventType.FullSnapshot;
         console.warn(`Direct seek failed, using type ${fallbackEventType} fallback strategy:`, error);
         recreatePlayer(playerState.eventsRef.current, isPlaying);
 
