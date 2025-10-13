@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { SessionReplay } from '@/entities/sessionReplays';
 
 type ReplayTopbarProps = {
-  session: SessionReplay;
+  session?: SessionReplay | null;
 };
 
 export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbarProps) {
@@ -48,30 +48,34 @@ export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbar
 
         <div className='text-muted-foreground/80 flex-1 text-center'>{startedAtLabel}</div>
 
-        <div className='flex shrink-0 items-center gap-2'>
-          <InfoBadge
-            icon={country?.code && <FlagIcon countryCode={country.code} countryName={country.name} />}
-            tooltip={country?.name ?? tMisc('unknown')}
-            ariaLabel={country?.name ?? tMisc('unknown')}
-          />
+        <div className='flex min-h-7 shrink-0 items-center gap-2'>
+          {session && (
+            <>
+              <InfoBadge
+                icon={country?.code && <FlagIcon countryCode={country.code} countryName={country.name} />}
+                tooltip={country?.name ?? tMisc('unknown')}
+                ariaLabel={country?.name ?? tMisc('unknown')}
+              />
 
-          <InfoBadge
-            icon={browser && <BrowserIcon name={browser} className='h-3.5 w-3.5' />}
-            tooltip={browser ?? tMisc('unknown')}
-            ariaLabel={browser ?? tMisc('unknown')}
-          />
+              <InfoBadge
+                icon={browser && <BrowserIcon name={browser} className='h-3.5 w-3.5' />}
+                tooltip={browser ?? tMisc('unknown')}
+                ariaLabel={browser ?? tMisc('unknown')}
+              />
 
-          <InfoBadge
-            icon={os && <OSIcon name={os} className='h-3.5 w-3.5' />}
-            tooltip={os ?? tMisc('unknown')}
-            ariaLabel={os ?? tMisc('unknown')}
-          />
+              <InfoBadge
+                icon={os && <OSIcon name={os} className='h-3.5 w-3.5' />}
+                tooltip={os ?? tMisc('unknown')}
+                ariaLabel={os ?? tMisc('unknown')}
+              />
 
-          <InfoBadge
-            icon={device && <DeviceIcon type={device} className='h-3.5 w-3.5' />}
-            tooltip={device ?? tMisc('unknown')}
-            ariaLabel={device ?? tMisc('unknown')}
-          />
+              <InfoBadge
+                icon={device && <DeviceIcon type={device} className='h-3.5 w-3.5' />}
+                tooltip={device ?? tMisc('unknown')}
+                ariaLabel={device ?? tMisc('unknown')}
+              />
+            </>
+          )}
         </div>
       </div>
     </TooltipProvider>
