@@ -1433,11 +1433,7 @@
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
-        "startUrlTitle": "URL iniziale (prima pagina di questa sessione)",
-        "countryAria": "Paese {name}",
-        "browserAria": "Browser {name}",
-        "osAria": "Sistema operativo {name}",
-        "deviceAria": "Dispositivo {name}"
+        "startUrlTitle": "URL iniziale (prima pagina di questa sessione)"
       },
       "eventTimeline": {
         "header": "Cronologia",

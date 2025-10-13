@@ -1427,11 +1427,7 @@
       },
       "playerTopbar": {
         "startLabel": "Start:",
-        "startUrlTitle": "Start URL (first page of this session)",
-        "countryAria": "Country {name}",
-        "browserAria": "Browser {name}",
-        "osAria": "OS {name}",
-        "deviceAria": "Device {name}"
+        "startUrlTitle": "Start URL (first page of this session)"
       },
       "eventTimeline": {
         "header": "Timeline",

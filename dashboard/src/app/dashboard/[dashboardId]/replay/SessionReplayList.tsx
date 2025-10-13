@@ -1,11 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-
 import { SessionReplay } from '@/entities/sessionReplays';
 import { Spinner } from '@/components/ui/spinner';
-import { Clock, HelpCircle, ListVideo } from 'lucide-react';
-
+import { Clock, ListVideo } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -15,6 +13,7 @@ import { getCountryName } from '@/utils/countryCodes';
 import { formatDuration, formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 import { capitalizeFirstLetter } from '@/utils/formatters';
+import { InfoBadge } from './components/InfoBadge';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -38,6 +37,7 @@ export function SessionReplayList({
   const locale = useLocale();
   const [minDurationFilter, setMinDurationFilter] = useState('');
   const t = useTranslations('components.sessionReplay.sessionList');
+  const tMisc = useTranslations('misc');
 
   const normalizedMinDuration = Math.max(0, Number.parseInt(minDurationFilter || '0', 10) || 0);
 
@@ -62,7 +62,15 @@ export function SessionReplayList({
   const items: ListPanelItem[] = filteredSessions.map((session) => {
     const startedAt = new Date(session.started_at);
     const durationLabel = formatDuration(session.duration);
-    const countryName = session.country_code ? getCountryName(session.country_code, locale) : null;
+    const country = session?.country_code
+      ? {
+          code: session.country_code as FlagIconProps['countryCode'],
+          name: getCountryName(session.country_code as FlagIconProps['countryCode'], locale),
+        }
+      : null;
+    const browserName = session.browser ? capitalizeFirstLetter(session.browser) : null;
+    const osName = session.os ? capitalizeFirstLetter(session.os) : null;
+    const deviceName = session.device_type ? capitalizeFirstLetter(session.device_type) : null;
 
     return {
       id: session.session_id,
@@ -96,46 +104,28 @@ export function SessionReplayList({
             <p className='text-foreground mt-3 w-full truncate text-xs'>{session.start_url || t('unknownUrl')}</p>
 
             <div className='text-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
-              {session.country_code ? (
-                <SessionDataIconBadge
-                  title={countryName ?? t('unknown')}
-                  ariaLabel={countryName ? `Country ${countryName}` : t('unknown')}
-                >
-                  <FlagIcon
-                    countryCode={session.country_code as FlagIconProps['countryCode']}
-                    countryName={countryName ?? ''}
-                  />
-                </SessionDataIconBadge>
-              ) : (
-                <EmptySessionData />
-              )}
-              {session.browser ? (
-                <SessionDataIconBadge
-                  title={`Browser ${session.browser}`}
-                  ariaLabel={`Browser ${session.browser}`}
-                >
-                  <BrowserIcon name={session.browser} />
-                </SessionDataIconBadge>
-              ) : (
-                <EmptySessionData />
-              )}
-              {session.os ? (
-                <SessionDataIconBadge title={`OS ${session.os}`} ariaLabel={`OS ${session.os}`}>
-                  <OSIcon name={session.os} />
-                </SessionDataIconBadge>
-              ) : (
-                <EmptySessionData />
-              )}
-              {session.device_type ? (
-                <SessionDataIconBadge
-                  title={`Device ${session.device_type}`}
-                  ariaLabel={`Device ${session.device_type}`}
-                >
-                  <DeviceIcon type={session.device_type} />
-                </SessionDataIconBadge>
-              ) : (
-                <EmptySessionData />
-              )}
+              <InfoBadge
+                tooltip={country?.name ?? tMisc('unknown')}
+                ariaLabel={country?.name ?? tMisc('unknown')}
+                icon={country?.code && <FlagIcon countryCode={country.code} countryName={country.name} />}
+              />
+              <InfoBadge
+                tooltip={browserName ?? tMisc('unknown')}
+                ariaLabel={browserName ?? tMisc('unknown')}
+                icon={browserName && <BrowserIcon name={browserName} />}
+              />
+
+              <InfoBadge
+                tooltip={osName ?? tMisc('unknown')}
+                ariaLabel={osName ?? tMisc('unknown')}
+                icon={osName && <OSIcon name={osName} />}
+              />
+
+              <InfoBadge
+                tooltip={deviceName ?? tMisc('unknown')}
+                ariaLabel={deviceName ?? tMisc('unknown')}
+                icon={deviceName && <DeviceIcon type={deviceName} />}
+              />
             </div>
           </CardContent>
         </Card>
@@ -185,34 +175,5 @@ export function SessionReplayList({
       hasNextPage={hasNextPage}
       empty={emptyState}
     />
-  );
-}
-
-function SessionDataIconBadge({
-  children,
-  title,
-  ariaLabel,
-}: {
-  children: React.ReactNode;
-  title: string;
-  ariaLabel: string;
-}) {
-  return (
-    <span
-      className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
-      title={title}
-      aria-label={ariaLabel}
-    >
-      {children}
-    </span>
-  );
-}
-
-function EmptySessionData() {
-  const t = useTranslations('components.sessionReplay.sessionList');
-  return (
-    <SessionDataIconBadge title={t('unknown')} ariaLabel={t('unknown')}>
-      <HelpCircle size='1rem' />
-    </SessionDataIconBadge>
   );
 }

@@ -1,32 +1,38 @@
-'use client';
-
-import { memo, useMemo } from 'react';
-import type { SessionReplay } from '@/entities/sessionReplays';
-import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon, type FlagIconProps } from '@/components/icons';
-import { getCountryName } from '@/utils/countryCodes';
-import { useLocale, useTranslations } from 'next-intl';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { BrowserIcon, DeviceIcon, FlagIcon, FlagIconProps, OSIcon } from '@/components/icons';
+import { InfoBadge } from './InfoBadge';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { capitalizeFirstLetter } from '@/utils/formatters';
+import { getCountryName } from '@/utils/countryCodes';
+import { useLocale } from 'next-intl';
+import { memo } from 'react';
+import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { useTranslations } from 'next-intl';
+import { SessionReplay } from '@/entities/sessionReplays';
 
 type ReplayTopbarProps = {
-  session?: SessionReplay | null;
+  session: SessionReplay;
 };
 
 export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbarProps) {
   const locale = useLocale();
   const t = useTranslations('components.sessionReplay.playerTopbar');
+  const tMisc = useTranslations('misc');
 
-  const startedAtLabel = useMemo(
-    () => formatLocalDateTime(session?.started_at, locale, { dateStyle: 'medium', timeStyle: 'short' }),
-    [locale, session?.started_at],
-  );
+  const startedAtLabel = formatLocalDateTime(session?.started_at, locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
 
-  const country = useMemo(() => {
-    const code = session?.country_code as FlagIconProps['countryCode'];
-    if (!code) return null;
-    return { code, name: getCountryName(code, locale) };
-  }, [locale, session?.country_code]);
+  const country = session?.country_code
+    ? {
+        code: session.country_code as FlagIconProps['countryCode'],
+        name: getCountryName(session.country_code as FlagIconProps['countryCode'], locale),
+      }
+    : null;
+
+  const browser = session?.browser ? capitalizeFirstLetter(session.browser) : null;
+  const os = session?.os ? capitalizeFirstLetter(session.os) : null;
+  const device = session?.device_type ? capitalizeFirstLetter(session.device_type) : null;
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -43,58 +49,29 @@ export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbar
         <div className='text-muted-foreground/80 flex-1 text-center'>{startedAtLabel}</div>
 
         <div className='flex shrink-0 items-center gap-2'>
-          {country && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
-                  aria-label={t('countryAria', { name: country.name ?? country.code })}
-                >
-                  <FlagIcon countryCode={country.code} countryName={country.name ?? ''} />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side='bottom'>{country.name ?? country.code}</TooltipContent>
-            </Tooltip>
-          )}
-          {session?.browser && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
-                  aria-label={t('browserAria', { name: session.browser })}
-                >
-                  <BrowserIcon name={session.browser} className='h-3.5 w-3.5' />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side='bottom'>{capitalizeFirstLetter(session.browser)}</TooltipContent>
-            </Tooltip>
-          )}
-          {session?.os && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
-                  aria-label={t('osAria', { name: session.os })}
-                >
-                  <OSIcon name={session.os} className='h-3.5 w-3.5' />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side='bottom'>{capitalizeFirstLetter(session.os)}</TooltipContent>
-            </Tooltip>
-          )}
-          {session?.device_type && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className='border-border/50 bg-muted/40 flex h-7 w-7 items-center justify-center rounded-md border'
-                  aria-label={t('deviceAria', { name: session.device_type })}
-                >
-                  <DeviceIcon type={session.device_type} className='h-3.5 w-3.5' />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side='bottom'>{capitalizeFirstLetter(session.device_type)}</TooltipContent>
-            </Tooltip>
-          )}
+          <InfoBadge
+            icon={country?.code && <FlagIcon countryCode={country.code} countryName={country.name} />}
+            tooltip={country?.name ?? tMisc('unknown')}
+            ariaLabel={country?.name ?? tMisc('unknown')}
+          />
+
+          <InfoBadge
+            icon={browser && <BrowserIcon name={browser} className='h-3.5 w-3.5' />}
+            tooltip={browser ?? tMisc('unknown')}
+            ariaLabel={browser ?? tMisc('unknown')}
+          />
+
+          <InfoBadge
+            icon={os && <OSIcon name={os} className='h-3.5 w-3.5' />}
+            tooltip={os ?? tMisc('unknown')}
+            ariaLabel={os ?? tMisc('unknown')}
+          />
+
+          <InfoBadge
+            icon={device && <DeviceIcon type={device} className='h-3.5 w-3.5' />}
+            tooltip={device ?? tMisc('unknown')}
+            ariaLabel={device ?? tMisc('unknown')}
+          />
         </div>
       </div>
     </TooltipProvider>
