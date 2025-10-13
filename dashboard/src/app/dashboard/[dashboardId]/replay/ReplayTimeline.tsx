@@ -3,7 +3,7 @@
 import type { eventWithTime } from '@rrweb/types';
 import { memo, useMemo } from 'react';
 import { EventType, IncrementalSource } from '@rrweb/types';
-import { ListPanel } from '@/app/dashboard/[dashboardId]/replay/ListPanel';
+import { TimelinePanel } from '@/app/dashboard/[dashboardId]/replay/TimelinePanel';
 import {
   MousePointer2,
   MousePointerSquareDashed,
@@ -30,10 +30,19 @@ export type TimelineMarker = TimelineMarkerDescriptor & {
   id: string;
 };
 
+export type TimelineGroup = {
+  id: string;
+  label: string;
+  count: number;
+  start: number;
+  end: number;
+  jumpTo: number;
+  icon: React.ReactNode;
+};
+
 type ReplayTimelineProps = {
   markers: TimelineMarker[];
   onJump: (timestamp: number) => void;
-  className?: string;
   isSessionSelected?: boolean;
 };
 
@@ -131,9 +140,9 @@ export function buildTimelineMarkers(
     .filter((marker): marker is TimelineMarkerDescriptor => Boolean(marker));
 }
 
-const ICON_BASE_CLASS = 'h-5 w-5';
-
 function iconForLabel(label: string): React.ReactNode {
+  const ICON_BASE_CLASS = 'h-5 w-5';
+
   switch (label) {
     case 'Mouse Interaction':
       return <MousePointer2 className={`${ICON_BASE_CLASS} text-sky-500 dark:text-sky-400`} />;
@@ -162,16 +171,6 @@ function iconForLabel(label: string): React.ReactNode {
   }
 }
 
-type TimelineGroup = {
-  id: string;
-  label: string;
-  count: number;
-  start: number;
-  end: number;
-  jumpTo: number;
-  icon: React.ReactNode;
-};
-
 function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
   if (markers.length === 0) return [];
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
@@ -199,7 +198,7 @@ function buildGroups(markers: TimelineMarker[]): TimelineGroup[] {
   return groups;
 }
 
-function ReplayTimelineComponent({ markers, onJump, className, isSessionSelected = false }: ReplayTimelineProps) {
+function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }: ReplayTimelineProps) {
   const t = useTranslations('components.sessionReplay.eventTimeline');
 
   const groups = useMemo(() => buildGroups(markers), [markers]);
@@ -215,12 +214,11 @@ function ReplayTimelineComponent({ markers, onJump, className, isSessionSelected
   );
 
   return (
-    <ListPanel
+    <TimelinePanel
       title={t('header')}
       subtitle={t('subHeader', { count: totalEvents, groupCount: groups.length })}
       groups={groups}
       empty={timelineEmptyState}
-      className={className}
       rowHeight={44}
       onJump={onJump}
     />

@@ -4,73 +4,43 @@ import { List, RowComponentProps } from 'react-window';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { formatDurationPrecise, formatTimestamp } from '@/utils/dateFormatters';
+import { TimelineGroup } from './ReplayTimeline';
 
-type ListPanelProps = {
+type TimelinePanelProps = {
   title: string;
-  onJump: (timestamp: number) => void;
   subtitle?: React.ReactNode;
-  headerRight?: React.ReactNode;
-  className?: string;
-  children?: React.ReactNode;
   groups?: TimelineGroup[];
-  empty?: React.ReactNode;
-  listClassName?: string;
+  empty: React.ReactNode;
   rowHeight?: number;
+  onJump: (timestamp: number) => void;
 };
 
-export function ListPanel({
-  title,
-  subtitle,
-  headerRight,
-  className,
-  children,
-  groups,
-  empty,
-  listClassName,
-  onJump,
-  rowHeight = 40,
-}: ListPanelProps) {
+export function TimelinePanel({ title, subtitle, groups, empty, rowHeight = 40, onJump }: TimelinePanelProps) {
   return (
-    <Card className={cn('flex h-full min-h-0 flex-col !gap-0 overflow-hidden !p-0', className)}>
+    <Card className='flex h-full min-h-0 flex-col !gap-0 overflow-hidden !p-0'>
       <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3 !pb-3'>
         <div className='space-y-1'>
           <CardTitle className='text-sm font-medium tracking-tight'>{title}</CardTitle>
           {subtitle ? <CardDescription className='text-xs leading-relaxed'>{subtitle}</CardDescription> : null}
         </div>
-        {headerRight ? <div className='shrink-0'>{headerRight}</div> : null}
       </CardHeader>
       <CardContent className='flex flex-1 flex-col !px-0 !py-0'>
         <div className='flex max-h-[calc(100svh-250px)] flex-1 flex-col px-2 py-2'>
-          {groups ? (
-            groups.length === 0 ? (
-              (empty ?? null)
-            ) : (
-              <List
-                className={listClassName}
-                rowComponent={RenderGroup}
-                rowCount={groups.length}
-                rowHeight={rowHeight}
-                rowProps={{ groups, onJump }}
-              />
-            )
+          {groups && groups.length > 0 ? (
+            <List
+              rowComponent={RenderGroup}
+              rowCount={groups.length}
+              rowHeight={rowHeight}
+              rowProps={{ groups, onJump }}
+            />
           ) : (
-            children
+            empty
           )}
         </div>
       </CardContent>
     </Card>
   );
 }
-
-type TimelineGroup = {
-  id: string;
-  label: string;
-  count: number;
-  start: number;
-  end: number;
-  jumpTo: number;
-  icon: React.ReactNode;
-};
 
 type RenderGroupProps = RowComponentProps<{
   groups: TimelineGroup[];

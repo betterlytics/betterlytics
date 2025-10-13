@@ -4,17 +4,14 @@ import { useCallback, useRef } from 'react';
 import { List, RowComponentProps } from 'react-window';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
 type ListPanelProps = {
   title: string;
   subtitle?: React.ReactNode;
   headerRight?: React.ReactNode;
-  className?: string;
-  children?: React.ReactNode;
   items?: ListPanelItem[];
-  empty?: React.ReactNode;
+  empty: React.ReactNode;
   onReachEnd?: () => void;
   isFetchingMore?: boolean;
   hasNextPage?: boolean;
@@ -29,8 +26,6 @@ export function SessionListPanel({
   title,
   subtitle,
   headerRight,
-  className,
-  children,
   items,
   empty,
   onReachEnd,
@@ -61,7 +56,7 @@ export function SessionListPanel({
   );
 
   return (
-    <Card className={cn('flex h-full min-h-0 flex-col !gap-0 overflow-hidden !p-0', className)}>
+    <Card className='flex h-full min-h-0 flex-col !gap-0 overflow-hidden !p-0'>
       <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3 !pb-3'>
         <div className='space-y-1'>
           <CardTitle className='text-sm font-medium tracking-tight'>{title}</CardTitle>
@@ -72,20 +67,16 @@ export function SessionListPanel({
 
       <CardContent className='flex flex-1 flex-col !px-0 !py-0'>
         <div className='flex max-h-[calc(100svh-250px)] flex-1 flex-col px-2 py-2'>
-          {items ? (
-            items.length === 0 ? (
-              empty
-            ) : (
-              <List
-                rowComponent={RenderRow}
-                rowCount={items.length + 1} // +1 for footer
-                rowHeight={115}
-                onRowsRendered={handleRowsRendered}
-                rowProps={{ items, isFetchingMore, hasNextPage }}
-              />
-            )
+          {items && items.length > 0 ? (
+            <List
+              rowComponent={RenderRow}
+              rowCount={items.length + 1} // +1 for footer
+              rowHeight={115}
+              onRowsRendered={handleRowsRendered}
+              rowProps={{ items, isFetchingMore, hasNextPage }}
+            />
           ) : (
-            children
+            empty
           )}
         </div>
       </CardContent>
