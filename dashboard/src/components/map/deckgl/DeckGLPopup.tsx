@@ -32,7 +32,7 @@ function DeckGLPopupComponent({ size = 'sm', children }: DeckGLPopupProps) {
       aria-hidden={false}
       style={{
         left: x,
-        top: y - 52,
+        top: y - 60,
         transform: 'translate(-50%, -100%)',
         pointerEvents: 'auto',
       }}

@@ -37,15 +37,13 @@ export function MapPlayActionbar<TValue>({
       hoverScale={1}
       opacityRange={[0.8, 1]}
       opacityValues={[0.6, 1]}
-      startTransition={{ duration: 0.12, ease: 'easeOut' }}
-      endTransition={{ duration: 0.12, ease: 'easeOut', delay: 0.2 }}
+      onHoverEndComplete={() => setHovering(false)}
+      onHoverStartComplete={() => setHovering(true)}
+      startTransition={{ duration: 0.2, ease: 'easeOut' }}
+      endTransition={{ duration: 0.2, ease: 'easeOut' }}
       className={cn(className, 'bg-background flex flex-col gap-2 rounded-xl p-1 shadow-md')}
     >
-      <div
-        className='flex items-center gap-3'
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
-      >
+      <div className='flex items-center gap-3'>
         <PlaybackButton onClick={onTogglePlay} playbackType={playing ? 'pause' : 'play'} />
         <TimeSlider ticks={ticks} value={value} playing={playing} onScrub={onScrub} hovering={hovering} />
         <PlaybackSpeedDropdown speed={speed} onChange={onChangeSpeed} />

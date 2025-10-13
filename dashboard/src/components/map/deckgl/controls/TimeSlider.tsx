@@ -92,7 +92,6 @@ export function TimeSlider<TValue>({
               stiffness: 400,
               damping: 40,
               mass: 0.8,
-              delay: hovering || playing ? 0.15 : 0, // Delay on enter
             }}
             className='absolute -top-5 left-1/2 z-[11] -translate-1/2 [transform:translateZ(0)]'
           >

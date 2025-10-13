@@ -1,7 +1,7 @@
 'use client';
 
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
-import type { MotionValue, Transition } from 'framer-motion';
+import type { AnimationPlaybackControls, MotionValue, Transition } from 'framer-motion';
 import * as React from 'react';
 
 export type ScaleMotionProps = {
@@ -12,6 +12,8 @@ export type ScaleMotionProps = {
   opacityValues?: [number, number];
   startTransition?: Transition; // optional transition for hover start
   endTransition?: Transition; // optional transition for hover end
+  onHoverStartComplete?: () => void; // fires when the "scale up" finishes
+  onHoverEndComplete?: () => void; // fires when the "scale down" finishes
   className?: string;
   style?: React.CSSProperties;
 };
@@ -24,28 +26,38 @@ export function ScaleMotion({
   opacityValues,
   startTransition,
   endTransition,
+  onHoverStartComplete,
+  onHoverEndComplete,
   className,
   style,
 }: ScaleMotionProps) {
   const scale = useMotionValue(initialScale);
-
   const opacity = opacityRange && opacityValues ? useTransform(scale, opacityRange, opacityValues) : undefined;
 
-  const animateTo = (target: number, transitionOverride?: Transition) => {
-    animate(
-      scale as MotionValue<number>,
-      target,
-      transitionOverride ?? { type: 'spring', stiffness: 200, damping: 20 },
-    );
+  const controlsRef = React.useRef<AnimationPlaybackControls | null>(null);
+
+  const defaultSpring: Transition = { type: 'spring', stiffness: 200, damping: 20 };
+
+  const animateTo = (target: number, transitionOverride?: Transition, onComplete?: () => void) => {
+    controlsRef.current?.stop();
+
+    controlsRef.current = animate(scale as MotionValue<number>, target, {
+      ...defaultSpring,
+      ...(transitionOverride ?? {}),
+      onComplete: onComplete,
+    });
   };
+
+  const handleStart = () => animateTo(hoverScale, startTransition, onHoverStartComplete);
+  const handleEnd = () => animateTo(initialScale, endTransition, onHoverEndComplete);
 
   return (
     <motion.div
       className={className}
-      onHoverStart={() => animateTo(hoverScale, startTransition)}
-      onHoverEnd={() => animateTo(initialScale, endTransition)}
-      onTouchStart={() => animateTo(hoverScale, startTransition)}
-      onTouchEnd={() => animateTo(initialScale, endTransition)}
+      onHoverStart={handleStart}
+      onHoverEnd={handleEnd}
+      onTouchStart={handleStart}
+      onTouchEnd={handleEnd}
       style={{
         scale,
         ...(opacity ? { opacity } : {}),

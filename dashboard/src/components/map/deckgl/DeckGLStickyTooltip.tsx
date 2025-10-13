@@ -31,7 +31,7 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
     const mapContainer = containerRef.current;
 
     const onMouseMove = (e: MouseEvent) => {
-      latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
+      latestMouseRef.current = { x: e.clientX, y: e.clientY - 4 };
     };
 
     mapContainer.addEventListener('mousemove', onMouseMove);
