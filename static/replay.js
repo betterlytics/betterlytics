@@ -8369,6 +8369,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
         screen_resolution: window.screen.width + "x" + window.screen.height,
         content_length: payload.bytes.byteLength,
       };
+      if (payload && payload.lastEventTs) {
+        presignPayload.ended_at_ms = payload.lastEventTs;
+      }
       if (payload.encoding === "gzip") {
         presignPayload.content_encoding = "gzip";
       }
@@ -8453,8 +8456,19 @@ or you can use record.mirror to access the mirror instance during recording.`;
       var flushedEventCount = events.length;
       state.approxBytes = 0;
 
+      var lastEventTs = state.lastActivity;
+      try {
+        var last = events[events.length - 1];
+        if (last && typeof last.timestamp === "number") {
+          lastEventTs = last.timestamp;
+        }
+      } catch (_) {}
+
       state.ongoingFlush = encodeReplayChunk(json)
-        .then(fetchPresignedUrl)
+        .then(function (enc) {
+          enc.lastEventTs = lastEventTs;
+          return fetchPresignedUrl(enc);
+        })
         .then(uploadToS3)
         .then(function (data) {
           handleUploadSuccess(data, flushedEventCount);
