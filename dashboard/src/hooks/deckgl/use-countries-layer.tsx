@@ -54,7 +54,7 @@ export function useCountriesLayer({
       filled: true,
       stroked: false,
       pickable: true,
-
+      wrapLongitude: false,
       getFillColor: (f: any) => {
         const iso = f.id as string;
         const visitors = visitorData[iso] ?? 0;
@@ -80,7 +80,7 @@ export function useCountriesLayer({
       stroked: true,
       pickable: false,
       lineWidthMinPixels: 1,
-
+      wrapLongitude: false,
       getLineColor: (f: any) => {
         const iso = f.id as string;
         const visitors = visitorData[iso] ?? 0;
@@ -112,6 +112,7 @@ export function useCountriesLayer({
       getWidth: 2,
       widthUnits: 'pixels',
       widthMinPixels: 2,
+      wrapLongitude: false,
       parameters: { depthTest: false }, // keep visible over fill
       updateTriggers: {
         getColor: clickedFeature?.geoVisitor?.country_code,
@@ -136,6 +137,7 @@ export function useCountriesLayer({
       getWidth: 2,
       widthUnits: 'pixels',
       widthMinPixels: 2,
+      wrapLongitude: false,
       parameters: { depthTest: false }, // keep visible over fill
       updateTriggers: {
         getColor: hoveredFeature?.geoVisitor?.country_code,

@@ -4,6 +4,7 @@ import { useMapViewState, useSetMapViewState } from '@/contexts/DeckGLViewStateP
 import { useCountriesLayer, type GeoJsonAnimation } from '@/hooks/deckgl/use-countries-layer';
 import { DeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { DeckGL } from '@deck.gl/react';
+import { MapView } from '@deck.gl/core';
 import { FeatureCollection } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
 
@@ -50,12 +51,18 @@ export default function DeckGLClient({
 
   const deckRef = useRef<any>(null);
 
+  const view = new MapView({
+    id: 'main',
+    controller: { doubleClickZoom: false, dragRotate: false },
+    repeat: false,
+  });
+
   return (
     <>
       <DeckGL
+        views={view}
         ref={deckRef}
         viewState={viewState}
-        controller={{ doubleClickZoom: false, dragRotate: false }}
         onViewStateChange={({ viewState: vs, interactionState }) => {
           // Only update if user is interacting
           if (!interactionState.inTransition || interactionState.isZooming) {
