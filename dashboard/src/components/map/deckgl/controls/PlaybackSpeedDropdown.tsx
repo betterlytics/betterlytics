@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { MotionText } from '@/components/animation/MotionText';
+import { cn } from '@/lib/utils';
 
 export const PLAYBACK_SPEEDS = [2, 1.75, 1.5, 1.25, 1, 0.75, 0.5, 0.25] as const;
 export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
@@ -47,7 +48,11 @@ export function PlaybackSpeedDropdown({
     <DropdownMenu modal={false} onOpenChange={(open) => setIsOpen(open)}>
       <DropdownMenuTrigger
         title={t('tooltip')}
-        className='bg-secondary hover:bg-accent flex cursor-pointer flex-col rounded-md px-3 py-1.5 text-sm'
+        className={cn(
+          'flex flex-col px-3 py-1.5 text-sm',
+          'bg-secondary hover:bg-accent cursor-pointer rounded-md',
+          'border-border border shadow-sm',
+        )}
       >
         <span className='font-mono text-xs font-light'>{t('label')}</span>
         <MotionText text={`x${speed}`} className='mx-auto gap-0 font-medium' />

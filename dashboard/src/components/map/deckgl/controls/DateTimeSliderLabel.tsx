@@ -17,12 +17,19 @@ const formatDate = (date: Date, granularity: GranularityRangeValues) =>
 export type DateTimeSliderLabelProps = {
   value: Date;
   granularity: GranularityRangeValues;
+  animate?: boolean;
 } & React.ComponentProps<'span'>;
 
-export function DateTimeSliderLabel({ value, granularity, className, ...rest }: DateTimeSliderLabelProps) {
+export function DateTimeSliderLabel({
+  value,
+  granularity,
+  animate = true,
+  className,
+  ...rest
+}: DateTimeSliderLabelProps) {
   const formatted = formatDate(value, granularity);
 
-  return (
+  return animate ? (
     <MotionText
       text={formatted}
       className={cn('inline-flex', className)}
@@ -31,5 +38,9 @@ export function DateTimeSliderLabel({ value, granularity, className, ...rest }: 
       duration={0.2}
       {...rest}
     />
+  ) : (
+    <span className={cn('inline-flex', className)} {...rest}>
+      {formatted}
+    </span>
   );
 }

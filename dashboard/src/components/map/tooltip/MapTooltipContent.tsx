@@ -38,6 +38,7 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTo
           text={formatNumber(geoVisitor.visitors)}
           className='text-foreground font-inherit align-baseline leading-5 tabular-nums'
           charClassName='align-baseline'
+          punchy={false}
         />
       </div>
     </div>

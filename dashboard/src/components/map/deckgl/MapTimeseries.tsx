@@ -70,7 +70,10 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   const tickProps = useMemo(
     () =>
       visitorDataTimeseries.map((tgeo, i) => ({
-        label: <DateTimeSliderLabel value={tgeo.date} granularity={granularity} />,
+        thumbLabel: <DateTimeSliderLabel value={tgeo.date} granularity={granularity} />,
+        tickLabel: (
+          <DateTimeSliderLabel className='font-mono' value={tgeo.date} granularity={granularity} animate={false} />
+        ),
         value: tgeo.date,
       })),
     [visitorDataTimeseries],

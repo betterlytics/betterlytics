@@ -7,7 +7,8 @@ import { motion } from 'framer-motion';
 import MapTooltipTip from '../../tooltip/MapTooltipTip';
 
 export type TimeSliderTick<TValue> = {
-  label: React.ReactNode;
+  tickLabel: React.ReactNode;
+  thumbLabel: React.ReactNode;
   value: TValue;
 };
 
@@ -70,13 +71,13 @@ export function TimeSlider<TValue>({
         {/* Hover tooltip below track */}
         {hoverValue !== null && ticks[hoverValue] && (
           <Badge
-            className='text-primary-foreground pointer-events-none absolute top-3 z-[11] mt-1 w-fit rounded-none bg-[var(--time-slider-tick)] text-xs shadow'
+            className='text-secondary-foreground bg-secondary border-border pointer-events-none absolute top-4 z-[11] mt-1 w-fit rounded-none border-1 text-xs shadow-sm'
             style={{
               left: `calc(${(hoverValue / intervals) * 100}%)`,
               transform: 'translateX(-50%)',
             }}
           >
-            {ticks[hoverValue].label}
+            {ticks[hoverValue].tickLabel}
           </Badge>
         )}
 
@@ -95,8 +96,10 @@ export function TimeSlider<TValue>({
             }}
             className='absolute -top-5 left-1/2 z-[11] -translate-1/2 [transform:translateZ(0)]'
           >
-            <Badge className='bg-primary rounded-xl'>{ticks[index] && ticks[index].label}</Badge>
-            <MapTooltipTip className='border-t-primary mx-auto !-mt-1' />
+            <Badge className='bg-primary border-border rounded-xl border-1 shadow-sm'>
+              {ticks[index] && ticks[index].thumbLabel}
+            </Badge>
+            <MapTooltipTip className='border-t-primary mx-auto !-mt-1.5 shadow-sm' />
           </motion.div>
         </SliderPrimitive.Thumb>
       </SliderPrimitive.Root>
