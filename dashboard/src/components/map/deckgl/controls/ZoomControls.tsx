@@ -8,9 +8,10 @@ import { ScaleMotion } from '@/components/ScaleMotion';
 
 export type ZoomControlsProps = {
   className: React.ComponentProps<'div'>['className'];
+  style?: React.CSSProperties;
 };
 
-export function ZoomControls({ className }: ZoomControlsProps) {
+export function ZoomControls({ className, style }: ZoomControlsProps) {
   const setViewState = useSetMapViewState();
 
   const handleZoom = (zoomType: ZoomType) => {
@@ -30,6 +31,7 @@ export function ZoomControls({ className }: ZoomControlsProps) {
       opacityValues={[0.6, 1]}
       startTransition={{ type: 'spring', stiffness: 400, damping: 40 }}
       endTransition={{ type: 'spring', stiffness: 400, damping: 40 }}
+      style={style}
     >
       <ZoomButton
         key='in'

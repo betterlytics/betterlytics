@@ -134,7 +134,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     [speed, playing, animationDurationBaseline],
   );
 
-  const sidebarOffset = useMemo(() => (isMobile ? '0' : '17rem'), [isMobile]);
+  const sidebarOffset = useMemo(() => (isMobile ? 0 : 256), [isMobile]);
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
@@ -148,19 +148,18 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         outlineAnimation={visitorChangeAnimation}
       />
       <MapPlayActionbar
-        className={cn('pointer-events-auto fixed bottom-8 z-12 w-[calc(100%-18rem)]', `left-[${sidebarOffset}]`)}
+        className='pointer-events-auto fixed bottom-5 z-12'
         ticks={tickProps}
         value={position}
         playing={playing}
         speed={speed}
+        style={{ width: 'calc(100vw - 256px - 1rem)', left: sidebarOffset }}
         onTogglePlay={toggle}
         onScrub={scrub}
         onChangeSpeed={setSpeed}
       />
 
-      <ZoomControls
-        className={cn('pointer-events-auto absolute top-3 left-[17rem] z-12', `left-[${sidebarOffset}]`)}
-      />
+      <ZoomControls className={'pointer-events-auto absolute top-3 z-12'} style={{ left: sidebarOffset + 16 }} />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
       <DeckGLPopup />
     </div>

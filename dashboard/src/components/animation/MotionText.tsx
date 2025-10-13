@@ -23,7 +23,7 @@ export type MotionTextProps = {
   defaultDirection?: Dir; // default direction for non-numeric chars; default 'up'
 } & Omit<React.ComponentProps<'span'>, 'children'>;
 
-function _MotionText({
+function MotionTextComponent({
   text,
   className,
   charClassName,
@@ -156,4 +156,4 @@ function _MotionText({
   );
 }
 
-export const MotionText = React.memo(_MotionText);
+export const MotionText = React.memo(MotionTextComponent);
