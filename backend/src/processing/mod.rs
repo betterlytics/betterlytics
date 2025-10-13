@@ -11,6 +11,7 @@ use url::Url;
 use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
 use crate::outbound_link::process_outbound_link;
+use crate::analytics::detect_device_type_from_resolution_with_fallback;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -223,21 +224,8 @@ impl EventProcessor {
     }
     
     async fn detect_device_type_from_resolution(&self, processed: &mut ProcessedEvent) -> Result<()> {
-        if let Some((w, _h)) = processed.event.raw.screen_resolution.split_once('x') {
-            if let Ok(width) = w.trim().parse::<u32>() {
-                match width {
-                    0..=575 => processed.device_type = Some("mobile".to_string()),
-                    576..=991 => processed.device_type = Some("tablet".to_string()),
-                    992..=1439 => processed.device_type = Some("laptop".to_string()),
-                    _ => processed.device_type = Some("desktop".to_string()),
-                }
-            } else {
-                processed.device_type = Some("unknown".to_string());
-            }
-        } else {
-            processed.device_type = Some("unknown".to_string());
-        }
-
+        let device_type = detect_device_type_from_resolution_with_fallback(&processed.event.raw.screen_resolution);
+        processed.device_type = Some(device_type);
         Ok(())
     } 
 }

@@ -6,10 +6,11 @@ use axum::{extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, Json};
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 
-use crate::analytics;
 use crate::session;
 use crate::storage::s3::S3Service;
 use crate::ua_parser;
+use crate::analytics::detect_device_type_from_resolution;
+use crate::analytics::generate_fingerprint;
 use chrono::{DateTime, Utc};
 
 use crate::db::{SharedDatabase, SessionReplayRow};
@@ -66,24 +67,25 @@ pub async fn presign_put_segment(
 ) -> Result<Json<PresignPutResponse>, (StatusCode, String)> {
     let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
     let ip_address = crate::parse_ip(headers.clone()).unwrap_or(addr.ip()).to_string();
+
     let user_agent = headers
         .get(axum::http::header::USER_AGENT)
         .and_then(|v| v.to_str().ok())
         .unwrap_or("");
+
     let parsed = ua_parser::parse_user_agent(user_agent);
-    let device_type_from_res = req.screen_resolution.as_deref().and_then(|sr| sr.split_once('x')).and_then(|(w, _)| w.trim().parse::<u32>().ok()).map(|width| {
-        if width <= 575 { "mobile".to_string() }
-        else if width <= 991 { "tablet".to_string() }
-        else if width <= 1439 { "laptop".to_string() }
-        else { "desktop".to_string() }
-    });
-    let fingerprint = analytics::generate_fingerprint(
+
+    let device_type_from_res = req.screen_resolution.as_deref()
+        .and_then(|sr| detect_device_type_from_resolution(sr));
+
+    let fingerprint = generate_fingerprint(
         &ip_address,
         device_type_from_res.as_deref(),
         Some(parsed.browser.as_str()),
         parsed.browser_version.as_deref(),
         Some(parsed.os.as_str()),
     );
+
     let session_id = session::get_or_create_session_id(&req.site_id, &fingerprint)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
