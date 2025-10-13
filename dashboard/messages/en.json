@@ -1454,7 +1454,8 @@
       "player": {
         "skipInactive": "Skip inactivity",
         "playbackSpeedAria": "Playback speed",
-        "seekAria": "Seek"
+        "seekAria": "Seek",
+        "recordingDisabled": "Recording is disabled on this page"
       }
     },
     "integration": {

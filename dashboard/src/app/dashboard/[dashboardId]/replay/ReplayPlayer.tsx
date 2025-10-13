@@ -3,11 +3,12 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
-import type { eventWithTime } from '@rrweb/types';
+import { EventType, type eventWithTime } from '@rrweb/types';
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { UsePlayerStateReturn } from './hooks/usePlayerState';
 import { useDebounce } from '@/hooks/useDebounce';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export type ReplayPlayerHandle = {
   loadInitialEvents: (events: eventWithTime[]) => void;
@@ -54,6 +55,7 @@ const ReplayPlayerComponent = (
   { onReady, playerState, isPlaying }: ReplayPlayerProps,
   ref: React.ForwardedRef<ReplayPlayerHandle>,
 ) => {
+  const t = useTranslations('components.sessionReplay.player');
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<rrwebPlayer | null>(null);
   const listenersRef = useRef<{ type: PlayerEventName; listener: EventListener }[]>([]);
@@ -182,9 +184,9 @@ const ReplayPlayerComponent = (
 
   const handleEvent = useCallback(
     (event: eventWithTime) => {
-      if (event.type === 5 && event.data.tag === 'Blacklist') {
+      if (event.type === EventType.Custom && event.data.tag === 'Blacklist') {
         redactBlacklisted();
-      } else {
+      } else if (event.type === EventType.Custom && event.data.tag === 'Pageview') {
         unredactBlacklisted();
       }
     },
@@ -320,7 +322,7 @@ const ReplayPlayerComponent = (
       listenersRef.current = listenersRef.current.filter((l) => !(l.type === type && l.listener === wrapped));
     },
     handleEvent(event: eventWithTime) {
-      if (event.type === 5 && event.data.tag === 'Blacklist') {
+      if (event.type === EventType.Custom && event.data.tag === 'Blacklist') {
         redactBlacklisted();
       } else {
         unredactBlacklisted();
@@ -367,7 +369,7 @@ const ReplayPlayerComponent = (
         ref={redactedContainerRef}
       >
         <span className='bg-background rounded-md border-2 px-6 py-3 text-lg shadow'>
-          Recording disabled on this page
+          {t('recordingDisabled')}
         </span>
       </div>
     </>

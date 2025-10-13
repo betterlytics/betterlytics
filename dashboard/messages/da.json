@@ -1458,7 +1458,8 @@
       "player": {
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Afspilningshastighed",
-        "seekAria": "Søg"
+        "seekAria": "Søg",
+        "recordingDisabled": "Optagelse er deaktiveret på denne side"
       }
     },
     "integration": {

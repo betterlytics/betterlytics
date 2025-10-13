@@ -1460,7 +1460,8 @@
       "player": {
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
-        "seekAria": "Vai a posizione"
+        "seekAria": "Vai a posizione",
+        "recordingDisabled": "Registrazione disabilitata su questa pagina"
       }
     },
     "integration": {
