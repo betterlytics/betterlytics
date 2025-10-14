@@ -35,8 +35,13 @@ export function NotificationProvider({ children }: NotificationsContextProviderP
 
   const addNotification = useCallback((notification: Notification) => {
     setNotifications((prev) => {
-      const removedDuplicate = prev.filter((noti) => noti.id !== notification.id);
-      return [...removedDuplicate, notification];
+      const existingIndex = prev.findIndex((noti) => noti.id === notification.id);
+      if (existingIndex !== -1) {
+        const next = [...prev];
+        next[existingIndex] = notification;
+        return next;
+      }
+      return [...prev, notification];
     });
   }, []);
 
