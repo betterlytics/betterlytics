@@ -53,7 +53,8 @@ function DeckGLPopupComponent({ size = 'sm', children }: DeckGLPopupProps) {
         mass: 0.8,
       }}
       transformTemplate={
-        (transform, generated) => `translate(-50%, -100%) ${generated}` // ensures origin is still centered above the mouse
+        // ensures origin is still centered above the mouse
+        (transform, generated) => `translate(-50%, -100%) ${generated}`
       }
     >
       <div className='bg-card shadow-sidebar-accent-foreground pointer-none inset-0 flex flex-col p-0 shadow-xs'>

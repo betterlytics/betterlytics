@@ -18,13 +18,43 @@ export type PlaybackSpeed = (typeof PLAYBACK_SPEEDS)[number];
 export function PlaybackSpeedDropdown({
   speed,
   onChange,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: {
   speed: PlaybackSpeed;
   onChange: (speed: PlaybackSpeed) => void;
+  open?: boolean; // (optional controlled)
+  onOpenChange?: (open: boolean) => void; // (optional controlled)
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const [blockHover, setBlockHover] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const unblockRef = useRef<number | null>(null);
+
   const t = useTranslations('components.geography.playback.speed');
+
+  const isControlled = controlledOpen !== undefined;
+  const isOpen = isControlled ? controlledOpen! : uncontrolledOpen;
+
+  const handleOpenChange = (open: boolean) => {
+    if (isControlled) {
+      controlledOnOpenChange?.(open);
+    } else {
+      setUncontrolledOpen(open);
+    }
+
+    if (unblockRef.current) {
+      clearTimeout(unblockRef.current);
+      unblockRef.current = null;
+    }
+    if (open) {
+      setBlockHover(true);
+      unblockRef.current = window.setTimeout(() => setBlockHover(false), 750);
+    } else {
+      setBlockHover(false);
+    }
+  };
 
   const expandContainerVariant: Variants = {
     open: { clipPath: 'circle(1000px at 50% 50%)', transition: { type: 'spring', stiffness: 20, restDelta: 2 } },
@@ -45,7 +75,7 @@ export function PlaybackSpeedDropdown({
   };
 
   return (
-    <DropdownMenu modal={false} onOpenChange={(open) => setIsOpen(open)}>
+    <DropdownMenu modal={false} open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger
         title={t('tooltip')}
         className={cn(
@@ -70,8 +100,19 @@ export function PlaybackSpeedDropdown({
           initial='closed'
           animate={isOpen ? 'open' : 'closed'}
           variants={expandContainerVariant}
-          className='bg-secondary rounded-md p-2'
+          className='bg-secondary relative rounded-md p-2'
+          onAnimationComplete={() => {
+            if (isOpen) setBlockHover(false);
+          }}
         >
+          {blockHover && (
+            <div
+              className='absolute inset-0 z-10'
+              style={{ pointerEvents: 'auto', background: 'transparent' }}
+              aria-hidden
+            />
+          )}
+
           <motion.ul variants={staggerItemsVariant} className='flex flex-col gap-1'>
             {PLAYBACK_SPEEDS.map((s) => (
               <motion.li
