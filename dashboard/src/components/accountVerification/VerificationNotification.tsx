@@ -57,12 +57,12 @@ export function VerificationNotificationHandler({
   };
 
   useEffect(() => {
-    addNotification({ ...buildNotification(false), scope: 'global' });
+    addNotification({ ...buildNotification(false), scope: 'global', sticky: true });
     return () => removeNotification('verify-email');
-  }, [addNotification, removeNotification]);
+  }, [addNotification, removeNotification, t]);
 
   useEffect(() => {
-    addNotification({ ...buildNotification(isSending), scope: 'global' });
+    addNotification({ ...buildNotification(isSending), scope: 'global', sticky: true });
   }, [isSending, addNotification]);
 
   return null;

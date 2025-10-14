@@ -1733,6 +1733,15 @@
     }
   },
   "banners": {
+    "verifyEmail": {
+      "title": "Verifica il tuo indirizzo email.",
+      "description": "Ti abbiamo inviato un'email di verifica a {email}.",
+      "action": "Reinvia email",
+      "success": "Email di verifica inviata!",
+      "failure": "Impossibile inviare l'email di verifica",
+      "sending": "Invio in corso...",
+      "resend": "Reinvia email"
+    },
     "webVitalsNoData": {
       "title": "Nessun dato Core Web Vitals.",
       "description": "Assicurati che il tracciamento sia abilitato.",

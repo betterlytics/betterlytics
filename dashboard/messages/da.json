@@ -1731,6 +1731,15 @@
     }
   },
   "banners": {
+    "verifyEmail": {
+      "title": "Bekræft din e-mailadresse.",
+      "description": "Vi har sendt en bekræftelsesmail til {email}.",
+      "action": "Send e-mail igen",
+      "success": "Bekræftelsesmail sendt!",
+      "failure": "Kunne ikke sende bekræftelsesmail",
+      "sending": "Sender...",
+      "resend": "Send e-mail igen"
+    },
     "webVitalsNoData": {
       "title": "Ingen Core Web Vitals data endnu.",
       "description": "Tjek at tracking er aktiveret.",

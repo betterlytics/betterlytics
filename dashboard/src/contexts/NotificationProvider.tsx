@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useCallback, useEffect, useState, type Dispatch } from 'react';
+import React, { useCallback, useState, type Dispatch } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
@@ -16,6 +16,7 @@ type Notification = {
   dismissible?: boolean;
   custom?: React.ReactNode;
   scope?: 'route' | 'global';
+  sticky?: boolean;
 };
 
 type NotificationsContextProps = {
@@ -63,17 +64,16 @@ export function NotificationProvider({ children }: NotificationsContextProviderP
     });
   }, []);
 
-  // Clear route-scoped notifications on route change
-  useEffect(() => {
-    setNotifications((prev) => prev.filter((n) => n.scope === 'global' || n.__route === routeKey));
-  }, [routeKey]);
+  const nowVisible = notifications
+    .filter((n) => n.scope === 'global' || n.__route === routeKey)
+    .sort((a, b) => Number(Boolean(b.sticky)) - Number(Boolean(a.sticky)));
 
   return (
     <NotificationsContext.Provider value={{ addNotification, removeNotification }}>
       <div className='h-full w-full'>
-        <div className={cn('w-full space-y-0 overflow-hidden p-0', notifications.length && 'border-b')}>
-          {notifications.map((notification) => (
-            <NotificationBanner key={notification.id} notification={notification} notifications={notifications} />
+        <div className={cn('w-full space-y-0 overflow-hidden p-0', nowVisible.length && 'border-b')}>
+          {nowVisible.map((notification) => (
+            <NotificationBanner key={notification.id} notification={notification} notifications={nowVisible} />
           ))}
         </div>
         {children}
