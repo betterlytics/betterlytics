@@ -1,7 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useCallback, useState, type Dispatch } from 'react';
+import React, { useCallback, useEffect, useState, type Dispatch } from 'react';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
 type Level = 'info' | 'warning' | 'error' | 'success';
@@ -14,6 +15,7 @@ type Notification = {
   action?: React.ReactNode;
   dismissible?: boolean;
   custom?: React.ReactNode;
+  scope?: 'route' | 'global';
 };
 
 type NotificationsContextProps = {
@@ -31,19 +33,28 @@ type NotificationsContextProviderProps = {
 };
 
 export function NotificationProvider({ children }: NotificationsContextProviderProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const pathname = usePathname();
+  const routeKey = pathname ?? '';
+  type NotificationWithMeta = Notification & { __route?: string };
+  const [notifications, setNotifications] = useState<NotificationWithMeta[]>([]);
 
-  const addNotification = useCallback((notification: Notification) => {
-    setNotifications((prev) => {
-      const existingIndex = prev.findIndex((noti) => noti.id === notification.id);
-      if (existingIndex !== -1) {
-        const next = [...prev];
-        next[existingIndex] = notification;
-        return next;
-      }
-      return [...prev, notification];
-    });
-  }, []);
+  const addNotification = useCallback(
+    (notification: Notification) => {
+      setNotifications((prev) => {
+        const existingIndex = prev.findIndex((noti) => noti.id === notification.id);
+        const withMeta: NotificationWithMeta =
+          notification.scope === 'global' ? { ...notification } : { ...notification, __route: routeKey };
+
+        if (existingIndex !== -1) {
+          const next = [...prev];
+          next[existingIndex] = withMeta;
+          return next;
+        }
+        return [...prev, withMeta];
+      });
+    },
+    [routeKey],
+  );
 
   const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => {
@@ -51,6 +62,11 @@ export function NotificationProvider({ children }: NotificationsContextProviderP
       return removedDuplicate;
     });
   }, []);
+
+  // Clear route-scoped notifications on route change
+  useEffect(() => {
+    setNotifications((prev) => prev.filter((n) => n.scope === 'global' || n.__route === routeKey));
+  }, [routeKey]);
 
   return (
     <NotificationsContext.Provider value={{ addNotification, removeNotification }}>
