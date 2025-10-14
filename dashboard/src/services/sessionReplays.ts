@@ -31,11 +31,7 @@ export async function getReplaySegmentManifest(
 
   if (!cutoffIso) return manifest;
 
-  console.log('cutoffIso', cutoffIso);
-  console.log('manifest', manifest);
-
   const cutoff = cutoffIso.getTime() + 1_000; // +1 second to account for duration flooring
-  console.log('cutoff', cutoff);
 
   if (Number.isNaN(cutoff)) return manifest;
 
