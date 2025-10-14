@@ -61,7 +61,9 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       const clicked = clickedFeatureRef.current;
       const { x, y } = latestMouseRef.current;
 
-      node.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -100%)`;
+      // Round to nearest half pixel to avoid blurriness on fractional pixels
+      const roundHalf = (v: number) => Math.round(v * 2) / 2;
+      node.style.transform = `translate3d(${roundHalf(x)}px, ${roundHalf(y)}px, 0) translate(-50%, -100%)`;
 
       if (!hovered || clicked) {
         node.style.display = 'none';
@@ -93,11 +95,11 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       role='tooltip'
       aria-hidden={false}
       className={cn(
-        'map-sticky-tooltip leaflet-popup-content-wrapper',
+        'map-sticky-tooltip border-none bg-transparent p-0 shadow-none contain-paint',
         'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
       )}
     >
-      <div className='leaflet-popup-content tooltip-content rounded-lg' />
+      <div className='tooltip-content bg-card shadow-sidebar-accent-foreground pointer-none mx-0 mt-2 flex flex-col rounded-lg p-0 shadow-xs' />
       <MapTooltipTip />
     </section>,
     document.body,

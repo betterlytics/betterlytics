@@ -38,7 +38,8 @@ export function MapPlayActionbar<TValue>({
 
   const barRef = useRef<HTMLDivElement | null>(null);
 
-  const PAD_BOTTOM_PX = 64; // extends below the bar
+  const PADDING_BOTTOM_PX = 64; // extends below the bar
+  const PADDING_TOP_PX = 16;
 
   return createPortal(
     <div className={cn('pointer-events-auto fixed', className)} style={style}>
@@ -67,7 +68,19 @@ export function MapPlayActionbar<TValue>({
             <PlaybackSpeedDropdown speed={speed} onChange={onChangeSpeed} />
           </div>
         </ScaleMotion>
-
+        <div
+          aria-hidden
+          className='absolute'
+          style={{
+            left: 0,
+            right: 0,
+            top: -PADDING_TOP_PX,
+            height: PADDING_TOP_PX,
+            background: 'transparent',
+            pointerEvents: 'auto',
+            width: '100%',
+          }}
+        />
         <div
           aria-hidden
           className='absolute'
@@ -75,7 +88,7 @@ export function MapPlayActionbar<TValue>({
             left: 0,
             right: 0,
             top: '100%',
-            height: PAD_BOTTOM_PX,
+            height: PADDING_BOTTOM_PX,
             background: 'transparent',
             pointerEvents: 'auto',
             width: '100%',

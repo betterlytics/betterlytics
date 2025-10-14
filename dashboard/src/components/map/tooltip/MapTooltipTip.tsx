@@ -10,6 +10,7 @@ function MapTooltipTipComponent({ className, style }: MapTooltipTipProps) {
   return (
     <div
       className={cn(
+        'pointer-none bg-transparent',
         '-mt-[2px] h-0 w-0 self-center',
         'border-t-[10px] border-r-[8px] border-l-[8px]',
         'border-r-transparent border-l-transparent',

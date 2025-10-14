@@ -76,38 +76,6 @@ export default function DeckGLClient({
         style={{ position: 'fixed' }}
       >
         {/* TODO: CLean up */}
-        <style jsx global>
-          {`
-            .leaflet-container {
-              background-color: var(--color-card);
-            }
-            .leaflet-interactive:focus {
-              outline: none !important;
-            }
-            .leaflet-popup-content {
-              margin: 0 0.5rem !important;
-              padding: 0 !important;
-              display: flex;
-              flex-direction: column;
-            }
-            .leaflet-popup-content,
-            .leaflet-popup-tip {
-              background-color: var(--color-card);
-              filter: drop-shadow(0 0.5px 2px var(--color-sidebar-accent-foreground));
-              pointer-events: none;
-            }
-            .leaflet-popup-content-wrapper {
-              background: transparent;
-              border: none;
-              box-shadow: none;
-              padding: 0;
-            }
-            .leaflet-popup {
-              z-index: 11;
-              pointer-events: none;
-            }
-          `}
-        </style>
       </DeckGL>
     </>
   );

@@ -1,3 +1,5 @@
+'use client';
+
 import { WebMercatorViewport } from '@deck.gl/core';
 import { useMapSelectionActions, useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
 import MapTooltipContent from '../tooltip/MapTooltipContent';
@@ -6,6 +8,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMapViewState } from '@/contexts/DeckGLViewStateProvider';
+import { motion } from 'framer-motion';
 
 interface DeckGLPopupProps {
   size?: 'sm' | 'lg';
@@ -27,22 +30,33 @@ function DeckGLPopupComponent({ size = 'sm', children }: DeckGLPopupProps) {
   const [x, y] = viewport.project(featureLatLng);
 
   return (
-    <section
+    <motion.section
       role='tooltip'
       aria-hidden={false}
       style={{
         left: x,
         top: y - 60,
-        transform: 'translate(-50%, -100%)',
         pointerEvents: 'auto',
+        position: 'absolute',
       }}
       className={cn(
-        'rounded-md',
-        'deckgl-popup leaflet-popup-content-wrapper',
-        'pointer-events-none absolute z-[11] flex flex-col will-change-transform',
+        'rounded-md border-none bg-transparent p-0 shadow-none',
+        'pointer-events-none z-[11] flex flex-col will-change-transform',
       )}
+      initial={{ opacity: 0, y: 40, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+      transition={{
+        type: 'spring',
+        stiffness: 300,
+        damping: 20,
+        mass: 0.8,
+      }}
+      transformTemplate={
+        (transform, generated) => `translate(-50%, -100%) ${generated}` // ensures origin is still centered above the mouse
+      }
     >
-      <div className='leaflet-popup-content'>
+      <div className='bg-card shadow-sidebar-accent-foreground pointer-none inset-0 flex flex-col p-0 shadow-xs'>
         <MapTooltipContent
           geoVisitor={clickedFeature?.geoVisitor}
           size={size}
@@ -52,7 +66,7 @@ function DeckGLPopupComponent({ size = 'sm', children }: DeckGLPopupProps) {
         {children}
       </div>
       <MapTooltipTip />
-    </section>
+    </motion.section>
   );
 }
 

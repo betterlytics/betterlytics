@@ -99,7 +99,7 @@ export function TimeSlider<TValue>({
             <Badge className='bg-primary border-border rounded-xl border-1 shadow-sm'>
               {ticks[index] && ticks[index].thumbLabel}
             </Badge>
-            <MapTooltipTip className='border-t-primary mx-auto !-mt-1.5 shadow-sm' />
+            <MapTooltipTip className='border-t-primary mx-auto !-mt-1.5' />
           </motion.div>
         </SliderPrimitive.Thumb>
       </SliderPrimitive.Root>
