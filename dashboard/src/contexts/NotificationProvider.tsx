@@ -10,7 +10,7 @@ type Notification = {
   id: string;
   level: Level;
   title?: string;
-  description?: string;
+  description?: React.ReactNode;
   action?: React.ReactNode;
   dismissible?: boolean;
   custom?: React.ReactNode;
@@ -52,7 +52,7 @@ export function NotificationProvider({ children }: NotificationsContextProviderP
       <div className='h-full w-full'>
         <div className={cn('w-full space-y-0 overflow-hidden p-0', notifications.length && 'border-b')}>
           {notifications.map((notification) => (
-            <NotificationBanner key={notification.id} notification={notification} />
+            <NotificationBanner key={notification.id} notification={notification} notifications={notifications} />
           ))}
         </div>
         {children}
@@ -67,8 +67,9 @@ export function useNotificationsContext() {
 
 type NotificationBannerProps = {
   notification: Notification;
+  notifications: Notification[];
 };
-function NotificationBanner({ notification }: NotificationBannerProps) {
+function NotificationBanner({ notification, notifications }: NotificationBannerProps) {
   const { removeNotification } = useNotificationsContext();
   const { id, level, title, description, action, custom, dismissible } = notification;
 
@@ -81,11 +82,12 @@ function NotificationBanner({ notification }: NotificationBannerProps) {
         'bg-amber-500 text-black': level === 'warning',
         'bg-red-500 text-black': level === 'error',
         'bg-green-500 text-black': level === 'success',
+        'border-b': notifications.length > 0,
       })}
     >
       <div className='min-w-0 flex-1 truncate'>
         {title && <span className='font-semibold'>{title}</span>}
-        {description && <span className='opacity-90'> {description}</span>}
+        {description && <span> {description}</span>}
       </div>
       {action && (
         <div className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'>
