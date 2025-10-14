@@ -301,13 +301,9 @@ const ReplayPlayerComponent = (
       destroyPlayer();
     },
     toggleSkipInactive() {
-      skipInactivityRef.current = !skipInactivityRef.current;
-
-      if (skipInactivityRef.current) {
-        const currentTime = getCurrentTime();
-        recreatePlayer(playerState.eventsRef.current, isPlaying);
-        seekTo(currentTime ?? 0);
-      }
+      playerRef.current?.toggleSkipInactive();
+      skipInactivityRef.current =
+        playerRef.current?.getReplayer().config.skipInactive ?? !skipInactivityRef.current;
     },
     addEventListener(type, listener) {
       const target = playerRef.current;
