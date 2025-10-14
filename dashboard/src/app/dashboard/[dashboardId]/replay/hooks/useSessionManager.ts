@@ -59,6 +59,9 @@ export function useSessionManager(dashboardId: string): UseSessionManagerReturn 
   }, [sessionIdParam, sessions]);
 
   const selectSession = (session: SessionReplay) => {
+    if (selectedSession?.session_id === session.session_id) {
+      return;
+    }
     setSessionIdParam(session.session_id);
     setSelectedSession(session);
   };
