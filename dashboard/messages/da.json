@@ -1364,9 +1364,6 @@
           "FCP": "Viser hvornår det første indhold vises på skærmen under indlæsning.",
           "TTFB": "Måler serverens svartid — tiden fra forespørgsel til første byte modtages."
         }
-      },
-      "data": {
-        "noData": "Ingen data fundet. Check om den er aktiveret."
       }
     },
     "integration": {
@@ -1731,6 +1728,13 @@
       },
       "redirectingIn": "Omdirigerer om {seconds}...",
       "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
+    }
+  },
+  "banners": {
+    "webVitalsNoData": {
+      "title": "Ingen Core Web Vitals data endnu.",
+      "description": "Tjek at tracking er aktiveret.",
+      "action": "Læs mere"
     }
   }
 }

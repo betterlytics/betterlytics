@@ -1366,9 +1366,6 @@
           "FCP": "Mostra quando il primo contenuto appare sullo schermo durante il caricamento della pagina.",
           "TTFB": "Misura la velocità di risposta del server — il tempo dalla richiesta alla ricezione del primo byte."
         }
-      },
-      "data": {
-        "noData": "Nessun dato trovato. Assicurati che la funzione sia abilitata."
       }
     },
     "integration": {
@@ -1733,6 +1730,13 @@
       },
       "redirectingIn": "Reindirizzamento tra {seconds}...",
       "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
+    }
+  },
+  "banners": {
+    "webVitalsNoData": {
+      "title": "Nessun dato Core Web Vitals.",
+      "description": "Assicurati che il tracciamento sia abilitato.",
+      "action": "Scopri di più"
     }
   }
 }

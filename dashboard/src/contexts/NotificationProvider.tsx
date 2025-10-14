@@ -2,13 +2,18 @@
 
 import { cn } from '@/lib/utils';
 import React, { useCallback, useState, type Dispatch } from 'react';
+import { Button } from '@/components/ui/button';
 
-type Level = 'info' | 'warning' | 'error';
+type Level = 'info' | 'warning' | 'error' | 'success';
 
 type Notification = {
   id: string;
   level: Level;
-  text: string;
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
+  dismissible?: boolean;
+  custom?: React.ReactNode;
 };
 
 type NotificationsContextProps = {
@@ -64,15 +69,40 @@ type NotificationBannerProps = {
   notification: Notification;
 };
 function NotificationBanner({ notification }: NotificationBannerProps) {
+  const { removeNotification } = useNotificationsContext();
+  const { id, level, title, description, action, custom, dismissible } = notification;
+
+  if (custom) return <>{custom}</>;
+
   return (
     <div
-      className={cn('flex w-full items-center px-2 py-1.5 text-xs font-medium sm:px-6', {
-        'bg-primary': notification.level === 'info',
-        'bg-amber-500 text-black': notification.level === 'warning',
-        'bg-red-500 text-black': notification.level === 'error',
+      className={cn('box-border flex w-full items-center gap-2 px-3 py-1.5 text-xs sm:px-6', {
+        'bg-primary text-white': level === 'info',
+        'bg-amber-500 text-black': level === 'warning',
+        'bg-red-500 text-black': level === 'error',
+        'bg-green-500 text-black': level === 'success',
       })}
     >
-      <span>{notification.text}</span>
+      <div className='min-w-0 flex-1 truncate'>
+        {title && <span className='font-semibold'>{title}</span>}
+        {description && <span className='opacity-90'> {description}</span>}
+      </div>
+      {action && (
+        <div className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'>
+          {action}
+        </div>
+      )}
+      {dismissible && (
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={() => removeNotification(id)}
+          className='hover:bg-accent/20 dark:hover:bg-accent/20 h-7 w-7 cursor-pointer rounded-md text-current hover:text-current'
+          aria-label='Dismiss notification'
+        >
+          ✕
+        </Button>
+      )}
     </div>
   );
 }

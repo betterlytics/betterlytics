@@ -1360,9 +1360,6 @@
           "FCP": "Shows when the first piece of content appears on the screen during page load.",
           "TTFB": "Measures server response speed — the time from request until the first byte is received."
         }
-      },
-      "data": {
-        "noData": "No data found. Ensure feature is enabled."
       }
     },
     "integration": {
@@ -1727,6 +1724,13 @@
       },
       "redirectingIn": "Redirecting in {seconds}...",
       "noSiteId": "No site ID found. Please complete the previous steps first."
+    }
+  },
+  "banners": {
+    "webVitalsNoData": {
+      "title": "No Core Web Vitals data yet.",
+      "description": "Make sure tracking is enabled.",
+      "action": "Learn more"
     }
   }
 }
