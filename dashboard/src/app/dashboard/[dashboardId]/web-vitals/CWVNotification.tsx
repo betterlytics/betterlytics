@@ -21,8 +21,8 @@ export function CWVNotificationHandler({ hasDataPromise }: CWVNotificationHandle
         description: t('description'),
         action: (
           <Button
-            variant='outline'
-            className='cursor-pointer border border-black/20 bg-transparent text-black shadow-md hover:bg-black/10'
+            variant='default'
+            className='text-primary-foreground cursor-pointer border-1 border-white bg-amber-600/50 shadow-md hover:bg-amber-600/20'
             onClick={() => {
               window.open('https://betterlytics.io/docs/integration/web-vitals', '_blank');
             }}

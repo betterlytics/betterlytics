@@ -1727,6 +1727,15 @@
     }
   },
   "banners": {
+    "verifyEmail": {
+      "title": "Please verify your email address.",
+      "description": "We've sent a verification email to {email}.",
+      "action": "Resend email",
+      "success": "Verification email sent!",
+      "failure": "Failed to send verification email",
+      "sending": "Sending...",
+      "resend": "Resend email"
+    },
     "webVitalsNoData": {
       "title": "No Core Web Vitals data yet.",
       "description": "Make sure tracking is enabled.",

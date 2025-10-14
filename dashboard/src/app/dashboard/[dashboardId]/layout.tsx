@@ -15,7 +15,7 @@ import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
 import ScrollReset from '@/components/ScrollReset';
-import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
+import { VerificationNotificationHandler } from '@/components/accountVerification/VerificationNotification';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { NotificationProvider } from '@/contexts/NotificationProvider';
@@ -66,11 +66,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                 )}
                 {isFeatureEnabled('enableAccountVerification') &&
                   session.user?.email &&
-                  !session.user?.emailVerified && (
-                    <div className='mx-auto max-w-7xl px-4 sm:pt-2'>
-                      <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
-                    </div>
-                  )}
+                  !session.user?.emailVerified && <VerificationNotificationHandler email={session.user.email} />}
                 <div className='flex w-full justify-center'>{children}</div>
               </NotificationProvider>
             </main>
