@@ -147,9 +147,9 @@ export function BannerBanner({ banner, banners }: BannerBannerProps) {
 
   const bgClasses = cn('box-border w-full px-3 py-1.5 text-xs sm:px-6 border-b', {
     'bg-primary text-white': level === 'info',
-    'bg-amber-500 text-black': level === 'warning',
-    'bg-red-500 text-black': level === 'error',
-    'bg-green-500 text-black': level === 'success',
+    'dark:bg-amber-500 bg-amber-500/70 text-black': level === 'warning',
+    'dark:bg-red-500 bg-red-500/80 text-black': level === 'error',
+    'dark:bg-green-500 bg-green-500/70 text-black': level === 'success',
     'border-b': banners.length > 0,
   });
 
