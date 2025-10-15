@@ -1716,7 +1716,7 @@
   },
   "banners": {
     "verifyEmail": {
-      "title": "Please verify your email address.",
+      "title": "Please verify your email address",
       "description": "We've sent a verification email to {email}.",
       "action": "Resend email",
       "success": "Verification email sent!",
@@ -1725,22 +1725,22 @@
       "resend": "Resend email"
     },
     "integrationSetup": {
-      "title": "Integration not detected.",
+      "title": "Integration not detected",
       "description": "Your dashboard is ready, but we haven't received any data from your website yet. Complete the integration setup to start tracking visitors.",
       "setup": "Integration Setup"
     },
     "usageAlert": {
-      "title": "Approaching event limit.",
+      "title": "Approaching event limit",
       "description": "You've used {percentage} of your monthly quota ({current} / {limit} events). Consider upgrading to avoid interruptions.",
       "action": "Upgrade plan"
     },
     "usageLimitExceeded": {
-      "title": "Event limit reached.",
+      "title": "Event limit reached",
       "description": "You've used {percentage} of your monthly quota ({current} / {limit} events). Upgrade your plan to avoid data loss.",
       "action": "Upgrade plan"
     },
     "webVitalsNoData": {
-      "title": "No Core Web Vitals data yet.",
+      "title": "No Core Web Vitals data yet",
       "description": "Make sure tracking is enabled.",
       "action": "Learn more"
     }

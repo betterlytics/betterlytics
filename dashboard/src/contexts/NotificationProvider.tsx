@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import React, { useCallback, useState, type Dispatch } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { AlertCircleIcon, AlertTriangleIcon, CheckCircleIcon, ChevronDown, InfoIcon } from 'lucide-react';
 
 type Level = 'info' | 'warning' | 'error' | 'success';
 
@@ -15,6 +15,7 @@ type Notification = {
   description?: React.ReactNode;
   action?: React.ReactNode;
   dismissible?: boolean;
+  showIcon?: boolean;
   custom?: React.ReactNode;
   scope?: 'route' | 'global';
   sticky?: boolean;
@@ -94,7 +95,7 @@ type NotificationBannerProps = {
 
 export function NotificationBanner({ notification, notifications }: NotificationBannerProps) {
   const { removeNotification } = useNotificationsContext();
-  const { id, level, title, description, action, custom, dismissible } = notification;
+  const { id, level, title, description, action, custom, dismissible, showIcon = true } = notification;
 
   if (custom) return <>{custom}</>;
 
@@ -105,6 +106,13 @@ export function NotificationBanner({ notification, notifications }: Notification
     'bg-green-500 text-black': level === 'success',
     'border-b': notifications.length > 0,
   });
+
+  const icons = {
+    info: <InfoIcon className='h-4 w-4' />,
+    warning: <AlertTriangleIcon className='h-4 w-4' />,
+    error: <AlertCircleIcon className='h-4 w-4' />,
+    success: <CheckCircleIcon className='h-4 w-4' />,
+  };
 
   return (
     <div className={bgClasses}>
@@ -121,10 +129,12 @@ export function NotificationBanner({ notification, notifications }: Notification
 
       <div className='hidden sm:block'>
         <DesktopBannerContent
+          showIcon={showIcon}
           title={title}
           description={description}
           action={action}
           dismissible={dismissible}
+          icon={icons[level]}
           onDismiss={() => removeNotification(id)}
         />
       </div>
@@ -138,6 +148,8 @@ type BannerContentBaseProps = {
   action?: React.ReactNode;
   dismissible?: boolean;
   onDismiss: () => void;
+  showIcon?: boolean;
+  icon?: React.ReactNode;
 };
 
 type MobileBannerContentProps = BannerContentBaseProps & { id: string };
@@ -207,13 +219,22 @@ function MobileBannerContent({
   );
 }
 
-function DesktopBannerContent({ title, description, action, dismissible, onDismiss }: BannerContentBaseProps) {
+function DesktopBannerContent({
+  title,
+  description,
+  action,
+  dismissible,
+  onDismiss,
+  showIcon,
+  icon,
+}: BannerContentBaseProps) {
   return (
     <div className='flex w-full items-center gap-2'>
+      {showIcon && icon}
       <div className='min-w-0 flex-1'>
         <div className='flex min-w-0 items-center'>
           {title && <span className='text-xs leading-snug font-semibold'>{title}</span>}
-          {description && <span className='text-xs leading-snug'> {description}</span>}
+          {description && <span className='text-xs leading-snug'>{': ' + description}</span>}
         </div>
       </div>
       {action && (

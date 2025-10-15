@@ -1720,7 +1720,7 @@
   },
   "banners": {
     "verifyEmail": {
-      "title": "Bekræft din e-mailadresse.",
+      "title": "Bekræft din e-mailadresse",
       "description": "Vi har sendt en bekræftelsesmail til {email}.",
       "action": "Send e-mail igen",
       "success": "Bekræftelsesmail sendt!",
@@ -1729,22 +1729,22 @@
       "resend": "Send e-mail igen"
     },
     "usageAlert": {
-      "title": "Du nærmer dig grænsen for hændelser.",
+      "title": "Du nærmer dig grænsen for hændelser",
       "description": "Du har brugt {percentage} af din månedlige kvote ({current} / {limit} hændelser). Overvej at opgradere for at undgå afbrydelser.",
       "action": "Upgrade plan"
     },
     "usageLimitExceeded": {
-      "title": "Grænsen for hændelser er nået.",
+      "title": "Grænsen for hændelser er nået",
       "description": "Du har brugt {percentage} af din månedlige kvote ({current} / {limit} hændelser). Opgrader din plan for at undgå tab af data.",
       "action": "Opgrader plan"
     },
     "integrationSetup": {
-      "title": "Integration ikke detected.",
+      "title": "Integration ikke detected",
       "description": "Dit dashboard er klar, men vi har endnu ikke modtaget data fra dit website. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
       "setup": "Integrationsopsætning"
     },
     "webVitalsNoData": {
-      "title": "Ingen Core Web Vitals data endnu.",
+      "title": "Ingen Core Web Vitals data endnu",
       "description": "Tjek at tracking er aktiveret.",
       "action": "Læs mere"
     }

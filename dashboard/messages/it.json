@@ -1722,7 +1722,7 @@
   },
   "banners": {
     "verifyEmail": {
-      "title": "Verifica il tuo indirizzo email.",
+      "title": "Verifica il tuo indirizzo email",
       "description": "Ti abbiamo inviato un'email di verifica a {email}.",
       "action": "Reinvia email",
       "success": "Email di verifica inviata!",
@@ -1731,22 +1731,22 @@
       "resend": "Reinvia email"
     },
     "integrationSetup": {
-      "title": "Integrazione non rilevata.",
+      "title": "Integrazione non rilevata",
       "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati dal tuo sito web. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
       "setup": "Configura integrazione"
     },
     "usageAlert": {
-      "title": "Limite di eventi in avvicinamento.",
+      "title": "Limite di eventi in avvicinamento",
       "description": "Hai utilizzato il {percentage} della tua quota mensile ({current} / {limit} eventi). Valuta l’upgrade per evitare interruzioni.",
       "action": "Aggiorna piano"
     },
     "usageLimitExceeded": {
-      "title": "Limite di eventi raggiunto.",
+      "title": "Limite di eventi raggiunto",
       "description": "Hai utilizzato il {percentage} della tua quota mensile ({current} / {limit} eventi). Aggiorna il tuo piano per evitare la perdita di dati.",
       "action": "Aggiorna piano"
     },
     "webVitalsNoData": {
-      "title": "Nessun dato Core Web Vitals.",
+      "title": "Nessun dato Core Web Vitals",
       "description": "Assicurati che il tracciamento sia abilitato.",
       "action": "Scopri di più"
     }
