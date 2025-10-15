@@ -26,7 +26,7 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
 
     const { usage } = billingData.data;
 
-    if (usage.isOverLimit) {
+    if (!usage.isOverLimit) {
       removeBanner('usage-exceeded-banner');
       return;
     }
@@ -52,7 +52,7 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
           <Link href='/billing'>{t('action')}</Link>
         </Button>
       ),
-      dismissible: true,
+      dismissible: false,
       scope: 'global',
       sticky: true,
     });

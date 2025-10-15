@@ -43,6 +43,7 @@ export default async function BillingPage() {
               email={session.user.email}
               isVerified={!!session.user.emailVerified}
               showDismiss={false}
+              id='billing'
             />
           )}
 

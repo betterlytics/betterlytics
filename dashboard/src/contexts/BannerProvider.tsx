@@ -8,6 +8,36 @@ import { AlertCircleIcon, AlertTriangleIcon, CheckCircleIcon, ChevronDown, InfoI
 
 type Level = 'info' | 'warning' | 'error' | 'success';
 
+const STORAGE_KEY = 'banner:dismissed:v1';
+type DismissedSet = string[];
+
+function readDismissed(): DismissedSet {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as DismissedSet) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeDismissed(list: DismissedSet): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch {}
+}
+
+function markDismissed(id: string): void {
+  const existing = new Set(readDismissed());
+  existing.add(id);
+  writeDismissed(Array.from(existing));
+}
+
+function isDismissed(id: string): boolean {
+  return readDismissed().includes(id);
+}
+
 type Banner = {
   id: string;
   level: Level;
@@ -24,11 +54,13 @@ type Banner = {
 type BannerContextProps = {
   addBanner: Dispatch<Banner>;
   removeBanner: Dispatch<string>;
+  dismissBanner: Dispatch<string>;
 };
 
 const BannerContext = React.createContext<BannerContextProps>({
   addBanner: () => {},
   removeBanner: () => {},
+  dismissBanner: () => {},
 });
 
 type BannerProviderProps = {
@@ -66,12 +98,26 @@ export function BannerProvider({ children }: BannerProviderProps) {
     });
   }, []);
 
+  const dismissBanner = useCallback(
+    (id: string) => {
+      setBanners((prev) => {
+        const toDismiss = prev.find((bann) => bann.id === id);
+        if (toDismiss) {
+          markDismissed(id);
+        }
+        return prev.filter((bann) => bann.id !== id);
+      });
+    },
+    [routeKey],
+  );
+
   const nowVisible = banners
     .filter((bann) => bann.scope === 'global' || bann.__route === routeKey)
+    .filter((bann) => !isDismissed(bann.id))
     .sort((a, b) => Number(Boolean(b.sticky)) - Number(Boolean(a.sticky)));
 
   return (
-    <BannerContext.Provider value={{ addBanner, removeBanner }}>
+    <BannerContext.Provider value={{ addBanner, removeBanner, dismissBanner }}>
       <div className='h-full w-full'>
         <div className={cn('w-full space-y-0 overflow-hidden p-0', nowVisible.length && 'border-b')}>
           {nowVisible.map((banner) => (
@@ -94,7 +140,7 @@ type BannerBannerProps = {
 };
 
 export function BannerBanner({ banner, banners }: BannerBannerProps) {
-  const { removeBanner } = useBannerContext();
+  const { dismissBanner } = useBannerContext();
   const { id, level, title, description, action, custom, dismissible, showIcon = true } = banner;
 
   if (custom) return <>{custom}</>;
@@ -123,7 +169,7 @@ export function BannerBanner({ banner, banners }: BannerBannerProps) {
           description={description}
           action={action}
           dismissible={dismissible}
-          onDismiss={() => removeBanner(id)}
+          onDismiss={() => dismissBanner(id)}
         />
       </div>
 
@@ -135,7 +181,7 @@ export function BannerBanner({ banner, banners }: BannerBannerProps) {
           action={action}
           dismissible={dismissible}
           icon={icons[level]}
-          onDismiss={() => removeBanner(id)}
+          onDismiss={() => dismissBanner(id)}
         />
       </div>
     </div>

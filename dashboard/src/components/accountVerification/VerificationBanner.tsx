@@ -12,15 +12,16 @@ type VerificationBannerProps = {
   isVerified: boolean;
   userName?: string;
   showDismiss?: boolean;
+  id?: string;
 };
 
-export function VerificationBanner({ email, isVerified, showDismiss = true }: VerificationBannerProps) {
+export function VerificationBanner({ email, isVerified, showDismiss = true, id }: VerificationBannerProps) {
   const t = useTranslations('banners.verifyEmail');
   const { addBanner, removeBanner } = useBannerContext();
   const [isSending, setIsSending] = useState(false);
 
   const buildBanner = (sending: boolean) => ({
-    id: 'verify-email',
+    id: 'verify-email ' + (id ?? ''),
     level: 'info' as const,
     title: t('title'),
     description: t.rich('description', { email, strong: (chunks) => <strong>{chunks}</strong> }),
