@@ -145,7 +145,33 @@ export function buildTimelineMarkers(
     .filter((marker): marker is TimelineMarkerDescriptor => Boolean(marker));
 }
 
-function iconForKey(key: string, theme: 'light' | 'dark'): React.ReactNode {
+const MARKER_KEYS = [
+  'Mouse Interaction',
+  'Selection',
+  'Scroll',
+  'Input',
+  'Full snapshot',
+  'Viewport Resize',
+  'Media Interaction',
+  'Pageview',
+  'Blacklist'
+] as const;
+
+type MarkerKey = typeof MARKER_KEYS[number];
+
+function keyForMarker(marker: TimelineMarker): MarkerKey {
+  if (marker.key !== 'Custom event' && MARKER_KEYS.includes(marker.key as MarkerKey)) {
+    return marker.key as MarkerKey;
+  }
+
+  if (marker.label !== undefined && MARKER_KEYS.includes(marker.label as MarkerKey)) {
+    return marker.label as MarkerKey;
+  }
+
+  throw `Marker with key '${marker.key}' and label '${marker.label}' does not exist as a MarkerKey`;
+}
+
+function iconForKey(key: MarkerKey, theme: 'light' | 'dark'): React.ReactNode {
   const ICON_BASE_CLASS = 'h-5 w-5';
 
   const color = markerFillColorForLabel(theme, key);
@@ -174,7 +200,7 @@ function iconForKey(key: string, theme: 'light' | 'dark'): React.ReactNode {
   }
 }
 
-function labelForKey(key: string, t: any) {
+function labelForKey(key: MarkerKey, t: any) {
   switch(key) {
     case 'Mouse Interaction':
       return t('mouseInteraction');
@@ -207,15 +233,16 @@ function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark', t: any)
 
   sorted.forEach((m, index) => {
     if (!current || current.key !== m.key) {
+      const key = keyForMarker(m);
       current = {
-        id: `group-${index}-${m.key}-${Math.round(m.timestamp)}`,
-        key: m.key,
-        label: m.label ?? labelForKey(m.key, t),
+        id: `group-${index}-${key}-${Math.round(m.timestamp)}`,
+        key: key,
+        label: labelForKey(key, t),
         count: 1,
         start: m.timestamp,
         end: m.timestamp,
         jumpTo: m.timestamp,
-        icon: iconForKey(m.key, theme),
+        icon: iconForKey(key, theme),
       };
       groups.push(current!);
     } else {
