@@ -874,12 +874,6 @@
       }
     },
     "billing": {
-      "usageBanner": {
-        "title": "Usage Limit Exceeded:",
-        "body": "You've used <strong>{current}</strong> events out of your <strong>{limit}</strong> event limit ({percentage} over your {plan} plan).",
-        "upgradeHint": "Upgrade to ensure all your analytics data remains accessible",
-        "upgradeCta": "Upgrade Now"
-      },
       "navigation": {
         "backToDashboards": "Back to Dashboards",
         "title": "Choose Your Plan"
@@ -1734,6 +1728,16 @@
       "title": "Integration not detected.",
       "description": "Your dashboard is ready, but we haven't received any data from your website yet. Complete the integration setup to start tracking visitors.",
       "setup": "Integration Setup"
+    },
+    "usageAlert": {
+      "title": "Approaching event limit.",
+      "description": "You've used {percentage} of your monthly quota ({current} / {limit} events). Consider upgrading to avoid interruptions.",
+      "action": "Upgrade plan"
+    },
+    "usageLimitExceeded": {
+      "title": "Event limit reached.",
+      "description": "You've used {percentage} of your monthly quota ({current} / {limit} events). Upgrade your plan to avoid data loss.",
+      "action": "Upgrade plan"
     },
     "webVitalsNoData": {
       "title": "No Core Web Vitals data yet.",

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
 import { IntegrationSheet } from '@/components/integration/IntegrationSheet';
 import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import { useTranslations } from 'next-intl';
@@ -28,7 +27,6 @@ export function IntegrationNotification() {
             size='sm'
             onClick={() => setIsSheetOpen(true)}
           >
-            <Settings className='mr-2 h-4 w-4' />
             {t('setup')}
           </Button>
         ),

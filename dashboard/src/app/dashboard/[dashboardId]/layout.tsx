@@ -10,7 +10,7 @@ import { fetchSiteId, getCurrentDashboardAction } from '@/app/actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { IntegrationManager } from './IntegrationManager';
-import UsageUpgradeBanner from '@/components/billing/UsageUpgradeBanner';
+import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
 import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
@@ -20,6 +20,7 @@ import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { NotificationProvider } from '@/contexts/NotificationProvider';
 import { IntegrationNotification } from './IntegrationNotification';
+import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -47,6 +48,11 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     }
   }
 
+  let billingDataPromise;
+  if (billingEnabled) {
+    billingDataPromise = getUserBillingData();
+  }
+
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
   return (
@@ -60,9 +66,10 @@ export default async function DashboardLayout({ children, params }: DashboardLay
             <main className='bg-background w-full overflow-x-hidden'>
               <NotificationProvider>
                 <ScrollReset />
-                {billingEnabled && (
+                {billingEnabled && billingDataPromise && (
                   <Suspense fallback={null}>
-                    <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
+                    <UsageAlertBanner billingDataPromise={billingDataPromise} />
+                    <UsageExceededBanner billingDataPromise={billingDataPromise} />
                   </Suspense>
                 )}
                 {isFeatureEnabled('enableAccountVerification') &&
