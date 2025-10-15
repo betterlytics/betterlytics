@@ -95,7 +95,6 @@ type NotificationBannerProps = {
 export function NotificationBanner({ notification, notifications }: NotificationBannerProps) {
   const { removeNotification } = useNotificationsContext();
   const { id, level, title, description, action, custom, dismissible } = notification;
-  const [isExpanded, setIsExpanded] = useState(false);
 
   if (custom) return <>{custom}</>;
 
@@ -109,49 +108,81 @@ export function NotificationBanner({ notification, notifications }: Notification
 
   return (
     <div className={bgClasses}>
-      {/* HEADER ROW */}
+      <div className='sm:hidden'>
+        <MobileBannerContent
+          id={id}
+          title={title}
+          description={description}
+          action={action}
+          dismissible={dismissible}
+          onDismiss={() => removeNotification(id)}
+        />
+      </div>
+
+      <div className='hidden sm:block'>
+        <DesktopBannerContent
+          title={title}
+          description={description}
+          action={action}
+          dismissible={dismissible}
+          onDismiss={() => removeNotification(id)}
+        />
+      </div>
+    </div>
+  );
+}
+
+type BannerContentBaseProps = {
+  title?: string;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  dismissible?: boolean;
+  onDismiss: () => void;
+};
+
+type MobileBannerContentProps = BannerContentBaseProps & { id: string };
+
+function MobileBannerContent({
+  id,
+  title,
+  description,
+  action,
+  dismissible,
+  onDismiss,
+}: MobileBannerContentProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <>
       <div className='flex w-full items-center gap-2'>
         <div className='min-w-0 flex-1'>
-          {/* MOBILE: Title + chevron toggle */}
           {title && (
-            <div className='sm:hidden'>
-              <button
-                onClick={() => setIsExpanded((v) => !v)}
-                className='flex h-auto w-full items-center gap-1 p-0 text-left text-xs leading-snug font-semibold text-current'
-                aria-expanded={isExpanded}
-                aria-controls={`noti-desc-${id}`}
-                aria-label={isExpanded ? 'Hide details' : 'Show details'}
-              >
-                <span className='truncate'>{title}</span>
-                {description && (
-                  <ChevronDown
-                    className={cn('h-4 w-4 shrink-0 transition-transform', isExpanded && 'rotate-180')}
-                  />
-                )}
-              </button>
-            </div>
+            <button
+              onClick={() => setIsExpanded((v) => !v)}
+              className='flex h-auto w-full items-center gap-1 p-0 text-left text-xs leading-snug font-semibold text-current'
+              aria-expanded={isExpanded}
+              aria-controls={`noti-desc-${id}`}
+              aria-label={isExpanded ? 'Hide details' : 'Show details'}
+            >
+              <span className='truncate'>{title}</span>
+              {description && (
+                <ChevronDown className={cn('h-4 w-4 shrink-0 transition-transform', isExpanded && 'rotate-180')} />
+              )}
+            </button>
           )}
-
-          {/* DESKTOP: Title + description inline */}
-          <div className='hidden min-w-0 sm:flex sm:items-center'>
-            {title && <span className='text-xs leading-snug font-semibold'>{title}</span>}
-            {description && <span className='text-xs leading-snug'> {description}</span>}
-          </div>
         </div>
 
-        {/* ACTION */}
         {action && (
           <div className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'>
             {action}
           </div>
         )}
 
-        {/* DISMISS BUTTON */}
         {dismissible && (
           <Button
             variant='ghost'
             size='icon'
-            onClick={() => removeNotification(id)}
+            onClick={onDismiss}
             className='hover:bg-accent/20 dark:hover:bg-accent/20 h-7 w-7 cursor-pointer rounded-md text-current hover:text-current'
             aria-label='Dismiss notification'
           >
@@ -160,17 +191,46 @@ export function NotificationBanner({ notification, notifications }: Notification
         )}
       </div>
 
-      {/* MOBILE: Collapsible description below header */}
       {description && (
         <div
           id={`noti-desc-${id}`}
           className={cn(
-            'mt-1 text-left text-xs leading-snug transition-all duration-200 sm:hidden',
+            'mt-1 text-left text-xs leading-snug transition-all duration-200',
             isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 overflow-hidden opacity-0',
           )}
+          onClick={() => setIsExpanded((v) => !v)}
         >
           <span>{description}</span>
         </div>
+      )}
+    </>
+  );
+}
+
+function DesktopBannerContent({ title, description, action, dismissible, onDismiss }: BannerContentBaseProps) {
+  return (
+    <div className='flex w-full items-center gap-2'>
+      <div className='min-w-0 flex-1'>
+        <div className='flex min-w-0 items-center'>
+          {title && <span className='text-xs leading-snug font-semibold'>{title}</span>}
+          {description && <span className='text-xs leading-snug'> {description}</span>}
+        </div>
+      </div>
+      {action && (
+        <div className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'>
+          {action}
+        </div>
+      )}
+      {dismissible && (
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={onDismiss}
+          className='hover:bg-accent/20 dark:hover:bg-accent/20 h-7 w-7 cursor-pointer rounded-md text-current hover:text-current'
+          aria-label='Dismiss notification'
+        >
+          ✕
+        </Button>
       )}
     </div>
   );
