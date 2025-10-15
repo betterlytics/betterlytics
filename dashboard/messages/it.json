@@ -1402,13 +1402,7 @@
       "troubleshooting": "Risoluzione problemi",
       "contactSupport": "Contatta il supporto",
       "verifying": "Verifica in corso...",
-      "verifyInstallation": "Verifica installazione",
-      "noDataBanner": {
-        "title": "Integrazione richiesta",
-        "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati analitici. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
-        "setup": "Configura integrazione",
-        "dismiss": "Chiudi"
-      }
+      "verifyInstallation": "Verifica installazione"
     },
     "settingsButton": {
       "dashboardSettings": "Impostazioni dashboard"
@@ -1741,6 +1735,11 @@
       "failure": "Impossibile inviare l'email di verifica",
       "sending": "Invio in corso...",
       "resend": "Reinvia email"
+    },
+    "integrationSetup": {
+      "title": "Integrazione non rilevata.",
+      "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati dal tuo sito web. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
+      "setup": "Configura integrazione"
     },
     "webVitalsNoData": {
       "title": "Nessun dato Core Web Vitals.",

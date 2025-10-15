@@ -1396,13 +1396,7 @@
       "troubleshooting": "Troubleshooting",
       "contactSupport": "Contact Support",
       "verifying": "Verifying...",
-      "verifyInstallation": "Verify Installation",
-      "noDataBanner": {
-        "title": "Integration Required",
-        "description": "Your dashboard is ready, but we're not receiving any analytics data yet. Complete the integration setup to start tracking visitors.",
-        "setup": "Setup Integration",
-        "dismiss": "Dismiss"
-      }
+      "verifyInstallation": "Verify Installation"
     },
     "settingsButton": {
       "dashboardSettings": "Dashboard Settings"
@@ -1735,6 +1729,11 @@
       "failure": "Failed to send verification email",
       "sending": "Sending...",
       "resend": "Resend email"
+    },
+    "integrationSetup": {
+      "title": "Integration not detected.",
+      "description": "Your dashboard is ready, but we haven't received any data from your website yet. Complete the integration setup to start tracking visitors.",
+      "setup": "Integration Setup"
     },
     "webVitalsNoData": {
       "title": "No Core Web Vitals data yet.",

@@ -19,6 +19,7 @@ import { VerificationNotificationHandler } from '@/components/accountVerificatio
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { NotificationProvider } from '@/contexts/NotificationProvider';
+import { IntegrationNotification } from './IntegrationNotification';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -67,6 +68,9 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                 {isFeatureEnabled('enableAccountVerification') &&
                   session.user?.email &&
                   !session.user?.emailVerified && <VerificationNotificationHandler email={session.user.email} />}
+                <Suspense>
+                  <IntegrationNotification />
+                </Suspense>
                 <div className='flex w-full justify-center'>{children}</div>
               </NotificationProvider>
             </main>
