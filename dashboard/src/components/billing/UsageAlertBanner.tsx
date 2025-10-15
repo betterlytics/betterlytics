@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
-import { useNotificationsContext } from '@/contexts/NotificationProvider';
+import { useBannerContext } from '@/contexts/BannerProvider';
 import { getUserBillingData } from '@/actions/billing';
 
 interface UsageAlertBannerProps {
@@ -16,22 +16,22 @@ interface UsageAlertBannerProps {
 export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBannerProps) {
   const t = useTranslations('banners.usageAlert');
   const billingData = use(billingDataPromise);
-  const { addNotification, removeNotification } = useNotificationsContext();
+  const { addBanner, removeBanner } = useBannerContext();
 
   useEffect(() => {
     if (!billingData.success) {
-      removeNotification('usage-alert-banner');
+      removeBanner('usage-alert-banner');
       return;
     }
 
     const { usage } = billingData.data;
 
     if (usage.usagePercentage < 100) {
-      removeNotification('usage-alert-banner');
+      removeBanner('usage-alert-banner');
       return;
     }
 
-    addNotification({
+    addBanner({
       id: 'usage-alert-banner',
       level: 'warning',
       title: t('title'),
@@ -56,8 +56,8 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
       sticky: true,
     });
 
-    return () => removeNotification('usage-alert-banner');
-  }, [addNotification, removeNotification, t]);
+    return () => removeBanner('usage-alert-banner');
+  }, [addBanner, removeBanner, t]);
 
   return null;
 }

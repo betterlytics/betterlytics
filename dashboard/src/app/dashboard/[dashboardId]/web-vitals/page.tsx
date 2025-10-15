@@ -16,7 +16,7 @@ import WebVitalsTableSection from './webVitalsTableSection';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
-import { CWVNotificationHandler } from './CWVNotification';
+import { WebVitalsBanner } from './WebVitalsBanner';
 
 type PageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -70,7 +70,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
       <DashboardHeader title={t('webVitals')}>
         <DashboardFilters showComparison={false} />
       </DashboardHeader>
-      <CWVNotificationHandler hasDataPromise={hasDataPromise} />
+      <WebVitalsBanner hasDataPromise={hasDataPromise} />
       <Suspense fallback={<ChartSkeleton />}>
         <InteractiveWebVitalsChartSection summaryPromise={summaryPromise} seriesPromise={seriesPromise} />
       </Suspense>

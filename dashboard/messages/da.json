@@ -1400,17 +1400,6 @@
       "dashboardSettings": "Dashboard-indstillinger"
     },
     "accountVerification": {
-      "banner": {
-        "title": "Bekræft venligst din e-mailadresse",
-        "body": "Hej {name}! Vi har sendt en bekræftelsesmail til <strong>{email}</strong>. Klik på linket i e-mailen for at bekræfte din konto.",
-        "resend": "Send bekræftelsesmail igen",
-        "sending": "Sender...",
-        "sentLabel": "E-mail sendt! Tjek din indbakke.",
-        "help": "Kan du ikke finde e-mailen? Tjek din spammappe eller vent et par minutter.",
-        "dismiss": "Skjul",
-        "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
-        "toastFailure": "Kunne ikke sende bekræftelsesmail"
-      },
       "requiredModal": {
         "title": "E-mailbekræftelse påkrævet",
         "subtitle": "Bekræft din e-mail for at opgradere din plan",
@@ -1424,7 +1413,11 @@
         "sentTitle": "Bekræftelsesmail sendt!",
         "sentInfo": "Tjek din indbakke og spammappe. Bekræftelseslinket udløber om 24 timer.",
         "cancel": "Annuller",
-        "continue": "Fortsæt til dashboard"
+        "continue": "Fortsæt til dashboard",
+        "resend": "Send bekræftelsesmail igen",
+        "sending": "Sender...",
+        "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
+        "toastFailure": "Kunne ikke sende bekræftelsesmail"
       }
     },
     "settingsPopover": {

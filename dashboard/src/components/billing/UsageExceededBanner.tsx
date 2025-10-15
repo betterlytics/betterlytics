@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
-import { useNotificationsContext } from '@/contexts/NotificationProvider';
+import { useBannerContext } from '@/contexts/BannerProvider';
 import { getUserBillingData } from '@/actions/billing';
 
 interface UsageExceededBannerProps {
@@ -16,24 +16,24 @@ interface UsageExceededBannerProps {
 export default function UsageExceededBanner({ billingDataPromise }: UsageExceededBannerProps) {
   const t = useTranslations('banners.usageLimitExceeded');
   const billingData = use(billingDataPromise);
-  const { addNotification, removeNotification } = useNotificationsContext();
+  const { addBanner, removeBanner } = useBannerContext();
 
   useEffect(() => {
     if (!billingData.success) {
-      removeNotification('usage-exceeded-banner');
+      removeBanner('usage-exceeded-banner');
       return;
     }
 
     const { usage } = billingData.data;
 
-    if (!usage.isOverLimit) {
-      removeNotification('usage-exceeded-banner');
+    if (usage.isOverLimit) {
+      removeBanner('usage-exceeded-banner');
       return;
     }
 
     const overagePercentage = (usage.current / usage.limit) * 100;
 
-    addNotification({
+    addBanner({
       id: 'usage-exceeded-banner',
       level: 'error',
       title: t('title'),
@@ -57,8 +57,8 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
       sticky: true,
     });
 
-    return () => removeNotification('usage-exceeded-banner');
-  }, [billingData, addNotification, removeNotification, t]);
+    return () => removeBanner('usage-exceeded-banner');
+  }, [billingData, addBanner, removeBanner, t]);
 
   return null;
 }

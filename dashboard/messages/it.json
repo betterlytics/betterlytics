@@ -1402,17 +1402,6 @@
       "dashboardSettings": "Impostazioni dashboard"
     },
     "accountVerification": {
-      "banner": {
-        "title": "Verifica il tuo indirizzo email",
-        "body": "Ciao {name}! Ti abbiamo inviato un'email di verifica a <strong>{email}</strong>. Fai clic sul link nell'email per verificare il tuo account.",
-        "resend": "Reinvia email di verifica",
-        "sending": "Invio in corso...",
-        "sentLabel": "Email inviata! Controlla la tua casella di posta.",
-        "help": "Non trovi l'email? Controlla la cartella spam o attendi qualche minuto.",
-        "dismiss": "Chiudi",
-        "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
-        "toastFailure": "Invio dell'email di verifica non riuscito"
-      },
       "requiredModal": {
         "title": "Verifica email richiesta",
         "subtitle": "Verifica la tua email per aggiornare il tuo piano",
@@ -1426,7 +1415,11 @@
         "sentTitle": "Email di verifica inviata!",
         "sentInfo": "Controlla la posta in arrivo e la cartella spam. Il link di verifica scadrà tra 24 ore.",
         "cancel": "Annulla",
-        "continue": "Torna alla dashboard"
+        "continue": "Torna alla dashboard",
+        "resend": "Reinvia email di verifica",
+        "sending": "Invio in corso...",
+        "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
+        "toastFailure": "Invio dell'email di verifica non riuscito"
       }
     },
     "settingsPopover": {

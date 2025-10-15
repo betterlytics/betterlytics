@@ -1,21 +1,21 @@
 'use client';
 import { use, useEffect } from 'react';
-import { useNotificationsContext } from '@/contexts/NotificationProvider';
+import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 
-type CWVNotificationHandlerProps = {
+type WebVitalsBannerProps = {
   hasDataPromise: Promise<boolean>;
 };
 
-export function CWVNotificationHandler({ hasDataPromise }: CWVNotificationHandlerProps) {
+export function WebVitalsBanner({ hasDataPromise }: WebVitalsBannerProps) {
   const hasData = use(hasDataPromise);
   const t = useTranslations('banners.webVitalsNoData');
-  const { addNotification, removeNotification } = useNotificationsContext();
+  const { addBanner, removeBanner } = useBannerContext();
   useEffect(() => {
     if (hasData === false) {
-      addNotification({
-        id: 'no-cwv-data',
+      addBanner({
+        id: 'no-web-vitals-data',
         level: 'warning',
         title: t('title'),
         description: t('description'),
@@ -33,7 +33,7 @@ export function CWVNotificationHandler({ hasDataPromise }: CWVNotificationHandle
         dismissible: true,
       });
     } else {
-      removeNotification('no-cwv-data');
+      removeBanner('no-web-vitals-data');
     }
   }, [hasData, t]);
 

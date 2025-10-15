@@ -8,7 +8,7 @@ import { AlertCircleIcon, AlertTriangleIcon, CheckCircleIcon, ChevronDown, InfoI
 
 type Level = 'info' | 'warning' | 'error' | 'success';
 
-type Notification = {
+type Banner = {
   id: string;
   level: Level;
   title?: string;
@@ -21,32 +21,32 @@ type Notification = {
   sticky?: boolean;
 };
 
-type NotificationsContextProps = {
-  addNotification: Dispatch<Notification>;
-  removeNotification: Dispatch<string>;
+type BannerContextProps = {
+  addBanner: Dispatch<Banner>;
+  removeBanner: Dispatch<string>;
 };
 
-const NotificationsContext = React.createContext<NotificationsContextProps>({
-  addNotification: () => {},
-  removeNotification: () => {},
+const BannerContext = React.createContext<BannerContextProps>({
+  addBanner: () => {},
+  removeBanner: () => {},
 });
 
-type NotificationsContextProviderProps = {
+type BannerProviderProps = {
   children: React.ReactNode;
 };
 
-export function NotificationProvider({ children }: NotificationsContextProviderProps) {
+export function BannerProvider({ children }: BannerProviderProps) {
   const pathname = usePathname();
   const routeKey = pathname ?? '';
-  type NotificationWithMeta = Notification & { __route?: string };
-  const [notifications, setNotifications] = useState<NotificationWithMeta[]>([]);
+  type BannerWithMeta = Banner & { __route?: string };
+  const [banners, setBanners] = useState<BannerWithMeta[]>([]);
 
-  const addNotification = useCallback(
-    (notification: Notification) => {
-      setNotifications((prev) => {
-        const existingIndex = prev.findIndex((noti) => noti.id === notification.id);
-        const withMeta: NotificationWithMeta =
-          notification.scope === 'global' ? { ...notification } : { ...notification, __route: routeKey };
+  const addBanner = useCallback(
+    (banner: Banner) => {
+      setBanners((prev) => {
+        const existingIndex = prev.findIndex((bann) => bann.id === banner.id);
+        const withMeta: BannerWithMeta =
+          banner.scope === 'global' ? { ...banner } : { ...banner, __route: routeKey };
 
         if (existingIndex !== -1) {
           const next = [...prev];
@@ -59,43 +59,43 @@ export function NotificationProvider({ children }: NotificationsContextProviderP
     [routeKey],
   );
 
-  const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => {
-      const removedDuplicate = prev.filter((noti) => noti.id !== id);
+  const removeBanner = useCallback((id: string) => {
+    setBanners((prev) => {
+      const removedDuplicate = prev.filter((bann) => bann.id !== id);
       return removedDuplicate;
     });
   }, []);
 
-  const nowVisible = notifications
-    .filter((n) => n.scope === 'global' || n.__route === routeKey)
+  const nowVisible = banners
+    .filter((bann) => bann.scope === 'global' || bann.__route === routeKey)
     .sort((a, b) => Number(Boolean(b.sticky)) - Number(Boolean(a.sticky)));
 
   return (
-    <NotificationsContext.Provider value={{ addNotification, removeNotification }}>
+    <BannerContext.Provider value={{ addBanner, removeBanner }}>
       <div className='h-full w-full'>
         <div className={cn('w-full space-y-0 overflow-hidden p-0', nowVisible.length && 'border-b')}>
-          {nowVisible.map((notification) => (
-            <NotificationBanner key={notification.id} notification={notification} notifications={nowVisible} />
+          {nowVisible.map((banner) => (
+            <BannerBanner key={banner.id} banner={banner} banners={nowVisible} />
           ))}
         </div>
         {children}
       </div>
-    </NotificationsContext.Provider>
+    </BannerContext.Provider>
   );
 }
 
-export function useNotificationsContext() {
-  return React.useContext(NotificationsContext);
+export function useBannerContext() {
+  return React.useContext(BannerContext);
 }
 
-type NotificationBannerProps = {
-  notification: Notification;
-  notifications: Notification[];
+type BannerBannerProps = {
+  banner: Banner;
+  banners: Banner[];
 };
 
-export function NotificationBanner({ notification, notifications }: NotificationBannerProps) {
-  const { removeNotification } = useNotificationsContext();
-  const { id, level, title, description, action, custom, dismissible, showIcon = true } = notification;
+export function BannerBanner({ banner, banners }: BannerBannerProps) {
+  const { removeBanner } = useBannerContext();
+  const { id, level, title, description, action, custom, dismissible, showIcon = true } = banner;
 
   if (custom) return <>{custom}</>;
 
@@ -104,7 +104,7 @@ export function NotificationBanner({ notification, notifications }: Notification
     'bg-amber-500 text-black': level === 'warning',
     'bg-red-500 text-black': level === 'error',
     'bg-green-500 text-black': level === 'success',
-    'border-b': notifications.length > 0,
+    'border-b': banners.length > 0,
   });
 
   const icons = {
@@ -123,7 +123,7 @@ export function NotificationBanner({ notification, notifications }: Notification
           description={description}
           action={action}
           dismissible={dismissible}
-          onDismiss={() => removeNotification(id)}
+          onDismiss={() => removeBanner(id)}
         />
       </div>
 
@@ -135,7 +135,7 @@ export function NotificationBanner({ notification, notifications }: Notification
           action={action}
           dismissible={dismissible}
           icon={icons[level]}
-          onDismiss={() => removeNotification(id)}
+          onDismiss={() => removeBanner(id)}
         />
       </div>
     </div>
@@ -173,7 +173,7 @@ function MobileBannerContent({
               onClick={() => setIsExpanded((v) => !v)}
               className='flex h-auto w-full items-center gap-1 p-0 text-left text-xs leading-snug font-semibold text-current'
               aria-expanded={isExpanded}
-              aria-controls={`noti-desc-${id}`}
+              aria-controls={`banner-desc-${id}`}
               aria-label={isExpanded ? 'Hide details' : 'Show details'}
             >
               <span className='truncate'>{title}</span>
@@ -196,7 +196,7 @@ function MobileBannerContent({
             size='icon'
             onClick={onDismiss}
             className='hover:bg-accent/20 dark:hover:bg-accent/20 h-7 w-7 cursor-pointer rounded-md text-current hover:text-current'
-            aria-label='Dismiss notification'
+            aria-label='Dismiss banner'
           >
             ✕
           </Button>
@@ -205,7 +205,7 @@ function MobileBannerContent({
 
       {description && (
         <div
-          id={`noti-desc-${id}`}
+          id={`banner-desc-${id}`}
           className={cn(
             'mt-1 text-left text-xs leading-snug transition-all duration-200',
             isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 overflow-hidden opacity-0',
@@ -248,7 +248,7 @@ function DesktopBannerContent({
           size='icon'
           onClick={onDismiss}
           className='hover:bg-accent/20 dark:hover:bg-accent/20 h-7 w-7 cursor-pointer rounded-md text-current hover:text-current'
-          aria-label='Dismiss notification'
+          aria-label='Dismiss banner'
         >
           ✕
         </Button>

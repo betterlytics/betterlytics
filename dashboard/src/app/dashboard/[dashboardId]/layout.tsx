@@ -15,11 +15,11 @@ import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
 import ScrollReset from '@/components/ScrollReset';
-import { VerificationNotification } from '@/components/accountVerification/VerificationNotification';
+import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
-import { NotificationProvider } from '@/contexts/NotificationProvider';
-import { IntegrationNotification } from './IntegrationNotification';
+import { BannerProvider } from '@/contexts/BannerProvider';
+import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 
 type DashboardLayoutProps = {
@@ -64,7 +64,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
             <BASidebar dashboardId={dashboardId} />
             <BAMobileSidebarTrigger />
             <main className='bg-background w-full overflow-x-hidden'>
-              <NotificationProvider>
+              <BannerProvider>
                 <ScrollReset />
                 {billingEnabled && billingDataPromise && (
                   <Suspense fallback={null}>
@@ -73,13 +73,13 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                   </Suspense>
                 )}
                 {isFeatureEnabled('enableAccountVerification') && (
-                  <VerificationNotification email={session.user.email} isVerified={!!session.user.emailVerified} />
+                  <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
                 )}
                 <Suspense>
-                  <IntegrationNotification />
+                  <IntegrationBanner />
                 </Suspense>
                 <div className='flex w-full justify-center'>{children}</div>
-              </NotificationProvider>
+              </BannerProvider>
             </main>
             {/* Conditionally render tracking script based on server-side feature flag */}
             {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}

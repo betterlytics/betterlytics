@@ -5,18 +5,18 @@ import { Button } from '@/components/ui/button';
 import { IntegrationSheet } from '@/components/integration/IntegrationSheet';
 import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import { useTranslations } from 'next-intl';
-import { useNotificationsContext } from '@/contexts/NotificationProvider';
+import { useBannerContext } from '@/contexts/BannerProvider';
 
-export function IntegrationNotification() {
+export function IntegrationBanner() {
   const t = useTranslations('banners.integrationSetup');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { isVerified, isLoading } = useTrackingVerification();
-  const { addNotification, removeNotification } = useNotificationsContext();
+  const { addBanner, removeBanner } = useBannerContext();
 
   useEffect(() => {
     if (!isLoading && !isVerified) {
-      addNotification({
-        id: 'integration-notification',
+      addBanner({
+        id: 'integration-banner',
         level: 'warning',
         title: t('title'),
         description: t('description'),
@@ -34,11 +34,11 @@ export function IntegrationNotification() {
         scope: 'global',
       });
     } else {
-      removeNotification('integration-notification');
+      removeBanner('integration-banner');
     }
 
-    return () => removeNotification('integration-notification');
-  }, [isLoading, isVerified, addNotification, removeNotification, t]);
+    return () => removeBanner('integration-banner');
+  }, [isLoading, isVerified, addBanner, removeBanner, t]);
 
   return <IntegrationSheet open={isSheetOpen} onOpenChange={setIsSheetOpen} />;
 }

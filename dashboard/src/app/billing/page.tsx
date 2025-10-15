@@ -9,8 +9,8 @@ import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { toast } from 'sonner';
 import { getTranslations } from 'next-intl/server';
-import { NotificationProvider } from '@/contexts/NotificationProvider';
-import { VerificationNotification } from '@/components/accountVerification/VerificationNotification';
+import { BannerProvider } from '@/contexts/BannerProvider';
+import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export default async function BillingPage() {
@@ -36,10 +36,10 @@ export default async function BillingPage() {
     <div className='bg-background'>
       <BillingNavigationBanner />
 
-      <NotificationProvider>
+      <BannerProvider>
         <div className='container mx-auto max-w-6xl px-4 py-8'>
           {isFeatureEnabled('enableAccountVerification') && (
-            <VerificationNotification
+            <VerificationBanner
               email={session.user.email}
               isVerified={!!session.user.emailVerified}
               showDismiss={false}
@@ -60,7 +60,7 @@ export default async function BillingPage() {
             <BillingFAQGrid />
           </div>
         </div>
-      </NotificationProvider>
+      </BannerProvider>
     </div>
   );
 }
