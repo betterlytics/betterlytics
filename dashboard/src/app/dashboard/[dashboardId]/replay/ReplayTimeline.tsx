@@ -23,8 +23,9 @@ import { useTheme } from 'next-themes';
 import { markerFillColorForLabel } from '@/app/dashboard/[dashboardId]/replay/utils/colors';
 
 export type TimelineMarkerDescriptor = {
-  label: string;
+  key: string;
   timestamp: number;
+  label?: string;
   icon?: React.ReactNode;
 };
 
@@ -34,6 +35,7 @@ export type TimelineMarker = TimelineMarkerDescriptor & {
 
 export type TimelineGroup = {
   id: string;
+  key: string;
   label: string;
   count: number;
   start: number;
@@ -68,7 +70,7 @@ export function buildTimelineMarkers(
 
       if (event.type === EventType.FullSnapshot) {
         return {
-          label: 'Full snapshot',
+          key: 'Full snapshot',
           timestamp: timeFromStart,
         } satisfies TimelineMarkerDescriptor;
       }
@@ -77,21 +79,21 @@ export function buildTimelineMarkers(
         const source = event.data?.source;
         if (source === IncrementalSource.MouseInteraction) {
           return {
-            label: 'Mouse Interaction',
+            key: 'Mouse Interaction',
             timestamp: timeFromStart,
           } satisfies TimelineMarkerDescriptor;
         }
 
         if (source === IncrementalSource.Selection) {
           return {
-            label: 'Selection',
+            key: 'Selection',
             timestamp: timeFromStart,
           } satisfies TimelineMarkerDescriptor;
         }
 
         if (source === IncrementalSource.Scroll) {
           return {
-            label: 'Scroll',
+            key: 'Scroll',
             timestamp: timeFromStart,
           } satisfies TimelineMarkerDescriptor;
         }
@@ -102,14 +104,14 @@ export function buildTimelineMarkers(
 
         if (source === IncrementalSource.ViewportResize) {
           return {
-            label: 'Viewport Resize',
+            key: 'Viewport Resize',
             timestamp: timeFromStart,
           } satisfies TimelineMarkerDescriptor;
         }
 
         if (source === IncrementalSource.MediaInteraction) {
           return {
-            label: 'Media Interaction',
+            key: 'Media Interaction',
             timestamp: timeFromStart,
           } satisfies TimelineMarkerDescriptor;
         }
@@ -123,7 +125,7 @@ export function buildTimelineMarkers(
           }
 
           return {
-            label: 'Input',
+            key: 'Input',
             timestamp: timeFromStart,
           } satisfies TimelineMarkerDescriptor;
         }
@@ -132,8 +134,9 @@ export function buildTimelineMarkers(
       if (event.type === EventType.Custom) {
         const customLabel = event.data?.tag || 'Custom event';
         return {
-          label: customLabel,
+          key: 'Custom event',
           timestamp: timeFromStart,
+          label: customLabel,
         } satisfies TimelineMarkerDescriptor;
       }
 
@@ -142,12 +145,12 @@ export function buildTimelineMarkers(
     .filter((marker): marker is TimelineMarkerDescriptor => Boolean(marker));
 }
 
-function iconForLabel(label: string, theme: 'light' | 'dark'): React.ReactNode {
+function iconForKey(key: string, theme: 'light' | 'dark'): React.ReactNode {
   const ICON_BASE_CLASS = 'h-5 w-5';
 
-  const color = markerFillColorForLabel(theme, label);
+  const color = markerFillColorForLabel(theme, key);
 
-  switch (label) {
+  switch (key) {
     case 'Mouse Interaction':
       return <MousePointer2 className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Selection':
@@ -171,24 +174,50 @@ function iconForLabel(label: string, theme: 'light' | 'dark'): React.ReactNode {
   }
 }
 
-function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark'): TimelineGroup[] {
+function labelForKey(key: string, t: any) {
+  switch(key) {
+    case 'Mouse Interaction':
+      return t('mouseInteraction');
+    case 'Selection':
+      return t('selection');
+    case 'Scroll':
+      return t('scroll');
+    case 'Input':
+      return t('input');
+    case 'Full snapshot': 
+      return t('fullSnapshot');
+    case 'Viewport Resize':
+      return 'Viewport Resize'; // Missing translation
+    case 'Media Interaction':
+      return 'Media Interaction'; // Missing translation
+    case 'Pageview':
+      return t('pageview');
+    case 'Blacklist':
+      return t('blacklist');
+    default:
+      return key;
+  }
+}
+
+function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark', t: any): TimelineGroup[] {
   if (markers.length === 0) return [];
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
   const groups: TimelineGroup[] = [];
   let current: TimelineGroup | null = null;
 
   sorted.forEach((m, index) => {
-    if (!current || current.label !== m.label) {
+    if (!current || current.key !== m.key) {
       current = {
-        id: `group-${index}-${m.label}-${Math.round(m.timestamp)}`,
-        label: m.label,
+        id: `group-${index}-${m.key}-${Math.round(m.timestamp)}`,
+        key: m.key,
+        label: m.label ?? labelForKey(m.key, t),
         count: 1,
         start: m.timestamp,
         end: m.timestamp,
         jumpTo: m.timestamp,
-        icon: iconForLabel(m.label, theme),
+        icon: iconForKey(m.key, theme),
       };
-      groups.push(current);
+      groups.push(current!);
     } else {
       current.count += 1;
       current.end = m.timestamp;
@@ -199,27 +228,29 @@ function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark'): Timeli
 }
 
 function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }: ReplayTimelineProps) {
-  const t = useTranslations('components.sessionReplay.eventTimeline');
+  const tTimeline = useTranslations('components.sessionReplay.eventTimeline');
+  const tEvents = useTranslations('components.sessionReplay.events');
 
   const { resolvedTheme } = useTheme();
   const theme: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light';
 
-  const groups = useMemo(() => buildGroups(markers, theme), [markers, theme]);
+  const groups = useMemo(() => buildGroups(markers, theme, tEvents), [markers, theme, tEvents]);
   const totalEvents = markers.length;
+
 
   const timelineEmptyState = useMemo(
     () => (
       <div className='text-muted-foreground flex h-full items-center justify-center px-4 py-10 text-xs'>
-        {isSessionSelected ? t('emptyReplay.title') : t('emptyReplay.noSessionSelected')}
+        {isSessionSelected ? tTimeline('emptyReplay.title') : tTimeline('emptyReplay.noSessionSelected')}
       </div>
     ),
-    [t, isSessionSelected],
+    [tTimeline, isSessionSelected],
   );
 
   return (
     <TimelinePanel
-      title={t('header')}
-      subtitle={t('subHeader', { count: totalEvents, groupCount: groups.length })}
+      title={tTimeline('header')}
+      subtitle={tTimeline('subHeader', { count: totalEvents, groupCount: groups.length })}
       groups={groups}
       empty={timelineEmptyState}
       rowHeight={44}
