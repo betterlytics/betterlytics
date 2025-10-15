@@ -7,16 +7,18 @@ import { Button } from '@/components/ui/button';
 import { resendVerificationEmailAction } from '@/app/actions/verification';
 import { toast } from 'sonner';
 
-type VerificationNotificationHandlerProps = {
+type VerificationNotificationProps = {
   email: string;
+  isVerified: boolean;
   userName?: string;
   showDismiss?: boolean;
 };
 
-export function VerificationNotificationHandler({
+export function VerificationNotification({
   email,
+  isVerified,
   showDismiss = true,
-}: VerificationNotificationHandlerProps) {
+}: VerificationNotificationProps) {
   const t = useTranslations('banners.verifyEmail');
   const { addNotification, removeNotification } = useNotificationsContext();
   const [isSending, setIsSending] = useState(false);
@@ -57,13 +59,21 @@ export function VerificationNotificationHandler({
   };
 
   useEffect(() => {
+    if (!email || isVerified) {
+      removeNotification('verify-email');
+      return;
+    }
     addNotification({ ...buildNotification(false), scope: 'global', sticky: true });
     return () => removeNotification('verify-email');
-  }, [addNotification, removeNotification, t]);
+  }, [email, isVerified, addNotification, removeNotification, t]);
 
   useEffect(() => {
+    if (!email || isVerified) {
+      removeNotification('verify-email');
+      return;
+    }
     addNotification({ ...buildNotification(isSending), scope: 'global', sticky: true });
-  }, [isSending, addNotification]);
+  }, [email, isVerified, isSending, addNotification, removeNotification]);
 
   return null;
 }

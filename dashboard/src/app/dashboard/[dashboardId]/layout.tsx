@@ -15,7 +15,7 @@ import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
 import ScrollReset from '@/components/ScrollReset';
-import { VerificationNotificationHandler } from '@/components/accountVerification/VerificationNotification';
+import { VerificationNotification } from '@/components/accountVerification/VerificationNotification';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { NotificationProvider } from '@/contexts/NotificationProvider';
@@ -72,9 +72,9 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                     <UsageExceededBanner billingDataPromise={billingDataPromise} />
                   </Suspense>
                 )}
-                {isFeatureEnabled('enableAccountVerification') &&
-                  session.user?.email &&
-                  !session.user?.emailVerified && <VerificationNotificationHandler email={session.user.email} />}
+                {isFeatureEnabled('enableAccountVerification') && (
+                  <VerificationNotification email={session.user.email} isVerified={!!session.user.emailVerified} />
+                )}
                 <Suspense>
                   <IntegrationNotification />
                 </Suspense>
