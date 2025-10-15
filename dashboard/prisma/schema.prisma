@@ -56,6 +56,10 @@ model User {
   totpEnabled Boolean @default(false)
   totpSecret String?
   role String?
+
+  termsAcceptedVersion Int?
+  termsAcceptedAt      DateTime?
+  changelogVersionSeen Int? @default(0)
   
   dashboardAccess UserDashboard[]
   settings UserSettings?
