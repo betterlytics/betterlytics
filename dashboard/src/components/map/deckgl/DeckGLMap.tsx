@@ -66,9 +66,8 @@ export default function DeckGLClient({
         views={view}
         ref={deckRef}
         viewState={viewState}
-        onViewStateChange={({ viewState: vs, interactionState }) => {
-          //! TODO: Add bounds
-          setViewState(vs);
+        onViewStateChange={({ viewState: vs }) => {
+          setViewState({ ...vs });
         }}
         onClick={onClick}
         onHover={onHover}

@@ -54,7 +54,7 @@ export function useCountriesLayer({
       filled: true,
       stroked: false,
       pickable: true,
-      wrapLongitude: false,
+      wrapLongitude: true,
       getFillColor: (f: any) => {
         const iso = f.id as string;
         const visitors = visitorData[iso] ?? 0;
