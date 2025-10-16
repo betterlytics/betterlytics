@@ -834,7 +834,8 @@
     "error": "Der opstod en fejl",
     "app": "Applikation",
     "created": "Oprettet",
-    "unknown": "Ukendt"
+    "unknown": "Ukendt",
+    "speed": "Hastighed"
   },
   "languages": {
     "da": "Dansk",
@@ -1279,8 +1280,22 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "loading": "Indlæser kort...",
-      "visitors": "Besøgende"
+      "loading": "Initialiserer verdenskort...",
+      "loadingMessage": "Vent venligst imens verdenskortet indlæses",
+      "visitors": "Besøgende",
+      "playback": {
+        "play": "Start afspilning af kortet",
+        "stop": "Stop afspilning af kortet",
+        "pause": "Sæt kortets afspilning på pause",
+        "speed": {
+          "label": "Hastighed",
+          "tooltip": "Vælg kortets afspilnings hastighed"
+        }
+      },
+      "zoom": {
+        "in": "Zoom ind",
+        "out": "Zoom ud"
+      }
     },
     "userJourney": {
       "page": {

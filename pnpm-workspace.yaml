@@ -1,4 +1,14 @@
 packages:
-  - "backend"
-  - "dashboard"
-  - "docs"
+  - backend
+  - dashboard
+  - docs
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@tailwindcss/oxide'
+  - bcrypt
+  - esbuild
+  - prisma
+  - sharp
+  - unrs-resolver
