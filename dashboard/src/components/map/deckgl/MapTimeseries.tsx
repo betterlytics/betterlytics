@@ -164,7 +164,6 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
       <ZoomControls className={'pointer-events-auto absolute top-3 z-12'} style={{ left: sidebarOffset + 16 }} />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
-      <DeckGLPopup />
     </div>
   );
 }

@@ -1,14 +1,13 @@
 'use client';
 
 import { use } from 'react';
-import { getWorldMapDataAlpha2, getWorldMapGranularityTimeseries } from '@/app/actions/geography';
+import { getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import { useTranslations } from 'next-intl';
 import { DeckGLMapSelectionProvider } from '@/contexts/DeckGLSelectionContextProvider';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import MapTimeseries from '@/components/map/deckgl/MapTimeseries';
 import dynamic from 'next/dynamic';
 import DashboardLoading from '@/components/loading/DashboardLoading';
-import { DeckGLMapViewStateProvider } from '@/contexts/DeckGLViewStateProvider';
+import { MapCommandProvider } from '@/contexts/DeckGLMapContext';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapGranularityTimeseries>;
@@ -26,11 +25,11 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
   return (
     <>
       <div className='h-full w-full'>
-        <DeckGLMapViewStateProvider>
+        <MapCommandProvider>
           <DeckGLMapSelectionProvider>
             <DynamicMapTimeseries visitorData={mapData} />
           </DeckGLMapSelectionProvider>
-        </DeckGLMapViewStateProvider>
+        </MapCommandProvider>
         <div className='fixed top-16 right-4 z-30'>
           <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
             <DashboardFilters />

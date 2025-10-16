@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { ZoomButton, ZoomType } from '@/components/map/deckgl/controls/ZoomButton';
-import { INITIAL_ZOOM_STATE, useSetMapViewState } from '@/contexts/DeckGLViewStateProvider';
+import { ZoomButton } from '@/components/map/deckgl/controls/ZoomButton';
+import type { ZoomType } from '@/types/deckgl-viewtypes';
 import { cn } from '@/lib/utils';
 import { ScaleMotion } from '@/components/ScaleMotion';
+import { useMapCommands } from '@/contexts/DeckGLMapContext';
 
 export type ZoomControlsProps = {
   className: React.ComponentProps<'div'>['className'];
@@ -12,14 +13,10 @@ export type ZoomControlsProps = {
 };
 
 export function ZoomControls({ className, style }: ZoomControlsProps) {
-  const setViewState = useSetMapViewState();
+  const { runCommand } = useMapCommands();
 
   const handleZoom = (zoomType: ZoomType) => {
-    setViewState((vs) => {
-      const currentZoom = vs.zoom ?? INITIAL_ZOOM_STATE.zoom;
-      const newZoom = Math.max(0, Math.min(20, currentZoom + (zoomType === 'in' ? 1 : -1)));
-      return { zoom: newZoom };
-    });
+    runCommand('zoom', zoomType);
   };
 
   return (

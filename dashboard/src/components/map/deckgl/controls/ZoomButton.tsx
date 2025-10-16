@@ -6,9 +6,7 @@ import { cn } from '@/lib/utils';
 import { Plus, Minus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-
-export const ZOOM_TYPES = ['in', 'out'] as const;
-export type ZoomType = (typeof ZOOM_TYPES)[number];
+import { isZoomType, ZoomType } from '@/types/deckgl-viewtypes';
 
 const getComponent = (zoomType: ZoomType) => {
   switch (zoomType) {
@@ -20,8 +18,6 @@ const getComponent = (zoomType: ZoomType) => {
       return null;
   }
 };
-
-export const isZoomType = (value: any): value is ZoomType => ZOOM_TYPES.includes(value);
 
 export type ZoomButtonProps = {
   zoomType: ZoomType;

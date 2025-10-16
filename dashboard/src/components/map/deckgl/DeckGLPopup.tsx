@@ -1,22 +1,21 @@
 'use client';
 
-import { WebMercatorViewport } from '@deck.gl/core';
+import { type MapViewState, WebMercatorViewport } from '@deck.gl/core';
 import { useMapSelectionActions, useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
 import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useMapViewState } from '@/contexts/DeckGLViewStateProvider';
 import { motion } from 'framer-motion';
 
 interface DeckGLPopupProps {
   size?: 'sm' | 'lg';
   children?: React.ReactNode;
+  viewState?: MapViewState;
 }
 
-function DeckGLPopupComponent({ size = 'sm', children }: DeckGLPopupProps) {
-  const viewState = useMapViewState();
+function DeckGLPopupComponent({ size = 'sm', viewState, children }: DeckGLPopupProps) {
   const { clickedFeatureRef } = useMapSelectionActions();
   const { clicked } = useMapSelectionState();
   const locale = useLocale();

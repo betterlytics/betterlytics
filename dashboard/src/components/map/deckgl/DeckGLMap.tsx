@@ -1,12 +1,14 @@
 'use client';
 
-import { useMapViewState, useSetMapViewState } from '@/contexts/DeckGLViewStateProvider';
+import { useMapSubscriptions } from '@/contexts/DeckGLMapContext';
 import { useCountriesLayer, type GeoJsonAnimation } from '@/hooks/deckgl/use-countries-layer';
 import { DeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
+import { INITIAL_VIEW_STATE } from '@/types/deckgl-viewtypes';
+import { MapView, type MapViewState } from '@deck.gl/core';
 import { DeckGL } from '@deck.gl/react';
-import { MapView } from '@deck.gl/core';
 import { FeatureCollection } from 'geojson';
 import { useEffect, useRef, useState } from 'react';
+import { DeckGLPopup } from './DeckGLPopup';
 
 export interface DeckGLMapProps {
   visitorData: {
@@ -30,8 +32,9 @@ export default function DeckGLClient({
   onHover,
 }: DeckGLMapProps) {
   const [geojson, setGeojson] = useState<FeatureCollection | null>(null);
-  const viewState = useMapViewState();
-  const setViewState = useSetMapViewState();
+  const [viewState, setViewState] = useState<MapViewState>({ ...INITIAL_VIEW_STATE });
+
+  useMapSubscriptions(setViewState); // Subscribe to viewstate updates
 
   useEffect(() => {
     fetch('/data/countries.geo.json')
@@ -64,19 +67,16 @@ export default function DeckGLClient({
         ref={deckRef}
         viewState={viewState}
         onViewStateChange={({ viewState: vs, interactionState }) => {
-          // Only update if user is interacting
-          if (!interactionState.inTransition || interactionState.isZooming) {
-            setViewState(vs);
-          }
+          //! TODO: Add bounds
+          setViewState(vs);
         }}
         onClick={onClick}
         onHover={onHover}
         useDevicePixels={true} /* Disable for performance gains */
         layers={layers}
         style={{ position: 'fixed' }}
-      >
-        {/* TODO: CLean up */}
-      </DeckGL>
+      />
+      <DeckGLPopup viewState={viewState} />
     </>
   );
 }
