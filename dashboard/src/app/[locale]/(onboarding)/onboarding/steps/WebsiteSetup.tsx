@@ -7,7 +7,7 @@ import { completeOnboardingAndCreateDashboardAction } from '@/app/actions/onboar
 import { domainValidation } from '@/entities/dashboard';
 import { toast } from 'sonner';
 import { PrefixInput } from '@/components/inputs/PrefixInput';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useOnboarding } from '../OnboardingProvider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSession } from 'next-auth/react';
@@ -20,6 +20,7 @@ type WebsiteSetupProps = {
 export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
   const t = useTranslations('onboarding.website');
   const tValidation = useTranslations('validation');
+  const locale = useLocale();
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [agree, setAgree] = useState(false);
@@ -50,6 +51,7 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
         const result = await completeOnboardingAndCreateDashboardAction({
           domain: domainResult.data,
           acceptTerms: showTos ? agree : undefined,
+          language: locale,
         });
 
         if (!result.success) {

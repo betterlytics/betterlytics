@@ -7,6 +7,8 @@ import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
 import { UserException } from '@/lib/exceptions';
 import { markOnboardingCompleted } from '@/repositories/postgres/user';
+import { updateUserSettings } from '@/services/userSettings';
+import { SupportedLanguages } from '@/constants/i18n';
 import { ensureTermsAccepted } from '@/services/user.service';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
@@ -39,10 +41,20 @@ export async function validateDashboardCreationLimit(userId: string): Promise<vo
   }
 }
 
-export async function completeOnboardingAndCreateDashboard(domain: string, userId: string): Promise<Dashboard> {
+export async function completeOnboardingAndCreateDashboard(
+  domain: string,
+  userId: string,
+  language: SupportedLanguages,
+): Promise<Dashboard> {
   await ensureTermsAccepted(userId);
   const dashboard = await createNewDashboard(domain, userId);
+
+  await updateUserSettings(userId, { language }).catch((e) =>
+    console.error('Failed to set language during onboarding finalization:', e),
+  );
+
   await markOnboardingCompleted(userId);
+
   return dashboard;
 }
 

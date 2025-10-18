@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
 
 export const PasswordSchema = z
   .string()
@@ -48,6 +49,10 @@ export const RegisterUserSchema = z.object({
     errorMap: () => ({ message: 'onboarding.account.termsOfServiceRequired' }),
   }),
   role: z.enum(['admin', 'user']).optional(),
+  language: z.preprocess(
+    (val) => (SUPPORTED_LANGUAGES.includes(val as SupportedLanguages) ? val : 'en'),
+    z.enum(SUPPORTED_LANGUAGES).default('en'),
+  ),
 });
 
 export const LoginUserSchema = z.object({

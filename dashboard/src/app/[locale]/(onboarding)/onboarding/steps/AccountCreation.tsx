@@ -13,8 +13,9 @@ import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { CheckCircleIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SupportedLanguages } from '@/constants/i18n';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -41,6 +42,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
   const t = useTranslations('onboarding.account');
   const tValidation = useTranslations('validation');
   const tAuth = useTranslations('public.auth.register');
+  const locale = useLocale();
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [isGooglePending, startGoogleTransition] = useTransition();
@@ -73,6 +75,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
           password,
           name: name?.trim() || undefined,
           acceptedTerms,
+          language: locale as SupportedLanguages,
         });
 
         startTransition(async () => {
