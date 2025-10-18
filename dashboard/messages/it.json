@@ -883,12 +883,6 @@
       }
     },
     "billing": {
-      "usageBanner": {
-        "title": "Limite di utilizzo superato:",
-        "body": "Hai utilizzato <strong>{current}</strong> eventi su un limite di <strong>{limit}</strong> eventi ({percentage} oltre il tuo piano {plan}).",
-        "upgradeHint": "Esegui l'upgrade per garantire che tutti i tuoi dati restino accessibili",
-        "upgradeCta": "Esegui upgrade"
-      },
       "navigation": {
         "backToDashboards": "Torna alle dashboards",
         "title": "Scegli il tuo piano"
@@ -1405,29 +1399,12 @@
       "troubleshooting": "Risoluzione problemi",
       "contactSupport": "Contatta il supporto",
       "verifying": "Verifica in corso...",
-      "verifyInstallation": "Verifica installazione",
-      "noDataBanner": {
-        "title": "Integrazione richiesta",
-        "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati analitici. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
-        "setup": "Configura integrazione",
-        "dismiss": "Chiudi"
-      }
+      "verifyInstallation": "Verifica installazione"
     },
     "settingsButton": {
       "dashboardSettings": "Impostazioni dashboard"
     },
     "accountVerification": {
-      "banner": {
-        "title": "Verifica il tuo indirizzo email",
-        "body": "Ciao {name}! Ti abbiamo inviato un'email di verifica a <strong>{email}</strong>. Fai clic sul link nell'email per verificare il tuo account.",
-        "resend": "Reinvia email di verifica",
-        "sending": "Invio in corso...",
-        "sentLabel": "Email inviata! Controlla la tua casella di posta.",
-        "help": "Non trovi l'email? Controlla la cartella spam o attendi qualche minuto.",
-        "dismiss": "Chiudi",
-        "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
-        "toastFailure": "Invio dell'email di verifica non riuscito"
-      },
       "requiredModal": {
         "title": "Verifica email richiesta",
         "subtitle": "Verifica la tua email per aggiornare il tuo piano",
@@ -1441,7 +1418,11 @@
         "sentTitle": "Email di verifica inviata!",
         "sentInfo": "Controlla la posta in arrivo e la cartella spam. Il link di verifica scadrà tra 24 ore.",
         "cancel": "Annulla",
-        "continue": "Torna alla dashboard"
+        "continue": "Torna alla dashboard",
+        "resend": "Reinvia email di verifica",
+        "sending": "Invio in corso...",
+        "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
+        "toastFailure": "Invio dell'email di verifica non riuscito"
       }
     },
     "settingsPopover": {
@@ -1733,6 +1714,37 @@
       },
       "redirectingIn": "Reindirizzamento tra {seconds}...",
       "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
+    }
+  },
+  "banners": {
+    "verifyEmail": {
+      "title": "Verifica il tuo indirizzo email",
+      "description": "Ti abbiamo inviato un'email di verifica a {email}.",
+      "action": "Reinvia email",
+      "success": "Email di verifica inviata!",
+      "failure": "Impossibile inviare l'email di verifica",
+      "sending": "Invio in corso...",
+      "resend": "Reinvia email"
+    },
+    "integrationSetup": {
+      "title": "Integrazione non rilevata",
+      "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati dal tuo sito web. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
+      "setup": "Configura integrazione"
+    },
+    "usageAlert": {
+      "title": "Limite di eventi in avvicinamento",
+      "description": "Hai utilizzato il {percentage} della tua quota mensile ({current} / {limit} eventi). Valuta l’upgrade per evitare interruzioni.",
+      "action": "Aggiorna piano"
+    },
+    "usageLimitExceeded": {
+      "title": "Limite di eventi raggiunto",
+      "description": "Hai utilizzato il {percentage} della tua quota mensile ({current} / {limit} eventi). Aggiorna il tuo piano per evitare la perdita di dati.",
+      "action": "Aggiorna piano"
+    },
+    "webVitalsNoData": {
+      "title": "Nessun dato Core Web Vitals",
+      "description": "Assicurati che il tracciamento sia abilitato.",
+      "action": "Scopri di più"
     }
   }
 }

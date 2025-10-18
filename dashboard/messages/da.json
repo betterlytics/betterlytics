@@ -881,12 +881,6 @@
       }
     },
     "billing": {
-      "usageBanner": {
-        "title": "Forbrugsgrænse overskredet:",
-        "body": "Du har brugt <strong>{current}</strong> events ud af din grænse på <strong>{limit}</strong> events ({percentage} over din {plan}-plan).",
-        "upgradeHint": "Opgrader for at sikre, at alle dine analysedata forbliver tilgængelige",
-        "upgradeCta": "Opgrader nu"
-      },
       "navigation": {
         "backToDashboards": "Tilbage til dashboards",
         "title": "Vælg din plan"
@@ -1403,29 +1397,12 @@
       "troubleshooting": "Problemløsning",
       "contactSupport": "Kontakt support",
       "verifying": "Verificerer...",
-      "verifyInstallation": "Verificer installation",
-      "noDataBanner": {
-        "title": "Integration påkrævet",
-        "description": "Dit dashboard er klart, men vi modtager endnu ikke nogen analysedata. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
-        "setup": "Opsæt integration",
-        "dismiss": "Skjul"
-      }
+      "verifyInstallation": "Verificer installation"
     },
     "settingsButton": {
       "dashboardSettings": "Dashboard-indstillinger"
     },
     "accountVerification": {
-      "banner": {
-        "title": "Bekræft venligst din e-mailadresse",
-        "body": "Hej {name}! Vi har sendt en bekræftelsesmail til <strong>{email}</strong>. Klik på linket i e-mailen for at bekræfte din konto.",
-        "resend": "Send bekræftelsesmail igen",
-        "sending": "Sender...",
-        "sentLabel": "E-mail sendt! Tjek din indbakke.",
-        "help": "Kan du ikke finde e-mailen? Tjek din spammappe eller vent et par minutter.",
-        "dismiss": "Skjul",
-        "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
-        "toastFailure": "Kunne ikke sende bekræftelsesmail"
-      },
       "requiredModal": {
         "title": "E-mailbekræftelse påkrævet",
         "subtitle": "Bekræft din e-mail for at opgradere din plan",
@@ -1439,7 +1416,11 @@
         "sentTitle": "Bekræftelsesmail sendt!",
         "sentInfo": "Tjek din indbakke og spammappe. Bekræftelseslinket udløber om 24 timer.",
         "cancel": "Annuller",
-        "continue": "Fortsæt til dashboard"
+        "continue": "Fortsæt til dashboard",
+        "resend": "Send bekræftelsesmail igen",
+        "sending": "Sender...",
+        "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
+        "toastFailure": "Kunne ikke sende bekræftelsesmail"
       }
     },
     "settingsPopover": {
@@ -1731,6 +1712,37 @@
       },
       "redirectingIn": "Omdirigerer om {seconds}...",
       "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
+    }
+  },
+  "banners": {
+    "verifyEmail": {
+      "title": "Bekræft din e-mailadresse",
+      "description": "Vi har sendt en bekræftelsesmail til {email}.",
+      "action": "Send e-mail igen",
+      "success": "Bekræftelsesmail sendt!",
+      "failure": "Kunne ikke sende bekræftelsesmail",
+      "sending": "Sender...",
+      "resend": "Send e-mail igen"
+    },
+    "usageAlert": {
+      "title": "Du nærmer dig grænsen for hændelser",
+      "description": "Du har brugt {percentage} af din månedlige kvote ({current} / {limit} hændelser). Overvej at opgradere for at undgå afbrydelser.",
+      "action": "Upgrade plan"
+    },
+    "usageLimitExceeded": {
+      "title": "Grænsen for hændelser er nået",
+      "description": "Du har brugt {percentage} af din månedlige kvote ({current} / {limit} hændelser). Opgrader din plan for at undgå tab af data.",
+      "action": "Opgrader plan"
+    },
+    "integrationSetup": {
+      "title": "Integration ikke detected",
+      "description": "Dit dashboard er klar, men vi har endnu ikke modtaget data fra dit website. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
+      "setup": "Integrationsopsætning"
+    },
+    "webVitalsNoData": {
+      "title": "Ingen Core Web Vitals data endnu",
+      "description": "Tjek at tracking er aktiveret.",
+      "action": "Læs mere"
     }
   }
 }

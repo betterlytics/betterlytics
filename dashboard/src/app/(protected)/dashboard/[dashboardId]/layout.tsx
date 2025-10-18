@@ -10,7 +10,7 @@ import { fetchSiteId, getCurrentDashboardAction } from '@/app/actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { IntegrationManager } from './IntegrationManager';
-import UsageUpgradeBanner from '@/components/billing/UsageUpgradeBanner';
+import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
 import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
 import BATopbar from '@/components/topbar/BATopbar';
@@ -18,6 +18,9 @@ import ScrollReset from '@/components/ScrollReset';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { BannerProvider } from '@/contexts/BannerProvider';
+import { IntegrationBanner } from './IntegrationBanner';
+import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -45,6 +48,11 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     }
   }
 
+  let billingDataPromise;
+  if (billingEnabled) {
+    billingDataPromise = getUserBillingData();
+  }
+
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
   return (
@@ -56,20 +64,22 @@ export default async function DashboardLayout({ children, params }: DashboardLay
             <BASidebar dashboardId={dashboardId} />
             <BAMobileSidebarTrigger />
             <main className='bg-background w-full overflow-x-hidden'>
-              <ScrollReset />
-              {billingEnabled && (
-                <Suspense fallback={null}>
-                  <UsageUpgradeBanner billingDataPromise={getUserBillingData()} />
-                </Suspense>
-              )}
-              {isFeatureEnabled('enableAccountVerification') &&
-                session.user?.email &&
-                !session.user?.emailVerified && (
-                  <div className='mx-auto max-w-7xl px-4 sm:pt-2'>
-                    <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
-                  </div>
+              <BannerProvider>
+                <ScrollReset />
+                {billingEnabled && billingDataPromise && (
+                  <Suspense fallback={null}>
+                    <UsageAlertBanner billingDataPromise={billingDataPromise} />
+                    <UsageExceededBanner billingDataPromise={billingDataPromise} />
+                  </Suspense>
                 )}
-              <div className='flex w-full justify-center'>{children}</div>
+                {isFeatureEnabled('enableAccountVerification') && (
+                  <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
+                )}
+                <Suspense>
+                  <IntegrationBanner />
+                </Suspense>
+                <div className='flex w-full justify-center'>{children}</div>
+              </BannerProvider>
             </main>
             {/* Conditionally render tracking script based on server-side feature flag */}
             {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
