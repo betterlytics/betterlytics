@@ -15,7 +15,7 @@ export const completeOnboardingAndCreateDashboardAction = withUserAuth(
 
     const mustAcceptTerms = Boolean(!user.termsAcceptedAt);
     if (mustAcceptTerms && acceptTerms !== true) {
-      const t = await getTranslations('onboarding.account');
+      const t = await getTranslations('validation');
       console.error('User must accept terms to continue.');
       throw new UserException(t('termsOfServiceRequired'));
     }

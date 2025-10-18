@@ -1657,7 +1657,6 @@
       "title": "Betterlytics | Registrazione"
     },
     "account": {
-      "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
       "features": {
         "feature1": {
           "title": "Inizia in meno di 2 minuti",
@@ -1736,5 +1735,8 @@
       "redirectingIn": "Reindirizzamento tra {seconds}...",
       "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
     }
+  },
+  "validation": {
+    "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare."
   }
 }

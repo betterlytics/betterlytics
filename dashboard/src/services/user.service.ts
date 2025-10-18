@@ -16,7 +16,7 @@ export async function ensureTermsAccepted(userId: string): Promise<void> {
 
   const hasAcceptedTerms = Boolean(user.termsAcceptedAt);
   if (!hasAcceptedTerms) {
-    const t = await getTranslations('onboarding.account');
+    const t = await getTranslations('validation');
     throw new UserException(t('termsOfServiceRequired'));
   }
 }

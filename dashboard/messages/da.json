@@ -1655,7 +1655,6 @@
       "title": "Betterlytics | Registering"
     },
     "account": {
-      "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
       "features": {
         "feature1": {
           "title": "Kom i gang på under 2 minutter",
@@ -1734,5 +1733,8 @@
       "redirectingIn": "Omdirigerer om {seconds}...",
       "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
     }
+  },
+  "validation": {
+    "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte."
   }
 }

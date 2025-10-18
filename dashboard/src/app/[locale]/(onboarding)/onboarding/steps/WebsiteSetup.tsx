@@ -19,7 +19,7 @@ type WebsiteSetupProps = {
 
 export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps) {
   const t = useTranslations('onboarding.website');
-  const tAccount = useTranslations('onboarding.account');
+  const tValidation = useTranslations('validation');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [agree, setAgree] = useState(false);
@@ -33,7 +33,7 @@ export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps
       setError('');
 
       if (showOauthTos && !agree) {
-        setError(tAccount('termsOfServiceRequired'));
+        setError(tValidation('termsOfServiceRequired'));
         return;
       }
 
@@ -66,7 +66,7 @@ export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps
         onNext();
       });
     },
-    [agree, showOauthTos, t, setDashboard, onNext],
+    [agree, showOauthTos, t, tValidation, setDashboard, onNext],
   );
 
   return (

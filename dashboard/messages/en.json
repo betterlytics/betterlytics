@@ -1651,7 +1651,6 @@
       "title": "Betterlytics | Onboarding"
     },
     "account": {
-      "termsOfServiceRequired": "You must accept the terms of service to continue.",
       "features": {
         "feature1": {
           "title": "Get started in under 2 minutes",
@@ -1730,5 +1729,8 @@
       "redirectingIn": "Redirecting in {seconds}...",
       "noSiteId": "No site ID found. Please complete the previous steps first."
     }
+  },
+  "validation": {
+    "termsOfServiceRequired": "You must accept the terms of service to continue."
   }
 }

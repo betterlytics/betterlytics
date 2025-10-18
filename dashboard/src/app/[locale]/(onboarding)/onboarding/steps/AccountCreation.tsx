@@ -39,6 +39,7 @@ type AccountCreationProps = {
 
 export default function AccountCreation({ providers, onNext }: AccountCreationProps) {
   const t = useTranslations('onboarding.account');
+  const tValidation = useTranslations('validation');
   const tAuth = useTranslations('public.auth.register');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -64,7 +65,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
 
       try {
         if (!acceptedTerms) {
-          setError(t('termsOfServiceRequired'));
+          setError(tValidation('termsOfServiceRequired'));
           return;
         }
         const validatedData = RegisterUserSchema.parse({
@@ -99,7 +100,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
         if (error instanceof ZodError) {
           const message = error.errors[0]?.message;
           if (message === 'onboarding.account.termsOfServiceRequired') {
-            setError(t('termsOfServiceRequired'));
+            setError(tValidation('termsOfServiceRequired'));
           } else {
             setError(message || t('form.checkInput'));
           }
@@ -306,7 +307,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
                     </Button>
                   </span>
                 </TooltipTrigger>
-                <TooltipContent side='top'>{t('termsOfServiceRequired')}</TooltipContent>
+                <TooltipContent side='top'>{tValidation('termsOfServiceRequired')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
