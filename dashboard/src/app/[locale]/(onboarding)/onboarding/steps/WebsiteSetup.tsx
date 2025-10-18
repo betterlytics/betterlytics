@@ -11,6 +11,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useOnboarding } from '../OnboardingProvider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSession } from 'next-auth/react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type WebsiteSetupProps = {
   onNext: Dispatch<void>;
@@ -129,9 +130,33 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
           )}
 
           <div className='flex justify-end pt-4'>
-            <Button type='submit' disabled={isPending} className='h-10 w-full cursor-pointer rounded-md sm:w-auto'>
-              {isPending ? t('creatingDashboard') : t('createDashboardButton')}
-            </Button>
+            {showTos && !agree ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className='block w-full sm:w-auto'>
+                      <Button
+                        type='submit'
+                        disabled
+                        aria-disabled='true'
+                        className='h-10 w-full cursor-pointer rounded-md sm:w-auto'
+                      >
+                        {t('createDashboardButton')}
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side='top'>{tValidation('termsOfServiceRequired')}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <Button
+                type='submit'
+                disabled={isPending}
+                className='h-10 w-full cursor-pointer rounded-md sm:w-auto'
+              >
+                {isPending ? t('creatingDashboard') : t('createDashboardButton')}
+              </Button>
+            )}
           </div>
         </form>
       </div>
