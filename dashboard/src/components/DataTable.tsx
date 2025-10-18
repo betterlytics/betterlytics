@@ -15,6 +15,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
 import { ArrowUp, ArrowDown } from 'lucide-react';
+import DataEmptyComponent from './DataEmptyComponent';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -107,12 +108,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length}>
-                <div className='flex h-[300px] items-center justify-center'>
-                  <div className='text-center'>
-                    <p className='text-muted-foreground mb-1'>{t('noData')}</p>
-                    <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-                  </div>
-                </div>
+                <DataEmptyComponent />
               </TableCell>
             </TableRow>
           )}

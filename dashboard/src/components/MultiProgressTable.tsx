@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
 import { useTranslations } from 'next-intl';
+import DataEmptyComponent from './DataEmptyComponent';
 
 interface ProgressBarData {
   label: string;
@@ -48,12 +49,7 @@ function MultiProgressTable<T extends ProgressBarData>({
 
       if (data.length === 0) {
         return (
-          <div className='flex h-[300px] items-center justify-center'>
-            <div className='text-center'>
-              <p className='text-muted-foreground mb-1'>{t('noData')}</p>
-              <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-            </div>
-          </div>
+          <DataEmptyComponent />
         );
       }
 

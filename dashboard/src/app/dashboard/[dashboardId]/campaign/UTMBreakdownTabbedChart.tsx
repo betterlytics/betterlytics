@@ -13,6 +13,7 @@ import {
   fetchCampaignTermBreakdownAction,
 } from '@/app/actions';
 import { useTranslations } from 'next-intl';
+import {DataEmptyComponent} from "@/components/DataEmptyComponent";
 
 type UTMBreakdownTabbedChartProps = {
   sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
@@ -59,12 +60,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
 
   if (chartData.length === 0) {
     return (
-      <div className='flex min-h-[300px] items-center justify-center'>
-        <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
-          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-        </div>
-      </div>
+      <DataEmptyComponent />
     );
   }
 
