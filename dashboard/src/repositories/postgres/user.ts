@@ -56,7 +56,6 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
 
     const passwordHash = await bcrypt.hash(validatedData.password, SALT_ROUNDS);
 
-    console.log('user register:', data);
     return await createUser({
       email: validatedData.email,
       name: validatedData.name,

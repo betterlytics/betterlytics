@@ -1674,7 +1674,7 @@
       "form": {
         "title": "Create your account",
         "signUpWith": "Sign up with",
-        "termsAgreement": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+        "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
         "orDivider": "or",
         "emailLabel": "Email",
         "emailPlaceholder": "Enter your email",
@@ -1700,7 +1700,7 @@
       "domainLabel": "Domain",
       "domainPlaceholder": "example.com",
       "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
-      "termsAgreeLabel": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+      "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
       "createDashboardButton": "Create Dashboard",
       "creatingDashboard": "Creating Dashboard...",
       "dashboardCreatedSuccess": "Dashboard created successfully!",

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { acceptTermsAction } from '@/app/actions/legal';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useRouter } from 'next/navigation';
 

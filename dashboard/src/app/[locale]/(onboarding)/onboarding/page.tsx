@@ -61,11 +61,10 @@ export default async function Onboarding() {
 
   const providers = await getProviders();
   const initialStep = await getStep();
-  const showTos = !session?.user?.termsAcceptedAt;
 
   return (
     <OnboardingProvider initialDashboard={dashboard}>
-      <OnboardingPage initialStep={initialStep} providers={providers} showTos={showTos} />
+      <OnboardingPage initialStep={initialStep} providers={providers} />
     </OnboardingProvider>
   );
 }

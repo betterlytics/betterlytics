@@ -9,6 +9,7 @@ import Integration from './steps/Integration';
 import { getProviders } from 'next-auth/react';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
+import { useSession } from 'next-auth/react';
 
 type Steps = 'account' | 'website' | 'integration';
 
@@ -18,8 +19,10 @@ type OnboardingPageProps = {
   showTos?: boolean;
 };
 
-export default function OnboardingPage({ initialStep, providers, showTos }: OnboardingPageProps) {
+export default function OnboardingPage({ initialStep, providers }: OnboardingPageProps) {
   const [step, setStep] = useState<Steps>(initialStep);
+  const { data: session } = useSession();
+  const effectiveShowTos = !session?.user?.termsAcceptedAt;
 
   return (
     <main className='relative mb-0 flex w-full flex-1 flex-col items-center gap-2 pt-6'>
@@ -51,7 +54,7 @@ export default function OnboardingPage({ initialStep, providers, showTos }: Onbo
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className='w-full'
           >
-            <WebsiteSetup onNext={() => setStep('integration')} showTos={showTos} />
+            <WebsiteSetup onNext={() => setStep('integration')} showTos={effectiveShowTos} />
           </motion.div>
         )}
         {step === 'integration' && (

@@ -257,7 +257,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
             />
           </div>
 
-          <div className='flex items-start gap-2'>
+          <div className='mt-6 mb-1 flex items-start gap-2'>
             <Checkbox
               id='agree-terms-register'
               checked={acceptedTerms}
@@ -268,19 +268,24 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
               }}
               aria-required={true}
             />
-            <Label htmlFor='agree-terms-register' className='text-muted-foreground text-xs font-normal'>
-              {t.rich('form.termsAgreement', {
-                termsLink: (chunks) => (
-                  <Link href='/terms' target='__blank' rel='noopener noreferrer' className='underline'>
-                    {chunks}
-                  </Link>
-                ),
-                privacyLink: (chunks) => (
-                  <Link href='/privacy' target='__blank' rel='noopener noreferrer' className='underline'>
-                    {chunks}
-                  </Link>
-                ),
-              })}
+            <Label
+              htmlFor='agree-terms-register'
+              className='text-muted-foreground text-xs leading-snug font-normal'
+            >
+              <span>
+                {t.rich('form.termsAgreeLabel', {
+                  termsLink: (chunks) => (
+                    <Link href='/terms' target='__blank' rel='noopener noreferrer' className='underline'>
+                      {chunks}
+                    </Link>
+                  ),
+                  privacyLink: (chunks) => (
+                    <Link href='/privacy' target='__blank' rel='noopener noreferrer' className='underline'>
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </span>
             </Label>
           </div>
 

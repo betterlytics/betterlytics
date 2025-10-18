@@ -1678,7 +1678,7 @@
       "form": {
         "title": "Opret din konto",
         "signUpWith": "Tilmeld dig med",
-        "termsAgreement": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
+        "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
         "orDivider": "eller",
         "emailLabel": "Email",
         "emailPlaceholder": "Indtast din email",
@@ -1704,7 +1704,7 @@
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
       "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
-      "termsAgreeLabel": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
+      "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
       "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",

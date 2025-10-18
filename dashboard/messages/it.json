@@ -1680,7 +1680,7 @@
       "form": {
         "title": "Crea il tuo account",
         "signUpWith": "Registrati con",
-        "termsAgreement": "Continuando, accetti i nostri <termsLink>Termini di servizio</termsLink> e la nostra <privacyLink>Politica sulla privacy</privacyLink>.",
+        "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
         "orDivider": "oppure",
         "emailLabel": "Email",
         "emailPlaceholder": "Inserisci la tua email",
@@ -1706,7 +1706,7 @@
       "domainLabel": "Dominio",
       "domainPlaceholder": "esempio.com",
       "domainHelp": "Inserisci il tuo dominio senza https:// o www. (es. esempio.com)",
-      "termsAgreeLabel": "Continuando, accetti i nostri <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
+      "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
       "dashboardCreatedSuccess": "Dashboard creata con successo!",

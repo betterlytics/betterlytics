@@ -99,19 +99,21 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
                 onCheckedChange={(v) => setAgree(Boolean(v))}
                 aria-required={true}
               />
-              <Label htmlFor='agree-terms' className='text-sm font-normal'>
-                {t.rich('termsAgreeLabel', {
-                  termsLink: (chunks) => (
-                    <a href='/terms' target='_blank' rel='noopener noreferrer' className='underline'>
-                      {chunks}
-                    </a>
-                  ),
-                  privacyLink: (chunks) => (
-                    <a href='/privacy' target='_blank' rel='noopener noreferrer' className='underline'>
-                      {chunks}
-                    </a>
-                  ),
-                })}
+              <Label htmlFor='agree-terms' className='gap-0 text-sm leading-snug font-normal'>
+                <span>
+                  {t.rich('termsAgreeLabel', {
+                    termsLink: (chunks) => (
+                      <a href='/terms' target='_blank' rel='noopener noreferrer' className='underline'>
+                        {chunks}
+                      </a>
+                    ),
+                    privacyLink: (chunks) => (
+                      <a href='/privacy' target='_blank' rel='noopener noreferrer' className='underline'>
+                        {chunks}
+                      </a>
+                    ),
+                  })}
+                </span>
               </Label>
             </div>
           )}
