@@ -35,7 +35,7 @@ export default async function BillingPage() {
       <BillingNavigationBanner />
 
       <div className='container mx-auto max-w-6xl px-4 py-8'>
-        {!session.user?.emailVerified && (
+        {!session.user.emailVerified && (
           <div className='mb-8'>
             <VerificationBanner
               email={session.user.email}

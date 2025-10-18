@@ -50,7 +50,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
   const mustAcceptTerms =
-    !session.user?.termsAcceptedAt || session.user?.termsAcceptedVersion !== CURRENT_TERMS_VERSION;
+    !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION;
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
@@ -68,8 +68,8 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                 </Suspense>
               )}
               {isFeatureEnabled('enableAccountVerification') &&
-                session.user?.email &&
-                !session.user?.emailVerified && (
+                session.user.email &&
+                !session.user.emailVerified && (
                   <div className='mx-auto max-w-7xl px-4 sm:pt-2'>
                     <VerificationBanner email={session.user.email} userName={session.user.name || undefined} />
                   </div>
