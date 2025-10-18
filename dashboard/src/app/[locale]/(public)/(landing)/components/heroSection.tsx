@@ -26,9 +26,11 @@ export async function HeroSection() {
           </h1>
           <p className='text-muted-foreground mx-auto mb-8 max-w-3xl text-xl'>{t('description')}</p>
           <div className='flex flex-col justify-center gap-4 sm:flex-row'>
-            <Button size='lg' className='bg-primary px-8 text-lg'>
-              <Link href='/register'>{t('ctaPrimary')}</Link>
-              <ChevronRight className='ml-1 h-5 w-5' />
+            <Button size='lg' className='bg-primary px-8 text-lg' asChild>
+              <Link href='/onboarding'>
+                {t('ctaPrimary')}
+                <ChevronRight className='ml-1 h-5 w-5' />
+              </Link>
             </Button>
             <Button size='lg' variant='outline' className='text-lg' asChild>
               <a href='https://github.com/betterlytics/betterlytics' target='_blank' rel='noopener noreferrer'>

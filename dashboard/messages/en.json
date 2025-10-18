@@ -705,6 +705,9 @@
       "copyright": "© {year} Betterlytics. All rights reserved. Open source under AGPL-3.0 license."
     }
   },
+  "pricingSlider": {
+    "monthlyEvents": "Monthly Events"
+  },
   "pricingCards": {
     "periodPerMonth": "/month",
     "descriptions": {
@@ -874,12 +877,6 @@
       }
     },
     "billing": {
-      "usageBanner": {
-        "title": "Usage Limit Exceeded:",
-        "body": "You've used <strong>{current}</strong> events out of your <strong>{limit}</strong> event limit ({percentage} over your {plan} plan).",
-        "upgradeHint": "Upgrade to ensure all your analytics data remains accessible",
-        "upgradeCta": "Upgrade Now"
-      },
       "navigation": {
         "backToDashboards": "Back to Dashboards",
         "title": "Choose Your Plan"
@@ -1396,29 +1393,12 @@
       "troubleshooting": "Troubleshooting",
       "contactSupport": "Contact Support",
       "verifying": "Verifying...",
-      "verifyInstallation": "Verify Installation",
-      "noDataBanner": {
-        "title": "Integration Required",
-        "description": "Your dashboard is ready, but we're not receiving any analytics data yet. Complete the integration setup to start tracking visitors.",
-        "setup": "Setup Integration",
-        "dismiss": "Dismiss"
-      }
+      "verifyInstallation": "Verify Installation"
     },
     "settingsButton": {
       "dashboardSettings": "Dashboard Settings"
     },
     "accountVerification": {
-      "banner": {
-        "title": "Please verify your email address",
-        "body": "Hi {name}! We sent a verification email to <strong>{email}</strong>. Please click the link in the email to verify your account.",
-        "resend": "Resend verification email",
-        "sending": "Sending...",
-        "sentLabel": "Email sent! Please check your inbox.",
-        "help": "Can't find the email? Check your spam folder or wait a few minutes for delivery.",
-        "dismiss": "Dismiss",
-        "toastSuccess": "Verification email sent! Please check your inbox.",
-        "toastFailure": "Failed to send verification email"
-      },
       "requiredModal": {
         "title": "Email Verification Required",
         "subtitle": "Please verify your email to upgrade your plan",
@@ -1432,7 +1412,11 @@
         "sentTitle": "Verification email sent!",
         "sentInfo": "Please check your inbox and spam folder. The verification link will expire in 24 hours.",
         "cancel": "Cancel",
-        "continue": "Continue to Dashboard"
+        "continue": "Continue to Dashboard",
+        "resend": "Resend verification email",
+        "sending": "Sending...",
+        "toastSuccess": "Verification email sent! Please check your inbox.",
+        "toastFailure": "Failed to send verification email"
       }
     },
     "settingsPopover": {
@@ -1724,6 +1708,37 @@
       },
       "redirectingIn": "Redirecting in {seconds}...",
       "noSiteId": "No site ID found. Please complete the previous steps first."
+    }
+  },
+  "banners": {
+    "verifyEmail": {
+      "title": "Please verify your email address",
+      "description": "We've sent a verification email to {email}.",
+      "action": "Resend email",
+      "success": "Verification email sent!",
+      "failure": "Failed to send verification email",
+      "sending": "Sending...",
+      "resend": "Resend email"
+    },
+    "integrationSetup": {
+      "title": "Integration not detected",
+      "description": "Your dashboard is ready, but we haven't received any data from your website yet. Complete the integration setup to start tracking visitors.",
+      "setup": "Integration Setup"
+    },
+    "usageAlert": {
+      "title": "Approaching event limit",
+      "description": "You've used {percentage} of your monthly quota ({current} / {limit} events). Consider upgrading to avoid interruptions.",
+      "action": "Upgrade plan"
+    },
+    "usageLimitExceeded": {
+      "title": "Event limit reached",
+      "description": "You've used {percentage} of your monthly quota ({current} / {limit} events). Upgrade your plan to avoid data loss.",
+      "action": "Upgrade plan"
+    },
+    "webVitalsNoData": {
+      "title": "No Core Web Vitals data yet",
+      "description": "Make sure tracking is enabled.",
+      "action": "Learn more"
     }
   }
 }
