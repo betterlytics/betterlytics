@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import { useTranslations } from 'next-intl';
 import { DeckGLMapSelectionProvider } from '@/contexts/DeckGLSelectionContextProvider';
@@ -13,7 +13,7 @@ type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapGranularityTimeseries>;
 };
 
-export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
+export default function GeographyTimeseriesSection({ worldMapPromise }: GeographySectionProps) {
   const mapData = use(worldMapPromise);
   const t = useTranslations('components.geography');
 
