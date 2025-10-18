@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useCallback, useState, type Dispatch } from 'react';
+import React, { useCallback, useMemo, useState, type Dispatch } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AlertCircleIcon, AlertTriangleIcon, CheckCircleIcon, ChevronDown, InfoIcon } from 'lucide-react';
@@ -111,10 +111,13 @@ export function BannerProvider({ children }: BannerProviderProps) {
     [routeKey],
   );
 
-  const nowVisible = banners
-    .filter((bann) => bann.scope === 'global' || bann.__route === routeKey)
-    .filter((bann) => !isDismissed(bann.id))
-    .sort((a, b) => Number(Boolean(b.sticky)) - Number(Boolean(a.sticky)));
+  const nowVisible = useMemo(() => {
+    return banners
+      .filter((bann) => bann.scope === 'global' || bann.__route === routeKey)
+      .filter((bann) => !isDismissed(bann.id))
+      .sort((a, b) => (a.id < b.id ? 1 : -1))
+      .sort((a, b) => Number(Boolean(b.sticky)) - Number(Boolean(a.sticky)));
+  }, [banners, routeKey]);
 
   return (
     <BannerContext.Provider value={{ addBanner, removeBanner, dismissBanner }}>
