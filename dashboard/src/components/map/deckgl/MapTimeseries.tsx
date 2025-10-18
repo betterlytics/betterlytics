@@ -131,7 +131,8 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const visitorChangeAnimation = useMemo<DeckGLMapProps['fillAnimation']>(
     () => ({
-      duration: playing ? animationDurationBaseline / speed : animationDurationBaseline / 5,
+      // Set fillAnimation to a 1/3 the play-speed
+      duration: (playing ? animationDurationBaseline / speed : animationDurationBaseline / 5) / 3,
       easing: (t: number) => t * t,
     }),
     [speed, playing, animationDurationBaseline],
