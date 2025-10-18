@@ -13,7 +13,7 @@ import {
   fetchCampaignTermBreakdownAction,
 } from '@/app/actions';
 import { useTranslations } from 'next-intl';
-import {DataEmptyComponent} from "@/components/DataEmptyComponent";
+import DataEmptyComponent from "@/components/DataEmptyComponent";
 
 type UTMBreakdownTabbedChartProps = {
   sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
