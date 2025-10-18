@@ -9,7 +9,6 @@ import { getProviders } from 'next-auth/react';
 import OnboardingPage from './OnboardingPage';
 import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
-import { generateSEO } from '@/lib/seo';
 
 export default async function Onboarding() {
   const session = await getServerSession(authOptions);
@@ -62,10 +61,12 @@ export default async function Onboarding() {
 
   const providers = await getProviders();
   const initialStep = await getStep();
+  const isOauthUser = Boolean(session?.user && session.user.hasPassword === false);
+  const showOauthTos = Boolean(isOauthUser && !session?.user?.termsAcceptedAt);
 
   return (
     <OnboardingProvider initialDashboard={dashboard}>
-      <OnboardingPage initialStep={initialStep} providers={providers} />
+      <OnboardingPage initialStep={initialStep} providers={providers} showOauthTos={showOauthTos} />
     </OnboardingProvider>
   );
 }

@@ -1,11 +1,13 @@
 'server-only';
 
 import { Dashboard } from '@/entities/dashboard';
-import { createDashboard, findFirstUserDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard';
+import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard';
 import { getUserSubscription } from '@/repositories/postgres/subscription';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
 import { UserException } from '@/lib/exceptions';
+import { markOnboardingCompleted } from '@/repositories/postgres/user';
+import { ensureTermsAccepted } from '@/services/user.service';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
   await validateDashboardCreationLimit(userId);
@@ -35,6 +37,13 @@ export async function validateDashboardCreationLimit(userId: string): Promise<vo
   if (currentDashboards.length >= dashboardLimit) {
     throw new UserException(`Dashboard limit reached`);
   }
+}
+
+export async function completeOnboardingAndCreateDashboard(domain: string, userId: string): Promise<Dashboard> {
+  await ensureTermsAccepted(userId);
+  const dashboard = await createNewDashboard(domain, userId);
+  await markOnboardingCompleted(userId);
+  return dashboard;
 }
 
 export async function getUserDashboardStats(userId: string): Promise<{

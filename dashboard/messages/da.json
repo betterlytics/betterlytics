@@ -1655,6 +1655,7 @@
       "title": "Betterlytics | Registering"
     },
     "account": {
+      "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
       "features": {
         "feature1": {
           "title": "Kom i gang på under 2 minutter",
@@ -1698,6 +1699,7 @@
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
       "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "oauthAgreeLabel": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
       "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",

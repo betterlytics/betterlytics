@@ -15,9 +15,10 @@ type Steps = 'account' | 'website' | 'integration';
 type OnboardingPageProps = {
   initialStep: Steps;
   providers: Awaited<ReturnType<typeof getProviders>>;
+  showOauthTos?: boolean;
 };
 
-export default function OnboardingPage({ initialStep, providers }: OnboardingPageProps) {
+export default function OnboardingPage({ initialStep, providers, showOauthTos }: OnboardingPageProps) {
   const [step, setStep] = useState<Steps>(initialStep);
 
   return (
@@ -50,7 +51,7 @@ export default function OnboardingPage({ initialStep, providers }: OnboardingPag
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className='w-full'
           >
-            <WebsiteSetup onNext={() => setStep('integration')} />
+            <WebsiteSetup onNext={() => setStep('integration')} showOauthTos={showOauthTos} />
           </motion.div>
         )}
         {step === 'integration' && (

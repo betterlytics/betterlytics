@@ -10,6 +10,7 @@ import {
   RegisterUserData,
   UpdateUserData,
 } from '@/entities/user';
+import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 
 const SALT_ROUNDS = 10;
 
@@ -55,11 +56,14 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
 
     const passwordHash = await bcrypt.hash(validatedData.password, SALT_ROUNDS);
 
+    console.log('user register:', data);
     return await createUser({
       email: validatedData.email,
       name: validatedData.name,
       passwordHash,
       role: validatedData.role || 'admin',
+      termsAcceptedVersion: CURRENT_TERMS_VERSION,
+      termsAcceptedAt: data.acceptedTerms ? new Date() : null,
     });
   } catch (error) {
     console.error('Error registering user:', error);
@@ -119,5 +123,29 @@ export async function verifyUserPassword(userId: string, password: string): Prom
   } catch (error) {
     console.error(`Error verifying password for user ${userId}:`, error);
     throw new Error(`Failed to verify password for user ${userId}.`);
+  }
+}
+
+export async function markOnboardingCompleted(userId: string): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId, onboardingCompletedAt: null },
+      data: { onboardingCompletedAt: new Date() },
+    });
+  } catch (error) {
+    console.error(`Error marking onboarding completed for user ${userId}:`, error);
+    throw new Error(`Failed to mark onboarding completed for user ${userId}.`);
+  }
+}
+
+export async function acceptTermsForUser(userId: string, version: number): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { termsAcceptedVersion: version, termsAcceptedAt: new Date() },
+    });
+  } catch (error) {
+    console.error(`Error accepting terms for user ${userId}:`, error);
+    throw new Error(`Failed to accept terms for user ${userId}.`);
   }
 }

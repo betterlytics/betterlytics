@@ -60,7 +60,9 @@ model User {
   termsAcceptedVersion Int?
   termsAcceptedAt      DateTime?
   changelogVersionSeen Int? @default(0)
-  
+
+  onboardingCompletedAt DateTime?
+
   dashboardAccess UserDashboard[]
   settings UserSettings?
   subscription Subscription?
