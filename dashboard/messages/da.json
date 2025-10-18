@@ -1641,6 +1641,12 @@
           "confirm": "Slet dashboard"
         }
       }
+    },
+    "termsRequiredDialog": {
+      "title": "Accepter opdaterede servicevilkår",
+      "body": "For at fortsætte med at bruge din konto skal du gennemgå og acceptere vores <termsLink>servicevilkår</termsLink>.",
+      "acceptAndContinue": "Accepter og fortsæt",
+      "logout": "Log ud"
     }
   },
   "onboarding": {
@@ -1698,7 +1704,7 @@
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
       "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
-      "oauthAgreeLabel": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
+      "termsAgreeLabel": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
       "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",

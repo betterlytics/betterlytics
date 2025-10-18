@@ -1643,6 +1643,12 @@
           "confirm": "Elimina dashboard"
         }
       }
+    },
+    "termsRequiredDialog": {
+      "title": "Accetta i Termini di Servizio aggiornati",
+      "body": "Per continuare a utilizzare il tuo account, rivedi e accetta i nostri <termsLink>Termini di Servizio</termsLink>.",
+      "acceptAndContinue": "Accetta e continua",
+      "logout": "Esci"
     }
   },
   "onboarding": {
@@ -1700,7 +1706,7 @@
       "domainLabel": "Dominio",
       "domainPlaceholder": "esempio.com",
       "domainHelp": "Inserisci il tuo dominio senza https:// o www. (es. esempio.com)",
-      "oauthAgreeLabel": "Continuando, accetti i nostri <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
+      "termsAgreeLabel": "Continuando, accetti i nostri <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
       "dashboardCreatedSuccess": "Dashboard creata con successo!",

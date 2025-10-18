@@ -1637,6 +1637,12 @@
           "confirm": "Delete Dashboard"
         }
       }
+    },
+    "termsRequiredDialog": {
+      "title": "Accept Updated Terms of Service",
+      "body": "To continue using your account, please review and accept our <termsLink>Terms of Service</termsLink>.",
+      "acceptAndContinue": "Accept and Continue",
+      "logout": "Log Out"
     }
   },
   "onboarding": {
@@ -1694,7 +1700,7 @@
       "domainLabel": "Domain",
       "domainPlaceholder": "example.com",
       "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
-      "oauthAgreeLabel": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+      "termsAgreeLabel": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
       "createDashboardButton": "Create Dashboard",
       "creatingDashboard": "Creating Dashboard...",
       "dashboardCreatedSuccess": "Dashboard created successfully!",

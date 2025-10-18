@@ -14,10 +14,10 @@ import { useSession } from 'next-auth/react';
 
 type WebsiteSetupProps = {
   onNext: Dispatch<void>;
-  showOauthTos?: boolean;
+  showTos?: boolean;
 };
 
-export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps) {
+export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
   const t = useTranslations('onboarding.website');
   const tValidation = useTranslations('validation');
   const [error, setError] = useState('');
@@ -32,7 +32,7 @@ export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps
       e.preventDefault();
       setError('');
 
-      if (showOauthTos && !agree) {
+      if (showTos && !agree) {
         setError(tValidation('termsOfServiceRequired'));
         return;
       }
@@ -49,7 +49,7 @@ export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps
       startTransition(async () => {
         const result = await completeOnboardingAndCreateDashboardAction({
           domain: domainResult.data,
-          acceptTerms: showOauthTos ? agree : undefined,
+          acceptTerms: showTos ? agree : undefined,
         });
 
         if (!result.success) {
@@ -66,7 +66,7 @@ export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps
         onNext();
       });
     },
-    [agree, showOauthTos, t, tValidation, setDashboard, onNext],
+    [agree, showTos, t, tValidation, setDashboard, onNext],
   );
 
   return (
@@ -91,7 +91,7 @@ export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps
             />
             <p className='text-muted-foreground text-xs'>{t('domainHelp')}</p>
           </div>
-          {showOauthTos && (
+          {showTos && (
             <div className='flex items-start gap-2'>
               <Checkbox
                 id='agree-terms'
@@ -100,7 +100,7 @@ export default function WebsiteSetup({ onNext, showOauthTos }: WebsiteSetupProps
                 aria-required={true}
               />
               <Label htmlFor='agree-terms' className='text-sm font-normal'>
-                {t.rich('oauthAgreeLabel', {
+                {t.rich('termsAgreeLabel', {
                   termsLink: (chunks) => (
                     <a href='/terms' target='_blank' rel='noopener noreferrer' className='underline'>
                       {chunks}
