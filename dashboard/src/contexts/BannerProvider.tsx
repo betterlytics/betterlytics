@@ -281,9 +281,11 @@ function DesktopBannerContent({
     <div className='flex w-full items-center gap-2'>
       {showIcon && icon}
       <div className='min-w-0 flex-1'>
-        <div className='flex min-w-0 items-center'>
-          {title && <span className='text-xs leading-snug font-semibold'>{title}</span>}
-          {description && <span className='text-xs leading-snug'>{': ' + description}</span>}
+        <div className='flex min-w-0 items-center gap-1'>
+          {title && (
+            <span className='text-xs leading-snug font-semibold'>{`${title}${description ? ': ' : ''}`}</span>
+          )}
+          {description && <span className='text-xs leading-snug'>{description}</span>}
         </div>
       </div>
       {action && (
