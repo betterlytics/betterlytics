@@ -35,11 +35,11 @@ export async function FeatureShowcase() {
         </div>
 
         <div className='mt-8 flex justify-center'>
-          <Button variant='outline' size='lg'>
+          <Button variant='outline' size='lg' asChild>
             <ExternalLink href='/docs' title={t('docsTitle')}>
               {t('docsButton')}
+              <ChevronRight className='ml-2 h-4 w-4' />
             </ExternalLink>
-            <ChevronRight className='ml-2 h-4 w-4' />
           </Button>
         </div>
       </div>

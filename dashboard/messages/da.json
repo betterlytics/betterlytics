@@ -709,6 +709,9 @@
       "copyright": "© {year} Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licens."
     }
   },
+  "pricingSlider": {
+    "monthlyEvents": "Månedlige events"
+  },
   "pricingCards": {
     "periodPerMonth": "/måned",
     "descriptions": {
