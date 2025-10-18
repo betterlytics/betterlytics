@@ -45,7 +45,7 @@ export default async function WorldMapCard() {
         <div className='border-border/60 border-t pt-3'>
           <div className='flex items-center justify-between text-xs'>
             <span className='text-muted-foreground'>{t('topCountries')}</span>
-            <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-1 overflow-hidden'>
+            <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-3 overflow-hidden pr-1'>
               {Array.from({ length: 2 }).map((_, i) => (
                 <CountryCol
                   key={MOCK_WORLD_GEOVISITORS[i].country_code}
