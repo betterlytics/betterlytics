@@ -82,7 +82,7 @@ function createMarkerCanvas(
 
   ctx.clearRect(0, 0, cssWidth, cssHeight);
   markers.forEach((marker) => {
-    ctx.fillStyle = markerFillColorForLabel(resolvedTheme, marker.label);
+    ctx.fillStyle = markerFillColorForLabel(resolvedTheme, marker.key);
     const left = cssWidth * (marker.timestamp / durationMs);
     ctx.fillRect(left, 0, 4, cssHeight);
   });
