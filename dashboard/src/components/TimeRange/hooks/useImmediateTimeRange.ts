@@ -28,6 +28,7 @@ import {
   getAllowedGranularities,
   getValidGranularityFallback,
 } from '@/utils/granularityRanges';
+import { baEvent } from '@/lib/ba-event';
 
 export function useImmediateTimeRange() {
   const ctx = useTimeRangeContext();
@@ -113,6 +114,10 @@ export function useImmediateTimeRange() {
       } else {
         if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
       }
+
+      baEvent('set-preset-date-range', {
+        interval: preset,
+      });
     },
     [ctx],
   );
@@ -144,6 +149,9 @@ export function useImmediateTimeRange() {
         ctx.setPeriod(alignedStart, alignedEnd);
       }
       ctx.setGranularity(g);
+      baEvent('set-granularity', {
+        granularity: g,
+      });
     },
     [ctx],
   );
@@ -162,6 +170,9 @@ export function useImmediateTimeRange() {
   const setComparePreset = useCallback(
     (preset: 'previous' | 'year' | 'custom') => {
       ctx.setCompareMode(preset);
+      baEvent('set-preset-compare', {
+        preset,
+      });
     },
     [ctx],
   );
@@ -193,6 +204,10 @@ export function useImmediateTimeRange() {
     const alignedEnd = getEndDateWithGranularity(rawEnd, nextGranularity);
     ctx.setPeriod(alignedStart, alignedEnd);
     if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
+
+    baEvent('shift-period', {
+      direction: 'previous',
+    });
   }, [computeShiftedRange, ctx]);
 
   const shiftNextPeriod = useCallback(() => {
@@ -210,6 +225,9 @@ export function useImmediateTimeRange() {
     const alignedEnd = getEndDateWithGranularity(rawEnd, nextGranularity);
     ctx.setPeriod(alignedStart, alignedEnd);
     if (ctx.granularity !== nextGranularity) ctx.setGranularity(nextGranularity);
+    baEvent('shift-period', {
+      direction: 'next',
+    });
   }, [computeShiftedRange, ctx]);
 
   const canShiftNextPeriod = useCallback(() => {

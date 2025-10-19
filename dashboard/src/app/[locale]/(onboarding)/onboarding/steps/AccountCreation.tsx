@@ -13,6 +13,7 @@ import { CheckCircleIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { baEvent } from '@/lib/ba-event';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -83,6 +84,8 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
           setError(t('form.registrationSuccessfulButSignInFailed'));
           return;
         }
+
+        baEvent('onboarding-account-created');
 
         onNext();
       });

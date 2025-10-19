@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { PrefixInput } from '@/components/inputs/PrefixInput';
 import { useTranslations } from 'next-intl';
 import { useOnboarding } from '../OnboardingProvider';
+import { baEvent } from '@/lib/ba-event';
 
 type WebsiteSetupProps = {
   onNext: Dispatch<void>;
@@ -43,6 +44,8 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
       }
       setDashboard(result.data);
       toast.success(t('dashboardCreatedSuccess'));
+
+      baEvent('onboarding-website-setup');
       onNext();
     });
   }, []);

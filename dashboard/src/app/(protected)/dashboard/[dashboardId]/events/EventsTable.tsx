@@ -143,7 +143,7 @@ export function EventsTable({ data }: EventsTableProps) {
         accessorKey: 'last_seen',
         header: t('lastSeen'),
         cell: ({ row }) => {
-          const timeAgo = formatTimeAgo(new Date(row.original.current.last_seen));
+          const timeAgo = formatTimeAgo(row.original.current.last_seen);
 
           return (
             <div className='flex items-center text-right text-sm'>
@@ -153,11 +153,11 @@ export function EventsTable({ data }: EventsTableProps) {
           );
         },
         sortingFn: (rowA, rowB) => {
-          const dateA = new Date(rowA.original.current.last_seen).getTime();
-          const dateB = new Date(rowB.original.current.last_seen).getTime();
+          const dateA = rowA.original.current.last_seen.getTime();
+          const dateB = rowB.original.current.last_seen.getTime();
           return dateA - dateB;
         },
-        accessorFn: (row) => new Date(row.current.last_seen).getTime(),
+        accessorFn: (row) => row.current.last_seen.getTime(),
       },
       {
         id: 'percentage',
