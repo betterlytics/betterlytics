@@ -58,7 +58,13 @@ export function TermsRequiredModal({ isOpen }: TermsRequiredModalProps) {
           <DialogDescription>
             {t.rich('body', {
               termsLink: (chunks) => (
-                <a href='/terms' target='_blank' rel='noopener noreferrer' className='underline'>
+                <a
+                  href='/terms'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='underline'
+                  onClick={() => baEvent('terms-required-modal-terms-link')}
+                >
                   {chunks}
                 </a>
               ),
