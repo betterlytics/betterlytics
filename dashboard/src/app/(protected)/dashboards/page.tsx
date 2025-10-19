@@ -60,7 +60,7 @@ export default async function DashboardsPage() {
             <h3 className='text-foreground mb-2 text-lg font-semibold'>{t('emptyTitle')}</h3>
             <p className='text-muted-foreground mb-6 text-sm'>{t('emptyDescription')}</p>
             <Suspense fallback={<ButtonSkeleton />}>
-              <div className='[&_button]:bg-primary [&_button]:text-primary-foreground [&_button:hover]:bg-primary/90'>
+              <div className='[&_button]:bg-primary [&_button]:text-primary-foreground [&_button:hover]:bg-primary/90 [&_button]:cursor-pointer'>
                 <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} />
               </div>
             </Suspense>
