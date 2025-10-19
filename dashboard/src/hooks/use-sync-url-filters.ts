@@ -166,5 +166,7 @@ export function useUrlSearchParam(paramKey: string) {
     [router, searchParams, paramKey],
   );
 
-  return [value, setValue] as const;
+  const res = useMemo(() => [value, setValue] as const, [value, setValue]);
+
+  return res;
 }
