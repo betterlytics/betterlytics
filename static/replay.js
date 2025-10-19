@@ -8495,6 +8495,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function flushAll() {
       return flush().then(function () {
         if (state.disabled) return;
+        if (!hasReachedMinDuration()) return;
         if (state.buffer.length === 0) return;
         return new Promise(function (r) {
           try {
@@ -8585,7 +8586,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function handleRecordingEmit(e) {
-      if (isReplayEnabledOnPage() === false) {
+      if (
+        isReplayEnabledOnPage() === false &&
+        (e.type == 5 && e.data.tag === "Blacklist") === false
+      ) {
         return;
       }
 
