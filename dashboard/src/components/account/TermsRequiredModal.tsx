@@ -8,6 +8,7 @@ import { acceptTermsAction } from '@/app/actions/legal';
 import { signOut } from 'next-auth/react';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useRouter } from 'next/navigation';
+import { baEvent } from '@/lib/ba-event';
 
 interface TermsRequiredModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export function TermsRequiredModal({ isOpen }: TermsRequiredModalProps) {
         } else {
           await refreshSession();
           router.refresh();
+          baEvent('terms-required-modal-accept');
         }
       } catch (e) {
         setError(tValidation('termsOfServiceRequired'));
@@ -39,7 +41,9 @@ export function TermsRequiredModal({ isOpen }: TermsRequiredModalProps) {
   };
 
   const handleLogout = () => {
-    void signOut({ callbackUrl: '/signin' });
+    void signOut({ callbackUrl: '/signin' }).then(() => {
+      baEvent('terms-required-modal-logout');
+    });
   };
 
   return (
