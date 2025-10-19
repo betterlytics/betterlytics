@@ -154,24 +154,25 @@ const MARKER_KEYS = [
   'Viewport Resize',
   'Media Interaction',
   'Pageview',
-  'Blacklist'
+  'Blacklist',
 ] as const;
 
-type MarkerKey = typeof MARKER_KEYS[number];
+type MarkerKey = (typeof MARKER_KEYS)[number];
 
-function keyForMarker(marker: TimelineMarker): MarkerKey {
-  if (marker.key !== 'Custom event' && MARKER_KEYS.includes(marker.key as MarkerKey)) {
+const MARKER_KEYS_SET = new Set<string>(MARKER_KEYS);
+function keyForMarker(marker: TimelineMarker): MarkerKey | string {
+  if (marker.key !== 'Custom event' && MARKER_KEYS_SET.has(marker.key)) {
     return marker.key as MarkerKey;
   }
 
-  if (marker.label !== undefined && MARKER_KEYS.includes(marker.label as MarkerKey)) {
+  if (marker.label !== undefined && MARKER_KEYS_SET.has(marker.label)) {
     return marker.label as MarkerKey;
   }
 
-  throw `Marker with key '${marker.key}' and label '${marker.label}' does not exist as a MarkerKey`;
+  return marker.label ?? marker.key;
 }
 
-function iconForKey(key: MarkerKey, theme: 'light' | 'dark'): React.ReactNode {
+function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.ReactNode {
   const ICON_BASE_CLASS = 'h-5 w-5';
 
   const color = markerFillColorForLabel(theme, key);
@@ -200,8 +201,8 @@ function iconForKey(key: MarkerKey, theme: 'light' | 'dark'): React.ReactNode {
   }
 }
 
-function labelForKey(key: MarkerKey, t: any) {
-  switch(key) {
+function labelForKey(key: MarkerKey | string, t: any) {
+  switch (key) {
     case 'Mouse Interaction':
       return t('mouseInteraction');
     case 'Selection':
@@ -210,7 +211,7 @@ function labelForKey(key: MarkerKey, t: any) {
       return t('scroll');
     case 'Input':
       return t('input');
-    case 'Full snapshot': 
+    case 'Full snapshot':
       return t('fullSnapshot');
     case 'Viewport Resize':
       return 'Viewport Resize'; // Missing translation
@@ -263,7 +264,6 @@ function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }:
 
   const groups = useMemo(() => buildGroups(markers, theme, tEvents), [markers, theme, tEvents]);
   const totalEvents = markers.length;
-
 
   const timelineEmptyState = useMemo(
     () => (
