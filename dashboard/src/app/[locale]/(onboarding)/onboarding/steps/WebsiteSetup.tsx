@@ -12,6 +12,7 @@ import { useOnboarding } from '../OnboardingProvider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSession } from 'next-auth/react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { baEvent } from '@/lib/ba-event';
 
 type WebsiteSetupProps = {
   onNext: Dispatch<void>;
@@ -68,6 +69,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
 
         setDashboard(result.data);
         toast.success(t('dashboardCreatedSuccess'));
+        baEvent('onboarding-website-setup');
         onNext();
       });
     },

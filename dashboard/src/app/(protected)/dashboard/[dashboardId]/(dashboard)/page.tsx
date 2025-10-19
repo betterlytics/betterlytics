@@ -24,7 +24,6 @@ import {
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import { NoDataBanner } from '@/app/(protected)/dashboard/[dashboardId]/NoDataBanner';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
@@ -135,10 +134,6 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       <DashboardHeader title={t('overview')}>
         <DashboardFilters />
       </DashboardHeader>
-
-      <Suspense>
-        <NoDataBanner />
-      </Suspense>
 
       <Suspense fallback={<ChartSkeleton />}>
         <SummaryAndChartSection data={summaryAndChartPromise} />

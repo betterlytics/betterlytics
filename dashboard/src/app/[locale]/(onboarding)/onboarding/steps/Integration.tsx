@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
+import { baEvent } from '@/lib/ba-event';
 
 import './Integration.css';
 
@@ -52,10 +53,16 @@ export default function Integration() {
   }, []);
 
   const handleFinishOnboarding = useCallback(() => {
+    baEvent('onboarding-integration', {
+      kind: 'completed',
+    });
     baRouter.push(`/dashboard/${dashboard.id}`);
   }, [dashboard, baRouter]);
 
   const handleSkipForNow = useCallback(() => {
+    baEvent('onboarding-integration', {
+      kind: 'skipped',
+    });
     baRouter.push(`/dashboard/${dashboard.id}?showIntegration=true`);
   }, [baRouter, dashboard]);
 

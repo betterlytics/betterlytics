@@ -150,10 +150,16 @@ export function CreateDashboardDialog({ dashboardStatsPromise, trigger }: Create
           </div>
 
           <div className='flex justify-end space-x-2 pt-4'>
-            <Button type='button' variant='outline' onClick={() => handleOpenChange(false)} disabled={isPending}>
+            <Button
+              type='button'
+              variant='outline'
+              className='cursor-pointer'
+              onClick={() => handleOpenChange(false)}
+              disabled={isPending}
+            >
               {t('buttons.cancel')}
             </Button>
-            <Button type='submit' disabled={isPending || !isFormValid}>
+            <Button type='submit' className='cursor-pointer' disabled={isPending || !isFormValid}>
               {isPending ? t('buttons.creating') : t('buttons.create')}
             </Button>
           </div>

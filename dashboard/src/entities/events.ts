@@ -4,7 +4,7 @@ export const EventOccurrenceAggregate = z.object({
   event_name: z.string(),
   count: z.number(),
   unique_users: z.number(),
-  last_seen: z.string(),
+  last_seen: z.date(),
   avg_per_user: z.number(),
 });
 
@@ -35,7 +35,7 @@ export const EventPropertiesOverviewSchema = z.object({
 });
 
 export const EventLogEntrySchema = z.object({
-  timestamp: z.string(),
+  timestamp: z.date(),
   event_name: z.string(),
   visitor_id: z.string(),
   url: z.string(),

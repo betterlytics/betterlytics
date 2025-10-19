@@ -16,6 +16,7 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SupportedLanguages } from '@/constants/i18n';
+import { baEvent } from '@/lib/ba-event';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -96,6 +97,8 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
             setError(t('form.registrationSuccessfulButSignInFailed'));
             return;
           }
+
+          baEvent('onboarding-account-created');
 
           onNext();
         });
