@@ -199,7 +199,7 @@ const ReplayPlayerComponent = (
 
   const seekTo = useCallback(
     (timeOffset: number) => {
-      if (!playerRef.current) {
+      if (!playerRef.current || timeOffset < 0) {
         return;
       }
 
