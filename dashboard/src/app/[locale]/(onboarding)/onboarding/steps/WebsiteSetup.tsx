@@ -15,16 +15,18 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 type WebsiteSetupProps = {
   onNext: Dispatch<void>;
-  showTos?: boolean;
 };
 
-export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
+export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
   const t = useTranslations('onboarding.website');
   const tValidation = useTranslations('validation');
   const locale = useLocale();
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [agree, setAgree] = useState(false);
+  const { data: session } = useSession();
+
+  const effectiveShowTos = !session?.user?.termsAcceptedAt;
 
   const { setDashboard } = useOnboarding();
   const { update } = useSession();
@@ -34,7 +36,7 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
       e.preventDefault();
       setError('');
 
-      if (showTos && !agree) {
+      if (effectiveShowTos && !agree) {
         setError(tValidation('termsOfServiceRequired'));
         return;
       }
@@ -51,7 +53,7 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
       startTransition(async () => {
         const result = await completeOnboardingAndCreateDashboardAction({
           domain: domainResult.data,
-          acceptTerms: showTos ? agree : undefined,
+          acceptTerms: effectiveShowTos ? agree : undefined,
           language: locale,
         });
 
@@ -69,7 +71,7 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
         onNext();
       });
     },
-    [agree, showTos, t, tValidation, setDashboard, onNext],
+    [agree, effectiveShowTos, t, tValidation, setDashboard, onNext],
   );
 
   return (
@@ -94,7 +96,7 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
             />
             <p className='text-muted-foreground text-xs'>{t('domainHelp')}</p>
           </div>
-          {showTos && (
+          {effectiveShowTos && (
             <div className='flex items-start gap-2'>
               <Checkbox
                 id='agree-terms'
@@ -130,7 +132,7 @@ export default function WebsiteSetup({ onNext, showTos }: WebsiteSetupProps) {
           )}
 
           <div className='flex justify-end pt-4'>
-            {showTos && !agree ? (
+            {effectiveShowTos && !agree ? (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
