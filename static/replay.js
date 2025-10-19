@@ -8261,15 +8261,23 @@ or you can use record.mirror to access the mirror instance during recording.`;
     return url;
   }
 
+  const cacheIsReplayEnabledOnPage = new Map();
   function isReplayEnabledOnPage() {
     var urlObj = new URL(window.location.href);
     var pathname = urlObj.pathname;
+
+    if (cacheIsReplayEnabledOnPage.has(pathname)) {
+      return cacheIsReplayEnabledOnPage.get(pathname);
+    }
+
     for (var i = 0; i < disableReplayOnUrls.length; i++) {
       var match = disableReplayOnUrls[i].regex.exec(pathname);
       if (match) {
+        cacheIsReplayEnabledOnPage.set(pathname, false);
         return false;
       }
     }
+    cacheIsReplayEnabledOnPage.set(pathname, true);
     return true;
   }
 
@@ -8577,6 +8585,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function handleRecordingEmit(e) {
+      if (isReplayEnabledOnPage() === false) {
+        return;
+      }
+
       state.firstActivity = Math.min(
         state.firstActivity ?? e.timestamp,
         e.timestamp
