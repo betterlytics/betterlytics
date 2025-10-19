@@ -1292,6 +1292,10 @@
           "tooltip": "Vælg kortets afspilnings hastighed"
         }
       },
+      "mapType": {
+        "goAccumulated": "Gå til Akkumuleret",
+        "goTimeseries": "Gå til Tidsserie"
+      },
       "zoom": {
         "in": "Zoom ind",
         "out": "Zoom ud"

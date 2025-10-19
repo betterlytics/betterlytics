@@ -1287,6 +1287,10 @@
           "tooltip": "Choose the playback speed for the map"
         }
       },
+      "mapType": {
+        "goAccumulated": "Go to Accumulated",
+        "goTimeseries": "Go to Timeseries"
+      },
       "zoom": {
         "in": "Zoom In",
         "out": "Zoom Out"

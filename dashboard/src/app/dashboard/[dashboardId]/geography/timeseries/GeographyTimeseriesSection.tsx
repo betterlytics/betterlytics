@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect } from 'react';
+import { use, useEffect, useMemo } from 'react';
 import { getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import { useTranslations } from 'next-intl';
 import { DeckGLMapSelectionProvider } from '@/contexts/DeckGLSelectionContextProvider';
@@ -8,6 +8,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import dynamic from 'next/dynamic';
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { MapCommandProvider } from '@/contexts/DeckGLMapContext';
+import MapTypeNavigationButton from '@/components/map/MapTypeNavigationButton';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapGranularityTimeseries>;
@@ -31,12 +32,16 @@ export default function GeographyTimeseriesSection({ worldMapPromise }: Geograph
           </DeckGLMapSelectionProvider>
         </MapCommandProvider>
         <div className='fixed top-16 right-4 z-30'>
-          <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
-            <DashboardFilters />
+          <div className='flex flex-col justify-end gap-4'>
+            <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
+              <DashboardFilters />
+            </div>
+            <MapTypeNavigationButton className='bg-secondary ml-auto w-fit bg-transparent underline text-shadow-lg' />
           </div>
         </div>
       </div>
 
+      {/* TODO Add better check for empty data */}
       {mapData.data.length === 0 && (
         <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
           <p className='text-sm text-amber-700'>{t('noData')}</p>

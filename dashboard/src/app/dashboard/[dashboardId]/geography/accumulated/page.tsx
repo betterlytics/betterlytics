@@ -7,6 +7,7 @@ import GeographySection from '@/app//dashboard/[dashboardId]/geography/accumulat
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import MapTypeNavigationButton from '@/components/map/MapTypeNavigationButton';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -39,8 +40,11 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
       </Suspense>
 
       <div className='fixed top-16 right-4 z-30'>
-        <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
-          <DashboardFilters />
+        <div className='flex flex-col justify-end gap-4'>
+          <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
+            <DashboardFilters />
+          </div>
+          <MapTypeNavigationButton className='bg-secondary ml-auto w-fit bg-transparent underline text-shadow-lg' />
         </div>
       </div>
     </div>
