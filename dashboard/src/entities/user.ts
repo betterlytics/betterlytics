@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
 
 export const PasswordSchema = z
   .string()
@@ -17,6 +18,10 @@ export const UserSchema = z.object({
   image: z.string().nullable().optional(),
   totpEnabled: z.boolean().default(false),
   totpSecret: z.string().nullable().optional(),
+  termsAcceptedVersion: z.number().nullable().optional(),
+  termsAcceptedAt: z.date().nullable().optional(),
+  changelogVersionSeen: z.number().optional().default(0),
+  onboardingCompletedAt: z.date().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -26,6 +31,8 @@ export const CreateUserSchema = z.object({
   name: z.string().nullable().optional(),
   passwordHash: z.string(),
   role: z.enum(['admin', 'user']).nullable().optional(),
+  termsAcceptedVersion: z.number().nullable().optional(),
+  termsAcceptedAt: z.date().nullable().optional(),
 });
 
 export const UpdateUserSchema = z.object({
@@ -38,7 +45,14 @@ export const RegisterUserSchema = z.object({
   name: z.string().nullable().optional(),
   email: z.string().email('Please enter a valid email address'),
   password: PasswordSchema,
+  acceptedTerms: z.literal(true, {
+    errorMap: () => ({ message: 'onboarding.account.termsOfServiceRequired' }),
+  }),
   role: z.enum(['admin', 'user']).optional(),
+  language: z.preprocess(
+    (val) => (SUPPORTED_LANGUAGES.includes(val as SupportedLanguages) ? val : 'en'),
+    z.enum(SUPPORTED_LANGUAGES).default('en'),
+  ),
 });
 
 export const LoginUserSchema = z.object({

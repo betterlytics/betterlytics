@@ -9,7 +9,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     try {
       const session = await getServerSession(authOptions);
 
-      if (session?.user?.settings?.language) {
+      if (session?.user.settings?.language) {
         locale = session.user.settings.language;
       }
     } catch (error) {

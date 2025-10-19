@@ -1,9 +1,13 @@
-import prisma from "@/lib/postgres";
-import { UserSettings, UserSettingsSchema, UserSettingsUpdate, UserSettingsUpdateSchema, UserSettingsCreateSchema } from "@/entities/userSettings";
+import prisma from '@/lib/postgres';
+import {
+  UserSettings,
+  UserSettingsSchema,
+  UserSettingsUpdate,
+  UserSettingsUpdateSchema,
+  UserSettingsCreateSchema,
+} from '@/entities/userSettings';
 
-export async function findSettingsByUserId(
-  userId: string
-): Promise<UserSettings | null> {
+export async function findSettingsByUserId(userId: string): Promise<UserSettings | null> {
   try {
     const prismaSettings = await prisma.userSettings.findUnique({
       where: { userId },
@@ -15,21 +19,16 @@ export async function findSettingsByUserId(
 
     return UserSettingsSchema.parse(prismaSettings);
   } catch (error) {
-    console.error("Error finding user settings by user ID:", error);
-    throw new Error("Failed to find user settings");
+    console.error('Error finding user settings by user ID:', error);
+    throw new Error('Failed to find user settings');
   }
 }
 
-export async function updateUserSettings(
-  userId: string,
-  updates: UserSettingsUpdate
-): Promise<UserSettings> {
+export async function updateUserSettings(userId: string, updates: UserSettingsUpdate): Promise<UserSettings> {
   try {
     const validatedUpdates = UserSettingsUpdateSchema.parse(updates);
 
-    const data = Object.fromEntries(
-      Object.entries(validatedUpdates).filter(([_, value]) => value !== undefined)
-    );
+    const data = Object.fromEntries(Object.entries(validatedUpdates).filter(([_, value]) => value !== undefined));
 
     const updatedSettings = await prisma.userSettings.update({
       where: { userId },
@@ -38,15 +37,12 @@ export async function updateUserSettings(
 
     return UserSettingsSchema.parse(updatedSettings);
   } catch (error) {
-    console.error("Error updating user settings:", error);
-    throw new Error("Failed to update user settings");
+    console.error('Error updating user settings:', error);
+    throw new Error('Failed to update user settings');
   }
 }
 
-export async function createUserSettings(
-  userId: string,
-  settings: UserSettingsUpdate
-): Promise<UserSettings> {
+export async function createUserSettings(userId: string, settings: UserSettingsUpdate): Promise<UserSettings> {
   try {
     const validatedSettings = UserSettingsCreateSchema.parse({
       ...settings,
@@ -56,10 +52,9 @@ export async function createUserSettings(
     const createdSettings = await prisma.userSettings.create({
       data: validatedSettings,
     });
-
     return UserSettingsSchema.parse(createdSettings);
   } catch (error) {
-    console.error("Error creating user settings:", error);
-    throw new Error("Failed to create user settings");
+    console.error('Error creating user settings:', error);
+    throw new Error('Failed to create user settings');
   }
-} 
+}
