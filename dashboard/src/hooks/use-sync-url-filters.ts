@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { useBARouter } from '@/hooks/use-ba-router';
@@ -151,17 +151,20 @@ export function useUrlSearchParam(paramKey: string) {
   const router = useBARouter();
   const searchParams = useSearchParams();
 
-  const value = searchParams?.get?.(paramKey) ?? undefined;
+  const value = useMemo(() => searchParams.get(paramKey) ?? undefined, [searchParams, paramKey]);
 
-  function setValue(next: string | undefined) {
-    const params = new URLSearchParams(searchParams?.toString?.() ?? '');
-    if (next === undefined || next === null || next === '') {
-      params.delete(paramKey);
-    } else {
-      params.set(paramKey, next);
-    }
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }
+  const setValue = useCallback(
+    (next: string | undefined) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === undefined || next === null || next === '') {
+        params.delete(paramKey);
+      } else {
+        params.set(paramKey, next);
+      }
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams, paramKey],
+  );
 
   return [value, setValue] as const;
 }
