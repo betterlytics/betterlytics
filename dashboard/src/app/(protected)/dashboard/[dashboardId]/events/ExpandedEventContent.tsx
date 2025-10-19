@@ -1,4 +1,3 @@
-import { Hash } from 'lucide-react';
 import { EventTypeRow } from '@/entities/events';
 import { PropertyRow } from '@/components/events/PropertyRow';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -56,9 +55,6 @@ export function ExpandedEventContent({
         </div>
       ) : (
         <div className='py-12 pl-8 text-center'>
-          <div className='bg-muted/40 mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full'>
-            <Hash className='text-muted-foreground/60 h-6 w-6' />
-          </div>
           <h4 className='text-foreground mb-1 text-sm font-medium'>No Properties</h4>
           <p className='text-muted-foreground text-xs'>This event has no custom properties.</p>
         </div>

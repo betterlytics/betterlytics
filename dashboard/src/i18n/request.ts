@@ -18,7 +18,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
 
   if (SUPPORTED_LANGUAGES.includes(locale as SupportedLanguages) === false) {
-    locale = process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE;
+    locale = process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en';
   }
 
   return {

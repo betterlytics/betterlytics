@@ -250,3 +250,16 @@
 [data-slot='sheet-content'] > button.absolute.top-4.right-4 {
   cursor: pointer;
 }
+
+.rr-player .replayer-mouse:after {
+  width: 18px !important;
+  height: 18px !important;
+  background: var(--primary) !important;
+  border-radius: 9999px !important;
+  border: 2px solid white !important;
+  opacity: 0.9 !important;
+}
+.dark .rr-player .replayer-mouse:after {
+  border-color: rgba(0, 0, 0, 0.9) !important;
+  background: color-mix(in oklab, var(--primary), white 20%) !important;
+}

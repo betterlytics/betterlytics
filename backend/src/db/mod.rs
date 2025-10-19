@@ -10,7 +10,7 @@ use crate::config::Config;
 use crate::processing::ProcessedEvent;
 
 mod models;
-pub use models::EventRow;
+pub use models::{EventRow, SessionReplayRow};
 
 const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
@@ -219,6 +219,13 @@ impl Database {
         println!("Checking database connection");
         self.client.query("SELECT 1").execute().await?;
         println!("Database connection check successful");
+        Ok(())
+    }
+
+    pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
+        let mut inserter = self.client.inserter("analytics.session_replays")?;
+        inserter.write(&row)?;
+        inserter.end().await?;
         Ok(())
     }
 }

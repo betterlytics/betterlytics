@@ -22,6 +22,8 @@ mod campaign;
 mod ua_parser;
 mod metrics;
 mod validation;
+mod storage;
+mod session_replay;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use db::{Database, SharedDatabase};
@@ -30,6 +32,7 @@ use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
 use validation::{EventValidator, ValidationConfig};
+use storage::s3::S3Service;
 
 #[tokio::main]
 async fn main() {
@@ -81,6 +84,22 @@ async fn main() {
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
+    // Initialize optional S3 service for session replay storage
+    let s3_service: Option<Arc<S3Service>> = match S3Service::from_config(config.clone()).await {
+        Ok(Some(svc)) => {
+            info!("S3 session storage enabled");
+            Some(Arc::new(svc))
+        },
+        Ok(None) => {
+            info!("S3 session storage disabled");
+            None
+        },
+        Err(e) => {
+            warn!("Failed to initialize S3 service: {}", e);
+            None
+        }
+    };
+
     let db_clone = db.clone();
     tokio::spawn(async move {
         while let Some(processed) = processed_rx.recv().await {
@@ -95,9 +114,13 @@ async fn main() {
         .route("/health", get(health_check))
         .route("/track", post(track_event))
         .route("/site-id", get(generate_site_id_handler))
+        // Session replay storage routes
+        .route("/replay/presign/put", post(session_replay::presign_put_segment))
+        .route("/replay/finalize", post(session_replay::finalize_session_replay))
         .route("/metrics", get(metrics_handler))
+        // Session replay helper routes
         .fallback(fallback_handler)
-        .with_state((db, processor, metrics_collector, validator))
+        .with_state((db, processor, metrics_collector, validator, s3_service))
         .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
@@ -106,7 +129,7 @@ async fn main() {
 }
 
 async fn health_check(
-    State((db, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>)>,
+    State((db, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
 ) -> Result<impl IntoResponse, String> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
@@ -121,7 +144,7 @@ async fn health_check(
 }
 
 async fn track_event(
-    State((_db, processor, metrics, validator)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>)>,
+    State((_db, processor, metrics, validator, _s3)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
     Json(raw_event): Json<RawTrackingEvent>,
@@ -172,7 +195,7 @@ async fn track_event(
 }
 
 async fn metrics_handler(
-    State((_, _, metrics, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>)>,
+    State((_, _, metrics, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
 ) -> impl IntoResponse {
     match metrics {
         Some(metrics_collector) => {
@@ -212,3 +235,4 @@ pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
 async fn generate_site_id_handler() -> impl IntoResponse {
     Json(generate_site_id())
 }
+
