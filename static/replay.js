@@ -8488,7 +8488,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return flush().then(function () {
         if (state.disabled) return;
         if (state.buffer.length === 0) return;
-        return flushAll();
+        return new Promise(function (r) {
+          try {
+            setTimeout(r, 0);
+          } catch (_) {
+            r();
+          }
+        }).then(flushAll);
       });
     }
 
