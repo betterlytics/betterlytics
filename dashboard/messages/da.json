@@ -1622,6 +1622,12 @@
           "confirm": "Slet dashboard"
         }
       }
+    },
+    "termsRequiredDialog": {
+      "title": "Accepter opdaterede servicevilkår",
+      "body": "For at fortsætte med at bruge din konto skal du gennemgå og acceptere vores <termsLink>servicevilkår</termsLink>.",
+      "acceptAndContinue": "Accepter og fortsæt",
+      "logout": "Log ud"
     }
   },
   "onboarding": {
@@ -1653,7 +1659,7 @@
       "form": {
         "title": "Opret din konto",
         "signUpWith": "Tilmeld dig med",
-        "termsAgreement": "Ved at fortsætte accepterer du vores <termsLink>Servicevilkår</termsLink> og <privacyLink>Privatlivspolitik</privacyLink>.",
+        "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
         "orDivider": "eller",
         "emailLabel": "Email",
         "emailPlaceholder": "Indtast din email",
@@ -1679,6 +1685,7 @@
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
       "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
       "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",
@@ -1713,6 +1720,9 @@
       "redirectingIn": "Omdirigerer om {seconds}...",
       "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
     }
+  },
+  "validation": {
+    "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte."
   },
   "banners": {
     "verifyEmail": {

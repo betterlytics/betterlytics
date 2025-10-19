@@ -1,10 +1,11 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useCallback, useMemo, useState, type Dispatch } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, type Dispatch } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { AlertCircleIcon, AlertTriangleIcon, CheckCircleIcon, ChevronDown, InfoIcon } from 'lucide-react';
+import { baEvent } from '@/lib/ba-event';
 
 type Level = 'info' | 'warning' | 'error' | 'success';
 
@@ -37,6 +38,8 @@ function markDismissed(id: string): void {
 function isDismissed(id: string): boolean {
   return readDismissed().includes(id);
 }
+
+const firedShownOnce = new Set<string>();
 
 type Banner = {
   id: string;
@@ -72,6 +75,7 @@ export function BannerProvider({ children }: BannerProviderProps) {
   const routeKey = pathname ?? '';
   type BannerWithMeta = Banner & { __route?: string };
   const [banners, setBanners] = useState<BannerWithMeta[]>([]);
+  const firedThisRouteRef = useRef(firedShownOnce);
 
   const addBanner = useCallback(
     (banner: Banner) => {
@@ -103,6 +107,7 @@ export function BannerProvider({ children }: BannerProviderProps) {
       setBanners((prev) => {
         const toDismiss = prev.find((bann) => bann.id === id);
         if (toDismiss) {
+          baEvent('banner-dismiss', { id, route: routeKey });
           markDismissed(id);
         }
         return prev.filter((bann) => bann.id !== id);
@@ -119,12 +124,21 @@ export function BannerProvider({ children }: BannerProviderProps) {
       .sort((a, b) => Number(Boolean(b.sticky)) - Number(Boolean(a.sticky)));
   }, [banners, routeKey]);
 
+  useEffect(() => {
+    for (const bann of nowVisible) {
+      if (!firedThisRouteRef.current.has(bann.id)) {
+        baEvent('banner-shown', { id: bann.id, route: routeKey });
+        firedThisRouteRef.current.add(bann.id);
+      }
+    }
+  }, [nowVisible, routeKey]);
+
   return (
     <BannerContext.Provider value={{ addBanner, removeBanner, dismissBanner }}>
       <div className='h-full w-full'>
         <div className={cn('w-full space-y-0 overflow-hidden p-0', nowVisible.length && 'border-b')}>
           {nowVisible.map((banner) => (
-            <BannerBanner key={banner.id} banner={banner} banners={nowVisible} />
+            <Banner key={banner.id} banner={banner} banners={nowVisible} />
           ))}
         </div>
         {children}
@@ -137,12 +151,12 @@ export function useBannerContext() {
   return React.useContext(BannerContext);
 }
 
-type BannerBannerProps = {
+type BannerProps = {
   banner: Banner;
   banners: Banner[];
 };
 
-export function BannerBanner({ banner, banners }: BannerBannerProps) {
+export function Banner({ banner, banners }: BannerProps) {
   const { dismissBanner } = useBannerContext();
   const { id, level, title, description, action, custom, dismissible, showIcon = true } = banner;
 
@@ -178,6 +192,7 @@ export function BannerBanner({ banner, banners }: BannerBannerProps) {
 
       <div className='hidden sm:block'>
         <DesktopBannerContent
+          id={id}
           showIcon={showIcon}
           title={title}
           description={description}
@@ -192,6 +207,7 @@ export function BannerBanner({ banner, banners }: BannerBannerProps) {
 }
 
 type BannerContentBaseProps = {
+  id: string;
   title?: string;
   description?: React.ReactNode;
   action?: React.ReactNode;
@@ -201,7 +217,7 @@ type BannerContentBaseProps = {
   icon?: React.ReactNode;
 };
 
-type MobileBannerContentProps = BannerContentBaseProps & { id: string };
+type MobileBannerContentProps = BannerContentBaseProps;
 
 function MobileBannerContent({
   id,
@@ -234,7 +250,10 @@ function MobileBannerContent({
         </div>
 
         {action && (
-          <div className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'>
+          <div
+            className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'
+            onClick={() => baEvent('banner-action', { id })}
+          >
             {action}
           </div>
         )}
@@ -269,6 +288,7 @@ function MobileBannerContent({
 }
 
 function DesktopBannerContent({
+  id,
   title,
   description,
   action,
@@ -289,7 +309,10 @@ function DesktopBannerContent({
         </div>
       </div>
       {action && (
-        <div className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'>
+        <div
+          className='h-7 shrink-0 [&>*]:h-7 [&>*]:min-h-0 [&>*]:px-2 [&>*]:py-0 [&>*]:text-xs [&>*]:leading-none'
+          onClick={() => baEvent('banner-action', { id })}
+        >
           {action}
         </div>
       )}

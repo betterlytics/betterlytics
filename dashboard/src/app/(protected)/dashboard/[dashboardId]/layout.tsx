@@ -18,6 +18,8 @@ import ScrollReset from '@/components/ScrollReset';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
+import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
@@ -55,6 +57,9 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
+  const mustAcceptTerms =
+    !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION;
+
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
@@ -79,6 +84,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                   <IntegrationBanner />
                 </Suspense>
                 <div className='flex w-full justify-center'>{children}</div>
+                {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
               </BannerProvider>
             </main>
             {/* Conditionally render tracking script based on server-side feature flag */}

@@ -1618,6 +1618,12 @@
           "confirm": "Delete Dashboard"
         }
       }
+    },
+    "termsRequiredDialog": {
+      "title": "Accept Updated Terms of Service",
+      "body": "To continue using your account, please review and accept our <termsLink>Terms of Service</termsLink>.",
+      "acceptAndContinue": "Accept and Continue",
+      "logout": "Log Out"
     }
   },
   "onboarding": {
@@ -1649,7 +1655,7 @@
       "form": {
         "title": "Create your account",
         "signUpWith": "Sign up with",
-        "termsAgreement": "By continuing, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+        "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
         "orDivider": "or",
         "emailLabel": "Email",
         "emailPlaceholder": "Enter your email",
@@ -1675,6 +1681,7 @@
       "domainLabel": "Domain",
       "domainPlaceholder": "example.com",
       "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
+      "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
       "createDashboardButton": "Create Dashboard",
       "creatingDashboard": "Creating Dashboard...",
       "dashboardCreatedSuccess": "Dashboard created successfully!",
@@ -1709,6 +1716,9 @@
       "redirectingIn": "Redirecting in {seconds}...",
       "noSiteId": "No site ID found. Please complete the previous steps first."
     }
+  },
+  "validation": {
+    "termsOfServiceRequired": "You must accept the terms of service to continue."
   },
   "banners": {
     "verifyEmail": {

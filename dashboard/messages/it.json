@@ -1624,6 +1624,12 @@
           "confirm": "Elimina dashboard"
         }
       }
+    },
+    "termsRequiredDialog": {
+      "title": "Accetta i Termini di Servizio aggiornati",
+      "body": "Per continuare a utilizzare il tuo account, rivedi e accetta i nostri <termsLink>Termini di Servizio</termsLink>.",
+      "acceptAndContinue": "Accetta e continua",
+      "logout": "Esci"
     }
   },
   "onboarding": {
@@ -1655,7 +1661,7 @@
       "form": {
         "title": "Crea il tuo account",
         "signUpWith": "Registrati con",
-        "termsAgreement": "Continuando, accetti i nostri <termsLink>Termini di servizio</termsLink> e la nostra <privacyLink>Politica sulla privacy</privacyLink>.",
+        "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
         "orDivider": "oppure",
         "emailLabel": "Email",
         "emailPlaceholder": "Inserisci la tua email",
@@ -1681,6 +1687,7 @@
       "domainLabel": "Dominio",
       "domainPlaceholder": "esempio.com",
       "domainHelp": "Inserisci il tuo dominio senza https:// o www. (es. esempio.com)",
+      "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
       "dashboardCreatedSuccess": "Dashboard creata con successo!",
@@ -1715,6 +1722,9 @@
       "redirectingIn": "Reindirizzamento tra {seconds}...",
       "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
     }
+  },
+  "validation": {
+    "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare."
   },
   "banners": {
     "verifyEmail": {

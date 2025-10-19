@@ -25,7 +25,7 @@ export const UserSettingsCreateSchema = z
     userId: z.string(),
     theme: z.enum(['light', 'dark', 'system']),
     avatar: z.enum(['default', 'gravatar']),
-    language: z.string(),
+    language: z.enum(SUPPORTED_LANGUAGES).default('en'),
     emailNotifications: z.boolean(),
     marketingEmails: z.boolean(),
   })

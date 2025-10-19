@@ -8,5 +8,9 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     redirect('/signin');
   }
 
+  if (!session.user.onboardingCompletedAt) {
+    redirect('/onboarding');
+  }
+
   return <>{children}</>;
 }
