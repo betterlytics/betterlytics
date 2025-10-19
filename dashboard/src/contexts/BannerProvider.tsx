@@ -39,6 +39,8 @@ function isDismissed(id: string): boolean {
   return readDismissed().includes(id);
 }
 
+const firedShownOnce = new Set<string>();
+
 type Banner = {
   id: string;
   level: Level;
@@ -73,7 +75,7 @@ export function BannerProvider({ children }: BannerProviderProps) {
   const routeKey = pathname ?? '';
   type BannerWithMeta = Banner & { __route?: string };
   const [banners, setBanners] = useState<BannerWithMeta[]>([]);
-  const firedThisRouteRef = useRef<Set<string>>(new Set());
+  const firedThisRouteRef = useRef(firedShownOnce);
 
   const addBanner = useCallback(
     (banner: Banner) => {
@@ -122,12 +124,6 @@ export function BannerProvider({ children }: BannerProviderProps) {
       .sort((a, b) => Number(Boolean(b.sticky)) - Number(Boolean(a.sticky)));
   }, [banners, routeKey]);
 
-  // Clear per-route fired set on navigation
-  useEffect(() => {
-    firedThisRouteRef.current = new Set();
-  }, [routeKey]);
-
-  // Emit a single 'shown' event per banner per route
   useEffect(() => {
     for (const bann of nowVisible) {
       if (!firedThisRouteRef.current.has(bann.id)) {
