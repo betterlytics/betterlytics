@@ -97,9 +97,11 @@
         timestamp: Math.floor(Date.now() / 1000),
         ...overrides,
       }),
-    }).catch(function (error) {
-      console.error("Analytics tracking failed:", error);
-    });
+    })
+      .then((res) => res.text())
+      .catch(function (error) {
+        console.error("Analytics tracking failed:", error);
+      });
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
