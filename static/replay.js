@@ -8669,37 +8669,40 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function startRecordingDeferred() {
-      let started = false;
+      return new Promise((resolve) => {
+        let started = false;
 
-      function doStart() {
-        if (started) return;
-        started = true;
-        try {
-          startRecording();
-        } catch (_) {}
-      }
-
-      const root = document.body || document.documentElement;
-      if (!root) {
-        setTimeout(doStart, 0);
-        return;
-      }
-
-      const observer = new MutationObserver((mutations) => {
-        if (mutations && mutations.length > 0) {
-          observer.disconnect();
-          requestAnimationFrame(() => {
-            requestAnimationFrame(doStart);
-          });
+        function doStart() {
+          if (started) return;
+          started = true;
+          try {
+            startRecording();
+            resolve(true);
+          } catch (_) {}
         }
+
+        const root = document.body || document.documentElement;
+        if (!root) {
+          setTimeout(doStart, 0);
+          return;
+        }
+
+        const observer = new MutationObserver((mutations) => {
+          if (mutations && mutations.length > 0) {
+            observer.disconnect();
+            requestAnimationFrame(() => {
+              requestAnimationFrame(doStart);
+            });
+          }
+        });
+
+        observer.observe(root, { childList: true, subtree: true });
+
+        setTimeout(() => {
+          observer.disconnect();
+          doStart();
+        }, 1000);
       });
-
-      observer.observe(root, { childList: true, subtree: true });
-
-      setTimeout(() => {
-        observer.disconnect();
-        doStart();
-      }, 1000);
     }
 
     function handleNavigationChange() {
@@ -8708,9 +8711,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (isReplayEnabledOnPage()) {
         if (state.isRecording === false) {
-          startRecordingDeferred();
+          startRecordingDeferred().then(() => {
+            emitReplayPageview(window.location.href, false);
+          });
+        } else {
+          emitReplayPageview(window.location.href, false);
         }
-        emitReplayPageview(window.location.href, false);
       } else {
         emitReplayBlacklist();
         stopRecording(true);
