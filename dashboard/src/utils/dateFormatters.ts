@@ -99,3 +99,68 @@ export function formatCompactSeconds(seconds: number): string {
 export function formatCompactFromMilliseconds(milliseconds: number): string {
   return formatCompactSeconds(milliseconds / 1000);
 }
+
+/*
+ * Format a timestamp in the format of mm:ss
+ */
+export function formatTimestamp(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+/*
+ * Format a duration with more precision such as 0.0600 s
+ */
+export function formatDurationPrecise(ms: number): string {
+  if (ms < 1000) {
+    return `${(ms / 1000).toFixed(4)}s`;
+  }
+  if (ms < 60_000) {
+    return `${(ms / 1000).toFixed(2)}s`;
+  }
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m ${seconds}s`;
+}
+
+// Formats a date/time to a locale-aware human-readable string
+export function formatLocalDateTime(
+  date: string | Date | undefined | null,
+  locale?: string,
+  options?: Intl.DateTimeFormatOptions,
+): string | undefined {
+  if (!date) return undefined;
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return undefined;
+  return new Intl.DateTimeFormat(locale, options).format(d);
+}
+
+// Formats a date relative to now (e.g., "3 days ago"), localized via Intl.RelativeTimeFormat
+export function formatRelativeTimeFromNow(date: string | Date, locale?: string): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return '';
+
+  const diffSeconds = Math.round((d.getTime() - Date.now()) / 1000);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+  const absSeconds = Math.abs(diffSeconds);
+  if (absSeconds < 45) return rtf.format(diffSeconds, 'second');
+
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (Math.abs(diffMinutes) < 45) return rtf.format(diffMinutes, 'minute');
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (Math.abs(diffHours) < 22) return rtf.format(diffHours, 'hour');
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (Math.abs(diffDays) < 26) return rtf.format(diffDays, 'day');
+
+  const diffMonths = Math.floor(diffDays / 30);
+  if (Math.abs(diffMonths) < 11) return rtf.format(diffMonths, 'month');
+
+  const diffYears = Math.floor(diffDays / 365);
+  return rtf.format(diffYears, 'year');
+}
