@@ -105,7 +105,7 @@ export default function LoginForm() {
           router.push(result.url);
         }
       } catch {
-        setError('An error occurred during sign in. Please try again.');
+        setError('A user already exists with this email.');
       }
     });
   }, []);
