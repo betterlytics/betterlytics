@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 type TrafficSourcesSectionProps = {
   trafficSourcesCombinedPromise: ReturnType<typeof fetchTrafficSourcesCombinedAction>;
@@ -16,11 +17,18 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
   const trafficSourcesCombined = use(trafficSourcesCombinedPromise);
   const t = useTranslations('dashboard');
   const dashboardId = useDashboardId();
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const onItemClick = (tabKey: string, item: { label: string }) => {
+    if (tabKey === 'referrers') return makeFilterClick('referrer_url')(item.label);
+    if (tabKey === 'sources') return makeFilterClick('referrer_source')(item.label);
+  };
 
   return (
     <MultiProgressTable
       title={t('sections.trafficSources')}
       defaultTab='referrers'
+      onItemClick={onItemClick}
       tabs={[
         {
           key: 'referrers',

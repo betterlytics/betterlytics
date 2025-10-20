@@ -27,6 +27,7 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   tabs: TabConfig<T>[];
   defaultTab?: string;
   footer?: React.ReactNode;
+  onItemClick?: (tabKey: string, item: T) => void;
 }
 
 function MultiProgressTable<T extends ProgressBarData>({
@@ -34,6 +35,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   tabs,
   defaultTab,
   footer,
+  onItemClick,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const t = useTranslations('dashboard.emptyStates');
@@ -42,7 +44,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   }, []);
 
   const renderProgressList = useCallback(
-    (data: T[]) => {
+    (data: T[], tabKey: string) => {
       const maxVisitors = Math.max(...data.map((item) => item.value), 1);
       const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
 
@@ -65,7 +67,17 @@ function MultiProgressTable<T extends ProgressBarData>({
             const relativePercentage = (item.value / maxVisitors) * 100;
             const percentage = (item.value / total) * 100;
             return (
-              <div key={item.key ?? item.label} className='group relative'>
+              <div
+                key={item.key ?? item.label}
+                className='group relative cursor-pointer'
+                role='button'
+                tabIndex={0}
+                title={typeof item.label === 'string' ? `Filter by ${item.label}` : undefined}
+                onClick={() => onItemClick?.(tabKey, item)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') onItemClick?.(tabKey, item);
+                }}
+              >
                 <PropertyValueBar
                   value={{
                     value: item.label,
@@ -85,7 +97,7 @@ function MultiProgressTable<T extends ProgressBarData>({
         </div>
       );
     },
-    [t],
+    [onItemClick, t],
   );
 
   const renderTabContent = useCallback(
@@ -94,7 +106,7 @@ function MultiProgressTable<T extends ProgressBarData>({
         return tab.customContent;
       }
 
-      return renderProgressList(tab.data);
+      return renderProgressList(tab.data, tab.key);
     },
     [renderProgressList],
   );
