@@ -142,7 +142,7 @@ export function SessionReplayList({
     </div>
   ) : (
     <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
-      <div className='flex flex-col items-center'>
+      <div className='flex flex-col items-center text-center'>
         <ListVideo className='text-muted-foreground/70 mb-3 h-8 w-8' />
         <p className='font-medium'>{t('empty.title')}</p>
         <p className='mt-1 text-xs'>{t('empty.description')}</p>
