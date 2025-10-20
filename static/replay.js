@@ -8291,7 +8291,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
         }
         if (
           takeSnapshot &&
-          isReplayEnabledOnPage() &&
           typeof window.rrweb.record.takeFullSnapshot === "function"
         ) {
           window.rrweb.record.takeFullSnapshot();
@@ -8715,7 +8714,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
             emitReplayPageview(window.location.href, false);
           });
         } else {
-          emitReplayPageview(window.location.href, false);
+          emitReplayPageview(window.location.href, true);
         }
       } else {
         emitReplayBlacklist();
