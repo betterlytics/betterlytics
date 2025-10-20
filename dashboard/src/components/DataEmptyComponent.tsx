@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
-const DataEmptyComponent = () => {
+const DataEmptyComponent = React.memo(() => {
+  const t = useTranslations('dashboard.emptyStates');
   return (
     <div className='flex h-[300px] items-center justify-center'>
       <div className='text-center'>
@@ -9,6 +11,6 @@ const DataEmptyComponent = () => {
       </div>
     </div>
   );
-};
+});
 
 export default DataEmptyComponent;
