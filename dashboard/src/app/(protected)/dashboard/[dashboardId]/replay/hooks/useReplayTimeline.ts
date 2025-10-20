@@ -39,6 +39,7 @@ export function useReplayTimeline(): UseReplayTimelineReturn {
     }));
 
     setTimelineMarkers(markers);
+    setDurationMs(calcDurationMs(normalized, originTimestampRef.current ?? 0));
   }, []);
 
   const appendToTimeline = useCallback((events: eventWithTime[], sessionId: string) => {
