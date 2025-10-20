@@ -35,6 +35,7 @@ import { DashboardDropdown } from './DashboardDropdown';
 import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -65,8 +66,16 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     { name: t('userJourney'), key: 'userJourney', href: '/user-journey', icon: <Route size={18} /> },
     { name: t('funnels'), key: 'funnels', href: '/funnels', icon: <Funnel size={18} /> },
     { name: t('events'), key: 'events', href: '/events', icon: <CircleDot size={18} /> },
-    { name: t('sessionReplay'), key: 'sessionReplay', href: '/replay', icon: <Video size={18} /> },
   ];
+
+  if (isFeatureEnabled('enableSessionReplay')) {
+    behaviorItems.push({
+      name: t('sessionReplay'),
+      key: 'sessionReplay',
+      href: '/replay',
+      icon: <Video size={18} />,
+    });
+  }
 
   return (
     <Sidebar

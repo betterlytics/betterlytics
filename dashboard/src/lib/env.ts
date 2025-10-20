@@ -42,6 +42,7 @@ const envSchema = z.object({
   GITHUB_SECRET: z.string().optional().default(''),
   GOOGLE_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
+  SESSION_REPLAYS_ENABLED: zStringBoolean,
   S3_ENABLED: zStringBoolean,
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().optional(),
