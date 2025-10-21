@@ -298,6 +298,10 @@
       return 100;
     }
 
+    if (docHeight - windowHeight <= 0) {
+      return 100;
+    }
+
     return 100 * (scrollTop / (docHeight - windowHeight));
   }
 
