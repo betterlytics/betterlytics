@@ -76,17 +76,19 @@ export function PlaybackSpeedDropdown({
 
   return (
     <DropdownMenu modal={false} open={isOpen} onOpenChange={handleOpenChange}>
-      <DropdownMenuTrigger
-        title={t('tooltip')}
-        className={cn(
-          'flex flex-col px-3 py-1.5 text-sm',
-          'bg-secondary hover:bg-accent cursor-pointer rounded-md',
-          'border-border border shadow-sm',
-        )}
-      >
-        <span className='font-mono text-xs font-light'>{t('label')}</span>
-        <MotionText text={`x${speed}`} className='mx-auto gap-0 font-medium' />
-      </DropdownMenuTrigger>
+      <motion.div whileTap={{ scale: 0.9 }} transition={{ type: 'spring', stiffness: 400, damping: 40 }}>
+        <DropdownMenuTrigger
+          title={t('tooltip')}
+          className={cn(
+            'flex flex-col px-3 py-1.5 text-sm',
+            'bg-secondary hover:bg-accent cursor-pointer rounded-md',
+            'border-border border shadow-sm',
+          )}
+        >
+          <span className='font-mono text-xs font-light'>{t('label')}</span>
+          <MotionText text={`x${speed}`} className='mx-auto gap-0 font-medium' />
+        </DropdownMenuTrigger>
+      </motion.div>
 
       <DropdownMenuContent
         asChild

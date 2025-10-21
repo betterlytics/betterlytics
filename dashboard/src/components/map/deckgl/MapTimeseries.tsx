@@ -11,11 +11,11 @@ import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
 import { ZoomControls } from './controls/ZoomControls';
-import { DeckGLPopup } from './DeckGLPopup';
 import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import { TimeseriesToggleButton } from './TimeseriesToggleButton';
+import { ScaleMotion } from '@/components/ScaleMotion';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
@@ -25,11 +25,27 @@ export type MapTimeseries = {
 export default function MapTimeseries({ visitorData, animationDurationBaseline = 1000 }: MapTimeseries) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { hoveredFeatureRef, setMapSelection } = useMapSelectionActions();
+  const { hoveredFeatureRef, setMapSelection, clickedFeatureRef, updateClickedVisitors } =
+    useMapSelectionActions();
   const { granularity } = useTimeRangeContext();
   const isMobile = useIsMobile();
 
+  // Set default more gracefully
+  const [isTimeseries, setIsTimeseries] = useState(true);
+
   const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
+    if (!isTimeseries) {
+      return [
+        {
+          visitors: visitorData.accumulated.map((d) => ({
+            country_code: d.country_code,
+            visitors: d.visitors,
+          })),
+          date: new Date(),
+        },
+      ];
+    }
+
     const timeseries: TimeGeoVisitors[] = [];
 
     for (const timeData of visitorData.data) {
@@ -41,13 +57,13 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         }));
 
       timeseries.push({
-        visitors: visitors,
+        visitors,
         date: new Date(timeData.date),
       });
     }
 
     return timeseries;
-  }, [visitorData]);
+  }, [visitorData, isTimeseries]);
 
   const maxVisitors = useMemo(() => {
     return Math.max(...visitorDataTimeseries.flatMap((frame) => frame.visitors.map((d) => d.visitors)));
@@ -61,11 +77,6 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     frameCount: visitorDataTimeseries.length,
     speed,
   });
-
-  useEffect(() => {
-    //! TODO: Update more gracefully
-    setMapSelection(null);
-  }, [playing, frame]);
 
   const tickProps = useMemo(
     () =>
@@ -83,6 +94,13 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     const currentFrame = visitorDataTimeseries[frame];
     return Object.fromEntries(currentFrame.visitors.map((d) => [d.country_code, d.visitors]));
   }, [visitorDataTimeseries, frame]);
+
+  useEffect(() => {
+    if (clickedFeatureRef.current) {
+      const country_code = clickedFeatureRef.current.geoVisitor.country_code;
+      updateClickedVisitors(visitorDict[country_code] ?? 0);
+    }
+  }, [playing, frame, visitorDict]);
 
   const handleClick = useCallback(
     (info: any) => {
@@ -131,7 +149,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const visitorChangeAnimation = useMemo<DeckGLMapProps['fillAnimation']>(
     () => ({
-      // Set fillAnimation to a 1/3 the play-speed
+      // Set fillAnimation to 1/3 the play-speed
       duration: (playing ? animationDurationBaseline / speed : animationDurationBaseline / 5) / 3,
       easing: (t: number) => t * t,
     }),
@@ -139,6 +157,11 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   );
 
   const sidebarOffset = useMemo(() => (isMobile ? 0 : 256), [isMobile]);
+
+  const onToggleTimeseries = useCallback(() => {
+    setIsTimeseries((prv) => !prv);
+    scrub(0);
+  }, [setIsTimeseries]);
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
@@ -151,18 +174,35 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         fillAnimation={visitorChangeAnimation}
         outlineAnimation={visitorChangeAnimation}
       />
-      <MapPlayActionbar
-        className='pointer-events-auto fixed bottom-5 z-12'
-        ticks={tickProps}
-        value={position}
-        playing={playing}
-        speed={speed}
-        style={{ width: 'calc(100vw - 256px - 1rem)', left: sidebarOffset }}
-        onTogglePlay={toggle}
-        onScrub={scrub}
-        onChangeSpeed={setSpeed}
-      />
+      {
+        <MapPlayActionbar
+          className='pointer-events-auto fixed bottom-5 z-12'
+          ticks={tickProps}
+          value={position}
+          playing={playing}
+          speed={speed}
+          style={{ width: 'calc(100vw - 256px - 1rem)', left: sidebarOffset }}
+          isTimeseries={isTimeseries}
+          onTogglePlay={toggle}
+          onToggleTimeseries={onToggleTimeseries}
+          onScrub={scrub}
+          onChangeSpeed={setSpeed}
+        />
+      }
 
+      {!isTimeseries && (
+        <ScaleMotion
+          className={'pointer-events-auto absolute right-3 bottom-3 z-12 flex flex-col'}
+          initialScale={0.8}
+          hoverScale={1}
+          opacityRange={[0.8, 1]}
+          opacityValues={[0.6, 1]}
+          startTransition={{ type: 'spring', stiffness: 400, damping: 40 }}
+          endTransition={{ type: 'spring', stiffness: 400, damping: 40 }}
+        >
+          <TimeseriesToggleButton isTimeseries={isTimeseries} onToggle={onToggleTimeseries} />
+        </ScaleMotion>
+      )}
       <ZoomControls className={'pointer-events-auto absolute top-3 z-12'} style={{ left: sidebarOffset + 16 }} />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
     </div>

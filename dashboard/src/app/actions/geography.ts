@@ -128,10 +128,7 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
         granularity,
       );
 
-      //! TODO: include dataToWorldmap
-      // return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
-
-      return toStackedAreaChart({
+      const timeseries = toStackedAreaChart({
         data: geoVisitors,
         categoryKey: 'country_code',
         valueKey: 'visitors',
@@ -141,6 +138,19 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
           end: endDate,
         },
       });
+
+      const accumulated = Object.values(
+        geoVisitors.reduce<Record<string, { country_code: string; visitors: number }>>((acc, curr) => {
+          const { country_code, visitors } = curr;
+          if (!acc[country_code]) {
+            acc[country_code] = { country_code, visitors: 0 };
+          }
+          acc[country_code].visitors += visitors;
+          return acc;
+        }, {}),
+      );
+
+      return Object.assign(timeseries, { accumulated });
     } catch (error) {
       console.error('Error fetching visitor map data:', error);
       throw new Error('Failed to fetch visitor map data');

@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { PlaybackButton } from '@/components/map/deckgl/controls/PlaybackButton';
 import { TimeSlider, type TimeSliderTick } from '@/components/map/deckgl/controls/TimeSlider';
 import { PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import { cn } from '@/lib/utils';
 import { ScaleMotion } from '@/components/ScaleMotion';
 import { createPortal } from 'react-dom';
+import { TimeseriesToggleButton } from '../TimeseriesToggleButton';
 
 export type MapPlayActionbarProps<TValue> = {
   ticks: TimeSliderTick<TValue>[];
   value: number;
   playing: boolean;
   speed: any;
+  isTimeseries: boolean;
+  onToggleTimeseries: () => void;
   onTogglePlay: () => void;
   onScrub: (index: number) => void;
   onChangeSpeed: (speed: any) => void;
@@ -27,7 +30,9 @@ export function MapPlayActionbar<TValue>({
   speed,
   className,
   style,
+  isTimeseries,
   onTogglePlay,
+  onToggleTimeseries,
   onScrub,
   onChangeSpeed,
 }: MapPlayActionbarProps<TValue>) {
@@ -38,6 +43,8 @@ export function MapPlayActionbar<TValue>({
   const barRef = useRef<HTMLDivElement | null>(null);
   const PADDING_BOTTOM_PX = 64;
   const PADDING_TOP_PX = 16;
+
+  if (!isTimeseries) return null;
 
   return createPortal(
     <div className={cn('pointer-events-auto fixed', className)} style={style}>
@@ -72,6 +79,7 @@ export function MapPlayActionbar<TValue>({
               open={speedOpen}
               onOpenChange={setSpeedOpen}
             />
+            <TimeseriesToggleButton isTimeseries={isTimeseries} onToggle={onToggleTimeseries} />
           </div>
         </ScaleMotion>
         {[

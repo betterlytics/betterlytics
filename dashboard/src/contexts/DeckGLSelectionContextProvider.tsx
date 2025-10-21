@@ -1,4 +1,3 @@
-// DeckGLSelectionContextProvider.tsx
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
@@ -26,6 +25,7 @@ type StateCtx = {
 
 type ActionsCtx = {
   setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
+  updateClickedVisitors: (visitors: number) => void;
   hoveredFeatureRef: React.RefObject<MapFeatureVisitor | undefined>;
   clickedFeatureRef: React.RefObject<MapFeatureVisitor | undefined>;
 };
@@ -78,15 +78,40 @@ export function DeckGLMapSelectionProvider({ children }: { children: React.React
     });
   }, []);
 
+  // New updater function for visitors on clicked without changing refs or clicked state
+  const updateClickedVisitors = useCallback((visitors: number) => {
+    setSelection((prev) => {
+      if (!prev.clicked) return prev;
+
+      const updatedClicked: MapFeatureVisitor = {
+        ...prev.clicked,
+        geoVisitor: {
+          ...prev.clicked.geoVisitor,
+          visitors,
+        },
+      };
+      clickedFeatureRef.current = updatedClicked;
+      return {
+        ...prev,
+        clicked: updatedClicked,
+      };
+    });
+  }, []);
+
   const stateValue = useMemo(
     () => ({ hovered: selection.hovered, clicked: selection.clicked }),
     [selection.hovered, selection.clicked],
   );
 
-  // depends on stable refs to avoid re-renders
+  // Expose both setMapSelection and updateClickedVisitors
   const actionsValue = useMemo(
-    () => ({ setMapSelection, hoveredFeatureRef, clickedFeatureRef }),
-    [setMapSelection],
+    () => ({
+      setMapSelection,
+      updateClickedVisitors,
+      hoveredFeatureRef,
+      clickedFeatureRef,
+    }),
+    [setMapSelection, updateClickedVisitors],
   );
 
   return (
