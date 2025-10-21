@@ -1293,8 +1293,14 @@
         }
       },
       "mapType": {
-        "goAccumulated": "Gå til Akkumuleret",
-        "goTimeseries": "Gå til Tidsserie"
+        "accumulated": {
+          "label": "Akkumuleret",
+          "tooltip": "Visualisér den geografiske udvikling akkumuleret for hele perioden."
+        },
+        "timeseries": {
+          "label": "Tidsserie",
+          "tooltip": "Visualisér den geografiske udviklingen som en tidsserie"
+        }
       },
       "zoom": {
         "in": "Zoom ind",

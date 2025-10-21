@@ -1288,8 +1288,14 @@
         }
       },
       "mapType": {
-        "goAccumulated": "Go to Accumulated",
-        "goTimeseries": "Go to Timeseries"
+        "accumulated": {
+          "label": "Accumulated",
+          "tooltip": "Visualize the accumulated data for the selected period."
+        },
+        "timeseries": {
+          "label": "Timeseries",
+          "tooltip": "Visualize the geoographic distribution as a playable timeseries."
+        }
       },
       "zoom": {
         "in": "Zoom In",

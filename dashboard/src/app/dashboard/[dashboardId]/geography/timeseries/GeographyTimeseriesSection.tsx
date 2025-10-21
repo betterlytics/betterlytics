@@ -8,7 +8,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import dynamic from 'next/dynamic';
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { MapCommandProvider } from '@/contexts/DeckGLMapContext';
-import MapTypeNavigationButton from '@/components/map/MapTypeNavigationButton';
+import MapTypeNavigation from '@/components/map/MapTypeNavigation';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapGranularityTimeseries>;
@@ -34,9 +34,9 @@ export default function GeographyTimeseriesSection({ worldMapPromise }: Geograph
         <div className='fixed top-16 right-4 z-30'>
           <div className='flex flex-col justify-end gap-4'>
             <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
+              <MapTypeNavigation className='shadow-3xl ml-auto w-fit bg-transparent' />
               <DashboardFilters />
             </div>
-            <MapTypeNavigationButton className='bg-secondary ml-auto w-fit bg-transparent underline text-shadow-lg' />
           </div>
         </div>
       </div>
