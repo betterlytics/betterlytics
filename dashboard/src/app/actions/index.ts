@@ -15,3 +15,4 @@ export * from './verification';
 export * from './environment';
 export * from './webVitals';
 export * from './weeklyHeatmap';
+export * from './sessionReplays';

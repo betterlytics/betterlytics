@@ -9,8 +9,8 @@ import {
   DollarSign,
   Route,
   ExternalLink as ExternalLinkIcon,
-  BarChart,
   Gauge,
+  Video,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -34,6 +34,7 @@ import { DashboardDropdown } from './DashboardDropdown';
 
 import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
+import { Badge } from '../ui/badge';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -45,20 +46,26 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
   const t = await getTranslations('dashboard.sidebar');
 
   const analyticsItems = [
-    { name: t('overview'), href: '', icon: <LayoutDashboard size={18} /> },
-    { name: t('pages'), href: '/pages', icon: <FileText size={18} /> },
-    { name: t('referrers'), href: '/referrers', icon: <Link2 size={18} /> },
-    { name: t('outboundLinks'), href: '/outbound-links', icon: <ExternalLinkIcon size={18} /> },
-    { name: t('geography'), href: '/geography', icon: <Globe size={18} /> },
-    { name: t('devices'), href: '/devices', icon: <Smartphone size={18} /> },
-    { name: t('campaigns'), href: '/campaign', icon: <DollarSign size={18} /> },
-    { name: t('webVitals'), href: '/web-vitals', icon: <Gauge size={18} /> },
+    { name: t('overview'), key: 'overview', href: '', icon: <LayoutDashboard size={18} /> },
+    { name: t('pages'), key: 'pages', href: '/pages', icon: <FileText size={18} /> },
+    { name: t('referrers'), key: 'referrers', href: '/referrers', icon: <Link2 size={18} /> },
+    {
+      name: t('outboundLinks'),
+      key: 'outboundLinks',
+      href: '/outbound-links',
+      icon: <ExternalLinkIcon size={18} />,
+    },
+    { name: t('geography'), key: 'geography', href: '/geography', icon: <Globe size={18} /> },
+    { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={18} /> },
+    { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} /> },
+    { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
   ];
 
   const behaviorItems = [
-    { name: t('userJourney'), href: '/user-journey', icon: <Route size={18} /> },
-    { name: t('funnels'), href: '/funnels', icon: <Funnel size={18} /> },
-    { name: t('events'), href: '/events', icon: <CircleDot size={18} /> },
+    { name: t('userJourney'), key: 'userJourney', href: '/user-journey', icon: <Route size={18} /> },
+    { name: t('funnels'), key: 'funnels', href: '/funnels', icon: <Funnel size={18} /> },
+    { name: t('events'), key: 'events', href: '/events', icon: <CircleDot size={18} /> },
+    { name: t('sessionReplay'), key: 'sessionReplay', href: '/replay', icon: <Video size={18} /> },
   ];
 
   return (
@@ -95,7 +102,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {analyticsItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
+                <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton asChild>
                     <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
                       <span>{item.icon}</span>
@@ -113,11 +120,22 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {behaviorItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
+                <SidebarMenuItem
+                  key={item.key}
+                  className={item.key === 'sessionReplay' ? 'hidden md:list-item' : undefined}
+                >
                   <SidebarMenuButton asChild>
-                    <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
-                      <span>{item.icon}</span>
-                      <span>{item.name}</span>
+                    <FilterPreservingLink
+                      href={`/dashboard/${dashboardId}${item.href}`}
+                      highlightOnPage
+                      className='flex items-center justify-between'
+                    >
+                      <div className='flex items-center gap-2'>
+                        <span>{item.icon}</span>
+                        <span>{item.name}</span>
+                      </div>
+
+                      {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -9,7 +9,6 @@ import { getProviders } from 'next-auth/react';
 import OnboardingPage from './OnboardingPage';
 import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
-import { generateSEO } from '@/lib/seo';
 
 export default async function Onboarding() {
   const session = await getServerSession(authOptions);

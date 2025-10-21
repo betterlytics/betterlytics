@@ -2,7 +2,7 @@ import { EventLogEntry } from '@/entities/events';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock } from 'lucide-react';
-import { EventLogItem } from '@/app/dashboard/[dashboardId]/events/EventLogItem';
+import { EventLogItem } from '@/components/events/EventLogItem';
 import { getTranslations } from 'next-intl/server';
 
 export default async function EventTrackingCard() {
@@ -10,7 +10,7 @@ export default async function EventTrackingCard() {
   const mockEvents: EventLogEntry[] = [
     {
       event_name: 'Button Click',
-      timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 2 * 60 * 1000),
       visitor_id: '',
       device_type: 'desktop',
       browser: 'chrome',
@@ -20,7 +20,7 @@ export default async function EventTrackingCard() {
     },
     {
       event_name: 'Page View',
-      timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 5 * 60 * 1000),
       visitor_id: '',
       device_type: 'mobile',
       browser: 'safari',
@@ -30,7 +30,7 @@ export default async function EventTrackingCard() {
     },
     {
       event_name: 'Form Submit',
-      timestamp: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 8 * 60 * 1000),
       visitor_id: '',
       device_type: 'tablet',
       browser: 'firefox',
@@ -40,7 +40,7 @@ export default async function EventTrackingCard() {
     },
     {
       event_name: 'Video Play',
-      timestamp: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 12 * 60 * 1000),
       visitor_id: '',
       device_type: 'desktop',
       browser: 'edge',
@@ -50,7 +50,7 @@ export default async function EventTrackingCard() {
     },
     {
       event_name: 'Download',
-      timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 15 * 60 * 1000),
       visitor_id: '',
       device_type: 'mobile',
       browser: 'chrome',
@@ -60,7 +60,7 @@ export default async function EventTrackingCard() {
     },
     {
       event_name: 'Search',
-      timestamp: new Date(Date.now() - 18 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 18 * 60 * 1000),
       visitor_id: '',
       device_type: 'desktop',
       browser: 'safari',
@@ -70,7 +70,7 @@ export default async function EventTrackingCard() {
     },
     {
       event_name: 'Newsletter Signup',
-      timestamp: new Date(Date.now() - 22 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 22 * 60 * 1000),
       visitor_id: '',
       device_type: 'mobile',
       browser: 'firefox',
@@ -80,7 +80,7 @@ export default async function EventTrackingCard() {
     },
     {
       event_name: 'Add to Cart',
-      timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.now() - 25 * 60 * 1000),
       visitor_id: '',
       device_type: 'tablet',
       browser: 'chrome',

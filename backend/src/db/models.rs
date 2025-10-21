@@ -42,6 +42,24 @@ pub struct EventRow {
     pub scroll_depth: Option<f32>,
 }
 
+#[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
+pub struct SessionReplayRow {
+    pub site_id: String,
+    pub session_id: String,
+    pub visitor_id: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub started_at: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub ended_at: DateTime<Utc>,
+    pub duration: u32,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    pub size_bytes: u64,
+    pub event_count: u32,
+    pub s3_prefix: String,
+    pub start_url: String,
+}
+
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]
 #[strum(serialize_all = "snake_case")]
 #[repr(u8)]

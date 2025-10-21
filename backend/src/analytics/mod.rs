@@ -2,7 +2,9 @@ use serde::{Deserialize, Serialize};
 use nanoid::nanoid;
 
 mod fingerprint;
+mod device;
 pub use fingerprint::*;
+pub use device::*;
 
 /// Raw tracking data received from the client
 #[derive(Debug, Serialize, Deserialize, Clone)]
