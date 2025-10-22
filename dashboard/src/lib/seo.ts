@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
 import { routing } from '@/i18n/routing';
 import { getLocale, getTranslations } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { LANGUAGE_METADATA } from '@/constants/i18n';
+import { env } from './env';
 
 export interface SEOConfig {
   title: string;
@@ -11,7 +14,6 @@ export interface SEOConfig {
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
-const BASE_URL = 'https://betterlytics.io';
 const DEFAULT_IMAGE = '/og_image.png';
 
 export function generateSEO(
@@ -20,6 +22,7 @@ export function generateSEO(
 ): Metadata {
   const defaultLocale = routing.defaultLocale;
   const currentLocale = options?.locale ?? defaultLocale;
+  const BASE_URL = env.PUBLIC_BASE_URL;
   const localizedPath =
     currentLocale === defaultLocale ? path : path === '/' ? `/${currentLocale}` : `/${currentLocale}${path}`;
   const fullUrl = `${BASE_URL}${localizedPath}`;
@@ -51,7 +54,7 @@ export function generateSEO(
     },
     openGraph: {
       type: 'website',
-      locale: 'en_GB',
+      locale: LANGUAGE_METADATA[currentLocale as SupportedLanguages].ogLocale,
       url: fullUrl,
       title: title,
       description,
@@ -116,6 +119,7 @@ export async function buildSEOConfig(
 export async function generateStructuredData(config: SEOConfig) {
   const defaultLocale = routing.defaultLocale;
   const currentLocale = await getLocale();
+  const BASE_URL = env.PUBLIC_BASE_URL;
 
   const localizedPath =
     currentLocale === defaultLocale
