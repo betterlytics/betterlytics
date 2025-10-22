@@ -1202,7 +1202,8 @@
           "addFirst": "Aggiungi il primo filtro",
           "common": "Filtri comuni: Paese, Browser, URL, Dispositivo"
         }
-      }
+      },
+      "filterBy": "Filtra per {label}"
     },
     "funnels": {
       "list": {

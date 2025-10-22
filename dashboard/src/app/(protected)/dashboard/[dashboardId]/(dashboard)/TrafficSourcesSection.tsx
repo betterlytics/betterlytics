@@ -22,13 +22,18 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
   const onItemClick = (tabKey: string, item: { label: string }) => {
     if (tabKey === 'referrers') return makeFilterClick('referrer_url')(item.label);
     if (tabKey === 'sources') return makeFilterClick('referrer_source')(item.label);
+    if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
   };
+
+  const isItemInteractive = (tabKey: string) =>
+    tabKey === 'referrers' || tabKey === 'sources' || tabKey === 'channels';
 
   return (
     <MultiProgressTable
       title={t('sections.trafficSources')}
       defaultTab='referrers'
       onItemClick={onItemClick}
+      isItemInteractive={(tabKey) => isItemInteractive(tabKey)}
       tabs={[
         {
           key: 'referrers',

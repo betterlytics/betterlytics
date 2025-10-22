@@ -9,6 +9,7 @@ import { DeviceIcon } from '@/components/icons';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 type DevicesChartsSectionProps = {
   deviceBreakdownPromise: ReturnType<typeof fetchDeviceTypeBreakdownAction>;
@@ -23,6 +24,7 @@ export default function DevicesChartsSection({
   const deviceUsageTrend = use(deviceUsageTrendPromise);
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.devices.charts');
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   return (
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
@@ -49,6 +51,7 @@ export default function DevicesChartsSection({
             getColor={getDeviceColor}
             getLabel={getDeviceLabel}
             getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
+            onSliceClick={(name) => makeFilterClick('device_type')(name)}
           />
         </CardContent>
       </Card>

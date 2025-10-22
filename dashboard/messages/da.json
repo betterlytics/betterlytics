@@ -1200,7 +1200,8 @@
           "addFirst": "Tilføj dit første filter",
           "common": "Almindelige filtre: Land, Browser, URL, Enhed"
         }
-      }
+      },
+      "filterBy": "Filtrer efter {label}"
     },
     "funnels": {
       "list": {

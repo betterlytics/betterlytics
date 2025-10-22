@@ -11,6 +11,8 @@ import { DataTable } from '@/components/DataTable';
 import { ToDataTable } from '@/presenters/toDataTable';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 export const ReferrerTab = {
   All: 'all',
@@ -47,10 +49,11 @@ interface ReferrerTableProps {
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
   const [activeTab, setActiveTab] = useState<ReferrerTabKey>(ReferrerTab.All);
   const t = useTranslations('components.referrers.table');
+  const tFilters = useTranslations('components.filters');
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   const totalVisits = data.reduce((sum, row) => sum + row.current.visits, 0);
 
-  // Filter data based on active tab
   const filteredData = data.filter((row) => {
     if (activeTab === ReferrerTab.All) return true;
     return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
@@ -62,20 +65,36 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
       header: t('columns.source'),
       cell: ({ row }) => {
         const data = row.original.current;
+        const label = data.source_url
+          ? formatString(data.source_url)
+          : data.source_type.toLowerCase() === 'direct'
+            ? t('columns.direct')
+            : t('columns.unknown');
+        const handleClick = () => {
+          if (data.source_url && data.source_url.trim() !== '') {
+            makeFilterClick('referrer_url')(data.source_url);
+            return;
+          } else {
+            makeFilterClick('referrer_source')(data.source_type);
+          }
+        };
         return (
           <div className='font-medium'>
-            <div className='flex items-center gap-2'>
-              {data.source_type.toLowerCase() === 'direct' ? (
-                <Globe className='h-4 w-4 text-gray-500' />
-              ) : (
-                <Link className='h-4 w-4 text-gray-500' />
-              )}
-              {data.source_url
-                ? formatString(data.source_url)
-                : data.source_type.toLowerCase() === 'direct'
-                  ? t('columns.direct')
-                  : t('columns.unknown')}
-            </div>
+            <Button
+              variant='ghost'
+              onClick={handleClick}
+              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium'
+              title={typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
+            >
+              <span className='flex items-center gap-2'>
+                {data.source_type.toLowerCase() === 'direct' ? (
+                  <Globe className='h-4 w-4 text-gray-500' />
+                ) : (
+                  <Link className='h-4 w-4 text-gray-500' />
+                )}
+                {label}
+              </span>
+            </Button>
           </div>
         );
       },

@@ -1196,7 +1196,8 @@
           "addFirst": "Add your first filter",
           "common": "Common filters: Country, Browser, URL, Device"
         }
-      }
+      },
+      "filterBy": "Filter by {label}"
     },
     "funnels": {
       "list": {
