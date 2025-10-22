@@ -1,4 +1,4 @@
-import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 import { getTranslations, getLocale } from 'next-intl/server';
@@ -7,14 +7,7 @@ import { StructuredData } from '@/components/StructuredData';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.privacy.seo' });
-  const seoConfig = {
-    ...SEO_CONFIGS.privacy,
-    title: t('title'),
-    description: t('description'),
-    keywords: t.raw('keywords') as string[],
-  } as const;
-  return generateSEO(seoConfig, { locale });
+  return generateSEO(await buildSEOConfig(SEO_CONFIGS.privacy), { locale });
 }
 
 export default async function PrivacyPage() {
@@ -24,7 +17,7 @@ export default async function PrivacyPage() {
 
   const t = await getTranslations('public.privacy');
   const locale = await getLocale();
-  const seoConfig = { ...SEO_CONFIGS.privacy, title: t('title') } as const;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.privacy);
 
   return (
     <div className='bg-background min-h-screen py-12'>

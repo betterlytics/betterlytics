@@ -1,5 +1,23 @@
 {
   "public": {
+    "root": {
+      "seo": {
+        "title": "Betterlytics | Analisi Web Privacy-First",
+        "description": "Betterlytics è un’alternativa open-source a Google Analytics orientata alla privacy. Ottieni informazioni GDPR-compliant e senza cookie senza tracking invasivo, rispettando la privacy degli utenti.",
+        "keywords": [
+          "Alternativa a Google Analytics",
+          "Analisi Privacy-First",
+          "Web Analytics Senza Cookie",
+          "Analisi GDPR-Compliant",
+          "Piattaforma Analisi Open Source",
+          "Analisi Privacy-Friendly",
+          "Analisi Traffico Web",
+          "Analisi Visitatori",
+          "Strumento Web Analytics",
+          "Betterlytics"
+        ]
+      }
+    },
     "about": {
       "seo": {
         "title": "Informazioni su Betterlytics | Analisi Web Open Source e Privacy-First",
@@ -887,6 +905,16 @@
       "bluesky": "Bluesky",
       "discord": "Discord",
       "copyright": "© {year} Betterlytics. Tutti i diritti riservati. Open source sotto licenza AGPL-3.0."
+    },
+    "structuredData": {
+      "organization": {
+        "description": "Betterlytics è una piattaforma di analisi web open-source, senza cookie e conforme al GDPR, che rispetta la privacy degli utenti fornendo informazioni utili e azionabili.",
+        "contactTypeCustomerService": "Servizio Clienti",
+        "contactTypeTechnicalSupport": "Supporto Tecnico"
+      },
+      "webPage": {
+        "breadcrumbHome": "Home"
+      }
     }
   },
   "pricingSlider": {

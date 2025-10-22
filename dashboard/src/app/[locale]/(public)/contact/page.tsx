@@ -1,4 +1,4 @@
-import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import { generateSEO, buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail } from 'lucide-react';
@@ -9,19 +9,12 @@ import type { SupportedLanguages } from '@/constants/i18n';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.contact.seo' });
-  const seoConfig = {
-    ...SEO_CONFIGS.contact,
-    title: t('title'),
-    description: t('description'),
-    keywords: t.raw('keywords') as string[],
-  } as const;
-  return generateSEO(seoConfig, { locale });
+  return generateSEO(await buildSEOConfig(SEO_CONFIGS.contact), { locale });
 }
 
 export default async function ContactPage() {
   const t = await getTranslations('public.contact');
-  const seoConfig = { ...SEO_CONFIGS.contact, title: t('title') } as const;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.contact);
 
   const contactMethods = [
     {

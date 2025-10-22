@@ -1,20 +1,13 @@
-import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 import { getTranslations, getLocale } from 'next-intl/server';
+import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.dpa.seo' });
-  const seoConfig = {
-    ...SEO_CONFIGS.dpa,
-    title: t('title'),
-    description: t('description'),
-    keywords: t.raw('keywords') as string[],
-  } as const;
-  return generateSEO(seoConfig, { locale });
+  return generateSEO(await buildSEOConfig(SEO_CONFIGS.dpa), { locale });
 }
 
 export default async function DPAPage() {
@@ -24,7 +17,7 @@ export default async function DPAPage() {
 
   const t = await getTranslations('public.dpa');
   const locale = await getLocale();
-  const seoConfig = { ...SEO_CONFIGS.dpa, title: t('title') } as const;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.dpa);
 
   const Heading = ({ num, children }: { num: number; children: React.ReactNode }) => (
     <h2 className='text-foreground mb-4 text-2xl font-semibold'>

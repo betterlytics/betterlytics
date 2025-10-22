@@ -1,4 +1,5 @@
 import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import { buildSEOConfig } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { Button } from '@/components/ui/button';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
@@ -9,19 +10,12 @@ import type { SupportedLanguages } from '@/constants/i18n';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.about.seo' });
-  const seoConfig = {
-    ...SEO_CONFIGS.about,
-    title: t('title'),
-    description: t('description'),
-    keywords: t.raw('keywords') as string[],
-  } as const;
-  return generateSEO(seoConfig, { locale });
+  return generateSEO(await buildSEOConfig(SEO_CONFIGS.about), { locale });
 }
 
 export default async function AboutPage() {
   const t = await getTranslations('public.about');
-  const seoConfig = { ...SEO_CONFIGS.about, title: t('aboutUs') } as const;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.about);
 
   return (
     <>
