@@ -15,14 +15,14 @@ export type UseCountriesLayerProps = {
   fillAnimation?: GeoJsonAnimation;
   outlineAnimation?: GeoJsonAnimation;
   style: DeckGLMapStyle;
-  frame: number;
+  colorUpdateTrigger: any; //! TODO: Type??
 };
 
 export function useCountriesLayer({
   geojson,
   visitorData,
   style,
-  frame,
+  colorUpdateTrigger,
   fillAnimation,
   outlineAnimation,
 }: UseCountriesLayerProps) {
@@ -64,10 +64,10 @@ export function useCountriesLayer({
         getFillColor: fillAnimation,
       },
       updateTriggers: {
-        getFillColor: frame,
+        getFillColor: colorUpdateTrigger,
       },
     });
-  }, [geojson, frame, visitorData, style]);
+  }, [geojson, colorUpdateTrigger, visitorData, style]);
 
   // static country borders
   const strokeBaseLayer = useMemo(() => {
@@ -90,10 +90,10 @@ export function useCountriesLayer({
         getLineColor: outlineAnimation,
       },
       updateTriggers: {
-        getLineColor: frame,
+        getLineColor: colorUpdateTrigger,
       },
     });
-  }, [geojson, visitorData, style, frame]);
+  }, [geojson, visitorData, style, colorUpdateTrigger]);
 
   const clickedPathData = useMemo(
     () => (clickedFeature ? (outlineCache.get(clickedFeature.geoVisitor.country_code) ?? []) : []),

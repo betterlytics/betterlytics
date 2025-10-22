@@ -15,7 +15,7 @@ export interface DeckGLMapProps {
     [k: string]: number;
   };
   style: DeckGLMapStyle;
-  frame?: number;
+  colorUpdateTrigger?: any; //! todo type
   fillAnimation?: GeoJsonAnimation;
   outlineAnimation?: GeoJsonAnimation;
   onClick: (info: any) => void;
@@ -27,7 +27,7 @@ export default function DeckGLClient({
   outlineAnimation,
   fillAnimation,
   style,
-  frame = -1,
+  colorUpdateTrigger = -1,
   onClick,
   onHover,
 }: DeckGLMapProps) {
@@ -46,7 +46,7 @@ export default function DeckGLClient({
   const layers = useCountriesLayer({
     geojson,
     visitorData,
-    frame,
+    colorUpdateTrigger: colorUpdateTrigger,
     fillAnimation,
     outlineAnimation,
     style,
@@ -59,6 +59,8 @@ export default function DeckGLClient({
     controller: { doubleClickZoom: false, dragRotate: false },
     repeat: false,
   });
+
+  if (!geojson) return null;
 
   return (
     <>

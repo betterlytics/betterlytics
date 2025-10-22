@@ -32,6 +32,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   // Set default more gracefully
   const [isTimeseries, setIsTimeseries] = useState(true);
+  const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
 
   const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
     if (!isTimeseries) {
@@ -160,14 +161,17 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const onToggleTimeseries = useCallback(() => {
     setIsTimeseries((prv) => !prv);
-    scrub(0);
-  }, [setIsTimeseries]);
+    const newFrame = frameAtToggleTimeseries.valueOf();
+    setFrameAtToggleTimeseries(frame);
+
+    scrub(newFrame);
+  }, [setIsTimeseries, frame, setFrameAtToggleTimeseries]);
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
       <DeckGLMap
         visitorData={visitorDict}
-        frame={frame}
+        colorUpdateTrigger={[frame, isTimeseries]}
         style={style}
         onClick={handleClick}
         onHover={handleHover}
