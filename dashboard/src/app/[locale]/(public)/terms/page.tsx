@@ -8,8 +8,13 @@ import { StructuredData } from '@/components/StructuredData';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.terms' });
-  const seoConfig = { ...SEO_CONFIGS.terms, title: t('title') } as const;
+  const t = await getTranslations({ locale, namespace: 'public.terms.seo' });
+  const seoConfig = {
+    ...SEO_CONFIGS.terms,
+    title: t('title'),
+    description: t('description'),
+    keywords: t.raw('keywords') as string[],
+  } as const;
   return generateSEO(seoConfig, { locale });
 }
 

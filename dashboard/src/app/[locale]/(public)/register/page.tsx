@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { generateSEO } from '@/lib/seo';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { authOptions } from '@/lib/auth';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
@@ -8,33 +9,36 @@ import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  ...generateSEO({
-    title: 'Get started for free — Create your Betterlytics account',
-    description:
-      'Get started for free with Betterlytics. Create your account for privacy-first, cookieless analytics for websites and apps.',
-    keywords: [
-      'Register',
-      'Create Account',
-      'Sign up',
-      'Betterlytics',
-      'Web Analytics',
-      'Google Analytics Alternative',
-    ],
-    path: '/register',
-  }),
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: SupportedLanguages }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'public.auth.register.seo' });
+  return {
+    ...generateSEO(
+      {
+        title: t('title'),
+        description: t('description'),
+        keywords: t.raw('keywords') as string[],
+        path: '/register',
+      },
+      { locale },
+    ),
+    robots: {
       index: false,
       follow: false,
-      'max-image-preview': 'none',
-      'max-snippet': 0,
-      'max-video-preview': 0,
+      googleBot: {
+        index: false,
+        follow: false,
+        'max-image-preview': 'none',
+        'max-snippet': 0,
+        'max-video-preview': 0,
+      },
     },
-  },
-};
+  };
+}
 
 export default async function RegisterPage() {
   const session = await getServerSession(authOptions);

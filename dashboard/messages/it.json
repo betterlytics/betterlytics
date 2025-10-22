@@ -1,6 +1,20 @@
 {
   "public": {
     "about": {
+      "seo": {
+        "title": "Informazioni su Betterlytics | Analisi Web Open Source e Privacy-First",
+        "description": "Scopri la storia di Betterlytics - creiamo strumenti di analisi web open-source e senza cookie che rispettano la privacy e la conformità GDPR.",
+        "keywords": [
+          "Informazioni su Betterlytics",
+          "Analisi Privacy-First",
+          "Analisi Web Open Source",
+          "Analisi Senza Cookie",
+          "Analisi Conforme al GDPR",
+          "Piattaforma di Analisi della Privacy",
+          "Analisi Senza Cookie",
+          "Strumento di Analisi Open Source"
+        ]
+      },
       "aboutUs": "Chi siamo - Betterlytics",
       "intro": "Stiamo costruendo il futuro delle analitiche web: privacy-first, open source e progettate per il web moderno. Non devi più scegliere tra insights potenti e rispettare la privacy dei tuoi visitatori.",
       "sections": {
@@ -57,6 +71,20 @@
       }
     },
     "contact": {
+      "seo": {
+        "title": "Contatta Betterlytics | Analisi Web Privacy-First",
+        "description": "Contatta il team Betterlytics per supporto, feedback o collaborazioni sulla nostra piattaforma di analisi web open-source e senza cookie.",
+        "keywords": [
+          "Contatta Betterlytics",
+          "Supporto Betterlytics",
+          "Aiuto Analisi Web",
+          "Supporto Analisi Privacy-First",
+          "Contatto Analisi GDPR",
+          "Supporto Analisi Senza Cookie",
+          "Assistenza Clienti Betterlytics",
+          "Pagina Contatti"
+        ]
+      },
       "title": "Contattaci",
       "intro": "Domande su Betterlytics? Hai bisogno di supporto per la configurazione delle analitiche? Il nostro team è pronto ad assisterti.",
       "getInTouch": {
@@ -117,6 +145,20 @@
       }
     },
     "privacy": {
+      "seo": {
+        "title": "Informativa sulla Privacy | GDPR e Analisi Senza Cookie",
+        "description": "Informativa sulla privacy di Betterlytics — conforme al GDPR e senza cookie. Scopri come proteggiamo i tuoi dati con analisi anonime.",
+        "keywords": [
+          "Informativa sulla Privacy Betterlytics",
+          "Conformità GDPR",
+          "Privacy dei Dati",
+          "Protezione dei Dati",
+          "Analisi Senza Cookie",
+          "Analisi Anonime",
+          "Privacy Utente",
+          "Analisi Incentrata sulla Privacy"
+        ]
+      },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Informativa sulla Privacy di Betterlytics",
       "lastUpdated": "Ultimo aggiornamento:",
@@ -241,6 +283,20 @@
       }
     },
     "terms": {
+      "seo": {
+        "title": "Termini di Servizio | Analisi Web Privacy-First",
+        "description": "Leggi i Termini di Servizio di Betterlytics — scopri diritti, responsabilità e condizioni d’uso della nostra piattaforma di analisi web orientata alla privacy.",
+        "keywords": [
+          "Termini di Servizio Betterlytics",
+          "Termini e Condizioni",
+          "Accordo di Servizio Analisi",
+          "Termini Analisi Web",
+          "Termini Analisi Privacy",
+          "Condizioni d’Uso",
+          "Accordo Legale Betterlytics",
+          "Analisi Privacy-First"
+        ]
+      },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Termini di Servizio di Betterlytics",
       "lastUpdated": "Ultimo aggiornamento:",
@@ -387,6 +443,21 @@
       }
     },
     "dpa": {
+      "seo": {
+        "title": "Accordo sul Trattamento dei Dati (DPA) | GDPR e Analisi Privacy-First",
+        "description": "Accordo sul Trattamento dei Dati di Betterlytics (DPA) — conforme al GDPR, con analisi orientata alla privacy e trattamento sicuro dei dati anonimi.",
+        "keywords": [
+          "Accordo sul Trattamento dei Dati Betterlytics",
+          "DPA",
+          "Conformità GDPR",
+          "GDPR DPA",
+          "Privacy dei Dati",
+          "Accordo di Protezione dei Dati",
+          "Analisi Privacy-First",
+          "Analisi Anonime",
+          "Analisi Web GDPR"
+        ]
+      },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Accordo sul Trattamento dei Dati (DPA)",
       "lastUpdated": "Ultimo aggiornamento:",
@@ -517,6 +588,20 @@
     },
     "auth": {
       "signin": {
+        "seo": {
+          "title": "Accedi | Analisi Web Privacy-First Betterlytics",
+          "description": "Accedi al tuo dashboard Betterlytics — analisi web sicura, senza cookie e conforme al GDPR, con focus sulla privacy.",
+          "keywords": [
+            "Accedi",
+            "Login",
+            "Account Betterlytics",
+            "Dashboard Utente",
+            "Analisi Privacy-First",
+            "Analisi Senza Cookie",
+            "Alternativa a Google Analytics",
+            "Analisi Conforme al GDPR"
+          ]
+        },
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
         "errors": {
@@ -529,6 +614,20 @@
         }
       },
       "register": {
+        "seo": {
+          "title": "Crea il tuo account Betterlytics — Inizia gratis",
+          "description": "Crea un account Betterlytics gratuito per analisi web senza cookie e orientate alla privacy. Monitora siti e app in modo sicuro e conforme al GDPR.",
+          "keywords": [
+            "Crea Account Betterlytics",
+            "Registrati",
+            "Iscriviti",
+            "Analisi Web Gratuite",
+            "Analisi Privacy-First",
+            "Analisi Senza Cookie",
+            "Alternativa a Google Analytics",
+            "Analisi Conforme al GDPR"
+          ]
+        },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
         "cta": {
@@ -542,6 +641,18 @@
         }
       },
       "forgotPassword": {
+        "seo": {
+          "title": "Reimposta password | Betterlytics",
+          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l’e-mail per ricevere un link protetto e recuperare l’accesso all’account.",
+          "keywords": [
+            "Password Dimenticata",
+            "Reimposta Password",
+            "Recupero Account",
+            "Reimposta Password Betterlytics",
+            "Account Betterlytics",
+            "Accesso Sicuro"
+          ]
+        },
         "title": "Reimposta la tua password",
         "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
         "cta": {
@@ -550,6 +661,18 @@
         }
       },
       "resetPassword": {
+        "seo": {
+          "title": "Reimposta password | Account Betterlytics",
+          "description": "Imposta una nuova password per il tuo account Betterlytics in modo sicuro utilizzando il link protetto di reimpostazione.",
+          "keywords": [
+            "Reimposta Password",
+            "Reset Password",
+            "Recupero Account",
+            "Account Betterlytics",
+            "Reimpostazione Sicura",
+            "Assistenza Accesso"
+          ]
+        },
         "invalid": {
           "title": "Link di reimpostazione non valido",
           "description": "Questo link per reimpostare la password non è valido o manca un token.",
@@ -591,8 +714,20 @@
     },
     "landing": {
       "seo": {
-        "title": "Betterlytics | Analitiche web semplici, senza cookie e rispettose della privacy",
-        "description": "Betterlytics è un'alternativa a Google Analytics orientata alla privacy. Ottieni insights conformi al GDPR e senza cookie senza tracciamento invasivo. Semplice, open-source e facile da usare."
+        "title": "Betterlytics | Analisi Web Senza Cookie e Privacy-First",
+        "description": "Betterlytics è un’alternativa open-source a Google Analytics, orientata alla privacy. Ottieni analisi conformi al GDPR senza tracciamento invasivo.",
+        "keywords": [
+          "Alternativa a Google Analytics",
+          "Analisi Privacy-First",
+          "Analisi Web Senza Cookie",
+          "Analisi Conforme al GDPR",
+          "Piattaforma di Analisi Open Source",
+          "Analisi Amica della Privacy",
+          "Analisi del Traffico Web",
+          "Analisi Visitatori",
+          "Strumento di Analisi Web",
+          "Betterlytics"
+        ]
       },
       "hero": {
         "badge": "Open Source • Conforme GDPR • Senza cookie",

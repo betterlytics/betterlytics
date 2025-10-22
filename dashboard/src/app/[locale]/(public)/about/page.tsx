@@ -9,8 +9,13 @@ import type { SupportedLanguages } from '@/constants/i18n';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.about' });
-  const seoConfig = { ...SEO_CONFIGS.about, title: t('aboutUs') } as const;
+  const t = await getTranslations({ locale, namespace: 'public.about.seo' });
+  const seoConfig = {
+    ...SEO_CONFIGS.about,
+    title: t('title'),
+    description: t('description'),
+    keywords: t.raw('keywords') as string[],
+  } as const;
   return generateSEO(seoConfig, { locale });
 }
 

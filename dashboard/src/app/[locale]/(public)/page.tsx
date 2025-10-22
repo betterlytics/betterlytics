@@ -26,6 +26,11 @@ export default async function HomePage() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'public.landing.seo' });
-  const seoConfig = { ...SEO_CONFIGS.landing, title: t('title'), description: t('description') } as const;
+  const seoConfig = {
+    ...SEO_CONFIGS.landing,
+    title: t('title'),
+    description: t('description'),
+    keywords: t.raw('keywords') as string[],
+  } as const;
   return generateSEO(seoConfig, { locale });
 }
