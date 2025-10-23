@@ -109,7 +109,7 @@ export default async function RootLayout({
             async
             src={`${env.PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
             data-site-id={env.APP_TRACKING_SITE_ID}
-            data-server-url={env.PUBLIC_TRACKING_SERVER_ENDPOINT}
+            data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
             data-web-vitals="true"
             data-outbound-links="full"
           />
