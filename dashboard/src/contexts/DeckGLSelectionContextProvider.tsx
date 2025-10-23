@@ -1,11 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
-
-export type GeoVisitor = {
-  country_code: string;
-  visitors: number;
-};
+import type { GeoVisitor } from '@/entities/geography';
 
 export type MapFeatureVisitor = {
   geoVisitor: GeoVisitor;
@@ -19,7 +15,6 @@ interface MapFeatureSelection {
 }
 
 type StateCtx = {
-  hovered?: MapFeatureVisitor;
   clicked?: MapFeatureVisitor;
 };
 
@@ -45,65 +40,55 @@ export function useMapSelectionActions() {
 }
 
 export function DeckGLMapSelectionProvider({ children }: { children: React.ReactNode }) {
-  const [selection, setSelection] = useState<MapFeatureSelection>({});
+  const [clicked, setClicked] = useState<MapFeatureVisitor | undefined>(undefined);
 
   const hoveredFeatureRef = useRef<MapFeatureVisitor | undefined>(undefined);
   const clickedFeatureRef = useRef<MapFeatureVisitor | undefined>(undefined);
 
   const setMapSelection = useCallback<React.Dispatch<Partial<MapFeatureSelection> | null>>((next) => {
-    setSelection((prev) => {
-      if (next === null) {
-        clickedFeatureRef.current = undefined;
-        hoveredFeatureRef.current = undefined;
-        return { clicked: undefined, hovered: undefined };
-      }
+    if (next === null) {
+      hoveredFeatureRef.current = undefined;
+      clickedFeatureRef.current = undefined;
+      setClicked(undefined);
+      return;
+    }
 
-      if (next.clicked) {
-        if (next.clicked.geoVisitor.country_code === prev.clicked?.geoVisitor.country_code) {
-          clickedFeatureRef.current = undefined;
-          hoveredFeatureRef.current = { ...next.clicked };
-          return { clicked: undefined, hovered: { ...next.clicked } };
-        } else {
-          clickedFeatureRef.current = next.clicked;
-          hoveredFeatureRef.current = undefined;
-          return { clicked: { ...next.clicked }, hovered: undefined };
-        }
-      }
-
-      if (prev.clicked || prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
-        return prev;
-      }
+    if (Object.prototype.hasOwnProperty.call(next, 'hovered')) {
       hoveredFeatureRef.current = next.hovered;
-      return { ...prev, hovered: next.hovered };
-    });
+    }
+
+    if (next.clicked) {
+      const incomingCode = next.clicked.geoVisitor.country_code;
+      const prevClickedCode = clickedFeatureRef.current?.geoVisitor.country_code;
+
+      if (incomingCode === prevClickedCode) {
+        clickedFeatureRef.current = undefined;
+        hoveredFeatureRef.current = { ...next.clicked };
+        setClicked(undefined);
+      } else {
+        clickedFeatureRef.current = next.clicked;
+        hoveredFeatureRef.current = undefined;
+        setClicked(next.clicked);
+      }
+    }
   }, []);
 
-  // New updater function for visitors on clicked without changing refs or clicked state
   const updateClickedVisitors = useCallback((visitors: number) => {
-    setSelection((prev) => {
-      if (!prev.clicked) return prev;
-
-      const updatedClicked: MapFeatureVisitor = {
-        ...prev.clicked,
+    setClicked((prev) => {
+      if (!prev) return prev;
+      const updated: MapFeatureVisitor = {
+        ...prev,
         geoVisitor: {
-          ...prev.clicked.geoVisitor,
+          ...prev.geoVisitor,
           visitors,
         },
       };
-      clickedFeatureRef.current = updatedClicked;
-      return {
-        ...prev,
-        clicked: updatedClicked,
-      };
+      return (clickedFeatureRef.current = updated);
     });
   }, []);
 
-  const stateValue = useMemo(
-    () => ({ hovered: selection.hovered, clicked: selection.clicked }),
-    [selection.hovered, selection.clicked],
-  );
+  const stateValue = useMemo(() => ({ clicked }), [clicked]);
 
-  // Expose both setMapSelection and updateClickedVisitors
   const actionsValue = useMemo(
     () => ({
       setMapSelection,

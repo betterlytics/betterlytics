@@ -16,6 +16,7 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { TimeseriesToggleButton } from './TimeseriesToggleButton';
 import { ScaleMotion } from '@/components/ScaleMotion';
+import { useIsMapHovered } from '@/hooks/deckgl/use-is-map-hovered';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
@@ -33,6 +34,11 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   // Set default more gracefully
   const [isTimeseries, setIsTimeseries] = useState(true);
   const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
+  const { isMapHovered, setIsMapHovered } = useIsMapHovered([
+    '.deckgl-controller',
+    'header',
+    '[data-sidebar="sidebar"]',
+  ]);
 
   const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
     if (!isTimeseries) {
@@ -125,6 +131,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const handleHover = useCallback(
     (info: any) => {
+      setIsMapHovered(true);
       const hoveredCountryCode = info.object?.id as string | undefined;
       const prev = hoveredFeatureRef.current?.geoVisitor.country_code;
 
@@ -173,6 +180,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         visitorData={visitorDict}
         colorUpdateTrigger={[frame, isTimeseries]}
         style={style}
+        isMapHovered={isMapHovered}
         onClick={handleClick}
         onHover={handleHover}
         fillAnimation={visitorChangeAnimation}
@@ -180,7 +188,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
       />
       {
         <MapPlayActionbar
-          className='pointer-events-auto fixed bottom-5 z-12'
+          className='deckgl-controller pointer-events-auto fixed bottom-5 z-12'
           ticks={tickProps}
           value={position}
           playing={playing}
@@ -196,7 +204,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
       {!isTimeseries && (
         <ScaleMotion
-          className={'pointer-events-auto absolute right-3 bottom-3 z-12 flex flex-col'}
+          className={'deckgl-controller pointer-events-auto absolute right-3 bottom-3 z-12 flex flex-col'}
           initialScale={0.8}
           hoverScale={1}
           opacityRange={[0.8, 1]}
@@ -207,7 +215,10 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
           <TimeseriesToggleButton isTimeseries={isTimeseries} onToggle={onToggleTimeseries} />
         </ScaleMotion>
       )}
-      <ZoomControls className={'pointer-events-auto absolute top-3 z-12'} style={{ left: sidebarOffset + 16 }} />
+      <ZoomControls
+        className={'deckgl-controller pointer-events-auto absolute top-3 z-12'}
+        style={{ left: sidebarOffset + 16 }}
+      />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
     </div>
   );

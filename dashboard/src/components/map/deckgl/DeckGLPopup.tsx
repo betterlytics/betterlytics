@@ -39,6 +39,7 @@ function DeckGLPopupComponent({ size = 'sm', viewState, children }: DeckGLPopupP
         position: 'absolute',
       }}
       className={cn(
+        'deckgl-controller',
         'rounded-md border-none bg-transparent p-0 shadow-none',
         'pointer-events-none z-[11] flex flex-col will-change-transform',
       )}

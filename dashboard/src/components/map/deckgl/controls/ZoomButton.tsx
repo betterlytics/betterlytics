@@ -37,7 +37,7 @@ export function ZoomButton({ zoomType, onClick, className, style }: ZoomButtonPr
       <Button
         size='sm'
         style={style}
-        className={cn(className, 'cursor-pointer rounded-none')}
+        className={cn(className, 'deckgl-controller cursor-pointer rounded-none')}
         onClick={onClick}
         title={t(zoomType)}
       >

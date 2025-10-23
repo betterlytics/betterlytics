@@ -14,6 +14,7 @@ export interface DeckGLMapProps {
   visitorData: {
     [k: string]: number;
   };
+  isMapHovered: boolean;
   style: DeckGLMapStyle;
   colorUpdateTrigger?: any; //! todo type
   fillAnimation?: GeoJsonAnimation;
@@ -28,6 +29,7 @@ export default function DeckGLClient({
   fillAnimation,
   style,
   colorUpdateTrigger = -1,
+  isMapHovered,
   onClick,
   onHover,
 }: DeckGLMapProps) {
@@ -50,6 +52,7 @@ export default function DeckGLClient({
     fillAnimation,
     outlineAnimation,
     style,
+    isMapHovered,
   });
 
   const deckRef = useRef<any>(null);

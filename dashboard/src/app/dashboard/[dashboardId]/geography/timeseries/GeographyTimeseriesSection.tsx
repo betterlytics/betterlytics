@@ -30,7 +30,7 @@ export default function GeographyTimeseriesSection({ worldMapPromise }: Geograph
             <DynamicMapTimeseries visitorData={mapData} />
           </DeckGLMapSelectionProvider>
         </MapCommandProvider>
-        <div className='fixed top-16 right-4 z-30'>
+        <div className='deckgl-controller fixed top-16 right-4 z-30'>
           <div className='flex flex-col justify-end gap-4'>
             <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
               <DashboardFilters />

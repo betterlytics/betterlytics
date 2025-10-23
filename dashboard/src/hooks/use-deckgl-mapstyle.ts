@@ -27,7 +27,7 @@ function toRgbaTuple(colorOrVar: string, alpha = 255): DeckGLColor {
     hex = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
   }
 
-  const c = d3color(hex);
+  const c = d3color(hex)?.rgb();
   if (!c) {
     console.warn('Invalid color:', colorOrVar, 'resolved to:', hex);
     return [0, 0, 0, alpha];
@@ -71,14 +71,14 @@ export function useDeckGLMapStyle({ maxVisitors }: UseDeckGLMapStyleProps): Deck
 
   const selectedStyle = useCallback(
     (_visitors?: number) => ({
-      line: toRgbaTuple('#ffc067', 255),
+      line: toRgbaTuple(MAP_FEATURE_BORDER_COLORS.CLICKED, 255),
     }),
     [],
   );
 
   const hoveredStyle = useCallback(
     (_visitors?: number) => ({
-      line: toRgbaTuple('#CCE6CC', 255), //! TODO MAP_FEATURE_BORDER_COLORS.HOVERED
+      line: toRgbaTuple(MAP_VISITOR_COLORS.HOVERED, 255),
     }),
     [],
   );

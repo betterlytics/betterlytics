@@ -47,7 +47,6 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
     const contentDiv = node.querySelector('.tooltip-content') as HTMLElement;
     if (!contentDiv) return;
 
-    // only create root once
     if (!rootRef.current) {
       rootRef.current = ReactDOM.createRoot(contentDiv);
     }
