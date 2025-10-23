@@ -29,6 +29,7 @@ import SettingsButton from '../SettingsButton';
 import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
+import type { ReactElement } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
 import { DashboardDropdown } from './DashboardDropdown';
 
@@ -41,12 +42,21 @@ type BASidebarProps = {
   dashboardId: string;
 };
 
+type SidebarItem = {
+  name: string;
+  key: string;
+  href: string;
+  icon: ReactElement;
+  hidden?: boolean;
+  hideOnMobile?: boolean;
+};
+
 export default async function BASidebar({ dashboardId }: BASidebarProps) {
   const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
   const allDashboardsPromise = getAllUserDashboardsAction();
   const t = await getTranslations('dashboard.sidebar');
 
-  const analyticsItems = [
+  const analyticsItems: SidebarItem[] = [
     { name: t('overview'), key: 'overview', href: '', icon: <LayoutDashboard size={18} /> },
     { name: t('pages'), key: 'pages', href: '/pages', icon: <FileText size={18} /> },
     { name: t('referrers'), key: 'referrers', href: '/referrers', icon: <Link2 size={18} /> },
@@ -62,20 +72,19 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
   ];
 
-  const behaviorItems = [
+  const behaviorItems: SidebarItem[] = [
     { name: t('userJourney'), key: 'userJourney', href: '/user-journey', icon: <Route size={18} /> },
     { name: t('funnels'), key: 'funnels', href: '/funnels', icon: <Funnel size={18} /> },
     { name: t('events'), key: 'events', href: '/events', icon: <CircleDot size={18} /> },
-  ];
-
-  if (isFeatureEnabled('enableSessionReplay')) {
-    behaviorItems.push({
+    {
       name: t('sessionReplay'),
       key: 'sessionReplay',
       href: '/replay',
       icon: <Video size={18} />,
-    });
-  }
+      hidden: !isFeatureEnabled('enableSessionReplay'),
+      hideOnMobile: true,
+    },
+  ];
 
   return (
     <Sidebar
@@ -110,16 +119,18 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
           <SidebarGroupLabel>Analytics</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {analyticsItems.map((item) => (
-                <SidebarMenuItem key={item.key}>
-                  <SidebarMenuButton asChild>
-                    <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
-                      <span>{item.icon}</span>
-                      <span>{item.name}</span>
-                    </FilterPreservingLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {analyticsItems
+                .filter((item) => !item.hidden)
+                .map((item) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton asChild>
+                      <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
+                        <span>{item.icon}</span>
+                        <span>{item.name}</span>
+                      </FilterPreservingLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -128,27 +139,29 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
           <SidebarGroupLabel>Behavior</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {behaviorItems.map((item) => (
-                <SidebarMenuItem
-                  key={item.key}
-                  className={item.key === 'sessionReplay' ? 'hidden md:list-item' : undefined}
-                >
-                  <SidebarMenuButton asChild>
-                    <FilterPreservingLink
-                      href={`/dashboard/${dashboardId}${item.href}`}
-                      highlightOnPage
-                      className='flex items-center justify-between'
-                    >
-                      <div className='flex items-center gap-2'>
-                        <span>{item.icon}</span>
-                        <span>{item.name}</span>
-                      </div>
+              {behaviorItems
+                .filter((item) => !item.hidden)
+                .map((item) => (
+                  <SidebarMenuItem
+                    key={item.key}
+                    className={item.hideOnMobile ? 'hidden md:list-item' : undefined}
+                  >
+                    <SidebarMenuButton asChild>
+                      <FilterPreservingLink
+                        href={`/dashboard/${dashboardId}${item.href}`}
+                        highlightOnPage
+                        className='flex items-center justify-between'
+                      >
+                        <div className='flex items-center gap-2'>
+                          <span>{item.icon}</span>
+                          <span>{item.name}</span>
+                        </div>
 
-                      {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
-                    </FilterPreservingLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                        {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
+                      </FilterPreservingLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
