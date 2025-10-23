@@ -9,8 +9,14 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Input } from '../ui/input';
-import { Dispatch, ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getFilterUIConfigAction, getFilterOptionsAction } from '@/app/actions/filters';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { Combobox } from '@/components/ui/combobox';
+import { Dispatch, ReactNode, useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useTranslations } from 'next-intl';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
@@ -48,6 +54,38 @@ export function QueryFilterInputRow<TEntity>({
 }: QueryFilterInputRowProps<TEntity>) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
+  const { startDate, endDate } = useTimeRangeContext();
+  const dashboardId = useDashboardId();
+
+  const { data: filterUIConfig } = useQuery({
+    queryKey: ['filter-ui-config'],
+    queryFn: () => getFilterUIConfigAction(dashboardId),
+    staleTime: 5 * 60 * 1000,
+  });
+  const cfg = filterUIConfig?.[filter.column];
+
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 350);
+  const shouldFetch = Boolean(cfg?.serverFetch) && Boolean(startDate) && Boolean(endDate);
+
+  const { data: options = [], isLoading: optionsLoading } = useQuery({
+    queryKey: [
+      'filter-options',
+      filter.column,
+      startDate?.toString(),
+      endDate?.toString(),
+      debouncedSearch,
+    ],
+    queryFn: async () =>
+      getFilterOptionsAction(dashboardId, {
+        startDate,
+        endDate,
+        column: filter.column,
+        search: debouncedSearch || undefined,
+        limit: 10,
+      }),
+    enabled: shouldFetch,
+  });
   return (
     <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <Select
@@ -57,7 +95,11 @@ export function QueryFilterInputRow<TEntity>({
         <SelectTrigger className='col-span-8 w-full cursor-pointer md:col-span-4'>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent align={'start'} position={'popper'} className={cn(isMobile && 'max-h-72')}>
+        <SelectContent
+          align={'start'}
+          position={'popper'}
+          className={cn('w-[--radix-select-trigger-width]', isMobile && 'max-h-72')}
+        >
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => (
@@ -76,7 +118,7 @@ export function QueryFilterInputRow<TEntity>({
         <SelectTrigger className='col-span-4 w-full cursor-pointer md:col-span-2'>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align={'start'} position={'popper'}>
           <SelectGroup>
             <SelectLabel>{t('operator')}</SelectLabel>
             <SelectItem className='cursor-pointer' value={'='}>
@@ -88,11 +130,45 @@ export function QueryFilterInputRow<TEntity>({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Input
-        className='col-span-10 md:col-span-5'
-        value={filter.value}
-        onChange={(evt) => onFilterUpdate({ ...filter, value: evt.target.value })}
-      />
+      {(() => {
+        if (!cfg || cfg.input === 'text') {
+          return (
+            <Input
+              className='col-span-10 md:col-span-5'
+              value={filter.value}
+              onChange={(evt) => onFilterUpdate({ ...filter, value: evt.target.value })}
+            />
+          );
+        }
+
+        if (cfg.serverFetch === false && Array.isArray(cfg.options)) {
+          return (
+            <Combobox
+              className='col-span-10 md:col-span-5'
+              value={filter.value}
+              onValueChange={(value) => onFilterUpdate({ ...filter, value })}
+              options={cfg.options}
+              enableSearch={false}
+              placeholder='Select value'
+            />
+          );
+        }
+
+        return (
+          <Combobox
+            className='col-span-10 md:col-span-5'
+            value={filter.value}
+            onValueChange={(value) => onFilterUpdate({ ...filter, value })}
+            options={options}
+            searchQuery={cfg.search ? search : undefined}
+            onSearchChange={cfg.search ? setSearch : undefined}
+            loading={optionsLoading}
+            placeholder='Select value'
+            searchPlaceholder='Search…'
+            enableSearch={Boolean(cfg.search)}
+          />
+        );
+      })()}
       <Button
         variant='ghost'
         className='col-span-2 cursor-pointer md:col-span-1'
