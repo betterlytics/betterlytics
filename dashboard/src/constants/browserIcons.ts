@@ -81,6 +81,11 @@ export const BROWSERS: Record<string, BrowserDef> = {
     localFile: 'ucbrowser.svg',
     match: [/uc[-_\s]?browser|uc[-_\s]?crawl|^uc\b/],
   },
+  ecosia: {
+    label: 'Ecosia',
+    localFile: 'ecosia.svg',
+    match: [/ecosia/],
+  },
 } as const;
 
 export function resolveBrowser(input: string) {
