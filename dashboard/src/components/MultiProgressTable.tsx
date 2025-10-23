@@ -5,6 +5,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
 import { useTranslations } from 'next-intl';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ProgressBarData {
   label: string;
@@ -13,6 +15,7 @@ interface ProgressBarData {
   trendPercentage?: number;
   comparisonValue?: number;
   icon?: React.ReactElement;
+  children?: ProgressBarData[];
 }
 
 interface TabConfig<T extends ProgressBarData> {
@@ -36,16 +39,22 @@ function MultiProgressTable<T extends ProgressBarData>({
   footer,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const t = useTranslations('dashboard.emptyStates');
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
   }, []);
 
-  const renderProgressList = useCallback(
-    (data: T[]) => {
-      const maxVisitors = Math.max(...data.map((item) => item.value), 1);
-      const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
+  const toggleExpand = useCallback((key: string) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }, []);
 
+  const renderProgressList = useCallback(
+    (data: T[], level = 0) => {
       if (data.length === 0) {
         return (
           <div className='flex h-[300px] items-center justify-center'>
@@ -57,35 +66,66 @@ function MultiProgressTable<T extends ProgressBarData>({
         );
       }
 
-      const someComparison = data.some((row) => row.comparisonValue);
+      const maxVisitors = Math.max(...data.map((d) => d.value), 1);
+      const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
+      const hasComparison = data.some((d) => d.comparisonValue);
 
       return (
         <div className='space-y-2'>
-          {data.map((item, index) => {
-            const relativePercentage = (item.value / maxVisitors) * 100;
-            const percentage = (item.value / total) * 100;
+          {data.map((item) => {
+            const { key, label, value, children = [], trendPercentage, comparisonValue, icon } = item;
+            const itemKey = key ?? label;
+            const isExpandable = children.length > 0;
+            const isExpanded = expandedKeys.has(itemKey);
+
+            const relativePercentage = (value / maxVisitors) * 100;
+            const percentage = (value / total) * 100;
+
             return (
-              <div key={item.key ?? item.label} className='group relative'>
-                <PropertyValueBar
-                  value={{
-                    value: item.label,
-                    count: item.value,
-                    relativePercentage: Math.max(relativePercentage, 2),
-                    percentage: percentage,
-                    trendPercentage: item.trendPercentage,
-                    comparisonValue: item.comparisonValue,
-                  }}
-                  respectComparison={someComparison}
-                  icon={item.icon}
-                  index={index + 1}
-                />
+              <div key={itemKey} style={{ paddingLeft: level ? level * 8 : undefined }}>
+                <div className='group relative'>
+                  <PropertyValueBar
+                    value={{
+                      value: label,
+                      count: value,
+                      relativePercentage: Math.max(relativePercentage, 2),
+                      percentage,
+                      trendPercentage,
+                      comparisonValue,
+                    }}
+                    respectComparison={hasComparison}
+                    icon={icon}
+                    leading={
+                      isExpandable && (
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => toggleExpand(itemKey)}
+                          aria-expanded={isExpanded}
+                          className='group/button h-6 w-6 cursor-pointer rounded-sm !bg-transparent p-0'
+                        >
+                          {isExpanded ? (
+                            <ChevronDown className='text-muted-foreground group-hover/button:text-foreground h-4 w-4 transition-colors duration-150' />
+                          ) : (
+                            <ChevronRight className='text-muted-foreground group-hover/button:text-foreground h-4 w-4 transition-colors duration-150' />
+                          )}
+                        </Button>
+                      )
+                    }
+                  />
+                </div>
+
+                {isExpandable && isExpanded && (
+                  <div className='mt-2 ml-4 border-l'>{renderProgressList(children as T[], level + 1)}</div>
+                )}
               </div>
             );
           })}
         </div>
       );
     },
-    [t],
+    [t, expandedKeys, toggleExpand],
   );
 
   const renderTabContent = useCallback(
