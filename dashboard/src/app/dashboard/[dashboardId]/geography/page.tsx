@@ -1,8 +1,8 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export default async function GeographyPage({ params }: { params: { dashboardId: string } }) {
-  const { dashboardId } = params;
+export default async function GeographyPage({ params }: { params: Promise<{ dashboardId: string }> }) {
+  const { dashboardId } = await params;
 
   const hdrs = await headers();
   const userAgent = hdrs.get('user-agent') ?? '';
