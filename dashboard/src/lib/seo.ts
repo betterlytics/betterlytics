@@ -294,6 +294,11 @@ export const SEO_CONFIGS = {
     path: '/register',
     structuredDataType: 'webpage',
   },
+  onboarding: {
+    namespace: 'public.auth.register.seo',
+    path: '/onboarding',
+    structuredDataType: 'webpage',
+  },
   resetPassword: {
     namespace: 'public.auth.resetPassword.seo',
     path: '/reset-password',
