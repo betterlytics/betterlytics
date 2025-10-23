@@ -51,7 +51,7 @@ export default function DevicesChartsSection({
             getColor={getDeviceColor}
             getLabel={getDeviceLabel}
             getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
-            onSliceClick={(name) => makeFilterClick('device_type')(name)}
+            onSliceClick={makeFilterClick('device_type')}
           />
         </CardContent>
       </Card>

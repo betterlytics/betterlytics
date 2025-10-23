@@ -55,7 +55,7 @@ export default function ReferrersChartsSection({
             data={distributionData}
             getColor={getReferrerColor}
             getLabel={capitalizeFirstLetter}
-            onSliceClick={(name) => makeFilterClick('referrer_source')(name)}
+            onSliceClick={makeFilterClick('referrer_source')}
           />
         </CardContent>
       </Card>
