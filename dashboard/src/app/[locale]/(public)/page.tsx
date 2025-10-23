@@ -4,8 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import LandingPage from './(landing)/landingPage';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
-import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import { getLocale, getTranslations } from 'next-intl/server';
+import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import { getLocale } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 
 export default async function HomePage() {
@@ -25,12 +25,6 @@ export default async function HomePage() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.landing.seo' });
-  const seoConfig = {
-    ...SEO_CONFIGS.landing,
-    title: t('title'),
-    description: t('description'),
-    keywords: t.raw('keywords') as string[],
-  } as const;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.landing);
   return generateSEO(seoConfig, { locale });
 }
