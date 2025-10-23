@@ -27,7 +27,7 @@ export default function BrowserTable({ data }: BrowserTableProps) {
         <Button
           variant='ghost'
           onClick={() => makeFilterClick('browser')(row.original.browser)}
-          className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium'
+          className='cursor-pointer bg-transparent p-1 text-left text-sm font-medium'
           title={tFilters('filterBy', { label: row.original.browser })}
         >
           <span className='flex items-center gap-2'>

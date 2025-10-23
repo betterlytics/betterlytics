@@ -25,7 +25,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
         <Button
           variant='ghost'
           onClick={() => makeFilterClick('os')(row.original.os)}
-          className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium'
+          className='cursor-pointer bg-transparent p-1 text-left text-sm font-medium'
           title={tFilters('filterBy', { label: row.original.os })}
         >
           <span className='flex items-center gap-2'>
