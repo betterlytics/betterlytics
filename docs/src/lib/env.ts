@@ -11,11 +11,15 @@ const envSchema = z.object({
   PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().optional(),
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional().default(""),
+  NODE_ENV: z
+    .enum(["development", "production"])
+    .optional()
+    .default("development"),
 });
 
 export const env = envSchema.parse(process.env);
 
 export const docsTrackingEnabled =
-  process.env.NODE_ENV === "production" &&
+  env.NODE_ENV === "production" &&
   env.ENABLE_APP_TRACKING &&
   env.APP_TRACKING_SITE_ID.length > 0;
