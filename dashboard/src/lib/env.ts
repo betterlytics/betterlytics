@@ -34,6 +34,7 @@ const envSchema = z.object({
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
+  ALLOW_CRAWLING: zStringBoolean,
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()
