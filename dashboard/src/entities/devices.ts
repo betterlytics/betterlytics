@@ -33,10 +33,24 @@ export const DeviceUsageTrendRowSchema = z.object({
   count: z.number(),
 });
 
+export const BrowserRollupRowSchema = z.object({
+  browser: z.string(),
+  version: z.string().nullable(),
+  visitors: z.number(),
+  is_rollup: z.union([z.literal(0), z.literal(1)]),
+});
+
+export const OperatingSystemRollupRowSchema = z.object({
+  os: z.string(),
+  version: z.string().nullable(),
+  visitors: z.number(),
+  is_rollup: z.union([z.literal(0), z.literal(1)]),
+});
+
 export const DeviceBreakdownCombinedSchema = z.object({
   devices: z.array(DeviceTypeSchema),
-  browsers: z.array(BrowserInfoSchema),
-  operatingSystems: z.array(OperatingSystemInfoSchema),
+  browsersRollup: z.array(BrowserRollupRowSchema),
+  operatingSystemsRollup: z.array(OperatingSystemRollupRowSchema),
 });
 
 export type BrowserInfo = z.infer<typeof BrowserInfoSchema>;
@@ -45,4 +59,6 @@ export type OperatingSystemInfo = z.infer<typeof OperatingSystemInfoSchema>;
 export type OperatingSystemStats = z.infer<typeof OperatingSystemStatsSchema>;
 export type DeviceType = z.infer<typeof DeviceTypeSchema>;
 export type DeviceUsageTrendRow = z.infer<typeof DeviceUsageTrendRowSchema>;
+export type BrowserRollupRow = z.infer<typeof BrowserRollupRowSchema>;
+export type OperatingSystemRollupRow = z.infer<typeof OperatingSystemRollupRowSchema>;
 export type DeviceBreakdownCombined = z.infer<typeof DeviceBreakdownCombinedSchema>;

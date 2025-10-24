@@ -27,12 +27,19 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
         {
           key: 'browsers',
           label: t('tabs.browsers'),
-          data: deviceBreakdownCombined.browsers.map((item) => ({
+          data: deviceBreakdownCombined.browsersExpanded.map((item) => ({
             label: item.browser,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
             comparisonValue: item.compare?.visitors,
             icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
+            children: item.children?.map((v) => ({
+              icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
+              label: `${item.browser} ${v.version}`,
+              value: v.current.visitors,
+              comparisonValue: v.compare?.visitors,
+              trendPercentage: v.change?.visitors,
+            })),
           })),
         },
         {
@@ -49,12 +56,19 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
         {
           key: 'os',
           label: t('tabs.operatingSystems'),
-          data: deviceBreakdownCombined.operatingSystems.map((item) => ({
+          data: deviceBreakdownCombined.operatingSystemsExpanded.map((item) => ({
             label: item.os,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
             comparisonValue: item.compare?.visitors,
             icon: <OSIcon name={item.os} className='h-4 w-4' />,
+            children: item.children?.map((v) => ({
+              icon: <OSIcon name={item.os} className='h-4 w-4' />,
+              label: `${item.os} ${v.version}`,
+              value: v.current.visitors,
+              comparisonValue: v.compare?.visitors,
+              trendPercentage: v.change?.visitors,
+            })),
           })),
         },
       ]}
