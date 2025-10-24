@@ -1,19 +1,16 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter, FilterColumn } from '@/entities/filter';
-import { DateTimeString } from '@/types/dates';
+import { type FilterColumn } from '@/entities/filter';
+import { type DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
 
-export async function getFilterDistinctValues(params: {
-  siteId: string;
-  startDate: DateTimeString;
-  endDate: DateTimeString;
-  column: FilterColumn;
-  limit?: number;
-  search?: string;
-}): Promise<string[]> {
-  const { siteId, startDate, endDate, column, limit = 50, search } = params;
-
+export async function getFilterDistinctValues(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  column: FilterColumn,
+  limit: number = 50,
+  search?: string,
+): Promise<string[]> {
   const selectExpr =
     column === 'event_type' ? safeSql`toString(${SQL.Unsafe(column)})` : safeSql`${SQL.Unsafe(column)}`;
 

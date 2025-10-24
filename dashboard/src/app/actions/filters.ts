@@ -17,13 +17,6 @@ const DistinctValuesSchema = z.object({
 export const getFilterOptionsAction = withDashboardAuthContext(
   async (ctx: AuthContext, params: z.infer<typeof DistinctValuesSchema>) => {
     const { startDate, endDate, column, search, limit } = DistinctValuesSchema.parse(params);
-    return getDistinctValuesForFilterColumn({
-      siteId: ctx.siteId,
-      startDate,
-      endDate,
-      column,
-      search,
-      limit,
-    });
+    return getDistinctValuesForFilterColumn(ctx.siteId, startDate, endDate, column, search, limit);
   },
 );
