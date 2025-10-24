@@ -98,7 +98,6 @@ export const getTopCountryVisitsAction = withDashboardAuthContext(
     }
   },
 );
-
 /**
  * Server action to timeseries of worldmap data based on granularity
  */
@@ -112,12 +111,12 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
       ...params,
       siteId: ctx.siteId,
     });
-
     if (!validatedParams.success) {
+      console.error('[TS] zod validation FAILED', validatedParams.error.flatten());
       throw new Error(`Invalid parameters: ${validatedParams.error.message}`);
     }
 
-    const { startDate, endDate, queryFilters } = validatedParams.data;
+    const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = validatedParams.data;
 
     try {
       const geoVisitors = await fetchVisitorsByGeographyTimeseries(
@@ -133,27 +132,59 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
         categoryKey: 'country_code',
         valueKey: 'visitors',
         granularity,
-        dateRange: {
-          start: startDate,
-          end: endDate,
-        },
+        dateRange: { start: startDate, end: endDate },
       });
 
       const accumulated = Object.values(
         geoVisitors.reduce<Record<string, { country_code: string; visitors: number }>>((acc, curr) => {
           const { country_code, visitors } = curr;
-          if (!acc[country_code]) {
-            acc[country_code] = { country_code, visitors: 0 };
-          }
+          if (!acc[country_code]) acc[country_code] = { country_code, visitors: 0 };
           acc[country_code].visitors += visitors;
           return acc;
         }, {}),
       );
 
-      return Object.assign(timeseries, { accumulated });
+      let compare:
+        | {
+            timeseries: ReturnType<typeof toStackedAreaChart>;
+            accumulated: { country_code: string; visitors: number }[];
+          }
+        | undefined;
+
+      if (compareStartDate && compareEndDate) {
+        const primaryCountries = new Set(geoVisitors.map((r) => r.country_code));
+
+        const compareGeoVisitorsRaw = await fetchVisitorsByGeographyTimeseries(
+          ctx.siteId,
+          compareStartDate,
+          compareEndDate,
+          queryFilters,
+          granularity,
+        );
+        const compareGeoVisitors = compareGeoVisitorsRaw.filter((row) => primaryCountries.has(row.country_code));
+        const compareTimeseries = toStackedAreaChart({
+          data: compareGeoVisitors,
+          categoryKey: 'country_code',
+          valueKey: 'visitors',
+          granularity,
+          dateRange: { start: compareStartDate, end: compareEndDate },
+        });
+
+        const compareAccumulated = Object.values(
+          compareGeoVisitors.reduce<Record<string, { country_code: string; visitors: number }>>((acc, curr) => {
+            const { country_code, visitors } = curr;
+            if (!acc[country_code]) acc[country_code] = { country_code, visitors: 0 };
+            acc[country_code].visitors += visitors;
+            return acc;
+          }, {}),
+        );
+        compare = { timeseries: compareTimeseries, accumulated: compareAccumulated };
+      }
+
+      return Object.assign({}, timeseries, { accumulated }, compare ? { compare } : {});
     } catch (error) {
-      console.error('Error fetching visitor map data:', error);
-      throw new Error('Failed to fetch visitor map data');
+      console.error('Error fetching visitor map timeseries:', error);
+      throw new Error('Failed to fetch visitor map timeseries');
     }
   },
 );

@@ -20,7 +20,7 @@ export const worldMapTimeseriesReponseSchema = worldMapResponseSchema.extend({
 });
 
 export type GeoVisitor = z.infer<typeof GeoVisitorSchema>;
-export type TimeGeoVisitors = { visitors: GeoVisitor[]; date: Date }; //! TODO: move
+export type TimeGeoVisitors = { visitors: GeoVisitor[]; date: Date };
 
 export type WorldMapResponse = z.infer<typeof worldMapResponseSchema>;
 export type WorldMapResponseTimeseries = z.infer<typeof worldMapTimeseriesReponseSchema>;

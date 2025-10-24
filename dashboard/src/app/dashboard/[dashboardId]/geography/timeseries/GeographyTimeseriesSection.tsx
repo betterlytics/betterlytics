@@ -16,7 +16,6 @@ type GeographySectionProps = {
 export default function GeographyTimeseriesSection({ worldMapPromise }: GeographySectionProps) {
   const mapData = use(worldMapPromise);
   const t = useTranslations('components.geography');
-
   const DynamicMapTimeseries = dynamic(() => import('@/components/map/deckgl/MapTimeseries'), {
     ssr: false,
     loading: () => <DashboardLoading title={t('loading')} subtitle={t('loadingMessage')} />,

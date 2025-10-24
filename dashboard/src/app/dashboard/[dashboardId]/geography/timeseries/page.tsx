@@ -19,11 +19,12 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters, granularity } = BAFilterSearchParams.decode(await searchParams);
+  const { startDate, endDate, queryFilters, granularity, compareStartDate, compareEndDate } =
+    BAFilterSearchParams.decode(await searchParams);
 
   const worldMapPromise = getWorldMapGranularityTimeseries(
     dashboardId,
-    { startDate, endDate, queryFilters },
+    { startDate, endDate, queryFilters, compareStartDate, compareEndDate },
     granularity,
   );
 

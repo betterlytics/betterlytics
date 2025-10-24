@@ -1,22 +1,21 @@
 'use client';
 
+import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
-import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
-import { type GeoVisitor, type TimeGeoVisitors } from '@/entities/geography';
-import { usePlayback } from '@/hooks/deckgl/use-playback';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { type getWorldMapGranularityTimeseries } from '@/app/actions';
-import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
-import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
-import { ZoomControls } from './controls/ZoomControls';
-import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { TimeseriesToggleButton } from './TimeseriesToggleButton';
-import { ScaleMotion } from '@/components/ScaleMotion';
+import { useDeckGLEventHandlers } from '@/hooks/deckgl/use-deckgl-with-compare';
+import { useGeoTimeseriesData } from '@/hooks/deckgl/use-geotimeseries-data';
 import { useIsMapHovered } from '@/hooks/deckgl/use-is-map-hovered';
+import { usePlayback } from '@/hooks/deckgl/use-playback';
+import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
+import { ZoomControls } from './controls/ZoomControls';
+import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
+import { TimeseriesToggleButton } from './TimeseriesToggleButton';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
@@ -26,12 +25,9 @@ export type MapTimeseries = {
 export default function MapTimeseries({ visitorData, animationDurationBaseline = 1000 }: MapTimeseries) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { hoveredFeatureRef, setMapSelection, clickedFeatureRef, updateClickedVisitors } =
-    useMapSelectionActions();
   const { granularity } = useTimeRangeContext();
   const isMobile = useIsMobile();
 
-  // Set default more gracefully
   const [isTimeseries, setIsTimeseries] = useState(true);
   const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
   const { isMapHovered, setIsMapHovered } = useIsMapHovered([
@@ -40,41 +36,10 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     '[data-sidebar="sidebar"]',
   ]);
 
-  const visitorDataTimeseries: TimeGeoVisitors[] = useMemo(() => {
-    if (!isTimeseries) {
-      return [
-        {
-          visitors: visitorData.accumulated.map((d) => ({
-            country_code: d.country_code,
-            visitors: d.visitors,
-          })),
-          date: new Date(),
-        },
-      ];
-    }
-
-    const timeseries: TimeGeoVisitors[] = [];
-
-    for (const timeData of visitorData.data) {
-      const visitors: GeoVisitor[] = Object.entries(timeData)
-        .filter(([key]) => key !== 'date')
-        .map(([country_code, visitors]) => ({
-          country_code,
-          visitors,
-        }));
-
-      timeseries.push({
-        visitors,
-        date: new Date(timeData.date),
-      });
-    }
-
-    return timeseries;
-  }, [visitorData, isTimeseries]);
-
-  const maxVisitors = useMemo(() => {
-    return Math.max(...visitorDataTimeseries.flatMap((frame) => frame.visitors.map((d) => d.visitors)));
-  }, [visitorDataTimeseries]);
+  const { visitorDataTimeseries, compareDataTimeseries, maxVisitors } = useGeoTimeseriesData({
+    visitorData,
+    isTimeseries,
+  });
 
   const style = useDeckGLMapStyle({ maxVisitors });
 
@@ -102,58 +67,19 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     return Object.fromEntries(currentFrame.visitors.map((d) => [d.country_code, d.visitors]));
   }, [visitorDataTimeseries, frame]);
 
-  useEffect(() => {
-    if (clickedFeatureRef.current) {
-      const country_code = clickedFeatureRef.current.geoVisitor.country_code;
-      updateClickedVisitors(visitorDict[country_code] ?? 0);
-    }
-  }, [playing, frame, visitorDict]);
+  const compareVisitorDict = useMemo(() => {
+    if (!compareDataTimeseries || compareDataTimeseries.length === 0) return {};
+    const compareFrame = compareDataTimeseries[frame] ?? compareDataTimeseries.at(-1)!;
+    return Object.fromEntries(compareFrame.visitors.map((v) => [v.country_code, v.visitors]));
+  }, [compareDataTimeseries, frame]);
 
-  const handleClick = useCallback(
-    (info: any) => {
-      if (info.object && !playing) {
-        setMapSelection({
-          clicked: {
-            longitude: info?.coordinate?.[0],
-            latitude: info?.coordinate?.[1],
-            geoVisitor: {
-              country_code: info.object.id as string,
-              visitors: visitorDict[info.object.id] ?? 0,
-            },
-          },
-        });
-      } else {
-        setMapSelection(null);
-      }
-    },
-    [visitorDict, setMapSelection, playing],
-  );
-
-  const handleHover = useCallback(
-    (info: any) => {
-      setIsMapHovered(true);
-      const hoveredCountryCode = info.object?.id as string | undefined;
-      const prev = hoveredFeatureRef.current?.geoVisitor.country_code;
-
-      if (hoveredCountryCode === prev || playing) return;
-
-      if (hoveredCountryCode) {
-        setMapSelection({
-          hovered: {
-            geoVisitor: {
-              country_code: hoveredCountryCode,
-              visitors: visitorDict[hoveredCountryCode] ?? 0,
-            },
-          },
-        });
-      } else {
-        setMapSelection({
-          hovered: undefined,
-        });
-      }
-    },
-    [visitorDict, hoveredFeatureRef, playing],
-  );
+  const { handleClick, handleHover } = useDeckGLEventHandlers({
+    playing,
+    frame,
+    setIsMapHovered,
+    visitorDict,
+    compareVisitorDict,
+  });
 
   const visitorChangeAnimation = useMemo<DeckGLMapProps['fillAnimation']>(
     () => ({
