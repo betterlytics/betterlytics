@@ -43,17 +43,6 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
           })),
         },
         {
-          key: 'devices',
-          label: t('tabs.devices'),
-          data: deviceBreakdownCombined.devices.map((item) => ({
-            label: item.device_type,
-            value: item.current.visitors,
-            trendPercentage: item.change?.visitors,
-            comparisonValue: item.compare?.visitors,
-            icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
-          })),
-        },
-        {
           key: 'os',
           label: t('tabs.operatingSystems'),
           data: deviceBreakdownCombined.operatingSystemsExpanded.map((item) => ({
@@ -69,6 +58,17 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
               comparisonValue: v.compare?.visitors,
               trendPercentage: v.change?.visitors,
             })),
+          })),
+        },
+        {
+          key: 'devices',
+          label: t('tabs.devices'),
+          data: deviceBreakdownCombined.devices.map((item) => ({
+            label: item.device_type,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
           })),
         },
       ]}
