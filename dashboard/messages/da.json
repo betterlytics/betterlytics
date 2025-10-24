@@ -1159,6 +1159,11 @@
         "eventDetails": "Hændelsesdetaljer",
         "uniqueEvent": "Unik hændelse",
         "uniqueEvents": "Unikke hændelser"
+      },
+      "expandedEventContent": {
+        "loading": "Indlæser egenskaber...",
+        "noProperties": "Ingen egenskaber",
+        "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber."
       }
     },
     "tabbedTable": {
