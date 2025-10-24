@@ -64,7 +64,7 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       const roundHalf = (v: number) => Math.round(v * 2) / 2;
       node.style.transform = `translate3d(${roundHalf(x)}px, ${roundHalf(y)}px, 0) translate(-50%, -100%)`;
 
-      if (!hovered || clicked) {
+      if (!hovered || clicked?.geoVisitor.country_code === hovered.geoVisitor.country_code) {
         node.style.display = 'none';
         lastHovered = null;
         return;
