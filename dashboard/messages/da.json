@@ -1,5 +1,10 @@
 {
   "public": {
+    "notFound": {
+      "title": "404 - Siden blev ikke fundet",
+      "description": "Denne side ser ud til at være vandret ud i analytics-dimensionen. Men bare rolig, vi har styr på det!",
+      "goHome": "Tilbage til forsiden"
+    },
     "about": {
       "aboutUs": "Om Betterlytics",
       "intro": "Vi bygger fremtidens webanalyse: privacy-first, open source og designet til det moderne web. Ikke mere at vælge mellem stærke indsigter og at respektere dine besøgendes privatliv.",

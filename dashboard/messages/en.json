@@ -1,5 +1,10 @@
 {
   "public": {
+    "notFound": {
+      "title": "404 - Page Not Found",
+      "description": "This page seems to have wandered off into the analytics dimension. Don't worry though, we've got you covered!",
+      "goHome": "Back to home"
+    },
     "about": {
       "aboutUs": "About Betterlytics",
       "intro": "We're building the future of web analytics: privacy-first, open source, and designed for the modern web. No more choosing between powerful insights and respecting your visitors' privacy.",

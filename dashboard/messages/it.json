@@ -1,5 +1,10 @@
 {
   "public": {
+    "notFound": {
+      "title": "404 - Pagina non trovata",
+      "description": "Questa pagina sembra essersi persa nella dimensione degli analytics. Non preoccuparti, abbiamo la soluzione!",
+      "goHome": "Vai alla home"
+    },
     "about": {
       "aboutUs": "Chi siamo - Betterlytics",
       "intro": "Stiamo costruendo il futuro delle analitiche web: privacy-first, open source e progettate per il web moderno. Non devi più scegliere tra insights potenti e rispettare la privacy dei tuoi visitatori.",
