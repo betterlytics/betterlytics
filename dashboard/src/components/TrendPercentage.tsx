@@ -13,11 +13,11 @@ type TrendPercentageProps = {
 
 const TrendPercentage = React.memo(
   ({ percentage, withIcon, withParenthesis, displayNoChangeAsText }: TrendPercentageProps) => {
+    const t = useTranslations('misc');
+
     if (percentage === undefined || percentage === null) {
       return null;
     }
-
-    const t = useTranslations('misc');
 
     if (percentage === 0) {
       return displayNoChangeAsText ? (
