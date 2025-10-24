@@ -50,7 +50,7 @@ export function QueryFilterInputRow<TEntity>({
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
 
-  const { options, isLoading, setSearch, search } = useQueryFilterSearch(filter);
+  const { options, isLoading, setSearch, search, isDirty } = useQueryFilterSearch(filter);
 
   const filterColumnRef = useRef<string>(filter.column);
 
@@ -112,11 +112,9 @@ export function QueryFilterInputRow<TEntity>({
         value={filter.value}
         onValueChange={(value) => onFilterUpdate({ ...filter, value })}
         options={options}
-        searchQuery={search || filter.value}
+        searchQuery={isDirty ? search : search || filter.value}
         onSearchChange={setSearch}
         loading={isLoading}
-        placeholder='Select value'
-        searchPlaceholder='Search…'
         enableSearch={true}
       />
       <Button

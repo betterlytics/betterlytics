@@ -4,7 +4,7 @@ import { QueryFilter } from '@/entities/filter';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SEARCH_LIMIT = 5000;
 
@@ -16,7 +16,14 @@ export function useQueryFilterSearch(filter: QueryFilter) {
   const { startDate, endDate } = useTimeRangeContext();
   const dashboardId = useDashboardId();
 
-  const [search, setSearch] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+  const [search, _setSearch] = useState(filter.value);
+
+  const setSearch = useCallback((next: string) => {
+    _setSearch(next);
+    setIsDirty(true);
+  }, []);
+
   const debouncedSearch = useDebounce(search, 350);
 
   const [serverOptions, setServerOptions] = useState<string[]>([]);
@@ -73,5 +80,5 @@ export function useQueryFilterSearch(filter: QueryFilter) {
     return options.slice(0, 10);
   }, [options]);
 
-  return { search, setSearch, options: slicedOptions, isLoading };
+  return { search, setSearch, isDirty, options: slicedOptions, isLoading };
 }

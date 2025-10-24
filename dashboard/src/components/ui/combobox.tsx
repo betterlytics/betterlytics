@@ -28,12 +28,12 @@ export function Combobox({
   options,
   onSearchChange,
   searchQuery,
-  placeholder = 'Select value',
+  placeholder,
   loading = false,
   disabled = false,
   className,
   triggerClassName,
-  emptyMessage = 'No results',
+  emptyMessage,
   enableSearch = true,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
@@ -42,21 +42,19 @@ export function Combobox({
 
   return (
     <div className={cn('relative', className)}>
-      <Popover
-        open={open}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen) {
-            onSearchChange?.('');
-          }
-        }}
-      >
+      <Popover open={open}>
         <Input
           placeholder={placeholder}
           disabled={disabled}
-          value={enableSearch ? searchQuery || selectedLabel : selectedLabel}
+          value={enableSearch ? searchQuery : selectedLabel}
           onFocus={() => setOpen(true)}
           onClick={() => setOpen(true)}
-          onBlur={() => setOpen(false)}
+          onBlur={() => {
+            setOpen(false);
+            if (enableSearch && searchQuery) {
+              onValueChange(searchQuery);
+            }
+          }}
           onChange={(e) => {
             if (!enableSearch) return;
             onSearchChange?.(e.target.value);
