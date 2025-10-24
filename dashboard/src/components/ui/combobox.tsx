@@ -2,10 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
-import { Button } from './button';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
-import { Check, ChevronDown, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 type ComboboxProps = {
   value: string;
@@ -30,7 +29,6 @@ export function Combobox({
   onSearchChange,
   searchQuery,
   placeholder = 'Select value',
-  searchPlaceholder = 'Search…',
   loading = false,
   disabled = false,
   className,
@@ -54,47 +52,40 @@ export function Combobox({
         }}
       >
         <PopoverTrigger asChild>
-          <Button
-            type='button'
-            variant='outline'
+          <Input
+            placeholder={placeholder}
             disabled={disabled}
-            className={cn(
-              'w-full justify-between',
-              'h-9',
-              'text-left font-normal',
-              !hasSelection && 'text-muted-foreground',
-              triggerClassName,
-            )}
-          >
-            <span className='truncate'>{hasSelection ? selectedLabel : placeholder}</span>
-            <ChevronDown className='h-4 w-4 opacity-50' />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-          <div className='flex flex-col gap-2 p-2'>
-            {enableSearch ? (
-              <Input
-                placeholder={searchPlaceholder}
-                value={searchQuery || ''}
-                onChange={(e) => onSearchChange?.(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const trimmed = (searchQuery || '').trim();
-                    if (trimmed.length === 0) {
-                      if (options.length > 0) {
-                        onValueChange(options[0]);
-                        setOpen(false);
-                      }
-                    } else {
-                      onValueChange(trimmed);
-                      setOpen(false);
-                    }
+            value={enableSearch ? (searchQuery ?? selectedLabel) : selectedLabel}
+            onFocus={() => setOpen(true)}
+            onClick={() => setOpen(true)}
+            onBlur={() => setOpen(false)}
+            onChange={(e) => {
+              if (!enableSearch) return;
+              onSearchChange?.(e.target.value);
+              if (!open) setOpen(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const trimmed = ((enableSearch ? searchQuery : selectedLabel) || '').trim();
+                if (trimmed.length === 0) {
+                  if (options.length > 0) {
+                    onValueChange(options[0]);
+                    setOpen(false);
                   }
-                }}
-                className='h-8'
-              />
-            ) : null}
-
+                } else {
+                  onValueChange(trimmed);
+                  setOpen(false);
+                }
+              }
+            }}
+            className={cn('h-9 w-full', !hasSelection && 'text-muted-foreground', triggerClassName)}
+          />
+        </PopoverTrigger>
+        <PopoverContent
+          className='w-[--radix-popover-trigger-width] p-0'
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
+          <div className='flex flex-col gap-2 p-2'>
             <div className='max-h-60 overflow-auto rounded border'>
               {loading ? (
                 <div className='text-muted-foreground p-3 text-sm'>Loading…</div>
