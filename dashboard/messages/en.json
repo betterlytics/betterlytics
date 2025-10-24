@@ -336,12 +336,9 @@
       },
       "sla": {
         "title": "Service Level and Support",
-        "availabilityTitle": "Service Availability",
         "availabilityBody": "We strive for high availability but provide the service on an \"as is\" and \"as available\" basis. We do not guarantee uninterrupted operation or error-free performance.",
         "availabilityBodySuffix": "We may schedule maintenance; we'll endeavor to give advance notice.",
-        "supportTitle": "Support",
         "supportBody": "Technical support is provided via email on a reasonable effort basis. We aim to respond promptly but do not guarantee specific response times.",
-        "bugsTitle": "Bugs and Issues",
         "bugsBody": "We test our features extensively, but no software is perfect. We track reported bugs and prioritize fixes, especially for security or privacy issues. Not all reported bugs will be fixed immediately."
       },
       "liability": {
@@ -397,11 +394,6 @@
         "li1": "Anonymous data (default, anonymized analytics), and",
         "li2": "Personal or pseudo-anonymous data (optional features, or any accidental inclusion of personal or pseudo-anonymous data in URLs, query parameters, or event payloads), e.g., session replay, custom identifiers, or custom events."
       },
-      "intro": {
-        "title": "Introduction",
-        "p1": "This Data Processing Agreement (\"DPA\") forms part of the Betterlytics Terms of Service and governs the processing of data when you use our analytics service. This agreement is designed to ensure compliance with the General Data Protection Regulation (GDPR) and other applicable data protection laws.",
-        "p2": "Important: Betterlytics is specifically designed to process only anonymous, aggregated data. No personal data is collected, stored, or processed by our service."
-      },
       "definitions": {
         "title": "Definitions",
         "controller": "\"Data Controller\": You (the customer) who determines the purposes and means of processing data from your website visitors.",
@@ -413,7 +405,6 @@
       "processingDetails": {
         "title": "Data Processing Details",
         "naturePurposeTitle": "Nature and Purpose",
-        "body": "Betterlytics will process data on behalf of the Data Controller solely for the following purposes:",
         "npLi1": "Providing analytics on website traffic and visitor behavior.",
         "npLi2": "Generating aggregated reports on website traffic and usage patterns",
         "npLi3": "Detecting and filtering bot traffic for accurate statistics",
@@ -458,16 +449,6 @@
         "li26": "Immediate IP anonymization at data collection point",
         "li3": "Assist the Data Controller in responding to requests from data subjects when personal/pseudo-anonymous data is processed.",
         "li4": "Delete all analytics data immediately upon account deletion."
-      },
-      "security": {
-        "title": "Security Measures",
-        "intro": "Betterlytics implements appropriate technical and organizational measures to ensure data security:",
-        "li1": "All data transmission encrypted using TLS 1.2/1.3",
-        "li2": "Data at rest encrypted using industry-standard encryption",
-        "li3": "Access controls limiting data access to authorized personnel only",
-        "li4": "Regular security audits and updates",
-        "li5": "EU-based servers in secure data centers",
-        "li6": "Immediate IP anonymization at data collection point"
       },
       "subprocessors": {
         "title": "Subprocessors",
@@ -829,9 +810,6 @@
     "goTo": "Go to {section}",
     "tabs": {
       "pages": "Pages",
-      "userJourney": "User Journey",
-      "funnels": "Funnels",
-      "campaigns": "Campaigns",
       "entryPages": "Entry Pages",
       "exitPages": "Exit Pages",
       "topCountries": "Top Countries",
@@ -873,8 +851,6 @@
   },
   "misc": {
     "loading": "Loading...",
-    "error": "Error",
-    "app": "Application",
     "created": "Created",
     "unknown": "Unknown"
   },
@@ -995,9 +971,6 @@
       "noResults": "No results."
     },
     "timeRange": {
-      "quickSelect": "Quick select",
-      "granularity": "Granularity",
-      "currentPeriod": "Current period",
       "disabled": "Disabled",
       "disableCompare": "Disable Compare",
       "previousPeriod": "Previous Period",
@@ -1005,11 +978,7 @@
       "nextPeriod": "Next Period",
       "customPeriod": "Custom Period",
       "sameLengthAsMain": "Same length as main range",
-      "vs": "vs",
-      "compareWithPrevious": "Compare with previous period",
       "compareToPeriod": "Compare to Period",
-      "startDate": "Start date",
-      "endDate": "End date",
       "dateRange": "Date range",
       "presets": {
         "today": "Today",
@@ -1032,7 +1001,6 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "apply": "Apply",
       "matchDayOfWeek": "Match Day of Week"
     },
     "loading": {
@@ -1055,7 +1023,6 @@
       },
       "charts": {
         "deviceTypes": "Device Types",
-        "visitorsByDeviceCategory": "Visitors by device category",
         "deviceUsageTrend": "Device Usage Trend"
       },
       "trends": {
@@ -1084,9 +1051,7 @@
         }
       },
       "trend": {
-        "title": "Campaign Visitor Trend",
-        "description": "Visitor trends over time by campaign",
-        "empty": "No campaign visitor trend data available."
+        "title": "Campaign Visitor Trend"
       },
       "utm": {
         "table": {
@@ -1101,14 +1066,7 @@
           "content": "Content",
           "terms": "Terms"
         },
-        "empty": {
-          "source": "No source breakdown data available for campaigns",
-          "medium": "No medium breakdown data available for campaigns",
-          "content": "No content breakdown data available for campaigns",
-          "term": "No term breakdown data available for campaigns"
-        },
         "columns": {
-          "dimension": "Dimension",
           "visitors": "Visitors",
           "bounceRate": "Bounce Rate",
           "avgSessionDuration": "Avg. Session Duration",
@@ -1189,13 +1147,7 @@
         "emptyNoneSelected": "No filters selected - apply to save",
         "addFilter": "Add filter",
         "cancel": "Cancel",
-        "apply": "Apply",
-        "empty": {
-          "title": "No active filters",
-          "description": "Add filters to refine your analytics data and focus on specific segments.",
-          "addFirst": "Add your first filter",
-          "common": "Common filters: Country, Browser, URL, Device"
-        }
+        "apply": "Apply"
       }
     },
     "funnels": {
@@ -1319,10 +1271,6 @@
       "visitors": "Visitors"
     },
     "userJourney": {
-      "page": {
-        "title": "User Journey",
-        "description": "Visualize how users navigate across key paths."
-      },
       "steps": "Steps",
       "topJourneys": "Top {journeys} Journeys",
       "sessions": "Sessions"
@@ -1412,7 +1360,6 @@
         "durationFilter": "Min duration (s)",
         "durationFilterAria": "Filter sessions by minimum duration in seconds",
         "loading": "Loading sessions…",
-        "unknown": "Unknown",
         "unknownUrl": "Unknown URL",
         "endOfList": "You've reached the end",
         "loadingMore": "Loading more…",
@@ -1447,7 +1394,6 @@
       "player": {
         "skipInactive": "Skip inactivity",
         "playbackSpeedAria": "Playback speed",
-        "seekAria": "Seek",
         "recordingDisabled": "Recording is disabled on this page"
       }
     },
@@ -1552,10 +1498,6 @@
           "cancel": "Cancel",
           "saving": "Saving...",
           "saveChanges": "Save Changes"
-        },
-        "toast": {
-          "success": "Settings saved successfully!",
-          "error": "Failed to save settings. Please try again."
         }
       },
       "profile": {
@@ -1586,7 +1528,6 @@
           "label": "Avatar",
           "none": "None",
           "gravatar": "Gravatar",
-          "note": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
           "noteIntro": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
           "terms": "you agree to their terms"
         },
@@ -1619,7 +1560,6 @@
         "notAvailable": "Billing portal will be available once you upgrade to a paid plan.",
         "needHelp": "Need help with billing?",
         "contactSupport": "Contact support",
-        "loading": "Loading billing information...",
         "toastError": "Failed to open billing portal, please try again."
       },
       "security": {
@@ -1726,9 +1666,6 @@
         "backToSignIn": "Back to Sign In"
       }
     },
-    "page": {
-      "title": "Betterlytics | Onboarding"
-    },
     "account": {
       "features": {
         "feature1": {
@@ -1776,8 +1713,7 @@
       "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
       "createDashboardButton": "Create Dashboard",
       "creatingDashboard": "Creating Dashboard...",
-      "dashboardCreatedSuccess": "Dashboard created successfully!",
-      "failedToCreateDashboard": "Failed to create dashboard. Please try again."
+      "dashboardCreatedSuccess": "Dashboard created successfully!"
     },
     "integration": {
       "siteId": {
@@ -1801,7 +1737,6 @@
         "npmThenInitialize": "Then initialize it in your code:"
       },
       "buttons": {
-        "goToDashboard": "🎉 to Dashboard...",
         "skipForNow": "Skip for Now",
         "continueToDashboard": "Continue to Dashboard"
       },
@@ -1816,7 +1751,6 @@
     "verifyEmail": {
       "title": "Please verify your email address",
       "description": "We've sent a verification email to {email}.",
-      "action": "Resend email",
       "success": "Verification email sent!",
       "failure": "Failed to send verification email",
       "sending": "Sending...",

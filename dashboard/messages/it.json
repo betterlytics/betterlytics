@@ -336,12 +336,9 @@
       },
       "sla": {
         "title": "Livello di servizio e supporto",
-        "availabilityTitle": "Disponibilità del servizio",
         "availabilityBody": "Miriamo a un’elevata disponibilità ma forniamo il servizio \"così com’è\" e \"come disponibile\". Non garantiamo un funzionamento ininterrotto o prestazioni prive di errori.",
         "availabilityBodySuffix": "Potremmo pianificare manutenzioni; faremo del nostro meglio per fornire preavviso.",
-        "supportTitle": "Supporto",
         "supportBody": "Il supporto tecnico è fornito via email su base di ragionevole impegno. Puntiamo a rispondere prontamente ma non garantiamo tempi di risposta specifici.",
-        "bugsTitle": "Bug e problemi",
         "bugsBody": "Testiamo accuratamente le nostre funzionalità, ma nessun software è perfetto. Tracciamo i bug segnalati e diamo priorità alle correzioni, in particolare per problemi di sicurezza o privacy. Non tutti i bug segnalati verranno corretti immediatamente."
       },
       "liability": {
@@ -397,11 +394,6 @@
         "li1": "Dati anonimi (analitiche predefinite e anonimizzate), e",
         "li2": "Dati personali o pseudo-anonimi (funzionalità opzionali o qualsiasi inclusione accidentale di dati personali o pseudo-anonimi in URL, parametri di query o payload degli eventi), ad es. session replay, identificatori personalizzati o eventi personalizzati."
       },
-      "intro": {
-        "title": "Introduzione",
-        "p1": "Questo Accordo sul Trattamento dei Dati (\"DPA\") fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il nostro servizio di analisi. Questo accordo è progettato per garantire la conformità al Regolamento Generale sulla Protezione dei Dati (GDPR) e ad altre leggi applicabili sulla protezione dei dati.",
-        "p2": "Importante: Betterlytics è specificamente progettato per trattare solo dati anonimi e aggregati. Nessun dato personale viene raccolto, archiviato o trattato dal nostro servizio."
-      },
       "definitions": {
         "title": "Definizioni",
         "controller": "\"Titolare del trattamento\": Tu (il cliente) che determini le finalità e i mezzi del trattamento dei dati dei visitatori del tuo sito web.",
@@ -413,7 +405,6 @@
       "processingDetails": {
         "title": "Dettagli del trattamento dei dati",
         "naturePurposeTitle": "Natura e finalità",
-        "body": "Betterlytics tratterà i dati per conto del Titolare del trattamento esclusivamente per le seguenti finalità:",
         "npLi1": "Fornire analisi sul traffico del sito web e sul comportamento dei visitatori.",
         "npLi2": "Generare report aggregati sul traffico del sito web e sui modelli di utilizzo",
         "npLi3": "Rilevare e filtrare il traffico bot per statistiche accurate",
@@ -458,16 +449,6 @@
         "li26": "Anonimizzazione immediata dell’IP al punto di raccolta dei dati",
         "li3": "Assistere il Titolare del trattamento nel rispondere alle richieste degli interessati quando vengono trattati dati personali/pseudo-anonimi.",
         "li4": "Eliminare tutti i dati analitici immediatamente al momento dell’eliminazione dell’account."
-      },
-      "security": {
-        "title": "Misure di sicurezza",
-        "intro": "Betterlytics implementa misure tecniche e organizzative adeguate per garantire la sicurezza dei dati:",
-        "li1": "Tutte le trasmissioni di dati sono crittografate utilizzando TLS 1.2/1.3",
-        "li2": "I dati a riposo sono crittografati utilizzando standard industriali",
-        "li3": "Controlli di accesso che limitano l’accesso ai dati al solo personale autorizzato",
-        "li4": "Audit e aggiornamenti di sicurezza regolari",
-        "li5": "Server con sede nell’UE in data center sicuri",
-        "li6": "Anonimizzazione immediata dell’IP al punto di raccolta dei dati"
       },
       "subprocessors": {
         "title": "Sub-responsabili",
@@ -833,9 +814,6 @@
     "goTo": "Vai a {section}",
     "tabs": {
       "pages": "Pagine",
-      "userJourney": "Percorso utente",
-      "funnels": "Funnel",
-      "campaigns": "Campagne",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
       "topCountries": "Paesi principali",
@@ -878,8 +856,6 @@
   },
   "misc": {
     "loading": "Caricamento...",
-    "error": "Errore",
-    "app": "Applicazione",
     "created": "Creato",
     "unknown": "Sconosciuto"
   },
@@ -1001,9 +977,6 @@
       "noResults": "Nessun risultato."
     },
     "timeRange": {
-      "quickSelect": "Selezione rapida",
-      "granularity": "Granularità",
-      "currentPeriod": "Periodo corrente",
       "disabled": "Disattivato",
       "disableCompare": "Disattiva confronto",
       "previousPeriod": "Periodo precedente",
@@ -1011,11 +984,7 @@
       "nextPeriod": "Periodo successivo",
       "customPeriod": "Periodo personalizzato",
       "sameLengthAsMain": "Stessa durata dell'intervallo principale",
-      "vs": "vs",
-      "compareWithPrevious": "Confronta con il periodo precedente",
       "compareToPeriod": "Periodo di confronto",
-      "startDate": "Data di inizio",
-      "endDate": "Data di fine",
       "dateRange": "Intervallo date",
       "presets": {
         "today": "Oggi",
@@ -1038,7 +1007,6 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "apply": "Applica",
       "matchDayOfWeek": "Allinea giorno della settimana"
     },
     "loading": {
@@ -1061,7 +1029,6 @@
       },
       "charts": {
         "deviceTypes": "Tipo di dispositivo",
-        "visitorsByDeviceCategory": "Visitatori per categoria dispositivo",
         "deviceUsageTrend": "Tendenza utilizzo dispositivi"
       },
       "trends": {
@@ -1090,9 +1057,7 @@
         }
       },
       "trend": {
-        "title": "Trend visitatori campagna",
-        "description": "Andamento visitatori nel tempo per campagna",
-        "empty": "Nessun dato di trend visitatori per le campagne disponibile."
+        "title": "Trend visitatori campagna"
       },
       "utm": {
         "table": {
@@ -1107,14 +1072,7 @@
           "content": "Contenuto",
           "terms": "Termini"
         },
-        "empty": {
-          "source": "Nessun dato di ripartizione per sorgente disponibile per le campagne",
-          "medium": "Nessun dato di ripartizione per mezzo disponibile per le campagne",
-          "content": "Nessun dato di ripartizione per contenuto disponibile per le campagne",
-          "term": "Nessun dato di ripartizione per termini disponibile per le campagne"
-        },
         "columns": {
-          "dimension": "Dimensione",
           "visitors": "Visitatori",
           "bounceRate": "Frequenza di rimbalzo",
           "avgSessionDuration": "Durata media sessione",
@@ -1195,13 +1153,7 @@
         "emptyNoneSelected": "Nessun filtro selezionato - premi Applica per salvare",
         "addFilter": "Aggiungi filtro",
         "cancel": "Annulla",
-        "apply": "Applica",
-        "empty": {
-          "title": "Nessun filtro attivo",
-          "description": "Aggiungi filtri per perfezionare i dati e concentrarti su segmenti specifici.",
-          "addFirst": "Aggiungi il primo filtro",
-          "common": "Filtri comuni: Paese, Browser, URL, Dispositivo"
-        }
+        "apply": "Applica"
       }
     },
     "funnels": {
@@ -1325,10 +1277,6 @@
       "visitors": "Visitatori"
     },
     "userJourney": {
-      "page": {
-        "title": "Percorso utente",
-        "description": "Visualizza come gli utenti navigano tra i percorsi chiave."
-      },
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
       "sessions": "Sessioni"
@@ -1418,7 +1366,6 @@
         "durationFilter": "Durata minima (s)",
         "durationFilterAria": "Filtra sessioni per durata minima in secondi",
         "loading": "Caricamento sessioni…",
-        "unknown": "Sconosciuto",
         "unknownUrl": "URL sconosciuto",
         "endOfList": "Hai raggiunto la fine",
         "loadingMore": "Caricamento altri…",
@@ -1453,7 +1400,6 @@
       "player": {
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
-        "seekAria": "Vai a posizione",
         "recordingDisabled": "Registrazione disabilitata su questa pagina"
       }
     },
@@ -1558,10 +1504,6 @@
           "cancel": "Annulla",
           "saving": "Salvataggio...",
           "saveChanges": "Salva modifiche"
-        },
-        "toast": {
-          "success": "Impostazioni salvate con successo!",
-          "error": "Impossibile salvare le impostazioni. Riprova."
         }
       },
       "profile": {
@@ -1592,7 +1534,6 @@
           "label": "Avatar",
           "none": "Nessuno",
           "gravatar": "Gravatar",
-          "note": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
           "noteIntro": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
           "terms": "accetti i loro termini"
         },
@@ -1625,7 +1566,6 @@
         "notAvailable": "Il portale di fatturazione sarà disponibile una volta effettuato l'upgrade a un piano a pagamento.",
         "needHelp": "Hai bisogno di aiuto con la fatturazione?",
         "contactSupport": "Contatta il supporto",
-        "loading": "Caricamento informazioni di fatturazione...",
         "toastError": "Impossibile aprire il portale di fatturazione, riprova."
       },
       "security": {
@@ -1732,9 +1672,6 @@
         "backToSignIn": "Torna all'accesso"
       }
     },
-    "page": {
-      "title": "Betterlytics | Registrazione"
-    },
     "account": {
       "features": {
         "feature1": {
@@ -1782,8 +1719,7 @@
       "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
-      "dashboardCreatedSuccess": "Dashboard creata con successo!",
-      "failedToCreateDashboard": "Impossibile creare la dashboard. Riprova."
+      "dashboardCreatedSuccess": "Dashboard creata con successo!"
     },
     "integration": {
       "siteId": {
@@ -1807,7 +1743,6 @@
         "npmThenInitialize": "Poi inizializzalo nel tuo codice:"
       },
       "buttons": {
-        "goToDashboard": "🎉 alla dashboard...",
         "skipForNow": "Salta per ora",
         "continueToDashboard": "Continua alla dashboard"
       },
@@ -1822,7 +1757,6 @@
     "verifyEmail": {
       "title": "Verifica il tuo indirizzo email",
       "description": "Ti abbiamo inviato un'email di verifica a {email}.",
-      "action": "Reinvia email",
       "success": "Email di verifica inviata!",
       "failure": "Impossibile inviare l'email di verifica",
       "sending": "Invio in corso...",

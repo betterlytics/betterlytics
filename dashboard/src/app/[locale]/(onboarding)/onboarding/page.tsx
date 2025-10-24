@@ -8,7 +8,6 @@ import { getTranslations } from 'next-intl/server';
 import { getProviders } from 'next-auth/react';
 import OnboardingPage from './OnboardingPage';
 import { OnboardingProvider } from './OnboardingProvider';
-import { SupportedLanguages } from '@/constants/i18n';
 
 export default async function Onboarding() {
   const session = await getServerSession(authOptions);
@@ -69,10 +68,8 @@ export default async function Onboarding() {
   );
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'onboarding.page' });
+export async function generateMetadata() {
   return {
-    title: t('title'),
+    title: `Betterlytics | Onboarding`,
   };
 }
