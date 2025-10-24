@@ -23,14 +23,12 @@ export async function getFilterDistinctValues(params: {
       : safeSql``;
 
   const query = safeSql`
-    SELECT ${selectExpr} AS value, uniq(visitor_id) AS visitors
+    SELECT DISTINCT ${selectExpr} AS value
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       ${searchClause}
-      AND ${SQL.Unsafe(column)} != ''
-    GROUP BY value
-    ORDER BY visitors DESC
+      AND value != ''
     LIMIT {limit:UInt32}
   `;
 
@@ -42,4 +40,3 @@ export async function getFilterDistinctValues(params: {
 
   return rows.map((r) => r.value);
 }
-

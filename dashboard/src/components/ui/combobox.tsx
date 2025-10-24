@@ -44,7 +44,15 @@ export function Combobox({
 
   return (
     <div className={cn('relative', className)}>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            onSearchChange?.('');
+          }
+          setOpen(nextOpen);
+        }}
+      >
         <PopoverTrigger asChild>
           <Button
             type='button'
@@ -91,7 +99,9 @@ export function Combobox({
                         <li key='__use-input__'>
                           <button
                             type='button'
-                            className={cn('hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm')}
+                            className={cn(
+                              'hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm',
+                            )}
                             onClick={() => {
                               onValueChange(trimmed);
                               setOpen(false);
@@ -103,27 +113,20 @@ export function Combobox({
                         </li>
                       ) : null}
 
-                      {options.map((opt) => {
-                        const isActive = opt === value;
-                        return (
-                          <li key={opt}>
-                            <button
-                              type='button'
-                              className={cn(
-                                'hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm',
-                                isActive && 'bg-accent',
-                              )}
-                              onClick={() => {
-                                onValueChange(opt);
-                                setOpen(false);
-                              }}
-                            >
-                              <Check className={cn('h-4 w-4', isActive ? 'opacity-100' : 'opacity-0')} />
-                              <span className='truncate'>{opt}</span>
-                            </button>
-                          </li>
-                        );
-                      })}
+                      {options.map((opt) => (
+                        <li key={opt}>
+                          <button
+                            type='button'
+                            className='hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm'
+                            onClick={() => {
+                              onValueChange(opt);
+                              setOpen(false);
+                            }}
+                          >
+                            <span className='truncate'>{opt}</span>
+                          </button>
+                        </li>
+                      ))}
                     </ul>
                   );
                 })()
@@ -135,4 +138,3 @@ export function Combobox({
     </div>
   );
 }
-

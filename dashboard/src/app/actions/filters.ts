@@ -4,18 +4,14 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { z } from 'zod';
 import { FILTER_COLUMNS } from '@/entities/filter';
-import { getFilterUIConfig, getDistinctValuesForFilterColumn } from '@/services/filters';
-
-export const getFilterUIConfigAction = withDashboardAuthContext(async (_ctx: AuthContext) => {
-  return getFilterUIConfig();
-});
+import { getDistinctValuesForFilterColumn } from '@/services/filters';
 
 const DistinctValuesSchema = z.object({
   startDate: z.date(),
   endDate: z.date(),
   column: z.enum(FILTER_COLUMNS),
   search: z.string().trim().max(128).optional(),
-  limit: z.number().int().min(1).max(20).optional(),
+  limit: z.number().int().min(1).max(5000).optional().default(200),
 });
 
 export const getFilterOptionsAction = withDashboardAuthContext(
@@ -31,4 +27,3 @@ export const getFilterOptionsAction = withDashboardAuthContext(
     });
   },
 );
-
