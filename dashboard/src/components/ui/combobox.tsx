@@ -77,6 +77,20 @@ export function Combobox({
                 placeholder={searchPlaceholder}
                 value={searchQuery || ''}
                 onChange={(e) => onSearchChange?.(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const trimmed = (searchQuery || '').trim();
+                    if (trimmed.length === 0) {
+                      if (options.length > 0) {
+                        onValueChange(options[0]);
+                        setOpen(false);
+                      }
+                    } else {
+                      onValueChange(trimmed);
+                      setOpen(false);
+                    }
+                  }
+                }}
                 className='h-8'
               />
             ) : null}
@@ -108,7 +122,7 @@ export function Combobox({
                             }}
                           >
                             <Plus className='h-4 w-4 opacity-70' />
-                            <span className='truncate'>Use "{trimmed}"</span>
+                            <span className='truncate'>"{trimmed}"</span>
                           </button>
                         </li>
                       ) : null}
