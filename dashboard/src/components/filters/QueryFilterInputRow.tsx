@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Combobox } from '@/components/ui/combobox';
-import { Dispatch, ReactNode, useEffect } from 'react';
+import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   ArrowRightToLineIcon,
@@ -52,9 +52,14 @@ export function QueryFilterInputRow<TEntity>({
 
   const { options, isLoading, setSearch, search } = useQueryFilterSearch(filter);
 
+  const filterColumnRef = useRef<string>(filter.column);
+
   useEffect(() => {
-    setSearch('');
-    onFilterUpdate({ ...filter, value: '' });
+    if (filter.column !== filterColumnRef.current) {
+      setSearch('');
+      onFilterUpdate({ ...filter, value: '' });
+      filterColumnRef.current = filter.column;
+    }
   }, [filter.column]);
 
   return (
@@ -107,7 +112,7 @@ export function QueryFilterInputRow<TEntity>({
         value={filter.value}
         onValueChange={(value) => onFilterUpdate({ ...filter, value })}
         options={options}
-        searchQuery={search}
+        searchQuery={search || filter.value}
         onSearchChange={setSearch}
         loading={isLoading}
         placeholder='Select value'

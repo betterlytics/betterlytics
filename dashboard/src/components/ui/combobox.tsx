@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { Popover, PopoverAnchor, PopoverContent } from './popover';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
@@ -48,41 +48,41 @@ export function Combobox({
           if (!nextOpen) {
             onSearchChange?.('');
           }
-          setOpen(nextOpen);
         }}
       >
-        <PopoverTrigger asChild>
-          <Input
-            placeholder={placeholder}
-            disabled={disabled}
-            value={enableSearch ? (searchQuery ?? selectedLabel) : selectedLabel}
-            onFocus={() => setOpen(true)}
-            onClick={() => setOpen(true)}
-            onBlur={() => setOpen(false)}
-            onChange={(e) => {
-              if (!enableSearch) return;
-              onSearchChange?.(e.target.value);
-              if (!open) setOpen(true);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const trimmed = ((enableSearch ? searchQuery : selectedLabel) || '').trim();
-                if (trimmed.length === 0) {
-                  if (options.length > 0) {
-                    onValueChange(options[0]);
-                    setOpen(false);
-                  }
-                } else {
-                  onValueChange(trimmed);
+        <Input
+          placeholder={placeholder}
+          disabled={disabled}
+          value={enableSearch ? searchQuery || selectedLabel : selectedLabel}
+          onFocus={() => setOpen(true)}
+          onClick={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onChange={(e) => {
+            if (!enableSearch) return;
+            onSearchChange?.(e.target.value);
+            if (!open) setOpen(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              const trimmed = ((enableSearch ? searchQuery : selectedLabel) || '').trim();
+              if (trimmed.length === 0) {
+                if (options.length > 0) {
+                  onSearchChange?.(options[0]);
+                  onValueChange(options[0]);
                   setOpen(false);
                 }
+              } else {
+                onSearchChange?.(trimmed);
+                onValueChange(trimmed);
+                setOpen(false);
               }
-            }}
-            className={cn('h-9 w-full', !hasSelection && 'text-muted-foreground', triggerClassName)}
-          />
-        </PopoverTrigger>
+            }
+          }}
+          className={cn('h-9 w-full', !hasSelection && 'text-muted-foreground', triggerClassName)}
+        />
+        <PopoverAnchor className='w-full' />
         <PopoverContent
-          className='w-[--radix-popover-trigger-width] p-0'
+          className='w-[var(--radix-popover-trigger-width)] p-0'
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <div className='flex flex-col gap-2 p-2'>
@@ -108,6 +108,7 @@ export function Combobox({
                               'hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm',
                             )}
                             onClick={() => {
+                              onSearchChange?.(trimmed);
                               onValueChange(trimmed);
                               setOpen(false);
                             }}
@@ -124,6 +125,7 @@ export function Combobox({
                             type='button'
                             className='hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm'
                             onClick={() => {
+                              onSearchChange?.(opt);
                               onValueChange(opt);
                               setOpen(false);
                             }}
