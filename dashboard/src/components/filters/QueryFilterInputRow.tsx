@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Combobox } from '@/components/ui/combobox';
-import { Dispatch, ReactNode } from 'react';
+import { Dispatch, ReactNode, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   ArrowRightToLineIcon,
@@ -51,6 +51,11 @@ export function QueryFilterInputRow<TEntity>({
   const t = useTranslations('components.filters');
 
   const { options, isLoading, setSearch, search } = useQueryFilterSearch(filter);
+
+  useEffect(() => {
+    setSearch('');
+    onFilterUpdate({ ...filter, value: '' });
+  }, [filter.column]);
 
   return (
     <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
