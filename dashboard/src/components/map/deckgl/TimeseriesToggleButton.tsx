@@ -18,11 +18,11 @@ export function TimeseriesToggleButton({ isTimeseries, onToggle, className }: Ti
   return (
     <motion.button
       whileTap={{ scale: 0.9 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 40 }}
       onClick={onToggle}
       title={t(`${isTimeseries ? 'accumulated' : 'timeseries'}.tooltip`)}
       className={cn(
-        'flex flex-col px-3 py-1.5 text-sm',
+        'flex w-28 flex-col px-3 py-1.5 text-sm',
         'bg-secondary hover:bg-accent cursor-pointer rounded-md',
         'border-border border shadow-sm',
         className,

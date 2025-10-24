@@ -193,7 +193,10 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
           value={position}
           playing={playing}
           speed={speed}
-          style={{ width: 'calc(100vw - 256px - 1rem)', left: sidebarOffset }}
+          style={{
+            width: isMobile ? '100vw' : 'calc(100vw - 256px - 1rem)',
+            left: sidebarOffset,
+          }}
           isTimeseries={isTimeseries}
           onTogglePlay={toggle}
           onToggleTimeseries={onToggleTimeseries}
@@ -203,17 +206,11 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
       }
 
       {!isTimeseries && (
-        <ScaleMotion
-          className={'deckgl-controller pointer-events-auto absolute right-3 bottom-3 z-12 flex flex-col'}
-          initialScale={0.8}
-          hoverScale={1}
-          opacityRange={[0.8, 1]}
-          opacityValues={[0.6, 1]}
-          startTransition={{ type: 'spring', stiffness: 400, damping: 40 }}
-          endTransition={{ type: 'spring', stiffness: 400, damping: 40 }}
-        >
-          <TimeseriesToggleButton isTimeseries={isTimeseries} onToggle={onToggleTimeseries} />
-        </ScaleMotion>
+        <TimeseriesToggleButton
+          className='deckgl-controller pointer-events-auto fixed right-3 bottom-5 z-12 flex flex-col'
+          isTimeseries={isTimeseries}
+          onToggle={onToggleTimeseries}
+        />
       )}
       <ZoomControls
         className={'deckgl-controller pointer-events-auto absolute top-3 z-12'}

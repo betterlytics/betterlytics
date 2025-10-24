@@ -68,7 +68,7 @@ export function MapPlayActionbar<TValue>({
             setSpeedOpen(false);
           }}
           disableEventHover
-          className='bg-background mx-6 flex flex-col gap-2 rounded-xl px-4 py-2 shadow-md'
+          className='bg-background mx-6 flex flex-col gap-2 rounded-xl px-4 py-2 shadow-2xl'
         >
           <div className='flex items-center gap-3'>
             <PlaybackButton onClick={onTogglePlay} playbackType={playing ? 'pause' : 'play'} />
