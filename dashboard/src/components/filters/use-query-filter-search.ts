@@ -69,10 +69,9 @@ export function useQueryFilterSearch(filter: QueryFilter) {
     }
   }, [shouldSearchServer, serverOptions, search]);
 
-  return {
-    search,
-    setSearch,
-    options,
-    isLoading,
-  };
+  const slicedOptions = useMemo(() => {
+    return options.slice(0, 10);
+  }, [options]);
+
+  return { search, setSearch, options: slicedOptions, isLoading };
 }
