@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Combobox } from '@/components/ui/combobox';
 import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
@@ -29,11 +28,12 @@ import {
   TextSearchIcon,
   Trash2,
 } from 'lucide-react';
-import { SearchX } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { Combobox } from '@/components/ui/combobox';
 import { useQueryFilterSearch } from './use-query-filter-search';
+import { FilterValueSearch } from './FilterValueSearch';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -54,10 +54,8 @@ export function QueryFilterInputRow<TEntity>({
   const { options, isLoading, setSearch, search, isDirty } = useQueryFilterSearch(filter);
 
   const filterColumnRef = useRef<string>(filter.column);
-
   useEffect(() => {
     if (filter.column !== filterColumnRef.current) {
-      setSearch('');
       onFilterUpdate({ ...filter, value: '' });
       filterColumnRef.current = filter.column;
     }
@@ -107,23 +105,7 @@ export function QueryFilterInputRow<TEntity>({
           </SelectGroup>
         </SelectContent>
       </Select>
-
-      <Combobox
-        className='col-span-10 md:col-span-5'
-        value={filter.value}
-        onValueChange={(value) => onFilterUpdate({ ...filter, value })}
-        options={options}
-        searchQuery={isDirty ? search : search || filter.value}
-        onSearchChange={setSearch}
-        loading={isLoading}
-        enableSearch={true}
-        emptyState={
-          <div className='text-muted-foreground flex items-center gap-2 p-3 text-sm'>
-            <SearchX className='h-4 w-4' />
-            <span>{t('noDataForCurrentPeriod')}</span>
-          </div>
-        }
-      />
+      <FilterValueSearch filter={filter} onFilterUpdate={onFilterUpdate} key={filter.column} />
       <Button
         variant='ghost'
         className='col-span-2 cursor-pointer md:col-span-1'

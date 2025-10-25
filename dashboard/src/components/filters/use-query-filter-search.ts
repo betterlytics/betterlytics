@@ -54,6 +54,10 @@ export function useQueryFilterSearch(filter: QueryFilter) {
   }, [filter.column]);
 
   useEffect(() => {
+    setSearch(filter.value);
+  }, [filter.value]);
+
+  useEffect(() => {
     if (shouldSearchServer && isLoading === false) {
       setServerOptions(fetchedOptions);
     }
