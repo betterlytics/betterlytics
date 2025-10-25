@@ -18,6 +18,11 @@
         ]
       }
     },
+    "notFound": {
+      "title": "404 - Page Not Found",
+      "description": "This page seems to have wandered off into the analytics dimension. Don't worry though, we've got you covered!",
+      "goHome": "Back to home"
+    },
     "about": {
       "seo": {
         "title": "About Betterlytics | Privacy-First Web Analytics",

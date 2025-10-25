@@ -18,6 +18,11 @@
         ]
       }
     },
+    "notFound": {
+      "title": "404 - Pagina non trovata",
+      "description": "Questa pagina sembra essersi persa nella dimensione degli analytics. Non preoccuparti, abbiamo la soluzione!",
+      "goHome": "Vai alla home"
+    },
     "about": {
       "seo": {
         "title": "Informazioni su Betterlytics | Analisi Web Open Source e Privacy-First",

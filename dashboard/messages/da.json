@@ -18,6 +18,11 @@
         ]
       }
     },
+    "notFound": {
+      "title": "404 - Siden blev ikke fundet",
+      "description": "Denne side ser ud til at være vandret ud i analytics-dimensionen. Men bare rolig, vi har styr på det!",
+      "goHome": "Tilbage til forsiden"
+    },
     "about": {
       "seo": {
         "title": "Om Betterlytics | Open Source, Privatlivsfokuseret Webanalyse",
