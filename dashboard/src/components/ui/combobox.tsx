@@ -84,7 +84,7 @@ export function Combobox({
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <div className='flex flex-col gap-2 p-2'>
-            <div className='max-h-60 overflow-auto rounded border'>
+            <div className='max-h-60 overflow-auto rounded'>
               {loading ? (
                 <div className='text-muted-foreground p-3 text-sm'>Loading…</div>
               ) : (
@@ -98,12 +98,27 @@ export function Combobox({
 
                   return (
                     <ul className='divide-y'>
+                      {options.map((opt) => (
+                        <li key={opt} className='border-none'>
+                          <button
+                            type='button'
+                            className='hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm'
+                            onClick={() => {
+                              onSearchChange?.(opt);
+                              onValueChange(opt);
+                              setOpen(false);
+                            }}
+                          >
+                            <span className='truncate'>{opt}</span>
+                          </button>
+                        </li>
+                      ))}
                       {showCreateOption ? (
                         <li key='__use-input__'>
                           <button
                             type='button'
                             className={cn(
-                              'hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm',
+                              'hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm',
                             )}
                             onClick={() => {
                               onSearchChange?.(trimmed);
@@ -116,22 +131,6 @@ export function Combobox({
                           </button>
                         </li>
                       ) : null}
-
-                      {options.map((opt) => (
-                        <li key={opt}>
-                          <button
-                            type='button'
-                            className='hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm'
-                            onClick={() => {
-                              onSearchChange?.(opt);
-                              onValueChange(opt);
-                              setOpen(false);
-                            }}
-                          >
-                            <span className='truncate'>{opt}</span>
-                          </button>
-                        </li>
-                      ))}
                     </ul>
                   );
                 })()
