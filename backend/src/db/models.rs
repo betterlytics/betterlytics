@@ -20,7 +20,9 @@ pub struct EventRow {
     #[serde(with = "clickhouse::serde::chrono::date")]
     pub date: NaiveDate,
     pub browser: String,
+    pub browser_version: String,
     pub os: String,
+    pub os_version: String,
     pub referrer_source: String,
     pub referrer_source_name: String,
     pub referrer_search_term: String,
@@ -39,8 +41,6 @@ pub struct EventRow {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
-    pub browser_version: String,
-    pub os_version: String,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -87,7 +87,9 @@ impl EventRow {
             timestamp,
             date: timestamp.date_naive(),
             browser: event.browser.unwrap_or_else(|| "unknown".to_string()),
+            browser_version: event.browser_version.unwrap_or_default(),
             os: event.os.unwrap_or_else(|| "unknown".to_string()),
+            os_version: event.os_version.unwrap_or_default(),
             referrer_source: event.referrer_info.source_type.as_str().to_string(),
             referrer_source_name: event.referrer_info.source_name.unwrap_or_default(),
             referrer_search_term: event.referrer_info.search_term.unwrap_or_default(),
@@ -106,8 +108,6 @@ impl EventRow {
             cwv_inp: event.cwv_inp,
             cwv_fcp: event.cwv_fcp,
             cwv_ttfb: event.cwv_ttfb,
-            browser_version: event.browser_version.unwrap_or_default(),
-            os_version: event.os_version.unwrap_or_default(),
         }
     }
 }
