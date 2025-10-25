@@ -2,7 +2,7 @@ import React from 'react';
 import { User, ExternalLink, Activity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { EventLogEntry } from '@/entities/events';
-import { formatTimeAgo } from '@/utils/dateFormatters';
+import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { DeviceIcon, BrowserIcon, FlagIcon, FlagIconProps } from '@/components/icons';
 import { useLocale } from 'next-intl';
 import { getCountryName } from '@/utils/countryCodes';
@@ -83,7 +83,7 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
               <h3 className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</h3>
               <div className='bg-muted-foreground/40 h-1 w-1 rounded-full' />
               <Badge variant='secondary' className='border-border border text-xs font-medium shadow-xs'>
-                {formatTimeAgo(new Date(event.timestamp))}
+                {formatRelativeTimeFromNow(event.timestamp)}
               </Badge>
             </div>
           </div>

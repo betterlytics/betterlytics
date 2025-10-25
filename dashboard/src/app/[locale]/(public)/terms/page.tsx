@@ -1,16 +1,15 @@
-import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import { generateSEO } from '@/lib/seo';
 import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 import { getTranslations, getLocale } from 'next-intl/server';
+import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.terms' });
-  const seoConfig = { ...SEO_CONFIGS.terms, title: t('title') } as const;
-  return generateSEO(seoConfig, { locale });
+  return generateSEO(await buildSEOConfig(SEO_CONFIGS.terms), { locale });
 }
 
 export default async function TermsPage() {
@@ -20,7 +19,7 @@ export default async function TermsPage() {
 
   const t = await getTranslations('public.terms');
   const locale = await getLocale();
-  const seoConfig = { ...SEO_CONFIGS.terms, title: t('title') } as const;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.terms);
 
   const Heading = ({ num, children }: { num: number; children: React.ReactNode }) => (
     <h2 className='text-foreground mb-4 text-2xl font-semibold'>
