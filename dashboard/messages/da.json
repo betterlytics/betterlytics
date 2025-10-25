@@ -18,6 +18,11 @@
         ]
       }
     },
+    "notFound": {
+      "title": "404 - Siden blev ikke fundet",
+      "description": "Denne side ser ud til at være vandret ud i analytics-dimensionen. Men bare rolig, vi har styr på det!",
+      "goHome": "Tilbage til forsiden"
+    },
     "about": {
       "seo": {
         "title": "Om Betterlytics | Open Source, Privatlivsfokuseret Webanalyse",
@@ -410,12 +415,9 @@
       },
       "sla": {
         "title": "Serviceniveau og support",
-        "availabilityTitle": "Service-tilgængelighed",
         "availabilityBody": "Vi stræber efter høj tilgængelighed, men leverer tjenesten \"som den er\" og \"som tilgængelig\". Vi garanterer ikke uafbrudt drift eller fejlfri ydeevne.",
         "availabilityBodySuffix": "Vi kan planlægge vedligeholdelse; vi vil bestræbe os på at give forudgående besked.",
-        "supportTitle": "Support",
         "supportBody": "Teknisk support leveres via e-mail efter rimelig indsats. Vi tilstræber hurtige svar, men garanterer ikke specifikke svartider.",
-        "bugsTitle": "Fejl og problemer",
         "bugsBody": "Vi tester vores funktioner grundigt, men ingen software er perfekt. Vi registrerer rapporterede fejl og prioriterer rettelser, især for sikkerheds- eller privatlivsproblemer. Ikke alle rapporterede fejl vil blive rettet med det samme."
       },
       "liability": {
@@ -486,11 +488,6 @@
         "li1": "Anonyme data (standard, anonymiserede analyser), og",
         "li2": "Personlige eller pseudo-anonyme data (valgfri funktioner, eller enhver utilsigtet inklusion af personlige eller pseudo-anonyme data i URL'er, forespørgselsparametre eller hændelses-payloads), f.eks. session replays, brugerdefinerede identifikatorer eller brugerdefinerede hændelser."
       },
-      "intro": {
-        "title": "Introduktion",
-        "p1": "Denne Databehandleraftale (\"DPA\") er en del af Betterlytics' Servicevilkår og regulerer databehandlingen, når du bruger vores analysetjeneste. Denne aftale er udformet for at sikre overholdelse af Databeskyttelsesforordningen (GDPR) og andre gældende love om databeskyttelse.",
-        "p2": "Vigtigt: Betterlytics er specifikt designet til kun at behandle anonyme, aggregerede data. Ingen persondata indsamles, lagres eller behandles af vores tjeneste."
-      },
       "definitions": {
         "title": "Definitioner",
         "controller": "\"Dataansvarlig\": Dig (kunden), som fastlægger formål og midler til behandling af data fra dine website-besøgende.",
@@ -502,7 +499,6 @@
       "processingDetails": {
         "title": "Detaljer om databehandlingen",
         "naturePurposeTitle": "Behandlingens karakter og formål",
-        "body": "Betterlytics behandler data på vegne af den Dataansvarlige udelukkende til følgende formål:",
         "npLi1": "At levere analyser af webtrafik og besøgsadfærd.",
         "npLi2": "At generere aggregerede rapporter om webtrafik og brugsmønstre",
         "npLi3": "At detektere og filtrere bottrafik for nøjagtige statistikker",
@@ -547,16 +543,6 @@
         "li26": "Øjeblikkelig IP-anonymisering ved datainsamlingspunktet",
         "li3": "Bistå den Dataansvarlige med at besvare anmodninger fra registrerede, når der behandles personlige/pseudo-anonyme data.",
         "li4": "Slette alle analyzedata øjeblikkeligt ved sletning af kontoen."
-      },
-      "security": {
-        "title": "Sikkerhedsforanstaltninger",
-        "intro": "Betterlytics implementerer passende tekniske og organisatoriske foranstaltninger for at sikre datasikkerhed:",
-        "li1": "Al dataoverførsel er krypteret ved hjælp af TLS 1.2/1.3",
-        "li2": "Data i hvile er krypteret med industristandarder",
-        "li3": "Adgangskontrol, der begrænser adgang til data til autoriseret personale",
-        "li4": "Regelmæssige sikkerhedsrevisioner og opdateringer",
-        "li5": "EU-baserede servere i sikre datacentre",
-        "li6": "Øjeblikkelig IP-anonymisering ved datainsamlingspunktet"
       },
       "subprocessors": {
         "title": "Underdatabehandlere",
@@ -996,9 +982,6 @@
     "goTo": "Gå til {section}",
     "tabs": {
       "pages": "Sider",
-      "userJourney": "Brugerrejse",
-      "funnels": "Tragter",
-      "campaigns": "Kampagner",
       "entryPages": "Indgangssider",
       "exitPages": "Udgangssider",
       "topCountries": "Top lande",
@@ -1040,8 +1023,6 @@
   },
   "misc": {
     "loading": "Indlæser...",
-    "error": "Der opstod en fejl",
-    "app": "Applikation",
     "created": "Oprettet",
     "unknown": "Ukendt",
     "noChange": "ingen ændring"
@@ -1163,9 +1144,6 @@
       "noResults": "Ingen resultater."
     },
     "timeRange": {
-      "quickSelect": "Hurtig valg",
-      "granularity": "Granularitet",
-      "currentPeriod": "Nuværende periode",
       "disabled": "Deaktiveret",
       "disableCompare": "Deaktiver sammenligning",
       "previousPeriod": "Forrige periode",
@@ -1173,11 +1151,7 @@
       "nextPeriod": "Næste periode",
       "customPeriod": "Brugerdefineret periode",
       "sameLengthAsMain": "Samme længde som hovedinterval",
-      "vs": "vs",
-      "compareWithPrevious": "Sammenlign med tidligere periode",
       "compareToPeriod": "Sammenligningsperiode",
-      "startDate": "Startdato",
-      "endDate": "Slutdato",
       "dateRange": "Datointerval",
       "presets": {
         "today": "I dag",
@@ -1200,7 +1174,6 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "apply": "Anvend",
       "matchDayOfWeek": "Match ugedag"
     },
     "loading": {
@@ -1223,7 +1196,6 @@
       },
       "charts": {
         "deviceTypes": "Enhedstyper",
-        "visitorsByDeviceCategory": "Besøgende efter enhedskategori",
         "deviceUsageTrend": "Enhedsanvendelsestrend"
       },
       "trends": {
@@ -1252,9 +1224,7 @@
         }
       },
       "trend": {
-        "title": "Kampagne-besøgendetrend",
-        "description": "Besøgendetrends over tid pr. kampagne",
-        "empty": "Ingen trenddata for kampagnebesøgende tilgængelig."
+        "title": "Kampagne-besøgendetrend"
       },
       "utm": {
         "table": {
@@ -1269,14 +1239,7 @@
           "content": "Indhold",
           "terms": "Termer"
         },
-        "empty": {
-          "source": "Ingen kildeopdeling tilgængelig for kampagner",
-          "medium": "Ingen medium-opdeling tilgængelig for kampagner",
-          "content": "Ingen indholdsopdeling tilgængelig for kampagner",
-          "term": "Ingen term-opdeling tilgængelig for kampagner"
-        },
         "columns": {
-          "dimension": "Dimension",
           "visitors": "Besøgende",
           "bounceRate": "Afvisningsprocent",
           "avgSessionDuration": "Gns. sessionsvarighed",
@@ -1363,13 +1326,7 @@
         "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
         "addFilter": "Tilføj filter",
         "cancel": "Annuller",
-        "apply": "Anvend",
-        "empty": {
-          "title": "Ingen aktive filtre",
-          "description": "Tilføj filtre for at forfine dine analysedata og fokusere på specifikke segmenter.",
-          "addFirst": "Tilføj dit første filter",
-          "common": "Almindelige filtre: Land, Browser, URL, Enhed"
-        }
+        "apply": "Anvend"
       },
       "filterBy": "Filtrer efter {label}"
     },
@@ -1494,10 +1451,6 @@
       "visitors": "Besøgende"
     },
     "userJourney": {
-      "page": {
-        "title": "Brugerrejse",
-        "description": "Visualisér hvordan brugere navigerer mellem vigtige stier."
-      },
       "steps": "Trin",
       "topJourneys": "Top {journeys} rejser",
       "sessions": "Sessioner"
@@ -1576,6 +1529,7 @@
           "LCP": "Måler indlæsningsperformance. LCP er det øjeblik, hvor den største tekst eller det største billede bliver synligt.",
           "INP": "Måler responsivitet. INP er tiden fra en brugerhandling til næste visuelle opdatering.",
           "FCP": "Viser hvornår det første indhold vises på skærmen under indlæsning.",
+          "unknown": "Ukendt",
           "TTFB": "Måler serverens svartid — tiden fra forespørgsel til første byte modtages."
         }
       }
@@ -1587,7 +1541,6 @@
         "durationFilter": "Min. varighed (s)",
         "durationFilterAria": "Filtrer sessioner efter minimum varighed i sekunder",
         "loading": "Indlæser sessioner…",
-        "unknown": "Ukendt",
         "unknownUrl": "Ukendt URL",
         "endOfList": "Du er nået til slutningen",
         "loadingMore": "Indlæser flere…",
@@ -1622,7 +1575,6 @@
       "player": {
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Afspilningshastighed",
-        "seekAria": "Søg",
         "recordingDisabled": "Optagelse er deaktiveret på denne side"
       }
     },
@@ -1727,10 +1679,6 @@
           "cancel": "Annuller",
           "saving": "Gemmer...",
           "saveChanges": "Gem ændringer"
-        },
-        "toast": {
-          "success": "Indstillinger gemt!",
-          "error": "Kunne ikke gemme indstillinger. Prøv igen."
         }
       },
       "profile": {
@@ -1761,7 +1709,6 @@
           "label": "Avatar",
           "none": "Ingen",
           "gravatar": "Gravatar",
-          "note": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
           "noteIntro": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
           "terms": "du accepterer deres vilkår"
         },
@@ -1794,7 +1741,6 @@
         "notAvailable": "Faktureringsportalen er tilgængelig, når du opgraderer til en betalt plan.",
         "needHelp": "Brug for hjælp til fakturering?",
         "contactSupport": "Kontakt support",
-        "loading": "Indlæser faktureringsoplysninger...",
         "toastError": "Kunne ikke åbne faktureringsportal, prøv igen."
       },
       "security": {
@@ -1901,9 +1847,6 @@
         "backToSignIn": "Tilbage til log ind"
       }
     },
-    "page": {
-      "title": "Betterlytics | Registering"
-    },
     "account": {
       "features": {
         "feature1": {
@@ -1951,8 +1894,7 @@
       "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
-      "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!",
-      "failedToCreateDashboard": "Kunne ikke oprette dashboard. Prøv igen."
+      "dashboardCreatedSuccess": "Dashboard oprettet succesfuldt!"
     },
     "integration": {
       "siteId": {
@@ -1976,7 +1918,6 @@
         "npmThenInitialize": "Derefter initialiser den i din kode:"
       },
       "buttons": {
-        "goToDashboard": "🎉 til dashboard...",
         "skipForNow": "Spring over for nu",
         "continueToDashboard": "Fortsæt til dashboard"
       },
@@ -1991,7 +1932,6 @@
     "verifyEmail": {
       "title": "Bekræft din e-mailadresse",
       "description": "Vi har sendt en bekræftelsesmail til {email}.",
-      "action": "Send e-mail igen",
       "success": "Bekræftelsesmail sendt!",
       "failure": "Kunne ikke sende bekræftelsesmail",
       "sending": "Sender...",
