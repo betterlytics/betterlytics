@@ -1398,6 +1398,7 @@
         "visitors": "Besøgende",
         "pageviews": "Sidevisninger",
         "bounceRate": "Afvisningsprocent",
+        "scrollDepthPercentage": "Scroll-dybde",
         "avgTime": "Gns. tid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
