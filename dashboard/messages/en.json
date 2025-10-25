@@ -1165,6 +1165,7 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
+      "noDataForCurrentPeriod": "No data found for current time period",
       "columns": {
         "url": "URL",
         "device_type": "Device type",

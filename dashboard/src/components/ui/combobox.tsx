@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Popover, PopoverAnchor, PopoverContent } from './popover';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ type ComboboxProps = {
   value: string;
   onValueChange: (value: string) => void;
   options: string[];
+  emptyState: ReactNode;
   onSearchChange?: (q: string) => void;
   searchQuery?: string;
   placeholder?: string;
@@ -19,7 +20,6 @@ type ComboboxProps = {
   disabled?: boolean;
   className?: string;
   triggerClassName?: string;
-  emptyMessage?: string;
   enableSearch?: boolean;
 };
 
@@ -34,7 +34,7 @@ export function Combobox({
   disabled = false,
   className,
   triggerClassName,
-  emptyMessage,
+  emptyState,
   enableSearch = true,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
@@ -123,7 +123,7 @@ export function Combobox({
                   const showCreateOption = enableSearch && trimmed.length > 0 && !options.includes(trimmed);
 
                   if (!showCreateOption && options.length === 0) {
-                    return <div className='text-muted-foreground p-3 text-sm'>{emptyMessage}</div>;
+                    return emptyState;
                   }
 
                   return (

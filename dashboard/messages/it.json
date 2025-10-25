@@ -1171,6 +1171,7 @@
       "operator": "Operatore",
       "is": "è",
       "isNot": "non è",
+      "noDataForCurrentPeriod": "Nessun dato trovato per il periodo corrente",
       "columns": {
         "url": "URL",
         "device_type": "Tipo di dispositivo",

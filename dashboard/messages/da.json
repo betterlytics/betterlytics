@@ -1169,6 +1169,7 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "noDataForCurrentPeriod": "Ingen data fundet for den aktuelle periode",
       "columns": {
         "url": "URL",
         "device_type": "Enhedstype",

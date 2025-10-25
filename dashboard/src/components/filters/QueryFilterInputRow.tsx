@@ -29,6 +29,7 @@ import {
   TextSearchIcon,
   Trash2,
 } from 'lucide-react';
+import { SearchX } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -116,6 +117,12 @@ export function QueryFilterInputRow<TEntity>({
         onSearchChange={setSearch}
         loading={isLoading}
         enableSearch={true}
+        emptyState={
+          <div className='text-muted-foreground flex items-center gap-2 p-3 text-sm'>
+            <SearchX className='h-4 w-4' />
+            <span>{t('noDataForCurrentPeriod')}</span>
+          </div>
+        }
       />
       <Button
         variant='ghost'
