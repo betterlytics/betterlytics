@@ -37,6 +37,7 @@ export function Combobox({
   enableSearch = true,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
   const hasSelection = Boolean(value);
   const selectedLabel = useMemo(() => value || '', [value]);
 
@@ -59,9 +60,37 @@ export function Combobox({
             if (!enableSearch) return;
             onSearchChange?.(e.target.value);
             if (!open) setOpen(true);
+            setHighlightedIndex(null);
           }}
           onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              if (options.length === 0) return;
+              setHighlightedIndex((prev) => {
+                if (prev === null) return 0;
+                return Math.min(prev + 1, options.length - 1);
+              });
+              return;
+            }
+            if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              if (options.length === 0) return;
+              setHighlightedIndex((prev) => {
+                if (prev === null) return options.length - 1;
+                return Math.max(prev - 1, 0);
+              });
+              return;
+            }
             if (e.key === 'Enter') {
+              e.preventDefault();
+              if (highlightedIndex !== null && options[highlightedIndex]) {
+                const chosen = options[highlightedIndex];
+                onSearchChange?.(chosen);
+                onValueChange(chosen);
+                setHighlightedIndex(null);
+                setOpen(false);
+                return;
+              }
               const trimmed = ((enableSearch ? searchQuery : selectedLabel) || '').trim();
               if (trimmed.length === 0) {
                 if (options.length > 0) {
@@ -97,15 +126,23 @@ export function Combobox({
                   }
 
                   return (
-                    <ul className='divide-y'>
-                      {options.map((opt) => (
+                    <ul className='divide-y' role='listbox'>
+                      {options.map((opt, idx) => (
                         <li key={opt} className='border-none'>
                           <button
                             type='button'
-                            className='hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm'
+                            role='option'
+                            aria-selected={highlightedIndex === idx}
+                            className={cn(
+                              'hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm',
+                              highlightedIndex === idx && 'bg-accent',
+                            )}
+                            onMouseEnter={() => setHighlightedIndex(idx)}
+                            onMouseLeave={() => setHighlightedIndex(null)}
                             onClick={() => {
                               onSearchChange?.(opt);
                               onValueChange(opt);
+                              setHighlightedIndex(null);
                               setOpen(false);
                             }}
                           >
