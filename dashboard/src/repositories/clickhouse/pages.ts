@@ -176,7 +176,7 @@ export async function getPageMetrics(
         SELECT
           session_id,
           url,
-          avg(scroll_depth) as scroll_depth
+          avg(scroll_depth_percentage) as scroll_depth_percentage
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -188,7 +188,7 @@ export async function getPageMetrics(
         SELECT pvd.path, uniq(pvd.session_id) as visitors, count() as pageviews,
                 avgIf(pvd.duration_seconds, pvd.duration_seconds IS NOT NULL) as avg_time_seconds,
                 countIf(spc.page_count = 1) as single_page_sessions,
-                avgIf(psd.scroll_depth, psd.scroll_depth IS NOT NULL) as scroll_depth
+                avgIf(psd.scroll_depth_percentage, psd.scroll_depth_percentage IS NOT NULL) as scroll_depth_percentage
         FROM page_view_durations pvd
         JOIN session_page_counts spc ON pvd.session_id = spc.session_id
         JOIN page_scroll_depth psd ON pvd.session_id = psd.session_id AND pvd.path = psd.url
@@ -197,7 +197,7 @@ export async function getPageMetrics(
     SELECT path, visitors, pageviews, 
            if(visitors > 0, round(single_page_sessions / visitors * 100, 2), 0) as bounceRate,
             avg_time_seconds as avgTime,
-            scroll_depth as scrollDepth
+            scroll_depth_percentage as scrollDepthPercentage
     FROM page_aggregates ORDER BY visitors DESC, pageviews DESC LIMIT 100
   `;
 
@@ -220,7 +220,7 @@ export async function getPageMetrics(
     pageviews: Number(row.pageviews),
     bounceRate: row.bounceRate,
     avgTime: row.avgTime,
-    scrollDepth: Number(row.scrollDepth),
+    scrollDepthPercentage: Number(row.scrollDepthPercentage),
   }));
 
   return PageAnalyticsSchema.array().parse(mappedResults);

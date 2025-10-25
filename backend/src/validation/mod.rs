@@ -213,13 +213,22 @@ impl EventValidator {
     }
 
     fn validate_scroll_depth_event(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
-        let scroll_depth = match &raw_event.scroll_depth {
-            Some(depth) => depth,
-            None => return Err(ValidationError::InvalidScrollDepth("Missing scroll_depth value".to_string())),
+        let scroll_depth_percentage = match &raw_event.scroll_depth_percentage {
+            Some(percentage) => percentage,
+            None => return Err(ValidationError::InvalidScrollDepth("Missing scroll_depth_percentage value".to_string())),
         };
 
-        if *scroll_depth < 0.0 || *scroll_depth > 100.0 {
-            return Err(ValidationError::InvalidScrollDepth("scroll_depth must be between 0 and 100".to_string()));
+        let scroll_depth_pixels = match &raw_event.scroll_depth_pixels {
+            Some(pixels) => pixels,
+            None => return Err(ValidationError::InvalidScrollDepth("Missing scroll_depth_pixels value".to_string())),
+        };
+
+        if *scroll_depth_percentage < 0.0 || *scroll_depth_percentage > 100.0 {
+            return Err(ValidationError::InvalidScrollDepth("scroll_depth_percentage must be between 0 and 100".to_string()));
+        }
+
+        if *scroll_depth_pixels < 0.0 {
+            return Err(ValidationError::InvalidScrollDepth("scroll_depth_pixels must be greater than 0".to_string()));
         }
 
         Ok(())

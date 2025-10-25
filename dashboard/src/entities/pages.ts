@@ -15,7 +15,7 @@ export const PageAnalyticsSchema = z.object({
   }, z.number()),
   entryRate: z.number().optional(),
   exitRate: z.number().optional(),
-  scrollDepth: z.preprocess((val) => {
+  scrollDepthPercentage: z.preprocess((val) => {
     if (val === null || val === undefined) return 0;
     return Number(val);
   }, z.number()),

@@ -57,7 +57,8 @@
   var currentPath = window.location.pathname;
 
   // Track max scroll depth during the page view
-  var maxCapturedScroll = 0;
+  var maxCapturedScrollPercentage = 0;
+  var maxCapturedScrollPixels = 0;
 
   function normalize(url) {
     var urlObj = new URL(url);
@@ -280,17 +281,18 @@
 
   // Update max captured scroll
   window.addEventListener("scroll", () => {
-    maxCapturedScroll = Math.max(
+    maxCapturedScrollPixels = Math.max(
       window.scrollY || document.documentElement.scrollTop,
-      maxCapturedScroll
+      maxCapturedScrollPixels
+    );
+
+    maxCapturedScrollPercentage = Math.max(
+      calcScrollDepth(),
+      maxCapturedScrollPercentage
     );
   });
 
   function calcScrollDepth() {
-    const scrollTopNow = window.scrollY || document.documentElement.scrollTop;
-
-    const scrollTop = Math.max(maxCapturedScroll, scrollTopNow);
-
     const windowHeight = window.innerHeight;
     const docHeight = document.documentElement.scrollHeight;
 
@@ -302,14 +304,21 @@
       return 100;
     }
 
-    return 100 * (scrollTop / (docHeight - windowHeight));
+    return 100 * (maxCapturedScrollPixels / (docHeight - windowHeight));
   }
 
   function sendScrollDepthEvent() {
-    const scrollDepth = calcScrollDepth();
-    trackEvent("scroll_depth", { scroll_depth: scrollDepth });
+    trackEvent("scroll_depth", {
+      scroll_depth_percentage: Math.max(
+        maxCapturedScrollPercentage,
+        calcScrollDepth()
+      ),
+      scroll_depth_pixels: maxCapturedScrollPixels,
+    });
+
     // Reset tracked scroll depth
-    maxCapturedScroll = 0;
+    maxCapturedScrollPercentage = 0;
+    maxCapturedScrollPixels = 0;
   }
 
   // Track scroll depth on page-hide
