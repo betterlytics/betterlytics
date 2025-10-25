@@ -17,7 +17,7 @@ type HierarchicalDataTableInput<P extends string, C extends string> = {
   [K in C]: string | null;
 } & {
   visitors: number;
-  is_rollup: 0 | 1;
+  is_rollup: boolean;
 };
 
 function labelKey<K extends string>(key: K, value: string): { [P in K]: string } {
@@ -39,7 +39,7 @@ export function toHierarchicalDataTable<P extends string, C extends string>({
 }: ToHierarchicalDataTableProps<P, C>): HierarchicalDataTableRow<P, C>[] {
   const computeChange = compare && compare.length > 0;
 
-  const isParent = (r: HierarchicalDataTableInput<P, C>) => r.is_rollup === 1;
+  const isParent = (r: HierarchicalDataTableInput<P, C>) => r.is_rollup;
   const keyOf = (r: HierarchicalDataTableInput<P, C>) => r[parentKey];
   const childOf = (r: HierarchicalDataTableInput<P, C>) => r[childKey];
 

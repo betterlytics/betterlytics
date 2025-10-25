@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+const rollupToBoolean = (val: unknown): boolean => {
+  const num = Number(val);
+  return num === 1;
+};
+
 export const DeviceTypeSchema = z.object({
   device_type: z.string(),
   visitors: z.number(),
@@ -37,14 +42,13 @@ export const BrowserRollupRowSchema = z.object({
   browser: z.string(),
   version: z.string().nullable(),
   visitors: z.number(),
-  is_rollup: z.union([z.literal(0), z.literal(1)]),
+  is_rollup: z.preprocess(rollupToBoolean, z.boolean()),
 });
-
 export const OperatingSystemRollupRowSchema = z.object({
   os: z.string(),
   version: z.string().nullable(),
   visitors: z.number(),
-  is_rollup: z.union([z.literal(0), z.literal(1)]),
+  is_rollup: z.preprocess(rollupToBoolean, z.boolean()),
 });
 
 export const DeviceBreakdownCombinedSchema = z.object({
