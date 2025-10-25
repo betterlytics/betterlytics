@@ -1155,6 +1155,11 @@
         "eventDetails": "Event Details",
         "uniqueEvent": "Unique Event",
         "uniqueEvents": "Unique Events"
+      },
+      "expandedEventContent": {
+        "loading": "Loading properties...",
+        "noProperties": "No Properties",
+        "noPropertiesDesc": "This event has no custom properties."
       }
     },
     "tabbedTable": {

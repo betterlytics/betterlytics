@@ -10,7 +10,6 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { EventTypeRow } from '@/entities/events';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +17,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Badge } from '@/components/ui/badge';
 import { ExpandedEventContent } from './ExpandedEventContent';
 import { calculatePercentage } from '@/utils/mathUtils';
-import { formatTimeAgo } from '@/utils/dateFormatters';
+import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { formatPercentage } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
 import type { fetchCustomEventsOverviewAction } from '@/app/actions/events';
@@ -143,7 +142,7 @@ export function EventsTable({ data }: EventsTableProps) {
         accessorKey: 'last_seen',
         header: t('lastSeen'),
         cell: ({ row }) => {
-          const timeAgo = formatTimeAgo(row.original.current.last_seen);
+          const timeAgo = formatRelativeTimeFromNow(row.original.current.last_seen);
 
           return (
             <div className='flex items-center text-right text-sm'>

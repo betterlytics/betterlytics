@@ -1161,6 +1161,11 @@
         "eventDetails": "Dettagli evento",
         "uniqueEvent": "Evento unico",
         "uniqueEvents": "Eventi unici"
+      },
+      "expandedEventContent": {
+        "loading": "Caricamento proprietà...",
+        "noProperties": "Nessuna proprietà",
+        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate."
       }
     },
     "tabbedTable": {
