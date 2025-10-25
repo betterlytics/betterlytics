@@ -7,8 +7,10 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { Footer } from "./components/footer";
 import { getAssetPath } from "@/lib/constants";
-import NextTopLoader from 'nextjs-toploader';
+import NextTopLoader from "nextjs-toploader";
 import ExternalLink from "@/shared/ExternalLink";
+import Script from "next/script";
+import { docsTrackingEnabled, env } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Betterlytics Docs",
@@ -55,28 +57,37 @@ export const metadata: Metadata = {
   },
 };
 
-const navbar = 
+const navbar = (
   <>
     <Navbar
       logo={
         <Image
-        src={getAssetPath("/images/favicon-dark.svg")}
-        alt="Betterlytics"
-        width={32}
-        height={32}
-        className="object-contain"
-        priority
+          src={getAssetPath("/images/favicon-dark.svg")}
+          alt="Betterlytics"
+          width={32}
+          height={32}
+          className="object-contain"
+          priority
         />
       }
       projectLink="https://github.com/betterlytics/betterlytics"
       chatLink="https://discord.gg/vwqSvPn6sP"
+    >
+      <ExternalLink
+        href="https://betterlytics.io/dashboards"
+        title="To Dashboard"
       >
-      <ExternalLink href="https://betterlytics.io/dashboards" title="To Dashboard">
         To Dashboard
       </ExternalLink>
     </Navbar>
-    <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
+    <NextTopLoader
+      color="var(--primary)"
+      height={3}
+      showSpinner={false}
+      shadow={false}
+    />
   </>
+);
 
 const footer = <Footer />;
 
@@ -91,8 +102,36 @@ export default async function RootLayout({
       dir="ltr" // Required to be set
       suppressHydrationWarning
     >
-      <Head></Head>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Betterlytics Docs",
+              url: "https://betterlytics.io/docs",
+              inLanguage: "en",
+              publisher: {
+                "@type": "Organization",
+                name: "Betterlytics",
+                logo: "https://betterlytics.io/betterlytics-logo-full-light.png",
+              },
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
+      </Head>
       <body>
+        {docsTrackingEnabled && (
+          <Script
+            async
+            src={`${env.PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
+            data-site-id={env.APP_TRACKING_SITE_ID}
+            data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
+            data-web-vitals="true"
+            data-outbound-links="full"
+          />
+        )}
         <Layout
           navbar={navbar}
           sidebar={{ autoCollapse: true }}

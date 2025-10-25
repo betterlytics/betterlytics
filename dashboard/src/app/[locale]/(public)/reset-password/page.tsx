@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { generateSEO } from '@/lib/seo';
+import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { authOptions } from '@/lib/auth';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
@@ -8,26 +9,30 @@ import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
 import { validateResetTokenAction } from '@/app/actions/passwordReset';
 import { getTranslations } from 'next-intl/server';
+import { StructuredData } from '@/components/StructuredData';
 
-export const metadata: Metadata = {
-  ...generateSEO({
-    title: 'Reset your password | Betterlytics',
-    description: 'Set a new password for your Betterlytics account using your secure reset link.',
-    keywords: ['Reset Password', 'Password Reset', 'Account Recovery', 'Betterlytics'],
-    path: '/reset-password',
-  }),
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: SupportedLanguages }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.resetPassword);
+  return generateSEO(seoConfig, {
+    locale,
+    robots: {
       index: false,
       follow: false,
-      'max-image-preview': 'none',
-      'max-snippet': 0,
-      'max-video-preview': 0,
+      googleBot: {
+        index: false,
+        follow: false,
+        'max-image-preview': 'none',
+        'max-snippet': 0,
+        'max-video-preview': 0,
+      },
     },
-  },
-};
+  });
+}
 
 interface ResetPasswordPageProps {
   searchParams: Promise<{
@@ -61,6 +66,7 @@ function ResetPasswordLayout({ title, description, children }: ResetPasswordLayo
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
   const session = await getServerSession(authOptions);
   const t = await getTranslations('public.auth.resetPassword');
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.resetPassword);
 
   if (session) {
     redirect('/dashboards');
@@ -70,14 +76,17 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
 
   if (!token) {
     return (
-      <ResetPasswordLayout title={t('invalid.title')} description={t('invalid.description')}>
-        <div className='text-center'>
-          <p className='text-muted-foreground mb-4 text-sm'>{t('invalid.note')}</p>
-          <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
-            {t('invalid.requestLink')}
-          </Link>
-        </div>
-      </ResetPasswordLayout>
+      <>
+        <StructuredData config={seoConfig} />
+        <ResetPasswordLayout title={t('invalid.title')} description={t('invalid.description')}>
+          <div className='text-center'>
+            <p className='text-muted-foreground mb-4 text-sm'>{t('invalid.note')}</p>
+            <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
+              {t('invalid.requestLink')}
+            </Link>
+          </div>
+        </ResetPasswordLayout>
+      </>
     );
   }
 
@@ -85,28 +94,34 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
 
   if (!isValidToken) {
     return (
-      <ResetPasswordLayout title={t('expired.title')} description={t('expired.description')}>
-        <div className='text-center'>
-          <p className='text-muted-foreground mb-4 text-sm'>{t('expired.info')}</p>
-          <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
-            {t('expired.requestLink')}
-          </Link>
-        </div>
-      </ResetPasswordLayout>
+      <>
+        <StructuredData config={seoConfig} />
+        <ResetPasswordLayout title={t('expired.title')} description={t('expired.description')}>
+          <div className='text-center'>
+            <p className='text-muted-foreground mb-4 text-sm'>{t('expired.info')}</p>
+            <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
+              {t('expired.requestLink')}
+            </Link>
+          </div>
+        </ResetPasswordLayout>
+      </>
     );
   }
 
   return (
-    <ResetPasswordLayout title={t('form.title')} description={t('form.description')}>
-      <ResetPasswordForm token={token} />
-      <div className='mt-6 text-center'>
-        <p className='text-muted-foreground text-sm'>
-          {t('cta.remember')}{' '}
-          <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
-            {t('cta.backToSignIn')}
-          </Link>
-        </p>
-      </div>
-    </ResetPasswordLayout>
+    <>
+      <StructuredData config={seoConfig} />
+      <ResetPasswordLayout title={t('form.title')} description={t('form.description')}>
+        <ResetPasswordForm token={token} />
+        <div className='mt-6 text-center'>
+          <p className='text-muted-foreground text-sm'>
+            {t('cta.remember')}{' '}
+            <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
+              {t('cta.backToSignIn')}
+            </Link>
+          </p>
+        </div>
+      </ResetPasswordLayout>
+    </>
   );
 }

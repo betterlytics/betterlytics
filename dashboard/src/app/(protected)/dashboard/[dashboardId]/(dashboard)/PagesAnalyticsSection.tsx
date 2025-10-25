@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 type PageAnalyticsSectionProps = {
   analyticsCombinedPromise: ReturnType<typeof fetchPageAnalyticsCombinedAction>;
@@ -15,11 +16,17 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
   const pageAnalyticsCombined = use(analyticsCombinedPromise);
   const t = useTranslations('dashboard');
   const dashboardId = useDashboardId();
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const onItemClick = (_tabKey: string, item: { label: string }) => {
+    return makeFilterClick('url')(item.label);
+  };
 
   return (
     <MultiProgressTable
       title={t('sections.topPages')}
       defaultTab='pages'
+      onItemClick={onItemClick}
       tabs={[
         {
           key: 'pages',

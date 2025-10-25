@@ -2,7 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useCallback } from 'react';
-import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useFilterClick } from '@/hooks/use-filter-click';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import TabbedTable from '@/components/TabbedTable';
@@ -23,19 +23,8 @@ const formatPath = (path: string): string => {
 };
 
 export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPagesData }: TabbedPagesTableProps) {
-  const { addQueryFilter } = useQueryFiltersContext();
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const t = useTranslations('components.pages.table');
-
-  const handlePathClick = useCallback(
-    (path: string) => {
-      addQueryFilter({
-        column: 'url',
-        operator: '=',
-        value: path,
-      });
-    },
-    [addQueryFilter],
-  );
 
   const getBaseColumns = useCallback((): ColumnDef<
     Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]
@@ -49,7 +38,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
           return (
             <Button
               variant='ghost'
-              onClick={() => handlePathClick(path)}
+              onClick={() => makeFilterClick('url')(path)}
               className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors'
               title={t('filterByPath', { path })}
             >
@@ -93,7 +82,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         accessorFn: (row) => row.current.avgTime,
       },
     ];
-  }, [handlePathClick]);
+  }, [makeFilterClick, t]);
 
   const getTabSpecificColumns = useCallback((): Record<
     string,
@@ -133,7 +122,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         accessorFn: (row) => row.current.exitRate,
       },
     };
-  }, []);
+  }, [t]);
 
   const allPagesColumns = useMemo(() => getBaseColumns(), [getBaseColumns]);
 
@@ -141,13 +130,13 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     const base = getBaseColumns();
     const specific = getTabSpecificColumns();
     return [...base, specific.entryRate];
-  }, [getBaseColumns, getTabSpecificColumns]);
+  }, [getBaseColumns, getTabSpecificColumns, t]);
 
   const exitPagesColumns = useMemo(() => {
     const base = getBaseColumns();
     const specific = getTabSpecificColumns();
     return [...base, specific.exitRate];
-  }, [getBaseColumns, getTabSpecificColumns]);
+  }, [getBaseColumns, getTabSpecificColumns, t]);
 
   const tableTabs = useMemo(
     () => [
@@ -173,7 +162,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         defaultSorting: [{ id: 'pageviews', desc: true }],
       },
     ],
-    [allPagesData, entryPagesData, exitPagesData, allPagesColumns, entryPagesColumns, exitPagesColumns],
+    [allPagesData, entryPagesData, exitPagesData, allPagesColumns, entryPagesColumns, exitPagesColumns, t],
   );
 
   return (

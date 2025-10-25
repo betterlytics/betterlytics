@@ -27,6 +27,8 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   tabs: TabConfig<T>[];
   defaultTab?: string;
   footer?: React.ReactNode;
+  onItemClick?: (tabKey: string, item: T) => void;
+  isItemInteractive?: (tabKey: string, item: T) => boolean;
 }
 
 function MultiProgressTable<T extends ProgressBarData>({
@@ -34,15 +36,18 @@ function MultiProgressTable<T extends ProgressBarData>({
   tabs,
   defaultTab,
   footer,
+  onItemClick,
+  isItemInteractive,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const t = useTranslations('dashboard.emptyStates');
+  const tFilters = useTranslations('components.filters');
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
   }, []);
 
   const renderProgressList = useCallback(
-    (data: T[]) => {
+    (data: T[], tabKey: string) => {
       const maxVisitors = Math.max(...data.map((item) => item.value), 1);
       const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
 
@@ -64,8 +69,27 @@ function MultiProgressTable<T extends ProgressBarData>({
           {data.map((item, index) => {
             const relativePercentage = (item.value / maxVisitors) * 100;
             const percentage = (item.value / total) * 100;
+            const interactive = isItemInteractive ? isItemInteractive(tabKey, item) : !!onItemClick;
             return (
-              <div key={item.key ?? item.label} className='group relative'>
+              <div
+                key={item.key ?? item.label}
+                className={`group relative ${interactive ? 'cursor-pointer' : ''}`}
+                role={interactive ? 'button' : undefined}
+                tabIndex={interactive ? 0 : undefined}
+                title={
+                  interactive && typeof item.label === 'string'
+                    ? tFilters('filterBy', { label: item.label })
+                    : undefined
+                }
+                onClick={interactive ? () => onItemClick?.(tabKey, item) : undefined}
+                onKeyDown={
+                  interactive
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') onItemClick?.(tabKey, item);
+                      }
+                    : undefined
+                }
+              >
                 <PropertyValueBar
                   value={{
                     value: item.label,
@@ -85,7 +109,7 @@ function MultiProgressTable<T extends ProgressBarData>({
         </div>
       );
     },
-    [t],
+    [onItemClick, isItemInteractive, t, tFilters],
   );
 
   const renderTabContent = useCallback(
@@ -94,7 +118,7 @@ function MultiProgressTable<T extends ProgressBarData>({
         return tab.customContent;
       }
 
-      return renderProgressList(tab.data);
+      return renderProgressList(tab.data, tab.key);
     },
     [renderProgressList],
   );
