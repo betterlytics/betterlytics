@@ -14,6 +14,9 @@ import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
 import InfoTooltip from '@/app/(protected)/dashboard/[dashboardId]/web-vitals/InfoTooltip';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { useFilterClick } from '@/hooks/use-filter-click';
+import type { FilterColumn } from '@/entities/filter';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
@@ -34,6 +37,8 @@ export default function WebVitalsTableSection({
   perOsPromise,
 }: Props) {
   const t = useTranslations('components.webVitals.table');
+  const tFilters = useTranslations('components.filters');
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const data = use(perPagePromise);
   const devices = use(perDevicePromise);
   const countries = use(perCountryPromise);
@@ -44,7 +49,11 @@ export default function WebVitalsTableSection({
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
 
   const makeColumns = useCallback(
-    (label: string, renderIcon?: (key: string) => React.ReactNode): ColumnDef<Row>[] => {
+    (
+      label: string,
+      renderIcon?: (key: string) => React.ReactNode,
+      filterColumn?: FilterColumn,
+    ): ColumnDef<Row>[] => {
       const getValue = (row: Row, metric: CoreWebVitalName): number | null => {
         const percentiles = row.current.__percentiles?.[metric];
         return percentiles ? percentiles[percentileIndex[activePercentile]] : (row.current as any)[metric];
@@ -146,12 +155,23 @@ export default function WebVitalsTableSection({
         {
           accessorKey: 'key',
           header: label,
-          cell: ({ row }) => (
-            <div className='flex max-w-[480px] items-center gap-2 truncate'>
-              {renderIcon && <span className='shrink-0'>{renderIcon(row.original.key)}</span>}
-              <span className='truncate'>{formatString(row.original.key)}</span>
-            </div>
-          ),
+          cell: ({ row }) => {
+            const key = row.original.key;
+            const labelText = formatString(key);
+            return (
+              <Button
+                variant='ghost'
+                onClick={filterColumn ? () => makeFilterClick(filterColumn)(key) : undefined}
+                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium'
+                title={tFilters('filterBy', { label: labelText })}
+              >
+                <span className='flex max-w-[480px] items-center gap-2 truncate'>
+                  {renderIcon && <span className='shrink-0'>{renderIcon(key)}</span>}
+                  <span className='truncate'>{labelText}</span>
+                </span>
+              </Button>
+            );
+          },
         },
         {
           accessorKey: 'samples',
@@ -215,27 +235,32 @@ export default function WebVitalsTableSection({
         },
       ];
     },
-    [activePercentile, percentileIndex],
+    [activePercentile, percentileIndex, makeFilterClick, tFilters],
   );
 
-  const pageColumns: ColumnDef<Row>[] = useMemo(() => makeColumns(t('tabs.page')), [makeColumns, t]);
+  const pageColumns: ColumnDef<Row>[] = useMemo(
+    () => makeColumns(t('tabs.page'), undefined, 'url'),
+    [makeColumns, t],
+  );
   const deviceColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns(t('tabs.deviceType'), (key) => <DeviceIcon type={key} className='h-4 w-4' />),
+    () => makeColumns(t('tabs.deviceType'), (key) => <DeviceIcon type={key} className='h-4 w-4' />, 'device_type'),
     [makeColumns, t],
   );
   const countryColumns: ColumnDef<Row>[] = useMemo(
     () =>
-      makeColumns(t('tabs.country'), (key) => (
-        <FlagIcon countryCode={key.toUpperCase() as keyof typeof Flags} countryName={key} />
-      )),
+      makeColumns(
+        t('tabs.country'),
+        (key) => <FlagIcon countryCode={key.toUpperCase() as keyof typeof Flags} countryName={key} />,
+        'country_code',
+      ),
     [makeColumns, t],
   );
   const browserColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns(t('tabs.browser'), (key) => <BrowserIcon name={key} className='h-4 w-4' />),
+    () => makeColumns(t('tabs.browser'), (key) => <BrowserIcon name={key} className='h-4 w-4' />, 'browser'),
     [makeColumns, t],
   );
   const osColumns: ColumnDef<Row>[] = useMemo(
-    () => makeColumns(t('tabs.operatingSystem'), (key) => <OSIcon name={key} className='h-4 w-4' />),
+    () => makeColumns(t('tabs.operatingSystem'), (key) => <OSIcon name={key} className='h-4 w-4' />, 'os'),
     [makeColumns, t],
   );
 
