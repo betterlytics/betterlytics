@@ -1,9 +1,8 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { getTranslations, getLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import { getTranslations } from 'next-intl/server';
 
 export default async function NotFound() {
-  const locale = await getLocale();
   const t = await getTranslations('public.notFound');
 
   return (
@@ -28,7 +27,7 @@ export default async function NotFound() {
           <p className='text-muted-foreground mx-auto max-w-[700px] md:text-xl'>{t('description')}</p>
         </div>
         <Link
-          href={`/${locale}`}
+          href='/'
           className='bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex h-10 items-center justify-center rounded-md px-8 text-sm font-medium shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'
         >
           {t('goHome')}
