@@ -40,7 +40,7 @@ export function useQueryFilterSearch(filter: QueryFilter) {
         startDate,
         endDate,
         column: filter.column,
-        search: debouncedSearch || undefined,
+        search: isDirty ? debouncedSearch || undefined : undefined,
         limit: SEARCH_LIMIT,
       }),
     staleTime: 5 * 60 * 1000,
