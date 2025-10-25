@@ -5,6 +5,8 @@ import {
   getBrowserBreakdownForSite,
   getOperatingSystemBreakdownForSite,
   getDeviceUsageTrendForSite,
+  getBrowserRollupForSite,
+  getOperatingSystemRollupForSite,
 } from '@/services/devices';
 import { BrowserStats, DeviceBreakdownCombinedSchema } from '@/entities/devices';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -14,6 +16,7 @@ import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
 import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
 import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
+import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -52,29 +55,29 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
     const [
       deviceTypeBreakdown,
       compareDeviceTypeBreakdown,
-      browserBreakdown,
-      compareBrowserBreakdown,
-      operatingSystemBreakdown,
-      compareOperatingSystemBreakdown,
+      browserRollup,
+      compareBrowserRollup,
+      operatingSystemRollup,
+      compareOperatingSystemRollup,
     ] = await Promise.all([
       getDeviceTypeBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
       compareStartDate &&
         compareEndDate &&
         getDeviceTypeBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
-      getBrowserBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
+      getBrowserRollupForSite(ctx.siteId, startDate, endDate, queryFilters),
       compareStartDate &&
         compareEndDate &&
-        getBrowserBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
-      getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
+        getBrowserRollupForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
+      getOperatingSystemRollupForSite(ctx.siteId, startDate, endDate, queryFilters),
       compareStartDate &&
         compareEndDate &&
-        getOperatingSystemBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
+        getOperatingSystemRollupForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
     ]);
 
     const data = DeviceBreakdownCombinedSchema.parse({
       devices: deviceTypeBreakdown,
-      browsers: browserBreakdown,
-      operatingSystems: operatingSystemBreakdown,
+      browsersRollup: browserRollup,
+      operatingSystemsRollup: operatingSystemRollup,
     });
 
     const compare =
@@ -82,8 +85,8 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
       compareEndDate &&
       DeviceBreakdownCombinedSchema.parse({
         devices: compareDeviceTypeBreakdown,
-        browsers: compareBrowserBreakdown,
-        operatingSystems: compareOperatingSystemBreakdown,
+        browsersRollup: compareBrowserRollup,
+        operatingSystemsRollup: compareOperatingSystemRollup,
       });
 
     return {
@@ -92,15 +95,17 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
         compare: compare?.devices,
         categoryKey: 'device_type',
       }),
-      browsers: toDataTable({
-        data: data.browsers,
-        compare: compare?.browsers,
-        categoryKey: 'browser',
+      browsersExpanded: toHierarchicalDataTable({
+        data: data.browsersRollup,
+        compare: compare?.browsersRollup,
+        parentKey: 'browser',
+        childKey: 'version',
       }),
-      operatingSystems: toDataTable({
-        data: data.operatingSystems,
-        compare: compare?.operatingSystems,
-        categoryKey: 'os',
+      operatingSystemsExpanded: toHierarchicalDataTable({
+        data: data.operatingSystemsRollup,
+        compare: compare?.operatingSystemsRollup,
+        parentKey: 'os',
+        childKey: 'version',
       }),
     };
   },

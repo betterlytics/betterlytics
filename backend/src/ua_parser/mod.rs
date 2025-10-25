@@ -8,7 +8,7 @@ use std::sync::OnceLock;
 
 static USER_AGENT_PARSER: OnceLock<UserAgentParser> = OnceLock::new();
 
-static UA_CACHE: Lazy<Cache<String, (String, Option<String>, String)>> = Lazy::new(|| {
+static UA_CACHE: Lazy<Cache<String, (String, Option<String>, String, Option<String>)>> = Lazy::new(|| {
     Cache::builder()
         .max_capacity(5_000)
         .time_to_live(std::time::Duration::from_secs(3600))
@@ -20,6 +20,7 @@ pub struct ParsedUserAgent {
     pub browser: String,
     pub browser_version: Option<String>,
     pub os: String,
+    pub os_version: Option<String>,
 }
 
 pub fn initialize(ua_regexes_path: &Path) {
@@ -43,12 +44,13 @@ pub fn initialize(ua_regexes_path: &Path) {
 pub fn parse_user_agent(user_agent: &str) -> ParsedUserAgent {
     debug!("Parsing user agent: {:?}", user_agent);
     
-    if let Some((browser, browser_version, os)) = UA_CACHE.get(user_agent) {
-        debug!("User agent cache hit: browser={:?}, version={:?}, os={:?}", browser, browser_version, os);
+    if let Some((browser, browser_version, os, os_version)) = UA_CACHE.get(user_agent) {
+        debug!("User agent cache hit: browser={:?}, version={:?}, os={:?}, os_version={:?}", browser, browser_version, os, os_version);
         return ParsedUserAgent {
             browser,
             browser_version,
             os,
+            os_version,
         };
     }
     
@@ -58,17 +60,19 @@ pub fn parse_user_agent(user_agent: &str) -> ParsedUserAgent {
     let browser = client.user_agent.family.to_string();
     let browser_version = client.user_agent.major.map(|v| v.to_string());
     let os = client.os.family.to_string();
+    let os_version = client.os.major.map(|v| v.to_string());
     
     UA_CACHE.insert(
         user_agent.to_string(),
-        (browser.clone(), browser_version.clone(), os.clone())
+        (browser.clone(), browser_version.clone(), os.clone(), os_version.clone())
     );
     
-    debug!("User agent parsed: browser={:?}, version={:?}, os={:?}", browser, browser_version, os);
+    debug!("User agent parsed: browser={:?}, version={:?}, os={:?}, os_version={:?}", browser, browser_version, os, os_version);
     
     ParsedUserAgent {
         browser,
         browser_version,
         os,
+        os_version,
     }
 }
