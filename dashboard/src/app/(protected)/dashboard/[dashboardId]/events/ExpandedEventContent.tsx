@@ -4,6 +4,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useEventProperties } from '@/hooks/use-event-properties';
 import { QueryFilter } from '@/entities/filter';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslations } from 'next-intl';
 
 interface ExpandedEventContentProps {
   event: EventTypeRow;
@@ -22,6 +23,7 @@ export function ExpandedEventContent({
   endDate,
   queryFilters,
 }: ExpandedEventContentProps) {
+  const t = useTranslations('components.events.expandedEventContent');
   const dashboardId = useDashboardId();
   const { data: propertiesData, isLoading: propertiesLoading } = useEventProperties(
     dashboardId,
@@ -38,7 +40,7 @@ export function ExpandedEventContent({
           <div className='relative'>
             <Spinner size='sm' />
           </div>
-          <p className='text-muted-foreground text-sm'>Loading properties...</p>
+          <p className='text-muted-foreground text-sm'>{t('loading')}</p>
         </div>
       ) : propertiesData?.properties.length ? (
         <div className='py-4 pr-6 pl-8'>
@@ -55,8 +57,8 @@ export function ExpandedEventContent({
         </div>
       ) : (
         <div className='py-12 pl-8 text-center'>
-          <h4 className='text-foreground mb-1 text-sm font-medium'>No Properties</h4>
-          <p className='text-muted-foreground text-xs'>This event has no custom properties.</p>
+          <h4 className='text-foreground mb-1 text-sm font-medium'>{t('noProperties')}</h4>
+          <p className='text-muted-foreground text-xs'>{t('noPropertiesDesc')}</p>
         </div>
       )}
     </div>
