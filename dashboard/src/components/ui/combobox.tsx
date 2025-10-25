@@ -5,6 +5,7 @@ import { Popover, PopoverAnchor, PopoverContent } from './popover';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
+import { formatString } from '@/utils/formatters';
 
 type ComboboxProps = {
   value: string;
@@ -146,7 +147,7 @@ export function Combobox({
                               setOpen(false);
                             }}
                           >
-                            <span className='truncate'>{opt}</span>
+                            <span className='truncate'>{formatString(opt, 24)}</span>
                           </button>
                         </li>
                       ))}
@@ -164,7 +165,7 @@ export function Combobox({
                             }}
                           >
                             <Plus className='h-4 w-4 opacity-70' />
-                            <span className='truncate'>"{trimmed}"</span>
+                            <span className='truncate'>"{formatString(trimmed, 18)}"</span>
                           </button>
                         </li>
                       ) : null}
