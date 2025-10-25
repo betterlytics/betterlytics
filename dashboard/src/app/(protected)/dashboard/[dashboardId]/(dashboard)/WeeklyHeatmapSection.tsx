@@ -12,6 +12,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/filter';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatNumber } from '@/utils/formatters';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -181,7 +182,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                       {`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${String((hourIndex + 1) % 24).padStart(2, '0')}:00`}
                     </div>
                     <div className='text-popover-foreground/90'>
-                      {`${metric === 'session_duration' ? formatDuration(Math.round(value)) : value} ${metricLabel.toLowerCase()}`}
+                      {`${metric === 'session_duration' ? formatDuration(Math.round(value)) : formatNumber(value)} ${metricLabel.toLowerCase()}`}
                     </div>
                   </div>
                 </TooltipContent>
