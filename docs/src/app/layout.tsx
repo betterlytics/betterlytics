@@ -102,7 +102,25 @@ export default async function RootLayout({
       dir="ltr" // Required to be set
       suppressHydrationWarning
     >
-      <Head></Head>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Betterlytics Docs",
+              url: "https://betterlytics.io/docs",
+              inLanguage: "en",
+              publisher: {
+                "@type": "Organization",
+                name: "Betterlytics",
+                logo: "https://betterlytics.io/betterlytics-logo-full-light.png",
+              },
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
+      </Head>
       <body>
         {docsTrackingEnabled && (
           <Script
