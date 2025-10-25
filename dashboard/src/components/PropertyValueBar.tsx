@@ -43,7 +43,7 @@ export function PropertyValueBar({ value, icon, respectComparison, index, leadin
               <div className='hidden gap-1 transition-all transition-discrete duration-200 group-hover:flex'>
                 {value.comparisonValue && (
                   <span>
-                    <TrendPercentage percentage={value.trendPercentage} withParenthesis />
+                    <TrendPercentage percentage={value.trendPercentage} withParenthesis displayNoChangeAsText />
                   </span>
                 )}
                 {formatPercentage(value.percentage)}

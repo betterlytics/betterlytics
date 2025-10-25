@@ -12,6 +12,7 @@ import { capitalizeFirstLetter } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 type ReferrersChartsSectionProps = {
   distributionPromise: ReturnType<typeof fetchReferrerSourceAggregationDataForSite>;
@@ -28,6 +29,7 @@ export default function ReferrersChartsSection({
   const t = useTranslations('components.referrers.charts');
 
   const distributionData = distributionResult.data;
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   return (
     <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
@@ -49,7 +51,12 @@ export default function ReferrersChartsSection({
           <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
         </CardHeader>
         <CardContent className='px-0'>
-          <BAPieChart data={distributionData} getColor={getReferrerColor} getLabel={capitalizeFirstLetter} />
+          <BAPieChart
+            data={distributionData}
+            getColor={getReferrerColor}
+            getLabel={capitalizeFirstLetter}
+            onSliceClick={makeFilterClick('referrer_source')}
+          />
         </CardContent>
       </Card>
     </div>

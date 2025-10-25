@@ -1,6 +1,43 @@
 {
   "public": {
+    "root": {
+      "seo": {
+        "title": "Betterlytics | Analisi Web Privacy-First",
+        "description": "Betterlytics è un’alternativa open-source a Google Analytics orientata alla privacy. Ottieni informazioni GDPR-compliant e senza cookie senza tracking invasivo, rispettando la privacy degli utenti.",
+        "keywords": [
+          "Alternativa a Google Analytics",
+          "Analisi Privacy-First",
+          "Web Analytics Senza Cookie",
+          "Analisi GDPR-Compliant",
+          "Piattaforma Analisi Open Source",
+          "Analisi Privacy-Friendly",
+          "Analisi Traffico Web",
+          "Analisi Visitatori",
+          "Strumento Web Analytics",
+          "Betterlytics"
+        ]
+      }
+    },
+    "notFound": {
+      "title": "404 - Pagina non trovata",
+      "description": "Questa pagina sembra essersi persa nella dimensione degli analytics. Non preoccuparti, abbiamo la soluzione!",
+      "goHome": "Vai alla home"
+    },
     "about": {
+      "seo": {
+        "title": "Informazioni su Betterlytics | Analisi Web Open Source e Privacy-First",
+        "description": "Scopri la storia di Betterlytics - creiamo strumenti di analisi web open-source e senza cookie che rispettano la privacy e la conformità GDPR.",
+        "keywords": [
+          "Informazioni su Betterlytics",
+          "Analisi Privacy-First",
+          "Analisi Web Open Source",
+          "Analisi Senza Cookie",
+          "Analisi Conforme al GDPR",
+          "Piattaforma di Analisi della Privacy",
+          "Analisi Senza Cookie",
+          "Strumento di Analisi Open Source"
+        ]
+      },
       "aboutUs": "Chi siamo - Betterlytics",
       "intro": "Stiamo costruendo il futuro delle analitiche web: privacy-first, open source e progettate per il web moderno. Non devi più scegliere tra insights potenti e rispettare la privacy dei tuoi visitatori.",
       "sections": {
@@ -57,6 +94,20 @@
       }
     },
     "contact": {
+      "seo": {
+        "title": "Contatta Betterlytics | Analisi Web Privacy-First",
+        "description": "Contatta il team Betterlytics per supporto, feedback o collaborazioni sulla nostra piattaforma di analisi web open-source e senza cookie.",
+        "keywords": [
+          "Contatta Betterlytics",
+          "Supporto Betterlytics",
+          "Aiuto Analisi Web",
+          "Supporto Analisi Privacy-First",
+          "Contatto Analisi GDPR",
+          "Supporto Analisi Senza Cookie",
+          "Assistenza Clienti Betterlytics",
+          "Pagina Contatti"
+        ]
+      },
       "title": "Contattaci",
       "intro": "Domande su Betterlytics? Hai bisogno di supporto per la configurazione delle analitiche? Il nostro team è pronto ad assisterti.",
       "getInTouch": {
@@ -117,6 +168,20 @@
       }
     },
     "privacy": {
+      "seo": {
+        "title": "Informativa sulla Privacy | GDPR e Analisi Senza Cookie",
+        "description": "Informativa sulla privacy di Betterlytics — conforme al GDPR e senza cookie. Scopri come proteggiamo i tuoi dati con analisi anonime.",
+        "keywords": [
+          "Informativa sulla Privacy Betterlytics",
+          "Conformità GDPR",
+          "Privacy dei Dati",
+          "Protezione dei Dati",
+          "Analisi Senza Cookie",
+          "Analisi Anonime",
+          "Privacy Utente",
+          "Analisi Incentrata sulla Privacy"
+        ]
+      },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Informativa sulla Privacy di Betterlytics",
       "lastUpdated": "Ultimo aggiornamento:",
@@ -241,6 +306,20 @@
       }
     },
     "terms": {
+      "seo": {
+        "title": "Termini di Servizio | Analisi Web Privacy-First",
+        "description": "Leggi i Termini di Servizio di Betterlytics — scopri diritti, responsabilità e condizioni d’uso della nostra piattaforma di analisi web orientata alla privacy.",
+        "keywords": [
+          "Termini di Servizio Betterlytics",
+          "Termini e Condizioni",
+          "Accordo di Servizio Analisi",
+          "Termini Analisi Web",
+          "Termini Analisi Privacy",
+          "Condizioni d’Uso",
+          "Accordo Legale Betterlytics",
+          "Analisi Privacy-First"
+        ]
+      },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Termini di Servizio di Betterlytics",
       "lastUpdated": "Ultimo aggiornamento:",
@@ -336,12 +415,9 @@
       },
       "sla": {
         "title": "Livello di servizio e supporto",
-        "availabilityTitle": "Disponibilità del servizio",
         "availabilityBody": "Miriamo a un’elevata disponibilità ma forniamo il servizio \"così com’è\" e \"come disponibile\". Non garantiamo un funzionamento ininterrotto o prestazioni prive di errori.",
         "availabilityBodySuffix": "Potremmo pianificare manutenzioni; faremo del nostro meglio per fornire preavviso.",
-        "supportTitle": "Supporto",
         "supportBody": "Il supporto tecnico è fornito via email su base di ragionevole impegno. Puntiamo a rispondere prontamente ma non garantiamo tempi di risposta specifici.",
-        "bugsTitle": "Bug e problemi",
         "bugsBody": "Testiamo accuratamente le nostre funzionalità, ma nessun software è perfetto. Tracciamo i bug segnalati e diamo priorità alle correzioni, in particolare per problemi di sicurezza o privacy. Non tutti i bug segnalati verranno corretti immediatamente."
       },
       "liability": {
@@ -387,6 +463,21 @@
       }
     },
     "dpa": {
+      "seo": {
+        "title": "Accordo sul Trattamento dei Dati (DPA) | GDPR e Analisi Privacy-First",
+        "description": "Accordo sul Trattamento dei Dati di Betterlytics (DPA) — conforme al GDPR, con analisi orientata alla privacy e trattamento sicuro dei dati anonimi.",
+        "keywords": [
+          "Accordo sul Trattamento dei Dati Betterlytics",
+          "DPA",
+          "Conformità GDPR",
+          "GDPR DPA",
+          "Privacy dei Dati",
+          "Accordo di Protezione dei Dati",
+          "Analisi Privacy-First",
+          "Analisi Anonime",
+          "Analisi Web GDPR"
+        ]
+      },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Accordo sul Trattamento dei Dati (DPA)",
       "lastUpdated": "Ultimo aggiornamento:",
@@ -396,11 +487,6 @@
         "appliesTo": "Questo DPA si applica al trattamento dei dati dei visitatori del sito web raccolti tramite gli script di analisi Betterlytics, includendo sia:",
         "li1": "Dati anonimi (analitiche predefinite e anonimizzate), e",
         "li2": "Dati personali o pseudo-anonimi (funzionalità opzionali o qualsiasi inclusione accidentale di dati personali o pseudo-anonimi in URL, parametri di query o payload degli eventi), ad es. session replay, identificatori personalizzati o eventi personalizzati."
-      },
-      "intro": {
-        "title": "Introduzione",
-        "p1": "Questo Accordo sul Trattamento dei Dati (\"DPA\") fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il nostro servizio di analisi. Questo accordo è progettato per garantire la conformità al Regolamento Generale sulla Protezione dei Dati (GDPR) e ad altre leggi applicabili sulla protezione dei dati.",
-        "p2": "Importante: Betterlytics è specificamente progettato per trattare solo dati anonimi e aggregati. Nessun dato personale viene raccolto, archiviato o trattato dal nostro servizio."
       },
       "definitions": {
         "title": "Definizioni",
@@ -413,7 +499,6 @@
       "processingDetails": {
         "title": "Dettagli del trattamento dei dati",
         "naturePurposeTitle": "Natura e finalità",
-        "body": "Betterlytics tratterà i dati per conto del Titolare del trattamento esclusivamente per le seguenti finalità:",
         "npLi1": "Fornire analisi sul traffico del sito web e sul comportamento dei visitatori.",
         "npLi2": "Generare report aggregati sul traffico del sito web e sui modelli di utilizzo",
         "npLi3": "Rilevare e filtrare il traffico bot per statistiche accurate",
@@ -458,16 +543,6 @@
         "li26": "Anonimizzazione immediata dell’IP al punto di raccolta dei dati",
         "li3": "Assistere il Titolare del trattamento nel rispondere alle richieste degli interessati quando vengono trattati dati personali/pseudo-anonimi.",
         "li4": "Eliminare tutti i dati analitici immediatamente al momento dell’eliminazione dell’account."
-      },
-      "security": {
-        "title": "Misure di sicurezza",
-        "intro": "Betterlytics implementa misure tecniche e organizzative adeguate per garantire la sicurezza dei dati:",
-        "li1": "Tutte le trasmissioni di dati sono crittografate utilizzando TLS 1.2/1.3",
-        "li2": "I dati a riposo sono crittografati utilizzando standard industriali",
-        "li3": "Controlli di accesso che limitano l’accesso ai dati al solo personale autorizzato",
-        "li4": "Audit e aggiornamenti di sicurezza regolari",
-        "li5": "Server con sede nell’UE in data center sicuri",
-        "li6": "Anonimizzazione immediata dell’IP al punto di raccolta dei dati"
       },
       "subprocessors": {
         "title": "Sub-responsabili",
@@ -517,6 +592,20 @@
     },
     "auth": {
       "signin": {
+        "seo": {
+          "title": "Accedi | Analisi Web Privacy-First Betterlytics",
+          "description": "Accedi al tuo dashboard Betterlytics — analisi web sicura, senza cookie e conforme al GDPR, con focus sulla privacy.",
+          "keywords": [
+            "Accedi",
+            "Login",
+            "Account Betterlytics",
+            "Dashboard Utente",
+            "Analisi Privacy-First",
+            "Analisi Senza Cookie",
+            "Alternativa a Google Analytics",
+            "Analisi Conforme al GDPR"
+          ]
+        },
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
         "errors": {
@@ -529,6 +618,20 @@
         }
       },
       "register": {
+        "seo": {
+          "title": "Crea il tuo account Betterlytics — Inizia gratis",
+          "description": "Crea un account Betterlytics gratuito per analisi web senza cookie e orientate alla privacy. Monitora siti e app in modo sicuro e conforme al GDPR.",
+          "keywords": [
+            "Crea Account Betterlytics",
+            "Registrati",
+            "Iscriviti",
+            "Analisi Web Gratuite",
+            "Analisi Privacy-First",
+            "Analisi Senza Cookie",
+            "Alternativa a Google Analytics",
+            "Analisi Conforme al GDPR"
+          ]
+        },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
         "cta": {
@@ -542,6 +645,18 @@
         }
       },
       "forgotPassword": {
+        "seo": {
+          "title": "Reimposta password | Betterlytics",
+          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l’e-mail per ricevere un link protetto e recuperare l’accesso all’account.",
+          "keywords": [
+            "Password Dimenticata",
+            "Reimposta Password",
+            "Recupero Account",
+            "Reimposta Password Betterlytics",
+            "Account Betterlytics",
+            "Accesso Sicuro"
+          ]
+        },
         "title": "Reimposta la tua password",
         "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
         "cta": {
@@ -550,6 +665,18 @@
         }
       },
       "resetPassword": {
+        "seo": {
+          "title": "Reimposta password | Account Betterlytics",
+          "description": "Imposta una nuova password per il tuo account Betterlytics in modo sicuro utilizzando il link protetto di reimpostazione.",
+          "keywords": [
+            "Reimposta Password",
+            "Reset Password",
+            "Recupero Account",
+            "Account Betterlytics",
+            "Reimpostazione Sicura",
+            "Assistenza Accesso"
+          ]
+        },
         "invalid": {
           "title": "Link di reimpostazione non valido",
           "description": "Questo link per reimpostare la password non è valido o manca un token.",
@@ -591,8 +718,20 @@
     },
     "landing": {
       "seo": {
-        "title": "Betterlytics | Analitiche web semplici, senza cookie e rispettose della privacy",
-        "description": "Betterlytics è un'alternativa a Google Analytics orientata alla privacy. Ottieni insights conformi al GDPR e senza cookie senza tracciamento invasivo. Semplice, open-source e facile da usare."
+        "title": "Betterlytics | Analisi Web Senza Cookie e Privacy-First",
+        "description": "Betterlytics è un’alternativa open-source a Google Analytics, orientata alla privacy. Ottieni analisi conformi al GDPR senza tracciamento invasivo.",
+        "keywords": [
+          "Alternativa a Google Analytics",
+          "Analisi Privacy-First",
+          "Analisi Web Senza Cookie",
+          "Analisi Conforme al GDPR",
+          "Piattaforma di Analisi Open Source",
+          "Analisi Amica della Privacy",
+          "Analisi del Traffico Web",
+          "Analisi Visitatori",
+          "Strumento di Analisi Web",
+          "Betterlytics"
+        ]
       },
       "hero": {
         "badge": "Open Source • Conforme GDPR • Senza cookie",
@@ -752,6 +891,16 @@
       "bluesky": "Bluesky",
       "discord": "Discord",
       "copyright": "© {year} Betterlytics. Tutti i diritti riservati. Open source sotto licenza AGPL-3.0."
+    },
+    "structuredData": {
+      "organization": {
+        "description": "Betterlytics è una piattaforma di analisi web open-source, senza cookie e conforme al GDPR, che rispetta la privacy degli utenti fornendo informazioni utili e azionabili.",
+        "contactTypeCustomerService": "Servizio Clienti",
+        "contactTypeTechnicalSupport": "Supporto Tecnico"
+      },
+      "webPage": {
+        "breadcrumbHome": "Home"
+      }
     }
   },
   "pricingSlider": {
@@ -833,9 +982,6 @@
     "goTo": "Vai a {section}",
     "tabs": {
       "pages": "Pagine",
-      "userJourney": "Percorso utente",
-      "funnels": "Funnel",
-      "campaigns": "Campagne",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
       "topCountries": "Paesi principali",
@@ -878,10 +1024,9 @@
   },
   "misc": {
     "loading": "Caricamento...",
-    "error": "Errore",
-    "app": "Applicazione",
     "created": "Creato",
-    "unknown": "Sconosciuto"
+    "unknown": "Sconosciuto",
+    "noChange": "nessuna variazione"
   },
   "languages": {
     "da": "Danish",
@@ -1001,9 +1146,6 @@
       "noResults": "Nessun risultato."
     },
     "timeRange": {
-      "quickSelect": "Selezione rapida",
-      "granularity": "Granularità",
-      "currentPeriod": "Periodo corrente",
       "disabled": "Disattivato",
       "disableCompare": "Disattiva confronto",
       "previousPeriod": "Periodo precedente",
@@ -1011,11 +1153,7 @@
       "nextPeriod": "Periodo successivo",
       "customPeriod": "Periodo personalizzato",
       "sameLengthAsMain": "Stessa durata dell'intervallo principale",
-      "vs": "vs",
-      "compareWithPrevious": "Confronta con il periodo precedente",
       "compareToPeriod": "Periodo di confronto",
-      "startDate": "Data di inizio",
-      "endDate": "Data di fine",
       "dateRange": "Intervallo date",
       "presets": {
         "today": "Oggi",
@@ -1038,7 +1176,6 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "apply": "Applica",
       "matchDayOfWeek": "Allinea giorno della settimana"
     },
     "loading": {
@@ -1061,7 +1198,6 @@
       },
       "charts": {
         "deviceTypes": "Tipo di dispositivo",
-        "visitorsByDeviceCategory": "Visitatori per categoria dispositivo",
         "deviceUsageTrend": "Tendenza utilizzo dispositivi"
       },
       "trends": {
@@ -1090,9 +1226,7 @@
         }
       },
       "trend": {
-        "title": "Trend visitatori campagna",
-        "description": "Andamento visitatori nel tempo per campagna",
-        "empty": "Nessun dato di trend visitatori per le campagne disponibile."
+        "title": "Trend visitatori campagna"
       },
       "utm": {
         "table": {
@@ -1107,14 +1241,7 @@
           "content": "Contenuto",
           "terms": "Termini"
         },
-        "empty": {
-          "source": "Nessun dato di ripartizione per sorgente disponibile per le campagne",
-          "medium": "Nessun dato di ripartizione per mezzo disponibile per le campagne",
-          "content": "Nessun dato di ripartizione per contenuto disponibile per le campagne",
-          "term": "Nessun dato di ripartizione per termini disponibile per le campagne"
-        },
         "columns": {
-          "dimension": "Dimensione",
           "visitors": "Visitatori",
           "bounceRate": "Frequenza di rimbalzo",
           "avgSessionDuration": "Durata media sessione",
@@ -1161,6 +1288,11 @@
         "eventDetails": "Dettagli evento",
         "uniqueEvent": "Evento unico",
         "uniqueEvents": "Eventi unici"
+      },
+      "expandedEventContent": {
+        "loading": "Caricamento proprietà...",
+        "noProperties": "Nessuna proprietà",
+        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate."
       }
     },
     "tabbedTable": {
@@ -1195,14 +1327,9 @@
         "emptyNoneSelected": "Nessun filtro selezionato - premi Applica per salvare",
         "addFilter": "Aggiungi filtro",
         "cancel": "Annulla",
-        "apply": "Applica",
-        "empty": {
-          "title": "Nessun filtro attivo",
-          "description": "Aggiungi filtri per perfezionare i dati e concentrarti su segmenti specifici.",
-          "addFirst": "Aggiungi il primo filtro",
-          "common": "Filtri comuni: Paese, Browser, URL, Dispositivo"
-        }
-      }
+        "apply": "Applica"
+      },
+      "filterBy": "Filtra per {label}"
     },
     "funnels": {
       "list": {
@@ -1325,10 +1452,6 @@
       "visitors": "Visitatori"
     },
     "userJourney": {
-      "page": {
-        "title": "Percorso utente",
-        "description": "Visualizza come gli utenti navigano tra i percorsi chiave."
-      },
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
       "sessions": "Sessioni"
@@ -1418,7 +1541,6 @@
         "durationFilter": "Durata minima (s)",
         "durationFilterAria": "Filtra sessioni per durata minima in secondi",
         "loading": "Caricamento sessioni…",
-        "unknown": "Sconosciuto",
         "unknownUrl": "URL sconosciuto",
         "endOfList": "Hai raggiunto la fine",
         "loadingMore": "Caricamento altri…",
@@ -1453,7 +1575,6 @@
       "player": {
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
-        "seekAria": "Vai a posizione",
         "recordingDisabled": "Registrazione disabilitata su questa pagina"
       }
     },
@@ -1558,10 +1679,6 @@
           "cancel": "Annulla",
           "saving": "Salvataggio...",
           "saveChanges": "Salva modifiche"
-        },
-        "toast": {
-          "success": "Impostazioni salvate con successo!",
-          "error": "Impossibile salvare le impostazioni. Riprova."
         }
       },
       "profile": {
@@ -1592,7 +1709,6 @@
           "label": "Avatar",
           "none": "Nessuno",
           "gravatar": "Gravatar",
-          "note": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
           "noteIntro": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
           "terms": "accetti i loro termini"
         },
@@ -1625,7 +1741,6 @@
         "notAvailable": "Il portale di fatturazione sarà disponibile una volta effettuato l'upgrade a un piano a pagamento.",
         "needHelp": "Hai bisogno di aiuto con la fatturazione?",
         "contactSupport": "Contatta il supporto",
-        "loading": "Caricamento informazioni di fatturazione...",
         "toastError": "Impossibile aprire il portale di fatturazione, riprova."
       },
       "security": {
@@ -1732,9 +1847,6 @@
         "backToSignIn": "Torna all'accesso"
       }
     },
-    "page": {
-      "title": "Betterlytics | Registrazione"
-    },
     "account": {
       "features": {
         "feature1": {
@@ -1782,8 +1894,7 @@
       "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
-      "dashboardCreatedSuccess": "Dashboard creata con successo!",
-      "failedToCreateDashboard": "Impossibile creare la dashboard. Riprova."
+      "dashboardCreatedSuccess": "Dashboard creata con successo!"
     },
     "integration": {
       "siteId": {
@@ -1807,7 +1918,6 @@
         "npmThenInitialize": "Poi inizializzalo nel tuo codice:"
       },
       "buttons": {
-        "goToDashboard": "🎉 alla dashboard...",
         "skipForNow": "Salta per ora",
         "continueToDashboard": "Continua alla dashboard"
       },
@@ -1822,7 +1932,6 @@
     "verifyEmail": {
       "title": "Verifica il tuo indirizzo email",
       "description": "Ti abbiamo inviato un'email di verifica a {email}.",
-      "action": "Reinvia email",
       "success": "Email di verifica inviata!",
       "failure": "Impossibile inviare l'email di verifica",
       "sending": "Invio in corso...",

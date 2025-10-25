@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 type CustomEventsSectionProps = {
   customEventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
@@ -17,10 +18,17 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
   const t = useTranslations('dashboard');
   const dashboardId = useDashboardId();
 
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const onItemClick = (_tabKey: string, item: { label: string }) => {
+    return makeFilterClick('custom_event_name')(item.label);
+  };
+
   return (
     <MultiProgressTable
       title={t('sections.customEvents')}
       defaultTab='events'
+      onItemClick={onItemClick}
       tabs={[
         {
           key: 'events',

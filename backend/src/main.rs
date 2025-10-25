@@ -109,19 +109,24 @@ async fn main() {
         }
     });
 
+	let mut router = Router::new()
+		.route("/health", get(health_check))
+		.route("/track", post(track_event))
+		.route("/site-id", get(generate_site_id_handler))
+		.route("/metrics", get(metrics_handler));
 
-    let app = Router::new()
-        .route("/health", get(health_check))
-        .route("/track", post(track_event))
-        .route("/site-id", get(generate_site_id_handler))
-        // Session replay storage routes
-        .route("/replay/presign/put", post(session_replay::presign_put_segment))
-        .route("/replay/finalize", post(session_replay::finalize_session_replay))
-        .route("/metrics", get(metrics_handler))
-        // Session replay helper routes
-        .fallback(fallback_handler)
-        .with_state((db, processor, metrics_collector, validator, s3_service))
-        .layer(CorsLayer::permissive());
+	if config.enable_session_replay {
+		router = router
+			.route("/replay/presign/put", post(session_replay::presign_put_segment))
+			.route("/replay/finalize", post(session_replay::finalize_session_replay));
+	} else {
+		info!("Session replay endpoints disabled by configuration");
+	}
+
+	let app = router
+		.fallback(fallback_handler)
+		.with_state((db, processor, metrics_collector, validator, s3_service))
+		.layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
