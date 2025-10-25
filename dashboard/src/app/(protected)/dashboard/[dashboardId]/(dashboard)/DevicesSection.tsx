@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 type DevicesSectionProps = {
   deviceBreakdownCombinedPromise: ReturnType<typeof fetchDeviceBreakdownCombinedAction>;
@@ -18,11 +19,19 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
   const deviceBreakdownCombined = use(deviceBreakdownCombinedPromise);
   const t = useTranslations('dashboard');
   const dashboardId = useDashboardId();
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const onItemClick = (tabKey: string, item: { label: string }) => {
+    if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
+    if (tabKey === 'devices') return makeFilterClick('device_type')(item.label);
+    if (tabKey === 'os') return makeFilterClick('os')(item.label);
+  };
 
   return (
     <MultiProgressTable
       title={t('sections.devicesBreakdown')}
       defaultTab='browsers'
+      onItemClick={onItemClick}
       tabs={[
         {
           key: 'browsers',

@@ -9,6 +9,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -21,11 +22,17 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
   const t = useTranslations('dashboard');
   const dashboardId = useDashboardId();
   const locale = useLocale();
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const onItemClick = (_tabKey: string, item: { key?: string; label: string }) => {
+    if (item.key) return makeFilterClick('country_code')(item.key);
+  };
 
   return (
     <MultiProgressTable
       title={t('sections.geography')}
       defaultTab='countries'
+      onItemClick={onItemClick}
       tabs={[
         {
           key: 'countries',
