@@ -186,7 +186,7 @@ export function PricingCards({
             billingData.subscription.tier === plan.tier &&
             billingData.subscription.eventLimit === eventRange.value && (
               <Badge variant='secondary' className='absolute -bottom-3 left-1/2 -translate-x-1/2 transform'>
-                Current
+                {t('badges.current')}
               </Badge>
             )}
           <CardHeader className='text-center'>

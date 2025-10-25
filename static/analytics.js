@@ -1,5 +1,10 @@
 // Betterlytics - Privacy-focused, cookieless analytics
 (function () {
+  if (window.__betterlytics_analytics_initialized__) {
+    return;
+  }
+  window.__betterlytics_analytics_initialized__ = true;
+
   // Get the script element and required attributes
   var script =
     document.currentScript ||
@@ -20,8 +25,25 @@
         };
       }) ?? [];
 
+  var scriptsBaseUrl =
+    script.getAttribute("data-scripts-base-url") ?? "https://betterlytics.io";
+
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
+
+  var coreWebVitals = script.getAttribute("data-web-vitals") === "true";
+
+  var enableReplay = script.getAttribute("data-replay") === "true";
+  var consentReplay = script.getAttribute("data-consent-replay") === "true";
+
+  var replaySamplePct = parseInt(
+    script.getAttribute("data-replay-sample") || "5",
+    10
+  );
+
+  if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
+    replaySamplePct = 0;
+  }
 
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
@@ -75,12 +97,16 @@
         timestamp: Math.floor(Date.now() / 1000),
         ...overrides,
       }),
-    }).catch(function (error) {
-      console.error("Analytics tracking failed:", error);
-    });
+    })
+      .then((res) => res.text())
+      .catch(function (error) {
+        console.error("Analytics tracking failed:", error);
+      });
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
+
+  var replayConsentCallbacks = [];
 
   window.betterlytics = {
     event: (eventName, eventProps = {}) =>
@@ -88,14 +114,52 @@
         is_custom_event: true,
         properties: JSON.stringify(eventProps),
       }),
+    setReplayConsent: function (consented) {
+      var CONSENT_KEY = "betterlytics:replay_consent";
+      try {
+        if (consented) {
+          localStorage.setItem(
+            CONSENT_KEY,
+            JSON.stringify({
+              consented: true,
+              source: "custom",
+              timestamp: Date.now(),
+            })
+          );
+        } else {
+          localStorage.removeItem(CONSENT_KEY);
+        }
+        for (var i = 0; i < replayConsentCallbacks.length; i++) {
+          replayConsentCallbacks[i](consented);
+        }
+      } catch (e) {
+        console.error("Failed to set replay consent:", e);
+      }
+    },
   };
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
   }
 
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+
+      s.onload = function () {
+        resolve();
+      };
+      s.onerror = function (err) {
+        reject(err);
+      };
+      document.head.appendChild(s);
+    });
+  }
+
   // Web Vitals batching (send once per page lifecycle)
-  if (script.getAttribute("data-web-vitals") === "true") {
+  if (coreWebVitals) {
     var cwvQueue = new Map();
     var cwvFlushed = false;
 
@@ -206,5 +270,86 @@
         }
       }
     });
+  }
+
+  // Replay
+  if (enableReplay) {
+    var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
+    var CONSENT_KEY = "betterlytics:replay_consent";
+    var THIRTY_MIN_MS = 30 * 60 * 1000;
+    var replayLoaded = false;
+
+    function checkReplayConsent() {
+      if (consentReplay) {
+        return true;
+      }
+      try {
+        var stored = localStorage.getItem(CONSENT_KEY);
+        if (stored) {
+          var data = JSON.parse(stored);
+          return data.consented === true && data.source === "custom";
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    function shouldSample() {
+      try {
+        var stored = localStorage.getItem(REPLAY_STORAGE_KEY);
+        var now = Date.now();
+
+        if (stored) {
+          var data = JSON.parse(stored);
+          var age = now - data.timestamp;
+
+          if (age < THIRTY_MIN_MS) {
+            localStorage.setItem(
+              REPLAY_STORAGE_KEY,
+              JSON.stringify({ sampled: data.sampled, timestamp: now })
+            );
+            return data.sampled;
+          }
+        }
+
+        var sampled = Math.round(Math.random() * 100) <= replaySamplePct;
+
+        localStorage.setItem(
+          REPLAY_STORAGE_KEY,
+          JSON.stringify({ sampled, timestamp: now })
+        );
+        return sampled;
+      } catch (e) {
+        return Math.round(Math.random() * 100) <= replaySamplePct;
+      }
+    }
+
+    function initReplay() {
+      if (replayLoaded) return;
+
+      var hasCustomConsent = checkReplayConsent();
+
+      if (hasCustomConsent) {
+        if (shouldSample()) {
+          replayLoaded = true;
+          loadScript(`${scriptsBaseUrl}/replay.js`);
+        }
+      }
+    }
+
+    replayConsentCallbacks.push(function (consented) {
+      if (consented && !replayLoaded && shouldSample()) {
+        replayLoaded = true;
+        loadScript(`${scriptsBaseUrl}/replay.js`);
+      } else if (!consented && replayLoaded && window.__betterlytics_replay__) {
+        if (
+          window.__betterlytics_replay__.stop &&
+          typeof window.__betterlytics_replay__.stop === "function"
+        ) {
+          window.__betterlytics_replay__.stop();
+        }
+      }
+    });
+
+    initReplay();
   }
 })();

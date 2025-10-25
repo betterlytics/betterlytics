@@ -1,29 +1,31 @@
 import { Metadata } from 'next';
 import { routing } from '@/i18n/routing';
+import { getLocale, getTranslations } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { LANGUAGE_METADATA } from '@/constants/i18n';
+import { env } from './env';
 
-interface SEOConfig {
+export interface SEOConfig {
   title: string;
   description: string;
   keywords: string[];
   path: string;
   imageAlt?: string;
-  structuredData?: 'organization' | 'website' | 'webpage' | 'contact';
+  structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
-const BASE_URL = 'https://betterlytics.io';
 const DEFAULT_IMAGE = '/og_image.png';
 
 export function generateSEO(
   { title, description, keywords, path, imageAlt }: SEOConfig,
-  options?: { locale?: string },
+  options?: { locale?: string; robots?: Metadata['robots'] },
 ): Metadata {
-  const fullTitle = title.includes('Betterlytics') ? title : `${title} - Betterlytics`;
   const defaultLocale = routing.defaultLocale;
   const currentLocale = options?.locale ?? defaultLocale;
+  const BASE_URL = env.PUBLIC_BASE_URL;
   const localizedPath =
     currentLocale === defaultLocale ? path : path === '/' ? `/${currentLocale}` : `/${currentLocale}${path}`;
   const fullUrl = `${BASE_URL}${localizedPath}`;
-  const imageAltText = imageAlt || `${fullTitle} - Simple, Cookieless, Privacy-First Web Analytics`;
 
   const languages: Record<string, string> = routing.locales.reduce((acc: Record<string, string>, locale) => {
     acc[locale] = locale === defaultLocale ? path : path === '/' ? `/${locale}` : `/${locale}${path}`;
@@ -34,7 +36,7 @@ export function generateSEO(
   languages['x-default'] = path;
 
   return {
-    title: fullTitle,
+    title: title,
     description,
     keywords,
     authors: [{ name: 'Betterlytics Team' }],
@@ -52,9 +54,9 @@ export function generateSEO(
     },
     openGraph: {
       type: 'website',
-      locale: 'en_GB',
+      locale: LANGUAGE_METADATA[currentLocale as SupportedLanguages].ogLocale,
       url: fullUrl,
-      title: fullTitle,
+      title: title,
       description,
       siteName: 'Betterlytics',
       images: [
@@ -62,18 +64,18 @@ export function generateSEO(
           url: DEFAULT_IMAGE,
           width: 1200,
           height: 630,
-          alt: imageAltText,
+          alt: imageAlt || title,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: fullTitle,
+      title: title,
       description,
       images: [DEFAULT_IMAGE],
       creator: '@betterlytics',
     },
-    robots: {
+    robots: options?.robots ?? {
       index: true,
       follow: true,
       googleBot: {
@@ -93,14 +95,47 @@ export function generateSEO(
   };
 }
 
-// JSON-LD Structured Data generator
-export function generateStructuredData(
-  type: 'organization' | 'website' | 'webpage' | 'contact',
-  config: SEOConfig,
-) {
-  const fullUrl = `${BASE_URL}${config.path}`;
+export async function buildSEOConfig(
+  configEntry: (typeof SEO_CONFIGS)[keyof typeof SEO_CONFIGS],
+): Promise<SEOConfig> {
+  const t = await getTranslations(configEntry.namespace);
 
-  switch (type) {
+  const config: SEOConfig = {
+    title: t('title'),
+    description: t('description'),
+    keywords: t.raw('keywords') as string[],
+    path: configEntry.path,
+    structuredDataType: configEntry.structuredDataType,
+  };
+
+  if (!config.title || !config.description || !config.keywords?.length) {
+    throw new Error(`Missing SEO translation for namespace "${configEntry.namespace}"`);
+  }
+
+  return config;
+}
+
+// JSON-LD Structured Data generator
+export async function generateStructuredData(config: SEOConfig) {
+  const defaultLocale = routing.defaultLocale;
+  const currentLocale = await getLocale();
+  const BASE_URL = env.PUBLIC_BASE_URL;
+
+  const localizedPath =
+    currentLocale === defaultLocale
+      ? config.path
+      : config.path === '/'
+        ? `/${currentLocale}`
+        : `/${currentLocale}${config.path}`;
+  const fullUrl = `${BASE_URL}${localizedPath}`;
+
+  const t = await getTranslations('public.structuredData');
+  const orgDescription = t.raw('organization.description');
+  const contactCustomer = t.raw('organization.contactTypeCustomerService');
+  const contactTechnical = t.raw('organization.contactTypeTechnicalSupport');
+  const breadcrumbHome = t.raw('webPage.breadcrumbHome');
+
+  switch (config.structuredDataType) {
     case 'organization':
       return {
         '@context': 'https://schema.org',
@@ -108,15 +143,23 @@ export function generateStructuredData(
         name: 'Betterlytics',
         url: BASE_URL,
         logo: `${BASE_URL}/betterlytics-logo-full-light.png`,
-        description:
-          'Privacy-first, cookieless, open-source web analytics platform that respects user privacy while delivering powerful insights.',
+        description: orgDescription,
         foundingDate: '2024',
         sameAs: ['https://github.com/betterlytics/betterlytics'],
-        contactPoint: {
-          '@type': 'ContactPoint',
-          contactType: 'customer service',
-          email: 'hello@betterlytics.io',
-        },
+        contactPoint: [
+          {
+            '@type': 'ContactPoint',
+            contactType: contactCustomer,
+            email: 'hello@betterlytics.io',
+            availableLanguage: currentLocale,
+          },
+          {
+            '@type': 'ContactPoint',
+            contactType: contactTechnical,
+            email: 'support@betterlytics.io',
+            availableLanguage: currentLocale,
+          },
+        ],
         address: {
           '@type': 'PostalAddress',
           addressCountry: 'DK',
@@ -137,7 +180,8 @@ export function generateStructuredData(
         '@type': 'WebSite',
         name: 'Betterlytics',
         url: BASE_URL,
-        description: 'Privacy-first, cookieless, open-source web analytics platform',
+        description: config.description,
+        inLanguage: currentLocale,
         publisher: {
           '@type': 'Organization',
           name: 'Betterlytics',
@@ -163,8 +207,8 @@ export function generateStructuredData(
             {
               '@type': 'ListItem',
               position: 1,
-              name: 'Home',
-              item: BASE_URL,
+              name: breadcrumbHome,
+              item: currentLocale === defaultLocale ? BASE_URL : `${BASE_URL}/${currentLocale}`,
             },
             {
               '@type': 'ListItem',
@@ -183,21 +227,22 @@ export function generateStructuredData(
         name: config.title,
         description: config.description,
         url: fullUrl,
+        inLanguage: currentLocale,
         mainEntity: {
           '@type': 'Organization',
           name: 'Betterlytics',
           contactPoint: [
             {
               '@type': 'ContactPoint',
-              contactType: 'customer service',
+              contactType: contactCustomer,
               email: 'hello@betterlytics.io',
-              availableLanguage: 'English',
+              availableLanguage: currentLocale,
             },
             {
               '@type': 'ContactPoint',
-              contactType: 'technical support',
+              contactType: contactTechnical,
               email: 'support@betterlytics.io',
-              availableLanguage: 'English',
+              availableLanguage: currentLocale,
             },
           ],
         },
@@ -210,111 +255,63 @@ export function generateStructuredData(
 
 export const SEO_CONFIGS = {
   landing: {
-    title: 'Betterlytics | Simple, Cookieless, Privacy-Friendly Web Analytics',
-    description:
-      'Betterlytics is a privacy-first Google Analytics alternative. Get GDPR-compliant, cookieless insights without invasive tracking. Simple, open-source, and easy to use.',
-    keywords: [
-      'Google Analytics Alternative',
-      'Web Analytics',
-      'Privacy-Friendly Analytics',
-      'GDPR Compliant Analytics',
-      'Cookieless Website Tracking',
-      'Open Source Web Analytics',
-      'Privacy-First Analytics',
-      'Website Traffic Analysis',
-      'Visitor Analytics',
-      'Betterlytics Analytics Platform',
-    ] as string[],
+    namespace: 'public.landing.seo',
     path: '/',
-    structuredData: 'website' as const,
-  },
-  contact: {
-    title: 'Contact Us | Betterlytics',
-    description:
-      'Need help or have questions? Contact the Betterlytics team for support, feedback, or inquiries about our privacy-first web analytics platform.',
-    keywords: [
-      'Contact Betterlytics',
-      'Betterlytics Support',
-      'Web Analytics Help',
-      'Privacy Analytics Support',
-      'GDPR Analytics Contact',
-      'Cookieless Analytics Support',
-      'Analytics Support Team',
-      'Betterlytics Contact Form',
-    ] as string[],
-    path: '/contact',
-    structuredData: 'contact' as const,
+    structuredDataType: 'website',
   },
   about: {
-    title: 'About Betterlytics | Privacy-First Web Analytics',
-    description:
-      'Discover the story behind Betterlytics - building open-source, cookieless web analytics that prioritize user privacy and GDPR compliance.',
-    keywords: [
-      'About Betterlytics',
-      'Privacy-First Analytics',
-      'Open Source Analytics',
-      'Cookieless Analytics',
-      'GDPR Compliant Analytics',
-      'Privacy Analytics Company',
-      'Web Analytics Mission',
-      'Betterlytics Story',
-      'Analytics Without Cookies',
-    ] as string[],
+    namespace: 'public.about.seo',
     path: '/about',
-    structuredData: 'webpage' as const,
+    structuredDataType: 'webpage',
   },
   privacy: {
-    title: 'Privacy Policy | Betterlytics',
-    description:
-      'Betterlytics Privacy Policy - GDPR-compliant and cookieless by design. Learn how we protect data and ensure user privacy through anonymous analytics.',
-    keywords: [
-      'Privacy Policy',
-      'GDPR Compliance',
-      'Data Privacy',
-      'Data Protection',
-      'Cookieless Analytics',
-      'Anonymous Web Analytics',
-      'User Privacy',
-      'Betterlytics Privacy Policy',
-      'Privacy-Focused Analytics',
-    ] as string[],
+    namespace: 'public.privacy.seo',
     path: '/privacy',
-    structuredData: 'webpage' as const,
+    structuredDataType: 'webpage',
   },
   terms: {
-    title: 'Terms of Service | Betterlytics',
-    description:
-      'Betterlytics Terms of Service - outlining your rights, responsibilities, and usage rules for our privacy-focused analytics platform.',
-    keywords: [
-      'Terms of Service',
-      'Terms and Conditions',
-      'Betterlytics Terms',
-      'Analytics Service Agreement',
-      'Web Analytics Terms',
-      'Privacy Analytics Terms',
-      'Usage Terms',
-      'Legal Agreement Betterlytics',
-    ] as string[],
+    namespace: 'public.terms.seo',
     path: '/terms',
-    structuredData: 'webpage' as const,
+    structuredDataType: 'webpage',
   },
   dpa: {
-    title: 'Data Processing Agreement | Betterlytics',
-    description:
-      'Betterlytics Data Processing Agreement (DPA) - designed for full GDPR compliance, privacy-first analytics, and secure anonymous data processing.',
-    keywords: [
-      'Data Processing Agreement',
-      'DPA',
-      'GDPR compliance',
-      'GDPR DPA',
-      'data privacy',
-      'data protection agreement',
-      'privacy analytics',
-      'anonymous analytics',
-      'Betterlytics DPA',
-      'web analytics GDPR',
-    ] as string[],
+    namespace: 'public.dpa.seo',
     path: '/dpa',
-    structuredData: 'webpage' as const,
+    structuredDataType: 'webpage',
+  },
+  contact: {
+    namespace: 'public.contact.seo',
+    path: '/contact',
+    structuredDataType: 'contact',
+  },
+  signin: {
+    namespace: 'public.auth.signin.seo',
+    path: '/signin',
+    structuredDataType: 'webpage',
+  },
+  register: {
+    namespace: 'public.auth.register.seo',
+    path: '/register',
+    structuredDataType: 'webpage',
+  },
+  onboarding: {
+    namespace: 'public.auth.register.seo',
+    path: '/onboarding',
+    structuredDataType: 'webpage',
+  },
+  resetPassword: {
+    namespace: 'public.auth.resetPassword.seo',
+    path: '/reset-password',
+    structuredDataType: 'webpage',
+  },
+  forgotPassword: {
+    namespace: 'public.auth.forgotPassword.seo',
+    path: '/forgot-password',
+    structuredDataType: 'webpage',
+  },
+  root: {
+    namespace: 'public.root.seo',
+    path: '/',
+    structuredDataType: 'website',
   },
 } as const;

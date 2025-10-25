@@ -23,7 +23,7 @@ export function FooterLanguageSelector() {
         <button
           type='button'
           aria-label='Change language'
-          className='text-foreground/90 hover:text-foreground inline-flex items-center gap-2 rounded-md py-1 text-sm transition-colors'
+          className='text-foreground/90 hover:text-foreground inline-flex cursor-pointer items-center gap-2 rounded-md py-1 text-sm transition-colors'
         >
           <Globe className='text-muted-foregroundh-5 w-5' />
           <span className='font-medium'>{LANGUAGE_METADATA[locale as SupportedLanguages].name}</span>

@@ -1,18 +1,8 @@
 import { generateStructuredData } from '@/lib/seo';
+import type { SEOConfig } from '@/lib/seo';
 
-interface StructuredDataProps {
-  config: {
-    title: string;
-    description: string;
-    keywords: string[];
-    path: string;
-    imageAlt?: string;
-    structuredData?: 'organization' | 'website' | 'webpage' | 'contact';
-  };
-}
-
-export function StructuredData({ config }: StructuredDataProps) {
-  const structuredData = generateStructuredData(config.structuredData || 'webpage', config);
+export async function StructuredData({ config }: { config: SEOConfig }) {
+  const structuredData = await generateStructuredData(config);
 
   if (!structuredData) {
     return null;
@@ -22,7 +12,7 @@ export function StructuredData({ config }: StructuredDataProps) {
     <script
       type='application/ld+json'
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(structuredData),
+        __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
       }}
     />
   );

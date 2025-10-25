@@ -25,7 +25,6 @@ export function VerificationRequiredModal({
   const [isPending, startTransition] = useTransition();
   const [emailSent, setEmailSent] = useState(false);
   const t = useTranslations('components.accountVerification.requiredModal');
-  const tBanner = useTranslations('components.accountVerification.banner');
 
   const handleResendVerification = () => {
     startTransition(async () => {
@@ -33,13 +32,13 @@ export function VerificationRequiredModal({
         const result = await resendVerificationEmailAction({ email: userEmail });
 
         if (result.success) {
-          toast.success(tBanner('toastSuccess'));
+          toast.success(t('toastSuccess'));
           setEmailSent(true);
         } else {
           toast.error(result.error);
         }
       } catch (error) {
-        toast.error(tBanner('toastFailure'));
+        toast.error(t('toastFailure'));
       }
     });
   };
@@ -90,7 +89,7 @@ export function VerificationRequiredModal({
             {!emailSent ? (
               <Button onClick={handleResendVerification} disabled={isPending} className='w-full' size='lg'>
                 <Mail className='mr-2 h-4 w-4' />
-                {isPending ? tBanner('sending') : tBanner('resend')}
+                {isPending ? t('sending') : t('resend')}
               </Button>
             ) : (
               <div className='space-y-3'>

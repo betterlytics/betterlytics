@@ -8,6 +8,7 @@ export default {
   funnels: "Funnels",
   "outbound-links": "Outbound Links",
   "web-vitals": "Web Vitals",
+  "session-replay": "Session Replay",
   filtering: "Filtering",
   "metrics-glossary": "Metrics Glossary",
 };

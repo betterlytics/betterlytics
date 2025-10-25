@@ -34,9 +34,9 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       latestMouseRef.current = { x: e.clientX, y: e.clientY - 4 };
     };
 
-    mapContainer.addEventListener('mousemove', onMouseMove);
+    mapContainer.addEventListener('pointermove', onMouseMove);
     return () => {
-      mapContainer.removeEventListener('mousemove', onMouseMove);
+      mapContainer.removeEventListener('pointermove', onMouseMove);
     };
   }, [containerRef]);
 
@@ -53,6 +53,9 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
 
     let lastHovered: typeof hoveredFeatureRef.current | null = null;
 
+    // Round to nearest half pixel to avoid blurriness on fractional pixels
+    const roundHalf = (v: number) => Math.round(v * 2) / 2;
+
     const loop = () => {
       rafRef.current = requestAnimationFrame(loop);
 
@@ -60,8 +63,6 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       const clicked = clickedFeatureRef.current;
       const { x, y } = latestMouseRef.current;
 
-      // Round to nearest half pixel to avoid blurriness on fractional pixels
-      const roundHalf = (v: number) => Math.round(v * 2) / 2;
       node.style.transform = `translate3d(${roundHalf(x)}px, ${roundHalf(y)}px, 0) translate(-50%, -100%)`;
 
       if (!hovered || clicked?.geoVisitor.country_code === hovered.geoVisitor.country_code) {
@@ -72,7 +73,7 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
 
       node.style.display = 'flex';
 
-      if (hovered !== lastHovered && rootRef.current) {
+      if (hovered.geoVisitor.country_code !== lastHovered?.geoVisitor.country_code && rootRef.current) {
         lastHovered = hovered;
         rootRef.current.render(
           <MapTooltipContent geoVisitor={hovered.geoVisitor} size={size} locale={locale} label={t('visitors')} />,
@@ -95,7 +96,7 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       aria-hidden={false}
       className={cn(
         'map-sticky-tooltip border-none bg-transparent p-0 shadow-none contain-paint',
-        'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
+        'pointer-events-none fixed top-0 left-0 z-11 flex flex-col will-change-transform',
       )}
     >
       <div className='tooltip-content bg-card shadow-sidebar-accent-foreground pointer-none mx-0 mt-2 flex flex-col rounded-lg p-0 shadow-xs' />

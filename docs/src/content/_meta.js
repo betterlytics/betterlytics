@@ -4,4 +4,5 @@ export default {
   integration: "Integration",
   dashboard: "Dashboard Features",
   pricing: "Pricing & Billing",
+  faq: "Frequently Asked Questions",
 };

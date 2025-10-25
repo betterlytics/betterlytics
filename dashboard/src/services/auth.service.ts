@@ -4,6 +4,8 @@ import { findDashboardById, findUserDashboard } from '@/repositories/postgres/da
 import { env } from '@/lib/env';
 import type { User } from 'next-auth';
 import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/user';
+import { DEFAULT_USER_SETTINGS } from '@/entities/userSettings';
+import { createUserSettings } from '@/repositories/postgres/userSettings';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthContext, AuthContextSchema } from '@/entities/authContext';
 import { UserException } from '@/lib/exceptions';
@@ -97,6 +99,16 @@ export async function registerNewUser(registrationData: RegisterUserData): Promi
   }
 
   const newUser = await registerUser(registrationData);
+
+  try {
+    await createUserSettings(newUser.id, {
+      ...DEFAULT_USER_SETTINGS,
+      language: registrationData.language,
+    });
+  } catch (e) {
+    console.error('Failed to create initial user settings with language:', e);
+  }
+
   return UserSchema.parse(newUser);
 }
 

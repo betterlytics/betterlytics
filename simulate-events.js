@@ -6,8 +6,8 @@ const args = process.argv.slice(2);
 const DEFAULT_ARGS = {
   NUMBER_OF_EVENTS: 4000,
   NUMBER_OF_USERS: 2000,
-  SIMULATED_DAYS: 7,
-  BATCH_SIZE: 500,
+  SIMULATED_DAYS: 14,
+  BATCH_SIZE: 50,
   CUSTOM_EVENT_FREQUENCY: 0.2,
 }
 

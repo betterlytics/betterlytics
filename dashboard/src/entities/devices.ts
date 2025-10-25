@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+const rollupToBoolean = (val: unknown): boolean => {
+  const num = Number(val);
+  return num === 1;
+};
+
 export const DeviceTypeSchema = z.object({
   device_type: z.string(),
   visitors: z.number(),
@@ -33,10 +38,23 @@ export const DeviceUsageTrendRowSchema = z.object({
   count: z.number(),
 });
 
+export const BrowserRollupRowSchema = z.object({
+  browser: z.string(),
+  version: z.string().nullable(),
+  visitors: z.number(),
+  is_rollup: z.preprocess(rollupToBoolean, z.boolean()),
+});
+export const OperatingSystemRollupRowSchema = z.object({
+  os: z.string(),
+  version: z.string().nullable(),
+  visitors: z.number(),
+  is_rollup: z.preprocess(rollupToBoolean, z.boolean()),
+});
+
 export const DeviceBreakdownCombinedSchema = z.object({
   devices: z.array(DeviceTypeSchema),
-  browsers: z.array(BrowserInfoSchema),
-  operatingSystems: z.array(OperatingSystemInfoSchema),
+  browsersRollup: z.array(BrowserRollupRowSchema),
+  operatingSystemsRollup: z.array(OperatingSystemRollupRowSchema),
 });
 
 export type BrowserInfo = z.infer<typeof BrowserInfoSchema>;
@@ -45,4 +63,6 @@ export type OperatingSystemInfo = z.infer<typeof OperatingSystemInfoSchema>;
 export type OperatingSystemStats = z.infer<typeof OperatingSystemStatsSchema>;
 export type DeviceType = z.infer<typeof DeviceTypeSchema>;
 export type DeviceUsageTrendRow = z.infer<typeof DeviceUsageTrendRowSchema>;
+export type BrowserRollupRow = z.infer<typeof BrowserRollupRowSchema>;
+export type OperatingSystemRollupRow = z.infer<typeof OperatingSystemRollupRowSchema>;
 export type DeviceBreakdownCombined = z.infer<typeof DeviceBreakdownCombinedSchema>;

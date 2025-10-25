@@ -60,7 +60,7 @@ export default function BATopbar() {
                       className='flex h-10 cursor-pointer items-center space-x-2 rounded-full px-3'
                     >
                       <span className='text-foreground hidden text-sm font-medium sm:block'>
-                        {session.user?.name || t('userFallback')}
+                        {session.user.name || t('userFallback')}
                       </span>
                       <BAAvatar />
                     </Button>
@@ -69,9 +69,9 @@ export default function BATopbar() {
                     <DropdownMenuLabel className='font-normal'>
                       <div className='flex flex-col space-y-1'>
                         <p className='text-sm leading-none font-medium'>
-                          {session.user?.name || t('userFallback')}
+                          {session.user.name || t('userFallback')}
                         </p>
-                        <p className='text-muted-foreground text-xs leading-none'>{session.user?.email}</p>
+                        <p className='text-muted-foreground text-xs leading-none'>{session.user.email}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />

@@ -1,0 +1,47 @@
+---
+title: "Frequently Asked Questions"
+description: "Answers to common questions about Betterlytics: what it is, privacy, insights, integration, who it's for, free plan, performance, and data retention."
+---
+
+# Frequently Asked Questions
+
+## What is Betterlytics?
+Betterlytics is a privacy‑first, cookieless analytics platform that helps you understand your audience without compromising user privacy. It provides real‑time insights, custom events, funnels, user journeys, outbound link tracking, and Core Web Vitals, with an optional session replay feature for debugging UX issues. You can use our hosted service or deploy it yourself. Start with the [Introduction](/) and explore the [Dashboard](/dashboard) to see what you can do.
+
+## Is Betterlytics compliant with privacy regulations?
+Yes. Betterlytics is compliant with GDPR, CCPA and PECR out of the box. Data on our hosted service is processed on EU infrastructure, visitor IPs are anonymized, no personal data is collected, and each website’s data is isolated to prevent cross‑site tracking. Session Replay is optional, requires consent where applicable, and masks **all** text and inputs by default. Learn more in the [Introduction](/#privacy-without-compromise) and the [Session Replay guide](/integration/session-replay).
+
+## How does it ensure privacy?
+Privacy is built in by design. We do not use cookies and we do not collect personally identifiable information. Visitor IP addresses are anonymized (hashed) and each website’s data is isolated to prevent cross‑site tracking. For SPAs or apps with sensitive paths, you can normalize dynamic routes so user‑specific IDs don’t appear in your analytics; see [Dynamic URLs](/integration/dynamic-urls). Session Replay is opt‑in and masks text and inputs by default; enable it only after consent where required and configure masking/blocking as needed; see [Session Replay](/integration/session-replay). Our hosted service runs on EU infrastructure and is designed to be compliant with GDPR, CCPA and PECR; see the [Introduction](/#privacy-without-compromise) and [Installation Overview](/installation).
+
+## What insights can I get?
+The overview shows unique visitors, pageviews, bounce rate, scroll depth, and visit duration with interactive charts. You can dive deeper into referrers and channels, geography, devices and browsers, custom events, funnels, user journeys, outbound links, and Core Web Vitals. Everything respects your time range and query filters. Browse the feature guides under [Dashboard](/dashboard).
+
+## How do I integrate it?
+Most sites can add a single async script tag with your Site ID and start seeing data in minutes; follow the hosted quick start in [Cloud Hosting → Step 3](/installation/cloud-hosting#step-3-install-your-tracking-script). For React and modern frameworks, we recommend using the `@betterlytics/tracker` NPM package for a typed API and easier SPA handling; see [Custom Events](/integration/custom-events). You can also enable optional features such as [Session Replay](/integration/session-replay), [Dynamic URLs](/integration/dynamic-urls), [Outbound Links](/integration/outbound-links) and [Web Vitals](/integration/web-vitals) via script attributes or package options.
+
+## Who is Betterlytics for?
+Teams that want actionable analytics without cookie banners or invasive tracking: marketers who need clear acquisition and content insights, product and engineering teams optimizing UX and performance, and privacy‑conscious organizations that value data ownership. Choose the hosted service for the fastest setup and managed operations, or self‑host for maximum control over your data and infrastructure.
+
+## Is there a free plan?
+Yes. The Growth plan is free up to 10,000 events per month and includes the core analytics features. As you grow, you can upgrade to plans with higher limits and longer data retention. See the full details on [Pricing & Billing](/pricing) and the guides for [Upgrading](/pricing/upgrading), [Changing Plans](/pricing/changing-plans) and [Managing Subscription](/pricing/managing-subscription).
+
+## What’s the performance impact of the tracking script?
+The script loads asynchronously and is lightweight (under 1KB), designed not to block rendering or degrade page performance. Optional add‑ons such as Core Web Vitals collection and Session Replay are disabled by default and only load when you opt in, so you stay in control of any additional overhead. See the [Cloud Hosting Setup](/installation/cloud-hosting) for the script tag and the [Web Vitals](/integration/web-vitals) and [Session Replay](/integration/session-replay) guides for details.
+
+### Does Google Analytics slow down my website?
+Heavy analytics tags can add significant page weight and extra network requests. As a reference point, Google’s Global Site Tag (gtag.js) is about 75 KB and it loads an additional analytics library of roughly 100 KB, adding around 175 KB per page load. By contrast, Betterlytics’ script is under 1 KB and loads asynchronously, so it won’t block rendering and helps keep Core Web Vitals healthy in practice.
+
+### How does this compare to Matomo?
+Matomo’s main browser script is typically around 22–23 KB. Betterlytics remains substantially smaller, which can benefit users on slower networks and mobile devices. To validate the impact on your site, compare waterfall charts and transfer sizes before and after switching scripts using your preferred performance tool.
+
+## For how long is my data stored?
+Data retention depends on your plan: Growth retains data for 1+ year, Professional for 3+ years, and Enterprise for 5+ years. Session Replay recordings have a shorter retention period of 60 days to balance usefulness with privacy and storage considerations. You can review the plan‑specific policies on [Pricing & Billing](/pricing) and replay retention under [Session Replay → Storage and Security](/integration/session-replay#storage-and-security). For definitions of metrics and how we calculate them, see the [Metrics Glossary](/dashboard/metrics-glossary).
+
+
+---
+
+## Ready to give it a try?
+Create your free account and start tracking in minutes with the hosted quick start in [Cloud Hosting Setup](/installation/cloud-hosting#step-3-install-your-tracking-script), or explore options in the [Installation Overview](/installation). When you’re ready to scale, review plans on [Pricing & Billing](/pricing). Have questions? Join our [Discord community](https://discord.gg/vwqSvPn6sP) or [email support](mailto:support@betterlytics.io).
+
+

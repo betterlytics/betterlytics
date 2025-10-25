@@ -60,7 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const entries: MetadataRoute.Sitemap = [];
 
-  if (!env.IS_CLOUD) {
+  if (!env.ALLOW_CRAWLING) {
     return entries;
   }
 

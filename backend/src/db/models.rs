@@ -20,7 +20,9 @@ pub struct EventRow {
     #[serde(with = "clickhouse::serde::chrono::date")]
     pub date: NaiveDate,
     pub browser: String,
+    pub browser_version: String,
     pub os: String,
+    pub os_version: String,
     pub referrer_source: String,
     pub referrer_source_name: String,
     pub referrer_search_term: String,
@@ -39,6 +41,24 @@ pub struct EventRow {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
+pub struct SessionReplayRow {
+    pub site_id: String,
+    pub session_id: String,
+    pub visitor_id: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub started_at: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub ended_at: DateTime<Utc>,
+    pub duration: u32,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    pub size_bytes: u64,
+    pub event_count: u32,
+    pub s3_prefix: String,
+    pub start_url: String,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]
@@ -67,7 +87,9 @@ impl EventRow {
             timestamp,
             date: timestamp.date_naive(),
             browser: event.browser.unwrap_or_else(|| "unknown".to_string()),
+            browser_version: event.browser_version.unwrap_or_default(),
             os: event.os.unwrap_or_else(|| "unknown".to_string()),
+            os_version: event.os_version.unwrap_or_default(),
             referrer_source: event.referrer_info.source_type.as_str().to_string(),
             referrer_source_name: event.referrer_info.source_name.unwrap_or_default(),
             referrer_search_term: event.referrer_info.search_term.unwrap_or_default(),

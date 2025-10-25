@@ -6,6 +6,8 @@ import { OSIcon } from '@/components/icons';
 import { fetchOperatingSystemBreakdownAction } from '@/app/actions/devices';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import { useFilterClick } from '@/hooks/use-filter-click';
 
 interface OperatingSystemTableProps {
   data: Awaited<ReturnType<typeof fetchOperatingSystemBreakdownAction>>;
@@ -13,15 +15,24 @@ interface OperatingSystemTableProps {
 
 export default function OperatingSystemTable({ data }: OperatingSystemTableProps) {
   const tCols = useTranslations('components.devices.tables.columns');
+  const tFilters = useTranslations('components.filters');
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const columns: ColumnDef<Awaited<ReturnType<typeof fetchOperatingSystemBreakdownAction>>[number]>[] = [
     {
       accessorKey: 'os',
       header: tCols('os'),
       cell: ({ row }) => (
-        <div className='flex items-center gap-2'>
-          <OSIcon name={row.original.os} className='h-4 w-4' />
-          <span>{row.original.os}</span>
-        </div>
+        <Button
+          variant='ghost'
+          onClick={() => makeFilterClick('os')(row.original.os)}
+          className='cursor-pointer bg-transparent p-1 text-left text-sm font-medium'
+          title={tFilters('filterBy', { label: row.original.os })}
+        >
+          <span className='flex items-center gap-2'>
+            <OSIcon name={row.original.os} className='h-4 w-4' />
+            <span>{row.original.os}</span>
+          </span>
+        </Button>
       ),
     },
     {

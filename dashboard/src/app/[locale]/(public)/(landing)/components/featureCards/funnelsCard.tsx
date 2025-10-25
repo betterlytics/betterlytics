@@ -30,7 +30,9 @@ export default async function FunnelsCard() {
             {step.dropOff && (
               <div className='text-muted-foreground flex items-center text-xs'>
                 <TrendingDown className='mr-1 h-3 w-3' />
-                <span>{step.dropOff}% drop off</span>
+                <span>
+                  {step.dropOff}% {t('dropOff')}
+                </span>
               </div>
             )}
           </div>

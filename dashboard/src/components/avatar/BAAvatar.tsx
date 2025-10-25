@@ -32,7 +32,7 @@ function GravatarAvatar() {
   return (
     <>
       <DefaultAvatar />
-      <GravatarImage email={session.user?.email} alt={session.user?.name || 'User'} className='bg-red absolute' />
+      <GravatarImage email={session.user.email} alt={session.user.name || 'User'} className='bg-red absolute' />
     </>
   );
 }

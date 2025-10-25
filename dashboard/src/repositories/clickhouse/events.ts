@@ -1,12 +1,23 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
-import { EventTypeRow, EventOccurrenceAggregate, RawEventPropertyData, RawEventPropertyDataArraySchema } from '@/entities/events';
+import {
+  EventTypeRow,
+  EventOccurrenceAggregate,
+  RawEventPropertyData,
+  RawEventPropertyDataArraySchema,
+} from '@/entities/events';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { EventLogEntry, EventLogEntrySchema } from '@/entities/events';
 import { QueryFilter } from '@/entities/filter';
 import { BAQuery } from '@/lib/ba-query';
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 
-export async function getCustomEventsOverview(siteId: string, startDate: DateTimeString, endDate: DateTimeString, queryFilters: QueryFilter[]): Promise<EventTypeRow[]> {
+export async function getCustomEventsOverview(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  queryFilters: QueryFilter[],
+): Promise<EventTypeRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -26,24 +37,31 @@ export async function getCustomEventsOverview(siteId: string, startDate: DateTim
     ORDER BY count DESC
     LIMIT 100
   `;
-  const result = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      site_id: siteId,
-      start_date: startDate,
-      end_date: endDate,
-    },
-  }).toPromise();
-  
-  return result.map(row => EventOccurrenceAggregate.parse(row));
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) =>
+    EventOccurrenceAggregate.parse({
+      ...row,
+      last_seen: parseClickHouseDate(row.last_seen),
+    }),
+  );
 }
 
 export async function getEventPropertyData(
-  siteId: string, 
-  eventName: string, 
-  startDate: DateTimeString, 
+  siteId: string,
+  eventName: string,
+  startDate: DateTimeString,
   endDate: DateTimeString,
-  queryFilters: QueryFilter[]
+  queryFilters: QueryFilter[],
 ): Promise<RawEventPropertyData[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -60,26 +78,28 @@ export async function getEventPropertyData(
     LIMIT 10000
   `;
 
-  const eventsResult = await clickhouse.query(eventsQuery.taggedSql, {
-    params: {
-      ...eventsQuery.taggedParams,
-      site_id: siteId,
-      event_name: eventName,
-      start_date: startDate,
-      end_date: endDate,
-    },
-  }).toPromise() as Array<{ custom_event_json: string }>;
+  const eventsResult = (await clickhouse
+    .query(eventsQuery.taggedSql, {
+      params: {
+        ...eventsQuery.taggedParams,
+        site_id: siteId,
+        event_name: eventName,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    })
+    .toPromise()) as Array<{ custom_event_json: string }>;
 
   return RawEventPropertyDataArraySchema.parse(eventsResult);
 }
 
 export async function getRecentEvents(
-  siteId: string, 
-  startDate: DateTimeString, 
+  siteId: string,
+  startDate: DateTimeString,
   endDate: DateTimeString,
   limit: number = 50,
   offset: number = 0,
-  queryFilters?: QueryFilter[]
+  queryFilters?: QueryFilter[],
 ): Promise<EventLogEntry[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
@@ -104,25 +124,27 @@ export async function getRecentEvents(
     OFFSET {offset:UInt32}
   `;
 
-  const result = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      site_id: siteId,
-      start_date: startDate,
-      end_date: endDate,
-      limit,
-      offset,
-    },
-  }).toPromise();
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start_date: startDate,
+        end_date: endDate,
+        limit,
+        offset,
+      },
+    })
+    .toPromise()) as any[];
 
-  return result.map(row => EventLogEntrySchema.parse(row));
+  return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
 }
 
 export async function getTotalEventCount(
-  siteId: string, 
-  startDate: DateTimeString, 
+  siteId: string,
+  startDate: DateTimeString,
   endDate: DateTimeString,
-  queryFilters: QueryFilter[]
+  queryFilters: QueryFilter[],
 ): Promise<number> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -136,14 +158,16 @@ export async function getTotalEventCount(
       AND ${SQL.AND(filters)}
   `;
 
-  const result = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      site_id: siteId,
-      start_date: startDate,
-      end_date: endDate,
-    },
-  }).toPromise() as Array<{ total: number }>;
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    })
+    .toPromise()) as Array<{ total: number }>;
 
   return result[0]?.total || 0;
 }

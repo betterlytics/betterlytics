@@ -74,6 +74,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/signin',
     error: '/signin',
+    newUser: '/onboarding',
   },
   session: {
     strategy: 'jwt',
@@ -89,9 +90,16 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.totpEnabled = user.totpEnabled;
         token.hasPassword = Boolean((user as unknown as { passwordHash?: string | null })?.passwordHash);
+        token.onboardingCompletedAt =
+          (user as unknown as { onboardingCompletedAt?: Date | null })?.onboardingCompletedAt ?? null;
+        token.termsAcceptedAt = (user as unknown as { termsAcceptedAt?: Date | null })?.termsAcceptedAt ?? null;
+        token.termsAcceptedVersion =
+          (user as unknown as { termsAcceptedVersion?: number | null })?.termsAcceptedVersion ?? null;
 
         if (account?.provider === 'google') {
-          const emailVerifiedByGoogle = Boolean((profile as any)?.email_verified);
+          const emailVerifiedByGoogle = Boolean(
+            (profile as unknown as { email_verified?: boolean })?.email_verified,
+          );
           const userIsUnverified = !user.emailVerified;
 
           if (emailVerifiedByGoogle && userIsUnverified) {
@@ -129,6 +137,9 @@ export const authOptions: NextAuthOptions = {
               token.role = freshUser.role;
               token.totpEnabled = freshUser.totpEnabled;
               token.hasPassword = Boolean(freshUser.passwordHash);
+              token.onboardingCompletedAt = freshUser.onboardingCompletedAt ?? null;
+              token.termsAcceptedAt = freshUser.termsAcceptedAt ?? null;
+              token.termsAcceptedVersion = freshUser.termsAcceptedVersion ?? null;
 
               // Refresh usersettings
               const freshSettings = await getUserSettings(token.uid);
@@ -154,6 +165,9 @@ export const authOptions: NextAuthOptions = {
         session.user.totpEnabled = token.totpEnabled;
         session.user.hasPassword = token.hasPassword;
         session.user.settings = token.settings;
+        session.user.onboardingCompletedAt = token.onboardingCompletedAt;
+        session.user.termsAcceptedAt = token.termsAcceptedAt;
+        session.user.termsAcceptedVersion = token.termsAcceptedVersion;
       }
       return session;
     },

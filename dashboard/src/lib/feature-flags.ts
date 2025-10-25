@@ -10,6 +10,7 @@ export const featureFlags = {
   enableEmailPreview: env.ENABLE_MAIL_PREVIEW_PAGE,
   enableAccountVerification: env.ENABLE_ACCOUNT_VERIFICATION,
   enableBilling: env.ENABLE_BILLING,
+  enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {

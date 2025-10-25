@@ -9,6 +9,22 @@ import { XCircle, AlertCircle } from 'lucide-react';
 import { VerificationRedirectHandler } from '@/components/accountVerification/VerificationRedirectHandler';
 import { getTranslations } from 'next-intl/server';
 
+export async function generateMetadata() {
+  return {
+    robots: {
+      index: false,
+      follow: false,
+      googleBot: {
+        index: false,
+        follow: false,
+        'max-image-preview': 'none',
+        'max-snippet': 0,
+        'max-video-preview': 0,
+      },
+    },
+  };
+}
+
 interface VerifyEmailPageProps {
   searchParams: Promise<{
     token?: string;

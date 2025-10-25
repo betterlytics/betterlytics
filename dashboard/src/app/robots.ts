@@ -4,7 +4,7 @@ import { env } from '@/lib/env';
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = env.PUBLIC_BASE_URL;
 
-  if (!env.IS_CLOUD) {
+  if (!env.ALLOW_CRAWLING) {
     return {
       rules: [
         {

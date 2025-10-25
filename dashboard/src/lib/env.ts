@@ -34,6 +34,7 @@ const envSchema = z.object({
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
+  ALLOW_CRAWLING: zStringBoolean,
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()
@@ -42,6 +43,26 @@ const envSchema = z.object({
   GITHUB_SECRET: z.string().optional().default(''),
   GOOGLE_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
+  SESSION_REPLAYS_ENABLED: zStringBoolean,
+  S3_ENABLED: zStringBoolean,
+  S3_BUCKET: z.string().optional(),
+  S3_REGION: z.string().optional(),
+  S3_ENDPOINT: z.string().optional(),
+  S3_ACCESS_KEY_ID: z.string().optional(),
+  S3_SECRET_ACCESS_KEY: z.string().optional(),
+  S3_FORCE_PATH_STYLE: zStringBoolean,
+  S3_SSE_ENABLED: zStringBoolean,
 });
 
 export const env = envSchema.parse(process.env);
+
+export const s3Env = {
+  enabled: env.S3_ENABLED,
+  bucket: env.S3_BUCKET,
+  region: env.S3_REGION,
+  endpoint: env.S3_ENDPOINT,
+  accessKeyId: env.S3_ACCESS_KEY_ID,
+  secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+  forcePathStyle: env.S3_FORCE_PATH_STYLE,
+  sseEnabled: env.S3_SSE_ENABLED,
+};

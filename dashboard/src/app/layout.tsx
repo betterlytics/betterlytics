@@ -4,11 +4,12 @@ import './globals.css';
 import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
 import { Toaster } from '@/components/ui/sonner';
-import { generateStructuredData } from '@/lib/seo';
+import { StructuredData } from '@/components/StructuredData';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import ThemeColorUpdater from '@/app/ThemeColorUpdater';
+import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 
 const robotoSans = Inter({
   variable: '--font-roboto-sans',
@@ -21,26 +22,14 @@ const robotoMono = Inter_Tight({
   subsets: ['latin'],
 });
 
-const organizationStructuredData = generateStructuredData('organization', {
-  title: 'Betterlytics',
-  description: 'Privacy-first, cookieless, open-source web analytics platform',
-  keywords: [
-    'web analytics',
-    'privacy analytics',
-    'cookieless analytics',
-    'open source analytics',
-    'GDPR compliant analytics',
-    'Google Analytics alternative',
-  ],
-  path: '/',
-});
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.root);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -56,12 +45,7 @@ export default async function RootLayout({
             data-web-vitals='true'
           />
         )}
-        <script
-          type='application/ld+json'
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationStructuredData),
-          }}
-        />
+        <StructuredData config={seoConfig} />
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
