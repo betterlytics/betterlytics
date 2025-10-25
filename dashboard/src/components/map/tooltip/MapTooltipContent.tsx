@@ -22,7 +22,7 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTo
   return (
     <div
       className={cn(
-        'text-foreground space-y-1 p-2 text-start',
+        'text-foreground justify-center space-y-1 p-2 text-start',
         size === 'sm' ? 'max-w-[300px]' : 'max-w-[40vw]',
         className,
       )}

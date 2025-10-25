@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useMapSelectionActions, type MapFeatureVisitor } from '@/contexts/DeckGLSelectionContextProvider';
+import { useMapSelectionActions } from '@/contexts/DeckGLSelectionContextProvider';
 import type { GeoVisitorWithCompare } from '@/contexts/DeckGLSelectionContextProvider';
 
 type PickingInfo = {
@@ -14,13 +14,17 @@ type Args = {
   setIsMapHovered: (v: boolean) => void;
   frame: number;
   visitorDict: Record<string, number>;
+  date?: Date;
   compareVisitorDict?: Record<string, number>;
+  compareDate?: Date;
 };
 
 export function useDeckGLEventHandlers({
   playing,
   setIsMapHovered,
   frame,
+  date,
+  compareDate,
   visitorDict,
   compareVisitorDict = {},
 }: Args) {
@@ -29,14 +33,16 @@ export function useDeckGLEventHandlers({
 
   const withCompare = useCallback(
     (country_code: string, visitors: number): GeoVisitorWithCompare => {
-      const cv = compareVisitorDict[country_code];
-      const dAbs = visitors - cv;
-      const dProcent = (dAbs! / (cv ? cv : 1)) * 100;
+      const compareVisitors = compareVisitorDict[country_code];
+      const dAbs = visitors - compareVisitors;
+      const dProcent = (dAbs! / (compareVisitors ? compareVisitors : 1)) * 100;
       return {
+        date,
         country_code,
         visitors,
         compare: {
-          compare_visitors: cv,
+          compareDate,
+          compareVisitors,
           dAbs,
           dProcent,
         },
@@ -93,7 +99,7 @@ export function useDeckGLEventHandlers({
   useEffect(() => {
     if (clickedFeatureRef.current) {
       const country_code = clickedFeatureRef.current.geoVisitor.country_code;
-      updateClickedVisitors(visitorDict[country_code] ?? 0, compareVisitorDict[country_code]);
+      updateClickedVisitors(visitorDict[country_code] ?? 0, date, compareVisitorDict[country_code], compareDate);
     }
     //! TODO: update hovered here
   }, [playing, frame, visitorDict]);

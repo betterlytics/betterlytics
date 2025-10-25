@@ -98,7 +98,7 @@ function MotionTextComponent({
 
   if (!shouldAnimate) {
     return (
-      <span className={cn('inline-flex font-mono leading-none', gap, className)} {...rest}>
+      <span className={cn('inline-flex leading-none', gap, className)} {...rest}>
         {chars.map((char, i) => (
           <span
             key={i}
@@ -117,11 +117,7 @@ function MotionTextComponent({
   return (
     <LazyMotion features={domAnimation}>
       <span
-        className={cn(
-          'content-visibility-auto inline-flex font-mono leading-none will-change-transform',
-          gap,
-          className,
-        )}
+        className={cn('content-visibility-auto inline-flex leading-none will-change-transform', gap, className)}
         style={{ containIntrinsicInlineSize: 'auto', containIntrinsicBlockSize: '1em' }}
         {...rest}
       >

@@ -76,9 +76,11 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   const { handleClick, handleHover } = useDeckGLEventHandlers({
     playing,
     frame,
-    setIsMapHovered,
     visitorDict,
+    date: visitorDataTimeseries[frame].date,
+    compareDate: compareDataTimeseries?.[frame].date,
     compareVisitorDict,
+    setIsMapHovered,
   });
 
   const visitorChangeAnimation = useMemo<DeckGLMapProps['fillAnimation']>(

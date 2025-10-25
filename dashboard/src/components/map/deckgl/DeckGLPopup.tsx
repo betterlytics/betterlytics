@@ -1,13 +1,13 @@
 'use client';
 
-import { type MapViewState, WebMercatorViewport } from '@deck.gl/core';
 import { useMapSelectionActions, useMapSelectionState } from '@/contexts/DeckGLSelectionContextProvider';
-import MapTooltipContent from '../tooltip/MapTooltipContent';
-import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
-import React from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { type MapViewState, WebMercatorViewport } from '@deck.gl/core';
 import { motion } from 'framer-motion';
+import { useLocale, useTranslations } from 'next-intl';
+import React from 'react';
+import MapPopupContent from '@/components/map/tooltip/MapPopupContent';
+import MapTooltipTip from '@/components/map/tooltip/MapTooltipTip';
 
 interface DeckGLPopupProps {
   size?: 'sm' | 'lg';
@@ -58,7 +58,7 @@ function DeckGLPopupComponent({ size = 'sm', viewState, children }: DeckGLPopupP
       }
     >
       <div className='bg-card shadow-sidebar-accent-foreground pointer-none inset-0 flex flex-col p-0 shadow-xs'>
-        <MapTooltipContent
+        <MapPopupContent
           geoVisitor={clickedFeature?.geoVisitor}
           size={size}
           locale={locale}
