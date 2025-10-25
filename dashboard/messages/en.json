@@ -876,7 +876,8 @@
     "error": "Error",
     "app": "Application",
     "created": "Created",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "noChange": "no change"
   },
   "languages": {
     "da": "Danish",

@@ -881,7 +881,8 @@
     "error": "Errore",
     "app": "Applicazione",
     "created": "Creato",
-    "unknown": "Sconosciuto"
+    "unknown": "Sconosciuto",
+    "noChange": "nessuna variazione"
   },
   "languages": {
     "da": "Danish",
