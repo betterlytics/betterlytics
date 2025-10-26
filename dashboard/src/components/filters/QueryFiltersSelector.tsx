@@ -64,7 +64,7 @@ export default function QueryFiltersSelector() {
               />
             ))}
             {queryFilters.length === 0 && (
-              <div className='text-muted-foreground flex h-9 items-center gap-2'>
+              <div className='text-muted-foreground flex h-9 items-center justify-center gap-2 text-sm'>
                 {t('selector.emptyNoneSelected')}
               </div>
             )}
