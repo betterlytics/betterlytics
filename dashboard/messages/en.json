@@ -1025,7 +1025,8 @@
   },
   "languages": {
     "da": "Danish",
-    "en": "English"
+    "en": "English",
+    "it": "Italiano"
   },
   "components": {
     "weeklyHeatmap": {

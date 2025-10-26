@@ -1029,7 +1029,8 @@
   },
   "languages": {
     "da": "Dansk",
-    "en": "Engelsk"
+    "en": "Engelsk",
+    "it": "Italiano"
   },
   "components": {
     "weeklyHeatmap": {
@@ -1530,7 +1531,6 @@
           "LCP": "Måler indlæsningsperformance. LCP er det øjeblik, hvor den største tekst eller det største billede bliver synligt.",
           "INP": "Måler responsivitet. INP er tiden fra en brugerhandling til næste visuelle opdatering.",
           "FCP": "Viser hvornår det første indhold vises på skærmen under indlæsning.",
-          "unknown": "Ukendt",
           "TTFB": "Måler serverens svartid — tiden fra forespørgsel til første byte modtages."
         }
       }

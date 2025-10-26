@@ -16,6 +16,7 @@ jobs:
       backend: ${{ steps.changes.outputs.backend }}
       docs: ${{ steps.changes.outputs.docs }}
       tracking-script: ${{ steps.changes.outputs.tracking-script }}
+      translations: ${{ steps.changes.outputs.translations }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -32,6 +33,8 @@ jobs:
               - 'docs/**'
             tracking-script:
               - 'static/analytics.js'
+            translations:
+              - 'dashboard/messages/*.json'
 
   check-dashboard:
     needs: detect-changes
@@ -216,3 +219,17 @@ jobs:
                 body: body
               });
             }
+
+  check-translations:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.translations == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify translation keys against en.json
+        run: node scripts/check-translations.js
