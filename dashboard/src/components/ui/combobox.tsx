@@ -78,12 +78,6 @@ export function Combobox({
           value={enableSearch ? searchQuery : selectedLabel}
           onFocus={() => setOpen(true)}
           onClick={() => setOpen(true)}
-          onBlur={() => {
-            setOpen(false);
-            if (enableSearch && searchQuery) {
-              onValueChange(searchQuery);
-            }
-          }}
           onChange={(e) => {
             if (!enableSearch) return;
             onSearchChange?.(e.target.value);
@@ -135,7 +129,11 @@ export function Combobox({
               }
             }
           }}
-          className={cn('h-9 w-full pr-8', !hasSelection && 'text-muted-foreground', triggerClassName)}
+          className={cn(
+            'h-9 w-full pr-8 text-base md:text-sm',
+            !hasSelection && 'text-muted-foreground',
+            triggerClassName,
+          )}
         />
         <div className='pointer-events-none absolute inset-y-0 right-2 flex items-center'>
           <ChevronDownIcon className='size-4 opacity-50' />
@@ -146,7 +144,11 @@ export function Combobox({
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <div className='flex flex-col gap-2'>
-            <div className='max-h-60 overflow-auto rounded'>
+            <div
+              className='max-h-[min(60vh,15rem)] touch-pan-y overflow-y-auto overscroll-contain rounded [-webkit-overflow-scrolling:touch]'
+              onTouchMove={(e) => e.stopPropagation()}
+              onWheel={(e) => e.stopPropagation()}
+            >
               {loading ? (
                 <div className='text-muted-foreground p-3 text-sm'>Loading…</div>
               ) : (
