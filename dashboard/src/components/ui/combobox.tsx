@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useId, useRef, type ReactNode } from 'react';
+import { useMemo, useState, useId, useRef, useEffect, type ReactNode } from 'react';
 import { Popover, PopoverAnchor, PopoverContent } from './popover';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
@@ -12,17 +12,17 @@ type NavigationDirection = 'up' | 'down' | 'tab';
 const updateHighlightedIndex = (
   currentIndex: number | null,
   direction: NavigationDirection,
-  optionsLength: number,
+  totalItemCount: number,
 ): number => {
-  if (optionsLength === 0) return 0;
+  if (totalItemCount === 0) return 0;
 
   switch (direction) {
     case 'down':
     case 'tab':
       if (currentIndex === null) return 0;
-      return Math.min(currentIndex + 1, optionsLength - 1);
+      return Math.min(currentIndex + 1, totalItemCount - 1);
     case 'up':
-      if (currentIndex === null) return optionsLength - 1;
+      if (currentIndex === null) return totalItemCount - 1;
       return Math.max(currentIndex - 1, 0);
     default:
       return currentIndex ?? 0;
@@ -66,6 +66,30 @@ export function Combobox({
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
 
+  const commitValue = (val: string) => {
+    onSearchChange?.(val);
+    onValueChange(val);
+    setHighlightedIndex(null);
+    setOpen(false);
+  };
+  const trimmedSearch = useMemo(() => (searchQuery ?? '').trim(), [searchQuery]);
+  const canCreate = useMemo(
+    () => enableSearch && trimmedSearch.length > 0 && !options.includes(trimmedSearch),
+    [enableSearch, trimmedSearch, options],
+  );
+  const totalItemCount = options.length + (canCreate ? 1 : 0);
+  const activeInput = enableSearch ? trimmedSearch : selectedLabel.trim();
+
+  useEffect(() => {
+    if (highlightedIndex === null) return;
+    const maxIndex = totalItemCount - 1;
+    if (maxIndex < 0) {
+      setHighlightedIndex(null);
+      return;
+    }
+    if (highlightedIndex > maxIndex) setHighlightedIndex(maxIndex);
+  }, [totalItemCount, highlightedIndex]);
+
   return (
     <div ref={rootRef} className={cn('relative', className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -90,45 +114,37 @@ export function Combobox({
               if (e.key === 'Tab') {
                 if (open) {
                   e.preventDefault();
-                  if (options.length === 0) return;
-                  setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'tab', options.length));
+                  if (totalItemCount === 0) return;
+                  setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'tab', totalItemCount));
                 }
                 return;
               }
               if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (options.length === 0) return;
-                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'down', options.length));
+                if (totalItemCount === 0) return;
+                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'down', totalItemCount));
                 return;
               }
               if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (options.length === 0) return;
-                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'up', options.length));
+                if (totalItemCount === 0) return;
+                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'up', totalItemCount));
+                return;
+              }
+              if (e.key === 'Escape') {
+                setOpen(false);
                 return;
               }
               if (e.key === 'Enter') {
                 e.preventDefault();
-                if (highlightedIndex !== null && options[highlightedIndex]) {
-                  const chosen = options[highlightedIndex];
-                  onSearchChange?.(chosen);
-                  onValueChange(chosen);
-                  setHighlightedIndex(null);
-                  setOpen(false);
+                if (highlightedIndex !== null) {
+                  const isCreate = canCreate && highlightedIndex === options.length;
+                  const selected = isCreate ? activeInput : options[highlightedIndex];
+                  if (selected) commitValue(selected);
                   return;
                 }
-                const trimmed = ((enableSearch ? searchQuery : selectedLabel) || '').trim();
-                if (trimmed.length === 0) {
-                  if (options.length > 0) {
-                    onSearchChange?.(options[0]);
-                    onValueChange(options[0]);
-                    setOpen(false);
-                  }
-                } else {
-                  onSearchChange?.(trimmed);
-                  onValueChange(trimmed);
-                  setOpen(false);
-                }
+                const fallback = activeInput.length > 0 ? activeInput : options[0];
+                if (fallback) commitValue(fallback);
               }
             }}
             className={cn(
@@ -161,10 +177,7 @@ export function Combobox({
                 <div className='text-muted-foreground p-3 text-sm'>Loading…</div>
               ) : (
                 (() => {
-                  const trimmed = (searchQuery || '').trim();
-                  const showCreateOption = enableSearch && trimmed.length > 0 && !options.includes(trimmed);
-
-                  if (!showCreateOption && options.length === 0) {
+                  if (!canCreate && options.length === 0) {
                     return emptyState;
                   }
 
@@ -182,32 +195,28 @@ export function Combobox({
                             )}
                             onMouseEnter={() => setHighlightedIndex(idx)}
                             onMouseLeave={() => setHighlightedIndex(null)}
-                            onClick={() => {
-                              onSearchChange?.(opt);
-                              onValueChange(opt);
-                              setHighlightedIndex(null);
-                              setOpen(false);
-                            }}
+                            onClick={() => commitValue(opt)}
                           >
                             <span className='truncate'>{formatString(opt, 24)}</span>
                           </button>
                         </li>
                       ))}
-                      {showCreateOption ? (
-                        <li key='__use-input__'>
+                      {canCreate ? (
+                        <li key='__use-input__' className='border-none'>
                           <button
                             type='button'
+                            role='option'
+                            aria-selected={highlightedIndex === options.length}
                             className={cn(
-                              'hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-2 py-2 text-sm',
+                              'hover:bg-accent flex w-full cursor-pointer items-center gap-2 rounded-sm px-1 py-1.5 text-sm',
+                              highlightedIndex === options.length && 'bg-accent',
                             )}
-                            onClick={() => {
-                              onSearchChange?.(trimmed);
-                              onValueChange(trimmed);
-                              setOpen(false);
-                            }}
+                            onMouseEnter={() => setHighlightedIndex(options.length)}
+                            onMouseLeave={() => setHighlightedIndex(null)}
+                            onClick={() => commitValue(trimmedSearch)}
                           >
                             <Plus className='h-4 w-4 opacity-70' />
-                            <span className='truncate'>"{formatString(trimmed, 18)}"</span>
+                            <span className='truncate'>"{formatString(trimmedSearch, 18)}"</span>
                           </button>
                         </li>
                       ) : null}
