@@ -48,7 +48,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     dashboardId,
     startDate,
     endDate,
-    5,
+    9,
     queryFilters,
     compareStartDate,
     compareEndDate,
@@ -114,7 +114,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     startDate,
     endDate,
     queryFilters,
-    10,
+    9,
     compareStartDate,
     compareEndDate,
   );
