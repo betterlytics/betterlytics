@@ -68,32 +68,34 @@ export function toHierarchicalDataTable<P extends string, C extends string>({
     }
   }
 
-  return parents.map((parent) => {
-    const parentVal = keyOf(parent);
-    const pCompare = compareMap?.get(parentVal);
-    const childRows = (childrenByParent.get(parentVal) ?? [])
-      .filter((child) => childOf(child) !== null)
-      .map((child) => {
-        const childVal = childOf(child);
-        const cCompare = compareChildMap?.get(`${keyOf(child)}::${childVal}`);
-        return {
-          ...labelKey(childKey, childVal),
-          current: { visitors: child.visitors },
-          compare: cCompare ? { visitors: cCompare.visitors } : undefined,
-          change: computeChange
-            ? { visitors: ((child.visitors - (cCompare?.visitors ?? 0)) / (cCompare?.visitors ?? 1)) * 100 }
-            : undefined,
-        };
-      });
+  return parents
+    .map((parent) => {
+      const parentVal = keyOf(parent);
+      const pCompare = compareMap?.get(parentVal);
+      const childRows = (childrenByParent.get(parentVal) ?? [])
+        .filter((child) => childOf(child) !== null)
+        .map((child) => {
+          const childVal = childOf(child);
+          const cCompare = compareChildMap?.get(`${keyOf(child)}::${childVal}`);
+          return {
+            ...labelKey(childKey, childVal),
+            current: { visitors: child.visitors },
+            compare: cCompare ? { visitors: cCompare.visitors } : undefined,
+            change: computeChange
+              ? { visitors: ((child.visitors - (cCompare?.visitors ?? 0)) / (cCompare?.visitors ?? 1)) * 100 }
+              : undefined,
+          };
+        });
 
-    return {
-      ...labelKey(parentKey, parentVal),
-      current: { visitors: parent.visitors },
-      compare: pCompare ? { visitors: pCompare.visitors } : undefined,
-      change: computeChange
-        ? { visitors: ((parent.visitors - (pCompare?.visitors ?? 0)) / (pCompare?.visitors ?? 1)) * 100 }
-        : undefined,
-      children: childRows.length ? childRows : undefined,
-    };
-  });
+      return {
+        ...labelKey(parentKey, parentVal),
+        current: { visitors: parent.visitors },
+        compare: pCompare ? { visitors: pCompare.visitors } : undefined,
+        change: computeChange
+          ? { visitors: ((parent.visitors - (pCompare?.visitors ?? 0)) / (pCompare?.visitors ?? 1)) * 100 }
+          : undefined,
+        children: childRows.length ? childRows : undefined,
+      };
+    })
+    .sort((a, z) => z.current.visitors - a.current.visitors);
 }
