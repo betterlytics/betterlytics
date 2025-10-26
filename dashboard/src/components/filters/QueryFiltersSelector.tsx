@@ -8,7 +8,7 @@ import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { QueryFilterInputRow } from './QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
 import { Separator } from '../ui/separator';
-import { isQueryFiltersEqual } from '@/utils/queryFilters';
+import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 
@@ -31,7 +31,7 @@ export default function QueryFiltersSelector() {
   }, [contextQueryFilters]);
 
   const saveFilters = useCallback(() => {
-    setQueryFilters(queryFilters);
+    setQueryFilters(filterEmptyQueryFilters(queryFilters));
     setIsPopoverOpen(false);
   }, [queryFilters]);
 
@@ -41,10 +41,12 @@ export default function QueryFiltersSelector() {
   }, [contextQueryFilters]);
 
   const isFiltersModified = useMemo(() => {
+    const filteredQueryFilters = filterEmptyQueryFilters(queryFilters);
+    const filteredContextQueryFilters = filterEmptyQueryFilters(contextQueryFilters);
     return (
-      contextQueryFilters.length !== queryFilters.length ||
-      queryFilters.some((filter, index) => {
-        const ctxFilter = contextQueryFilters[index];
+      filteredQueryFilters.length !== filteredContextQueryFilters.length ||
+      filteredQueryFilters.some((filter, index) => {
+        const ctxFilter = filteredContextQueryFilters[index];
         return isQueryFiltersEqual(ctxFilter, filter) === false;
       })
     );
