@@ -67,7 +67,7 @@ export function Combobox({
 
   return (
     <div className={cn('relative', className)}>
-      <Popover open={open}>
+      <Popover open={open} onOpenChange={setOpen}>
         <Input
           role='combobox'
           aria-expanded={open}
