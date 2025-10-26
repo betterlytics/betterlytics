@@ -110,6 +110,10 @@ export function Combobox({
               if (!open) setOpen(true);
               setHighlightedIndex(null);
             }}
+            onBlur={(e) => {
+              if (!enableSearch || (e.relatedTarget && rootRef.current?.contains(e.relatedTarget))) return;
+              if (trimmedSearch) commitValue(trimmedSearch);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Tab') {
                 if (open) {
