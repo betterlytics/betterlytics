@@ -26,8 +26,8 @@ export function FilterValueSearch<TEntity>({ filter, onFilterUpdate }: FilterVal
       loading={isLoading}
       enableSearch={true}
       emptyState={
-        <div className='text-muted-foreground flex items-center gap-2 text-sm'>
-          <span>{t('noDataForCurrentPeriod')}</span>
+        <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
+          <span>{t('noValuesForCurrentPeriod')}</span>
         </div>
       }
     />

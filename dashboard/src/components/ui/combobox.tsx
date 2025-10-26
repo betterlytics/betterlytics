@@ -69,6 +69,17 @@ export function Combobox({
             setHighlightedIndex(null);
           }}
           onKeyDown={(e) => {
+            if (e.key === 'Tab') {
+              if (open) {
+                e.preventDefault();
+                if (options.length === 0) return;
+                setHighlightedIndex((prev) => {
+                  if (prev === null) return 0;
+                  return Math.min(prev + 1, options.length - 1);
+                });
+              }
+              return;
+            }
             if (e.key === 'ArrowDown') {
               e.preventDefault();
               if (options.length === 0) return;
