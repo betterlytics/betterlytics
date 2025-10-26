@@ -12,7 +12,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/filter';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatNumber } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -29,6 +29,17 @@ const metricOptions = [
   { value: 'pages_per_session', labelKey: 'pagesPerSession' },
   { value: 'session_duration', labelKey: 'sessionDuration' },
 ] as const;
+
+function formatHeatmapMetricValue(metric: HeatmapMetric, value: number): string {
+  switch (metric) {
+    case 'session_duration':
+      return formatDuration(Math.round(value));
+    case 'bounce_rate':
+      return `${value}%`;
+    default:
+      return formatNumber(value);
+  }
+}
 
 export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
@@ -182,7 +193,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                       {`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${String((hourIndex + 1) % 24).padStart(2, '0')}:00`}
                     </div>
                     <div className='text-popover-foreground/90'>
-                      {`${metric === 'session_duration' ? formatDuration(Math.round(value)) : formatNumber(value)} ${metricLabel.toLowerCase()}`}
+                      {`${formatHeatmapMetricValue(metric, value)} ${metricLabel.toLowerCase()}`}
                     </div>
                   </div>
                 </TooltipContent>

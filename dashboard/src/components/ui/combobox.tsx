@@ -215,7 +215,7 @@ export function Combobox({
                             onMouseLeave={() => setHighlightedIndex(null)}
                             onClick={() => commitValue(trimmedSearch)}
                           >
-                            <Plus className='h-4 w-4 opacity-70' />
+                            <Plus className='h-4 w-4' />
                             <span className='truncate'>"{formatString(trimmedSearch, 18)}"</span>
                           </button>
                         </li>
