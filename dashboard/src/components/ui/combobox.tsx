@@ -65,6 +65,7 @@ export function Combobox({
   const selectedLabel = useMemo(() => value || '', [value]);
   const listboxId = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const skipBlurCommitRef = useRef(false);
 
   const commitValue = (val: string) => {
     onSearchChange?.(val);
@@ -112,7 +113,11 @@ export function Combobox({
             }}
             onBlur={(e) => {
               if (!enableSearch || (e.relatedTarget && rootRef.current?.contains(e.relatedTarget))) return;
-              if (trimmedSearch) commitValue(trimmedSearch);
+              if (skipBlurCommitRef.current) {
+                skipBlurCommitRef.current = false;
+                return;
+              }
+              commitValue(trimmedSearch);
             }}
             onKeyDown={(e) => {
               if (e.key === 'Tab') {
@@ -197,6 +202,9 @@ export function Combobox({
                               'hover:bg-accent flex w-full cursor-pointer items-center gap-3 rounded-sm px-2 py-1.5 text-sm',
                               highlightedIndex === idx && 'bg-accent',
                             )}
+                            onMouseDown={() => {
+                              skipBlurCommitRef.current = true;
+                            }}
                             onMouseEnter={() => setHighlightedIndex(idx)}
                             onMouseLeave={() => setHighlightedIndex(null)}
                             onClick={() => commitValue(opt)}
@@ -215,6 +223,9 @@ export function Combobox({
                               'hover:bg-accent flex w-full cursor-pointer items-center gap-2 rounded-sm px-1 py-1.5 text-sm',
                               highlightedIndex === options.length && 'bg-accent',
                             )}
+                            onMouseDown={() => {
+                              skipBlurCommitRef.current = true;
+                            }}
                             onMouseEnter={() => setHighlightedIndex(options.length)}
                             onMouseLeave={() => setHighlightedIndex(null)}
                             onClick={() => commitValue(trimmedSearch)}

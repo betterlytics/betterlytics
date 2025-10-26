@@ -20,6 +20,4 @@ const envSchema = z.object({
 export const env = envSchema.parse(process.env);
 
 export const docsTrackingEnabled =
-  env.NODE_ENV === "production" &&
-  env.ENABLE_APP_TRACKING &&
-  env.APP_TRACKING_SITE_ID.length > 0;
+  env.ENABLE_APP_TRACKING && env.APP_TRACKING_SITE_ID.length > 0;
