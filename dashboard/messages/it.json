@@ -1327,7 +1327,9 @@
         "emptyNoneSelected": "Nessun filtro selezionato - premi Applica per salvare",
         "addFilter": "Aggiungi filtro",
         "cancel": "Annulla",
-        "apply": "Applica"
+        "apply": "Applica",
+        "selectValue": "Seleziona un valore",
+        "noValuesForCurrentPeriod": "Nessun valore trovato per il periodo corrente"
       },
       "filterBy": "Filtra per {label}"
     },

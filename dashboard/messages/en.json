@@ -1321,7 +1321,9 @@
         "emptyNoneSelected": "No filters selected - apply to save",
         "addFilter": "Add filter",
         "cancel": "Cancel",
-        "apply": "Apply"
+        "apply": "Apply",
+        "selectValue": "Select a value",
+        "noValuesForCurrentPeriod": "No values found for current time period"
       },
       "filterBy": "Filter by {label}"
     },

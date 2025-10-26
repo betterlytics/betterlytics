@@ -16,6 +16,8 @@ import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
 import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
 import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
+import { toFormatted } from '@/presenters/toFormatted';
+import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
@@ -37,8 +39,11 @@ export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
     return toPieChart({
       key: 'device_type',
       dataKey: 'visitors',
-      data,
-      compare,
+      data: toFormatted(data, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) })),
+      compare: toFormatted(compare, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
     });
   },
 );
@@ -75,7 +80,10 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
     ]);
 
     const data = DeviceBreakdownCombinedSchema.parse({
-      devices: deviceTypeBreakdown,
+      devices: toFormatted(deviceTypeBreakdown, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
       browsersRollup: browserRollup,
       operatingSystemsRollup: operatingSystemRollup,
     });
@@ -84,15 +92,24 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
       compareStartDate &&
       compareEndDate &&
       DeviceBreakdownCombinedSchema.parse({
-        devices: compareDeviceTypeBreakdown,
+        devices: toFormatted(compareDeviceTypeBreakdown, (value) => ({
+          ...value,
+          device_type: capitalizeFirstLetter(value.device_type),
+        })),
         browsersRollup: compareBrowserRollup,
         operatingSystemsRollup: compareOperatingSystemRollup,
       });
 
     return {
       devices: toDataTable({
-        data: data.devices,
-        compare: compare?.devices,
+        data: toFormatted(data.devices, (value) => ({
+          ...value,
+          device_type: capitalizeFirstLetter(value.device_type),
+        })),
+        compare: toFormatted(compare?.devices, (value) => ({
+          ...value,
+          device_type: capitalizeFirstLetter(value.device_type),
+        })),
         categoryKey: 'device_type',
       }),
       browsersExpanded: toHierarchicalDataTable({
@@ -161,21 +178,29 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
   ) => {
     const rawData = await getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
 
+    const data = toFormatted(rawData, (value) => ({
+      ...value,
+      device_type: capitalizeFirstLetter(value.device_type),
+    }));
+
     const compareData =
       compareStartDate &&
       compareEndDate &&
       (await getDeviceUsageTrendForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
 
-    const sortedCategories = getSortedCategories(rawData, 'device_type', 'count');
+    const sortedCategories = getSortedCategories(data, 'device_type', 'count');
 
     const result = toStackedAreaChart({
-      data: rawData,
+      data,
       categoryKey: 'device_type',
       valueKey: 'count',
       categories: sortedCategories,
       granularity,
       dateRange: { start: startDate, end: endDate },
-      compare: compareData,
+      compare: toFormatted(compareData, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
       compareDateRange:
         compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
     });

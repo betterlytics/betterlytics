@@ -1325,7 +1325,9 @@
         "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
         "addFilter": "Tilføj filter",
         "cancel": "Annuller",
-        "apply": "Anvend"
+        "apply": "Anvend",
+        "selectValue": "Vælg en værdi",
+        "noValuesForCurrentPeriod": "Ingen værdier fundet for den aktuelle periode"
       },
       "filterBy": "Filtrer efter {label}"
     },
