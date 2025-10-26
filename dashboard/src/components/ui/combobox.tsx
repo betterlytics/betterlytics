@@ -7,6 +7,28 @@ import { cn } from '@/lib/utils';
 import { Plus, ChevronDownIcon } from 'lucide-react';
 import { formatString } from '@/utils/formatters';
 
+type NavigationDirection = 'up' | 'down' | 'tab';
+
+const updateHighlightedIndex = (
+  currentIndex: number | null,
+  direction: NavigationDirection,
+  optionsLength: number,
+): number => {
+  if (optionsLength === 0) return 0;
+
+  switch (direction) {
+    case 'down':
+    case 'tab':
+      if (currentIndex === null) return 0;
+      return Math.min(currentIndex + 1, optionsLength - 1);
+    case 'up':
+      if (currentIndex === null) return optionsLength - 1;
+      return Math.max(currentIndex - 1, 0);
+    default:
+      return currentIndex ?? 0;
+  }
+};
+
 type ComboboxProps = {
   value: string;
   onValueChange: (value: string) => void;
@@ -73,29 +95,20 @@ export function Combobox({
               if (open) {
                 e.preventDefault();
                 if (options.length === 0) return;
-                setHighlightedIndex((prev) => {
-                  if (prev === null) return 0;
-                  return Math.min(prev + 1, options.length - 1);
-                });
+                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'tab', options.length));
               }
               return;
             }
             if (e.key === 'ArrowDown') {
               e.preventDefault();
               if (options.length === 0) return;
-              setHighlightedIndex((prev) => {
-                if (prev === null) return 0;
-                return Math.min(prev + 1, options.length - 1);
-              });
+              setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'down', options.length));
               return;
             }
             if (e.key === 'ArrowUp') {
               e.preventDefault();
               if (options.length === 0) return;
-              setHighlightedIndex((prev) => {
-                if (prev === null) return options.length - 1;
-                return Math.max(prev - 1, 0);
-              });
+              setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'up', options.length));
               return;
             }
             if (e.key === 'Enter') {
