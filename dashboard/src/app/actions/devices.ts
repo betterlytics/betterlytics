@@ -5,6 +5,8 @@ import {
   getBrowserBreakdownForSite,
   getOperatingSystemBreakdownForSite,
   getDeviceUsageTrendForSite,
+  getBrowserRollupForSite,
+  getOperatingSystemRollupForSite,
 } from '@/services/devices';
 import { BrowserStats, DeviceBreakdownCombinedSchema } from '@/entities/devices';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -16,6 +18,7 @@ import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedA
 import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
+import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -57,23 +60,23 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
     const [
       deviceTypeBreakdown,
       compareDeviceTypeBreakdown,
-      browserBreakdown,
-      compareBrowserBreakdown,
-      operatingSystemBreakdown,
-      compareOperatingSystemBreakdown,
+      browserRollup,
+      compareBrowserRollup,
+      operatingSystemRollup,
+      compareOperatingSystemRollup,
     ] = await Promise.all([
       getDeviceTypeBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
       compareStartDate &&
         compareEndDate &&
         getDeviceTypeBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
-      getBrowserBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
+      getBrowserRollupForSite(ctx.siteId, startDate, endDate, queryFilters),
       compareStartDate &&
         compareEndDate &&
-        getBrowserBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
-      getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
+        getBrowserRollupForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
+      getOperatingSystemRollupForSite(ctx.siteId, startDate, endDate, queryFilters),
       compareStartDate &&
         compareEndDate &&
-        getOperatingSystemBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
+        getOperatingSystemRollupForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
     ]);
 
     const data = DeviceBreakdownCombinedSchema.parse({
@@ -81,8 +84,8 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
         ...value,
         device_type: capitalizeFirstLetter(value.device_type),
       })),
-      browsers: browserBreakdown,
-      operatingSystems: operatingSystemBreakdown,
+      browsersRollup: browserRollup,
+      operatingSystemsRollup: operatingSystemRollup,
     });
 
     const compare =
@@ -93,8 +96,8 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
           ...value,
           device_type: capitalizeFirstLetter(value.device_type),
         })),
-        browsers: compareBrowserBreakdown,
-        operatingSystems: compareOperatingSystemBreakdown,
+        browsersRollup: compareBrowserRollup,
+        operatingSystemsRollup: compareOperatingSystemRollup,
       });
 
     return {
@@ -109,15 +112,17 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
         })),
         categoryKey: 'device_type',
       }),
-      browsers: toDataTable({
-        data: data.browsers,
-        compare: compare?.browsers,
-        categoryKey: 'browser',
+      browsersExpanded: toHierarchicalDataTable({
+        data: data.browsersRollup,
+        compare: compare?.browsersRollup,
+        parentKey: 'browser',
+        childKey: 'version',
       }),
-      operatingSystems: toDataTable({
-        data: data.operatingSystems,
-        compare: compare?.operatingSystems,
-        categoryKey: 'os',
+      operatingSystemsExpanded: toHierarchicalDataTable({
+        data: data.operatingSystemsRollup,
+        compare: compare?.operatingSystemsRollup,
+        parentKey: 'os',
+        childKey: 'version',
       }),
     };
   },
