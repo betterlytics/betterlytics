@@ -1,6 +1,7 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
+import { formatNumber } from './formatters';
 
 export interface TrendInfo {
   icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
@@ -36,7 +37,7 @@ export function formatDifference(
   if (diff === 0) return null;
 
   const sign = diff > 0 ? '+' : '';
-  const formattedDiff = formatter ? formatter(diff) : diff.toString();
+  const formattedDiff = formatter ? formatter(diff) : formatNumber(diff);
 
   const percentage = ((diff / previous) * 100).toFixed(1);
 

@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ProgressBarData {
   label: string;
@@ -14,6 +16,7 @@ interface ProgressBarData {
   trendPercentage?: number;
   comparisonValue?: number;
   icon?: React.ReactElement;
+  children?: ProgressBarData[];
 }
 
 interface TabConfig<T extends ProgressBarData> {
@@ -28,6 +31,8 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   tabs: TabConfig<T>[];
   defaultTab?: string;
   footer?: React.ReactNode;
+  onItemClick?: (tabKey: string, item: T) => void;
+  isItemInteractive?: (tabKey: string, item: T) => boolean;
 }
 
 function MultiProgressTable<T extends ProgressBarData>({
@@ -35,53 +40,117 @@ function MultiProgressTable<T extends ProgressBarData>({
   tabs,
   defaultTab,
   footer,
+  onItemClick,
+  isItemInteractive,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const t = useTranslations('dashboard.emptyStates');
+  const tFilters = useTranslations('components.filters');
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
   }, []);
 
-  const renderProgressList = useCallback(
-    (data: T[]) => {
-      const maxVisitors = Math.max(...data.map((item) => item.value), 1);
-      const total = data.reduce((sum, item) => sum + item.value, 0) || 1;
+  const toggleExpand = useCallback((key: string) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }, []);
 
+  const renderProgressList = useCallback(
+    (data: T[], tabKey: string, level = 0) => {
       if (data.length === 0) {
         return (
           <DataEmptyComponent />
         );
       }
 
-      const someComparison = data.some((row) => row.comparisonValue);
+      const maxVisitors = Math.max(...data.map((d) => d.value), 1);
+      const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
+      const hasComparison = data.some((d) => d.comparisonValue);
 
       return (
         <div className='space-y-2'>
           {data.map((item, index) => {
-            const relativePercentage = (item.value / maxVisitors) * 100;
-            const percentage = (item.value / total) * 100;
+            const { key, label, value, children = [], trendPercentage, comparisonValue, icon } = item;
+            const itemKey = key ?? label;
+            const isExpandable = children.length > 0;
+            const isExpanded = expandedKeys.has(itemKey);
+
+            const relativePercentage = (value / maxVisitors) * 100;
+            const percentage = (value / total) * 100;
+            const interactive = isItemInteractive ? isItemInteractive(tabKey, item) : !!onItemClick;
+
             return (
-              <div key={item.key ?? item.label} className='group relative'>
+              <div
+                key={itemKey}
+                style={{ paddingLeft: level ? level * 8 : undefined }}
+                className={`group relative ${interactive ? 'cursor-pointer' : ''}`}
+                role={interactive ? 'button' : undefined}
+                tabIndex={interactive ? 0 : undefined}
+                title={interactive && typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
+                onClick={interactive ? () => onItemClick?.(tabKey, item) : undefined}
+                onKeyDown={
+                  interactive
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') onItemClick?.(tabKey, item);
+                      }
+                    : undefined
+                }
+              >
                 <PropertyValueBar
                   value={{
-                    value: item.label,
-                    count: item.value,
+                    value: label,
+                    count: value,
                     relativePercentage: Math.max(relativePercentage, 2),
-                    percentage: percentage,
-                    trendPercentage: item.trendPercentage,
-                    comparisonValue: item.comparisonValue,
+                    percentage,
+                    trendPercentage,
+                    comparisonValue,
                   }}
-                  respectComparison={someComparison}
-                  icon={item.icon}
+                  respectComparison={hasComparison}
+                  icon={icon}
+                  leading={
+                    isExpandable && (
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExpand(itemKey);
+                        }}
+                        aria-expanded={isExpanded}
+                        className='group/button h-6 w-6 cursor-pointer rounded-sm !bg-transparent p-0'
+                      >
+                        {isExpanded ? (
+                          <ChevronDown className='text-muted-foreground group-hover/button:text-foreground h-4 w-4 transition-colors duration-150' />
+                        ) : (
+                          <ChevronRight className='text-muted-foreground group-hover/button:text-foreground h-4 w-4 transition-colors duration-150' />
+                        )}
+                      </Button>
+                    )
+                  }
                   index={index + 1}
                 />
+
+                {isExpandable && isExpanded && (
+                  <div className='mt-2 ml-4 border-l'>
+                    {renderProgressList(children as T[], tabKey, level + 1)}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
       );
     },
-    [t],
+    [onItemClick, isItemInteractive, t, tFilters, expandedKeys, toggleExpand],
   );
 
   const renderTabContent = useCallback(
@@ -90,7 +159,7 @@ function MultiProgressTable<T extends ProgressBarData>({
         return tab.customContent;
       }
 
-      return renderProgressList(tab.data);
+      return renderProgressList(tab.data, tab.key);
     },
     [renderProgressList],
   );

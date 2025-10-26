@@ -267,7 +267,7 @@ function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }:
 
   const timelineEmptyState = useMemo(
     () => (
-      <div className='text-muted-foreground flex h-full items-center justify-center px-4 py-10 text-xs'>
+      <div className='text-muted-foreground flex h-full items-center justify-center px-4 py-10 text-center text-xs'>
         {isSessionSelected ? tTimeline('emptyReplay.title') : tTimeline('emptyReplay.noSessionSelected')}
       </div>
     ),

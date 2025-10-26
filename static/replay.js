@@ -8263,8 +8263,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
   const cacheIsReplayEnabledOnPage = new Map();
   function isReplayEnabledOnPage() {
-    var urlObj = new URL(window.location.href);
-    var pathname = urlObj.pathname;
+    var pathname = window.location.pathname;
 
     if (cacheIsReplayEnabledOnPage.has(pathname)) {
       return cacheIsReplayEnabledOnPage.get(pathname);
@@ -8668,15 +8667,51 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.isRecording = true;
     }
 
+    function startRecordingDeferred() {
+      let started = false;
+
+      function doStart() {
+        if (started) return;
+        started = true;
+        try {
+          startRecording();
+          resolve(true);
+        } catch (_) {}
+      }
+
+      const root = document.body || document.documentElement;
+      if (!root) {
+        setTimeout(doStart, 0);
+        return;
+      }
+
+      const observer = new MutationObserver((mutations) => {
+        if (mutations && mutations.length > 0) {
+          observer.disconnect();
+          requestAnimationFrame(() => {
+            requestAnimationFrame(doStart);
+          });
+        }
+      });
+
+      observer.observe(root, { childList: true, subtree: true });
+
+      setTimeout(() => {
+        observer.disconnect();
+        doStart();
+      }, 1000);
+    }
+
     function handleNavigationChange() {
       if (currentPath === window.location.pathname) return;
       currentPath = window.location.pathname;
 
       if (isReplayEnabledOnPage()) {
         if (state.isRecording === false) {
-          startRecording();
+          startRecordingDeferred();
+        } else {
+          emitReplayPageview(window.location.href, true);
         }
-        emitReplayPageview(window.location.href, true);
       } else {
         emitReplayBlacklist();
         stopRecording(true);
@@ -8703,13 +8738,20 @@ or you can use record.mirror to access the mirror instance during recording.`;
           handleNavigationChange();
         };
         window.addEventListener("popstate", handleNavigationChange);
+        if (window.history.replaceState) {
+          var originalReplaceState = history.replaceState;
+          history.replaceState = function () {
+            originalReplaceState.apply(this, arguments);
+            handleNavigationChange();
+          };
+        }
       }
     }
 
     setupEventListeners();
 
     if (isReplayEnabledOnPage()) {
-      startRecording();
+      startRecordingDeferred();
     } else {
       emitReplayBlacklist();
       stopRecording(true);

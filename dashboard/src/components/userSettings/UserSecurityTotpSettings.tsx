@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button';
 import OtpInput from '@/components/ui/otp-input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { Check, Clipboard, KeySquare, Loader2, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -25,7 +24,6 @@ import { useTranslations } from 'next-intl';
 
 function SetupTotp() {
   const t = useTranslations('components.userSettings.security.totp');
-  const isMobile = useIsMobile();
   const totpInputRef = useRef<HTMLInputElement>(null);
   const { update: setSession } = useSession();
   const [totp, setTotp] = useState('');

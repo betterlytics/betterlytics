@@ -34,6 +34,7 @@ const envSchema = z.object({
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
+  ALLOW_CRAWLING: zStringBoolean,
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()
@@ -42,6 +43,7 @@ const envSchema = z.object({
   GITHUB_SECRET: z.string().optional().default(''),
   GOOGLE_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
+  SESSION_REPLAYS_ENABLED: zStringBoolean,
   S3_ENABLED: zStringBoolean,
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().optional(),

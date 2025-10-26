@@ -24,6 +24,8 @@ pub struct Config {
     pub enable_billing: bool,
     // Monitoring configuration
     pub enable_monitoring: bool,
+    // Session replay configuration
+    pub enable_session_replay: bool,
     // S3 session replay storage configuration
     pub s3_enabled: bool,
     pub s3_region: Option<String>,
@@ -88,6 +90,10 @@ impl Config {
                 .unwrap_or(false),
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
+            // Session replay configuration
+            enable_session_replay: env::var("SESSION_REPLAYS_ENABLED")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
             // S3 configuration (optional; defaults to disabled)

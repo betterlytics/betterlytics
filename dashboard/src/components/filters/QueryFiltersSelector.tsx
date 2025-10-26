@@ -8,7 +8,7 @@ import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { QueryFilterInputRow } from './QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
 import { Separator } from '../ui/separator';
-import { isQueryFiltersEqual } from '@/utils/queryFilters';
+import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 
@@ -31,7 +31,7 @@ export default function QueryFiltersSelector() {
   }, [contextQueryFilters]);
 
   const saveFilters = useCallback(() => {
-    setQueryFilters(queryFilters);
+    setQueryFilters(filterEmptyQueryFilters(queryFilters));
     setIsPopoverOpen(false);
   }, [queryFilters]);
 
@@ -41,10 +41,12 @@ export default function QueryFiltersSelector() {
   }, [contextQueryFilters]);
 
   const isFiltersModified = useMemo(() => {
+    const filteredQueryFilters = filterEmptyQueryFilters(queryFilters);
+    const filteredContextQueryFilters = filterEmptyQueryFilters(contextQueryFilters);
     return (
-      contextQueryFilters.length !== queryFilters.length ||
-      queryFilters.some((filter, index) => {
-        const ctxFilter = contextQueryFilters[index];
+      filteredQueryFilters.length !== filteredContextQueryFilters.length ||
+      filteredQueryFilters.some((filter, index) => {
+        const ctxFilter = filteredContextQueryFilters[index];
         return isQueryFiltersEqual(ctxFilter, filter) === false;
       })
     );
@@ -54,7 +56,7 @@ export default function QueryFiltersSelector() {
     <>
       {queryFilters.length > 0 || isFiltersModified ? (
         <div className='space-y-2'>
-          <div className='space-y-3'>
+          <div className='space-y-1'>
             {queryFilters.map((filter) => (
               <QueryFilterInputRow
                 key={filter.id}
@@ -64,7 +66,7 @@ export default function QueryFiltersSelector() {
               />
             ))}
             {queryFilters.length === 0 && (
-              <div className='text-muted-foreground flex h-9 items-center gap-2'>
+              <div className='text-muted-foreground flex h-9 items-center justify-center gap-2 text-sm'>
                 {t('selector.emptyNoneSelected')}
               </div>
             )}
@@ -96,7 +98,7 @@ export default function QueryFiltersSelector() {
         </div>
       ) : (
         <div className='space-y-2'>
-          <div className='space-y-3'>
+          <div className='space-y-1'>
             <QueryFilterInputRow
               key={'new'}
               onFilterUpdate={updateQueryFilter}
@@ -168,7 +170,7 @@ export default function QueryFiltersSelector() {
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[620px] max-w-[calc(100svw-48px)] border py-4 shadow-2xl' align='start'>
+      <PopoverContent className='w-[620px] max-w-[calc(100svw-48px)] border p-3 shadow-2xl' align='start'>
         {content}
       </PopoverContent>
     </Popover>

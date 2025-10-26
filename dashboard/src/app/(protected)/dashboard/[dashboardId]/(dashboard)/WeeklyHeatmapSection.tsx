@@ -12,6 +12,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/filter';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -28,6 +29,17 @@ const metricOptions = [
   { value: 'pages_per_session', labelKey: 'pagesPerSession' },
   { value: 'session_duration', labelKey: 'sessionDuration' },
 ] as const;
+
+function formatHeatmapMetricValue(metric: HeatmapMetric, value: number): string {
+  switch (metric) {
+    case 'session_duration':
+      return formatDuration(Math.round(value));
+    case 'bounce_rate':
+      return `${value}%`;
+    default:
+      return formatNumber(value);
+  }
+}
 
 export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
   const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
@@ -161,7 +173,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
           {Array.from({ length: 7 }).map((_, dayIndex) => {
             const value = data[dayIndex]?.hours[hourIndex] ?? 0;
             return (
-              <Tooltip key={`${hourIndex}-${dayIndex}`}>
+              <Tooltip key={`${hourIndex}-${dayIndex}`} delayDuration={0} disableHoverableContent>
                 <TooltipTrigger asChild>
                   <div
                     className={cn(
@@ -174,14 +186,14 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                 </TooltipTrigger>
                 <TooltipContent
                   side='top'
-                  className='border-border bg-popover/95 text-popover-foreground rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
+                  className='border-border bg-popover/95 text-popover-foreground pointer-events-none rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
                 >
                   <div>
                     <div className='text-popover-foreground font-medium'>
                       {`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${String((hourIndex + 1) % 24).padStart(2, '0')}:00`}
                     </div>
                     <div className='text-popover-foreground/90'>
-                      {`${metric === 'session_duration' ? formatDuration(Math.round(value)) : value} ${metricLabel.toLowerCase()}`}
+                      {`${formatHeatmapMetricValue(metric, value)} ${metricLabel.toLowerCase()}`}
                     </div>
                   </div>
                 </TooltipContent>

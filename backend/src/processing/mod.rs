@@ -30,6 +30,7 @@ pub struct ProcessedEvent {
     pub browser_version: Option<String>,
     /// Operating system - Parsed from user_agent string
     pub os: Option<String>,
+    pub os_version: Option<String>,
     /// Device type (mobile, desktop, tablet) - Parsed from user_agent string
     pub device_type: Option<String>,
     pub site_id: String,
@@ -89,6 +90,7 @@ impl EventProcessor {
             browser: None,
             browser_version: None,
             os: None,
+            os_version: None,
             device_type: None,
             site_id: site_id.clone(),
             visitor_fingerprint: String::new(),
@@ -214,10 +216,11 @@ impl EventProcessor {
         processed.browser = Some(parsed.browser);
         processed.browser_version = parsed.browser_version;
         processed.os = Some(parsed.os);
+        processed.os_version = parsed.os_version;
         
         debug!(
-            "User agent parsed: browser={:?}, version={:?}, os={:?}, device_type={:?}",
-            processed.browser, processed.browser_version, processed.os, processed.device_type
+            "User agent parsed: browser={:?}, version={:?}, os={:?}, os_version={:?}, device_type={:?}",
+            processed.browser, processed.browser_version, processed.os, processed.os_version, processed.device_type
         );
         
         Ok(())
