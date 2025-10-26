@@ -1327,7 +1327,7 @@
         "cancel": "Annuller",
         "apply": "Anvend",
         "selectValue": "Vælg en værdi",
-        "noDataForCurrentPeriod": "Ingen data fundet for den aktuelle periode"
+        "noValuesForCurrentPeriod": "Ingen værdier fundet for den aktuelle periode"
       },
       "filterBy": "Filtrer efter {label}"
     },

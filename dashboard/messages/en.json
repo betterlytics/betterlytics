@@ -1323,7 +1323,7 @@
         "cancel": "Cancel",
         "apply": "Apply",
         "selectValue": "Select a value",
-        "noDataForCurrentPeriod": "No data found for current time period"
+        "noValuesForCurrentPeriod": "No values found for current time period"
       },
       "filterBy": "Filter by {label}"
     },

@@ -1329,7 +1329,7 @@
         "cancel": "Annulla",
         "apply": "Applica",
         "selectValue": "Seleziona un valore",
-        "noDataForCurrentPeriod": "Nessun dato trovato per il periodo corrente"
+        "noValuesForCurrentPeriod": "Nessun valore trovato per il periodo corrente"
       },
       "filterBy": "Filtra per {label}"
     },
