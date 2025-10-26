@@ -111,19 +111,19 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
           device_type: capitalizeFirstLetter(value.device_type),
         })),
         categoryKey: 'device_type',
-      }),
+      }).slice(0, 10),
       browsersExpanded: toHierarchicalDataTable({
         data: data.browsersRollup,
         compare: compare?.browsersRollup,
         parentKey: 'browser',
         childKey: 'version',
-      }),
+      }).slice(0, 10),
       operatingSystemsExpanded: toHierarchicalDataTable({
         data: data.operatingSystemsRollup,
         compare: compare?.operatingSystemsRollup,
         parentKey: 'os',
         childKey: 'version',
-      }),
+      }).slice(0, 10),
     };
   },
 );
