@@ -5,6 +5,8 @@ import { AuthContext } from '@/entities/authContext';
 import { z } from 'zod';
 import { FILTER_COLUMNS } from '@/entities/filter';
 import { getDistinctValuesForFilterColumn } from '@/services/filters';
+import { capitalizeFirstLetter } from '@/utils/formatters';
+import { toFormatted } from '@/presenters/toFormatted';
 
 const DistinctValuesSchema = z.object({
   startDate: z.date(),
@@ -17,6 +19,8 @@ const DistinctValuesSchema = z.object({
 export const getFilterOptionsAction = withDashboardAuthContext(
   async (ctx: AuthContext, params: z.infer<typeof DistinctValuesSchema>) => {
     const { startDate, endDate, column, search, limit } = DistinctValuesSchema.parse(params);
-    return getDistinctValuesForFilterColumn(ctx.siteId, startDate, endDate, column, search, limit);
+    const rows = await getDistinctValuesForFilterColumn(ctx.siteId, startDate, endDate, column, search, limit);
+
+    return column === 'device_type' ? toFormatted(rows, capitalizeFirstLetter) : rows;
   },
 );
