@@ -48,7 +48,6 @@ export async function getSessionReplays(
     ) AS e USING (site_id, session_id)
     WHERE r.site_id = {site_id:String}
       AND r.started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND ${SQL.AND(filters)}
     ORDER BY r.started_at DESC
     LIMIT {limit:UInt32} OFFSET {offset:UInt32}
   `;
