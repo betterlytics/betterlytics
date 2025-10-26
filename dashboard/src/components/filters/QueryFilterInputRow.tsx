@@ -31,8 +31,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Combobox } from '@/components/ui/combobox';
-import { useQueryFilterSearch } from './use-query-filter-search';
 import { FilterValueSearch } from './FilterValueSearch';
 
 type QueryFilterInputRowProps<TEntity> = {
@@ -50,8 +48,6 @@ export function QueryFilterInputRow<TEntity>({
 }: QueryFilterInputRowProps<TEntity>) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
-
-  const { options, isLoading, setSearch, search, isDirty } = useQueryFilterSearch(filter);
 
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {

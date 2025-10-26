@@ -113,7 +113,7 @@ export function Combobox({
           className='w-[var(--radix-popover-trigger-width)] p-0'
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          <div className='flex flex-col gap-2 p-2'>
+          <div className='flex flex-col gap-2'>
             <div className='max-h-60 overflow-auto rounded'>
               {loading ? (
                 <div className='text-muted-foreground p-3 text-sm'>Loading…</div>
@@ -127,7 +127,7 @@ export function Combobox({
                   }
 
                   return (
-                    <ul className='divide-y' role='listbox'>
+                    <ul className='divide-y p-1' role='listbox'>
                       {options.map((opt, idx) => (
                         <li key={opt} className='border-none'>
                           <button
@@ -135,7 +135,7 @@ export function Combobox({
                             role='option'
                             aria-selected={highlightedIndex === idx}
                             className={cn(
-                              'hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm',
+                              'hover:bg-accent flex w-full cursor-pointer items-center gap-3 rounded-sm px-2 py-1.5 text-sm',
                               highlightedIndex === idx && 'bg-accent',
                             )}
                             onMouseEnter={() => setHighlightedIndex(idx)}
@@ -156,7 +156,7 @@ export function Combobox({
                           <button
                             type='button'
                             className={cn(
-                              'hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm',
+                              'hover:bg-accent flex w-full cursor-pointer items-center gap-2 px-2 py-2 text-sm',
                             )}
                             onClick={() => {
                               onSearchChange?.(trimmed);
