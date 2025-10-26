@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useId, type ReactNode } from 'react';
+import { useMemo, useState, useId, useRef, type ReactNode } from 'react';
 import { Popover, PopoverAnchor, PopoverContent } from './popover';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
@@ -64,84 +64,92 @@ export function Combobox({
   const hasSelection = Boolean(value);
   const selectedLabel = useMemo(() => value || '', [value]);
   const listboxId = useId();
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className={cn('relative', className)}>
+    <div ref={rootRef} className={cn('relative', className)}>
       <Popover open={open} onOpenChange={setOpen}>
-        <Input
-          role='combobox'
-          aria-expanded={open}
-          aria-controls={listboxId}
-          aria-autocomplete={enableSearch ? 'list' : undefined}
-          placeholder={placeholder ?? ''}
-          disabled={disabled}
-          value={enableSearch ? searchQuery : selectedLabel}
-          onFocus={() => setOpen(true)}
-          onClick={() => setOpen(true)}
-          onChange={(e) => {
-            if (!enableSearch) return;
-            onSearchChange?.(e.target.value);
-            if (!open) setOpen(true);
-            setHighlightedIndex(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Tab') {
-              if (open) {
-                e.preventDefault();
-                if (options.length === 0) return;
-                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'tab', options.length));
-              }
-              return;
-            }
-            if (e.key === 'ArrowDown') {
-              e.preventDefault();
-              if (options.length === 0) return;
-              setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'down', options.length));
-              return;
-            }
-            if (e.key === 'ArrowUp') {
-              e.preventDefault();
-              if (options.length === 0) return;
-              setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'up', options.length));
-              return;
-            }
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              if (highlightedIndex !== null && options[highlightedIndex]) {
-                const chosen = options[highlightedIndex];
-                onSearchChange?.(chosen);
-                onValueChange(chosen);
-                setHighlightedIndex(null);
-                setOpen(false);
+        <PopoverAnchor asChild>
+          <Input
+            role='combobox'
+            aria-expanded={open}
+            aria-controls={listboxId}
+            aria-autocomplete={enableSearch ? 'list' : undefined}
+            placeholder={placeholder ?? ''}
+            disabled={disabled}
+            value={enableSearch ? searchQuery : selectedLabel}
+            onFocus={() => setOpen(true)}
+            onClick={() => setOpen(true)}
+            onChange={(e) => {
+              if (!enableSearch) return;
+              onSearchChange?.(e.target.value);
+              if (!open) setOpen(true);
+              setHighlightedIndex(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Tab') {
+                if (open) {
+                  e.preventDefault();
+                  if (options.length === 0) return;
+                  setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'tab', options.length));
+                }
                 return;
               }
-              const trimmed = ((enableSearch ? searchQuery : selectedLabel) || '').trim();
-              if (trimmed.length === 0) {
-                if (options.length > 0) {
-                  onSearchChange?.(options[0]);
-                  onValueChange(options[0]);
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (options.length === 0) return;
+                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'down', options.length));
+                return;
+              }
+              if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (options.length === 0) return;
+                setHighlightedIndex((prev) => updateHighlightedIndex(prev, 'up', options.length));
+                return;
+              }
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (highlightedIndex !== null && options[highlightedIndex]) {
+                  const chosen = options[highlightedIndex];
+                  onSearchChange?.(chosen);
+                  onValueChange(chosen);
+                  setHighlightedIndex(null);
+                  setOpen(false);
+                  return;
+                }
+                const trimmed = ((enableSearch ? searchQuery : selectedLabel) || '').trim();
+                if (trimmed.length === 0) {
+                  if (options.length > 0) {
+                    onSearchChange?.(options[0]);
+                    onValueChange(options[0]);
+                    setOpen(false);
+                  }
+                } else {
+                  onSearchChange?.(trimmed);
+                  onValueChange(trimmed);
                   setOpen(false);
                 }
-              } else {
-                onSearchChange?.(trimmed);
-                onValueChange(trimmed);
-                setOpen(false);
               }
-            }
-          }}
-          className={cn(
-            'h-9 w-full pr-8 text-base md:text-sm',
-            !hasSelection && 'text-muted-foreground',
-            triggerClassName,
-          )}
-        />
+            }}
+            className={cn(
+              'h-9 w-full pr-8 text-base md:text-sm',
+              !hasSelection && 'text-muted-foreground',
+              triggerClassName,
+            )}
+          />
+        </PopoverAnchor>
         <div className='pointer-events-none absolute inset-y-0 right-2 flex items-center'>
           <ChevronDownIcon className='size-4 opacity-50' />
         </div>
-        <PopoverAnchor className='w-full' />
         <PopoverContent
           className='w-[var(--radix-popover-trigger-width)] p-0'
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onFocusOutside={(e) => {
+            const target = e.target as Node | null;
+            if (target && rootRef.current && rootRef.current.contains(target)) {
+              e.preventDefault();
+            }
+          }}
         >
           <div className='flex flex-col gap-2'>
             <div
