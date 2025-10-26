@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, useId, type ReactNode } from 'react';
 import { Popover, PopoverAnchor, PopoverContent } from './popover';
 import { Input } from './input';
 import { cn } from '@/lib/utils';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronDownIcon } from 'lucide-react';
 import { formatString } from '@/utils/formatters';
 
 type ComboboxProps = {
@@ -41,12 +41,17 @@ export function Combobox({
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
   const hasSelection = Boolean(value);
   const selectedLabel = useMemo(() => value || '', [value]);
+  const listboxId = useId();
 
   return (
     <div className={cn('relative', className)}>
       <Popover open={open}>
         <Input
-          placeholder={placeholder}
+          role='combobox'
+          aria-expanded={open}
+          aria-controls={listboxId}
+          aria-autocomplete={enableSearch ? 'list' : undefined}
+          placeholder={placeholder ?? ''}
           disabled={disabled}
           value={enableSearch ? searchQuery : selectedLabel}
           onFocus={() => setOpen(true)}
@@ -106,8 +111,11 @@ export function Combobox({
               }
             }
           }}
-          className={cn('h-9 w-full', !hasSelection && 'text-muted-foreground', triggerClassName)}
+          className={cn('h-9 w-full pr-8', !hasSelection && 'text-muted-foreground', triggerClassName)}
         />
+        <div className='pointer-events-none absolute inset-y-0 right-2 flex items-center'>
+          <ChevronDownIcon className='size-4 opacity-50' />
+        </div>
         <PopoverAnchor className='w-full' />
         <PopoverContent
           className='w-[var(--radix-popover-trigger-width)] p-0'
@@ -127,7 +135,7 @@ export function Combobox({
                   }
 
                   return (
-                    <ul className='divide-y p-1' role='listbox'>
+                    <ul className='divide-y p-1' role='listbox' id={listboxId}>
                       {options.map((opt, idx) => (
                         <li key={opt} className='border-none'>
                           <button

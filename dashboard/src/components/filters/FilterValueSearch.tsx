@@ -10,7 +10,7 @@ type FilterValueSearchProps<TEntity> = {
 };
 
 export function FilterValueSearch<TEntity>({ filter, onFilterUpdate }: FilterValueSearchProps<TEntity>) {
-  const t = useTranslations('components.filters');
+  const t = useTranslations('components.filters.selector');
 
   const { options, isLoading, setSearch, search, isDirty } = useQueryFilterSearch(filter);
 
@@ -18,6 +18,7 @@ export function FilterValueSearch<TEntity>({ filter, onFilterUpdate }: FilterVal
     <Combobox
       className='col-span-10 md:col-span-5'
       value={filter.value}
+      placeholder={t('selectValue')}
       onValueChange={(value) => onFilterUpdate({ ...filter, value })}
       options={options}
       searchQuery={isDirty ? search : search || filter.value}

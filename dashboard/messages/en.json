@@ -1297,7 +1297,6 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
-      "noDataForCurrentPeriod": "No data found for current time period",
       "columns": {
         "url": "URL",
         "device_type": "Device type",
@@ -1322,7 +1321,9 @@
         "emptyNoneSelected": "No filters selected - apply to save",
         "addFilter": "Add filter",
         "cancel": "Cancel",
-        "apply": "Apply"
+        "apply": "Apply",
+        "selectValue": "Select a value",
+        "noDataForCurrentPeriod": "No data found for current time period"
       },
       "filterBy": "Filter by {label}"
     },

@@ -1301,7 +1301,6 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
-      "noDataForCurrentPeriod": "Ingen data fundet for den aktuelle periode",
       "columns": {
         "url": "URL",
         "device_type": "Enhedstype",
@@ -1326,7 +1325,9 @@
         "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
         "addFilter": "Tilføj filter",
         "cancel": "Annuller",
-        "apply": "Anvend"
+        "apply": "Anvend",
+        "selectValue": "Vælg en værdi",
+        "noDataForCurrentPeriod": "Ingen data fundet for den aktuelle periode"
       },
       "filterBy": "Filtrer efter {label}"
     },

@@ -1303,7 +1303,6 @@
       "operator": "Operatore",
       "is": "è",
       "isNot": "non è",
-      "noDataForCurrentPeriod": "Nessun dato trovato per il periodo corrente",
       "columns": {
         "url": "URL",
         "device_type": "Tipo di dispositivo",
@@ -1328,7 +1327,9 @@
         "emptyNoneSelected": "Nessun filtro selezionato - premi Applica per salvare",
         "addFilter": "Aggiungi filtro",
         "cancel": "Annulla",
-        "apply": "Applica"
+        "apply": "Applica",
+        "selectValue": "Seleziona un valore",
+        "noDataForCurrentPeriod": "Nessun dato trovato per il periodo corrente"
       },
       "filterBy": "Filtra per {label}"
     },
