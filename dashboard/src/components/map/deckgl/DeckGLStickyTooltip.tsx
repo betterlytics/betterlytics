@@ -8,7 +8,6 @@ import MapTooltipContent from '../tooltip/MapTooltipContent';
 import MapTooltipTip from '../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
 import { useLocale, useTranslations } from 'next-intl';
-import { debounce, throttle } from '@/lib/async-utils';
 
 export type DeckGLStickyTooltipProps = {
   size?: 'sm' | 'lg';
@@ -55,14 +54,6 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
     let lastHovered: typeof hoveredFeatureRef.current | null = null;
     const roundHalf = (v: number) => Math.round(v * 2) / 2;
 
-    const throttledRender = throttle(() => {
-      const hovered = hoveredFeatureRef.current;
-      if (!hovered || !rootRef.current) return;
-      rootRef.current.render(
-        <MapTooltipContent geoVisitor={hovered.geoVisitor} size={size} locale={locale} label={t('visitors')} />,
-      );
-    }, 100);
-
     const loop = () => {
       rafRef.current = requestAnimationFrame(loop);
 
@@ -82,7 +73,10 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
 
       if (hovered.geoVisitor.country_code !== lastHovered?.geoVisitor.country_code) {
         lastHovered = hovered;
-        throttledRender();
+        if (!hovered || !rootRef.current) return;
+        rootRef.current.render(
+          <MapTooltipContent geoVisitor={hovered.geoVisitor} size={size} locale={locale} label={t('visitors')} />,
+        );
       }
     };
 
@@ -90,9 +84,6 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rootRef.current?.unmount?.();
-      rootRef.current = null;
-      throttledRender.cancel();
     };
   }, [t, locale]);
 
