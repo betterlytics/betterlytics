@@ -10,6 +10,7 @@ import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
 import { getDashboardSettingsAction } from '@/app/actions/dashboardSettings';
 import DashboardLoading from '@/components/loading/DashboardLoading';
+import { useTranslations } from 'next-intl';
 import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
 
 type DashboardProviderProps = {
@@ -18,6 +19,7 @@ type DashboardProviderProps = {
 
 export function DashboardProvider({ children }: DashboardProviderProps) {
   const dashboardId = useDashboardId();
+  const t = useTranslations('components.loading.dashboard');
 
   const { data: initialSettings } = useQuery({
     queryKey: ['dashboard-settings', dashboardId],
@@ -25,7 +27,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
   });
 
   if (!initialSettings) {
-    return <DashboardLoading />;
+    return <DashboardLoading title={t('initializing')} subtitle={t('loadingSettings')} />;
   }
 
   return (

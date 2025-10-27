@@ -1,48 +1,33 @@
-import { getServerSession } from 'next-auth';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { Suspense } from 'react';
-import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
-import GeographySection from '@/app/(protected)/dashboard/[dashboardId]/geography/GeographySection';
-import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getServerSession } from 'next-auth';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
   searchParams: Promise<FilterQuerySearchParams>;
 };
 
-export default async function GeographyPage({ params, searchParams }: GeographyPageParams) {
+export default async function GeographyPage({ params }: GeographyPageParams) {
+  const { dashboardId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect('/');
   }
 
-  const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters } = BAFilterSearchParams.decode(await searchParams);
+  // Get headers to detect device
+  const hdrs = await headers();
+  const userAgent = hdrs.get('user-agent') ?? '';
+  const isMobile = /mobile/i.test(userAgent);
+  const mapType = isMobile ? 'mobile' : 'desktop';
 
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
+  // Access current URL query string
+  // (Next.js App Router doesn’t give it directly to the page component,
+  // but you can reconstruct it via headers)
+  const referer = hdrs.get('referer') ?? '';
+  const queryString = referer.includes('?') ? '?' + referer.split('?')[1] : '';
 
-  return (
-    <div className='fixed inset-0 top-14 w-full'>
-      <Suspense
-        fallback={
-          <div className='bg-background/70 flex h-full w-full flex-col items-center backdrop-blur-sm'>
-            <div className='border-accent border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4'></div>
-            <p className='text-foreground'>Loading visitor data...</p>
-          </div>
-        }
-      >
-        <GeographySection worldMapPromise={worldMapPromise} />
-      </Suspense>
-
-      <div className='fixed top-16 right-4 z-30'>
-        <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
-          <DashboardFilters />
-        </div>
-      </div>
-    </div>
-  );
+  redirect(`/dashboard/${dashboardId}/geography/${mapType}${queryString}`);
 }

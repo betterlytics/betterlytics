@@ -1025,6 +1025,7 @@
     "loading": "Indlæser...",
     "created": "Oprettet",
     "unknown": "Ukendt",
+    "speed": "Hastighed",
     "noChange": "ingen ændring"
   },
   "languages": {
@@ -1449,8 +1450,32 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "loading": "Indlæser kort...",
-      "visitors": "Besøgende"
+      "loading": "Initialiserer verdenskort...",
+      "loadingMessage": "Vent venligst imens verdenskortet indlæses",
+      "visitors": "Besøgende",
+      "playback": {
+        "play": "Start afspilning af kortet",
+        "stop": "Stop afspilning af kortet",
+        "pause": "Sæt kortets afspilning på pause",
+        "speed": {
+          "label": "Hastighed",
+          "tooltip": "Vælg kortets afspilnings hastighed"
+        }
+      },
+      "mapType": {
+        "accumulated": {
+          "label": "Akkumuleret",
+          "tooltip": "Visualisér den geografiske udvikling akkumuleret for hele perioden."
+        },
+        "timeseries": {
+          "label": "Tidsserie",
+          "tooltip": "Visualisér den geografiske udviklingen som en tidsserie"
+        }
+      },
+      "zoom": {
+        "in": "Zoom ind",
+        "out": "Zoom ud"
+      }
     },
     "userJourney": {
       "steps": "Trin",
