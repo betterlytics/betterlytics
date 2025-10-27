@@ -15,7 +15,8 @@
     "generate": "pnpm --filter dashboard generate",
     "simulate": "node simulate-events.js",
     "performance": "k6 run -e TARGET_URL=http://localhost:3001/track -e VUS=100 -e DURATION=30s k6-perf-test.js",
-    "unit-tests": "pnpm --filter dashboard unit-tests"
+    "unit-tests": "pnpm --filter dashboard unit-tests",
+    "check-translations": "node scripts/check-translations.js"
   },
   "packageManager": "pnpm@10.9.0",
   "dependencies": {
