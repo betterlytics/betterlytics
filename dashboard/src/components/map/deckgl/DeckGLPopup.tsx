@@ -41,7 +41,7 @@ function DeckGLPopupComponent({ size = 'sm', viewState, children }: DeckGLPopupP
       className={cn(
         'deckgl-controller',
         'rounded-md border-none bg-transparent p-0 shadow-none',
-        'pointer-events-none z-[11] flex flex-col will-change-transform',
+        'pointer-events-none z-11 flex flex-col will-change-transform',
       )}
       initial={{ opacity: 0, y: 40, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
