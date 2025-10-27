@@ -18,18 +18,16 @@ export default function GeographyLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!pathname.includes('/geography')) return;
 
-    const isTimeseries = pathname.includes('/timeseries');
-    const isAccumulated = pathname.includes('/accumulated');
+    const isOnDesktopPath = pathname.includes('/desktop');
+    const isOnMobilePath = pathname.includes('/mobile');
 
-    // Mobile should always show accumulated
-    if (isMobile && isTimeseries) {
-      const targetPath = pathname.replace('/timeseries', '/accumulated');
+    if (isMobile && isOnDesktopPath) {
+      const targetPath = pathname.replace('/desktop', '/mobile');
       navigate(buildUrl(targetPath, paramsString), { replace: true });
     }
 
-    // Desktop should always default to timeseries
-    if (!isMobile && isAccumulated) {
-      const targetPath = pathname.replace('/accumulated', '/timeseries');
+    if (!isMobile && isOnMobilePath) {
+      const targetPath = pathname.replace('/mobile', '/desktop');
       navigate(buildUrl(targetPath, paramsString), { replace: true });
     }
   }, [pathname, isMobile, navigate, paramsString]);

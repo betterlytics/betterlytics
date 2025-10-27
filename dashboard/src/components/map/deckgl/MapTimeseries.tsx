@@ -27,7 +27,6 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const { granularity } = useTimeRangeContext();
   const isMobile = useIsMobile();
-  console.log('visitorData: ', visitorData.compare?.timeseries);
   const [isTimeseries, setIsTimeseries] = useState(true);
   const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
   const { isMapHovered, setIsMapHovered } = useIsMapHovered([

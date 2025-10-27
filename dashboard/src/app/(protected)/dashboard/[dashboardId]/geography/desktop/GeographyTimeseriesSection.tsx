@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useMemo } from 'react';
+import { use } from 'react';
 import { getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import { useTranslations } from 'next-intl';
 import { DeckGLMapSelectionProvider } from '@/contexts/DeckGLSelectionContextProvider';

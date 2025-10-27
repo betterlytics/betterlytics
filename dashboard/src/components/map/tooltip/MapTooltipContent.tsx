@@ -19,6 +19,7 @@ export type MapTooltipContentProps = {
 
 function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
+
   return (
     <div
       className={cn(
@@ -38,12 +39,7 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTo
           <div className='text-foreground flex flex-row gap-1'>
             <span>{formatNumber(geoVisitor.visitors)}</span>
             {geoVisitor.compare && (
-              <div className='flex flex-row'>
-                <TrendIndicator percentage={geoVisitor.compare.dProcent} />
-                {!Number.isNaN(geoVisitor.compare.dProcent) && geoVisitor.compare.dProcent !== 0 && (
-                  <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis />
-                )}
-              </div>
+              <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis={true} withIcon={true} />
             )}
           </div>
         </div>

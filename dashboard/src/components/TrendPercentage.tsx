@@ -8,23 +8,17 @@ type TrendPercentageProps = {
   percentage?: number | null;
   withIcon?: boolean;
   withParenthesis?: boolean;
-  displayNoChangeAsText?: boolean;
+  noChangeText?: string;
 };
 
 const TrendPercentage = React.memo(
-  ({ percentage, withIcon, withParenthesis, displayNoChangeAsText }: TrendPercentageProps) => {
-    const t = useTranslations('misc');
-
-    if (percentage === undefined || percentage === null) {
+  ({ percentage, withIcon, withParenthesis, noChangeText }: TrendPercentageProps) => {
+    if (typeof percentage !== 'number' || isNaN(percentage)) {
       return null;
     }
 
     if (percentage === 0) {
-      return displayNoChangeAsText ? (
-        <span className='text-muted-foreground/70'>({t('noChange')})</span>
-      ) : (
-        <span>-</span>
-      );
+      return noChangeText ? <span className='text-muted-foreground/70'>{noChangeText}</span> : <span>-</span>;
     }
 
     const isPositive = percentage > 0;
