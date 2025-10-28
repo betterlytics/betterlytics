@@ -1,6 +1,7 @@
+'use client';
+
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoVisitorWithCompare } from '@/contexts/DeckGLSelectionContextProvider';
@@ -23,57 +24,73 @@ function MapPopupContentComponent({ geoVisitor, size, className, label, locale }
   const { granularity } = useTimeRangeContext();
 
   if (!geoVisitor) return null;
+
+  const hasComparison = Boolean(
+    geoVisitor.compare?.compareVisitors &&
+      geoVisitor.compare?.compareDate &&
+      geoVisitor.compare.dProcent &&
+      geoVisitor.date,
+  );
+
   return (
     <div
       className={cn(
-        'text-foreground justify-center space-y-1 p-2 text-center',
+        'border-border bg-popover/95 min-w-[200px] rounded-lg border p-3 shadow-xl backdrop-blur-sm',
+        'text-foreground flex flex-col space-y-1 text-sm',
         size === 'sm' ? 'max-w-[300px]' : 'max-w-[40vw]',
         className,
       )}
     >
+      {/* Country Name */}
       <CountryDisplay
         className='justify-center text-sm font-bold'
         countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
         countryName={getCountryName(geoVisitor.country_code, locale)}
       />
-      <div className='bg-border my-2 h-[1px] w-full'></div>
-      <div className='flex flex-col justify-start text-sm whitespace-nowrap'>
-        {!geoVisitor.date ? (
-          <div className='flex gap-2 text-sm whitespace-nowrap'>
-            <span className='text-muted-foreground'>{label}:</span>
-            <div className='text-foreground flex flex-row gap-1'>
-              <span>{formatNumber(geoVisitor.visitors)}</span>
-              {geoVisitor.compare && (
-                <div className='flex flex-row'>
-                  <TrendIndicator percentage={geoVisitor.compare.dProcent} />
-                  {!Number.isNaN(geoVisitor.compare.dProcent) && geoVisitor.compare.dProcent !== 0 && (
-                    <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis />
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className='flex items-center gap-4 text-sm whitespace-nowrap'>
-            <DateTimeSliderLabel value={geoVisitor.date} granularity={granularity}>
-              :
-            </DateTimeSliderLabel>
-            <span>{formatNumber(geoVisitor.visitors)}</span>
-          </div>
-        )}
-        {geoVisitor.compare?.compareDate && geoVisitor.compare?.compareVisitors && (
-          <div className='flex items-center gap-4 text-sm whitespace-nowrap'>
-            <DateTimeSliderLabel
-              value={geoVisitor.compare.compareDate}
-              granularity={granularity}
-            ></DateTimeSliderLabel>
-            <span>{formatNumber(geoVisitor.compare.compareVisitors)}</span>
+      <div className='border-border my-2 border-t'></div>
+
+      <div className='flex items-center justify-start gap-1'>
+        <div className='text-muted-foreground flex items-center gap-0.5'>
+          <span>{label}</span>
+          {!hasComparison && ':'}
+        </div>
+        {!hasComparison && <span className='text-foreground'>{formatNumber(geoVisitor.visitors ?? 0)}</span>}
+        {hasComparison && (
+          <div className='flex items-center gap-0'>
+            <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis withIcon />
           </div>
         )}
       </div>
+      {hasComparison && (
+        <>
+          <div className='flex flex-col space-y-2'>
+            <div className='flex items-center justify-between gap-2'>
+              <div className='flex items-center gap-2'>
+                <div className='bg-primary h-2 w-2 rounded-full' />
+                <DateTimeSliderLabel value={geoVisitor.date!} granularity={granularity} animate={false} />
+              </div>
+              <div className='font-medium'>{formatNumber(geoVisitor.visitors)}</div>
+            </div>
+
+            <div className='flex items-center justify-between gap-2'>
+              <div className='flex items-center gap-2'>
+                <div className='bg-chart-comparison h-2 w-2 rounded-full' />
+                <DateTimeSliderLabel
+                  value={geoVisitor.compare.compareDate!}
+                  granularity={granularity}
+                  animate={false}
+                  className='text-muted-foreground'
+                />
+              </div>
+              <div className='text-muted-foreground'>{formatNumber(geoVisitor.compare?.compareVisitors!)}</div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
+
 const MapPopupContent = React.memo(MapPopupContentComponent);
 MapPopupContent.displayName = 'MapPopupContent';
 

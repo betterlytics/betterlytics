@@ -1,6 +1,5 @@
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoVisitorWithCompare } from '@/contexts/DeckGLSelectionContextProvider';
@@ -19,6 +18,14 @@ export type MapTooltipContentProps = {
 
 function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
+
+  const hasComparison = Boolean(
+    geoVisitor.compare?.compareVisitors &&
+      geoVisitor.compare?.compareDate &&
+      geoVisitor.compare.dProcent &&
+      geoVisitor.date,
+  );
+
   return (
     <div
       className={cn(
@@ -37,13 +44,8 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTo
           <span className='text-muted-foreground'>{label}:</span>
           <div className='text-foreground flex flex-row gap-1'>
             <span>{formatNumber(geoVisitor.visitors)}</span>
-            {geoVisitor.compare && (
-              <div className='flex flex-row'>
-                <TrendIndicator percentage={geoVisitor.compare.dProcent} />
-                {!Number.isNaN(geoVisitor.compare.dProcent) && geoVisitor.compare.dProcent !== 0 && (
-                  <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis />
-                )}
-              </div>
+            {hasComparison && (
+              <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis={true} withIcon={true} />
             )}
           </div>
         </div>

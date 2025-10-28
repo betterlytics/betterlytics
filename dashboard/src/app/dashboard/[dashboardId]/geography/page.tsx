@@ -1,6 +1,5 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { type NextPageContext } from 'next';
 
 export default async function GeographyPage({ params }: { params: Promise<{ dashboardId: string }> }) {
   const { dashboardId } = await params;
@@ -9,7 +8,7 @@ export default async function GeographyPage({ params }: { params: Promise<{ dash
   const hdrs = await headers();
   const userAgent = hdrs.get('user-agent') ?? '';
   const isMobile = /mobile/i.test(userAgent);
-  const mapType = isMobile ? 'accumulated' : 'timeseries';
+  const mapType = isMobile ? 'mobile' : 'desktop';
 
   // Access current URL query string
   // (Next.js App Router doesn’t give it directly to the page component,

@@ -6,7 +6,7 @@ const args = process.argv.slice(2);
 const DEFAULT_ARGS = {
   NUMBER_OF_EVENTS: 4000,
   NUMBER_OF_USERS: 2000,
-  SIMULATED_DAYS: 7,
+  SIMULATED_DAYS: 28,
   BATCH_SIZE: 500,
   CUSTOM_EVENT_FREQUENCY: 0.2,
 }
@@ -52,7 +52,7 @@ const SITE_ID = args[0];
 const TARGET_URL = "http://127.0.0.1:3001/track";
 const NUMBER_OF_EVENTS = getFlag("events", DEFAULT_ARGS.NUMBER_OF_EVENTS);
 const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
-const SIMULATED_DAYS = 7; /** Not supported on the backend for now */
+const SIMULATED_DAYS = 28; /** Not supported on the backend for now */
 const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
 

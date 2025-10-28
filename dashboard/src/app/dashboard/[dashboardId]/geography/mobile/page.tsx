@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
-import GeographySection from '@/app//dashboard/[dashboardId]/geography/accumulated/GeographySection';
+import GeographySection from '@/app/dashboard/[dashboardId]/geography/mobile/GeographySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';

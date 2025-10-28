@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { getWorldMapGranularityTimeseries } from '@/app/actions/geography';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
-import GeographyTimeseriesSection from '@/app/dashboard/[dashboardId]/geography/timeseries/GeographyTimeseriesSection';
+import GeographyTimeseriesSection from '@/app/dashboard/[dashboardId]/geography/desktop/GeographyTimeseriesSection';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
