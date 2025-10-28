@@ -4,7 +4,7 @@ use axum::{
 use std::sync::Arc;
 use std::{net::SocketAddr, net::IpAddr, str::FromStr};
 use tower_http::cors::CorsLayer;
-use tracing::{info, error, warn};
+use tracing::{info, error, warn, debug};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
@@ -15,6 +15,7 @@ mod session;
 mod geoip;
 mod geoip_updater;
 mod bot_detection;
+mod redis;
 mod referrer;
 mod outbound_link;
 mod url_utils;
@@ -24,6 +25,7 @@ mod metrics;
 mod validation;
 mod storage;
 mod session_replay;
+mod site_config_cache;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use db::{Database, SharedDatabase};
@@ -33,6 +35,8 @@ use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
 use validation::{EventValidator, ValidationConfig};
 use storage::s3::S3Service;
+use site_config_cache::SiteConfigCache;
+use redis::Redis as RedisClient;
 
 #[tokio::main]
 async fn main() {
@@ -84,6 +88,18 @@ async fn main() {
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
+    let redis = RedisClient::new(config.redis_url.clone()).await
+        .map_err(|e| format!("Redis init failed: {}", e))
+        .ok()
+        .flatten();
+    let site_cfg_cache = Arc::new(
+        SiteConfigCache::new(redis.clone())
+            .await
+            .expect("Failed to init SiteConfigCache"),
+    );
+    let site_cfg_cache_listener = site_cfg_cache.clone();
+    tokio::spawn(async move { site_cfg_cache_listener.run_pubsub_listener().await });
+
     // Initialize optional S3 service for session replay storage
     let s3_service: Option<Arc<S3Service>> = match S3Service::from_config(config.clone()).await {
         Ok(Some(svc)) => {
@@ -115,17 +131,17 @@ async fn main() {
 		.route("/site-id", get(generate_site_id_handler))
 		.route("/metrics", get(metrics_handler));
 
-	if config.enable_session_replay {
-		router = router
-			.route("/replay/presign/put", post(session_replay::presign_put_segment))
-			.route("/replay/finalize", post(session_replay::finalize_session_replay));
-	} else {
-		info!("Session replay endpoints disabled by configuration");
-	}
+    if config.enable_session_replay {
+        router = router
+            .route("/replay/presign/put", post(session_replay::presign_put_segment))
+            .route("/replay/finalize", post(session_replay::finalize_session_replay));
+    } else {
+        info!("Session replay endpoints disabled by configuration");
+    }
 
-	let app = router
+    let app = router
 		.fallback(fallback_handler)
-		.with_state((db, processor, metrics_collector, validator, s3_service))
+        .with_state((db, processor, metrics_collector, validator, s3_service, site_cfg_cache.clone()))
 		.layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
@@ -134,7 +150,7 @@ async fn main() {
 }
 
 async fn health_check(
-    State((db, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
+    State((db, _, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
 ) -> Result<impl IntoResponse, String> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
@@ -149,7 +165,7 @@ async fn health_check(
 }
 
 async fn track_event(
-    State((_db, processor, metrics, validator, _s3)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
+    State((_db, processor, metrics, validator, _s3, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
     Json(raw_event): Json<RawTrackingEvent>,
@@ -160,10 +176,13 @@ async fn track_event(
     
     let validation_start = std::time::Instant::now();
 
+    debug!(site_id = %raw_event.site_id, event = %raw_event.event_name, url = %raw_event.url, "received event");
+
     // Validate and sanitize event
     let validated_event = match validator.validate_event(raw_event, ip_address.clone()).await {
         Ok(validated) => validated,
         Err(e) => {
+            debug!(reason = %validator.get_rejection_reason(&e), "validation failed");
             if let Some(metrics_collector) = &metrics {
                 metrics_collector.increment_events_rejected(&validator.get_rejection_reason(&e));
             }
@@ -183,6 +202,22 @@ async fn track_event(
         metrics_collector.record_validation_duration(validation_start.elapsed());
     }
 
+    // Enforce site config (blacklist, optional domain policy) after normal validation
+    if let Err(e) = validation::validate_site_policies(
+        &site_cfg_cache,
+        &validated_event.raw.site_id,
+        &validated_event.raw.url,
+        &validated_event.ip_address,
+    ).await {
+        debug!(reason = %validator.get_rejection_reason(&e), "site-config validation failed");
+        if let Some(metrics_collector) = &metrics {
+            metrics_collector.increment_events_rejected(&validator.get_rejection_reason(&e));
+        }
+        return Err((StatusCode::FORBIDDEN, e.to_string()));
+    }
+
+    debug!("validation passed");
+
     let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
 
     if let Err(e) = processor.process_event(event).await {
@@ -200,7 +235,7 @@ async fn track_event(
 }
 
 async fn metrics_handler(
-    State((_, _, metrics, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
+    State((_, _, metrics, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
 ) -> impl IntoResponse {
     match metrics {
         Some(metrics_collector) => {

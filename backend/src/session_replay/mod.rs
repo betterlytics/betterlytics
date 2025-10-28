@@ -8,6 +8,7 @@ use once_cell::sync::Lazy;
 
 use crate::session;
 use crate::storage::s3::S3Service;
+use crate::site_config_cache::SiteConfigCache;
 use crate::ua_parser;
 use crate::analytics::detect_device_type_from_resolution;
 use crate::analytics::generate_fingerprint;
@@ -61,7 +62,7 @@ pub struct PresignPutResponse {
 }
 
 pub async fn presign_put_segment(
-    State((_, _, _, _, s3)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
+    State((_, _, _, _, s3, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
     Json(req): Json<PresignPutRequest>,
@@ -123,7 +124,7 @@ pub struct FinalizeRequest {
 }
 
 pub async fn finalize_session_replay(
-    State((db, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>)>,
+    State((db, _, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
     Json(req): Json<FinalizeRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let key = cache_key(&req.site_id, &req.session_id);
