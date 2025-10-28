@@ -4,6 +4,7 @@ use std::net::IpAddr;
 use std::str::FromStr;
 use url::Url;
 use crate::analytics::RawTrackingEvent;
+use crate::site_config_cache::SiteConfigCache;
 use sha2::{Digest, Sha256};
 use tracing::warn;
 
@@ -50,6 +51,10 @@ pub enum ValidationError {
     InvalidJson(String),
     #[error("Invalid outbound link URL: {0}")]
     InvalidOutboundLinkUrl(String),
+    #[error("Blacklisted IP address: {0}")]
+    BlacklistedIp(String),
+    #[error("Domain not allowed: {0}")]
+    DomainNotAllowed(String),
 }
 
 #[derive(Debug, Clone)]
@@ -296,6 +301,8 @@ impl EventValidator {
             ValidationError::PayloadTooLarge(_) => "payload_too_large",
             ValidationError::InvalidJson(_) => "invalid_json",
             ValidationError::InvalidOutboundLinkUrl(_) => "invalid_outbound_link_url",
+            ValidationError::BlacklistedIp(_) => "blacklisted_ip",
+            ValidationError::DomainNotAllowed(_) => "domain_not_allowed",
         }
     }
 
@@ -325,6 +332,36 @@ impl EventValidator {
             "/".to_string()
         }
     }
+}
+
+/// Validate site-specific policies
+pub async fn validate_site_policies(
+    cfg_cache: &SiteConfigCache,
+    site_id: &str,
+    event_url: &str,
+    ip_address: &str,
+) -> Result<(), ValidationError> {
+    if !cfg_cache.is_enabled() {
+        return Ok(());
+    }
+    if let Some(cfg) = cfg_cache
+        .get_or_fetch(site_id)
+        .await
+        .map_err(|_| ValidationError::InvalidSiteId("config fetch failed".to_string()))?
+    {
+        if cfg.blacklisted_ips.iter().any(|ip| ip == ip_address) {
+            return Err(ValidationError::BlacklistedIp("IP is blacklisted".to_string()));
+        }
+        if cfg.enforce_domain {
+            if let (Some(expected), Ok(url)) = (cfg.domain.as_deref(), Url::parse(event_url)) {
+                let event_domain = url.host_str().unwrap_or("");
+                if !event_domain.eq_ignore_ascii_case(expected) {
+                    return Err(ValidationError::DomainNotAllowed("Domain does not match site config".to_string()));
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Check if a string contains any control characters

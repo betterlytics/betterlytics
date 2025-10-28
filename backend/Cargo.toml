@@ -56,7 +56,7 @@ uaparser = "0.6.4"
 serde_yaml = "0.9"
 isbot = "0.1.3"
 
-moka = { version = "0.12.10", features = ["sync"] }
+moka = { version = "0.12.10", features = ["sync", "future"] }
 serde_repr = "0.1.20"
 strum_macros = "0.27.1"
 strum = "0.27.1"
@@ -68,3 +68,5 @@ sysinfo = "0.35.2"
 # AWS S3 (for session replay storage)
 aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
 aws-sdk-s3 = "1.106.0"
+redis = { version = "0.32.7", features = ["tokio-comp", "aio", "connection-manager"] }
+futures = "0.3"
