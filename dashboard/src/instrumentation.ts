@@ -1,6 +1,5 @@
 import { registerOTel } from '@vercel/otel';
 import { env } from './lib/env';
-import { reconcileAllDashboardConfigs } from './services/dashboard';
 
 export function register() {
   if (!env.ENABLE_MONITORING) return;
@@ -8,15 +7,33 @@ export function register() {
 
   registerOTel({ serviceName: env.OTEL_SERVICE_NAME });
 
-  try {
-    if (env.REDIS_URL && env.REDIS_URL !== '') {
-      reconcileAllDashboardConfigs()
-        .then(({ processed }) => console.log(`Redis warm-up finished. processed=${processed}`))
-        .catch((e) => console.error('Redis warm-up failed:', e));
-    } else {
+  /*
+   * This if() check is required to prevent the instrumentation from compiling for edge runtime
+   * It took me a very long time to figure this out, but
+   * for some reason, it is imperative that this if statement is exactly as is.
+   * Any other variants, placements, or conditions will cause the instrumentation to compile to edge runtime.
+   * See https://github.com/vercel/next.js/issues/61728#issuecomment-2341421113 for more details.
+   */
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { env } = await import('@/lib/env');
+
+    if (!env.REDIS_URL) {
       console.log('Redis URL is not set, skipping dashboard config reconciliation');
+      return;
     }
-  } catch (e) {
-    console.error('Redis warm-up failed:', e);
+
+    try {
+      const { reconcileAllDashboardConfigs } = await import('@/services/dashboard');
+
+      reconcileAllDashboardConfigs()
+        .then(({ processed }) => {
+          console.log(`Redis warm-up finished. processed=${processed}`);
+        })
+        .catch((err) => {
+          console.error('Redis warm-up failed:', err);
+        });
+    } catch (err) {
+      console.error('Redis warm-up failed:', err);
+    }
   }
 }
