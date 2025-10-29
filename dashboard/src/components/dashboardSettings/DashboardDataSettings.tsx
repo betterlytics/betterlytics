@@ -2,7 +2,7 @@
 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Ban, Database, Shield } from 'lucide-react';
+import { Ban, Database, Shield, Plus } from 'lucide-react';
 import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import SettingsCard from '@/components/SettingsCard';
@@ -79,7 +79,7 @@ export default function DataSettings({
       <SettingsCard icon={Shield} title='Site rules' description='Control which incoming events are accepted.'>
         <div className='flex items-start justify-between gap-4'>
           <div>
-            <Label htmlFor='enforce-domain' className='text-base'>
+            <Label htmlFor='enforce-domain' className='cursor-pointer text-base'>
               Enforce domain
             </Label>
             <p className='text-muted-foreground mt-1 text-sm'>
@@ -88,6 +88,7 @@ export default function DataSettings({
           </div>
           <Switch
             id='enforce-domain'
+            className='cursor-pointer'
             aria-label='Toggle enforce domain'
             checked={!!dashboardConfig.enforceDomain}
             onCheckedChange={(v) => onConfigChange({ ...dashboardConfig, enforceDomain: !!v })}
@@ -113,7 +114,8 @@ export default function DataSettings({
                 }
               }}
             />
-            <Button type='button' variant='secondary' onClick={addIp} className='cursor-pointer'>
+            <Button type='button' variant='outline' onClick={addIp} className='cursor-pointer gap-2'>
+              <Plus className='h-4 w-4' />
               Add
             </Button>
           </div>
