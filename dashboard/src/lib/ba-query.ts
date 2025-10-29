@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
 import { toClickHouseGridStartString } from '@/utils/dateFormatters';
+import { TimeRangeValue } from '@/utils/timeRanges';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -66,7 +67,17 @@ function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityR
   };
 }
 
+function getIntervalSQLFunctionFromTimeZone(granularity: GranularityRangeValues, timezone: string) {
+  const clickhouseInterval = granularityIntervalMapper[granularity];
+  const validatedInterval = GranularityIntervalSchema.parse(clickhouseInterval);
+  return (column: z.infer<typeof DateColumnSchema>) => {
+    const validatedColumn = DateColumnSchema.parse(column);
+    return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.String({ timezone })})`;
+  };
+}
+
 export const BAQuery = {
   getGranularitySQLFunctionFromGranularityRange,
+  getIntervalSQLFunctionFromTimeZone,
   getFilterQuery,
 };

@@ -103,6 +103,7 @@ export async function getDeviceUsageTrendForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DeviceUsageTrendRow[]> {
   return getDeviceUsageTrend(
     siteId,
@@ -110,6 +111,7 @@ export async function getDeviceUsageTrendForSite(
     toDateTimeString(endDate),
     granularity,
     queryFilters,
+    timezone,
   );
 }
 

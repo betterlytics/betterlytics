@@ -19,6 +19,7 @@ import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
+import { toTimezoneStackedAreaChart } from '@/presenters/toTimezoneStackedAreaChart';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -173,10 +174,18 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const rawData = await getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const rawData = await getDeviceUsageTrendForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
 
     const data = toFormatted(rawData, (value) => ({
       ...value,
@@ -186,17 +195,25 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     const compareData =
       compareStartDate &&
       compareEndDate &&
-      (await getDeviceUsageTrendForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
+      (await getDeviceUsageTrendForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+        timezone,
+      ));
 
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');
 
-    const result = toStackedAreaChart({
+    const result = toTimezoneStackedAreaChart({
       data,
       categoryKey: 'device_type',
       valueKey: 'count',
       categories: sortedCategories,
       granularity,
       dateRange: { start: startDate, end: endDate },
+      timezone,
       compare: toFormatted(compareData, (value) => ({
         ...value,
         device_type: capitalizeFirstLetter(value.device_type),

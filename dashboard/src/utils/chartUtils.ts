@@ -1,7 +1,9 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
-import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
+import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { formatNumber } from './formatters';
+import { addDays, addHours, addMinutes } from 'date-fns';
 
 export interface TrendInfo {
   icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
@@ -99,8 +101,42 @@ export function granularityDateFormatter(granularity?: GranularityRangeValues, l
   };
 }
 
+export type TimeInterval = {
+  offset: (date: Date, step: number) => Date;
+};
+
 export function getTimeIntervalForGranularity(granularity: GranularityRangeValues): TimeInterval {
   if (granularity === 'day') return utcDay;
   if (granularity === 'hour') return utcHour;
   return utcMinute.every(getMinuteStep(granularity)) as TimeInterval;
+}
+
+export function getTimeIntervalForGranularityWithTimezone(
+  granularity: GranularityRangeValues,
+  timezone: string,
+): TimeInterval {
+  if (granularity === 'day') {
+    return {
+      offset: (date, step) => {
+        const local = toZonedTime(date, timezone);
+        const nextLocal = addDays(local, step);
+        return fromZonedTime(nextLocal, timezone);
+      },
+    };
+  }
+
+  if (granularity === 'hour') {
+    return {
+      offset: (date, step) => {
+        return addHours(date, step);
+      },
+    };
+  }
+
+  const minuteStep = getMinuteStep(granularity);
+  return {
+    offset: (date, step) => {
+      return addMinutes(date, step * minuteStep);
+    },
+  };
 }
