@@ -20,7 +20,7 @@ export async function getUniqueVisitors(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyUniqueVisitorsRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -93,7 +93,7 @@ export async function getSessionMetrics(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailySessionMetricsRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`

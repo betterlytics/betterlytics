@@ -73,7 +73,7 @@ export async function getReferrerTrafficTrendBySource(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<ReferrerTrafficBySourceRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -307,7 +307,7 @@ export async function getDailyReferralSessions(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyReferralSessionsRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -350,7 +350,7 @@ export async function getDailyReferralTrafficPercentage(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyReferralPercentageRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -401,7 +401,7 @@ export async function getDailyReferralSessionDuration(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyReferralSessionDurationRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

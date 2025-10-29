@@ -92,7 +92,7 @@ export async function getDailyOutboundClicks(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyOutboundClicksRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

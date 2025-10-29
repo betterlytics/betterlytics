@@ -33,7 +33,7 @@ export async function getTotalPageViews(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<TotalPageViewsRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -69,7 +69,7 @@ export async function getPageViews(
   granularity: GranularityRangeValues,
   timezone: string,
 ): Promise<DailyPageViewRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
 
   const query = safeSql`
     SELECT
@@ -296,7 +296,7 @@ export async function getPageTrafficTimeSeries(
   granularity: GranularityRangeValues,
   timezone: string,
 ): Promise<TotalPageViewsRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
 
   const query = safeSql`
     SELECT
@@ -650,7 +650,7 @@ export async function getDailyAverageTimeOnPage(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyAverageTimeRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -708,7 +708,7 @@ export async function getDailyBounceRate(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyBounceRateRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

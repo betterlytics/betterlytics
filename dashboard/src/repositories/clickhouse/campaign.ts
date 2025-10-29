@@ -179,7 +179,7 @@ export async function getCampaignVisitorTrendData(
   granularity: GranularityRangeValues,
   timezone: string,
 ): Promise<CampaignTrendRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
 
   const query = safeSql`
     SELECT

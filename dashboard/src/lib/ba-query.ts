@@ -55,19 +55,7 @@ const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
  * Returns SQL function to be used for granularity.
  * This will throw an exception if parameter is illegal
  */
-function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityRangeValues) {
-  const interval = granularityIntervalMapper[granularity];
-  const validatedInterval = GranularityIntervalSchema.parse(interval);
-  return (column: z.infer<typeof DateColumnSchema>, date: DateTimeString) => {
-    const validatedColumn = DateColumnSchema.parse(column);
-    const alignedDate = toClickHouseGridStartString(date);
-    // The "{DateTime} - INTERVAL 10 YEAR" is a "hack" to set the ClickHouse grid aligned origin prior to all points in the database
-    // If removed ClickHouse will throw an error stating that the origin must be before any data point
-    return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.DateTime({ granulairty_origin_date: alignedDate })} - INTERVAL 10 YEAR)`;
-  };
-}
-
-function getIntervalSQLFunctionFromTimeZone(granularity: GranularityRangeValues, timezone: string) {
+function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityRangeValues, timezone: string) {
   const clickhouseInterval = granularityIntervalMapper[granularity];
   const validatedInterval = GranularityIntervalSchema.parse(clickhouseInterval);
   return (column: z.infer<typeof DateColumnSchema>) => {
@@ -78,6 +66,5 @@ function getIntervalSQLFunctionFromTimeZone(granularity: GranularityRangeValues,
 
 export const BAQuery = {
   getGranularitySQLFunctionFromGranularityRange,
-  getIntervalSQLFunctionFromTimeZone,
   getFilterQuery,
 };

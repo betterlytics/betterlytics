@@ -173,7 +173,7 @@ export async function getDeviceUsageTrend(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DeviceUsageTrendRow[]> {
-  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

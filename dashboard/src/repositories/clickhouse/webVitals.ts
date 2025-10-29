@@ -79,7 +79,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
   timezone: string,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
-  const granularitySql = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
+  const granularitySql = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
 
   const query = safeSql`
     WITH metrics AS (
