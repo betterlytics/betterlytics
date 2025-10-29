@@ -1,6 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use std::net::IpAddr;
+use ipnet::IpNet;
 use std::str::FromStr;
 use url::Url;
 use crate::analytics::RawTrackingEvent;
@@ -334,6 +335,32 @@ impl EventValidator {
     }
 }
 
+/// Check if an IP address is blocked by the provided blacklist entries.
+/// Supports IPv4, IPv6, and CIDR ranges (both v4 and v6).
+pub fn check_blacklist(
+    ip_address: &str,
+    blacklisted_ips: &[String],
+) -> Result<(), ValidationError> {
+    let event_ip: IpAddr = IpAddr::from_str(ip_address)
+        .map_err(|_| ValidationError::InvalidIpAddress("Invalid IP address format".to_string()))?;
+
+    let is_blocked = blacklisted_ips.iter().any(|entry| {
+        if let Ok(ip) = IpAddr::from_str(entry) {
+            ip == event_ip
+        } else if let Ok(net) = entry.parse::<IpNet>() {
+            net.contains(&event_ip)
+        } else {
+            false
+        }
+    });
+
+    if is_blocked {
+        Err(ValidationError::BlacklistedIp("IP is blacklisted".to_string()))
+    } else {
+        Ok(())
+    }
+}
+
 /// Validate site-specific policies
 pub async fn validate_site_policies(
     cfg_cache: &SiteConfigCache,
@@ -349,16 +376,39 @@ pub async fn validate_site_policies(
         .await
         .map_err(|_| ValidationError::InvalidSiteId("config fetch failed".to_string()))?
     {
-        if cfg.blacklisted_ips.iter().any(|ip| ip == ip_address) {
-            return Err(ValidationError::BlacklistedIp("IP is blacklisted".to_string()));
-        }
+        check_blacklist(ip_address, &cfg.blacklisted_ips)?;
+        
         if cfg.enforce_domain {
-            if let (Some(expected), Ok(url)) = (cfg.domain.as_deref(), Url::parse(event_url)) {
-                let event_domain = url.host_str().unwrap_or("");
-                if !event_domain.eq_ignore_ascii_case(expected) {
-                    return Err(ValidationError::DomainNotAllowed("Domain does not match site config".to_string()));
-                }
+            if let Some(expected) = cfg.domain.as_deref() {
+                check_domain_allowed(expected, event_url, true)?;
             }
+        }
+    }
+    Ok(())
+}
+
+/// Check if the event URL's domain satisfies the expected domain policy.
+/// When `allow_subdomains` is true, subdomains of `expected_domain` are also allowed.
+pub fn check_domain_allowed(
+    expected_domain: &str,
+    event_url: &str,
+    allow_subdomains: bool,
+) -> Result<(), ValidationError> {
+    if let Ok(url) = Url::parse(event_url) {
+        let event_domain = url.host_str().unwrap_or("");
+        let expected_lc = expected_domain.to_ascii_lowercase();
+        let event_lc = event_domain.to_ascii_lowercase();
+
+        let allowed = if allow_subdomains {
+            event_lc == expected_lc || event_lc.ends_with(&format!(".{}", expected_lc))
+        } else {
+            event_lc == expected_lc
+        };
+
+        if !allowed {
+            return Err(ValidationError::DomainNotAllowed(
+                "Domain does not match site config".to_string(),
+            ));
         }
     }
     Ok(())
