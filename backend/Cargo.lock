@@ -626,6 +626,7 @@ dependencies = [
  "flate2",
  "futures",
  "httpdate",
+ "ipnet",
  "isbot",
  "lazy_static",
  "maxminddb",

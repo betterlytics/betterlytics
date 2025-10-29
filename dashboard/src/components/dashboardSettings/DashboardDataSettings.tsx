@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import type { DashboardConfigUpdate } from '@/entities/dashboardConfig';
+import { isIP } from 'is-ip';
+import isCidr from 'is-cidr';
 
 type DataSettingsProps = {
   dashboardSettings: DashboardSettingsUpdate;
@@ -28,15 +30,21 @@ export default function DataSettings({
 }: DataSettingsProps) {
   const t = useTranslations('components.dashboardSettingsDialog.data');
   const [newIp, setNewIp] = useState('');
+  const [ipError, setIpError] = useState('');
 
   const addIp = () => {
     const ip = newIp.trim();
     if (!ip) return;
+    if (!(isIP(ip) || isCidr(ip))) {
+      setIpError(t('blacklistedIps.addIpError'));
+      return;
+    }
     onConfigChange({
       ...dashboardConfig,
       blacklistedIps: Array.from(new Set([...(dashboardConfig.blacklistedIps || []), ip])),
     });
     setNewIp('');
+    setIpError('');
   };
 
   const removeIp = (ip: string) => {
@@ -76,49 +84,59 @@ export default function DataSettings({
         </div>
       </SettingsCard>
 
-      <SettingsCard icon={Shield} title='Site rules' description='Control which incoming events are accepted.'>
+      <SettingsCard icon={Shield} title={t('siteRules.title')} description={t('siteRules.description')}>
         <div className='flex items-start justify-between gap-4'>
           <div>
             <Label htmlFor='enforce-domain' className='cursor-pointer text-base'>
-              Enforce domain
+              {t('siteRules.enforceDomain')}
             </Label>
-            <p className='text-muted-foreground mt-1 text-sm'>
-              Reject events whose domain does not match site config.
-            </p>
+            <p className='text-muted-foreground mt-1 text-sm'>{t('siteRules.enforceDomainDescription')}</p>
           </div>
           <Switch
             id='enforce-domain'
             className='cursor-pointer'
-            aria-label='Toggle enforce domain'
+            aria-label={t('siteRules.enforceDomain')}
             checked={!!dashboardConfig.enforceDomain}
             onCheckedChange={(v) => onConfigChange({ ...dashboardConfig, enforceDomain: !!v })}
           />
         </div>
       </SettingsCard>
 
-      <SettingsCard
-        icon={Ban}
-        title='Blacklisted IPs'
-        description='Manage IP addresses that are blocked from accessing your dashboard'
-      >
+      <SettingsCard icon={Ban} title={t('blacklistedIps.title')} description={t('blacklistedIps.description')}>
         <div className='space-y-4'>
           <div className='flex gap-2'>
             <Input
               id='blacklisted-ip-input'
-              placeholder='Enter IP address (e.g., 192.168.1.1)'
+              placeholder={t('blacklistedIps.addIpPlaceholder')}
               value={newIp}
-              onChange={(e) => setNewIp(e.target.value)}
+              onChange={(e) => {
+                setNewIp(e.target.value);
+                if (ipError) setIpError('');
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   addIp();
                 }
               }}
+              aria-invalid={!!ipError}
+              aria-describedby={ipError ? 'blacklisted-ip-error' : undefined}
             />
-            <Button type='button' variant='outline' onClick={addIp} className='cursor-pointer gap-2'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={addIp}
+              className='cursor-pointer gap-2'
+              disabled={!!newIp.trim() && !(isIP(newIp.trim()) || isCidr(newIp.trim()))}
+            >
               <Plus className='h-4 w-4' />
-              Add
+              {t('blacklistedIps.addIp')}
             </Button>
           </div>
+          {ipError ? (
+            <p id='blacklisted-ip-error' className='text-destructive text-xs'>
+              {ipError}
+            </p>
+          ) : null}
 
           <div className='space-y-2'>
             <div className='border-border bg-muted/30 h-[200px] overflow-y-auto rounded-md border p-2'>
@@ -137,14 +155,14 @@ export default function DataSettings({
                         className='text-destructive hover:text-destructive cursor-pointer'
                         onClick={() => removeIp(ip)}
                       >
-                        Remove
+                        {t('blacklistedIps.remove')}
                       </Button>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className='flex h-full items-center justify-center'>
-                  <p className='text-muted-foreground text-sm'>No IP addresses are currently blacklisted</p>
+                  <p className='text-muted-foreground text-sm'>{t('blacklistedIps.noIps')}</p>
                 </div>
               )}
             </div>
