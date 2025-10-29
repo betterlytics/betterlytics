@@ -15,9 +15,9 @@ import { AuthContext } from '@/entities/authContext';
 import { TopReferrerUrl, TopChannel, TopReferrerSource, TrafficSourcesCombinedSchema } from '@/entities/referrers';
 import { QueryFilter } from '@/entities/filter';
 import { toPieChart } from '@/presenters/toPieChart';
-import { toTimezoneStackedAreaChart, getSortedCategories } from '@/presenters/toTimezoneStackedAreaChart';
+import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
-import { toTimezoneSparklineSeries } from '@/presenters/toTimezoneAreaChart';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
 
 /**
  * Fetches the referrer distribution data for a site
@@ -95,7 +95,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
 
       const sortedCategories = getSortedCategories(rawData, 'referrer_source', 'count');
 
-      const result = toTimezoneStackedAreaChart({
+      const result = toStackedAreaChart({
         data: rawData,
         categoryKey: 'referrer_source',
         valueKey: 'count',
@@ -140,21 +140,21 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
 
       const dateRange = { start: startDate, end: endDate };
 
-      const referralSessionsChartData = toTimezoneSparklineSeries({
+      const referralSessionsChartData = toSparklineSeries({
         data: raw.referralSessionsChartData,
         granularity,
         dataKey: 'referralSessions',
         dateRange,
         timezone,
       });
-      const referralPercentageChartData = toTimezoneSparklineSeries({
+      const referralPercentageChartData = toSparklineSeries({
         data: raw.referralPercentageChartData,
         granularity,
         dataKey: 'referralPercentage',
         dateRange,
         timezone,
       });
-      const avgSessionDurationChartData = toTimezoneSparklineSeries({
+      const avgSessionDurationChartData = toSparklineSeries({
         data: raw.avgSessionDurationChartData,
         granularity,
         dataKey: 'avgSessionDuration',

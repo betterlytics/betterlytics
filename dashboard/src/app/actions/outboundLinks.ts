@@ -11,7 +11,7 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toDataTable } from '@/presenters/toDataTable';
-import { toTimezoneAreaChart } from '@/presenters/toTimezoneAreaChart';
+import { toAreaChart } from '@/presenters/toAreaChart';
 import { toPieChart } from '@/presenters/toPieChart';
 
 export const fetchOutboundLinksAnalyticsAction = withDashboardAuthContext(
@@ -99,7 +99,7 @@ export const fetchOutboundClicksChartAction = withDashboardAuthContext(
         timezone,
       ));
 
-    return toTimezoneAreaChart({
+    return toAreaChart({
       dataKey: 'outboundClicks',
       data,
       compare: compareData,

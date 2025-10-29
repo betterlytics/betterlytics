@@ -1,6 +1,7 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
+import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
 import { utcMinute } from 'd3-time';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
 
@@ -18,6 +19,7 @@ type ToStackedAreaChartProps<CategoryKey extends string, ValueKey extends string
     start: Date;
     end: Date;
   };
+  timezone: string;
   compare?: RawStackedData<CategoryKey, ValueKey>;
   compareDateRange?: {
     start?: Date;
@@ -39,6 +41,7 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
   data: RawStackedData<CategoryKey, ValueKey>,
   categoryKey: CategoryKey,
   valueKey: ValueKey,
+  timezone: string,
   categories?: string[],
 ): { processedData: Record<string, Record<string, number>>; allCategories: string[] } {
   const dataCategories = Array.from(new Set(data.map((item) => item[categoryKey])));
@@ -47,7 +50,7 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
   const processedData: Record<string, Record<string, number>> = {};
 
   data.forEach((item) => {
-    const dateKey = getDateKey(item.date);
+    const dateKey = fromZonedTime(item.date, timezone).valueOf().toString();
     const category = item[categoryKey];
     const value = item[valueKey];
 
@@ -68,9 +71,9 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
 function dataToStackedAreaChart<CategoryKey extends string, ValueKey extends string>(
   props: ToStackedAreaChartProps<CategoryKey, ValueKey>,
 ) {
-  const { data, categoryKey, valueKey, categories, granularity, dateRange } = props;
+  const { data, categoryKey, valueKey, categories, granularity, dateRange, timezone } = props;
 
-  const { processedData, allCategories } = pivotRawData(data, categoryKey, valueKey, categories);
+  const { processedData, allCategories } = pivotRawData(data, categoryKey, valueKey, timezone, categories);
 
   const chartData: ChartDataPoint[] = [];
 
@@ -79,7 +82,7 @@ function dataToStackedAreaChart<CategoryKey extends string, ValueKey extends str
     end: utcMinute(dateRange.end),
   };
 
-  const intervalFunc = getTimeIntervalForGranularity(granularity);
+  const intervalFunc = getTimeIntervalForGranularityWithTimezone(granularity, timezone);
 
   for (let time = iterationRange.start; time <= iterationRange.end; time = intervalFunc.offset(time, 1)) {
     const key = time.valueOf().toString();
@@ -121,6 +124,7 @@ export function toStackedAreaChart<CategoryKey extends string, ValueKey extends 
     categories: props.categories,
     granularity: props.granularity,
     dateRange: props.compareDateRange as { start: Date; end: Date },
+    timezone: props.timezone,
   };
 
   const { chartData: compareChartData } = dataToStackedAreaChart(compareProps);

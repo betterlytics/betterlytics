@@ -1,9 +1,8 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { utcMinute } from 'd3-time';
-import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
-import { getDateKey } from '@/utils/dateHelpers';
+import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
+import { fromZonedTime } from 'date-fns-tz';
 import { type ComparisonMapping } from '@/types/charts';
-import { getIncompleteSplit, maskPrimaryAfterIndex } from './utils';
 
 export type ChartPoint = { date: number; value: Array<number | null> };
 
@@ -15,6 +14,7 @@ type DataToAreaChartProps<K extends string> = {
     start: Date;
     end: Date;
   };
+  timezone: string;
 };
 
 type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
@@ -26,11 +26,16 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
   bucketIncomplete?: boolean;
 };
 
-function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRange }: DataToAreaChartProps<K>) {
-  // Map date to value
+function dataToAreaChart<K extends string>({
+  dataKey,
+  data,
+  granularity,
+  dateRange,
+  timezone,
+}: DataToAreaChartProps<K>) {
   const groupedData = data.reduce(
     (group, row) => {
-      const key = getDateKey(row.date);
+      const key = fromZonedTime(row.date, timezone).valueOf().toString();
       return { ...group, [key]: row[dataKey] };
     },
     {} as Record<string, number>,
@@ -38,20 +43,16 @@ function dataToAreaChart<K extends string>({ dataKey, data, granularity, dateRan
 
   const chartData = [];
 
-  // Find the time interval of input based on specified granularity
-  const intervalFunc = getTimeIntervalForGranularity(granularity);
-
+  const interval = getTimeIntervalForGranularityWithTimezone(granularity, timezone);
   const { start, end } = {
     start: utcMinute(dateRange.start),
     end: utcMinute(dateRange.end),
   };
 
-  for (let time = start; time <= end; time = intervalFunc.offset(time, 1)) {
-    // Ensure the time boundary aligns with user timezone
+  for (let time = start; time <= end; time = interval.offset(time, 1)) {
     const key = time.valueOf().toString();
     const value = groupedData[key] ?? 0;
 
-    // Add entry - either with data from group or default value of 0
     chartData.push({
       date: +key,
       value: [value],
@@ -75,21 +76,17 @@ export function toAreaChart<K extends string>({
   dateRange,
   compareDateRange,
   bucketIncomplete,
+  timezone,
 }: ToAreaChartProps<K>): AreaChartResult {
-  const chart = dataToAreaChart({
-    dataKey,
-    data,
-    granularity,
-    dateRange,
-  });
+  const chart = dataToAreaChart({ dataKey, data, granularity, dateRange, timezone });
 
   const now = Date.now();
   const {
     firstIncompleteIndex,
-    shouldSplit: shouldSplitForIncomplete,
+    shouldSplit,
     solid: solidCurrent,
     incomplete: currentIncomplete,
-  } = getIncompleteSplit(chart, granularity, now, bucketIncomplete);
+  } = getIncompleteSplitWithTimezone(chart, granularity, now, timezone, bucketIncomplete);
 
   if (compare === undefined) {
     return { data: solidCurrent, incomplete: currentIncomplete };
@@ -107,10 +104,8 @@ export function toAreaChart<K extends string>({
     dataKey,
     data: compare,
     granularity,
-    dateRange: compareDateRange as {
-      start: Date;
-      end: Date;
-    },
+    dateRange: compareDateRange as { start: Date; end: Date },
+    timezone,
   });
 
   if (chart.length !== compareChart.length) {
@@ -124,7 +119,7 @@ export function toAreaChart<K extends string>({
 
   const comparisonMap = createComparisonMap(chartData, compareChart, dataKey);
 
-  const dataSeries = shouldSplitForIncomplete ? maskPrimaryAfterIndex(chartData, firstIncompleteIndex) : chartData;
+  const dataSeries = shouldSplit ? maskPrimaryAfterIndex(chartData, firstIncompleteIndex) : chartData;
 
   const incomplete = currentIncomplete
     ? currentIncomplete.map((point, i) => ({
@@ -133,11 +128,7 @@ export function toAreaChart<K extends string>({
       }))
     : undefined;
 
-  return {
-    data: dataSeries,
-    comparisonMap,
-    incomplete,
-  };
+  return { data: dataSeries, comparisonMap, incomplete };
 }
 
 function createComparisonMap(
@@ -147,7 +138,6 @@ function createComparisonMap(
 ) {
   return chartData.map((currentPoint, index) => {
     const comparePoint = compareChartData[index];
-
     return {
       currentDate: currentPoint.date,
       compareDate: comparePoint.date,
@@ -157,16 +147,84 @@ function createComparisonMap(
   });
 }
 
-// Helper to generate padded sparkline-ready series from raw rows
+function findFirstIncompleteIndexForChartWithTimezone(
+  chart: ChartPoint[],
+  granularity: GranularityRangeValues,
+  nowTimestamp: number,
+  timezone: string,
+): number {
+  const interval = getTimeIntervalForGranularityWithTimezone(granularity, timezone);
+  for (let i = 0; i < chart.length; i++) {
+    const bucketStart = chart[i].date;
+    const bucketEnd = interval.offset(new Date(bucketStart), 1).valueOf();
+    if (bucketEnd > nowTimestamp) return i;
+  }
+  return -1;
+}
+
+function splitSeriesForIncomplete(
+  chart: ChartPoint[],
+  firstIncompleteIndex: number,
+): { solid: ChartPoint[]; incomplete: ChartPoint[] | undefined } {
+  if (firstIncompleteIndex === -1) return { solid: chart, incomplete: undefined };
+  const startIndex = firstIncompleteIndex > 0 ? firstIncompleteIndex - 1 : 0;
+  return {
+    solid: chart.slice(0, firstIncompleteIndex),
+    incomplete: chart.slice(startIndex, firstIncompleteIndex + 1),
+  };
+}
+
+function maskPrimaryAfterIndex(chart: ChartPoint[], firstIncompleteIndex: number): ChartPoint[] {
+  if (firstIncompleteIndex === -1) return chart;
+  return chart.map((point, index) =>
+    index >= firstIncompleteIndex ? { ...point, value: [null, ...point.value.slice(1)] } : point,
+  );
+}
+
+function getIncompleteSplitWithTimezone(
+  chart: ChartPoint[],
+  granularity: GranularityRangeValues,
+  nowTimestamp: number,
+  timezone: string,
+  bucketIncomplete?: boolean,
+): {
+  firstIncompleteIndex: number;
+  shouldSplit: boolean;
+  solid: ChartPoint[];
+  incomplete: ChartPoint[] | undefined;
+} {
+  const firstIncompleteIndex = findFirstIncompleteIndexForChartWithTimezone(
+    chart,
+    granularity,
+    nowTimestamp,
+    timezone,
+  );
+  const hasIncompleteTail = firstIncompleteIndex !== -1;
+  const incompleteCount = hasIncompleteTail ? chart.length - firstIncompleteIndex : 0;
+  let incompleteSeriesLength = 0;
+  if (hasIncompleteTail) {
+    incompleteSeriesLength = incompleteCount;
+    if (firstIncompleteIndex > 0) {
+      incompleteSeriesLength += 1;
+    }
+  }
+  const shouldSplit = !!bucketIncomplete && hasIncompleteTail && incompleteSeriesLength >= 2;
+  if (!shouldSplit) {
+    return { firstIncompleteIndex, shouldSplit, solid: chart, incomplete: undefined };
+  }
+  const { solid, incomplete } = splitSeriesForIncomplete(chart, firstIncompleteIndex);
+  return { firstIncompleteIndex, shouldSplit, solid, incomplete };
+}
+
 export function toSparklineSeries<K extends string>({
   dataKey,
   data,
   granularity,
   dateRange,
+  timezone,
 }: DataToAreaChartProps<K>): Array<{ date: Date } & Record<K, number>> {
-  const area = dataToAreaChart({ dataKey, data, granularity, dateRange });
-  return area.map((p) => ({
-    date: new Date(p.date),
-    [dataKey]: p.value[0],
-  })) as Array<{ date: Date } & Record<K, number>>;
+  const area = dataToAreaChart({ dataKey, data, granularity, dateRange, timezone });
+  return area.map((p) => ({ date: new Date(p.date), [dataKey]: p.value[0] })) as Array<
+    { date: Date } & Record<K, number>
+  >;
 }

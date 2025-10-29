@@ -11,7 +11,7 @@ import {
 } from '@/services/webVitals';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { CoreWebVitalName } from '@/entities/webVitals';
-import { toPercentileLinesByMetricWithTimezone, type PercentilePoint } from '@/presenters/toTimezoneMultiLine';
+import { toPercentileLinesByMetric, type PercentilePoint } from '@/presenters/toMultiLine';
 import { toDataTable } from '@/presenters/toDataTable';
 import { type CWVDimension } from '@/entities/webVitals';
 
@@ -42,7 +42,7 @@ export const fetchCoreWebVitalChartDataAction = withDashboardAuthContext(
       queryFilters,
       timezone,
     );
-    return toPercentileLinesByMetricWithTimezone(rows, granularity, { start: startDate, end: endDate }, timezone);
+    return toPercentileLinesByMetric(rows, granularity, { start: startDate, end: endDate }, timezone);
   },
 );
 

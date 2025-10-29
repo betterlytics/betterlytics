@@ -1,16 +1,16 @@
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { utcMinute } from 'd3-time';
-import { getDateKey } from '@/utils/dateHelpers';
+import { fromZonedTime } from 'date-fns-tz';
 import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/webVitals';
-import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
+import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
 
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
-export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
 
 export function toPercentileLinesByMetric(
   rows: CoreWebVitalNamedPercentilesRow[],
   granularity: GranularityRangeValues,
   dateRange: { start: Date; end: Date },
+  timezone: string,
 ): Record<CoreWebVitalName, PercentilePoint[]> {
   const byMetric: Record<CoreWebVitalName, Record<string, [number, number, number, number]>> = {
     CLS: {},
@@ -21,11 +21,11 @@ export function toPercentileLinesByMetric(
   };
 
   for (const r of rows) {
-    const key = getDateKey(r.date);
+    const key = fromZonedTime(r.date, timezone).valueOf().toString();
     byMetric[r.name][key] = [r.p50, r.p75, r.p90, r.p99];
   }
 
-  const interval = getTimeIntervalForGranularity(granularity);
+  const interval = getTimeIntervalForGranularityWithTimezone(granularity, timezone);
   const start = utcMinute(dateRange.start);
   const end = utcMinute(dateRange.end);
 

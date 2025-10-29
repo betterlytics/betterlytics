@@ -15,7 +15,7 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toDataTable } from '@/presenters/toDataTable';
-import { toTimezoneSparklineSeries } from '@/presenters/toTimezoneAreaChart';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 
 export const fetchPageAnalyticsAction = withDashboardAuthContext(
@@ -125,28 +125,28 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
 
     return {
       ...data,
-      pagesPerSessionChartData: toTimezoneSparklineSeries({
+      pagesPerSessionChartData: toSparklineSeries({
         data: data.pagesPerSessionChartData,
         granularity,
         dataKey: 'value',
         dateRange,
         timezone,
       }),
-      avgTimeChartData: toTimezoneSparklineSeries({
+      avgTimeChartData: toSparklineSeries({
         data: data.avgTimeChartData,
         granularity,
         dataKey: 'value',
         dateRange,
         timezone,
       }),
-      bounceRateChartData: toTimezoneSparklineSeries({
+      bounceRateChartData: toSparklineSeries({
         data: data.bounceRateChartData,
         granularity,
         dataKey: 'value',
         dateRange,
         timezone,
       }),
-      pageviewsChartData: toTimezoneSparklineSeries({
+      pageviewsChartData: toSparklineSeries({
         data: data.pageviewsChartData,
         granularity,
         dataKey: 'views',
