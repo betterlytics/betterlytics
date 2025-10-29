@@ -5,6 +5,7 @@ import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/we
 import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
 
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
+export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
 
 export function toPercentileLinesByMetric(
   rows: CoreWebVitalNamedPercentilesRow[],
