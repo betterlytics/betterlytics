@@ -18,8 +18,9 @@ export async function getUniqueVisitors(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyUniqueVisitorsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -34,7 +35,7 @@ export async function getUniqueVisitors(
       GROUP BY visitor_id
     )
     SELECT
-      ${granularityFunc('custom_date', startDate)} as date,
+      ${granularityFunc('custom_date')} as date,
       uniq(visitor_id) as unique_visitors
     FROM first_visitor_appearances
     GROUP BY date
@@ -90,8 +91,9 @@ export async function getSessionMetrics(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailySessionMetricsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
@@ -136,7 +138,7 @@ export async function getSessionMetrics(
         AND b.has_pre_start = 0
     )
     SELECT
-      ${granularityFunc('custom_date', startDate)} as date,
+      ${granularityFunc('custom_date')} as date,
       count() AS sessions,
       countIf(page_count > 1) AS sessions_with_multiple_page_views,
       sum(page_count) AS number_of_page_views,

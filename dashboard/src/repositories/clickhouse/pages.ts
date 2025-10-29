@@ -31,13 +31,14 @@ export async function getTotalPageViews(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<TotalPageViewsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     SELECT
-      ${granularityFunc('timestamp', startDate)} as date,
+      ${granularityFunc('timestamp')} as date,
       count() as views
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -66,12 +67,13 @@ export async function getPageViews(
   startDate: DateString,
   endDate: DateString,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<DailyPageViewRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
 
   const query = safeSql`
     SELECT
-      ${granularityFunc('timestamp', startDate)} as date,
+      ${granularityFunc('timestamp')} as date,
       url,
       count() as views
     FROM analytics.events
@@ -292,12 +294,13 @@ export async function getPageTrafficTimeSeries(
   startDate: DateTimeString,
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<TotalPageViewsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
 
   const query = safeSql`
     SELECT
-      ${granularityFunc('timestamp', startDate)} as date,
+      ${granularityFunc('timestamp')} as date,
       count() as views
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -645,8 +648,9 @@ export async function getDailyAverageTimeOnPage(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyAverageTimeRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -656,7 +660,7 @@ export async function getDailyAverageTimeOnPage(
           session_id,
           url,
           timestamp,
-          ${granularityFunc('timestamp', startDate)} as date,
+          ${granularityFunc('timestamp')} as date,
           leadInFrame(timestamp) OVER (
               PARTITION BY site_id, session_id 
               ORDER BY timestamp 
@@ -702,8 +706,9 @@ export async function getDailyBounceRate(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyBounceRateRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -712,7 +717,7 @@ export async function getDailyBounceRate(
         SELECT 
           session_id,
           timestamp,
-          ${granularityFunc('timestamp', startDate)} as event_date
+          ${granularityFunc('timestamp')} as event_date
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview' 

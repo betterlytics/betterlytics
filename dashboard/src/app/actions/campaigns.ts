@@ -100,16 +100,17 @@ export const fetchCampaignVisitorTrendAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     granularity: GranularityRangeValues,
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
     try {
-      const rawData = await fetchCampaignVisitorTrend(ctx.siteId, startDate, endDate, granularity);
+      const rawData = await fetchCampaignVisitorTrend(ctx.siteId, startDate, endDate, granularity, timezone);
 
       const compareData =
         compareStartDate &&
         compareEndDate &&
-        (await fetchCampaignVisitorTrend(ctx.siteId, compareStartDate, compareEndDate, granularity));
+        (await fetchCampaignVisitorTrend(ctx.siteId, compareStartDate, compareEndDate, granularity, timezone));
 
       const sortedCategories = getSortedCategories(rawData, 'utm_campaign', 'visitors');
 

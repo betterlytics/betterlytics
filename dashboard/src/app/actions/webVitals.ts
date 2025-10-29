@@ -32,6 +32,7 @@ export const fetchCoreWebVitalChartDataAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
   ): Promise<Record<CoreWebVitalName, PercentilePoint[]>> => {
     const rows = await getAllCoreWebVitalPercentilesTimeseries(
       ctx.siteId,
@@ -39,6 +40,7 @@ export const fetchCoreWebVitalChartDataAction = withDashboardAuthContext(
       endDate,
       granularity,
       queryFilters,
+      timezone,
     );
     return toPercentileLinesByMetric(rows, granularity, { start: startDate, end: endDate });
   },

@@ -35,10 +35,11 @@ export async function getDailyOutboundClicksForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyOutboundClicksRow[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  return getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters);
+  return getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
 }
 
 export async function getOutboundLinksSummaryWithChartsForSite(
@@ -47,13 +48,14 @@ export async function getOutboundLinksSummaryWithChartsForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<OutboundLinksSummaryWithCharts> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
   const [summary, dailyClicksChartData] = await Promise.all([
     getOutboundLinksSummary(siteId, formattedStart, formattedEnd, queryFilters),
-    getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters),
+    getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
   ]);
 
   const summaryWithCharts = {

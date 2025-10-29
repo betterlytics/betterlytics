@@ -90,13 +90,14 @@ export async function getDailyOutboundClicks(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyOutboundClicksRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     SELECT 
-      ${granularityFunc('timestamp', startDate)} as date,
+      ${granularityFunc('timestamp')} as date,
       uniq(visitor_id, outbound_link_url) as outboundClicks
     FROM analytics.events
     WHERE site_id = {site_id:String}

@@ -16,6 +16,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type PagesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -32,6 +33,7 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
   const { dashboardId } = await params;
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     BAFilterSearchParams.decode(await searchParams);
+  const timezone = await getUserTimezone();
 
   const pagesSummaryWithChartsPromise = fetchPagesSummaryWithChartsAction(
     dashboardId,
@@ -39,6 +41,7 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
     endDate,
     granularity,
     queryFilters,
+    timezone,
     compareStartDate,
     compareEndDate,
   );

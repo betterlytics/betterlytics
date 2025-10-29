@@ -76,14 +76,15 @@ export async function getAllCoreWebVitalPercentilesSeries(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: any[],
+  timezone: string,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
-  const granularitySql = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularitySql = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
 
   const query = safeSql`
     WITH metrics AS (
       SELECT
-        ${granularitySql('timestamp', startDate)} as date,
+        ${granularitySql('timestamp')} as date,
         pair.1 AS name,
         toFloat32(pair.2) AS value
       FROM analytics.events

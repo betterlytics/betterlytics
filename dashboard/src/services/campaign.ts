@@ -227,9 +227,10 @@ export async function fetchCampaignVisitorTrend(
   startDate: Date,
   endDate: Date,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<CampaignTrendRow[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity);
+  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity, timezone);
 }

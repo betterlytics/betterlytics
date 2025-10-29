@@ -71,13 +71,14 @@ export async function getReferrerTrafficTrendBySource(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<ReferrerTrafficBySourceRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     SELECT 
-      ${granularityFunc('timestamp', startDate)} as date,
+      ${granularityFunc('timestamp')} as date,
       referrer_source,
       uniq(session_id) as count
     FROM analytics.events
@@ -304,13 +305,14 @@ export async function getDailyReferralSessions(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyReferralSessionsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     SELECT 
-      ${granularityFunc('timestamp', startDate)} as date,
+      ${granularityFunc('timestamp')} as date,
       uniq(session_id) as referralSessions
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -346,14 +348,15 @@ export async function getDailyReferralTrafficPercentage(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyReferralPercentageRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     WITH daily_stats AS (
       SELECT 
-        ${granularityFunc('timestamp', startDate)} as date,
+        ${granularityFunc('timestamp')} as date,
         uniq(session_id) as totalSessions,
         uniqIf(session_id, referrer_source != 'direct' AND referrer_source != 'internal') as referralSessions
       FROM analytics.events
@@ -396,14 +399,15 @@ export async function getDailyReferralSessionDuration(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyReferralSessionDurationRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     WITH session_durations AS (
       SELECT 
-        ${granularityFunc('timestamp', startDate)} as date,
+        ${granularityFunc('timestamp')} as date,
         session_id,
         max(timestamp) - min(timestamp) as session_duration_seconds
       FROM analytics.events

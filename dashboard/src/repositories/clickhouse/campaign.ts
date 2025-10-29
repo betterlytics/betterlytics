@@ -177,12 +177,13 @@ export async function getCampaignVisitorTrendData(
   startDate: DateTimeString,
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<CampaignTrendRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const granularityFunc = BAQuery.getIntervalSQLFunctionFromTimeZone(granularity, timezone);
 
   const query = safeSql`
     SELECT
-      ${granularityFunc('timestamp', startDate)} AS date,
+      ${granularityFunc('timestamp')} AS date,
       utm_campaign,
       COUNT(DISTINCT visitor_id) AS visitors
     FROM analytics.events
