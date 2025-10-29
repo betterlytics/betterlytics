@@ -15,7 +15,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { getSessionMetrics } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
+import { toTimezoneAreaChart, toTimezoneSparklineSeries } from '@/presenters/toTimezoneAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 
@@ -50,7 +50,7 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
         timezone,
       ));
 
-    return toAreaChart({
+    return toTimezoneAreaChart({
       data,
       granularity,
       dataKey: 'views',
@@ -58,6 +58,7 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
         start: startDate,
         end: endDate,
       },
+      timezone,
       compare,
       compareDateRange: {
         start: compareStartDate,
@@ -98,7 +99,7 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
         queryFilters,
         timezone,
       ));
-    return toAreaChart({
+    return toTimezoneAreaChart({
       data,
       granularity,
       dataKey: 'unique_visitors',
@@ -106,6 +107,7 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
         start: startDate,
         end: endDate,
       },
+      timezone,
       compare,
       compareDateRange: {
         start: compareStartDate,
@@ -165,41 +167,47 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
 
     return {
       ...data,
-      visitorsChartData: toSparklineSeries({
+      visitorsChartData: toTimezoneSparklineSeries({
         data: data.visitorsChartData,
         granularity,
         dataKey: 'unique_visitors',
         dateRange,
+        timezone,
       }),
-      pageviewsChartData: toSparklineSeries({
+      pageviewsChartData: toTimezoneSparklineSeries({
         data: data.pageviewsChartData,
         granularity,
         dataKey: 'views',
         dateRange,
+        timezone,
       }),
-      sessionsChartData: toSparklineSeries({
+      sessionsChartData: toTimezoneSparklineSeries({
         data: data.sessionsChartData,
         granularity,
         dataKey: 'sessions',
         dateRange,
+        timezone,
       }),
-      bounceRateChartData: toSparklineSeries({
+      bounceRateChartData: toTimezoneSparklineSeries({
         data: data.bounceRateChartData,
         granularity,
         dataKey: 'bounce_rate',
         dateRange,
+        timezone,
       }),
-      avgVisitDurationChartData: toSparklineSeries({
+      avgVisitDurationChartData: toTimezoneSparklineSeries({
         data: data.avgVisitDurationChartData,
         granularity,
         dataKey: 'avg_visit_duration',
         dateRange,
+        timezone,
       }),
-      pagesPerSessionChartData: toSparklineSeries({
+      pagesPerSessionChartData: toTimezoneSparklineSeries({
         data: data.pagesPerSessionChartData,
         granularity,
         dataKey: 'pages_per_session',
         dateRange,
+        timezone,
       }),
       compareValues,
     };
@@ -239,7 +247,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
       ));
 
     return {
-      avgVisitDuration: toAreaChart({
+      avgVisitDuration: toTimezoneAreaChart({
         data,
         granularity,
         dataKey: 'avg_visit_duration',
@@ -247,6 +255,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: startDate,
           end: endDate,
         },
+        timezone,
         compare,
         compareDateRange: {
           start: compareStartDate,
@@ -254,7 +263,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         },
         bucketIncomplete: endDate.getTime() > Date.now(),
       }),
-      bounceRate: toAreaChart({
+      bounceRate: toTimezoneAreaChart({
         data,
         granularity,
         dataKey: 'bounce_rate',
@@ -262,6 +271,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: startDate,
           end: endDate,
         },
+        timezone,
         compare,
         compareDateRange: {
           start: compareStartDate,
@@ -269,7 +279,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         },
         bucketIncomplete: endDate.getTime() > Date.now(),
       }),
-      pagesPerSession: toAreaChart({
+      pagesPerSession: toTimezoneAreaChart({
         data,
         granularity,
         dataKey: 'pages_per_session',
@@ -277,6 +287,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: startDate,
           end: endDate,
         },
+        timezone,
         compare,
         compareDateRange: {
           start: compareStartDate,
@@ -284,7 +295,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         },
         bucketIncomplete: endDate.getTime() > Date.now(),
       }),
-      sessions: toAreaChart({
+      sessions: toTimezoneAreaChart({
         data,
         granularity,
         dataKey: 'sessions',
@@ -292,6 +303,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: startDate,
           end: endDate,
         },
+        timezone,
         compare,
         compareDateRange: {
           start: compareStartDate,

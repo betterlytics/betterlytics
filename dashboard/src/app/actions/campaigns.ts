@@ -20,7 +20,7 @@ import {
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { toTimezoneStackedAreaChart, getSortedCategories } from '@/presenters/toTimezoneStackedAreaChart';
 
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignPerformance[]> => {
@@ -114,13 +114,14 @@ export const fetchCampaignVisitorTrendAction = withDashboardAuthContext(
 
       const sortedCategories = getSortedCategories(rawData, 'utm_campaign', 'visitors');
 
-      const result = toStackedAreaChart({
+      const result = toTimezoneStackedAreaChart({
         data: rawData,
         categoryKey: 'utm_campaign',
         valueKey: 'visitors',
         categories: sortedCategories,
         granularity,
         dateRange: { start: startDate, end: endDate },
+        timezone,
         compare: compareData,
         compareDateRange:
           compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
