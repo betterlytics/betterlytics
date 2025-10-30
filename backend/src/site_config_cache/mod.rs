@@ -7,6 +7,8 @@ use thiserror::Error;
 use tracing::{error, info, warn, debug};
 
 use crate::redis::Redis;
+use std::time::Duration;
+use tokio::time::timeout;
 
 const CONFIG_KEY_PREFIX: &str = "site:cfg:";
 const CONFIG_UPDATE_CHANNEL: &str = "site_cfg_updates";
@@ -17,6 +19,8 @@ pub enum SiteConfigError {
     RedisNotConfigured,
     #[error(transparent)]
     Redis(#[from] redis::RedisError),
+    #[error("Redis operation timed out")]
+    Timeout,
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
 }
@@ -70,7 +74,13 @@ impl SiteConfigCache {
             return Ok(None);
         };
         let mut manager = redis.manager();
-        let payload: Option<String> = manager.get(&key).await?;
+        let payload: Option<String> = match timeout(Duration::from_millis(150), manager.get(&key)).await {
+            Ok(res) => res?,
+            Err(_) => {
+                warn!(site_id = %site_id, "Redis GET timed out for site-config");
+                return Err(SiteConfigError::Timeout);
+            }
+        };
         match payload {
             Some(json) => {
                 let cfg: SiteConfig = serde_json::from_str(&json)?;

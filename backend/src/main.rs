@@ -202,13 +202,15 @@ async fn track_event(
         metrics_collector.record_validation_duration(validation_start.elapsed());
     }
 
-    // Enforce site config (blacklist, optional domain policy) after normal validation
-    if let Err(e) = validation::validate_site_policies(
+    // Enforce site config and capture status for tagging
+    let (site_policy_result, site_cfg_status) = validation::validate_site_policies_with_status(
         &site_cfg_cache,
         &validated_event.raw.site_id,
         &validated_event.raw.url,
         &validated_event.ip_address,
-    ).await {
+    ).await;
+
+    if let Err(e) = site_policy_result {
         debug!(reason = %validator.get_rejection_reason(&e), "site-config validation failed");
         if let Some(metrics_collector) = &metrics {
             metrics_collector.increment_events_rejected(&validator.get_rejection_reason(&e));
@@ -218,7 +220,7 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
+    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address, site_cfg_status);
 
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process validated event: {}", e);
