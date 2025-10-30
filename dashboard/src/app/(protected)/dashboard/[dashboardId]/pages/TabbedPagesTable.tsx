@@ -60,6 +60,14 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         accessorFn: (row) => row.current.pageviews,
       },
       {
+        accessorKey: 'scrollDepthPercentage',
+        header: t('scrollDepthPercentage'),
+        cell: ({ row }) => (
+          <TableCompareCell row={row.original} dataKey='scrollDepthPercentage' formatter={formatPercentage} />
+        ),
+        accessorFn: (row) => row.current.scrollDepthPercentage,
+      },
+      {
         accessorKey: 'bounceRate',
         header: t('bounceRate'),
         cell: ({ row }) => (
