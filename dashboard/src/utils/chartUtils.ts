@@ -1,7 +1,7 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { utcDay, utcHour, utcMinute } from 'd3-time';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { fromZonedTime, getTimezoneOffset, toZonedTime } from 'date-fns-tz';
 import { formatNumber } from './formatters';
 import { addDays, addHours, addMinutes } from 'date-fns';
 
@@ -120,7 +120,11 @@ export function getTimeIntervalForGranularityWithTimezone(
       offset: (date, step) => {
         const local = toZonedTime(date, timezone);
         const nextLocal = addDays(local, step);
-        return fromZonedTime(nextLocal, timezone);
+
+        const deltaOffset = getTimezoneOffset(timezone, local) - getTimezoneOffset(timezone, nextLocal);
+
+        const utcNextCorrected = new Date(nextLocal.getTime() - deltaOffset);
+        return fromZonedTime(utcNextCorrected, timezone);
       },
     };
   }
