@@ -361,30 +361,63 @@ pub fn check_blacklist(
     }
 }
 
-/// Validate site-specific policies
-pub async fn validate_site_policies(
+/// Outcome for site-config validation to support tagging in storage
+#[derive(Debug, Clone, Copy)]
+pub enum SiteConfigStatus {
+    Approved,
+    Missing,
+    FetchError,
+}
+
+impl SiteConfigStatus {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            SiteConfigStatus::Approved => "approved",
+            SiteConfigStatus::Missing => "missing",
+            SiteConfigStatus::FetchError => "fetch_error",
+        }
+    }
+}
+
+/// Provides a mapping to the ClickHouse Enum8 values
+impl From<SiteConfigStatus> for i8 {
+    fn from(value: SiteConfigStatus) -> Self {
+        match value {
+            SiteConfigStatus::Approved => 1,
+            SiteConfigStatus::Missing => 2,
+            SiteConfigStatus::FetchError => 3,
+        }
+    }
+}
+
+/// Validate site-specific policies and returns the status of the site config
+pub async fn validate_site_policies_with_status(
     cfg_cache: &SiteConfigCache,
     site_id: &str,
     event_url: &str,
     ip_address: &str,
-) -> Result<(), ValidationError> {
+) -> (Result<(), ValidationError>, SiteConfigStatus) {
     if !cfg_cache.is_enabled() {
-        return Ok(());
+        return (Ok(()), SiteConfigStatus::Missing);
     }
-    if let Some(cfg) = cfg_cache
-        .get_or_fetch(site_id)
-        .await
-        .map_err(|_| ValidationError::InvalidSiteId("config fetch failed".to_string()))?
-    {
-        check_blacklist(ip_address, &cfg.blacklisted_ips)?;
-        
-        if cfg.enforce_domain {
-            if let Some(expected) = cfg.domain.as_deref() {
-                check_domain_allowed(expected, event_url, true)?;
+
+    match cfg_cache.get_or_fetch(site_id).await {
+        Ok(Some(cfg)) => {
+            if let Err(e) = check_blacklist(ip_address, &cfg.blacklisted_ips) {
+                return (Err(e), SiteConfigStatus::Approved);
             }
+            if cfg.enforce_domain {
+                if let Some(expected) = cfg.domain.as_deref() {
+                    if let Err(e) = check_domain_allowed(expected, event_url, true) {
+                        return (Err(e), SiteConfigStatus::Approved);
+                    }
+                }
+            }
+            (Ok(()), SiteConfigStatus::Approved)
         }
+        Ok(None) => (Ok(()), SiteConfigStatus::Missing),
+        Err(_) => (Ok(()), SiteConfigStatus::FetchError),
     }
-    Ok(())
 }
 
 /// Check if the event URL's domain satisfies the expected domain policy.
