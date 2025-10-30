@@ -36,7 +36,7 @@ use metrics::MetricsCollector;
 use validation::{EventValidator, ValidationConfig};
 use storage::s3::S3Service;
 use site_config_cache::SiteConfigCache;
-use redis::Redis as RedisClient;
+use redis::try_init as try_init_redis;
 
 #[tokio::main]
 async fn main() {
@@ -88,17 +88,19 @@ async fn main() {
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
-    let redis = RedisClient::new(config.redis_url.clone()).await
-        .map_err(|e| format!("Redis init failed: {}", e))
-        .ok()
-        .flatten();
+    let redis = try_init_redis(config.redis_url.clone()).await;
+    
     let site_cfg_cache = Arc::new(
         SiteConfigCache::new(redis.clone())
             .await
             .expect("Failed to init SiteConfigCache"),
     );
+
     let site_cfg_cache_listener = site_cfg_cache.clone();
-    tokio::spawn(async move { site_cfg_cache_listener.run_pubsub_listener().await });
+    
+    if redis.is_some() {
+        tokio::spawn(async move { site_cfg_cache_listener.run_pubsub_listener().await });
+    }
 
     // Initialize optional S3 service for session replay storage
     let s3_service: Option<Arc<S3Service>> = match S3Service::from_config(config.clone()).await {

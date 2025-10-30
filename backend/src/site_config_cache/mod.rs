@@ -111,7 +111,7 @@ impl SiteConfigCache {
         let mut pubsub = match self.build_pubsub().await {
             Ok(ps) => ps,
             Err(e) => {
-                warn!("SiteConfigCache pubsub disabled: {}", e);
+                warn!("Pubsub listener disabled because: {}", e);
                 return;
             }
         };
