@@ -26,6 +26,9 @@ pub struct MetricsCollector {
     events_rejected_total: IntCounterVec,
     validation_duration: Histogram,
 
+    // Cache lookup metrics
+    cache_lookups_total: IntCounterVec,
+
     // System info
     system: Arc<RwLock<System>>,
     current_pid: Pid,
@@ -83,6 +86,14 @@ impl MetricsCollector {
             "analytics_validation_duration_seconds",
             "Time spent validating analytics events"
         ))?;
+
+        let cache_lookups_total = IntCounterVec::new(
+            Opts::new(
+                "cache_lookups_total",
+                "Total number of cache lookups grouped by cache and result"
+            ),
+            &["cache", "result"],
+        )?;
         
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
@@ -93,6 +104,7 @@ impl MetricsCollector {
         registry.register(Box::new(events_processing_duration.clone()))?;
         registry.register(Box::new(events_rejected_total.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
+        registry.register(Box::new(cache_lookups_total.clone()))?;
         
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -111,6 +123,7 @@ impl MetricsCollector {
             events_processing_duration,
             events_rejected_total,
             validation_duration,
+            cache_lookups_total,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -183,6 +196,10 @@ impl MetricsCollector {
 
     pub fn record_validation_duration(&self, duration: Duration) {
         self.validation_duration.observe(duration.as_secs_f64());
+    }
+    
+    pub fn increment_cache_lookup(&self, cache: &str, result: &str) {
+        self.cache_lookups_total.with_label_values(&[cache, result]).inc();
     }
     
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {

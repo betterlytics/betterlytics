@@ -91,7 +91,7 @@ async fn main() {
     let redis = try_init_redis(config.redis_url.clone()).await;
     
     let site_cfg_cache = Arc::new(
-        SiteConfigCache::new(redis.clone())
+        SiteConfigCache::new(redis.clone(), metrics_collector.clone())
             .await
             .expect("Failed to init SiteConfigCache"),
     );
