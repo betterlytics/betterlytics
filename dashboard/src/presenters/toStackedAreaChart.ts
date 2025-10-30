@@ -1,9 +1,8 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
 import { utcMinute } from 'd3-time';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 
 type RawStackedData<CategoryKey extends string, ValueKey extends string> = Array<
   { date: string } & Record<CategoryKey, string> & Record<ValueKey, number>
@@ -50,7 +49,7 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
   const processedData: Record<string, Record<string, number>> = {};
 
   data.forEach((item) => {
-    const dateKey = fromZonedTime(item.date, timezone).valueOf().toString();
+    const dateKey = parseClickHouseDate(item.date).valueOf().toString();
     const category = item[categoryKey];
     const value = item[valueKey];
 

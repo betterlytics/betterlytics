@@ -1,8 +1,8 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { utcMinute } from 'd3-time';
 import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
-import { fromZonedTime } from 'date-fns-tz';
 import { type ComparisonMapping } from '@/types/charts';
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 
 export type ChartPoint = { date: number; value: Array<number | null> };
 
@@ -35,7 +35,7 @@ function dataToAreaChart<K extends string>({
 }: DataToAreaChartProps<K>) {
   const groupedData = data.reduce(
     (group, row) => {
-      const key = fromZonedTime(row.date, timezone).valueOf().toString();
+      const key = parseClickHouseDate(row.date).valueOf().toString();
       return { ...group, [key]: row[dataKey] };
     },
     {} as Record<string, number>,

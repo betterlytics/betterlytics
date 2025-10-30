@@ -1,8 +1,8 @@
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { utcMinute } from 'd3-time';
-import { fromZonedTime } from 'date-fns-tz';
 import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/webVitals';
 import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
 export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
@@ -22,7 +22,7 @@ export function toPercentileLinesByMetric(
   };
 
   for (const r of rows) {
-    const key = fromZonedTime(r.date, timezone).valueOf().toString();
+    const key = parseClickHouseDate(r.date).valueOf().toString();
     byMetric[r.name][key] = [r.p50, r.p75, r.p90, r.p99];
   }
 

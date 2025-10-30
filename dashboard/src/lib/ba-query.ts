@@ -60,7 +60,8 @@ function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityR
   const validatedInterval = GranularityIntervalSchema.parse(clickhouseInterval);
   return (column: z.infer<typeof DateColumnSchema>) => {
     const validatedColumn = DateColumnSchema.parse(column);
-    return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.String({ timezone })})`;
+    const interval = safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.String({ timezone })})`;
+    return safeSql`toTimezone(${interval}, 'UTC')`;
   };
 }
 
