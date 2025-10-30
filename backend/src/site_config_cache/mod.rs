@@ -7,12 +7,14 @@ use thiserror::Error;
 use tracing::{error, info, warn, debug};
 
 use crate::redis::{Redis, try_init as try_init_redis};
+use crate::metrics::MetricsCollector;
 use std::time::Duration;
 use tokio::time::timeout;
 use tokio::sync::RwLock;
 
 const CONFIG_KEY_PREFIX: &str = "site:cfg:";
 const CONFIG_UPDATE_CHANNEL: &str = "site_cfg_updates";
+const CACHE_NAME: &str = "site_config";
 
 #[derive(Debug, Error)]
 pub enum SiteConfigError {
@@ -41,16 +43,17 @@ pub struct SiteConfig {
 pub struct SiteConfigCache {
     cache: Cache<String, Arc<SiteConfig>>, // keyed by site_id
     redis: Arc<RwLock<Option<Arc<Redis>>>>,
+    metrics: Option<Arc<MetricsCollector>>,
 }
 
 impl SiteConfigCache {
-    pub async fn new(redis: Option<Arc<Redis>>) -> Result<Self, SiteConfigError> {
+    pub async fn new(redis: Option<Arc<Redis>>, metrics: Option<Arc<MetricsCollector>>) -> Result<Self, SiteConfigError> {
         let cache = Cache::builder()
             .max_capacity(50_000)
             .time_to_live(std::time::Duration::from_secs(60 * 60))
             .build();
 
-        Ok(Self { cache, redis: Arc::new(RwLock::new(redis)) })
+        Ok(Self { cache, redis: Arc::new(RwLock::new(redis)), metrics })
     }
 
     pub async fn is_enabled(&self) -> bool { self.redis.read().await.is_some() }
@@ -62,6 +65,7 @@ impl SiteConfigCache {
 
     pub async fn get_or_fetch(&self, site_id: &str) -> Result<Option<Arc<SiteConfig>>, SiteConfigError> {
         if let Some(cfg) = self.cache.get(site_id) {
+            if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "hit"); }
             debug!(
                 site_id = %site_id,
                 domain = %cfg.domain.as_deref().unwrap_or(""),
@@ -78,6 +82,7 @@ impl SiteConfigCache {
 
         let redis = self.redis.read().await.clone();
         let Some(redis) = redis else {
+            if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "miss"); }
             return Ok(None);
         };
         let mut manager = redis.manager();
@@ -85,25 +90,35 @@ impl SiteConfigCache {
             Ok(res) => res?,
             Err(_) => {
                 warn!(site_id = %site_id, "Redis GET timed out for site-config");
+                if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "error"); }
                 return Err(SiteConfigError::Timeout);
             }
         };
         match payload {
             Some(json) => {
-                let cfg: SiteConfig = serde_json::from_str(&json)?;
-                let cfg = Arc::new(cfg);
-                self.cache.insert(site_id.to_string(), cfg.clone());
-                debug!(
-                    site_id = %site_id,
-                    domain = %cfg.domain.as_deref().unwrap_or(""),
-                    enforce_domain = %cfg.enforce_domain,
-                    blacklist_count = %cfg.blacklisted_ips.len(),
-                    version = %cfg.version,
-                    "site-config fetched from Redis and cached"
-                );
-                Ok(Some(cfg))
+                match serde_json::from_str::<SiteConfig>(&json) {
+                    Ok(cfg_parsed) => {
+                        let cfg = Arc::new(cfg_parsed);
+                        self.cache.insert(site_id.to_string(), cfg.clone());
+                        if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "hit"); }
+                        debug!(
+                            site_id = %site_id,
+                            domain = %cfg.domain.as_deref().unwrap_or(""),
+                            enforce_domain = %cfg.enforce_domain,
+                            blacklist_count = %cfg.blacklisted_ips.len(),
+                            version = %cfg.version,
+                            "site-config fetched from Redis and cached"
+                        );
+                        Ok(Some(cfg))
+                    }
+                    Err(e) => {
+                        if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "error"); }
+                        Err(e.into())
+                    }
+                }
             }
             None => {
+                if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "miss"); }
                 debug!(site_id = %site_id, "no site-config found in Redis");
                 Ok(None)
             },
