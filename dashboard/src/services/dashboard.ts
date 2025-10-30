@@ -1,7 +1,12 @@
 'server-only';
 
 import { Dashboard } from '@/entities/dashboard';
-import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard';
+import {
+  createDashboard,
+  findAllDashboardsWithConfigLite,
+  findAllUserDashboards,
+} from '@/repositories/postgres/dashboard';
+import { ensureDashboardConfig } from '@/services/dashboardConfig';
 import { getUserSubscription } from '@/repositories/postgres/subscription';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
@@ -10,6 +15,8 @@ import { markOnboardingCompleted } from '@/repositories/postgres/user';
 import { updateUserSettings } from '@/services/userSettings';
 import { SupportedLanguages } from '@/constants/i18n';
 import { ensureTermsAccepted } from '@/services/user.service';
+import { writeConfigsBatch } from '@/repositories/redisConfigRepository';
+import { createDashboardConfigs } from '@/repositories/postgres/dashboardConfig';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
   await validateDashboardCreationLimit(userId);
@@ -20,7 +27,14 @@ export async function createNewDashboard(domain: string, userId: string): Promis
     userId,
     siteId,
   };
-  return createDashboard(dashboardData);
+  const dashboard = await createDashboard(dashboardData);
+
+  try {
+    await ensureDashboardConfig(dashboard.id);
+  } catch (e) {
+    console.error('Failed to ensure dashboard config after creation:', e);
+  }
+  return dashboard;
 }
 
 export async function getAllUserDashboards(userId: string): Promise<Dashboard[]> {
@@ -76,4 +90,49 @@ export async function getUserDashboardStats(userId: string): Promise<{
     limit: dashboardLimit,
     canCreateMore: currentDashboards.length < dashboardLimit,
   };
+}
+
+export async function reconcileAllDashboardConfigs(): Promise<{ processed: number }> {
+  const items = await findAllDashboardsWithConfigLite();
+
+  const missingDashboardIds = items.filter((d) => !d.config).map((d) => d.dashboardId);
+  if (missingDashboardIds.length > 0) {
+    const created = await createDashboardConfigs(missingDashboardIds);
+    const createdByDashboardId = new Map(created.map((c) => [c.dashboardId, c]));
+    for (const it of items) {
+      if (!it.config) {
+        const cfg = createdByDashboardId.get(it.dashboardId);
+        if (cfg) it.config = cfg;
+      }
+    }
+    const stillMissing = items.filter((d) => !d.config).map((d) => d.dashboardId);
+    if (stillMissing.length > 0) {
+      console.warn(
+        `Warm-up: ${stillMissing.length} dashboards still missing configs after createMany. Example ids:`,
+        stillMissing.slice(0, 10),
+      );
+    }
+  }
+
+  const chunkSize = 1000;
+  let processed = 0;
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    const count = await writeConfigsBatch(
+      chunk.map((d) => ({
+        siteId: d.siteId,
+        domain: d.domain,
+        config: d.config
+          ? {
+              blacklistedIps: d.config.blacklistedIps,
+              enforceDomain: d.config.enforceDomain,
+              updatedAt: d.config.updatedAt,
+            }
+          : null,
+      })),
+    );
+    processed += count;
+  }
+
+  return { processed };
 }

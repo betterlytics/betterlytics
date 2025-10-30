@@ -14,13 +14,18 @@ import DataDashboardSettings from '@/components/dashboardSettings/DashboardDataS
 import DangerZoneDashboardSettings from '@/components/dashboardSettings/DashboardDangerZoneSettings';
 import useIsChanged from '@/hooks/use-is-changed';
 import { useTranslations } from 'next-intl';
+import { saveDashboardConfigAction } from '@/app/actions/siteConfig';
+import type { DashboardConfigUpdate } from '@/entities/dashboardConfig';
+import { useDashboardConfig } from '@/hooks/use-dashboard-config';
 
 interface SettingsTabConfig {
   id: string;
   label: string;
   component: React.ComponentType<{
-    formData: DashboardSettingsUpdate;
+    dashboardSettings: DashboardSettingsUpdate;
     onUpdate: (updates: Partial<DashboardSettingsUpdate>) => void;
+    dashboardConfig: DashboardConfigUpdate;
+    onConfigChange: (next: DashboardConfigUpdate) => void;
   }>;
 }
 
@@ -67,6 +72,9 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
   const isFormChanged = useIsChanged(formData, settings);
   const t = useTranslations('components.dashboardSettingsDialog');
 
+  const { config, initialConfig, isLoading, setConfig, commitInitialConfig } = useDashboardConfig();
+  const isConfigChanged = useIsChanged<DashboardConfigUpdate>(config, initialConfig);
+
   useEffect(() => {
     if (settings) {
       setFormData({ ...settings });
@@ -80,8 +88,28 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
   const handleSave = () => {
     startTransitionSave(async () => {
       try {
-        await updateDashboardSettingsAction(dashboardId, formData);
+        const tasks: Promise<
+          | Awaited<ReturnType<typeof updateDashboardSettingsAction>>
+          | Awaited<ReturnType<typeof saveDashboardConfigAction>>
+        >[] = [];
+
+        if (isFormChanged) {
+          tasks.push(updateDashboardSettingsAction(dashboardId, formData));
+        }
+
+        if (isConfigChanged && config) {
+          tasks.push(saveDashboardConfigAction(dashboardId, config as DashboardConfigUpdate));
+        }
+
+        if (tasks.length > 0) {
+          await Promise.all(tasks);
+        }
+
         await refreshSettings();
+
+        if (isConfigChanged) {
+          commitInitialConfig();
+        }
         toast.success(t('toastSuccess'));
         onOpenChange(false);
       } catch {
@@ -90,16 +118,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
     });
   };
 
-  if (!settings) {
-    return (
-      <div className='flex items-center justify-center py-16'>
-        <div className='flex flex-col items-center'>
-          <div className='border-accent border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4'></div>
-          <p className='text-foreground'>{t('loading')}</p>
-        </div>
-      </div>
-    );
-  }
+  const isLoadingState = !settings || isLoading || !config;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -108,41 +127,59 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-6'>
-          <TabsList
-            className={`grid w-full grid-cols-${SETTINGS_TABS.length} bg-secondary dark:inset-shadow-background gap-1 px-1 inset-shadow-sm`}
-          >
-            {SETTINGS_TABS.map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
-              >
-                {tab.id === 'data' ? t('tabs.data') : t('tabs.danger')}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {SETTINGS_TABS.map((tab) => {
-            const Component = tab.component;
-            return (
-              <TabsContent key={tab.id} value={tab.id}>
-                <Component formData={formData} onUpdate={handleUpdate} />
-              </TabsContent>
-            );
-          })}
-
-          <div className='flex justify-end border-t pt-6'>
-            <Button onClick={handleSave} disabled={isPendingSave || !isFormChanged} className='cursor-pointer'>
-              {isPendingSave ? (
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-              ) : (
-                <Save className='mr-2 h-4 w-4' />
-              )}
-              {t('saveChanges')}
-            </Button>
+        {isLoadingState ? (
+          <div className='flex items-center justify-center py-16'>
+            <div className='flex flex-col items-center'>
+              <div className='border-accent border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4'></div>
+              <p className='text-foreground'>{t('loading')}</p>
+            </div>
           </div>
-        </Tabs>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-6'>
+            <TabsList
+              className={`grid w-full grid-cols-${SETTINGS_TABS.length} bg-secondary dark:inset-shadow-background gap-1 px-1 inset-shadow-sm`}
+            >
+              {SETTINGS_TABS.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+                >
+                  {tab.id === 'data' ? t('tabs.data') : t('tabs.danger')}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {SETTINGS_TABS.map((tab) => {
+              const Component = tab.component;
+              return (
+                <TabsContent key={tab.id} value={tab.id}>
+                  <Component
+                    dashboardSettings={formData}
+                    onUpdate={handleUpdate}
+                    dashboardConfig={config}
+                    onConfigChange={(next: DashboardConfigUpdate) => setConfig(next)}
+                  />
+                </TabsContent>
+              );
+            })}
+
+            <div className='flex justify-end border-t pt-6'>
+              <Button
+                onClick={handleSave}
+                disabled={isPendingSave || (!isFormChanged && !isConfigChanged)}
+                className='cursor-pointer'
+              >
+                {isPendingSave ? (
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                ) : (
+                  <Save className='mr-2 h-4 w-4' />
+                )}
+                {t('saveChanges')}
+              </Button>
+            </div>
+          </Tabs>
+        )}
       </DialogContent>
     </Dialog>
   );
