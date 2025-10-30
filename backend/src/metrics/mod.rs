@@ -29,6 +29,10 @@ pub struct MetricsCollector {
     // Cache lookup metrics
     cache_lookups_total: IntCounterVec,
 
+    // Site-config pubsub health/time
+    site_config_pubsub_healthy: Gauge,
+    site_config_last_refresh_timestamp_seconds: Gauge,
+
     // System info
     system: Arc<RwLock<System>>,
     current_pid: Pid,
@@ -94,6 +98,16 @@ impl MetricsCollector {
             ),
             &["cache", "result"],
         )?;
+
+        let site_config_pubsub_healthy = Gauge::with_opts(Opts::new(
+            "site_config_pubsub_healthy",
+            "Health of the site-config pubsub listener (1=healthy, 0=unhealthy)"
+        ))?;
+
+        let site_config_last_refresh_timestamp_seconds = Gauge::with_opts(Opts::new(
+            "site_config_last_refresh_timestamp_seconds",
+            "Unix timestamp (seconds) of the last successful site-config refresh"
+        ))?;
         
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
@@ -105,6 +119,8 @@ impl MetricsCollector {
         registry.register(Box::new(events_rejected_total.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
         registry.register(Box::new(cache_lookups_total.clone()))?;
+        registry.register(Box::new(site_config_pubsub_healthy.clone()))?;
+        registry.register(Box::new(site_config_last_refresh_timestamp_seconds.clone()))?;
         
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -124,6 +140,8 @@ impl MetricsCollector {
             events_rejected_total,
             validation_duration,
             cache_lookups_total,
+            site_config_pubsub_healthy,
+            site_config_last_refresh_timestamp_seconds,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -200,6 +218,14 @@ impl MetricsCollector {
     
     pub fn increment_cache_lookup(&self, cache: &str, result: &str) {
         self.cache_lookups_total.with_label_values(&[cache, result]).inc();
+    }
+
+    pub fn set_site_config_pubsub_healthy(&self, healthy: bool) {
+        self.site_config_pubsub_healthy.set(if healthy { 1.0 } else { 0.0 });
+    }
+
+    pub fn set_site_config_last_refresh_timestamp_seconds(&self, ts_seconds: f64) {
+        self.site_config_last_refresh_timestamp_seconds.set(ts_seconds);
     }
     
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
