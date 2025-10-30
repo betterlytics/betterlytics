@@ -397,7 +397,7 @@ pub async fn validate_site_policies_with_status(
     event_url: &str,
     ip_address: &str,
 ) -> (Result<(), ValidationError>, SiteConfigStatus) {
-    if !cfg_cache.is_enabled() {
+    if !cfg_cache.is_enabled().await {
         return (Ok(()), SiteConfigStatus::Missing);
     }
 

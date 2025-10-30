@@ -96,11 +96,10 @@ async fn main() {
             .expect("Failed to init SiteConfigCache"),
     );
 
-    let site_cfg_cache_listener = site_cfg_cache.clone();
-    
-    if redis.is_some() {
-        tokio::spawn(async move { site_cfg_cache_listener.run_pubsub_listener().await });
-    }
+    site_cfg_cache
+        .clone()
+        .spawn_listener_with_reconnect(config.redis_url.clone())
+        .await;
 
     // Initialize optional S3 service for session replay storage
     let s3_service: Option<Arc<S3Service>> = match S3Service::from_config(config.clone()).await {

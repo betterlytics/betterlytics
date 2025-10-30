@@ -6,9 +6,10 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::{error, info, warn, debug};
 
-use crate::redis::Redis;
+use crate::redis::{Redis, try_init as try_init_redis};
 use std::time::Duration;
 use tokio::time::timeout;
+use tokio::sync::RwLock;
 
 const CONFIG_KEY_PREFIX: &str = "site:cfg:";
 const CONFIG_UPDATE_CHANNEL: &str = "site_cfg_updates";
@@ -39,7 +40,7 @@ pub struct SiteConfig {
 #[derive(Clone)]
 pub struct SiteConfigCache {
     cache: Cache<String, Arc<SiteConfig>>, // keyed by site_id
-    redis: Option<Arc<Redis>>,
+    redis: Arc<RwLock<Option<Arc<Redis>>>>,
 }
 
 impl SiteConfigCache {
@@ -49,10 +50,15 @@ impl SiteConfigCache {
             .time_to_live(std::time::Duration::from_secs(60 * 60))
             .build();
 
-        Ok(Self { cache, redis })
+        Ok(Self { cache, redis: Arc::new(RwLock::new(redis)) })
     }
 
-    pub fn is_enabled(&self) -> bool { self.redis.is_some() }
+    pub async fn is_enabled(&self) -> bool { self.redis.read().await.is_some() }
+
+    pub async fn set_redis(&self, redis: Option<Arc<Redis>>) {
+        let mut lock = self.redis.write().await;
+        *lock = redis;
+    }
 
     pub async fn get_or_fetch(&self, site_id: &str) -> Result<Option<Arc<SiteConfig>>, SiteConfigError> {
         if let Some(cfg) = self.cache.get(site_id) {
@@ -70,7 +76,8 @@ impl SiteConfigCache {
         debug!(site_id = %site_id, "site-config cache miss; fetching from Redis");
         let key = format!("{}{}", CONFIG_KEY_PREFIX, site_id);
 
-        let Some(redis) = &self.redis else {
+        let redis = self.redis.read().await.clone();
+        let Some(redis) = redis else {
             return Ok(None);
         };
         let mut manager = redis.manager();
@@ -162,9 +169,48 @@ impl SiteConfigCache {
         }
     }
     async fn build_pubsub(&self) -> Result<redis::aio::PubSub, SiteConfigError> {
-        let Some(redis) = &self.redis else { return Err(SiteConfigError::RedisNotConfigured) };
+        let redis = self.redis.read().await.clone();
+        let Some(redis) = redis else { return Err(SiteConfigError::RedisNotConfigured) };
         let pubsub = redis.new_pubsub().await?;
         Ok(pubsub)
+    }
+
+    /// Spawn a supervisor that attaches Redis if needed and keeps the pubsub listener alive.
+    /// If `redis_url` is None and Redis isn't already enabled, the supervisor won't run.
+    pub async fn spawn_listener_with_reconnect(self: Arc<Self>, redis_url: Option<String>) {
+        if redis_url.is_none() && !self.is_enabled().await {
+            return;
+        }
+
+        let supervisor_cache = self.clone();
+        tokio::spawn(async move {
+            let mut delay = std::time::Duration::from_secs(2);
+            loop {
+                // Ensure Redis is attached if a URL is provided
+                if supervisor_cache.is_enabled().await == false {
+                    if let Some(url) = redis_url.clone() {
+                        if let Some(client) = try_init_redis(Some(url)).await {
+                            supervisor_cache.set_redis(Some(client)).await;
+                            delay = std::time::Duration::from_secs(2);
+                        } else {
+                            tokio::time::sleep(delay).await;
+                            delay = std::cmp::min(delay * 2, std::time::Duration::from_secs(60));
+                            continue;
+                        }
+                    } else {
+                        // No Redis configured and none attached; nothing to supervise
+                        break;
+                    }
+                }
+
+                // Run the listener until it exits (e.g., due to disconnect)
+                supervisor_cache.clone().run_pubsub_listener().await;
+
+                // Listener ended; back off then retry (will attach if needed next loop)
+                tokio::time::sleep(delay).await;
+                delay = std::cmp::min(delay * 2, std::time::Duration::from_secs(60));
+            }
+        });
     }
 }
 
