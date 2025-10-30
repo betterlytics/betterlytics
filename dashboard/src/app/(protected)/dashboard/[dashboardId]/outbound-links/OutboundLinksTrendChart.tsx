@@ -19,6 +19,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber } from '@/utils/formatters';
 import { format } from 'date-fns';
+import DataEmptyComponent from '@/components/DataEmptyComponent';
 
 interface OutboundLinksTrendChartProps {
   chartData: Array<{ date: number; value: (number | null)[] }>;
@@ -43,12 +44,7 @@ export default function OutboundLinksTrendChart({
 
   if (!chartData || chartData.length === 0) {
     return (
-      <div className='flex h-[300px] items-center justify-center'>
-        <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
-          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-        </div>
-      </div>
+      <DataEmptyComponent />
     );
   }
 
