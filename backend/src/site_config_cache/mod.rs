@@ -42,6 +42,7 @@ pub struct SiteConfig {
 #[derive(Clone)]
 pub struct SiteConfigCache {
     cache: Cache<String, Arc<SiteConfig>>, // keyed by site_id
+    negative_cache: Cache<String, ()>, // tracks recently missing site_ids
     redis: Arc<RwLock<Option<Arc<Redis>>>>,
     metrics: Option<Arc<MetricsCollector>>,
 }
@@ -53,7 +54,12 @@ impl SiteConfigCache {
             .time_to_live(std::time::Duration::from_secs(60 * 60))
             .build();
 
-        Ok(Self { cache, redis: Arc::new(RwLock::new(redis)), metrics })
+        let negative_cache = Cache::builder()
+            .max_capacity(50_000)
+            .time_to_live(std::time::Duration::from_secs(60))
+            .build();
+
+        Ok(Self { cache, negative_cache, redis: Arc::new(RwLock::new(redis)), metrics })
     }
 
     pub async fn is_enabled(&self) -> bool { self.redis.read().await.is_some() }
@@ -64,6 +70,10 @@ impl SiteConfigCache {
     }
 
     pub async fn get_or_fetch(&self, site_id: &str) -> Result<Option<Arc<SiteConfig>>, SiteConfigError> {
+        if self.negative_cache.contains_key(site_id) {
+            if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "miss"); }
+            return Ok(None);
+        }
         if let Some(cfg) = self.cache.get(site_id) {
             if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "hit"); }
             debug!(
@@ -100,6 +110,7 @@ impl SiteConfigCache {
                     Ok(cfg_parsed) => {
                         let cfg = Arc::new(cfg_parsed);
                         self.cache.insert(site_id.to_string(), cfg.clone());
+                        self.negative_cache.invalidate(site_id);
                         if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "hit"); }
                         debug!(
                             site_id = %site_id,
@@ -119,6 +130,7 @@ impl SiteConfigCache {
             }
             None => {
                 if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "miss"); }
+                self.negative_cache.insert(site_id.to_string(), ());
                 debug!(site_id = %site_id, "no site-config found in Redis");
                 Ok(None)
             },
@@ -130,6 +142,7 @@ impl SiteConfigCache {
     }
 
     pub async fn run_pubsub_listener(self: Arc<Self>) {
+        if let Some(m) = &self.metrics { m.set_site_config_pubsub_healthy(false); }
         let mut pubsub = match self.build_pubsub().await {
             Ok(ps) => ps,
             Err(e) => {
@@ -143,6 +156,7 @@ impl SiteConfigCache {
             return;
         }
         info!("Subscribed to '{}' for site config updates", CONFIG_UPDATE_CHANNEL);
+        if let Some(m) = &self.metrics { m.set_site_config_pubsub_healthy(true); }
 
         let mut stream = pubsub.on_message();
         while let Some(msg) = stream.next().await {
@@ -167,11 +181,16 @@ impl SiteConfigCache {
                         warn!("Failed to refresh site config for {}: {}", site_id, e);
                     } else {
                         debug!(site_id = %site_id, "site-config refreshed after update");
+                        if let Some(m) = &self.metrics {
+                            let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default();
+                            m.set_site_config_last_refresh_timestamp_seconds(now.as_secs_f64());
+                        }
                     }
                 }
                 Err(e) => warn!("Failed to parse pubsub payload: {}", e),
             }
         }
+        if let Some(m) = &self.metrics { m.set_site_config_pubsub_healthy(false); }
     }
 
     fn should_refresh(&self, site_id: &str, msg_version: Option<u64>) -> bool {
