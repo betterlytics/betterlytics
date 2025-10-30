@@ -7,6 +7,42 @@ import {
 import { deriveCompareRange } from './compareRanges';
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 
+// Ensure deterministic JSON encoding (stable key order) to avoid URL flicker
+function sortKeysDeep(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => sortKeysDeep(item));
+  }
+  if (value && typeof value === 'object' && !(value instanceof Date)) {
+    const obj = value as Record<string, unknown>;
+    const sorted: Record<string, unknown> = {};
+    Object.keys(obj)
+      .sort()
+      .forEach((key) => {
+        sorted[key] = sortKeysDeep(obj[key]);
+      });
+    return sorted;
+  }
+  return value;
+}
+
+function stableStringify(value: unknown): string {
+  return JSON.stringify(sortKeysDeep(value));
+}
+
+const ENCODE_ORDER: Array<keyof FilterQueryParams> = [
+  'startDate',
+  'endDate',
+  'interval',
+  'offset',
+  'granularity',
+  'compare',
+  'compareStartDate',
+  'compareEndDate',
+  'compareAlignWeekdays',
+  'queryFilters',
+  'userJourney',
+];
+
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
   let { startDate, endDate } = getDateRangeForTimePresets('24h');
@@ -53,7 +89,7 @@ function filterVariable(key: string, value: unknown) {
   // Check if filters are required or if they already match the default filters
   if (
     key in defaultFilters &&
-    JSON.stringify(value) === JSON.stringify(defaultFilters[key as keyof FilterQueryParams])
+    stableStringify(value) === stableStringify(defaultFilters[key as keyof FilterQueryParams])
   ) {
     return false;
   }
@@ -82,7 +118,7 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
       return (value as Date).toISOString();
     case 'queryFilters':
     case 'userJourney':
-      return JSON.stringify(value);
+      return stableStringify(value);
     case 'granularity':
       return value as FilterQueryParams['granularity'];
     case 'interval':
@@ -99,9 +135,10 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
 }
 
 function encode(params: FilterQueryParams) {
-  return Object.entries(params)
-    .filter(([key, value]) => filterVariable(key, value))
-    .map(([key, value]) => [key, encodeValue(key as keyof FilterQueryParams, value)]);
+  return ENCODE_ORDER.filter((key) => filterVariable(key, params[key])).map((key) => [
+    key,
+    encodeValue(key, params[key]),
+  ]);
 }
 
 function decodeValue<Key extends keyof FilterQueryParams>(
