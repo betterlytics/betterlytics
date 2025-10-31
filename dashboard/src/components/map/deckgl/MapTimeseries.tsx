@@ -113,6 +113,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         onHover={handleHover}
         fillAnimation={visitorChangeAnimation}
         outlineAnimation={visitorChangeAnimation}
+        isTimeseries={isTimeseries}
       />
       {
         <MapPlayActionbar

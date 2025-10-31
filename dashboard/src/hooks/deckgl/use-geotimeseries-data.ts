@@ -47,6 +47,20 @@ export function useGeoTimeseriesData({ visitorData, isTimeseries }: UseGeoTimese
   }, [visitorData, isTimeseries]);
 
   const compareDataTimeseries: TimeGeoVisitors[] | undefined = useMemo(() => {
+    if (!visitorData.compare) return undefined;
+
+    if (!isTimeseries) {
+      return [
+        {
+          visitors: visitorData.compare.accumulated.map((d) => ({
+            country_code: d.country_code,
+            visitors: d.visitors,
+          })),
+          date: new Date(),
+        },
+      ];
+    }
+
     const cmp = visitorData.compare?.timeseries?.data;
     if (!cmp) return undefined;
 
@@ -62,7 +76,7 @@ export function useGeoTimeseriesData({ visitorData, isTimeseries }: UseGeoTimese
       });
     }
     return frames;
-  }, [visitorData]);
+  }, [visitorData, isTimeseries]);
 
   const maxVisitors = useMemo(() => {
     return Math.max(...visitorDataTimeseries.flatMap((frame) => frame.visitors.map((d) => d.visitors)));

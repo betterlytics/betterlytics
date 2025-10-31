@@ -8,19 +8,20 @@ import { useLocale, useTranslations } from 'next-intl';
 import React from 'react';
 import MapPopupContent from '@/components/map/tooltip/MapPopupContent';
 import MapTooltipTip from '@/components/map/tooltip/MapTooltipTip';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 interface DeckGLPopupProps {
   size?: 'sm' | 'lg';
   children?: React.ReactNode;
   viewState?: MapViewState;
+  isTimeseries?: boolean;
 }
 
-function DeckGLPopupComponent({ size = 'sm', viewState, children }: DeckGLPopupProps) {
+function DeckGLPopupComponent({ size = 'sm', viewState, isTimeseries, children }: DeckGLPopupProps) {
   const { clickedFeatureRef } = useMapSelectionActions();
   const { clicked } = useMapSelectionState();
   const locale = useLocale();
-  const t = useTranslations('components.geography');
-
+  const timeRangeCtx = useTimeRangeContext();
   const clickedFeature = clickedFeatureRef?.current;
   if (!clickedFeature || !clicked || !viewState) return null;
 
@@ -62,7 +63,8 @@ function DeckGLPopupComponent({ size = 'sm', viewState, children }: DeckGLPopupP
           geoVisitor={clickedFeature?.geoVisitor}
           size={size}
           locale={locale}
-          label={t('visitors')}
+          isTimeseries={isTimeseries}
+          timeRangeCtx={timeRangeCtx}
         />
         {children}
       </div>

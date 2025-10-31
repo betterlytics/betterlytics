@@ -14,6 +14,7 @@ export interface DeckGLMapProps {
   visitorData: {
     [k: string]: number;
   };
+  isTimeseries: boolean;
   isMapHovered: boolean;
   style: DeckGLMapStyle;
   colorUpdateTrigger?: any; //! todo type
@@ -30,6 +31,7 @@ export default function DeckGLClient({
   style,
   colorUpdateTrigger = -1,
   isMapHovered,
+  isTimeseries,
   onClick,
   onHover,
 }: DeckGLMapProps) {
@@ -80,7 +82,7 @@ export default function DeckGLClient({
         layers={layers}
         style={{ position: 'fixed' }}
       />
-      <DeckGLPopup viewState={viewState} />
+      <DeckGLPopup viewState={viewState} isTimeseries={isTimeseries} />
     </>
   );
 }
