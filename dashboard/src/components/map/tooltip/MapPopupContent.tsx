@@ -2,17 +2,16 @@
 
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { DateTimeSliderLabel } from '@/components/map/deckgl/controls/DateTimeSliderLabel';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoVisitorWithCompare } from '@/contexts/DeckGLSelectionContextProvider';
-import { TimeRangeContextProps, useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { TimeRangeContextProps } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
 import { formatNumber } from '@/utils/formatters';
+import { useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
-import { DateTimeSliderLabel } from '@/components/map/deckgl/controls/DateTimeSliderLabel';
-import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
-import { useLocale, useTranslations } from 'next-intl';
 
 // Receive compare start/end/granularity as prop to avoid refetching
 export type MapPopupContentProps = {
@@ -32,6 +31,8 @@ function MapPopupContentComponent({
   isTimeseries,
   timeRangeCtx,
 }: MapPopupContentProps) {
+  const t = useTranslations('components');
+
   const hasComparison = Boolean(
     geoVisitor &&
       geoVisitor.compare?.compareVisitors &&
@@ -39,7 +40,6 @@ function MapPopupContentComponent({
       geoVisitor.compare.dProcent &&
       (geoVisitor.date || !isTimeseries),
   );
-  const t = useTranslations('components');
 
   const accComparison = useMemo(() => {
     return (
@@ -88,6 +88,7 @@ function MapPopupContentComponent({
     geoVisitor?.visitors,
     geoVisitor?.compare?.compareVisitors,
   ]);
+
   const timeseriesComparison = useMemo(() => {
     return (
       geoVisitor &&

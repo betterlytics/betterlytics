@@ -14,8 +14,6 @@ export const isZoomType = (value: any): value is ZoomType => ZOOM_TYPES.includes
 
 export type MapCommandResolvers = {
   zoom: (zoomType: ZoomType, prev: MapViewState) => MapViewState;
-  panTo: (coords: { longitude: number; latitude: number }, prev: MapViewState) => MapViewState;
-  flyTo: (target: Partial<MapViewState>, prev: MapViewState) => MapViewState;
 };
 
 export type MapUpdateHandler = (cmd: MapCommand, args: any) => void;
@@ -29,6 +27,4 @@ export const MAP_COMMAND_RESOLVERS: MapCommandResolvers = {
     transitionInterpolator: new LinearInterpolator(['zoom']),
     zoom: prev.zoom + (zoomType === 'in' ? 1 : -1),
   }),
-  panTo: ({ longitude, latitude }, prev) => ({ ...prev, longitude, latitude }),
-  flyTo: (target, prev) => ({ ...prev, ...target }),
 };

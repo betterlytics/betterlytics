@@ -4,7 +4,7 @@ import { useMapSelectionActions, useMapSelectionState } from '@/contexts/DeckGLS
 import { cn } from '@/lib/utils';
 import { type MapViewState, WebMercatorViewport } from '@deck.gl/core';
 import { motion } from 'framer-motion';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import React from 'react';
 import MapPopupContent from '@/components/map/tooltip/MapPopupContent';
 import MapTooltipTip from '@/components/map/tooltip/MapTooltipTip';
@@ -42,7 +42,7 @@ function DeckGLPopupComponent({ size = 'sm', viewState, isTimeseries, children }
       className={cn(
         'deckgl-controller',
         'rounded-md border-none bg-transparent p-0 shadow-none',
-        'pointer-events-none z-[11] flex flex-col will-change-transform',
+        'pointer-events-none z-11 flex flex-col will-change-transform',
       )}
       initial={{ opacity: 0, y: 40, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
