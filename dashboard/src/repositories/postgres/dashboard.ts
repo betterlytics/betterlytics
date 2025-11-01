@@ -16,11 +16,21 @@ export async function findDashboardById(dashboardId: string): Promise<Dashboard>
     const prismaDashboard = await prisma.dashboard.findFirst({
       where: { id: dashboardId },
     });
-
     return DashboardSchema.parse(prismaDashboard);
   } catch {
     console.error('Error while finding dashboard relation');
     throw new Error('Failed to find user dashboard');
+  }
+}
+
+export async function findDashboardByIdOrNull(dashboardId: string): Promise<Dashboard | null> {
+  try {
+    const prismaDashboard = await prisma.dashboard.findFirst({ where: { id: dashboardId } });
+    if (prismaDashboard === null) return null;
+    return DashboardSchema.parse(prismaDashboard);
+  } catch (error) {
+    console.error('Error while finding dashboard by id (unexpected):', error);
+    throw new Error('Failed to find dashboard');
   }
 }
 
@@ -40,6 +50,27 @@ export async function findUserDashboard(data: DashboardFindByUserData): Promise<
     console.error('Error while finding dashboard relation');
     throw new Error('Failed to find user dashboard');
   }
+}
+
+export async function findUserDashboardOrNull(data: DashboardFindByUserData): Promise<DashboardUser | null> {
+  const validatedData = DashboardFindByUserSchema.parse(data);
+  const prismaUserDashboard = await prisma.userDashboard.findFirst({
+    where: { dashboardId: validatedData.dashboardId, userId: validatedData.userId },
+  });
+  if (prismaUserDashboard === null) return null;
+  return DashboardUserSchema.parse(prismaUserDashboard);
+}
+
+export async function findUserDashboardWithDashboardOrNull(data: DashboardFindByUserData) {
+  const validatedData = DashboardFindByUserSchema.parse(data);
+  const rel = await prisma.userDashboard.findFirst({
+    where: { dashboardId: validatedData.dashboardId, userId: validatedData.userId },
+    include: { dashboard: true },
+  });
+  if (rel === null) return null;
+  const userDashboard = DashboardUserSchema.parse(rel);
+  const dashboard = DashboardSchema.parse(rel.dashboard);
+  return { userDashboard, dashboard };
 }
 
 export async function findFirstUserDashboard(userId: string): Promise<Dashboard | null> {

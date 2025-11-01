@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 import { type AuthContext } from '@/entities/authContext';
-import { authorizeUserDashboard } from '@/services/auth.service';
+import { authorizeUserDashboard, getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
 import { withServerAction } from '@/middlewares/serverActionHandler';
 import { findDashboardById } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
@@ -30,21 +30,8 @@ type ActionRequiringAuthContext<Args extends Array<unknown>, Ret> = (context: Au
 async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
   const session = await getServerSession(authOptions);
   if (session?.user) {
-    try {
-      return await authorizeUserDashboard(session.user.id, dashboardId);
-    } catch (e) {
-      // If the requested dashboard is the public demo, fall back to demo viewer context
-      if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
-        const dashboard = await findDashboardById(dashboardId);
-        return {
-          dashboardId: dashboard.id,
-          siteId: dashboard.siteId,
-          userId: 'demo',
-          role: 'viewer',
-        };
-      }
-      throw e;
-    }
+    const authorizedCtx = await getAuthorizedDashboardContextOrNull(session.user.id, dashboardId);
+    if (authorizedCtx) return authorizedCtx;
   }
 
   if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
@@ -62,7 +49,9 @@ async function resolveDashboardContext(dashboardId: string): Promise<AuthContext
 
 async function resolveDashboardContextStrict(dashboardId: string): Promise<AuthContext> {
   const session = await requireAuth();
-  return authorizeUserDashboard(session.user.id, dashboardId);
+  const ctx = await getAuthorizedDashboardContextOrNull(session.user.id, dashboardId);
+  if (!ctx) throw new Error('Unauthorized');
+  return ctx;
 }
 
 export function withDashboardAuthContext<Args extends Array<unknown> = unknown[], Ret = unknown>(
