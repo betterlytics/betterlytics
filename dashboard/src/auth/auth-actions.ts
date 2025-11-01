@@ -28,12 +28,7 @@ export async function requireAuth(): Promise<Session> {
 type ActionRequiringAuthContext<Args extends Array<unknown>, Ret> = (context: AuthContext, ...args: Args) => Ret;
 
 async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
-  const session = await getServerSession(authOptions);
-  if (session?.user) {
-    const authorizedCtx = await getAuthorizedDashboardContextOrNull(session.user.id, dashboardId);
-    if (authorizedCtx) return authorizedCtx;
-  }
-
+  // Public/demo path: do NOT read session. This enables ISR for public routes.
   if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
     const dashboard = await findDashboardById(dashboardId);
     return {
@@ -42,6 +37,13 @@ async function resolveDashboardContext(dashboardId: string): Promise<AuthContext
       userId: 'demo',
       role: 'viewer',
     };
+  }
+
+  // Private/owner path: read session and authorize.
+  const session = await getServerSession(authOptions);
+  if (session?.user) {
+    const authorizedCtx = await getAuthorizedDashboardContextOrNull(session.user.id, dashboardId);
+    if (authorizedCtx) return authorizedCtx;
   }
 
   throw new Error('Unauthorized');

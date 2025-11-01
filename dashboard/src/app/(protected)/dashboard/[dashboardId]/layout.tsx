@@ -1,21 +1,11 @@
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
-import { env } from '@/lib/env';
-import BASidebar from '@/components/sidebar/BASidebar';
 import { DashboardProvider } from './DashboardProvider';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
-import { TrackingScript } from './TrackingScript';
 import { fetchSiteId, getCurrentDashboardAction } from '@/app/actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
-import { IntegrationManager } from './IntegrationManager';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
 import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
-import BATopbar from '@/components/topbar/BATopbar';
-import ScrollReset from '@/components/ScrollReset';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
@@ -26,6 +16,7 @@ import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
 import { getDashboardAccessAction } from '@/app/actions/authentication';
+import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -67,44 +58,35 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
         <DemoModeProvider isDemo={isDemoDashboard}>
-          <section>
-            <BATopbar />
-            <SidebarProvider>
-              <BASidebar dashboardId={dashboardId} isDemo={isDemoDashboard} hasSession={!!session} />
-              <BAMobileSidebarTrigger />
-              <main className='bg-background w-full overflow-x-hidden'>
-                {!isDemoDashboard ? (
-                  <BannerProvider>
-                    <ScrollReset />
-                    {billingEnabled && billingDataPromise && (
-                      <Suspense fallback={null}>
-                        <UsageAlertBanner billingDataPromise={billingDataPromise} />
-                        <UsageExceededBanner billingDataPromise={billingDataPromise} />
-                      </Suspense>
-                    )}
-                    {session && isFeatureEnabled('enableAccountVerification') && (
-                      <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
-                    )}
-                    <Suspense>
-                      <IntegrationBanner />
-                    </Suspense>
-                    <div className='flex w-full justify-center'>{children}</div>
-                    {session && mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
-                  </BannerProvider>
-                ) : (
-                  <>
-                    <ScrollReset />
-                    <div className='flex w-full justify-center'>{children}</div>
-                  </>
+          <DashboardLayoutShell
+            dashboardId={dashboardId}
+            isDemo={isDemoDashboard}
+            hasSession={!!session}
+            basePath={'/dashboard'}
+            trackingSiteId={shouldEnableTracking && siteId ? siteId : null}
+            includeIntegrationManager={true}
+          >
+            {!isDemoDashboard ? (
+              <BannerProvider>
+                {billingEnabled && billingDataPromise && (
+                  <Suspense fallback={null}>
+                    <UsageAlertBanner billingDataPromise={billingDataPromise} />
+                    <UsageExceededBanner billingDataPromise={billingDataPromise} />
+                  </Suspense>
                 )}
-              </main>
-              {/* Conditionally render tracking script based on server-side feature flag */}
-              {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
-              <Suspense>
-                <IntegrationManager />
-              </Suspense>
-            </SidebarProvider>
-          </section>
+                {session && isFeatureEnabled('enableAccountVerification') && (
+                  <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
+                )}
+                <Suspense>
+                  <IntegrationBanner />
+                </Suspense>
+                <div className='flex w-full justify-center'>{children}</div>
+                {session && mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+              </BannerProvider>
+            ) : (
+              <div className='flex w-full justify-center'>{children}</div>
+            )}
+          </DashboardLayoutShell>
         </DemoModeProvider>
       </DashboardProvider>
     </PublicEnvironmentVariablesProvider>

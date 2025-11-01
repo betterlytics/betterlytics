@@ -43,6 +43,7 @@ type BASidebarProps = {
   dashboardId: string;
   isDemo: boolean;
   hasSession: boolean;
+  basePath?: string; // base path for links, defaults to "/dashboard"
 };
 
 type SidebarItem = {
@@ -54,7 +55,12 @@ type SidebarItem = {
   hideOnMobile?: boolean;
 };
 
-export default async function BASidebar({ dashboardId, isDemo, hasSession }: BASidebarProps) {
+export default async function BASidebar({
+  dashboardId,
+  isDemo,
+  hasSession,
+  basePath = '/dashboard',
+}: BASidebarProps) {
   const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
 
   const allDashboardsPromise: Promise<ServerActionResponse<any[]>> = hasSession
@@ -131,7 +137,7 @@ export default async function BASidebar({ dashboardId, isDemo, hasSession }: BAS
                 .map((item) => (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton asChild>
-                      <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
+                      <FilterPreservingLink href={`${basePath}/${dashboardId}${item.href}`} highlightOnPage>
                         <span>{item.icon}</span>
                         <span>{item.name}</span>
                       </FilterPreservingLink>
@@ -155,7 +161,7 @@ export default async function BASidebar({ dashboardId, isDemo, hasSession }: BAS
                   >
                     <SidebarMenuButton asChild>
                       <FilterPreservingLink
-                        href={`/dashboard/${dashboardId}${item.href}`}
+                        href={`${basePath}/${dashboardId}${item.href}`}
                         highlightOnPage
                         className='flex items-center justify-between'
                       >
