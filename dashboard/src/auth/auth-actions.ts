@@ -5,10 +5,23 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 import { type AuthContext } from '@/entities/authContext';
-import { authorizeUserDashboard, getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
+import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
 import { withServerAction } from '@/middlewares/serverActionHandler';
 import { findDashboardById } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
+import { unstable_cache } from 'next/cache';
+
+// Unique identifiers per wrapped action to avoid cache key collisions
+const actionIdMap = new WeakMap<Function, string>();
+let actionIdSeq = 0;
+function getActionId(fn: Function): string {
+  let id = actionIdMap.get(fn);
+  if (!id) {
+    id = `act_${++actionIdSeq}`;
+    actionIdMap.set(fn, id);
+  }
+  return id;
+}
 
 export async function getAuthSession(): Promise<Session | null> {
   const session = await getServerSession(authOptions);
@@ -63,6 +76,18 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
     const context = await resolveDashboardContext(dashboardId);
 
     try {
+      // For demo/public dashboards, cache reads to reduce load
+      if (context.userId === 'demo') {
+        const actionId = getActionId(action as Function);
+        const serializedArgs = JSON.stringify(args, (_key, value) => {
+          if (value instanceof Date) return { __date: value.toISOString() };
+          return value;
+        });
+        const cacheKey = ['demo', actionId, context.dashboardId, context.siteId, serializedArgs].join('|');
+
+        return await unstable_cache(async () => action(context, ...args), [cacheKey], { revalidate: 300 })();
+      }
+
       return await action(context, ...args);
     } catch (e) {
       console.error('Error occurred:', e);

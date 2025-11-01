@@ -1,11 +1,9 @@
-export const dynamic = 'force-static';
-export const revalidate = 300;
-
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
 import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/DashboardProvider';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
+import { assertPublicDashboardAccess } from '@/services/auth.service';
 
 type PublicLayoutProps = {
   params: Promise<{ locale: string; dashboardId: string }>;
@@ -16,8 +14,7 @@ export default async function PublicDashboardLayout({ params, children }: Public
   const { locale, dashboardId } = await params;
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
-  // IMPORTANT: Ensure the dashboard is public or demo here.
-  // e.g., await assertPublicDashboardAccess(dashboardId)
+  await assertPublicDashboardAccess(dashboardId);
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>

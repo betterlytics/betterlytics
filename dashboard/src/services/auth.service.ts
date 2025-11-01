@@ -17,6 +17,7 @@ import { UserException } from '@/lib/exceptions';
 import { isValidTotp } from '@/services/totp.service';
 import { authOptions } from '@/lib/auth';
 import { cache } from 'react';
+import { notFound } from 'next/navigation';
 
 const SALT_ROUNDS = 10;
 
@@ -179,3 +180,16 @@ export async function getDashboardAccess(dashboardId: string): Promise<Dashboard
 export const getDashboardAccessCached = cache(async (dashboardId: string): Promise<DashboardAccess> => {
   return getDashboardAccess(dashboardId);
 });
+
+export async function assertPublicDashboardAccess(dashboardId: string): Promise<void> {
+  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) return;
+
+  try {
+    const dash = await findDashboardById(dashboardId);
+    if (!dash) notFound();
+  } catch (_e) {
+    notFound();
+  }
+
+  notFound();
+}
