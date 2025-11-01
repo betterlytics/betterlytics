@@ -11,16 +11,27 @@ import { findDashboardById } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
 import { unstable_cache } from 'next/cache';
 
-// Unique identifiers per wrapped action to avoid cache key collisions
-const actionIdMap = new WeakMap<Function, string>();
-let actionIdSeq = 0;
-function getActionId(fn: Function): string {
-  let id = actionIdMap.get(fn);
-  if (!id) {
-    id = `act_${++actionIdSeq}`;
-    actionIdMap.set(fn, id);
+// Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
+const actionSignatureMap = new WeakMap<Function, string>();
+function hashString(input: string): string {
+  // Simple DJB2 hash, stable and fast for short strings
+  let hash = 5381;
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash << 5) + hash + input.charCodeAt(i);
+    hash |= 0; // force 32-bit
   }
-  return id;
+  return Math.abs(hash).toString(36);
+}
+
+function getActionSignature(fn: Function): string {
+  let sig = actionSignatureMap.get(fn);
+  if (!sig) {
+    const source = fn.toString();
+    const h = hashString(source);
+    sig = h;
+    actionSignatureMap.set(fn, sig);
+  }
+  return sig;
 }
 
 export async function getAuthSession(): Promise<Session | null> {
@@ -78,12 +89,13 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
     try {
       // For demo/public dashboards, cache reads to reduce load
       if (context.userId === 'demo') {
-        const actionId = getActionId(action as Function);
+        const actionId = getActionSignature(action as Function);
         const serializedArgs = JSON.stringify(args, (_key, value) => {
           if (value instanceof Date) return { __date: value.toISOString() };
           return value;
         });
-        const cacheKey = ['demo', actionId, context.dashboardId, context.siteId, serializedArgs].join('|');
+
+        const cacheKey = ['demo:v4', actionId, context.dashboardId, context.siteId, serializedArgs].join('|');
 
         return await unstable_cache(async () => action(context, ...args), [cacheKey], { revalidate: 300 })();
       }
