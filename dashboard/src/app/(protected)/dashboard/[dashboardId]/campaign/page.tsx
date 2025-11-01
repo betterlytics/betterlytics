@@ -31,10 +31,11 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
   }
 
   const { dashboardId } = await params;
+  const timezone = await getUserTimezone();
   const { startDate, endDate, granularity, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
     await searchParams,
+    timezone,
   );
-  const timezone = await getUserTimezone();
 
   const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
   const sourceBreakdownPromise = fetchCampaignSourceBreakdownAction(dashboardId, startDate, endDate);

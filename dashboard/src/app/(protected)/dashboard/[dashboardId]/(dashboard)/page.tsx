@@ -41,10 +41,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     redirect('/');
   }
   const { dashboardId } = await params;
-
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams);
   const timezone = await getUserTimezone();
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
+    BAFilterSearchParams.decode(await searchParams, timezone);
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
     dashboardId,

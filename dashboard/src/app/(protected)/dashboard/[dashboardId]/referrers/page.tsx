@@ -32,9 +32,9 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams);
   const timezone = await getUserTimezone();
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
+    BAFilterSearchParams.decode(await searchParams, timezone);
 
   const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(
     dashboardId,

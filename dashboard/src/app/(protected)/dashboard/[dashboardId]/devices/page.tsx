@@ -31,9 +31,18 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate, interval, offset } =
-    BAFilterSearchParams.decode(await searchParams);
   const timezone = await getUserTimezone();
+  const {
+    startDate,
+    endDate,
+    granularity,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+    interval,
+    offset,
+    compare,
+  } = BAFilterSearchParams.decode(await searchParams, timezone);
 
   const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(
     dashboardId,
@@ -67,6 +76,7 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     queryFilters,
     timezone,
     interval,
+    compare,
     offset,
     compareStartDate,
     compareEndDate,

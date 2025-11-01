@@ -21,7 +21,8 @@ import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 import { TimeRangeValue } from '@/utils/timeRanges';
 import { toNewStackedAreaChart } from '@/presenters/toNewStackedAreaChart';
-import { getTimeRange } from '@/lib/ba-timerange';
+import { getCompareTimeRange, getTimeRange } from '@/lib/ba-timerange';
+import { CompareMode } from '@/utils/compareRanges';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -178,15 +179,20 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     queryFilters: QueryFilter[],
     timezone: string,
     interval: TimeRangeValue,
+    compareMode: CompareMode,
     offset?: number,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
     const { start, end } = getTimeRange(interval, timezone, startDate, endDate, offset);
-    const { start: compareStart, end: compareEnd } =
-      compareStartDate && compareEndDate
-        ? getTimeRange(interval, timezone, compareStartDate, compareEndDate, offset)
-        : { start: undefined, end: undefined };
+    const { start: compareStart, end: compareEnd } = getCompareTimeRange(
+      compareMode,
+      timezone,
+      start,
+      end,
+      compareStartDate,
+      compareEndDate,
+    );
 
     const rawData = await getDeviceUsageTrendForSite(ctx.siteId, start, end, granularity, queryFilters, timezone);
 

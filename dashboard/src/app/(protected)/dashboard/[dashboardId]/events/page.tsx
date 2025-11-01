@@ -11,6 +11,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type EventsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -25,10 +26,11 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
   }
 
   const { dashboardId } = await params;
+  const timezone = await getUserTimezone();
   const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
     await searchParams,
+    timezone,
   );
-
   const eventsPromise = fetchCustomEventsOverviewAction(
     dashboardId,
     startDate,

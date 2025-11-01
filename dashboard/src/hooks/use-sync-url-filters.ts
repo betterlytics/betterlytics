@@ -53,7 +53,7 @@ export function useSyncURLFilters() {
 
       const encoded = Object.fromEntries(encodedFilterEntries);
 
-      const filters = BAFilterSearchParams.decode(encoded);
+      const filters = BAFilterSearchParams.decode(encoded, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
       if (filters.startDate && filters.endDate) {
         setPeriod(filters.startDate, filters.endDate);

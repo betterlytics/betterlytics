@@ -2,6 +2,7 @@
 
 import moment from 'moment-timezone';
 import { TimeRangeValue } from '@/utils/timeRanges';
+import { CompareMode } from '@/utils/compareRanges';
 
 export function getTimeRange(
   timeRange: TimeRangeValue,
@@ -10,21 +11,68 @@ export function getTimeRange(
   endDate: Date,
   offset?: number,
 ) {
-  const baseStart = getStartTime(timeRange, timezone, startDate, endDate);
-  const baseEnd = getEndTime(timeRange, timezone, endDate);
+  const start = getStartTime(timeRange, timezone, startDate, endDate);
+  const end = getEndTime(timeRange, timezone, endDate);
 
   if (offset === undefined || offset === 0) {
     return {
-      start: baseStart.toDate(),
-      end: baseEnd.toDate(),
+      start: start.toDate(),
+      end: end.toDate(),
     };
   }
 
-  const duration = baseEnd.diff(baseStart);
+  const duration = end.diff(start);
 
   return {
-    start: baseStart.add(offset * duration).toDate(),
-    end: baseEnd.add(offset * duration).toDate(),
+    start: start.add(offset * duration).toDate(),
+    end: end.add(offset * duration).toDate(),
+  };
+}
+
+export function getCompareTimeRange(
+  mode: CompareMode,
+  timezone: string,
+  start: Date,
+  end: Date,
+  compareStart?: Date,
+  compareEnd?: Date,
+) {
+  if (mode === 'off') {
+    return {
+      start: undefined,
+      end: undefined,
+    };
+  }
+
+  const tzStart = moment(start).tz(timezone);
+  const tzEnd = moment(end).tz(timezone);
+
+  if (mode === 'previous') {
+    const duration = tzEnd.diff(tzStart);
+
+    return {
+      start: tzStart.subtract(duration).toDate(),
+      end: tzEnd.subtract(duration).toDate(),
+    };
+  }
+
+  if (mode === 'year') {
+    return {
+      start: tzStart.subtract(1, 'year').toDate(),
+      end: tzEnd.subtract(1, 'year').toDate(),
+    };
+  }
+
+  if (mode === 'custom') {
+    return {
+      start: compareStart,
+      end: compareEnd,
+    };
+  }
+
+  return {
+    start: undefined,
+    end: undefined,
   };
 }
 
