@@ -23,17 +23,6 @@ export async function findDashboardById(dashboardId: string): Promise<Dashboard>
   }
 }
 
-export async function findDashboardByIdOrNull(dashboardId: string): Promise<Dashboard | null> {
-  try {
-    const prismaDashboard = await prisma.dashboard.findFirst({ where: { id: dashboardId } });
-    if (prismaDashboard === null) return null;
-    return DashboardSchema.parse(prismaDashboard);
-  } catch (error) {
-    console.error('Error while finding dashboard by id (unexpected):', error);
-    throw new Error('Failed to find dashboard');
-  }
-}
-
 export async function findUserDashboard(data: DashboardFindByUserData): Promise<DashboardUser> {
   try {
     const validatedData = DashboardFindByUserSchema.parse(data);

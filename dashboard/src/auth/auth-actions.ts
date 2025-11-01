@@ -13,7 +13,8 @@ import { unstable_cache } from 'next/cache';
 import { DashboardFindByUserSchema } from '@/entities/dashboard';
 
 // Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
-const actionSignatureMap = new WeakMap<Function, string>();
+type AnyFn = (...args: unknown[]) => unknown;
+const actionSignatureMap = new WeakMap<AnyFn, string>();
 function hashString(input: string): string {
   // Simple DJB2 hash, stable and fast for short strings
   let hash = 5381;
@@ -24,7 +25,7 @@ function hashString(input: string): string {
   return Math.abs(hash).toString(36);
 }
 
-function getActionSignature(fn: Function): string {
+function getActionSignature(fn: AnyFn): string {
   let sig = actionSignatureMap.get(fn);
   if (!sig) {
     const source = fn.toString();
@@ -103,7 +104,7 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
     try {
       // For demo/public dashboards, cache reads to reduce load
       if (context.userId === 'demo') {
-        const actionId = getActionSignature(action as Function);
+        const actionId = getActionSignature(action as AnyFn);
         const serializedArgs = JSON.stringify(args, (_key, value) => {
           if (value instanceof Date) return { __date: value.toISOString() };
           return value;
