@@ -14,7 +14,7 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
-import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { getSortedCategories } from '@/presenters/toStackedAreaChart';
 import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
@@ -178,23 +178,17 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
     timezone: string,
-    interval: TimeRangeValue,
-    compareMode: CompareMode,
-    offset?: number,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const { start, end } = getTimeRange(interval, timezone, startDate, endDate, offset);
-    const { start: compareStart, end: compareEnd } = getCompareTimeRange(
-      compareMode,
+    const rawData = await getDeviceUsageTrendForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
       timezone,
-      start,
-      end,
-      compareStartDate,
-      compareEndDate,
     );
-
-    const rawData = await getDeviceUsageTrendForSite(ctx.siteId, start, end, granularity, queryFilters, timezone);
 
     const data = toFormatted(rawData, (value) => ({
       ...value,
@@ -202,12 +196,12 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     }));
 
     const compareData =
-      compareStart &&
-      compareEnd &&
+      compareStartDate &&
+      compareEndDate &&
       (await getDeviceUsageTrendForSite(
         ctx.siteId,
-        compareStart,
-        compareEnd,
+        compareStartDate,
+        compareEndDate,
         granularity,
         queryFilters,
         timezone,
@@ -221,13 +215,14 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
       valueKey: 'count',
       categories: sortedCategories,
       granularity,
-      dateRange: { start, end },
+      dateRange: { start: startDate, end: endDate },
       timezone,
       compare: toFormatted(compareData, (value) => ({
         ...value,
         device_type: capitalizeFirstLetter(value.device_type),
       })),
-      compareDateRange: compareStart && compareEnd ? { start: compareStart, end: compareEnd } : undefined,
+      compareDateRange:
+        compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
     });
 
     return result;

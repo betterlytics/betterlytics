@@ -15,7 +15,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { getSessionMetrics } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
+import { toNewAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 
@@ -50,7 +50,7 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
         timezone,
       ));
 
-    return toAreaChart({
+    return toNewAreaChart({
       data,
       granularity,
       dataKey: 'views',
@@ -99,7 +99,7 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
         queryFilters,
         timezone,
       ));
-    return toAreaChart({
+    return toNewAreaChart({
       data,
       granularity,
       dataKey: 'unique_visitors',
@@ -247,7 +247,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
       ));
 
     return {
-      avgVisitDuration: toAreaChart({
+      avgVisitDuration: toNewAreaChart({
         data,
         granularity,
         dataKey: 'avg_visit_duration',
@@ -263,7 +263,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         },
         bucketIncomplete: endDate.getTime() > Date.now(),
       }),
-      bounceRate: toAreaChart({
+      bounceRate: toNewAreaChart({
         data,
         granularity,
         dataKey: 'bounce_rate',
@@ -279,7 +279,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         },
         bucketIncomplete: endDate.getTime() > Date.now(),
       }),
-      pagesPerSession: toAreaChart({
+      pagesPerSession: toNewAreaChart({
         data,
         granularity,
         dataKey: 'pages_per_session',
@@ -295,7 +295,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         },
         bucketIncomplete: endDate.getTime() > Date.now(),
       }),
-      sessions: toAreaChart({
+      sessions: toNewAreaChart({
         data,
         granularity,
         dataKey: 'sessions',

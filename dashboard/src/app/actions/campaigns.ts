@@ -20,7 +20,8 @@ import {
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { toNewStackedAreaChart } from '@/presenters/toNewStackedAreaChart';
 
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignPerformance[]> => {
@@ -114,7 +115,7 @@ export const fetchCampaignVisitorTrendAction = withDashboardAuthContext(
 
       const sortedCategories = getSortedCategories(rawData, 'utm_campaign', 'visitors');
 
-      const result = toStackedAreaChart({
+      const result = toNewStackedAreaChart({
         data: rawData,
         categoryKey: 'utm_campaign',
         valueKey: 'visitors',

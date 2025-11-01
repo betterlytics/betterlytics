@@ -79,35 +79,42 @@ export async function getAllCoreWebVitalPercentilesSeries(
   timezone: string,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
-  const granularitySql = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
 
-  const query = safeSql`
-    WITH metrics AS (
+  const query = timeWrapper(
+    safeSql`
+      WITH metrics AS (
+        SELECT
+          ${granularityFunc('timestamp')} as date,
+          pair.1 AS name,
+          toFloat32(pair.2) AS value
+        FROM analytics.events
+        ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
+        WHERE site_id = {site_id:String}
+          AND event_type = 'cwv'
+          AND ${range}
+          AND ${SQL.AND(filters)}
+          AND pair.2 IS NOT NULL
+      )
       SELECT
-        ${granularitySql('timestamp')} as date,
-        pair.1 AS name,
-        toFloat32(pair.2) AS value
-      FROM analytics.events
-      ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
-      WHERE site_id = {site_id:String}
-        AND event_type = 'cwv'
-        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-        AND ${SQL.AND(filters)}
-        AND pair.2 IS NOT NULL
-    )
-    SELECT
-      date,
-      name,
-      quantileTDigest(0.50)(value) AS p50,
-      quantileTDigest(0.75)(value) AS p75,
-      quantileTDigest(0.90)(value) AS p90,
-      quantileTDigest(0.99)(value) AS p99
-    FROM metrics
-    WHERE name IN {metric_names:Array(String)}
-    GROUP BY date, name
-    ORDER BY date ASC
-    LIMIT 10080
-  `;
+        date,
+        name,
+        quantileTDigest(0.50)(value) AS p50,
+        quantileTDigest(0.75)(value) AS p75,
+        quantileTDigest(0.90)(value) AS p90,
+        quantileTDigest(0.99)(value) AS p99
+      FROM metrics
+      WHERE name IN {metric_names:Array(String)}
+      GROUP BY date, name
+      ORDER BY date ASC WITH ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const rows = (await clickhouse
     .query(query.taggedSql, {

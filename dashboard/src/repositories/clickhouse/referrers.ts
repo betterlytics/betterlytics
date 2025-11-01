@@ -73,22 +73,28 @@ export async function getReferrerTrafficTrendBySource(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<ReferrerTrafficBySourceRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT 
-      ${granularityFunc('timestamp')} as date,
-      referrer_source,
-      uniq(session_id) as count
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND referrer_source != 'internal'
-      AND ${SQL.AND(filters)}
-    GROUP BY date, referrer_source
-    ORDER BY date ASC, count DESC
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT 
+        ${granularityFunc('timestamp')} as date,
+        referrer_source,
+        uniq(session_id) as count
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND ${range}
+        AND referrer_source != 'internal'
+        AND ${SQL.AND(filters)}
+      GROUP BY date, referrer_source
+      ORDER BY date ASC WITH ${fill}, count DESC
+    `,
+  );
 
   const result = (await clickhouse
     .query(query.taggedSql, {
@@ -307,23 +313,29 @@ export async function getDailyReferralSessions(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyReferralSessionsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT 
-      ${granularityFunc('timestamp')} as date,
-      uniq(session_id) as referralSessions
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND referrer_source != 'direct'
-      AND referrer_source != 'internal'
-      AND ${SQL.AND(filters)}
-    GROUP BY date
-    ORDER BY date ASC
-    LIMIT 10080
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT 
+        ${granularityFunc('timestamp')} as date,
+        uniq(session_id) as referralSessions
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND ${range}
+        AND referrer_source != 'direct'
+        AND referrer_source != 'internal'
+        AND ${SQL.AND(filters)}
+      GROUP BY date
+      ORDER BY date ASC WITH ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const result = (await clickhouse
     .query(query.taggedSql, {
@@ -350,31 +362,37 @@ export async function getDailyReferralTrafficPercentage(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyReferralPercentageRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    WITH daily_stats AS (
+  const query = timeWrapper(
+    safeSql`
+      WITH daily_stats AS (
+        SELECT 
+          ${granularityFunc('timestamp')} as date,
+          uniq(session_id) as totalSessions,
+          uniqIf(session_id, referrer_source != 'direct' AND referrer_source != 'internal') as referralSessions
+        FROM analytics.events
+        WHERE site_id = {site_id:String}
+          AND ${range}
+          AND ${SQL.AND(filters)}
+        GROUP BY date
+      )
       SELECT 
-        ${granularityFunc('timestamp')} as date,
-        uniq(session_id) as totalSessions,
-        uniqIf(session_id, referrer_source != 'direct' AND referrer_source != 'internal') as referralSessions
-      FROM analytics.events
-      WHERE site_id = {site_id:String}
-        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-        AND ${SQL.AND(filters)}
-      GROUP BY date
-    )
-    SELECT 
-      date,
-      if(totalSessions > 0, 
-        round(referralSessions / totalSessions * 100, 1), 
-        0
-      ) as referralPercentage
-    FROM daily_stats
-    ORDER BY date ASC
-    LIMIT 10080
-  `;
+        date,
+        if(totalSessions > 0, 
+          round(referralSessions / totalSessions * 100, 1), 
+          0
+        ) as referralPercentage
+      FROM daily_stats
+      ORDER BY date ASC WITH ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const result = (await clickhouse
     .query(query.taggedSql, {
@@ -401,31 +419,37 @@ export async function getDailyReferralSessionDuration(
   queryFilters: QueryFilter[],
   timezone: string,
 ): Promise<DailyReferralSessionDurationRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    WITH session_durations AS (
+  const query = timeWrapper(
+    safeSql`
+      WITH session_durations AS (
+        SELECT 
+          ${granularityFunc('timestamp')} as date,
+          session_id,
+          max(timestamp) - min(timestamp) as session_duration_seconds
+        FROM analytics.events
+        WHERE site_id = {site_id:String}
+          AND ${range}
+          AND referrer_source != 'direct'
+          AND referrer_source != 'internal'
+          AND ${SQL.AND(filters)}
+        GROUP BY date, session_id
+      )
       SELECT 
-        ${granularityFunc('timestamp')} as date,
-        session_id,
-        max(timestamp) - min(timestamp) as session_duration_seconds
-      FROM analytics.events
-      WHERE site_id = {site_id:String}
-        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-        AND referrer_source != 'direct'
-        AND referrer_source != 'internal'
-        AND ${SQL.AND(filters)}
-      GROUP BY date, session_id
-    )
-    SELECT 
-      date,
-      round(avg(session_duration_seconds), 1) as avgSessionDuration
-    FROM session_durations
-    GROUP BY date
-    ORDER BY date ASC
-    LIMIT 10080
-  `;
+        date,
+        round(avg(session_duration_seconds), 1) as avgSessionDuration
+      FROM session_durations
+      GROUP BY date
+      ORDER BY date ASC WITH ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const result = (await clickhouse
     .query(query.taggedSql, {

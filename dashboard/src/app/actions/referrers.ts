@@ -15,9 +15,10 @@ import { AuthContext } from '@/entities/authContext';
 import { TopReferrerUrl, TopChannel, TopReferrerSource, TrafficSourcesCombinedSchema } from '@/entities/referrers';
 import { QueryFilter } from '@/entities/filter';
 import { toPieChart } from '@/presenters/toPieChart';
-import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { getSortedCategories } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
+import { toNewStackedAreaChart } from '@/presenters/toNewStackedAreaChart';
 
 /**
  * Fetches the referrer distribution data for a site
@@ -95,7 +96,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
 
       const sortedCategories = getSortedCategories(rawData, 'referrer_source', 'count');
 
-      const result = toStackedAreaChart({
+      const result = toNewStackedAreaChart({
         data: rawData,
         categoryKey: 'referrer_source',
         valueKey: 'count',

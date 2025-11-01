@@ -147,7 +147,13 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
     ...decoded,
   };
 
-  const { start, end } = getTimeRange(filters.interval, timezone, filters.startDate, filters.endDate);
+  const { start, end } = getTimeRange(
+    filters.interval,
+    timezone,
+    filters.startDate,
+    filters.endDate,
+    filters.offset,
+  );
   const { start: compareStart, end: compareEnd } = getCompareTimeRange(
     filters.compare,
     timezone,
