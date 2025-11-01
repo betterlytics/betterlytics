@@ -104,7 +104,7 @@ function getTimestampRange(timeRange: TimeRangeValue, granularity: GranularityRa
     const end = getEndTimestamp();
     switch (timeRange) {
       case 'realtime':
-        return safeSql`subtractMinutes(${end}, 5)`;
+        return safeSql`subtractMinutes(${end}, 30)`;
       case '1h':
         return safeSql`subtractHours(${end}, 1)`;
       case '24h':

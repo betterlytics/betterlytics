@@ -193,8 +193,6 @@ export async function getDeviceUsageTrend(
     `,
   );
 
-  console.log(query.taggedSql);
-
   const result = (await clickhouse
     .query(query.taggedSql, {
       params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate },
@@ -206,8 +204,6 @@ export async function getDeviceUsageTrend(
     device_type: row.device_type,
     count: row.count,
   }));
-
-  console.log(mappedResults);
 
   return DeviceUsageTrendRowSchema.array().parse(mappedResults);
 }

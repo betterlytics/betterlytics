@@ -20,6 +20,7 @@ import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 import { TimeRangeValue } from '@/utils/timeRanges';
+import { toNewStackedAreaChart } from '@/presenters/toNewStackedAreaChart';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -209,7 +210,7 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
 
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');
 
-    const result = toStackedAreaChart({
+    const result = toNewStackedAreaChart({
       data,
       categoryKey: 'device_type',
       valueKey: 'count',
