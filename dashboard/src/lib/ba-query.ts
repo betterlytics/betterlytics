@@ -70,70 +70,14 @@ function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityR
   };
 }
 
-function getTimestampRange(timeRange: TimeRangeValue, granularity: GranularityRangeValues, timezone: string) {
-  function getEndTimestamp() {
-    const now = safeSql`now(${SQL.String({ timezone })})`;
-    switch (timeRange) {
-      case 'realtime':
-      case '1h':
-        return now;
-      case '24h':
-        return safeSql`toStartOfHour(addHours(${now}, 1))`;
-      case 'today':
-        return safeSql`toStartOfDay(addDays(${now}, 1))`;
-      case 'yesterday':
-        return safeSql`toStartOfDay(${now})`;
-      case '7d':
-      case '28d':
-      case '90d':
-        return safeSql`toStartOfDay(${now})`;
-      case 'mtd':
-        return safeSql`toStartOfDay(addDays(${now}, 1))`;
-      case 'last_month':
-        return safeSql`toStartOfMonth(${now})`;
-      case 'ytd':
-        return safeSql`toStartOfDay(addDays(${now}, 1))`;
-      case '1y':
-        return safeSql`toStartOfDay(${now})`;
-      default:
-        return now;
-    }
-  }
-
-  function getStartTimestamp() {
-    const end = getEndTimestamp();
-    switch (timeRange) {
-      case 'realtime':
-        return safeSql`subtractMinutes(${end}, 30)`;
-      case '1h':
-        return safeSql`subtractHours(${end}, 1)`;
-      case '24h':
-        return safeSql`subtractDays(${end}, 1)`;
-      case 'today':
-        return safeSql`toStartOfDay(subtractDays(${end}, 1))`;
-      case 'yesterday':
-        return safeSql`subtractDays(${end}, 1)`;
-      case '7d':
-        return safeSql`subtractDays(${end}, 7)`;
-      case '28d':
-        return safeSql`subtractDays(${end}, 28)`;
-      case '90d':
-        return safeSql`subtractDays(${end}, 90)`;
-      case 'mtd':
-        return safeSql`toStartOfMonth(${end})`;
-      case 'last_month':
-        return safeSql`subtractMonths(${end}, 1)`;
-      case 'ytd':
-        return safeSql`toStartOfYear(${end})`;
-      case '1y':
-        return safeSql`subtractYears(${end}, 1)`;
-      default:
-        return end;
-    }
-  }
-
-  const start = getStartTimestamp();
-  const end = getEndTimestamp();
+function getTimestampRange(
+  granularity: GranularityRangeValues,
+  timezone: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const start = SQL.DateTime({ startDate });
+  const end = SQL.DateTime({ endDate });
 
   // Note: the end timestamp is exclusive
   // the BETWEEN keyword seems to be inclusive of the end timestamp

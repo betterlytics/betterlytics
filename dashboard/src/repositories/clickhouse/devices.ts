@@ -173,10 +173,14 @@ export async function getDeviceUsageTrend(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
-  interval: TimeRangeValue,
 ): Promise<DeviceUsageTrendRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(interval, granularity, timezone);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
 
   const query = timeWrapper(
     safeSql`
@@ -195,7 +199,7 @@ export async function getDeviceUsageTrend(
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate },
+      params: { ...query.taggedParams, site_id: siteId },
     })
     .toPromise()) as any[];
 

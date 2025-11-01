@@ -31,7 +31,7 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate, interval } =
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate, interval, offset } =
     BAFilterSearchParams.decode(await searchParams);
   const timezone = await getUserTimezone();
 
@@ -67,6 +67,7 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     queryFilters,
     timezone,
     interval,
+    offset,
     compareStartDate,
     compareEndDate,
   );
