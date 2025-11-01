@@ -10,6 +10,7 @@ import { withServerAction } from '@/middlewares/serverActionHandler';
 import { findDashboardById } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
 import { unstable_cache } from 'next/cache';
+import { DashboardFindByUserSchema } from '@/entities/dashboard';
 
 // Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
 const actionSignatureMap = new WeakMap<Function, string>();
@@ -52,8 +53,17 @@ export async function requireAuth(): Promise<Session> {
 type ActionRequiringAuthContext<Args extends Array<unknown>, Ret> = (context: AuthContext, ...args: Args) => Ret;
 
 async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
-  // Public/demo path: do NOT read session. This enables ISR for public routes.
+  // Demo/public dashboard handling: prefer authorized context when a logged-in user is allowed
   if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const authorizedCtx = await getAuthorizedDashboardContextOrNull(
+        DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
+      );
+      if (authorizedCtx) return authorizedCtx;
+    }
+
+    // Fallback to demo context for anonymous/public access (enables caching)
     const dashboard = await findDashboardById(dashboardId);
     return {
       dashboardId: dashboard.id,
@@ -66,7 +76,9 @@ async function resolveDashboardContext(dashboardId: string): Promise<AuthContext
   // Private/owner path: read session and authorize.
   const session = await getServerSession(authOptions);
   if (session?.user) {
-    const authorizedCtx = await getAuthorizedDashboardContextOrNull(session.user.id, dashboardId);
+    const authorizedCtx = await getAuthorizedDashboardContextOrNull(
+      DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
+    );
     if (authorizedCtx) return authorizedCtx;
   }
 
@@ -75,7 +87,9 @@ async function resolveDashboardContext(dashboardId: string): Promise<AuthContext
 
 async function resolveDashboardContextStrict(dashboardId: string): Promise<AuthContext> {
   const session = await requireAuth();
-  const ctx = await getAuthorizedDashboardContextOrNull(session.user.id, dashboardId);
+  const ctx = await getAuthorizedDashboardContextOrNull(
+    DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
+  );
   if (!ctx) throw new Error('Unauthorized');
   return ctx;
 }
