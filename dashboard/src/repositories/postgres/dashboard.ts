@@ -52,25 +52,18 @@ export async function findUserDashboard(data: DashboardFindByUserData): Promise<
   }
 }
 
-export async function findUserDashboardOrNull(data: DashboardFindByUserData): Promise<DashboardUser | null> {
-  const validatedData = DashboardFindByUserSchema.parse(data);
-  const prismaUserDashboard = await prisma.userDashboard.findFirst({
-    where: { dashboardId: validatedData.dashboardId, userId: validatedData.userId },
-  });
-  if (prismaUserDashboard === null) return null;
-  return DashboardUserSchema.parse(prismaUserDashboard);
-}
-
 export async function findUserDashboardWithDashboardOrNull(data: DashboardFindByUserData) {
-  const validatedData = DashboardFindByUserSchema.parse(data);
   const rel = await prisma.userDashboard.findFirst({
-    where: { dashboardId: validatedData.dashboardId, userId: validatedData.userId },
+    where: { dashboardId: data.dashboardId, userId: data.userId },
     include: { dashboard: true },
   });
+
   if (rel === null) return null;
-  const userDashboard = DashboardUserSchema.parse(rel);
-  const dashboard = DashboardSchema.parse(rel.dashboard);
-  return { userDashboard, dashboard };
+
+  return {
+    userDashboard: DashboardUserSchema.parse(rel),
+    dashboard: DashboardSchema.parse(rel.dashboard),
+  };
 }
 
 export async function findFirstUserDashboard(userId: string): Promise<Dashboard | null> {

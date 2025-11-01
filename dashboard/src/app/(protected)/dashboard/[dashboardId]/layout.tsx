@@ -24,12 +24,13 @@ type DashboardLayoutProps = {
 };
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  const { dashboardId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect('/');
   }
+
+  const { dashboardId } = await params;
 
   const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
   const billingEnabled = isClientFeatureEnabled('enableBilling');
@@ -44,15 +45,14 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   }
 
   let billingDataPromise;
-  if (billingEnabled && session) {
+  if (billingEnabled) {
     billingDataPromise = getUserBillingData();
   }
 
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
-  const mustAcceptTerms = session
-    ? !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION
-    : false;
+  const mustAcceptTerms =
+    !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION;
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
@@ -72,14 +72,14 @@ export default async function DashboardLayout({ children, params }: DashboardLay
                 <UsageExceededBanner billingDataPromise={billingDataPromise} />
               </Suspense>
             )}
-            {session && isFeatureEnabled('enableAccountVerification') && (
+            {isFeatureEnabled('enableAccountVerification') && (
               <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
             )}
             <Suspense>
               <IntegrationBanner />
             </Suspense>
             <div className='flex w-full justify-center'>{children}</div>
-            {session && mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+            {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
           </BannerProvider>
         </DashboardLayoutShell>
       </DashboardProvider>
