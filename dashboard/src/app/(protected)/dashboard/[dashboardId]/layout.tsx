@@ -25,7 +25,7 @@ import { BannerProvider } from '@/contexts/BannerProvider';
 import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
-import { authorizeUserDashboard } from '@/services/auth.service';
+import { getDashboardAccessAction } from '@/app/actions/authentication';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -33,16 +33,8 @@ type DashboardLayoutProps = {
 };
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  const session = await getServerSession(authOptions);
   const { dashboardId } = await params;
-  let isAuthorized = false;
-  if (session) {
-    try {
-      await authorizeUserDashboard(session.user.id, dashboardId);
-      isAuthorized = true;
-    } catch {}
-  }
-  const isDemoDashboard = Boolean(env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID && !isAuthorized);
+  const { session, isDemo: isDemoDashboard } = await getDashboardAccessAction(dashboardId);
 
   if (!session && !isDemoDashboard) {
     redirect('/');

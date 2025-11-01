@@ -38,10 +38,7 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { env } from '@/lib/env';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { authorizeUserDashboard } from '@/services/auth.service';
+import { getDashboardAccessAction } from '@/app/actions/authentication';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -57,15 +54,7 @@ type SidebarItem = {
 };
 
 export default async function BASidebar({ dashboardId }: BASidebarProps) {
-  const session = await getServerSession(authOptions);
-  let isAuthorized = false;
-  if (session) {
-    try {
-      await authorizeUserDashboard(session.user.id, dashboardId);
-      isAuthorized = true;
-    } catch {}
-  }
-  const isDemo = Boolean(env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID && !isAuthorized);
+  const { isDemo } = await getDashboardAccessAction(dashboardId);
   const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
   const allDashboardsPromise: Promise<ServerActionResponse<any[]>> = isDemo
     ? Promise.resolve({ success: true, data: [] })
