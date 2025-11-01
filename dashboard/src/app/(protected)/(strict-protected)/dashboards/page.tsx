@@ -1,8 +1,8 @@
 import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
 import { getUserBillingData } from '@/actions/billing';
-import { CreateDashboardDialog } from '@/app/(protected)/dashboards/CreateDashboardDialog';
-import DashboardCard from '@/app/(protected)/dashboards/DashboardCard';
-import { CreateDashboardCard } from '@/app/(protected)/dashboards/CreateDashboardCard';
+import { CreateDashboardDialog } from '@/app/(protected)/(strict-protected)/dashboards/CreateDashboardDialog';
+import DashboardCard from '@/app/(protected)/(strict-protected)/dashboards/DashboardCard';
+import { CreateDashboardCard } from '@/app/(protected)/(strict-protected)/dashboards/CreateDashboardCard';
 import PlanQuota from './PlanQuota';
 import ButtonSkeleton from '@/components/skeleton/ButtonSkeleton';
 import { Suspense } from 'react';

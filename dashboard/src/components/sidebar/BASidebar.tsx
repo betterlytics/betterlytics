@@ -31,12 +31,17 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
 import type { ReactElement } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
+import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { DashboardDropdown } from './DashboardDropdown';
 
 import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { env } from '@/lib/env';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { authorizeUserDashboard } from '@/services/auth.service';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -52,8 +57,19 @@ type SidebarItem = {
 };
 
 export default async function BASidebar({ dashboardId }: BASidebarProps) {
+  const session = await getServerSession(authOptions);
+  let isAuthorized = false;
+  if (session) {
+    try {
+      await authorizeUserDashboard(session.user.id, dashboardId);
+      isAuthorized = true;
+    } catch {}
+  }
+  const isDemo = Boolean(env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID && !isAuthorized);
   const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
-  const allDashboardsPromise = getAllUserDashboardsAction();
+  const allDashboardsPromise: Promise<ServerActionResponse<any[]>> = isDemo
+    ? Promise.resolve({ success: true, data: [] })
+    : getAllUserDashboardsAction();
   const t = await getTranslations('dashboard.sidebar');
 
   const analyticsItems: SidebarItem[] = [
@@ -167,10 +183,12 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu className='gap-2'>
-          <IntegrationButton />
-          <SettingsButton />
-        </SidebarMenu>
+        {!isDemo && (
+          <SidebarMenu className='gap-2'>
+            <IntegrationButton />
+            <SettingsButton />
+          </SidebarMenu>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

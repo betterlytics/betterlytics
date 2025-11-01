@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
 import FunnelsListSection from './FunnelsListSection';
@@ -37,12 +34,6 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
 }
 
 export default async function FunnelsPage({ params, searchParams }: FunnelsPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams);
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);

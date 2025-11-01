@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
+import { env } from '@/lib/env';
 import BASidebar from '@/components/sidebar/BASidebar';
 import { DashboardProvider } from './DashboardProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -23,6 +24,8 @@ import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
+import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
+import { authorizeUserDashboard } from '@/services/auth.service';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -31,12 +34,19 @@ type DashboardLayoutProps = {
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
   const session = await getServerSession(authOptions);
+  const { dashboardId } = await params;
+  let isAuthorized = false;
+  if (session) {
+    try {
+      await authorizeUserDashboard(session.user.id, dashboardId);
+      isAuthorized = true;
+    } catch {}
+  }
+  const isDemoDashboard = Boolean(env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID && !isAuthorized);
 
-  if (!session) {
+  if (!session && !isDemoDashboard) {
     redirect('/');
   }
-
-  const { dashboardId } = await params;
 
   const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
   const billingEnabled = isClientFeatureEnabled('enableBilling');
@@ -51,49 +61,59 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   }
 
   let billingDataPromise;
-  if (billingEnabled) {
+  if (billingEnabled && session) {
     billingDataPromise = getUserBillingData();
   }
 
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
-  const mustAcceptTerms =
-    !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION;
+  const mustAcceptTerms = session
+    ? !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION
+    : false;
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
-        <section>
-          <BATopbar />
-          <SidebarProvider>
-            <BASidebar dashboardId={dashboardId} />
-            <BAMobileSidebarTrigger />
-            <main className='bg-background w-full overflow-x-hidden'>
-              <BannerProvider>
-                <ScrollReset />
-                {billingEnabled && billingDataPromise && (
-                  <Suspense fallback={null}>
-                    <UsageAlertBanner billingDataPromise={billingDataPromise} />
-                    <UsageExceededBanner billingDataPromise={billingDataPromise} />
-                  </Suspense>
+        <DemoModeProvider isDemo={isDemoDashboard}>
+          <section>
+            <BATopbar />
+            <SidebarProvider>
+              <BASidebar dashboardId={dashboardId} />
+              <BAMobileSidebarTrigger />
+              <main className='bg-background w-full overflow-x-hidden'>
+                {!isDemoDashboard ? (
+                  <BannerProvider>
+                    <ScrollReset />
+                    {billingEnabled && billingDataPromise && (
+                      <Suspense fallback={null}>
+                        <UsageAlertBanner billingDataPromise={billingDataPromise} />
+                        <UsageExceededBanner billingDataPromise={billingDataPromise} />
+                      </Suspense>
+                    )}
+                    {session && isFeatureEnabled('enableAccountVerification') && (
+                      <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
+                    )}
+                    <Suspense>
+                      <IntegrationBanner />
+                    </Suspense>
+                    <div className='flex w-full justify-center'>{children}</div>
+                    {session && mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+                  </BannerProvider>
+                ) : (
+                  <>
+                    <ScrollReset />
+                    <div className='flex w-full justify-center'>{children}</div>
+                  </>
                 )}
-                {isFeatureEnabled('enableAccountVerification') && (
-                  <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
-                )}
-                <Suspense>
-                  <IntegrationBanner />
-                </Suspense>
-                <div className='flex w-full justify-center'>{children}</div>
-                {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
-              </BannerProvider>
-            </main>
-            {/* Conditionally render tracking script based on server-side feature flag */}
-            {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
-            <Suspense>
-              <IntegrationManager />
-            </Suspense>
-          </SidebarProvider>
-        </section>
+              </main>
+              {/* Conditionally render tracking script based on server-side feature flag */}
+              {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
+              <Suspense>
+                <IntegrationManager />
+              </Suspense>
+            </SidebarProvider>
+          </section>
+        </DemoModeProvider>
       </DashboardProvider>
     </PublicEnvironmentVariablesProvider>
   );
