@@ -16,6 +16,7 @@ import { AuthContext, AuthContextSchema } from '@/entities/authContext';
 import { UserException } from '@/lib/exceptions';
 import { isValidTotp } from '@/services/totp.service';
 import { authOptions } from '@/lib/auth';
+import { cache } from 'react';
 
 const SALT_ROUNDS = 10;
 
@@ -151,6 +152,12 @@ export async function getAuthorizedDashboardContextOrNull(
   });
 }
 
+export const getAuthorizedDashboardContextOrNullCached = cache(
+  async (userId: string, dashboardId: string): Promise<AuthContext | null> => {
+    return getAuthorizedDashboardContextOrNull(userId, dashboardId);
+  },
+);
+
 export type DashboardAccess = {
   session: Session | null;
   isAuthorized: boolean;
@@ -161,10 +168,14 @@ export async function getDashboardAccess(dashboardId: string): Promise<Dashboard
   const session = await getServerSession(authOptions);
 
   const isAuthorized = session?.user
-    ? (await getAuthorizedDashboardContextOrNull(session.user.id, dashboardId)) !== null
+    ? (await getAuthorizedDashboardContextOrNullCached(session.user.id, dashboardId)) !== null
     : false;
 
   const isDemo = !isAuthorized && Boolean(env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID);
 
   return { session, isAuthorized, isDemo };
 }
+
+export const getDashboardAccessCached = cache(async (dashboardId: string): Promise<DashboardAccess> => {
+  return getDashboardAccess(dashboardId);
+});

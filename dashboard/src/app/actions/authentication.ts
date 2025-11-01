@@ -1,6 +1,6 @@
 'use server';
-import { getDashboardAccess } from '@/services/auth.service';
+import { getDashboardAccessCached } from '@/services/auth.service';
 
 export async function getDashboardAccessAction(dashboardId: string) {
-  return getDashboardAccess(dashboardId);
+  return getDashboardAccessCached(dashboardId);
 }

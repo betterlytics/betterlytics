@@ -38,10 +38,11 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { getDashboardAccessAction } from '@/app/actions/authentication';
 
 type BASidebarProps = {
   dashboardId: string;
+  isDemo: boolean;
+  hasSession: boolean;
 };
 
 type SidebarItem = {
@@ -53,12 +54,10 @@ type SidebarItem = {
   hideOnMobile?: boolean;
 };
 
-export default async function BASidebar({ dashboardId }: BASidebarProps) {
-  const { isDemo, session } = await getDashboardAccessAction(dashboardId);
-
+export default async function BASidebar({ dashboardId, isDemo, hasSession }: BASidebarProps) {
   const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
 
-  const allDashboardsPromise: Promise<ServerActionResponse<any[]>> = session
+  const allDashboardsPromise: Promise<ServerActionResponse<any[]>> = hasSession
     ? getAllUserDashboardsAction()
     : currentDashboardPromise.then((d: any) => ({ success: true, data: [d] }));
 

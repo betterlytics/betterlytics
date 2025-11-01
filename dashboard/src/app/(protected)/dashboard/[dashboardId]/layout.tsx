@@ -70,7 +70,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
           <section>
             <BATopbar />
             <SidebarProvider>
-              <BASidebar dashboardId={dashboardId} />
+              <BASidebar dashboardId={dashboardId} isDemo={isDemoDashboard} hasSession={!!session} />
               <BAMobileSidebarTrigger />
               <main className='bg-background w-full overflow-x-hidden'>
                 {!isDemoDashboard ? (
