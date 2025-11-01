@@ -19,6 +19,7 @@ import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
+import { TimeRangeValue } from '@/utils/timeRanges';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -174,6 +175,7 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
     timezone: string,
+    interval: TimeRangeValue,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
@@ -184,6 +186,7 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
       granularity,
       queryFilters,
       timezone,
+      interval,
     );
 
     const data = toFormatted(rawData, (value) => ({
@@ -201,6 +204,7 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
         granularity,
         queryFilters,
         timezone,
+        interval,
       ));
 
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');

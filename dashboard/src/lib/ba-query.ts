@@ -51,21 +51,119 @@ const granularityIntervalMapper = {
 
 const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
 
+function getGranularityInterval(granularity: GranularityRangeValues) {
+  const clickhouseInterval = granularityIntervalMapper[granularity];
+  const validatedInterval = GranularityIntervalSchema.parse(clickhouseInterval);
+  return safeSql`INTERVAL ${SQL.Unsafe(validatedInterval)}`;
+}
+
 /**
  * Returns SQL function to be used for granularity.
  * This will throw an exception if parameter is illegal
  */
 function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityRangeValues, timezone: string) {
-  const clickhouseInterval = granularityIntervalMapper[granularity];
-  const validatedInterval = GranularityIntervalSchema.parse(clickhouseInterval);
+  const clickhouseInterval = getGranularityInterval(granularity);
   return (column: z.infer<typeof DateColumnSchema>) => {
     const validatedColumn = DateColumnSchema.parse(column);
-    const interval = safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.String({ timezone })})`;
-    return safeSql`toTimezone(${interval}, 'UTC')`;
+    const interval = safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, ${clickhouseInterval}, ${SQL.String({ timezone })})`;
+    return safeSql`${interval}`;
+  };
+}
+
+function getTimestampRange(timeRange: TimeRangeValue, granularity: GranularityRangeValues, timezone: string) {
+  function getEndTimestamp() {
+    const now = safeSql`now(${SQL.String({ timezone })})`;
+    switch (timeRange) {
+      case 'realtime':
+      case '1h':
+        return now;
+      case '24h':
+        return safeSql`toStartOfHour(addHours(${now}, 1))`;
+      case 'today':
+        return safeSql`toStartOfDay(addDays(${now}, 1))`;
+      case 'yesterday':
+        return safeSql`toStartOfDay(${now})`;
+      case '7d':
+      case '28d':
+      case '90d':
+        return safeSql`toStartOfDay(${now})`;
+      case 'mtd':
+        return safeSql`toStartOfDay(addDays(${now}, 1))`;
+      case 'last_month':
+        return safeSql`toStartOfMonth(${now})`;
+      case 'ytd':
+        return safeSql`toStartOfDay(addDays(${now}, 1))`;
+      case '1y':
+        return safeSql`toStartOfDay(${now})`;
+      default:
+        return now;
+    }
+  }
+
+  function getStartTimestamp() {
+    const end = getEndTimestamp();
+    switch (timeRange) {
+      case 'realtime':
+        return safeSql`subtractMinutes(${end}, 5)`;
+      case '1h':
+        return safeSql`subtractHours(${end}, 1)`;
+      case '24h':
+        return safeSql`subtractDays(${end}, 1)`;
+      case 'today':
+        return safeSql`toStartOfDay(${end})`;
+      case 'yesterday':
+        return safeSql`subtractDays(${end}, 1)`;
+      case '7d':
+        return safeSql`subtractDays(${end}, 7)`;
+      case '28d':
+        return safeSql`subtractDays(${end}, 28)`;
+      case '90d':
+        return safeSql`subtractDays(${end}, 90)`;
+      case 'mtd':
+        return safeSql`toStartOfMonth(${end})`;
+      case 'last_month':
+        return safeSql`subtractMonths(${end}, 1)`;
+      case 'ytd':
+        return safeSql`toStartOfYear(${end})`;
+      case '1y':
+        return safeSql`subtractYears(${end}, 1)`;
+      default:
+        return end;
+    }
+  }
+
+  const start = getStartTimestamp();
+  const end = getEndTimestamp();
+
+  // Note: the end timestamp is exclusive
+  // the BETWEEN keyword seems to be inclusive of the end timestamp
+  const range = safeSql`timestamp >= ${start} AND timestamp < ${end}`;
+
+  // Create the fill
+  const intervalFrom = safeSql`toStartOfInterval(${start}, ${getGranularityInterval(granularity)}, ${SQL.String({ timezone })})`;
+  const intervalTo = safeSql`toStartOfInterval(${end}, ${getGranularityInterval(granularity)}, ${SQL.String({ timezone })})`;
+
+  const fill = safeSql`FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${getGranularityInterval(granularity)}`;
+
+  // Wrapper for converting final date from user timezone to UTC
+  const timeWrapper = (sql: ReturnType<typeof safeSql>) => {
+    return safeSql`SELECT toTimezone(date, 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
+  };
+
+  // Granularity function
+  const granularityFunc = getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+
+  return {
+    range,
+    fill,
+    timeWrapper,
+    granularityFunc,
   };
 }
 
 export const BAQuery = {
   getGranularitySQLFunctionFromGranularityRange,
   getFilterQuery,
+  getTimestampRange,
+  getGranularityInterval,
 };

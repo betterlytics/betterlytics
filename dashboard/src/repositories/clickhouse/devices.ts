@@ -18,6 +18,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { QueryFilter } from '@/entities/filter';
 import { safeSql, SQL } from '@/lib/safe-sql';
+import { TimeRangeValue } from '@/utils/timeRanges';
 
 export async function getDeviceTypeBreakdown(
   siteId: string,
@@ -172,22 +173,27 @@ export async function getDeviceUsageTrend(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  interval: TimeRangeValue,
 ): Promise<DeviceUsageTrendRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(interval, granularity, timezone);
 
-  const query = safeSql`
-    SELECT 
-      ${granularityFunc('timestamp')} as date,
-      device_type,
-      uniq(visitor_id) as count
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
-    GROUP BY date, device_type
-    ORDER BY date ASC, count DESC
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT 
+        ${granularityFunc('timestamp')} as date,
+        device_type,
+        uniq(visitor_id) as count
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND ${range}
+        AND ${SQL.AND(filters)}
+      GROUP BY date, device_type
+      ORDER BY date ASC WITH ${fill}, count DESC
+    `,
+  );
+
+  console.log(query.taggedSql);
 
   const result = (await clickhouse
     .query(query.taggedSql, {
@@ -200,6 +206,8 @@ export async function getDeviceUsageTrend(
     device_type: row.device_type,
     count: row.count,
   }));
+
+  console.log(mappedResults);
 
   return DeviceUsageTrendRowSchema.array().parse(mappedResults);
 }
