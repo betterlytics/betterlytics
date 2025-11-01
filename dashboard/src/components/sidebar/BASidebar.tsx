@@ -55,9 +55,13 @@ type SidebarItem = {
 
 export default async function BASidebar({ dashboardId }: BASidebarProps) {
   const { isDemo } = await getDashboardAccessAction(dashboardId);
-  const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
+
+  const currentDashboardPromise = isDemo
+    ? Promise.resolve({ id: dashboardId, siteId: '', domain: 'Demo Dashboard' })
+    : getCurrentDashboardAction(dashboardId);
+
   const allDashboardsPromise: Promise<ServerActionResponse<any[]>> = isDemo
-    ? Promise.resolve({ success: true, data: [] })
+    ? Promise.resolve({ success: true, data: [{ id: dashboardId, siteId: '', domain: 'Demo Dashboard' }] })
     : getAllUserDashboardsAction();
   const t = await getTranslations('dashboard.sidebar');
 
