@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { TableSkeleton } from '@/components/skeleton';
@@ -18,12 +15,6 @@ type EventsPageParams = {
 };
 
 export default async function EventsPage({ params, searchParams }: EventsPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
     await searchParams,

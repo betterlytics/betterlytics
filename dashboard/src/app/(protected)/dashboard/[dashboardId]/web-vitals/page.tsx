@@ -1,7 +1,4 @@
 import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -24,11 +21,6 @@ type PageParams = {
 };
 
 export default async function WebVitalsPage({ params, searchParams }: PageParams) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const { startDate, endDate, queryFilters, granularity } = BAFilterSearchParams.decode(await searchParams);
 

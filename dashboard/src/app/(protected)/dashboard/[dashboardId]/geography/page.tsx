@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
 import GeographySection from '@/app/(protected)/dashboard/[dashboardId]/geography/GeographySection';
@@ -14,12 +11,6 @@ type GeographyPageParams = {
 };
 
 export default async function GeographyPage({ params, searchParams }: GeographyPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const { startDate, endDate, queryFilters } = BAFilterSearchParams.decode(await searchParams);
 
