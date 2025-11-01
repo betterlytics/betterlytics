@@ -51,11 +51,19 @@ export async function getReferrerTrafficTrendBySourceDataForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<ReferrerTrafficBySourceRow[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
-  return getReferrerTrafficTrendBySource(siteId, formattedStart, formattedEnd, granularity, queryFilters);
+  return getReferrerTrafficTrendBySource(
+    siteId,
+    formattedStart,
+    formattedEnd,
+    granularity,
+    queryFilters,
+    timezone,
+  );
 }
 
 /**
@@ -133,15 +141,16 @@ export async function getReferrerSummaryWithChartsForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<ReferrerSummaryWithCharts> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
   const [referralSessionsChartData, referralPercentageChartData, avgSessionDurationChartData, topReferrerSource] =
     await Promise.all([
-      getDailyReferralSessions(siteId, formattedStart, formattedEnd, granularity, queryFilters),
-      getDailyReferralTrafficPercentage(siteId, formattedStart, formattedEnd, granularity, queryFilters),
-      getDailyReferralSessionDuration(siteId, formattedStart, formattedEnd, granularity, queryFilters),
+      getDailyReferralSessions(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
+      getDailyReferralTrafficPercentage(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
+      getDailyReferralSessionDuration(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
       getTopReferrerSource(siteId, formattedStart, formattedEnd, queryFilters),
     ]);
 

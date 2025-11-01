@@ -19,6 +19,9 @@ import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
+import { TimeRangeValue } from '@/utils/timeRanges';
+import { toNewStackedAreaChart } from '@/presenters/toNewStackedAreaChart';
+import { getTimeRange } from '@/lib/ba-timerange';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -173,10 +176,19 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
+    interval: TimeRangeValue,
+    offset?: number,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const rawData = await getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const { start, end } = getTimeRange(interval, timezone, startDate, endDate, offset);
+    const { start: compareStart, end: compareEnd } =
+      compareStartDate && compareEndDate
+        ? getTimeRange(interval, timezone, compareStartDate, compareEndDate, offset)
+        : { start: undefined, end: undefined };
+
+    const rawData = await getDeviceUsageTrendForSite(ctx.siteId, start, end, granularity, queryFilters, timezone);
 
     const data = toFormatted(rawData, (value) => ({
       ...value,
@@ -184,25 +196,32 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     }));
 
     const compareData =
-      compareStartDate &&
-      compareEndDate &&
-      (await getDeviceUsageTrendForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
+      compareStart &&
+      compareEnd &&
+      (await getDeviceUsageTrendForSite(
+        ctx.siteId,
+        compareStart,
+        compareEnd,
+        granularity,
+        queryFilters,
+        timezone,
+      ));
 
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');
 
-    const result = toStackedAreaChart({
+    const result = toNewStackedAreaChart({
       data,
       categoryKey: 'device_type',
       valueKey: 'count',
       categories: sortedCategories,
       granularity,
-      dateRange: { start: startDate, end: endDate },
+      dateRange: { start, end },
+      timezone,
       compare: toFormatted(compareData, (value) => ({
         ...value,
         device_type: capitalizeFirstLetter(value.device_type),
       })),
-      compareDateRange:
-        compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
+      compareDateRange: compareStart && compareEnd ? { start: compareStart, end: compareEnd } : undefined,
     });
 
     return result;

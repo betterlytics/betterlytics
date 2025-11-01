@@ -16,6 +16,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type OutboundLinksPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -32,6 +33,7 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
   const { dashboardId } = await params;
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
     BAFilterSearchParams.decode(await searchParams);
+  const timezone = await getUserTimezone();
 
   const outboundLinksAnalyticsPromise = fetchOutboundLinksAnalyticsAction(
     dashboardId,
@@ -48,6 +50,7 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
     endDate,
     granularity,
     queryFilters,
+    timezone,
     compareStartDate,
     compareEndDate,
   );

@@ -67,6 +67,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
@@ -77,6 +78,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
         endDate,
         granularity,
         queryFilters,
+        timezone,
       );
 
       const compareData =
@@ -88,6 +90,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
           compareEndDate,
           granularity,
           queryFilters,
+          timezone,
         ));
 
       const sortedCategories = getSortedCategories(rawData, 'referrer_source', 'count');
@@ -99,6 +102,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
         categories: sortedCategories,
         granularity,
         dateRange: { start: startDate, end: endDate },
+        timezone,
         compare: compareData,
         compareDateRange:
           compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
@@ -122,6 +126,7 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
   ) => {
     try {
       const raw = await getReferrerSummaryWithChartsForSite(
@@ -130,6 +135,7 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
         endDate,
         granularity,
         queryFilters,
+        timezone,
       );
 
       const dateRange = { start: startDate, end: endDate };
@@ -139,18 +145,21 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
         granularity,
         dataKey: 'referralSessions',
         dateRange,
+        timezone,
       });
       const referralPercentageChartData = toSparklineSeries({
         data: raw.referralPercentageChartData,
         granularity,
         dataKey: 'referralPercentage',
         dateRange,
+        timezone,
       });
       const avgSessionDurationChartData = toSparklineSeries({
         data: raw.avgSessionDurationChartData,
         granularity,
         dataKey: 'avgSessionDuration',
         dateRange,
+        timezone,
       });
 
       const data = {

@@ -91,10 +91,18 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const data = await getPagesSummaryWithChartsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const data = await getPagesSummaryWithChartsForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
     const compare =
       compareStartDate &&
       compareEndDate &&
@@ -104,6 +112,7 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
         compareEndDate,
         granularity,
         queryFilters,
+        timezone,
       ));
 
     const compareValues = toPartialPercentageCompare({
@@ -121,24 +130,28 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
         granularity,
         dataKey: 'value',
         dateRange,
+        timezone,
       }),
       avgTimeChartData: toSparklineSeries({
         data: data.avgTimeChartData,
         granularity,
         dataKey: 'value',
         dateRange,
+        timezone,
       }),
       bounceRateChartData: toSparklineSeries({
         data: data.bounceRateChartData,
         granularity,
         dataKey: 'value',
         dateRange,
+        timezone,
       }),
       pageviewsChartData: toSparklineSeries({
         data: data.pageviewsChartData,
         granularity,
         dataKey: 'views',
         dateRange,
+        timezone,
       }),
       compareValues,
     };
@@ -152,7 +165,8 @@ export const fetchPageTrafficTimeSeriesAction = withDashboardAuthContext(
     startDate: Date,
     endDate: Date,
     granularity: GranularityRangeValues,
+    timezone: string,
   ): Promise<TotalPageViewsRow[]> => {
-    return getPageTrafficForTimePeriod(ctx.siteId, path, startDate, endDate, granularity);
+    return getPageTrafficForTimePeriod(ctx.siteId, path, startDate, endDate, granularity, timezone);
   },
 );

@@ -20,6 +20,7 @@ import {
 import { getDeviceLabel } from '@/constants/deviceTypes';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
+import { TimeRangeValue } from '@/utils/timeRanges';
 
 export async function getDeviceTypeBreakdownForSite(
   siteId: string,
@@ -103,6 +104,7 @@ export async function getDeviceUsageTrendForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DeviceUsageTrendRow[]> {
   return getDeviceUsageTrend(
     siteId,
@@ -110,6 +112,7 @@ export async function getDeviceUsageTrendForSite(
     toDateTimeString(endDate),
     granularity,
     queryFilters,
+    timezone,
   );
 }
 

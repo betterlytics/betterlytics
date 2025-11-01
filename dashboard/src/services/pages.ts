@@ -36,10 +36,11 @@ export async function getTotalPageViewsForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<TotalPageViewsRow[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  return getTotalPageViews(siteId, formattedStart, formattedEnd, granularity, queryFilters);
+  return getTotalPageViews(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
 }
 
 export async function getPageViewsForSite(
@@ -47,10 +48,11 @@ export async function getPageViewsForSite(
   startDate: Date,
   endDate: Date,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<DailyPageViewRow[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  return getPageViews(siteId, formattedStart, formattedEnd, granularity);
+  return getPageViews(siteId, formattedStart, formattedEnd, granularity, timezone);
 }
 
 export async function getTopPagesForSite(
@@ -89,10 +91,11 @@ export async function getPageTrafficForTimePeriod(
   startDate: Date,
   endDate: Date,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<TotalPageViewsRow[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  return getPageTrafficTimeSeries(siteId, path, formattedStart, formattedEnd, granularity);
+  return getPageTrafficTimeSeries(siteId, path, formattedStart, formattedEnd, granularity, timezone);
 }
 
 export async function getTopEntryPagesForSite(
@@ -151,14 +154,22 @@ export async function getPagesSummaryWithChartsForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<PagesSummaryWithCharts> {
   const [pageAnalytics, pageviewsChartData, dailyAvgTimeData, dailyBounceRateData, sessionMetricsData] =
     await Promise.all([
       getPageAnalytics(siteId, startDate, endDate, queryFilters),
-      getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters),
-      getDailyAverageTimeOnPageForSite(siteId, startDate, endDate, granularity, queryFilters),
-      getDailyBounceRateForSite(siteId, startDate, endDate, granularity, queryFilters),
-      getSessionMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), granularity, queryFilters),
+      getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
+      getDailyAverageTimeOnPageForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
+      getDailyBounceRateForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
+      getSessionMetrics(
+        siteId,
+        toDateTimeString(startDate),
+        toDateTimeString(endDate),
+        granularity,
+        queryFilters,
+        timezone,
+      ),
     ]);
 
   const totalPages = pageAnalytics.length;
@@ -204,10 +215,11 @@ export async function getDailyAverageTimeOnPageForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyAverageTimeRow[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  return getDailyAverageTimeOnPage(siteId, formattedStart, formattedEnd, granularity, queryFilters);
+  return getDailyAverageTimeOnPage(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
 }
 
 export async function getDailyBounceRateForSite(
@@ -216,8 +228,9 @@ export async function getDailyBounceRateForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyBounceRateRow[]> {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  return getDailyBounceRate(siteId, formattedStart, formattedEnd, granularity, queryFilters);
+  return getDailyBounceRate(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
 }

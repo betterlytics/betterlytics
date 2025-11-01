@@ -17,6 +17,7 @@ import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { WebVitalsBanner } from './WebVitalsBanner';
+import { getUserTimezone } from '@/lib/cookies';
 
 type PageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -31,6 +32,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
 
   const { dashboardId } = await params;
   const { startDate, endDate, queryFilters, granularity } = BAFilterSearchParams.decode(await searchParams);
+  const timezone = await getUserTimezone();
 
   const summaryPromise = fetchCoreWebVitalsSummaryAction(dashboardId, startDate, endDate, queryFilters);
   const seriesPromise = fetchCoreWebVitalChartDataAction(
@@ -39,6 +41,7 @@ export default async function WebVitalsPage({ params, searchParams }: PageParams
     endDate,
     granularity,
     queryFilters,
+    timezone,
   );
   const perPagePromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'url');
   const perDevicePromise = fetchCoreWebVitalsByDimensionAction(
