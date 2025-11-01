@@ -19,9 +19,14 @@ import { useTranslations } from 'next-intl';
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
   allDashboardsPromise: Promise<ServerActionResponse<Dashboard[]>>;
+  basePath: string;
 }
 
-export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromise }: DashboardDropdownProps) {
+export function DashboardDropdown({
+  currentDashboardPromise,
+  allDashboardsPromise,
+  basePath,
+}: DashboardDropdownProps) {
   const dashboardId = useDashboardId();
   const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +37,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
   const handleDashboardSwitch = (newDashboardId: string) => {
     setIsOpen(false);
-    router.push(`/dashboard/${newDashboardId}`);
+    router.push(`${basePath}/${newDashboardId}`);
   };
 
   const allDashboardsList = allDashboards.success ? allDashboards.data : [];

@@ -113,6 +113,7 @@ export default async function BASidebar({
               <DashboardDropdown
                 currentDashboardPromise={currentDashboardPromise}
                 allDashboardsPromise={allDashboardsPromise}
+                basePath={basePath}
               />
             </Suspense>
           </SidebarGroupContent>
