@@ -110,7 +110,7 @@ function getTimestampRange(timeRange: TimeRangeValue, granularity: GranularityRa
       case '24h':
         return safeSql`subtractDays(${end}, 1)`;
       case 'today':
-        return safeSql`toStartOfDay(${end})`;
+        return safeSql`toStartOfDay(subtractDays(${end}, 1))`;
       case 'yesterday':
         return safeSql`subtractDays(${end}, 1)`;
       case '7d':
