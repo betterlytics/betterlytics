@@ -14,8 +14,8 @@ import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
-import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
-import { getDashboardAccessAction } from '@/app/actions/authentication';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 
 type DashboardLayoutProps = {
@@ -25,9 +25,9 @@ type DashboardLayoutProps = {
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
   const { dashboardId } = await params;
-  const { session, isDemo: isDemoDashboard } = await getDashboardAccessAction(dashboardId);
+  const session = await getServerSession(authOptions);
 
-  if (!session && !isDemoDashboard) {
+  if (!session) {
     redirect('/');
   }
 
@@ -57,37 +57,31 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
-        <DemoModeProvider isDemo={isDemoDashboard}>
-          <DashboardLayoutShell
-            dashboardId={dashboardId}
-            isDemo={isDemoDashboard}
-            hasSession={!!session}
-            basePath={'/dashboard'}
-            trackingSiteId={shouldEnableTracking && siteId ? siteId : null}
-            includeIntegrationManager={true}
-          >
-            {!isDemoDashboard ? (
-              <BannerProvider>
-                {billingEnabled && billingDataPromise && (
-                  <Suspense fallback={null}>
-                    <UsageAlertBanner billingDataPromise={billingDataPromise} />
-                    <UsageExceededBanner billingDataPromise={billingDataPromise} />
-                  </Suspense>
-                )}
-                {session && isFeatureEnabled('enableAccountVerification') && (
-                  <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
-                )}
-                <Suspense>
-                  <IntegrationBanner />
-                </Suspense>
-                <div className='flex w-full justify-center'>{children}</div>
-                {session && mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
-              </BannerProvider>
-            ) : (
-              <div className='flex w-full justify-center'>{children}</div>
+        <DashboardLayoutShell
+          dashboardId={dashboardId}
+          isDemo={false}
+          hasSession={!!session}
+          basePath={'/dashboard'}
+          trackingSiteId={shouldEnableTracking && siteId ? siteId : null}
+          includeIntegrationManager={true}
+        >
+          <BannerProvider>
+            {billingEnabled && billingDataPromise && (
+              <Suspense fallback={null}>
+                <UsageAlertBanner billingDataPromise={billingDataPromise} />
+                <UsageExceededBanner billingDataPromise={billingDataPromise} />
+              </Suspense>
             )}
-          </DashboardLayoutShell>
-        </DemoModeProvider>
+            {session && isFeatureEnabled('enableAccountVerification') && (
+              <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
+            )}
+            <Suspense>
+              <IntegrationBanner />
+            </Suspense>
+            <div className='flex w-full justify-center'>{children}</div>
+            {session && mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+          </BannerProvider>
+        </DashboardLayoutShell>
       </DashboardProvider>
     </PublicEnvironmentVariablesProvider>
   );
