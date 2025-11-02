@@ -24,7 +24,10 @@ export function getResolvedRanges(
   startDate: Date,
   endDate: Date,
   granularity: GranularityRangeValues,
+  compareStartDate?: Date,
+  compareEndDate?: Date,
   offset?: number,
+  compareAlignWeekdays?: boolean,
 ): TimeRangeResult {
   const main = getAlignedRange({ timeRange, timezone, startDate, endDate, granularity, offset });
 
@@ -33,8 +36,9 @@ export function getResolvedRanges(
     timezone,
     granularity,
     main,
-    compareStart: startDate,
-    compareEnd: endDate,
+    compareStart: compareStartDate,
+    compareEnd: compareEndDate,
+    compareAlignWeekdays,
   });
 
   return { main, compare };
@@ -74,6 +78,114 @@ function moveEndToNextBucket(end: Date, granularity: GranularityRangeValues, tim
   const unit = getGranularityUnit(granularity);
   const step = getGranularityStep(granularity);
   return moment(end).tz(timezone).add(step, unit).toDate();
+}
+
+function getCalendarDaySpan(mainStart: Date, mainEnd: Date, timezone: string) {
+  const s = moment.tz(mainStart, timezone).startOf('day');
+  const e = moment.tz(mainEnd, timezone).startOf('day');
+  return e.diff(s, 'day');
+}
+
+function alignWeekday(
+  start: Date,
+  end: Date,
+  mainStart: Date,
+  timezone: string,
+  mode: 'previous' | 'year',
+  enabled?: boolean,
+) {
+  if (!enabled) return { start, end };
+  const mainStartDay = moment.tz(mainStart, timezone).startOf('day');
+  const compareStartDay = moment.tz(start, timezone).startOf('day');
+
+  if (mode === 'previous') {
+    const shiftBackDays = (compareStartDay.day() - mainStartDay.day() + 7) % 7;
+    if (shiftBackDays === 0) return { start, end };
+    return {
+      start: moment.tz(start, timezone).subtract(shiftBackDays, 'day').toDate(),
+      end: moment.tz(end, timezone).subtract(shiftBackDays, 'day').toDate(),
+    };
+  }
+
+  const delta = (mainStartDay.day() - compareStartDay.day() + 7) % 7;
+  if (delta === 0) return { start, end };
+  return {
+    start: moment.tz(start, timezone).add(delta, 'day').toDate(),
+    end: moment.tz(end, timezone).add(delta, 'day').toDate(),
+  };
+}
+
+function buildPreviousRange(
+  main: ResolvedRange,
+  granularity: GranularityRangeValues,
+  timezone: string,
+  compareAlignWeekdays?: boolean,
+) {
+  const unit = getGranularityUnit(granularity);
+
+  if (unit === 'day') {
+    const days = getCalendarDaySpan(main.start, main.end, timezone);
+    let end = moment.tz(main.start, timezone).toDate();
+    let start = moment.tz(end, timezone).subtract(days, 'day').toDate();
+    return alignWeekday(start, end, main.start, timezone, 'previous', compareAlignWeekdays);
+  }
+
+  const durationMs = main.end.getTime() - main.start.getTime();
+  let start = new Date(main.start.getTime() - durationMs);
+  let end = new Date(main.end.getTime() - durationMs);
+  return alignWeekday(start, end, main.start, timezone, 'previous', compareAlignWeekdays);
+}
+
+function buildYearRange(
+  main: ResolvedRange,
+  granularity: GranularityRangeValues,
+  timezone: string,
+  compareAlignWeekdays?: boolean,
+) {
+  const unit = getGranularityUnit(granularity);
+
+  if (unit === 'day') {
+    let start = moment.tz(main.start, timezone).subtract(1, 'year').toDate();
+    let end = moment.tz(main.end, timezone).subtract(1, 'year').toDate();
+    return alignWeekday(start, end, main.start, timezone, 'year', compareAlignWeekdays);
+  }
+
+  const durationMs = main.end.getTime() - main.start.getTime();
+  let end = moment.tz(main.end, timezone).subtract(1, 'year').toDate();
+  let start = new Date(end.getTime() - durationMs);
+  return alignWeekday(start, end, main.start, timezone, 'year', compareAlignWeekdays);
+}
+
+function getBucketCountOverRange(start: Date, end: Date, granularity: GranularityRangeValues, timezone: string) {
+  const unit = getGranularityUnit(granularity);
+  const step = getGranularityStep(granularity);
+  const s = moment.tz(start, timezone);
+  const e = moment.tz(end, timezone);
+  if (unit === 'minute') {
+    const minutes = e.diff(s, 'minute');
+    return Math.floor(minutes / step);
+  }
+  if (unit === 'hour') return e.diff(s, 'hour');
+  return e.diff(s, 'day');
+}
+
+function adjustEndToMatchMainBucketCount(
+  main: ResolvedRange,
+  start: Date,
+  end: Date,
+  granularity: GranularityRangeValues,
+  timezone: string,
+) {
+  const unit = getGranularityUnit(granularity);
+  const step = getGranularityStep(granularity);
+  const mainBuckets = getBucketCountOverRange(main.start, main.end, granularity, timezone);
+  const compareBuckets = getBucketCountOverRange(start, end, granularity, timezone);
+  const deltaBuckets = mainBuckets - compareBuckets; // positive → extend, negative → shrink
+  if (deltaBuckets === 0) return end;
+  return moment
+    .tz(end, timezone)
+    .add(deltaBuckets * step, unit)
+    .toDate();
 }
 
 /**
@@ -141,6 +253,7 @@ function getCompareAlignedRange({
   main,
   compareStart,
   compareEnd,
+  compareAlignWeekdays,
 }: {
   compareMode: CompareMode;
   timezone: string;
@@ -148,30 +261,27 @@ function getCompareAlignedRange({
   main: ResolvedRange;
   compareStart?: Date;
   compareEnd?: Date;
+  compareAlignWeekdays?: boolean;
 }): ResolvedRange | undefined {
   if (compareMode === 'off') return undefined;
 
-  const duration = main.end.getTime() - main.start.getTime();
+  if (compareMode === 'custom' && compareStart && compareEnd) {
+    const start = moment(compareStart).tz(timezone).startOf('day').toDate();
+    const end = moment(compareEnd).tz(timezone).add(1, 'day').startOf('day').toDate();
+    const endAdjusted = adjustEndToMatchMainBucketCount(main, start, end, granularity, timezone);
+    return snapToGranularity({ start, end: endAdjusted, granularity, timezone });
+  }
 
   if (compareMode === 'previous') {
-    const start = new Date(main.start.getTime() - duration);
-    const end = new Date(main.end.getTime() - duration);
-    return snapToGranularity({ start, end, granularity, timezone });
+    const { start, end } = buildPreviousRange(main, granularity, timezone, compareAlignWeekdays);
+    const endAdjusted = adjustEndToMatchMainBucketCount(main, start, end, granularity, timezone);
+    return snapToGranularity({ start, end: endAdjusted, granularity, timezone });
   }
 
   if (compareMode === 'year') {
-    const start = moment(main.start).tz(timezone).subtract(1, 'year').toDate();
-    const end = moment(main.end).tz(timezone).subtract(1, 'year').toDate();
-    return snapToGranularity({ start, end, granularity, timezone });
-  }
-
-  if (compareMode === 'custom' && compareStart && compareEnd) {
-    return snapToGranularity({
-      start: moment(compareStart).tz(timezone).toDate(),
-      end: moment(compareEnd).tz(timezone).toDate(),
-      granularity,
-      timezone,
-    });
+    const { start, end } = buildYearRange(main, granularity, timezone, compareAlignWeekdays);
+    const endAdjusted = adjustEndToMatchMainBucketCount(main, start, end, granularity, timezone);
+    return snapToGranularity({ start, end: endAdjusted, granularity, timezone });
   }
 
   return undefined;
@@ -273,7 +383,7 @@ function getEndTime(timeRange: TimeRangeValue, timezone: string, endDate: Date) 
   const now = moment().tz(timezone);
   switch (timeRange) {
     case 'custom':
-      return moment(endDate).tz(timezone).endOf('day');
+      return moment(endDate).tz(timezone).add(1, 'day').startOf('day');
     case 'realtime':
     case '1h':
     case '24h':
@@ -281,7 +391,7 @@ function getEndTime(timeRange: TimeRangeValue, timezone: string, endDate: Date) 
     case 'today':
       return now.endOf('day');
     case 'yesterday':
-      return now.subtract(1, 'day').endOf('day');
+      return now.startOf('day');
     case '7d':
     case '28d':
     case '90d':

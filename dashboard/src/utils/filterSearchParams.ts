@@ -154,7 +154,10 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
     filters.startDate,
     filters.endDate,
     filters.granularity,
+    filters.compareStartDate,
+    filters.compareEndDate,
     filters.offset,
+    filters.compareAlignWeekdays,
   );
 
   filters.startDate = main.start;
