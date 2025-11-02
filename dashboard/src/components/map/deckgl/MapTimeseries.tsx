@@ -25,7 +25,7 @@ export type MapTimeseries = {
 export default function MapTimeseries({ visitorData, animationDurationBaseline = 1000 }: MapTimeseries) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { granularity } = useTimeRangeContext();
+  const timeRangeCtx = useTimeRangeContext();
   const isMobile = useIsMobile();
 
   const [isTimeseries, setIsTimeseries] = useState(true);
@@ -36,7 +36,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     '[data-sidebar="sidebar"]',
   ]);
 
-  const { visitorDataTimeseries, compareDataTimeseries, maxVisitors } = useGeoTimeseriesData({
+  const { visitorDataTimeseries, compareDataTimeseries, totalDataTimeseries, maxVisitors } = useGeoTimeseriesData({
     visitorData,
     isTimeseries,
   });
@@ -49,18 +49,36 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     frameCount: visitorDataTimeseries.length,
     speed,
   });
+  const tickProps = useMemo(() => {
+    // guard against missing data
+    if (!visitorDataTimeseries?.length || !totalDataTimeseries?.timeVisitors) return [];
 
-  const tickProps = useMemo(
-    () =>
-      visitorDataTimeseries.map((tgeo, i) => ({
-        thumbLabel: <DateTimeSliderLabel value={tgeo.date} granularity={granularity} />,
+    return visitorDataTimeseries.map((tgeo, i) => {
+      const timeVisitor = totalDataTimeseries.timeVisitors[i];
+      const totalVisitors = timeVisitor?.visitors ?? 0;
+      const accTotal = totalDataTimeseries.accTotal ?? 0;
+
+      // scale tick height (0–50 range) if valid
+      const height = Math.round(accTotal > 0 && totalVisitors > 0 ? (totalVisitors / accTotal) * 100 : 0) / 2;
+
+      // for debugging
+      console.log(tgeo.date, totalVisitors, height);
+
+      return {
+        thumbLabel: <DateTimeSliderLabel value={tgeo.date} granularity={timeRangeCtx.granularity} />,
         tickLabel: (
-          <DateTimeSliderLabel className='font-mono' value={tgeo.date} granularity={granularity} animate={false} />
+          <DateTimeSliderLabel
+            className='font-mono'
+            value={tgeo.date}
+            granularity={timeRangeCtx.granularity}
+            animate={false}
+          />
         ),
+        height,
         value: tgeo.date,
-      })),
-    [visitorDataTimeseries],
-  );
+      };
+    });
+  }, [visitorDataTimeseries, totalDataTimeseries]);
 
   const visitorDict = useMemo(() => {
     const currentFrame = visitorDataTimeseries[frame];

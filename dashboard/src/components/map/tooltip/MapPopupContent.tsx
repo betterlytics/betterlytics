@@ -9,127 +9,109 @@ import type { GeoVisitorWithCompare } from '@/contexts/DeckGLSelectionContextPro
 import { TimeRangeContextProps } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
+import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { formatNumber } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
-import React, { useMemo } from 'react';
+import React from 'react';
 
-// Receive compare start/end/granularity as prop to avoid refetching
 export type MapPopupContentProps = {
   geoVisitor?: GeoVisitorWithCompare;
   className?: string;
   locale: SupportedLanguages;
-  size: 'sm' | 'lg';
+  size?: 'sm' | 'lg';
   isTimeseries?: boolean;
   timeRangeCtx: TimeRangeContextProps;
 };
 
 function MapPopupContentComponent({
   geoVisitor,
-  size,
-  className,
   locale,
+  className,
+  size = 'sm',
   isTimeseries,
   timeRangeCtx,
 }: MapPopupContentProps) {
   const t = useTranslations('components');
+  if (!geoVisitor) return null;
 
-  const hasComparison = Boolean(
-    geoVisitor &&
-      geoVisitor.compare?.compareVisitors &&
-      geoVisitor.compare?.compareDate &&
-      geoVisitor.compare.dProcent &&
-      (geoVisitor.date || !isTimeseries),
+  const hasCmp = !!geoVisitor.compare?.compareVisitors;
+
+  const Row = ({
+    color,
+    label,
+    value,
+    dim,
+  }: {
+    color?: string;
+    label: React.ReactNode;
+    value: React.ReactNode;
+    dim?: boolean;
+  }) => (
+    <div className='flex items-center justify-between gap-2'>
+      <div className='flex items-center gap-2'>
+        {color && <div className={`${color} h-2 w-2 rounded-full`} />}
+        <span className={dim ? 'text-muted-foreground' : ''}>{label}</span>
+      </div>
+      <span className={cn('font-medium', dim && 'text-muted-foreground')}>{value}</span>
+    </div>
   );
 
-  const accComparison = useMemo(() => {
-    return (
-      hasComparison &&
-      geoVisitor?.visitors &&
-      timeRangeCtx.interval !== 'custom' &&
-      timeRangeCtx.offset === 0 && (
-        <>
-          <div className='flex flex-col space-y-2'>
-            <div className='flex items-center justify-between gap-2'>
-              <div className='flex items-center gap-2'>
-                <div className='bg-primary h-2 w-2 rounded-full' />
-                <span
-                  title={`${timeRangeCtx.startDate.toLocaleString()} - ${timeRangeCtx.endDate.toLocaleString()}`}
-                >
-                  {t(`timeRange.presets.${timeRangeCtx.interval}`)}
-                </span>
-              </div>
-              <div className='font-medium'>{formatNumber(geoVisitor.visitors)}</div>
-            </div>
-            {timeRangeCtx.compareStartDate && timeRangeCtx.compareEndDate && (
-              <div className='flex items-center justify-between gap-2'>
-                <div className='flex items-center gap-2'>
-                  <div className='bg-chart-comparison h-2 w-2 rounded-full' />
-                  <span
-                    className='text-muted-foreground'
-                    title={`${timeRangeCtx.compareStartDate.toLocaleString()} - ${timeRangeCtx.compareEndDate.toLocaleString()}`}
-                  >
-                    {t('timeRange.previousPeriod')}
-                  </span>
-                </div>
-                <div className='text-muted-foreground'>{formatNumber(geoVisitor?.compare?.compareVisitors!)}</div>
-              </div>
-            )}
-          </div>
-        </>
-      )
-    );
-  }, [
-    timeRangeCtx.compareStartDate,
-    timeRangeCtx.compareEndDate,
-    timeRangeCtx.interval,
-    timeRangeCtx.offset,
-    hasComparison,
-    t,
-    geoVisitor?.visitors,
-    geoVisitor?.compare?.compareVisitors,
-  ]);
+  const accCompare = hasCmp ? (
+    <div className='flex flex-col space-y-2'>
+      <Row
+        color='bg-primary'
+        label={
+          timeRangeCtx.offset !== 0 && timeRangeCtx.interval !== 'custom'
+            ? t(`timeRange.presets.${timeRangeCtx.interval}`)
+            : formatPrimaryRangeLabel({
+                interval: timeRangeCtx.interval,
+                offset: timeRangeCtx.offset,
+                startDate: timeRangeCtx.startDate,
+                endDate: timeRangeCtx.endDate,
+              })
+        }
+        value={formatNumber(geoVisitor.visitors)}
+      />
+      {timeRangeCtx.compareStartDate && (
+        <Row
+          color='bg-chart-comparison'
+          label={t('timeRange.previousPeriod')}
+          value={formatNumber(geoVisitor.compare?.compareVisitors ?? 0)}
+          dim
+        />
+      )}
+    </div>
+  ) : null;
 
-  const timeseriesComparison = useMemo(() => {
-    return (
-      geoVisitor &&
-      hasComparison && (
-        <>
-          <div className='flex flex-col space-y-2'>
-            <div className='flex items-center justify-between gap-2'>
-              <div className='flex items-center gap-2'>
-                <div className='bg-primary h-2 w-2 rounded-full' />
-                <DateTimeSliderLabel
-                  value={geoVisitor.date!}
-                  granularity={timeRangeCtx.granularity}
-                  animate={false}
-                />
-              </div>
-              <div className='font-medium'>{formatNumber(geoVisitor.visitors)}</div>
-            </div>
+  const timeseriesCompare = hasCmp ? (
+    <div className='flex flex-col space-y-2'>
+      <Row
+        color='bg-primary'
+        label={
+          <DateTimeSliderLabel value={geoVisitor.date!} granularity={timeRangeCtx.granularity} animate={false} />
+        }
+        value={formatNumber(geoVisitor.visitors)}
+      />
+      <Row
+        color='bg-chart-comparison'
+        label={
+          <DateTimeSliderLabel
+            value={geoVisitor.compare!.compareDate!}
+            granularity={timeRangeCtx.granularity}
+            animate={false}
+            className='text-muted-foreground'
+          />
+        }
+        value={formatNumber(geoVisitor.compare?.compareVisitors ?? 0)}
+        dim
+      />
+    </div>
+  ) : null;
 
-            <div className='flex items-center justify-between gap-2'>
-              <div className='flex items-center gap-2'>
-                <div className='bg-chart-comparison h-2 w-2 rounded-full' />
-                <DateTimeSliderLabel
-                  value={geoVisitor.compare.compareDate!}
-                  granularity={timeRangeCtx.granularity}
-                  animate={false}
-                  className='text-muted-foreground'
-                />
-              </div>
-              <div className='text-muted-foreground'>{formatNumber(geoVisitor.compare?.compareVisitors!)}</div>
-            </div>
-          </div>
-        </>
-      )
-    );
-  }, [timeRangeCtx.granularity, geoVisitor?.visitors, geoVisitor?.compare.compareDate]);
-  if (!geoVisitor) return null;
   return (
     <div
       className={cn(
-        'border-border bg-popover/95 min-w-[200px] rounded-lg border p-3 shadow-xl backdrop-blur-sm',
-        'text-foreground flex flex-col space-y-1 text-sm',
+        'border-border bg-popover/95 text-foreground flex min-w-[200px] flex-col space-y-1 rounded-lg border p-3 text-sm shadow-xl backdrop-blur-sm',
         size === 'sm' ? 'max-w-[300px]' : 'max-w-[40vw]',
         className,
       )}
@@ -139,26 +121,20 @@ function MapPopupContentComponent({
         countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
         countryName={getCountryName(geoVisitor.country_code, locale)}
       />
-      <div className='border-border my-2 border-t'></div>
-
-      <div className='flex items-center justify-start gap-1'>
-        <div className='text-muted-foreground flex items-center gap-0.5'>
-          <span>{t('geography.visitors')}</span>
-          {!hasComparison && ':'}
-        </div>
-        {!hasComparison && <span className='text-foreground'>{formatNumber(geoVisitor.visitors ?? 0)}</span>}
-        {hasComparison && (
-          <div className='flex items-center gap-0'>
-            <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis withIcon />
-          </div>
+      <div className='border-border my-2 border-t' />
+      <div className='flex items-center gap-1'>
+        <span className='text-muted-foreground'>{t('geography.visitors')}</span>
+        {hasCmp ? (
+          <TrendPercentage percentage={geoVisitor.compare!.dProcent} withParenthesis withIcon />
+        ) : (
+          <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors)}</span>
         )}
       </div>
-      {isTimeseries ? timeseriesComparison : accComparison}
+      {isTimeseries ? timeseriesCompare : accCompare}
     </div>
   );
 }
 
 const MapPopupContent = React.memo(MapPopupContentComponent);
 MapPopupContent.displayName = 'MapPopupContent';
-
 export default MapPopupContent;

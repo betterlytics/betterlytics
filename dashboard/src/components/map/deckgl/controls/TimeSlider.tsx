@@ -5,10 +5,12 @@ import * as SliderPrimitive from '@radix-ui/react-slider';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import MapTooltipTip from '../../tooltip/MapTooltipTip';
+import { cn } from '@/lib/utils';
 
 export type TimeSliderTick<TValue> = {
   tickLabel: React.ReactNode;
   thumbLabel: React.ReactNode;
+  height: number;
   value: TValue;
 };
 
@@ -32,6 +34,7 @@ export function TimeSlider<TValue>({
 
   // Thumb index (round to nearest tick)
   const index = Math.round(value);
+  const THUMB_WIDTH = 20;
 
   // Hover state for tooltip below track
   const [hoverValue, setHoverValue] = React.useState<number | null>(null);
@@ -61,19 +64,37 @@ export function TimeSlider<TValue>({
       >
         {/* Track */}
         <SliderPrimitive.Track
-          className='bg-primary/25 relative h-2 w-full grow cursor-pointer overflow-hidden rounded-full'
+          className='bg-primary/25 relative h-4 w-full grow cursor-pointer rounded-full'
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
-          <SliderPrimitive.Range className='bg-primary/80 absolute h-full' />
+          <SliderPrimitive.Range
+            className={cn(
+              'bg-primary/80 absolute h-full',
+              index === ticks.length - 1 ? 'rounded-full' : 'rounded-l-full',
+            )}
+          />
         </SliderPrimitive.Track>
-
+        {/* Tick layer — absolutely positioned relative to slider root */}
+        <div className='pointer-events-none absolute top-0 left-0 h-0 w-full'>
+          {ticks.map((tick, i) => (
+            <div
+              key={i}
+              className='bg-primary absolute bottom-[calc(100%)] w-[2px] origin-bottom'
+              style={{
+                left: `calc(${THUMB_WIDTH / 2}px + (100% - ${THUMB_WIDTH}px) * ${i / intervals})`,
+                height: `${tick.height ?? 8}px`,
+                transform: 'translateX(-50%)',
+              }}
+            />
+          ))}
+        </div>
         {/* Hover tooltip below track */}
         {hoverValue !== null && ticks[hoverValue] && (
           <Badge
             className='text-secondary-foreground bg-secondary border-border pointer-events-none absolute top-4 z-[11] mt-1 w-fit rounded-none border-1 text-xs shadow-sm'
             style={{
-              left: `calc(${(hoverValue / intervals) * 100}%)`,
+              left: `calc(${THUMB_WIDTH / 2}px + (100% - ${THUMB_WIDTH}px) * ${hoverValue / intervals})`,
               transform: 'translateX(-50%)',
             }}
           >
