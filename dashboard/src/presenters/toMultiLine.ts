@@ -1,14 +1,13 @@
 import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/webVitals';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 
-type CoreWebVitalNameWithoutEmpty = Exclude<CoreWebVitalName, ''>;
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
-export type CoreWebVitalsSeries = Record<CoreWebVitalNameWithoutEmpty, PercentilePoint[]>;
+export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
 
 export function toNewMultiLine(
   rows: CoreWebVitalNamedPercentilesRow[],
-): Record<CoreWebVitalNameWithoutEmpty, PercentilePoint[]> {
-  const byMetric: Record<CoreWebVitalNameWithoutEmpty, Record<string, [number, number, number, number]>> = {
+): Record<CoreWebVitalName, PercentilePoint[]> {
+  const byMetric: Record<CoreWebVitalName, Record<string, [number, number, number, number]>> = {
     CLS: {},
     LCP: {},
     INP: {},
@@ -29,7 +28,7 @@ export function toNewMultiLine(
     }
   }
 
-  const result: Record<CoreWebVitalNameWithoutEmpty, PercentilePoint[]> = {
+  const result: Record<CoreWebVitalName, PercentilePoint[]> = {
     CLS: [],
     LCP: [],
     INP: [],
@@ -37,7 +36,7 @@ export function toNewMultiLine(
     TTFB: [],
   };
 
-  (Object.keys(result) as CoreWebVitalNameWithoutEmpty[]).forEach((name) => {
+  (Object.keys(result) as CoreWebVitalName[]).forEach((name) => {
     const keys = Object.keys(byMetric[name])
       .map((k) => Number(k))
       .sort((a, b) => a - b);
