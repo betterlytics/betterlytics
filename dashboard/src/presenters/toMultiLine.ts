@@ -4,7 +4,7 @@ import { getDateKey } from '@/utils/dateHelpers';
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
 export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
 
-export function toNewMultiLine(
+export function toWebVitalsPercentileChart(
   rows: CoreWebVitalNamedPercentilesRow[],
 ): Record<CoreWebVitalName, PercentilePoint[]> {
   const byMetric: Record<CoreWebVitalName, Record<string, [number, number, number, number]>> = {
