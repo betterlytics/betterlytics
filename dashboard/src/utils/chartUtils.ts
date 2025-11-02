@@ -110,37 +110,3 @@ export function getTimeIntervalForGranularity(granularity: GranularityRangeValue
   if (granularity === 'hour') return utcHour;
   return utcMinute.every(getMinuteStep(granularity)) as TimeInterval;
 }
-
-export function getTimeIntervalForGranularityWithTimezone(
-  granularity: GranularityRangeValues,
-  timezone: string,
-): TimeInterval {
-  if (granularity === 'day') {
-    return {
-      offset: (date, step) => {
-        const local = toZonedTime(date, timezone);
-        const nextLocal = addDays(local, step);
-
-        const deltaOffset = getTimezoneOffset(timezone, local) - getTimezoneOffset(timezone, nextLocal);
-
-        const utcNextCorrected = new Date(nextLocal.getTime() - deltaOffset);
-        return fromZonedTime(utcNextCorrected, timezone);
-      },
-    };
-  }
-
-  if (granularity === 'hour') {
-    return {
-      offset: (date, step) => {
-        return addHours(date, step);
-      },
-    };
-  }
-
-  const minuteStep = getMinuteStep(granularity);
-  return {
-    offset: (date, step) => {
-      return addMinutes(date, step * minuteStep);
-    },
-  };
-}

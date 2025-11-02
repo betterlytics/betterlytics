@@ -144,21 +144,18 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
         granularity,
         dataKey: 'referralSessions',
         dateRange,
-        timezone,
       });
       const referralPercentageChartData = toSparklineSeries({
         data: raw.referralPercentageChartData,
         granularity,
         dataKey: 'referralPercentage',
         dateRange,
-        timezone,
       });
       const avgSessionDurationChartData = toSparklineSeries({
         data: raw.avgSessionDurationChartData,
         granularity,
         dataKey: 'avgSessionDuration',
         dateRange,
-        timezone,
       });
 
       const data = {

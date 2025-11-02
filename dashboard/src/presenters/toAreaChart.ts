@@ -1,6 +1,4 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { utcMinute } from 'd3-time';
-import { getTimeIntervalForGranularityWithTimezone } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 
@@ -14,7 +12,6 @@ type DataToAreaChartProps<K extends string> = {
     start: Date;
     end: Date;
   };
-  timezone: string;
 };
 
 type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
@@ -26,47 +23,7 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
   bucketIncomplete?: boolean;
 };
 
-function dataToAreaChart<K extends string>({
-  dataKey,
-  data,
-  granularity,
-  dateRange,
-  timezone,
-}: DataToAreaChartProps<K>) {
-  const groupedData = data.reduce(
-    (group, row) => {
-      const key = parseClickHouseDate(row.date).valueOf().toString();
-      return { ...group, [key]: row[dataKey] };
-    },
-    {} as Record<string, number>,
-  );
-
-  const chartData = [];
-
-  const interval = getTimeIntervalForGranularityWithTimezone(granularity, timezone);
-  const { start, end } = {
-    start: utcMinute(dateRange.start),
-    end: utcMinute(dateRange.end),
-  };
-
-  for (let time = start; time <= end; time = interval.offset(time, 1)) {
-    const key = time.valueOf().toString();
-    const value = groupedData[key] ?? 0;
-
-    chartData.push({
-      date: +key,
-      value: [value],
-    });
-  }
-
-  return chartData;
-}
-
-// New: relies on ClickHouse FILL; do not iterate buckets in JS
-function dataToNewAreaChart<K extends string>({
-  dataKey,
-  data,
-}: Pick<DataToAreaChartProps<K>, 'dataKey' | 'data'>) {
+function dataToAreaChart<K extends string>({ dataKey, data }: Pick<DataToAreaChartProps<K>, 'dataKey' | 'data'>) {
   const groupedData = data.reduce(
     (group, row) => {
       const key = parseClickHouseDate(row.date).valueOf().toString();
@@ -92,13 +49,10 @@ export function toAreaChart<K extends string>({
   dataKey,
   data,
   compare,
-  granularity,
-  dateRange,
   compareDateRange,
   bucketIncomplete,
-  timezone,
 }: ToAreaChartProps<K>): AreaChartResult {
-  const chart = dataToAreaChart({ dataKey, data, granularity, dateRange, timezone });
+  const chart = dataToAreaChart({ dataKey, data });
 
   const now = Date.now();
   const {
@@ -106,71 +60,7 @@ export function toAreaChart<K extends string>({
     shouldSplit,
     solid: solidCurrent,
     incomplete: currentIncomplete,
-  } = getIncompleteSplitWithTimezone(chart, granularity, now, timezone, bucketIncomplete);
-
-  if (compare === undefined) {
-    return { data: solidCurrent, incomplete: currentIncomplete };
-  }
-
-  if (
-    compareDateRange === undefined ||
-    compareDateRange.start === undefined ||
-    compareDateRange.end === undefined
-  ) {
-    throw 'Compare date range must be specified if compare data is received';
-  }
-
-  const compareChart = dataToAreaChart({
-    dataKey,
-    data: compare,
-    granularity,
-    dateRange: compareDateRange as { start: Date; end: Date },
-    timezone,
-  });
-
-  if (chart.length !== compareChart.length) {
-    return { data: solidCurrent, incomplete: currentIncomplete };
-  }
-
-  const chartData = chart.map((point, index) => ({
-    date: point.date,
-    value: [...point.value, ...compareChart[index].value],
-  }));
-
-  const comparisonMap = createComparisonMap(chartData, compareChart, dataKey);
-
-  const dataSeries = shouldSplit ? maskPrimaryAfterIndex(chartData, firstIncompleteIndex) : chartData;
-
-  const incomplete = currentIncomplete
-    ? currentIncomplete.map((point, i) => ({
-        date: point.date,
-        value: [...point.value, ...compareChart[firstIncompleteIndex - 1 + i].value],
-      }))
-    : undefined;
-
-  return { data: dataSeries, comparisonMap, incomplete };
-}
-
-// New: relies on ClickHouse-filled buckets, minimal mapping + same compare/incomplete logic
-export function toNewAreaChart<K extends string>({
-  dataKey,
-  data,
-  compare,
-  granularity,
-  dateRange,
-  compareDateRange,
-  bucketIncomplete,
-  timezone,
-}: ToAreaChartProps<K>): AreaChartResult {
-  const chart = dataToNewAreaChart({ dataKey, data });
-
-  const now = Date.now();
-  const {
-    firstIncompleteIndex,
-    shouldSplit,
-    solid: solidCurrent,
-    incomplete: currentIncomplete,
-  } = getIncompleteSplitWithTimezone(chart, granularity, now, timezone, bucketIncomplete);
+  } = getIncompleteSplit(chart, now, bucketIncomplete);
 
   if (!compare) {
     return { data: solidCurrent, incomplete: currentIncomplete };
@@ -180,7 +70,7 @@ export function toNewAreaChart<K extends string>({
     throw 'Compare date range must be specified if compare data is received';
   }
 
-  const compareChart = dataToNewAreaChart({ dataKey, data: compare });
+  const compareChart = dataToAreaChart({ dataKey, data: compare });
 
   if (chart.length !== compareChart.length) {
     return { data: solidCurrent, incomplete: currentIncomplete };
@@ -221,17 +111,10 @@ function createComparisonMap(
   });
 }
 
-function findFirstIncompleteIndexForChartWithTimezone(
-  chart: ChartPoint[],
-  granularity: GranularityRangeValues,
-  nowTimestamp: number,
-  timezone: string,
-): number {
-  const interval = getTimeIntervalForGranularityWithTimezone(granularity, timezone);
+function findFirstIncompleteIndexForChart(chart: ChartPoint[], nowTimestamp: number): number {
   for (let i = 0; i < chart.length; i++) {
     const bucketStart = chart[i].date;
-    const bucketEnd = interval.offset(new Date(bucketStart), 1).valueOf();
-    if (bucketEnd > nowTimestamp) return i;
+    if (bucketStart > nowTimestamp) return i - 1;
   }
   return -1;
 }
@@ -255,11 +138,9 @@ function maskPrimaryAfterIndex(chart: ChartPoint[], firstIncompleteIndex: number
   );
 }
 
-function getIncompleteSplitWithTimezone(
+function getIncompleteSplit(
   chart: ChartPoint[],
-  granularity: GranularityRangeValues,
   nowTimestamp: number,
-  timezone: string,
   bucketIncomplete?: boolean,
 ): {
   firstIncompleteIndex: number;
@@ -267,12 +148,7 @@ function getIncompleteSplitWithTimezone(
   solid: ChartPoint[];
   incomplete: ChartPoint[] | undefined;
 } {
-  const firstIncompleteIndex = findFirstIncompleteIndexForChartWithTimezone(
-    chart,
-    granularity,
-    nowTimestamp,
-    timezone,
-  );
+  const firstIncompleteIndex = findFirstIncompleteIndexForChart(chart, nowTimestamp);
   const hasIncompleteTail = firstIncompleteIndex !== -1;
   const incompleteCount = hasIncompleteTail ? chart.length - firstIncompleteIndex : 0;
   let incompleteSeriesLength = 0;
@@ -294,7 +170,7 @@ export function toSparklineSeries<K extends string>({
   dataKey,
   data,
 }: DataToAreaChartProps<K>): Array<{ date: Date } & Record<K, number>> {
-  const area = dataToNewAreaChart({ dataKey, data });
+  const area = dataToAreaChart({ dataKey, data });
   return area.map((p) => ({ date: new Date(p.date), [dataKey]: p.value[0] })) as Array<
     { date: Date } & Record<K, number>
   >;

@@ -130,28 +130,24 @@ export const fetchPagesSummaryWithChartsAction = withDashboardAuthContext(
         granularity,
         dataKey: 'value',
         dateRange,
-        timezone,
       }),
       avgTimeChartData: toSparklineSeries({
         data: data.avgTimeChartData,
         granularity,
         dataKey: 'value',
         dateRange,
-        timezone,
       }),
       bounceRateChartData: toSparklineSeries({
         data: data.bounceRateChartData,
         granularity,
         dataKey: 'value',
         dateRange,
-        timezone,
       }),
       pageviewsChartData: toSparklineSeries({
         data: data.pageviewsChartData,
         granularity,
         dataKey: 'views',
         dateRange,
-        timezone,
       }),
       compareValues,
     };
