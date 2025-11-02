@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CoreWebVitalNameSchema = z.enum(['CLS', 'LCP', 'INP', 'FCP', 'TTFB']);
+export const CoreWebVitalNameSchema = z.enum(['', 'CLS', 'LCP', 'INP', 'FCP', 'TTFB']);
 export type CoreWebVitalName = z.infer<typeof CoreWebVitalNameSchema>;
 export const CORE_WEB_VITAL_NAMES: CoreWebVitalName[] = CoreWebVitalNameSchema.options;
 
@@ -22,10 +22,10 @@ export type CoreWebVitalRow = z.infer<typeof CoreWebVitalRowSchema>;
 export const CoreWebVitalNamedPercentilesRowSchema = z.object({
   date: z.string(),
   name: CoreWebVitalNameSchema,
-  p50: z.number(),
-  p75: z.number(),
-  p90: z.number(),
-  p99: z.number(),
+  p50: z.number().or(z.null()),
+  p75: z.number().or(z.null()),
+  p90: z.number().or(z.null()),
+  p99: z.number().or(z.null()),
 });
 export type CoreWebVitalNamedPercentilesRow = z.infer<typeof CoreWebVitalNamedPercentilesRowSchema>;
 
