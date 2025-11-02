@@ -18,6 +18,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
       <div className='h-full w-full'>
         <LeafletMap
           visitorData={mapData.visitorData}
+          compareData={mapData.compare}
           maxVisitors={mapData.maxVisitors}
           showZoomControls
           size='lg'

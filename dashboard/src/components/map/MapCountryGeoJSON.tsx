@@ -1,4 +1,4 @@
-import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
+import { GeoVisitorWithCompare, useMapSelection } from '@/contexts/MapSelectionContextProvider';
 import { GeoVisitor } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
@@ -7,10 +7,13 @@ import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
 import { useLocale, useTranslations } from 'next-intl';
+import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 interface MapCountryGeoJSONProps {
   GeoJSON: typeof GeoJSON;
   geoData: GeoJSON.FeatureCollection;
+  compareData: GeoVisitor[];
   visitorData: GeoVisitor[];
   style: MapStyle;
   size?: 'sm' | 'lg';
@@ -28,12 +31,14 @@ export default function MapCountryGeoJSON({
   GeoJSON,
   geoData,
   visitorData,
+  compareData,
   size = 'sm',
   style,
 }: MapCountryGeoJSONProps) {
   const { setMapSelection } = useMapSelection();
   const locale = useLocale();
   const t = useTranslations('components.geography');
+
   const ref = useRef({ setMapSelection });
 
   useEffect(() => {
@@ -45,11 +50,27 @@ export default function MapCountryGeoJSON({
       const country_code = getFeatureId(feature);
       if (!country_code) return;
 
-      let geoVisitor = visitorData.find((d) => d.country_code === country_code);
+      let geoVisitor = visitorData?.find((d) => d.country_code === country_code);
       if (!geoVisitor) {
         geoVisitor = { country_code, visitors: 0 };
       }
+      let cmpVisitor = compareData?.find((d) => d.country_code === country_code);
+      if (!cmpVisitor) {
+        cmpVisitor = { country_code, visitors: 0 };
+      }
+      const dAbs = geoVisitor.visitors - cmpVisitor.visitors;
+      const dProcent = (dAbs / cmpVisitor.visitors) * 100;
 
+      const geoVisitorWCmp: GeoVisitorWithCompare = {
+        compare: {
+          compareVisitors: cmpVisitor.visitors,
+          dAbs,
+          dProcent,
+          compareDate: new Date(),
+        },
+        ...geoVisitor,
+        date: new Date(),
+      };
       const popupContainer = document.createElement('div');
 
       layer.setStyle(style.originalStyle(geoVisitor.visitors));
@@ -64,17 +85,17 @@ export default function MapCountryGeoJSON({
 
       layer.on({
         mouseover: () => {
-          ref.current.setMapSelection({ hovered: { geoVisitor, layer } });
+          ref.current.setMapSelection({ hovered: { geoVisitor: geoVisitorWCmp, layer } });
         },
         click: () => {
-          ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
+          ref.current.setMapSelection({ clicked: { geoVisitor: geoVisitorWCmp, layer } });
         },
         popupopen: () => {
           if (!(popupContainer as any)._reactRoot) {
             (popupContainer as any)._reactRoot = createRoot(popupContainer);
           }
           (popupContainer as any)._reactRoot.render(
-            <MapTooltipContent locale={locale} geoVisitor={geoVisitor} size={size} label={t('visitors')} />,
+            <MapTooltipContent locale={locale} geoVisitor={geoVisitorWCmp} size={size} label={t('visitors')} />,
           );
 
           requestAnimationFrame(() => {

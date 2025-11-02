@@ -37,11 +37,19 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
       throw new Error(`Invalid parameters: ${validatedParams.error.message}`);
     }
 
-    const { startDate, endDate, queryFilters } = validatedParams.data;
+    const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = validatedParams.data;
 
     try {
       const geoVisitors = await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters);
-      return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
+
+      const compareGeoVisitors =
+        compareStartDate &&
+        compareEndDate &&
+        (await fetchVisitorsByGeography(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+      return worldMapResponseSchema.parse(
+        dataToWorldMap(geoVisitors, compareGeoVisitors ?? [], CountryCodeFormat.Original),
+      );
     } catch (error) {
       console.error('Error fetching visitor map data:', error);
       throw new Error('Failed to fetch visitor map data');

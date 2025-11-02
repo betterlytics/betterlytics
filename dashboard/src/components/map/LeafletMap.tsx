@@ -15,6 +15,7 @@ import { useTranslations } from 'next-intl';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
+  compareData: GeoVisitor[];
   maxVisitors?: number;
   showZoomControls?: boolean;
   showLegend?: boolean;
@@ -24,6 +25,7 @@ interface LeafletMapProps {
 
 export default function LeafletMap({
   visitorData,
+  compareData,
   maxVisitors,
   showZoomControls,
   showLegend = true,
@@ -104,7 +106,13 @@ export default function LeafletMap({
       >
         <MapSelectionContextProvider style={style}>
           <MapBackgroundLayer Polygon={Polygon} />
-          <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
+          <MapCountryGeoJSON
+            GeoJSON={GeoJSON}
+            geoData={worldGeoJson}
+            visitorData={visitorData}
+            compareData={compareData}
+            style={style}
+          />
           <MapStickyTooltip size={size} />
           {showLegend && <MapLegend maxVisitors={maxVisitors} />}
         </MapSelectionContextProvider>

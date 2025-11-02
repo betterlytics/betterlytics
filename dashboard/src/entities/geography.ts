@@ -7,6 +7,7 @@ export const GeoVisitorSchema = z.object({
 
 export const worldMapResponseSchema = z.object({
   visitorData: z.array(GeoVisitorSchema),
+  compare: z.array(GeoVisitorSchema),
   maxVisitors: z.number(),
 });
 

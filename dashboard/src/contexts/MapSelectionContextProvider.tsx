@@ -5,8 +5,20 @@ import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { createContext, useCallback, useContext } from 'react';
 
+export type GeoVisitorComparison = {
+  compareVisitors?: number;
+  compareDate?: Date;
+  dAbs?: number; // visitors - compareVisitors
+  dProcent?: number; // (dAbs / compareVisitors) * 100
+};
+
+export type GeoVisitorWithCompare = GeoVisitor & {
+  compare: GeoVisitorComparison;
+  date?: Date;
+};
+
 export type MapFeatureVisitor = {
-  geoVisitor: GeoVisitor;
+  geoVisitor: GeoVisitorWithCompare;
   layer: L.Polygon;
 };
 
