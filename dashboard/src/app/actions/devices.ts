@@ -14,12 +14,11 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
-import { getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
-import { toNewStackedAreaChart } from '@/presenters/toNewStackedAreaChart';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
@@ -206,14 +205,13 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
 
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');
 
-    const result = toNewStackedAreaChart({
+    const result = toStackedAreaChart({
       data,
       categoryKey: 'device_type',
       valueKey: 'count',
       categories: sortedCategories,
       granularity,
       dateRange: { start: startDate, end: endDate },
-      timezone,
       compare: toFormatted(compareData, (value) => ({
         ...value,
         device_type: capitalizeFirstLetter(value.device_type),
