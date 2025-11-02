@@ -17,14 +17,14 @@ export function toWebVitalsPercentileChart(
 
   for (const r of rows) {
     const key = getDateKey(r.date);
+    const value: [number, number, number, number] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+
     if (r.name !== '') {
-      byMetric[r.name][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+      byMetric[r.name][key] = value;
     } else {
-      byMetric['CLS'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
-      byMetric['FCP'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
-      byMetric['INP'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
-      byMetric['LCP'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
-      byMetric['TTFB'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+      (Object.keys(byMetric) as CoreWebVitalName[]).forEach((name) => {
+        byMetric[name][key] = value;
+      });
     }
   }
 
