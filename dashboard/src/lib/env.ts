@@ -17,7 +17,6 @@ const envSchema = z.object({
   PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
   NEXTAUTH_URL: z.string().url().optional(),
   NEXTAUTH_SECRET: z.string().min(1),
-  DEMO_DASHBOARD_ID: z.string().optional().default('cmheyc0vb000ftsm4m5fiem2n'),
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_BASE_URL: z.string().optional().default('https://betterlytics.io'),
@@ -36,6 +35,7 @@ const envSchema = z.object({
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
   ALLOW_CRAWLING: zStringBoolean,
+  DEMO_DASHBOARD_ID: z.string().optional(),
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()

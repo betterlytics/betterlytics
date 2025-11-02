@@ -131,13 +131,5 @@ export async function getAuthorizedDashboardContextOrNull(data: DashboardFindByU
 
 export async function assertPublicDashboardAccess(dashboardId: string): Promise<void> {
   if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) return;
-
-  try {
-    const dash = await findDashboardById(dashboardId);
-    if (!dash) notFound();
-  } catch (_e) {
-    notFound();
-  }
-
   notFound();
 }
