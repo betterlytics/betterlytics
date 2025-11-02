@@ -7,6 +7,7 @@ import {
 import { deriveCompareRange } from './compareRanges';
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { getResolvedRanges } from '@/lib/ba-timerange';
+import { getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
@@ -133,6 +134,92 @@ function decodeValue<Key extends keyof FilterQueryParams>(
   throw new Error(`Unknown filter key "${key}"`);
 }
 
+function enforceGranularityAndDuration(
+  timezone: string,
+  {
+    interval,
+    compare,
+    startDate,
+    endDate,
+    granularity,
+    compareStartDate,
+    compareEndDate,
+    offset,
+    compareAlignWeekdays,
+  }: {
+    interval: FilterQueryParams['interval'];
+    compare: FilterQueryParams['compare'];
+    startDate: Date;
+    endDate: Date;
+    granularity: FilterQueryParams['granularity'];
+    compareStartDate?: Date;
+    compareEndDate?: Date;
+    offset?: number;
+    compareAlignWeekdays?: boolean;
+  },
+) {
+  const initial = getResolvedRanges(
+    interval,
+    compare,
+    timezone,
+    startDate,
+    endDate,
+    granularity,
+    compareStartDate,
+    compareEndDate,
+    offset,
+    compareAlignWeekdays,
+  );
+
+  let nextStart = initial.main.start;
+  let nextEnd = initial.main.end;
+  let nextGranularity = granularity;
+
+  const maxMs = 366 * 24 * 60 * 60 * 1000;
+  if (nextEnd.getTime() - nextStart.getTime() > maxMs) {
+    nextEnd = new Date(nextStart.getTime() + maxMs);
+  }
+
+  const allowed = getAllowedGranularities(nextStart, nextEnd);
+  nextGranularity = getValidGranularityFallback(nextGranularity, allowed);
+
+  const needsRecompute =
+    nextStart.getTime() !== initial.main.start.getTime() ||
+    nextEnd.getTime() !== initial.main.end.getTime() ||
+    nextGranularity !== granularity;
+
+  if (!needsRecompute) {
+    return {
+      main: initial.main,
+      compare: initial.compare,
+      startDate: initial.main.start,
+      endDate: initial.main.end,
+      granularity,
+    } as const;
+  }
+
+  const recomputed = getResolvedRanges(
+    interval,
+    compare,
+    timezone,
+    nextStart,
+    nextEnd,
+    nextGranularity,
+    compareStartDate,
+    compareEndDate,
+    offset,
+    compareAlignWeekdays,
+  );
+
+  return {
+    main: recomputed.main,
+    compare: recomputed.compare,
+    startDate: recomputed.main.start,
+    endDate: recomputed.main.end,
+    granularity: nextGranularity,
+  } as const;
+}
+
 function decode(params: FilterQuerySearchParams, timezone: string) {
   const defaultFilters = getDefaultFilters();
 
@@ -147,24 +234,24 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
     ...decoded,
   };
 
-  const { main, compare } = getResolvedRanges(
-    filters.interval,
-    filters.compare,
-    timezone,
-    filters.startDate,
-    filters.endDate,
-    filters.granularity,
-    filters.compareStartDate,
-    filters.compareEndDate,
-    filters.offset,
-    filters.compareAlignWeekdays,
-  );
+  const enforced = enforceGranularityAndDuration(timezone, {
+    interval: filters.interval,
+    compare: filters.compare,
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    granularity: filters.granularity,
+    compareStartDate: filters.compareStartDate,
+    compareEndDate: filters.compareEndDate,
+    offset: filters.offset,
+    compareAlignWeekdays: filters.compareAlignWeekdays,
+  });
 
-  filters.startDate = main.start;
-  filters.endDate = main.end;
+  filters.startDate = enforced.startDate;
+  filters.endDate = enforced.endDate;
+  filters.granularity = enforced.granularity;
 
-  filters.compareStartDate = compare?.start;
-  filters.compareEndDate = compare?.end;
+  filters.compareStartDate = enforced.compare?.start;
+  filters.compareEndDate = enforced.compare?.end;
 
   return FilterQueryParamsSchema.parse(filters);
 }
