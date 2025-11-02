@@ -125,14 +125,14 @@ function buildPreviousRange(
 
   if (unit === 'day') {
     const days = getCalendarDaySpan(main.start, main.end, timezone);
-    let end = moment.tz(main.start, timezone).toDate();
-    let start = moment.tz(end, timezone).subtract(days, 'day').toDate();
+    const end = moment.tz(main.start, timezone).toDate();
+    const start = moment.tz(end, timezone).subtract(days, 'day').toDate();
     return alignWeekday(start, end, main.start, timezone, 'previous', compareAlignWeekdays);
   }
 
   const durationMs = main.end.getTime() - main.start.getTime();
-  let start = new Date(main.start.getTime() - durationMs);
-  let end = new Date(main.end.getTime() - durationMs);
+  const start = new Date(main.start.getTime() - durationMs);
+  const end = new Date(main.end.getTime() - durationMs);
   return alignWeekday(start, end, main.start, timezone, 'previous', compareAlignWeekdays);
 }
 
@@ -145,14 +145,14 @@ function buildYearRange(
   const unit = getGranularityUnit(granularity);
 
   if (unit === 'day') {
-    let start = moment.tz(main.start, timezone).subtract(1, 'year').toDate();
-    let end = moment.tz(main.end, timezone).subtract(1, 'year').toDate();
+    const start = moment.tz(main.start, timezone).subtract(1, 'year').toDate();
+    const end = moment.tz(main.end, timezone).subtract(1, 'year').toDate();
     return alignWeekday(start, end, main.start, timezone, 'year', compareAlignWeekdays);
   }
 
   const durationMs = main.end.getTime() - main.start.getTime();
-  let end = moment.tz(main.end, timezone).subtract(1, 'year').toDate();
-  let start = new Date(end.getTime() - durationMs);
+  const end = moment.tz(main.end, timezone).subtract(1, 'year').toDate();
+  const start = new Date(end.getTime() - durationMs);
   return alignWeekday(start, end, main.start, timezone, 'year', compareAlignWeekdays);
 }
 
