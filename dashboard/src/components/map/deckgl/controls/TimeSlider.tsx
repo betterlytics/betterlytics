@@ -6,16 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import MapTooltipTip from '../../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
-
-export type TimeSliderTick<TValue> = {
-  tickLabel: React.ReactNode;
-  thumbLabel: React.ReactNode;
-  opacity: number;
-  value: TValue;
-};
+import TimeSliderTick, { type TimeSliderTickType } from './TimeSliderTick';
 
 export type TimeSliderProps<TValue> = {
-  ticks: TimeSliderTick<TValue>[];
+  ticks: TimeSliderTickType<TValue>[];
   value: number; // Current slider position
   playing?: boolean;
   playbackSpeed?: number;
@@ -62,7 +56,6 @@ export function TimeSlider<TValue>({
         }}
         className='relative flex w-full touch-none items-center select-none'
       >
-        {/* Track */}
         <SliderPrimitive.Track
           className='bg-primary/25 relative h-4 w-full grow cursor-pointer rounded-full'
           onMouseMove={handleMouseMove}
@@ -71,21 +64,20 @@ export function TimeSlider<TValue>({
           <SliderPrimitive.Range
             className={cn(
               'bg-primary/50 absolute h-full',
-              index === ticks.length - 1 ? 'rounded-full' : 'rounded-l-full',
+              index === intervals ? 'rounded-full' : 'rounded-l-full',
             )}
           />
         </SliderPrimitive.Track>
 
         <div className='pointer-events-none absolute top-0 left-0 h-0 w-full'>
           {ticks.map((tick, i) => (
-            <div
+            <TimeSliderTick
               key={i}
-              className='bg-accent-foreground absolute top-0 h-4 w-0.5 origin-bottom'
-              style={{
-                left: `calc(${THUMB_WIDTH / 2}px + (100% - ${THUMB_WIDTH}px) * ${i / intervals})`,
-                opacity: Math.min(tick.opacity > 0 ? tick.opacity + 0.2 : 0, 1),
-                transform: 'translateX(-50%)',
-              }}
+              index={i}
+              tick={tick}
+              intervals={intervals}
+              hoverValue={hoverValue}
+              thumbWidth={THUMB_WIDTH}
             />
           ))}
         </div>

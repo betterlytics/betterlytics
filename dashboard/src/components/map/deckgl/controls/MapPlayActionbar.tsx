@@ -1,8 +1,9 @@
 'use client';
 
-import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { PlaybackButton } from '@/components/map/deckgl/controls/PlaybackButton';
-import { TimeSlider, type TimeSliderTick } from '@/components/map/deckgl/controls/TimeSlider';
+import { TimeSlider } from '@/components/map/deckgl/controls/TimeSlider';
+import type { TimeSliderTickType } from '@/components/map/deckgl/controls/TimeSliderTick';
 import { PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import { cn } from '@/lib/utils';
 import { ScaleMotion } from '@/components/ScaleMotion';
@@ -10,7 +11,7 @@ import { createPortal } from 'react-dom';
 import { TimeseriesToggleButton } from '../TimeseriesToggleButton';
 
 export type MapPlayActionbarProps<TValue> = {
-  ticks: TimeSliderTick<TValue>[];
+  ticks: TimeSliderTickType<TValue>[];
   value: number;
   playing: boolean;
   speed: any;
