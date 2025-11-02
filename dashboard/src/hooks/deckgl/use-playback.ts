@@ -1,5 +1,4 @@
-import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function usePlayback({ frameCount, speed = 1 }: { frameCount: number; speed?: number }) {
   const [playing, setPlaying] = useState(false);
@@ -43,6 +42,5 @@ export function usePlayback({ frameCount, speed = 1 }: { frameCount: number; spe
     toggle: () => setPlaying((p) => !p),
     stop,
     scrub,
-    setSpeed: (s: PlaybackSpeed) => {}, // can still lift up if needed
   };
 }

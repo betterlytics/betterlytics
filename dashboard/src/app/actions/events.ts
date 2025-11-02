@@ -30,7 +30,7 @@ export const fetchCustomEventsOverviewAction = withDashboardAuthContext(
       data,
       compare,
       categoryKey: 'event_name',
-    });
+    }).slice(0, 10);
   },
 );
 

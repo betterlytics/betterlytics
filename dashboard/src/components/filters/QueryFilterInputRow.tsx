@@ -8,8 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Input } from '../ui/input';
-import { Dispatch, ReactNode } from 'react';
+import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   ArrowRightToLineIcon,
@@ -29,9 +28,10 @@ import {
   TextSearchIcon,
   Trash2,
 } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { FilterValueSearch } from './FilterValueSearch';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -48,6 +48,15 @@ export function QueryFilterInputRow<TEntity>({
 }: QueryFilterInputRowProps<TEntity>) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
+
+  const filterColumnRef = useRef<string>(filter.column);
+  useEffect(() => {
+    if (filter.column !== filterColumnRef.current) {
+      onFilterUpdate({ ...filter, value: '' });
+      filterColumnRef.current = filter.column;
+    }
+  }, [filter.column]);
+
   return (
     <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <Select
@@ -57,7 +66,11 @@ export function QueryFilterInputRow<TEntity>({
         <SelectTrigger className='col-span-8 w-full cursor-pointer md:col-span-4'>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent align={'start'} position={'popper'} className={cn(isMobile && 'max-h-72')}>
+        <SelectContent
+          align={'start'}
+          position={'popper'}
+          className={cn('w-[--radix-select-trigger-width]', isMobile && 'max-h-72')}
+        >
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => (
@@ -76,7 +89,7 @@ export function QueryFilterInputRow<TEntity>({
         <SelectTrigger className='col-span-4 w-full cursor-pointer md:col-span-2'>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align={'start'} position={'popper'}>
           <SelectGroup>
             <SelectLabel>{t('operator')}</SelectLabel>
             <SelectItem className='cursor-pointer' value={'='}>
@@ -88,11 +101,7 @@ export function QueryFilterInputRow<TEntity>({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Input
-        className='col-span-10 md:col-span-5'
-        value={filter.value}
-        onChange={(evt) => onFilterUpdate({ ...filter, value: evt.target.value })}
-      />
+      <FilterValueSearch filter={filter} onFilterUpdate={onFilterUpdate} key={filter.column} />
       <Button
         variant='ghost'
         className='col-span-2 cursor-pointer md:col-span-1'

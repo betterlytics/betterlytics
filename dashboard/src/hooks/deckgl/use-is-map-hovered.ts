@@ -9,9 +9,8 @@ export function useIsMapHovered(overlaySelectors: string | string[]) {
 
   useEffect(() => {
     const selectors = Array.isArray(overlaySelectors) ? overlaySelectors : [overlaySelectors];
-    let rafId: number;
 
-    rafId = requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       const overlayElements: HTMLElement[] = [];
       selectors.forEach((sel) => {
         overlayElements.push(...Array.from(document.querySelectorAll<HTMLElement>(sel)));

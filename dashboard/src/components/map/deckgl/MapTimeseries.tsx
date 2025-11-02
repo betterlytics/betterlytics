@@ -1,6 +1,7 @@
 'use client';
 
 import { type getWorldMapGranularityTimeseries } from '@/app/actions';
+import DataEmptyComponent from '@/components/DataEmptyComponent';
 import DateTimeSliderLabel from '@/components/map/deckgl/controls/DateTimeSliderLabel';
 import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
@@ -164,8 +165,8 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
       {totalDataTimeseries.accTotal === 0 &&
         createPortal(
-          <div className='absolute right-4 bottom-4 z-100 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
-            <p className='text-sm text-amber-700'>{t('noData')}</p>
+          <div className='shadow-3xlg bg-card fixed right-3 bottom-4 z-100 rounded-md border p-8'>
+            <DataEmptyComponent style={{ height: '50px' }} />
           </div>,
           document.body,
         )}

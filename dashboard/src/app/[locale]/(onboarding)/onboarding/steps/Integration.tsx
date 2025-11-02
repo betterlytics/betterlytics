@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Code, Clipboard, Check } from 'lucide-react';
 import { CodeBlock } from '@/components/integration/CodeBlock';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { LiveIndicator } from '@/components/live-indicator';
@@ -16,6 +17,7 @@ import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
+import { baEvent } from '@/lib/ba-event';
 
 import './Integration.css';
 
@@ -32,6 +34,7 @@ export default function Integration() {
 
   const { isVerified, verifySilently } = useTrackingVerificationWithId(dashboard.id);
   const baRouter = useBARouter();
+  const { refreshSession } = useSessionRefresh();
 
   useEffect(() => {
     if (!isVerified) {
@@ -51,13 +54,25 @@ export default function Integration() {
     } catch {}
   }, []);
 
-  const handleFinishOnboarding = useCallback(() => {
+  const handleFinishOnboarding = useCallback(async () => {
+    baEvent('onboarding-integration', {
+      kind: 'completed',
+    });
+    try {
+      await refreshSession();
+    } catch {}
     baRouter.push(`/dashboard/${dashboard.id}`);
-  }, [dashboard, baRouter]);
+  }, [dashboard, baRouter, refreshSession]);
 
-  const handleSkipForNow = useCallback(() => {
+  const handleSkipForNow = useCallback(async () => {
+    baEvent('onboarding-integration', {
+      kind: 'skipped',
+    });
+    try {
+      await refreshSession();
+    } catch {}
     baRouter.push(`/dashboard/${dashboard.id}?showIntegration=true`);
-  }, [baRouter, dashboard]);
+  }, [baRouter, dashboard, refreshSession]);
 
   const totalCountdownSeconds = 5;
   const [secondsLeft, setSecondsLeft] = useState<number>(totalCountdownSeconds);

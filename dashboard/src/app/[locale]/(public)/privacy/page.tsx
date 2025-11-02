@@ -1,4 +1,4 @@
-import { generateSEO, SEO_CONFIGS } from '@/lib/seo';
+import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 import { getTranslations, getLocale } from 'next-intl/server';
@@ -7,9 +7,7 @@ import { StructuredData } from '@/components/StructuredData';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'public.privacy' });
-  const seoConfig = { ...SEO_CONFIGS.privacy, title: t('title') } as const;
-  return generateSEO(seoConfig, { locale });
+  return generateSEO(await buildSEOConfig(SEO_CONFIGS.privacy), { locale });
 }
 
 export default async function PrivacyPage() {
@@ -19,7 +17,7 @@ export default async function PrivacyPage() {
 
   const t = await getTranslations('public.privacy');
   const locale = await getLocale();
-  const seoConfig = { ...SEO_CONFIGS.privacy, title: t('title') } as const;
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.privacy);
 
   return (
     <div className='bg-background min-h-screen py-12'>
@@ -36,6 +34,7 @@ export default async function PrivacyPage() {
                 day: 'numeric',
               })}
             </p>
+            <p className='text-muted-foreground mt-2 text-sm'>{t('translationDisclaimer')}</p>
           </div>
 
           <div className='space-y-8 px-6 py-8'>
@@ -64,8 +63,10 @@ export default async function PrivacyPage() {
                 <li>{t('visitor.li4')}</li>
                 <li>{t('visitor.li5')}</li>
                 <li>{t('visitor.li6')}</li>
-                <li>{t('visitor.li7')}</li>
               </ul>
+              <p className='text-foreground pt-4'>{t('visitor.finalRemarks1')}</p>
+              <p className='text-foreground pt-4'>{t('visitor.finalRemarks2')}</p>
+              <p className='text-foreground pt-4'>{t('visitor.finalRemarks3')}</p>
             </section>
 
             <section>
@@ -96,6 +97,7 @@ export default async function PrivacyPage() {
                   <p className='text-muted-foreground text-sm'>{t('anonymous.sessionTracking.body')}</p>
                 </div>
               </div>
+              <p className='text-foreground pt-4'>{t('anonymous.finalRemarks')}</p>
             </section>
 
             <section>
@@ -134,6 +136,8 @@ export default async function PrivacyPage() {
                   <p className='text-foreground mt-2'>{t('customer.thirdParty.outro')}</p>
                 </div>
               </div>
+              <p className='text-foreground mt-4'>{t('customer.cookieUse')}</p>
+              <p className='text-foreground mt-4'>{t('customer.responsibility')}</p>
             </section>
 
             <section>

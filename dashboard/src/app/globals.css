@@ -118,6 +118,9 @@
   --time-slider-thumb: oklch(62% 0.17 268.71);
   --time-slider-tick: oklch(0.25 0 0);
   --time-slider-tick-hovered: oklch(52% 0.2 266);
+
+  --geography-error-light: oklch(0.9421 0.0266 9 / 60%);
+  --geography-error: oklch(0.5986 0.244365 27.5722);
 }
 
 .dark {
@@ -189,6 +192,9 @@
   --time-slider-thumb: oklch(56% 0.196 268.74);
   --time-slider-tick: hsl(0 0% 90%);
   --time-slider-tick-hovered: oklch(52% 0.2 266);
+
+  --geography-error-light: oklch(0.9421 0.0266 9 / 60%);
+  --geography-error: oklch(0.5986 0.244365 27.5722);
 }
 
 @layer base {
@@ -259,4 +265,17 @@
 
 [data-slot='sheet-content'] > button.absolute.top-4.right-4 {
   cursor: pointer;
+}
+
+.rr-player .replayer-mouse:after {
+  width: 18px !important;
+  height: 18px !important;
+  background: var(--primary) !important;
+  border-radius: 9999px !important;
+  border: 2px solid white !important;
+  opacity: 0.9 !important;
+}
+.dark .rr-player .replayer-mouse:after {
+  border-color: rgba(0, 0, 0, 0.9) !important;
+  background: color-mix(in oklab, var(--primary), white 20%) !important;
 }

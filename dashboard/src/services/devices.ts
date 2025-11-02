@@ -5,6 +5,8 @@ import {
   getBrowserBreakdown,
   getOperatingSystemBreakdown,
   getDeviceUsageTrend,
+  getBrowserRollup,
+  getOperatingSystemRollup,
 } from '@/repositories/clickhouse/devices';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
@@ -51,6 +53,24 @@ export async function getBrowserBreakdownForSite(
   }));
 
   return BrowserStatsSchema.array().parse(statsWithPercentages);
+}
+
+export async function getBrowserRollupForSite(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  queryFilters: QueryFilter[],
+) {
+  return getBrowserRollup(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+}
+
+export async function getOperatingSystemRollupForSite(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  queryFilters: QueryFilter[],
+) {
+  return getOperatingSystemRollup(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
 }
 
 export async function getOperatingSystemBreakdownForSite(

@@ -40,19 +40,21 @@ function MapPopupContentComponent({
     color,
     label,
     value,
-    dim,
+    muted,
+    tooltip,
   }: {
     color?: string;
     label: React.ReactNode;
     value: React.ReactNode;
-    dim?: boolean;
+    tooltip?: string;
+    muted?: boolean;
   }) => (
     <div className='flex items-center justify-between gap-2'>
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-2' title={tooltip}>
         {color && <div className={`${color} h-2 w-2 rounded-full`} />}
-        <span className={dim ? 'text-muted-foreground' : ''}>{label}</span>
+        <span className={muted ? 'text-muted-foreground' : ''}>{label}</span>
       </div>
-      <span className={cn('font-medium', dim && 'text-muted-foreground')}>{value}</span>
+      <span className={cn('font-medium', muted && 'text-muted-foreground')}>{value}</span>
     </div>
   );
 
@@ -70,14 +72,16 @@ function MapPopupContentComponent({
                 endDate: timeRangeCtx.endDate,
               })
         }
+        tooltip={`${timeRangeCtx.startDate.toLocaleString()} - ${timeRangeCtx.endDate.toLocaleString()}`}
         value={formatNumber(geoVisitor.visitors)}
       />
       {timeRangeCtx.compareStartDate && (
         <Row
           color='bg-chart-comparison'
           label={t('timeRange.previousPeriod')}
+          tooltip={`${timeRangeCtx.startDate.toLocaleString()} - ${timeRangeCtx.endDate.toLocaleString()}`}
           value={formatNumber(geoVisitor.compare?.compareVisitors ?? 0)}
-          dim
+          muted
         />
       )}
     </div>
@@ -103,7 +107,7 @@ function MapPopupContentComponent({
           />
         }
         value={formatNumber(geoVisitor.compare?.compareVisitors ?? 0)}
-        dim
+        muted
       />
     </div>
   ) : null;

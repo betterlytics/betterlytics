@@ -2,6 +2,8 @@ import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { Progress } from '@/components/ui/progress';
 import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
+import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 type PropertyValue = {
   value: string;
@@ -17,9 +19,11 @@ interface PropertyValueBarProps {
   icon?: React.ReactElement;
   index?: number;
   respectComparison?: boolean;
+  leading?: React.ReactNode;
 }
 
-export function PropertyValueBar({ value, icon, respectComparison, index }: PropertyValueBarProps) {
+export function PropertyValueBar({ value, icon, respectComparison, index, leading }: PropertyValueBarProps) {
+  const t = useTranslations('misc');
   return (
     <div className='group shadow-foreground/20 dark:shadow-background relative rounded-sm shadow-xs transition-colors duration-200 hover:bg-[var(--accent)]/80'>
       <div className='relative h-7 overflow-hidden rounded-sm text-sm'>
@@ -28,8 +32,9 @@ export function PropertyValueBar({ value, icon, respectComparison, index }: Prop
           className='bg-muted/30 group-hover:bg-muted/40 [&>div]:bg-primary/35 h-full rounded-sm transition-colors duration-200'
         />
 
-        <div className='absolute inset-0 z-10 flex items-center justify-between px-3'>
+        <div className={cn('absolute inset-0 z-10 flex items-center justify-between px-3', leading && 'pl-1')}>
           <div className='flex max-w-[85%] items-center gap-2 truncate'>
+            {leading}
             {typeof index === 'number' && <span className='text-foreground w-3 font-medium'>{index}.</span>}
             {icon && <span className='flex-shrink-0'>{icon}</span>}
             <span className='text-foreground truncate font-medium'>{value.value}</span>
@@ -40,7 +45,11 @@ export function PropertyValueBar({ value, icon, respectComparison, index }: Prop
               <div className='hidden gap-1 transition-all transition-discrete duration-200 group-hover:flex'>
                 {value.comparisonValue && (
                   <span>
-                    <TrendPercentage percentage={value.trendPercentage} withParenthesis />
+                    <TrendPercentage
+                      percentage={value.trendPercentage}
+                      noChangeText={t('noChange')}
+                      withParenthesis
+                    />
                   </span>
                 )}
                 {formatPercentage(value.percentage)}
@@ -55,9 +64,3 @@ export function PropertyValueBar({ value, icon, respectComparison, index }: Prop
     </div>
   );
 }
-
-<div className='flex'>
-  <div>This is some text</div>
-  <div className='opacity-0 transition-opacity duration-200 group-hover:opacity-100'>show on hover</div>
-  <div>some icon</div>
-</div>;
