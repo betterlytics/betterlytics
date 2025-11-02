@@ -23,7 +23,6 @@ export default async function PublicDashboardLayout({ params, children }: Public
           <DashboardLayoutShell
             dashboardId={dashboardId}
             isDemo={true}
-            hasSession={false}
             basePath={`/${locale}/public`}
             trackingSiteId={null}
             includeIntegrationManager={false}

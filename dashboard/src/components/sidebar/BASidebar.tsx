@@ -38,11 +38,11 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { Dashboard } from '@/entities/dashboard';
 
 type BASidebarProps = {
   dashboardId: string;
   isDemo: boolean;
-  hasSession: boolean;
   basePath?: string; // base path for links, defaults to "/dashboard"
 };
 
@@ -55,17 +55,18 @@ type SidebarItem = {
   hideOnMobile?: boolean;
 };
 
-export default async function BASidebar({
-  dashboardId,
-  isDemo,
-  hasSession,
-  basePath = '/dashboard',
-}: BASidebarProps) {
-  const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
+export default async function BASidebar({ dashboardId, isDemo, basePath = '/dashboard' }: BASidebarProps) {
+  const currentDashboardPromise: Promise<Dashboard> = isDemo
+    ? Promise.resolve({
+        id: dashboardId,
+        siteId: 'demo',
+        domain: 'Demo Dashboard',
+      })
+    : getCurrentDashboardAction(dashboardId);
 
-  const allDashboardsPromise: Promise<ServerActionResponse<any[]>> = hasSession
+  const allDashboardsPromise: Promise<ServerActionResponse<Dashboard[]>> = !isDemo
     ? getAllUserDashboardsAction()
-    : currentDashboardPromise.then((d: any) => ({ success: true, data: [d] }));
+    : currentDashboardPromise.then((d) => ({ success: true, data: [d] }));
 
   const t = await getTranslations('dashboard.sidebar');
 

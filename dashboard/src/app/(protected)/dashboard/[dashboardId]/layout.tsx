@@ -60,7 +60,6 @@ export default async function DashboardLayout({ children, params }: DashboardLay
         <DashboardLayoutShell
           dashboardId={dashboardId}
           isDemo={false}
-          hasSession={!!session}
           basePath={'/dashboard'}
           trackingSiteId={shouldEnableTracking && siteId ? siteId : null}
           includeIntegrationManager={true}

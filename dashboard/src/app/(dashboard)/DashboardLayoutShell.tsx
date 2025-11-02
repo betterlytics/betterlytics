@@ -10,7 +10,6 @@ import { TrackingScript } from '@/app/(protected)/dashboard/[dashboardId]/Tracki
 export type DashboardLayoutShellProps = {
   dashboardId: string;
   isDemo: boolean;
-  hasSession: boolean;
   basePath?: string;
   trackingSiteId?: string | null;
   includeIntegrationManager?: boolean;
@@ -20,7 +19,6 @@ export type DashboardLayoutShellProps = {
 export default function DashboardLayoutShell({
   dashboardId,
   isDemo,
-  hasSession,
   basePath = '/dashboard',
   trackingSiteId,
   includeIntegrationManager = true,
@@ -30,19 +28,18 @@ export default function DashboardLayoutShell({
     <section>
       <BATopbar />
       <SidebarProvider>
-        <BASidebar dashboardId={dashboardId} isDemo={isDemo} hasSession={hasSession} basePath={basePath} />
+        <BASidebar dashboardId={dashboardId} isDemo={isDemo} basePath={basePath} />
         <BAMobileSidebarTrigger />
         <main className='bg-background w-full overflow-x-hidden'>
           <ScrollReset />
           {children}
         </main>
-        {/* Conditionally render tracking */}
-        {trackingSiteId ? <TrackingScript siteId={trackingSiteId} /> : null}
-        {includeIntegrationManager ? (
+        {trackingSiteId && <TrackingScript siteId={trackingSiteId} />}
+        {includeIntegrationManager && (
           <Suspense>
             <IntegrationManager />
           </Suspense>
-        ) : null}
+        )}
       </SidebarProvider>
     </section>
   );
