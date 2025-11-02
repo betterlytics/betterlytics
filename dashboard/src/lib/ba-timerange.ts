@@ -76,7 +76,7 @@ function getTrailingDurationSpec(timeRange: TimeRangeValue): DurationSpec | null
 }
 
 function moveEndToNextBucket(end: Date, granularity: GranularityRangeValues, timezone: string) {
-  const unit = getGranularityUnit(granularity);
+  const unit = getMomentGranularityUnit(granularity);
   const step = getGranularityStep(granularity);
   return moment(end).tz(timezone).add(step, unit).toDate();
 }
@@ -122,7 +122,7 @@ function buildPreviousRange(
   timezone: string,
   compareAlignWeekdays?: boolean,
 ) {
-  const unit = getGranularityUnit(granularity);
+  const unit = getMomentGranularityUnit(granularity);
 
   if (unit === 'day') {
     const days = getCalendarDaySpan(main.start, main.end, timezone);
@@ -143,7 +143,7 @@ function buildYearRange(
   timezone: string,
   compareAlignWeekdays?: boolean,
 ) {
-  const unit = getGranularityUnit(granularity);
+  const unit = getMomentGranularityUnit(granularity);
 
   if (unit === 'day') {
     const start = moment.tz(main.start, timezone).subtract(1, 'year').toDate();
@@ -158,7 +158,7 @@ function buildYearRange(
 }
 
 function getBucketCountOverRange(start: Date, end: Date, granularity: GranularityRangeValues, timezone: string) {
-  const unit = getGranularityUnit(granularity);
+  const unit = getMomentGranularityUnit(granularity);
   const step = getGranularityStep(granularity);
   const s = moment.tz(start, timezone);
   const e = moment.tz(end, timezone);
@@ -177,7 +177,7 @@ function adjustEndToMatchMainBucketCount(
   granularity: GranularityRangeValues,
   timezone: string,
 ) {
-  const unit = getGranularityUnit(granularity);
+  const unit = getMomentGranularityUnit(granularity);
   const step = getGranularityStep(granularity);
   const mainBuckets = getBucketCountOverRange(main.start, main.end, granularity, timezone);
   const snappedCompare = snapToGranularity({ start, end, granularity, timezone });
@@ -236,7 +236,7 @@ function getAlignedRange({
   }
 
   if (offset === 0) return snapped;
-  const unit = getGranularityUnit(granularity);
+  const unit = getMomentGranularityUnit(granularity);
   const step = getGranularityStep(granularity);
   const bucketCount = getBucketCountOverRange(snapped.start, snapped.end, granularity, timezone);
   const shiftBuckets = offset * bucketCount * step;
@@ -305,7 +305,7 @@ function snapToGranularity({
   granularity: GranularityRangeValues;
   timezone: string;
 }): ResolvedRange {
-  const unit = getGranularityUnit(granularity);
+  const unit = getMomentGranularityUnit(granularity);
   const step = getGranularityStep(granularity);
 
   const startTz = moment.tz(start, timezone).startOf(unit);
@@ -334,12 +334,15 @@ function snapToGranularity({
 }
 
 /**
- * Map granularity → moment units
+ * Map granularity -> moment units
  */
-function getGranularityUnit(g: GranularityRangeValues) {
-  if (g.startsWith('minute')) return 'minute';
+function getMomentGranularityUnit(g: GranularityRangeValues) {
+  if (g === 'day') return 'day';
   if (g === 'hour') return 'hour';
-  return 'day';
+  if (g === 'minute_1') return 'minute';
+  if (g === 'minute_15') return 'minute';
+  if (g === 'minute_30') return 'minute';
+  throw new Error(`Invalid granularity: ${g}`);
 }
 
 function getGranularityStep(g: GranularityRangeValues) {
