@@ -35,6 +35,7 @@ export function TimeSlider<TValue>({
   // Thumb index (round to nearest tick)
   const index = Math.round(value);
   const THUMB_WIDTH = 20;
+  const MAX_TICK_HEIGHT = 12;
 
   // Hover state for tooltip below track
   const [hoverValue, setHoverValue] = React.useState<number | null>(null);
@@ -70,26 +71,26 @@ export function TimeSlider<TValue>({
         >
           <SliderPrimitive.Range
             className={cn(
-              'bg-primary/80 absolute h-full',
+              'bg-primary/50 absolute h-full',
               index === ticks.length - 1 ? 'rounded-full' : 'rounded-l-full',
             )}
           />
         </SliderPrimitive.Track>
-        {/* Tick layer — absolutely positioned relative to slider root */}
+
         <div className='pointer-events-none absolute top-0 left-0 h-0 w-full'>
           {ticks.map((tick, i) => (
             <div
               key={i}
-              className='bg-primary absolute bottom-[calc(100%)] w-[2px] origin-bottom'
+              className='bg-primary/80 absolute bottom-[calc(100%)] w-[2px] origin-bottom'
               style={{
                 left: `calc(${THUMB_WIDTH / 2}px + (100% - ${THUMB_WIDTH}px) * ${i / intervals})`,
-                height: `${tick.height ?? 8}px`,
+                height: `${Math.min(tick.height, MAX_TICK_HEIGHT) ?? 0}px`,
                 transform: 'translateX(-50%)',
               }}
             />
           ))}
         </div>
-        {/* Hover tooltip below track */}
+
         {hoverValue !== null && ticks[hoverValue] && (
           <Badge
             className='text-secondary-foreground bg-secondary border-border pointer-events-none absolute top-4 z-[11] mt-1 w-fit rounded-none border-1 text-xs shadow-sm'
@@ -102,7 +103,6 @@ export function TimeSlider<TValue>({
           </Badge>
         )}
 
-        {/* Thumb */}
         <SliderPrimitive.Thumb className='group border-secondary/80 focus-visible:ring-ring block h-5 w-5 cursor-pointer rounded-full border bg-[var(--time-slider-thumb)] shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'>
           <motion.div
             animate={{

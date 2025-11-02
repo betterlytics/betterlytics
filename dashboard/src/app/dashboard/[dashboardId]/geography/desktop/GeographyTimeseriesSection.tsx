@@ -37,13 +37,6 @@ export default function GeographyTimeseriesSection({ worldMapPromise }: Geograph
           </div>
         </div>
       </div>
-
-      {/* TODO Add better check for empty data */}
-      {mapData.data.length === 0 && (
-        <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
-          <p className='text-sm text-amber-700'>{t('noData')}</p>
-        </div>
-      )}
     </>
   );
 }

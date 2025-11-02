@@ -9,7 +9,7 @@ type UseGeoTimeseriesDataProps = {
   isTimeseries: boolean;
 };
 
-type TotalDataTimeseries = { timeVisitors: { date: string; visitors: number }[]; accTotal: number };
+type TotalDataTimeseries = { timeVisitors: { date: Date; visitors: number }[]; accTotal: number };
 
 /**
  * Normalizes server response into:
@@ -49,13 +49,20 @@ export function useGeoTimeseriesData({ visitorData, isTimeseries }: UseGeoTimese
     return frames;
   }, [visitorData, isTimeseries]);
 
-  const totalDataTimeseries: TotalDataTimeseries = useMemo(
-    () => ({
-      timeVisitors: visitorData.total,
-      accTotal: visitorData.total.reduce((acc, cur) => acc + cur.visitors, 0),
-    }),
-    [visitorData.total],
-  );
+  const totalDataTimeseries: TotalDataTimeseries = useMemo(() => {
+    const timeVisitors = visitorDataTimeseries.map((timeGeoVisitor) => ({
+      visitors: timeGeoVisitor.visitors.reduce(
+        (acc, cur) => acc + (cur.country_code !== 'Localhost' ? cur.visitors : 0),
+        0,
+      ),
+      date: timeGeoVisitor.date,
+    }));
+
+    return {
+      timeVisitors: timeVisitors,
+      accTotal: timeVisitors.reduce((acc, cur) => acc + cur.visitors, 0),
+    };
+  }, [visitorDataTimeseries]);
 
   const compareDataTimeseries: TimeGeoVisitors[] | undefined = useMemo(() => {
     if (!visitorData.compare) return undefined;

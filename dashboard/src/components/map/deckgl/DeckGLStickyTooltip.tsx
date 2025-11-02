@@ -30,13 +30,13 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
     if (!containerRef.current) return;
     const mapContainer = containerRef.current;
 
-    const onMouseMove = (e: MouseEvent) => {
-      latestMouseRef.current = { x: e.clientX, y: e.clientY - 4 };
+    const onPointerMove = (e: MouseEvent) => {
+      latestMouseRef.current = { x: e.clientX, y: e.clientY - 8 };
     };
 
-    mapContainer.addEventListener('mousemove', onMouseMove);
+    mapContainer.addEventListener('pointermove', onPointerMove);
     return () => {
-      mapContainer.removeEventListener('mousemove', onMouseMove);
+      mapContainer.removeEventListener('pointermove', onPointerMove);
     };
   }, [containerRef]);
 
@@ -53,6 +53,9 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
 
     let lastHovered: typeof hoveredFeatureRef.current | null = null;
 
+    // Round to nearest half pixel to avoid blurriness on fractional pixels
+    const roundHalf = (v: number) => Math.round(v * 2) / 2;
+
     const loop = () => {
       rafRef.current = requestAnimationFrame(loop);
 
@@ -60,8 +63,6 @@ function DeckGLStickyTooltipComponent({ size = 'sm', containerRef }: DeckGLStick
       const clicked = clickedFeatureRef.current;
       const { x, y } = latestMouseRef.current;
 
-      // Round to nearest half pixel to avoid blurriness on fractional pixels
-      const roundHalf = (v: number) => Math.round(v * 2) / 2;
       node.style.transform = `translate3d(${roundHalf(x)}px, ${roundHalf(y)}px, 0) translate(-50%, -100%)`;
 
       if (!hovered || clicked?.geoVisitor.country_code === hovered.geoVisitor.country_code) {

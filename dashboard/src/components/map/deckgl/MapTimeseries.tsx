@@ -16,6 +16,8 @@ import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
 import { ZoomControls } from './controls/ZoomControls';
 import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
 import { TimeseriesToggleButton } from './TimeseriesToggleButton';
+import { useTranslations } from 'next-intl';
+import { createPortal } from 'react-dom';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
@@ -27,6 +29,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const timeRangeCtx = useTimeRangeContext();
   const isMobile = useIsMobile();
+  const t = useTranslations('components.geography');
 
   const [isTimeseries, setIsTimeseries] = useState(true);
   const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
@@ -49,6 +52,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     frameCount: visitorDataTimeseries.length,
     speed,
   });
+
   const tickProps = useMemo(() => {
     // guard against missing data
     if (!visitorDataTimeseries?.length || !totalDataTimeseries?.timeVisitors) return [];
@@ -58,11 +62,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
       const totalVisitors = timeVisitor?.visitors ?? 0;
       const accTotal = totalDataTimeseries.accTotal ?? 0;
 
-      // scale tick height (0–50 range) if valid
       const height = Math.round(accTotal > 0 && totalVisitors > 0 ? (totalVisitors / accTotal) * 100 : 0) / 2;
-
-      // for debugging
-      console.log(tgeo.date, totalVisitors, height);
 
       return {
         thumbLabel: <DateTimeSliderLabel value={tgeo.date} granularity={timeRangeCtx.granularity} />,
@@ -74,7 +74,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
             animate={false}
           />
         ),
-        height,
+        height: height ? height + 4 : 0,
         value: tgeo.date,
       };
     });
@@ -164,6 +164,14 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
         style={{ left: sidebarOffset + 16 }}
       />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
+
+      {totalDataTimeseries.accTotal === 0 &&
+        createPortal(
+          <div className='absolute right-4 bottom-4 z-100 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
+            <p className='text-sm text-amber-700'>{t('noData')}</p>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

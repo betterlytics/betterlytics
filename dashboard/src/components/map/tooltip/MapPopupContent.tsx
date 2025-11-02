@@ -117,11 +117,12 @@ function MapPopupContentComponent({
       )}
     >
       <CountryDisplay
-        className='justify-center text-sm font-bold'
+        className={cn('text-sm font-bold', hasCmp ? 'justify-center' : 'justify-start')}
         countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
         countryName={getCountryName(geoVisitor.country_code, locale)}
       />
-      <div className='border-border my-2 border-t' />
+      {hasCmp && <div className='border-border my-2 border-t' />}
+
       <div className='flex items-center gap-1'>
         <span className='text-muted-foreground'>{t('geography.visitors')}</span>
         {hasCmp ? (

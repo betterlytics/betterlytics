@@ -128,15 +128,6 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
         granularity,
       );
 
-      const total = Object.values(
-        geoVisitors.reduce<Record<string, { date: string; visitors: number }>>((acc, curr) => {
-          const { date, visitors } = curr;
-          if (!acc[date]) acc[date] = { date, visitors: 0 };
-          acc[date].visitors += visitors;
-          return acc;
-        }, {}),
-      );
-
       const timeseries = toStackedAreaChart({
         data: geoVisitors,
         categoryKey: 'country_code',
@@ -191,7 +182,7 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
         compare = { timeseries: compareTimeseries, accumulated: compareAccumulated };
       }
 
-      return Object.assign({}, timeseries, { accumulated, total }, compare ? { compare } : {});
+      return Object.assign({}, timeseries, { accumulated }, compare ? { compare } : {});
     } catch (error) {
       console.error('Error fetching visitor map timeseries:', error);
       throw new Error('Failed to fetch visitor map timeseries');
