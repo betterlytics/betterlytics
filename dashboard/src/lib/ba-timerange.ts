@@ -179,8 +179,9 @@ function adjustEndToMatchMainBucketCount(
   const unit = getGranularityUnit(granularity);
   const step = getGranularityStep(granularity);
   const mainBuckets = getBucketCountOverRange(main.start, main.end, granularity, timezone);
-  const compareBuckets = getBucketCountOverRange(start, end, granularity, timezone);
-  const deltaBuckets = mainBuckets - compareBuckets; // positive → extend, negative → shrink
+  const snappedCompare = snapToGranularity({ start, end, granularity, timezone });
+  const compareBuckets = getBucketCountOverRange(snappedCompare.start, snappedCompare.end, granularity, timezone);
+  const deltaBuckets = mainBuckets - compareBuckets;
   if (deltaBuckets === 0) return end;
   return moment
     .tz(end, timezone)
@@ -234,13 +235,15 @@ function getAlignedRange({
   }
 
   if (offset === 0) return snapped;
+  const unit = getGranularityUnit(granularity);
+  const step = getGranularityStep(granularity);
+  const bucketCount = getBucketCountOverRange(snapped.start, snapped.end, granularity, timezone);
+  const shiftBuckets = offset * bucketCount * step;
 
-  const duration = snapped.end.getTime() - snapped.start.getTime();
+  const startShifted = moment.tz(snapped.start, timezone).add(shiftBuckets, unit).toDate();
+  const endShifted = moment.tz(snapped.end, timezone).add(shiftBuckets, unit).toDate();
 
-  return {
-    start: new Date(snapped.start.getTime() + offset * duration),
-    end: new Date(snapped.end.getTime() + offset * duration),
-  };
+  return { start: startShifted, end: endShifted };
 }
 
 /**
