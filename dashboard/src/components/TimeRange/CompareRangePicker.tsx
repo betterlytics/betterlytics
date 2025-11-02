@@ -67,7 +67,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
         >
           {t('previousPeriod')}
         </Button>
-        <DisabledTooltip disabled={isDemo} message={tDemo('notAvailable')} wrapperClassName='w-full'>
+        <DisabledTooltip disabled={isDemo} message={tDemo('notAvailable')}>
           {(isDisabled) => (
             <Button
               variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
@@ -98,7 +98,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
       <Separator className='my-1' />
 
-      <DisabledTooltip disabled={isDemo} message={tDemo('notAvailable')} wrapperClassName='w-full'>
+      <DisabledTooltip disabled={isDemo} message={tDemo('notAvailable')}>
         {(isDisabled) => (
           <div
             role='button'

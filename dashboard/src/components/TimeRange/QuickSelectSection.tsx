@@ -33,7 +33,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect, allowedValues
     if (!preset) return null;
     const isAllowed = allowedValues ? allowedValues.includes(value) : true;
     return (
-      <DisabledTooltip disabled={!isAllowed} message={tDemo('notAvailable')} wrapperClassName='w-full'>
+      <DisabledTooltip disabled={!isAllowed} message={tDemo('notAvailable')}>
         {() => (
           <Button
             key={preset.value}

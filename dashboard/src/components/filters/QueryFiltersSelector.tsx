@@ -79,7 +79,7 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <DisabledTooltip disabled={!canAddAnother} message={tDemo('notAvailable')} wrapperClassName='w-full'>
+            <DisabledTooltip disabled={!canAddAnother} message={tDemo('notAvailable')}>
               {(isDisabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'
@@ -123,7 +123,7 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <DisabledTooltip disabled={!canAddAnother} message={tDemo('notAvailable')} wrapperClassName='w-full'>
+            <DisabledTooltip disabled={!canAddAnother} message={tDemo('notAvailable')}>
               {(isDisabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'

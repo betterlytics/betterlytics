@@ -33,12 +33,7 @@ export function GranularitySection({
           const isAllowed = allowedGranularities.includes(gran.value);
           const showTooltip = !isAllowed && !disabled && notAllowedTitle !== undefined;
           return (
-            <DisabledTooltip
-              key={gran.value}
-              disabled={showTooltip}
-              message={notAllowedTitle ?? ''}
-              wrapperClassName='w-full'
-            >
+            <DisabledTooltip key={gran.value} disabled={showTooltip} message={notAllowedTitle ?? ''}>
               {() => (
                 <Button
                   type='button'

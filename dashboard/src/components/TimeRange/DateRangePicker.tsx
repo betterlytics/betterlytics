@@ -69,7 +69,7 @@ export function DateRangePicker({
       <Popover open={!disabled && isOpen} onOpenChange={(open) => !disabled && setIsOpen(open)}>
         <PopoverTrigger asChild>
           <span className='w-full'>
-            <DisabledTooltip disabled={disabled} message={disabledTitle ?? ''} wrapperClassName='w-full'>
+            <DisabledTooltip disabled={disabled} message={disabledTitle ?? ''}>
               {(isDisabled) => (
                 <Button
                   variant={'ghost'}
