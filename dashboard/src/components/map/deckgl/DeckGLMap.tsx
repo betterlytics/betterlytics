@@ -17,7 +17,7 @@ export interface DeckGLMapProps {
   isTimeseries: boolean;
   isMapHovered: boolean;
   style: DeckGLMapStyle;
-  colorUpdateTrigger?: any; //! todo type
+  colorUpdateTrigger?: any;
   fillAnimation?: GeoJsonAnimation;
   outlineAnimation?: GeoJsonAnimation;
   onClick: (info: any) => void;
