@@ -5,12 +5,14 @@ import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from '@/utils/granu
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { DisabledTooltip } from '@/components/ui/DisabledTooltip';
 
 interface GranularitySectionProps {
   selectedGranularity: GranularityRangeValues;
   allowedGranularities: GranularityRangeValues[];
   onGranularitySelect: (granularity: GranularityRangeValues) => void;
   disabled?: boolean;
+  notAllowedTitle?: string;
 }
 
 export function GranularitySection({
@@ -18,6 +20,7 @@ export function GranularitySection({
   allowedGranularities,
   onGranularitySelect,
   disabled,
+  notAllowedTitle,
 }: GranularitySectionProps) {
   const t = useTranslations('components.timeRange');
   const ordered = GRANULARITY_RANGE_PRESETS.slice().reverse();
@@ -28,24 +31,34 @@ export function GranularitySection({
         {ordered.map((gran) => {
           const isActive = selectedGranularity === gran.value && !disabled;
           const isAllowed = allowedGranularities.includes(gran.value);
+          const showTooltip = !isAllowed && !disabled && notAllowedTitle !== undefined;
           return (
-            <Button
+            <DisabledTooltip
               key={gran.value}
-              type='button'
-              variant='ghost'
-              size='sm'
-              className={cn(
-                'h-7 w-full cursor-pointer rounded-[4px] border border-transparent px-2 text-[10px] font-medium',
-                !isAllowed && 'cursor-not-allowed opacity-50 hover:opacity-50',
-                !isActive && 'text-muted-foreground hover:bg-accent',
-                isActive && 'bg-input text-foreground border-border hover:bg-input hover:dark:bg-input shadow-sm',
-              )}
-              disabled={!isAllowed || disabled}
-              aria-pressed={isActive}
-              onClick={() => isAllowed && onGranularitySelect(gran.value)}
+              disabled={showTooltip}
+              message={notAllowedTitle ?? ''}
+              wrapperClassName='w-full'
             >
-              {t(`granularityLabels.${gran.value}`)}
-            </Button>
+              {() => (
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='sm'
+                  className={cn(
+                    'h-7 w-full cursor-pointer rounded-[4px] border border-transparent px-2 text-[10px] font-medium',
+                    !isAllowed && 'cursor-not-allowed opacity-50 hover:opacity-50',
+                    !isActive && 'text-muted-foreground hover:bg-accent',
+                    isActive &&
+                      'bg-input text-foreground border-border hover:bg-input hover:dark:bg-input shadow-sm',
+                  )}
+                  disabled={!isAllowed || disabled}
+                  aria-pressed={isActive}
+                  onClick={() => isAllowed && onGranularitySelect(gran.value)}
+                >
+                  {t(`granularityLabels.${gran.value}`)}
+                </Button>
+              )}
+            </DisabledTooltip>
           );
         })}
       </div>

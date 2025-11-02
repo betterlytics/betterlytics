@@ -1150,6 +1150,7 @@
       "sameLengthAsMain": "Same length as main range",
       "compareToPeriod": "Compare to Period",
       "dateRange": "Date range",
+      "granularityNotAvailable": "Granularity not available for selected range",
       "presets": {
         "today": "Today",
         "yesterday": "Yesterday",
@@ -1834,6 +1835,9 @@
       "body": "To continue using your account, please review and accept our <termsLink>Terms of Service</termsLink>.",
       "acceptAndContinue": "Accept and Continue",
       "logout": "Log Out"
+    },
+    "demoMode": {
+      "notAvailable": "Not available on demo dashboard"
     }
   },
   "onboarding": {

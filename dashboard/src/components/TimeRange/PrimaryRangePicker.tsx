@@ -17,13 +17,16 @@ import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { getAllowedGranularities } from '@/utils/granularityRanges';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { LiveIndicator } from '@/components/live-indicator';
+import { useDemoMode } from '@/contexts/DemoModeContextProvider';
 
 export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
+  const tDemo = useTranslations('components.demoMode');
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
+  const isDemo = useDemoMode();
 
   const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
 
@@ -53,12 +56,15 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
           actions.setPresetRange(v);
           setOpen(false);
         }}
+        allowedValues={isDemo ? ['24h', '7d'] : undefined}
       />
       <Separator className='my-1' />
       <DateRangeSection
         startDate={ctx.startDate}
         endDate={ctx.endDate}
         onDateRangeSelect={actions.setCustomRange}
+        disabled={isDemo}
+        disabledTitle={isDemo ? tDemo('notAvailable') : undefined}
       />
       <Separator className='my-1' />
       <GranularitySection
@@ -66,6 +72,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         allowedGranularities={allowed}
         onGranularitySelect={actions.setGranularity}
         disabled={ctx.interval === 'realtime' || ctx.interval === '1h'}
+        notAllowedTitle={t('granularityNotAvailable')}
       />
     </div>
   );

@@ -8,6 +8,8 @@ interface DateRangeSectionProps {
   endDate: Date | undefined;
   onDateRangeSelect: (from: Date | undefined, to: Date | undefined) => void;
   showSameLengthHint?: boolean;
+  disabled?: boolean;
+  disabledTitle?: string;
 }
 
 export function DateRangeSection({
@@ -15,6 +17,8 @@ export function DateRangeSection({
   endDate,
   onDateRangeSelect,
   showSameLengthHint = false,
+  disabled = false,
+  disabledTitle,
 }: DateRangeSectionProps) {
   return (
     <div className='m-0 grid gap-4'>
@@ -27,6 +31,8 @@ export function DateRangeSection({
           to: endDate,
         }}
         showSameLengthHint={showSameLengthHint}
+        disabled={disabled}
+        disabledTitle={disabledTitle}
       />
     </div>
   );

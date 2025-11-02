@@ -10,15 +10,24 @@ import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
+import { DisabledTooltip } from '@/components/ui/DisabledTooltip';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
   onDateRangeSelect: (dateRange: DateRange | undefined) => void;
   id?: string;
   showSameLengthHint?: boolean;
+  disabled?: boolean;
+  disabledTitle?: string;
 }
 
-export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint = false }: DateRangePickerProps) {
+export function DateRangePicker({
+  range,
+  onDateRangeSelect,
+  showSameLengthHint = false,
+  disabled = false,
+  disabledTitle,
+}: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const isMobile = useIsMobile();
@@ -57,17 +66,24 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
 
   return (
     <div>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover open={!disabled && isOpen} onOpenChange={(open) => !disabled && setIsOpen(open)}>
         <PopoverTrigger asChild>
-          <Button
-            variant={'ghost'}
-            className={cn(
-              'h-8 w-full cursor-pointer justify-start truncate rounded-sm px-2 font-normal',
-              !range && 'text-muted-foreground',
-            )}
-          >
-            <span>{t('customPeriod')}</span>
-          </Button>
+          <span className='w-full'>
+            <DisabledTooltip disabled={disabled} message={disabledTitle ?? ''} wrapperClassName='w-full'>
+              {(isDisabled) => (
+                <Button
+                  variant={'ghost'}
+                  className={cn(
+                    'h-8 w-full cursor-pointer justify-start truncate rounded-sm px-2 font-normal',
+                    !range && 'text-muted-foreground',
+                  )}
+                  disabled={isDisabled}
+                >
+                  <span>{t('customPeriod')}</span>
+                </Button>
+              )}
+            </DisabledTooltip>
+          </span>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
           <Calendar
