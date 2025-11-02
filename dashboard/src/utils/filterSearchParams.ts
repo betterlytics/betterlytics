@@ -171,7 +171,7 @@ function enforceGranularityAndDuration(
     compareAlignWeekdays,
   );
 
-  let nextStart = initial.main.start;
+  const nextStart = initial.main.start;
   let nextEnd = initial.main.end;
   let nextGranularity = granularity;
 
