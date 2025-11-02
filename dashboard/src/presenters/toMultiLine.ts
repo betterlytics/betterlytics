@@ -1,37 +1,43 @@
 import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/webVitals';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 
+type CoreWebVitalNameWithoutEmpty = Exclude<CoreWebVitalName, ''>;
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
-export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
+export type CoreWebVitalsSeries = Record<CoreWebVitalNameWithoutEmpty, PercentilePoint[]>;
 
 export function toNewMultiLine(
   rows: CoreWebVitalNamedPercentilesRow[],
-): Record<CoreWebVitalName, PercentilePoint[]> {
-  const byMetric: Record<CoreWebVitalName, Record<string, [number, number, number, number]>> = {
+): Record<CoreWebVitalNameWithoutEmpty, PercentilePoint[]> {
+  const byMetric: Record<CoreWebVitalNameWithoutEmpty, Record<string, [number, number, number, number]>> = {
     CLS: {},
     LCP: {},
     INP: {},
     FCP: {},
     TTFB: {},
-    '': {},
   };
 
   for (const r of rows) {
-    if (r.name === '' || r.p50 === null || r.p75 === null || r.p90 === null || r.p99 === null) continue;
     const key = parseClickHouseDate(r.date).valueOf().toString();
-    byMetric[r.name][key] = [r.p50, r.p75, r.p90, r.p99];
+    if (r.name !== '') {
+      byMetric[r.name][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+    } else {
+      byMetric['CLS'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+      byMetric['FCP'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+      byMetric['INP'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+      byMetric['LCP'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+      byMetric['TTFB'][key] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
+    }
   }
 
-  const result: Record<CoreWebVitalName, PercentilePoint[]> = {
+  const result: Record<CoreWebVitalNameWithoutEmpty, PercentilePoint[]> = {
     CLS: [],
     LCP: [],
     INP: [],
     FCP: [],
     TTFB: [],
-    '': [],
   };
 
-  (Object.keys(result) as CoreWebVitalName[]).forEach((name) => {
+  (Object.keys(result) as CoreWebVitalNameWithoutEmpty[]).forEach((name) => {
     const keys = Object.keys(byMetric[name])
       .map((k) => Number(k))
       .sort((a, b) => a - b);
