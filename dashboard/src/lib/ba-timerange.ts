@@ -51,6 +51,7 @@ function shouldIncludeCurrentBucket(timeRange: TimeRangeValue) {
     timeRange === '24h' ||
     timeRange === 'today' ||
     timeRange === 'mtd' ||
+    timeRange === 'last_month' ||
     timeRange === 'ytd'
   );
 }
