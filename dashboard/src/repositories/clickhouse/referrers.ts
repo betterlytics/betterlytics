@@ -92,7 +92,7 @@ export async function getReferrerTrafficTrendBySource(
         AND referrer_source != 'internal'
         AND ${SQL.AND(filters)}
       GROUP BY date, referrer_source
-      ORDER BY date ASC WITH ${fill}, count DESC
+      ORDER BY date ASC ${fill}, count DESC
     `,
   );
 
@@ -332,7 +332,7 @@ export async function getDailyReferralSessions(
         AND referrer_source != 'internal'
         AND ${SQL.AND(filters)}
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );
@@ -389,7 +389,7 @@ export async function getDailyReferralTrafficPercentage(
           0
         ) as referralPercentage
       FROM daily_stats
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );
@@ -446,7 +446,7 @@ export async function getDailyReferralSessionDuration(
         round(avg(session_duration_seconds), 1) as avgSessionDuration
       FROM session_durations
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );

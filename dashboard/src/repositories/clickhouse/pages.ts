@@ -52,7 +52,7 @@ export async function getTotalPageViews(
         AND ${range}
         AND ${SQL.AND(filters)}
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}, views DESC
+      ORDER BY date ASC ${fill}, views DESC
       LIMIT 10080
     `,
   );
@@ -94,7 +94,7 @@ export async function getPageViews(
         AND event_type = 'pageview' 
         AND ${range}
       GROUP BY date, url
-      ORDER BY date ASC WITH ${fill}, views DESC
+      ORDER BY date ASC ${fill}, views DESC
       LIMIT 10080
     `,
   );
@@ -328,7 +328,7 @@ export async function getPageTrafficTimeSeries(
         AND event_type = 'pageview' 
         AND ${range}
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );
@@ -710,7 +710,7 @@ export async function getDailyAverageTimeOnPage(
         avgIf(duration_seconds, duration_seconds IS NOT NULL) as avgTime
       FROM page_view_durations
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );
@@ -772,7 +772,7 @@ export async function getDailyBounceRate(
         if(count() > 0, round(countIf(page_count = 1) / count() * 100, 2), 0) as bounceRate
       FROM daily_sessions
       GROUP BY session_date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );

@@ -197,7 +197,7 @@ export async function getCampaignVisitorTrendData(
         AND ${range}
         AND utm_campaign != ''
       GROUP BY date, utm_campaign
-      ORDER BY date ASC WITH ${fill}, utm_campaign ASC
+      ORDER BY date ASC ${fill}, utm_campaign ASC
     `,
   );
 

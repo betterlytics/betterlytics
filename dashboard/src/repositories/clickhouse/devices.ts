@@ -193,7 +193,7 @@ export async function getDeviceUsageTrend(
         AND ${range}
         AND ${SQL.AND(filters)}
       GROUP BY date, device_type
-      ORDER BY date ASC WITH ${fill}, count DESC
+      ORDER BY date ASC ${fill}, count DESC
     `,
   );
 

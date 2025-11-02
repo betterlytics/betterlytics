@@ -111,7 +111,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
       FROM metrics
       WHERE name IN {metric_names:Array(String)}
       GROUP BY date, name
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );

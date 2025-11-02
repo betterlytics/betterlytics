@@ -89,7 +89,7 @@ function getTimestampRange(
   const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
   const intervalTo = safeSql`toStartOfInterval(${end}, ${interval}, ${SQL.String({ timezone })})`;
 
-  const fill = safeSql`FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
+  const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 
   // Wrapper for converting final date from user timezone to UTC
   const timeWrapper = (sql: ReturnType<typeof safeSql>) => {

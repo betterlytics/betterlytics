@@ -45,7 +45,7 @@ export async function getUniqueVisitors(
         uniq(visitor_id) as unique_visitors
       FROM first_visitor_appearances
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );
@@ -170,7 +170,7 @@ export async function getSessionMetrics(
         ) AS pages_per_session
       FROM included
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080;
     `,
   );

@@ -111,7 +111,7 @@ export async function getDailyOutboundClicks(
         AND outbound_link_url != ''
         AND ${SQL.AND(filters)}
       GROUP BY date
-      ORDER BY date ASC WITH ${fill}
+      ORDER BY date ASC ${fill}
       LIMIT 10080
     `,
   );
