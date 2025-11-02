@@ -1,6 +1,6 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
-import { parseClickHouseDate } from '@/utils/dateHelpers';
+import { getDateKey } from '@/utils/dateHelpers';
 
 type RawStackedData<CategoryKey extends string, ValueKey extends string> = Array<
   { date: string } & Record<CategoryKey, string> & Record<ValueKey, number>
@@ -45,7 +45,7 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
   const processedData: Record<string, Record<string, number>> = {};
 
   data.forEach((item) => {
-    const dateKey = parseClickHouseDate(item.date).valueOf().toString();
+    const dateKey = getDateKey(item.date);
     const category = item[categoryKey];
     const value = item[valueKey];
 

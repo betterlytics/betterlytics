@@ -1,6 +1,6 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
-import { parseClickHouseDate } from '@/utils/dateHelpers';
+import { getDateKey } from '@/utils/dateHelpers';
 
 export type ChartPoint = { date: number; value: Array<number | null> };
 
@@ -26,7 +26,7 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
 function dataToAreaChart<K extends string>({ dataKey, data }: Pick<DataToAreaChartProps<K>, 'dataKey' | 'data'>) {
   const groupedData = data.reduce(
     (group, row) => {
-      const key = parseClickHouseDate(row.date).valueOf().toString();
+      const key = getDateKey(row.date);
       group[key] = row[dataKey];
       return group;
     },
