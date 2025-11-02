@@ -40,6 +40,42 @@ export function getResolvedRanges(
   return { main, compare };
 }
 
+function shouldIncludeCurrentBucket(timeRange: TimeRangeValue) {
+  return (
+    timeRange === 'realtime' ||
+    timeRange === '1h' ||
+    timeRange === '24h' ||
+    timeRange === 'today' ||
+    timeRange === 'mtd' ||
+    timeRange === 'ytd'
+  );
+}
+
+type DurationSpecUnit = 'minute' | 'hour';
+interface DurationSpec {
+  amount: number;
+  unit: DurationSpecUnit;
+}
+
+function getTrailingDurationSpec(timeRange: TimeRangeValue): DurationSpec | null {
+  switch (timeRange) {
+    case 'realtime':
+      return { amount: 30, unit: 'minute' };
+    case '1h':
+      return { amount: 1, unit: 'hour' };
+    case '24h':
+      return { amount: 24, unit: 'hour' };
+    default:
+      return null;
+  }
+}
+
+function moveEndToNextBucket(end: Date, granularity: GranularityRangeValues, timezone: string) {
+  const unit = getGranularityUnit(granularity);
+  const step = getGranularityStep(granularity);
+  return moment(end).tz(timezone).add(step, unit).toDate();
+}
+
 /**
  * Computes aligned start/end for a time range.
  */
@@ -64,45 +100,26 @@ function getAlignedRange({
   // Initial snap
   const initiallySnapped = snapToGranularity({ start: rawStart, end: rawEnd, granularity, timezone });
 
-  const snapped = (() => {
-    // Only these include the current bucket
-    const includeCurrent = ['realtime', '1h', '24h', 'today', 'mtd', 'ytd'].includes(timeRange);
+  const includeCurrent = shouldIncludeCurrentBucket(timeRange);
+  const endForWindow = includeCurrent
+    ? moveEndToNextBucket(initiallySnapped.end, granularity, timezone)
+    : initiallySnapped.end;
 
-    // Fixed-duration trailing windows; derive start from end
-    const durationSpec =
-      timeRange === 'realtime'
-        ? { amount: 30, unit: 'minute' as const }
-        : timeRange === '1h'
-          ? { amount: 1, unit: 'hour' as const }
-          : timeRange === '24h'
-            ? { amount: 24, unit: 'hour' as const }
-            : null;
+  const durationSpec = getTrailingDurationSpec(timeRange);
 
-    const unit = getGranularityUnit(granularity);
-    const step = getGranularityStep(granularity);
+  let snapped: ResolvedRange;
 
-    // If including current bucket, move end to next bucket start (end stays exclusive)
-    const endForWindow = moment(initiallySnapped.end)
+  if (durationSpec) {
+    const derivedStart = moment(endForWindow)
       .tz(timezone)
-      .add(includeCurrent ? step : 0, unit)
+      .subtract(durationSpec.amount, durationSpec.unit)
       .toDate();
-
-    if (durationSpec) {
-      const derivedStart = moment(endForWindow)
-        .tz(timezone)
-        .subtract(durationSpec.amount, durationSpec.unit)
-        .toDate();
-      return snapToGranularity({ start: derivedStart, end: endForWindow, granularity, timezone });
-    }
-
-    // Calendar-anchored (today/mtd/ytd): keep start anchored, only shift end when including current bucket
-    if (includeCurrent) {
-      return snapToGranularity({ start: initiallySnapped.start, end: endForWindow, granularity, timezone });
-    }
-
-    // All others unchanged
-    return initiallySnapped;
-  })();
+    snapped = snapToGranularity({ start: derivedStart, end: endForWindow, granularity, timezone });
+  } else if (includeCurrent) {
+    snapped = snapToGranularity({ start: initiallySnapped.start, end: endForWindow, granularity, timezone });
+  } else {
+    snapped = initiallySnapped;
+  }
 
   if (offset === 0) return snapped;
 
