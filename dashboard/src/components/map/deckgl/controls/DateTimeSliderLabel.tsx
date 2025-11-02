@@ -20,7 +20,7 @@ export type DateTimeSliderLabelProps = {
   animate?: boolean;
 } & React.ComponentProps<'span'>;
 
-export function DateTimeSliderLabel({
+function DateTimeSliderLabelComponent({
   value,
   granularity,
   animate = true,
@@ -32,15 +32,19 @@ export function DateTimeSliderLabel({
   return animate ? (
     <MotionText
       text={formatted}
-      className={cn('inline-flex', className)}
+      className={cn(className, 'inline-flex')}
       charClassName='w-[1ch] text-center tabular-nums select-none'
       y={6}
       duration={0.2}
       {...rest}
     />
   ) : (
-    <span className={cn('inline-flex', className)} {...rest}>
+    <span className={cn(className, 'inline-flex')} {...rest}>
       {formatted}
     </span>
   );
 }
+
+const DateTimeSliderLabel = React.memo(DateTimeSliderLabelComponent);
+DateTimeSliderLabel.displayName = 'DateTimeSliderLabel';
+export default DateTimeSliderLabel;

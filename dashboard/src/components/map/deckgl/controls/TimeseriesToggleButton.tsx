@@ -3,7 +3,8 @@
 import { Sigma, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
+import React from 'react';
 
 type TimeseriesToggleButtonProps = {
   isTimeseries: boolean;
@@ -11,7 +12,7 @@ type TimeseriesToggleButtonProps = {
   className?: string;
 };
 
-export function TimeseriesToggleButton({ isTimeseries, onToggle, className }: TimeseriesToggleButtonProps) {
+function TimeseriesToggleButtonComponent({ isTimeseries, onToggle, className }: TimeseriesToggleButtonProps) {
   const t = useTranslations('components.geography.mapType');
 
   const Icon = isTimeseries ? Sigma : Video;
@@ -35,3 +36,7 @@ export function TimeseriesToggleButton({ isTimeseries, onToggle, className }: Ti
     </motion.button>
   );
 }
+
+const TimeseriesToggleButton = React.memo(TimeseriesToggleButtonComponent);
+TimeseriesToggleButton.displayName = 'TimeseriesToggleButton';
+export default TimeseriesToggleButton;

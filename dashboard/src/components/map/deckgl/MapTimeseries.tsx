@@ -1,8 +1,12 @@
 'use client';
 
 import { type getWorldMapGranularityTimeseries } from '@/app/actions';
+import DateTimeSliderLabel from '@/components/map/deckgl/controls/DateTimeSliderLabel';
 import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
+import TimeseriesToggleButton from '@/components/map/deckgl/controls/TimeseriesToggleButton';
+import ZoomControls from '@/components/map/deckgl/controls/ZoomControls';
+import DeckGLMap, { DeckGLMapProps } from '@/components/map/deckgl/DeckGLMap';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useDeckGLEventHandlers } from '@/hooks/deckgl/use-deckgl-with-compare';
@@ -11,12 +15,8 @@ import { useIsMapHovered } from '@/hooks/deckgl/use-is-map-hovered';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { DateTimeSliderLabel } from './controls/DateTimeSliderLabel';
-import { ZoomControls } from './controls/ZoomControls';
-import DeckGLMap, { DeckGLMapProps } from './DeckGLMap';
-import { TimeseriesToggleButton } from './TimeseriesToggleButton';
 import { useTranslations } from 'next-intl';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export type MapTimeseries = {

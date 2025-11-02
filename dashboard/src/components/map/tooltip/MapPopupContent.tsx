@@ -2,7 +2,7 @@
 
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { DateTimeSliderLabel } from '@/components/map/deckgl/controls/DateTimeSliderLabel';
+import DateTimeSliderLabel from '@/components/map/deckgl/controls/DateTimeSliderLabel';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoVisitorWithCompare } from '@/contexts/DeckGLSelectionContextProvider';

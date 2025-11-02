@@ -1,17 +1,17 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
 import { PlaybackButton } from '@/components/map/deckgl/controls/PlaybackButton';
+import { PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
+import TimeseriesToggleButton from '@/components/map/deckgl/controls/TimeseriesToggleButton';
 import { TimeSlider } from '@/components/map/deckgl/controls/TimeSlider';
 import type { TimeSliderTickType } from '@/components/map/deckgl/controls/TimeSliderTick';
-import { PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
-import { cn } from '@/lib/utils';
 import { ScaleMotion } from '@/components/ScaleMotion';
+import { cn } from '@/lib/utils';
+import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { TimeseriesToggleButton } from '../TimeseriesToggleButton';
 
-export type MapPlayActionbarProps<TValue> = {
-  ticks: TimeSliderTickType<TValue>[];
+export type MapPlayActionbarProps = {
+  ticks: TimeSliderTickType[];
   value: number;
   playing: boolean;
   speed: any;
@@ -24,7 +24,7 @@ export type MapPlayActionbarProps<TValue> = {
   style?: React.CSSProperties;
 };
 
-export function MapPlayActionbar<TValue>({
+export function MapPlayActionbar({
   ticks,
   value,
   playing,
@@ -36,7 +36,7 @@ export function MapPlayActionbar<TValue>({
   onToggleTimeseries,
   onScrub,
   onChangeSpeed,
-}: MapPlayActionbarProps<TValue>) {
+}: MapPlayActionbarProps) {
   const [hoverIntent, setHoverIntent] = useState(false);
   const [hoverActive, setHoverActive] = useState(false);
   const [speedOpen, setSpeedOpen] = useState(false);

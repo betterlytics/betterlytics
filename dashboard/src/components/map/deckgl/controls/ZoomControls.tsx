@@ -12,7 +12,7 @@ export type ZoomControlsProps = {
   style?: React.CSSProperties;
 };
 
-export function ZoomControls({ className, style }: ZoomControlsProps) {
+function ZoomControlsComponent({ className, style }: ZoomControlsProps) {
   const { runCommand } = useMapCommands();
 
   const handleZoom = (zoomType: ZoomType) => {
@@ -40,3 +40,7 @@ export function ZoomControls({ className, style }: ZoomControlsProps) {
     </ScaleMotion>
   );
 }
+
+const ZoomControls = React.memo(ZoomControlsComponent);
+ZoomControls.displayName = 'ZoomControls';
+export default ZoomControls;

@@ -1,15 +1,15 @@
 'use client';
 
-import * as React from 'react';
-import * as SliderPrimitive from '@radix-ui/react-slider';
+import TimeSliderTick, { type TimeSliderTickType } from '@/components/map/deckgl/controls/TimeSliderTick';
+import MapTooltipTip from '@/components/map/tooltip/MapTooltipTip';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
-import MapTooltipTip from '../../tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
-import TimeSliderTick, { type TimeSliderTickType } from './TimeSliderTick';
+import * as SliderPrimitive from '@radix-ui/react-slider';
+import { motion } from 'framer-motion';
+import * as React from 'react';
 
-export type TimeSliderProps<TValue> = {
-  ticks: TimeSliderTickType<TValue>[];
+export type TimeSliderProps = {
+  ticks: TimeSliderTickType[];
   value: number; // Current slider position
   playing?: boolean;
   playbackSpeed?: number;
@@ -17,13 +17,7 @@ export type TimeSliderProps<TValue> = {
   onScrub?: (index: number) => void; // user clicks/drag
 };
 
-export function TimeSlider<TValue>({
-  ticks,
-  value,
-  playing = false,
-  hovering = false,
-  onScrub,
-}: TimeSliderProps<TValue>) {
+export function TimeSlider({ ticks, value, playing = false, hovering = false, onScrub }: TimeSliderProps) {
   const intervals = ticks.length - 1;
 
   // Thumb index (round to nearest tick)

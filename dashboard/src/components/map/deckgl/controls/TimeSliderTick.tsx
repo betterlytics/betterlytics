@@ -1,13 +1,12 @@
 import React from 'react';
 
-export type TimeSliderTickType<TValue> = {
+export type TimeSliderTickType = {
   tickLabel: React.ReactNode;
   thumbLabel: React.ReactNode;
   opacity: number;
-  value: TValue;
 };
 
-function TimeSliderTickComponent<TValue>({
+function TimeSliderTickComponent({
   index,
   tick,
   intervals,
@@ -15,7 +14,7 @@ function TimeSliderTickComponent<TValue>({
   thumbWidth,
 }: {
   index: number;
-  tick: TimeSliderTickType<TValue>;
+  tick: TimeSliderTickType;
   intervals: number;
   hoverValue: number | null;
   thumbWidth: number;
@@ -36,4 +35,5 @@ function TimeSliderTickComponent<TValue>({
 }
 
 const TimeSliderTick = React.memo(TimeSliderTickComponent);
+TimeSliderTick.displayName = 'TimeSliderTick';
 export default TimeSliderTick;
