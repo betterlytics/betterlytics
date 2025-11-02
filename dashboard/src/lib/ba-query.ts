@@ -79,15 +79,17 @@ function getTimestampRange(
   const start = SQL.DateTime({ startDate });
   const end = SQL.DateTime({ endDate });
 
+  const interval = getGranularityInterval(granularity);
+
   // Note: the end timestamp is exclusive
   // the BETWEEN keyword seems to be inclusive of the end timestamp
   const range = safeSql`timestamp >= ${start} AND timestamp < ${end}`;
 
   // Create the fill
-  const intervalFrom = safeSql`toStartOfInterval(${start}, ${getGranularityInterval(granularity)}, ${SQL.String({ timezone })})`;
-  const intervalTo = safeSql`toStartOfInterval(${end}, ${getGranularityInterval(granularity)}, ${SQL.String({ timezone })})`;
+  const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
+  const intervalTo = safeSql`toStartOfInterval(${end}, ${interval}, ${SQL.String({ timezone })})`;
 
-  const fill = safeSql`FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${getGranularityInterval(granularity)}`;
+  const fill = safeSql`FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 
   // Wrapper for converting final date from user timezone to UTC
   const timeWrapper = (sql: ReturnType<typeof safeSql>) => {

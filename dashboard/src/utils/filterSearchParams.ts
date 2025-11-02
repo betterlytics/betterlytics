@@ -6,7 +6,7 @@ import {
 } from './timeRanges';
 import { deriveCompareRange } from './compareRanges';
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
-import { getCompareTimeRange, getTimeRange } from '@/lib/ba-timerange';
+import { getResolvedRanges } from '@/lib/ba-timerange';
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
@@ -147,27 +147,21 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
     ...decoded,
   };
 
-  const { start, end } = getTimeRange(
+  const { main, compare } = getResolvedRanges(
     filters.interval,
+    filters.compare,
     timezone,
     filters.startDate,
     filters.endDate,
+    filters.granularity,
     filters.offset,
   );
-  const { start: compareStart, end: compareEnd } = getCompareTimeRange(
-    filters.compare,
-    timezone,
-    start,
-    end,
-    filters.compareStartDate,
-    filters.compareEndDate,
-  );
 
-  filters.startDate = start;
-  filters.endDate = end;
+  filters.startDate = main.start;
+  filters.endDate = main.end;
 
-  filters.compareStartDate = compareStart;
-  filters.compareEndDate = compareEnd;
+  filters.compareStartDate = compare?.start;
+  filters.compareEndDate = compare?.end;
 
   return FilterQueryParamsSchema.parse(filters);
 }

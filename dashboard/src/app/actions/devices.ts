@@ -19,10 +19,7 @@ import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
-import { TimeRangeValue } from '@/utils/timeRanges';
 import { toNewStackedAreaChart } from '@/presenters/toNewStackedAreaChart';
-import { getCompareTimeRange, getTimeRange } from '@/lib/ba-timerange';
-import { CompareMode } from '@/utils/compareRanges';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
   async (
