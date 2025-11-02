@@ -118,9 +118,6 @@
   --time-slider-thumb: oklch(62% 0.17 268.71);
   --time-slider-tick: oklch(0.25 0 0);
   --time-slider-tick-hovered: oklch(52% 0.2 266);
-
-  --geography-error-light: oklch(0.9421 0.0266 9 / 60%);
-  --geography-error: oklch(0.5986 0.244365 27.5722);
 }
 
 .dark {
@@ -192,9 +189,6 @@
   --time-slider-thumb: oklch(56% 0.196 268.74);
   --time-slider-tick: hsl(0 0% 90%);
   --time-slider-tick-hovered: oklch(52% 0.2 266);
-
-  --geography-error-light: oklch(0.9421 0.0266 9 / 60%);
-  --geography-error: oklch(0.5986 0.244365 27.5722);
 }
 
 @layer base {
