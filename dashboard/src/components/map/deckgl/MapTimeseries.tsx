@@ -54,15 +54,12 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   });
 
   const tickProps = useMemo(() => {
-    // guard against missing data
     if (!visitorDataTimeseries?.length || !totalDataTimeseries?.timeVisitors) return [];
 
     return visitorDataTimeseries.map((tgeo, i) => {
-      const timeVisitor = totalDataTimeseries.timeVisitors[i];
-      const totalVisitors = timeVisitor?.visitors ?? 0;
+      const totalVisitors = totalDataTimeseries.timeVisitors[i]?.visitors ?? 0;
       const accTotal = totalDataTimeseries.accTotal ?? 0;
-
-      const height = Math.round(accTotal > 0 && totalVisitors > 0 ? (totalVisitors / accTotal) * 100 : 0) / 2;
+      const opacity = accTotal > 0 && totalVisitors > 0 ? Math.min((totalVisitors / accTotal) * Math.E, 1) : 0;
 
       return {
         thumbLabel: <DateTimeSliderLabel value={tgeo.date} granularity={timeRangeCtx.granularity} />,
@@ -74,8 +71,8 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
             animate={false}
           />
         ),
-        height: height ? height + 4 : 0,
         value: tgeo.date,
+        opacity,
       };
     });
   }, [visitorDataTimeseries, totalDataTimeseries]);

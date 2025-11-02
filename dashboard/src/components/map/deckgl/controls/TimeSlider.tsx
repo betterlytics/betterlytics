@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 export type TimeSliderTick<TValue> = {
   tickLabel: React.ReactNode;
   thumbLabel: React.ReactNode;
-  height: number;
+  opacity: number;
   value: TValue;
 };
 
@@ -35,7 +35,6 @@ export function TimeSlider<TValue>({
   // Thumb index (round to nearest tick)
   const index = Math.round(value);
   const THUMB_WIDTH = 20;
-  const MAX_TICK_HEIGHT = 12;
 
   // Hover state for tooltip below track
   const [hoverValue, setHoverValue] = React.useState<number | null>(null);
@@ -81,10 +80,10 @@ export function TimeSlider<TValue>({
           {ticks.map((tick, i) => (
             <div
               key={i}
-              className='bg-primary/80 absolute bottom-[calc(100%)] w-[2px] origin-bottom'
+              className='bg-accent-foreground absolute top-0 h-4 w-0.5 origin-bottom'
               style={{
                 left: `calc(${THUMB_WIDTH / 2}px + (100% - ${THUMB_WIDTH}px) * ${i / intervals})`,
-                height: `${Math.min(tick.height, MAX_TICK_HEIGHT) ?? 0}px`,
+                opacity: Math.min(tick.opacity > 0 ? tick.opacity + 0.2 : 0, 1),
                 transform: 'translateX(-50%)',
               }}
             />
