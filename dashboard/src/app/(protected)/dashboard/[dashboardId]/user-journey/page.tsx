@@ -11,6 +11,7 @@ import { UserJourneyFilters } from './UserJourneyFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type UserJourneyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -25,7 +26,11 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, userJourney, queryFilters } = BAFilterSearchParams.decode(await searchParams);
+  const timezone = await getUserTimezone();
+  const { startDate, endDate, userJourney, queryFilters } = BAFilterSearchParams.decode(
+    await searchParams,
+    timezone,
+  );
 
   const userJourneyPromise = fetchUserJourneyAction(
     dashboardId,

@@ -16,6 +16,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type DevicesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -30,8 +31,9 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   }
 
   const { dashboardId } = await params;
+  const timezone = await getUserTimezone();
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams);
+    BAFilterSearchParams.decode(await searchParams, timezone);
 
   const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(
     dashboardId,
@@ -63,6 +65,7 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
     endDate,
     granularity,
     queryFilters,
+    timezone,
     compareStartDate,
     compareEndDate,
   );

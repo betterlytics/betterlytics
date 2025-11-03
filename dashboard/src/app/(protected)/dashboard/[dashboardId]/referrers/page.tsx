@@ -17,6 +17,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type ReferrersPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -31,8 +32,9 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
   }
 
   const { dashboardId } = await params;
+  const timezone = await getUserTimezone();
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams);
+    BAFilterSearchParams.decode(await searchParams, timezone);
 
   const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(
     dashboardId,
@@ -40,6 +42,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     endDate,
     granularity,
     queryFilters,
+    timezone,
   );
   const distributionPromise = fetchReferrerSourceAggregationDataForSite(
     dashboardId,
@@ -55,6 +58,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
     endDate,
     granularity,
     queryFilters,
+    timezone,
     compareStartDate,
     compareEndDate,
   );

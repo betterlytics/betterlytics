@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
 import { toClickHouseGridStartString } from '@/utils/dateFormatters';
+import { TimeRangeValue } from '@/utils/timeRanges';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -50,23 +51,65 @@ const granularityIntervalMapper = {
 
 const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
 
+function getGranularityInterval(granularity: GranularityRangeValues) {
+  const clickhouseInterval = granularityIntervalMapper[granularity];
+  const validatedInterval = GranularityIntervalSchema.parse(clickhouseInterval);
+  return safeSql`INTERVAL ${SQL.Unsafe(validatedInterval)}`;
+}
+
 /**
  * Returns SQL function to be used for granularity.
  * This will throw an exception if parameter is illegal
  */
-function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityRangeValues) {
-  const interval = granularityIntervalMapper[granularity];
-  const validatedInterval = GranularityIntervalSchema.parse(interval);
-  return (column: z.infer<typeof DateColumnSchema>, date: DateTimeString) => {
+function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityRangeValues, timezone: string) {
+  const clickhouseInterval = getGranularityInterval(granularity);
+  return (column: z.infer<typeof DateColumnSchema>) => {
     const validatedColumn = DateColumnSchema.parse(column);
-    const alignedDate = toClickHouseGridStartString(date);
-    // The "{DateTime} - INTERVAL 10 YEAR" is a "hack" to set the ClickHouse grid aligned origin prior to all points in the database
-    // If removed ClickHouse will throw an error stating that the origin must be before any data point
-    return safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, INTERVAL ${SQL.Unsafe(validatedInterval)}, ${SQL.DateTime({ granulairty_origin_date: alignedDate })} - INTERVAL 10 YEAR)`;
+    const interval = safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, ${clickhouseInterval}, ${SQL.String({ timezone })})`;
+    return safeSql`${interval}`;
+  };
+}
+
+function getTimestampRange(
+  granularity: GranularityRangeValues,
+  timezone: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const start = SQL.DateTime({ startDate });
+  const end = SQL.DateTime({ endDate });
+
+  const interval = getGranularityInterval(granularity);
+
+  // Note: the end timestamp is exclusive
+  // the BETWEEN keyword seems to be inclusive of the end timestamp
+  const range = safeSql`timestamp >= ${start} AND timestamp < ${end}`;
+
+  // Create the fill
+  const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
+  const intervalTo = safeSql`toStartOfInterval(${end}, ${interval}, ${SQL.String({ timezone })})`;
+
+  const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
+
+  // Wrapper for converting final date from user timezone to UTC
+  const timeWrapper = (sql: ReturnType<typeof safeSql>) => {
+    return safeSql`SELECT toTimezone(date, 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
+  };
+
+  // Granularity function
+  const granularityFunc = getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+
+  return {
+    range,
+    fill,
+    timeWrapper,
+    granularityFunc,
   };
 }
 
 export const BAQuery = {
   getGranularitySQLFunctionFromGranularityRange,
   getFilterQuery,
+  getTimestampRange,
+  getGranularityInterval,
 };

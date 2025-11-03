@@ -28,6 +28,7 @@ export async function getAllCoreWebVitalPercentilesTimeseries(
   endDate: Date,
   granularity: any,
   queryFilters: QueryFilter[],
+  timezone: string,
 ) {
   return await getAllCoreWebVitalPercentilesSeries(
     siteId,
@@ -35,6 +36,7 @@ export async function getAllCoreWebVitalPercentilesTimeseries(
     toDateTimeString(endDate),
     granularity,
     queryFilters,
+    timezone,
   );
 }
 

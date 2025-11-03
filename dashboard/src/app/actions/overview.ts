@@ -26,14 +26,29 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const data = await getTotalPageViewsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const data = await getTotalPageViewsForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
     const compare =
       compareStartDate &&
       compareEndDate &&
-      (await getTotalPageViewsForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
+      (await getTotalPageViewsForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+        timezone,
+      ));
 
     return toAreaChart({
       data,
@@ -60,14 +75,29 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const data = await getUniqueVisitorsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const data = await getUniqueVisitorsForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
     const compare =
       compareStartDate &&
       compareEndDate &&
-      (await getUniqueVisitorsForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
+      (await getUniqueVisitorsForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+        timezone,
+      ));
     return toAreaChart({
       data,
       granularity,
@@ -94,10 +124,18 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const data = await getSummaryStatsWithChartsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const data = await getSummaryStatsWithChartsForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
     const compare =
       compareStartDate &&
       compareEndDate &&
@@ -107,6 +145,7 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
         compareEndDate,
         granularity,
         queryFilters,
+        timezone,
       ));
 
     const compareValues = toPartialPercentageCompare({
@@ -174,6 +213,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
@@ -183,6 +223,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
       toDateTimeString(endDate),
       granularity,
       queryFilters,
+      timezone,
     );
 
     const compare =
@@ -194,6 +235,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         toDateTimeString(compareEndDate),
         granularity,
         queryFilters,
+        timezone,
       ));
 
     return {

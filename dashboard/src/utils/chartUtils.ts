@@ -1,7 +1,9 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
-import { utcDay, utcHour, utcMinute, type TimeInterval } from 'd3-time';
+import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { fromZonedTime, getTimezoneOffset, toZonedTime } from 'date-fns-tz';
 import { formatNumber } from './formatters';
+import { addDays, addHours, addMinutes } from 'date-fns';
 
 export interface TrendInfo {
   icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
@@ -98,6 +100,10 @@ export function granularityDateFormatter(granularity?: GranularityRangeValues, l
     return `${datePart} - ${timePart}`;
   };
 }
+
+export type TimeInterval = {
+  offset: (date: Date, step: number) => Date;
+};
 
 export function getTimeIntervalForGranularity(granularity: GranularityRangeValues): TimeInterval {
   if (granularity === 'day') return utcDay;

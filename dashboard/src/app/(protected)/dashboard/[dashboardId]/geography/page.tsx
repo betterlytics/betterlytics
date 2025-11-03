@@ -7,6 +7,7 @@ import GeographySection from '@/app/(protected)/dashboard/[dashboardId]/geograph
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -21,7 +22,8 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   }
 
   const { dashboardId } = await params;
-  const { startDate, endDate, queryFilters } = BAFilterSearchParams.decode(await searchParams);
+  const timezone = await getUserTimezone();
+  const { startDate, endDate, queryFilters } = BAFilterSearchParams.decode(await searchParams, timezone);
 
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
 
