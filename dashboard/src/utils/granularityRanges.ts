@@ -29,7 +29,7 @@ export const GRANULARITY_RANGE_PRESETS: GranularityRangePreset[] = [
 export function getAllowedGranularities(startDate: Date, endDate: Date): GranularityRangeValues[] {
   const durationMs = endDate.getTime() - startDate.getTime();
   const oneDayMs = 24 * 60 * 60 * 1000;
-  const oneWeekMs = 7 * oneDayMs;
+  const oneWeekMs = (7 + 1) * oneDayMs;
   const twoDaysMs = 2 * oneDayMs;
   const twelveHoursMs = 12 * 60 * 60 * 1000;
   const twoHoursMs = 2 * 60 * 60 * 1000;

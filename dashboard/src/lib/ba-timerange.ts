@@ -52,7 +52,8 @@ function shouldIncludeCurrentBucket(timeRange: TimeRangeValue) {
     timeRange === 'today' ||
     timeRange === 'mtd' ||
     timeRange === 'last_month' ||
-    timeRange === 'ytd'
+    timeRange === 'ytd' ||
+    timeRange === '1y'
   );
 }
 
@@ -402,6 +403,7 @@ function getEndTime(timeRange: TimeRangeValue, timezone: string, endDate: Date) 
     case '7d':
     case '28d':
     case '90d':
+      return now.startOf('day');
     case 'mtd':
     case 'ytd':
     case '1y':
