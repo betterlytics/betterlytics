@@ -111,10 +111,17 @@ function createComparisonMap(
   });
 }
 
-function findFirstIncompleteIndexForChart(chart: ChartPoint[], nowTimestamp: number): number {
+function findFirstIncompleteIndexForChart(
+  chart: ChartPoint[],
+  nowTimestamp: number,
+  bucketIncomplete?: boolean,
+): number {
   for (let i = 0; i < chart.length; i++) {
     const bucketStart = chart[i].date;
     if (bucketStart > nowTimestamp) return i - 1;
+  }
+  if (bucketIncomplete) {
+    return chart.length - 1;
   }
   return -1;
 }
@@ -148,7 +155,7 @@ function getIncompleteSplit(
   solid: ChartPoint[];
   incomplete: ChartPoint[] | undefined;
 } {
-  const firstIncompleteIndex = findFirstIncompleteIndexForChart(chart, nowTimestamp);
+  const firstIncompleteIndex = findFirstIncompleteIndexForChart(chart, nowTimestamp, bucketIncomplete);
   const hasIncompleteTail = firstIncompleteIndex !== -1;
   const incompleteCount = hasIncompleteTail ? chart.length - firstIncompleteIndex : 0;
   let incompleteSeriesLength = 0;
