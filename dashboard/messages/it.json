@@ -1451,6 +1451,7 @@
     "geography": {
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
+      "loadingMessage": "Attendere mentre carichiamo i dati della mappa",
       "visitors": "Visitatori",
       "playback": {
         "play": "Avvia la riproduzione della mappa",
@@ -1458,7 +1459,17 @@
         "pause": "Pausa la riproduzione della mappa",
         "speed": {
           "label": "Velocità",
-          "tooltip": ""
+          "tooltip": "Scegli la velocità di riproduzione della mappa"
+        }
+      },
+      "mapType": {
+        "accumulated": {
+          "label": "Accumulato",
+          "tooltip": "Visualizza i dati accumulati per il periodo selezionato."
+        },
+        "timeseries": {
+          "label": "Serie temporale",
+          "tooltip": "Visualizza la distribuzione geografica come una serie temporale riproducibile."
         }
       },
       "zoom": {

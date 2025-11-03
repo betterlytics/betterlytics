@@ -1469,7 +1469,7 @@
         },
         "timeseries": {
           "label": "Tidsserie",
-          "tooltip": "Visualisér den geografiske udviklingen som en tidsserie"
+          "tooltip": "Visualisér den geografiske udvikling som en tidsserie"
         }
       },
       "zoom": {
