@@ -1,11 +1,9 @@
-// components/animation/MotionText.tsx
 'use client';
 
 import * as React from 'react';
 import { AnimatePresence, motion, useReducedMotion, LazyMotion, domAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
-
-type Dir = 'up' | 'down' | 'none';
+import MotionChar, { type Dir } from '@/components/animation/MotionChar';
 
 const isDigit = (ch: string) => ch >= '0' && ch <= '9';
 
@@ -61,7 +59,7 @@ function MotionTextComponent({
       }
     }
     return out;
-  }, [text]);
+  }, [chars, prev, defaultDirection]);
 
   React.useEffect(() => {
     prevRef.current = chars;
@@ -121,32 +119,20 @@ function MotionTextComponent({
         style={{ containIntrinsicInlineSize: 'auto', containIntrinsicBlockSize: '1em' }}
         {...rest}
       >
-        {chars.map((char, i) => {
-          const dir = dirs[i];
-          const enterFrom = dir === 'down' ? -y : y;
-          const exitTo = dir === 'down' ? y : -y;
-          return (
-            <span
-              key={i}
-              className={cn(
-                'relative inline-block h-[1em] w-[1ch] text-center align-baseline tabular-nums select-none',
-                charClassName,
-              )}
-            >
-              <AnimatePresence mode={presenceMode} initial={false}>
-                <motion.span
-                  key={char}
-                  initial={initialOnMount ? { opacity: 0.001, y: enterFrom, scale: punchy ? 0.96 : 1 } : false}
-                  animate={{ opacity: 1, y: 0, scale: 1, transition: enterTransition }}
-                  exit={{ opacity: 0, y: exitTo, scale: punchy ? 0.96 : 1, transition: exitTransition }}
-                  className='absolute inset-0 transform-gpu will-change-transform'
-                >
-                  {char}
-                </motion.span>
-              </AnimatePresence>
-            </span>
-          );
-        })}
+        {chars.map((char, i) => (
+          <MotionChar
+            key={i}
+            char={char}
+            dir={dirs[i]}
+            y={y}
+            punchy={punchy}
+            presenceMode={presenceMode}
+            initialOnMount={initialOnMount}
+            enterTransition={enterTransition}
+            exitTransition={exitTransition}
+            className={charClassName}
+          />
+        ))}
       </span>
     </LazyMotion>
   );

@@ -11,8 +11,6 @@ export default async function GeographyPage({ params }: { params: Promise<{ dash
   const mapType = isMobile ? 'mobile' : 'desktop';
 
   // Access current URL query string
-  // (Next.js App Router doesn’t give it directly to the page component,
-  // but you can reconstruct it via headers)
   const referer = hdrs.get('referer') ?? '';
   const queryString = referer.includes('?') ? '?' + referer.split('?')[1] : '';
 
