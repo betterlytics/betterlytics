@@ -10,14 +10,13 @@ function shouldIncludeCurrentBucket(timeRange: TimeRangeValue) {
     timeRange === '24h' ||
     timeRange === 'today' ||
     timeRange === 'mtd' ||
-    timeRange === 'last_month' ||
     timeRange === 'ytd' ||
     timeRange === '1y' ||
     timeRange === 'custom'
   );
 }
 
-function floorToGranularity(date: moment.Moment, granularity: GranularityRangeValues) {
+function floorToGranularity(date: moment.Moment, granularity: GranularityRangeValues | 'month') {
   switch (granularity) {
     case 'minute_1':
       return date.startOf('minute');
@@ -29,10 +28,12 @@ function floorToGranularity(date: moment.Moment, granularity: GranularityRangeVa
       return date.startOf('hour');
     case 'day':
       return date.startOf('day');
+    case 'month':
+      return date.startOf('month');
   }
 }
 
-function ceilToGranularity(date: moment.Moment, granularity: GranularityRangeValues) {
+function ceilToGranularity(date: moment.Moment, granularity: GranularityRangeValues | 'month') {
   switch (granularity) {
     case 'minute_1':
       return date.add(1, 'minute').startOf('minute');
@@ -44,6 +45,8 @@ function ceilToGranularity(date: moment.Moment, granularity: GranularityRangeVal
       return date.add(1, 'hour').startOf('hour');
     case 'day':
       return date.add(1, 'day').startOf('day');
+    case 'month':
+      return date.add(1, 'month').startOf('month');
   }
 }
 
@@ -94,10 +97,11 @@ function getRangeGranularity(timeRange: Exclude<TimeRangeValue, 'custom'>, granu
     case '28d':
     case '90d':
     case 'mtd':
-    case 'last_month':
     case 'ytd':
     case '1y':
       return 'day';
+    case 'last_month':
+      return 'month';
   }
 }
 
@@ -106,10 +110,6 @@ function toRangeEnd(
   timeRange: Exclude<TimeRangeValue, 'custom'>,
   granularity: GranularityRangeValues,
 ) {
-  if (timeRange === 'last_month') {
-    return date.startOf('month');
-  }
-
   const actualGranularity = getRangeGranularity(timeRange, granularity);
   if (shouldIncludeCurrentBucket(timeRange)) {
     return ceilToGranularity(date, actualGranularity);
