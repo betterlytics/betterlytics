@@ -117,6 +117,39 @@ function toRangeEnd(
   return floorToGranularity(date, actualGranularity);
 }
 
+function granularityUnit(granularity: GranularityRangeValues) {
+  switch (granularity) {
+    case 'minute_1':
+    case 'minute_15':
+    case 'minute_30':
+      return 'minute';
+    case 'hour':
+      return 'hour';
+    case 'day':
+      return 'day';
+  }
+}
+function granularityStep(granularity: GranularityRangeValues) {
+  switch (granularity) {
+    case 'minute_1':
+      return 1;
+    case 'minute_15':
+      return 15;
+    case 'minute_30':
+      return 30;
+    case 'hour':
+      return 1;
+    case 'day':
+      return 1;
+  }
+}
+
+function countBucketsBetween(start: moment.Moment, end: moment.Moment, granularity: GranularityRangeValues) {
+  const unit = granularityUnit(granularity);
+  const step = granularityStep(granularity);
+  return end.diff(start, unit) / step;
+}
+
 function toRangeStart(endDate: moment.Moment, timeRange: Exclude<TimeRangeValue, 'custom'>) {
   switch (timeRange) {
     case 'realtime':
@@ -146,6 +179,53 @@ function toRangeStart(endDate: moment.Moment, timeRange: Exclude<TimeRangeValue,
   }
 }
 
+function getMainRange(
+  timeRange: TimeRangeValue,
+  granularity: GranularityRangeValues,
+  timezone: string,
+  offset: number,
+  customStart?: Date,
+  customEnd?: Date,
+) {
+  if (timeRange === 'custom') {
+    const start = floorToGranularity(moment.tz(customStart, timezone), 'day');
+    const end = ceilToGranularity(moment.tz(customEnd, timezone), 'day');
+    const customBuckets = countBucketsBetween(start, end, granularity);
+    return {
+      start: offsetTime(start, customBuckets, 'days', offset).clone(),
+      end: offsetTime(end, customBuckets, 'days', offset).clone(),
+    };
+  }
+
+  const now = moment.tz(timezone);
+
+  const baseEnd = toRangeEnd(now.clone(), timeRange, granularity);
+
+  const mainEnd = getRangeOffset(baseEnd.clone(), timeRange, offset);
+  const mainStart = toRangeStart(mainEnd.clone(), timeRange);
+
+  return {
+    start: mainStart.clone(),
+    end: mainEnd.clone(),
+  };
+}
+
+function getCompareRange(
+  mainStart: moment.Moment,
+  mainEnd: moment.Moment,
+  mode: CompareMode,
+  alignWeekdays?: boolean,
+) {
+  if (mode === 'off') return undefined;
+  if (mode === 'previous') {
+    const diff = mainEnd.diff(mainStart, 'minutes');
+    return {
+      start: offsetTime(mainStart.clone(), diff, 'minutes', -1).clone(),
+      end: mainStart.clone(),
+    };
+  }
+}
+
 interface ResolvedRange {
   start: Date;
   end: Date; // exclusive
@@ -167,28 +247,20 @@ export function getResolvedRanges(
   offset: number = 0,
   compareAlignWeekdays?: boolean,
 ): TimeRangeResult {
-  if (timeRange === 'custom') {
-    throw new Error('custom time range is not supported yet');
-  }
+  const main = getMainRange(timeRange, granularity, timezone, offset, startDate, endDate);
 
-  const now = moment.tz(timezone);
-
-  const baseEnd = toRangeEnd(now.clone(), timeRange, granularity);
-
-  const mainEnd = getRangeOffset(baseEnd.clone(), timeRange, offset);
-  const mainStart = toRangeStart(mainEnd.clone(), timeRange);
+  const compare = getCompareRange(main.start.clone(), main.end.clone(), compareMode, compareAlignWeekdays);
 
   return {
     main: {
-      start: mainStart.toDate(),
-      end: mainEnd.toDate(),
+      start: main.start.toDate(),
+      end: main.end.toDate(),
     },
-    compare:
-      compareStartDate && compareEndDate
-        ? {
-            start: compareStartDate,
-            end: compareEndDate,
-          }
-        : undefined,
+    compare: compare
+      ? {
+          start: compare.start.toDate(),
+          end: compare.end.toDate(),
+        }
+      : undefined,
   };
 }
