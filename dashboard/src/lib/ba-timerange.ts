@@ -248,20 +248,27 @@ function getCompareRange(
   shouldAlignWeekdays?: boolean,
 ) {
   if (mode === 'off') return undefined;
+  const diff = countUnitsBetween(range, granularity);
+  const unit = granularityUnit(granularity);
+  const offsetStart = (end: moment.Moment) => offsetTime(end.clone(), diff, unit, -1).clone();
   if (mode === 'previous') {
-    const diff = countUnitsBetween(range, granularity);
-    const unit = granularityUnit(granularity);
     const baseEnd = shouldAlignWeekdays
       ? alignWeekday(range.end.clone(), range.start.clone(), mode)
       : range.start.clone();
 
-    const baseRange = {
-      start: offsetTime(baseEnd.clone(), diff, unit, -1).clone(),
+    return {
+      start: offsetStart(baseEnd),
       end: baseEnd.clone(),
     };
-    return baseRange;
   }
   if (mode === 'year') {
+    const endLastYear = range.end.clone().subtract(1, 'year');
+    const baseEnd = shouldAlignWeekdays ? alignWeekday(range.end.clone(), endLastYear.clone(), mode) : endLastYear;
+
+    return {
+      start: offsetStart(baseEnd),
+      end: baseEnd.clone(),
+    };
   }
 }
 
