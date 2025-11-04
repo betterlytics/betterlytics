@@ -122,7 +122,7 @@ export function useSyncURLFilters() {
           compareMode === 'custom' && compareStartDate && compareEndDate ? compareEndDate : undefined,
       });
 
-      const showMainDates = interval === 'custom' || (offset ?? 0) !== 0;
+      const showMainDates = interval === 'custom';
       const showCompareDates = compareMode === 'custom';
 
       const encodedFilters = rawEncoded.filter(([key]) => {
