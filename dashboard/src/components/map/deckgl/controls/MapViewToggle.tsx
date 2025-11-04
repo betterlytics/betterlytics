@@ -6,13 +6,13 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import React from 'react';
 
-type TimeseriesToggleButtonProps = {
+type MapViewToggleProps = {
   isTimeseries: boolean;
   onToggle: () => void;
   className?: string;
 };
 
-function TimeseriesToggleButtonComponent({ isTimeseries, onToggle, className }: TimeseriesToggleButtonProps) {
+function MapViewToggleComponent({ isTimeseries, onToggle, className }: MapViewToggleProps) {
   const t = useTranslations('components.geography.mapType');
 
   const Icon = isTimeseries ? Sigma : Video;
@@ -37,6 +37,6 @@ function TimeseriesToggleButtonComponent({ isTimeseries, onToggle, className }: 
   );
 }
 
-const TimeseriesToggleButton = React.memo(TimeseriesToggleButtonComponent);
-TimeseriesToggleButton.displayName = 'TimeseriesToggleButton';
-export default TimeseriesToggleButton;
+const MapViewToggle = React.memo(MapViewToggleComponent);
+MapViewToggle.displayName = 'MapViewToggle';
+export default MapViewToggle;

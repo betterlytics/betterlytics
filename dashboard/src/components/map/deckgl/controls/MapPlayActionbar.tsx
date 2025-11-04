@@ -2,7 +2,7 @@
 
 import { PlaybackButton } from '@/components/map/deckgl/controls/PlaybackButton';
 import { PlaybackSpeedDropdown } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
-import TimeseriesToggleButton from '@/components/map/deckgl/controls/TimeseriesToggleButton';
+import MapViewToggle from '@/components/map/deckgl/controls/MapViewToggle';
 import { TimeSlider } from '@/components/map/deckgl/controls/TimeSlider';
 import type { TimeSliderTickType } from '@/components/map/deckgl/controls/TimeSliderTick';
 import { ScaleMotion } from '@/components/ScaleMotion';
@@ -80,7 +80,7 @@ export function MapPlayActionbar({
               open={speedOpen}
               onOpenChange={setSpeedOpen}
             />
-            <TimeseriesToggleButton isTimeseries={isTimeseries} onToggle={onToggleTimeseries} />
+            <MapViewToggle isTimeseries={isTimeseries} onToggle={onToggleTimeseries} />
           </div>
         </ScaleMotion>
         {[

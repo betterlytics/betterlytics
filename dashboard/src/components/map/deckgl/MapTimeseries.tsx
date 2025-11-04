@@ -4,7 +4,7 @@ import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
-import TimeseriesToggleButton from '@/components/map/deckgl/controls/TimeseriesToggleButton';
+import MapViewToggle from '@/components/map/deckgl/controls/MapViewToggle';
 import ZoomControls from '@/components/map/deckgl/controls/ZoomControls';
 import DeckGLMap, { DeckGLMapProps } from '@/components/map/deckgl/DeckGLMap';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
@@ -15,22 +15,27 @@ import { useIsMapHovered } from '@/hooks/deckgl/use-is-map-hovered';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export type MapTimeseries = {
   visitorData: Awaited<ReturnType<typeof getWorldMapGranularityTimeseries>>;
+  isTimeseries: boolean;
+  onViewTypeChange: (isTimeseries: boolean) => void;
   animationDurationBaseline?: number;
 };
 
-export default function MapTimeseries({ visitorData, animationDurationBaseline = 1000 }: MapTimeseries) {
+export default function MapTimeseries({
+  visitorData,
+  isTimeseries,
+  onViewTypeChange,
+  animationDurationBaseline = 1000,
+}: MapTimeseries) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const timeRangeCtx = useTimeRangeContext();
   const isMobile = useIsMobile();
 
-  const [isTimeseries, setIsTimeseries] = useState(true);
   const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
   const { isMapHovered, setIsMapHovered } = useIsMapHovered([
     '.deckgl-controller',
@@ -102,12 +107,11 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
   const sidebarOffset = useMemo(() => (isMobile ? 0 : 256), [isMobile]);
 
   const onToggleTimeseries = useCallback(() => {
-    setIsTimeseries((prv) => !prv);
     const newFrame = frameAtToggleTimeseries.valueOf();
     setFrameAtToggleTimeseries(frame);
-
     scrub(newFrame);
-  }, [setIsTimeseries, frame, setFrameAtToggleTimeseries]);
+    onViewTypeChange(!isTimeseries);
+  }, [frame, frameAtToggleTimeseries, scrub, onViewTypeChange, isTimeseries]);
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
@@ -142,7 +146,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
       }
 
       {!isTimeseries && (
-        <TimeseriesToggleButton
+        <MapViewToggle
           className='deckgl-controller pointer-events-auto fixed right-3 bottom-5 z-12 flex flex-col'
           isTimeseries={isTimeseries}
           onToggle={onToggleTimeseries}
