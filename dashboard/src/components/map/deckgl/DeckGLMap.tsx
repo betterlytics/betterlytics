@@ -7,7 +7,7 @@ import { INITIAL_VIEW_STATE } from '@/types/deckgl-viewtypes';
 import { MapView, type MapViewState } from '@deck.gl/core';
 import { DeckGL } from '@deck.gl/react';
 import { FeatureCollection } from 'geojson';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { DeckGLPopup } from './DeckGLPopup';
 
 export interface DeckGLMapProps {
@@ -24,7 +24,7 @@ export interface DeckGLMapProps {
   onHover: (info: any) => void;
 }
 
-export default function DeckGLClient({
+function DeckGLClient({
   visitorData,
   outlineAnimation,
   fillAnimation,
@@ -59,11 +59,15 @@ export default function DeckGLClient({
 
   const deckRef = useRef<any>(null);
 
-  const view = new MapView({
-    id: 'main',
-    controller: { doubleClickZoom: false, dragRotate: false },
-    repeat: false,
-  });
+  const view = useMemo(
+    () =>
+      new MapView({
+        id: 'main',
+        controller: { doubleClickZoom: false, dragRotate: false },
+        repeat: false,
+      }),
+    [],
+  );
 
   if (!geojson) return null;
 
@@ -86,3 +90,5 @@ export default function DeckGLClient({
     </>
   );
 }
+
+export default memo(DeckGLClient);

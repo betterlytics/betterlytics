@@ -10,6 +10,7 @@ import { worldMapResponseSchema } from '@/entities/geography';
 import { toDataTable } from '@/presenters/toDataTable';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
 import { toStackedAreaChart } from '@/presenters/toStackedAreaChart';
+import { toGeoTimeseries } from '@/presenters/toGeoTimeseries';
 
 const queryParamsSchema = z.object({
   siteId: z.string(),
@@ -153,7 +154,7 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
         }, {}),
       );
 
-      let compare:
+      let compareData:
         | {
             timeseries: ReturnType<typeof toStackedAreaChart>;
             accumulated: { country_code: string; visitors: number }[];
@@ -187,10 +188,10 @@ export const getWorldMapGranularityTimeseries = withDashboardAuthContext(
             return acc;
           }, {}),
         );
-        compare = { timeseries: compareTimeseries, accumulated: compareAccumulated };
+        compareData = { timeseries: compareTimeseries, accumulated: compareAccumulated };
       }
 
-      return Object.assign({}, timeseries, { accumulated }, compare ? { compare } : {});
+      return toGeoTimeseries({ data: timeseries.data, accumulated }, compareData);
     } catch (error) {
       console.error('Error fetching visitor map timeseries:', error);
       throw new Error('Failed to fetch visitor map timeseries');

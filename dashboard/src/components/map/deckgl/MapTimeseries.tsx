@@ -2,7 +2,6 @@
 
 import { type getWorldMapGranularityTimeseries } from '@/app/actions';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
-import DateTimeSliderLabel from '@/components/map/deckgl/controls/DateTimeSliderLabel';
 import { MapPlayActionbar } from '@/components/map/deckgl/controls/MapPlayActionbar';
 import { PlaybackSpeed } from '@/components/map/deckgl/controls/PlaybackSpeedDropdown';
 import TimeseriesToggleButton from '@/components/map/deckgl/controls/TimeseriesToggleButton';
@@ -11,7 +10,7 @@ import DeckGLMap, { DeckGLMapProps } from '@/components/map/deckgl/DeckGLMap';
 import DeckGLStickyTooltip from '@/components/map/deckgl/DeckGLStickyTooltip';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useDeckGLEventHandlers } from '@/hooks/deckgl/use-deckgl-with-compare';
-import { useGeoTimeseriesData } from '@/hooks/deckgl/use-geotimeseries-data';
+import { useGeoTimeseriesSliderTicks } from '@/hooks/deckgl/use-geotimeseries-slider-ticks';
 import { useIsMapHovered } from '@/hooks/deckgl/use-is-map-hovered';
 import { usePlayback } from '@/hooks/deckgl/use-playback';
 import { useDeckGLMapStyle } from '@/hooks/use-deckgl-mapstyle';
@@ -30,7 +29,6 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
 
   const timeRangeCtx = useTimeRangeContext();
   const isMobile = useIsMobile();
-  const t = useTranslations('components.geography');
 
   const [isTimeseries, setIsTimeseries] = useState(true);
   const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
@@ -40,61 +38,54 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
     '[data-sidebar="sidebar"]',
   ]);
 
-  const { visitorDataTimeseries, compareDataTimeseries, totalDataTimeseries, maxVisitors } = useGeoTimeseriesData({
-    visitorData,
-    isTimeseries,
-  });
-
+  const maxVisitors = isTimeseries ? visitorData.maxVisitorsTimeseries : visitorData.maxVisitorsAccumulated;
   const style = useDeckGLMapStyle({ maxVisitors });
 
   const [speed, setSpeed] = useState(1 as PlaybackSpeed);
 
+  const frames = useMemo(
+    () => (isTimeseries ? visitorData.timeseries : [visitorData.accumulated]),
+    [isTimeseries, visitorData.timeseries, visitorData.accumulated],
+  );
+
   const { position, frame, playing, toggle, scrub } = usePlayback({
-    frameCount: visitorDataTimeseries.length,
+    frameCount: frames.length,
     speed,
   });
 
-  const tickProps = useMemo(() => {
-    if (!visitorDataTimeseries?.length || !totalDataTimeseries?.timeVisitors) return [];
-
-    return visitorDataTimeseries.map((tgeo, i) => {
-      const totalVisitors = totalDataTimeseries.timeVisitors[i]?.visitors ?? 0;
-      const accTotal = totalDataTimeseries.accTotal ?? 0;
-      const opacity = accTotal > 0 && totalVisitors > 0 ? Math.min((totalVisitors / accTotal) * Math.E, 1) : 0;
-
-      return {
-        thumbLabel: <DateTimeSliderLabel value={tgeo.date} granularity={timeRangeCtx.granularity} />,
-        tickLabel: (
-          <DateTimeSliderLabel
-            className='font-mono'
-            value={tgeo.date}
-            granularity={timeRangeCtx.granularity}
-            animate={false}
-          />
-        ),
-        value: tgeo.date,
-        opacity,
-      };
-    });
-  }, [visitorDataTimeseries, totalDataTimeseries]);
+  const tickProps = useGeoTimeseriesSliderTicks({
+    frames,
+    totalData: visitorData.totalData,
+    granularity: timeRangeCtx.granularity,
+  });
 
   const visitorDict = useMemo(() => {
-    const currentFrame = visitorDataTimeseries[frame];
+    const currentFrame = frames[frame];
     return Object.fromEntries(currentFrame.visitors.map((d) => [d.country_code, d.visitors]));
-  }, [visitorDataTimeseries, frame]);
+  }, [frames, frame]);
+
+  const compareFrames = useMemo(
+    () =>
+      visitorData.compare
+        ? isTimeseries
+          ? visitorData.compare.timeseries
+          : [visitorData.compare.accumulated]
+        : undefined,
+    [isTimeseries, visitorData.compare],
+  );
 
   const compareVisitorDict = useMemo(() => {
-    if (!compareDataTimeseries || compareDataTimeseries.length === 0) return {};
-    const compareFrame = compareDataTimeseries[frame] ?? compareDataTimeseries.at(-1)!;
+    if (!compareFrames || compareFrames.length === 0) return {};
+    const compareFrame = compareFrames[frame] ?? compareFrames.at(-1)!;
     return Object.fromEntries(compareFrame.visitors.map((v) => [v.country_code, v.visitors]));
-  }, [compareDataTimeseries, frame]);
+  }, [compareFrames, frame]);
 
   const { handleClick, handleHover } = useDeckGLEventHandlers({
     playing,
     frame,
     visitorDict,
-    date: visitorDataTimeseries[frame].date,
-    compareDate: compareDataTimeseries?.[frame].date,
+    date: frames[frame].date,
+    compareDate: compareFrames?.[frame]?.date,
     compareVisitorDict,
     setIsMapHovered,
   });
@@ -163,7 +154,7 @@ export default function MapTimeseries({ visitorData, animationDurationBaseline =
       />
       {containerRef && <DeckGLStickyTooltip containerRef={containerRef} />}
 
-      {totalDataTimeseries.accTotal === 0 &&
+      {visitorData.totalData.accTotal === 0 &&
         createPortal(
           <div className='shadow-3xlg bg-card fixed right-3 bottom-4 z-100 rounded-md border p-8'>
             <DataEmptyComponent style={{ height: '50px' }} />

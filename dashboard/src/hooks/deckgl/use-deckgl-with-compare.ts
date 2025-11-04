@@ -48,7 +48,7 @@ export function useDeckGLEventHandlers({
         },
       };
     },
-    [compareVisitorDict],
+    [compareVisitorDict, date, compareDate],
   );
 
   const handleClick = useCallback(

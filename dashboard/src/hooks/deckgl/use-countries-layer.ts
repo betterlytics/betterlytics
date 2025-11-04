@@ -79,7 +79,7 @@ export function useCountriesLayer({
         getLineColor: colorUpdateTrigger,
       },
     });
-  }, [geojson, visitorData, style, colorUpdateTrigger]);
+  }, [geojson, visitorData, style, colorUpdateTrigger, fillAnimation, outlineAnimation, isMapHovered]);
 
   const clickedPathData = useMemo(
     () => (clickedFeature ? (outlineCache.get(clickedFeature.geoVisitor.country_code) ?? []) : []),
