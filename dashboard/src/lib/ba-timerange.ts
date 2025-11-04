@@ -3,6 +3,11 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { TimeRangeValue } from '@/utils/timeRanges';
 import moment from 'moment-timezone';
 
+type TimeRange = {
+  start: moment.Moment;
+  end: moment.Moment;
+};
+
 function shouldIncludeCurrentBucket(timeRange: TimeRangeValue) {
   return (
     timeRange === 'realtime' ||
@@ -144,10 +149,14 @@ function granularityStep(granularity: GranularityRangeValues) {
   }
 }
 
-function countBucketsBetween(start: moment.Moment, end: moment.Moment, granularity: GranularityRangeValues) {
+function countUnitsBetween(range: TimeRange, granularity: GranularityRangeValues) {
   const unit = granularityUnit(granularity);
+  return range.end.diff(range.start, unit);
+}
+
+function countBucketsBetween(range: TimeRange, granularity: GranularityRangeValues) {
   const step = granularityStep(granularity);
-  return end.diff(start, unit) / step;
+  return countUnitsBetween(range, granularity) / step;
 }
 
 function toRangeStart(endDate: moment.Moment, timeRange: Exclude<TimeRangeValue, 'custom'>) {
@@ -186,14 +195,17 @@ function getMainRange(
   offset: number,
   customStart?: Date,
   customEnd?: Date,
-) {
+): TimeRange {
   if (timeRange === 'custom') {
-    const start = floorToGranularity(moment.tz(customStart, timezone), 'day');
-    const end = ceilToGranularity(moment.tz(customEnd, timezone), 'day');
-    const customBuckets = countBucketsBetween(start, end, granularity);
+    const base = {
+      start: floorToGranularity(moment.tz(customStart, timezone), 'day'),
+      end: ceilToGranularity(moment.tz(customEnd, timezone), 'day'),
+    };
+
+    const customBuckets = countBucketsBetween(base, granularity);
     return {
-      start: offsetTime(start, customBuckets, 'days', offset).clone(),
-      end: offsetTime(end, customBuckets, 'days', offset).clone(),
+      start: offsetTime(base.start, customBuckets, 'days', offset).clone(),
+      end: offsetTime(base.end, customBuckets, 'days', offset).clone(),
     };
   }
 
@@ -210,29 +222,58 @@ function getMainRange(
   };
 }
 
+function alignWeekday(mainEnd: moment.Moment, compareEnd: moment.Moment, mode: 'previous' | 'year') {
+  const mainWeekday = mainEnd.isoWeekday(); // 1..7
+  const compareWeekday = compareEnd.isoWeekday();
+
+  // compute delta to make cmpWeekday equal mainWeekday
+  const forwardDelta = (mainWeekday - compareWeekday + 7) % 7;
+  const backwardDelta = (compareWeekday - mainWeekday + 7) % 7;
+
+  if (forwardDelta === 0) return compareEnd.clone();
+
+  if (mode === 'previous') {
+    // prefer shifting backwards (so compare period sits before main)
+    const shift = backwardDelta === 0 ? 0 : -backwardDelta;
+    return compareEnd.clone().add(shift, 'day');
+  }
+  // 'year' mode - prefer shifting forward
+  return compareEnd.clone().add(forwardDelta, 'day');
+}
+
 function getCompareRange(
-  mainStart: moment.Moment,
-  mainEnd: moment.Moment,
+  range: TimeRange,
   mode: CompareMode,
-  alignWeekdays?: boolean,
+  granularity: GranularityRangeValues,
+  shouldAlignWeekdays?: boolean,
 ) {
   if (mode === 'off') return undefined;
   if (mode === 'previous') {
-    const diff = mainEnd.diff(mainStart, 'minutes');
-    return {
-      start: offsetTime(mainStart.clone(), diff, 'minutes', -1).clone(),
-      end: mainStart.clone(),
+    const diff = countUnitsBetween(range, granularity);
+    const unit = granularityUnit(granularity);
+    const baseEnd = shouldAlignWeekdays
+      ? alignWeekday(range.end.clone(), range.start.clone(), mode)
+      : range.start.clone();
+
+    const baseRange = {
+      start: offsetTime(baseEnd.clone(), diff, unit, -1).clone(),
+      end: baseEnd.clone(),
     };
+    return baseRange;
+  }
+  if (mode === 'year') {
   }
 }
 
-interface ResolvedRange {
-  start: Date;
-  end: Date; // exclusive
-}
 interface TimeRangeResult {
-  main: ResolvedRange;
-  compare?: ResolvedRange;
+  main: {
+    start: Date;
+    end: Date;
+  };
+  compare?: {
+    start: Date;
+    end: Date;
+  };
 }
 
 export function getResolvedRanges(
@@ -249,7 +290,7 @@ export function getResolvedRanges(
 ): TimeRangeResult {
   const main = getMainRange(timeRange, granularity, timezone, offset, startDate, endDate);
 
-  const compare = getCompareRange(main.start.clone(), main.end.clone(), compareMode, compareAlignWeekdays);
+  const compare = getCompareRange(main, compareMode, granularity, compareAlignWeekdays);
 
   return {
     main: {
