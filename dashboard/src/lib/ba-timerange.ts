@@ -246,6 +246,7 @@ function getCompareRange(
   mode: CompareMode,
   granularity: GranularityRangeValues,
   shouldAlignWeekdays?: boolean,
+  customRange?: TimeRange,
 ) {
   if (mode === 'off') return undefined;
   const diff = countUnitsBetween(range, granularity);
@@ -268,6 +269,19 @@ function getCompareRange(
     return {
       start: offsetStart(baseEnd),
       end: baseEnd.clone(),
+    };
+  }
+  if (mode === 'custom' && customRange) {
+    // Align end time of day
+    const alignedEnd = customRange.end.clone().set({
+      hour: range.end.hour(),
+      minute: range.end.minute(),
+      second: range.end.second(),
+      millisecond: range.end.millisecond(),
+    });
+    return {
+      start: offsetStart(alignedEnd),
+      end: alignedEnd.clone(),
     };
   }
 }
@@ -297,7 +311,15 @@ export function getResolvedRanges(
 ): TimeRangeResult {
   const main = getMainRange(timeRange, granularity, timezone, offset, startDate, endDate);
 
-  const compare = getCompareRange(main, compareMode, granularity, compareAlignWeekdays);
+  const customCompareRange =
+    compareStartDate && compareEndDate
+      ? {
+          start: moment.tz(compareStartDate, timezone),
+          end: moment.tz(compareEndDate, timezone),
+        }
+      : undefined;
+
+  const compare = getCompareRange(main, compareMode, granularity, compareAlignWeekdays, customCompareRange);
 
   return {
     main: {
