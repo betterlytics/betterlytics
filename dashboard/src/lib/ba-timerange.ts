@@ -246,7 +246,7 @@ function getCompareRange(
   mode: CompareMode,
   granularity: GranularityRangeValues,
   shouldAlignWeekdays?: boolean,
-  customRange?: TimeRange,
+  customCompareRange?: TimeRange,
 ) {
   if (mode === 'off') return undefined;
   const diff = countUnitsBetween(range, granularity);
@@ -271,9 +271,9 @@ function getCompareRange(
       end: baseEnd.clone(),
     };
   }
-  if (mode === 'custom' && customRange) {
+  if (mode === 'custom' && customCompareRange) {
     // Align end time of day
-    const alignedEnd = customRange.end.clone().set({
+    const alignedEnd = customCompareRange.end.clone().set({
       hour: range.end.hour(),
       minute: range.end.minute(),
       second: range.end.second(),
@@ -314,8 +314,8 @@ export function getResolvedRanges(
   const customCompareRange =
     compareStartDate && compareEndDate
       ? {
-          start: moment.tz(compareStartDate, timezone),
-          end: moment.tz(compareEndDate, timezone),
+          start: floorToGranularity(moment.tz(compareStartDate, timezone), 'day'),
+          end: ceilToGranularity(moment.tz(compareEndDate, timezone), 'day'),
         }
       : undefined;
 
