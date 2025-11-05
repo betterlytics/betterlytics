@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { TimeRangeValue } from '@/utils/timeRanges';
-import { GranularityRangeValues, getAllowedGranularities } from '@/utils/granularityRanges';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { baEvent } from '@/lib/ba-event';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 
@@ -50,8 +50,9 @@ export function useImmediateTimeRange() {
 
       ctx.setPeriod(resolved.main.start, resolved.main.end);
       ctx.setOffset(0);
-      if (ctx.interval !== preset) ctx.setInterval(preset);
-      if (ctx.granularity !== resolved.granularity) ctx.setGranularity(resolved.granularity);
+      ctx.setInterval(preset);
+      ctx.setGranularity(resolved.granularity);
+
       baEvent('set-preset-date-range', {
         interval: preset,
       });
@@ -75,8 +76,8 @@ export function useImmediateTimeRange() {
         ctx.compareAlignWeekdays,
       );
       ctx.setPeriod(resolved.main.start, resolved.main.end);
-      ctx.setInterval('custom');
       ctx.setOffset(0);
+      ctx.setInterval('custom');
       ctx.setGranularity(resolved.granularity);
 
       baEvent('set-custom-date-range', {
@@ -89,8 +90,6 @@ export function useImmediateTimeRange() {
 
   const setGranularity = useCallback(
     (g: GranularityRangeValues) => {
-      const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
-      if (!allowed.includes(g)) return;
       const resolved = getResolvedRanges(
         ctx.interval,
         ctx.compareMode,
@@ -103,9 +102,9 @@ export function useImmediateTimeRange() {
         0,
         ctx.compareAlignWeekdays,
       );
-      ctx.setPeriod(resolved.main.start, resolved.main.end);
+      ctx.setGranularity(resolved.granularity);
       baEvent('set-granularity', {
-        granularity: g,
+        granularity: resolved.granularity,
       });
     },
     [ctx],
