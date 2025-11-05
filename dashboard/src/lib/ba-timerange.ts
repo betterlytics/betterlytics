@@ -1,5 +1,9 @@
 import { CompareMode } from '@/utils/compareRanges';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
+import {
+  GranularityRangeValues,
+  getAllowedGranularities,
+  getValidGranularityFallback,
+} from '@/utils/granularityRanges';
 import { TimeRangeValue } from '@/utils/timeRanges';
 import moment from 'moment-timezone';
 
@@ -295,6 +299,7 @@ interface TimeRangeResult {
     start: Date;
     end: Date;
   };
+  granularity: GranularityRangeValues;
 }
 
 export function getResolvedRanges(
@@ -309,28 +314,76 @@ export function getResolvedRanges(
   offset: number = 0,
   compareAlignWeekdays?: boolean,
 ): TimeRangeResult {
-  const main = getMainRange(timeRange, granularity, timezone, offset, startDate, endDate);
+  const resolve = (
+    targetGranularity: GranularityRangeValues,
+    customStart: Date | undefined,
+    customEnd: Date | undefined,
+  ) => {
+    const mainRange = getMainRange(timeRange, targetGranularity, timezone, offset, customStart, customEnd);
 
-  const customCompareRange =
-    compareStartDate && compareEndDate
-      ? {
-          start: floorToGranularity(moment.tz(compareStartDate, timezone), 'day'),
-          end: ceilToGranularity(moment.tz(compareEndDate, timezone), 'day'),
-        }
-      : undefined;
+    const customCompareRange =
+      compareStartDate && compareEndDate
+        ? {
+            start: floorToGranularity(moment.tz(compareStartDate, timezone), 'day'),
+            end: ceilToGranularity(moment.tz(compareEndDate, timezone), 'day'),
+          }
+        : undefined;
 
-  const compare = getCompareRange(main, compareMode, granularity, compareAlignWeekdays, customCompareRange);
+    const compareRange = getCompareRange(
+      mainRange,
+      compareMode,
+      targetGranularity,
+      compareAlignWeekdays,
+      customCompareRange,
+    );
+
+    return {
+      // use start/end for Date conversion
+      mainRange,
+      compareRange,
+      result: {
+        main: {
+          start: mainRange.start.toDate(),
+          end: mainRange.end.toDate(),
+        },
+        compare: compareRange
+          ? {
+              start: compareRange.start.toDate(),
+              end: compareRange.end.toDate(),
+            }
+          : undefined,
+      },
+    } as const;
+  };
+
+  const initial = resolve(granularity, startDate, endDate);
+
+  const nextStart = initial.result.main.start;
+  let nextEnd = initial.result.main.end;
+  let nextGranularity = granularity;
+
+  const maxMs = 366 * 24 * 60 * 60 * 1000;
+  if (nextEnd.getTime() - nextStart.getTime() > maxMs) {
+    nextEnd = new Date(nextStart.getTime() + maxMs);
+  }
+
+  const allowed = getAllowedGranularities(nextStart, nextEnd);
+  nextGranularity = getValidGranularityFallback(nextGranularity, allowed);
+
+  const needsRecompute =
+    nextEnd.getTime() !== initial.result.main.end.getTime() || nextGranularity !== granularity;
+
+  if (!needsRecompute) {
+    return {
+      ...initial.result,
+      granularity,
+    };
+  }
+
+  const recomputed = resolve(nextGranularity, nextStart, nextEnd);
 
   return {
-    main: {
-      start: main.start.toDate(),
-      end: main.end.toDate(),
-    },
-    compare: compare
-      ? {
-          start: compare.start.toDate(),
-          end: compare.end.toDate(),
-        }
-      : undefined,
+    ...recomputed.result,
+    granularity: nextGranularity,
   };
 }

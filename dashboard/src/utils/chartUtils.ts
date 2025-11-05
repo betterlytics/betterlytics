@@ -1,9 +1,7 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { utcDay, utcHour, utcMinute } from 'd3-time';
-import { fromZonedTime, getTimezoneOffset, toZonedTime } from 'date-fns-tz';
 import { formatNumber } from './formatters';
-import { addDays, addHours, addMinutes } from 'date-fns';
 
 export interface TrendInfo {
   icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
