@@ -30,8 +30,11 @@ export function toGeoTimeseries(
       }
     : undefined;
 
-  const maxVisitorsTimeseries = Math.max(...timeseries.flatMap((frame) => frame.visitors.map((d) => d.visitors)));
-  const maxVisitorsAccumulated = Math.max(...accumulated.visitors.map((d) => d.visitors));
+  const timeseriesVisitorCounts = timeseries.flatMap((frame) => frame.visitors.map((d) => d.visitors));
+  const maxVisitorsTimeseries = timeseriesVisitorCounts.length > 0 ? Math.max(...timeseriesVisitorCounts) : 0;
+
+  const accumulatedVisitorCounts = accumulated.visitors.map((d) => d.visitors);
+  const maxVisitorsAccumulated = accumulatedVisitorCounts.length > 0 ? Math.max(...accumulatedVisitorCounts) : 0;
 
   return GeoTimeseriesResponseSchema.parse({
     timeseries,

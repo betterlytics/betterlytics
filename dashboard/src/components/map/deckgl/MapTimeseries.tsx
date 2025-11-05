@@ -66,6 +66,7 @@ export default function MapTimeseries({
 
   const visitorDict = useMemo(() => {
     const currentFrame = frames[frame];
+    if (!currentFrame) return {};
     return Object.fromEntries(currentFrame.visitors.map((d) => [d.country_code, d.visitors]));
   }, [frames, frame]);
 
@@ -81,7 +82,8 @@ export default function MapTimeseries({
 
   const compareVisitorDict = useMemo(() => {
     if (!compareFrames || compareFrames.length === 0) return {};
-    const compareFrame = compareFrames[frame] ?? compareFrames.at(-1)!;
+    const compareFrame = compareFrames[frame];
+    if (!compareFrame) return {};
     return Object.fromEntries(compareFrame.visitors.map((v) => [v.country_code, v.visitors]));
   }, [compareFrames, frame]);
 

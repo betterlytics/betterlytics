@@ -37,28 +37,31 @@ function toRgbaTuple(colorOrVar: string, alpha = 255): DeckGLColor {
 }
 
 export function useDeckGLMapStyle({ maxVisitors }: UseDeckGLMapStyleProps): DeckGLMapStyle {
+  // Ensure maxVisitors is at least 1 to avoid invalid domain [0, 1, 0] when there's no data
+  const safeMaxVisitors = Math.max(1, maxVisitors);
+
   const colorScale = useMemo(
     () =>
       scaleLinear<string>()
-        .domain([0, 1, maxVisitors])
+        .domain([0, 1, safeMaxVisitors])
         .range([
           MAP_VISITOR_COLORS.NO_VISITORS,
           MAP_VISITOR_COLORS.LOW_VISITORS,
           MAP_VISITOR_COLORS.HIGH_VISITORS,
         ]),
-    [maxVisitors],
+    [safeMaxVisitors],
   );
 
   const featureBorderColorScale = useMemo(
     () =>
       scaleLinear<string>()
-        .domain([0, 1, maxVisitors])
+        .domain([0, 1, safeMaxVisitors])
         .range([
           MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
           MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
           MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
         ]),
-    [maxVisitors],
+    [safeMaxVisitors],
   );
 
   const originalStyle = useCallback(

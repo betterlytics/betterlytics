@@ -2,34 +2,31 @@
 
   * ✅ FIXED: Map is reset to timeseries whenever a filter is changed (accumulate doenst persist) or page is refreshed
 
-  * If there is NO data at all, it shows colors as black (not even localhost)
+  * ✅ FIXED: If there is NO data at all, it shows colors as black (not even localhost)
 
 ## Code Review Issues (Critical → Nice-to-have)
 
 ### Critical
 
-  * **Empty data edge case in maxVisitors calculation** (`toGeoTimeseries.ts:33-34`)
+  * ✅ FIXED: **Empty data edge case in maxVisitors calculation** (`toGeoTimeseries.ts:33-37`)
     - `Math.max(...[])` returns `-Infinity` when arrays are empty
     - This breaks color scale calculations when there's zero data
-    - Should default to `1` or handle empty case explicitly
-    - Likely causes the "black colors" bug above
+    - Fixed by checking array length and defaulting to `0` when empty
+    - This fixed the "black colors" bug above
 
-  * **usePlayback position clipping missing** (`use-playback.ts`)
-    - No effect to clamp `position` when `frameCount` changes
-    - If on frame 10 with 20 frames, switching to accumulated (1 frame) tries to access `frames[10]`
-    - Causes potential array out-of-bounds errors
-    - Should add: `useEffect(() => setPosition(prev => Math.min(prev, Math.max(0, frameCount - 1))), [frameCount])`
+  * ✅ FIXED: **Frame out-of-bounds access** (`MapTimeseries.tsx:67-70, 83-88`)
+    - When `frameCount` changes, `frames[frame]` could be undefined
+    - Fixed by returning empty `{}` when frame doesn't exist (both visitorDict and compareVisitorDict)
 
 ### High Priority
 
-  * **Color scale edge cases** (`use-deckgl-mapstyle.ts`)
+  * ✅ FIXED: **Color scale edge cases** (`use-deckgl-mapstyle.ts:40-41`)
     - Domain `[0, 1, maxVisitors]` breaks when maxVisitors is 0 or -Infinity
-    - No handling for maxVisitors <= 1 case
-    - Should use `Math.max(1, maxVisitors)` to ensure valid domain
+    - Fixed by using `Math.max(1, maxVisitors)` to ensure valid domain
+    - Map now correctly shows NO_VISITORS colors when there's no data
 
-  * **Type safety: colorUpdateTrigger is `any`** (`use-countries-layer.ts:19`)
-    - Should be typed as `unknown` or specific type like `[number, boolean]`
-    - Makes it harder to catch bugs at compile time
+  * ✅ FIXED: **Type safety: colorUpdateTrigger is `any`** (`use-countries-layer.ts:19`)
+    - Changed from `any` to `unknown` since DeckGL types updateTriggers generically
 
 ### Medium Priority
 

@@ -16,7 +16,7 @@ export type UseCountriesLayerProps = {
   outlineAnimation?: GeoJsonAnimation;
   style: DeckGLMapStyle;
   isMapHovered: boolean; // To detect hover on controls
-  colorUpdateTrigger: any; //! TODO: Type??
+  colorUpdateTrigger: unknown;
 };
 export function useCountriesLayer({
   geojson,
