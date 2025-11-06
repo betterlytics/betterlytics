@@ -30,10 +30,9 @@
 
 ### Medium Priority
 
-  * **frameAtToggleTimeseries state management** (`MapTimeseries.tsx:109-114`)
-    - Logic for preserving frame position when toggling is confusing
-    - Variable name doesn't explain what it stores (previous frame before toggle)
-    - Consider renaming to `previousViewFrame` or refactoring approach
+  * ✅ FIXED: **frameAtToggleTimeseries state management** (`MapTimeseries.tsx:39, 111-116`)
+    - Renamed to `savedFramePosition` for clarity
+    - Simplified logic by removing unnecessary `.valueOf()` call
 
   * **Missing error boundaries**
     - DeckGL components have no error boundaries

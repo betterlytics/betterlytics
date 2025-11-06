@@ -36,7 +36,7 @@ export default function MapTimeseries({
   const timeRangeCtx = useTimeRangeContext();
   const isMobile = useIsMobile();
 
-  const [frameAtToggleTimeseries, setFrameAtToggleTimeseries] = useState(0);
+  const [savedFramePosition, setSavedFramePosition] = useState(0);
   const { isMapHovered, setIsMapHovered } = useIsMapHovered([
     '.deckgl-controller',
     'header',
@@ -109,11 +109,11 @@ export default function MapTimeseries({
   const sidebarOffset = useMemo(() => (isMobile ? 0 : 256), [isMobile]);
 
   const onToggleTimeseries = useCallback(() => {
-    const newFrame = frameAtToggleTimeseries.valueOf();
-    setFrameAtToggleTimeseries(frame);
+    const newFrame = savedFramePosition;
+    setSavedFramePosition(frame);
     scrub(newFrame);
     onViewTypeChange(!isTimeseries);
-  }, [frame, frameAtToggleTimeseries, scrub, onViewTypeChange, isTimeseries]);
+  }, [frame, savedFramePosition, scrub, onViewTypeChange, isTimeseries]);
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
