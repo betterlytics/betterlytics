@@ -25,7 +25,7 @@ export function useImmediateTimeRange() {
         ctx.compareAlignWeekdays,
       );
 
-      if (resolved.main.start.getTime() > Date.now()) {
+      if (resolved.main.start.getTime() >= Date.now()) {
         return null;
       }
       return resolved;
