@@ -1,5 +1,6 @@
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { getResolvedRanges } from '@/lib/ba-timerange';
+import moment from 'moment-timezone';
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
@@ -60,6 +61,14 @@ function filterVariable(key: string, value: unknown) {
   return true;
 }
 
+// Util for encoding date
+function formatLocalDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based so add 1
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Encode filter values
 function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unknown): string {
   switch (key) {
@@ -67,7 +76,7 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
     case 'endDate':
     case 'compareStartDate':
     case 'compareEndDate':
-      return (value as Date).toISOString();
+      return formatLocalDate(value as Date);
     case 'queryFilters':
     case 'userJourney':
       return JSON.stringify(value);
@@ -95,13 +104,14 @@ function encode(params: FilterQueryParams) {
 function decodeValue<Key extends keyof FilterQueryParams>(
   key: Key,
   value: string,
+  timezone: string,
 ): FilterQueryParams[keyof FilterQueryParams] {
   switch (key) {
     case 'startDate':
     case 'endDate':
     case 'compareStartDate':
     case 'compareEndDate':
-      return new Date(value);
+      return moment.tz(value, timezone).toDate();
     case 'queryFilters':
     case 'userJourney':
       return JSON.parse(value);
@@ -171,7 +181,7 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
 
   const decodedEntries = Object.entries(params)
     .filter(([key]) => key in defaultFilters)
-    .map(([key, value]) => [key, decodeValue(key as keyof FilterQueryParams, value)]);
+    .map(([key, value]) => [key, decodeValue(key as keyof FilterQueryParams, value, timezone)]);
 
   const decoded = Object.fromEntries(decodedEntries) as Partial<FilterQueryParams>;
 
