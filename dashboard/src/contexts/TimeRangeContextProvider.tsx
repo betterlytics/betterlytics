@@ -50,12 +50,12 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
 
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
     setStartDate(newStartDate);
-    setEndDate(newEndDate);
+    setEndDate(new Date(newEndDate.getTime() - 1_000)); // Subtract 1 second for formatting
   }, []);
 
   const handleSetCompareDateRange = useCallback((csDate: Date, ceDate: Date) => {
     setCompareStartDate(csDate);
-    setCompareEndDate(ceDate);
+    setCompareEndDate(new Date(ceDate.getTime() - 1_000)); // Subtract 1 second for formatting
   }, []);
 
   return (
