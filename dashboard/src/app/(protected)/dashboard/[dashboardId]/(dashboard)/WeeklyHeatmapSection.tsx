@@ -13,7 +13,7 @@ import { QueryFilter } from '@/entities/filter';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale, type ScaleType } from '@/hooks/use-color-scale';
-import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { formatNumber } from '@/utils/formatters';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
