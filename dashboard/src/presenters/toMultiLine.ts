@@ -1,16 +1,11 @@
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { utcMinute } from 'd3-time';
-import { getDateKey } from '@/utils/dateHelpers';
 import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/webVitals';
-import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
+import { getDateKey } from '@/utils/dateHelpers';
 
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
 export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
 
-export function toPercentileLinesByMetric(
+export function toWebVitalsPercentileChart(
   rows: CoreWebVitalNamedPercentilesRow[],
-  granularity: GranularityRangeValues,
-  dateRange: { start: Date; end: Date },
 ): Record<CoreWebVitalName, PercentilePoint[]> {
   const byMetric: Record<CoreWebVitalName, Record<string, [number, number, number, number]>> = {
     CLS: {},
@@ -22,12 +17,16 @@ export function toPercentileLinesByMetric(
 
   for (const r of rows) {
     const key = getDateKey(r.date);
-    byMetric[r.name][key] = [r.p50, r.p75, r.p90, r.p99];
-  }
+    const value: [number, number, number, number] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
 
-  const interval = getTimeIntervalForGranularity(granularity);
-  const start = utcMinute(dateRange.start);
-  const end = utcMinute(dateRange.end);
+    if (r.name !== '') {
+      byMetric[r.name][key] = value;
+    } else {
+      (Object.keys(byMetric) as CoreWebVitalName[]).forEach((name) => {
+        byMetric[name][key] = value;
+      });
+    }
+  }
 
   const result: Record<CoreWebVitalName, PercentilePoint[]> = {
     CLS: [],
@@ -37,13 +36,15 @@ export function toPercentileLinesByMetric(
     TTFB: [],
   };
 
-  for (let time = start; time <= end; time = interval.offset(time, 1)) {
-    const key = time.valueOf().toString();
-    (Object.keys(result) as CoreWebVitalName[]).forEach((name) => {
-      const vals = byMetric[name][key] ?? [0, 0, 0, 0];
-      result[name].push({ date: +key, value: vals });
-    });
-  }
+  (Object.keys(result) as CoreWebVitalName[]).forEach((name) => {
+    const keys = Object.keys(byMetric[name])
+      .map((k) => Number(k))
+      .sort((a, b) => a - b);
+    for (const ts of keys) {
+      const vals = byMetric[name][String(ts)] ?? [0, 0, 0, 0];
+      result[name].push({ date: ts, value: vals });
+    }
+  });
 
   return result;
 }

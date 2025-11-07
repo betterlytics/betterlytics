@@ -1,8 +1,6 @@
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { getTimeIntervalForGranularity } from '@/utils/chartUtils';
-import { utcMinute } from 'd3-time';
-import { getDateKey } from '@/utils/dateHelpers';
 import { type ComparisonMapping } from '@/types/charts';
+import { getDateKey } from '@/utils/dateHelpers';
 
 type RawStackedData<CategoryKey extends string, ValueKey extends string> = Array<
   { date: string } & Record<CategoryKey, string> & Record<ValueKey, number>
@@ -42,7 +40,7 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
   categories?: string[],
 ): { processedData: Record<string, Record<string, number>>; allCategories: string[] } {
   const dataCategories = Array.from(new Set(data.map((item) => item[categoryKey])));
-  const allCategories = categories || dataCategories;
+  const allCategories = (categories || dataCategories).filter(Boolean);
 
   const processedData: Record<string, Record<string, number>> = {};
 
@@ -53,7 +51,6 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
 
     if (!processedData[dateKey]) {
       processedData[dateKey] = {};
-
       allCategories.forEach((cat) => {
         processedData[dateKey][cat] = 0;
       });
@@ -68,31 +65,16 @@ function pivotRawData<CategoryKey extends string, ValueKey extends string>(
 function dataToStackedAreaChart<CategoryKey extends string, ValueKey extends string>(
   props: ToStackedAreaChartProps<CategoryKey, ValueKey>,
 ) {
-  const { data, categoryKey, valueKey, categories, granularity, dateRange } = props;
+  const { data, categoryKey, valueKey, categories } = props;
 
   const { processedData, allCategories } = pivotRawData(data, categoryKey, valueKey, categories);
 
-  const chartData: ChartDataPoint[] = [];
-
-  const iterationRange = {
-    start: utcMinute(dateRange.start),
-    end: utcMinute(dateRange.end),
-  };
-
-  const intervalFunc = getTimeIntervalForGranularity(granularity);
-
-  for (let time = iterationRange.start; time <= iterationRange.end; time = intervalFunc.offset(time, 1)) {
-    const key = time.valueOf().toString();
-    const dataPoint: ChartDataPoint = {
-      date: +key,
-    };
-
-    allCategories.forEach((category) => {
-      dataPoint[category] = processedData[key]?.[category] || 0;
-    });
-
-    chartData.push(dataPoint);
-  }
+  const chartData: ChartDataPoint[] = Object.entries(processedData)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([key, values]) => ({
+      date: Number(key),
+      ...values,
+    }));
 
   return { chartData, categories: allCategories };
 }
@@ -102,25 +84,23 @@ export function toStackedAreaChart<CategoryKey extends string, ValueKey extends 
 ): StackedAreaChartResult {
   const { chartData, categories } = dataToStackedAreaChart(props);
 
-  if (props.compare === undefined) {
+  if (!props.compare) {
     return { data: chartData, categories };
   }
 
-  if (
-    props.compareDateRange === undefined ||
-    props.compareDateRange.start === undefined ||
-    props.compareDateRange.end === undefined
-  ) {
+  const { compare, compareDateRange, categoryKey, valueKey, granularity } = props;
+
+  if (!compareDateRange?.start || !compareDateRange?.end) {
     throw 'Compare date range must be specified if compare data is received';
   }
 
   const compareProps: ToStackedAreaChartProps<CategoryKey, ValueKey> = {
-    data: props.compare,
-    categoryKey: props.categoryKey,
-    valueKey: props.valueKey,
-    categories: props.categories,
-    granularity: props.granularity,
-    dateRange: props.compareDateRange as { start: Date; end: Date },
+    data: compare,
+    categoryKey,
+    valueKey,
+    categories,
+    granularity,
+    dateRange: compareDateRange as { start: Date; end: Date },
   };
 
   const { chartData: compareChartData } = dataToStackedAreaChart(compareProps);
@@ -130,12 +110,7 @@ export function toStackedAreaChart<CategoryKey extends string, ValueKey extends 
   }
 
   const comparisonMap = createComparisonMap(chartData, compareChartData, categories);
-
-  return {
-    data: chartData,
-    categories,
-    comparisonMap,
-  };
+  return { data: chartData, categories, comparisonMap };
 }
 
 function createComparisonMap(
@@ -168,9 +143,7 @@ function calculateCategoryTotals<CategoryKey extends string, ValueKey extends st
   categoryKey: CategoryKey,
   valueKey: ValueKey,
 ): Record<string, number> {
-  if (!data || data.length === 0) {
-    return {};
-  }
+  if (!data || data.length === 0) return {};
 
   return data.reduce(
     (acc, item) => {
@@ -188,9 +161,7 @@ export function getSortedCategories<CategoryKey extends string, ValueKey extends
   valueKey: ValueKey,
   categoryTotals?: Record<string, number>,
 ): string[] {
-  if (!data || data.length === 0) {
-    return [];
-  }
+  if (!data || data.length === 0) return [];
 
   const totals = categoryTotals || calculateCategoryTotals(data, categoryKey, valueKey);
 

@@ -2,6 +2,7 @@ import {
   getAllCoreWebVitalPercentilesSeries,
   getCoreWebVitalsP75,
   getCoreWebVitalsAllPercentilesByDimension,
+  hasCoreWebVitalsData,
 } from '@/repositories/clickhouse/webVitals';
 import { CoreWebVitalsSummary, type CWVDimension, type CoreWebVitalName } from '@/entities/webVitals';
 import { QueryFilter } from '@/entities/filter';
@@ -17,12 +18,17 @@ export async function getCoreWebVitalsSummaryForSite(
   return getCoreWebVitalsP75(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
 }
 
+export async function getHasCoreWebVitalsData(siteId: string): Promise<boolean> {
+  return hasCoreWebVitalsData(siteId);
+}
+
 export async function getAllCoreWebVitalPercentilesTimeseries(
   siteId: string,
   startDate: Date,
   endDate: Date,
   granularity: any,
   queryFilters: QueryFilter[],
+  timezone: string,
 ) {
   return await getAllCoreWebVitalPercentilesSeries(
     siteId,
@@ -30,6 +36,7 @@ export async function getAllCoreWebVitalPercentilesTimeseries(
     toDateTimeString(endDate),
     granularity,
     queryFilters,
+    timezone,
   );
 }
 

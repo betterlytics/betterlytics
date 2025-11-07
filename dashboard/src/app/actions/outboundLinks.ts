@@ -41,8 +41,16 @@ export const fetchOutboundLinksSummaryWithChartsAction = withDashboardAuthContex
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
   ) => {
-    return getOutboundLinksSummaryWithChartsForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    return getOutboundLinksSummaryWithChartsForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
   },
 );
 
@@ -53,8 +61,9 @@ export const fetchDailyOutboundClicksAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
   ) => {
-    return getDailyOutboundClicksForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    return getDailyOutboundClicksForSite(ctx.siteId, startDate, endDate, granularity, queryFilters, timezone);
   },
 );
 
@@ -65,10 +74,18 @@ export const fetchOutboundClicksChartAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const data = await getDailyOutboundClicksForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const data = await getDailyOutboundClicksForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
 
     const compareData =
       compareStartDate &&
@@ -79,6 +96,7 @@ export const fetchOutboundClicksChartAction = withDashboardAuthContext(
         compareEndDate,
         granularity,
         queryFilters,
+        timezone,
       ));
 
     return toAreaChart({

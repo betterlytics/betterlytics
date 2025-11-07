@@ -5,6 +5,8 @@ import {
   getBrowserBreakdown,
   getOperatingSystemBreakdown,
   getDeviceUsageTrend,
+  getBrowserRollup,
+  getOperatingSystemRollup,
 } from '@/repositories/clickhouse/devices';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
@@ -18,6 +20,7 @@ import {
 import { getDeviceLabel } from '@/constants/deviceTypes';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
+import { TimeRangeValue } from '@/utils/timeRanges';
 
 export async function getDeviceTypeBreakdownForSite(
   siteId: string,
@@ -53,6 +56,24 @@ export async function getBrowserBreakdownForSite(
   return BrowserStatsSchema.array().parse(statsWithPercentages);
 }
 
+export async function getBrowserRollupForSite(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  queryFilters: QueryFilter[],
+) {
+  return getBrowserRollup(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+}
+
+export async function getOperatingSystemRollupForSite(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  queryFilters: QueryFilter[],
+) {
+  return getOperatingSystemRollup(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+}
+
 export async function getOperatingSystemBreakdownForSite(
   siteId: string,
   startDate: Date,
@@ -83,6 +104,7 @@ export async function getDeviceUsageTrendForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DeviceUsageTrendRow[]> {
   return getDeviceUsageTrend(
     siteId,
@@ -90,6 +112,7 @@ export async function getDeviceUsageTrendForSite(
     toDateTimeString(endDate),
     granularity,
     queryFilters,
+    timezone,
   );
 }
 

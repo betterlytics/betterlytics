@@ -5,3 +5,4 @@ export * from './visitors';
 export * from './referrers';
 export * from './events';
 export * from './geography';
+export * from './sessionReplays';
