@@ -6,7 +6,9 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
+import MapPopupContent from './popup/MapPopupContent';
 import { useLocale, useTranslations } from 'next-intl';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 type MapCountryGeoJSONProps = Omit<WorldMapResponse, 'maxVisitors'> & {
   GeoJSON: typeof GeoJSON;
@@ -33,7 +35,8 @@ export default function MapCountryGeoJSON({
 }: MapCountryGeoJSONProps) {
   const { setMapSelection } = useMapSelection();
   const locale = useLocale();
-  const t = useTranslations('components.geography');
+  const t = useTranslations('components');
+  const timeRangeCtx = useTimeRangeContext();
   const ref = useRef({ setMapSelection });
 
   useEffect(() => {
@@ -76,7 +79,9 @@ export default function MapCountryGeoJSON({
 
       layer.on({
         mouseover: (e) => {
-          const mousePosition = e.originalEvent ? { x: e.originalEvent.clientX, y: e.originalEvent.clientY } : undefined;
+          const mousePosition = e.originalEvent
+            ? { x: e.originalEvent.clientX, y: e.originalEvent.clientY }
+            : undefined;
           ref.current.setMapSelection({ hovered: { geoVisitor: geoVisitorWCmp, layer, mousePosition } });
         },
         click: () => {
@@ -86,8 +91,26 @@ export default function MapCountryGeoJSON({
           if (!(popupContainer as any)._reactRoot) {
             (popupContainer as any)._reactRoot = createRoot(popupContainer);
           }
+
           (popupContainer as any)._reactRoot.render(
-            <MapTooltipContent locale={locale} geoVisitor={geoVisitorWCmp} size={size} label={t('visitors')} />,
+            size === 'lg' ? (
+              <MapPopupContent
+                locale={locale}
+                geoVisitor={geoVisitorWCmp}
+                size={size}
+                t={t}
+                timeRangeCtx={timeRangeCtx}
+                onMouseEnter={() => ref.current.setMapSelection({ hovered: undefined })}
+              />
+            ) : (
+              <MapTooltipContent
+                locale={locale}
+                geoVisitor={geoVisitorWCmp}
+                size={size}
+                label={t('geography.visitors')}
+                onMouseEnter={() => ref.current.setMapSelection({ hovered: undefined })}
+              />
+            ),
           );
 
           requestAnimationFrame(() => {
@@ -96,7 +119,7 @@ export default function MapCountryGeoJSON({
         },
       });
     },
-    [size, style, visitorData, compareData, locale, t],
+    [size, style, visitorData, compareData, locale, t, timeRangeCtx],
   );
 
   return (

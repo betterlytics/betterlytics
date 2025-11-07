@@ -6,7 +6,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { addDays, differenceInCalendarDays } from 'date-fns';
 import { getAllowedGranularities, getValidGranularityFallback } from '@/utils/granularityRanges';
 
-type TimeRangeContextProps = {
+export type TimeRangeContextProps = {
   startDate: Date;
   endDate: Date;
   setPeriod: (startDate: Date, endDate: Date) => void;

@@ -14,9 +14,10 @@ export type MapTooltipContentProps = {
   label: string;
   locale: SupportedLanguages;
   size: 'sm' | 'lg';
+  onMouseEnter?: () => void;
 };
 
-function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTooltipContentProps) {
+function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouseEnter }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
 
   const hasComparison = Boolean(
@@ -28,6 +29,7 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale }: MapTo
 
   return (
     <div
+      onMouseEnter={onMouseEnter}
       className={cn(
         'text-foreground justify-center space-y-1 p-2 text-start',
         size === 'sm' ? 'max-w-[250px]' : 'max-w-[40vw]',
