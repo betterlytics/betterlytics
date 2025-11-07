@@ -3,6 +3,7 @@ import { Progress } from '@/components/ui/progress';
 import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 type PropertyValue = {
   value: string;
@@ -22,6 +23,8 @@ interface PropertyValueBarProps {
 }
 
 export function PropertyValueBar({ value, icon, respectComparison, index, leading }: PropertyValueBarProps) {
+  const t = useTranslations('misc');
+
   return (
     <div className='group shadow-foreground/20 dark:shadow-background relative rounded-sm shadow-xs transition-colors duration-200 hover:bg-[var(--accent)]/80'>
       <div className='relative h-7 overflow-hidden rounded-sm text-sm'>
@@ -43,7 +46,7 @@ export function PropertyValueBar({ value, icon, respectComparison, index, leadin
               <div className='hidden gap-1 transition-all transition-discrete duration-200 group-hover:flex'>
                 {value.comparisonValue && (
                   <span>
-                    <TrendPercentage percentage={value.trendPercentage} withParenthesis displayNoChangeAsText />
+                    <TrendPercentage percentage={value.trendPercentage} withParenthesis noChangeText={t('noChange')} />
                   </span>
                 )}
                 {formatPercentage(value.percentage)}

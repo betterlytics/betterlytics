@@ -1,8 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import LeafletMap from '@/components/map/LeafletMap';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
-import { MOCK_WORLD_GEOVISITORS } from '@/constants/geographyData';
-import { GeoVisitor } from '@/entities/geography';
+import { MOCK_WORLD_GEOVISITORS, MOCK_COMPARE_GEOVISITORS } from '@/constants/geographyData';
+import type { GeoVisitor } from '@/entities/geography';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { SupportedLanguages } from '@/constants/i18n';
 import { getCountryName } from '@/utils/countryCodes';
@@ -35,10 +35,11 @@ export default async function WorldMapCard() {
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
           <LeafletMap
             visitorData={MOCK_WORLD_GEOVISITORS}
+            compareData={MOCK_COMPARE_GEOVISITORS}
+            maxVisitors={MOCK_WORLD_GEOVISITORS[0]?.visitors}
             showZoomControls={false}
             showLegend={false}
             initialZoom={1}
-            maxVisitors={MOCK_WORLD_GEOVISITORS[0]?.visitors}
           />
         </div>
 

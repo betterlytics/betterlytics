@@ -2,29 +2,22 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { formatPercentage } from '@/utils/formatters';
 import { TrendIndicator } from './TrendIndicator';
-import { useTranslations } from 'next-intl';
 
 type TrendPercentageProps = {
   percentage?: number | null;
   withIcon?: boolean;
   withParenthesis?: boolean;
-  displayNoChangeAsText?: boolean;
+  noChangeText?: string;
 };
 
 const TrendPercentage = React.memo(
-  ({ percentage, withIcon, withParenthesis, displayNoChangeAsText }: TrendPercentageProps) => {
-    const t = useTranslations('misc');
-
+  ({ percentage, withIcon, withParenthesis, noChangeText }: TrendPercentageProps) => {
     if (percentage === undefined || percentage === null) {
       return null;
     }
 
     if (percentage === 0) {
-      return displayNoChangeAsText ? (
-        <span className='text-muted-foreground/70'>({t('noChange')})</span>
-      ) : (
-        <span>-</span>
-      );
+      return noChangeText ? <span className='text-muted-foreground/70'>{noChangeText}</span> : <span>-</span>;
     }
 
     const isPositive = percentage > 0;

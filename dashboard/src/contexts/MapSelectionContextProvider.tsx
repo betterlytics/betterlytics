@@ -1,12 +1,12 @@
 'use client';
 
-import { GeoVisitor } from '@/entities/geography';
+import type { GeoVisitorWithCompare } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { createContext, useCallback, useContext } from 'react';
 
 export type MapFeatureVisitor = {
-  geoVisitor: GeoVisitor;
+  geoVisitor: GeoVisitorWithCompare;
   layer: L.Polygon;
   mousePosition?: { x: number; y: number };
 };
