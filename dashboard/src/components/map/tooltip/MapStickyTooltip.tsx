@@ -43,7 +43,12 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
     };
   }, [map, selectedFeature]);
 
-  if (!hoveredFeature || selectedFeature) return null;
+  if (
+    !hoveredFeature ||
+    (selectedFeature && hoveredFeature.geoVisitor.country_code === selectedFeature.geoVisitor.country_code)
+  ) {
+    return null;
+  }
 
   return createPortal(
     <section

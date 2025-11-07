@@ -79,13 +79,22 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
           return { ...prev, ...next };
         }
 
-        if (prev.clicked || prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
+        if (prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
           return { ...prev };
         }
 
-        prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
-        next.hovered?.layer.setStyle(style.hoveredStyle(next.hovered.geoVisitor.visitors));
-        next.hovered?.layer.bringToFront();
+        if (prev.hovered && prev.hovered.geoVisitor.country_code !== prev.clicked?.geoVisitor.country_code) {
+          prev.hovered.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
+        }
+
+        if (!prev.clicked || next.hovered?.geoVisitor.country_code !== prev.clicked.geoVisitor.country_code) {
+          next.hovered?.layer.setStyle(style.hoveredStyle(next.hovered.geoVisitor.visitors));
+          next.hovered?.layer.bringToFront();
+
+          if (prev.clicked) {
+            prev.clicked.layer.bringToFront();
+          }
+        }
 
         return { ...prev, ...next };
       });
