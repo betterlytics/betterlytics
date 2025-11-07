@@ -8,6 +8,7 @@ import React, { createContext, useCallback, useContext } from 'react';
 export type MapFeatureVisitor = {
   geoVisitor: GeoVisitor;
   layer: L.Polygon;
+  mousePosition?: { x: number; y: number };
 };
 
 type MapSelectionContextType = {

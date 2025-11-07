@@ -63,8 +63,9 @@ export default function MapCountryGeoJSON({
       });
 
       layer.on({
-        mouseover: () => {
-          ref.current.setMapSelection({ hovered: { geoVisitor, layer } });
+        mouseover: (e) => {
+          const mousePosition = e.originalEvent ? { x: e.originalEvent.clientX, y: e.originalEvent.clientY } : undefined;
+          ref.current.setMapSelection({ hovered: { geoVisitor, layer, mousePosition } });
         },
         click: () => {
           ref.current.setMapSelection({ clicked: { geoVisitor, layer } });

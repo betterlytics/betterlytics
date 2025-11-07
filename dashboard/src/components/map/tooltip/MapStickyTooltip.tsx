@@ -24,28 +24,35 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
   useEffect(() => {
     const mapContainer = map.getContainer();
 
-    const onMouseMove = (e: MouseEvent) => {
+    const updateMousePosition = (e: MouseEvent) => {
       latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
       if (tooltipRef.current) {
         tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
       }
     };
 
-    mapContainer.addEventListener('mousemove', onMouseMove);
+    mapContainer.addEventListener('mousemove', updateMousePosition);
 
-    // Initial positioning before event fires
-    if (tooltipRef.current && latestMouseRef.current) {
-      tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
+    if (tooltipRef.current) {
+      const position = hoveredFeature?.mousePosition || latestMouseRef.current;
+      if (hoveredFeature?.mousePosition) {
+        latestMouseRef.current = hoveredFeature.mousePosition;
+      }
+      tooltipRef.current.style.transform = `translate3d(${position.x}px, ${position.y - 2}px, 0) translate(-50%, -100%)`;
     }
 
     return () => {
-      mapContainer.removeEventListener('mousemove', onMouseMove);
+      mapContainer.removeEventListener('mousemove', updateMousePosition);
     };
-  }, [map, selectedFeature]);
+  }, [map, selectedFeature, hoveredFeature]);
+
+  const hasValidPosition =
+    hoveredFeature?.mousePosition || latestMouseRef.current.x !== 0 || latestMouseRef.current.y !== 0;
 
   if (
     !hoveredFeature ||
-    (selectedFeature && hoveredFeature.geoVisitor.country_code === selectedFeature.geoVisitor.country_code)
+    (selectedFeature && hoveredFeature.geoVisitor.country_code === selectedFeature.geoVisitor.country_code) ||
+    !hasValidPosition
   ) {
     return null;
   }
