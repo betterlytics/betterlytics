@@ -53,6 +53,10 @@ export function useImmediateTimeRange() {
       ctx.setInterval(preset);
       ctx.setGranularity(resolved.granularity);
 
+      if (ctx.compareMode === 'custom') {
+        ctx.setCompareDateRange(resolved.compare?.start, resolved.compare?.end);
+      }
+
       baEvent('set-preset-date-range', {
         interval: preset,
       });
@@ -79,6 +83,10 @@ export function useImmediateTimeRange() {
       ctx.setOffset(0);
       ctx.setInterval('custom');
       ctx.setGranularity(resolved.granularity);
+
+      if (ctx.compareMode === 'custom') {
+        ctx.setCompareDateRange(resolved.compare?.start, resolved.compare?.end);
+      }
 
       baEvent('set-custom-date-range', {
         from,
@@ -139,19 +147,20 @@ export function useImmediateTimeRange() {
     (customStart?: Date) => {
       if (!customStart) return;
       ctx.setCompareMode('custom');
+
       const resolved = getResolvedRanges(
         'custom',
         ctx.compareMode,
         ctx.timeZone,
-        customStart,
+        ctx.startDate,
         ctx.endDate,
         ctx.granularity,
-        ctx.compareStartDate,
+        customStart,
         ctx.compareEndDate,
         0,
         ctx.compareAlignWeekdays,
       );
-      ctx.setCompareDateRange(resolved.compare?.start ?? customStart, resolved.compare?.end ?? customStart);
+      ctx.setCompareDateRange(resolved.compare?.start, resolved.compare?.end);
     },
     [ctx],
   );

@@ -256,6 +256,7 @@ function getCompareRange(
   const diff = countUnitsBetween(range, granularity);
   const unit = granularityUnit(granularity);
   const offsetStart = (end: moment.Moment) => offsetTime(end.clone(), diff, unit, -1).clone();
+  const offsetEnd = (start: moment.Moment) => offsetTime(start.clone(), diff, unit, 1).clone();
   if (mode === 'previous') {
     const baseEnd = shouldAlignWeekdays
       ? alignWeekday(range.end.clone(), range.start.clone(), mode)
@@ -277,15 +278,15 @@ function getCompareRange(
   }
   if (mode === 'custom' && customCompareRange) {
     // Align end time of day
-    const alignedEnd = customCompareRange.end.clone().set({
-      hour: range.end.hour(),
-      minute: range.end.minute(),
-      second: range.end.second(),
-      millisecond: range.end.millisecond(),
+    const alignedStart = customCompareRange.start.clone().set({
+      hour: range.start.hour(),
+      minute: range.start.minute(),
+      second: range.start.second(),
+      millisecond: range.start.millisecond(),
     });
     return {
-      start: offsetStart(alignedEnd),
-      end: alignedEnd.clone(),
+      start: alignedStart.clone(),
+      end: offsetEnd(alignedStart),
     };
   }
 }

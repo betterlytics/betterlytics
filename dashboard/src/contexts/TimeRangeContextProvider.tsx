@@ -18,7 +18,7 @@ type TimeRangeContextProps = {
   setCompareMode: Dispatch<SetStateAction<CompareMode>>;
   compareStartDate?: Date;
   compareEndDate?: Date;
-  setCompareDateRange: (startDate: Date, endDate: Date) => void;
+  setCompareDateRange: (startDate?: Date, endDate?: Date) => void;
   compareAlignWeekdays: boolean;
   setCompareAlignWeekdays: Dispatch<SetStateAction<boolean>>;
   timeZone: string;
@@ -53,7 +53,8 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
     setEndDate(new Date(newEndDate.getTime() - 1_000)); // Subtract 1 second for formatting
   }, []);
 
-  const handleSetCompareDateRange = useCallback((csDate: Date, ceDate: Date) => {
+  const handleSetCompareDateRange = useCallback((csDate?: Date, ceDate?: Date) => {
+    if (!csDate || !ceDate) return;
     setCompareStartDate(csDate);
     setCompareEndDate(new Date(ceDate.getTime() - 1_000)); // Subtract 1 second for formatting
   }, []);
