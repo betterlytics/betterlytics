@@ -1,30 +1,17 @@
-import {
-  getDateRangeForTimePresets,
-  getDateWithTimeOfDay,
-  getEndDateWithGranularity,
-  getStartDateWithGranularity,
-} from './timeRanges';
-import { deriveCompareRange } from './compareRanges';
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { getResolvedRanges } from '@/lib/ba-timerange';
-import { getAllowedGranularities, getValidGranularityFallback } from './granularityRanges';
+import moment from 'moment-timezone';
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
-  let { startDate, endDate } = getDateRangeForTimePresets('24h');
-  const derived = deriveCompareRange(startDate, endDate, 'previous');
-  let compareStart = derived?.startDate ?? startDate;
-  let compareEnd = derived?.endDate ?? endDate;
 
-  startDate = getStartDateWithGranularity(startDate, granularity);
-  endDate = getEndDateWithGranularity(endDate, granularity);
-  compareStart = getStartDateWithGranularity(getDateWithTimeOfDay(compareStart, startDate), granularity);
-  compareEnd = getEndDateWithGranularity(getDateWithTimeOfDay(compareEnd, endDate), granularity);
+  const now = new Date();
+  const range = getResolvedRanges('24h', 'previous', 'Etc/UTC', now, now, 'hour', undefined, undefined, 0, false);
 
   return {
     queryFilters: [],
-    startDate,
-    endDate,
+    startDate: range.main.start,
+    endDate: range.main.end,
     granularity,
     interval: '24h',
     compare: 'previous',
@@ -33,8 +20,8 @@ function getDefaultFilters(): FilterQueryParams {
       numberOfSteps: 3,
       numberOfJourneys: 5,
     },
-    compareStartDate: compareStart,
-    compareEndDate: compareEnd,
+    compareStartDate: range.compare?.start,
+    compareEndDate: range.compare?.end,
     offset: 0,
   };
 }
@@ -74,6 +61,14 @@ function filterVariable(key: string, value: unknown) {
   return true;
 }
 
+// Util for encoding date
+function formatLocalDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based so add 1
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Encode filter values
 function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unknown): string {
   switch (key) {
@@ -81,7 +76,7 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
     case 'endDate':
     case 'compareStartDate':
     case 'compareEndDate':
-      return (value as Date).toISOString();
+      return formatLocalDate(value as Date);
     case 'queryFilters':
     case 'userJourney':
       return JSON.stringify(value);
@@ -109,13 +104,14 @@ function encode(params: FilterQueryParams) {
 function decodeValue<Key extends keyof FilterQueryParams>(
   key: Key,
   value: string,
+  timezone: string,
 ): FilterQueryParams[keyof FilterQueryParams] {
   switch (key) {
     case 'startDate':
     case 'endDate':
     case 'compareStartDate':
     case 'compareEndDate':
-      return new Date(value);
+      return moment.tz(value, timezone).toDate();
     case 'queryFilters':
     case 'userJourney':
       return JSON.parse(value);
@@ -158,7 +154,7 @@ function enforceGranularityAndDuration(
     compareAlignWeekdays?: boolean;
   },
 ) {
-  const initial = getResolvedRanges(
+  const ranges = getResolvedRanges(
     interval,
     compare,
     timezone,
@@ -171,52 +167,12 @@ function enforceGranularityAndDuration(
     compareAlignWeekdays,
   );
 
-  const nextStart = initial.main.start;
-  let nextEnd = initial.main.end;
-  let nextGranularity = granularity;
-
-  const maxMs = 366 * 24 * 60 * 60 * 1000;
-  if (nextEnd.getTime() - nextStart.getTime() > maxMs) {
-    nextEnd = new Date(nextStart.getTime() + maxMs);
-  }
-
-  const allowed = getAllowedGranularities(nextStart, nextEnd);
-  nextGranularity = getValidGranularityFallback(nextGranularity, allowed);
-
-  const needsRecompute =
-    nextStart.getTime() !== initial.main.start.getTime() ||
-    nextEnd.getTime() !== initial.main.end.getTime() ||
-    nextGranularity !== granularity;
-
-  if (!needsRecompute) {
-    return {
-      main: initial.main,
-      compare: initial.compare,
-      startDate: initial.main.start,
-      endDate: initial.main.end,
-      granularity,
-    } as const;
-  }
-
-  const recomputed = getResolvedRanges(
-    interval,
-    compare,
-    timezone,
-    nextStart,
-    nextEnd,
-    nextGranularity,
-    compareStartDate,
-    compareEndDate,
-    offset,
-    compareAlignWeekdays,
-  );
-
   return {
-    main: recomputed.main,
-    compare: recomputed.compare,
-    startDate: recomputed.main.start,
-    endDate: recomputed.main.end,
-    granularity: nextGranularity,
+    main: ranges.main,
+    compare: ranges.compare,
+    startDate: ranges.main.start,
+    endDate: ranges.main.end,
+    granularity: ranges.granularity,
   } as const;
 }
 
@@ -225,7 +181,7 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
 
   const decodedEntries = Object.entries(params)
     .filter(([key]) => key in defaultFilters)
-    .map(([key, value]) => [key, decodeValue(key as keyof FilterQueryParams, value)]);
+    .map(([key, value]) => [key, decodeValue(key as keyof FilterQueryParams, value, timezone)]);
 
   const decoded = Object.fromEntries(decodedEntries) as Partial<FilterQueryParams>;
 
