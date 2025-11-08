@@ -83,11 +83,11 @@ function getTimestampRange(
 
   // Note: the end timestamp is exclusive
   // the BETWEEN keyword seems to be inclusive of the end timestamp
-  const range = safeSql`timestamp >= ${start} AND timestamp < ${end}`;
+  const range = safeSql`timestamp BETWEEN ${start} AND ${end}`;
 
   // Create the fill
   const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
-  const intervalTo = safeSql`toStartOfInterval(${end}, ${interval}, ${SQL.String({ timezone })})`;
+  const intervalTo = safeSql`toStartOfInterval(addSeconds(${end}, 1), ${interval}, ${SQL.String({ timezone })})`;
 
   const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 

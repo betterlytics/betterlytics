@@ -206,7 +206,7 @@ function getMainRange(
       end: ceilToGranularity(moment.tz(customEnd, timezone), 'day'),
     };
 
-    const customBuckets = countBucketsBetween(base, granularity);
+    const customBuckets = countBucketsBetween(base, 'day');
     return {
       start: offsetTime(base.start, customBuckets, 'days', offset).clone(),
       end: offsetTime(base.end, customBuckets, 'days', offset).clone(),
@@ -345,12 +345,12 @@ export function getResolvedRanges(
       result: {
         main: {
           start: mainRange.start.toDate(),
-          end: mainRange.end.toDate(),
+          end: mainRange.end.clone().subtract(1, 'second').toDate(),
         },
         compare: compareRange
           ? {
               start: compareRange.start.toDate(),
-              end: compareRange.end.toDate(),
+              end: compareRange.end.clone().subtract(1, 'second').toDate(),
             }
           : undefined,
       },
