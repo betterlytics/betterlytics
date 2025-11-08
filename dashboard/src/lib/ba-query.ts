@@ -108,8 +108,6 @@ function getTimestampRange(
 }
 
 export const BAQuery = {
-  getGranularitySQLFunctionFromGranularityRange,
   getFilterQuery,
   getTimestampRange,
-  getGranularityInterval,
 };
