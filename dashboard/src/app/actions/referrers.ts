@@ -15,7 +15,7 @@ import { AuthContext } from '@/entities/authContext';
 import { TopReferrerUrl, TopChannel, TopReferrerSource, TrafficSourcesCombinedSchema } from '@/entities/referrers';
 import { QueryFilter } from '@/entities/filter';
 import { toPieChart } from '@/presenters/toPieChart';
-import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
 
@@ -67,6 +67,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
@@ -77,6 +78,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
         endDate,
         granularity,
         queryFilters,
+        timezone,
       );
 
       const compareData =
@@ -88,6 +90,7 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
           compareEndDate,
           granularity,
           queryFilters,
+          timezone,
         ));
 
       const sortedCategories = getSortedCategories(rawData, 'referrer_source', 'count');
@@ -122,6 +125,7 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
   ) => {
     try {
       const raw = await getReferrerSummaryWithChartsForSite(
@@ -130,6 +134,7 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
         endDate,
         granularity,
         queryFilters,
+        timezone,
       );
 
       const dateRange = { start: startDate, end: endDate };

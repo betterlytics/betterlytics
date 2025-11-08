@@ -62,6 +62,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.503.0",
     "mailersend": "^2.6.0",
+    "moment-timezone": "^0.6.0",
     "motion": "^12.23.12",
     "next": "15.3.3",
     "next-auth": "^4.24.11",

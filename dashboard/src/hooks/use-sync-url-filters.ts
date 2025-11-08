@@ -57,7 +57,7 @@ export function useSyncURLFilters() {
 
       const encoded = Object.fromEntries(encodedFilterEntries);
 
-      const filters = BAFilterSearchParams.decode(encoded);
+      const filters = BAFilterSearchParams.decode(encoded, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
       if (filters.startDate && filters.endDate) {
         setPeriod(filters.startDate, filters.endDate);
@@ -113,7 +113,7 @@ export function useSyncURLFilters() {
         return;
       }
 
-      const encodedFilters = BAFilterSearchParams.encode({
+      const rawEncoded = BAFilterSearchParams.encode({
         queryFilters,
         startDate,
         endDate,
@@ -128,8 +128,18 @@ export function useSyncURLFilters() {
         },
         // Only include compare dates for custom mode when both are present
         compareStartDate:
-          compareMode !== 'off' && compareStartDate && compareEndDate ? compareStartDate : undefined,
-        compareEndDate: compareMode !== 'off' && compareStartDate && compareEndDate ? compareEndDate : undefined,
+          compareMode === 'custom' && compareStartDate && compareEndDate ? compareStartDate : undefined,
+        compareEndDate:
+          compareMode === 'custom' && compareStartDate && compareEndDate ? compareEndDate : undefined,
+      });
+
+      const showMainDates = interval === 'custom';
+      const showCompareDates = compareMode === 'custom';
+
+      const encodedFilters = rawEncoded.filter(([key]) => {
+        if (key === 'startDate' || key === 'endDate') return showMainDates;
+        if (key === 'compareStartDate' || key === 'compareEndDate') return showCompareDates;
+        return true;
       });
 
       const currentParamsString = searchParams?.toString() ?? '';

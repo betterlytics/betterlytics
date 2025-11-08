@@ -27,6 +27,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -40,9 +41,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     redirect('/');
   }
   const { dashboardId } = await params;
-
+  const timezone = await getUserTimezone();
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams);
+    BAFilterSearchParams.decode(await searchParams, timezone);
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
     dashboardId,
@@ -69,6 +70,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
+      timezone,
       compareStartDate,
       compareEndDate,
     ),
@@ -78,6 +80,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
+      timezone,
       compareStartDate,
       compareEndDate,
     ),
@@ -87,6 +90,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
+      timezone,
       compareStartDate,
       compareEndDate,
     ),
@@ -96,6 +100,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       endDate,
       granularity,
       queryFilters,
+      timezone,
       compareStartDate,
       compareEndDate,
     ),

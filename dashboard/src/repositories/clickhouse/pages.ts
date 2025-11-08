@@ -31,23 +31,31 @@ export async function getTotalPageViews(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<TotalPageViewsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
-  const query = safeSql`
-    SELECT
-      ${granularityFunc('timestamp', startDate)} as date,
-      count() as views
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND event_type = 'pageview' 
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND ${SQL.AND(filters)}
-    GROUP BY date
-    ORDER BY date ASC, views DESC
-    LIMIT 10080
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT
+        ${granularityFunc('timestamp')} as date,
+        count() as views
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND event_type = 'pageview' 
+        AND ${range}
+        AND ${SQL.AND(filters)}
+      GROUP BY date
+      ORDER BY date ASC ${fill}, views DESC
+      LIMIT 10080
+    `,
+  );
   const result = (await clickhouse
     .query(query.taggedSql, {
       params: {
@@ -66,22 +74,30 @@ export async function getPageViews(
   startDate: DateString,
   endDate: DateString,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<DailyPageViewRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
 
-  const query = safeSql`
-    SELECT
-      ${granularityFunc('timestamp', startDate)} as date,
-      url,
-      count() as views
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND event_type = 'pageview' 
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-    GROUP BY date, url
-    ORDER BY date ASC, views DESC
-    LIMIT 10080
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT
+        ${granularityFunc('timestamp')} as date,
+        url,
+        count() as views
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND event_type = 'pageview' 
+        AND ${range}
+      GROUP BY date, url
+      ORDER BY date ASC ${fill}, views DESC
+      LIMIT 10080
+    `,
+  );
   const result = (await clickhouse
     .query(query.taggedSql, {
       params: {
@@ -292,22 +308,30 @@ export async function getPageTrafficTimeSeries(
   startDate: DateTimeString,
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<TotalPageViewsRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
 
-  const query = safeSql`
-    SELECT
-      ${granularityFunc('timestamp', startDate)} as date,
-      count() as views
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND url = {path:String}
-      AND event_type = 'pageview' 
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-    GROUP BY date
-    ORDER BY date ASC
-    LIMIT 10080
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT
+        ${granularityFunc('timestamp')} as date,
+        count() as views
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND url = {path:String}
+        AND event_type = 'pageview' 
+        AND ${range}
+      GROUP BY date
+      ORDER BY date ASC ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const result = (await clickhouse
     .query(query.taggedSql, {
@@ -645,42 +669,51 @@ export async function getDailyAverageTimeOnPage(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyAverageTimeRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
-  const query = safeSql`
-    WITH 
-      page_view_durations AS (
-        SELECT
-          session_id,
-          url,
-          timestamp,
-          ${granularityFunc('timestamp', startDate)} as date,
-          leadInFrame(timestamp) OVER (
-              PARTITION BY site_id, session_id 
-              ORDER BY timestamp 
-              ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-          ) as next_timestamp,
-          if(
-            next_timestamp IS NOT NULL AND timestamp <= next_timestamp, 
-            toFloat64(next_timestamp - timestamp),
-            NULL
-          ) as duration_seconds
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'pageview' 
-          AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-          AND ${SQL.AND(filters)}
-      )
-    SELECT 
-      date,
-      avgIf(duration_seconds, duration_seconds IS NOT NULL) as avgTime
-    FROM page_view_durations
-    GROUP BY date
-    ORDER BY date ASC
-    LIMIT 10080
-  `;
+  const query = timeWrapper(
+    safeSql`
+      WITH 
+        page_view_durations AS (
+          SELECT
+            session_id,
+            url,
+            timestamp,
+            ${granularityFunc('timestamp')} as date,
+            leadInFrame(timestamp) OVER (
+                PARTITION BY site_id, session_id 
+                ORDER BY timestamp 
+                ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+            ) as next_timestamp,
+            if(
+              // Keep check to prevent negative durations from timestamp precision issues
+              next_timestamp IS NOT NULL AND timestamp <= next_timestamp, 
+              toFloat64(next_timestamp - timestamp),
+              NULL
+            ) as duration_seconds
+          FROM analytics.events
+          WHERE site_id = {site_id:String}
+            AND event_type = 'pageview' 
+            AND ${range}
+            AND ${SQL.AND(filters)}
+        )
+      SELECT 
+        date,
+        avgIf(duration_seconds, duration_seconds IS NOT NULL) as avgTime
+      FROM page_view_durations
+      GROUP BY date
+      ORDER BY date ASC ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const result = (await clickhouse
     .query(query.taggedSql, {
@@ -702,39 +735,47 @@ export async function getDailyBounceRate(
   endDate: DateString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyBounceRateRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
-  const query = safeSql`
-    WITH 
-      session_events AS (
-        SELECT 
-          session_id,
-          timestamp,
-          ${granularityFunc('timestamp', startDate)} as event_date
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'pageview' 
-          AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-          AND ${SQL.AND(filters)}
-      ),
-      daily_sessions AS (
-        SELECT 
-          session_id,
-          min(event_date) as session_date,
-          count() as page_count
-        FROM session_events
-        GROUP BY session_id
-      )
-    SELECT 
-      session_date as date,
-      if(count() > 0, round(countIf(page_count = 1) / count() * 100, 2), 0) as bounceRate
-    FROM daily_sessions
-    GROUP BY session_date
-    ORDER BY session_date ASC
-    LIMIT 10080
-  `;
+  const query = timeWrapper(
+    safeSql`
+      WITH 
+        session_events AS (
+          SELECT 
+            session_id,
+            timestamp,
+            ${granularityFunc('timestamp')} as event_date
+          FROM analytics.events
+          WHERE site_id = {site_id:String}
+            AND event_type = 'pageview' 
+            AND ${range}
+            AND ${SQL.AND(filters)}
+        ),
+        daily_sessions AS (
+          SELECT 
+            session_id,
+            min(event_date) as session_date,
+            count() as page_count
+          FROM session_events
+          GROUP BY session_id
+        )
+      SELECT 
+        session_date as date,
+        if(count() > 0, round(countIf(page_count = 1) / count() * 100, 2), 0) as bounceRate
+      FROM daily_sessions
+      GROUP BY session_date
+      ORDER BY date ASC ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const result = (await clickhouse
     .query(query.taggedSql, {
