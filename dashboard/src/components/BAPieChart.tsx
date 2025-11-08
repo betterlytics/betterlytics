@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl';
 import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import PieChartTooltip from './charts/PieChartTooltip';
 import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
+import DataEmptyComponent from './DataEmptyComponent';
 
 interface ChartDataPoint {
   name: string;
@@ -25,12 +26,7 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(
     const tFilters = useTranslations('components.filters');
     if (data.length === 0) {
       return (
-        <div className='flex h-[300px] items-center justify-center'>
-          <div className='text-center'>
-            <p className='text-muted-foreground mb-1'>{t('noData')}</p>
-            <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-          </div>
-        </div>
+        <DataEmptyComponent />
       );
     }
 

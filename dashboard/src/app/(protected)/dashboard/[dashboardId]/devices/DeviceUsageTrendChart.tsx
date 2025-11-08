@@ -19,6 +19,7 @@ import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { useTranslations } from 'next-intl';
 import { useIsMobile } from '@/hooks/use-mobile';
+import DataEmptyComponent from '@/components/DataEmptyComponent';
 
 interface DeviceUsageTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -54,14 +55,7 @@ export default function DeviceUsageTrendChart({
   const isMobile = useIsMobile();
 
   if (!chartData || chartData.length === 0 || categories.length === 0) {
-    return (
-      <div className='flex h-[300px] items-center justify-center'>
-        <div className='text-center'>
-          <p className='text-muted-foreground mb-1'>{t('noData')}</p>
-          <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-        </div>
-      </div>
-    );
+    return <DataEmptyComponent />;
   }
 
   return (
