@@ -90,24 +90,31 @@ export async function getDailyOutboundClicks(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ): Promise<DailyOutboundClicksRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
   const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT 
-      ${granularityFunc('timestamp', startDate)} as date,
-      uniq(visitor_id, outbound_link_url) as outboundClicks
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND event_type = 'outbound_link'
-      AND outbound_link_url != ''
-      AND ${SQL.AND(filters)}
-    GROUP BY date
-    ORDER BY date ASC
-    LIMIT 10080
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT 
+        ${granularityFunc('timestamp')} as date,
+        uniq(visitor_id, outbound_link_url) as outboundClicks
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND ${range}
+        AND event_type = 'outbound_link'
+        AND outbound_link_url != ''
+        AND ${SQL.AND(filters)}
+      GROUP BY date
+      ORDER BY date ASC ${fill}
+      LIMIT 10080
+    `,
+  );
 
   const result = await clickhouse
     .query(query.taggedSql, {

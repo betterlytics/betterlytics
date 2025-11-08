@@ -177,21 +177,29 @@ export async function getCampaignVisitorTrendData(
   startDate: DateTimeString,
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
+  timezone: string,
 ): Promise<CampaignTrendRow[]> {
-  const granularityFunc = BAQuery.getGranularitySQLFunctionFromGranularityRange(granularity);
+  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDate,
+    endDate,
+  );
 
-  const query = safeSql`
-    SELECT
-      ${granularityFunc('timestamp', startDate)} AS date,
-      utm_campaign,
-      COUNT(DISTINCT visitor_id) AS visitors
-    FROM analytics.events
-    WHERE site_id = {siteId:String}
-      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-      AND utm_campaign != ''
-    GROUP BY date, utm_campaign
-    ORDER BY date ASC, utm_campaign ASC
-  `;
+  const query = timeWrapper(
+    safeSql`
+      SELECT
+        ${granularityFunc('timestamp')} AS date,
+        utm_campaign,
+        COUNT(DISTINCT visitor_id) AS visitors
+      FROM analytics.events
+      WHERE site_id = {siteId:String}
+        AND ${range}
+        AND utm_campaign != ''
+      GROUP BY date, utm_campaign
+      ORDER BY date ASC ${fill}, utm_campaign ASC
+    `,
+  );
 
   const resultSet = await clickhouse
     .query(query.taggedSql, {

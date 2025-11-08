@@ -10,6 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import { getUserTimezone } from '@/lib/cookies';
 
 type FunnelPageProps = {
   params: Promise<{ dashboardId: string; funnelId: string }>;
@@ -17,7 +18,8 @@ type FunnelPageProps = {
 };
 
 export default async function FunnelPage({ params, searchParams }: FunnelPageProps) {
-  const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams);
+  const timezone = await getUserTimezone();
+  const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams, timezone);
 
   const { dashboardId, funnelId } = await params;
   const funnelPromise = fetchFunnelDetailsAction(dashboardId, funnelId, startDate, endDate);

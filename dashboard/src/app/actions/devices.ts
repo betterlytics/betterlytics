@@ -14,7 +14,7 @@ import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { toPieChart } from '@/presenters/toPieChart';
-import { toStackedAreaChart, getSortedCategories } from '@/presenters/toStackedAreaChart';
+import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
@@ -173,10 +173,18 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     endDate: Date,
     granularity: GranularityRangeValues,
     queryFilters: QueryFilter[],
+    timezone: string,
     compareStartDate?: Date,
     compareEndDate?: Date,
   ) => {
-    const rawData = await getDeviceUsageTrendForSite(ctx.siteId, startDate, endDate, granularity, queryFilters);
+    const rawData = await getDeviceUsageTrendForSite(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
 
     const data = toFormatted(rawData, (value) => ({
       ...value,
@@ -186,7 +194,14 @@ export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
     const compareData =
       compareStartDate &&
       compareEndDate &&
-      (await getDeviceUsageTrendForSite(ctx.siteId, compareStartDate, compareEndDate, granularity, queryFilters));
+      (await getDeviceUsageTrendForSite(
+        ctx.siteId,
+        compareStartDate,
+        compareEndDate,
+        granularity,
+        queryFilters,
+        timezone,
+      ));
 
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');
 

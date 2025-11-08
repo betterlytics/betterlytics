@@ -18,10 +18,11 @@ export async function getUniqueVisitorsForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ) {
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
-  return getUniqueVisitors(siteId, formattedStart, formattedEnd, granularity, queryFilters);
+  return getUniqueVisitors(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
 }
 
 export async function getSummaryStatsWithChartsForSite(
@@ -30,12 +31,20 @@ export async function getSummaryStatsWithChartsForSite(
   endDate: Date,
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
+  timezone: string,
 ) {
   const [visitorsChartData, pageviewsChartData, sessionMetricsChartData, sessionMetricsRangeData] =
     await Promise.all([
-      getUniqueVisitorsForSite(siteId, startDate, endDate, granularity, queryFilters),
-      getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters),
-      getSessionMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), granularity, queryFilters),
+      getUniqueVisitorsForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
+      getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
+      getSessionMetrics(
+        siteId,
+        toDateTimeString(startDate),
+        toDateTimeString(endDate),
+        granularity,
+        queryFilters,
+        timezone,
+      ),
       getSessionRangeMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters),
     ]);
 
