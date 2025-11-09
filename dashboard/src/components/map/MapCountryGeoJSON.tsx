@@ -1,8 +1,8 @@
-import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
+import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse, GeoVisitorWithCompare } from '@/entities/geography';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
@@ -33,15 +33,14 @@ export default function MapCountryGeoJSON({
   size = 'sm',
   style,
 }: MapCountryGeoJSONProps) {
-  const { setMapSelection } = useMapSelection();
+  const { setMapSelection } = useMapSelectionSetter();
   const locale = useLocale();
   const t = useTranslations('components');
   const timeRangeCtx = useTimeRangeContext();
-  const ref = useRef({ setMapSelection });
 
   useEffect(() => {
-    ref.current = { setMapSelection };
-  }, [setMapSelection]);
+    setMapSelection(null);
+  }, [visitorData, compareData, setMapSelection]);
 
   const onEachFeature = useCallback(
     (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
@@ -73,10 +72,10 @@ export default function MapCountryGeoJSON({
           const mousePosition = e.originalEvent
             ? { x: e.originalEvent.clientX, y: e.originalEvent.clientY }
             : undefined;
-          ref.current.setMapSelection({ hovered: { geoVisitor: geoVisitorWithComparison, layer, mousePosition } });
+          setMapSelection({ hovered: { geoVisitor: geoVisitorWithComparison, layer, mousePosition } });
         },
         click: () => {
-          ref.current.setMapSelection({ clicked: { geoVisitor: geoVisitorWithComparison, layer } });
+          setMapSelection({ clicked: { geoVisitor: geoVisitorWithComparison, layer } });
         },
         popupopen: () => {
           if (!(popupContainer as any)._reactRoot) {
@@ -91,7 +90,7 @@ export default function MapCountryGeoJSON({
                 size={size}
                 t={t}
                 timeRangeCtx={timeRangeCtx}
-                onMouseEnter={() => ref.current.setMapSelection({ hovered: undefined })}
+                onMouseEnter={() => setMapSelection({ hovered: undefined })}
               />
             ) : (
               <MapTooltipContent
@@ -99,7 +98,7 @@ export default function MapCountryGeoJSON({
                 geoVisitor={geoVisitorWithComparison}
                 size={size}
                 label={t('geography.visitors')}
-                onMouseEnter={() => ref.current.setMapSelection({ hovered: undefined })}
+                onMouseEnter={() => setMapSelection({ hovered: undefined })}
               />
             ),
           );
@@ -110,7 +109,7 @@ export default function MapCountryGeoJSON({
         },
       });
     },
-    [size, style, visitorData, compareData, locale, t, timeRangeCtx],
+    [size, style, visitorData, compareData, locale, t, timeRangeCtx, setMapSelection],
   );
 
   return (
