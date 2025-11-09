@@ -65,6 +65,7 @@ async function createDemoContext(dashboardId: string): Promise<AuthContext> {
     siteId: dashboard.siteId,
     userId: 'demo',
     role: 'viewer',
+    isDemo: true,
   };
 }
 
@@ -122,7 +123,7 @@ async function executeWithCachingIfDemo<Args extends Array<unknown>, Ret>(
   args: Args,
 ): Promise<Ret> {
   // For demo/public dashboards, cache reads to reduce load
-  if (context.userId === 'demo') {
+  if (context.isDemo) {
     const actionId = getActionSignature(action as AnyFn);
     const argsKey = getArgsSignature(args);
     const cacheKey = createCacheKeyForDemo(context, actionId, argsKey);

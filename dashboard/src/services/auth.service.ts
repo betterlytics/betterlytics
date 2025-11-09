@@ -126,6 +126,7 @@ export async function getAuthorizedDashboardContextOrNull(data: DashboardFindByU
     userId: userDashboard.userId,
     dashboardId: dashboard.id,
     siteId: dashboard.siteId,
+    isDemo: false,
   });
 }
 
