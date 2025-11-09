@@ -716,6 +716,19 @@
         "helpLine": "Need help? Contact support at support@betterlytics.io"
       }
     },
+    "demo": {
+      "seo": {
+        "title": "Betterlytics | Demo Dashboard",
+        "description": "Explore Betterlytics' capabilities in this interactive demo dashboard.",
+        "keywords": [
+          "Betterlytics Demo",
+          "Analytics Demo",
+          "Product Tour",
+          "Web Analytics Demo",
+          "Privacy-First Analytics"
+        ]
+      }
+    },
     "landing": {
       "seo": {
         "title": "Betterlytics | Simple, Cookieless, Privacy-Friendly Web Analytics",

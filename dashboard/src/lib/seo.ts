@@ -294,6 +294,11 @@ export const SEO_CONFIGS = {
     path: '/register',
     structuredDataType: 'webpage',
   },
+  publicDemo: {
+    namespace: 'public.demo.seo',
+    path: '/public/demo',
+    structuredDataType: 'webpage',
+  },
   onboarding: {
     namespace: 'public.auth.register.seo',
     path: '/onboarding',
