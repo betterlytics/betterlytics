@@ -4,6 +4,8 @@ import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { type FilterColumn, type FilterOperator } from '@/entities/filter';
 import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -15,6 +17,7 @@ type Options = {
 export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
   const isDemo = useDemoMode();
+  const t = useTranslations('components.demoMode');
 
   const defaultOperator: FilterOperator = defaults?.operator ?? '=';
   const defaultBehavior: Behavior = defaults?.behavior ?? 'replace-same-column';
@@ -22,6 +25,7 @@ export function useFilterClick(defaults?: Options) {
   const applyFilter = useCallback(
     (column: FilterColumn, value: string, opts?: Options) => {
       if (isDemo && column !== 'url' && column !== 'device_type') {
+        toast.info(t('interactionDisabled'));
         return;
       }
 
@@ -48,7 +52,16 @@ export function useFilterClick(defaults?: Options) {
 
       addQueryFilter({ column, operator, value });
     },
-    [addQueryFilter, removeQueryFilter, setQueryFilters, queryFilters, defaultOperator, defaultBehavior, isDemo],
+    [
+      addQueryFilter,
+      removeQueryFilter,
+      setQueryFilters,
+      queryFilters,
+      defaultOperator,
+      defaultBehavior,
+      isDemo,
+      t,
+    ],
   );
 
   const makeFilterClick = useCallback(

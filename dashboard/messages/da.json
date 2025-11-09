@@ -1841,7 +1841,8 @@
       "logout": "Log ud"
     },
     "demoMode": {
-      "notAvailable": "Ikke tilgængelig på demo-dashboard"
+      "notAvailable": "Ikke tilgængelig på demo-dashboard",
+      "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
     }
   },
   "onboarding": {
