@@ -15,7 +15,7 @@ import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useDemoMode } from '@/contexts/DemoModeContextProvider';
-import { DisabledTooltip } from '@/components/ui/DisabledTooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 
 export function CompareRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);

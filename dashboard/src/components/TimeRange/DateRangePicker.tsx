@@ -10,7 +10,7 @@ import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { DisabledTooltip } from '@/components/ui/DisabledTooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;

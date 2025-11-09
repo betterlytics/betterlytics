@@ -5,7 +5,7 @@ import { GRANULARITY_RANGE_PRESETS, GranularityRangeValues } from '@/utils/granu
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import { DisabledTooltip } from '@/components/ui/DisabledTooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 
 interface GranularitySectionProps {
   selectedGranularity: GranularityRangeValues;

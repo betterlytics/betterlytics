@@ -5,7 +5,7 @@ import { TIME_RANGE_PRESETS, TimeRangeValue, TimeRangePreset } from '@/utils/tim
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
-import { DisabledTooltip } from '@/components/ui/DisabledTooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 
 interface QuickSelectSectionProps {
   selectedRange: TimeRangeValue;

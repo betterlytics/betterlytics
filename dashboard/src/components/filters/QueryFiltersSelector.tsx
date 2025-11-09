@@ -12,7 +12,7 @@ import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilte
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 import { useDemoMode } from '@/contexts/DemoModeContextProvider';
-import { DisabledTooltip } from '@/components/ui/DisabledTooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
