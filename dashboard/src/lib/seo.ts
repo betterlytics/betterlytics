@@ -296,7 +296,7 @@ export const SEO_CONFIGS = {
   },
   publicDemo: {
     namespace: 'public.demo.seo',
-    path: '/public/demo',
+    path: '/public',
     structuredDataType: 'webpage',
   },
   onboarding: {
