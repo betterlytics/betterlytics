@@ -11,6 +11,7 @@ import { findDashboardById } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
 import { unstable_cache } from 'next/cache';
 import { DashboardFindByUserSchema } from '@/entities/dashboard';
+import { normalizeForStableStringify, stableStringify } from '@/utils/stableStringify';
 
 // Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
 type AnyFn = (...args: unknown[]) => unknown;
@@ -102,10 +103,8 @@ async function resolveDashboardContextStrict(dashboardId: string): Promise<AuthC
 }
 
 function serializeArgs<Args extends Array<unknown>>(args: Args): string {
-  return JSON.stringify(args, (_key, value) => {
-    if (value instanceof Date) return { __date: value.toISOString() };
-    return value;
-  });
+  const normalizedArgs = normalizeForStableStringify(args);
+  return stableStringify(normalizedArgs);
 }
 
 function getArgsSignature<Args extends Array<unknown>>(args: Args): string {
