@@ -17,7 +17,7 @@ const TrendPercentage = React.memo(
     }
 
     if (percentage === 0) {
-      return noChangeText ? <span className='text-muted-foreground/70'>{noChangeText}</span> : <span>-</span>;
+      return noChangeText ? <span className='text-muted-foreground/70'>({noChangeText})</span> : <span>-</span>;
     }
 
     const isPositive = percentage > 0;
