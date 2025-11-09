@@ -10,28 +10,22 @@ import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
   onDateRangeSelect: (dateRange: DateRange | undefined) => void;
   id?: string;
   showSameLengthHint?: boolean;
-  disabled?: boolean;
-  disabledTitle?: string;
 }
 
-export function DateRangePicker({
-  range,
-  onDateRangeSelect,
-  showSameLengthHint = false,
-  disabled = false,
-  disabledTitle,
-}: DateRangePickerProps) {
+export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint = false }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
+  const isDemo = useDemoMode();
 
   const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
 
@@ -66,10 +60,10 @@ export function DateRangePicker({
 
   return (
     <div>
-      <Popover open={!disabled && isOpen} onOpenChange={(open) => !disabled && setIsOpen(open)}>
+      <Popover open={isOpen} onOpenChange={(open) => (isDemo ? false : setIsOpen(open))}>
         <PopoverTrigger asChild>
           <span className='w-full'>
-            <DisabledTooltip disabled={disabled} message={disabledTitle ?? ''}>
+            <DisabledDemoTooltip>
               {(isDisabled) => (
                 <Button
                   variant={'ghost'}
@@ -82,7 +76,7 @@ export function DateRangePicker({
                   <span>{t('customPeriod')}</span>
                 </Button>
               )}
-            </DisabledTooltip>
+            </DisabledDemoTooltip>
           </span>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>

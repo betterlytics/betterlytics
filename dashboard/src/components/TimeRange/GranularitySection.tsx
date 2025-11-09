@@ -12,7 +12,7 @@ interface GranularitySectionProps {
   allowedGranularities: GranularityRangeValues[];
   onGranularitySelect: (granularity: GranularityRangeValues) => void;
   disabled?: boolean;
-  notAllowedTitle?: string;
+  disabledTitle?: string;
 }
 
 export function GranularitySection({
@@ -20,7 +20,7 @@ export function GranularitySection({
   allowedGranularities,
   onGranularitySelect,
   disabled,
-  notAllowedTitle,
+  disabledTitle: disabledTitle,
 }: GranularitySectionProps) {
   const t = useTranslations('components.timeRange');
   const ordered = GRANULARITY_RANGE_PRESETS.slice().reverse();
@@ -31,9 +31,9 @@ export function GranularitySection({
         {ordered.map((gran) => {
           const isActive = selectedGranularity === gran.value && !disabled;
           const isAllowed = allowedGranularities.includes(gran.value);
-          const showTooltip = !isAllowed && !disabled && notAllowedTitle !== undefined;
+          const showTooltip = !isAllowed && !disabled && disabledTitle !== undefined;
           return (
-            <DisabledTooltip key={gran.value} disabled={showTooltip} message={notAllowedTitle ?? ''}>
+            <DisabledTooltip key={gran.value} disabled={showTooltip} message={disabledTitle ?? ''}>
               {() => (
                 <Button
                   type='button'

@@ -5,7 +5,7 @@ import { TIME_RANGE_PRESETS, TimeRangeValue, TimeRangePreset } from '@/utils/tim
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
-import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 interface QuickSelectSectionProps {
   selectedRange: TimeRangeValue;
@@ -15,7 +15,6 @@ interface QuickSelectSectionProps {
 
 export function QuickSelectSection({ selectedRange, onRangeSelect, allowedValues }: QuickSelectSectionProps) {
   const t = useTranslations('components.timeRange');
-  const tDemo = useTranslations('components.demoMode');
 
   const isNonCustomPreset = (
     preset: TimeRangePreset,
@@ -33,19 +32,21 @@ export function QuickSelectSection({ selectedRange, onRangeSelect, allowedValues
     if (!preset) return null;
     const isAllowed = !allowedValues || allowedValues.includes(value);
     return (
-      <DisabledTooltip disabled={!isAllowed} message={tDemo('notAvailable')}>
-        {() => (
+      <DisabledDemoTooltip key={preset.value} disabled={!isAllowed}>
+        {(isDisabled) => (
           <Button
-            key={preset.value}
             variant={selectedRange === preset.value ? 'default' : 'ghost'}
-            onClick={() => isAllowed && onRangeSelect(preset.value)}
+            onClick={() => {
+              if (isDisabled) return;
+              onRangeSelect(preset.value);
+            }}
             className='h-8 w-full cursor-pointer justify-start rounded-sm px-2 text-center'
-            disabled={!isAllowed}
+            disabled={isDisabled}
           >
             {t(`presets.${preset.value}`)}
           </Button>
         )}
-      </DisabledTooltip>
+      </DisabledDemoTooltip>
     );
   };
 

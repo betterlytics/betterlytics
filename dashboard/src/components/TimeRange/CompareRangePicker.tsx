@@ -14,17 +14,14 @@ import { isDerivedCompareMode } from '@/utils/compareRanges';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
-import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 export function CompareRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
-  const tDemo = useTranslations('components.demoMode');
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
-  const isDemo = useDemoMode();
 
   const label = () => {
     if (ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate) return t('disabled');
@@ -67,7 +64,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
         >
           {t('previousPeriod')}
         </Button>
-        <DisabledTooltip disabled={isDemo} message={tDemo('notAvailable')}>
+        <DisabledDemoTooltip>
           {(isDisabled) => (
             <Button
               variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
@@ -82,7 +79,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
               {t('previousYear')}
             </Button>
           )}
-        </DisabledTooltip>
+        </DisabledDemoTooltip>
         <DateRangeSection
           startDate={ctx.compareStartDate}
           endDate={ctx.compareEndDate}
@@ -91,14 +88,12 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
             setOpen(false);
           }}
           showSameLengthHint
-          disabled={isDemo}
-          disabledTitle={isDemo ? tDemo('notAvailable') : undefined}
         />
       </div>
 
       <Separator className='my-1' />
 
-      <DisabledTooltip disabled={isDemo} message={tDemo('notAvailable')}>
+      <DisabledDemoTooltip>
         {(isDisabled) => (
           <div
             role='button'
@@ -132,7 +127,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
             />
           </div>
         )}
-      </DisabledTooltip>
+      </DisabledDemoTooltip>
     </div>
   );
 

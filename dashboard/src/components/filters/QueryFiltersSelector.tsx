@@ -11,15 +11,12 @@ import { Separator } from '../ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
-import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
-  const tDemo = useTranslations('components.demoMode');
-  const isDemo = useDemoMode();
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const {
@@ -56,8 +53,6 @@ export default function QueryFiltersSelector() {
     );
   }, [contextQueryFilters, queryFilters]);
 
-  const canAddAnother = !isDemo || (isDemo && queryFilters.length < 1);
-
   const content = (
     <>
       {queryFilters.length > 0 || isFiltersModified ? (
@@ -79,18 +74,21 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <DisabledTooltip disabled={!canAddAnother} message={tDemo('notAvailable')}>
+            <DisabledDemoTooltip disabled={queryFilters.length >= 1}>
               {(isDisabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'
-                  onClick={() => addEmptyQueryFilter()}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    addEmptyQueryFilter();
+                  }}
                   variant='outline'
                   disabled={isDisabled}
                 >
                   {t('selector.addFilter')}
                 </Button>
               )}
-            </DisabledTooltip>
+            </DisabledDemoTooltip>
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
               <Button
                 className='h-8 w-[48%] max-w-[110px] cursor-pointer'
@@ -123,18 +121,21 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <DisabledTooltip disabled={!canAddAnother} message={tDemo('notAvailable')}>
+            <DisabledDemoTooltip disabled={queryFilters.length >= 1}>
               {(isDisabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'
-                  onClick={addEmptyQueryFilter}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    addEmptyQueryFilter();
+                  }}
                   variant='outline'
                   disabled={isDisabled}
                 >
                   {t('selector.addFilter')}
                 </Button>
               )}
-            </DisabledTooltip>
+            </DisabledDemoTooltip>
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
               <Button className='h-8 w-[48%] max-w-[110px] cursor-pointer' onClick={cancelFilters} variant='ghost'>
                 {t('selector.cancel')}

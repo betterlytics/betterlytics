@@ -23,7 +23,6 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
-  const tDemo = useTranslations('components.demoMode');
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
   const isDemo = useDemoMode();
@@ -63,8 +62,6 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         startDate={ctx.startDate}
         endDate={ctx.endDate}
         onDateRangeSelect={actions.setCustomRange}
-        disabled={isDemo}
-        disabledTitle={isDemo ? tDemo('notAvailable') : undefined}
       />
       <Separator className='my-1' />
       <GranularitySection
@@ -72,7 +69,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         allowedGranularities={allowed}
         onGranularitySelect={actions.setGranularity}
         disabled={ctx.interval === 'realtime' || ctx.interval === '1h'}
-        notAllowedTitle={t('granularityNotAvailable')}
+        disabledTitle={t('granularityNotAvailable')}
       />
     </div>
   );
