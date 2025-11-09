@@ -23,7 +23,7 @@ export default async function PublicDashboardLayout({ params, children }: Public
         <DemoModeProvider isDemo={true}>
           <DashboardLayoutShell
             dashboardId={dashboardId}
-            isDemo={useDemoMode()}
+            isDemo={true}
             basePath={`/${locale}/public`}
             includeIntegrationManager={false}
           >
