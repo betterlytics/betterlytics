@@ -53,37 +53,43 @@ export async function requireAuth(): Promise<Session> {
 
 type ActionRequiringAuthContext<Args extends Array<unknown>, Ret> = (context: AuthContext, ...args: Args) => Ret;
 
-async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
-  // Demo/public dashboard handling: prefer authorized context when a logged-in user is allowed
-  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
-    const session = await getServerSession(authOptions);
-    if (session?.user) {
-      const authorizedCtx = await getAuthorizedDashboardContextOrNull(
-        DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
-      );
-      if (authorizedCtx) return authorizedCtx;
-    }
+async function tryGetAuthorizedContext(userId: string, dashboardId: string): Promise<AuthContext | null> {
+  return await getAuthorizedDashboardContextOrNull(DashboardFindByUserSchema.parse({ userId, dashboardId }));
+}
 
-    // Fallback to demo context for anonymous/public access (enables caching)
-    const dashboard = await findDashboardById(dashboardId);
-    return {
-      dashboardId: dashboard.id,
-      siteId: dashboard.siteId,
-      userId: 'demo',
-      role: 'viewer',
-    };
-  }
+async function createDemoContext(dashboardId: string): Promise<AuthContext> {
+  const dashboard = await findDashboardById(dashboardId);
+  return {
+    dashboardId: dashboard.id,
+    siteId: dashboard.siteId,
+    userId: 'demo',
+    role: 'viewer',
+  };
+}
 
-  // Private/owner path: read session and authorize.
+async function resolveDemoDashboardContext(dashboardId: string): Promise<AuthContext> {
   const session = await getServerSession(authOptions);
   if (session?.user) {
-    const authorizedCtx = await getAuthorizedDashboardContextOrNull(
-      DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
-    );
+    const authorizedCtx = await tryGetAuthorizedContext(session.user.id, dashboardId);
     if (authorizedCtx) return authorizedCtx;
   }
+  return await createDemoContext(dashboardId);
+}
 
+async function resolvePrivateDashboardContext(dashboardId: string): Promise<AuthContext> {
+  const session = await getServerSession(authOptions);
+  if (session?.user) {
+    const authorizedCtx = await tryGetAuthorizedContext(session.user.id, dashboardId);
+    if (authorizedCtx) return authorizedCtx;
+  }
   throw new Error('Unauthorized');
+}
+
+async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
+  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
+    return await resolveDemoDashboardContext(dashboardId);
+  }
+  return await resolvePrivateDashboardContext(dashboardId);
 }
 
 async function resolveDashboardContextStrict(dashboardId: string): Promise<AuthContext> {
@@ -95,6 +101,33 @@ async function resolveDashboardContextStrict(dashboardId: string): Promise<AuthC
   return ctx;
 }
 
+function serializeArgs<Args extends Array<unknown>>(args: Args): string {
+  return JSON.stringify(args, (_key, value) => {
+    if (value instanceof Date) return { __date: value.toISOString() };
+    return value;
+  });
+}
+
+function createCacheKey(context: AuthContext, actionId: string, serializedArgs: string): string {
+  return ['demo:v4', actionId, context.dashboardId, context.siteId, serializedArgs].join('|');
+}
+
+async function executeWithCachingIfDemo<Args extends Array<unknown>, Ret>(
+  context: AuthContext,
+  action: ActionRequiringAuthContext<Args, Ret>,
+  args: Args,
+): Promise<Ret> {
+  // For demo/public dashboards, cache reads to reduce load
+  if (context.userId === 'demo') {
+    const actionId = getActionSignature(action as AnyFn);
+    const serializedArgs = serializeArgs(args);
+    const cacheKey = createCacheKey(context, actionId, serializedArgs);
+    return await unstable_cache(async () => action(context, ...args), [cacheKey], { revalidate: 300 })();
+  }
+
+  return await action(context, ...args);
+}
+
 export function withDashboardAuthContext<Args extends Array<unknown> = unknown[], Ret = unknown>(
   action: ActionRequiringAuthContext<Args, Ret>,
 ) {
@@ -102,20 +135,7 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
     const context = await resolveDashboardContext(dashboardId);
 
     try {
-      // For demo/public dashboards, cache reads to reduce load
-      if (context.userId === 'demo') {
-        const actionId = getActionSignature(action as AnyFn);
-        const serializedArgs = JSON.stringify(args, (_key, value) => {
-          if (value instanceof Date) return { __date: value.toISOString() };
-          return value;
-        });
-
-        const cacheKey = ['demo:v4', actionId, context.dashboardId, context.siteId, serializedArgs].join('|');
-
-        return await unstable_cache(async () => action(context, ...args), [cacheKey], { revalidate: 300 })();
-      }
-
-      return await action(context, ...args);
+      return await executeWithCachingIfDemo(context, action, args);
     } catch (e) {
       console.error('Error occurred:', e);
       throw new Error('An error occurred');

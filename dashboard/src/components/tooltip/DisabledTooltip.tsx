@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 type DisabledTooltipProps = {
   disabled: boolean;
-  message: string;
+  message: React.ReactNode;
   children: (disabled: boolean) => React.ReactElement;
   wrapperClassName?: string;
 };
@@ -31,7 +31,7 @@ export function DisabledTooltip({ disabled, message, children, wrapperClassName 
       <TooltipTrigger asChild>
         <span className={wrapperClassName}>{children(true)}</span>
       </TooltipTrigger>
-      <TooltipContent className='pointer-events-none'>{message}</TooltipContent>
+      <TooltipContent>{message}</TooltipContent>
     </Tooltip>
   );
 }

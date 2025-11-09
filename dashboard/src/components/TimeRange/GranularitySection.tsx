@@ -42,9 +42,9 @@ export function GranularitySection({
                   className={cn(
                     'h-7 w-full cursor-pointer rounded-[4px] border border-transparent px-2 text-[10px] font-medium',
                     !isAllowed && 'cursor-not-allowed opacity-50 hover:opacity-50',
-                    !isActive && 'text-muted-foreground hover:bg-accent',
-                    isActive &&
-                      'bg-input text-foreground border-border hover:bg-input hover:dark:bg-input shadow-sm',
+                    isActive
+                      ? 'bg-input text-foreground border-border hover:bg-input hover:dark:bg-input shadow-sm'
+                      : 'text-muted-foreground hover:bg-accent',
                   )}
                   disabled={!isAllowed || disabled}
                   aria-pressed={isActive}

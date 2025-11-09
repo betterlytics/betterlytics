@@ -31,7 +31,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect, allowedValues
   const renderButton = (value: Exclude<TimeRangeValue, 'custom'>) => {
     const preset = byValue.get(value);
     if (!preset) return null;
-    const isAllowed = allowedValues ? allowedValues.includes(value) : true;
+    const isAllowed = !allowedValues || allowedValues.includes(value);
     return (
       <DisabledTooltip disabled={!isAllowed} message={tDemo('notAvailable')}>
         {() => (
