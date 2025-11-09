@@ -95,7 +95,7 @@ export default async function BASidebar({ dashboardId, isDemo, basePath = '/dash
       key: 'sessionReplay',
       href: '/replay',
       icon: <Video size={18} />,
-      hidden: !isFeatureEnabled('enableSessionReplay'),
+      hidden: !isFeatureEnabled('enableSessionReplay') || isDemo,
       hideOnMobile: true,
     },
   ];
