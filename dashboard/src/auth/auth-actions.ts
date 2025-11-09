@@ -94,7 +94,7 @@ async function resolveDashboardContext(dashboardId: string): Promise<AuthContext
   return await resolvePrivateDashboardContext(dashboardId);
 }
 
-async function resolveDashboardContextStrict(dashboardId: string): Promise<AuthContext> {
+async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   const session = await requireAuth();
   const ctx = await getAuthorizedDashboardContextOrNull(
     DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
@@ -152,7 +152,7 @@ export function withDashboardMutationAuthContext<Args extends Array<unknown> = u
   action: ActionRequiringAuthContext<Args, Ret>,
 ) {
   return async function (dashboardId: string, ...args: Args): Promise<Awaited<Ret>> {
-    const context = await resolveDashboardContextStrict(dashboardId);
+    const context = await requireDashboardAuth(dashboardId);
 
     try {
       return await action(context, ...args);
