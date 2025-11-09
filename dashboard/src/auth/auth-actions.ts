@@ -108,8 +108,13 @@ function serializeArgs<Args extends Array<unknown>>(args: Args): string {
   });
 }
 
-function createCacheKey(context: AuthContext, actionId: string, serializedArgs: string): string {
-  return ['demo:v4', actionId, context.dashboardId, context.siteId, serializedArgs].join('|');
+function getArgsSignature<Args extends Array<unknown>>(args: Args): string {
+  const serializedArgs = serializeArgs(args);
+  return hashString(serializedArgs);
+}
+
+function createCacheKeyForDemo(context: AuthContext, actionId: string, argsKey: string): string {
+  return ['demo:v1', actionId, context.dashboardId, context.siteId, argsKey].join('|');
 }
 
 async function executeWithCachingIfDemo<Args extends Array<unknown>, Ret>(
@@ -120,8 +125,8 @@ async function executeWithCachingIfDemo<Args extends Array<unknown>, Ret>(
   // For demo/public dashboards, cache reads to reduce load
   if (context.userId === 'demo') {
     const actionId = getActionSignature(action as AnyFn);
-    const serializedArgs = serializeArgs(args);
-    const cacheKey = createCacheKey(context, actionId, serializedArgs);
+    const argsKey = getArgsSignature(args);
+    const cacheKey = createCacheKeyForDemo(context, actionId, argsKey);
     return await unstable_cache(async () => action(context, ...args), [cacheKey], { revalidate: 300 })();
   }
 
