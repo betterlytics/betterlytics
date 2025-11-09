@@ -50,7 +50,7 @@ export async function findUserDashboardWithDashboardOrNull(data: DashboardFindBy
   if (rel === null) return null;
 
   return {
-    userDashboard: DashboardUserSchema.parse(rel),
+    dashboardUser: DashboardUserSchema.parse(rel),
     dashboard: DashboardSchema.parse(rel.dashboard),
   };
 }

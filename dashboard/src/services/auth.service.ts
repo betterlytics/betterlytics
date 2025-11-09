@@ -119,11 +119,11 @@ export async function getAuthorizedDashboardContextOrNull(data: DashboardFindByU
 
   if (!result) return null;
 
-  const { userDashboard, dashboard } = result;
+  const { dashboardUser, dashboard } = result;
 
   return AuthContextSchema.parse({
-    role: userDashboard.role,
-    userId: userDashboard.userId,
+    role: dashboardUser.role,
+    userId: dashboardUser.userId,
     dashboardId: dashboard.id,
     siteId: dashboard.siteId,
     isDemo: false,
