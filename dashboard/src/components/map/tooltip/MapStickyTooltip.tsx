@@ -1,4 +1,4 @@
-import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
+import { useMapSelectionState } from '@/contexts/MapSelectionContextProvider';
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useMap } from 'react-leaflet/hooks';
@@ -12,7 +12,7 @@ export type MapStickyTooltip = {
 };
 
 export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
-  const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelection();
+  const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelectionState();
   const map = useMap();
   const tooltipId = useId();
   const locale = useLocale();

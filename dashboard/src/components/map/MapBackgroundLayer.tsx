@@ -1,4 +1,4 @@
-import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
+import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
 import type { LatLngExpression } from 'leaflet';
 import React, { useCallback, useEffect } from 'react';
 import type { Polygon } from 'react-leaflet';
@@ -17,7 +17,7 @@ interface MapBackgroundLayerProps {
 }
 
 export default function MapBackgroundLayer({ Polygon }: MapBackgroundLayerProps) {
-  const { setMapSelection } = useMapSelection();
+  const { setMapSelection } = useMapSelectionSetter();
   const map = useMap();
 
   const clearHovered = useCallback(() => {
