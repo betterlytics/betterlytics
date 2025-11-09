@@ -46,8 +46,8 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
     };
   }, [map, selectedFeature, hoveredFeature]);
 
-  const hasValidPosition =
-    hoveredFeature?.mousePosition || latestMouseRef.current.x !== 0 || latestMouseRef.current.y !== 0;
+  const currentPosition = hoveredFeature?.mousePosition || latestMouseRef.current;
+  const hasValidPosition = currentPosition.x !== 0 || currentPosition.y !== 0;
 
   if (
     !hoveredFeature ||
@@ -57,12 +57,15 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
     return null;
   }
 
+  const initialTransform = `translate3d(${currentPosition.x}px, ${currentPosition.y - 2}px, 0) translate(-50%, -100%)`;
+
   return createPortal(
     <section
       id={tooltipId}
       ref={tooltipRef}
       role='tooltip'
       aria-hidden={false}
+      style={{ transform: initialTransform }}
       className={cn(
         'map-sticky-tooltip leaflet-popup-content-wrapper',
         'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
