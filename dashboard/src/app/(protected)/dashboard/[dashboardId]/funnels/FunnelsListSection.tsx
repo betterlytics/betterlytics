@@ -11,10 +11,9 @@ import { useTranslations } from 'next-intl';
 
 type FunnelsListSectionProps = {
   funnelsPromise: ReturnType<typeof fetchFunnelsAction>;
-  dashboardId: string;
 };
 
-export default function FunnelsListSection({ funnelsPromise, dashboardId }: FunnelsListSectionProps) {
+export default function FunnelsListSection({ funnelsPromise }: FunnelsListSectionProps) {
   const funnels = use(funnelsPromise);
   const t = useTranslations('components.funnels.list');
 
@@ -36,10 +35,7 @@ export default function FunnelsListSection({ funnelsPromise, dashboardId }: Funn
             </Badge>
           </div>
           <div className='col-span-1 flex justify-end'>
-            <FilterPreservingLink
-              className='mr-2 text-right'
-              href={`/dashboard/${dashboardId}/funnels/${funnel.id}`}
-            >
+            <FilterPreservingLink className='mr-2 text-right' href={`funnels/${funnel.id}`}>
               <ArrowRightCircleIcon />
             </FilterPreservingLink>
           </div>

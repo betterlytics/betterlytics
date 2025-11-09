@@ -8,6 +8,7 @@ import { IntegrationManager } from '@/app/(protected)/dashboard/[dashboardId]/In
 import { TrackingScript } from '@/app/(protected)/dashboard/[dashboardId]/TrackingScript';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { fetchSiteId } from '@/app/actions';
+import { DashboardNavigationProvider } from '@/contexts/DashboardNavigationContext';
 
 export type DashboardLayoutShellProps = {
   dashboardId: string;
@@ -36,22 +37,24 @@ export default async function DashboardLayoutShell({
   }
 
   return (
-    <section>
-      <BATopbar />
-      <SidebarProvider>
-        <BASidebar dashboardId={dashboardId} isDemo={isDemo} basePath={basePath} />
-        <BAMobileSidebarTrigger />
-        <main className='bg-background w-full overflow-x-hidden'>
-          <ScrollReset />
-          {children}
-        </main>
-        {trackingSiteId && <TrackingScript siteId={trackingSiteId} />}
-        {includeIntegrationManager && (
-          <Suspense>
-            <IntegrationManager />
-          </Suspense>
-        )}
-      </SidebarProvider>
-    </section>
+    <DashboardNavigationProvider basePath={basePath} dashboardId={dashboardId} isDemo={isDemo}>
+      <section>
+        <BATopbar />
+        <SidebarProvider>
+          <BASidebar dashboardId={dashboardId} isDemo={isDemo} />
+          <BAMobileSidebarTrigger />
+          <main className='bg-background w-full overflow-x-hidden'>
+            <ScrollReset />
+            {children}
+          </main>
+          {trackingSiteId && <TrackingScript siteId={trackingSiteId} />}
+          {includeIntegrationManager && (
+            <Suspense>
+              <IntegrationManager />
+            </Suspense>
+          )}
+        </SidebarProvider>
+      </section>
+    </DashboardNavigationProvider>
   );
 }

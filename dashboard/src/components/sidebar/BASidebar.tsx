@@ -43,7 +43,6 @@ import { Dashboard } from '@/entities/dashboard';
 type BASidebarProps = {
   dashboardId: string;
   isDemo: boolean;
-  basePath?: string; // base path for links, defaults to "/dashboard"
 };
 
 type SidebarItem = {
@@ -55,7 +54,7 @@ type SidebarItem = {
   hideOnMobile?: boolean;
 };
 
-export default async function BASidebar({ dashboardId, isDemo, basePath = '/dashboard' }: BASidebarProps) {
+export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps) {
   const currentDashboardPromise: Promise<Dashboard> = isDemo
     ? Promise.resolve({
         id: dashboardId,
@@ -114,7 +113,6 @@ export default async function BASidebar({ dashboardId, isDemo, basePath = '/dash
               <DashboardDropdown
                 currentDashboardPromise={currentDashboardPromise}
                 allDashboardsPromise={allDashboardsPromise}
-                basePath={basePath}
               />
             </Suspense>
           </SidebarGroupContent>
@@ -139,7 +137,7 @@ export default async function BASidebar({ dashboardId, isDemo, basePath = '/dash
                 .map((item) => (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton asChild>
-                      <FilterPreservingLink href={`${basePath}/${dashboardId}${item.href}`} highlightOnPage>
+                      <FilterPreservingLink href={item.href} highlightOnPage>
                         <span>{item.icon}</span>
                         <span>{item.name}</span>
                       </FilterPreservingLink>
@@ -163,7 +161,7 @@ export default async function BASidebar({ dashboardId, isDemo, basePath = '/dash
                   >
                     <SidebarMenuButton asChild>
                       <FilterPreservingLink
-                        href={`${basePath}/${dashboardId}${item.href}`}
+                        href={item.href}
                         highlightOnPage
                         className='flex items-center justify-between'
                       >

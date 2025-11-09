@@ -55,7 +55,7 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
           </div>
         }
       >
-        <FunnelsListSection funnelsPromise={funnelsPromise} dashboardId={dashboardId} />
+        <FunnelsListSection funnelsPromise={funnelsPromise} />
       </Suspense>
     </div>
   );

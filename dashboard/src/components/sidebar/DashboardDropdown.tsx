@@ -15,29 +15,26 @@ import {
 import { Button } from '@/components/ui/button';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
   allDashboardsPromise: Promise<ServerActionResponse<Dashboard[]>>;
-  basePath: string;
 }
 
-export function DashboardDropdown({
-  currentDashboardPromise,
-  allDashboardsPromise,
-  basePath,
-}: DashboardDropdownProps) {
+export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromise }: DashboardDropdownProps) {
   const dashboardId = useDashboardId();
   const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.sidebar.dashboardDropdown');
+  const { buildHrefForDashboard } = useDashboardNavigation();
 
   const currentDashboard = use(currentDashboardPromise);
   const allDashboards = use(allDashboardsPromise);
 
   const handleDashboardSwitch = (newDashboardId: string) => {
     setIsOpen(false);
-    router.push(`${basePath}/${newDashboardId}`);
+    router.push(buildHrefForDashboard(newDashboardId));
   };
 
   const allDashboardsList = allDashboards.success ? allDashboards.data : [];
