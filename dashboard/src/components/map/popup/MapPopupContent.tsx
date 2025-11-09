@@ -102,11 +102,11 @@ function MapPopupContentComponent({
             tooltip={`${timeRangeCtx.startDate.toLocaleString()} - ${timeRangeCtx.endDate.toLocaleString()}`}
             value={formatNumber(geoVisitor.visitors)}
           />
-          {timeRangeCtx.compareStartDate && (
+          {timeRangeCtx.compareStartDate && timeRangeCtx.compareEndDate && (
             <Row
               color='bg-chart-comparison'
               label={t('timeRange.previousPeriod')}
-              tooltip={`${timeRangeCtx.compareStartDate.toLocaleString()} - ${timeRangeCtx.compareEndDate?.toLocaleString()}`}
+              tooltip={`${timeRangeCtx.compareStartDate.toLocaleString()} - ${timeRangeCtx.compareEndDate.toLocaleString()}`}
               value={formatNumber(geoVisitor.compareVisitors ?? 0)}
               muted
             />
