@@ -62,7 +62,7 @@ function MapPopupContentComponent({
     <div
       onMouseEnter={onMouseEnter}
       className={cn(
-        'border-border bg-popover/95 text-foreground pointer-events-auto flex min-w-[200px] flex-col space-y-1 border p-3 text-sm shadow-xl backdrop-blur-sm',
+        'border-border bg-popover/95 text-foreground pointer-events-auto flex min-w-[100px] flex-col space-y-1 border p-3 text-sm shadow-xl backdrop-blur-sm',
         size === 'sm' ? 'max-w-[300px]' : 'max-w-[40vw]',
         className,
       )}

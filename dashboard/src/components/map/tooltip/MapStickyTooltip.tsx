@@ -74,6 +74,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
           size={size}
           locale={locale}
           label={t('visitors')}
+          className={'p-3'}
         />
       </div>
       <MapTooltipTip />
