@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { useBARouter } from '@/hooks/use-ba-router';
@@ -23,6 +23,7 @@ const URL_SEARCH_PARAMS = [
 export function useSyncURLFilters() {
   const router = useBARouter();
   const searchParams = useSearchParams();
+  const applyingFromUrlRef = useRef<boolean>(false);
 
   const { queryFilters, setQueryFilters } = useQueryFiltersContext();
   const {
@@ -45,8 +46,11 @@ export function useSyncURLFilters() {
   } = useTimeRangeContext();
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
 
+  // URL -> state
   useEffect(() => {
     try {
+      applyingFromUrlRef.current = true;
+
       const encodedFilterEntries = URL_SEARCH_PARAMS.map(
         (param) => [param, searchParams?.get(param) ?? undefined] as const,
       ).filter(([_key, value]) => Boolean(value));
@@ -97,11 +101,18 @@ export function useSyncURLFilters() {
       }
     } catch (error) {
       console.error('Failed to set filters:', error);
+    } finally {
+      applyingFromUrlRef.current = false;
     }
-  }, []);
+  }, [searchParams]);
 
+  // State -> URL
   useEffect(() => {
     try {
+      if (applyingFromUrlRef.current) {
+        return;
+      }
+
       const rawEncoded = BAFilterSearchParams.encode({
         queryFilters,
         startDate,
@@ -122,7 +133,7 @@ export function useSyncURLFilters() {
           compareMode === 'custom' && compareStartDate && compareEndDate ? compareEndDate : undefined,
       });
 
-      const showMainDates = interval === 'custom' || (offset ?? 0) !== 0;
+      const showMainDates = interval === 'custom';
       const showCompareDates = compareMode === 'custom';
 
       const encodedFilters = rawEncoded.filter(([key]) => {
@@ -131,12 +142,14 @@ export function useSyncURLFilters() {
         return true;
       });
 
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      const currentParamsString = searchParams?.toString() ?? '';
+      const nextParams = new URLSearchParams(currentParamsString);
+      URL_SEARCH_PARAMS.forEach((key) => nextParams.delete(key));
+      encodedFilters.forEach(([key, value]) => nextParams.set(key, value));
 
-      URL_SEARCH_PARAMS.forEach((key) => params.delete(key));
-      encodedFilters.forEach(([key, value]) => params.set(key, value));
+      if (nextParams.toString() === currentParamsString) return;
 
-      const updateRouteTimeout = setTimeout(() => router.replace(`?${params.toString()}`, { scroll: false }), 10);
+      const updateRouteTimeout = setTimeout(() => router.push(`?${nextParams.toString()}`, { scroll: false }), 10);
       return () => clearTimeout(updateRouteTimeout);
     } catch (error) {
       console.error('Failed to add filters:', error);
@@ -154,6 +167,7 @@ export function useSyncURLFilters() {
     compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
+    router,
   ]);
 }
 
@@ -161,17 +175,21 @@ export function useUrlSearchParam(paramKey: string) {
   const router = useBARouter();
   const searchParams = useSearchParams();
 
-  const value = useMemo(() => searchParams.get(paramKey) ?? undefined, [searchParams, paramKey]);
+  const value = useMemo(() => searchParams?.get(paramKey) ?? undefined, [searchParams, paramKey]);
 
   const setValue = useCallback(
     (next: string | undefined) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const currentParams = new URLSearchParams(searchParams?.toString());
+      const nextParams = new URLSearchParams(searchParams?.toString());
       if (next === undefined || next === null || next === '') {
-        params.delete(paramKey);
+        nextParams.delete(paramKey);
       } else {
-        params.set(paramKey, next);
+        nextParams.set(paramKey, next);
       }
-      router.replace(`?${params.toString()}`, { scroll: false });
+      if (nextParams.toString() === currentParams.toString()) {
+        return;
+      }
+      router.push(`?${nextParams.toString()}`, { scroll: false });
     },
     [router, searchParams, paramKey],
   );
