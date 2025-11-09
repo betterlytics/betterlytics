@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { DashboardProvider } from './DashboardProvider';
-import { fetchSiteId, getCurrentDashboardAction } from '@/app/actions';
+import { getCurrentDashboardAction } from '@/app/actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
@@ -32,17 +32,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
   const { dashboardId } = await params;
 
-  const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
   const billingEnabled = isClientFeatureEnabled('enableBilling');
-  let siteId: string | null = null;
-
-  if (shouldEnableTracking) {
-    try {
-      siteId = await fetchSiteId(dashboardId);
-    } catch (error) {
-      console.error('Failed to fetch site ID for tracking:', error);
-    }
-  }
 
   let billingDataPromise;
   if (billingEnabled) {
@@ -61,7 +51,6 @@ export default async function DashboardLayout({ children, params }: DashboardLay
           dashboardId={dashboardId}
           isDemo={false}
           basePath={'/dashboard'}
-          trackingSiteId={shouldEnableTracking && siteId ? siteId : null}
           includeIntegrationManager={true}
         >
           <BannerProvider>

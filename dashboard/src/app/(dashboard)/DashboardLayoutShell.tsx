@@ -6,24 +6,35 @@ import ScrollReset from '@/components/ScrollReset';
 import { Suspense } from 'react';
 import { IntegrationManager } from '@/app/(protected)/dashboard/[dashboardId]/IntegrationManager';
 import { TrackingScript } from '@/app/(protected)/dashboard/[dashboardId]/TrackingScript';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { fetchSiteId } from '@/app/actions';
 
 export type DashboardLayoutShellProps = {
   dashboardId: string;
   isDemo: boolean;
   basePath?: string;
-  trackingSiteId?: string | null;
   includeIntegrationManager?: boolean;
   children: React.ReactNode;
 };
 
-export default function DashboardLayoutShell({
+export default async function DashboardLayoutShell({
   dashboardId,
   isDemo,
   basePath = '/dashboard',
-  trackingSiteId,
   includeIntegrationManager = true,
   children,
 }: DashboardLayoutShellProps) {
+  const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
+  let trackingSiteId: string | null = null;
+
+  if (shouldEnableTracking) {
+    try {
+      trackingSiteId = await fetchSiteId(dashboardId);
+    } catch (error) {
+      console.error('Failed to fetch site ID for tracking:', error);
+    }
+  }
+
   return (
     <section>
       <BATopbar />
