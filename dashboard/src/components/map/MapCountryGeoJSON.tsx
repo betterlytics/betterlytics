@@ -49,20 +49,11 @@ export default function MapCountryGeoJSON({
       if (!country_code) return;
 
       const geoVisitor = visitorData.find((d) => d.country_code === country_code) ?? { country_code, visitors: 0 };
-      const cmpVisitor = compareData.find((d) => d.country_code === country_code) ?? { country_code, visitors: 0 };
+      const compareVisitor = compareData.find((d) => d.country_code === country_code);
 
-      const dAbs = geoVisitor.visitors - cmpVisitor.visitors;
-      const dProcent = cmpVisitor.visitors > 0 ? (dAbs / cmpVisitor.visitors) * 100 : 0;
-
-      const geoVisitorWCmp: GeoVisitorWithCompare = {
-        compare: {
-          compareVisitors: cmpVisitor.visitors,
-          dAbs,
-          dProcent,
-          compareDate: new Date(),
-        },
+      const geoVisitorWithComparison: GeoVisitorWithCompare = {
         ...geoVisitor,
-        date: new Date(),
+        compareVisitors: compareData.length === 0 ? undefined : (compareVisitor?.visitors ?? 0),
       };
 
       const popupContainer = document.createElement('div');
@@ -82,10 +73,10 @@ export default function MapCountryGeoJSON({
           const mousePosition = e.originalEvent
             ? { x: e.originalEvent.clientX, y: e.originalEvent.clientY }
             : undefined;
-          ref.current.setMapSelection({ hovered: { geoVisitor: geoVisitorWCmp, layer, mousePosition } });
+          ref.current.setMapSelection({ hovered: { geoVisitor: geoVisitorWithComparison, layer, mousePosition } });
         },
         click: () => {
-          ref.current.setMapSelection({ clicked: { geoVisitor: geoVisitorWCmp, layer } });
+          ref.current.setMapSelection({ clicked: { geoVisitor: geoVisitorWithComparison, layer } });
         },
         popupopen: () => {
           if (!(popupContainer as any)._reactRoot) {
@@ -96,7 +87,7 @@ export default function MapCountryGeoJSON({
             size === 'lg' ? (
               <MapPopupContent
                 locale={locale}
-                geoVisitor={geoVisitorWCmp}
+                geoVisitor={geoVisitorWithComparison}
                 size={size}
                 t={t}
                 timeRangeCtx={timeRangeCtx}
@@ -105,7 +96,7 @@ export default function MapCountryGeoJSON({
             ) : (
               <MapTooltipContent
                 locale={locale}
-                geoVisitor={geoVisitorWCmp}
+                geoVisitor={geoVisitorWithComparison}
                 size={size}
                 label={t('geography.visitors')}
                 onMouseEnter={() => ref.current.setMapSelection({ hovered: undefined })}

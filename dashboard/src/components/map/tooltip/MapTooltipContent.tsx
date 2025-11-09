@@ -20,12 +20,9 @@ export type MapTooltipContentProps = {
 function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouseEnter }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
 
-  const hasComparison = Boolean(
-    geoVisitor.compare?.compareVisitors &&
-      geoVisitor.compare?.compareDate &&
-      geoVisitor.compare.dProcent !== undefined &&
-      geoVisitor.date,
-  );
+  const percentageChange = geoVisitor.compareVisitors !== undefined
+    ? ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
+    : undefined;
 
   return (
     <div
@@ -46,8 +43,8 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouse
           <span className='text-muted-foreground'>{label}:</span>
           <div className='text-foreground flex flex-row gap-1'>
             <span>{formatNumber(geoVisitor.visitors)}</span>
-            {hasComparison && (
-              <TrendPercentage percentage={geoVisitor.compare.dProcent} withParenthesis={true} withIcon={true} />
+            {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined && (
+              <TrendPercentage percentage={percentageChange} withParenthesis={true} withIcon={true} />
             )}
           </div>
         </div>

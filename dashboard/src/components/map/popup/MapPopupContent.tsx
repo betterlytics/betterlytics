@@ -34,7 +34,9 @@ function MapPopupContentComponent({
 }: MapPopupContentProps) {
   if (!geoVisitor) return null;
 
-  const hasCmp = !!geoVisitor.compare?.compareVisitors;
+  const percentageChange = geoVisitor.compareVisitors !== undefined
+    ? ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
+    : undefined;
 
   const Row = ({
     color,
@@ -51,10 +53,10 @@ function MapPopupContentComponent({
   }) => (
     <div className='flex items-center justify-between gap-2'>
       <div className='flex items-center gap-2' title={tooltip}>
-        {color && <div className={`${color} h-2 w-2 rounded-full`} />}
-        <span className={muted ? 'text-muted-foreground' : ''}>{label}</span>
+        {color && <div className={cn(color, 'h-2 w-2 rounded-full')} />}
+        <span className={cn({ 'text-muted-foreground': muted })}>{label}</span>
       </div>
-      <span className={cn('font-medium', muted && 'text-muted-foreground')}>{value}</span>
+      <span className={cn('font-medium', { 'text-muted-foreground': muted })}>{value}</span>
     </div>
   );
 
@@ -68,22 +70,22 @@ function MapPopupContentComponent({
       )}
     >
       <CountryDisplay
-        className={cn('text-sm font-bold', hasCmp ? 'justify-center' : 'justify-start')}
+        className={cn('text-sm font-bold', geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start')}
         countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
         countryName={getCountryName(geoVisitor.country_code, locale)}
       />
-      {hasCmp && <div className='border-border my-2 border-t' />}
+      {geoVisitor.compareVisitors !== undefined && <div className='border-border my-2 border-t' />}
 
       <div className='flex items-center gap-1'>
         <span className='text-muted-foreground'>{t('geography.visitors')}</span>
-        {hasCmp ? (
-          <TrendPercentage percentage={geoVisitor.compare!.dProcent} withParenthesis withIcon />
+        {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined ? (
+          <TrendPercentage percentage={percentageChange} withParenthesis withIcon />
         ) : (
           <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors)}</span>
         )}
       </div>
 
-      {hasCmp && (
+      {geoVisitor.compareVisitors !== undefined && (
         <div className='flex flex-col space-y-2'>
           <Row
             color='bg-primary'
@@ -105,7 +107,7 @@ function MapPopupContentComponent({
               color='bg-chart-comparison'
               label={t('timeRange.previousPeriod')}
               tooltip={`${timeRangeCtx.compareStartDate.toLocaleString()} - ${timeRangeCtx.compareEndDate?.toLocaleString()}`}
-              value={formatNumber(geoVisitor.compare?.compareVisitors ?? 0)}
+              value={formatNumber(geoVisitor.compareVisitors ?? 0)}
               muted
             />
           )}
