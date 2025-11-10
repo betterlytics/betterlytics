@@ -17,6 +17,9 @@ import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
+import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
+import { DashboardFindByUserSchema } from '@/entities/dashboard';
+import { env } from '@/lib/env';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -31,6 +34,17 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   }
 
   const { dashboardId } = await params;
+
+  const authCtx = await getAuthorizedDashboardContextOrNull(
+    DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
+  );
+
+  if (!authCtx) {
+    if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
+      redirect(`/public/${dashboardId}`);
+    }
+    redirect('/signin');
+  }
 
   const billingEnabled = isClientFeatureEnabled('enableBilling');
 
