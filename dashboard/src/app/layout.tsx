@@ -10,6 +10,16 @@ import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import ThemeColorUpdater from '@/app/ThemeColorUpdater';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  icons: {
+    icon: [
+      { url: '/images/favicon-dark.svg', media: '(prefers-color-scheme: light)', type: 'image/svg+xml' },
+      { url: '/images/favicon-light.svg', media: '(prefers-color-scheme: dark)', type: 'image/svg+xml' },
+    ],
+  },
+};
 
 const robotoSans = Inter({
   variable: '--font-roboto-sans',
