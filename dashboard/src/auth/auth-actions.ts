@@ -12,6 +12,7 @@ import { env } from '@/lib/env';
 import { unstable_cache } from 'next/cache';
 import { DashboardFindByUserSchema } from '@/entities/dashboard';
 import { stableStringify } from '@/utils/stableStringify';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 
 // Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
 type AnyFn = (...args: unknown[]) => unknown;
@@ -35,6 +36,30 @@ function getActionSignature(fn: AnyFn): string {
     actionSignatureMap.set(fn, sig);
   }
   return sig;
+}
+
+const tracer = trace.getTracer('dashboard');
+
+async function withActionSpan<T>(
+  name: string,
+  attrs: Record<string, string | number | boolean>,
+  fn: () => Promise<T>,
+): Promise<T> {
+  return tracer.startActiveSpan(name, async (span) => {
+    span.setAttributes(attrs);
+    try {
+      const res = await fn();
+      span.setStatus({ code: SpanStatusCode.OK });
+      return res;
+    } catch (e) {
+      const err = e as Error;
+      span.recordException(err);
+      span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+      throw err;
+    } finally {
+      span.end();
+    }
+  });
 }
 
 export async function getAuthSession(): Promise<Session | null> {
@@ -133,13 +158,25 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
 ) {
   return async function (dashboardId: string, ...args: Args): Promise<Awaited<Ret>> {
     const context = await resolveDashboardContext(dashboardId);
-
-    try {
-      return await executeWithCachingIfDemo(context, action, args);
-    } catch (e) {
-      console.error('Error occurred:', e);
-      throw new Error('An error occurred');
-    }
+    const actionId = getActionSignature(action as AnyFn);
+    const spanName = `action.${(action as AnyFn).name || 'dashboard_action'}`;
+    return await withActionSpan(
+      spanName,
+      {
+        'ba.action.id': actionId,
+        'ba.dashboard.id': context.dashboardId,
+        'ba.site.id': context.siteId,
+        'ba.auth.is_demo': context.isDemo,
+      },
+      async () => {
+        try {
+          return await executeWithCachingIfDemo(context, action, args);
+        } catch (e) {
+          console.error('Error occurred:', e);
+          throw new Error('An error occurred');
+        }
+      },
+    );
   };
 }
 
@@ -148,13 +185,25 @@ export function withDashboardMutationAuthContext<Args extends Array<unknown> = u
 ) {
   return async function (dashboardId: string, ...args: Args): Promise<Awaited<Ret>> {
     const context = await requireDashboardAuth(dashboardId);
-
-    try {
-      return await action(context, ...args);
-    } catch (e) {
-      console.error('Error occurred:', e);
-      throw new Error('An error occurred');
-    }
+    const actionId = getActionSignature(action as AnyFn);
+    const spanName = `action.${(action as AnyFn).name || 'dashboard_mutation'}`;
+    return await withActionSpan(
+      spanName,
+      {
+        'ba.action.id': actionId,
+        'ba.dashboard.id': context.dashboardId,
+        'ba.site.id': context.siteId,
+        'ba.auth.is_demo': context.isDemo,
+      },
+      async () => {
+        try {
+          return await action(context, ...args);
+        } catch (e) {
+          console.error('Error occurred:', e);
+          throw new Error('An error occurred');
+        }
+      },
+    );
   };
 }
 
@@ -165,7 +214,11 @@ export function withUserAuth<Args extends Array<unknown> = unknown[], Ret = unkn
 ) {
   return withServerAction(async function (...args: Args): Promise<Awaited<Ret>> {
     const session = await requireAuth();
-
-    return await action(session.user, ...args);
+    const spanName = `action.${(action as AnyFn).name || 'user_action'}`;
+    return await withActionSpan(
+      spanName,
+      { 'ba.user.id': session.user.id },
+      async () => await action(session.user, ...args),
+    );
   });
 }

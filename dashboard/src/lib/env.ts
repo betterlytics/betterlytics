@@ -53,6 +53,7 @@ const envSchema = z.object({
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   S3_FORCE_PATH_STYLE: zStringBoolean,
   S3_SSE_ENABLED: zStringBoolean,
+  OTEL_SERVICE_NAME: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);
