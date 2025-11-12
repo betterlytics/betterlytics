@@ -7,6 +7,7 @@ import { UserSettingsUpdate } from '@/entities/userSettings';
 import { deleteUserAccountAction } from '@/app/actions/userSettings';
 import { Button } from '@/components/ui/button';
 import {
+  AlertCountdownButton,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -122,19 +123,13 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
                   {t('dialog.cancel')}
                 </AlertDialogCancel>
                 <AlertDialogAction asChild>
-                  <Button
-                    variant='destructive'
+                  <AlertCountdownButton
                     onClick={handleDeleteAccount}
+                    isPending={isPending}
                     disabled={isPending || !canDelete}
-                    className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
                   >
-                    {isPending ? (
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    ) : (
-                      <Trash2 className='mr-2 h-4 w-4' />
-                    )}
                     {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
-                  </Button>
+                  </AlertCountdownButton>
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

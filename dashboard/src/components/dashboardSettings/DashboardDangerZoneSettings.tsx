@@ -3,6 +3,7 @@
 import { deleteDashboardAction } from '@/app/actions';
 import SettingsCard from '@/components/SettingsCard';
 import {
+  AlertCountdownButton,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -18,9 +19,10 @@ import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { useBARouter } from '@/hooks/use-ba-router';
-import { startTransition, useState } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useCountdown } from '@/hooks/use-countdown';
 
 type DangerZoneSettingsProps = {
   formData: DashboardSettingsUpdate;
@@ -32,6 +34,8 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
   const router = useBARouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const t = useTranslations('components.dashboardSettingsDialog.danger');
+  const { countdown, isFinished: canDelete } = useCountdown(5, isDialogOpen);
+  const [isPending, startTransition] = useTransition();
 
   const handleDeleteDashboard = async () => {
     startTransition(async () => {
@@ -77,13 +81,13 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
             <AlertDialogFooter>
               <AlertDialogCancel className='cursor-pointer'>{t('dialog.cancel')}</AlertDialogCancel>
               <AlertDialogAction asChild onClick={handleDeleteDashboard}>
-                <Button
-                  variant='destructive'
-                  className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
+                <AlertCountdownButton
+                  isPending={isPending}
+                  disabled={isPending || !canDelete}
+                  onClick={handleDeleteDashboard}
                 >
-                  <Trash2 className='h-4 w-4' />
-                  {t('dialog.confirm')}
-                </Button>
+                  {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
+                </AlertCountdownButton>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
