@@ -114,7 +114,7 @@ export default function MapCountryGeoJSON({
 
   return (
     <GeoJSON
-      key={`${visitorData.length}-${locale}`}
+      key={`${visitorData.length}-${timeRangeCtx.compareMode}-${compareData.length}-${locale}`}
       data={geoData}
       onEachFeature={onEachFeature}
       {...DEFAULT_OPTS}
