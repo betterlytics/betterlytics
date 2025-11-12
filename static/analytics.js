@@ -56,6 +56,10 @@
   // Track current path for SPA navigation
   var currentPath = window.location.pathname;
 
+  // Track max scroll depth during the page view
+  var maxCapturedScrollPercentage = 0;
+  var maxCapturedScrollPixels = 0;
+
   function normalize(url) {
     var urlObj = new URL(url);
     var pathname = urlObj.pathname;
@@ -225,6 +229,9 @@
     // Override pushState to track navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
+      // Send scroll depth event before changing
+      sendScrollDepthEvent();
+
       originalPushState.apply(this, arguments);
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
@@ -271,6 +278,53 @@
       }
     });
   }
+
+  // Update max captured scroll
+  window.addEventListener("scroll", () => {
+    maxCapturedScrollPixels = Math.max(
+      window.scrollY || document.documentElement.scrollTop,
+      maxCapturedScrollPixels
+    );
+
+    maxCapturedScrollPercentage = Math.max(
+      calcScrollDepth(),
+      maxCapturedScrollPercentage
+    );
+  });
+
+  function calcScrollDepth() {
+    const windowHeight = window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
+
+    if (docHeight === 0) {
+      return 100;
+    }
+
+    if (docHeight - windowHeight <= 0) {
+      return 100;
+    }
+
+    return 100 * (maxCapturedScrollPixels / (docHeight - windowHeight));
+  }
+
+  function sendScrollDepthEvent() {
+    trackEvent("scroll_depth", {
+      scroll_depth_percentage: Math.max(
+        maxCapturedScrollPercentage,
+        calcScrollDepth()
+      ),
+      scroll_depth_pixels: maxCapturedScrollPixels,
+    });
+
+    // Reset tracked scroll depth
+    maxCapturedScrollPercentage = 0;
+    maxCapturedScrollPixels = 0;
+  }
+
+  // Track scroll depth on page-hide
+  window.addEventListener("pagehide", () => {
+    sendScrollDepthEvent();
+  });
 
   // Replay
   if (enableReplay) {

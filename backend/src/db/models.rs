@@ -41,6 +41,8 @@ pub struct EventRow {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+    pub scroll_depth_percentage: Option<f32>,
+    pub scroll_depth_pixels: Option<f32>,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -69,6 +71,7 @@ pub enum EventType {
     Custom = 2,
     OutboundLink = 3,
     Cwv = 4,
+    ScrollDepth = 5,
 }
 
 impl EventRow {
@@ -108,6 +111,8 @@ impl EventRow {
             cwv_inp: event.cwv_inp,
             cwv_fcp: event.cwv_fcp,
             cwv_ttfb: event.cwv_ttfb,
+            scroll_depth_percentage: event.scroll_depth_percentage,
+            scroll_depth_pixels: event.scroll_depth_pixels,
         }
     }
 }

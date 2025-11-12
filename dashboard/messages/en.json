@@ -1397,6 +1397,7 @@
         "visitors": "Visitors",
         "pageviews": "Pageviews",
         "bounceRate": "Bounce Rate",
+        "scrollDepthPercentage": "Scroll depth",
         "avgTime": "Avg. Time",
         "entryRate": "Entry Rate",
         "exitRate": "Exit Rate",

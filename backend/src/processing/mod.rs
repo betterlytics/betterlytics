@@ -52,6 +52,8 @@ pub struct ProcessedEvent {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+    pub scroll_depth_percentage: Option<f32>,
+    pub scroll_depth_pixels: Option<f32>,
 }
 
 /// Event processor that handles real-time processing
@@ -102,6 +104,8 @@ impl EventProcessor {
             campaign_info: CampaignInfo::default(),
             custom_event_name: String::new(),
             custom_event_json: String::new(),
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
             outbound_link_url: String::new(),
             cwv_cls: None,
             cwv_lcp: None,
@@ -171,7 +175,7 @@ impl EventProcessor {
     /// Handle different event types
     async fn handle_event_types(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let event_name = processed.event.raw.event_name.clone();
-        if processed.event.raw.is_custom_event {
+         if processed.event.raw.is_custom_event {
             processed.event_type = "custom".to_string();
             processed.custom_event_name = event_name;
             processed.custom_event_json = processed.event.raw.properties.clone();
@@ -191,6 +195,10 @@ impl EventProcessor {
             processed.cwv_inp = processed.event.raw.cwv_inp;
             processed.cwv_fcp = processed.event.raw.cwv_fcp;
             processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
+        } else if event_name == "scroll_depth" {
+            processed.event_type = "scroll_depth".to_string();
+            processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
+            processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else {
             processed.event_type = event_name;
         }
