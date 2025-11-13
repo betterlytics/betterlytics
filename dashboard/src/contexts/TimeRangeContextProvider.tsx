@@ -4,7 +4,7 @@ import { TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode } from '@/utils/compareRanges';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
-type TimeRangeContextProps = {
+export type TimeRangeContextProps = {
   startDate: Date;
   endDate: Date;
   setPeriod: (startDate: Date, endDate: Date) => void;

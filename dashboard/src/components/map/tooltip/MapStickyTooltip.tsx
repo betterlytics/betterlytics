@@ -1,4 +1,4 @@
-import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
+import { useMapSelectionState } from '@/contexts/MapSelectionContextProvider';
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useMap } from 'react-leaflet/hooks';
@@ -12,7 +12,7 @@ export type MapStickyTooltip = {
 };
 
 export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
-  const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelection();
+  const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelectionState();
   const map = useMap();
   const tooltipId = useId();
   const locale = useLocale();
@@ -24,26 +24,40 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
   useEffect(() => {
     const mapContainer = map.getContainer();
 
-    const onMouseMove = (e: MouseEvent) => {
+    const updateMousePosition = (e: MouseEvent) => {
       latestMouseRef.current = { x: e.clientX, y: e.clientY - 2 };
       if (tooltipRef.current) {
         tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
       }
     };
 
-    mapContainer.addEventListener('mousemove', onMouseMove);
+    mapContainer.addEventListener('mousemove', updateMousePosition);
 
-    // Initial positioning before event fires
-    if (tooltipRef.current && latestMouseRef.current) {
-      tooltipRef.current.style.transform = `translate3d(${latestMouseRef.current.x}px, ${latestMouseRef.current.y}px, 0) translate(-50%, -100%)`;
+    if (tooltipRef.current) {
+      const position = hoveredFeature?.mousePosition || latestMouseRef.current;
+      if (hoveredFeature?.mousePosition) {
+        latestMouseRef.current = hoveredFeature.mousePosition;
+      }
+      tooltipRef.current.style.transform = `translate3d(${position.x}px, ${position.y - 2}px, 0) translate(-50%, -100%)`;
     }
 
     return () => {
-      mapContainer.removeEventListener('mousemove', onMouseMove);
+      mapContainer.removeEventListener('mousemove', updateMousePosition);
     };
-  }, [map, selectedFeature]);
+  }, [map, selectedFeature, hoveredFeature]);
 
-  if (!hoveredFeature || selectedFeature) return null;
+  const currentPosition = hoveredFeature?.mousePosition || latestMouseRef.current;
+  const hasValidPosition = currentPosition.x !== 0 || currentPosition.y !== 0;
+
+  if (
+    !hoveredFeature ||
+    (selectedFeature && hoveredFeature.geoVisitor.country_code === selectedFeature.geoVisitor.country_code) ||
+    !hasValidPosition
+  ) {
+    return null;
+  }
+
+  const initialTransform = `translate3d(${currentPosition.x}px, ${currentPosition.y - 2}px, 0) translate(-50%, -100%)`;
 
   return createPortal(
     <section
@@ -51,6 +65,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       ref={tooltipRef}
       role='tooltip'
       aria-hidden={false}
+      style={{ transform: initialTransform }}
       className={cn(
         'map-sticky-tooltip leaflet-popup-content-wrapper',
         'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
@@ -62,6 +77,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
           size={size}
           locale={locale}
           label={t('visitors')}
+          className={'p-3'}
         />
       </div>
       <MapTooltipTip />
