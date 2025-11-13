@@ -18,7 +18,7 @@ export async function generateMetadata({
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.publicDemo);
   const config = {
     ...seoConfig,
-    path: `/public/${dashboardId}`,
+    path: `/share/${dashboardId}`,
   };
 
   return generateSEO(config, {
@@ -56,7 +56,7 @@ export default async function PublicDashboardLayout({ params, children }: Public
           <DashboardLayoutShell
             dashboardId={dashboardId}
             isDemo={true}
-            basePath={`/${locale}/public`}
+            basePath={`/${locale}/share`}
             includeIntegrationManager={false}
           >
             <div className='flex w-full justify-center'>{children}</div>

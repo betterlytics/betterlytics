@@ -41,7 +41,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
   if (!authCtx) {
     if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
-      redirect(`/public/${dashboardId}`);
+      redirect(`/share/${dashboardId}`);
     }
     redirect('/signin');
   }
