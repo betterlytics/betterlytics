@@ -1,7 +1,7 @@
 import type { CoreWebVitalName } from '@/entities/webVitals';
 
 // Thresholds values are taken from Web.dev
-// Tuple: [goodThreshold, needsImprovementThreshold]
+// Tuple: [goodThreshold, fairThreshold]
 export const CWV_THRESHOLDS: Record<CoreWebVitalName, [number, number]> = {
   CLS: [0.1, 0.25],
   LCP: [2500, 4000],

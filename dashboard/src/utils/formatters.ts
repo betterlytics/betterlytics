@@ -66,9 +66,9 @@ export function formatCWV(metric: CoreWebVitalName, value: number | null | undef
 
 export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null | undefined): string | undefined {
   if (value === null || value === undefined) return undefined;
-  const [goodThreshold, niThreshold] = CWV_THRESHOLDS[metric] ?? [];
-  if (goodThreshold === undefined || niThreshold === undefined) return undefined;
-  if (value > niThreshold) return 'var(--cwv-threshold-poor)';
-  if (value > goodThreshold) return 'var(--cwv-threshold-ni)';
+  const [goodThreshold, fairThreshold] = CWV_THRESHOLDS[metric] ?? [];
+  if (goodThreshold === undefined || fairThreshold === undefined) return undefined;
+  if (value > fairThreshold) return 'var(--cwv-threshold-poor)';
+  if (value > goodThreshold) return 'var(--cwv-threshold-fair)';
   return 'var(--cwv-threshold-good)';
 }

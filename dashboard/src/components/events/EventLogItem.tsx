@@ -1,5 +1,6 @@
 import React from 'react';
-import { User, ExternalLink, Activity } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Activity, ExternalLink, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { EventLogEntry } from '@/entities/events';
 import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
@@ -13,6 +14,7 @@ interface EventLogItemProps {
   event: EventLogEntry;
   isNearEnd?: boolean;
   onRef?: (node: HTMLDivElement | null) => void;
+  icon?: LucideIcon;
 }
 
 const formatEventProperties = (jsonString: string) => {
@@ -64,8 +66,14 @@ const MetadataItem = React.memo(
 
 MetadataItem.displayName = 'MetadataItem';
 
-export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd, onRef }: EventLogItemProps) {
+export const EventLogItem = React.memo(function EventLogItem({
+  event,
+  isNearEnd,
+  onRef,
+  icon,
+}: EventLogItemProps) {
   const locale = useLocale();
+  const EventIcon = React.useMemo(() => icon ?? Activity, [icon]);
 
   return (
     <div
@@ -74,7 +82,7 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
     >
       <div className='relative flex items-start gap-4'>
         <div className='bg-muted/50 border-border/30 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border'>
-          <Activity className='text-primary h-3.5 w-3.5' />
+          <EventIcon className='text-primary h-3.5 w-3.5' />
         </div>
 
         <div className='min-w-0 flex-1 space-y-3'>
@@ -89,11 +97,13 @@ export const EventLogItem = React.memo(function EventLogItem({ event, isNearEnd,
           </div>
 
           <div className='flex flex-wrap items-center gap-4 text-xs'>
-            <MetadataItem icon={User}>
-              <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
-                {event.visitor_id.slice(-6)}
-              </span>
-            </MetadataItem>
+            {event.visitor_id && (
+              <MetadataItem icon={User}>
+                <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
+                  {event.visitor_id.slice(-6)}
+                </span>
+              </MetadataItem>
+            )}
 
             <MetadataItem icon={<DeviceIcon type={event.device_type} />}>
               <span className='capitalize'>{event.device_type}</span>

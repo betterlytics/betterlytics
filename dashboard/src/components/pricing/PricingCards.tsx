@@ -12,6 +12,7 @@ import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
 import { Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 interface PricingCardsProps {
   eventRange: EventRange;
@@ -175,17 +176,26 @@ export function PricingCards({
       {plans.map((plan) => (
         <Card
           key={plan.tier}
-          className={`dark:metric-card relative flex flex-col ${plan.popular ? 'dark:shadow-card-glow border-primary/50' : ''}`}
+          data-popular={plan.popular}
+          className={cn(
+            'group border-border/70 bg-card/80 hover:bg-card/90 focus-within:ring-offset-background relative flex h-full flex-col rounded-2xl border shadow-sm transition duration-300 ease-out focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:-translate-y-1 hover:border-blue-400/40 hover:shadow-xl hover:shadow-blue-500/10 motion-reduce:transform-none motion-reduce:transition-none',
+            plan.popular
+              ? 'bg-gradient-to-b from-blue-600/10 via-blue-600/5 to-transparent shadow-2xl ring-2 shadow-blue-600/20 ring-blue-500/70'
+              : '',
+          )}
         >
           {plan.popular && (
-            <Badge className='bg-primary absolute -top-3 left-1/2 -translate-x-1/2 transform'>
+            <Badge className='absolute -top-3 left-1/2 -translate-x-1/2 transform rounded-full border-transparent bg-blue-600 px-3 py-1 text-white shadow-sm shadow-blue-600/30'>
               {t('badges.mostPopular')}
             </Badge>
           )}
           {billingData &&
             billingData.subscription.tier === plan.tier &&
             billingData.subscription.eventLimit === eventRange.value && (
-              <Badge variant='secondary' className='absolute -bottom-3 left-1/2 -translate-x-1/2 transform'>
+              <Badge
+                variant='secondary'
+                className='absolute -bottom-3 left-1/2 -translate-x-1/2 transform rounded-full border-transparent'
+              >
                 {t('badges.current')}
               </Badge>
             )}
@@ -201,8 +211,8 @@ export function PricingCards({
             <ul className='mb-6 flex-grow space-y-3'>
               {plan.features.map((feature) => (
                 <li key={feature} className='flex items-center'>
-                  <Check className='text-primary mr-3 h-4 w-4 flex-shrink-0' />
-                  <span className='text-sm'>{feature}</span>
+                  <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
+                  <span className='text-foreground/90 text-sm'>{feature}</span>
                 </li>
               ))}
             </ul>

@@ -31,7 +31,7 @@ export default async function WorldMapCard() {
         <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
 
-      <CardContent className='space-y-4'>
+      <CardContent>
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
           <LeafletMap
             visitorData={MOCK_WORLD_GEOVISITORS}
@@ -42,7 +42,7 @@ export default async function WorldMapCard() {
           />
         </div>
 
-        <div className='border-border/60 border-t pt-3'>
+        <div className='pt-2'>
           <div className='flex items-center justify-between text-xs'>
             <span className='text-muted-foreground'>{t('topCountries')}</span>
             <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-3 overflow-hidden pr-1'>
