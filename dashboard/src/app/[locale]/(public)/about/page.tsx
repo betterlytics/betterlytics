@@ -106,18 +106,22 @@ export default async function AboutPage() {
           </section>
 
           <section className='py-8 text-center'>
-            <h2 className='mb-6 text-2xl font-bold'>{t('cta.title')}</h2>
-            <p className='text-muted-foreground mb-8 text-lg leading-relaxed'>{t('cta.lead')}</p>
-            <div className='flex justify-center gap-4'>
-              <Button asChild size='lg'>
-                <Link href='/register'>{t('cta.getStarted')}</Link>
-              </Button>
-              <Button asChild variant='outline' size='lg'>
-                <ExternalLink href='/docs' className='flex items-center gap-2' title={t('cta.docsTitle')}>
-                  {t('cta.viewDocs')}
-                  <ExternalLinkIcon className='h-4 w-4' />
-                </ExternalLink>
-              </Button>
+            <div className='border-border/60 bg-card/60 rounded-2xl border p-6 text-center ring-1 ring-white/10 ring-inset sm:p-8 dark:ring-white/5'>
+              <h2 className='mb-3 text-2xl font-bold'>{t('cta.title')}</h2>
+              <p className='text-muted-foreground mx-auto mb-6 max-w-2xl text-base leading-relaxed sm:text-lg'>
+                {t('cta.lead')}
+              </p>
+              <div className='flex flex-col items-center justify-center gap-3 sm:flex-row'>
+                <Button asChild size='lg'>
+                  <Link href='/onboarding'>{t('cta.getStarted')}</Link>
+                </Button>
+                <Button asChild variant='outline' size='lg'>
+                  <ExternalLink href='/docs' className='flex items-center gap-2' title={t('cta.docsTitle')}>
+                    {t('cta.viewDocs')}
+                    <ExternalLinkIcon className='h-4 w-4' />
+                  </ExternalLink>
+                </Button>
+              </div>
             </div>
           </section>
         </div>

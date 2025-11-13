@@ -38,7 +38,7 @@ export default function CoreWebVitalBar({ metric, value, thresholds }: Props) {
         {niWidth > 0 && (
           <div
             className='absolute top-0 h-full'
-            style={{ left: `${goodWidth}%`, width: `${niWidth}%`, backgroundColor: 'var(--cwv-threshold-ni)' }}
+            style={{ left: `${goodWidth}%`, width: `${niWidth}%`, backgroundColor: 'var(--cwv-threshold-fair)' }}
           />
         )}
         {poorWidth > 0 && (

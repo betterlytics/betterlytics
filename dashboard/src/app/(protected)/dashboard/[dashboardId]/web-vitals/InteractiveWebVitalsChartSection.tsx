@@ -163,11 +163,11 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   const referenceLines = useMemo(
     () =>
       CWV_THRESHOLDS[active]?.map((y, idx) => {
-        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.needsImprovement')} (≤ ${formatThreshold(
+        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.fair')} (≤ ${formatThreshold(
           active,
           y,
         )})`;
-        const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-ni)';
+        const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-fair)';
         return { y, label, stroke, strokeDasharray: '6 6', labelFill: stroke };
       }),
     [active, t],
