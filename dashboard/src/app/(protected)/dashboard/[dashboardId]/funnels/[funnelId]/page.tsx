@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { fetchFunnelDetailsAction } from '@/app/actions';
 import FunnelStepsSection from './FunnelStepsSection';
@@ -21,12 +18,6 @@ type FunnelPageProps = {
 };
 
 export default async function FunnelPage({ params, searchParams }: FunnelPageProps) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const timezone = await getUserTimezone();
   const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams, timezone);
 

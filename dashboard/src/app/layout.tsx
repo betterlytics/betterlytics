@@ -10,6 +10,16 @@ import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import ThemeColorUpdater from '@/app/ThemeColorUpdater';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  icons: {
+    icon: [
+      { url: '/images/favicon-dark.svg', media: '(prefers-color-scheme: light)', type: 'image/svg+xml' },
+      { url: '/images/favicon-light.svg', media: '(prefers-color-scheme: dark)', type: 'image/svg+xml' },
+    ],
+  },
+};
 
 const robotoSans = Inter({
   variable: '--font-roboto-sans',
@@ -41,7 +51,7 @@ export default async function RootLayout({
             src={`${env.PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
             data-site-id={env.APP_TRACKING_SITE_ID}
             data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
-            data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*'
+            data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*,/*/share/*'
             data-web-vitals='true'
           />
         )}

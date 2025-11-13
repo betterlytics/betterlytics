@@ -716,6 +716,19 @@
         "helpLine": "Har du brug for hjælp? Kontakt support på support@betterlytics.io"
       }
     },
+    "demo": {
+      "seo": {
+        "title": "Betterlytics | Demo Dashboard",
+        "description": "Udforsk Betterlytics' funktioner i denne interaktive demo-dashboard.",
+        "keywords": [
+          "Betterlytics Demo",
+          "Demo Funktioner",
+          "Produkt Rundvisning",
+          "Web Demo",
+          "Privacy-Første Funktioner"
+        ]
+      }
+    },
     "landing": {
       "seo": {
         "title": "Betterlytics | Privatlivsfokuseret, Cookieless Webanalyse",
@@ -1154,6 +1167,7 @@
       "sameLengthAsMain": "Samme længde som hovedinterval",
       "compareToPeriod": "Sammenligningsperiode",
       "dateRange": "Datointerval",
+      "granularityNotAvailable": "Granularitet ikke tilgængelig for valgt interval",
       "presets": {
         "today": "I dag",
         "yesterday": "I går",
@@ -1838,6 +1852,10 @@
       "body": "For at fortsætte med at bruge din konto skal du gennemgå og acceptere vores <termsLink>servicevilkår</termsLink>.",
       "acceptAndContinue": "Accepter og fortsæt",
       "logout": "Log ud"
+    },
+    "demoMode": {
+      "notAvailable": "Ikke tilgængelig på demo-dashboard",
+      "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
     }
   },
   "onboarding": {

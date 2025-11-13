@@ -26,6 +26,7 @@ import { useQueryFilters } from '@/hooks/use-query-filters';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { useTranslations } from 'next-intl';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 type FunnelMetadata = {
   name: string;
@@ -83,15 +84,19 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant={triggerVariant || 'secondary'}
-          className='border-input dark:bg-input/30 dark:hover:bg-input/50 cursor-pointer justify-between border shadow-xs transition-[color,box-shadow]'
-        >
-          <Plus className='size-5' />
-          {triggerText || t('createFunnel')}
-        </Button>
-      </DialogTrigger>
+      <DisabledDemoTooltip>
+        {(disabled) => (
+          <DialogTrigger asChild disabled={disabled}>
+            <Button
+              variant={triggerVariant || 'secondary'}
+              className='cursor-pointer justify-between border shadow-xs transition-[color,box-shadow]'
+            >
+              <Plus className='size-5' />
+              {triggerText || t('createFunnel')}
+            </Button>
+          </DialogTrigger>
+        )}
+      </DisabledDemoTooltip>
       <DialogContent className='bg-background flex h-[70dvh] w-[80dvw] !max-w-[1250px] flex-col'>
         <DialogHeader>
           <DialogTitle>{t('createFunnelLower')}</DialogTitle>

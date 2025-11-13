@@ -10,6 +10,8 @@ import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
+import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
@@ -23,6 +25,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
 
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
+  const isDemo = useDemoMode();
 
   const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
 
@@ -57,17 +60,24 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
 
   return (
     <div>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover open={isOpen} onOpenChange={(open) => (isDemo ? false : setIsOpen(open))}>
         <PopoverTrigger asChild>
-          <Button
-            variant={'ghost'}
-            className={cn(
-              'h-8 w-full cursor-pointer justify-start truncate rounded-sm px-2 font-normal',
-              !range && 'text-muted-foreground',
-            )}
-          >
-            <span>{t('customPeriod')}</span>
-          </Button>
+          <span className='w-full'>
+            <DisabledDemoTooltip>
+              {(isDisabled) => (
+                <Button
+                  variant={'ghost'}
+                  className={cn(
+                    'h-8 w-full cursor-pointer justify-start truncate rounded-sm px-2 font-normal',
+                    !range && 'text-muted-foreground',
+                  )}
+                  disabled={isDisabled}
+                >
+                  <span>{t('customPeriod')}</span>
+                </Button>
+              )}
+            </DisabledDemoTooltip>
+          </span>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>
           <Calendar
