@@ -1,28 +1,7 @@
 import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
-
-// Ensure deterministic JSON encoding (stable key order) to avoid URL flicker
-function sortKeysDeep(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map((item) => sortKeysDeep(item));
-  }
-  if (value && typeof value === 'object' && !(value instanceof Date)) {
-    const obj = value as Record<string, unknown>;
-    const sorted: Record<string, unknown> = {};
-    Object.keys(obj)
-      .sort()
-      .forEach((key) => {
-        sorted[key] = sortKeysDeep(obj[key]);
-      });
-    return sorted;
-  }
-  return value;
-}
-
-function stableStringify(value: unknown): string {
-  return JSON.stringify(sortKeysDeep(value));
-}
+import { stableStringify } from '@/utils/stableStringify';
 
 const ENCODE_ORDER: Array<keyof FilterQueryParams> = [
   'startDate',

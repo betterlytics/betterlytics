@@ -7,7 +7,6 @@ import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
@@ -18,7 +17,6 @@ type DevicesSectionProps = {
 export default function DevicesSection({ deviceBreakdownCombinedPromise }: DevicesSectionProps) {
   const deviceBreakdownCombined = use(deviceBreakdownCombinedPromise);
   const t = useTranslations('dashboard');
-  const dashboardId = useDashboardId();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   const onItemClick = (tabKey: string, item: { label: string }) => {
@@ -83,7 +81,7 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
       ]}
       footer={
         <FilterPreservingLink
-          href={`/dashboard/${dashboardId}/devices`}
+          href='devices'
           className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
         >
           <span>{t('goTo', { section: t('sidebar.devices') })}</span>

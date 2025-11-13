@@ -1,9 +1,8 @@
 'use server';
 
-import { withUserAuth } from '@/auth/auth-actions';
 import { cookies } from 'next/headers';
 
-export const setTimezoneCookieAction = withUserAuth(async (_, tz: string) => {
+export async function setTimezoneCookieAction(tz: string) {
   if (typeof tz !== 'string' || !tz) {
     return { changed: false };
   }
@@ -26,4 +25,4 @@ export const setTimezoneCookieAction = withUserAuth(async (_, tz: string) => {
   });
 
   return { changed: true };
-});
+}

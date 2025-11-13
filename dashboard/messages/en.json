@@ -716,6 +716,19 @@
         "helpLine": "Need help? Contact support at support@betterlytics.io"
       }
     },
+    "demo": {
+      "seo": {
+        "title": "Betterlytics | Demo Dashboard",
+        "description": "Explore Betterlytics' capabilities in this interactive demo dashboard.",
+        "keywords": [
+          "Betterlytics Demo",
+          "Analytics Demo",
+          "Product Tour",
+          "Web Analytics Demo",
+          "Privacy-First Analytics"
+        ]
+      }
+    },
     "landing": {
       "seo": {
         "title": "Betterlytics | Simple, Cookieless, Privacy-Friendly Web Analytics",
@@ -1150,6 +1163,7 @@
       "sameLengthAsMain": "Same length as main range",
       "compareToPeriod": "Compare to Period",
       "dateRange": "Date range",
+      "granularityNotAvailable": "Granularity not available for selected range",
       "presets": {
         "today": "Today",
         "yesterday": "Yesterday",
@@ -1834,6 +1848,10 @@
       "body": "To continue using your account, please review and accept our <termsLink>Terms of Service</termsLink>.",
       "acceptAndContinue": "Accept and Continue",
       "logout": "Log Out"
+    },
+    "demoMode": {
+      "notAvailable": "Not available on demo dashboard",
+      "interactionDisabled": "Filtering from this interaction is disabled in the demo."
     }
   },
   "onboarding": {

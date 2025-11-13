@@ -14,6 +14,7 @@ import { isDerivedCompareMode } from '@/utils/compareRanges';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 export function CompareRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -63,16 +64,22 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
         >
           {t('previousPeriod')}
         </Button>
-        <Button
-          variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
-          onClick={() => {
-            actions.setComparePreset('year');
-            setOpen(false);
-          }}
-          className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
-        >
-          {t('previousYear')}
-        </Button>
+        <DisabledDemoTooltip>
+          {(isDisabled) => (
+            <Button
+              variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
+              onClick={() => {
+                if (isDisabled) return;
+                actions.setComparePreset('year');
+                setOpen(false);
+              }}
+              className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
+              disabled={isDisabled}
+            >
+              {t('previousYear')}
+            </Button>
+          )}
+        </DisabledDemoTooltip>
         <DateRangeSection
           startDate={ctx.compareStartDate}
           endDate={ctx.compareEndDate}
@@ -86,29 +93,41 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
       <Separator className='my-1' />
 
-      <div
-        role='button'
-        tabIndex={0}
-        className='flex w-full cursor-pointer items-center justify-between rounded-sm p-2 text-left'
-        onClick={() => actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays);
-          }
-        }}
-        aria-pressed={ctx.compareAlignWeekdays}
-        aria-label={t('matchDayOfWeek')}
-      >
-        <div className='text-sm'>{t('matchDayOfWeek')}</div>
-        <Switch
-          checked={ctx.compareAlignWeekdays}
-          onCheckedChange={(checked) => actions.setCompareAlignWeekdays(Boolean(checked))}
-          onClick={(e) => e.stopPropagation()}
-          aria-label={t('matchDayOfWeek')}
-          className='cursor-pointer'
-        />
-      </div>
+      <DisabledDemoTooltip>
+        {(isDisabled) => (
+          <div
+            role='button'
+            tabIndex={0}
+            className='flex w-full items-center justify-between rounded-sm p-2 text-left'
+            onClick={() => {
+              if (isDisabled) return;
+              actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays);
+            }}
+            onKeyDown={(e) => {
+              if (isDisabled) return;
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays);
+              }
+            }}
+            aria-pressed={ctx.compareAlignWeekdays}
+            aria-label={t('matchDayOfWeek')}
+          >
+            <div className='text-sm'>{t('matchDayOfWeek')}</div>
+            <Switch
+              checked={ctx.compareAlignWeekdays}
+              onCheckedChange={(checked) => {
+                if (isDisabled) return;
+                actions.setCompareAlignWeekdays(Boolean(checked));
+              }}
+              onClick={(e) => e.stopPropagation()}
+              aria-label={t('matchDayOfWeek')}
+              className='cursor-pointer'
+              disabled={isDisabled}
+            />
+          </div>
+        )}
+      </DisabledDemoTooltip>
     </div>
   );
 

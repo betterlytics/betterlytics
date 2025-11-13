@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/userJourney';
 import { Spinner } from '@/components/ui/spinner';
@@ -19,12 +16,6 @@ type UserJourneyPageParams = {
 };
 
 export default async function UserJourneyPage({ params, searchParams }: UserJourneyPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
   const { startDate, endDate, userJourney, queryFilters } = BAFilterSearchParams.decode(

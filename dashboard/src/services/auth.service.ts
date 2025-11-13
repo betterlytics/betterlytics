@@ -1,15 +1,17 @@
 import * as bcrypt from 'bcrypt';
 import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user';
-import { findDashboardById, findUserDashboard } from '@/repositories/postgres/dashboard';
+import { findDashboardById, findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
-import type { User } from 'next-auth';
+import { type User } from 'next-auth';
 import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/user';
 import { DEFAULT_USER_SETTINGS } from '@/entities/userSettings';
 import { createUserSettings } from '@/repositories/postgres/userSettings';
 import { v4 as uuidv4 } from 'uuid';
-import { AuthContext, AuthContextSchema } from '@/entities/authContext';
+import { AuthContextSchema } from '@/entities/authContext';
 import { UserException } from '@/lib/exceptions';
 import { isValidTotp } from '@/services/totp.service';
+import { notFound } from 'next/navigation';
+import { DashboardFindByUserData } from '@/entities/dashboard';
 
 const SALT_ROUNDS = 10;
 
@@ -112,16 +114,23 @@ export async function registerNewUser(registrationData: RegisterUserData): Promi
   return UserSchema.parse(newUser);
 }
 
-export async function authorizeUserDashboard(userId: string, dashboardId: string): Promise<AuthContext> {
-  const userDashboard = await findUserDashboard({ userId, dashboardId });
-  const dashboard = await findDashboardById(userDashboard.dashboardId);
+export async function getAuthorizedDashboardContextOrNull(data: DashboardFindByUserData) {
+  const result = await findUserDashboardWithDashboardOrNull(data);
 
-  const context: AuthContext = {
-    role: userDashboard.role,
-    userId: userDashboard.userId,
+  if (!result) return null;
+
+  const { dashboardUser, dashboard } = result;
+
+  return AuthContextSchema.parse({
+    role: dashboardUser.role,
+    userId: dashboardUser.userId,
     dashboardId: dashboard.id,
     siteId: dashboard.siteId,
-  };
+    isDemo: false,
+  });
+}
 
-  return AuthContextSchema.parse(context);
+export async function assertPublicDashboardAccess(dashboardId: string): Promise<void> {
+  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) return;
+  notFound();
 }

@@ -5,7 +5,6 @@ import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
@@ -16,7 +15,6 @@ type TrafficSourcesSectionProps = {
 export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }: TrafficSourcesSectionProps) {
   const trafficSourcesCombined = use(trafficSourcesCombinedPromise);
   const t = useTranslations('dashboard');
-  const dashboardId = useDashboardId();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   const onItemClick = (tabKey: string, item: { label: string }) => {
@@ -70,7 +68,7 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
       ]}
       footer={
         <FilterPreservingLink
-          href={`/dashboard/${dashboardId}/referrers`}
+          href='referrers'
           className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
         >
           <span>{t('goTo', { section: t('sidebar.referrers') })}</span>
