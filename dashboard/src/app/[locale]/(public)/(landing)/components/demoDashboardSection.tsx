@@ -7,7 +7,7 @@ export async function DemoDashboardPreview() {
   }
 
   const locale = await getLocale();
-  const demoDashboardPath = `/${locale}/public/${env.DEMO_DASHBOARD_ID}`;
+  const demoDashboardPath = `/${locale}/share/${env.DEMO_DASHBOARD_ID}`;
 
   return (
     <div className='relative w-full'>
