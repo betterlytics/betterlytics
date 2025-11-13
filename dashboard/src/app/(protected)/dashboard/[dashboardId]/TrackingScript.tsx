@@ -17,7 +17,10 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.setAttribute('data-site-id', siteId);
     script.setAttribute('data-server-url', `${PUBLIC_TRACKING_SERVER_ENDPOINT}/track`);
     script.setAttribute('data-scripts-base-url', PUBLIC_ANALYTICS_BASE_URL);
-    script.setAttribute('data-dynamic-urls', '/dashboard/*/funnels/*,/dashboard/*,/share/*/funnels/*,/share/*');
+    script.setAttribute(
+      'data-dynamic-urls',
+      '/dashboard/*/funnels/*,/dashboard/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*,/*/share/*',
+    );
     script.setAttribute('data-outbound-links', 'full');
     script.setAttribute('data-web-vitals', 'true');
     script.setAttribute('data-replay', 'true');
