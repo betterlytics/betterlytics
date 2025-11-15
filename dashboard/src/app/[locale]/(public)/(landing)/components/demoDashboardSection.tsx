@@ -20,7 +20,7 @@ export async function DemoDashboardPreview() {
       {/* Mobile */}
       <div className='relative w-full md:hidden'>
         <div className='relative overflow-hidden rounded-xl'>
-          <div className='relative aspect-[16/9] w-full'>
+          <div className='relative aspect-[16/11] w-full'>
             <Image
               src='/images/demo-dashboard-desktop-light.webp'
               alt='Betterlytics dashboard preview'
