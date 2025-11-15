@@ -21,7 +21,7 @@ const frameworks = [
 export async function FrameworkCompatibility() {
   const t = await getTranslations('public.landing.framework');
   return (
-    <section className='border-border/40 overflow-hidden border-t py-16'>
+    <section className='overflow-visible py-16'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='mb-12 text-center'>
           <h2 className='mb-4 text-2xl font-bold'>{t('title')}</h2>
@@ -29,7 +29,7 @@ export async function FrameworkCompatibility() {
         </div>
 
         <div className='relative overflow-hidden'>
-          <div className='flex animate-[scroll_10s_linear_infinite] space-x-4 hover:[animation-play-state:paused] sm:space-x-6 lg:animate-[scroll_40s_linear_infinite] lg:space-x-8'>
+          <div className='flex w-max animate-[scroll_20s_linear_infinite] space-x-3 will-change-transform hover:[animation-play-state:paused] sm:space-x-6 lg:animate-[scroll_40s_linear_infinite] lg:space-x-8'>
             {frameworks.map((framework) => (
               <div
                 key={`first-${framework.name}`}
