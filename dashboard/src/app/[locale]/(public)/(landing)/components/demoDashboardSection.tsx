@@ -22,12 +22,20 @@ export async function DemoDashboardPreview() {
         <div className='relative overflow-hidden rounded-xl'>
           <div className='relative aspect-[16/9] w-full'>
             <Image
-              src='/images/demo-dashboard-desktop.png'
+              src='/images/demo-dashboard-desktop-light.webp'
               alt='Betterlytics dashboard preview'
               fill
               sizes='100vw'
-              className='object-cover'
-              priority={false}
+              className='object-cover dark:hidden'
+              loading='lazy'
+            />
+            <Image
+              src='/images/demo-dashboard-desktop-dark.webp'
+              alt='Betterlytics dashboard preview'
+              fill
+              sizes='100vw'
+              className='hidden object-cover dark:block'
+              loading='lazy'
             />
             <div
               className='to-background pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent'
