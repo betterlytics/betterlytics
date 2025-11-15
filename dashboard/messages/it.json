@@ -731,28 +731,28 @@
     },
     "landing": {
       "seo": {
-        "title": "Betterlytics | Analisi Web Senza Cookie e Privacy-First",
-        "description": "Betterlytics è un’alternativa open-source a Google Analytics, orientata alla privacy. Ottieni analisi conformi al GDPR senza tracciamento invasivo.",
+        "title": "Betterlytics | Una Migliore Alternativa a Google Analytics",
+        "description": "Betterlytics è una piattaforma di analytics privacy-first e senza cookie — conforme al GDPR, senza cookie, senza tracciamento, senza banner di consenso.",
         "keywords": [
           "Alternativa a Google Analytics",
-          "Analisi Privacy-First",
-          "Analisi Web Senza Cookie",
-          "Analisi Conforme al GDPR",
-          "Piattaforma di Analisi Open Source",
-          "Analisi Amica della Privacy",
-          "Analisi del Traffico Web",
-          "Analisi Visitatori",
-          "Strumento di Analisi Web",
+          "Analytics Senza Cookie",
+          "Analytics Privacy-First",
+          "Analytics Conforme GDPR",
+          "Piattaforma Analytics Open Source",
+          "Analytics Rispetta Privacy",
+          "Analisi Sito Web",
+          "Statistiche Visitatori",
           "Betterlytics"
         ]
       },
       "hero": {
-        "badge": "Open Source • Conforme GDPR • Senza cookie",
-        "titleTop": "Analitiche web",
-        "titleBottom": "privacy-first",
-        "description": "Ottieni insights potenti senza compromettere la privacy dei tuoi utenti. Analitiche conformi al GDPR e senza cookie che rispettano la privacy dell'utente fornendo i dati di cui hai bisogno.",
-        "ctaPrimary": "Inizia gratis",
-        "ctaGithub": "Vedi su GitHub"
+        "titleNonHighlight": "Una Migliore Alternativa a ",
+        "titleHighlight": "Google Analytics",
+        "description": "Analytics privacy-first e senza cookie che rispettano i tuoi visitatori — nessun tracciamento, nessun cookie, nessun banner di consenso.",
+        "ctaPrimary": "Inizia Gratis",
+        "ctaGithub": "Vedi su GitHub",
+        "ctaDemo": "Prova live demo",
+        "eyebrow": "Prova Betterlytics in azione"
       },
       "framework": {
         "title": "Funziona con i tuoi strumenti preferiti",
@@ -777,12 +777,12 @@
             "description": "I tuoi dati rimangono tuoi per sempre. Auto-ospita con la nostra versione open-source o utilizza la nostra infrastruttura cloud sicura."
           },
           "realtime": {
-            "title": "Insights aziendali in tempo reale",
+            "title": "Insights in tempo reale",
             "description": "Tracciamento visitatori velocissimo e analitiche di conversione in tutto il mondo. Belle dashboard ti aiutano a prendere decisioni basate sui dati istantaneamente."
           },
           "lightweight": {
             "title": "Leggero e developer-friendly",
-            "description": "Script sotto 1KB, codebase open-source e API complete. Costruito da sviluppatori, per sviluppatori."
+            "description": "Script sotto 1KB, codebase open-source e documentazione completa. Costruito da sviluppatori, per sviluppatori."
           },
           "simpleSetup": {
             "title": "Configurazione semplice, funzionalità potenti",
@@ -794,8 +794,19 @@
         "titleEmphasis": "Funzionalità potenti",
         "titleRest": "a portata di mano",
         "subtitle": "Esplora l'arsenale completo delle capacità analitiche",
+        "categories": {
+          "analytics": "Analisi e approfondimenti",
+          "engagement": "Coinvolgimento e comportamento",
+          "performance": "Prestazioni e sorgenti"
+        },
         "docsButton": "Esplora tutte le funzionalità",
         "docsTitle": "Documentazione completa Betterlytics"
+      },
+      "ctaStrip": {
+        "eyebrow": "Inizia gratis",
+        "title": "Pronto a provare Betterlytics?",
+        "subtitle": "Crea un account e inizia a tracciare in pochi minuti. Piano gratuito incluso. Nessuna carta di credito.",
+        "primaryCta": "Inizia gratis"
       },
       "integration": {
         "titleStart": "Inizia in",
@@ -845,6 +856,14 @@
           "title": "Filtri avanzati",
           "description": "Taglia e analizza i tuoi dati analitici per qualsiasi dimensione per scoprire insights azionabili."
         },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Monitora e misura le prestazioni del tuo sito con i Core Web Vitals."
+        },
+        "outboundLinks": {
+          "title": "Link in uscita",
+          "description": "Tieni traccia dei clic verso siti esterni, link social, documenti e altro ancora."
+        },
         "trafficSources": {
           "title": "Fonti di traffico",
           "description": "Scopri da dove arrivano i tuoi visitatori e ottimizza i tuoi sforzi di marketing.",
@@ -870,6 +889,13 @@
           "title": "Eventi in tempo reale",
           "description": "Traccia ogni interazione utente mentre accade con logging dettagliato degli eventi.",
           "showing": "Mostrati {loaded} di {total} eventi"
+        },
+        "sessionReplay": {
+          "title": "Replay Sessioni",
+          "description": "Guarda registrazioni anonimizzate e perfette al pixel per individuare rapidamente attriti, clic furiosi e problemi visivi.",
+          "cursorClick": "Clic registrato",
+          "sessionPlayback": "Riproduzione sessione",
+          "playing": "In riproduzione"
         },
         "journeys": {
           "title": "Percorsi utente",
@@ -1039,7 +1065,10 @@
     "loading": "Caricamento...",
     "created": "Creato",
     "unknown": "Sconosciuto",
-    "noChange": "nessuna variazione"
+    "noChange": "nessuna variazione",
+    "good": "Buono",
+    "fair": "Discreto",
+    "poor": "Scarso"
   },
   "languages": {
     "da": "Danish",
@@ -1504,7 +1533,7 @@
       },
       "thresholds": {
         "good": "Buono",
-        "needsImprovement": "Da migliorare"
+        "fair": "Discreto"
       },
       "table": {
         "title": "Analisi prestazioni",
@@ -1540,7 +1569,7 @@
       "info": {
         "aboutMetricAria": "Informazioni sulla metrica",
         "good": "Buono",
-        "needsImprovement": "Da migliorare",
+        "fair": "Discreto",
         "descriptions": {
           "CLS": "Misura la stabilità visiva. CLS cattura quanto il contenuto si sposta inaspettatamente durante il caricamento.",
           "LCP": "Misura le prestazioni di caricamento. LCP è il momento in cui il testo o l'immagine più grande diventa visibile.",

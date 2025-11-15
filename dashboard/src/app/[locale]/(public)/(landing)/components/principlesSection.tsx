@@ -1,10 +1,18 @@
+import type { ReactNode } from 'react';
 import { Shield, Zap, Database, Eye, Code, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
 
 export async function PrinciplesSection() {
   const t = await getTranslations('public.landing.principles');
-  const featureItems = [
+  type FeatureItem = {
+    icon: ReactNode;
+    title: string;
+    description: string;
+    isHiddenOnMobile?: boolean;
+  };
+
+  const featureItems: FeatureItem[] = [
     {
       icon: <Shield className='h-6 w-6' />,
       title: t('features.euGdpr.title'),
@@ -19,6 +27,7 @@ export async function PrinciplesSection() {
       icon: <Database className='h-6 w-6' />,
       title: t('features.dataOwnership.title'),
       description: t('features.dataOwnership.description'),
+      isHiddenOnMobile: true,
     },
     {
       icon: <Eye className='h-6 w-6' />,
@@ -29,15 +38,17 @@ export async function PrinciplesSection() {
       icon: <Zap className='h-6 w-6' />,
       title: t('features.lightweight.title'),
       description: t('features.lightweight.description'),
+      isHiddenOnMobile: true,
     },
     {
       icon: <Code className='h-6 w-6' />,
       title: t('features.simpleSetup.title'),
       description: t('features.simpleSetup.description'),
+      isHiddenOnMobile: true,
     },
   ];
   return (
-    <section id='features' className='py-20'>
+    <section id='features' className='overflow-visible py-20'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
@@ -47,7 +58,7 @@ export async function PrinciplesSection() {
         </div>
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
           {featureItems.map((feature, index) => (
-            <Card key={index} className='dark:metric-card dark:shadow-card-glow'>
+            <Card key={index} className={feature.isHiddenOnMobile ? 'hidden sm:flex' : undefined}>
               <CardHeader>
                 <div className='text-primary mb-2'>{feature.icon}</div>
                 <CardTitle className='text-xl'>{feature.title}</CardTitle>

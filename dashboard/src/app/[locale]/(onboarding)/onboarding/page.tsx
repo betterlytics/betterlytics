@@ -12,6 +12,7 @@ import { getProviders } from 'next-auth/react';
 import OnboardingPage from './OnboardingPage';
 import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
+import { redirect } from 'next/navigation';
 
 export default async function Onboarding() {
   const session = await getServerSession(authOptions);
@@ -56,14 +57,19 @@ export default async function Onboarding() {
   const dashboard = await getFirstDashboard();
 
   const getStep = async () => {
-    if (session) {
-      if (dashboard) {
-        return 'integration';
-      } else {
-        return 'website';
-      }
+    if (!session) {
+      return 'account';
     }
-    return 'account';
+
+    if (!dashboard) {
+      return 'website';
+    }
+
+    if (session.user.onboardingCompletedAt) {
+      redirect('/dashboards');
+    }
+
+    return 'integration';
   };
 
   const providers = await getProviders();

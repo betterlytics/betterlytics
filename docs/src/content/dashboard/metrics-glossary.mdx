@@ -130,7 +130,7 @@ Core Web Vitals are user‑centric performance metrics captured from real users 
 
 **Thresholds:**
 - Good: ≤ 2.5s
-- Needs improvement: ≤ 4.0s
+- Fair: ≤ 4.0s
 - Poor: > 4.0s
 
 ### INP (Interaction to Next Paint)
@@ -138,7 +138,7 @@ Core Web Vitals are user‑centric performance metrics captured from real users 
 
 **Thresholds:**
 - Good: ≤ 200ms
-- Needs improvement: ≤ 500ms
+- Fair: ≤ 500ms
 - Poor: > 500ms
 
 ### CLS (Cumulative Layout Shift)
@@ -146,7 +146,7 @@ Core Web Vitals are user‑centric performance metrics captured from real users 
 
 **Thresholds:**
 - Good: ≤ 0.1
-- Needs improvement: ≤ 0.25
+- Fair: ≤ 0.25
 - Poor: > 0.25
 
 ### FCP (First Contentful Paint)
@@ -154,7 +154,7 @@ Core Web Vitals are user‑centric performance metrics captured from real users 
 
 **Thresholds:**
 - Good: ≤ 1.8s
-- Needs improvement: ≤ 3.0s
+- Fair: ≤ 3.0s
 - Poor: > 3.0s
 
 ### TTFB (Time to First Byte)
@@ -162,13 +162,13 @@ Core Web Vitals are user‑centric performance metrics captured from real users 
 
 **Thresholds:**
 - Good: ≤ 800ms
-- Needs improvement: ≤ 1.8s
+- Fair: ≤ 1.8s
 - Poor: > 1.8s
 
 ### Composite score
 **Definition:** A weighted blend (0–100) that summarizes multiple Web Vitals into a single value at each percentile (p50/p75/p90/p99).
 
-- Each metric (LCP, INP, CLS, FCP, TTFB) is first mapped to a 0–100 score using the same Good/Needs improvement/Poor thresholds shown above.
+- Each metric (LCP, INP, CLS, FCP, TTFB) is first mapped to a 0–100 score using the same Good/Fair/Poor thresholds shown above.
 - We then compute a weighted average to prioritize user‑impacting metrics:
   - LCP: 0.30
   - INP: 0.30
