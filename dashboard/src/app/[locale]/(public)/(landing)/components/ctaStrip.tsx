@@ -18,7 +18,7 @@ export async function CtaStrip() {
         <div className='flex flex-col justify-center gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4'>
           <Link
             href='/onboarding'
-            className='group inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-md shadow-blue-600/20 transition-colors duration-150 hover:bg-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none'
+            className='group from-primary/80 to-primary hover:from-primary/70 hover:to-primary/70 inline-flex items-center justify-center rounded-lg bg-gradient-to-r px-6 py-3 text-base font-medium text-white shadow-md shadow-blue-600/20 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none'
             aria-label={t('primaryCta')}
           >
             {t('primaryCta')}
