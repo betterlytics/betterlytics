@@ -29,7 +29,7 @@ export async function FrameworkCompatibility() {
         </div>
 
         <div className='relative overflow-hidden'>
-          <div className='flex animate-[scroll_10s_linear_infinite] space-x-4 hover:[animation-play-state:paused] sm:space-x-6 lg:animate-[scroll_40s_linear_infinite] lg:space-x-8'>
+          <div className='flex w-max animate-[scroll_20s_linear_infinite] space-x-3 will-change-transform hover:[animation-play-state:paused] sm:space-x-6 lg:animate-[scroll_40s_linear_infinite] lg:space-x-8'>
             {frameworks.map((framework) => (
               <div
                 key={`first-${framework.name}`}
