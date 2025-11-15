@@ -16,12 +16,12 @@ export async function DemoDashboardPreview() {
         aria-hidden
       />
 
-      <div className='border-border/40 bg-background/95 relative w-full rounded-[2rem] border shadow-[0_40px_120px_-45px_rgba(37,99,235,0.45)] backdrop-blur-xl dark:shadow-[0_40px_120px_-45px_rgba(59,130,246,0.25)]'>
+      <div className='relative w-full rounded-[2rem] bg-white/10 p-2 shadow-[0_40px_120px_-45px_rgba(37,99,235,0.45)] ring-1 ring-white/20 backdrop-blur-xl supports-[backdrop-filter]:bg-white/10 sm:p-3 md:p-4 dark:bg-white/5 dark:shadow-[0_40px_120px_-45px_rgba(59,130,246,0.25)] dark:ring-white/10'>
         <div
-          className='pointer-events-none absolute inset-0 rounded-[2rem] border border-white/10 opacity-30 mix-blend-overlay dark:border-white/5'
+          className='pointer-events-none absolute inset-0 rounded-[2rem] border border-white/20 opacity-60 mix-blend-overlay dark:border-white/10'
           aria-hidden
         />
-        <div className='border-border/40 bg-background relative overflow-hidden rounded-[1.9rem] border shadow-inner shadow-blue-500/5'>
+        <div className='border-border/40 bg-background/95 relative overflow-hidden rounded-[1.5rem] border shadow-inner shadow-blue-500/5'>
           <div className='relative h-[75svh] w-full md:aspect-[16/9] md:h-auto'>
             <iframe
               allowFullScreen // This is required to allow fullscreen functionality for session replays
