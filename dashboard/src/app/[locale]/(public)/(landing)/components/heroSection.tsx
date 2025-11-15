@@ -43,7 +43,7 @@ export async function HeroSection() {
                   target='_blank'
                   rel='noopener noreferrer'
                 >
-                  View live demo
+                  {t('ctaDemo')}
                   <ArrowUpRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
@@ -70,7 +70,7 @@ export async function HeroSection() {
           {demoDashboardPath ? (
             <div className='max-w-8xl mx-auto mt-16 w-full sm:mt-18'>
               <p className='text-muted-foreground mb-6 text-xs font-semibold tracking-[0.3em] uppercase'>
-                Try Betterlytics in action
+                {t('eyebrow')}
               </p>
               <DemoDashboardPreview />
             </div>

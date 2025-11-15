@@ -751,9 +751,8 @@
         "titleHighlight": "Google Analytics",
         "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
         "ctaPrimary": "Get Started for Free",
-        "ctaGithub": "View on GitHub"
-      },
-      "demo": {
+        "ctaGithub": "View on GitHub",
+        "ctaDemo": "View live demo",
         "eyebrow": "Try Betterlytics in action"
       },
       "framework": {
