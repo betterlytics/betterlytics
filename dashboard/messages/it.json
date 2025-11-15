@@ -750,9 +750,8 @@
         "titleHighlight": "Google Analytics",
         "description": "Analytics privacy-first e senza cookie che rispettano i tuoi visitatori — nessun tracciamento, nessun cookie, nessun banner di consenso.",
         "ctaPrimary": "Inizia Gratis",
-        "ctaGithub": "Vedi su GitHub"
-      },
-      "demo": {
+        "ctaGithub": "Vedi su GitHub",
+        "ctaDemo": "Prova live demo",
         "eyebrow": "Prova Betterlytics in azione"
       },
       "framework": {

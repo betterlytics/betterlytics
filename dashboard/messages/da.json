@@ -750,9 +750,8 @@
         "titleHighlight": "Google Analytics",
         "description": "Privatlivsvenlig, cookieløs webanalyse, der respekterer dine besøgende — ingen tracking, ingen cookies, ingen samtykkebannere.",
         "ctaPrimary": "Kom i Gang Gratis",
-        "ctaGithub": "Se på GitHub"
-      },
-      "demo": {
+        "ctaGithub": "Se på GitHub",
+        "ctaDemo": "Prøv live demo",
         "eyebrow": "Prøv Betterlytics i aktion"
       },
       "framework": {
