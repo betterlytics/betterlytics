@@ -1,5 +1,6 @@
 import { env } from '@/lib/env';
 import { getLocale } from 'next-intl/server';
+import Image from 'next/image';
 
 export async function DemoDashboardPreview() {
   if (!env.DEMO_DASHBOARD_ID) {
@@ -16,15 +17,36 @@ export async function DemoDashboardPreview() {
         aria-hidden
       />
 
-      <div className='relative w-full rounded-[2rem] bg-white/10 p-2 shadow-[0_40px_120px_-45px_rgba(37,99,235,0.45)] ring-1 ring-white/20 backdrop-blur-xl supports-[backdrop-filter]:bg-white/10 sm:p-3 md:p-4 dark:bg-white/5 dark:shadow-[0_40px_120px_-45px_rgba(59,130,246,0.25)] dark:ring-white/10'>
+      {/* Mobile */}
+      <div className='relative w-full md:hidden'>
+        <div className='relative overflow-hidden rounded-xl'>
+          <div className='relative aspect-[16/9] w-full'>
+            <Image
+              src='/images/demo-dashboard-desktop.png'
+              alt='Betterlytics dashboard preview'
+              fill
+              sizes='100vw'
+              className='object-cover'
+              priority={false}
+            />
+            <div
+              className='to-background pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent'
+              aria-hidden
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop */}
+      <div className='relative hidden w-full rounded-[2rem] bg-white/10 p-2 shadow-[0_40px_120px_-45px_rgba(37,99,235,0.45)] ring-1 ring-white/20 backdrop-blur-xl supports-[backdrop-filter]:bg-white/10 sm:p-3 md:block md:p-4 dark:bg-white/5 dark:shadow-[0_40px_120px_-45px_rgba(59,130,246,0.25)] dark:ring-white/10'>
         <div
           className='pointer-events-none absolute inset-0 rounded-[2rem] border border-white/20 opacity-60 mix-blend-overlay dark:border-white/10'
           aria-hidden
         />
         <div className='border-border/40 bg-background/95 relative overflow-hidden rounded-[1.5rem] border shadow-inner shadow-blue-500/5'>
-          <div className='relative h-[75svh] w-full md:aspect-[16/9] md:h-auto'>
+          <div className='relative aspect-[16/9] w-full'>
             <iframe
-              allowFullScreen // This is required to allow fullscreen functionality for session replays
+              allowFullScreen
               src={demoDashboardPath}
               title='Betterlytics live demo'
               loading='lazy'

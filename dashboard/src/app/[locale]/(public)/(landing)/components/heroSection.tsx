@@ -69,7 +69,7 @@ export async function HeroSection() {
           <GitHubStats />
           {demoDashboardPath ? (
             <div className='max-w-8xl mx-auto mt-16 w-full sm:mt-18'>
-              <p className='text-muted-foreground mb-6 text-xs font-semibold tracking-[0.3em] uppercase'>
+              <p className='text-muted-foreground mb-6 hidden text-xs font-semibold tracking-[0.3em] uppercase sm:block'>
                 {t('eyebrow')}
               </p>
               <DemoDashboardPreview />
