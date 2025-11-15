@@ -61,27 +61,6 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     }, [formatValue]);
     const isMobile = useIsMobile();
 
-    const renderRefLabel = (text: string, fill?: string) => (props: any) => {
-      const vb = (props && props.viewBox) || {};
-      const x = (vb.x ?? 0) + (isMobile ? 32 : 8);
-      const y = (vb.y ?? 0) - 8;
-      const textFill = fill ?? 'var(--muted-foreground)';
-      return (
-        <g>
-          <text
-            x={x}
-            y={y}
-            fill={textFill}
-            fontSize={12}
-            textAnchor='start'
-            style={{ paintOrder: 'stroke', stroke: 'var(--background)', strokeWidth: 3 }}
-          >
-            {text}
-          </text>
-        </g>
-      );
-    };
-
     return (
       <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
         {(title || headerRight) && (
@@ -149,7 +128,11 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     y={r.y}
                     stroke={r.stroke ?? 'var(--chart-comparison)'}
                     strokeDasharray={r.strokeDasharray ?? '4 4'}
-                    label={r.label ? renderRefLabel(r.label, r.labelFill ?? r.stroke) : undefined}
+                    label={
+                      r.label ? (
+                        <ReferenceLineLabel text={r.label} fill={r.labelFill ?? r.stroke} isMobile={isMobile} />
+                      ) : undefined
+                    }
                   />
                 ))}
               </ComposedChart>
@@ -161,6 +144,35 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
   },
 );
 
+type ReferenceLineLabelProps = {
+  text: string;
+  fill?: string;
+  isMobile: boolean;
+  viewBox?: any;
+};
+
+const ReferenceLineLabel: React.FC<ReferenceLineLabelProps> = ({ text, fill, isMobile, viewBox }) => {
+  const vb = viewBox || {};
+  const x = (vb.x ?? 0) + (isMobile ? 32 : 8);
+  const y = (vb.y ?? 0) - 8;
+  const textFill = fill ?? 'var(--muted-foreground)';
+  return (
+    <g>
+      <text
+        x={x}
+        y={y}
+        fill={textFill}
+        fontSize={12}
+        textAnchor='start'
+        style={{ paintOrder: 'stroke', stroke: 'var(--background)', strokeWidth: 3 }}
+      >
+        {text}
+      </text>
+    </g>
+  );
+};
+
+ReferenceLineLabel.displayName = 'ReferenceLineLabel';
 MultiSeriesChart.displayName = 'MultiSeriesChart';
 
 export default MultiSeriesChart;
