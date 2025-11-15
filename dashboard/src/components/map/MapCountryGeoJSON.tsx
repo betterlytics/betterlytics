@@ -83,7 +83,7 @@ export default function MapCountryGeoJSON({
         },
       });
     },
-    [size, style, visitorData, locale],
+    [size, style.borderColorScale, style.fillColorScale, visitorData, locale],
   );
 
   return (

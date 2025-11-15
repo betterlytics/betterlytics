@@ -1,12 +1,12 @@
 'use client';
 
 import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
-import { ScaleLinear, scaleLinear } from 'd3-scale';
-import 'leaflet/dist/leaflet.css';
-import { type JSX, useCallback, useMemo } from 'react';
+import { ScaleLinear } from 'd3-scale';
 import type { PathOptions } from 'leaflet';
+import { type JSX, useCallback, useMemo } from 'react';
+import { ColorScale, useColorScale, UseColorScaleProps } from '@/hooks/use-color-scale';
 
-export type UseMapStyleProps = { calculatedMaxVisitors: number };
+export type UseMapStyleProps = Omit<UseColorScaleProps, 'colors'>;
 export type FeatureStyle = PathOptions;
 export type MapColorScale = ScaleLinear<string, string, never>;
 
@@ -14,44 +14,56 @@ export interface MapStyle {
   originalStyle: (visitors: number) => FeatureStyle;
   selectedStyle: (visitors: number) => FeatureStyle;
   hoveredStyle: (visitors: number) => FeatureStyle;
-  colorScale: MapColorScale;
-  featureBorderColorScale: MapColorScale;
   LeafletCSS: JSX.Element;
+  fillColorScale: ColorScale | null;
+  borderColorScale: ColorScale | null;
 }
 
-export function useMapStyle({ calculatedMaxVisitors }: UseMapStyleProps): MapStyle {
-  const colorScale = useMemo(() => {
-    return scaleLinear<string>()
-      .domain([0, 1, calculatedMaxVisitors])
-      .range([MAP_VISITOR_COLORS.NO_VISITORS, MAP_VISITOR_COLORS.LOW_VISITORS, MAP_VISITOR_COLORS.HIGH_VISITORS]);
-  }, [calculatedMaxVisitors]);
+export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle | null {
+  const fillColorScale = useColorScale({
+    maxVisitors,
+    scaleType,
+    colors: [
+      MAP_VISITOR_COLORS.LOW_VISITORS,
+      MAP_VISITOR_COLORS.MEDIUM_VISITORS,
+      MAP_VISITOR_COLORS.HIGH_VISITORS,
+    ],
+  });
 
-  const featureBorderColorScale = useMemo(() => {
-    return scaleLinear<string>()
-      .domain([0, 1, calculatedMaxVisitors])
-      .range([
-        MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
-        MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
-        MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
-      ]);
-  }, [calculatedMaxVisitors]);
+  const borderColorScale = useColorScale({
+    maxVisitors,
+    scaleType,
+    colors: [
+      MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
+      MAP_FEATURE_BORDER_COLORS.MEDIUM_VISITORS,
+      MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
+    ],
+  });
 
   const originalStyle = useCallback(
     (visitors: number) => ({
-      fillColor: colorScale(visitors),
-      color: featureBorderColorScale(visitors),
-      weight: visitors ? 1.5 : 1.4,
+      ...(visitors
+        ? {
+            fillColor: fillColorScale?.(visitors) ?? MAP_VISITOR_COLORS.NO_VISITORS,
+            color: borderColorScale?.(visitors) ?? MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
+            weight: 0.6,
+          }
+        : {
+            fillColor: MAP_VISITOR_COLORS.NO_VISITORS,
+            color: MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
+            weight: 0.5,
+          }),
       fillOpacity: 0.8,
       opacity: 1,
     }),
-    [featureBorderColorScale, colorScale],
+    [fillColorScale, borderColorScale],
   );
 
   const selectedStyle = useCallback(
     (visitors: number) => ({
       ...originalStyle(visitors),
       color: MAP_FEATURE_BORDER_COLORS.CLICKED,
-      weight: 2,
+      weight: 1.5,
       fillOpacity: 1,
     }),
     [originalStyle],
@@ -102,5 +114,5 @@ export function useMapStyle({ calculatedMaxVisitors }: UseMapStyleProps): MapSty
     );
   }, []);
 
-  return { originalStyle, selectedStyle, hoveredStyle, colorScale, featureBorderColorScale, LeafletCSS };
+  return { originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale };
 }

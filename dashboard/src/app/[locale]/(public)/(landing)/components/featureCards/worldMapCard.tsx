@@ -35,6 +35,7 @@ export default async function WorldMapCard() {
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
           <LeafletMap
             visitorData={MOCK_WORLD_GEOVISITORS}
+            colorScaleType='linear'
             showZoomControls={false}
             showLegend={false}
             initialZoom={1}
@@ -50,7 +51,7 @@ export default async function WorldMapCard() {
                 <CountryCol
                   key={MOCK_WORLD_GEOVISITORS[i].country_code}
                   geoVisitor={MOCK_WORLD_GEOVISITORS[i]}
-                  locale={locale}
+                  locale={locale as SupportedLanguages}
                 />
               ))}
             </div>
