@@ -14,34 +14,34 @@ export async function PrinciplesSection() {
 
   const featureItems: FeatureItem[] = [
     {
-      icon: <Shield className='h-6 w-6' />,
+      icon: <Shield className='h-5 w-5' />,
       title: t('features.euGdpr.title'),
       description: t('features.euGdpr.description'),
     },
     {
-      icon: <CheckCircle className='h-6 w-6' />,
+      icon: <CheckCircle className='h-5 w-5' />,
       title: t('features.noConsent.title'),
       description: t('features.noConsent.description'),
     },
     {
-      icon: <Database className='h-6 w-6' />,
+      icon: <Database className='h-5 w-5' />,
       title: t('features.dataOwnership.title'),
       description: t('features.dataOwnership.description'),
       isHiddenOnMobile: true,
     },
     {
-      icon: <Eye className='h-6 w-6' />,
+      icon: <Eye className='h-5 w-5' />,
       title: t('features.realtime.title'),
       description: t('features.realtime.description'),
     },
     {
-      icon: <Zap className='h-6 w-6' />,
+      icon: <Zap className='h-5 w-5' />,
       title: t('features.lightweight.title'),
       description: t('features.lightweight.description'),
       isHiddenOnMobile: true,
     },
     {
-      icon: <Code className='h-6 w-6' />,
+      icon: <Code className='h-5 w-5' />,
       title: t('features.simpleSetup.title'),
       description: t('features.simpleSetup.description'),
       isHiddenOnMobile: true,
@@ -58,10 +58,13 @@ export async function PrinciplesSection() {
         </div>
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
           {featureItems.map((feature, index) => (
-            <Card key={index} className={feature.isHiddenOnMobile ? 'hidden sm:flex' : undefined}>
-              <CardHeader>
+            <Card
+              key={index}
+              className={`${feature.isHiddenOnMobile ? 'hidden sm:flex' : ''} bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 relative overflow-hidden border shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""]`}
+            >
+              <CardHeader className='pb-2'>
                 <div className='text-primary mb-2'>{feature.icon}</div>
-                <CardTitle className='text-xl'>{feature.title}</CardTitle>
+                <CardTitle className='text-lg font-semibold tracking-tight'>{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className='text-base'>{feature.description}</CardDescription>

@@ -164,7 +164,7 @@ export default async function CoreWebVitalsCard() {
   };
 
   return (
-    <Card className='gap-0'>
+    <Card className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 relative gap-0 overflow-hidden border shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""]'>
       <CardHeader className='pb-0'>
         <CardTitle className='text-xl'>{t('title')}</CardTitle>
         <CardDescription className='text-base'>{t('description')}</CardDescription>

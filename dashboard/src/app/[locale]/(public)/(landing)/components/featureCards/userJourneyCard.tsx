@@ -71,7 +71,7 @@ export default async function UserJourneyCard() {
   } as const;
 
   return (
-    <Card>
+    <Card className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 before:content-["" overflow-hidden border shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent supports-[backdrop-filter]:backdrop-blur-[2px]'>
       <CardHeader className='pb-3 md:pb-1'>
         <CardTitle className='text-xl'>{t('title')}</CardTitle>
         <CardDescription className='text-base'>{t('description')}</CardDescription>

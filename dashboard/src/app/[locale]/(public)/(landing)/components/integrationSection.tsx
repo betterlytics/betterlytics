@@ -8,13 +8,13 @@ export async function IntegrationSection() {
   const t = await getTranslations('public.landing.integration');
   const integrationMethods = [
     {
-      icon: <Code className='h-8 w-8' />,
+      icon: <Code className='h-6 w-6' />,
       title: t('cards.script.title'),
       description: t('cards.script.description'),
       features: [t('cards.script.features.f1'), t('cards.script.features.f2'), t('cards.script.features.f3')],
     },
     {
-      icon: <Zap className='h-8 w-8' />,
+      icon: <Zap className='h-6 w-6' />,
       title: t('cards.framework.title'),
       description: t('cards.framework.description'),
       features: [
@@ -24,7 +24,7 @@ export async function IntegrationSection() {
       ],
     },
     {
-      icon: <Shield className='h-8 w-8' />,
+      icon: <Shield className='h-6 w-6' />,
       title: t('cards.selfHosted.title'),
       description: t('cards.selfHosted.description'),
       features: [
@@ -47,7 +47,10 @@ export async function IntegrationSection() {
 
         <div className='mx-auto grid max-w-6xl gap-8 md:grid-cols-3'>
           {integrationMethods.map((method, index) => (
-            <Card key={index} className='flex h-full flex-col text-center'>
+            <Card
+              key={index}
+              className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 flex h-full flex-col border text-center shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""] supports-[backdrop-filter]:backdrop-blur-[2px]'
+            >
               <CardHeader className='flex flex-col items-center'>
                 <div className='text-primary mx-auto mb-4'>{method.icon}</div>
                 <CardTitle className='text-xl'>{method.title}</CardTitle>

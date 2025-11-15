@@ -118,7 +118,7 @@ export default async function EventTrackingCard() {
   );
 
   return (
-    <Card className='relative overflow-hidden pb-3'>
+    <Card className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 overflow-hidden border pb-3 shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""] supports-[backdrop-filter]:backdrop-blur-[2px]'>
       <CardHeader className='pb-0'>
         <CardTitle className='flex items-center gap-3 text-xl'>
           <div className='bg-muted/50 border-border/30 relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border'>
