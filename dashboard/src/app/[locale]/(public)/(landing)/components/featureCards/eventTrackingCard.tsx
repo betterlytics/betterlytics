@@ -131,7 +131,15 @@ export default async function EventTrackingCard() {
       </CardHeader>
 
       <CardContent className='flex flex-col p-0'>
-        <ScrollArea className='max-h-[320px] sm:max-h-[360px]'>
+        {/* For mobile we just show top 2 items to avoid disruptive scroll */}
+        <div className='sm:hidden'>
+          <div className='divide-border/60 divide-y'>
+            {mockEvents.slice(0, 2).map(({ event, icon }, index) => (
+              <EventLogItem key={`${event.timestamp}-${index}`} event={event} icon={icon} />
+            ))}
+          </div>
+        </div>
+        <ScrollArea className='hidden max-h-[320px] sm:block sm:max-h-[360px]'>
           <div className='divide-border/60 divide-y'>
             {mockEvents.map(({ event, icon }, index) => (
               <EventLogItem key={`${event.timestamp}-${index}`} event={event} icon={icon} />
@@ -140,7 +148,10 @@ export default async function EventTrackingCard() {
         </ScrollArea>
 
         <div className='border-border/60 border-t px-6 pt-3'>
-          <div className='text-muted-foreground text-center text-xs'>
+          <div className='text-muted-foreground text-center text-xs sm:hidden'>
+            {t('showing', { loaded: 2, total: 1247 })}
+          </div>
+          <div className='text-muted-foreground hidden text-center text-xs sm:block'>
             {t('showing', { loaded: 7, total: 1247 })}
           </div>
         </div>
