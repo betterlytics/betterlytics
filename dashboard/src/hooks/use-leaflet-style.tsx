@@ -46,12 +46,12 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseM
         ? {
             fillColor: fillColorScale?.(visitors) ?? MAP_VISITOR_COLORS.NO_VISITORS,
             color: borderColorScale?.(visitors) ?? MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
-            weight: 1.0,
+            weight: 1.5,
           }
         : {
             fillColor: MAP_VISITOR_COLORS.NO_VISITORS,
             color: MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
-            weight: 0.8,
+            weight: 0.7,
           }),
       fillOpacity: 0.8,
       opacity: 1,
@@ -63,7 +63,7 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseM
     (visitors: number) => ({
       ...originalStyle(visitors),
       color: MAP_FEATURE_BORDER_COLORS.CLICKED,
-      weight: 1.5,
+      weight: 2.2,
       fillOpacity: 1,
     }),
     [originalStyle],
@@ -71,10 +71,12 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseM
 
   const hoveredStyle = useCallback(
     (visitors: number) => ({
-      ...selectedStyle(visitors),
+      ...originalStyle(visitors),
       color: MAP_FEATURE_BORDER_COLORS.HOVERED,
+      weight: 2.0,
+      fillOpacity: 1,
     }),
-    [selectedStyle],
+    [originalStyle],
   );
 
   const LeafletCSS = useMemo(() => {

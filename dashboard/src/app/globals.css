@@ -108,12 +108,12 @@
 
   --flagicon-border: oklch(0.5 0 0 / 0.5);
 
-  --map-feature-border-low: oklch(90% 0.118 268.64);
+  --map-feature-border-low: oklch(86.058% 0.05926 254.014);
   --map-feature-border-medium: oklch(68% 0.17 268.71);
   --map-feature-border-high: oklch(52% 0.222 268.78);
   --map-feature-border-hovered: #cce6cc; /* Green */
   --map-feature-border-clicked: #ffc067; /* Orange */
-  --map-feature-border-none: oklch(86.7% 0% 89.876);
+  --map-feature-border-none: oklch(90.443% 0.00106 11.851);
 
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
@@ -185,12 +185,12 @@
 
   --flagicon-border: oklch(68.273% 0.0186 267.741 / 0.281);
 
-  --map-feature-border-low: oklch(85% 0.118 268.64);
+  --map-feature-border-low: oklch(80.857% 0.08018 262.633);
   --map-feature-border-medium: oklch(61% 0.17 268.71);
   --map-feature-border-high: oklch(46% 0.222 268.78);
   --map-feature-border-hovered: #cce6cc;
   --map-feature-border-clicked: #ffc067; /* Orange */
-  --map-feature-border-none: oklch(86.7% 0% 89.876);
+  --map-feature-border-none: oklch(93.403% 0.00011 271.152);
 
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
