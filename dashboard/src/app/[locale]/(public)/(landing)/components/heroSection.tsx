@@ -8,7 +8,7 @@ import { DemoDashboardPreview } from './demoDashboardSection';
 
 export async function HeroSection() {
   const t = await getTranslations('public.landing.hero');
-  const demoDashboardPath = env.DEMO_DASHBOARD_ID ? `/public/${env.DEMO_DASHBOARD_ID}` : null;
+  const demoDashboardPath = env.DEMO_DASHBOARD_ID ? `/share/${env.DEMO_DASHBOARD_ID}` : null;
 
   return (
     <section className='relative overflow-visible pt-20 pb-24 sm:pt-36 sm:pb-32'>
