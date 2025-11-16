@@ -52,7 +52,7 @@ export default function MapCountryGeoJSON({
 
       const geoVisitorWithComparison: GeoVisitorWithCompare = {
         ...geoVisitor,
-        compareVisitors: compareData.length === 0 ? undefined : (compareVisitor?.visitors ?? 0),
+        compareVisitors: timeRangeCtx.compareMode === 'off' ? undefined : (compareVisitor?.visitors ?? 0),
       };
 
       const popupContainer = document.createElement('div');
