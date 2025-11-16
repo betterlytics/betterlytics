@@ -1,12 +1,6 @@
 import { registerOTel } from '@vercel/otel';
-import { env } from './lib/env';
 
-export function register() {
-  if (!env.ENABLE_MONITORING) return;
-  if (!env.OTEL_SERVICE_NAME) throw new Error('OTEL_SERVICE_NAME is not set');
-
-  registerOTel({ serviceName: env.OTEL_SERVICE_NAME });
-
+export async function register() {
   /*
    * This if() check is required to prevent the instrumentation from compiling for edge runtime
    * It took me a very long time to figure this out, but
@@ -16,6 +10,11 @@ export function register() {
    */
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { env } = await import('@/lib/env');
+
+    if (!env.ENABLE_MONITORING) return;
+    if (!env.OTEL_SERVICE_NAME) throw new Error('OTEL_SERVICE_NAME is not set');
+
+    registerOTel({ serviceName: env.OTEL_SERVICE_NAME });
 
     if (!env.REDIS_URL) {
       console.log('Redis URL is not set, skipping dashboard config reconciliation');
