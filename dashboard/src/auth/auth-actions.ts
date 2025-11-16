@@ -55,7 +55,8 @@ async function withActionSpan<T>(
       const err = e as Error;
       span.recordException(err);
       span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
-      throw err;
+      // Mask the UI-facing error
+      throw new Error('An error occurred');
     } finally {
       span.end();
     }
@@ -168,14 +169,7 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
         'ba.site.id': context.siteId,
         'ba.auth.is_demo': context.isDemo,
       },
-      async () => {
-        try {
-          return await executeWithCachingIfDemo(context, action, args);
-        } catch (e) {
-          console.error('Error occurred:', e);
-          throw new Error('An error occurred');
-        }
-      },
+      async () => await executeWithCachingIfDemo(context, action, args),
     );
   };
 }
@@ -195,14 +189,7 @@ export function withDashboardMutationAuthContext<Args extends Array<unknown> = u
         'ba.site.id': context.siteId,
         'ba.auth.is_demo': context.isDemo,
       },
-      async () => {
-        try {
-          return await action(context, ...args);
-        } catch (e) {
-          console.error('Error occurred:', e);
-          throw new Error('An error occurred');
-        }
-      },
+      async () => await action(context, ...args),
     );
   };
 }
