@@ -31,15 +31,18 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
 import type { ReactElement } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
+import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { DashboardDropdown } from './DashboardDropdown';
 
 import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { Dashboard } from '@/entities/dashboard';
 
 type BASidebarProps = {
   dashboardId: string;
+  isDemo: boolean;
 };
 
 type SidebarItem = {
@@ -51,9 +54,19 @@ type SidebarItem = {
   hideOnMobile?: boolean;
 };
 
-export default async function BASidebar({ dashboardId }: BASidebarProps) {
-  const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
-  const allDashboardsPromise = getAllUserDashboardsAction();
+export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps) {
+  const currentDashboardPromise: Promise<Dashboard> = isDemo
+    ? Promise.resolve({
+        id: dashboardId,
+        siteId: 'demo',
+        domain: 'Demo Dashboard',
+      })
+    : getCurrentDashboardAction(dashboardId);
+
+  const allDashboardsPromise: Promise<ServerActionResponse<Dashboard[]>> = !isDemo
+    ? getAllUserDashboardsAction()
+    : currentDashboardPromise.then((d) => ({ success: true, data: [d] }));
+
   const t = await getTranslations('dashboard.sidebar');
 
   const analyticsItems: SidebarItem[] = [
@@ -68,7 +81,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
     },
     { name: t('geography'), key: 'geography', href: '/geography', icon: <Globe size={18} /> },
     { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={18} /> },
-    { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} /> },
+    { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} />, hidden: isDemo },
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
   ];
 
@@ -81,7 +94,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
       key: 'sessionReplay',
       href: '/replay',
       icon: <Video size={18} />,
-      hidden: !isFeatureEnabled('enableSessionReplay'),
+      hidden: !isFeatureEnabled('enableSessionReplay') || isDemo,
       hideOnMobile: true,
     },
   ];
@@ -124,7 +137,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
                 .map((item) => (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton asChild>
-                      <FilterPreservingLink href={`/dashboard/${dashboardId}${item.href}`} highlightOnPage>
+                      <FilterPreservingLink href={item.href} highlightOnPage>
                         <span>{item.icon}</span>
                         <span>{item.name}</span>
                       </FilterPreservingLink>
@@ -148,7 +161,7 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
                   >
                     <SidebarMenuButton asChild>
                       <FilterPreservingLink
-                        href={`/dashboard/${dashboardId}${item.href}`}
+                        href={item.href}
                         highlightOnPage
                         className='flex items-center justify-between'
                       >
@@ -167,10 +180,12 @@ export default async function BASidebar({ dashboardId }: BASidebarProps) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu className='gap-2'>
-          <IntegrationButton />
-          <SettingsButton />
-        </SidebarMenu>
+        {!isDemo && (
+          <SidebarMenu className='gap-2'>
+            <IntegrationButton />
+            <SettingsButton />
+          </SidebarMenu>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

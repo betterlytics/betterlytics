@@ -1,20 +1,11 @@
-import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
-import BASidebar from '@/components/sidebar/BASidebar';
 import { DashboardProvider } from './DashboardProvider';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
-import { TrackingScript } from './TrackingScript';
-import { fetchSiteId, getCurrentDashboardAction } from '@/app/actions';
+import { getCurrentDashboardAction } from '@/app/actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
-import { IntegrationManager } from './IntegrationManager';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
 import { getUserBillingData } from '@/actions/billing';
 import { Suspense } from 'react';
-import BATopbar from '@/components/topbar/BATopbar';
-import ScrollReset from '@/components/ScrollReset';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
@@ -23,6 +14,12 @@ import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
+import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
+import { DashboardFindByUserSchema } from '@/entities/dashboard';
+import { env } from '@/lib/env';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -38,17 +35,18 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
   const { dashboardId } = await params;
 
-  const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
-  const billingEnabled = isClientFeatureEnabled('enableBilling');
-  let siteId: string | null = null;
+  const authCtx = await getAuthorizedDashboardContextOrNull(
+    DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
+  );
 
-  if (shouldEnableTracking) {
-    try {
-      siteId = await fetchSiteId(dashboardId);
-    } catch (error) {
-      console.error('Failed to fetch site ID for tracking:', error);
+  if (!authCtx) {
+    if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
+      redirect(`/share/${dashboardId}`);
     }
+    redirect('/signin');
   }
+
+  const billingEnabled = isClientFeatureEnabled('enableBilling');
 
   let billingDataPromise;
   if (billingEnabled) {
@@ -63,37 +61,29 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardProvider>
-        <section>
-          <BATopbar />
-          <SidebarProvider>
-            <BASidebar dashboardId={dashboardId} />
-            <BAMobileSidebarTrigger />
-            <main className='bg-background w-full overflow-x-hidden'>
-              <BannerProvider>
-                <ScrollReset />
-                {billingEnabled && billingDataPromise && (
-                  <Suspense fallback={null}>
-                    <UsageAlertBanner billingDataPromise={billingDataPromise} />
-                    <UsageExceededBanner billingDataPromise={billingDataPromise} />
-                  </Suspense>
-                )}
-                {isFeatureEnabled('enableAccountVerification') && (
-                  <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
-                )}
-                <Suspense>
-                  <IntegrationBanner />
-                </Suspense>
-                <div className='flex w-full justify-center'>{children}</div>
-                {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
-              </BannerProvider>
-            </main>
-            {/* Conditionally render tracking script based on server-side feature flag */}
-            {shouldEnableTracking && siteId && <TrackingScript siteId={siteId} />}
+        <DashboardLayoutShell
+          dashboardId={dashboardId}
+          isDemo={false}
+          basePath={'/dashboard'}
+          includeIntegrationManager={true}
+        >
+          <BannerProvider>
+            {billingEnabled && billingDataPromise && (
+              <Suspense fallback={null}>
+                <UsageAlertBanner billingDataPromise={billingDataPromise} />
+                <UsageExceededBanner billingDataPromise={billingDataPromise} />
+              </Suspense>
+            )}
+            {isFeatureEnabled('enableAccountVerification') && (
+              <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
+            )}
             <Suspense>
-              <IntegrationManager />
+              <IntegrationBanner />
             </Suspense>
-          </SidebarProvider>
-        </section>
+            <div className='flex w-full justify-center'>{children}</div>
+            {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+          </BannerProvider>
+        </DashboardLayoutShell>
       </DashboardProvider>
     </PublicEnvironmentVariablesProvider>
   );

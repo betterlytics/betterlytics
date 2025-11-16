@@ -158,6 +158,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
         AND event_type = 'cwv'
         AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
         AND ${SQL.AND(filters)}
+        AND key IS NOT NULL
         AND pair.2 IS NOT NULL
     )
     SELECT

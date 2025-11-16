@@ -15,6 +15,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { DisabledDemoTooltip } from '../tooltip/DisabledDemoTooltip';
+import { useIsEmbedded } from '@/hooks/use-is-embedded';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
@@ -26,13 +29,15 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
   const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.sidebar.dashboardDropdown');
+  const { buildHrefForDashboard } = useDashboardNavigation();
+  const isEmbedded = useIsEmbedded();
 
   const currentDashboard = use(currentDashboardPromise);
   const allDashboards = use(allDashboardsPromise);
 
   const handleDashboardSwitch = (newDashboardId: string) => {
     setIsOpen(false);
-    router.push(`/dashboard/${newDashboardId}`);
+    router.push(buildHrefForDashboard(newDashboardId));
   };
 
   const allDashboardsList = allDashboards.success ? allDashboards.data : [];
@@ -77,12 +82,20 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => router.push('/dashboards')} className='cursor-pointer'>
-          <div className='flex w-full items-center gap-2'>
-            <List className='text-muted-foreground h-4 w-4' />
-            <span>{t('viewAll')}</span>
-          </div>
-        </DropdownMenuItem>
+        <DisabledDemoTooltip disabled={isEmbedded}>
+          {(disabled) => (
+            <DropdownMenuItem
+              onClick={() => router.push('/dashboards')}
+              className='cursor-pointer'
+              disabled={disabled}
+            >
+              <div className='flex w-full items-center gap-2'>
+                <List className='text-muted-foreground h-4 w-4' />
+                <span>{t('viewAll')}</span>
+              </div>
+            </DropdownMenuItem>
+          )}
+        </DisabledDemoTooltip>
       </DropdownMenuContent>
     </DropdownMenu>
   );

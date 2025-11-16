@@ -31,7 +31,7 @@ export default async function AdvancedFiltersCard() {
   ];
 
   return (
-    <Card>
+    <Card className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 relative overflow-hidden border shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""]'>
       <CardHeader>
         <CardTitle className='text-xl'>{t('title')}</CardTitle>
         <CardDescription className='text-base'>{t('description')}</CardDescription>

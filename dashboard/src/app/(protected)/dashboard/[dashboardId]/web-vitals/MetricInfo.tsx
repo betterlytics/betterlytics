@@ -41,7 +41,7 @@ export default function MetricInfo({ metric, iconClassName = 'h-4 w-4', triggerC
                 {formatCWV(metric, CWV_THRESHOLDS[metric][0])}
               </div>
               <div>
-                <span className='opacity-80'>{t('info.needsImprovement')}:</span> ≤{' '}
+                <span className='opacity-80'>{t('info.fair')}:</span> ≤{' '}
                 {formatCWV(metric, CWV_THRESHOLDS[metric][1])}
               </div>
             </div>

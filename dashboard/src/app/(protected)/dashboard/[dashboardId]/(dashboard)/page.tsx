@@ -35,11 +35,6 @@ type DashboardPageParams = {
 };
 
 export default async function DashboardPage({ params, searchParams }: DashboardPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =

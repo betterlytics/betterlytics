@@ -6,7 +6,6 @@ import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
@@ -20,7 +19,6 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
   const worldMapData = use(worldMapPromise);
   const topCountries = use(topCountriesPromise);
   const t = useTranslations('dashboard');
-  const dashboardId = useDashboardId();
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
@@ -64,7 +62,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
       ]}
       footer={
         <FilterPreservingLink
-          href={`/dashboard/${dashboardId}/geography`}
+          href='geography'
           className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
         >
           <span>{t('goTo', { section: t('sidebar.geography') })}</span>

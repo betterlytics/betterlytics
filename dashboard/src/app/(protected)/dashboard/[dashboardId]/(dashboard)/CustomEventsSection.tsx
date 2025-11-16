@@ -5,7 +5,6 @@ import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
@@ -16,8 +15,6 @@ type CustomEventsSectionProps = {
 export default function CustomEventsSection({ customEventsPromise }: CustomEventsSectionProps) {
   const customEvents = use(customEventsPromise);
   const t = useTranslations('dashboard');
-  const dashboardId = useDashboardId();
-
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   const onItemClick = (_tabKey: string, item: { label: string }) => {
@@ -43,7 +40,7 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
       ]}
       footer={
         <FilterPreservingLink
-          href={`/dashboard/${dashboardId}/events`}
+          href='events'
           className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
         >
           <span>{t('goTo', { section: t('sidebar.events') })}</span>

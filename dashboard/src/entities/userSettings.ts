@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Theme, AvatarMode } from '@prisma/client';
 
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { env } from '@/lib/env';
@@ -8,9 +9,9 @@ export const UserSettingsSchema = z
     id: z.string(),
     userId: z.string(),
 
-    theme: z.enum(['light', 'dark', 'system']),
+    theme: z.nativeEnum(Theme),
     language: z.enum(SUPPORTED_LANGUAGES),
-    avatar: z.enum(['default', 'gravatar']),
+    avatar: z.nativeEnum(AvatarMode),
 
     emailNotifications: z.boolean(),
     marketingEmails: z.boolean(),
@@ -23,8 +24,8 @@ export const UserSettingsSchema = z
 export const UserSettingsCreateSchema = z
   .object({
     userId: z.string(),
-    theme: z.enum(['light', 'dark', 'system']),
-    avatar: z.enum(['default', 'gravatar']),
+    theme: z.nativeEnum(Theme),
+    avatar: z.nativeEnum(AvatarMode),
     language: z.enum(SUPPORTED_LANGUAGES).default('en'),
     emailNotifications: z.boolean(),
     marketingEmails: z.boolean(),
@@ -32,18 +33,18 @@ export const UserSettingsCreateSchema = z
   .strict();
 
 export const UserSettingsUpdateSchema = z.object({
-  theme: z.enum(['light', 'dark', 'system']).optional(),
+  theme: z.nativeEnum(Theme).optional(),
   language: z.enum(SUPPORTED_LANGUAGES).optional(),
-  avatar: z.enum(['default', 'gravatar']).optional(),
+  avatar: z.nativeEnum(AvatarMode).optional(),
   emailNotifications: z.boolean().optional(),
   marketingEmails: z.boolean().optional(),
 });
 
 // Default user settings matching database defaults
 export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
-  theme: 'system',
+  theme: Theme.system,
   language: env.NEXT_PUBLIC_DEFAULT_LANGUAGE,
-  avatar: 'default',
+  avatar: AvatarMode.default,
   emailNotifications: true,
   marketingEmails: false,
 };

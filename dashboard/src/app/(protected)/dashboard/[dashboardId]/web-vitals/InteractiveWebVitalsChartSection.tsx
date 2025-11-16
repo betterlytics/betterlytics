@@ -163,12 +163,12 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   const referenceLines = useMemo(
     () =>
       CWV_THRESHOLDS[active]?.map((y, idx) => {
-        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.needsImprovement')} (≤ ${formatThreshold(
+        const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-fair)';
+        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.fair')} (≤ ${formatThreshold(
           active,
           y,
         )})`;
-        const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-ni)';
-        return { y, label, stroke, strokeDasharray: '6 6', labelFill: stroke };
+        return { y, stroke, strokeDasharray: '4 6', label, labelFill: stroke };
       }),
     [active, t],
   );
@@ -203,7 +203,6 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
         series={activeSeries}
         referenceLines={referenceLines}
-        headerRight={undefined}
         headerContent={
           <div>
             <InlineMetricsHeader cards={cards} pinFooter />

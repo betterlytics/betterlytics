@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
+import { useDemoMode } from '@/contexts/DemoModeContextProvider';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -48,6 +49,9 @@ export function QueryFilterInputRow<TEntity>({
 }: QueryFilterInputRowProps<TEntity>) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
+  const tDemo = useTranslations('components.demoMode');
+  const isDemo = useDemoMode();
+  const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
 
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
@@ -61,7 +65,10 @@ export function QueryFilterInputRow<TEntity>({
     <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <Select
         value={filter.column}
-        onValueChange={(column: FilterColumn) => onFilterUpdate({ ...filter, column })}
+        onValueChange={(column: FilterColumn) => {
+          if (isDemo && !demoAllowedColumns.has(column)) return;
+          onFilterUpdate({ ...filter, column });
+        }}
       >
         <SelectTrigger className='col-span-8 w-full cursor-pointer md:col-span-4'>
           <SelectValue />
@@ -73,12 +80,18 @@ export function QueryFilterInputRow<TEntity>({
         >
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
-            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => (
-              <SelectItem className='cursor-pointer' key={column.value} value={column.value}>
-                {column.icon}
-                {t(`columns.${column.value}`)}
-              </SelectItem>
-            ))}
+            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+              const disabled = isDemo && !demoAllowedColumns.has(column.value as FilterColumn);
+              return (
+                <SelectItem className='cursor-pointer' key={column.value} value={column.value} disabled={disabled}>
+                  {column.icon}
+                  {t(`columns.${column.value}`)}
+                  {disabled && (
+                    <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
+                  )}
+                </SelectItem>
+              );
+            })}
           </SelectGroup>
         </SelectContent>
       </Select>

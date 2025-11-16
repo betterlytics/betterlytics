@@ -1,7 +1,7 @@
 'use server';
 
 import { Dashboard } from '@/entities/dashboard';
-import { withUserAuth, withDashboardAuthContext } from '@/auth/auth-actions';
+import { withUserAuth, withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { createNewDashboard, getAllUserDashboards, getUserDashboardStats } from '@/services/dashboard';
 import { findFirstUserDashboard, findDashboardById, deleteDashboard } from '@/repositories/postgres/dashboard';
 import { User } from 'next-auth';
@@ -11,7 +11,7 @@ export const createDashboardAction = withUserAuth(async (user: User, domain: str
   return createNewDashboard(domain, user.id);
 });
 
-export const deleteDashboardAction = withDashboardAuthContext(async (ctx: AuthContext): Promise<void> => {
+export const deleteDashboardAction = withDashboardMutationAuthContext(async (ctx: AuthContext): Promise<void> => {
   return deleteDashboard(ctx.dashboardId);
 });
 

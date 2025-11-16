@@ -60,6 +60,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
       };
     }, [formatValue]);
     const isMobile = useIsMobile();
+
     return (
       <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
         {(title || headerRight) && (
@@ -75,7 +76,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
           {headerContent && <div className='mb-2 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 py-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
-              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
+              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
                 <XAxis
                   dataKey='date'
@@ -123,22 +124,16 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                 ))}
                 {referenceLines?.map((r, i) => (
                   <ReferenceLine
-                    key={`ref-${r.label}`}
+                    key={`ref-${i}-${r.y}`}
                     y={r.y}
                     stroke={r.stroke ?? 'var(--chart-comparison)'}
                     strokeDasharray={r.strokeDasharray ?? '4 4'}
-                  >
-                    {r.label && (
-                      <Label
-                        value={r.label}
-                        dy={-12}
-                        position='insideLeft'
-                        dx={isMobile ? 32 : 8}
-                        textAnchor='start'
-                        fill={r.labelFill}
-                      />
-                    )}
-                  </ReferenceLine>
+                    label={
+                      r.label ? (
+                        <ReferenceLineLabel text={r.label} fill={r.labelFill ?? r.stroke} isMobile={isMobile} />
+                      ) : undefined
+                    }
+                  />
                 ))}
               </ComposedChart>
             </ResponsiveContainer>
@@ -149,6 +144,35 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
   },
 );
 
+type ReferenceLineLabelProps = {
+  text: string;
+  fill?: string;
+  isMobile: boolean;
+  viewBox?: any;
+};
+
+const ReferenceLineLabel: React.FC<ReferenceLineLabelProps> = ({ text, fill, isMobile, viewBox }) => {
+  const vb = viewBox || {};
+  const x = (vb.x ?? 0) + (isMobile ? 32 : 8);
+  const y = (vb.y ?? 0) - 8;
+  const textFill = fill ?? 'var(--muted-foreground)';
+  return (
+    <g>
+      <text
+        x={x}
+        y={y}
+        fill={textFill}
+        fontSize={12}
+        textAnchor='start'
+        style={{ paintOrder: 'stroke', stroke: 'var(--background)', strokeWidth: 3 }}
+      >
+        {text}
+      </text>
+    </g>
+  );
+};
+
+ReferenceLineLabel.displayName = 'ReferenceLineLabel';
 MultiSeriesChart.displayName = 'MultiSeriesChart';
 
 export default MultiSeriesChart;
