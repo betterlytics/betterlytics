@@ -19,9 +19,9 @@ export interface MapStyle {
   borderColorScale: ColorScale | null;
 }
 
-export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle | null {
+export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle | null {
   const fillColorScale = useColorScale({
-    maxVisitors,
+    maxValue: maxVisitors,
     scaleType,
     colors: [
       MAP_VISITOR_COLORS.LOW_VISITORS,
@@ -31,7 +31,7 @@ export function useMapStyle({ maxVisitors, scaleType = 'log10' }: UseMapStylePro
   });
 
   const borderColorScale = useColorScale({
-    maxVisitors,
+    maxValue: maxVisitors,
     scaleType,
     colors: [
       MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,

@@ -9,7 +9,7 @@ const DEFAULT_COLORS = ['var(--graph-fill-low)', 'var(--graph-fill-medium)', 'va
 export type ScaleType = 'linear' | 'ln' | `log${number}` | `pow-${number}` | `pow-${number}/${number}`;
 
 export type UseColorScaleProps = {
-  maxVisitors: number;
+  maxValue: number;
   colors?: string[];
   scaleType?: ScaleType;
 };
@@ -21,22 +21,23 @@ export type ColorScale =
 
 export function useColorScale({
   colors = DEFAULT_COLORS,
-  maxVisitors,
+  maxValue,
   scaleType = 'pow-4/10',
 }: UseColorScaleProps): ColorScale | null {
   const cssColors = useCSSColors(...colors);
 
   return useMemo(() => {
-    if (!cssColors || cssColors.length < 3) return null;
-    const range = cssColors.slice(0, 3) as [string, string, string];
+    if (!cssColors || cssColors.length < 2) return null;
 
     if (scaleType.startsWith('log') || scaleType === 'ln') {
       const base = scaleType === 'ln' ? Math.E : parseInt(scaleType.slice(3), 10);
 
       return scaleLog<string>()
         .base(base)
-        .domain([1, ...colors.slice(1).map((_, i) => Math.max(1, maxVisitors) / (colors.length - i))])
-        .range(range)
+        .domain(Array.from({ length: cssColors.length }, (_, i) =>
+          i === 0 ? 1 : 1 + (Math.max(1, maxValue) - 1) * (i / (cssColors.length - 1))
+        ))
+        .range(cssColors)
         .clamp(true);
     }
 
@@ -50,9 +51,16 @@ export function useColorScale({
         exponent = Number(exponentStr);
       }
 
-      return scalePow<string>().exponent(exponent).domain([0, 1, maxVisitors]).range(range).clamp(true);
+      return scalePow<string>()
+        .exponent(exponent)
+        .domain(Array.from({ length: cssColors.length }, (_, i) => maxValue * (i / (cssColors.length - 1))))
+        .range(cssColors)
+        .clamp(true);
     }
 
-    return scaleLinear<string>().domain([0, 1, maxVisitors]).range(range).clamp(true);
-  }, [cssColors, scaleType, maxVisitors]);
+    return scaleLinear<string>()
+      .domain(Array.from({ length: cssColors.length }, (_, i) => maxValue * (i / (cssColors.length - 1))))
+      .range(cssColors)
+      .clamp(true);
+  }, [cssColors, scaleType, maxValue]);
 }

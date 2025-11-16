@@ -147,7 +147,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric, scaleType = 'log10' 
   }, [locale]);
 
   const colorScale = useColorScale({
-    maxVisitors: maxValue,
+    maxValue,
     scaleType,
   });
 
