@@ -32,20 +32,22 @@ export function getResolvedHexColor(
   const color = getComputedStyle(temp).color;
   temp.remove();
 
-  const match = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  const match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/);
   if (match) {
-    const [, r, g, b] = match.map(Number);
-    return (
-      '#' +
-      [r, g, b]
+    const [, r, g, b, a] = match;
+    const alpha = a !== undefined ? Math.round(parseFloat(a) * 255) : 255;
+
+    const hex = '#' +
+      [Number(r), Number(g), Number(b), alpha]
         .map((v) =>
           Math.max(0, Math.min(255, Math.round(v)))
             .toString(16)
             .padStart(2, '0'),
         )
-        .join('')
-    );
+        .join('');
+
+    return alpha === 255 ? hex.slice(0, 7) : hex;
   }
 
-  return color || raw;
+  return color;
 }
