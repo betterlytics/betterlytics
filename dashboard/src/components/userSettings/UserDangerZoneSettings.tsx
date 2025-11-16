@@ -7,7 +7,6 @@ import { UserSettingsUpdate } from '@/entities/userSettings';
 import { deleteUserAccountAction } from '@/app/actions/userSettings';
 import { Button } from '@/components/ui/button';
 import {
-  AlertCountdownButton,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -21,6 +20,7 @@ import {
 import { toast } from 'sonner';
 import SettingsCard from '@/components/SettingsCard';
 import { useTranslations } from 'next-intl';
+import { CountdownButton } from '@/components/uiExtensions/CountdownButton';
 
 interface UserDangerZoneSettingsProps {
   formData: UserSettingsUpdate;
@@ -123,13 +123,13 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
                   {t('dialog.cancel')}
                 </AlertDialogCancel>
                 <AlertDialogAction asChild>
-                  <AlertCountdownButton
+                  <CountdownButton
                     onClick={handleDeleteAccount}
                     isPending={isPending}
                     disabled={isPending || !canDelete}
                   >
                     {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
-                  </AlertCountdownButton>
+                  </CountdownButton>
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

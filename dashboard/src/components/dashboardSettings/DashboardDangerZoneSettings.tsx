@@ -3,7 +3,6 @@
 import { deleteDashboardAction } from '@/app/actions';
 import SettingsCard from '@/components/SettingsCard';
 import {
-  AlertCountdownButton,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,6 +22,7 @@ import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useCountdown } from '@/hooks/use-countdown';
+import { CountdownButton } from '@/components/uiExtensions/CountdownButton';
 
 type DangerZoneSettingsProps = {
   formData: DashboardSettingsUpdate;
@@ -81,13 +81,13 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
             <AlertDialogFooter>
               <AlertDialogCancel className='cursor-pointer'>{t('dialog.cancel')}</AlertDialogCancel>
               <AlertDialogAction asChild onClick={handleDeleteDashboard}>
-                <AlertCountdownButton
+                <CountdownButton
                   isPending={isPending}
                   disabled={isPending || !canDelete}
                   onClick={handleDeleteDashboard}
                 >
                   {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
-                </AlertCountdownButton>
+                </CountdownButton>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

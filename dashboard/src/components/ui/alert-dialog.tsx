@@ -4,9 +4,7 @@ import * as React from 'react';
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 
 import { cn } from '@/lib/utils';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Loader2, Trash2 } from 'lucide-react';
-import { VariantProps } from 'class-variance-authority';
+import { buttonVariants } from '@/components/ui/button';
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot='alert-dialog' {...props} />;
@@ -102,28 +100,6 @@ function AlertDialogCancel({ className, ...props }: React.ComponentProps<typeof 
   );
 }
 
-type CountdownButtonProps = React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-    countdownDuration?: number;
-    isPending: boolean;
-  };
-
-function AlertCountdownButton({
-  variant = 'destructive',
-  className = 'hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto',
-  isPending,
-  children,
-  ...props
-}: CountdownButtonProps) {
-  return (
-    <Button variant={variant} className={className} {...props}>
-      {isPending ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Trash2 className='mr-2 h-4 w-4' />}
-      {children}
-    </Button>
-  );
-}
-
 export {
   AlertDialog,
   AlertDialogPortal,
@@ -136,5 +112,4 @@ export {
   AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertCountdownButton,
 };
