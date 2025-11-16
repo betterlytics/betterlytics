@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { DisabledDemoTooltip } from '../tooltip/DisabledDemoTooltip';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
@@ -79,12 +80,20 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => router.push('/dashboards')} className='cursor-pointer'>
-          <div className='flex w-full items-center gap-2'>
-            <List className='text-muted-foreground h-4 w-4' />
-            <span>{t('viewAll')}</span>
-          </div>
-        </DropdownMenuItem>
+        <DisabledDemoTooltip>
+          {(disabled) => (
+            <DropdownMenuItem
+              onClick={() => router.push('/dashboards')}
+              className='cursor-pointer'
+              disabled={disabled}
+            >
+              <div className='flex w-full items-center gap-2'>
+                <List className='text-muted-foreground h-4 w-4' />
+                <span>{t('viewAll')}</span>
+              </div>
+            </DropdownMenuItem>
+          )}
+        </DisabledDemoTooltip>
       </DropdownMenuContent>
     </DropdownMenu>
   );
