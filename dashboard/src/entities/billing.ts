@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { SubscriptionTier as PrismaSubscriptionTier, Currency as PrismaCurrency } from '@prisma/client';
 
-export const TierSchema = z.enum(['growth', 'professional', 'enterprise']);
-export const CurrencySchema = z.enum(['USD', 'EUR']).default('USD');
+export const TierSchema = z.nativeEnum(PrismaSubscriptionTier);
+export const CurrencySchema = z.nativeEnum(PrismaCurrency).default('USD');
 export const PaymentStatusSchema = z.enum(['paid', 'pending', 'failed', 'refunded', 'past-due']);
 
 export const SubscriptionSchema = z.object({

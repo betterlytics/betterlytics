@@ -1,10 +1,7 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
 import FunnelsListSection from './FunnelsListSection';
-import { CreateFunnelDialog } from './CreateFunnelDialog';
+import CreateFunnelButton from './CreateFunnelButton';
 import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -30,7 +27,7 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
   return (
     <DashboardHeader title={title}>
       <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-3 sm:flex-row'>
-        <CreateFunnelDialog />
+        <CreateFunnelButton />
         <DashboardFilters showComparison={false} />
       </div>
     </DashboardHeader>
@@ -38,12 +35,6 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
 }
 
 export default async function FunnelsPage({ params, searchParams }: FunnelsPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
   const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams, timezone);
@@ -64,7 +55,7 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
           </div>
         }
       >
-        <FunnelsListSection funnelsPromise={funnelsPromise} dashboardId={dashboardId} />
+        <FunnelsListSection funnelsPromise={funnelsPromise} />
       </Suspense>
     </div>
   );

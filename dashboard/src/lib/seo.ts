@@ -86,12 +86,6 @@ export function generateSEO(
         'max-snippet': -1,
       },
     },
-    icons: {
-      icon: [
-        { url: '/images/favicon-dark.svg', media: '(prefers-color-scheme: light)', type: 'image/svg+xml' },
-        { url: '/images/favicon-light.svg', media: '(prefers-color-scheme: dark)', type: 'image/svg+xml' },
-      ],
-    },
   };
 }
 
@@ -292,6 +286,11 @@ export const SEO_CONFIGS = {
   register: {
     namespace: 'public.auth.register.seo',
     path: '/register',
+    structuredDataType: 'webpage',
+  },
+  publicDemo: {
+    namespace: 'public.demo.seo',
+    path: '/share',
     structuredDataType: 'webpage',
   },
   onboarding: {

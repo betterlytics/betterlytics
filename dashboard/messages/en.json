@@ -716,30 +716,44 @@
         "helpLine": "Need help? Contact support at support@betterlytics.io"
       }
     },
+    "demo": {
+      "seo": {
+        "title": "Betterlytics | Demo Dashboard",
+        "description": "Explore Betterlytics' capabilities in this interactive demo dashboard.",
+        "keywords": [
+          "Betterlytics Demo",
+          "Analytics Demo",
+          "Product Tour",
+          "Web Analytics Demo",
+          "Privacy-First Analytics"
+        ]
+      }
+    },
     "landing": {
       "seo": {
-        "title": "Betterlytics | Simple, Cookieless, Privacy-Friendly Web Analytics",
-        "description": "Betterlytics is a privacy-first, open-source alternative to Google Analytics. Get GDPR-compliant, cookieless insights without invasive tracking.",
+        "title": "Betterlytics | A Better Alternative to Google Analytics",
+        "description": "Betterlytics is a privacy-first, cookieless analytics platform — GDPR-compliant, no cookies, no tracking, no consent banners.",
         "keywords": [
           "Google Analytics Alternative",
+          "Cookieless Analytics",
           "Privacy-First Analytics",
-          "Cookieless Web Analytics",
           "GDPR Compliant Analytics",
           "Open Source Analytics Platform",
           "Privacy-Friendly Analytics",
-          "Website Traffic Analysis",
-          "Visitor Analytics",
-          "Web Analytics Tool",
+          "Website Analytics",
+          "Visitor Insights",
           "Betterlytics"
         ]
       },
+
       "hero": {
-        "badge": "Open Source • GDPR Compliant • Cookieless",
-        "titleTop": "Privacy-First",
-        "titleBottom": "Web Analytics",
-        "description": "Get powerful insights without compromising your users' privacy. GDPR-compliant, cookieless analytics that respects user privacy while delivering the data you need.",
+        "titleNonHighlight": "A Better Alternative to ",
+        "titleHighlight": "Google Analytics",
+        "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
         "ctaPrimary": "Get Started for Free",
-        "ctaGithub": "View on GitHub"
+        "ctaGithub": "View on GitHub",
+        "ctaDemo": "View live demo",
+        "eyebrow": "Try Betterlytics in action"
       },
       "framework": {
         "title": "Works with your favorite tools",
@@ -764,12 +778,12 @@
             "description": "Your data stays yours forever. Self-host with our open-source version or use our secure cloud infrastructure."
           },
           "realtime": {
-            "title": "Real-time Business Insights",
+            "title": "Real-time Insights",
             "description": "Lightning-fast visitor tracking and conversion analytics worldwide. Beautiful dashboards help you make data-driven decisions instantly."
           },
           "lightweight": {
             "title": "Lightweight & Developer-Friendly",
-            "description": "Under 1KB script, open-source codebase, and comprehensive APIs. Built by developers, for developers."
+            "description": "Under 1KB script, open-source codebase, and comprehensive documentation. Built by developers, for developers."
           },
           "simpleSetup": {
             "title": "Simple Setup, Powerful Features",
@@ -781,8 +795,19 @@
         "titleEmphasis": "Powerful features",
         "titleRest": "at your fingertips",
         "subtitle": "Explore the full arsenal of analytics capabilities",
+        "categories": {
+          "analytics": "Analytics & Insights",
+          "engagement": "Engagement & Behavior",
+          "performance": "Performance & Sources"
+        },
         "docsButton": "Explore All Features",
         "docsTitle": "Complete Betterlytics Documentation"
+      },
+      "ctaStrip": {
+        "eyebrow": "Get started free",
+        "title": "Ready to try Betterlytics?",
+        "subtitle": "Create an account and start tracking in minutes. Free plan included. No credit card.",
+        "primaryCta": "Get started free"
       },
       "integration": {
         "titleStart": "Get started in",
@@ -828,6 +853,14 @@
           "title": "Advanced Filters",
           "description": "Slice and dice your analytics data by any dimension to uncover actionable insights."
         },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Monitor and measure your site's performance with Core Web Vitals."
+        },
+        "outboundLinks": {
+          "title": "Outbound Links",
+          "description": "Track clicks to external sites, social links, docs, and more."
+        },
         "trafficSources": {
           "title": "Traffic Sources",
           "description": "Discover where your visitors are arriving from and optimize your marketing efforts.",
@@ -853,6 +886,13 @@
           "title": "Real-time Events",
           "description": "Track every user interaction as it happens with detailed event logging.",
           "showing": "Showing {loaded} of {total} events"
+        },
+        "sessionReplay": {
+          "title": "Session Replay",
+          "description": "Watch anonymized, pixel-perfect recordings to quickly spot friction, rage clicks, and visual glitches.",
+          "cursorClick": "Cursor click captured",
+          "sessionPlayback": "Session playback",
+          "playing": "Playing"
         },
         "journeys": {
           "title": "User Journeys",
@@ -1021,7 +1061,10 @@
     "loading": "Loading...",
     "created": "Created",
     "unknown": "Unknown",
-    "noChange": "no change"
+    "noChange": "no change",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
   },
   "languages": {
     "da": "Danish",
@@ -1150,6 +1193,7 @@
       "sameLengthAsMain": "Same length as main range",
       "compareToPeriod": "Compare to Period",
       "dateRange": "Date range",
+      "granularityNotAvailable": "Granularity not available for selected range",
       "presets": {
         "today": "Today",
         "yesterday": "Yesterday",
@@ -1485,7 +1529,7 @@
       },
       "thresholds": {
         "good": "Good",
-        "needsImprovement": "Needs improvement"
+        "fair": "Fair"
       },
       "table": {
         "title": "Performance breakdown",
@@ -1521,7 +1565,7 @@
       "info": {
         "aboutMetricAria": "About metric",
         "good": "Good",
-        "needsImprovement": "Needs improvement",
+        "fair": "Fair",
         "descriptions": {
           "CLS": "Measures visual stability. CLS captures how much content unexpectedly shifts while the page loads.",
           "LCP": "Measures loading performance. LCP is the moment the largest text or image becomes visible.",
@@ -1834,6 +1878,10 @@
       "body": "To continue using your account, please review and accept our <termsLink>Terms of Service</termsLink>.",
       "acceptAndContinue": "Accept and Continue",
       "logout": "Log Out"
+    },
+    "demoMode": {
+      "notAvailable": "Not available on demo dashboard",
+      "interactionDisabled": "Filtering from this interaction is disabled in the demo."
     }
   },
   "onboarding": {

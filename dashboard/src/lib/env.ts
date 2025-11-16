@@ -35,6 +35,7 @@ const envSchema = z.object({
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
   ALLOW_CRAWLING: zStringBoolean,
+  DEMO_DASHBOARD_ID: z.string().optional(),
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()
@@ -52,6 +53,7 @@ const envSchema = z.object({
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   S3_FORCE_PATH_STYLE: zStringBoolean,
   S3_SSE_ENABLED: zStringBoolean,
+  OTEL_SERVICE_NAME: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);

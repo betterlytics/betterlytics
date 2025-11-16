@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import {
   fetchCampaignPerformanceAction,
   fetchCampaignSourceBreakdownAction,
@@ -24,12 +21,6 @@ type CampaignPageParams = {
 };
 
 export default async function CampaignPage({ params, searchParams }: CampaignPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
   const { startDate, endDate, granularity, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(

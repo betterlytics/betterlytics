@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { Suspense } from 'react';
 import {
   fetchPageAnalyticsAction,
@@ -24,12 +21,6 @@ type PagesPageParams = {
 };
 
 export default async function PagesPage({ params, searchParams }: PagesPageParams) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
-
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
   const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =

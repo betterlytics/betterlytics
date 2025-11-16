@@ -1,92 +1,113 @@
 import { EventLogEntry } from '@/entities/events';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Clock,
+  Download,
+  FileText,
+  Mail,
+  MousePointerClick,
+  PlayCircle,
+  Search,
+  ShoppingCart,
+} from 'lucide-react';
 import { EventLogItem } from '@/components/events/EventLogItem';
 import { getTranslations } from 'next-intl/server';
 
 export default async function EventTrackingCard() {
   const t = await getTranslations('public.landing.cards.events');
-  const mockEvents: EventLogEntry[] = [
+  const mockEvents: Array<{ event: EventLogEntry; icon: LucideIcon }> = [
     {
-      event_name: 'Button Click',
-      timestamp: new Date(Date.now() - 2 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'desktop',
-      browser: 'chrome',
-      country_code: 'US',
-      url: 'https://example.com/landing-page',
-      custom_event_json: JSON.stringify({ button_id: 'hero-cta', position: 'above-fold' }),
+      event: {
+        event_name: 'Button Click',
+        timestamp: new Date(Date.now() - 2 * 60 * 1000),
+        visitor_id: '',
+        device_type: 'desktop',
+        browser: 'chrome',
+        country_code: 'US',
+        url: 'https://example.com/landing-page',
+        custom_event_json: JSON.stringify({ button_id: 'hero-cta' }),
+      },
+      icon: MousePointerClick,
     },
     {
-      event_name: 'Page View',
-      timestamp: new Date(Date.now() - 5 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'mobile',
-      browser: 'safari',
-      country_code: 'CA',
-      url: 'https://example.com/pricing',
-      custom_event_json: JSON.stringify({ referrer: 'google.com' }),
+      event: {
+        event_name: 'Form Submit',
+        timestamp: new Date(Date.now() - 8 * 60 * 1000),
+        visitor_id: '',
+        device_type: 'tablet',
+        browser: 'firefox',
+        country_code: 'GB',
+        url: 'https://example.com/contact',
+        custom_event_json: JSON.stringify({ form_type: 'contact', success: true }),
+      },
+      icon: FileText,
     },
     {
-      event_name: 'Form Submit',
-      timestamp: new Date(Date.now() - 8 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'tablet',
-      browser: 'firefox',
-      country_code: 'GB',
-      url: 'https://example.com/contact',
-      custom_event_json: JSON.stringify({ form_type: 'contact', success: true }),
+      event: {
+        event_name: 'Video Play',
+        timestamp: new Date(Date.now() - 12 * 60 * 1000),
+        visitor_id: '',
+        device_type: 'desktop',
+        browser: 'edge',
+        country_code: 'DE',
+        url: 'https://example.com/features',
+        custom_event_json: JSON.stringify({ video_id: 'demo-video', duration: 120 }),
+      },
+      icon: PlayCircle,
     },
     {
-      event_name: 'Video Play',
-      timestamp: new Date(Date.now() - 12 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'desktop',
-      browser: 'edge',
-      country_code: 'DE',
-      url: 'https://example.com/features',
-      custom_event_json: JSON.stringify({ video_id: 'demo-video', duration: 120 }),
+      event: {
+        event_name: 'Download',
+        timestamp: new Date(Date.now() - 15 * 60 * 1000),
+        visitor_id: '',
+        device_type: 'mobile',
+        browser: 'chrome',
+        country_code: 'FR',
+        url: 'https://example.com/resources',
+        custom_event_json: JSON.stringify({ file_name: 'whitepaper.pdf' }),
+      },
+      icon: Download,
     },
     {
-      event_name: 'Download',
-      timestamp: new Date(Date.now() - 15 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'mobile',
-      browser: 'chrome',
-      country_code: 'FR',
-      url: 'https://example.com/resources',
-      custom_event_json: JSON.stringify({ file_type: 'pdf', file_name: 'whitepaper.pdf' }),
+      event: {
+        event_name: 'Search',
+        timestamp: new Date(Date.now() - 18 * 60 * 1000),
+        visitor_id: '',
+        device_type: 'desktop',
+        browser: 'safari',
+        country_code: 'AU',
+        url: 'https://example.com/search',
+        custom_event_json: JSON.stringify({ query: 'Betterlytics', results_count: 24 }),
+      },
+      icon: Search,
     },
     {
-      event_name: 'Search',
-      timestamp: new Date(Date.now() - 18 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'desktop',
-      browser: 'safari',
-      country_code: 'AU',
-      url: 'https://example.com/search',
-      custom_event_json: JSON.stringify({ query: 'analytics dashboard', results_count: 24 }),
+      event: {
+        event_name: 'Newsletter Signup',
+        timestamp: new Date(Date.now() - 22 * 60 * 1000),
+        visitor_id: '',
+        device_type: 'mobile',
+        browser: 'firefox',
+        country_code: 'JP',
+        url: 'https://example.com/blog',
+        custom_event_json: JSON.stringify({ source: 'blog-footer' }),
+      },
+      icon: Mail,
     },
     {
-      event_name: 'Newsletter Signup',
-      timestamp: new Date(Date.now() - 22 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'mobile',
-      browser: 'firefox',
-      country_code: 'JP',
-      url: 'https://example.com/blog',
-      custom_event_json: JSON.stringify({ source: 'blog-footer', email_domain: 'gmail.com' }),
-    },
-    {
-      event_name: 'Add to Cart',
-      timestamp: new Date(Date.now() - 25 * 60 * 1000),
-      visitor_id: '',
-      device_type: 'tablet',
-      browser: 'chrome',
-      country_code: 'BR',
-      url: 'https://example.com/shop',
-      custom_event_json: JSON.stringify({ product_id: 'analytics-pro', price: 99 }),
+      event: {
+        event_name: 'Add to Cart',
+        timestamp: new Date(Date.now() - 25 * 60 * 1000),
+        visitor_id: '',
+        device_type: 'tablet',
+        browser: 'chrome',
+        country_code: 'BR',
+        url: 'https://example.com/shop',
+        custom_event_json: JSON.stringify({ product_id: 'analytics-pro', price: 99 }),
+      },
+      icon: ShoppingCart,
     },
   ];
 
@@ -97,7 +118,7 @@ export default async function EventTrackingCard() {
   );
 
   return (
-    <Card className='dark:metric-card dark:shadow-card-glow relative overflow-hidden'>
+    <Card className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 overflow-hidden border pb-3 shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""] supports-[backdrop-filter]:backdrop-blur-[2px]'>
       <CardHeader className='pb-0'>
         <CardTitle className='flex items-center gap-3 text-xl'>
           <div className='bg-muted/50 border-border/30 relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border'>
@@ -109,18 +130,29 @@ export default async function EventTrackingCard() {
         <CardDescription className='text-base'>{t('description')}</CardDescription>
       </CardHeader>
 
-      <CardContent className='p-0'>
-        <ScrollArea className='h-64'>
+      <CardContent className='flex flex-col p-0'>
+        {/* For mobile we just show top 2 items to avoid disruptive scroll */}
+        <div className='sm:hidden'>
           <div className='divide-border/60 divide-y'>
-            {mockEvents.map((event, index) => (
-              <EventLogItem key={`${event.timestamp}-${index}`} event={event} />
+            {mockEvents.slice(0, 2).map(({ event, icon }, index) => (
+              <EventLogItem key={`${event.timestamp}-${index}`} event={event} icon={icon} />
+            ))}
+          </div>
+        </div>
+        <ScrollArea className='hidden max-h-[320px] sm:block sm:max-h-[360px]'>
+          <div className='divide-border/60 divide-y'>
+            {mockEvents.map(({ event, icon }, index) => (
+              <EventLogItem key={`${event.timestamp}-${index}`} event={event} icon={icon} />
             ))}
           </div>
         </ScrollArea>
 
-        <div className='border-border/60 mt-4 border-t pt-3'>
-          <div className='text-muted-foreground text-center text-xs'>
-            {t('showing', { loaded: 8, total: 1247 })}
+        <div className='border-border/60 border-t px-6 pt-3'>
+          <div className='text-muted-foreground text-center text-xs sm:hidden'>
+            {t('showing', { loaded: 2, total: 1247 })}
+          </div>
+          <div className='text-muted-foreground hidden text-center text-xs sm:block'>
+            {t('showing', { loaded: 7, total: 1247 })}
           </div>
         </div>
       </CardContent>

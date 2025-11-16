@@ -42,22 +42,26 @@ Betterlytics is a **high-performance, privacy-first** analytics platform that pu
 | **Page Analytics**             | Detailed page views, bounce rates, and engagement metrics |
 | **Referrer Tracking**          | Complete referral source analysis and traffic attribution |
 | **Geographic Insights**        | Global visitor mapping with MaxMind GeoIP integration     |
-| **Device & Browser Detection** | Comprehensive device, OS, and browser analytics           |
-| **Campaign Tracking**          | UTM parameter tracking and marketing campaign analysis    |
+| **Device & Browser Insights**  | Comprehensive device, OS, and browser analytics           |
+| **UTM Campaign Insights**      | UTM parameter tracking and marketing campaign analysis    |
 | **Advanced Filtering**         | Filter data across numerous dimensions and time ranges    |
 | **User Journey Mapping**       | Visualize complete user paths through your site           |
 | **Conversion Funnels**         | Track multi-step conversion processes and drop-off points |
+| **Outbound Link Tracking**     | Automatic tracking of clicks to external websites and affiliate URLs |
 | **Custom Events**              | Track any custom interactions and business metrics        |
+| **Core Web Vitals**            | Performance metrics including LCP, FID/INP, CLS, TTFB, and more |
+| **Anonymized Session Replays** | Privacy-first replay of user interactions without storing personal data |
 
 #### Platform & Integration
 
-| Feature                   | Description                                                           |
-| ------------------------- | --------------------------------------------------------------------- |
-| **Modern UI**             | Beautiful dashboard built with Next.js 15, React 19, and Tailwind CSS |
-| **Lightweight Script**    | Minimal tracking script with zero performance impact                  |
-| **SPA Support**           | Full support for Single Page Applications and client-side routing     |
-| **Easy Integration**      | Simple one-line script installation                                   |
-| **Performance Optimized** | Built on ClickHouse for sub-second query responses                    |
+| Feature                      | Description                                                           |
+| ---------------------------- | --------------------------------------------------------------------- |
+| **Modern UI**                | Beautiful dashboard built with Next.js 15, React 19, and Tailwind CSS |
+| **Lightweight Script**       | Minimal tracking script with zero performance impact                  |
+| **SPA Support**              | Full support for Single Page Applications and client-side routing     |
+| **Easy Integration**         | Simple one-line script installation                                   |
+| **Performance Optimized**    | Built on ClickHouse for sub-second query responses                    |
+| **High-Performance Backend** | Rust-powered event processing for ultra-fast, memory-efficient performance |
 
 ## Getting Started
 
@@ -139,38 +143,6 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 
 </div>
 
-## Performance Benchmarks
-
-Betterlytics is built for speed. Here's how it performs:
-
-### Request Handling
-
-| Metric              | Value   | Notes                              |
-| ------------------- | ------- | ---------------------------------- |
-| **Requests/Second** | 25,000+ | Single instance                    |
-| **Response Time**   | <5ms    | P95 for tracking requests          |
-| **Memory Usage**    | x       | Rust backend during stress testing |
-| **CPU Usage**       | x       | During stress testing              |
-
-### Query Performance
-
-| Query Type          | Response Time | Dataset Size   |
-| ------------------- | ------------- | -------------- |
-| **Overview Page**   | x             | 1M+ events     |
-| **Page Analytics**  | x             | 10M+ events    |
-| **User-Journey**    | x             | 100M+ events   |
-| **Geographic Data** | x             | Global dataset |
-
-### Scalability
-
-- **Events/Day**: Tested up to xM+ events
-- **Concurrent Users**: 1,000+ dashboard users
-- **Data Retention**: Unlimited (depends on storage)
-- **Geographic Distribution**: Multi-region support
-
-> **Benchmarks performed on**: 1-core CPU, 4GB RAM, SSD storage
-> **Last updated**: 06-07-2025
-
 ## Roadmap
 
 We're constantly working to improve Betterlytics. Here's what's coming next:
@@ -195,10 +167,10 @@ We're constantly working to improve Betterlytics. Here's what's coming next:
 | Feature                    | Description                                           |
 | -------------------------- | ----------------------------------------------------- |
 | **Alerts & Notifications** | Custom alerts for traffic spikes and anomalies        |
-| **Advanced Reporting**     | Scheduled reports and custom dashboards               |
-| **Integrations**           | Connect with popular tools (Slack, Discord, Webhooks) |
+| **Advanced Reporting**     | Scheduled reports                                     |
 | **A/B Testing**            | Built-in experimentation platform                     |
 | **AI Insights**            | Automated insights and recommendations                |
+| **Data API**               | Full API access to query your analytics data          |
 
 </td>
 </tr>

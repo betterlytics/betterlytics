@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DashboardRole } from '@prisma/client';
 
 // Domain validation schema (example.com)
 export const domainValidation = z
@@ -45,7 +46,7 @@ export const DashboardUserSchema = z.object({
   userId: z.string(),
   dashboardId: z.string(),
   id: z.string(),
-  role: z.string(),
+  role: z.nativeEnum(DashboardRole),
   isDefault: z.boolean(),
 });
 
