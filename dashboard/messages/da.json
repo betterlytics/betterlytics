@@ -731,28 +731,28 @@
     },
     "landing": {
       "seo": {
-        "title": "Betterlytics | Privatlivsfokuseret, Cookieless Webanalyse",
-        "description": "Betterlytics er et open-source, privatlivsfokuseret alternativ til Google Analytics. Få GDPR-kompatibel webanalyse uden brug af cookies.",
+        "title": "Betterlytics | Et Bedre Alternativ til Google Analytics",
+        "description": "Betterlytics er en privatlivsvenlig, cookieløs analyseplatform — GDPR-kompatibel, uden cookies, uden tracking, uden samtykkebannere.",
         "keywords": [
           "Google Analytics Alternativ",
-          "Privatlivsfokuseret Analyse",
-          "Cookieless Webanalyse",
-          "GDPR-kompatibel Analyse",
-          "Open Source Analyse Platform",
-          "Privatlivsvenlig Analyse",
-          "Webtrafik Analyse",
-          "Besøgsanalyse",
-          "Webanalyse Værktøj",
+          "Cookieløs Analytics",
+          "Privatlivsfokuseret Analytics",
+          "GDPR-kompatibel Analytics",
+          "Open Source Analyseplatform",
+          "Privatlivsvenlig Analytics",
+          "Webanalyse",
+          "Besøgsindsigt",
           "Betterlytics"
         ]
       },
       "hero": {
-        "badge": "Open source • GDPR-kompatibel • Cookiefri",
-        "titleTop": "Privacy-first",
-        "titleBottom": "webanalyse",
-        "description": "Få stærke indsigter uden at gå på kompromis med dine brugeres privatliv. GDPR-kompatibel, cookiefri analyse, der respekterer brugernes privatliv og leverer de data, du har brug for.",
-        "ctaPrimary": "Kom i gang gratis",
-        "ctaGithub": "Se på GitHub"
+        "titleNonHighlight": "Et Bedre Alternativ til ",
+        "titleHighlight": "Google Analytics",
+        "description": "Privatlivsvenlig, cookieløs webanalyse, der respekterer dine besøgende — ingen tracking, ingen cookies, ingen samtykkebannere.",
+        "ctaPrimary": "Kom i Gang Gratis",
+        "ctaGithub": "Se på GitHub",
+        "ctaDemo": "Prøv live demo",
+        "eyebrow": "Prøv Betterlytics i aktion"
       },
       "framework": {
         "title": "Fungerer med dine favoritværktøjer",
@@ -777,12 +777,12 @@
             "description": "Dine data forbliver dine for altid. Self-host med vores open source-version eller brug vores sikre cloud-infrastruktur."
           },
           "realtime": {
-            "title": "Realtids forretningsindsigter",
+            "title": "Realtids-indsigter",
             "description": "Lynhurtig besøgs- og konverteringsanalyse på tværs af verden. Smukke dashboards hjælper dig med at træffe datadrevne beslutninger med det samme."
           },
           "lightweight": {
             "title": "Letvægts og udviklervenlig",
-            "description": "Under 1KB script, open source-kodebase og omfattende API'er. Bygget af udviklere til udviklere."
+            "description": "Under 1KB script, open source-kodebase og omfattende dokumentation. Bygget af udviklere til udviklere."
           },
           "simpleSetup": {
             "title": "Simpel opsætning, kraftfulde funktioner",
@@ -794,8 +794,19 @@
         "titleEmphasis": "Kraftfulde funktioner",
         "titleRest": "lige ved hånden",
         "subtitle": "Udforsk hele arsenalet af analysefunktioner",
+        "categories": {
+          "analytics": "Analyser og indblik",
+          "engagement": "Engagement og adfærd",
+          "performance": "Ydeevne og kilder"
+        },
         "docsButton": "Udforsk alle funktioner",
         "docsTitle": "Komplet Betterlytics-dokumentation"
+      },
+      "ctaStrip": {
+        "eyebrow": "Kom i gang gratis",
+        "title": "Klar til at prøve Betterlytics?",
+        "subtitle": "Opret en konto og begynd at spore på få minutter. Gratis plan inkluderet. Intet kreditkort.",
+        "primaryCta": "Kom i gang gratis"
       },
       "integration": {
         "titleStart": "Kom i gang på",
@@ -845,6 +856,14 @@
           "title": "Avancerede filtre",
           "description": "Segmentér din analysedata efter enhver dimension for at finde handlingsklare indsigter."
         },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Overvåg og mål din hjemmesides ydeevne med Core Web Vitals."
+        },
+        "outboundLinks": {
+          "title": "Udgående links",
+          "description": "Spor klik til eksterne sider, sociale links, dokumenter og mere."
+        },
         "trafficSources": {
           "title": "Trafikkilder",
           "description": "Find ud af, hvor dine besøgende kommer fra, og optimer din markedsføring.",
@@ -870,6 +889,13 @@
           "title": "Realtidshændelser",
           "description": "Spor alle brugerinteraktioner, når de sker, med detaljeret hændelseslogning.",
           "showing": "Viser {loaded} af {total} hændelser"
+        },
+        "sessionReplay": {
+          "title": "Sessionsafspilning",
+          "description": "Se anonymiserede optagelser for hurtigt at opdage friktion, rasende klik og visuelle fejl.",
+          "cursorClick": "Museklik registreret",
+          "sessionPlayback": "Sessionsafspilning",
+          "playing": "Afspiller"
         },
         "journeys": {
           "title": "Brugerrejser",
@@ -1038,7 +1064,10 @@
     "loading": "Indlæser...",
     "created": "Oprettet",
     "unknown": "Ukendt",
-    "noChange": "ingen ændring"
+    "noChange": "ingen ændring",
+    "good": "God",
+    "fair": "Middel",
+    "poor": "Dårlig"
   },
   "languages": {
     "da": "Dansk",
@@ -1503,7 +1532,7 @@
       },
       "thresholds": {
         "good": "God",
-        "needsImprovement": "Behøver forbedring"
+        "fair": "Middel"
       },
       "table": {
         "title": "Performance-opdeling",
@@ -1539,7 +1568,7 @@
       "info": {
         "aboutMetricAria": "Om metric",
         "good": "God",
-        "needsImprovement": "Behøver forbedring",
+        "fair": "Middel",
         "descriptions": {
           "CLS": "Måler visuel stabilitet. CLS fanger hvor meget indhold uventet flytter sig under indlæsning.",
           "LCP": "Måler indlæsningsperformance. LCP er det øjeblik, hvor den største tekst eller det største billede bliver synligt.",
