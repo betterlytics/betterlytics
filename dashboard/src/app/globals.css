@@ -123,7 +123,7 @@
   --graph-fill-high: oklch(42.4% 45.25% 265.638);
   --graph-fill-none: oklch(71.4% 4.75% 261.325);
 
-  --weekly-heatmap-fill-none: oklch(80.4% 4.75% 261.325);
+  --weekly-heatmap-fill-none: oklch(91.115% 0.01518 260.807);
 }
 
 .dark {
@@ -200,7 +200,7 @@
   --graph-fill-high: oklch(40% 45.25% 265.638);
   --graph-fill-none: oklch(65.4% 4.75% 261.325); /* Neutral gray */
 
-  --weekly-heatmap-fill-none: oklch(75.4% 12% 261.325);
+  --weekly-heatmap-fill-none: oklch(53.101% 0.01428 259.874);
 }
 
 @layer base {
