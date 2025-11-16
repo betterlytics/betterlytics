@@ -107,7 +107,7 @@ export function BannerProvider({ children }: BannerProviderProps) {
       setBanners((prev) => {
         const toDismiss = prev.find((bann) => bann.id === id);
         if (toDismiss) {
-          baEvent('banner-dismiss', { id, route: routeKey });
+          baEvent('banner-dismiss', { id });
           markDismissed(id);
         }
         return prev.filter((bann) => bann.id !== id);
@@ -127,7 +127,7 @@ export function BannerProvider({ children }: BannerProviderProps) {
   useEffect(() => {
     for (const bann of nowVisible) {
       if (!firedThisRouteRef.current.has(bann.id)) {
-        baEvent('banner-shown', { id: bann.id, route: routeKey });
+        baEvent('banner-shown', { id: bann.id });
         firedThisRouteRef.current.add(bann.id);
       }
     }
