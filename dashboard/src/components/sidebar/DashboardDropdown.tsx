@@ -17,6 +17,7 @@ import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { DisabledDemoTooltip } from '../tooltip/DisabledDemoTooltip';
+import { useIsEmbedded } from '@/hooks/use-is-embedded';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
@@ -29,6 +30,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.sidebar.dashboardDropdown');
   const { buildHrefForDashboard } = useDashboardNavigation();
+  const isEmbedded = useIsEmbedded();
 
   const currentDashboard = use(currentDashboardPromise);
   const allDashboards = use(allDashboardsPromise);
@@ -80,7 +82,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
         <DropdownMenuSeparator />
 
-        <DisabledDemoTooltip>
+        <DisabledDemoTooltip disabled={isEmbedded}>
           {(disabled) => (
             <DropdownMenuItem
               onClick={() => router.push('/dashboards')}
