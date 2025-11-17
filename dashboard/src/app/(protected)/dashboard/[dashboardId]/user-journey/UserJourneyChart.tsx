@@ -6,13 +6,40 @@ import { Sankey, Rectangle, ResponsiveContainer, Layer, Text } from 'recharts';
 import { useState, useRef, useEffect, useMemo, memo, useCallback } from 'react';
 import { formatNumber } from '@/utils/formatters';
 
-const Colors = {
-  primary: '#0ea5e9', // Blue - Color of root nodes
-  secondary: '#64748b', // Gray - Color of other nodes
-  labelBg: '#f8fafc', // Light Gray - Background color of label box
-  labelBorder: '#cbd5e1', // Gray - Border color of label box
-  labelText: '#334155', // Dark Gray - Text color of label text
-  labelTextDark: '#475569', // Gray - Text color of label count
+function useThemeVars(varNames: string[]) {
+  const [vars, setVars] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const cs = getComputedStyle(root);
+    const resolved: Record<string, string> = {};
+
+    for (const name of varNames) {
+      const raw = cs.getPropertyValue(`--${name}`).trim();
+      if (!raw) continue;
+      if (/^\d/.test(raw)) {
+        resolved[name] = `hsl(${raw})`;
+      } else {
+        resolved[name] = raw;
+      }
+    }
+
+    setVars(resolved);
+  }, [varNames.join('|')]);
+
+  return vars;
+}
+
+const FALLBACK_COLORS = {
+  primary: '#0ea5e9',
+  secondary: '#64748b',
+  border: '#e2e8f0',
+  card: '#0b1220',
+  labelBg: '#0b1220',
+  labelBorder: '#1f2a37',
+  labelText: '#e5e7eb',
+  labelTextMuted: '#cbd5e1',
 } as const;
 
 interface UserJourneyChartProps {
@@ -86,12 +113,11 @@ const NodeLabel = memo(({ x, y, width, height, url, count }: NodeLabelProps) => 
         y={boxY}
         width={boxWidth}
         height={boxHeight}
-        fill={Colors.labelBg}
-        fillOpacity={0.6}
-        stroke={Colors.labelBorder}
+        fill='var(--chart-node-label-bg, rgba(0,0,0,0.5))'
+        fillOpacity={0.55}
+        stroke='var(--chart-node-label-border, rgba(255,255,255,0.08))'
         strokeWidth={1}
-        rx={4}
-        ry={4}
+        radius={8}
       />
 
       {/* URL text */}
@@ -101,7 +127,7 @@ const NodeLabel = memo(({ x, y, width, height, url, count }: NodeLabelProps) => 
         textAnchor='start'
         verticalAnchor='middle'
         fontSize={12}
-        fill={Colors.labelText}
+        fill='var(--chart-node-label-fg, #e5e7eb)'
       >
         {url}
       </Text>
@@ -114,7 +140,7 @@ const NodeLabel = memo(({ x, y, width, height, url, count }: NodeLabelProps) => 
         verticalAnchor='middle'
         fontSize={14}
         fontWeight='bold'
-        fill={Colors.labelTextDark}
+        fill='var(--chart-node-label-fg-muted, #cbd5e1)'
       >
         {count}
       </Text>
@@ -126,6 +152,48 @@ NodeLabel.displayName = 'NodeLabel';
 
 export default function UserJourneyChart({ data }: UserJourneyChartProps) {
   const t = useTranslations('components.userJourney');
+
+  // Resolve theme tokens once (client-only)
+  const themeVars = useThemeVars([
+    'primary',
+    'secondary',
+    'muted-foreground',
+    'border',
+    'card',
+    'popover-foreground',
+  ]);
+
+  const primaryColor = themeVars['primary'] || FALLBACK_COLORS.primary;
+  const secondaryColor = themeVars['muted-foreground'] || FALLBACK_COLORS.secondary;
+  const borderColor = themeVars['border'] || FALLBACK_COLORS.border;
+  const cardBg = themeVars['card'] || FALLBACK_COLORS.card;
+  const labelFg = themeVars['popover-foreground'] || FALLBACK_COLORS.labelText;
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    root.style.setProperty('--chart-node-label-bg', cardBg);
+    root.style.setProperty('--chart-node-label-border', borderColor);
+    root.style.setProperty('--chart-node-label-fg', labelFg);
+    root.style.setProperty('--chart-node-label-fg-muted', FALLBACK_COLORS.labelTextMuted);
+  }, [cardBg, borderColor, labelFg]);
+
+  const primaryFill = useMemo(() => {
+    return `color-mix(in oklab, ${primaryColor} 88%, white)`;
+  }, [primaryColor]);
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    const update = () => setIsDarkMode(root.classList.contains('dark'));
+    update();
+
+    const observer = new MutationObserver(update);
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   const [activeLink, setActiveLink] = useState<number | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
@@ -136,37 +204,54 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [viewportHeight, setViewportHeight] = useState<number>(0);
 
   const updateTooltip = useCallback((newTooltip: Partial<TooltipState>) => {
     setTooltip((prev) => ({ ...prev, ...newTooltip }));
   }, []);
 
-  // Calculate dynamic height based on number of nodes
-  const chartHeight = useMemo(() => {
-    if (!data?.nodes?.length) return 500;
-
-    // Count max nodes at any depth level
+  const maxNodesInOneColumn = useMemo(() => {
+    if (!data?.nodes?.length) return 1;
     const nodesByDepth: Record<number, number> = {};
-    data.nodes.forEach((node) => {
+    for (const node of data.nodes) {
       const depth = node.depth || 0;
       nodesByDepth[depth] = (nodesByDepth[depth] || 0) + 1;
-    });
-
-    const maxNodesInOneColumn = Math.max(...Object.values(nodesByDepth));
-
-    // Each node needs about 70px of height minimum to ensure they don't overlap with their labels
-    const baseHeight = maxNodesInOneColumn * 70;
-    return Math.max(500, baseHeight);
+    }
+    return Math.max(...Object.values(nodesByDepth));
   }, [data]);
 
+  const chartHeight = useMemo(() => {
+    if (!data?.nodes?.length) return 560;
+    const perNodeVerticalAllowance = 140;
+    const baseHeight = maxNodesInOneColumn * perNodeVerticalAllowance;
+    return Math.max(560, baseHeight);
+  }, [data, maxNodesInOneColumn]);
+
+  const dynamicNodePadding = useMemo(() => {
+    if (maxNodesInOneColumn <= 3) return 120;
+    if (maxNodesInOneColumn <= 4) return 108;
+    if (maxNodesInOneColumn <= 6) return 92;
+    return 80;
+  }, [maxNodesInOneColumn]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const update = () => setViewportHeight(window.innerHeight || 0);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const containerHeight = useMemo(() => {
+    const minVh = viewportHeight ? Math.floor(viewportHeight * 0.7) : 0;
+    return Math.max(560, chartHeight, minVh);
+  }, [chartHeight, viewportHeight]);
   useEffect(() => {
     if (activeLink === null) {
       updateTooltip({ visible: false });
     }
   }, [activeLink, updateTooltip]);
 
-  // Global mouse move handler to ensure tooltip disappears.
-  // This is to ensure the tooltip disappears when the mouse leaves the container as it sometimes doesn't trigger the onMouseLeave event for some reason
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!tooltip.visible) return;
@@ -174,7 +259,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      // Check if mouse is outside the container
       if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
         setActiveLink(null);
       }
@@ -203,25 +287,27 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       payload: { depth: number; name: string; totalTraffic: number };
     }) => {
       const { x, y, width, height, payload } = props;
-      const isFirstColumn = payload.depth === 0;
 
       return (
-        <>
+        <g style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.15))' }}>
           <Rectangle
             x={x}
             y={y}
             width={width}
             height={height}
-            fill={isFirstColumn ? Colors.primary : Colors.secondary}
-            fillOpacity={0.9}
+            fill={primaryFill}
+            fillOpacity={0.95}
+            stroke={borderColor}
+            strokeOpacity={0.2}
+            radius={1}
           />
           <NodeLabel x={x} y={y} width={width} height={height} url={payload.name} count={payload.totalTraffic} />
-        </>
+        </g>
       );
     };
     Component.displayName = 'CustomNode';
     return Component;
-  }, []);
+  }, [borderColor, primaryColor]);
 
   const CustomLink = useMemo(() => {
     const Component = (props: {
@@ -274,25 +360,35 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
         }
       };
 
+      const sourceName = payload?.source?.name ?? '';
+      const targetName = payload?.target?.name ?? '';
+
+      const linkBaseColor = isDarkMode ? '#737373' : secondaryColor;
+      const linkHoverColor = primaryColor;
+
       return (
-        <path
-          d={`
-            M${sourceX},${sourceY}
-            C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}
-          `}
-          fill='none'
-          stroke={activeLink === index ? Colors.primary : '#aaa'}
-          strokeWidth={linkWidth}
-          strokeOpacity={activeLink !== null && activeLink !== index ? 0.3 : 0.7}
-          onMouseEnter={handleMouseEnter}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={() => setActiveLink(null)}
-        />
+        <g aria-label={`${sourceName} to ${targetName}`}>
+          <path
+            d={`
+              M${sourceX},${sourceY}
+              C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}
+            `}
+            fill='none'
+            stroke={activeLink === index ? linkHoverColor : linkBaseColor}
+            strokeWidth={linkWidth}
+            strokeOpacity={activeLink !== null && activeLink !== index ? 0.25 : 0.7}
+            strokeLinecap='butt'
+            onMouseEnter={handleMouseEnter}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => setActiveLink(null)}
+            style={{ pointerEvents: 'stroke' }}
+          />
+        </g>
       );
     };
     Component.displayName = 'CustomLink';
     return Component;
-  }, [activeLink, updateTooltip]);
+  }, [activeLink, isDarkMode, primaryColor, secondaryColor, updateTooltip]);
 
   const TooltipComponent = useMemo(() => {
     if (!tooltip.visible || !tooltip.content) return null;
@@ -306,7 +402,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
           pointerEvents: 'none',
         }}
       >
-        <div className='border-border bg-popover/95 animate-in fade-in-0 zoom-in-95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm duration-200'>
+        <div className='border-border bg-popover/95 animate-in fade-in-0 zoom-in-95 min-w-[220px] rounded-xl border p-3 shadow-2xl backdrop-blur-sm duration-200'>
           <div className='space-y-1.5'>
             <div className='flex items-center justify-between gap-3'>
               <span className='text-popover-foreground text-sm'>
@@ -326,7 +422,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
     <div className='w-full'>
       <div
         className='relative w-full'
-        style={{ height: `${chartHeight}px`, minHeight: '500px' }}
+        style={{ height: `${containerHeight}px`, minHeight: '560px' }}
         ref={containerRef}
       >
         <ResponsiveContainer width='100%' height='100%'>
@@ -334,11 +430,12 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
             data={data}
             node={CustomNode}
             link={CustomLink}
-            margin={{ top: 20, right: 240, bottom: 30, left: 20 }}
-            nodePadding={50}
-            nodeWidth={10}
-            iterations={64}
-            linkCurvature={0.5}
+            margin={{ top: 32, right: 260, bottom: 40, left: 24 }}
+            nodePadding={dynamicNodePadding}
+            nodeWidth={20}
+            iterations={96}
+            linkCurvature={0.6}
+            sort={false}
           />
         </ResponsiveContainer>
 
