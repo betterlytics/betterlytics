@@ -22,7 +22,7 @@ impl Redis {
         let Some(url) = url else { return Ok(None) };
         let client = Client::open(url.as_str())?;
     
-        let manager = match timeout(Duration::from_secs(1), ConnectionManager::new(client.clone())).await {
+        let manager = match timeout(Duration::from_secs(5), ConnectionManager::new(client.clone())).await {
             Ok(Ok(mgr)) => mgr,
             Ok(Err(e)) => {
                 warn!(error = ?e, "Failed to connect to Redis at startup, continuing without Redis");
