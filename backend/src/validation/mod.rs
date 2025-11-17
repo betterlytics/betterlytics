@@ -364,28 +364,23 @@ pub fn check_blacklist(
 /// Outcome for site-config validation to support tagging in storage
 #[derive(Debug, Clone, Copy)]
 pub enum SiteConfigStatus {
-    Approved,
+    /// A site-config was successfully loaded and used for validation
+    Available,
+    /// No site-config exists for this site
     Missing,
+    /// The site-config could not be fetched (e.g. cache/backend error)
     FetchError,
+    /// A site-config exists but is invalid or misconfigured
+    Invalid,
 }
 
 impl SiteConfigStatus {
     pub fn as_str(&self) -> &'static str {
         match self {
-            SiteConfigStatus::Approved => "approved",
+            SiteConfigStatus::Available => "available",
             SiteConfigStatus::Missing => "missing",
             SiteConfigStatus::FetchError => "fetch_error",
-        }
-    }
-}
-
-/// Provides a mapping to the ClickHouse Enum8 values
-impl From<SiteConfigStatus> for i8 {
-    fn from(value: SiteConfigStatus) -> Self {
-        match value {
-            SiteConfigStatus::Approved => 1,
-            SiteConfigStatus::Missing => 2,
-            SiteConfigStatus::FetchError => 3,
+            SiteConfigStatus::Invalid => "invalid",
         }
     }
 }
@@ -404,16 +399,21 @@ pub async fn validate_site_policies_with_status(
     match cfg_cache.get_or_fetch(site_id).await {
         Ok(Some(cfg)) => {
             if let Err(e) = check_blacklist(ip_address, &cfg.blacklisted_ips) {
-                return (Err(e), SiteConfigStatus::Approved);
+                return (Err(e), SiteConfigStatus::Available);
             }
             if cfg.enforce_domain {
-                if let Some(expected) = cfg.domain.as_deref() {
-                    if let Err(e) = check_domain_allowed(expected, event_url, true) {
-                        return (Err(e), SiteConfigStatus::Approved);
-                    }
+                let expected = cfg.domain.trim();
+                if expected.is_empty() {
+                    warn!(
+                        site_id = %site_id,
+                        "site-config has enforce_domain=true but empty domain; marking config as invalid and skipping domain check"
+                    );
+                    return (Ok(()), SiteConfigStatus::Invalid);
+                } else if let Err(e) = check_domain_allowed(expected, event_url, true) {
+                    return (Err(e), SiteConfigStatus::Available);
                 }
             }
-            (Ok(()), SiteConfigStatus::Approved)
+            (Ok(()), SiteConfigStatus::Available)
         }
         Ok(None) => (Ok(()), SiteConfigStatus::Missing),
         Err(_) => (Ok(()), SiteConfigStatus::FetchError),

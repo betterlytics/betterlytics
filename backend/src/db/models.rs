@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum_macros::EnumString;
 use crate::processing::ProcessedEvent;
+use crate::validation::SiteConfigStatus;
 
 // Ensure field order exactly matches ClickHouse table schema
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -110,6 +111,18 @@ impl EventRow {
             cwv_fcp: event.cwv_fcp,
             cwv_ttfb: event.cwv_ttfb,
             site_config_status: event.site_config_status.into(),
+        }
+    }
+}
+
+/// Provides a mapping from `SiteConfigStatus` to the ClickHouse `Enum8` values
+impl From<SiteConfigStatus> for i8 {
+    fn from(value: SiteConfigStatus) -> Self {
+        match value {
+            SiteConfigStatus::Available => 1,
+            SiteConfigStatus::Missing => 2,
+            SiteConfigStatus::FetchError => 3,
+            SiteConfigStatus::Invalid => 4,
         }
     }
 }

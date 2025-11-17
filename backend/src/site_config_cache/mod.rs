@@ -139,6 +139,7 @@ impl SiteConfigCache {
 
     pub fn invalidate(&self, site_id: &str) {
         self.cache.invalidate(site_id);
+        self.negative_cache.invalidate(site_id);
     }
 
     pub async fn run_pubsub_listener(self: Arc<Self>) {
