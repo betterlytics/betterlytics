@@ -34,7 +34,7 @@ pub struct SiteConfig {
     pub site_id: String,
     pub blacklisted_ips: Vec<String>,
     pub enforce_domain: bool,
-    pub domain: Option<String>,
+    pub domain: String,
     pub updated_at: String,
     pub version: u64,
 }
@@ -78,7 +78,7 @@ impl SiteConfigCache {
             if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "hit"); }
             debug!(
                 site_id = %site_id,
-                domain = %cfg.domain.as_deref().unwrap_or(""),
+                domain = %cfg.domain,
                 enforce_domain = %cfg.enforce_domain,
                 blacklist_count = %cfg.blacklisted_ips.len(),
                 version = %cfg.version,
@@ -114,7 +114,7 @@ impl SiteConfigCache {
                         if let Some(m) = &self.metrics { m.increment_cache_lookup(CACHE_NAME, "hit"); }
                         debug!(
                             site_id = %site_id,
-                            domain = %cfg.domain.as_deref().unwrap_or(""),
+                            domain = %cfg.domain,
                             enforce_domain = %cfg.enforce_domain,
                             blacklist_count = %cfg.blacklisted_ips.len(),
                             version = %cfg.version,
