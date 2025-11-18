@@ -5,6 +5,7 @@ import { ScaleLinear } from 'd3-scale';
 import type { PathOptions } from 'leaflet';
 import { type JSX, useCallback, useMemo } from 'react';
 import { ColorScale, useColorScale, UseColorScaleProps } from '@/hooks/use-color-scale';
+import { useCSSColors } from '@/hooks/use-css-colors';
 
 export type UseMapStyleProps = Omit<UseColorScaleProps, 'colors'>;
 export type FeatureStyle = PathOptions;
@@ -15,37 +16,45 @@ export interface MapStyle {
   selectedStyle: (visitors: number) => FeatureStyle;
   hoveredStyle: (visitors: number) => FeatureStyle;
   LeafletCSS: JSX.Element;
-  fillColorScale: ColorScale | null;
-  borderColorScale: ColorScale | null;
+  fillColorScale: ColorScale;
+  borderColorScale: ColorScale;
 }
 
-export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle | null {
-  const fillColorScale = useColorScale({
-    maxValue: maxVisitors,
-    scaleType,
-    colors: [
+export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle {
+  const fillColors = useCSSColors({
+    cssVariables: [
       MAP_VISITOR_COLORS.LOW_VISITORS,
       MAP_VISITOR_COLORS.MEDIUM_VISITORS,
       MAP_VISITOR_COLORS.HIGH_VISITORS,
     ],
   });
 
-  const borderColorScale = useColorScale({
-    maxValue: maxVisitors,
-    scaleType,
-    colors: [
+  const borderColors = useCSSColors({
+    cssVariables: [
       MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
       MAP_FEATURE_BORDER_COLORS.MEDIUM_VISITORS,
       MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
     ],
   });
 
+  const fillColorScale = useColorScale({
+    maxValue: maxVisitors,
+    scaleType,
+    colors: fillColors as [string, string, string],
+  });
+
+  const borderColorScale = useColorScale({
+    maxValue: maxVisitors,
+    scaleType,
+    colors: borderColors as [string, string, string],
+  });
+
   const originalStyle = useCallback(
     (visitors: number) => ({
       ...(visitors
         ? {
-            fillColor: fillColorScale?.(visitors) ?? MAP_VISITOR_COLORS.NO_VISITORS,
-            color: borderColorScale?.(visitors) ?? MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
+            fillColor: fillColorScale(visitors),
+            color: borderColorScale(visitors),
             weight: 1.5,
           }
         : {

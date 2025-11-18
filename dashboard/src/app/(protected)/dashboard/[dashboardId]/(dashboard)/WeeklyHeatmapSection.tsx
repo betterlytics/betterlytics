@@ -14,6 +14,7 @@ import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale, type ScaleType } from '@/hooks/use-color-scale';
 import { formatNumber } from '@/utils/formatters';
+import { useCSSColors } from '@/hooks/use-css-colors';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -146,9 +147,14 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric, scaleType = 'log10' 
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 
+  const colors = useCSSColors({
+    cssVariables: ['var(--graph-fill-low)', 'var(--graph-fill-medium)', 'var(--graph-fill-high)'],
+  });
+
   const colorScale = useColorScale({
     maxValue,
     scaleType,
+    colors: colors as [string, string, string],
   });
 
   const getCellStyle = useCallback(

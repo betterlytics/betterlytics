@@ -2,15 +2,13 @@
 
 import { useMemo } from 'react';
 import { ScaleLinear, ScaleLogarithmic, ScalePower, scaleLinear, scaleLog, scalePow } from 'd3-scale';
-import { useCSSColors } from './use-css-colors';
-
-const DEFAULT_COLORS = ['var(--graph-fill-low)', 'var(--graph-fill-medium)', 'var(--graph-fill-high)'];
 
 export type ScaleType = 'linear' | 'ln' | `log${number}` | `pow-${number}` | `pow-${number}/${number}`;
 
 export type UseColorScaleProps = {
   maxValue: number;
-  colors?: string[];
+  /** Array of resolved color values (hex, rgb, or rgba) - at least 2 colors required */
+  colors: [string, string, ...string[]];
   scaleType?: ScaleType;
 };
 
@@ -20,24 +18,21 @@ export type ColorScale =
   | ScalePower<string, string, never>;
 
 export function useColorScale({
-  colors = DEFAULT_COLORS,
+  colors,
   maxValue,
   scaleType = 'pow-4/10',
-}: UseColorScaleProps): ColorScale | null {
-  const cssColors = useCSSColors(...colors);
-
+}: UseColorScaleProps): ColorScale {
   return useMemo(() => {
-    if (!cssColors || cssColors.length < 2) return null;
 
     if (scaleType.startsWith('log') || scaleType === 'ln') {
       const base = scaleType === 'ln' ? Math.E : parseInt(scaleType.slice(3), 10);
 
       return scaleLog<string>()
         .base(base)
-        .domain(Array.from({ length: cssColors.length }, (_, i) =>
-          i === 0 ? 1 : 1 + (Math.max(1, maxValue) - 1) * (i / (cssColors.length - 1))
+        .domain(Array.from({ length: colors.length }, (_, i) =>
+          i === 0 ? 1 : 1 + (Math.max(1, maxValue) - 1) * (i / (colors.length - 1))
         ))
-        .range(cssColors)
+        .range(colors)
         .clamp(true);
     }
 
@@ -53,14 +48,14 @@ export function useColorScale({
 
       return scalePow<string>()
         .exponent(exponent)
-        .domain(Array.from({ length: cssColors.length }, (_, i) => maxValue * (i / (cssColors.length - 1))))
-        .range(cssColors)
+        .domain(Array.from({ length: colors.length }, (_, i) => maxValue * (i / (colors.length - 1))))
+        .range(colors)
         .clamp(true);
     }
 
     return scaleLinear<string>()
-      .domain(Array.from({ length: cssColors.length }, (_, i) => maxValue * (i / (cssColors.length - 1))))
-      .range(cssColors)
+      .domain(Array.from({ length: colors.length }, (_, i) => maxValue * (i / (colors.length - 1))))
+      .range(colors)
       .clamp(true);
-  }, [cssColors, scaleType, maxValue]);
+  }, [colors, scaleType, maxValue]);
 }
