@@ -3,10 +3,10 @@
 import { Dashboard } from '@/entities/dashboard';
 import {
   createDashboard,
-  findAllDashboardsWithConfigLite,
+  findAllDashboardsWithSiteConfig,
   findAllUserDashboards,
 } from '@/repositories/postgres/dashboard';
-import { ensureDashboardConfig } from '@/services/dashboardConfig';
+import { ensureSiteConfig } from '@/services/siteConfig';
 import { getUserSubscription } from '@/repositories/postgres/subscription';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
@@ -16,7 +16,7 @@ import { updateUserSettings } from '@/services/userSettings';
 import { SupportedLanguages } from '@/constants/i18n';
 import { ensureTermsAccepted } from '@/services/user.service';
 import { writeConfigsBatch } from '@/repositories/redisConfigRepository';
-import { createDashboardConfigs } from '@/repositories/postgres/dashboardConfig';
+import { createSiteConfigs } from '@/repositories/postgres/siteConfig';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
   await validateDashboardCreationLimit(userId);
@@ -30,9 +30,9 @@ export async function createNewDashboard(domain: string, userId: string): Promis
   const dashboard = await createDashboard(dashboardData);
 
   try {
-    await ensureDashboardConfig(dashboard.id);
+    await ensureSiteConfig(dashboard.id);
   } catch (e) {
-    console.error('Failed to ensure dashboard config after creation:', e);
+    console.error('Failed to ensure site config after creation:', e);
   }
   return dashboard;
 }
@@ -92,12 +92,12 @@ export async function getUserDashboardStats(userId: string): Promise<{
   };
 }
 
-export async function reconcileAllDashboardConfigs(): Promise<{ processed: number }> {
-  const items = await findAllDashboardsWithConfigLite();
+export async function reconcileAllSiteConfigs(): Promise<{ processed: number }> {
+  const items = await findAllDashboardsWithSiteConfig();
 
   const missingDashboardIds = items.filter((d) => !d.config).map((d) => d.dashboardId);
   if (missingDashboardIds.length > 0) {
-    const created = await createDashboardConfigs(missingDashboardIds);
+    const created = await createSiteConfigs(missingDashboardIds);
     const createdByDashboardId = new Map(created.map((c) => [c.dashboardId, c]));
     for (const it of items) {
       if (!it.config) {

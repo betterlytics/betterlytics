@@ -14,9 +14,9 @@ import DataDashboardSettings from '@/components/dashboardSettings/DashboardDataS
 import DangerZoneDashboardSettings from '@/components/dashboardSettings/DashboardDangerZoneSettings';
 import useIsChanged from '@/hooks/use-is-changed';
 import { useTranslations } from 'next-intl';
-import { saveDashboardConfigAction } from '@/app/actions/siteConfig';
-import type { DashboardConfigUpdate } from '@/entities/dashboardConfig';
-import { useDashboardConfig } from '@/hooks/use-dashboard-config';
+import { saveSiteConfigAction } from '@/app/actions/siteConfig';
+import type { SiteConfigUpdate } from '@/entities/siteConfig';
+import { useSiteConfig } from '@/hooks/use-site-config';
 
 interface SettingsTabConfig {
   id: string;
@@ -24,8 +24,8 @@ interface SettingsTabConfig {
   component: React.ComponentType<{
     dashboardSettings: DashboardSettingsUpdate;
     onUpdate: (updates: Partial<DashboardSettingsUpdate>) => void;
-    dashboardConfig: DashboardConfigUpdate;
-    onConfigChange: (next: DashboardConfigUpdate) => void;
+    siteConfig: SiteConfigUpdate;
+    onConfigChange: (next: SiteConfigUpdate) => void;
   }>;
 }
 
@@ -72,8 +72,8 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
   const isFormChanged = useIsChanged(formData, settings);
   const t = useTranslations('components.dashboardSettingsDialog');
 
-  const { config, initialConfig, isLoading, setConfig, commitInitialConfig } = useDashboardConfig();
-  const isConfigChanged = useIsChanged<DashboardConfigUpdate>(config, initialConfig);
+  const { config, initialConfig, isLoading, setConfig, commitInitialConfig } = useSiteConfig();
+  const isConfigChanged = useIsChanged<SiteConfigUpdate>(config, initialConfig);
 
   useEffect(() => {
     if (settings) {
@@ -90,7 +90,7 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
       try {
         const tasks: Promise<
           | Awaited<ReturnType<typeof updateDashboardSettingsAction>>
-          | Awaited<ReturnType<typeof saveDashboardConfigAction>>
+          | Awaited<ReturnType<typeof saveSiteConfigAction>>
         >[] = [];
 
         if (isFormChanged) {
@@ -98,13 +98,10 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
         }
 
         if (isConfigChanged && config) {
-          tasks.push(saveDashboardConfigAction(dashboardId, config as DashboardConfigUpdate));
+          tasks.push(saveSiteConfigAction(dashboardId, config));
         }
 
-        if (tasks.length > 0) {
-          await Promise.all(tasks);
-        }
-
+        await Promise.all(tasks);
         await refreshSettings();
 
         if (isConfigChanged) {
@@ -157,8 +154,8 @@ export default function DashboardSettingsDialog({ open, onOpenChange }: Dashboar
                   <Component
                     dashboardSettings={formData}
                     onUpdate={handleUpdate}
-                    dashboardConfig={config}
-                    onConfigChange={(next: DashboardConfigUpdate) => setConfig(next)}
+                    siteConfig={config}
+                    onConfigChange={(next: SiteConfigUpdate) => setConfig(next)}
                   />
                 </TabsContent>
               );

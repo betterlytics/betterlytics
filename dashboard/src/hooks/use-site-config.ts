@@ -1,24 +1,24 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { getDashboardConfigAction } from '@/app/actions/siteConfig';
-import type { DashboardConfigUpdate } from '@/entities/dashboardConfig';
+import { getSiteConfigAction } from '@/app/actions/siteConfig';
+import type { SiteConfigUpdate } from '@/entities/siteConfig';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 
-type UseDashboardConfigResult = {
-  config: DashboardConfigUpdate | null;
-  initialConfig: DashboardConfigUpdate | null;
+type UseSiteConfigResult = {
+  config: SiteConfigUpdate | null;
+  initialConfig: SiteConfigUpdate | null;
   isLoading: boolean;
   error: string | null;
-  setConfig: (next: DashboardConfigUpdate) => void;
+  setConfig: (next: SiteConfigUpdate) => void;
   refreshConfig: () => Promise<void>;
   commitInitialConfig: () => void;
 };
 
-export function useDashboardConfig(): UseDashboardConfigResult {
+export function useSiteConfig(): UseSiteConfigResult {
   const dashboardId = useDashboardId();
-  const [config, setConfig] = useState<DashboardConfigUpdate | null>(null);
-  const [initialConfig, setInitialConfig] = useState<DashboardConfigUpdate | null>(null);
+  const [config, setConfig] = useState<SiteConfigUpdate | null>(null);
+  const [initialConfig, setInitialConfig] = useState<SiteConfigUpdate | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,9 +26,9 @@ export function useDashboardConfig(): UseDashboardConfigResult {
     setIsLoading(true);
     setError(null);
     try {
-      const cfg = await getDashboardConfigAction(dashboardId);
+      const cfg = await getSiteConfigAction(dashboardId);
       if (cfg) {
-        const updateShape: DashboardConfigUpdate = {
+        const updateShape: SiteConfigUpdate = {
           enforceDomain: cfg.enforceDomain,
           blacklistedIps: cfg.blacklistedIps,
         };

@@ -11,21 +11,21 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import type { DashboardConfigUpdate } from '@/entities/dashboardConfig';
+import type { SiteConfigUpdate } from '@/entities/siteConfig';
 import { isIP } from 'is-ip';
 import isCidr from 'is-cidr';
 
 type DataSettingsProps = {
   dashboardSettings: DashboardSettingsUpdate;
   onUpdate: (updates: Partial<DashboardSettingsUpdate>) => void;
-  dashboardConfig: DashboardConfigUpdate;
-  onConfigChange: (next: DashboardConfigUpdate) => void;
+  siteConfig: SiteConfigUpdate;
+  onConfigChange: (next: SiteConfigUpdate) => void;
 };
 
 export default function DataSettings({
   dashboardSettings,
   onUpdate,
-  dashboardConfig,
+  siteConfig,
   onConfigChange,
 }: DataSettingsProps) {
   const t = useTranslations('components.dashboardSettingsDialog.data');
@@ -40,8 +40,8 @@ export default function DataSettings({
       return;
     }
     onConfigChange({
-      ...dashboardConfig,
-      blacklistedIps: Array.from(new Set([...(dashboardConfig.blacklistedIps || []), ip])),
+      ...siteConfig,
+      blacklistedIps: Array.from(new Set([...(siteConfig.blacklistedIps || []), ip])),
     });
     setNewIp('');
     setIpError('');
@@ -49,8 +49,8 @@ export default function DataSettings({
 
   const removeIp = (ip: string) => {
     onConfigChange({
-      ...dashboardConfig,
-      blacklistedIps: (dashboardConfig.blacklistedIps || []).filter((x) => x !== ip),
+      ...siteConfig,
+      blacklistedIps: (siteConfig.blacklistedIps || []).filter((x) => x !== ip),
     });
   };
 
@@ -96,8 +96,8 @@ export default function DataSettings({
             id='enforce-domain'
             className='cursor-pointer'
             aria-label={t('siteRules.enforceDomain')}
-            checked={!!dashboardConfig.enforceDomain}
-            onCheckedChange={(v) => onConfigChange({ ...dashboardConfig, enforceDomain: !!v })}
+            checked={!!siteConfig.enforceDomain}
+            onCheckedChange={(v) => onConfigChange({ ...siteConfig, enforceDomain: !!v })}
           />
         </div>
       </SettingsCard>
@@ -140,9 +140,9 @@ export default function DataSettings({
 
           <div className='space-y-2'>
             <div className='border-border bg-muted/30 h-[200px] overflow-y-auto rounded-md border p-2'>
-              {(dashboardConfig.blacklistedIps || []).length > 0 ? (
+              {(siteConfig.blacklistedIps || []).length > 0 ? (
                 <div className='space-y-2'>
-                  {(dashboardConfig.blacklistedIps || []).map((ip) => (
+                  {(siteConfig.blacklistedIps || []).map((ip) => (
                     <div
                       key={ip}
                       className='border-border bg-background/20 hover:bg-accent/10 flex items-center justify-between rounded-md border px-3 py-2.5 transition-colors'

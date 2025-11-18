@@ -141,7 +141,7 @@ model Dashboard {
   userAccess UserDashboard[]
   funnels Funnel[]
   settings DashboardSettings?
-  config DashboardConfig?
+  config SiteConfig?
 }
 
 model UserDashboard {
@@ -200,13 +200,13 @@ model DashboardSettings {
   updatedAt DateTime @updatedAt
 }
 
-model DashboardConfig {
+model SiteConfig {
   id        String   @id @default(cuid())
   dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
   dashboardId String @unique
 
   blacklistedIps String[] @default([])
-  enforceDomain Boolean @default(true)
+  enforceDomain Boolean @default(false)
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

@@ -1,6 +1,6 @@
 'use server';
 import { ensureRedisConnected, getRedisClient } from '@/lib/redis';
-import type { DashboardConfig } from '@/entities/dashboardConfig';
+import type { SiteConfig } from '@/entities/siteConfig';
 import { z } from 'zod';
 
 const CONFIG_KEY = (siteId: string) => `site:cfg:${siteId}`;
@@ -17,7 +17,7 @@ const RedisSiteConfigPayload = z
   })
   .strict();
 
-export async function writeConfigToRedis(siteId: string, config: DashboardConfig, domain: string): Promise<void> {
+export async function writeConfigToRedis(siteId: string, config: SiteConfig, domain: string): Promise<void> {
   await ensureRedisConnected();
   const client = getRedisClient();
   const data = {

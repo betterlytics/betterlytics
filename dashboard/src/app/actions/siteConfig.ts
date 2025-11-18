@@ -1,17 +1,17 @@
 'use server';
 
-import { withDashboardAuthContext } from '@/auth/auth-actions';
+import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/authContext';
-import { DashboardConfigUpdateSchema, type DashboardConfigUpdate } from '@/entities/dashboardConfig';
-import * as ConfigService from '@/services/dashboardConfig';
+import { SiteConfigUpdateSchema, type SiteConfigUpdate } from '@/entities/siteConfig';
+import { getSiteConfig, saveSiteConfig } from '@/services/siteConfig';
 
-export const getDashboardConfigAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  return await ConfigService.getDashboardConfig(ctx.dashboardId);
+export const getSiteConfigAction = withDashboardAuthContext(async (ctx: AuthContext) => {
+  return await getSiteConfig(ctx.dashboardId);
 });
 
-export const saveDashboardConfigAction = withDashboardAuthContext(
-  async (ctx: AuthContext, updates: DashboardConfigUpdate) => {
-    const validated = DashboardConfigUpdateSchema.parse(updates);
-    return await ConfigService.saveDashboardConfig(ctx.dashboardId, validated);
+export const saveSiteConfigAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, updates: SiteConfigUpdate) => {
+    const validated = SiteConfigUpdateSchema.parse(updates);
+    return await saveSiteConfig(ctx.dashboardId, validated);
   },
 );

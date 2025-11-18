@@ -428,14 +428,13 @@ pub fn check_domain_allowed(
     allow_subdomains: bool,
 ) -> Result<(), ValidationError> {
     if let Ok(url) = Url::parse(event_url) {
-        let event_domain = url.host_str().unwrap_or("");
+        let event_domain_lc = url.host_str().unwrap_or("").to_ascii_lowercase();
         let expected_lc = expected_domain.to_ascii_lowercase();
-        let event_lc = event_domain.to_ascii_lowercase();
 
         let allowed = if allow_subdomains {
-            event_lc == expected_lc || event_lc.ends_with(&format!(".{}", expected_lc))
+            event_domain_lc == expected_lc || event_domain_lc.ends_with(&format!(".{}", expected_lc))
         } else {
-            event_lc == expected_lc
+            event_domain_lc == expected_lc
         };
 
         if !allowed {
