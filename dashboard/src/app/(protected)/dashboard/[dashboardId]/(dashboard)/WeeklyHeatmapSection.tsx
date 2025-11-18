@@ -147,9 +147,11 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric, scaleType = 'log10' 
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 
-  const colors = useCSSColors({
-    cssVariables: ['var(--graph-fill-low)', 'var(--graph-fill-medium)', 'var(--graph-fill-high)'],
-  });
+  const colors = useCSSColors([
+    'var(--graph-fill-low)',
+    'var(--graph-fill-medium)',
+    'var(--graph-fill-high)',
+  ] as const);
 
   const colorScale = useColorScale({
     maxValue,
