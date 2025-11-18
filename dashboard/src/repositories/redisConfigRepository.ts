@@ -1,5 +1,5 @@
 'use server';
-import { ensureRedisConnected, getRedisClient } from '@/lib/redis';
+import { ensureRedisConnected, getRedisClient, runRedisBestEffort } from '@/lib/redis';
 import type { SiteConfig } from '@/entities/siteConfig';
 import { z } from 'zod';
 
@@ -29,14 +29,18 @@ export async function writeConfigToRedis(siteId: string, config: SiteConfig, dom
     version: Number(config.updatedAt),
   };
   const validated = RedisSiteConfigPayload.parse(data);
-  await client.set(CONFIG_KEY(siteId), JSON.stringify(validated));
+
+  await runRedisBestEffort(() => client.set(CONFIG_KEY(siteId), JSON.stringify(validated)), {
+    label: 'writeConfigToRedis',
+  });
 }
 
 export async function publishConfigInvalidation(siteId: string, version?: number): Promise<void> {
   await ensureRedisConnected();
   const client = getRedisClient();
   const message = JSON.stringify({ site_id: siteId, version });
-  await client.publish(CONFIG_CHANNEL, message);
+
+  await runRedisBestEffort(() => client.publish(CONFIG_CHANNEL, message), { label: 'publishConfigInvalidation' });
 }
 
 export async function writeConfigsBatch(
@@ -66,6 +70,7 @@ export async function writeConfigsBatch(
     count++;
   }
 
-  await pipeline.exec();
+  await runRedisBestEffort(() => pipeline.exec(), { label: 'writeConfigsBatch' });
+
   return count;
 }
