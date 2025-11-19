@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "unit-tests": "vitest run",
-    "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma",
+    "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js",
     "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma"
   },
   "prisma": {
@@ -83,7 +83,6 @@
     "react-qr-code": "^2.0.18",
     "react-window": "^2.1.2",
     "recharts": "^2.15.3",
-    "redis": "^4.7.0",
     "rrweb-player": "1.0.0-alpha.4",
     "server-only": "^0.0.1",
     "sonner": "^2.0.3",

@@ -15,7 +15,6 @@ mod session;
 mod geoip;
 mod geoip_updater;
 mod bot_detection;
-mod redis;
 mod referrer;
 mod outbound_link;
 mod url_utils;
@@ -25,7 +24,7 @@ mod metrics;
 mod validation;
 mod storage;
 mod session_replay;
-mod site_config_cache;
+mod site_config;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use db::{Database, SharedDatabase};
@@ -35,8 +34,7 @@ use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
 use validation::{EventValidator, ValidationConfig};
 use storage::s3::S3Service;
-use site_config_cache::SiteConfigCache;
-use redis::try_init as try_init_redis;
+use site_config::{RefreshConfig, SiteConfigCache, SiteConfigRepository, SiteConfigDataSource};
 
 #[tokio::main]
 async fn main() {
@@ -88,18 +86,21 @@ async fn main() {
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
-    let redis = try_init_redis(config.redis_url.clone()).await;
-    
-    let site_cfg_cache = Arc::new(
-        SiteConfigCache::new(redis.clone(), metrics_collector.clone())
+    let site_config_repo: Arc<dyn SiteConfigDataSource> = Arc::new(
+        SiteConfigRepository::new(&config.site_config_database_url)
             .await
-            .expect("Failed to init SiteConfigCache"),
+            .expect("Failed to initialize site-config repository"),
     );
 
-    site_cfg_cache
-        .clone()
-        .spawn_listener_with_reconnect(config.redis_url.clone())
-        .await;
+    let refresh_config = RefreshConfig::default();
+
+    let site_cfg_cache = SiteConfigCache::initialize(
+        site_config_repo,
+        refresh_config,
+        metrics_collector.clone(),
+    )
+    .await
+    .expect("Failed to init SiteConfigCache");
 
     // Initialize optional S3 service for session replay storage
     let s3_service: Option<Arc<S3Service>> = match S3Service::from_config(config.clone()).await {

@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 
 use crate::session;
 use crate::storage::s3::S3Service;
-use crate::site_config_cache::SiteConfigCache;
+use crate::site_config::SiteConfigCache;
 use crate::ua_parser;
 use crate::analytics::detect_device_type_from_resolution;
 use crate::analytics::generate_fingerprint;

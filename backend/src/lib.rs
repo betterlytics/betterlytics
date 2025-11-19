@@ -13,8 +13,7 @@ pub mod metrics;
 pub mod url_utils;
 pub mod outbound_link;
 pub mod validation;
-pub mod site_config_cache;
-pub mod redis;
+pub mod site_config;
 
 // Re-export commonly used types
 pub use analytics::{AnalyticsEvent, generate_site_id};

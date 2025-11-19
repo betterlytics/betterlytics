@@ -29,9 +29,10 @@ pub struct MetricsCollector {
     // Cache lookup metrics
     cache_lookups_total: IntCounterVec,
 
-    // Site-config pubsub health/time
-    site_config_pubsub_healthy: Gauge,
+    // Site-config cache health/time
+    site_config_cache_healthy: Gauge,
     site_config_last_refresh_timestamp_seconds: Gauge,
+    site_config_cache_entries: Gauge,
 
     // System info
     system: Arc<RwLock<System>>,
@@ -99,14 +100,19 @@ impl MetricsCollector {
             &["cache", "result"],
         )?;
 
-        let site_config_pubsub_healthy = Gauge::with_opts(Opts::new(
-            "site_config_pubsub_healthy",
-            "Health of the site-config pubsub listener (1=healthy, 0=unhealthy)"
+        let site_config_cache_healthy = Gauge::with_opts(Opts::new(
+            "site_config_cache_healthy",
+            "Health of the site-config cache (1=healthy, 0=unhealthy; based on refresh recency)"
         ))?;
 
         let site_config_last_refresh_timestamp_seconds = Gauge::with_opts(Opts::new(
             "site_config_last_refresh_timestamp_seconds",
             "Unix timestamp (seconds) of the last successful site-config refresh"
+        ))?;
+
+        let site_config_cache_entries = Gauge::with_opts(Opts::new(
+            "site_config_cache_entries",
+            "Number of site-config entries currently loaded in memory"
         ))?;
         
         registry.register(Box::new(system_cpu_usage.clone()))?;
@@ -119,8 +125,9 @@ impl MetricsCollector {
         registry.register(Box::new(events_rejected_total.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
         registry.register(Box::new(cache_lookups_total.clone()))?;
-        registry.register(Box::new(site_config_pubsub_healthy.clone()))?;
+        registry.register(Box::new(site_config_cache_healthy.clone()))?;
         registry.register(Box::new(site_config_last_refresh_timestamp_seconds.clone()))?;
+        registry.register(Box::new(site_config_cache_entries.clone()))?;
         
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -140,8 +147,9 @@ impl MetricsCollector {
             events_rejected_total,
             validation_duration,
             cache_lookups_total,
-            site_config_pubsub_healthy,
+            site_config_cache_healthy,
             site_config_last_refresh_timestamp_seconds,
+            site_config_cache_entries,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -220,12 +228,16 @@ impl MetricsCollector {
         self.cache_lookups_total.with_label_values(&[cache, result]).inc();
     }
 
-    pub fn set_site_config_pubsub_healthy(&self, healthy: bool) {
-        self.site_config_pubsub_healthy.set(if healthy { 1.0 } else { 0.0 });
+    pub fn set_site_config_cache_healthy(&self, healthy: bool) {
+        self.site_config_cache_healthy.set(if healthy { 1.0 } else { 0.0 });
     }
 
     pub fn set_site_config_last_refresh_timestamp_seconds(&self, ts_seconds: f64) {
         self.site_config_last_refresh_timestamp_seconds.set(ts_seconds);
+    }
+
+    pub fn set_site_config_cache_entries(&self, count: f64) {
+        self.site_config_cache_entries.set(count);
     }
     
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {

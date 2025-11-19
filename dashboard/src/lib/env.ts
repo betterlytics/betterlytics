@@ -36,7 +36,6 @@ const envSchema = z.object({
   APP_TRACKING_SITE_ID: z.string().optional(),
   ALLOW_CRAWLING: zStringBoolean,
   DEMO_DASHBOARD_ID: z.string().optional(),
-  REDIS_URL: z.string().optional(),
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()

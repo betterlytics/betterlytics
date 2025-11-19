@@ -5,7 +5,7 @@ use ipnet::IpNet;
 use std::str::FromStr;
 use url::Url;
 use crate::analytics::RawTrackingEvent;
-use crate::site_config_cache::SiteConfigCache;
+use crate::site_config::SiteConfigCache;
 use sha2::{Digest, Sha256};
 use tracing::warn;
 
@@ -392,12 +392,8 @@ pub async fn validate_site_policies_with_status(
     event_url: &str,
     ip_address: &str,
 ) -> (Result<(), ValidationError>, SiteConfigStatus) {
-    if !cfg_cache.is_enabled().await {
-        return (Ok(()), SiteConfigStatus::Missing);
-    }
-
-    match cfg_cache.get_or_fetch(site_id).await {
-        Ok(Some(cfg)) => {
+    match cfg_cache.get(site_id).await {
+        Some(cfg) => {
             if let Err(e) = check_blacklist(ip_address, &cfg.blacklisted_ips) {
                 return (Err(e), SiteConfigStatus::Available);
             }
@@ -415,8 +411,12 @@ pub async fn validate_site_policies_with_status(
             }
             (Ok(()), SiteConfigStatus::Available)
         }
-        Ok(None) => (Ok(()), SiteConfigStatus::Missing),
-        Err(_) => (Ok(()), SiteConfigStatus::FetchError),
+        None => (
+            Err(ValidationError::InvalidSiteId(
+                "SiteID not recognized or missing".to_string(),
+            )),
+            SiteConfigStatus::Missing,
+        ),
     }
 }
 
