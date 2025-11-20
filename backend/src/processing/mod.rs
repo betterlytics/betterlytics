@@ -12,7 +12,6 @@ use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
 use crate::outbound_link::process_outbound_link;
 use crate::analytics::detect_device_type_from_resolution_with_fallback;
-use crate::validation::SiteConfigStatus;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -53,8 +52,6 @@ pub struct ProcessedEvent {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
-    /// Site-config parsing status
-    pub site_config_status: SiteConfigStatus,
 }
 
 /// Event processor that handles real-time processing
@@ -111,7 +108,6 @@ impl EventProcessor {
             cwv_inp: None,
             cwv_fcp: None,
             cwv_ttfb: None,
-            site_config_status: event.site_config_status,
         };
 
         // Handle event types

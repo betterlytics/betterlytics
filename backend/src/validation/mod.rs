@@ -361,62 +361,37 @@ pub fn check_blacklist(
     }
 }
 
-/// Outcome for site-config validation to support tagging in storage
-#[derive(Debug, Clone, Copy)]
-pub enum SiteConfigStatus {
-    /// A site-config was successfully loaded and used for validation
-    Available,
-    /// No site-config exists for this site
-    Missing,
-    /// The site-config could not be fetched (e.g. cache/backend error)
-    FetchError,
-    /// A site-config exists but is invalid or misconfigured
-    Invalid,
-}
-
-impl SiteConfigStatus {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            SiteConfigStatus::Available => "available",
-            SiteConfigStatus::Missing => "missing",
-            SiteConfigStatus::FetchError => "fetch_error",
-            SiteConfigStatus::Invalid => "invalid",
-        }
-    }
-}
-
-/// Validate site-specific policies and returns the status of the site config
-pub async fn validate_site_policies_with_status(
+/// Validate site-specific policies using the in-memory site-config cache
+pub async fn validate_site_policies(
     cfg_cache: &SiteConfigCache,
     site_id: &str,
     event_url: &str,
     ip_address: &str,
-) -> (Result<(), ValidationError>, SiteConfigStatus) {
+) -> Result<(), ValidationError> {
     match cfg_cache.get(site_id).await {
         Some(cfg) => {
             if let Err(e) = check_blacklist(ip_address, &cfg.blacklisted_ips) {
-                return (Err(e), SiteConfigStatus::Available);
+                return Err(e);
             }
             if cfg.enforce_domain {
                 let expected = cfg.domain.trim();
                 if expected.is_empty() {
                     warn!(
                         site_id = %site_id,
-                        "site-config has enforce_domain=true but empty domain; marking config as invalid and skipping domain check"
+                        "site-config has enforce_domain=true but empty domain; rejecting event as misconfigured"
                     );
-                    return (Ok(()), SiteConfigStatus::Invalid);
+                    return Err(ValidationError::DomainNotAllowed(
+                        "Site config domain is misconfigured".to_string(),
+                    ));
                 } else if let Err(e) = check_domain_allowed(expected, event_url, true) {
-                    return (Err(e), SiteConfigStatus::Available);
+                    return Err(e);
                 }
             }
-            (Ok(()), SiteConfigStatus::Available)
+            Ok(())
         }
-        None => (
-            Err(ValidationError::InvalidSiteId(
+        None => Err(ValidationError::InvalidSiteId(
                 "SiteID not recognized or missing".to_string(),
             )),
-            SiteConfigStatus::Missing,
-        ),
     }
 }
 

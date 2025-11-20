@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use crate::validation::SiteConfigStatus;
 use nanoid::nanoid;
 
 mod fingerprint;
@@ -45,16 +44,13 @@ pub struct AnalyticsEvent {
     pub raw: RawTrackingEvent,
     /// Client IP address
     pub ip_address: String,
-    /// Site-config status determined during validation
-    pub site_config_status: SiteConfigStatus,
 }
 
 impl AnalyticsEvent {
-    pub fn new(raw: RawTrackingEvent, ip_address: String, site_config_status: SiteConfigStatus) -> Self {
+    pub fn new(raw: RawTrackingEvent, ip_address: String) -> Self {
         Self {
             raw,
             ip_address,
-            site_config_status,
         }
     }
 }

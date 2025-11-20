@@ -204,8 +204,7 @@ async fn track_event(
         metrics_collector.record_validation_duration(validation_start.elapsed());
     }
 
-    // Enforce site config and capture status for tagging
-    let (site_policy_result, site_cfg_status) = validation::validate_site_policies_with_status(
+    let site_policy_result = validation::validate_site_policies(
         &site_cfg_cache,
         &validated_event.raw.site_id,
         &validated_event.raw.url,
@@ -222,7 +221,7 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address, site_cfg_status);
+    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
 
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process validated event: {}", e);
