@@ -108,8 +108,7 @@ impl Config {
             s3_force_path_style: env::var("S3_FORCE_PATH_STYLE").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
-                .or_else(|_| env::var("POSTGRES_URL"))
-                .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/betterlytics".to_string()),
+                .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
         }
     }
 } 
