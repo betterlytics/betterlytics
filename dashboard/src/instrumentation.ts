@@ -1,30 +1,5 @@
 export async function register() {
   registerOpenTelemetry();
-  registerSiteConfigReconciliation();
-}
-
-export async function registerSiteConfigReconciliation() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const { env } = await import('@/lib/env');
-    if (!env.REDIS_URL) {
-      console.log('Redis URL is not set, skipping dashboard config reconciliation');
-      return;
-    }
-
-    try {
-      const { reconcileAllSiteConfigs } = await import('@/services/dashboard');
-
-      reconcileAllSiteConfigs()
-        .then(({ processed }) => {
-          console.log(`Redis warm-up finished. processed=${processed}`);
-        })
-        .catch((err) => {
-          console.error('Redis warm-up failed:', err);
-        });
-    } catch (err) {
-      console.error('Redis warm-up failed:', err);
-    }
-  }
 }
 
 export async function registerOpenTelemetry() {
