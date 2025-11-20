@@ -100,7 +100,7 @@ impl SiteConfigCache {
         Ok(cache)
     }
 
-    pub async fn get(&self, site_id: &str) -> Option<Arc<SiteConfig>> {
+    pub fn get(&self, site_id: &str) -> Option<Arc<SiteConfig>> {
         let map = self.configs.load();
         let cfg = map.get(site_id).cloned();
         if let Some(metrics) = &self.metrics {
@@ -239,9 +239,7 @@ impl SiteConfigCache {
 
     async fn evaluate_health(&self) {
         let stale_after = self.refresh_config.stale_after;
-        if stale_after.is_zero() {
-            return;
-        }
+        if stale_after.is_zero() { return; }
         let healthy = {
             let last = self.last_refresh_success_at.read().await.clone();
             match last {

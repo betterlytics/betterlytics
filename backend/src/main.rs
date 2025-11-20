@@ -178,8 +178,6 @@ async fn track_event(
     
     let validation_start = std::time::Instant::now();
 
-    debug!(site_id = %raw_event.site_id, event = %raw_event.event_name, url = %raw_event.url, "received event");
-
     // Validate and sanitize event
     let validated_event = match validator.validate_event(raw_event, ip_address.clone()).await {
         Ok(validated) => validated,

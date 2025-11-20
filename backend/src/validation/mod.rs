@@ -368,7 +368,7 @@ pub async fn validate_site_policies(
     event_url: &str,
     ip_address: &str,
 ) -> Result<(), ValidationError> {
-    match cfg_cache.get(site_id).await {
+    match cfg_cache.get(site_id) {
         Some(cfg) => {
             if let Err(e) = check_blacklist(ip_address, &cfg.blacklisted_ips) {
                 return Err(e);
