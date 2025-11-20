@@ -1,8 +1,7 @@
 import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
-import FunnelsListSection from './FunnelsListSection';
 import CreateFunnelButton from './CreateFunnelButton';
-import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
+import FunnelsStack from '@/components/funnels/FunnelsStack';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
@@ -46,16 +45,8 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
         <FunnelsHeader funnelsPromise={funnelsPromise} title={t('funnels')} />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <div className='space-y-5'>
-            {[1, 2, 3].map((i) => (
-              <FunnelSkeleton key={i} />
-            ))}
-          </div>
-        }
-      >
-        <FunnelsListSection funnelsPromise={funnelsPromise} />
+      <Suspense fallback={<FunnelsStack.Skeleton />}>
+        <FunnelsStack promise={funnelsPromise} />
       </Suspense>
     </div>
   );
