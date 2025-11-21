@@ -20,6 +20,7 @@ import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
 import { DashboardFindByUserSchema } from '@/entities/dashboard';
 import { env } from '@/lib/env';
+import { WhatsNewModal } from '@/components/whats-new/WhatsNewModal';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -82,6 +83,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
             </Suspense>
             <div className='flex w-full justify-center'>{children}</div>
             {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+            {!mustAcceptTerms && <WhatsNewModal />}
           </BannerProvider>
         </DashboardLayoutShell>
       </DashboardProvider>

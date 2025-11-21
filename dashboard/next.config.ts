@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import createNextIntlPlugin from 'next-intl/plugin';
+import createMDX from '@next/mdx';
 
 // Load environment variables from the root directory
 const rootDir = path.resolve(process.cwd(), '..');
@@ -12,8 +13,14 @@ if (result.error) {
   console.warn('Could not load .env file from root:', result.error.message);
 }
 
+const withNextIntl = createNextIntlPlugin();
+const withMDX = createMDX({
+  extension: /\.mdx?$/,
+});
+
 const nextConfig: NextConfig = {
   output: 'standalone',
+  pageExtensions: ['ts', 'tsx', 'mdx'],
   async headers() {
     return [
       {
@@ -24,4 +31,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default createNextIntlPlugin()(nextConfig);
+export default withNextIntl(withMDX(nextConfig));
