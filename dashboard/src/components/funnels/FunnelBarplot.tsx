@@ -4,6 +4,7 @@ import { QueryFilter } from '@/entities/filter';
 import type { PresentedFunnel } from '@/presenters/toFunnel';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { formatQueryFilter } from '@/utils/queryFilterFormatters';
+import { ChevronDown, EllipsisVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -159,22 +160,22 @@ export default function FunnelBarplot({ funnel: _ }: FunnelChartProps) {
   const tFilters = useTranslations('components.filters');
 
   return (
-    <div className='bg-card gap-10 space-y-2 rounded-xl border p-2'>
-      <div className='px-2'>
-        <h2 className='text-foreground text-base font-semibold'>{funnel.name}</h2>
+    <div className='bg-card w-fit gap-10 space-y-4 rounded-xl border p-4'>
+      <div className='flex w-full items-center justify-between'>
+        <h2 className='text-foreground px-2 text-xl font-semibold'>{funnel.name}</h2>
+        <EllipsisVertical className='h-4 w-4' />
       </div>
 
       <div className='relative flex w-fit border-r'>
         {funnel.steps.map((step, i) => (
           <div key={i} className='flex w-50 flex-col'>
             <div className='w-full border border-r-0 p-2'>
-              <h4 className='text-foreground truncate text-sm font-medium'>
+              <div>
+                <p className='text-muted-foreground text-xs'>Step {i + 1}</p>
+              </div>
+              <h4 className='text-foreground truncate text-sm font-semibold'>
                 {formatQueryFilter(step.queryFilter as QueryFilter, tFilters)}
               </h4>
-              <div className='flex items-center justify-between'>
-                <p className='text-xl font-semibold'>{formatNumber(step.visitors)}</p>
-                <p className='text-muted-foreground text-sm'>{formatPercentage(100 * step.visitorsRatio)}</p>
-              </div>
             </div>
             <div className='flex h-40 w-full border-l pt-2'>
               <HorizontalProgress key={i} percentage={100 * step.visitorsRatio} />
@@ -185,12 +186,27 @@ export default function FunnelBarplot({ funnel: _ }: FunnelChartProps) {
                 />
               )}
             </div>
-            <div className='w-full border border-r-0 p-2'>
-              <p className='text-muted-foreground text-sm'>Abandonment</p>
-              <div className='flex items-center justify-between'>
-                <p>{formatNumber(step.dropoffCount)}</p>
-                <p className='text-trend-down text-sm'>{formatPercentage(100 * step.dropoffRatio)}</p>
+            <div className='flex w-full border border-r-0'>
+              <div className='w-25 border-r p-2'>
+                <p className='text-muted-foreground text-xs'>Visitors</p>
+                <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
+                <p className='text-muted-foreground text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
               </div>
+              {i < funnel.steps.length - 1 ? (
+                <div className='w-25 p-2'>
+                  <p className='text-muted-foreground text-xs'>Drop-off</p>
+                  <p className='text-md font-semibold'>-{formatNumber(step.dropoffCount)}</p>
+                  <div className='flex items-center'>
+                    <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
+                    <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className='w-25 p-2'>
+                  <p className='text-muted-foreground text-xs'>Conversion</p>
+                  <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -272,8 +288,11 @@ function VerticalConnector({
 
 function HorizontalProgress({ percentage }: { percentage: number }) {
   return (
-    <div className='relative flex h-full w-20 flex-col justify-end'>
-      <div className='bg-primary w-20' style={{ height: `${percentage}%` }} />
+    <div className='relative flex h-full w-25 flex-col justify-end'>
+      <div
+        className='bg-primary border-foreground/20 w-full border border-b-0'
+        style={{ height: `${percentage}%` }}
+      />
     </div>
   );
 }
@@ -317,10 +336,10 @@ function HorizontalConnector({
   `;
 
   return (
-    <div ref={ref} className='relative h-full w-full flex-1'>
+    <div ref={ref} className='relative h-full w-25'>
       {width > 0 && height > 0 && (
         <svg className='absolute inset-0' width='100%' height='100%' preserveAspectRatio='none'>
-          <path d={path} fill={'color-mix(in srgb, var(--primary) 50%, transparent)'} />
+          <path d={path} fill={'color-mix(in srgb, var(--primary) 40%, transparent)'} />
         </svg>
       )}
     </div>
