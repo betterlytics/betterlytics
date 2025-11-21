@@ -1,6 +1,7 @@
 'use client';
 
 import { QueryFilter } from '@/entities/filter';
+import { cn } from '@/lib/utils';
 import type { PresentedFunnel } from '@/presenters/toFunnel';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { formatQueryFilter } from '@/utils/queryFilterFormatters';
@@ -166,10 +167,10 @@ export default function FunnelBarplot({ funnel: _ }: FunnelChartProps) {
         <EllipsisVertical className='h-4 w-4' />
       </div>
 
-      <div className='relative flex w-fit border-r'>
+      <div className='relative flex w-fit border'>
         {funnel.steps.map((step, i) => (
           <div key={i} className='flex w-50 flex-col'>
-            <div className='w-full border border-r-0 p-2'>
+            <div className={cn('w-full border-r p-2', i === funnel.steps.length - 1 && 'border-r-0')}>
               <div>
                 <p className='text-muted-foreground text-xs'>Step {i + 1}</p>
               </div>
@@ -177,7 +178,7 @@ export default function FunnelBarplot({ funnel: _ }: FunnelChartProps) {
                 {formatQueryFilter(step.queryFilter as QueryFilter, tFilters)}
               </h4>
             </div>
-            <div className='flex h-40 w-full border-l pt-2'>
+            <div className='flex h-40 w-full pt-2'>
               <HorizontalProgress key={i} percentage={100 * step.visitorsRatio} />
               {i < funnel.steps.length - 1 && (
                 <HorizontalConnector
@@ -186,14 +187,14 @@ export default function FunnelBarplot({ funnel: _ }: FunnelChartProps) {
                 />
               )}
             </div>
-            <div className='flex w-full border border-r-0'>
-              <div className='w-25 border-r p-2'>
+            <div className='flex w-full'>
+              <div className='w-25 p-2'>
                 <p className='text-muted-foreground text-xs'>Visitors</p>
                 <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
                 <p className='text-muted-foreground text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
               </div>
               {i < funnel.steps.length - 1 ? (
-                <div className='w-25 p-2'>
+                <div className='dark:bg-background/40 bg-foreground/5 w-25 p-2'>
                   <p className='text-muted-foreground text-xs'>Drop-off</p>
                   <p className='text-md font-semibold'>-{formatNumber(step.dropoffCount)}</p>
                   <div className='flex items-center'>
@@ -202,7 +203,7 @@ export default function FunnelBarplot({ funnel: _ }: FunnelChartProps) {
                   </div>
                 </div>
               ) : (
-                <div className='w-25 p-2'>
+                <div className='dark:bg-background/40 bg-foreground/5 w-25 p-2'>
                   <p className='text-muted-foreground text-xs'>Conversion</p>
                   <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
                 </div>
@@ -289,10 +290,7 @@ function VerticalConnector({
 function HorizontalProgress({ percentage }: { percentage: number }) {
   return (
     <div className='relative flex h-full w-25 flex-col justify-end'>
-      <div
-        className='bg-primary border-foreground/20 w-full border border-b-0'
-        style={{ height: `${percentage}%` }}
-      />
+      <div className='from-primary to-primary/50 w-full bg-gradient-to-b' style={{ height: `${percentage}%` }} />
     </div>
   );
 }
