@@ -11,14 +11,11 @@ export function FunnelsStack({ promise }: FunnelsStackProps) {
   const funnels = use(promise);
   if (!funnels.length) return <FunnelsEmptyState />;
   return (
-    <div className='bg-card space-y-10 rounded-xl border p-4'>
-      {funnels.map((f) => (
-        <section key={f.id} aria-labelledby={`funnel-${f.id}-label`} className='space-y-3'>
-          <h2 id={`funnel-${f.id}-label`} className='text-foreground text-base font-semibold'>
-            {f.name}
-          </h2>
+    <div className='space-y-10'>
+      {[funnels[0], funnels[0], funnels[0]].map((f, i) => (
+        <div key={i}>
           <FunnelBarplot funnel={f} />
-        </section>
+        </div>
       ))}
     </div>
   );
