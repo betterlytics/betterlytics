@@ -1694,6 +1694,7 @@
         "dashboards": "Dashboard",
         "upgradePlan": "Aggiorna piano",
         "settings": "Impostazioni",
+        "reportBug": "Segnala bug",
         "documentation": "Documentazione",
         "documentationTitle": "Documentazione completa Betterlytics",
         "logout": "Esci"
@@ -1886,6 +1887,19 @@
     "demoMode": {
       "notAvailable": "Non disponibile nella dashboard demo",
       "interactionDisabled": "Il filtraggio da questa interazione è disabilitato nella demo."
+    },
+    "bugReport": {
+      "trigger": "Segnala bug",
+      "title": "Segnala un bug",
+      "description": "Raccontaci cosa non ha funzionato o cosa ti sembra strano. Più dettagli condividi, meglio è!",
+      "placeholder": "Descrivi cosa è successo, cosa ti aspettavi e qualsiasi dettaglio utile per riprodurre il problema.",
+      "submit": "Invia segnalazione",
+      "submitting": "Invio in corso...",
+      "toast": {
+        "success": "Grazie! Abbiamo ricevuto la tua segnalazione.",
+        "error": "Impossibile inviare la segnalazione. Riprova.",
+        "empty": "Aggiungi una breve descrizione prima di inviare."
+      }
     }
   },
   "onboarding": {
