@@ -2,7 +2,6 @@
 
 import { Dashboard } from '@/entities/dashboard';
 import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard';
-import { ensureSiteConfig } from '@/services/siteConfig';
 import { getUserSubscription } from '@/repositories/postgres/subscription';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
@@ -21,14 +20,7 @@ export async function createNewDashboard(domain: string, userId: string): Promis
     userId,
     siteId,
   };
-  const dashboard = await createDashboard(dashboardData);
-
-  try {
-    await ensureSiteConfig(dashboard.id);
-  } catch (e) {
-    console.error('Failed to ensure site config after creation:', e);
-  }
-  return dashboard;
+  return await createDashboard(dashboardData);
 }
 
 export async function getAllUserDashboards(userId: string): Promise<Dashboard[]> {

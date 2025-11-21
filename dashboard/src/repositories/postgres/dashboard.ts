@@ -12,6 +12,7 @@ import {
   DashboardWriteSchema,
 } from '@/entities/dashboard';
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboardSettings';
+import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/siteConfig';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
@@ -124,6 +125,11 @@ export async function createDashboard(data: DashboardWriteData): Promise<Dashboa
         settings: {
           create: {
             ...DEFAULT_DASHBOARD_SETTINGS,
+          },
+        },
+        config: {
+          create: {
+            ...DEFAULT_SITE_CONFIG_VALUES,
           },
         },
       },
