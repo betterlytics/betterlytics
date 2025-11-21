@@ -99,7 +99,6 @@ model User {
   settings UserSettings?
   subscription Subscription?
   passwordResetTokens PasswordResetToken[]
-  bugReports BugReport[]
 }
 
 model VerificationToken {
@@ -142,7 +141,6 @@ model Dashboard {
   userAccess UserDashboard[]
   funnels Funnel[]
   settings DashboardSettings?
-  bugReports BugReport[]
 }
 
 model UserDashboard {
@@ -234,24 +232,6 @@ model Subscription {
   
   @@index([userId, status])
   @@index([currentPeriodStart, currentPeriodEnd])
-}
-
-model BugReport {
-  id String @id @default(cuid())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
-
-  dashboard Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: SetNull)
-  dashboardId String?
-
-  message String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([dashboardId])
-  @@index([userId])
 }
 
 model PasswordResetToken {

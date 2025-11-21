@@ -16,4 +16,3 @@ export * from './environment';
 export * from './webVitals';
 export * from './weeklyHeatmap';
 export * from './sessionReplays';
-export * from './bugReports';

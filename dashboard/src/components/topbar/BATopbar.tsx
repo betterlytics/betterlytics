@@ -11,14 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Settings,
-  LogOut,
-  ExternalLink as ExternalLinkIcon,
-  LayoutDashboard,
-  CreditCard,
-  Bug,
-} from 'lucide-react';
+import { Settings, LogOut, ExternalLink as ExternalLinkIcon, LayoutDashboard, CreditCard } from 'lucide-react';
 import Logo from '@/components/logo';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
 import { BAAvatar } from '../avatar/BAAvatar';
@@ -28,20 +21,15 @@ import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
-import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
-import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  const [showBugReportDialog, setShowBugReportDialog] = useState(false);
   const { start: startLoader } = useTopLoader();
   const t = useTranslations('components.topbar.userMenu');
   const dashboardNav = useOptionalDashboardNavigation();
   const isDemo = dashboardNav?.isDemo ?? false;
   const isEmbedded = useIsEmbedded();
-  const { isFeatureFlagEnabled } = useClientFeatureFlags();
-  const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -135,11 +123,6 @@ export default function BATopbar() {
 
                       <DropdownMenuSeparator />
 
-                      <DropdownMenuItem className='cursor-pointer' onClick={() => setShowBugReportDialog(true)}>
-                        <Bug className='mr-2 h-4 w-4' />
-                        <span>{t('reportBug')}</span>
-                      </DropdownMenuItem>
-
                       <DropdownMenuItem asChild className='cursor-pointer'>
                         <ExternalLink href='/docs' title={t('documentationTitle')}>
                           <ExternalLinkIcon className='mr-2 h-4 w-4' />
@@ -160,7 +143,6 @@ export default function BATopbar() {
       </header>
 
       {session && <UserSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />}
-      {isBugReportsEnabled && <BugReportDialog open={showBugReportDialog} onOpenChange={setShowBugReportDialog} />}
     </>
   );
 }

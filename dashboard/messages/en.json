@@ -1689,7 +1689,6 @@
         "userFallback": "User",
         "dashboards": "Dashboards",
         "upgradePlan": "Upgrade Plan",
-        "reportBug": "Report Bug",
         "settings": "Settings",
         "documentation": "Documentation",
         "documentationTitle": "Complete Betterlytics Documentation",
@@ -1883,19 +1882,6 @@
     "demoMode": {
       "notAvailable": "Not available on demo dashboard",
       "interactionDisabled": "Filtering from this interaction is disabled in the demo."
-    },
-    "bugReport": {
-      "trigger": "Report bug",
-      "title": "Report a bug",
-      "description": "Tell us what went wrong or what feels off. The more detail, the better!",
-      "placeholder": "Describe what happened, what you expected, and anything else that might help us reproduce the issue.",
-      "submit": "Send report",
-      "submitting": "Sending...",
-      "toast": {
-        "success": "Thanks! We received your report.",
-        "error": "Couldn't send the report. Please try again.",
-        "empty": "Please add a short description before sending."
-      }
     }
   },
   "onboarding": {

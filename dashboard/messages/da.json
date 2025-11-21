@@ -1693,7 +1693,6 @@
         "dashboards": "Dashboards",
         "upgradePlan": "Opgrader plan",
         "settings": "Indstillinger",
-        "reportBug": "Rapportér fejl",
         "documentation": "Dokumentation",
         "documentationTitle": "Komplet Betterlytics-dokumentation",
         "logout": "Log ud"
@@ -1886,19 +1885,6 @@
     "demoMode": {
       "notAvailable": "Ikke tilgængelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
-    },
-    "bugReport": {
-      "trigger": "Rapportér fejl",
-      "title": "Rapportér en fejl",
-      "description": "Fortæl os hvad der gik galt eller føles forkert. Jo mere info, jo bedre!",
-      "placeholder": "Beskriv hvad der skete, hvad du forventede, og alt der kan hjælpe os med at genskabe problemet.",
-      "submit": "Send rapport",
-      "submitting": "Sender...",
-      "toast": {
-        "success": "Tak! Vi har modtaget din rapport.",
-        "error": "Rapporten kunne ikke sendes. Prøv igen.",
-        "empty": "Skriv en kort beskrivelse før du sender."
-      }
     }
   },
   "onboarding": {
