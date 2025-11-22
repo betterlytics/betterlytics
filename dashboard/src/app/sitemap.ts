@@ -19,6 +19,7 @@ const PAGES: PageCfg[] = [
   { path: '/privacy', changeFrequency: 'monthly', priority: 0.4, localized: true },
   { path: '/terms', changeFrequency: 'monthly', priority: 0.4, localized: true },
   { path: '/dpa', changeFrequency: 'monthly', priority: 0.4, localized: true },
+  { path: '/changelog', changeFrequency: 'monthly', priority: 0.8, localized: true },
 
   /****************** PUBLIC PAGES ******************/
 
