@@ -7,7 +7,14 @@ import { useSession } from 'next-auth/react';
 import { getCurrentWhatsNewModalDisplayForLocale } from '@/content/whats-new';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { markWhatsNewSeenAction } from '@/app/actions/whatsNew';
 import { useLocale, useTranslations } from 'next-intl';
@@ -98,10 +105,10 @@ export function WhatsNewModal() {
               </div>
               <div className='text-primary-foreground relative flex items-center justify-between'>
                 <DialogHeader className='text-primary-foreground text-left'>
-                  <p className='text-primary-foreground/85 flex items-center gap-2 text-[0.7rem] font-semibold tracking-[0.32em] uppercase'>
+                  <DialogTitle className='text-primary-foreground/90 flex items-center gap-2 text-xs font-semibold tracking-[0.32em] uppercase sm:text-sm'>
                     <Sparkles className='text-primary-foreground size-3.5' />
                     {t('title')}
-                  </p>
+                  </DialogTitle>
                   <DialogDescription className='text-primary-foreground/80 mt-0.5 text-xs'>
                     {metadata.version} &middot; {releaseDateLabel}
                   </DialogDescription>
