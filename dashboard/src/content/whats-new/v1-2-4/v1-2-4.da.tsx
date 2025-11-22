@@ -1,61 +1,48 @@
-import Image from 'next/image';
 import type { WhatsNewMetadata } from '@/entities/whats-new';
 
 export const metadata: WhatsNewMetadata = {
   version: 'v1.2.4',
   releasedAt: '2025-10-05',
-  title: 'Automationsværn og bedre debugging',
+  title: 'Live Demo Workspace & Opdateret Landing Page',
   summary:
-    'Segmenterede alarmer, heatmaps for lange forespørgsler og en forbedret indtags-pipeline, der gør retroaktive datarettelser nemme.',
+    'Denne opdatering introducerer et nyt live demo workspace, en redesignet landing page og forbedret intern performance-monitorering for hurtigere og mere stabile dashboards.',
 };
 
-export default function ReleaseV124ContentDa() {
+export default function ReleaseV124ContentDA() {
   return (
     <>
       <section>
-        <h2>Automationsværn</h2>
-        <p>
-          Alarmer kan nu afgrænses til enkelte dashboards, trafikkilder eller UTM-kampagner. Det holder støjen nede
-          og sikrer, at den rigtige kollega bliver pinget, når noget uventet sker.
-        </p>
+        <h2>Live Demo Workspace</h2>
+        <p>Du kan nu udforske Betterlytics via et fuldt interaktivt demo workspace.</p>
         <ul className='list-inside list-disc space-y-1'>
-          <li>Planlæg stilleperioder pr. workspace, så natlige deploys ikke udløser falske positiver.</li>
-          <li>Send alarmer til flere destinationer (e-mail, Slack, Discord) på én gang.</li>
-          <li>
-            Opret tærskler pr. dimension, f.eks. &ldquo;bounce rate stiger 15% for betalt trafik i Danmark&rdquo;.
-          </li>
+          <li>Gennemse dashboards, funnels og tabeller med præ-udfyldte eksempeldata</li>
+          <li>Test filtre, opdelinger og sammenligninger uden at røre produktiondata</li>
+          <li>Del demoen med kolleger for at vise platformens muligheder</li>
         </ul>
       </section>
 
       <section>
-        <h2>Hurtigere undersøgelser</h2>
+        <h2>Redesignet Landing Page</h2>
         <p>
-          Funnels, verdenskort og trafiktabeller viser nu et overlay for svartider. Hold musen over et datapunkt
-          for at se, hvilken region eller landing page der sænker konverteringer.
+          Den offentlige hjemmeside er opdateret med klarere budskaber, nye visuals og forbedret navigation, så
+          besøgende nemmere kan forstå, hvad Betterlytics tilbyder.
         </p>
-        <figure className='border-border/60 bg-muted/20 mt-6 overflow-hidden rounded-2xl border shadow-sm'>
-          <Image
-            src='/images/demo-dashboard-desktop-dark.webp'
-            width={1440}
-            height={900}
-            priority={false}
-            className='object-cover'
-            alt='Betterlytics tragt-visualisering med latency-overlays'
-          />
-          <figcaption className='text-muted-foreground border-border/60 border-t px-6 py-3 text-center text-xs tracking-[0.35em] uppercase'>
-            Debug journeys uden at forlade Betterlytics
-          </figcaption>
-        </figure>
+        <ul className='list-inside list-disc space-y-1'>
+          <li>Opdateret tekst, der fremhæver kernemuligheder som analytics, funnels og session replay</li>
+          <li>Nye screenshots, der afspejler produktet korrekt, også på mobil</li>
+        </ul>
       </section>
 
       <section>
-        <h2>Platformpolish</h2>
+        <h2>Forbedret Performance-Monitorering</h2>
+        <p>
+          Platformens interne performance-telemetri er blevet styrket for hurtigere at opdage problemer og holde
+          dashboards responsive.
+        </p>
         <ul className='list-inside list-disc space-y-1'>
-          <li>Genopbygget indtagskøen, så fejlformede events retries uden at blokere de sunde.</li>
-          <li>Forbedret samples i funnels, så trin er konsistente på tværs af retroaktive datointervaller.</li>
-          <li>
-            Udvidet det offentlige demo-datasæt med nye trafiksegmenter, så sammenligninger føles realistiske.
-          </li>
+          <li>Hurtigere identifikation af problemer, der påvirker forespørgsler eller loading-tid</li>
+          <li>Mere indsigt i miljøadfærd for en mere stabil oplevelse</li>
+          <li>Et stærkere fundament for løbende performance-forbedringer</li>
         </ul>
       </section>
     </>

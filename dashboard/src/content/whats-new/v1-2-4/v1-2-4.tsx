@@ -1,59 +1,48 @@
-import Image from 'next/image';
 import type { WhatsNewMetadata } from '@/entities/whats-new';
 
 export const metadata: WhatsNewMetadata = {
   version: 'v1.2.4',
   releasedAt: '2025-10-05',
-  title: 'Automation guardrails & debugging superpowers',
+  title: 'Live Demo Workspace & Refreshed Landing Page',
   summary:
-    'Segmented alerting, long-request heatmaps, and a revamped ingestion pipeline that makes retroactive data fixes painless.',
+    'This update introduces a new live demo workspace, a redesigned landing page, and improved internal performance monitoring to keep dashboards fast and reliable.',
 };
 
 export default function ReleaseV124Content() {
   return (
     <>
       <section>
-        <h2>Automation guardrails</h2>
-        <p>
-          Alerts can now be scoped down to individual dashboards, traffic sources, or UTM campaigns. This keeps
-          noise low while ensuring the right teammate gets pinged when something unexpected happens.
-        </p>
+        <h2>Live Demo Workspace</h2>
+        <p>You can now explore Betterlytics using a fully interactive demo workspace.</p>
         <ul className='list-inside list-disc space-y-1'>
-          <li>Schedule quiet hours per workspace so nightly deploys no longer trigger false positives.</li>
-          <li>Send alerts to multiple destinations (email, Slack, Discord) in parallel.</li>
-          <li>
-            Create per-dimension thresholds, e.g. &ldquo;bounce rate jumps 15% for paid traffic in Germany&rdquo;.
-          </li>
+          <li>Browse dashboards, funnels, and tables with pre-populated sample data</li>
+          <li>Test filters, breakdowns, and comparisons without touching production data</li>
+          <li>Share the demo with teammates to preview the platform's capabilities</li>
         </ul>
       </section>
 
       <section>
-        <h2>Faster investigations</h2>
+        <h2>Redesigned Landing Page</h2>
         <p>
-          Funnels, world map, and traffic tables now expose a request-latency overlay. Hover any data point to
-          reveal which geographic region or landing page is slowing down conversions.
+          The public website has been updated with clearer messaging, new visuals, and improved navigation to help
+          visitors understand what Betterlytics offers.
         </p>
-        <figure className='border-border/60 bg-muted/20 mt-6 overflow-hidden rounded-2xl border shadow-sm'>
-          <Image
-            src='/images/demo-dashboard-desktop-dark.webp'
-            width={1440}
-            height={900}
-            priority={false}
-            className='object-cover'
-            alt='Betterlytics funnel visualization showing latency overlays'
-          />
-          <figcaption className='text-muted-foreground border-border/60 border-t px-6 py-3 text-center text-xs tracking-[0.35em] uppercase'>
-            Debug journeys without leaving Betterlytics
-          </figcaption>
-        </figure>
+        <ul className='list-inside list-disc space-y-1'>
+          <li>Updated copy highlighting core features like analytics, funnels, and session replay</li>
+          <li>New screenshots that reflect the current product for mobile view</li>
+        </ul>
       </section>
 
       <section>
-        <h2>Platform polish</h2>
+        <h2>Improved Performance Monitoring</h2>
+        <p>
+          We've strengthened the platform's internal performance telemetry to detect slowdowns earlier and keep
+          dashboards responsive.
+        </p>
         <ul className='list-inside list-disc space-y-1'>
-          <li>Rebuilt the ingestion queue to retry malformed events without blocking the healthy ones.</li>
-          <li>Improved funnel sampling to keep steps consistent across retroactive date changes.</li>
-          <li>Extended the public demo dataset with fresh traffic segments so comparisons feel real.</li>
+          <li>Faster identification of issues affecting query times or loading speed</li>
+          <li>Better insights into environment behaviour for a more stable experience</li>
+          <li>A stronger foundation for ongoing performance improvements</li>
         </ul>
       </section>
     </>

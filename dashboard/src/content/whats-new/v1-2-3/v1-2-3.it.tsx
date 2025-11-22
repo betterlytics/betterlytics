@@ -3,50 +3,59 @@ import type { WhatsNewMetadata } from '@/entities/whats-new';
 export const metadata: WhatsNewMetadata = {
   version: 'v1.2.3',
   releasedAt: '2025-08-18',
-  title: 'Mese della affidabilità',
+  title: 'Ricerca più Intelligente, Filtri più Chiari & Miglioramenti di Stabilità',
   summary:
-    'Archiviazione delle session replay stabilizzata, monitoraggio delle quote semplificato e motore di attribuzione ottimizzato.',
+    'Questo aggiornamento introduce ricerca e filtraggio migliorati, visualizzazioni più informative, session replay più affidabile e diversi miglioramenti di stabilità e UX.',
 };
 
-export default function ReleaseV123ContentIt() {
+export default function ReleaseV123ContentIT() {
   return (
     <>
       <section>
-        <h2>Retention delle replay</h2>
+        <h2>Ricerca & Filtri Migliorati</h2>
         <p>
-          I file di session replay ora vivono in uno storage oggetti ridondante con regole di lifecycle
-          automatiche. Il player espone anche una scorciatoia &ldquo;salta al rage click&rdquo; che trova il
-          momento esatto in cui un visitatore ha avuto problemi.
+          La ricerca e i filtri ora scalano meglio con grandi dataset, rendendo più semplice trovare le
+          informazioni necessarie.
         </p>
         <ul className='list-inside list-disc space-y-1'>
-          <li>Ogni replay mostra chiaramente quanti giorni mancano prima della scadenza.</li>
-          <li>Scarica le registrazioni senza uscire dalla vista timeline.</li>
-          <li>I membri del team possono lasciare note private direttamente sulla replay.</li>
+          <li>Opzioni di ricerca avanzate per scoprire rapidamente eventi, pagine e proprietà importanti</li>
+          <li>Dashboard panoramiche più reattive con limiti adeguati per workspace di grandi dimensioni</li>
+          <li>
+            Le impostazioni dei filtri sono ora riflesse nell’URL, rendendo facile salvare e condividere le viste
+            filtrate
+          </li>
+          <li>Correzioni nella selezione dei filtri e nelle tabelle gerarchiche per divisioni più affidabili</li>
         </ul>
       </section>
 
       <section>
-        <h2>Quote più chiare</h2>
+        <h2>Maggiore Contesto nelle Visualizzazioni</h2>
         <p>
-          La fatturazione ora mette in evidenza l&apos;utilizzo di eventi per sito e suggerimenti per restare sotto
-          le soglie morbide. Gli avvisi ti avvisano quando raggiungi l&apos;80% del piano, così hai tempo per
-          aggiornare o ripulire gli eventi rumorosi.
+          Diversi componenti visivi mostrano ora dettagli aggiuntivi per interpretare i trend più rapidamente e con
+          meno clic.
         </p>
+        <ul className='list-inside list-disc space-y-1'>
+          <li>Dettagli dispositivi espandibili con browser e piattaforme specifici</li>
+          <li>Heatmap settimanali con tooltip che mostrano conteggi e orari precisi</li>
+          <li>Riepiloghi “Nessuna modifica” per evidenziare chiaramente i periodi di confronto stabili</li>
+        </ul>
       </section>
 
       <section>
-        <h2>Attribuzione ottimizzata</h2>
+        <h2>Miglioramenti del Session Replay</h2>
+        <p>
+          I session replay sono ora più affidabili e accurati, permettendo di rivedere con sicurezza le interazioni
+          degli utenti senza perdere eventi chiave.
+        </p>
         <ul className='list-inside list-disc space-y-1'>
-          <li>I referrer con query string lunghe vengono ora normalizzati automaticamente.</li>
-          <li>
-            I parametri UTM rispettano l&apos;attribuzione last non-direct quando confronti diversi intervalli
-            temporali.
-          </li>
-          <li>
-            Le pagine di drill-down delle campagne si caricano due volte più velocemente grazie a nuove
-            materialized view in ClickHouse.
-          </li>
+          <li>Registrazioni più affidabili e precise delle interazioni degli utenti</li>
+          <li>Riproduzione delle sessioni migliorata per catturare correttamente le azioni importanti</li>
         </ul>
+      </section>
+
+      <section>
+        <h2>Allineamento dei Dashboard alla Timezone</h2>
+        <p>I dashboard ora mostrano l’orario locale di ciascun utente per una reportistica più intuitiva</p>
       </section>
     </>
   );
