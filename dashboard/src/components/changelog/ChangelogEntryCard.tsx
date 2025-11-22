@@ -13,25 +13,25 @@ export function ChangelogEntryCard({ entry, locale }: ChangelogEntryCardProps) {
     : entry.releasedAt;
 
   return (
-    <section className='border-border/60 border-t py-10 first:pt-8 first:border-t-0 last:border-b'>
-      <div className='flex flex-col gap-8 md:grid md:grid-cols-[160px_1fr] md:items-start md:gap-12'>
-        <div className='text-muted-foreground/90 text-xs font-semibold uppercase tracking-[0.35em] md:text-sm'>
-          {isValidDate ? (
-            <time dateTime={entry.releasedAt}>{formattedReleaseDate}</time>
-          ) : (
-            formattedReleaseDate
-          )}
+    <section className='border-border/60 border-t py-10 first:border-t-0 first:pt-8 last:border-b'>
+      <div className='flex flex-col gap-6 md:grid md:grid-cols-[160px_1fr] md:items-start md:gap-12'>
+        <div className='text-muted-foreground/90 text-[0.7rem] font-semibold tracking-[0.35em] uppercase md:text-xs'>
+          <span className='bg-muted inline-flex w-fit items-center rounded-full px-3 py-1 text-[0.65rem] tracking-[0.3em] md:rounded-none md:bg-transparent md:px-0 md:py-0 md:text-[0.7rem] md:tracking-[0.35em]'>
+            {isValidDate ? <time dateTime={entry.releasedAt}>{formattedReleaseDate}</time> : formattedReleaseDate}
+          </span>
         </div>
 
         <div className='space-y-6'>
           <header className='space-y-3'>
             <div className='space-y-2'>
-              <h2 className='text-3xl font-semibold tracking-tight text-foreground'>{entry.title}</h2>
-              <p className='text-muted-foreground/90 text-base leading-relaxed'>{entry.summary}</p>
+              <h2 className='text-foreground text-2xl font-semibold tracking-tight md:text-3xl'>{entry.title}</h2>
+              <p className='text-muted-foreground/90 text-[0.95rem] leading-relaxed md:text-base'>
+                {entry.summary}
+              </p>
             </div>
           </header>
 
-          <div className='prose prose-slate dark:prose-invert max-w-none text-base leading-relaxed [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:tracking-tight [&_section+section]:mt-6 [&_section]:space-y-3 [&_ul]:ml-4 [&_ul]:list-disc [&_figure]:rounded-2xl [&_figure]:overflow-hidden [&_figcaption]:text-[0.65rem] [&_figcaption]:uppercase [&_figcaption]:tracking-[0.3em] [&_img]:w-full [&_img]:rounded-xl'>
+          <div className='prose prose-slate dark:prose-invert max-w-none text-[0.95rem] leading-relaxed md:text-base [&_figcaption]:text-[0.65rem] [&_figcaption]:tracking-[0.3em] [&_figcaption]:uppercase [&_figure]:overflow-hidden [&_figure]:rounded-2xl [&_h2]:text-base [&_h2]:font-semibold [&_h2]:tracking-tight md:[&_h2]:text-lg [&_img]:w-full [&_img]:rounded-xl [&_section]:space-y-3 [&_section+section]:mt-6 [&_ul]:ml-4 [&_ul]:list-disc'>
             <entry.Content />
           </div>
         </div>
@@ -39,5 +39,3 @@ export function ChangelogEntryCard({ entry, locale }: ChangelogEntryCardProps) {
     </section>
   );
 }
-
-
