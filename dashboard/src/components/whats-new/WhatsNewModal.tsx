@@ -10,8 +10,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { markWhatsNewSeenAction } from '@/app/actions/whatsNew';
+import { useTranslations } from 'next-intl';
 
 export function WhatsNewModal() {
+  const t = useTranslations('components.whatsNew');
+
   if (!latestWhatsNewEntry) {
     return null;
   }
@@ -86,18 +89,18 @@ export function WhatsNewModal() {
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className='w-full max-w-xl border-none bg-transparent p-0 shadow-none'>
-          <article className='border-border/60 bg-background overflow-hidden rounded-[24px] border shadow-2xl ring-1 ring-black/5 dark:ring-white/5'>
-            <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-6 py-6'>
+          <article className='border-border/90 bg-background overflow-hidden rounded-3xl border shadow-2xl ring-1 ring-black/5 dark:ring-white/5'>
+            <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-6 py-4'>
               <div className='absolute inset-y-0 right-0 hidden w-1/2 opacity-40 md:block'>
                 <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]' />
               </div>
               <div className='text-primary-foreground relative flex items-center justify-between'>
                 <DialogHeader className='text-primary-foreground text-left'>
-                  <p className='text-primary-foreground/80 flex items-center gap-2 text-[0.65rem] font-semibold tracking-[0.35em] uppercase'>
+                  <p className='text-primary-foreground/85 flex items-center gap-2 text-[0.7rem] font-semibold tracking-[0.32em] uppercase'>
                     <Sparkles className='text-primary-foreground size-3.5' />
-                    What&apos;s New
+                    {t('title')}
                   </p>
-                  <DialogDescription className='text-primary-foreground/90 mt-1 text-sm'>
+                  <DialogDescription className='text-primary-foreground/80 mt-0.5 text-xs'>
                     {metadata.version} &middot; {releaseDateLabel}
                   </DialogDescription>
                 </DialogHeader>
@@ -110,16 +113,16 @@ export function WhatsNewModal() {
               </div>
             </section>
 
-            <DialogFooter className='border-border/60 bg-muted/30 text-muted-foreground flex flex-col gap-2 rounded-b-[24px] border-t px-5 py-4 text-left text-[0.7rem] sm:flex-row sm:items-center sm:justify-between md:px-6'>
-              <p className='text-muted-foreground/80 max-w-sm text-[0.65rem] tracking-[0.2em] uppercase sm:max-w-none sm:text-[0.7rem]'>
-                Spot something we should refine? Drop us a note so the next release is even better.
+            <DialogFooter className='border-border/60 bg-muted/30 text-muted-foreground flex flex-col gap-3 rounded-b-[24px] border-t px-5 py-5 text-left text-[0.7rem] sm:flex-row sm:items-center sm:justify-between md:px-6'>
+              <p className='text-muted-foreground/80 max-w-sm text-[0.7rem] leading-snug sm:max-w-md'>
+                {t('haveFeedback')}
               </p>
               <div className='flex flex-col gap-2 sm:flex-row'>
-                <Button variant='outline' asChild className='w-full cursor-pointer text-sm sm:w-auto'>
-                  <Link href='/changelog'>View all updates</Link>
+                <Button variant='ghost' asChild className='w-full cursor-pointer text-sm sm:w-auto'>
+                  <Link href='/changelog'>{t('viewAll')}</Link>
                 </Button>
                 <Button className='w-full cursor-pointer text-sm sm:w-auto' onClick={() => setIsOpen(false)}>
-                  Got it
+                  {t('gotIt')}
                 </Button>
               </div>
             </DialogFooter>

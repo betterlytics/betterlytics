@@ -1882,6 +1882,12 @@
     "demoMode": {
       "notAvailable": "Not available on demo dashboard",
       "interactionDisabled": "Filtering from this interaction is disabled in the demo."
+    },
+    "whatsNew": {
+      "title": "What's New",
+      "haveFeedback": "Have feedback? Tell us so the next release is even better.",
+      "viewAll": "View all updates",
+      "gotIt": "Got it"
     }
   },
   "onboarding": {
