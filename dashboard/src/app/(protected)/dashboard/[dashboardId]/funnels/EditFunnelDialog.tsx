@@ -48,7 +48,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='secondary'>
+        <Button variant='ghost' className='cursor-pointer'>
           <Pencil className='h-4 w-4' />
         </Button>
       </DialogTrigger>
