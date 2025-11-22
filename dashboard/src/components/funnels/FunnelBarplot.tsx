@@ -24,7 +24,7 @@ export default function FunnelBarplot({ funnel }: FunnelChartProps) {
         <EllipsisVertical className='h-4 w-4' />
       </div>
       <div className='overflow-x-auto'>
-        <div className='relative flex flex-col border sm:w-fit sm:flex-row'>
+        <div className='relative flex w-fit flex-col border sm:flex-row'>
           {funnel.steps.map((step, i) => (
             <div key={i} className='flex h-40 flex-row-reverse sm:h-auto sm:w-50 sm:flex-col'>
               <div
