@@ -3,8 +3,8 @@ import type { WhatsNewMetadata } from '@/entities/whats-new';
 export const metadata: WhatsNewMetadata = {
   version: 'v1.2.6',
   releasedAt: '2025-01-10',
-  title: 'Fresh coat of paint',
-  summary: 'Template entry used to validate the Whats New modal pipeline.',
+  title: 'Sharper funnels, cleaner data',
+  summary: 'A fully redesigned funnels experience, improved data integrity, and a series of reliability fixes.',
 };
 
 export default function LatestWhatsNewContent() {
@@ -12,28 +12,30 @@ export default function LatestWhatsNewContent() {
     <>
       <section>
         <h2>New Features</h2>
-        <ul>
-          <li>Quick Filters: Sync funnels, cohorts, and traffic sources instantly with a single toggle.</li>
-          <li>Attribution Explorer: Group results by device, channel, or geography without reloading the page.</li>
-          <li>Guided Tours: Inline walkthroughs highlight the most impactful charts for new teammates.</li>
+        <ul className='list-inside list-disc space-y-1'>
+          <li>Compare data over selected periods directly in the world map visualization.</li>
+          <li>
+            Block events from specific IP addresses to avoid skewed or unwanted traffic (e.g., your own visits).
+          </li>
+          <li>Automatically reject events from domains that don't match your dashboard domain.</li>
         </ul>
       </section>
 
       <section>
         <h2>Enhancements</h2>
-        <ul>
-          <li>Exports respect your dashboard timezone and billing currency preferences.</li>
-          <li>Access control badges show who can view, edit, or share each workspace.</li>
-          <li>Keyboard shortcuts now cover funnel step duplication and date-range jumps.</li>
+        <ul className='list-inside list-disc space-y-1'>
+          <li>Funnels have been fully redesigned for a smoother experience.</li>
+          <li>Core Web Vitals labels refined for clearer understanding.</li>
+          <li>Antarctica is hidden from the world map unless it has visitor data.</li>
+          <li>Added an in-app "Report a bug" button for quick feedback submissions.</li>
         </ul>
       </section>
 
       <section>
         <h2>Bug Fixes</h2>
-        <ul>
-          <li>Resolved rare widget flicker when switching themes.</li>
-          <li>Fixed CSV exports truncating long funnel step names.</li>
-          <li>Eliminated double-tracking for journeys that include embedded dashboards.</li>
+        <ul className='list-inside list-disc space-y-1'>
+          <li>Fixed an issue causing the Core Web Vitals page to fail loading.</li>
+          <li>Resolved daylight saving time issues affecting displayed analytics.</li>
         </ul>
       </section>
     </>

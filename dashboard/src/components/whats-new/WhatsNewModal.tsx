@@ -108,7 +108,7 @@ export function WhatsNewModal() {
             </header>
 
             <section className='text-muted-foreground/90 space-y-4 px-5 py-6 text-sm leading-6 md:px-6'>
-              <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-primary [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
+              <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-muted-foreground [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
                 <Content />
               </div>
             </section>
