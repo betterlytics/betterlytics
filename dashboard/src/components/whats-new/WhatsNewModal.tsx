@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { latestWhatsNewEntry } from '@/content/whats-new';
+import { currentWhatsNewModalDisplay } from '@/content/whats-new';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog';
@@ -15,12 +15,12 @@ import { useTranslations } from 'next-intl';
 export function WhatsNewModal() {
   const t = useTranslations('components.whatsNew');
 
-  if (!latestWhatsNewEntry) {
+  if (!currentWhatsNewModalDisplay) {
     return null;
   }
 
   const { data: session } = useSession();
-  const { Content, ...metadata } = latestWhatsNewEntry;
+  const { Content, ...metadata } = currentWhatsNewModalDisplay;
   const sessionSeenVersion = session?.user?.changelogVersionSeen ?? 'v0';
 
   const [isOpen, setIsOpen] = useState(false);

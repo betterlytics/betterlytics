@@ -167,6 +167,29 @@
         "docsLinkTitle": "Complete Betterlytics Documentation"
       }
     },
+    "changelog": {
+      "seo": {
+        "title": "Changelog | Betterlytics Release Notes & Product Updates",
+        "description": "Read every Betterlytics release note in one place. Follow product updates, reliability fixes, and roadmap highlights for our privacy-first analytics platform.",
+        "keywords": [
+          "Betterlytics changelog",
+          "Product updates",
+          "Release notes",
+          "Analytics roadmap",
+          "Privacy-first analytics updates"
+        ]
+      },
+      "hero": {
+        "eyebrow": "Release history",
+        "title": "Betterlytics changelog",
+        "lead": "See what's new in Betterlytics! From fresh features to performance fixes, follow our journey and discover how your analytics experience keeps getting better."
+      },
+      "feed": {
+        "subhead": "Fresh releases ship monthly. Scroll chronologically to revisit every iteration.",
+        "loadMore": "Keep scrolling. Newer releases will load automatically.",
+        "end": "You're fully caught up. More improvements are on the way."
+      }
+    },
     "privacy": {
       "seo": {
         "title": "Privacy Policy | GDPR & Cookieless Analytics",

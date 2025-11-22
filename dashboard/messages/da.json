@@ -167,6 +167,29 @@
         "docsLinkTitle": "Komplet Betterlytics-dokumentation"
       }
     },
+    "changelog": {
+      "seo": {
+        "title": "Changelog | Betterlytics Udgivelsesnoter & Produktopdateringer",
+        "description": "Læs alle Betterlytics udgivelsesnoter ét sted. Følg produktopdateringer, stabilitetsrettelser og roadmap-højdepunkter for vores privacy-fokuserede analyseplatform.",
+        "keywords": [
+          "Betterlytics changelog",
+          "Produktopdateringer",
+          "Udgivelsesnoter",
+          "Analyse roadmap",
+          "Privacy-fokuserede analyseopdateringer"
+        ]
+      },
+      "hero": {
+        "eyebrow": "Udgivelseshistorik",
+        "title": "Betterlytics changelog",
+        "lead": "Se, hvad der er nyt i Betterlytics! Fra nye funktioner til performance-forbedringer – følg vores rejse og oplev, hvordan din analysetilgang bliver bedre."
+      },
+      "feed": {
+        "subhead": "Friske udgivelser frigives månedligt. Scroll kronologisk for at gense hver iteration.",
+        "loadMore": "Bliv ved med at scrolle. Nyere udgivelser indlæses automatisk.",
+        "end": "Du er helt opdateret. Flere forbedringer er på vej."
+      }
+    },
     "privacy": {
       "seo": {
         "title": "Privatlivspolitik | GDPR & Cookieless Analyse",

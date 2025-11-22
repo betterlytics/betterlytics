@@ -1,8 +1,8 @@
 import type { WhatsNewMetadata } from '@/entities/whats-new';
 
 export const metadata: WhatsNewMetadata = {
-  version: 'v1.2.6',
-  releasedAt: '2025-01-10',
+  version: 'v1.2.5',
+  releasedAt: '2025-11-23',
   title: 'Sharper funnels, cleaner data',
   summary: 'A fully redesigned funnels experience, improved data integrity, and a series of reliability fixes.',
 };
