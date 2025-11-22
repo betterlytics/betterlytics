@@ -61,15 +61,6 @@ export function ChangelogFeed({ children, initialBatchSize = 3, loadMoreLabel, e
         aria-hidden={isComplete}
         className={cn('flex flex-col items-center justify-center gap-3 pt-2 text-center', isComplete && 'pb-2')}
       >
-        <div className='bg-border/60 h-1 w-full rounded-full'>
-          <div
-            className='bg-primary/70 h-1 rounded-full transition-all'
-            style={{
-              width: `${(visibleCount / Math.max(totalCount, 1)) * 100}%`,
-            }}
-            aria-hidden='true'
-          />
-        </div>
         <p className='text-muted-foreground text-sm' aria-live='polite'>
           {statusMessage}
         </p>

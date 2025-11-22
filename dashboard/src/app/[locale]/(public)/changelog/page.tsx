@@ -5,6 +5,7 @@ import { StructuredData } from '@/components/StructuredData';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { CtaStrip } from '../(landing)/components/ctaStrip';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
@@ -33,7 +34,7 @@ export default async function ChangelogPage() {
         </div>
       </section>
 
-      <section className='container mx-auto max-w-4xl space-y-10 px-4 pb-24'>
+      <section className='container mx-auto max-w-4xl space-y-10 px-4 pb-16'>
         <div className='text-muted-foreground/80 mx-auto max-w-2xl text-center text-sm'>{t('feed.subhead')}</div>
 
         <ChangelogFeed loadMoreLabel={t('feed.loadMore')} endLabel={t('feed.end')}>
@@ -42,6 +43,10 @@ export default async function ChangelogPage() {
           ))}
         </ChangelogFeed>
       </section>
+
+      <div className='pb-24'>
+        <CtaStrip />
+      </div>
     </>
   );
 }
