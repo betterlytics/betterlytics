@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
 import CreateFunnelButton from './CreateFunnelButton';
-import FunnelsStack from '@/components/funnels/FunnelsStack';
+import FunnelsStack from './FunnelsStack';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';

@@ -25,3 +25,9 @@ export async function createFunnel(funnelData: CreateFunnel): Promise<Funnel> {
   });
   return FunnelSchema.parse(createdFunnel);
 }
+
+export async function deleteFunnelById(dashboardId: string, funnelId: string): Promise<void> {
+  await prisma.funnel.delete({
+    where: { id: funnelId, dashboardId },
+  });
+}

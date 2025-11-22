@@ -6,6 +6,7 @@ import {
   getFunnelDetailsById,
   getFunnelPreviewData,
   getFunnelsByDashboardId,
+  deleteFunnelFromDashboard,
 } from '@/services/funnels';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/authContext';
@@ -54,5 +55,12 @@ export const fetchFunnelPreviewAction = withDashboardAuthContext(
     const funnelPreview = await getFunnelPreviewData(ctx.siteId, queryFilters, isStrict);
 
     return toFunnel(funnelPreview);
+  },
+);
+
+export const deleteFunnelAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, funnelId: string): Promise<void> => {
+    await deleteFunnelFromDashboard(ctx.dashboardId, funnelId);
+    revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
   },
 );

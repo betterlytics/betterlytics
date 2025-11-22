@@ -98,3 +98,7 @@ export async function getFunnelPreviewData(
     isStrict,
   });
 }
+
+export async function deleteFunnelFromDashboard(dashboardId: string, funnelId: string): Promise<void> {
+  return PostgresFunnelRepository.deleteFunnelById(dashboardId, funnelId);
+}
