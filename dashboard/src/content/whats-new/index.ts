@@ -1,4 +1,5 @@
-import TemplateEntry, { metadata as templateMetadata } from './2025-01-template.mdx';
+import type { JSX } from 'react';
+import TemplateEntry, { metadata as templateMetadata } from './2025-01-template';
 
 export type WhatsNewEntry = {
   version: string;
