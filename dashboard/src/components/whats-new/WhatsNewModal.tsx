@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { getCurrentWhatsNewModalDisplayForLocale } from '@/content/whats-new';
+import { getCurrentWhatsNewModalDisplayForLocale, type WhatsNewEntry } from '@/content/whats-new';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -20,7 +20,6 @@ import { markWhatsNewSeenAction } from '@/app/actions/whatsNew';
 import { useLocale, useTranslations } from 'next-intl';
 
 export function WhatsNewModal() {
-  const t = useTranslations('components.whatsNew');
   const locale = useLocale();
   const currentWhatsNewModalDisplay = getCurrentWhatsNewModalDisplayForLocale(locale);
 
@@ -28,6 +27,16 @@ export function WhatsNewModal() {
     return null;
   }
 
+  return <WhatsNewModalWithDisplay currentWhatsNewModalDisplay={currentWhatsNewModalDisplay} />;
+}
+
+type WhatsNewModalWithDisplayProps = {
+  currentWhatsNewModalDisplay: WhatsNewEntry;
+};
+
+function WhatsNewModalWithDisplay({ currentWhatsNewModalDisplay }: WhatsNewModalWithDisplayProps) {
+  const t = useTranslations('components.whatsNew');
+  const locale = useLocale();
   const { data: session } = useSession();
   const { Content, ...metadata } = currentWhatsNewModalDisplay;
   const sessionSeenVersion = session?.user?.changelogVersionSeen ?? 'v0';
