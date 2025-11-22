@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { QueryFilterSchema } from './filter';
 
 export const FunnelStepSchema = QueryFilterSchema.extend({
-  name: z.string().min(1, 'Step name is required'),
+  name: z.string(),
 });
 
 export const FunnelSchema = z.object({

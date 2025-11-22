@@ -60,12 +60,12 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <div className='flex min-h-0 flex-1 flex-col gap-4'>
-          <div className='bg-card scrollbar-thin flex min-h-60 flex-1 flex-col overflow-y-auto rounded-lg p-4 shadow'>
-            <div className='scrollbar-thin'>
+          <div className='bg-card scrollbar-thin flex min-h-72 flex-1 flex-col overflow-y-auto rounded-lg p-4 shadow'>
+            <div className='scrollbar-thin space-y-2'>
               {funnelSteps.map((step, i) => (
-                <div key={step.id + i} className='flex items-center border'>
-                  <div className='bg-background mr-1 flex size-8 items-center justify-center rounded-full border p-2 shadow'>
-                    <p className='text-sm font-medium'>{i + 1}</p>
+                <div key={step.id + i} className='relative flex items-center rounded-md border pl-4'>
+                  <div className='bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
+                    <p className='text-muted-foreground text-sm font-medium'>{i + 1}</p>
                   </div>
                   <FunnelStepFilter
                     key={step.id + i}

@@ -1,12 +1,9 @@
 'use client';
 
-import { QueryFilter } from '@/entities/filter';
 import { cn } from '@/lib/utils';
 import type { PresentedFunnel } from '@/presenters/toFunnel';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { formatQueryFilter } from '@/utils/queryFilterFormatters';
 import { ChevronDown } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -15,8 +12,6 @@ type FunnelChartProps = {
 };
 
 export default function FunnelBarplot({ funnel }: FunnelChartProps) {
-  const tFilters = useTranslations('components.filters');
-
   return (
     <div className='overflow-x-auto'>
       <div className='relative flex w-fit flex-col border sm:flex-row'>
@@ -31,9 +26,7 @@ export default function FunnelBarplot({ funnel }: FunnelChartProps) {
               <div>
                 <p className='text-muted-foreground text-xs'>Step {i + 1}</p>
               </div>
-              <h4 className='text-foreground truncate text-sm font-semibold'>
-                {formatQueryFilter(step.step as QueryFilter, tFilters)}
-              </h4>
+              <h4 className='text-foreground truncate text-sm font-semibold'>{step.step.name}</h4>
             </div>
             <div className='hidden h-40 w-full pt-2 sm:flex'>
               <HorizontalProgress key={i} percentage={100 * step.visitorsRatio} />
