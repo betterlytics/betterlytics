@@ -24,7 +24,7 @@ export default async function ChangelogPage() {
 
       <section className='from-background via-muted/20 to-background border-border/60 bg-gradient-to-b pt-16 pb-16 text-center md:pt-24 md:pb-20'>
         <div className='container mx-auto max-w-3xl space-y-6 px-4'>
-          <p className='text-primary/70 text-xs font-semibold tracking-[0.45em] uppercase'>{t('hero.eyebrow')}</p>
+          <p className='text-primary text-xs font-semibold tracking-[0.45em] uppercase'>{t('hero.eyebrow')}</p>
           <div className='space-y-4'>
             <h1 className='text-foreground text-4xl font-semibold tracking-tight md:text-5xl'>
               {t('hero.title')}
