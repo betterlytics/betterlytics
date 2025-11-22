@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import type { WhatsNewMetadata } from '@/entities/whats-new';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { getLatestModalForLocale, latestModalEntriesByLocale } from './latest-modal';
@@ -12,15 +13,13 @@ import { getV102EntryForLocale } from './v1-0-2';
 import { getV101EntryForLocale } from './v1-0-1';
 import { getV100EntryForLocale } from './v1-0-0';
 import { getV010EntryForLocale } from './v0-1-0';
-import type { JSX } from 'react';
-
-const DEFAULT_LOCALE: SupportedLanguages = 'en';
 
 export type WhatsNewEntry = WhatsNewMetadata & {
   Content: () => JSX.Element;
 };
 
-export const currentWhatsNewModalDisplay: WhatsNewEntry = latestModalEntriesByLocale[DEFAULT_LOCALE];
+const defaultLocale = process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE as SupportedLanguages;
+export const currentWhatsNewModalDisplay: WhatsNewEntry = latestModalEntriesByLocale[defaultLocale];
 
 export function getCurrentWhatsNewModalDisplayForLocale(locale: SupportedLanguages): WhatsNewEntry {
   return getLatestModalForLocale(locale);

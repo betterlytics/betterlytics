@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -45,13 +45,10 @@ export function WhatsNewModal() {
 
   const isUnread = metadata.version !== lastSeenVersion;
 
-  const releaseDateLabel = useMemo(() => {
-    const parsedDate = new Date(metadata.releasedAt);
-    if (Number.isNaN(parsedDate.getTime())) {
-      return metadata.releasedAt;
-    }
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(parsedDate);
-  }, [locale, metadata.releasedAt]);
+  const parsedDate = new Date(metadata.releasedAt);
+  const releaseDateLabel = Number.isNaN(parsedDate.getTime())
+    ? metadata.releasedAt
+    : new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(parsedDate);
 
   useEffect(() => {
     if (!isUnread || !isOpen || isMarkingSeen) {
@@ -78,7 +75,7 @@ export function WhatsNewModal() {
               variant='ghost'
               size='icon'
               className={cn(
-                'group text-foreground hover:bg-muted/60 relative h-10 w-10 cursor-pointer rounded-full transition-colors',
+                'text-foreground hover:bg-muted/60 relative h-10 w-10 rounded-full transition-colors',
                 isUnread && 'bg-primary/10 hover:bg-primary/20',
               )}
               aria-label={`View what's new in version ${metadata.version}`}
@@ -103,8 +100,8 @@ export function WhatsNewModal() {
               <div className='absolute inset-y-0 right-0 hidden w-1/2 opacity-40 md:block'>
                 <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]' />
               </div>
-              <div className='text-primary-foreground relative flex items-center justify-between'>
-                <DialogHeader className='text-primary-foreground text-left'>
+              <div className='relative flex items-center justify-between'>
+                <DialogHeader className='text-left'>
                   <DialogTitle className='text-primary-foreground/90 flex items-center gap-2 text-xs font-semibold tracking-[0.32em] uppercase sm:text-sm'>
                     <Sparkles className='text-primary-foreground size-3.5' />
                     {t('title')}
