@@ -12,7 +12,6 @@ if (result.error) {
   console.warn('Could not load .env file from root:', result.error.message);
 }
 
-const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   output: 'standalone',
   async headers() {
@@ -25,4 +24,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+export default createNextIntlPlugin()(nextConfig);
