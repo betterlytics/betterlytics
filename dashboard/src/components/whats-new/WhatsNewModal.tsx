@@ -1,18 +1,131 @@
 'use client';
 
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import Link from 'next/link';
+import { Sparkles } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { latestWhatsNewEntry } from '@/content/whats-new';
-import { WhatsNewDialog } from './WhatsNewDialog';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
+import { markWhatsNewSeenAction } from '@/app/actions/whatsNew';
 
 export function WhatsNewModal() {
   if (!latestWhatsNewEntry) {
     return null;
   }
 
+  const { data: session } = useSession();
   const { Content, ...metadata } = latestWhatsNewEntry;
+  const sessionSeenVersion = session?.user?.changelogVersionSeen ?? 'v0';
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [lastSeenVersion, setLastSeenVersion] = useState(sessionSeenVersion);
+  const [isMarkingSeen, startMarkingSeen] = useTransition();
+
+  useEffect(() => {
+    if (!session?.user?.changelogVersionSeen) {
+      return;
+    }
+    setLastSeenVersion(session.user.changelogVersionSeen);
+  }, [session?.user?.changelogVersionSeen]);
+
+  const isUnread = metadata.version !== lastSeenVersion;
+
+  const releaseDateLabel = useMemo(() => {
+    const parsedDate = new Date(metadata.releasedAt);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return metadata.releasedAt;
+    }
+    return new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(parsedDate);
+  }, [metadata.releasedAt]);
+
+  useEffect(() => {
+    if (!isUnread || !isOpen || isMarkingSeen) {
+      return;
+    }
+
+    startMarkingSeen(async () => {
+      try {
+        await markWhatsNewSeenAction(metadata.version);
+        setLastSeenVersion(metadata.version);
+      } catch (error) {
+        console.error('Failed to update changelog version seen', error);
+      }
+    });
+  }, [isUnread, isOpen, isMarkingSeen, metadata.version, startMarkingSeen]);
 
   return (
-    <WhatsNewDialog entry={metadata}>
-      <Content />
-    </WhatsNewDialog>
+    <>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type='button'
+              variant='ghost'
+              size='icon'
+              className={cn(
+                'group text-foreground hover:bg-muted/60 relative h-10 w-10 cursor-pointer rounded-full transition-colors',
+                isUnread && 'bg-primary/10 hover:bg-primary/20',
+              )}
+              aria-label={`View what's new in version ${metadata.version}`}
+              onClick={() => setIsOpen(true)}
+            >
+              <Sparkles className='text-foreground h-4 w-4' />
+              {isUnread && (
+                <span className='bg-primary pointer-events-none absolute -top-1.5 right-0 flex translate-x-1/2 items-center rounded-full px-1.5 py-0.5 text-[0.55rem] font-semibold tracking-[0.25em] text-white uppercase shadow-lg'>
+                  New
+                </span>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{isUnread ? 'New release available' : "What's new"}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className='w-full max-w-xl border-none bg-transparent p-0 shadow-none'>
+          <article className='border-border/60 bg-background overflow-hidden rounded-[24px] border shadow-2xl ring-1 ring-black/5 dark:ring-white/5'>
+            <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-6 py-6'>
+              <div className='absolute inset-y-0 right-0 hidden w-1/2 opacity-40 md:block'>
+                <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]' />
+              </div>
+              <div className='text-primary-foreground relative flex items-center justify-between'>
+                <DialogHeader className='text-primary-foreground text-left'>
+                  <p className='text-primary-foreground/80 flex items-center gap-2 text-[0.65rem] font-semibold tracking-[0.35em] uppercase'>
+                    <Sparkles className='text-primary-foreground size-3.5' />
+                    What&apos;s New
+                  </p>
+                  <DialogDescription className='text-primary-foreground/90 mt-1 text-sm'>
+                    {metadata.version} &middot; {releaseDateLabel}
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
+            </header>
+
+            <section className='text-muted-foreground/90 space-y-4 px-5 py-6 text-sm leading-6 md:px-6'>
+              <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-primary [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
+                <Content />
+              </div>
+            </section>
+
+            <DialogFooter className='border-border/60 bg-muted/30 text-muted-foreground flex flex-col gap-2 rounded-b-[24px] border-t px-5 py-4 text-left text-[0.7rem] sm:flex-row sm:items-center sm:justify-between md:px-6'>
+              <p className='text-muted-foreground/80 max-w-sm text-[0.65rem] tracking-[0.2em] uppercase sm:max-w-none sm:text-[0.7rem]'>
+                Spot something we should refine? Drop us a note so the next release is even better.
+              </p>
+              <div className='flex flex-col gap-2 sm:flex-row'>
+                <Button variant='outline' asChild className='w-full cursor-pointer text-sm sm:w-auto'>
+                  <Link href='/changelog'>View all updates</Link>
+                </Button>
+                <Button className='w-full cursor-pointer text-sm sm:w-auto' onClick={() => setIsOpen(false)}>
+                  Got it
+                </Button>
+              </div>
+            </DialogFooter>
+          </article>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

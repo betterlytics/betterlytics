@@ -1,19 +1,12 @@
 import type { JSX } from 'react';
-import TemplateEntry, { metadata as templateMetadata } from './2025-01-template';
+import type { WhatsNewMetadata } from '@/entities/whats-new';
+import LatestWhatsNewContent, { metadata as latestMetadata } from './latest-modal';
 
-export type WhatsNewEntry = {
-  version: string;
-  releasedAt: string;
-  title: string;
-  summary: string;
+export type WhatsNewEntry = WhatsNewMetadata & {
   Content: () => JSX.Element;
 };
 
-export const WHATS_NEW_ENTRIES: WhatsNewEntry[] = [
-  {
-    ...templateMetadata,
-    Content: TemplateEntry,
-  },
-];
-
-export const latestWhatsNewEntry = WHATS_NEW_ENTRIES[0];
+export const latestWhatsNewEntry: WhatsNewEntry = {
+  ...latestMetadata,
+  Content: LatestWhatsNewContent,
+};

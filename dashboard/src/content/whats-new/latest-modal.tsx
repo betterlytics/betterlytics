@@ -1,11 +1,13 @@
-export const metadata = {
+import type { WhatsNewMetadata } from '@/entities/whats-new';
+
+export const metadata: WhatsNewMetadata = {
   version: 'v1.2.6',
   releasedAt: '2025-01-10',
   title: 'Fresh coat of paint',
   summary: 'Template entry used to validate the Whats New modal pipeline.',
 };
 
-export default function TemplateEntry() {
+export default function LatestWhatsNewContent() {
   return (
     <>
       <section>

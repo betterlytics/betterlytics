@@ -21,6 +21,7 @@ import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
+import { WhatsNewModal } from '@/components/whats-new/WhatsNewModal';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
@@ -81,7 +82,8 @@ export default function BATopbar() {
                   <BAAvatar />
                 </div>
               ) : (
-                <>
+                <div className='flex items-center space-x-6'>
+                  <WhatsNewModal />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -135,7 +137,7 @@ export default function BATopbar() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </>
+                </div>
               )
             ) : null}
           </div>
