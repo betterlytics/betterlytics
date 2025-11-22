@@ -167,7 +167,7 @@ model Funnel {
 
   name     String
   isStrict Boolean @default(true)
-  queryFilters Json
+  queryFilters Json? // Optional, will be removed in the future
 
   funnelSteps FunnelStep[]
 
