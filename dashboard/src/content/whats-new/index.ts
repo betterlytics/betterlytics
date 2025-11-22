@@ -1,31 +1,22 @@
+import type { WhatsNewMetadata } from '@/entities/whats-new';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { getLatestModalForLocale, latestModalEntriesByLocale } from './latest-modal';
+import { getV124EntryForLocale } from './v1-2-4';
+import { getV123EntryForLocale } from './v1-2-3';
 import type { JSX } from 'react';
-import type { WhatsNewMetadata, WhatsNewVersion } from '@/entities/whats-new';
-import LatestWhatsNewContent, { metadata as latestMetadata } from './latest-modal';
-import ReleaseV124Content, { metadata as releaseV124Metadata } from './v1-2-4';
-import ReleaseV123Content, { metadata as releaseV123Metadata } from './v1-2-3';
+
+const DEFAULT_LOCALE: SupportedLanguages = 'en';
 
 export type WhatsNewEntry = WhatsNewMetadata & {
   Content: () => JSX.Element;
 };
 
-export const currentWhatsNewModalDisplay: WhatsNewEntry = {
-  ...latestMetadata,
-  Content: LatestWhatsNewContent,
-};
+export const currentWhatsNewModalDisplay: WhatsNewEntry = latestModalEntriesByLocale[DEFAULT_LOCALE];
 
-const changelogEntries = [
-  {
-    ...releaseV124Metadata,
-    Content: ReleaseV124Content,
-  },
-  {
-    ...releaseV123Metadata,
-    Content: ReleaseV123Content,
-  },
-] as const satisfies WhatsNewEntry[];
+export function getCurrentWhatsNewModalDisplayForLocale(locale: SupportedLanguages): WhatsNewEntry {
+  return getLatestModalForLocale(locale);
+}
 
-export const whatsNewEntries: readonly WhatsNewEntry[] = changelogEntries;
-
-export function getWhatsNewEntry(version: WhatsNewVersion) {
-  return changelogEntries.find((entry) => entry.version === version);
+export function getChangelogEntriesForLocale(locale: SupportedLanguages): readonly WhatsNewEntry[] {
+  return [getV124EntryForLocale(locale), getV123EntryForLocale(locale)];
 }

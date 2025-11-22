@@ -1,4 +1,4 @@
-import { whatsNewEntries } from '@/content/whats-new';
+import { getChangelogEntriesForLocale } from '@/content/whats-new';
 import { ChangelogFeed } from '@/components/changelog/ChangelogFeed';
 import { ChangelogEntryCard } from '@/components/changelog/ChangelogEntryCard';
 import { StructuredData } from '@/components/StructuredData';
@@ -15,6 +15,7 @@ export default async function ChangelogPage() {
   const t = await getTranslations('public.changelog');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.changelog);
   const locale = await getLocale();
+  const changelogEntries = getChangelogEntriesForLocale(locale as SupportedLanguages);
 
   return (
     <>
@@ -36,7 +37,7 @@ export default async function ChangelogPage() {
         <div className='text-muted-foreground/80 mx-auto max-w-2xl text-center text-sm'>{t('feed.subhead')}</div>
 
         <ChangelogFeed loadMoreLabel={t('feed.loadMore')} endLabel={t('feed.end')}>
-          {whatsNewEntries.map((entry, index) => (
+          {changelogEntries.map((entry) => (
             <ChangelogEntryCard key={entry.version} entry={entry} locale={locale} />
           ))}
         </ChangelogFeed>
