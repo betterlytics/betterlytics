@@ -82,7 +82,7 @@ export default function BATopbar() {
                   <BAAvatar />
                 </div>
               ) : (
-                <div className='flex items-center space-x-6'>
+                <>
                   <WhatsNewModal />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -137,7 +137,7 @@ export default function BATopbar() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
+                </>
               )
             ) : null}
           </div>
