@@ -1,10 +1,14 @@
 import { z } from 'zod';
 import { QueryFilterSchema } from './filter';
 
+export const FunnelStepSchema = QueryFilterSchema.extend({
+  name: z.string().min(1, 'Step name is required'),
+});
+
 export const FunnelSchema = z.object({
   id: z.string().cuid(),
   name: z.string(),
-  queryFilters: z.array(QueryFilterSchema),
+  funnelSteps: z.array(FunnelStepSchema),
   dashboardId: z.string().cuid(),
   isStrict: z.boolean(),
 });
@@ -14,7 +18,7 @@ export const FunnelDetailsSchema = FunnelSchema.extend({
 });
 
 export const FunnelPreviewSchema = z.object({
-  queryFilters: z.array(QueryFilterSchema),
+  funnelSteps: z.array(FunnelStepSchema),
   visitors: z.number().array(),
 });
 
@@ -22,10 +26,11 @@ export const CreateFunnelSchema = z.object({
   name: z.string().min(1, 'Funnel name is required'),
   dashboardId: z.string().cuid('Valid Dashboard ID is required'),
   isStrict: z.boolean(),
-  queryFilters: z.array(QueryFilterSchema).min(2),
+  funnelSteps: z.array(FunnelStepSchema.omit({ id: true })).min(2),
 });
 
 export type Funnel = z.infer<typeof FunnelSchema>;
+export type FunnelStep = z.infer<typeof FunnelStepSchema>;
 export type FunnelDetails = z.infer<typeof FunnelDetailsSchema>;
 export type FunnelPreview = z.infer<typeof FunnelPreviewSchema>;
 export type CreateFunnel = z.infer<typeof CreateFunnelSchema>;

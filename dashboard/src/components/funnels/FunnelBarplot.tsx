@@ -32,7 +32,7 @@ export default function FunnelBarplot({ funnel }: FunnelChartProps) {
                 <p className='text-muted-foreground text-xs'>Step {i + 1}</p>
               </div>
               <h4 className='text-foreground truncate text-sm font-semibold'>
-                {formatQueryFilter(step.queryFilter as QueryFilter, tFilters)}
+                {formatQueryFilter(step.step as QueryFilter, tFilters)}
               </h4>
             </div>
             <div className='hidden h-40 w-full pt-2 sm:flex'>
@@ -44,7 +44,7 @@ export default function FunnelBarplot({ funnel }: FunnelChartProps) {
                 />
               )}
             </div>
-            <div className='flex h-40 w-50 flex-col sm:hidden'>
+            <div className='flex h-40 w-40 flex-col sm:hidden'>
               <VerticalProgress key={i} percentage={100 * step.visitorsRatio} />
               {i < funnel.steps.length - 1 && (
                 <VerticalConnector

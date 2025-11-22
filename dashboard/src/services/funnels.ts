@@ -31,7 +31,7 @@ export async function getFunnelsByDashboardId(
         ...funnel,
         visitors: await ClickhouseFunnelRepository.getFunnelDetails(
           siteId,
-          funnel.queryFilters,
+          funnel.funnelSteps,
           funnel.isStrict,
           formattedStart,
           formattedEnd,
@@ -54,12 +54,14 @@ export async function getFunnelDetailsById(
     return null;
   }
 
+  console.log('FUNNEL:', funnel);
+
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
   const visitors = await ClickhouseFunnelRepository.getFunnelDetails(
     siteId,
-    funnel.queryFilters,
+    funnel.funnelSteps,
     funnel.isStrict,
     formattedStart,
     formattedEnd,

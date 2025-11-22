@@ -44,7 +44,7 @@ export const fetchFunnelsAction = withDashboardAuthContext(
 
     return funnels.map((funnel) => ({
       id: funnel.id,
-      stepCount: funnel.queryFilters.length,
+      stepCount: funnel.funnelSteps.length,
       ...toFunnel(funnel),
     }));
   },
