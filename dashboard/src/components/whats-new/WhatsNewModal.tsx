@@ -4,16 +4,18 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { currentWhatsNewModalDisplay } from '@/content/whats-new';
+import { getCurrentWhatsNewModalDisplayForLocale } from '@/content/whats-new';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { markWhatsNewSeenAction } from '@/app/actions/whatsNew';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export function WhatsNewModal() {
   const t = useTranslations('components.whatsNew');
+  const locale = useLocale();
+  const currentWhatsNewModalDisplay = getCurrentWhatsNewModalDisplayForLocale(locale);
 
   if (!currentWhatsNewModalDisplay) {
     return null;
@@ -41,8 +43,8 @@ export function WhatsNewModal() {
     if (Number.isNaN(parsedDate.getTime())) {
       return metadata.releasedAt;
     }
-    return new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(parsedDate);
-  }, [metadata.releasedAt]);
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(parsedDate);
+  }, [locale, metadata.releasedAt]);
 
   useEffect(() => {
     if (!isUnread || !isOpen || isMarkingSeen) {

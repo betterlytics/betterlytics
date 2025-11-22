@@ -24,7 +24,7 @@ export default function LatestWhatsNewContentDa() {
       <section>
         <h2>Forbedringer</h2>
         <ul className='list-inside list-disc space-y-1'>
-          <li>Funnels er fuldt redesignet for en mere flydende oplevelse.</li>
+          <li>Funnels er helt redesignet for en bedre oplevelse og visualisering.</li>
           <li>Core Web Vitals-labels er gjort klarere og mere forståelige.</li>
           <li>Antarktis skjules fra verdenskortet, medmindre der er besøgsdata.</li>
           <li>Tilføjet en &ldquo;Rapportér en bug&rdquo;-knap direkte i appen.</li>
@@ -41,5 +41,3 @@ export default function LatestWhatsNewContentDa() {
     </>
   );
 }
-
-
