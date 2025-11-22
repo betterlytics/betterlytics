@@ -14,224 +14,87 @@ type FunnelChartProps = {
   funnel: PresentedFunnel;
 };
 
-export default function FunnelBarplot({ funnel: _ }: FunnelChartProps) {
-  const funnel = {
-    id: 'cmi694qvj000auzi0aa20bb3x',
-    stepCount: 2,
-    visitorCount: {
-      min: 2,
-      max: 2,
-    },
-    steps: [
-      {
-        queryFilter: {
-          id: 'mi67mthirq4bh1ztxr8',
-          column: 'url',
-          operator: '=',
-          value: '/dashboard/*',
-        },
-        visitors: 28604,
-        visitorsRatio: 1,
-        dropoffCount: 11162,
-        dropoffRatio: 0.392,
-        stepFilters: [
-          {
-            id: 'mi67mthirq4bh1ztxr8',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*',
-          },
-          {
-            id: 'mi67mthkwd4z0jy94bd',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*/funnels',
-          },
-        ],
-      },
-      {
-        queryFilter: {
-          id: 'mi67mthkwd4z0jy94bd',
-          column: 'url',
-          operator: '=',
-          value: '/dashboard/*/funnels',
-        },
-        visitors: 17162,
-        visitorsRatio: 0.66,
-        dropoffCount: 1955,
-        dropoffRatio: 0.118,
-        stepFilters: [
-          {
-            id: 'mi67mthkwd4z0jy94bd',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*/funnels',
-          },
-          {
-            id: 'mi67mthkwd4z0jy94bd',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*/funnels',
-          },
-        ],
-      },
-      {
-        queryFilter: {
-          id: 'mi67mthkwd4z0jy94bd',
-          column: 'url',
-          operator: '=',
-          value: '/dashboard/*/test',
-        },
-        visitors: 15307,
-        visitorsRatio: 0.561,
-        dropoffCount: 7634,
-        dropoffRatio: 0.435,
-        stepFilters: [
-          {
-            id: 'mi67mthkwd4z0jy94bd',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*/funnels',
-          },
-          {
-            id: 'mi67mthkwd4z0jy94bd',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*/funnels',
-          },
-        ],
-      },
-      {
-        queryFilter: {
-          id: 'mi67mthkwd4z0jy94bd',
-          column: 'url',
-          operator: '=',
-          value: '/dashboard/*/test',
-        },
-        visitors: 4543,
-        visitorsRatio: 0.163,
-        dropoffCount: 2268,
-        dropoffRatio: 0.341,
-        stepFilters: [
-          {
-            id: 'mi67mthkwd4z0jy94bd',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*/funnels',
-          },
-          {
-            id: 'mi67mthkwd4z0jy94bd',
-            column: 'url',
-            operator: '=',
-            value: '/dashboard/*/funnels',
-          },
-        ],
-      },
-    ],
-    biggestDropOff: {
-      queryFilter: {
-        id: 'mi67mthirq4bh1ztxr8',
-        column: 'url',
-        operator: '=',
-        value: '/dashboard/*',
-      },
-      visitors: 2,
-      visitorsRatio: 1,
-      dropoffCount: 0,
-      dropoffRatio: 0,
-      stepFilters: [
-        {
-          id: 'mi67mthirq4bh1ztxr8',
-          column: 'url',
-          operator: '=',
-          value: '/dashboard/*',
-        },
-        {
-          id: 'mi67mthkwd4z0jy94bd',
-          column: 'url',
-          operator: '=',
-          value: '/dashboard/*/funnels',
-        },
-      ],
-    },
-    conversionRate: 1,
-    name: 'My new funnel',
-  };
-
+export default function FunnelBarplot({ funnel }: FunnelChartProps) {
   const tFilters = useTranslations('components.filters');
 
   return (
-    <div className='bg-card w-fit gap-10 space-y-4 rounded-xl border p-4'>
+    <div className='bg-card w-full gap-10 space-y-4 rounded-xl border p-2'>
       <div className='flex w-full items-center justify-between'>
-        <h2 className='text-foreground px-2 text-xl font-semibold'>{funnel.name}</h2>
+        <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
         <EllipsisVertical className='h-4 w-4' />
       </div>
-
-      <div className='relative flex w-fit border'>
-        {funnel.steps.map((step, i) => (
-          <div key={i} className='flex w-50 flex-col'>
-            <div className={cn('w-full border-r p-2', i === funnel.steps.length - 1 && 'border-r-0')}>
-              <div>
-                <p className='text-muted-foreground text-xs'>Step {i + 1}</p>
+      <div className='overflow-x-auto'>
+        <div className='relative flex flex-col border sm:w-fit sm:flex-row'>
+          {funnel.steps.map((step, i) => (
+            <div key={i} className='flex h-40 flex-row-reverse sm:h-auto sm:w-50 sm:flex-col'>
+              <div
+                className={cn(
+                  'w-35 border-b px-2 pt-2 sm:w-full sm:border-r sm:border-b-0',
+                  i === funnel.steps.length - 1 && 'border-b-0 sm:border-r-0',
+                )}
+              >
+                <div>
+                  <p className='text-muted-foreground text-xs'>Step {i + 1}</p>
+                </div>
+                <h4 className='text-foreground truncate text-sm font-semibold'>
+                  {formatQueryFilter(step.queryFilter as QueryFilter, tFilters)}
+                </h4>
               </div>
-              <h4 className='text-foreground truncate text-sm font-semibold'>
-                {formatQueryFilter(step.queryFilter as QueryFilter, tFilters)}
-              </h4>
-            </div>
-            <div className='flex h-40 w-full pt-2'>
-              <HorizontalProgress key={i} percentage={100 * step.visitorsRatio} />
-              {i < funnel.steps.length - 1 && (
-                <HorizontalConnector
-                  previousPercentage={100 * funnel.steps[i].visitorsRatio}
-                  currentPercentage={100 * funnel.steps[i + 1].visitorsRatio}
-                />
-              )}
-            </div>
-            <div className='flex w-full'>
-              <div className='w-25 p-2'>
-                <p className='text-muted-foreground text-xs'>Visitors</p>
-                <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
-                <p className='text-muted-foreground text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
+              <div className='hidden h-40 w-full pt-2 sm:flex'>
+                <HorizontalProgress key={i} percentage={100 * step.visitorsRatio} />
+                {i < funnel.steps.length - 1 && (
+                  <HorizontalConnector
+                    previousPercentage={100 * funnel.steps[i].visitorsRatio}
+                    currentPercentage={100 * funnel.steps[i + 1].visitorsRatio}
+                  />
+                )}
               </div>
-              {i < funnel.steps.length - 1 ? (
-                <div className='dark:bg-background/40 bg-foreground/5 w-25 p-2'>
-                  <p className='text-muted-foreground text-xs'>Drop-off</p>
-                  <p className='text-md font-semibold'>-{formatNumber(step.dropoffCount)}</p>
-                  <div className='flex items-center'>
-                    <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
-                    <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
+              <div className='flex h-40 w-50 flex-col sm:hidden'>
+                <VerticalProgress key={i} percentage={100 * step.visitorsRatio} />
+                {i < funnel.steps.length - 1 && (
+                  <VerticalConnector
+                    previousPercentage={100 * funnel.steps[i].visitorsRatio}
+                    currentPercentage={100 * funnel.steps[i + 1].visitorsRatio}
+                  />
+                )}
+              </div>
+              <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
+                <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
+                  <p className='text-muted-foreground text-xs'>Visitors</p>
+                  <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
+                  <p className='text-muted-foreground text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
+                </div>
+                {i < funnel.steps.length - 1 ? (
+                  <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
+                    <p className='text-muted-foreground text-xs'>Drop-off</p>
+                    <p className='text-md font-semibold'>-{formatNumber(step.dropoffCount)}</p>
+                    <div className='flex items-center'>
+                      <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
+                      <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className='dark:bg-background/40 bg-foreground/5 w-25 p-2'>
-                  <p className='text-muted-foreground text-xs'>Conversion</p>
-                  <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
-                </div>
-              )}
+                ) : (
+                  <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
+                    <p className='text-muted-foreground text-xs'>Conversion</p>
+                    <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-function StepInfo({
-  step,
-  tFilters,
-}: {
-  step: PresentedFunnel['steps'][number];
-  tFilters: ReturnType<typeof useTranslations<'components.filters'>>;
-}) {
-  return (
-    <div className='h-20 w-60'>{/* <p>{formatQueryFilter(step.queryFilter as QueryFilter, tFilters)}</p> */}</div>
-  );
-}
-
 function VerticalProgress({ percentage }: { percentage: number }) {
   return (
-    <div className='relative flex h-10 w-full flex-col justify-end'>
-      <div className='bg-primary h-10' style={{ width: `${percentage}%` }} />
+    <div className='relative flex h-20 w-full flex-col justify-end'>
+      <div
+        className='from-primary to-primary/50 border-foreground h-20 border-r bg-gradient-to-l'
+        style={{ width: `${percentage}%` }}
+      />
     </div>
   );
 }

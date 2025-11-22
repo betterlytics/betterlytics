@@ -14,7 +14,148 @@ export function FunnelsStack({ promise }: FunnelsStackProps) {
     <div className='space-y-10'>
       {[funnels[0], funnels[0], funnels[0]].map((f, i) => (
         <div key={i}>
-          <FunnelBarplot funnel={f} />
+          <FunnelBarplot
+            funnel={{
+              visitorCount: {
+                min: 2,
+                max: 2,
+              },
+              steps: [
+                {
+                  queryFilter: {
+                    id: 'mi67mthirq4bh1ztxr8',
+                    column: 'url',
+                    operator: '=',
+                    value: '/dashboard/*',
+                  },
+                  visitors: 28604,
+                  visitorsRatio: 1,
+                  dropoffCount: 11162,
+                  dropoffRatio: 0.392,
+                  stepFilters: [
+                    {
+                      id: 'mi67mthirq4bh1ztxr8',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*',
+                    },
+                    {
+                      id: 'mi67mthkwd4z0jy94bd',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*/funnels',
+                    },
+                  ],
+                },
+                {
+                  queryFilter: {
+                    id: 'mi67mthkwd4z0jy94bd',
+                    column: 'url',
+                    operator: '=',
+                    value: '/dashboard/*/funnels',
+                  },
+                  visitors: 17162,
+                  visitorsRatio: 0.66,
+                  dropoffCount: 1955,
+                  dropoffRatio: 0.118,
+                  stepFilters: [
+                    {
+                      id: 'mi67mthkwd4z0jy94bd',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*/funnels',
+                    },
+                    {
+                      id: 'mi67mthkwd4z0jy94bd',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*/funnels',
+                    },
+                  ],
+                },
+                {
+                  queryFilter: {
+                    id: 'mi67mthkwd4z0jy94bd',
+                    column: 'url',
+                    operator: '=',
+                    value: '/dashboard/*/test',
+                  },
+                  visitors: 15307,
+                  visitorsRatio: 0.561,
+                  dropoffCount: 7634,
+                  dropoffRatio: 0.435,
+                  stepFilters: [
+                    {
+                      id: 'mi67mthkwd4z0jy94bd',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*/funnels',
+                    },
+                    {
+                      id: 'mi67mthkwd4z0jy94bd',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*/funnels',
+                    },
+                  ],
+                },
+                {
+                  queryFilter: {
+                    id: 'mi67mthkwd4z0jy94bd',
+                    column: 'url',
+                    operator: '=',
+                    value: '/dashboard/*/test',
+                  },
+                  visitors: 4543,
+                  visitorsRatio: 0.163,
+                  dropoffCount: 2268,
+                  dropoffRatio: 0.341,
+                  stepFilters: [
+                    {
+                      id: 'mi67mthkwd4z0jy94bd',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*/funnels',
+                    },
+                    {
+                      id: 'mi67mthkwd4z0jy94bd',
+                      column: 'url',
+                      operator: '=',
+                      value: '/dashboard/*/funnels',
+                    },
+                  ],
+                },
+              ],
+              biggestDropOff: {
+                queryFilter: {
+                  id: 'mi67mthirq4bh1ztxr8',
+                  column: 'url',
+                  operator: '=',
+                  value: '/dashboard/*',
+                },
+                visitors: 2,
+                visitorsRatio: 1,
+                dropoffCount: 0,
+                dropoffRatio: 0,
+                stepFilters: [
+                  {
+                    id: 'mi67mthirq4bh1ztxr8',
+                    column: 'url',
+                    operator: '=',
+                    value: '/dashboard/*',
+                  },
+                  {
+                    id: 'mi67mthkwd4z0jy94bd',
+                    column: 'url',
+                    operator: '=',
+                    value: '/dashboard/*/funnels',
+                  },
+                ],
+              },
+              conversionRate: 1,
+              name: 'My new funnel',
+            }}
+          />
         </div>
       ))}
     </div>
