@@ -8,6 +8,7 @@ const CONFIG = {
   timeoutMs: 2_000,
   cacheSeconds: 60 * 60 * 24 * 3,
   maxBytes: 100 * 1024,
+  maxRedirects: 5,
 };
 
 export async function GET(request: NextRequest) {
@@ -40,16 +41,24 @@ async function fetchFavicon(url: string): Promise<NextResponse | null> {
   const timeoutId = setTimeout(() => controller.abort(), CONFIG.timeoutMs);
 
   try {
-    const upstream = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': USER_AGENT,
-        Accept: 'image/*',
+    const upstream = await fetchWithRedirectLimit(
+      url,
+      {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': USER_AGENT,
+          Accept: 'image/*',
+        },
+        next: {
+          revalidate: CONFIG.cacheSeconds,
+        },
       },
-      next: {
-        revalidate: CONFIG.cacheSeconds,
-      },
-    });
+      CONFIG.maxRedirects,
+    );
+
+    if (!upstream) {
+      return null;
+    }
 
     if (!upstream.ok || !upstream.body) {
       return null;
@@ -68,7 +77,12 @@ async function fetchFavicon(url: string): Promise<NextResponse | null> {
       }
     }
 
-    return new NextResponse(upstream.body, {
+    const body = await readLimitedBody(upstream, CONFIG.maxBytes);
+    if (!body) {
+      return null;
+    }
+
+    return new NextResponse(body, {
       status: 200,
       headers: {
         'Content-Type': contentType,
@@ -83,4 +97,79 @@ async function fetchFavicon(url: string): Promise<NextResponse | null> {
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+async function fetchWithRedirectLimit(
+  url: string,
+  init: RequestInit,
+  maxRedirects: number,
+): Promise<Response | null> {
+  let currentUrl = url;
+
+  for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount += 1) {
+    const response = await fetch(currentUrl, {
+      ...init,
+      redirect: 'manual',
+    });
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      if (!location) {
+        return null;
+      }
+
+      try {
+        currentUrl = new URL(location, currentUrl).toString();
+      } catch {
+        return null;
+      }
+
+      continue;
+    }
+
+    return response;
+  }
+
+  return null;
+}
+
+async function readLimitedBody(response: Response, maxBytes: number): Promise<ArrayBuffer | null> {
+  const body = response.body;
+  if (!body) {
+    return null;
+  }
+
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let receivedBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    if (!value) {
+      continue;
+    }
+
+    receivedBytes += value.byteLength;
+    if (receivedBytes > maxBytes) {
+      await reader.cancel();
+      return null;
+    }
+
+    chunks.push(value);
+  }
+
+  const result = new Uint8Array(receivedBytes);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return result.buffer as ArrayBuffer;
 }
