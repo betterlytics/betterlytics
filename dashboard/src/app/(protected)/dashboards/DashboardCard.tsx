@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { Dashboard } from '@/entities/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Globe, Calendar, Settings } from 'lucide-react';
+import { ExternalLink, Calendar, Settings } from 'lucide-react';
 import { useFormattedDate } from '@/hooks/use-formatted-date';
 import { useTranslations } from 'next-intl';
+import { DomainFavicon } from '@/components/domain/DomainFavicon';
 
 interface DashboardCardProps {
   dashboard: Dashboard;
@@ -33,8 +34,8 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
         <CardHeader className='pb-4'>
           <div className='flex items-start justify-between'>
             <div className='flex items-center gap-3'>
-              <div className='bg-primary/10 group-hover:bg-primary/20 rounded-lg p-2 transition-colors'>
-                <Globe className='text-primary h-5 w-5' />
+              <div className='bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center rounded-md p-1.5 transition-colors'>
+                <DomainFavicon domain={dashboard.domain} size={24} className='h-7 w-7' />
               </div>
               <div className='min-w-0 flex-1'>
                 <CardTitle className='group-hover:text-primary truncate text-lg font-semibold transition-colors'>
