@@ -34,7 +34,7 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
   const router = useBARouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const t = useTranslations('components.dashboardSettingsDialog.danger');
-  const { countdown, isFinished: canDelete } = useCountdown(5, isDialogOpen);
+  const { countdown, isFinished: canDelete } = useCountdown({ initialValue: 5, isRunning: isDialogOpen });
   const [isPending, startTransition] = useTransition();
 
   const handleDeleteDashboard = async () => {
@@ -80,7 +80,7 @@ export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className='cursor-pointer'>{t('dialog.cancel')}</AlertDialogCancel>
-              <AlertDialogAction asChild onClick={handleDeleteDashboard}>
+              <AlertDialogAction asChild>
                 <CountdownButton
                   isPending={isPending}
                   disabled={isPending || !canDelete}
