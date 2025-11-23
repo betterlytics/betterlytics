@@ -33,21 +33,17 @@ impl Default for RefreshConfig {
 
 #[derive(Clone, Debug)]
 pub struct SiteConfig {
-    pub site_id: String,
     pub domain: String,
     pub blacklisted_ips: Vec<String>,
     pub enforce_domain: bool,
-    pub updated_at: DateTime<Utc>,
 }
 
 impl From<SiteConfigRecord> for SiteConfig {
     fn from(record: SiteConfigRecord) -> Self {
         Self {
-            site_id: record.site_id,
             domain: record.domain,
             blacklisted_ips: record.blacklisted_ips,
             enforce_domain: record.enforce_domain,
-            updated_at: record.updated_at,
         }
     }
 }
