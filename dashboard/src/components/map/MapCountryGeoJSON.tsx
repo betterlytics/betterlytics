@@ -46,6 +46,10 @@ export default function MapCountryGeoJSON({
       if (!country_code) return;
 
       let geoVisitor = visitorData.find((d) => d.country_code === country_code);
+      if (!geoVisitor?.visitors && country_code === 'AQ') {
+        layer.setStyle({ opacity: 0, fillOpacity: 0 });
+        return;
+      }
       if (!geoVisitor) {
         geoVisitor = { country_code, visitors: 0 };
       }
