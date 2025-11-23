@@ -4,7 +4,6 @@ import { fetchPageAnalyticsCombinedAction } from '@/app/actions';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
@@ -15,7 +14,6 @@ type PageAnalyticsSectionProps = {
 export default function PagesAnalyticsSection({ analyticsCombinedPromise }: PageAnalyticsSectionProps) {
   const pageAnalyticsCombined = use(analyticsCombinedPromise);
   const t = useTranslations('dashboard');
-  const dashboardId = useDashboardId();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   const onItemClick = (_tabKey: string, item: { label: string }) => {
@@ -61,7 +59,7 @@ export default function PagesAnalyticsSection({ analyticsCombinedPromise }: Page
       ]}
       footer={
         <FilterPreservingLink
-          href={`/dashboard/${dashboardId}/pages`}
+          href='pages'
           className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
         >
           <span>{t('goTo', { section: t('sidebar.pages') })}</span>

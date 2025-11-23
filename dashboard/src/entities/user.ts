@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserRole } from '@prisma/client';
 import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
 
 export const PasswordSchema = z
@@ -13,7 +14,7 @@ export const UserSchema = z.object({
   name: z.string().nullable(),
   email: z.string().email(),
   passwordHash: z.string().nullable().optional(),
-  role: z.enum(['admin', 'user']).nullable(),
+  role: z.nativeEnum(UserRole).nullable(),
   emailVerified: z.date().nullable().optional(),
   image: z.string().nullable().optional(),
   totpEnabled: z.boolean().default(false),
@@ -30,7 +31,7 @@ export const CreateUserSchema = z.object({
   email: z.string().email(),
   name: z.string().nullable().optional(),
   passwordHash: z.string(),
-  role: z.enum(['admin', 'user']).nullable().optional(),
+  role: z.nativeEnum(UserRole).nullable().optional(),
   termsAcceptedVersion: z.number().nullable().optional(),
   termsAcceptedAt: z.date().nullable().optional(),
 });
@@ -48,7 +49,7 @@ export const RegisterUserSchema = z.object({
   acceptedTerms: z.literal(true, {
     errorMap: () => ({ message: 'onboarding.account.termsOfServiceRequired' }),
   }),
-  role: z.enum(['admin', 'user']).optional(),
+  role: z.nativeEnum(UserRole).optional(),
   language: z.preprocess(
     (val) => (SUPPORTED_LANGUAGES.includes(val as SupportedLanguages) ? val : 'en'),
     z.enum(SUPPORTED_LANGUAGES).default('en'),

@@ -10,6 +10,38 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
+enum Theme {
+  light
+  dark
+  system
+}
+
+enum AvatarMode {
+  default
+  gravatar
+}
+
+enum SubscriptionTier {
+  growth
+  professional
+  enterprise
+}
+
+enum DashboardRole {
+  admin
+  viewer
+}
+
+enum UserRole {
+  admin
+  user
+}
+
+enum Currency {
+  USD
+  EUR
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -55,7 +87,7 @@ model User {
   passwordHash String?
   totpEnabled Boolean @default(false)
   totpSecret String?
-  role String?
+  role UserRole?
 
   termsAcceptedVersion Int?
   termsAcceptedAt      DateTime?
@@ -87,9 +119,9 @@ model UserSettings {
   userId String @unique
   
   // Theme preferences
-  theme String @default("system") // "light", "dark", "system"
+  theme Theme @default(system) // "light", "dark", "system"
   language String @default("en") // ISO language codes
-  avatar String @default("default") // "default", "gravatar"
+  avatar AvatarMode @default(default) // "default", "gravatar"
   
   // Email preferences
   emailNotifications Boolean @default(true) // Sign up, login, password reset, reminders, alerts etc.
@@ -120,7 +152,7 @@ model UserDashboard {
   dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
   dashboardId String
   
-  role String @default("viewer")
+  role DashboardRole @default(viewer)
   
   isDefault Boolean @default(false)
   
@@ -174,10 +206,10 @@ model Subscription {
   userId String @unique
   
   // Plan configuration
-  tier String // "growth", "professional", "enterprise"
+  tier SubscriptionTier // "growth", "professional", "enterprise"
   eventLimit Int // Selected event limit: 10_000, 50_000, 100_000, etc.
   pricePerMonth Int // Price in cents
-  currency String @default("USD")
+  currency Currency @default(USD)
   
   // Billing cycle
   currentPeriodStart DateTime

@@ -1,3 +1,4 @@
+import { Fragment, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import AdvancedFiltersCard from './featureCards/advancedFiltersCard';
@@ -6,15 +7,57 @@ import EventTrackingCard from './featureCards/eventTrackingCard';
 import UserJourneyCard from './featureCards/userJourneyCard';
 import WorldMapCard from './featureCards/worldMapCard';
 import TrafficSourcesCard from './featureCards/trafficSourcesCard';
+import CoreWebVitalsCard from './featureCards/coreWebVitalsCard';
+import OutboundLinksCard from './featureCards/outboundLinksCard';
+import SessionReplayCard from './featureCards/sessionReplayCard';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
 
 export async function FeatureShowcase() {
   const t = await getTranslations('public.landing.showcase');
-  return (
-    <section className='bg-card/20 relative overflow-hidden py-20'>
-      <div className='absolute inset-0 bg-gradient-to-br from-blue-50/10 via-transparent to-purple-50/10 dark:from-blue-950/10 dark:via-transparent dark:to-purple-950/10' />
+  type FeatureCard = {
+    id: string;
+    element: ReactNode;
+  };
 
+  type FeatureCategory = {
+    id: string;
+    title: string;
+    cards: FeatureCard[];
+  };
+
+  const featureCategories: FeatureCategory[] = [
+    {
+      id: 'analytics',
+      title: t('categories.analytics'),
+      cards: [
+        { id: 'advanced-filters', element: <AdvancedFiltersCard /> },
+        { id: 'funnels', element: <FunnelsCard /> },
+        { id: 'world-map', element: <WorldMapCard /> },
+      ],
+    },
+    {
+      id: 'engagement',
+      title: t('categories.engagement'),
+      cards: [
+        { id: 'event-tracking', element: <EventTrackingCard /> },
+        { id: 'session-replay', element: <SessionReplayCard /> },
+        { id: 'user-journey', element: <UserJourneyCard /> },
+      ],
+    },
+    {
+      id: 'performance',
+      title: t('categories.performance'),
+      cards: [
+        { id: 'traffic-sources', element: <TrafficSourcesCard /> },
+        { id: 'outbound-links', element: <OutboundLinksCard /> },
+        { id: 'core-web-vitals', element: <CoreWebVitalsCard /> },
+      ],
+    },
+  ];
+
+  return (
+    <section className='relative overflow-visible py-20'>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
@@ -24,21 +67,38 @@ export async function FeatureShowcase() {
         </div>
 
         <div className='mx-auto max-w-7xl'>
-          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            <AdvancedFiltersCard />
-            <FunnelsCard />
-            <EventTrackingCard />
-            <UserJourneyCard />
-            <WorldMapCard />
-            <TrafficSourcesCard />
-          </div>
+          {featureCategories.map((category, index) => {
+            const wrapperClasses =
+              index === 0 ? 'space-y-10 sm:space-y-10' : 'mt-16 sm:mt-20 space-y-10 sm:space-y-12';
+
+            return (
+              <div key={category.id} className={wrapperClasses}>
+                <div className='flex flex-col items-center gap-4 text-center'>
+                  <span className='from-primary/40 via-primary to-primary/40 h-[1.5px] w-16 bg-gradient-to-r' />
+                  <h3 className='text-muted-foreground text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm'>
+                    {category.title}
+                  </h3>
+                </div>
+                <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                  {category.cards.map(({ id, element }) => (
+                    <Fragment key={id}>{element}</Fragment>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className='mt-8 flex justify-center'>
-          <Button variant='outline' size='lg' asChild>
-            <ExternalLink href='/docs' title={t('docsTitle')}>
+          <Button
+            variant='outline'
+            size='lg'
+            className='group transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg motion-reduce:transform-none motion-reduce:transition-none'
+            asChild
+          >
+            <ExternalLink href='/docs/dashboard#exploring-individual-sections' title={t('docsTitle')}>
               {t('docsButton')}
-              <ChevronRight className='ml-2 h-4 w-4' />
+              <ChevronRight className='ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none' />
             </ExternalLink>
           </Button>
         </div>

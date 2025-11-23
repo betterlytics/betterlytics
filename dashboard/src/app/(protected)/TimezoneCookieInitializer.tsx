@@ -11,7 +11,7 @@ export default function TimezoneCookieInitializer() {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (!tz) return;
     setTimezoneCookieAction(tz).then((res) => {
-      if (res?.success && res.data.changed) {
+      if (res.changed) {
         router.refresh();
       }
     });

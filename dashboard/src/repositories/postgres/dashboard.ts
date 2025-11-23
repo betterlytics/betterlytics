@@ -16,7 +16,6 @@ export async function findDashboardById(dashboardId: string): Promise<Dashboard>
     const prismaDashboard = await prisma.dashboard.findFirst({
       where: { id: dashboardId },
     });
-
     return DashboardSchema.parse(prismaDashboard);
   } catch {
     console.error('Error while finding dashboard relation');
@@ -40,6 +39,20 @@ export async function findUserDashboard(data: DashboardFindByUserData): Promise<
     console.error('Error while finding dashboard relation');
     throw new Error('Failed to find user dashboard');
   }
+}
+
+export async function findUserDashboardWithDashboardOrNull(data: DashboardFindByUserData) {
+  const rel = await prisma.userDashboard.findFirst({
+    where: { dashboardId: data.dashboardId, userId: data.userId },
+    include: { dashboard: true },
+  });
+
+  if (rel === null) return null;
+
+  return {
+    dashboardUser: DashboardUserSchema.parse(rel),
+    dashboard: DashboardSchema.parse(rel.dashboard),
+  };
 }
 
 export async function findFirstUserDashboard(userId: string): Promise<Dashboard | null> {

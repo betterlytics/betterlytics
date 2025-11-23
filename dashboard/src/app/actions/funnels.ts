@@ -7,13 +7,13 @@ import {
   getFunnelPreviewData,
   getFunnelsByDashboardId,
 } from '@/services/funnels';
-import { withDashboardAuthContext } from '@/auth/auth-actions';
+import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/authContext';
 import { type QueryFilter } from '@/entities/filter';
 import { revalidatePath } from 'next/cache';
 import { toFunnel } from '@/presenters/toFunnel';
 
-export const postFunnelAction = withDashboardAuthContext(
+export const postFunnelAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, name: string, queryFilters: QueryFilter[], isStrict: boolean): Promise<Funnel> => {
     const funnel = CreateFunnelSchema.parse({
       dashboardId: ctx.dashboardId,
