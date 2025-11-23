@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { lookup } from 'dns/promises';
+import ipaddr from 'ipaddr.js';
 import { domainValidation } from '@/entities/dashboard';
 
 const USER_AGENT = 'Better Analytics Favicon Proxy';
 const SUPPORTED_PROTOCOLS: Array<'https' | 'http'> = ['https', 'http'];
+const FAVICON_PATHS: string[] = ['/favicon.ico', '/favicon.png', '/favicon.jpg', '/apple-touch-icon.png'];
 
 const CONFIG = {
   timeoutMs: 2_000,
@@ -28,9 +31,11 @@ export async function GET(request: NextRequest) {
 
 async function proxyFavicon(domain: string): Promise<NextResponse | null> {
   for (const protocol of SUPPORTED_PROTOCOLS) {
-    const response = await fetchFavicon(`${protocol}://${domain}/favicon.ico`);
-    if (response) {
-      return response;
+    for (const path of FAVICON_PATHS) {
+      const response = await fetchFavicon(`${protocol}://${domain}${path}`);
+      if (response) {
+        return response;
+      }
     }
   }
   return null;
@@ -107,6 +112,11 @@ async function fetchWithRedirectLimit(
   let currentUrl = url;
 
   for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount += 1) {
+    const isSafe = await isSafeOutgoingUrl(currentUrl);
+    if (!isSafe) {
+      return null;
+    }
+
     const response = await fetch(currentUrl, {
       ...init,
       redirect: 'manual',
@@ -172,4 +182,47 @@ async function readLimitedBody(response: Response, maxBytes: number): Promise<Ar
   }
 
   return result.buffer as ArrayBuffer;
+}
+
+async function isSafeOutgoingUrl(rawUrl: string): Promise<boolean> {
+  let url: URL;
+
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+
+  const hostname = url.hostname;
+
+  if (isIpLiteral(hostname)) {
+    return false;
+  }
+
+  try {
+    const lookupResult = await lookup(hostname, { all: true });
+
+    for (const addressInfo of lookupResult) {
+      const { address } = addressInfo;
+      if (isBlockedAddress(address)) {
+        return false;
+      }
+    }
+  } catch {
+    return false;
+  }
+
+  return true;
+}
+
+function isIpLiteral(hostname: string): boolean {
+  return ipaddr.isValid(hostname);
+}
+
+function isBlockedAddress(address: string): boolean {
+  if (!ipaddr.isValid(address)) {
+    return true;
+  }
+
+  return ipaddr.parse(address).range() !== 'unicast';
 }
