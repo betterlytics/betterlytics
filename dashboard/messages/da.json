@@ -746,8 +746,7 @@
         ]
       },
       "hero": {
-        "titleNonHighlight": "Et Bedre Alternativ til ",
-        "titleHighlight": "Google Analytics",
+        "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
         "description": "Privatlivsvenlig, cookieløs webanalyse, der respekterer dine besøgende — ingen tracking, ingen cookies, ingen samtykkebannere.",
         "ctaPrimary": "Kom i Gang Gratis",
         "ctaGithub": "Se på GitHub",

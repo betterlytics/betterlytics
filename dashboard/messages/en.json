@@ -747,8 +747,7 @@
       },
 
       "hero": {
-        "titleNonHighlight": "A Better Alternative to ",
-        "titleHighlight": "Google Analytics",
+        "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
         "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
         "ctaPrimary": "Get Started for Free",
         "ctaGithub": "View on GitHub",
