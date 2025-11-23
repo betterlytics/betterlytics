@@ -64,14 +64,14 @@ export function BugReportDialog({ open, onOpenChange }: BugReportDialogProps) {
             placeholder={t('placeholder')}
             rows={6}
             disabled={isPending}
-            className='max-h-[50vh] min-h-64 overflow-y-auto sm:max-h-[80vh]'
+            className='placeholder-muted-foreground/75 max-h-[50vh] min-h-64 overflow-y-auto sm:max-h-[80vh]'
             maxLength={BUG_REPORT_MAX_LENGTH}
           />
           <div className='text-muted-foreground flex justify-end text-xs'>
             {message.length}/{BUG_REPORT_MAX_LENGTH}
           </div>
           <DialogFooter>
-            <Button type='submit' disabled={isPending}>
+            <Button type='submit' disabled={isPending || message.length === 0} className='cursor-pointer'>
               {isPending ? t('submitting') : t('submit')}
             </Button>
           </DialogFooter>
