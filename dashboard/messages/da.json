@@ -1692,6 +1692,7 @@
         "dashboards": "Dashboards",
         "upgradePlan": "Opgrader plan",
         "settings": "Indstillinger",
+        "reportBug": "Rapportér fejl",
         "documentation": "Dokumentation",
         "documentationTitle": "Komplet Betterlytics-dokumentation",
         "logout": "Log ud"
@@ -1860,6 +1861,21 @@
           "y1": "1 år",
           "y2": "2 år",
           "y3": "3 år"
+        },
+        "siteRules": {
+          "title": "Webstedsregler",
+          "description": "Kontroller, hvilke indgående hændelser der accepteres.",
+          "enforceDomain": "Håndhæv domæne",
+          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet."
+        },
+        "blacklistedIps": {
+          "title": "Blokerede IP-adresser",
+          "description": "Administrer IP-adresser, for hvilke indgående hændelser blokeres.",
+          "addIp": "Tilføj IP",
+          "addIpPlaceholder": "Indtast IPv4/IPv6 eller CIDR (f.eks. 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
+          "addIpError": "Indtast en gyldig IPv4/IPv6-adresse eller CIDR-range",
+          "noIps": "Ingen IP-adresser er i øjeblikket blokeret",
+          "remove": "Fjern"
         }
       },
       "danger": {
@@ -1884,6 +1900,19 @@
     "demoMode": {
       "notAvailable": "Ikke tilgængelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
+    },
+    "bugReport": {
+      "trigger": "Rapportér fejl",
+      "title": "Rapportér en fejl",
+      "description": "Fortæl os hvad der gik galt eller føles forkert. Jo mere info, jo bedre!",
+      "placeholder": "Beskriv hvad der skete, hvad du forventede, og alt der kan hjælpe os med at genskabe problemet.",
+      "submit": "Send rapport",
+      "submitting": "Sender...",
+      "toast": {
+        "success": "Tak! Vi har modtaget din rapport.",
+        "error": "Rapporten kunne ikke sendes. Prøv igen.",
+        "empty": "Skriv en kort beskrivelse før du sender."
+      }
     }
   },
   "onboarding": {

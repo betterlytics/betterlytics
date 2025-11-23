@@ -1693,6 +1693,7 @@
         "dashboards": "Dashboard",
         "upgradePlan": "Aggiorna piano",
         "settings": "Impostazioni",
+        "reportBug": "Segnala bug",
         "documentation": "Documentazione",
         "documentationTitle": "Documentazione completa Betterlytics",
         "logout": "Esci"
@@ -1861,6 +1862,21 @@
           "y1": "1 anno",
           "y2": "2 anni",
           "y3": "3 anni"
+        },
+        "siteRules": {
+          "title": "Regole del sito",
+          "description": "Controlla quali eventi in ingresso vengono accettati.",
+          "enforceDomain": "Applicare dominio",
+          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard."
+        },
+        "blacklistedIps": {
+          "title": "IP degli eventi bloccati",
+          "description": "Gestisci gli indirizzi IP per i quali gli eventi in ingresso vengono bloccati.",
+          "addIp": "Aggiungi IP",
+          "addIpPlaceholder": "Inserisci IPv4/IPv6 o CIDR (es. 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
+          "addIpError": "Inserisci un indirizzo IPv4/IPv6 valido o un intervallo CIDR",
+          "noIps": "Al momento non ci sono IP bloccati",
+          "remove": "Rimuovi"
         }
       },
       "danger": {
@@ -1885,6 +1901,19 @@
     "demoMode": {
       "notAvailable": "Non disponibile nella dashboard demo",
       "interactionDisabled": "Il filtraggio da questa interazione è disabilitato nella demo."
+    },
+    "bugReport": {
+      "trigger": "Segnala bug",
+      "title": "Segnala un bug",
+      "description": "Raccontaci cosa non ha funzionato o cosa ti sembra strano. Più dettagli condividi, meglio è!",
+      "placeholder": "Descrivi cosa è successo, cosa ti aspettavi e qualsiasi dettaglio utile per riprodurre il problema.",
+      "submit": "Invia segnalazione",
+      "submitting": "Invio in corso...",
+      "toast": {
+        "success": "Grazie! Abbiamo ricevuto la tua segnalazione.",
+        "error": "Impossibile inviare la segnalazione. Riprova.",
+        "empty": "Aggiungi una breve descrizione prima di inviare."
+      }
     }
   },
   "onboarding": {
