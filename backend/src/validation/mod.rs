@@ -1,9 +1,11 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use std::net::IpAddr;
+use ipnet::IpNet;
 use std::str::FromStr;
 use url::Url;
 use crate::analytics::RawTrackingEvent;
+use crate::site_config::SiteConfigCache;
 use sha2::{Digest, Sha256};
 use tracing::warn;
 
@@ -50,6 +52,10 @@ pub enum ValidationError {
     InvalidJson(String),
     #[error("Invalid outbound link URL: {0}")]
     InvalidOutboundLinkUrl(String),
+    #[error("Blacklisted IP address: {0}")]
+    BlacklistedIp(String),
+    #[error("Domain not allowed: {0}")]
+    DomainNotAllowed(String),
 }
 
 #[derive(Debug, Clone)]
@@ -296,6 +302,8 @@ impl EventValidator {
             ValidationError::PayloadTooLarge(_) => "payload_too_large",
             ValidationError::InvalidJson(_) => "invalid_json",
             ValidationError::InvalidOutboundLinkUrl(_) => "invalid_outbound_link_url",
+            ValidationError::BlacklistedIp(_) => "blacklisted_ip",
+            ValidationError::DomainNotAllowed(_) => "domain_not_allowed",
         }
     }
 
@@ -325,6 +333,92 @@ impl EventValidator {
             "/".to_string()
         }
     }
+}
+
+/// Check if an IP address is blocked by the provided blacklist entries.
+/// Supports IPv4, IPv6, and CIDR ranges (both v4 and v6).
+pub fn check_blacklist(
+    ip_address: &str,
+    blacklisted_ips: &[String],
+) -> Result<(), ValidationError> {
+    let event_ip: IpAddr = IpAddr::from_str(ip_address)
+        .map_err(|_| ValidationError::InvalidIpAddress("Invalid IP address format".to_string()))?;
+
+    let is_blocked = blacklisted_ips.iter().any(|entry| {
+        if let Ok(ip) = IpAddr::from_str(entry) {
+            ip == event_ip
+        } else if let Ok(net) = entry.parse::<IpNet>() {
+            net.contains(&event_ip)
+        } else {
+            false
+        }
+    });
+
+    if is_blocked {
+        Err(ValidationError::BlacklistedIp("IP is blacklisted".to_string()))
+    } else {
+        Ok(())
+    }
+}
+
+/// Validate site-specific policies using the in-memory site-config cache
+pub async fn validate_site_policies(
+    cfg_cache: &SiteConfigCache,
+    site_id: &str,
+    event_url: &str,
+    ip_address: &str,
+) -> Result<(), ValidationError> {
+    match cfg_cache.get(site_id) {
+        Some(cfg) => {
+            if let Err(e) = check_blacklist(ip_address, &cfg.blacklisted_ips) {
+                return Err(e);
+            }
+            if cfg.enforce_domain {
+                let expected = cfg.domain.trim();
+                if expected.is_empty() {
+                    warn!(
+                        site_id = %site_id,
+                        "site-config has enforce_domain=true but empty domain; rejecting event as misconfigured"
+                    );
+                    return Err(ValidationError::DomainNotAllowed(
+                        "Site config domain is misconfigured".to_string(),
+                    ));
+                } else if let Err(e) = check_domain_allowed(expected, event_url, true) {
+                    return Err(e);
+                }
+            }
+            Ok(())
+        }
+        None => Err(ValidationError::InvalidSiteId(
+                "SiteID not recognized or missing".to_string(),
+            )),
+    }
+}
+
+/// Check if the event URL's domain satisfies the expected domain policy.
+/// When `allow_subdomains` is true, subdomains of `expected_domain` are also allowed.
+pub fn check_domain_allowed(
+    expected_domain: &str,
+    event_url: &str,
+    allow_subdomains: bool,
+) -> Result<(), ValidationError> {
+    if let Ok(url) = Url::parse(event_url) {
+        let event_domain_lc = url.host_str().unwrap_or("").to_ascii_lowercase();
+        let expected_lc = expected_domain.to_ascii_lowercase();
+
+        let allowed = if allow_subdomains {
+            event_domain_lc == expected_lc || event_domain_lc.ends_with(&format!(".{}", expected_lc))
+        } else {
+            event_domain_lc == expected_lc
+        };
+
+        if !allowed {
+            return Err(ValidationError::DomainNotAllowed(
+                "Domain does not match site config".to_string(),
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// Check if a string contains any control characters

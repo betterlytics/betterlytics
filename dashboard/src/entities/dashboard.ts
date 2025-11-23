@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { DashboardRole } from '@prisma/client';
+import { SiteConfigSchema } from './siteConfig';
 
 // Domain validation schema (example.com)
 export const domainValidation = z
@@ -50,7 +51,15 @@ export const DashboardUserSchema = z.object({
   isDefault: z.boolean(),
 });
 
+export const DashboardWithSiteConfigSchema = z.object({
+  dashboardId: z.string(),
+  siteId: z.string(),
+  domain: z.string(),
+  config: SiteConfigSchema.nullable(),
+});
+
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardWriteData = z.infer<typeof DashboardWriteSchema>;
 export type DashboardFindByUserData = z.infer<typeof DashboardFindByUserSchema>;
 export type DashboardUser = z.infer<typeof DashboardUserSchema>;
+export type DashboardWithSiteConfig = z.infer<typeof DashboardWithSiteConfigSchema>;

@@ -1861,6 +1861,21 @@
           "y1": "1 anno",
           "y2": "2 anni",
           "y3": "3 anni"
+        },
+        "siteRules": {
+          "title": "Regole del sito",
+          "description": "Controlla quali eventi in ingresso vengono accettati.",
+          "enforceDomain": "Applicare dominio",
+          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard."
+        },
+        "blacklistedIps": {
+          "title": "IP degli eventi bloccati",
+          "description": "Gestisci gli indirizzi IP per i quali gli eventi in ingresso vengono bloccati.",
+          "addIp": "Aggiungi IP",
+          "addIpPlaceholder": "Inserisci IPv4/IPv6 o CIDR (es. 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
+          "addIpError": "Inserisci un indirizzo IPv4/IPv6 valido o un intervallo CIDR",
+          "noIps": "Al momento non ci sono IP bloccati",
+          "remove": "Rimuovi"
         }
       },
       "danger": {
