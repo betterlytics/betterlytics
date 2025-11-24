@@ -104,9 +104,9 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
       </TooltipProvider>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className='w-full max-w-xl border-none bg-transparent p-0 shadow-none'>
-          <article className='border-border/90 bg-background overflow-hidden rounded-3xl border shadow-2xl ring-1 ring-black/5 dark:ring-white/5'>
-            <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-6 py-4'>
+        <DialogContent className='w-full border-none bg-transparent p-0 shadow-none sm:max-w-xl'>
+          <article className='border-border/90 bg-background max-h-[calc(100vh-3rem)] overflow-y-auto rounded-3xl border shadow-2xl ring-1 ring-black/5 sm:max-h-[calc(100vh-5rem)] dark:ring-white/5'>
+            <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-4 py-3 sm:px-6 sm:py-4'>
               <div className='absolute inset-y-0 right-0 hidden w-1/2 opacity-40 md:block'>
                 <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]' />
               </div>
@@ -123,13 +123,13 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
               </div>
             </header>
 
-            <section className='text-muted-foreground/90 space-y-4 px-5 py-6 text-sm leading-6 md:px-6'>
+            <section className='text-muted-foreground/90 space-y-3 px-4 py-4 text-[0.8rem] leading-5 sm:space-y-4 sm:px-5 sm:py-6 sm:text-sm sm:leading-6 md:px-6'>
               <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-muted-foreground [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
                 <Content />
               </div>
             </section>
 
-            <DialogFooter className='border-border/60 bg-muted/30 text-muted-foreground flex flex-col gap-3 rounded-b-[24px] border-t px-5 py-5 text-left text-[0.7rem] sm:flex-row sm:items-center sm:justify-between md:px-6'>
+            <DialogFooter className='border-border/60 bg-muted/30 text-muted-foreground flex flex-col gap-3 rounded-b-[24px] border-t px-4 py-4 text-left text-[0.7rem] sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-5 md:px-6'>
               <p className='text-muted-foreground/80 max-w-sm text-[0.7rem] leading-snug sm:max-w-md'>
                 {t('haveFeedback')}
               </p>
