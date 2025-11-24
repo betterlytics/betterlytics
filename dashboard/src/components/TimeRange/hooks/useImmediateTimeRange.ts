@@ -25,8 +25,11 @@ export function useImmediateTimeRange() {
         ctx.compareAlignWeekdays,
       );
 
-      // Allow navigation as long as end date is today or earlier (ignore time component)
-      const endDate = new Date(resolved.main.end.getFullYear(), resolved.main.end.getMonth(), resolved.main.end.getDate());
+      const endDate = new Date(
+        resolved.main.end.getFullYear(),
+        resolved.main.end.getMonth(),
+        resolved.main.end.getDate(),
+      );
       const today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
       if (endDate.getTime() > today.getTime()) {
         return null;
