@@ -10,7 +10,7 @@ ENV NODE_ENV="production"
 
 WORKDIR /app
 
-RUN pnpm install -g prisma
+RUN pnpm install -g prisma@6.9.0
 
 COPY ./package.json .
 
@@ -20,4 +20,4 @@ COPY ./scripts ./scripts
 COPY ./migrations ./migrations
 COPY ./prisma ./prisma
 
-CMD pnpm run migrate-clickhouse && prisma migrate deploy --schema ./prisma/schema.prisma
+CMD pnpm run migrate-clickhouse && prisma migrate deploy --schema ./prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js

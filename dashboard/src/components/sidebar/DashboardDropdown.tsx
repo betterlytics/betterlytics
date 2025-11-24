@@ -2,7 +2,7 @@
 
 import { useState, use } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
-import { ChevronDown, Globe, List } from 'lucide-react';
+import { ChevronDown, List } from 'lucide-react';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { Dashboard } from '@/entities/dashboard';
 import {
@@ -17,6 +17,7 @@ import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { DisabledDemoTooltip } from '../tooltip/DisabledDemoTooltip';
+import { DomainFavicon } from '@/components/domain/DomainFavicon';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
 
 interface DashboardDropdownProps {
@@ -50,8 +51,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
           className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium'
         >
           <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden'>
-            <Globe className='text-muted-foreground h-4 w-4 flex-shrink-0' />{' '}
-            {/* TODO: Add the domains' favicons */}
+            <DomainFavicon domain={currentDashboard.domain} size={20} className='h-5 w-5' />
             <span className='truncate text-left'>{currentDashboard.domain}</span>
           </div>
           <ChevronDown className='text-muted-foreground h-3 w-3 flex-shrink-0' />
@@ -73,7 +73,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
             }`}
           >
             <div className='flex w-full items-center gap-2'>
-              <Globe className='text-muted-foreground h-4 w-4' />
+              <DomainFavicon domain={dashboard.domain} size={20} className='h-5 w-5' />
               <span className='flex-1 truncate'>{dashboard.domain}</span>
               {dashboard.id === dashboardId && <div className='bg-primary h-2 w-2 flex-shrink-0 rounded-full' />}
             </div>
