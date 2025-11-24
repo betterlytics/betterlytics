@@ -1914,7 +1914,11 @@
       "title": "Nyheder",
       "haveFeedback": "Har du feedback? Sig endelig til, så næste udgivelse bliver endnu bedre.",
       "viewAll": "Se alle opdateringer",
-      "gotIt": "Forstået"
+      "gotIt": "Forstået",
+      "badgeNew": "Ny",
+      "tooltipNewRelease": "Ny udgivelse tilgængelig",
+      "tooltipWhatsNew": "Hvad er nyt",
+      "openButtonAria": "Se hvad der er nyt i version {version}"
     }
   },
   "onboarding": {

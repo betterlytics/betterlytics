@@ -1,7 +1,8 @@
 'use client';
 
-import { Children, useEffect, useMemo, useRef, useState } from 'react';
+import { Children, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useInView } from '@/hooks/useInView';
 
 type ChangelogFeedProps = {
   children: React.ReactNode;
@@ -13,32 +14,20 @@ type ChangelogFeedProps = {
 export function ChangelogFeed({ children, initialBatchSize = 3, loadMoreLabel, endLabel }: ChangelogFeedProps) {
   const items = useMemo(() => Children.toArray(children), [children]);
   const [visibleCount, setVisibleCount] = useState(() => Math.min(initialBatchSize, items.length));
-  const loaderRef = useRef<HTMLDivElement | null>(null);
   const totalCount = items.length;
+  const { ref: loaderRef, inView } = useInView<HTMLDivElement>({ rootMargin: '256px 0px' });
 
   useEffect(() => {
     setVisibleCount(Math.min(initialBatchSize, items.length));
   }, [initialBatchSize, items.length]);
 
   useEffect(() => {
-    if (!loaderRef.current || visibleCount >= totalCount) {
+    if (!inView || visibleCount >= totalCount) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting) {
-          setVisibleCount((prev) => Math.min(totalCount, prev + initialBatchSize));
-        }
-      },
-      { rootMargin: '256px 0px' },
-    );
-
-    observer.observe(loaderRef.current);
-
-    return () => observer.disconnect();
-  }, [initialBatchSize, totalCount, visibleCount]);
+    setVisibleCount((prev) => Math.min(totalCount, prev + initialBatchSize));
+  }, [inView, initialBatchSize, totalCount, visibleCount]);
 
   const isComplete = visibleCount >= totalCount;
   const statusMessage = isComplete ? endLabel : loadMoreLabel;

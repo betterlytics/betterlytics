@@ -16,7 +16,7 @@ export default async function ChangelogPage() {
   const t = await getTranslations('public.changelog');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.changelog);
   const locale = await getLocale();
-  const changelogEntries = getChangelogEntriesForLocale(locale as SupportedLanguages);
+  const changelogEntries = getChangelogEntriesForLocale(locale);
 
   return (
     <>

@@ -87,18 +87,19 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
                 'text-foreground hover:bg-muted/60 relative h-10 w-10 rounded-full transition-colors',
                 isUnread && 'bg-primary/10 hover:bg-primary/20',
               )}
-              aria-label={`View what's new in version ${metadata.version}`}
+              aria-label={t('openButtonAria', { version: metadata.version })}
               onClick={() => setIsOpen(true)}
+              disabled={isOpen}
             >
               <Sparkles className='text-foreground h-4 w-4' />
               {isUnread && (
                 <span className='bg-primary pointer-events-none absolute -top-1.5 right-0 flex translate-x-1/2 items-center rounded-full px-1.5 py-0.5 text-[0.55rem] font-semibold tracking-[0.25em] text-white uppercase shadow-lg'>
-                  New
+                  {t('badgeNew')}
                 </span>
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>{isUnread ? 'New release available' : "What's new"}</TooltipContent>
+          <TooltipContent>{isUnread ? t('tooltipNewRelease') : t('tooltipWhatsNew')}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
 

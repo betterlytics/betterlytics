@@ -1,8 +1,9 @@
 import type { ChangelogEntry } from '@/content/changelog';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 type ChangelogEntryCardProps = {
   entry: ChangelogEntry;
-  locale: string;
+  locale: SupportedLanguages;
 };
 
 export function ChangelogEntryCard({ entry, locale }: ChangelogEntryCardProps) {
@@ -29,7 +30,7 @@ export function ChangelogEntryCard({ entry, locale }: ChangelogEntryCardProps) {
             </div>
           </header>
 
-          <div className='prose prose-slate dark:prose-invert [&_p]:text-muted-foreground dark:[&_p]:text-muted-foreground max-w-none text-[0.95rem] leading-relaxed md:text-base [&_figcaption]:text-[0.65rem] [&_figcaption]:tracking-[0.3em] [&_figcaption]:uppercase [&_figure]:overflow-hidden [&_figure]:rounded-2xl [&_h2]:text-base [&_h2]:font-semibold [&_h2]:tracking-tight md:[&_h2]:text-lg [&_img]:w-full [&_img]:rounded-xl [&_section]:space-y-3 [&_section+section]:mt-6 [&_ul]:ml-4 [&_ul]:list-disc'>
+          <div className='prose prose-slate dark:prose-invert [&_p]:text-muted-foreground dark:[&_p]:text-muted-foreground max-w-none text-sm leading-relaxed md:text-base [&_figcaption]:text-[0.65rem] [&_figcaption]:tracking-[0.3em] [&_figcaption]:uppercase [&_figure]:overflow-hidden [&_figure]:rounded-2xl [&_h2]:text-base [&_h2]:font-semibold [&_h2]:tracking-tight md:[&_h2]:text-lg [&_img]:w-full [&_img]:rounded-xl [&_section]:space-y-3 [&_section+section]:mt-6 [&_ul]:ml-4 [&_ul]:list-disc'>
             <entry.Content />
           </div>
         </div>

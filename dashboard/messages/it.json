@@ -1915,7 +1915,11 @@
       "title": "Novità",
       "haveFeedback": "Hai dei feedback? Facci sapere così il prossimo aggiornamento sarà ancora migliore.",
       "viewAll": "Vedi tutti gli aggiornamenti",
-      "gotIt": "Ho capito"
+      "gotIt": "Ho capito",
+      "badgeNew": "Nuovo",
+      "tooltipNewRelease": "Nuova versione disponibile",
+      "tooltipWhatsNew": "Novità",
+      "openButtonAria": "Visualizza le novità nella versione {version}"
     }
   },
   "onboarding": {
