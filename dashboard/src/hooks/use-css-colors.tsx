@@ -15,21 +15,25 @@ export function useCSSColors(cssVariables: string[] | readonly string[]): string
     if (typeof window === 'undefined') return;
 
     const update = () => {
-      clearColorCache();
       const resolved = cssVariables.map((v) => getResolvedHexColor(v));
       setColors(resolved);
     };
 
+    const handleThemeChange = () => {
+      clearColorCache();
+      update();
+    };
+
     const rAF = requestAnimationFrame(update);
 
-    const observer = new MutationObserver(update);
+    const observer = new MutationObserver(handleThemeChange);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     return () => {
       observer.disconnect();
       cancelAnimationFrame(rAF);
     };
-  }, [cssVariables]);
+  }, [cssVariables.join()]);
 
   return colors;
 }
