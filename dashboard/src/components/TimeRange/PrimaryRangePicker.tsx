@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
@@ -23,6 +23,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
+  const locale = useLocale();
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
   const isDemo = useDemoMode();
@@ -31,7 +32,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
 
   const label = useMemo(
     () => () => {
-      if (ctx.interval !== 'custom' && ctx.offset === 0) {
+      if (ctx.interval !== 'custom') {
         return t(`presets.${ctx.interval}`);
       }
       return formatPrimaryRangeLabel({
@@ -39,9 +40,10 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         offset: ctx.offset,
         startDate: ctx.startDate,
         endDate: ctx.endDate,
+        locale,
       });
     },
-    [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate, t],
+    [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate, t, locale],
   );
 
   const titleText = `${ctx.startDate.toLocaleString()} - ${ctx.endDate.toLocaleString()}`;

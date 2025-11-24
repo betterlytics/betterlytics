@@ -90,13 +90,14 @@ function MapPopupContentComponent({
           <Row
             color='bg-primary'
             label={
-              timeRangeCtx.offset !== 0 && timeRangeCtx.interval !== 'custom'
+              timeRangeCtx.interval !== 'custom'
                 ? t(`timeRange.presets.${timeRangeCtx.interval}`)
                 : formatPrimaryRangeLabel({
                     interval: timeRangeCtx.interval,
                     offset: timeRangeCtx.offset,
                     startDate: timeRangeCtx.startDate,
                     endDate: timeRangeCtx.endDate,
+                    locale,
                   })
             }
             tooltip={`${timeRangeCtx.startDate.toLocaleString()} - ${timeRangeCtx.endDate.toLocaleString()}`}
