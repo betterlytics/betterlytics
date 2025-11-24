@@ -21,7 +21,7 @@ import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
-import { ChangelogModal } from '@/components/changelogModal/ChangelogModal';
+import { ChangelogModal } from '@/components/changelog/ChangelogModal';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
