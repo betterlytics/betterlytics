@@ -6,7 +6,7 @@ import React, { useCallback, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
-import MapPopupContent from './popup/MapPopupContent';
+import MapPopupContent from './tooltip/MapPopupContent';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
