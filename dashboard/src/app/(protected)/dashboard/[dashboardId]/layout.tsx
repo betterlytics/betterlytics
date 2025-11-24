@@ -20,6 +20,7 @@ import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
 import { DashboardFindByUserSchema } from '@/entities/dashboard';
 import { env } from '@/lib/env';
+import DashboardLoading from '@/components/loading/DashboardLoading';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -58,35 +59,36 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   const mustAcceptTerms =
     !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION;
 
-  return (
-    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
-      <DashboardProvider>
-        <DashboardLayoutShell
-          dashboardId={dashboardId}
-          isDemo={false}
-          basePath={'/dashboard'}
-          includeIntegrationManager={true}
-        >
-          <BannerProvider>
-            {billingEnabled && billingDataPromise && (
-              <Suspense fallback={null}>
-                <UsageAlertBanner billingDataPromise={billingDataPromise} />
-                <UsageExceededBanner billingDataPromise={billingDataPromise} />
-              </Suspense>
-            )}
-            {isFeatureEnabled('enableAccountVerification') && (
-              <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
-            )}
-            <Suspense>
-              <IntegrationBanner />
-            </Suspense>
-            <div className='flex w-full justify-center'>{children}</div>
-            {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
-          </BannerProvider>
-        </DashboardLayoutShell>
-      </DashboardProvider>
-    </PublicEnvironmentVariablesProvider>
-  );
+  return <DashboardLoading />;
+  // return (
+  //   <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
+  //     <DashboardProvider>
+  //       <DashboardLayoutShell
+  //         dashboardId={dashboardId}
+  //         isDemo={false}
+  //         basePath={'/dashboard'}
+  //         includeIntegrationManager={true}
+  //       >
+  //         <BannerProvider>
+  //           {billingEnabled && billingDataPromise && (
+  //             <Suspense fallback={null}>
+  //               <UsageAlertBanner billingDataPromise={billingDataPromise} />
+  //               <UsageExceededBanner billingDataPromise={billingDataPromise} />
+  //             </Suspense>
+  //           )}
+  //           {isFeatureEnabled('enableAccountVerification') && (
+  //             <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
+  //           )}
+  //           <Suspense>
+  //             <IntegrationBanner />
+  //           </Suspense>
+  //           <div className='flex w-full justify-center'>{children}</div>
+  //           {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+  //         </BannerProvider>
+  //       </DashboardLayoutShell>
+  //     </DashboardProvider>
+  //   </PublicEnvironmentVariablesProvider>
+  // );
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ dashboardId: string }> }) {
