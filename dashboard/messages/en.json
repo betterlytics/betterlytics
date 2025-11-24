@@ -167,6 +167,29 @@
         "docsLinkTitle": "Complete Betterlytics Documentation"
       }
     },
+    "changelog": {
+      "seo": {
+        "title": "Changelog | Betterlytics Release Notes & Product Updates",
+        "description": "Read every Betterlytics release note in one place. Follow product updates, reliability fixes, and roadmap highlights for our privacy-first analytics platform.",
+        "keywords": [
+          "Betterlytics changelog",
+          "Product updates",
+          "Release notes",
+          "Analytics roadmap",
+          "Privacy-first analytics updates"
+        ]
+      },
+      "hero": {
+        "eyebrow": "Release history",
+        "title": "Betterlytics changelog",
+        "lead": "See what's new in Betterlytics! From fresh features to performance fixes, follow our journey and discover how your analytics experience keeps getting better."
+      },
+      "feed": {
+        "subhead": "Fresh releases ship monthly. Scroll chronologically to revisit every iteration.",
+        "loadMore": "Keep scrolling. Newer releases will load automatically.",
+        "end": "Thanks for reading all the way back. You've reached the beginning of the Betterlytics changelog."
+      }
+    },
     "privacy": {
       "seo": {
         "title": "Privacy Policy | GDPR & Cookieless Analytics",
@@ -921,6 +944,7 @@
       "termsOfService": "Terms of Service",
       "dpa": "Data Processing Agreement",
       "documentation": "Documentation",
+      "changelog": "Changelog",
       "pricing": "Pricing",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1898,6 +1922,7 @@
       "notAvailable": "Not available on demo dashboard",
       "interactionDisabled": "Filtering from this interaction is disabled in the demo."
     },
+
     "bugReport": {
       "trigger": "Report bug",
       "title": "Report a bug",
@@ -1910,6 +1935,15 @@
         "error": "Couldn't send the report. Please try again.",
         "empty": "Please add a short description before sending."
       }
+    },
+    "changelog": {
+      "title": "What's New",
+      "haveFeedback": "Have feedback? Tell us so the next release is even better.",
+      "viewAll": "View all updates",
+      "gotIt": "Got it",
+      "badgeNew": "New",
+      "tooltipWhatsNew": "View what's new",
+      "openButtonAria": "View what's new in version {version}"
     }
   },
   "onboarding": {

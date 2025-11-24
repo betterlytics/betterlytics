@@ -91,7 +91,7 @@ model User {
 
   termsAcceptedVersion Int?
   termsAcceptedAt      DateTime?
-  changelogVersionSeen Int? @default(0)
+  changelogVersionSeen String? @default("v0")
 
   onboardingCompletedAt DateTime?
 

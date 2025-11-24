@@ -21,7 +21,7 @@ export const UserSchema = z.object({
   totpSecret: z.string().nullable().optional(),
   termsAcceptedVersion: z.number().nullable().optional(),
   termsAcceptedAt: z.date().nullable().optional(),
-  changelogVersionSeen: z.number().optional().default(0),
+  changelogVersionSeen: z.string().optional().default('v0'),
   onboardingCompletedAt: z.date().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),

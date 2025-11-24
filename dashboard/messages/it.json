@@ -167,6 +167,29 @@
         "docsLinkTitle": "Documentazione completa Betterlytics"
       }
     },
+    "changelog": {
+      "seo": {
+        "title": "Changelog | Note di Rilascio & Aggiornamenti di Betterlytics",
+        "description": "Leggi tutte le note di rilascio di Betterlytics in un unico posto. Segui aggiornamenti di prodotto, correzioni di affidabilità e punti salienti della roadmap della nostra piattaforma di analytics privacy-first.",
+        "keywords": [
+          "Changelog Betterlytics",
+          "Aggiornamenti prodotto",
+          "Note di rilascio",
+          "Roadmap analytics",
+          "Aggiornamenti analytics privacy-first"
+        ]
+      },
+      "hero": {
+        "eyebrow": "Storico delle versioni",
+        "title": "Changelog Betterlytics",
+        "lead": "Scopri le novità di Betterlytics! Dalle nuove funzionalità alle correzioni di performance, segui il nostro percorso e scopri come migliorare la tua esperienza di analytics."
+      },
+      "feed": {
+        "subhead": "Le nuove versioni vengono rilasciate ogni mese. Scorri in ordine cronologico per rivedere ogni iterazione.",
+        "loadMore": "Continua a scorrere. Le versioni più recenti si caricheranno automaticamente.",
+        "end": "Sei completamente aggiornato. Altri miglioramenti sono in arrivo."
+      }
+    },
     "privacy": {
       "seo": {
         "title": "Informativa sulla Privacy | GDPR e Analisi Senza Cookie",
@@ -924,6 +947,7 @@
       "termsOfService": "Termini di servizio",
       "dpa": "Accordo elaborazione dati",
       "documentation": "Documentazione",
+      "changelog": "Changelog",
       "pricing": "Prezzi",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1914,6 +1938,15 @@
         "error": "Impossibile inviare la segnalazione. Riprova.",
         "empty": "Aggiungi una breve descrizione prima di inviare."
       }
+    },
+    "changelog": {
+      "title": "Novità",
+      "haveFeedback": "Hai dei feedback? Facci sapere così il prossimo aggiornamento sarà ancora migliore.",
+      "viewAll": "Vedi tutti gli aggiornamenti",
+      "gotIt": "Ho capito",
+      "badgeNew": "Nuovo",
+      "tooltipWhatsNew": "Visualizza le novità",
+      "openButtonAria": "Visualizza le novità nella versione {version}"
     }
   },
   "onboarding": {

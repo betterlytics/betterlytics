@@ -28,6 +28,7 @@ import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
+import { ChangelogModal } from '@/components/changelog/ChangelogModal';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
@@ -94,6 +95,7 @@ export default function BATopbar() {
                 </div>
               ) : (
                 <>
+                  <ChangelogModal />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

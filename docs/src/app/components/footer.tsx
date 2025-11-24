@@ -21,40 +21,40 @@ export function Footer() {
             <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <ExternalLink
-                  href='https://betterlytics.io/about'
-                  className='hover:text-foreground transition-colors'
+                  href="https://betterlytics.io/about"
+                  className="hover:text-foreground transition-colors"
                 >
                   About
                 </ExternalLink>
               </li>
               <li>
                 <ExternalLink
-                  href='https://betterlytics.io/contact'
-                  className='hover:text-foreground transition-colors'
+                  href="https://betterlytics.io/contact"
+                  className="hover:text-foreground transition-colors"
                 >
                   Contact
                 </ExternalLink>
               </li>
               <li>
                 <ExternalLink
-                  href='https://betterlytics.io/privacy'
-                  className='hover:text-foreground transition-colors'
+                  href="https://betterlytics.io/privacy"
+                  className="hover:text-foreground transition-colors"
                 >
                   Privacy Policy
                 </ExternalLink>
               </li>
               <li>
                 <ExternalLink
-                  href='https://betterlytics.io/terms'
-                  className='hover:text-foreground transition-colors'
+                  href="https://betterlytics.io/terms"
+                  className="hover:text-foreground transition-colors"
                 >
                   Terms of Service
                 </ExternalLink>
               </li>
               <li>
                 <ExternalLink
-                  href='https://betterlytics.io/dpa'
-                  className='hover:text-foreground transition-colors'
+                  href="https://betterlytics.io/dpa"
+                  className="hover:text-foreground transition-colors"
                 >
                   Data Processing Agreement
                 </ExternalLink>
@@ -73,9 +73,17 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link
+                  href="https://betterlytics.io/changelog"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Changelog
+                </Link>
+              </li>
+              <li>
                 <ExternalLink
-                  href='https://betterlytics.io#pricing'
-                  className='hover:text-foreground transition-colors'
+                  href="https://betterlytics.io#pricing"
+                  className="hover:text-foreground transition-colors"
                 >
                   Pricing
                 </ExternalLink>
@@ -87,10 +95,10 @@ export function Footer() {
             <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <ExternalLink
-                  href='https://github.com/betterlytics/betterlytics'
-                  className='hover:text-foreground flex items-center transition-colors'
-                  target='_blank'
-                  rel='noopener noreferrer'
+                  href="https://github.com/betterlytics/betterlytics"
+                  className="hover:text-foreground flex items-center transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <svg
                     className="mr-2 h-4 w-4 flex-shrink-0"
@@ -105,10 +113,10 @@ export function Footer() {
               </li>
               <li>
                 <ExternalLink
-                  href='https://bsky.app/profile/betterlytics.bsky.social'
-                  className='hover:text-foreground flex items-center transition-colors'
-                  target='_blank'
-                  rel='noopener noreferrer'
+                  href="https://bsky.app/profile/betterlytics.bsky.social"
+                  className="hover:text-foreground flex items-center transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <svg
                     className="mr-2 h-4 w-4 flex-shrink-0"
@@ -126,10 +134,10 @@ export function Footer() {
               </li>
               <li>
                 <ExternalLink
-                  href='https://discord.com/invite/vwqSvPn6sP'
-                  className='hover:text-foreground flex items-center transition-colors'
-                  target='_blank'
-                  rel='noopener noreferrer'
+                  href="https://discord.com/invite/vwqSvPn6sP"
+                  className="hover:text-foreground flex items-center transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <svg
                     className="mr-2 h-4 w-4 flex-shrink-0"
