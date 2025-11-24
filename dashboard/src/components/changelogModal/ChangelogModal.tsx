@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { markChangelogSeenAction } from '@/app/actions/changelog';
 import { useLocale, useTranslations } from 'next-intl';
@@ -104,7 +105,7 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
       </TooltipProvider>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className='w-full border-none bg-transparent p-0 shadow-none sm:max-w-xl'>
+        <DialogContent className='border-none bg-transparent p-0 shadow-none'>
           <article className='border-border/90 bg-background flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-3xl border shadow-2xl ring-1 ring-black/5 sm:max-h-[calc(100vh-5rem)] dark:ring-white/5'>
             <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-4 py-3 sm:px-6 sm:py-4'>
               <div className='absolute inset-y-0 right-0 hidden w-1/2 opacity-40 md:block'>
@@ -123,11 +124,13 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
               </div>
             </header>
 
-            <section className='text-muted-foreground/90 min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4 text-[0.8rem] leading-5 sm:space-y-4 sm:px-5 sm:py-6 sm:text-sm sm:leading-6 md:px-6'>
-              <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-muted-foreground [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
-                <Content />
-              </div>
-            </section>
+            <ScrollArea className='min-h-0 flex-1'>
+              <section className='text-muted-foreground/90 space-y-3 px-4 py-4 text-[0.8rem] leading-5 sm:space-y-4 sm:px-5 sm:py-6 sm:text-sm sm:leading-6 md:px-6'>
+                <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-muted-foreground [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
+                  <Content />
+                </div>
+              </section>
+            </ScrollArea>
 
             <DialogFooter className='border-border/60 bg-muted/30 text-muted-foreground flex shrink-0 flex-col gap-3 rounded-b-[24px] border-t px-4 py-4 text-left text-[0.7rem] sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-5 md:px-6'>
               <p className='text-muted-foreground/80 max-w-sm text-[0.7rem] leading-snug sm:max-w-md'>
