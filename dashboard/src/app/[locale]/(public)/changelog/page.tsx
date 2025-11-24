@@ -1,4 +1,4 @@
-import { getChangelogEntriesForLocale } from '@/content/whats-new';
+import { getChangelogEntriesForLocale } from '@/content/changelog';
 import { ChangelogFeed } from '@/components/changelog/ChangelogFeed';
 import { ChangelogEntryCard } from '@/components/changelog/ChangelogEntryCard';
 import { StructuredData } from '@/components/StructuredData';

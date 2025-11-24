@@ -1910,7 +1910,7 @@
       "notAvailable": "Ikke tilgængelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
     },
-    "whatsNew": {
+    "changelog": {
       "title": "Nyheder",
       "haveFeedback": "Har du feedback? Sig endelig til, så næste udgivelse bliver endnu bedre.",
       "viewAll": "Se alle opdateringer",

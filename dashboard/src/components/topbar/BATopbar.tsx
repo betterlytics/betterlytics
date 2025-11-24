@@ -21,7 +21,7 @@ import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
-import { WhatsNewModal } from '@/components/whats-new/WhatsNewModal';
+import { ChangelogModal } from '@/components/changelogModal/ChangelogModal';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
@@ -83,7 +83,7 @@ export default function BATopbar() {
                 </div>
               ) : (
                 <>
-                  <WhatsNewModal />
+                  <ChangelogModal />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

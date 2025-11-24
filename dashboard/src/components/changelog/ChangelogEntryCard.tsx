@@ -1,7 +1,7 @@
-import type { WhatsNewEntry } from '@/content/whats-new';
+import type { ChangelogEntry } from '@/content/changelog';
 
 type ChangelogEntryCardProps = {
-  entry: WhatsNewEntry;
+  entry: ChangelogEntry;
   locale: string;
 };
 

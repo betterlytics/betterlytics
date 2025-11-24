@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { getCurrentWhatsNewModalDisplayForLocale, type WhatsNewEntry } from '@/content/whats-new';
+import { getCurrentChangelogModalDisplayForLocale, type ChangelogEntry } from '@/content/changelog';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -16,29 +16,29 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { markWhatsNewSeenAction } from '@/app/actions/whatsNew';
+import { markChangelogSeenAction } from '@/app/actions/changelog';
 import { useLocale, useTranslations } from 'next-intl';
 
-export function WhatsNewModal() {
+export function ChangelogModal() {
   const locale = useLocale();
-  const currentWhatsNewModalDisplay = getCurrentWhatsNewModalDisplayForLocale(locale);
+  const currentChangelogModalDisplay = getCurrentChangelogModalDisplayForLocale(locale);
 
-  if (!currentWhatsNewModalDisplay) {
+  if (!currentChangelogModalDisplay) {
     return null;
   }
 
-  return <WhatsNewModalWithDisplay currentWhatsNewModalDisplay={currentWhatsNewModalDisplay} />;
+  return <ChangelogModalWithDisplay currentChangelogModalDisplay={currentChangelogModalDisplay} />;
 }
 
-type WhatsNewModalWithDisplayProps = {
-  currentWhatsNewModalDisplay: WhatsNewEntry;
+type ChangelogModalWithDisplayProps = {
+  currentChangelogModalDisplay: ChangelogEntry;
 };
 
-function WhatsNewModalWithDisplay({ currentWhatsNewModalDisplay }: WhatsNewModalWithDisplayProps) {
-  const t = useTranslations('components.whatsNew');
+function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogModalWithDisplayProps) {
+  const t = useTranslations('components.changelog');
   const locale = useLocale();
   const { data: session } = useSession();
-  const { Content, ...metadata } = currentWhatsNewModalDisplay;
+  const { Content, ...metadata } = currentChangelogModalDisplay;
   const sessionSeenVersion = session?.user?.changelogVersionSeen ?? 'v0';
 
   const [isOpen, setIsOpen] = useState(false);
@@ -66,7 +66,7 @@ function WhatsNewModalWithDisplay({ currentWhatsNewModalDisplay }: WhatsNewModal
 
     startMarkingSeen(async () => {
       try {
-        await markWhatsNewSeenAction(metadata.version);
+        await markChangelogSeenAction(metadata.version);
         setLastSeenVersion(metadata.version);
       } catch (error) {
         console.error('Failed to update changelog version seen', error);
