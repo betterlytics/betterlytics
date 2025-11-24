@@ -32,7 +32,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
 
   const label = useMemo(
     () => () => {
-      if (ctx.interval !== 'custom') {
+      if (ctx.interval !== 'custom' && ctx.offset === 0) {
         return t(`presets.${ctx.interval}`);
       }
       return formatPrimaryRangeLabel({

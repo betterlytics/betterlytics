@@ -90,7 +90,7 @@ function MapPopupContentComponent({
           <Row
             color='bg-primary'
             label={
-              timeRangeCtx.interval !== 'custom'
+              timeRangeCtx.interval !== 'custom' && timeRangeCtx.offset === 0
                 ? t(`timeRange.presets.${timeRangeCtx.interval}`)
                 : formatPrimaryRangeLabel({
                     interval: timeRangeCtx.interval,
