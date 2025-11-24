@@ -85,7 +85,7 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
               variant='ghost'
               size='icon'
               className={cn(
-                'text-foreground hover:bg-muted/60 relative h-10 w-10 rounded-full transition-colors',
+                'text-foreground hover:bg-muted/60 relative h-10 w-10 cursor-pointer rounded-full transition-colors',
                 isUnread && 'bg-primary/10 hover:bg-primary/20',
               )}
               aria-label={t('openButtonAria', { version: metadata.version })}
@@ -100,7 +100,7 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>{isUnread ? t('tooltipNewRelease') : t('tooltipWhatsNew')}</TooltipContent>
+          <TooltipContent>{t('tooltipWhatsNew')}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
 

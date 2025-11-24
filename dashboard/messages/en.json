@@ -1913,8 +1913,7 @@
       "viewAll": "View all updates",
       "gotIt": "Got it",
       "badgeNew": "New",
-      "tooltipNewRelease": "New release available",
-      "tooltipWhatsNew": "What's new",
+      "tooltipWhatsNew": "View what's new",
       "openButtonAria": "View what's new in version {version}"
     }
   },

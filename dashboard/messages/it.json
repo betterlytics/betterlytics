@@ -1917,8 +1917,7 @@
       "viewAll": "Vedi tutti gli aggiornamenti",
       "gotIt": "Ho capito",
       "badgeNew": "Nuovo",
-      "tooltipNewRelease": "Nuova versione disponibile",
-      "tooltipWhatsNew": "Novità",
+      "tooltipWhatsNew": "Visualizza le novità",
       "openButtonAria": "Visualizza le novità nella versione {version}"
     }
   },

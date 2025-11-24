@@ -1916,8 +1916,7 @@
       "viewAll": "Se alle opdateringer",
       "gotIt": "Forstået",
       "badgeNew": "Ny",
-      "tooltipNewRelease": "Ny udgivelse tilgængelig",
-      "tooltipWhatsNew": "Hvad er nyt",
+      "tooltipWhatsNew": "Se hvad der er nyt",
       "openButtonAria": "Se hvad der er nyt i version {version}"
     }
   },
