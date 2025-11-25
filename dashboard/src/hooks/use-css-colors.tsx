@@ -1,39 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getResolvedHexColor, clearColorCache } from '@/utils/colorUtils';
+import { useMemo } from 'react';
+import { getResolvedHexColor } from '@/utils/colorUtils';
+
+type CSSVariableName = `--${string}`;
 
 /**
  * Reads and resolves a set of CSS color variables into hex strings.
- * @param cssVariables - Array of CSS variable names (e.g., 'var(--my-color)')
+ * @param cssVariables - Array of CSS variable names (e.g., '--my-color')
  * @returns Array of resolved hex color strings
  */
-export function useCSSColors(cssVariables: string[] | readonly string[]): string[] | null {
-  const [colors, setColors] = useState<string[]>([...cssVariables]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const update = () => {
-      const resolved = cssVariables.map((v) => getResolvedHexColor(v));
-      setColors(resolved);
-    };
-
-    const handleThemeChange = () => {
-      clearColorCache();
-      update();
-    };
-
-    const rAF = requestAnimationFrame(update);
-
-    const observer = new MutationObserver(handleThemeChange);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(rAF);
-    };
-  }, [cssVariables.join()]);
+export function useCSSColors(
+  cssVariables: CSSVariableName[] | readonly CSSVariableName[],
+): string[] {
+  const colors = useMemo(() => {
+    return cssVariables.map((v) => getResolvedHexColor(v));
+  }, [cssVariables]);
 
   return colors;
 }

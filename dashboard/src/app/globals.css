@@ -108,22 +108,22 @@
 
   --flagicon-border: oklch(0.5 0 0 / 0.5);
 
-  --map-feature-border-low: oklch(86.058% 0.05926 254.014);
-  --map-feature-border-medium: oklch(68% 0.17 268.71);
-  --map-feature-border-high: oklch(52% 0.222 268.78);
-  --map-feature-border-hovered: #cce6cc; /* Green */
-  --map-feature-border-clicked: #ffc067; /* Orange */
-  --map-feature-border-none: oklch(90.443% 0.00106 11.851);
+  --map-feature-border-low: #9ac5f8;
+  --map-feature-border-medium: #4a7ce0;
+  --map-feature-border-high: #1535c3;
+  --map-feature-border-hovered: #cce6cc;
+  --map-feature-border-clicked: #ffc067;
+  --map-feature-border-none: #e0e0e0;
 
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
 
-  --graph-fill-low: oklch(85% 0.08 255);
-  --graph-fill-medium: oklch(62% 0.16 262);
-  --graph-fill-high: oklch(42.4% 45.25% 265.638);
-  --graph-fill-none: oklch(71.4% 4.75% 261.325);
+  --graph-fill-low: #abd1ff;
+  --graph-fill-medium: #4e82e5;
+  --graph-fill-high: #1535c3;
+  --graph-fill-none: #92a4c3;
 
-  --weekly-heatmap-fill-none: oklch(91.115% 0.01518 260.807);
+  --weekly-heatmap-fill-none: #e8ecf2;
 }
 
 .dark {
@@ -185,22 +185,22 @@
 
   --flagicon-border: oklch(68.273% 0.0186 267.741 / 0.281);
 
-  --map-feature-border-low: oklch(80.857% 0.08018 262.633);
-  --map-feature-border-medium: oklch(61% 0.17 268.71);
-  --map-feature-border-high: oklch(46% 0.222 268.78);
+  --map-feature-border-low: #88a8f0;
+  --map-feature-border-medium: #5570e0;
+  --map-feature-border-high: #102cbb;
   --map-feature-border-hovered: #cce6cc;
-  --map-feature-border-clicked: #ffc067; /* Orange */
-  --map-feature-border-none: oklch(93.403% 0.00011 271.152);
+  --map-feature-border-clicked: #ffc067;
+  --map-feature-border-none: #d3d3d3;
 
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
 
-  --graph-fill-low: oklch(78% 0.118 268.64);
-  --graph-fill-medium: oklch(55% 0.17 268.71);
-  --graph-fill-high: oklch(40% 45.25% 265.638);
-  --graph-fill-none: oklch(65.4% 4.75% 261.325);
+  --graph-fill-low: #98b4ff;
+  --graph-fill-medium: #4967d3;
+  --graph-fill-high: #102cbb;
+  --graph-fill-none: #7f91b0;
 
-  --weekly-heatmap-fill-none: oklch(53.101% 0.01428 259.874);
+  --weekly-heatmap-fill-none: #676c75;
 }
 
 @layer base {

@@ -148,9 +148,9 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric, scaleType = 'log10' 
   }, [locale]);
 
   const colors = useCSSColors([
-    'var(--graph-fill-low)',
-    'var(--graph-fill-medium)',
-    'var(--graph-fill-high)',
+    '--graph-fill-low',
+    '--graph-fill-medium',
+    '--graph-fill-high',
   ] as const);
 
   const colorScale = useColorScale({

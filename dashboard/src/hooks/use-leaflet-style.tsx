@@ -1,6 +1,6 @@
 'use client';
 
-import { MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
+import { cssVar, MAP_FEATURE_BORDER_COLORS, MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { ScaleLinear } from 'd3-scale';
 import type { PathOptions } from 'leaflet';
 import { type JSX, useCallback, useMemo } from 'react';
@@ -51,12 +51,12 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseM
         ? {
             fillColor: fillColorScale(visitors),
             color: borderColorScale(visitors),
-            weight: 1.5,
+            weight: 1,
           }
         : {
-            fillColor: MAP_VISITOR_COLORS.NO_VISITORS,
-            color: MAP_FEATURE_BORDER_COLORS.NO_VISITORS,
-            weight: 0.7,
+            fillColor: cssVar(MAP_VISITOR_COLORS.NO_VISITORS),
+            color: cssVar(MAP_FEATURE_BORDER_COLORS.NO_VISITORS),
+            weight: 0.6,
           }),
       fillOpacity: 0.8,
       opacity: 1,
@@ -67,7 +67,7 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseM
   const selectedStyle = useCallback(
     (visitors: number) => ({
       ...originalStyle(visitors),
-      color: MAP_FEATURE_BORDER_COLORS.CLICKED,
+      color: cssVar(MAP_FEATURE_BORDER_COLORS.CLICKED),
       weight: 2.2,
       fillOpacity: 1,
     }),
@@ -77,7 +77,7 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseM
   const hoveredStyle = useCallback(
     (visitors: number) => ({
       ...originalStyle(visitors),
-      color: MAP_FEATURE_BORDER_COLORS.HOVERED,
+      color: cssVar(MAP_FEATURE_BORDER_COLORS.HOVERED),
       weight: 2.0,
       fillOpacity: 1,
     }),
