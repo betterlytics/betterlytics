@@ -20,7 +20,7 @@ export async function createNewDashboard(domain: string, userId: string): Promis
     userId,
     siteId,
   };
-  return createDashboard(dashboardData);
+  return await createDashboard(dashboardData);
 }
 
 export async function getAllUserDashboards(userId: string): Promise<Dashboard[]> {

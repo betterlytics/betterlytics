@@ -15,8 +15,9 @@ export async function HeroSection() {
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='text-center'>
           <h1 className='mb-6 text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl'>
-            {t('titleNonHighlight')}
-            <span className='text-blue-600 dark:text-blue-400'>{t('titleHighlight')}</span>
+            {t.rich('title', {
+              highlight: (chunks) => <span className='text-blue-600 dark:text-blue-400'>{chunks}</span>,
+            })}
           </h1>
           <p className='text-muted-foreground mx-auto mb-10 max-w-4xl text-lg sm:mt-8 sm:text-lg'>
             {t('description')}

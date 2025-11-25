@@ -16,6 +16,7 @@ declare module 'next-auth' {
     settings?: UserSettings;
     termsAcceptedAt?: Date | null;
     termsAcceptedVersion?: number | null;
+    changelogVersionSeen?: string | null;
   }
 
   interface Session {
@@ -37,5 +38,6 @@ declare module 'next-auth/jwt' {
     userLastFetched?: number;
     termsAcceptedAt?: Date | null;
     termsAcceptedVersion?: number | null;
+    changelogVersionSeen?: string | null;
   }
 }

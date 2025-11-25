@@ -167,6 +167,29 @@
         "docsLinkTitle": "Complete Betterlytics Documentation"
       }
     },
+    "changelog": {
+      "seo": {
+        "title": "Changelog | Betterlytics Release Notes & Product Updates",
+        "description": "Read every Betterlytics release note in one place. Follow product updates, reliability fixes, and roadmap highlights for our privacy-first analytics platform.",
+        "keywords": [
+          "Betterlytics changelog",
+          "Product updates",
+          "Release notes",
+          "Analytics roadmap",
+          "Privacy-first analytics updates"
+        ]
+      },
+      "hero": {
+        "eyebrow": "Release history",
+        "title": "Betterlytics changelog",
+        "lead": "See what's new in Betterlytics! From fresh features to performance fixes, follow our journey and discover how your analytics experience keeps getting better."
+      },
+      "feed": {
+        "subhead": "Fresh releases ship monthly. Scroll chronologically to revisit every iteration.",
+        "loadMore": "Keep scrolling. Newer releases will load automatically.",
+        "end": "Thanks for reading all the way back. You've reached the beginning of the Betterlytics changelog."
+      }
+    },
     "privacy": {
       "seo": {
         "title": "Privacy Policy | GDPR & Cookieless Analytics",
@@ -747,8 +770,7 @@
       },
 
       "hero": {
-        "titleNonHighlight": "A Better Alternative to ",
-        "titleHighlight": "Google Analytics",
+        "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
         "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
         "ctaPrimary": "Get Started for Free",
         "ctaGithub": "View on GitHub",
@@ -922,6 +944,7 @@
       "termsOfService": "Terms of Service",
       "dpa": "Data Processing Agreement",
       "documentation": "Documentation",
+      "changelog": "Changelog",
       "pricing": "Pricing",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1689,6 +1712,7 @@
         "userFallback": "User",
         "dashboards": "Dashboards",
         "upgradePlan": "Upgrade Plan",
+        "reportBug": "Report Bug",
         "settings": "Settings",
         "documentation": "Documentation",
         "documentationTitle": "Complete Betterlytics Documentation",
@@ -1858,6 +1882,21 @@
           "y1": "1 year",
           "y2": "2 years",
           "y3": "3 years"
+        },
+        "siteRules": {
+          "title": "Site Rules",
+          "description": "Control which incoming events are accepted.",
+          "enforceDomain": "Enforce domain",
+          "enforceDomainDescription": "Reject events whose domain does not match the dashboard domain."
+        },
+        "blacklistedIps": {
+          "title": "Blacklisted IPs",
+          "description": "Manage IP addresses for which incoming events are blocked.",
+          "addIp": "Add IP",
+          "addIpPlaceholder": "Enter IPv4/IPv6 or CIDR (e.g., 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
+          "addIpError": "Enter a valid IPv4/IPv6 or CIDR range",
+          "noIps": "No IP addresses are currently blacklisted",
+          "remove": "Remove"
         }
       },
       "danger": {
@@ -1882,6 +1921,29 @@
     "demoMode": {
       "notAvailable": "Not available on demo dashboard",
       "interactionDisabled": "Filtering from this interaction is disabled in the demo."
+    },
+
+    "bugReport": {
+      "trigger": "Report bug",
+      "title": "Report a bug",
+      "description": "Tell us what went wrong or what feels off. The more detail, the better!",
+      "placeholder": "Describe what happened, what you expected, and anything else that might help us reproduce the issue.",
+      "submit": "Send report",
+      "submitting": "Sending...",
+      "toast": {
+        "success": "Thanks! We received your report.",
+        "error": "Couldn't send the report. Please try again.",
+        "empty": "Please add a short description before sending."
+      }
+    },
+    "changelog": {
+      "title": "What's New",
+      "haveFeedback": "Have feedback? Tell us so the next release is even better.",
+      "viewAll": "View all updates",
+      "gotIt": "Got it",
+      "badgeNew": "New",
+      "tooltipWhatsNew": "View what's new",
+      "openButtonAria": "View what's new in version {version}"
     }
   },
   "onboarding": {

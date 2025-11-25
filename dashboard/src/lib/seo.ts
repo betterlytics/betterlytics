@@ -298,6 +298,11 @@ export const SEO_CONFIGS = {
     path: '/onboarding',
     structuredDataType: 'webpage',
   },
+  changelog: {
+    namespace: 'public.changelog.seo',
+    path: '/changelog',
+    structuredDataType: 'webpage',
+  },
   resetPassword: {
     namespace: 'public.auth.resetPassword.seo',
     path: '/reset-password',

@@ -167,6 +167,29 @@
         "docsLinkTitle": "Komplet Betterlytics-dokumentation"
       }
     },
+    "changelog": {
+      "seo": {
+        "title": "Changelog | Betterlytics Udgivelsesnoter & Produktopdateringer",
+        "description": "Læs alle Betterlytics udgivelsesnoter ét sted. Følg produktopdateringer, stabilitetsrettelser og roadmap-højdepunkter for vores privacy-fokuserede analyseplatform.",
+        "keywords": [
+          "Betterlytics changelog",
+          "Produktopdateringer",
+          "Udgivelsesnoter",
+          "Analyse roadmap",
+          "Privacy-fokuserede analyseopdateringer"
+        ]
+      },
+      "hero": {
+        "eyebrow": "Udgivelseshistorik",
+        "title": "Betterlytics changelog",
+        "lead": "Se, hvad der er nyt i Betterlytics! Fra nye funktioner til performance-forbedringer – følg vores rejse og oplev, hvordan din analysetilgang bliver bedre."
+      },
+      "feed": {
+        "subhead": "Friske udgivelser frigives månedligt. Scroll kronologisk for at gense hver iteration.",
+        "loadMore": "Bliv ved med at scrolle. Nyere udgivelser indlæses automatisk.",
+        "end": "Du er helt opdateret. Flere forbedringer er på vej."
+      }
+    },
     "privacy": {
       "seo": {
         "title": "Privatlivspolitik | GDPR & Cookieless Analyse",
@@ -746,8 +769,7 @@
         ]
       },
       "hero": {
-        "titleNonHighlight": "Et Bedre Alternativ til ",
-        "titleHighlight": "Google Analytics",
+        "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
         "description": "Privatlivsvenlig, cookieløs webanalyse, der respekterer dine besøgende — ingen tracking, ingen cookies, ingen samtykkebannere.",
         "ctaPrimary": "Kom i Gang Gratis",
         "ctaGithub": "Se på GitHub",
@@ -925,6 +947,7 @@
       "termsOfService": "Servicevilkår",
       "dpa": "Databehandleraftale",
       "documentation": "Dokumentation",
+      "changelog": "Ændringslog",
       "pricing": "Priser",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1693,6 +1716,7 @@
         "dashboards": "Dashboards",
         "upgradePlan": "Opgrader plan",
         "settings": "Indstillinger",
+        "reportBug": "Rapportér fejl",
         "documentation": "Dokumentation",
         "documentationTitle": "Komplet Betterlytics-dokumentation",
         "logout": "Log ud"
@@ -1861,6 +1885,21 @@
           "y1": "1 år",
           "y2": "2 år",
           "y3": "3 år"
+        },
+        "siteRules": {
+          "title": "Webstedsregler",
+          "description": "Kontroller, hvilke indgående hændelser der accepteres.",
+          "enforceDomain": "Håndhæv domæne",
+          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet."
+        },
+        "blacklistedIps": {
+          "title": "Blokerede IP-adresser",
+          "description": "Administrer IP-adresser, for hvilke indgående hændelser blokeres.",
+          "addIp": "Tilføj IP",
+          "addIpPlaceholder": "Indtast IPv4/IPv6 eller CIDR (f.eks. 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
+          "addIpError": "Indtast en gyldig IPv4/IPv6-adresse eller CIDR-range",
+          "noIps": "Ingen IP-adresser er i øjeblikket blokeret",
+          "remove": "Fjern"
         }
       },
       "danger": {
@@ -1885,6 +1924,28 @@
     "demoMode": {
       "notAvailable": "Ikke tilgængelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
+    },
+    "bugReport": {
+      "trigger": "Rapportér fejl",
+      "title": "Rapportér en fejl",
+      "description": "Fortæl os hvad der gik galt eller føles forkert. Jo mere info, jo bedre!",
+      "placeholder": "Beskriv hvad der skete, hvad du forventede, og alt der kan hjælpe os med at genskabe problemet.",
+      "submit": "Send rapport",
+      "submitting": "Sender...",
+      "toast": {
+        "success": "Tak! Vi har modtaget din rapport.",
+        "error": "Rapporten kunne ikke sendes. Prøv igen.",
+        "empty": "Skriv en kort beskrivelse før du sender."
+      }
+    },
+    "changelog": {
+      "title": "Nyheder",
+      "haveFeedback": "Har du feedback? Sig endelig til, så næste udgivelse bliver endnu bedre.",
+      "viewAll": "Se alle opdateringer",
+      "gotIt": "Forstået",
+      "badgeNew": "Ny",
+      "tooltipWhatsNew": "Se hvad der er nyt",
+      "openButtonAria": "Se hvad der er nyt i version {version}"
     }
   },
   "onboarding": {
