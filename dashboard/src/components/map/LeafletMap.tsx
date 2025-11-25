@@ -72,8 +72,12 @@ export default function LeafletMap({
 
   const worldBounds = useMemo(() => {
     if (!mapComponents?.L) return null;
-    return mapComponents.L.latLngBounds(mapComponents.L.latLng(-100, -220), mapComponents.L.latLng(100, 220));
-  }, [mapComponents]);
+    const hasAntarctica = visitorData.some((d) => d.country_code === 'AQ' && d.visitors);
+    return mapComponents.L.latLngBounds(
+      mapComponents.L.latLng(hasAntarctica ? -100 : -60, -220),
+      mapComponents.L.latLng(100, 220),
+    );
+  }, [mapComponents, visitorData]);
 
   if (isPending || !mapComponents || !worldGeoJson) {
     return (

@@ -56,6 +56,7 @@ async function withActionSpan<T>(
       const err = e as Error;
       span.recordException(err);
       span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+      console.error(err.message);
       // Mask the UI-facing error
       throw new Error('An error occurred');
     } finally {

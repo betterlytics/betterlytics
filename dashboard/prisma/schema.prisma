@@ -91,7 +91,7 @@ model User {
 
   termsAcceptedVersion Int?
   termsAcceptedAt      DateTime?
-  changelogVersionSeen Int? @default(0)
+  changelogVersionSeen String? @default("v0")
 
   onboardingCompletedAt DateTime?
 
@@ -99,6 +99,7 @@ model User {
   settings UserSettings?
   subscription Subscription?
   passwordResetTokens PasswordResetToken[]
+  bugReports BugReport[]
 }
 
 model VerificationToken {
@@ -141,6 +142,8 @@ model Dashboard {
   userAccess UserDashboard[]
   funnels Funnel[]
   settings DashboardSettings?
+  config SiteConfig?
+  bugReports BugReport[]
 }
 
 model UserDashboard {
@@ -215,6 +218,18 @@ model DashboardSettings {
   updatedAt DateTime @updatedAt
 }
 
+model SiteConfig {
+  id        String   @id @default(cuid())
+  dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String @unique
+
+  blacklistedIps String[] @default([])
+  enforceDomain Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
 model Subscription {
   id String @id @default(cuid())
   
@@ -248,6 +263,24 @@ model Subscription {
   
   @@index([userId, status])
   @@index([currentPeriodStart, currentPeriodEnd])
+}
+
+model BugReport {
+  id String @id @default(cuid())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  dashboard Dashboard? @relation(fields: [dashboardId], references: [id], onDelete: SetNull)
+  dashboardId String?
+
+  message String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dashboardId])
+  @@index([userId])
 }
 
 model PasswordResetToken {

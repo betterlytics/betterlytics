@@ -95,6 +95,8 @@ export const authOptions: NextAuthOptions = {
         token.termsAcceptedAt = (user as unknown as { termsAcceptedAt?: Date | null })?.termsAcceptedAt ?? null;
         token.termsAcceptedVersion =
           (user as unknown as { termsAcceptedVersion?: number | null })?.termsAcceptedVersion ?? null;
+        token.changelogVersionSeen =
+          (user as unknown as { changelogVersionSeen?: string | null })?.changelogVersionSeen ?? 'v0';
 
         if (account?.provider === 'google') {
           const emailVerifiedByGoogle = Boolean(
@@ -140,6 +142,7 @@ export const authOptions: NextAuthOptions = {
               token.onboardingCompletedAt = freshUser.onboardingCompletedAt ?? null;
               token.termsAcceptedAt = freshUser.termsAcceptedAt ?? null;
               token.termsAcceptedVersion = freshUser.termsAcceptedVersion ?? null;
+              token.changelogVersionSeen = freshUser.changelogVersionSeen ?? 'v0';
 
               // Refresh usersettings
               const freshSettings = await getUserSettings(token.uid);
@@ -168,6 +171,7 @@ export const authOptions: NextAuthOptions = {
         session.user.onboardingCompletedAt = token.onboardingCompletedAt;
         session.user.termsAcceptedAt = token.termsAcceptedAt;
         session.user.termsAcceptedVersion = token.termsAcceptedVersion;
+        session.user.changelogVersionSeen = token.changelogVersionSeen ?? 'v0';
       }
       return session;
     },
