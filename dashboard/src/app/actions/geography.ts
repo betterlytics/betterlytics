@@ -6,7 +6,7 @@ import { QueryFilterSchema } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
-import { worldMapResponseSchema } from '@/entities/geography';
+import type { WorldMapResponse } from '@/entities/geography';
 import { toDataTable } from '@/presenters/toDataTable';
 
 const queryParamsSchema = z.object({
@@ -25,7 +25,7 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     params: Omit<z.infer<typeof queryParamsSchema>, 'siteId'>,
-  ): Promise<z.infer<typeof worldMapResponseSchema>> => {
+  ): Promise<WorldMapResponse> => {
     const validatedParams = queryParamsSchema.safeParse({
       ...params,
       siteId: ctx.siteId,
@@ -35,11 +35,17 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
       throw new Error(`Invalid parameters: ${validatedParams.error.message}`);
     }
 
-    const { startDate, endDate, queryFilters } = validatedParams.data;
+    const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = validatedParams.data;
 
     try {
       const geoVisitors = await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters);
-      return worldMapResponseSchema.parse(dataToWorldMap(geoVisitors, CountryCodeFormat.Original));
+
+      const compareGeoVisitors =
+        compareStartDate &&
+        compareEndDate &&
+        (await fetchVisitorsByGeography(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+
+      return dataToWorldMap(geoVisitors, compareGeoVisitors ?? [], CountryCodeFormat.Original);
     } catch (error) {
       console.error('Error fetching visitor map data:', error);
       throw new Error('Failed to fetch visitor map data');
