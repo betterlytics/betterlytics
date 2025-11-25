@@ -1,23 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 
 interface AnimatedDashboardLogoProps {
   size?: number;
   className?: string;
 }
 
-export function AnimatedDashboardLogo({ size = 80, className = '' }: AnimatedDashboardLogoProps) {
+export const AnimatedDashboardLogo = memo(function AnimatedDashboardLogo({
+  size = 80,
+  className = '',
+}: AnimatedDashboardLogoProps) {
   return (
-    <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      {/* Glow effect behind the logo */}
-      <div
-        className='absolute inset-0 rounded-full opacity-20 blur-xl'
-        style={{
-          background: 'radial-gradient(circle, #207FD1 0%, transparent 70%)',
-        }}
-      />
-
+    <div
+      className={`relative ${className}`}
+      style={{
+        width: size,
+        height: size,
+        contain: 'layout style paint',
+      }}
+    >
       <svg
         width={size}
         height={size}
@@ -113,22 +115,28 @@ export function AnimatedDashboardLogo({ size = 80, className = '' }: AnimatedDas
       <style jsx>{`
         @keyframes fill-up {
           0% {
-            transform: translateY(100%);
+            transform: translateY(100%) translateZ(0);
           }
           35% {
-            transform: translateY(0%);
+            transform: translateY(0%) translateZ(0);
           }
           65% {
-            transform: translateY(0%);
+            transform: translateY(0%) translateZ(0);
           }
           100% {
-            transform: translateY(100%);
+            transform: translateY(100%) translateZ(0);
           }
+        }
+
+        .animate-fill-up-1,
+        .animate-fill-up-2,
+        .animate-fill-up-3 {
+          will-change: transform;
+          backface-visibility: hidden;
         }
 
         .animate-fill-up-1 {
           animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          animation-delay: 0s;
         }
 
         .animate-fill-up-2 {
@@ -143,4 +151,4 @@ export function AnimatedDashboardLogo({ size = 80, className = '' }: AnimatedDas
       `}</style>
     </div>
   );
-}
+});
