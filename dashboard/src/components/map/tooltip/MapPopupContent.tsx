@@ -2,7 +2,6 @@
 
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
-import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoVisitorWithCompare } from '@/entities/geography';
@@ -87,8 +86,6 @@ function MapPopupContentComponent({
         <span className='text-muted-foreground'>{t('geography.visitors')}</span>
         {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined ? (
           <TrendPercentage percentage={percentageChange} withParenthesis withIcon />
-        ) : geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0 ? (
-          <TrendIndicator percentage={1} />
         ) : (
           <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors)}</span>
         )}
