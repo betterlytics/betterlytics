@@ -115,10 +115,10 @@ export function AnimatedDashboardLogo({ size = 80, className = '' }: AnimatedDas
           0% {
             transform: translateY(100%);
           }
-          20% {
+          35% {
             transform: translateY(0%);
           }
-          80% {
+          65% {
             transform: translateY(0%);
           }
           100% {
@@ -127,18 +127,18 @@ export function AnimatedDashboardLogo({ size = 80, className = '' }: AnimatedDas
         }
 
         .animate-fill-up-1 {
-          animation: fill-up 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           animation-delay: 0s;
         }
 
         .animate-fill-up-2 {
-          animation: fill-up 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          animation-delay: 0.15s;
+          animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation-delay: 0.12s;
         }
 
         .animate-fill-up-3 {
-          animation: fill-up 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          animation-delay: 0.3s;
+          animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation-delay: 0.24s;
         }
       `}</style>
     </div>
