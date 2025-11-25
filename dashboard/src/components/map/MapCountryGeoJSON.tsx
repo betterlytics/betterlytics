@@ -19,6 +19,7 @@ interface MapCountryGeoJSONProps {
 const DEFAULT_OPTS = {
   updateWhenIdle: true,
   buffer: 2,
+  smoothFactor: 0.5,
 };
 
 const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
@@ -87,7 +88,7 @@ export default function MapCountryGeoJSON({
         },
       });
     },
-    [size, style, visitorData, locale],
+    [size, style.borderColorScale, style.fillColorScale, visitorData, locale],
   );
 
   return (

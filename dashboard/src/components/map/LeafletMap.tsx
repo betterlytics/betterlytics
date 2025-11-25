@@ -12,10 +12,12 @@ import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { Spinner } from '../ui/spinner';
 import { useTranslations } from 'next-intl';
+import type { ScaleType } from '@/hooks/use-color-scale';
 
 interface LeafletMapProps {
   visitorData: GeoVisitor[];
   maxVisitors?: number;
+  colorScaleType?: ScaleType;
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
@@ -28,6 +30,7 @@ export default function LeafletMap({
   showZoomControls,
   showLegend = true,
   size = 'sm',
+  colorScaleType = 'log10',
   initialZoom,
 }: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
@@ -39,8 +42,7 @@ export default function LeafletMap({
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('components.geography');
-  const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
-  const style = useMapStyle({ calculatedMaxVisitors });
+  const style = useMapStyle({ maxValue: maxVisitors || 1, scaleType: colorScaleType });
 
   useEffect(() => {
     startTransition(() => {
@@ -79,7 +81,7 @@ export default function LeafletMap({
     );
   }, [mapComponents, visitorData]);
 
-  if (isPending || !mapComponents || !worldGeoJson) {
+  if (isPending || !mapComponents || !worldGeoJson || !style) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
@@ -106,12 +108,14 @@ export default function LeafletMap({
         maxZoom={7}
         attributionControl={false}
       >
-        <MapSelectionContextProvider style={style}>
-          <MapBackgroundLayer Polygon={Polygon} />
-          <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
-          <MapStickyTooltip size={size} />
-          {showLegend && <MapLegend maxVisitors={maxVisitors} />}
-        </MapSelectionContextProvider>
+        {
+          <MapSelectionContextProvider style={style}>
+            <MapBackgroundLayer Polygon={Polygon} />
+            <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
+            <MapStickyTooltip size={size} />
+            {showLegend && <MapLegend maxVisitors={maxVisitors} />}
+          </MapSelectionContextProvider>
+        }
       </MapContainer>
     </div>
   );
