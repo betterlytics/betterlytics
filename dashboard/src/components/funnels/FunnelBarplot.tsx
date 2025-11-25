@@ -13,8 +13,8 @@ type FunnelChartProps = {
 
 export default function FunnelBarplot({ funnel }: FunnelChartProps) {
   return (
-    <div className='overflow-x-auto'>
-      <div className='relative flex w-fit flex-col border sm:flex-row'>
+    <div className='w-full overflow-x-auto rounded-lg border'>
+      <div className='relative flex w-fit flex-col sm:flex-row'>
         {funnel.steps.map((step, i) => (
           <div key={i} className='flex h-40 flex-row-reverse sm:h-auto sm:w-50 sm:flex-col'>
             <div
@@ -28,8 +28,19 @@ export default function FunnelBarplot({ funnel }: FunnelChartProps) {
               </div>
               <h4 className='text-foreground truncate text-sm font-semibold'>{step.step.name}</h4>
             </div>
-            <div className='hidden h-40 w-full pt-2 sm:flex'>
-              <HorizontalProgress key={i} percentage={100 * step.visitorsRatio} />
+            <div
+              className={cn(
+                'hidden h-40 w-full pt-2 sm:flex',
+                i === funnel.steps.length - 1 &&
+                  'dark:border-background/40 border-foreground/5 border-r-2 border-dashed',
+              )}
+            >
+              <HorizontalProgress
+                key={i}
+                percentage={100 * step.visitorsRatio}
+                isFirst={i === 0}
+                isLast={i === funnel.steps.length - 1}
+              />
               {i < funnel.steps.length - 1 && (
                 <HorizontalConnector
                   previousPercentage={100 * funnel.steps[i].visitorsRatio}
@@ -137,10 +148,25 @@ function VerticalConnector({
   );
 }
 
-function HorizontalProgress({ percentage }: { percentage: number }) {
+function HorizontalProgress({
+  percentage,
+  isFirst,
+  isLast,
+}: {
+  percentage: number;
+  isFirst: boolean;
+  isLast: boolean;
+}) {
   return (
     <div className='relative flex h-full w-25 flex-col justify-end'>
-      <div className='from-primary to-primary/50 w-full bg-gradient-to-b' style={{ height: `${percentage}%` }} />
+      <div
+        className={cn(
+          'from-primary to-primary/50 w-full bg-gradient-to-b',
+          isFirst && 'rounded-tl-lg',
+          isLast && 'rounded-tr-lg',
+        )}
+        style={{ height: `${percentage}%` }}
+      />
     </div>
   );
 }
