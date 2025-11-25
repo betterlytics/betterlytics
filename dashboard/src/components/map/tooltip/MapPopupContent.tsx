@@ -2,6 +2,7 @@
 
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoVisitorWithCompare } from '@/entities/geography';
@@ -34,9 +35,12 @@ function MapPopupContentComponent({
 }: MapPopupContentProps) {
   if (!geoVisitor) return null;
 
-  const percentageChange = geoVisitor.compareVisitors !== undefined
-    ? ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
-    : undefined;
+  const percentageChange =
+    geoVisitor.compareVisitors !== undefined
+      ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
+        ? undefined
+        : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
+      : undefined;
 
   const Row = ({
     color,
@@ -70,7 +74,10 @@ function MapPopupContentComponent({
       )}
     >
       <CountryDisplay
-        className={cn('text-sm font-bold', geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start')}
+        className={cn(
+          'text-sm font-bold',
+          geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start',
+        )}
         countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
         countryName={getCountryName(geoVisitor.country_code, locale)}
       />
@@ -80,6 +87,8 @@ function MapPopupContentComponent({
         <span className='text-muted-foreground'>{t('geography.visitors')}</span>
         {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined ? (
           <TrendPercentage percentage={percentageChange} withParenthesis withIcon />
+        ) : geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0 ? (
+          <TrendIndicator percentage={1} />
         ) : (
           <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors)}</span>
         )}

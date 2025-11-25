@@ -1,5 +1,6 @@
 import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoVisitorWithCompare } from '@/entities/geography';
@@ -21,7 +22,9 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouse
   if (!geoVisitor) return null;
 
   const percentageChange = geoVisitor.compareVisitors !== undefined
-    ? ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
+    ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
+      ? undefined
+      : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
     : undefined;
 
   return (
@@ -43,9 +46,11 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouse
           <span className='text-muted-foreground'>{label}:</span>
           <div className='text-foreground flex flex-row gap-1'>
             <span>{formatNumber(geoVisitor.visitors)}</span>
-            {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined && (
+            {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined ? (
               <TrendPercentage percentage={percentageChange} withParenthesis={true} withIcon={true} />
-            )}
+            ) : geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0 ? (
+              <TrendIndicator percentage={1} />
+            ) : null}
           </div>
         </div>
       </div>
