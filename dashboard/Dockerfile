@@ -16,7 +16,7 @@ FROM base AS builder
 
 WORKDIR /app
 
-RUN pnpm install -g prisma
+RUN pnpm install -g prisma@6.9.0
 
 COPY package*.json .
 RUN pnpm fetch --prod

@@ -148,3 +148,15 @@ export async function acceptTermsForUser(userId: string, version: number): Promi
     throw new Error(`Failed to accept terms for user ${userId}.`);
   }
 }
+
+export async function setChangelogVersionSeen(userId: string, version: string): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { changelogVersionSeen: version },
+    });
+  } catch (error) {
+    console.error(`Error updating changelog version for user ${userId}:`, error);
+    throw new Error(`Failed to update changelog version for user ${userId}.`);
+  }
+}

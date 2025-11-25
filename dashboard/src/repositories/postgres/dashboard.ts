@@ -6,10 +6,13 @@ import {
   DashboardSchema,
   DashboardUser,
   DashboardUserSchema,
+  DashboardWithSiteConfig,
+  DashboardWithSiteConfigSchema,
   DashboardWriteData,
   DashboardWriteSchema,
 } from '@/entities/dashboard';
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboardSettings';
+import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/siteConfig';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
@@ -124,6 +127,11 @@ export async function createDashboard(data: DashboardWriteData): Promise<Dashboa
             ...DEFAULT_DASHBOARD_SETTINGS,
           },
         },
+        config: {
+          create: {
+            ...DEFAULT_SITE_CONFIG_VALUES,
+          },
+        },
       },
     });
 
@@ -160,5 +168,39 @@ export async function deleteDashboard(dashboardId: string): Promise<void> {
   } catch (error) {
     console.error(`Error deleting dashboard ${dashboardId}:`, error);
     throw new Error(`Failed to delete dashboard ${dashboardId}.`);
+  }
+}
+
+export async function findAllDashboardIds(): Promise<string[]> {
+  try {
+    const dashboards = await prisma.dashboard.findMany({ select: { id: true } });
+    return dashboards.map((d) => d.id);
+  } catch (error) {
+    console.error('Error fetching all dashboard ids:', error);
+    throw new Error('Failed to fetch dashboard ids');
+  }
+}
+
+export async function findAllDashboardsWithSiteConfig(): Promise<DashboardWithSiteConfig[]> {
+  try {
+    const dashboards = await prisma.dashboard.findMany({
+      select: {
+        id: true,
+        siteId: true,
+        domain: true,
+        config: true,
+      },
+    });
+    return dashboards.map((d) =>
+      DashboardWithSiteConfigSchema.parse({
+        dashboardId: d.id,
+        siteId: d.siteId,
+        domain: d.domain,
+        config: d.config,
+      }),
+    );
+  } catch (error) {
+    console.error('Error fetching dashboards with config:', error);
+    throw new Error('Failed to fetch dashboards with config');
   }
 }

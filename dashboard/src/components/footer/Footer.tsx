@@ -63,6 +63,11 @@ export async function Footer() {
                 </ExternalLink>
               </li>
               <li>
+                <Link href='/changelog' className='hover:text-foreground transition-colors'>
+                  {t('changelog')}
+                </Link>
+              </li>
+              <li>
                 <Link href='/#pricing' className='hover:text-foreground transition-colors'>
                   {t('pricing')}
                 </Link>

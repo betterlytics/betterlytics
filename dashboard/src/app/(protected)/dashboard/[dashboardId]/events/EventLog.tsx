@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/events';
@@ -15,6 +15,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
 import { useTranslations } from 'next-intl';
+import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
 const EVENTS_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
@@ -95,34 +96,19 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     [data],
   );
 
-  // Intersection Observer ref for automatic loading at halfway point
   const intersectionThreshold = Math.floor(pageSize / 2);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const { ref: loadMoreRef, inView } = useInView<HTMLDivElement>({
+    rootMargin: '100px',
+    threshold: 0.1,
+  });
 
-  const observerCallback = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, isFetchingNextPage, fetchNextPage],
-  );
+  useEffect(() => {
+    if (!inView || !hasNextPage || isFetchingNextPage) {
+      return;
+    }
 
-  const lastEventElementRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (isLoading) return;
-      if (observerRef.current) observerRef.current.disconnect();
-
-      if (node) {
-        observerRef.current = new IntersectionObserver(observerCallback, {
-          threshold: 0.1,
-          rootMargin: '100px',
-        });
-        observerRef.current.observe(node);
-      }
-    },
-    [isLoading, observerCallback],
-  );
+    fetchNextPage();
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t), [allEvents, totalCount, t]);
 
@@ -166,7 +152,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                       key={`${event.timestamp}-${index}`}
                       event={event}
                       isNearEnd={isNearEnd}
-                      onRef={lastEventElementRef}
+                      onRef={loadMoreRef}
                     />
                   );
                 })}

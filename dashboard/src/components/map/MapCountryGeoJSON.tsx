@@ -47,7 +47,14 @@ export default function MapCountryGeoJSON({
       const country_code = getFeatureId(feature);
       if (!country_code) return;
 
-      const geoVisitor = visitorData.find((d) => d.country_code === country_code) ?? { country_code, visitors: 0 };
+      let geoVisitor = visitorData.find((d) => d.country_code === country_code);
+      if (!geoVisitor?.visitors && country_code === 'AQ') {
+        layer.setStyle({ opacity: 0, fillOpacity: 0 });
+        return;
+      }
+      if (!geoVisitor) {
+        geoVisitor = { country_code, visitors: 0 };
+      }
       const compareVisitor = compareData.find((d) => d.country_code === country_code);
 
       const geoVisitorWithComparison: GeoVisitorWithCompare = {
