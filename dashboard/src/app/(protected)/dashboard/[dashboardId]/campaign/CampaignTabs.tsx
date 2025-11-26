@@ -3,7 +3,6 @@
 import { useState, Suspense } from 'react';
 import CampaignOverviewSection from './CampaignOverviewSection';
 import CampaignUTMSection from './CampaignUTMSection';
-import CampaignLandingPagesSection from './CampaignLandingPagesSection';
 import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -17,7 +16,7 @@ import {
 } from '@/app/actions';
 import { useTranslations } from 'next-intl';
 
-type TabValue = 'overview' | 'utmBreakdowns' | 'landingPages';
+type TabValue = 'overview' | 'utmBreakdowns';
 
 type CampaignTabsProps = {
   campaignPerformancePromise: ReturnType<typeof fetchCampaignPerformanceAction>;
@@ -45,7 +44,7 @@ export default function CampaignTabs({
     <div>
       <div className='border-border border-b pb-3'>
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className='h-8'>
-          <TabsList className='bg-secondary dark:inset-shadow-background grid w-full grid-cols-3 gap-1 px-1 inset-shadow-sm'>
+          <TabsList className='bg-secondary dark:inset-shadow-background grid w-full grid-cols-2 gap-1 px-1 inset-shadow-sm'>
             <TabsTrigger
               value='overview'
               className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
@@ -57,12 +56,6 @@ export default function CampaignTabs({
               className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
             >
               {t('utmBreakdowns')}
-            </TabsTrigger>
-            <TabsTrigger
-              value='landingPages'
-              className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
-            >
-              {t('landingPages')}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -80,6 +73,7 @@ export default function CampaignTabs({
           >
             <CampaignOverviewSection
               campaignPerformancePromise={campaignPerformancePromise}
+              landingPagePerformancePromise={landingPagePerformancePromise}
               visitorTrendPromise={visitorTrendPromise}
             />
           </Suspense>
@@ -106,12 +100,6 @@ export default function CampaignTabs({
               contentBreakdownPromise={contentBreakdownPromise}
               termBreakdownPromise={termBreakdownPromise}
             />
-          </Suspense>
-        )}
-
-        {activeTab === 'landingPages' && (
-          <Suspense fallback={<TableSkeleton />}>
-            <CampaignLandingPagesSection landingPagePerformancePromise={landingPagePerformancePromise} />
           </Suspense>
         )}
       </div>
