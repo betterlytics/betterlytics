@@ -1,5 +1,6 @@
 import React from 'react';
-import { Spinner } from '@/components/ui/spinner';
+
+import { AnimatedDashboardLogo } from '@/components/loading/AnimatedDashboardLogo';
 import { useTranslations } from 'next-intl';
 
 export default function DashboardLoading() {
@@ -7,8 +8,8 @@ export default function DashboardLoading() {
   return (
     <div className='bg-background flex min-h-screen items-center justify-center'>
       <div className='text-center'>
-        <div className='mb-4 flex justify-center'>
-          <Spinner size='lg' />
+        <div className='mb-6 flex justify-center'>
+          <AnimatedDashboardLogo size={80} />
         </div>
         <h2 className='text-foreground mb-2 text-lg font-semibold'>{t('initializing')}</h2>
         <p className='text-muted-foreground text-sm'>{t('loadingSettings')}</p>
