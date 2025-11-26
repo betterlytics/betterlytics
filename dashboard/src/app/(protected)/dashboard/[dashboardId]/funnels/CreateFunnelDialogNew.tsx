@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
 import { useDebounce } from '@/hooks/useDebounce';
-import { ComponentProps } from 'react';
+import { ComponentProps, useMemo } from 'react';
 import { fetchFunnelPreviewAction } from '@/app/actions/funnels';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
@@ -37,15 +37,55 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
 
   const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
 
-  console.log(funnelSteps);
+  const searchableFunnelSteps = useMemo(() => {
+    const findFilterableIndex = debouncedFunnelSteps.findIndex(
+      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
+    );
+
+    const steps =
+      findFilterableIndex === -1 ? debouncedFunnelSteps : debouncedFunnelSteps.slice(0, findFilterableIndex);
+
+    return steps.map((step) => ({
+      ...step,
+      name: '',
+    }));
+  }, [debouncedFunnelSteps]);
 
   const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, funnelSteps, false],
+    queryKey: ['funnelPreview', dashboardId, searchableFunnelSteps, false],
     queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, funnelSteps, false);
+      return fetchFunnelPreviewAction(dashboardId, searchableFunnelSteps, false);
     },
-    enabled: debouncedFunnelSteps.length >= 2,
+    enabled: searchableFunnelSteps.length >= 2,
   });
+
+  const funnelPreview = useMemo(() => {
+    if (!funnelPreviewData) return null;
+    return {
+      ...funnelPreviewData,
+      steps: funnelPreviewData.steps.map((step) => ({
+        ...step,
+        step: {
+          ...step.step,
+          name: debouncedFunnelSteps.find((s) => s.id === step.step.id)?.name || ' - ',
+        },
+      })),
+    };
+  }, [funnelPreviewData, debouncedFunnelSteps]);
+
+  const emptySteps = useMemo(() => {
+    const findFilterableIndex = debouncedFunnelSteps.findIndex(
+      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
+    );
+
+    const steps = findFilterableIndex === -1 ? [] : debouncedFunnelSteps.slice(findFilterableIndex);
+
+    return steps.map((step) => ({
+      ...step,
+      name: debouncedFunnelSteps.find((s) => s.id === step.id)?.name || ' - ',
+    }));
+  }, [debouncedFunnelSteps]);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -62,7 +102,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           </DialogDescription>
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
-          <div className='flex flex-1 flex-col gap-4'>
+          <div className='flex flex-1 flex-col'>
             <div className='flex min-h-72 flex-1 flex-col gap-4 rounded-lg p-4 shadow'>
               <div className='flex w-full justify-between'>
                 <div className='flex w-1/2 gap-4'>
@@ -113,12 +153,12 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
               </div>
             )}
             {funnelSteps.length >= 2 &&
-              (!isPreviewLoading && funnelPreviewData ? (
+              (!isPreviewLoading && funnelPreview ? (
                 <div className='space-y-4 rounded-lg p-4 shadow'>
                   <Label htmlFor='name' className='text-foreground mb-2 block'>
                     Preview
                   </Label>
-                  <FunnelBarplot funnel={funnelPreviewData} />
+                  <FunnelBarplot funnel={funnelPreview} emptySteps={emptySteps} />
                 </div>
               ) : (
                 <section className='space-y-3'>
