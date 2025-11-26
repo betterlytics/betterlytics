@@ -143,10 +143,10 @@ export async function getCampaignLandingPagePerformanceData(
             e.visitor_id,
             e.session_id,
             e.utm_campaign,
-            FIRST_VALUE(e.url) OVER (PARTITION BY e.session_id ORDER BY e.timestamp ASC) as landing_page_url,
+            FIRST_VALUE(e.url) OVER (PARTITION BY e.session_id, e.utm_campaign ORDER BY e.timestamp ASC) as landing_page_url,
             COUNT(e.url) OVER (PARTITION BY e.session_id) as session_total_pageviews,
             dateDiff('second', MIN(e.timestamp) OVER (PARTITION BY e.session_id), MAX(e.timestamp) OVER (PARTITION BY e.session_id)) as session_total_duration_seconds,
-            ROW_NUMBER() OVER (PARTITION BY e.session_id ORDER BY e.timestamp ASC) as rn
+            ROW_NUMBER() OVER (PARTITION BY e.session_id, e.utm_campaign ORDER BY e.timestamp ASC) as rn
         FROM analytics.events e
         WHERE e.site_id = {siteId:String}
           AND e.timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
