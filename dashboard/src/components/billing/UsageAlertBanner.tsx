@@ -26,7 +26,7 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
 
     const { usage } = billingData.data;
 
-    if (usage.usagePercentage < 100) {
+    if (usage.usagePercentage < 80 || usage.usagePercentage >= 100 || usage.isOverLimit) {
       removeBanner('usage-alert-banner');
       return;
     }
