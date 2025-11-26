@@ -169,98 +169,106 @@ type PiecePath = PieceTransform[];
 // Assembly order: [0, 2, 1, 3, 5, 4, 6, 8, 7]
 // Paths designed so each piece has clear route to final position
 
-// Scattered positions arranged to avoid overlaps:
-// - LEFT side: pieces 7 (middle-left), 6 (top-left), 8 (bottom-left)
-// - TOP: piece 3 (top-center)
-// - RIGHT side: pieces 0 (top-right), 1 (middle-right), 2 (bottom-right)
-// - BOTTOM: pieces 4, 5 (bottom-center area, spaced apart)
+// SCATTERED LAYOUT - 9 pieces spread far apart, no overlaps
+// Each piece needs ~400x800 clearance. Using 1600 spacing between positions.
+//
+// Layout (each piece far from others):
+//
+//   (-1600, -1400)     (0, -1400)      (1600, -1400)
+//        6                 3                0
+//
+//   (-1800, 200)       [CENTER]        (1800, 200)
+//        7             (LOGO)               1
+//
+//   (-1600, 1500)      (0, 1500)       (1600, 1500)
+//        8                 5,4              2
+//
+// Note: 4 and 5 are small, offset horizontally at bottom
 
 const PIECE_PATHS: PiecePath[] = [
   // 0: left-dark (FIRST to assemble)
-  // Scattered: top-right, comes down and left
+  // Scattered: top-right corner
   [
-    { x: 1400, y: -900 },    // scattered: far top-right
-    { x: 1400, y: 600 },     // move down on far right (below logo area)
-    { x: -800, y: 600 },     // slide left along bottom corridor
-    { x: -800, y: 0 },       // up on far left
+    { x: 1600, y: -1400 },   // scattered: far top-right
+    { x: 1600, y: 700 },     // move down on far right (below logo)
+    { x: -900, y: 700 },     // slide left along bottom corridor
+    { x: -900, y: 0 },       // up on far left
     { x: 0, y: 0 },          // slide right into place
   ],
 
   // 1: left-blue (THIRD to assemble)
-  // Scattered: middle-right, must avoid assembled pieces 0, 2
-  // Takes far-bottom route
+  // Scattered: middle-right
   [
-    { x: 1400, y: 0 },       // scattered: far right middle
-    { x: 1400, y: 1100 },    // down to very bottom-right corner
-    { x: -900, y: 1100 },    // slide left along very bottom (below everything)
-    { x: -900, y: 300 },     // up on far left (below piece 0's final pos)
-    { x: 0, y: 300 },        // slide right
-    { x: 0, y: 0 },          // up into final position
+    { x: 1800, y: 200 },     // scattered: far right middle
+    { x: 1800, y: 1300 },    // down to bottom-right
+    { x: -1000, y: 1300 },   // slide left along bottom (below piece 2's path)
+    { x: -1000, y: 400 },    // up on far left
+    { x: 0, y: 400 },        // slide right
+    { x: 0, y: 0 },          // up into place
   ],
 
   // 2: left-circle (SECOND to assemble)
-  // Scattered: bottom-right, comes up via far-left corridor
+  // Scattered: bottom-right corner
   [
-    { x: 1400, y: 900 },     // scattered: far bottom-right
-    { x: 1400, y: 1050 },    // down slightly to bottom corridor
-    { x: -850, y: 1050 },    // slide left along bottom
-    { x: -850, y: 0 },       // up on far left (clear of piece 0)
+    { x: 1600, y: 1500 },    // scattered: far bottom-right
+    { x: -950, y: 1500 },    // slide left along very bottom
+    { x: -950, y: 0 },       // up on far left
     { x: 0, y: 0 },          // slide right into gap
   ],
 
   // 3: middle-dark (FOURTH to assemble)
-  // Scattered: top-center, comes straight down (left column done, clear path)
+  // Scattered: top-center
   [
-    { x: 0, y: -1000 },      // scattered: far top center
+    { x: 0, y: -1400 },      // scattered: far top center
     { x: 0, y: 0 },          // straight down into place
   ],
 
   // 4: middle-blue (SIXTH to assemble)
-  // Scattered: bottom area (right of center), comes up avoiding piece 5
+  // Scattered: bottom center-right (offset from piece 5)
   [
-    { x: 500, y: 1100 },     // scattered: bottom center-right (right of piece 5)
-    { x: 500, y: 700 },      // up
-    { x: 0, y: 700 },        // slide left
+    { x: 600, y: 1500 },     // scattered: bottom, right of center
+    { x: 600, y: 800 },      // up
+    { x: 0, y: 800 },        // slide left
     { x: 0, y: 0 },          // up into place
   ],
 
   // 5: middle-circle (FIFTH to assemble)
-  // Scattered: bottom-left area, comes up through left corridor then right
+  // Scattered: bottom center-left (offset from piece 4)
   [
-    { x: -600, y: 1100 },    // scattered: bottom-left area (clear of piece 4)
-    { x: -600, y: 500 },     // up on left side
-    { x: 0, y: 500 },        // slide right into middle column area
+    { x: -600, y: 1500 },    // scattered: bottom, left of center
+    { x: -600, y: 600 },     // up on left side
+    { x: 0, y: 600 },        // slide right
     { x: 0, y: 0 },          // up into gap
   ],
 
   // 6: right-dark (SEVENTH to assemble)
-  // Scattered: top-left, goes along very top then down right
+  // Scattered: top-left corner
   [
-    { x: -1400, y: -900 },   // scattered: far top-left
-    { x: -1400, y: -1100 },  // up to very top corridor
-    { x: 1200, y: -1100 },   // slide right along very top
-    { x: 1200, y: 0 },       // down on far right
+    { x: -1600, y: -1400 },  // scattered: far top-left
+    { x: -1600, y: -1600 },  // up to very top corridor
+    { x: 1400, y: -1600 },   // slide right along very top
+    { x: 1400, y: 0 },       // down on far right
     { x: 0, y: 0 },          // slide left into place
   ],
 
   // 7: right-blue (LAST to assemble)
-  // Scattered: middle-left, takes very wide path around everything
+  // Scattered: middle-left (vertically offset from 6 and 8)
   [
-    { x: -1400, y: 0 },      // scattered: far left middle
-    { x: -1400, y: -1150 },  // up to very top-left corner
-    { x: 1300, y: -1150 },   // slide right along very top (above piece 6's path)
-    { x: 1300, y: 300 },     // down on far right
-    { x: 0, y: 300 },        // slide left
+    { x: -1800, y: 200 },    // scattered: far left middle
+    { x: -1800, y: -1650 },  // up to very top corridor
+    { x: 1500, y: -1650 },   // slide right along very top (above piece 6)
+    { x: 1500, y: 400 },     // down on far right
+    { x: 0, y: 400 },        // slide left
     { x: 0, y: 0 },          // up into place
   ],
 
   // 8: right-circle (EIGHTH to assemble)
-  // Scattered: bottom-left, goes along bottom then up right side
+  // Scattered: bottom-left corner
   [
-    { x: -1400, y: 900 },    // scattered: far bottom-left
-    { x: -1400, y: 1150 },   // down to very bottom corridor
-    { x: 1200, y: 1150 },    // slide right along very bottom
-    { x: 1200, y: 0 },       // up on far right
+    { x: -1600, y: 1500 },   // scattered: far bottom-left
+    { x: -1600, y: 1700 },   // down to very bottom corridor
+    { x: 1400, y: 1700 },    // slide right along very bottom
+    { x: 1400, y: 0 },       // up on far right
     { x: 0, y: 0 },          // slide left into gap
   ],
 ];
