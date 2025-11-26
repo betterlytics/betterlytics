@@ -6,6 +6,9 @@ import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { ChevronDown } from 'lucide-react';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { formatQueryFilter } from '@/utils/queryFilterFormatters';
+import { useTranslations } from 'next-intl';
 
 type EmptyStep = {
   name: string;
@@ -18,11 +21,15 @@ type FunnelChartProps = {
 
 export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) {
   const hasEmptySteps = Boolean(emptySteps?.length);
+  const tFilters = useTranslations('components.filters');
   return (
-    <div className='w-full overflow-x-auto rounded-lg border'>
-      <div className='relative flex w-fit flex-col sm:flex-row'>
+    <div className='bg-card w-full overflow-x-auto rounded-lg border'>
+      <div className='group/steps relative flex w-fit flex-col sm:flex-row'>
         {funnel.steps.map((step, i) => (
-          <div key={i} className='flex h-40 flex-row-reverse sm:h-auto sm:w-50 sm:flex-col'>
+          <div
+            key={i}
+            className='bg-card hover:bg-foreground/2 group-hover/steps:[&:not(:hover)]:bg-background/50 group/step flex h-40 flex-row-reverse transition-all duration-150 sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-50'
+          >
             <div
               className={cn(
                 'w-35 border-b px-2 pt-2 sm:w-full sm:border-r sm:border-b-0',
@@ -50,7 +57,7 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
               {(i < funnel.steps.length - 1 || hasEmptySteps) && (
                 <HorizontalConnector
                   previousPercentage={100 * funnel.steps[i].visitorsRatio}
-                  currentPercentage={100 * funnel.steps[i + 1]?.visitorsRatio || 1}
+                  currentPercentage={100 * funnel.steps[i + 1]?.visitorsRatio}
                 />
               )}
             </div>
@@ -59,7 +66,7 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
               {(i < funnel.steps.length - 1 || hasEmptySteps) && (
                 <VerticalConnector
                   previousPercentage={100 * funnel.steps[i].visitorsRatio}
-                  currentPercentage={100 * funnel.steps[i + 1]?.visitorsRatio || 1}
+                  currentPercentage={100 * funnel.steps[i + 1]?.visitorsRatio}
                 />
               )}
             </div>
@@ -72,7 +79,9 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
               {i < funnel.steps.length - 1 || hasEmptySteps ? (
                 <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
                   <p className='text-muted-foreground text-xs'>Drop-off</p>
-                  <p className='text-md font-semibold'>-{formatNumber(Math.abs(step.dropoffCount))}</p>
+                  <p className='text-md font-semibold'>
+                    {step.dropoffCount < 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
+                  </p>
                   <div className='flex items-center'>
                     <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
                     <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
@@ -87,8 +96,17 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
             </div>
           </div>
         ))}
+        {/* <div className='space-y-2 text-center'>
+          <p className='text-sm leading-relaxed font-medium'>{step.step.name}</p>
+          <p className='text-popover-foreground bg-card rounded-md p-2 font-medium'>
+            {formatQueryFilter(step.step, tFilters)}
+          </p>
+        </div> */}
         {emptySteps?.map((step, i) => (
-          <div key={i} className='flex h-40 flex-row-reverse bg-gray-600/10 sm:h-auto sm:w-50 sm:flex-col'>
+          <div
+            key={i}
+            className='group-hover/steps:[&:not(:hover)]:bg-background/50 flex h-40 flex-row-reverse bg-gray-600/10 transition-all duration-150 sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-50'
+          >
             <div
               className={cn(
                 'w-35 border-b px-2 pt-2 sm:w-full sm:border-r sm:border-b-0',
@@ -170,8 +188,8 @@ function VerticalConnector({
   const { width, height } = size;
 
   // Avoid drawing until we know sizes
-  const prevX = (previousPercentage / 100) * width;
-  const currX = (currentPercentage / 100) * width;
+  const prevX = ((previousPercentage || 1) / 100) * width;
+  const currX = ((currentPercentage || 1) / 100) * width;
 
   const path = width
     ? `
@@ -207,11 +225,11 @@ function HorizontalProgress({
     <div className='relative flex h-full w-25 flex-col justify-end'>
       <div
         className={cn(
-          'from-primary to-primary/50 w-full bg-gradient-to-b',
+          'from-primary to-primary/50 group-hover:to-primary/75 w-full bg-gradient-to-b transition-colors duration-150',
           isFirst && 'rounded-tl-lg',
           isLast && 'rounded-tr-lg',
         )}
-        style={{ height: `${percentage}%` }}
+        style={{ height: `${percentage || 1}%` }}
       />
     </div>
   );
@@ -244,8 +262,8 @@ function HorizontalConnector({
   const { width, height } = size;
 
   // Avoid drawing until we know sizes
-  const prevY = height - (previousPercentage / 100) * height;
-  const currY = height - (currentPercentage / 100) * height;
+  const prevY = height - ((previousPercentage || 1) / 100) * height;
+  const currY = height - ((currentPercentage || 1) / 100) * height;
 
   const path = `
     M 0 ${prevY}
@@ -258,8 +276,13 @@ function HorizontalConnector({
   return (
     <div ref={ref} className='relative h-full w-25'>
       {width > 0 && height > 0 && (
-        <svg className='absolute inset-0' width='100%' height='100%' preserveAspectRatio='none'>
-          <path d={path} fill={'color-mix(in srgb, var(--primary) 40%, transparent)'} />
+        <svg
+          className='fill-primary/40 group-hover:fill-primary/60 absolute inset-0 transition-colors duration-150'
+          width='100%'
+          height='100%'
+          preserveAspectRatio='none'
+        >
+          <path d={path} />
         </svg>
       )}
     </div>
