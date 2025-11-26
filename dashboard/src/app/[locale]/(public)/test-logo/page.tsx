@@ -1,20 +1,18 @@
 'use client';
 
 import { AnimatedDashboardLogo } from '@/components/loading/AnimatedDashboardLogo';
-import { AnimatedDashboardLogoOld } from '@/components/loading/AnimatedDashboardLogoOld';
-import { AnimatedDashboardLogoCube, PATTERNS, PatternName } from '@/components/loading/AnimatedDashboardLogoCube';
+import { AnimatedDashboardLogoCube, PATTERNS as CUBE_PATTERNS, PatternName as CubePatternName } from '@/components/loading/AnimatedDashboardLogoCube';
+import { AnimatedDashboardLogoPuzzle } from '@/components/loading/AnimatedDashboardLogoPuzzle';
 import { useEffect, useState } from 'react';
 
-const patternNames = Object.keys(PATTERNS) as PatternName[];
+const cubePatternNames = Object.keys(CUBE_PATTERNS) as CubePatternName[];
 
 export default function TestLogoPage() {
   const [fps, setFps] = useState(0);
   const [frameCount, setFrameCount] = useState(0);
+  const [showPuzzle, setShowPuzzle] = useState(true);
+  const [showCube, setShowCube] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
-  const [showOld, setShowOld] = useState(false);
-  const [showCube, setShowCube] = useState(true);
-  const [showAllPatterns, setShowAllPatterns] = useState(true);
-  const [selectedPattern, setSelectedPattern] = useState<PatternName>('snake');
 
   useEffect(() => {
     let lastTime = performance.now();
@@ -47,18 +45,18 @@ export default function TestLogoPage() {
       <h1 className='text-2xl font-bold mb-4'>Logo Animation Test Page</h1>
 
       {/* Toggle controls */}
-      <div className='mb-4 flex gap-2 flex-wrap'>
+      <div className='mb-6 flex gap-2 flex-wrap'>
         <button
-          onClick={() => setShowAllPatterns(!showAllPatterns)}
-          className={`px-4 py-2 rounded ${showAllPatterns ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+          onClick={() => setShowPuzzle(!showPuzzle)}
+          className={`px-4 py-2 rounded ${showPuzzle ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-800'}`}
         >
-          All Patterns
+          Puzzle (NEW)
         </button>
         <button
           onClick={() => setShowCube(!showCube)}
-          className={`px-4 py-2 rounded ${showCube ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+          className={`px-4 py-2 rounded ${showCube ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'}`}
         >
-          Single Pattern
+          3D Cube
         </button>
         <button
           onClick={() => setShowCurrent(!showCurrent)}
@@ -66,22 +64,32 @@ export default function TestLogoPage() {
         >
           Current (mask)
         </button>
-        <button
-          onClick={() => setShowOld(!showOld)}
-          className={`px-4 py-2 rounded ${showOld ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-800'}`}
-        >
-          Old
-        </button>
       </div>
 
-      {/* All Patterns Grid */}
-      {showAllPatterns && (
+      {/* Puzzle Animation - 2 Phase: Scatter then Assemble */}
+      {showPuzzle && (
+        <section className='mb-12'>
+          <h2 className='text-xl font-semibold mb-4 text-pink-500'>
+            2D Puzzle Animation (Scatter → Assemble)
+          </h2>
+          <p className='text-sm text-muted-foreground mb-4'>
+            Phase 1: Pieces scatter from center outward | Phase 2: Pieces slide into place
+          </p>
+          {/* Large centered display */}
+          <div className='flex justify-center items-center p-8 border-2 border-pink-500/50 rounded-lg bg-black/5 min-h-[600px]'>
+            <AnimatedDashboardLogoPuzzle size={500} />
+          </div>
+        </section>
+      )}
+
+      {/* 3D Cube Patterns */}
+      {showCube && (
         <section className='mb-12'>
           <h2 className='text-xl font-semibold mb-4 text-purple-500'>
-            All Cube Patterns
+            3D Cube Roll Patterns
           </h2>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-            {patternNames.map((patternName) => (
+            {cubePatternNames.map((patternName) => (
               <div
                 key={patternName}
                 className='p-4 border-2 border-purple-500/50 rounded-lg bg-black/5 flex flex-col items-center'
@@ -89,36 +97,10 @@ export default function TestLogoPage() {
                 <AnimatedDashboardLogoCube size={150} pattern={patternName} />
                 <div className='mt-3 text-center'>
                   <div className='font-semibold text-sm'>{patternName}</div>
-                  <div className='text-xs text-muted-foreground'>{PATTERNS[patternName].label}</div>
+                  <div className='text-xs text-muted-foreground'>{CUBE_PATTERNS[patternName].label}</div>
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-      )}
-
-      {/* Single Pattern Selection */}
-      {showCube && !showAllPatterns && (
-        <section className='mb-12'>
-          <h2 className='text-xl font-semibold mb-4 text-indigo-500'>
-            Single Pattern View
-          </h2>
-          <div className='mb-4 flex gap-2 flex-wrap'>
-            {patternNames.map((patternName) => (
-              <button
-                key={patternName}
-                onClick={() => setSelectedPattern(patternName)}
-                className={`px-3 py-1 rounded text-sm ${selectedPattern === patternName ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}`}
-              >
-                {patternName}
-              </button>
-            ))}
-          </div>
-          <div className='p-6 border-2 border-indigo-500 rounded-lg bg-black/5 inline-block'>
-            <AnimatedDashboardLogoCube size={200} pattern={selectedPattern} />
-            <div className='mt-4 text-center text-sm text-muted-foreground'>
-              {PATTERNS[selectedPattern].label}
-            </div>
           </div>
         </section>
       )}
@@ -135,27 +117,20 @@ export default function TestLogoPage() {
         </section>
       )}
 
-      {/* Old Animation */}
-      {showOld && (
-        <section className='mb-12'>
-          <h2 className='text-xl font-semibold mb-4 text-orange-600'>
-            Old: translateY + translateZ
-          </h2>
-          <div className='p-4 border-2 border-orange-500 rounded-lg inline-block'>
-            <AnimatedDashboardLogoOld size={150} />
-          </div>
-        </section>
-      )}
-
-      {/* Grid reference */}
+      {/* Piece reference */}
       <div className='mt-8 p-4 bg-muted rounded-lg'>
-        <h3 className='font-semibold mb-2'>Grid Reference:</h3>
-        <pre className='text-sm font-mono'>
-{`┌───┬───┬───┐
-│ 1 │ 2 │ 3 │  (indices 0, 1, 2)
-├───┼───┼───┤
-│ 4 │ 5 │ 6 │  (indices 3, 4, 5)
-└───┴───┴───┘`}
+        <h3 className='font-semibold mb-2'>Puzzle Pieces (9 total):</h3>
+        <pre className='text-xs font-mono'>
+{`┌──────────────┬──────────────┬──────────────┐
+│ 0: left-dark │ 3: mid-dark  │ 6: right-dark│
+│              │              │   (B curve)  │
+│     ● 2      │              │      ● 8     │
+├──────────────┼──────────────┼──────────────┤
+│ 1: left-blue │ 4: mid-blue  │ 7: right-blue│
+│              │     ● 5      │   (B bulge)  │
+└──────────────┴──────────────┴──────────────┘
+
+● = circles (data points on the analytics line)`}
         </pre>
       </div>
     </div>
