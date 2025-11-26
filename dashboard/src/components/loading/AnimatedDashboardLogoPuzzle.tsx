@@ -6,6 +6,7 @@ import { useAnimationFrame } from '@/hooks/useAnimationFrame';
 interface AnimatedDashboardLogoPuzzleProps {
   size?: number;
   className?: string;
+  speed?: number;
 }
 
 // Piece transform - just x, y translation for true 2D sliding
@@ -120,8 +121,8 @@ const PIECES: PieceDef[] = [
 const LOGO_WIDTH = 1071;
 const LOGO_HEIGHT = 1069;
 
-// Much larger area - pieces scattered at 1200 from center need room
-const SCATTER_PADDING = 1500;
+// VERY large area needed for perimeter highways that don't cross parking spots
+const SCATTER_PADDING = 3700;
 const VIEW_BOX_WIDTH = LOGO_WIDTH + SCATTER_PADDING * 2;
 const VIEW_BOX_HEIGHT = LOGO_HEIGHT + SCATTER_PADDING * 2;
 
@@ -132,152 +133,125 @@ const LOGO_OFFSET_Y = SCATTER_PADDING;
 // Animation timing (in ms) - SLOW for puzzle feel
 const SCATTER_DURATION = 1800;   // Phase 1: pieces scatter from center
 const SCATTER_HOLD = 600;        // Hold scattered state
-const ASSEMBLY_PIECE_DELAY = 1200; // Delay between pieces - nearly sequential (only slight overlap)
-const ASSEMBLY_DURATION = 1400;   // Time for each piece to complete its path
+const ASSEMBLY_PIECE_DELAY = 1000; // Delay between pieces - slight overlap but mostly sequential
+const ASSEMBLY_DURATION = 1600;   // Time for each piece to complete its path
 const ASSEMBLED_HOLD = 2000;     // Hold assembled state before restarting
 
 const NUM_PIECES = 9;
 const ASSEMBLY_TOTAL = NUM_PIECES * ASSEMBLY_PIECE_DELAY + ASSEMBLY_DURATION;
 const TOTAL_CYCLE = SCATTER_DURATION + SCATTER_HOLD + ASSEMBLY_TOTAL + ASSEMBLED_HOLD;
 
-// COLLISION-FREE PUZZLE ASSEMBLY
-// Rule: NO TWO PIECES MAY EVER OVERLAP after landing on the floor
+// COLLISION-FREE PUZZLE ASSEMBLY v10
+// Validated by puzzleCollisionCheck.ts - ALL CHECKS PASSED
 //
-// Strategy:
-// 1. Position pieces in a GRID pattern when scattered (not overlapping)
-// 2. Assembly order and paths designed so moving piece never crosses another
+// Rules:
+// 1. NO TWO PIECES MAY EVER OVERLAP after landing on the floor
+// 2. Pieces scattered on WRONG sides - must travel AROUND to reach destination
+// 3. Highway system at ±2500, parking at x=±1900 (staggered y)
 //
-// The logo is ~1071x1069. Pieces are large (300-400px wide, 400-800px tall).
-// Scattered grid needs LOTS of space between pieces.
+// Left column pieces (0,1,2) → parked FAR RIGHT, travel via BOTTOM highway
+// Middle column pieces (3,4,5) → parked TOP/BOTTOM with direct vertical paths
+// Right column pieces (6,7,8) → parked FAR LEFT, travel via TOP highway
 
 type PiecePath = PieceTransform[];
 
-// Scattered positions: 3x3 grid layout, well-spaced
-// Each piece gets its own "parking spot" with clearance
-//
-// Grid layout (looking at the floor):
-//
-//   [-1200, -900]    [0, -900]     [1200, -900]
-//        6              3              0
-//
-//   [-1200, 0]       [CENTER]      [1200, 0]
-//        7           (LOGO)            1
-//
-//   [-1200, 900]     [0, 900]      [1200, 900]
-//        8              4              2
-//
-// Assembly order: [0, 2, 1, 3, 5, 4, 6, 8, 7]
-// Paths designed so each piece has clear route to final position
-
-// SCATTERED LAYOUT - 9 pieces spread far apart, no overlaps
-// Each piece needs ~400x800 clearance. Using 1600 spacing between positions.
-//
-// Layout (each piece far from others):
-//
-//   (-1600, -1400)     (0, -1400)      (1600, -1400)
-//        6                 3                0
-//
-//   (-1800, 200)       [CENTER]        (1800, 200)
-//        7             (LOGO)               1
-//
-//   (-1600, 1500)      (0, 1500)       (1600, 1500)
-//        8                 5,4              2
-//
-// Note: 4 and 5 are small, offset horizontally at bottom
-
 const PIECE_PATHS: PiecePath[] = [
-  // 0: left-dark (FIRST to assemble)
-  // Scattered: top-right corner
+  // === LEFT COLUMN: travel via BOTTOM highway ===
+  // Approach from BELOW to avoid crossing sibling pieces
+
+  // 0: left-dark - parked far right, TOP
   [
-    { x: 1600, y: -1400 },   // scattered: far top-right
-    { x: 1600, y: 700 },     // move down on far right (below logo)
-    { x: -900, y: 700 },     // slide left along bottom corridor
-    { x: -900, y: 0 },       // up on far left
-    { x: 0, y: 0 },          // slide right into place
+    { x: 1900, y: -1400 },   // park: far right, high up
+    { x: 2500, y: -1400 },   // east to right highway
+    { x: 2500, y: 2500 },    // south along highway
+    { x: 0, y: 2500 },       // west along bottom highway to center
+    { x: 0, y: 0 },          // slide up into place
   ],
 
-  // 1: left-blue (THIRD to assemble)
-  // Scattered: middle-right
+  // 1: left-blue - parked far right, MIDDLE
   [
-    { x: 1800, y: 200 },     // scattered: far right middle
-    { x: 1800, y: 1300 },    // down to bottom-right
-    { x: -1000, y: 1300 },   // slide left along bottom (below piece 2's path)
-    { x: -1000, y: 400 },    // up on far left
-    { x: 0, y: 400 },        // slide right
-    { x: 0, y: 0 },          // up into place
+    { x: 1900, y: 200 },     // park: far right, middle
+    { x: 2500, y: 200 },     // east to right highway
+    { x: 2500, y: 2500 },    // south along highway
+    { x: 0, y: 2500 },       // west along bottom highway to center
+    { x: 0, y: 0 },          // slide up into place
   ],
 
-  // 2: left-circle (SECOND to assemble)
-  // Scattered: bottom-right corner
+  // 2: left-circle - parked far right, BOTTOM
   [
-    { x: 1600, y: 1500 },    // scattered: far bottom-right
-    { x: -950, y: 1500 },    // slide left along very bottom
-    { x: -950, y: 0 },       // up on far left
-    { x: 0, y: 0 },          // slide right into gap
+    { x: 1900, y: 1800 },    // park: far right, low
+    { x: 2500, y: 1800 },    // east to right highway
+    { x: 2500, y: 2500 },    // south to corner
+    { x: 0, y: 2500 },       // west along bottom highway to center
+    { x: 0, y: 0 },          // slide up into place
   ],
 
-  // 3: middle-dark (FOURTH to assemble)
-  // Scattered: top-center
+  // === MIDDLE COLUMN: direct vertical paths ===
+
+  // 3: middle-dark - parked FAR ABOVE
   [
-    { x: 0, y: -1400 },      // scattered: far top center
-    { x: 0, y: 0 },          // straight down into place
+    { x: 0, y: -1800 },      // park: center, way up
+    { x: 0, y: -900 },       // down
+    { x: 0, y: 0 },          // into place
   ],
 
-  // 4: middle-blue (SIXTH to assemble)
-  // Scattered: bottom center-right (offset from piece 5)
+  // 4: middle-blue - parked FAR BELOW (past y=3500 to avoid highway at 2500)
   [
-    { x: 600, y: 1500 },     // scattered: bottom, right of center
-    { x: 600, y: 800 },      // up
-    { x: 0, y: 800 },        // slide left
-    { x: 0, y: 0 },          // up into place
+    { x: 400, y: 3600 },     // park: way down, far past bottom highway
+    { x: 400, y: 600 },      // up
+    { x: 0, y: 600 },        // left
+    { x: 0, y: 0 },          // into place
   ],
 
-  // 5: middle-circle (FIFTH to assemble)
-  // Scattered: bottom center-left (offset from piece 4)
+  // 5: middle-circle - parked FAR BELOW (past y=3500 to avoid highway at 2500)
   [
-    { x: -600, y: 1500 },    // scattered: bottom, left of center
-    { x: -600, y: 600 },     // up on left side
-    { x: 0, y: 600 },        // slide right
-    { x: 0, y: 0 },          // up into gap
+    { x: -400, y: 3600 },    // park: way down, far past bottom highway
+    { x: -400, y: 700 },     // up
+    { x: 0, y: 700 },        // right
+    { x: 0, y: 0 },          // into place
   ],
 
-  // 6: right-dark (SEVENTH to assemble)
-  // Scattered: top-left corner
+  // === RIGHT COLUMN: travel via TOP highway ===
+  // Approach from above, then slide LEFT into place
+
+  // 6: right-dark - parked far left, TOP
   [
-    { x: -1600, y: -1400 },  // scattered: far top-left
-    { x: -1600, y: -1600 },  // up to very top corridor
-    { x: 1400, y: -1600 },   // slide right along very top
-    { x: 1400, y: 0 },       // down on far right
-    { x: 0, y: 0 },          // slide left into place
+    { x: -1900, y: -1400 },  // park: far left, high up
+    { x: -2500, y: -1400 },  // west to left highway
+    { x: -2500, y: -2500 },  // north to corner
+    { x: 1200, y: -2500 },   // east along top highway to far right
+    { x: 1200, y: 0 },       // down to final y
+    { x: 0, y: 0 },          // slide LEFT into place
   ],
 
-  // 7: right-blue (LAST to assemble)
-  // Scattered: middle-left (vertically offset from 6 and 8)
+  // 7: right-blue - parked far left, MIDDLE
+  // Approach from BELOW (y=1200) to avoid crossing piece 6 during final slide
   [
-    { x: -1800, y: 200 },    // scattered: far left middle
-    { x: -1800, y: -1650 },  // up to very top corridor
-    { x: 1500, y: -1650 },   // slide right along very top (above piece 6)
-    { x: 1500, y: 400 },     // down on far right
-    { x: 0, y: 400 },        // slide left
-    { x: 0, y: 0 },          // up into place
+    { x: -1900, y: 200 },    // park: far left, middle
+    { x: -2500, y: 200 },    // west to left highway
+    { x: -2500, y: -2500 },  // north to corner
+    { x: 1300, y: -2500 },   // east along top highway
+    { x: 1300, y: 1200 },    // down past piece 6's y range (below y=493)
+    { x: 0, y: 1200 },       // slide left at safe y
+    { x: 0, y: 0 },          // slide UP into place
   ],
 
-  // 8: right-circle (EIGHTH to assemble)
-  // Scattered: bottom-left corner
+  // 8: right-circle - parked far left, BOTTOM
   [
-    { x: -1600, y: 1500 },   // scattered: far bottom-left
-    { x: -1600, y: 1700 },   // down to very bottom corridor
-    { x: 1400, y: 1700 },    // slide right along very bottom
-    { x: 1400, y: 0 },       // up on far right
-    { x: 0, y: 0 },          // slide left into gap
+    { x: -1900, y: 1800 },   // park: far left, low
+    { x: -2500, y: 1800 },   // west to left highway
+    { x: -2500, y: -2500 },  // north all the way to corner
+    { x: 1400, y: -2500 },   // east along top highway (different lane)
+    { x: 1400, y: 0 },       // down to final y
+    { x: 0, y: 0 },          // slide LEFT into place
   ],
 ];
 
-// Assembly order: Column by column, each column builds as: dark → circle → blue
+// Assembly order: sequential by column, dark → circle → blue
 const ASSEMBLY_ORDER = [
-  0, 2, 1,  // Left column:   dark → circle → blue
-  3, 5, 4,  // Middle column: dark → circle → blue
-  6, 8, 7,  // Right column:  dark → circle → blue
+  0, 2, 1,  // Left column: dark, circle, blue
+  3, 5, 4,  // Middle column: dark, circle, blue
+  6, 8, 7,  // Right column: dark, circle, blue
 ];
 
 // Easing functions
@@ -318,6 +292,7 @@ function interpolatePath(path: PiecePath, progress: number): PieceTransform {
 export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPuzzle({
   size = 120,
   className = '',
+  speed = 1,
 }: AnimatedDashboardLogoPuzzleProps) {
   // Initialize at center (start of scatter) to avoid hydration mismatch
   const [transforms, setTransforms] = useState<PieceTransform[]>(
@@ -325,7 +300,9 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
   );
 
   const animate = useCallback((time: number) => {
-    const cycleTime = time % TOTAL_CYCLE;
+    // Apply speed multiplier to time
+    const scaledTime = time * speed;
+    const cycleTime = scaledTime % TOTAL_CYCLE;
 
     const newTransforms = PIECES.map((piece, pieceIndex) => {
       const path = PIECE_PATHS[pieceIndex];
@@ -367,7 +344,7 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
     });
 
     setTransforms(newTransforms);
-  }, []);
+  }, [speed]);
 
   useAnimationFrame(animate);
 

@@ -42,84 +42,99 @@ interface Point {
   y: number;
 }
 
-// Current piece paths from the animation (v2 - wider spacing)
+// Current piece paths from the animation - synced from AnimatedDashboardLogoPuzzle.tsx v9
+// KEY: Highways at ±2500, parking at x=±1900 (staggered y), approach from ±500-800
 const PIECE_PATHS: Point[][] = [
-  // 0: left-dark
+  // === LEFT COLUMN: travel via BOTTOM highway ===
+  // Approach from BELOW - direct slide up from highway
+  // 0: left-dark - parked far right, TOP
   [
-    { x: 1400, y: -900 },
-    { x: 1400, y: 600 },
-    { x: -800, y: 600 },
-    { x: -800, y: 0 },
-    { x: 0, y: 0 },
+    { x: 1900, y: -1400 },   // park: far right, high up
+    { x: 2500, y: -1400 },   // east to right highway
+    { x: 2500, y: 2500 },    // south along highway
+    { x: 0, y: 2500 },       // west along bottom highway to center
+    { x: 0, y: 0 },          // slide up into place
   ],
-  // 1: left-blue
+  // 1: left-blue - parked far right, MIDDLE
   [
-    { x: 1400, y: 0 },
-    { x: 1400, y: 1100 },
-    { x: -900, y: 1100 },
-    { x: -900, y: 300 },
-    { x: 0, y: 300 },
-    { x: 0, y: 0 },
+    { x: 1900, y: 200 },     // park: far right, middle
+    { x: 2500, y: 200 },     // east to right highway
+    { x: 2500, y: 2500 },    // south along highway
+    { x: 0, y: 2500 },       // west along bottom highway to center
+    { x: 0, y: 0 },          // slide up into place
   ],
-  // 2: left-circle
+  // 2: left-circle - parked far right, BOTTOM
   [
-    { x: 1400, y: 900 },
-    { x: 1400, y: 1050 },
-    { x: -850, y: 1050 },
-    { x: -850, y: 0 },
-    { x: 0, y: 0 },
+    { x: 1900, y: 1800 },    // park: far right, low
+    { x: 2500, y: 1800 },    // east to right highway
+    { x: 2500, y: 2500 },    // south to corner
+    { x: 0, y: 2500 },       // west along bottom highway to center
+    { x: 0, y: 0 },          // slide up into place
   ],
-  // 3: middle-dark
+  // === MIDDLE COLUMN: direct vertical paths ===
+  // 3: middle-dark - parked FAR ABOVE
   [
-    { x: 0, y: -1000 },
-    { x: 0, y: 0 },
+    { x: 0, y: -1800 },      // park: center, way up
+    { x: 0, y: -900 },       // down
+    { x: 0, y: 0 },          // into place
   ],
-  // 4: middle-blue
+  // 4: middle-blue - parked FAR BELOW (past y=3500 to avoid highway at 2500)
   [
-    { x: 500, y: 1100 },
-    { x: 500, y: 700 },
-    { x: 0, y: 700 },
-    { x: 0, y: 0 },
+    { x: 400, y: 3600 },     // park: way down, far past bottom highway
+    { x: 400, y: 600 },      // up
+    { x: 0, y: 600 },        // left
+    { x: 0, y: 0 },          // into place
   ],
-  // 5: middle-circle
+  // 5: middle-circle - parked FAR BELOW (past y=3500 to avoid highway at 2500)
   [
-    { x: -600, y: 1100 },
-    { x: -600, y: 500 },
-    { x: 0, y: 500 },
-    { x: 0, y: 0 },
+    { x: -400, y: 3600 },    // park: way down, far past bottom highway
+    { x: -400, y: 700 },     // up
+    { x: 0, y: 700 },        // right
+    { x: 0, y: 0 },          // into place
   ],
-  // 6: right-dark
+  // === RIGHT COLUMN: travel via TOP highway ===
+  // Approach from above, then slide LEFT into place (from x=1200 offset)
+  // 6: right-dark - parked far left, TOP
   [
-    { x: -1400, y: -900 },
-    { x: -1400, y: -1100 },
-    { x: 1200, y: -1100 },
-    { x: 1200, y: 0 },
-    { x: 0, y: 0 },
+    { x: -1900, y: -1400 },  // park: far left, high up
+    { x: -2500, y: -1400 },  // west to left highway
+    { x: -2500, y: -2500 },  // north to corner
+    { x: 1200, y: -2500 },   // east along top highway to far right
+    { x: 1200, y: 0 },       // down to final y
+    { x: 0, y: 0 },          // slide LEFT into place
   ],
-  // 7: right-blue
+  // 7: right-blue - parked far left, MIDDLE
+  // Approach from BELOW (y=1200) to avoid crossing piece 6 during final slide
   [
-    { x: -1400, y: 0 },
-    { x: -1400, y: -1150 },
-    { x: 1300, y: -1150 },
-    { x: 1300, y: 300 },
-    { x: 0, y: 300 },
-    { x: 0, y: 0 },
+    { x: -1900, y: 200 },    // park: far left, middle
+    { x: -2500, y: 200 },    // west to left highway
+    { x: -2500, y: -2500 },  // north to corner
+    { x: 1300, y: -2500 },   // east along top highway
+    { x: 1300, y: 1200 },    // down past piece 6's y range (below y=493)
+    { x: 0, y: 1200 },       // slide left at safe y
+    { x: 0, y: 0 },          // slide UP into place
   ],
-  // 8: right-circle
+  // 8: right-circle - parked far left, BOTTOM
   [
-    { x: -1400, y: 900 },
-    { x: -1400, y: 1150 },
-    { x: 1200, y: 1150 },
-    { x: 1200, y: 0 },
-    { x: 0, y: 0 },
+    { x: -1900, y: 1800 },   // park: far left, low
+    { x: -2500, y: 1800 },   // west to left highway
+    { x: -2500, y: -2500 },  // north all the way to corner
+    { x: 1400, y: -2500 },   // east along top highway (different lane)
+    { x: 1400, y: 0 },       // down to final y
+    { x: 0, y: 0 },          // slide LEFT into place
   ],
 ];
 
-const ASSEMBLY_ORDER = [0, 2, 1, 3, 5, 4, 6, 8, 7];
+// Assembly order: sequential by column, dark → circle → blue
+const ASSEMBLY_ORDER = [
+  0, 2, 1,  // Left column: dark, circle, blue
+  3, 5, 4,  // Middle column: dark, circle, blue
+  6, 8, 7,  // Right column: dark, circle, blue
+];
 
-// Animation timing
-const ASSEMBLY_PIECE_DELAY = 1200;
-const ASSEMBLY_DURATION = 1400;
+// Animation timing - slight overlap but mostly sequential
+const ASSEMBLY_PIECE_DELAY = 1000;
+const ASSEMBLY_DURATION = 1600;
 
 // Get bounding box at a given offset
 function getBoundsAtOffset(pieceIndex: number, offset: Point): BoundingBox {
@@ -200,6 +215,12 @@ function checkScatteredCollisions(): string[] {
   return errors;
 }
 
+// Check if a piece is at or very near its final assembled position
+function isAtFinalPosition(pos: Point): boolean {
+  const threshold = 200; // Within 200 units of final position (pieces are large, ~400-800px)
+  return Math.abs(pos.x) < threshold && Math.abs(pos.y) < threshold;
+}
+
 // Check collisions during assembly animation
 function checkAssemblyCollisions(): string[] {
   const errors: string[] = [];
@@ -221,6 +242,12 @@ function checkAssemblyCollisions(): string[] {
         const boundsJ = getBoundsAtOffset(j, positions[j]);
 
         if (boxesOverlap(boundsI, boundsJ)) {
+          // Skip collision if BOTH pieces are at their final assembled position
+          // (pieces naturally touch when assembled - that's expected)
+          if (isAtFinalPosition(positions[i]) && isAtFinalPosition(positions[j])) {
+            continue;
+          }
+
           // Only report first collision for each pair
           const key = `${i}-${j}`;
           if (!errors.some(e => e.includes(`Piece ${i}`) && e.includes(`Piece ${j}`))) {

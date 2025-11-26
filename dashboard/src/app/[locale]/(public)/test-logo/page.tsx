@@ -7,12 +7,15 @@ import { useEffect, useState } from 'react';
 
 const cubePatternNames = Object.keys(CUBE_PATTERNS) as CubePatternName[];
 
+const SPEED_OPTIONS = [0.25, 0.5, 1, 1.5, 2, 3];
+
 export default function TestLogoPage() {
   const [fps, setFps] = useState(0);
   const [frameCount, setFrameCount] = useState(0);
   const [showPuzzle, setShowPuzzle] = useState(true);
   const [showCube, setShowCube] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
+  const [speed, setSpeed] = useState(2); // Default to 2x as requested
 
   useEffect(() => {
     let lastTime = performance.now();
@@ -75,9 +78,28 @@ export default function TestLogoPage() {
           <p className='text-sm text-muted-foreground mb-4'>
             Phase 1: Pieces scatter from center outward | Phase 2: Pieces slide into place
           </p>
+          {/* Speed controller */}
+          <div className='flex items-center gap-4 mb-4'>
+            <span className='text-sm font-medium'>Speed:</span>
+            <div className='flex gap-1'>
+              {SPEED_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSpeed(s)}
+                  className={`px-3 py-1 rounded text-sm ${
+                    speed === s
+                      ? 'bg-pink-600 text-white'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  }`}
+                >
+                  {s}x
+                </button>
+              ))}
+            </div>
+          </div>
           {/* Large centered display */}
           <div className='flex justify-center items-center p-8 border-2 border-pink-500/50 rounded-lg bg-black/5 min-h-[600px]'>
-            <AnimatedDashboardLogoPuzzle size={500} />
+            <AnimatedDashboardLogoPuzzle size={500} speed={speed} />
           </div>
         </section>
       )}
