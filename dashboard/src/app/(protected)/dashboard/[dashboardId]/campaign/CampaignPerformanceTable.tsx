@@ -7,7 +7,6 @@ import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import ExternalLink from '@/components/ExternalLink';
 import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
@@ -77,17 +76,11 @@ export default function CampaignPerformanceTable({ data, landingPages }: Campaig
       },
       {
         accessorKey: 'landingPageUrl',
-        header: landingTranslations('columns.landingPageUrl'),
+        header: landingTranslations('columns.entryPage'),
         cell: ({ row }) => (
-          <ExternalLink
-            href={row.original.landingPageUrl}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='text-primary block max-w-xs truncate hover:underline'
-            title={row.original.landingPageUrl}
-          >
+          <div className='max-w-xs truncate' title={row.original.landingPageUrl}>
             {row.original.landingPageUrl}
-          </ExternalLink>
+          </div>
         ),
       },
       {
@@ -140,16 +133,9 @@ export default function CampaignPerformanceTable({ data, landingPages }: Campaig
     <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
       <CardHeader className='px-0 pb-0'>
         <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-          <div>
-            <CardTitle className='text-base font-medium'>
-              {isLandingView ? landingTranslations('title') : t('title')}
-            </CardTitle>
-            <p className='text-muted-foreground mt-1 text-sm'>
-              {isLandingView
-                ? 'Landing pages for the selected campaign.'
-                : 'Click a campaign to drill into its landing pages.'}
-            </p>
-          </div>
+          <CardTitle className='text-base font-medium'>
+            {isLandingView ? landingTranslations('title') : t('title')}
+          </CardTitle>
           {isLandingView && selectedCampaign && (
             <div className='flex flex-wrap items-center gap-2'>
               <span className='bg-muted text-muted-foreground rounded-full px-3 py-1 text-xs font-semibold uppercase'>

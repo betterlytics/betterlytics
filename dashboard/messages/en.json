@@ -1341,10 +1341,10 @@
         }
       },
       "landing": {
-        "title": "Campaign Landing Page Performance",
+        "title": "Entry Page Performance",
         "columns": {
           "campaignName": "Campaign Name",
-          "landingPageUrl": "Landing Page URL",
+          "entryPage": "Entry Page",
           "visitors": "Visitors",
           "bounceRate": "Bounce Rate",
           "avgSessionDuration": "Avg. Session Duration",

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import {
   fetchCampaignPerformanceAction,
   fetchCampaignSourceBreakdownAction,
@@ -7,13 +8,14 @@ import {
   fetchCampaignTermBreakdownAction,
   fetchCampaignLandingPagePerformanceAction,
 } from '@/app/actions';
-import CampaignTabs from './CampaignTabs';
+import CampaignOverviewSection from './CampaignOverviewSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { getUserTimezone } from '@/lib/cookies';
+import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
 
 type CampaignPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -52,15 +54,30 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
         <DashboardFilters />
       </DashboardHeader>
 
-      <CampaignTabs
-        campaignPerformancePromise={campaignPerformancePromise}
-        visitorTrendPromise={visitorTrendPromise}
-        sourceBreakdownPromise={sourceBreakdownPromise}
-        mediumBreakdownPromise={mediumBreakdownPromise}
-        contentBreakdownPromise={contentBreakdownPromise}
-        termBreakdownPromise={termBreakdownPromise}
-        landingPagePerformancePromise={landingPagePerformancePromise}
-      />
+      <Suspense
+        fallback={
+          <div className='space-y-4'>
+            <TableSkeleton />
+            <ChartSkeleton />
+            <div className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
+              <div className='lg:col-span-2'>
+                <TableSkeleton />
+              </div>
+              <ChartSkeleton />
+            </div>
+          </div>
+        }
+      >
+        <CampaignOverviewSection
+          campaignPerformancePromise={campaignPerformancePromise}
+          landingPagePerformancePromise={landingPagePerformancePromise}
+          visitorTrendPromise={visitorTrendPromise}
+          sourceBreakdownPromise={sourceBreakdownPromise}
+          mediumBreakdownPromise={mediumBreakdownPromise}
+          contentBreakdownPromise={contentBreakdownPromise}
+          termBreakdownPromise={termBreakdownPromise}
+        />
+      </Suspense>
     </div>
   );
 }
