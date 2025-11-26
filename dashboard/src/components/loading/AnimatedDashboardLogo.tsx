@@ -23,7 +23,7 @@ export const AnimatedDashboardLogo = memo(function AnimatedDashboardLogo({
         contain: 'layout style paint',
       }}
     >
-      <svg width={size} height={size} viewBox='0 0 1071 1069' fill='none' xmlns='http://www.w3.org/2000/svg'>
+      <svg height={size} viewBox='0 0 1071 1069' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <defs>
           <mask id={maskId}>
             <rect x='0' y='0' width='375' height='1069' fill='white' className='animate-fill-up-1' />
