@@ -7,6 +7,7 @@ interface AnimatedDashboardLogoPuzzleProps {
   size?: number;
   className?: string;
   speed?: number;
+  showLabels?: boolean;
 }
 
 // Piece transform - just x, y translation for true 2D sliding
@@ -130,16 +131,11 @@ const VIEW_BOX_HEIGHT = LOGO_HEIGHT + SCATTER_PADDING * 2;
 const LOGO_OFFSET_X = SCATTER_PADDING;
 const LOGO_OFFSET_Y = SCATTER_PADDING;
 
-// Animation timing (in ms) - SLOW for puzzle feel
+// Animation timing (in ms) - part 1 (constants that don't depend on PIECE_START_TIMES)
 const SCATTER_DURATION = 1800;   // Phase 1: pieces scatter from center
-const SCATTER_HOLD = 600;        // Hold scattered state
-const ASSEMBLY_PIECE_DELAY = 1000; // Delay between pieces - slight overlap but mostly sequential
-const ASSEMBLY_DURATION = 1600;   // Time for each piece to complete its path
+const SCATTER_HOLD = 1080;       // Hold scattered state (1.8x longer)
+const ASSEMBLY_DURATION = 1600;  // Time for each piece to complete its path
 const ASSEMBLED_HOLD = 2000;     // Hold assembled state before restarting
-
-const NUM_PIECES = 9;
-const ASSEMBLY_TOTAL = NUM_PIECES * ASSEMBLY_PIECE_DELAY + ASSEMBLY_DURATION;
-const TOTAL_CYCLE = SCATTER_DURATION + SCATTER_HOLD + ASSEMBLY_TOTAL + ASSEMBLED_HOLD;
 
 // COLLISION-FREE PUZZLE ASSEMBLY v10
 // Validated by puzzleCollisionCheck.ts - ALL CHECKS PASSED
@@ -159,27 +155,23 @@ const PIECE_PATHS: PiecePath[] = [
   // === LEFT COLUMN: travel via BOTTOM highway ===
   // Approach from BELOW to avoid crossing sibling pieces
 
-  // 0: left-dark - parked far right, TOP
+  // 0: left-dark - from right, swings left staying very high
   [
-    { x: 1900, y: -1400 },   // park: far right, high up
-    { x: 2500, y: -1400 },   // east to right highway
-    { x: 2500, y: 2500 },    // south along highway
-    { x: 0, y: 2500 },       // west along bottom highway to center
-    { x: 0, y: 0 },          // slide up into place
+    { x: 1900, y: -1400 },
+    { x: 0, y: -1200 },      // swing left staying very high
+    { x: 0, y: 0 },          // drop into place
   ],
 
-  // 1: left-blue - parked far right, MIDDLE
+  // 1: left-blue - from TOP-LEFT, goes DOWN then RIGHT (very low to avoid 2)
   [
-    { x: 1900, y: 200 },     // park: far right, middle
-    { x: 2500, y: 200 },     // east to right highway
-    { x: 2500, y: 2500 },    // south along highway
-    { x: 0, y: 2500 },       // west along bottom highway to center
-    { x: 0, y: 0 },          // slide up into place
+    { x: -1900, y: -1800 },  // park: far left, HIGH (top-left)
+    { x: -1900, y: 1500 },   // DOWN very far (below piece 2's path)
+    { x: 0, y: 0 },          // RIGHT-UP into place
   ],
 
   // 2: left-circle - parked far right, BOTTOM
   [
-    { x: 1900, y: 1800 },    // park: far right, low
+    { x: 1900, y: 1500 },    // park: far right, slightly higher
     { x: 2500, y: 1800 },    // east to right highway
     { x: 2500, y: 2500 },    // south to corner
     { x: 0, y: 2500 },       // west along bottom highway to center
@@ -188,66 +180,65 @@ const PIECE_PATHS: PiecePath[] = [
 
   // === MIDDLE COLUMN: direct vertical paths ===
 
-  // 3: middle-dark - parked FAR ABOVE
+  // 3: middle-dark - starts closer to piece 1 (left-upper area), curves into place
   [
-    { x: 0, y: -1800 },      // park: center, way up
-    { x: 0, y: -900 },       // down
-    { x: 0, y: 0 },          // into place
+    { x: -1000, y: -1800 },  // start: halfway between center and piece 1
+    { x: 0, y: 0 },          // curve into place
   ],
 
-  // 4: middle-blue - parked FAR BELOW (past y=3500 to avoid highway at 2500)
+  // 4: middle-blue - from far right, DOWN -> LEFT -> UP
   [
-    { x: 400, y: 3600 },     // park: way down, far past bottom highway
-    { x: 400, y: 600 },      // up
-    { x: 0, y: 600 },        // left
-    { x: 0, y: 0 },          // into place
+    { x: 2500, y: -600 },    // park: far right (on highway to avoid 0)
+    { x: 2500, y: 800 },     // DOWN
+    { x: 0, y: 800 },        // LEFT
+    { x: 0, y: 0 },          // UP into place
   ],
 
-  // 5: middle-circle - parked FAR BELOW (past y=3500 to avoid highway at 2500)
+  // 5: middle-circle - parked left side, straight line
   [
-    { x: -400, y: 3600 },    // park: way down, far past bottom highway
-    { x: -400, y: 700 },     // up
-    { x: 0, y: 700 },        // right
-    { x: 0, y: 0 },          // into place
+    { x: -1900, y: 1200 },   // park: far left, moderate south
+    { x: 0, y: 0 },          // straight into place
   ],
 
   // === RIGHT COLUMN: travel via TOP highway ===
   // Approach from above, then slide LEFT into place
 
-  // 6: right-dark - parked far left, TOP
+  // 6: right-dark - from top-right diagonal
   [
-    { x: -1900, y: -1400 },  // park: far left, high up
-    { x: -2500, y: -1400 },  // west to left highway
-    { x: -2500, y: -2500 },  // north to corner
-    { x: 1200, y: -2500 },   // east along top highway to far right
-    { x: 1200, y: 0 },       // down to final y
-    { x: 0, y: 0 },          // slide LEFT into place
+    { x: 400, y: -1800 },    // park: top-right
+    { x: 0, y: 0 },          // diagonal into place
   ],
 
-  // 7: right-blue - parked far left, MIDDLE
-  // Goes FIRST - direct path through clear middle
+  // 7: right-blue - parked far left, FIRST - direct diagonal
   [
     { x: -1900, y: 200 },    // park: far left, middle
-    { x: 0, y: 200 },        // straight across through clear center
-    { x: 0, y: 0 },          // slide into place
+    { x: 0, y: 0 },          // straight diagonal into place
   ],
 
-  // 8: right-circle - parked far left, TOP (near piece 7)
-  // Goes SECOND - direct path through clear middle, slides LEFT into place
+  // 8: right-circle - parked far right, between 0 and 4, straight line
   [
-    { x: -1900, y: -200 },   // park: far left, near top (close to piece 7's parking)
-    { x: 200, y: -200 },     // straight across through clear center, to right of final spot
-    { x: 0, y: 0 },          // slide left into place
+    { x: 1900, y: -1000 },   // park: far right, between 0 and 4
+    { x: 0, y: 0 },          // straight into place
   ],
 ];
 
-// Assembly order: right-blue & right-circle first (dramatic entry), then left, middle, right-dark
-const ASSEMBLY_ORDER = [
-  7, 8,     // Right column openers: blue, circle (longest journeys - dramatic start)
-  0, 2, 1,  // Left column: dark, circle, blue
-  3, 5, 4,  // Middle column: dark, circle, blue
-  6,        // Right column finale: dark
-];
+// Individual start times for each piece - optimized for smooth flow
+const PIECE_START_TIMES: Record<number, number> = {
+  7: 0,       // Right-blue (first)
+  6: 300,     // Right-dark - tighter
+  8: 600,     // Right-circle - tighter
+  5: 900,     // Middle-circle - tighter
+  3: 1200,    // Middle-dark - tighter
+  0: 1700,    // Left-dark - needs 500ms gap from 3
+  2: 2100,    // Left-circle
+  4: 2500,    // Middle-blue
+  1: 2500,    // Left-blue - same as piece 4
+};
+
+// Animation timing (in ms) - part 2 (calculated from PIECE_START_TIMES)
+const MAX_START_TIME = Math.max(...Object.values(PIECE_START_TIMES));
+const ASSEMBLY_TOTAL = MAX_START_TIME + ASSEMBLY_DURATION;
+const TOTAL_CYCLE = SCATTER_DURATION + SCATTER_HOLD + ASSEMBLY_TOTAL + ASSEMBLED_HOLD;
 
 // Easing functions
 function easeOutCubic(t: number): number {
@@ -260,6 +251,20 @@ function easeOutQuad(t: number): number {
 
 function easeInOutQuad(t: number): number {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+// Spring easing - overshoots then settles
+function easeOutBack(t: number): number {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+// Elastic spring - more bouncy
+function easeOutElastic(t: number): number {
+  if (t === 0 || t === 1) return t;
+  const p = 0.4;
+  return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
 }
 
 // Interpolate along a path of waypoints
@@ -288,6 +293,7 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
   size = 120,
   className = '',
   speed = 1,
+  showLabels = false,
 }: AnimatedDashboardLogoPuzzleProps) {
   // Initialize at center (start of scatter) to avoid hydration mismatch
   const [transforms, setTransforms] = useState<PieceTransform[]>(
@@ -321,8 +327,8 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
       const assemblyStartTime = SCATTER_DURATION + SCATTER_HOLD;
       const assemblyTime = cycleTime - assemblyStartTime;
 
-      const orderIndex = ASSEMBLY_ORDER.indexOf(pieceIndex);
-      const pieceStartTime = orderIndex * ASSEMBLY_PIECE_DELAY;
+      // Use individual start time for each piece
+      const pieceStartTime = PIECE_START_TIMES[pieceIndex] ?? 0;
       const pieceElapsed = assemblyTime - pieceStartTime;
 
       if (pieceElapsed < 0) {
@@ -369,25 +375,55 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
 
             if (piece.type === 'circle') {
               return (
-                <circle
-                  key={piece.id}
-                  cx={piece.cx}
-                  cy={piece.cy}
-                  r={piece.r}
-                  fill={piece.fill}
-                  transform={transform}
-                />
+                <g key={piece.id} transform={transform}>
+                  <circle
+                    cx={piece.cx}
+                    cy={piece.cy}
+                    r={piece.r}
+                    fill={piece.fill}
+                  />
+                  {showLabels && (
+                    <text
+                      x={piece.cx}
+                      y={piece.cy}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill="white"
+                      fontSize="70"
+                      fontWeight="bold"
+                      stroke="black"
+                      strokeWidth="3"
+                    >
+                      {i}
+                    </text>
+                  )}
+                </g>
               );
             }
 
             return (
-              <path
-                key={piece.id}
-                d={piece.d}
-                fill={piece.fill}
-                className={piece.className}
-                transform={transform}
-              />
+              <g key={piece.id} transform={transform}>
+                <path
+                  d={piece.d}
+                  fill={piece.fill}
+                  className={piece.className}
+                />
+                {showLabels && (
+                  <text
+                    x={piece.centerX}
+                    y={piece.centerY}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="white"
+                    fontSize="150"
+                    fontWeight="bold"
+                    stroke="black"
+                    strokeWidth="5"
+                  >
+                    {i}
+                  </text>
+                )}
+              </g>
             );
           })}
         </g>

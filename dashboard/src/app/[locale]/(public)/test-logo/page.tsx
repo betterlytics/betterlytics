@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 const cubePatternNames = Object.keys(CUBE_PATTERNS) as CubePatternName[];
 
-const SPEED_OPTIONS = [0.25, 0.5, 1, 1.5, 2, 3];
+const SPEED_OPTIONS = [0.25, 0.5, 1, 1.5, 2, 3, 4, 5, 8, 10];
 
 export default function TestLogoPage() {
   const [fps, setFps] = useState(0);
@@ -16,6 +16,7 @@ export default function TestLogoPage() {
   const [showCube, setShowCube] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
   const [speed, setSpeed] = useState(2); // Default to 2x as requested
+  const [showLabels, setShowLabels] = useState(true);
 
   useEffect(() => {
     let lastTime = performance.now();
@@ -96,10 +97,20 @@ export default function TestLogoPage() {
                 </button>
               ))}
             </div>
+            <button
+              onClick={() => setShowLabels(!showLabels)}
+              className={`px-3 py-1 rounded text-sm ${
+                showLabels
+                  ? 'bg-pink-600 text-white'
+                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+              }`}
+            >
+              Labels
+            </button>
           </div>
           {/* Large centered display */}
           <div className='flex justify-center items-center p-8 border-2 border-pink-500/50 rounded-lg bg-black/5 min-h-[600px]'>
-            <AnimatedDashboardLogoPuzzle size={500} speed={speed} />
+            <AnimatedDashboardLogoPuzzle size={500} speed={speed} showLabels={showLabels} />
           </div>
         </section>
       )}
