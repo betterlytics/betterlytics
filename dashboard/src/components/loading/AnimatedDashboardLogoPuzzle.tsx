@@ -225,33 +225,28 @@ const PIECE_PATHS: PiecePath[] = [
   ],
 
   // 7: right-blue - parked far left, MIDDLE
-  // Approach from BELOW (y=1200) to avoid crossing piece 6 during final slide
+  // Goes FIRST - direct path through clear middle
   [
     { x: -1900, y: 200 },    // park: far left, middle
-    { x: -2500, y: 200 },    // west to left highway
-    { x: -2500, y: -2500 },  // north to corner
-    { x: 1300, y: -2500 },   // east along top highway
-    { x: 1300, y: 1200 },    // down past piece 6's y range (below y=493)
-    { x: 0, y: 1200 },       // slide left at safe y
-    { x: 0, y: 0 },          // slide UP into place
+    { x: 0, y: 200 },        // straight across through clear center
+    { x: 0, y: 0 },          // slide into place
   ],
 
-  // 8: right-circle - parked far left, BOTTOM
+  // 8: right-circle - parked far left, TOP (near piece 7)
+  // Goes SECOND - direct path through clear middle, slides LEFT into place
   [
-    { x: -1900, y: 1800 },   // park: far left, low
-    { x: -2500, y: 1800 },   // west to left highway
-    { x: -2500, y: -2500 },  // north all the way to corner
-    { x: 1400, y: -2500 },   // east along top highway (different lane)
-    { x: 1400, y: 0 },       // down to final y
-    { x: 0, y: 0 },          // slide LEFT into place
+    { x: -1900, y: -200 },   // park: far left, near top (close to piece 7's parking)
+    { x: 200, y: -200 },     // straight across through clear center, to right of final spot
+    { x: 0, y: 0 },          // slide left into place
   ],
 ];
 
-// Assembly order: sequential by column, dark → circle → blue
+// Assembly order: right-blue & right-circle first (dramatic entry), then left, middle, right-dark
 const ASSEMBLY_ORDER = [
+  7, 8,     // Right column openers: blue, circle (longest journeys - dramatic start)
   0, 2, 1,  // Left column: dark, circle, blue
   3, 5, 4,  // Middle column: dark, circle, blue
-  6, 8, 7,  // Right column: dark, circle, blue
+  6,        // Right column finale: dark
 ];
 
 // Easing functions
