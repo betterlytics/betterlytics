@@ -5,13 +5,16 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage, capitalizeFirstLetter } from '@/utils/formatters';
 import type { CampaignListItem } from './CampaignDirectorySection';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
 import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
 import { useCampaignExpandedDetails } from './useCampaignExpandedDetails';
+import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
+import { getCountryName } from '@/utils/countryCodes';
+import { useLocale } from 'next-intl';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
@@ -173,8 +176,8 @@ function CampaignInlineUTMSection({
         <span>Campaign details</span>
         <div className='bg-border/60 h-px flex-1' />
       </div>
-      <div className='mt-1 grid gap-3 md:grid-cols-3'>
-        <div className='md:col-span-2'>
+      <div className='mt-1 grid gap-3 md:grid-cols-5'>
+        <div className='md:col-span-3'>
           <UTMBreakdownTabbedTable
             source={utmSource}
             medium={utmMedium}
@@ -183,7 +186,7 @@ function CampaignInlineUTMSection({
             landingPages={landingPages}
           />
         </div>
-        <div className='md:col-span-1'>
+        <div className='md:col-span-2'>
           <div className='flex h-full flex-col gap-3'>
             <CampaignAudienceProfile
               devices={devices}
@@ -217,6 +220,8 @@ function CampaignAudienceProfile({
   browsers,
   operatingSystems,
 }: CampaignAudienceProfileProps) {
+  const locale = useLocale();
+
   const hasDevices = devices && devices.length > 0;
   const hasCountries = countries && countries.length > 0;
   const hasBrowsers = browsers && browsers.length > 0;
@@ -231,20 +236,19 @@ function CampaignAudienceProfile({
 
   if (sections.length === 0) {
     return (
-      <Card className='border-border/60'>
-        <CardContent className='text-muted-foreground flex items-center justify-center px-3 py-3 text-xs'>
-          No audience data for this campaign in the selected range.
-        </CardContent>
-      </Card>
+      <div className='text-muted-foreground flex items-center justify-end px-1 py-2 text-[11px]'>
+        No audience data for this campaign in the selected range.
+      </div>
     );
   }
 
   return (
-    <Card className='border-border/60'>
-      <CardHeader className='px-3 pt-2 pb-1 sm:px-4 sm:pt-2 sm:pb-1'>
-        <CardTitle className='text-sm font-medium'>Audience profile</CardTitle>
-      </CardHeader>
-      <CardContent className='px-3 pt-0 pb-2 text-[11px] sm:px-4'>
+    <section aria-label='Audience profile' className='space-y-2'>
+      <div className='px-1'>
+        <p className='text-foreground text-sm font-medium'>Audience profile</p>
+        <div className='bg-border/60 mt-1 h-px w-full' />
+      </div>
+      <div className='pt-1 text-[11px]'>
         <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
           {sections.map((section) => (
             <div key={section.key} className='space-y-1'>
@@ -255,17 +259,55 @@ function CampaignAudienceProfile({
                     key={item.label}
                     className='bg-muted/60 text-muted-foreground flex items-center justify-between rounded-full px-2 py-0.5'
                   >
-                    <span className='truncate'>{item.label}</span>
-                    <span className='text-foreground ml-1 font-medium'>{item.value}</span>
+                    <div className='flex min-w-0 items-center gap-1.5'>
+                      {getAudienceIconAndLabel(section.key, item.label, locale).icon}
+                      <span className='truncate'>
+                        {getAudienceIconAndLabel(section.key, item.label, locale).label}
+                      </span>
+                    </div>
+                    <span className='text-foreground ml-1 shrink-0 font-medium'>{item.value}</span>
                   </div>
                 ))}
               </div>
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
+}
+
+function getAudienceIconAndLabel(sectionKey: string, rawLabel: string, locale: string) {
+  switch (sectionKey) {
+    case 'devices':
+      return {
+        icon: <DeviceIcon type={rawLabel} className='h-3.5 w-3.5' />,
+        label: capitalizeFirstLetter(rawLabel),
+      };
+    case 'browsers':
+      return {
+        icon: <BrowserIcon name={rawLabel} className='h-3.5 w-3.5' />,
+        label: capitalizeFirstLetter(rawLabel),
+      };
+    case 'os':
+      return {
+        icon: <OSIcon name={rawLabel} className='h-3.5 w-3.5' />,
+        label: capitalizeFirstLetter(rawLabel),
+      };
+    case 'countries': {
+      const code = rawLabel.toUpperCase() as FlagIconProps['countryCode'];
+      const name = getCountryName(code, locale as Parameters<typeof getCountryName>[1]);
+      return {
+        icon: <FlagIcon countryCode={code} countryName={name} />,
+        label: name,
+      };
+    }
+    default:
+      return {
+        icon: null,
+        label: rawLabel,
+      };
+  }
 }
 
 type PaginationControlsProps = {
