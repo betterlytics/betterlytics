@@ -131,39 +131,32 @@ export default function CampaignPerformanceTable({ data, landingPages }: Campaig
 
   return (
     <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-      <CardHeader className='px-0 pb-0'>
-        <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-          <CardTitle className='text-base font-medium'>
-            {isLandingView ? landingTranslations('title') : t('title')}
-          </CardTitle>
-          {isLandingView && selectedCampaign && (
-            <div className='flex flex-wrap items-center gap-2'>
-              <span className='bg-muted text-muted-foreground rounded-full px-3 py-1 text-xs font-semibold uppercase'>
-                utm_campaign
-              </span>
-              <span className='text-foreground text-sm font-medium'>{selectedCampaign}</span>
-              <Button size='sm' variant='ghost' onClick={handleResetView}>
-                Back to campaigns
-              </Button>
-            </div>
-          )}
+      <CardHeader className='px-0 pb-2'>
+        <div className='relative grid grid-cols-1 items-center gap-2 xl:grid-cols-2'>
+          <div className='grid grid-cols-1 items-start gap-1 xl:grid-cols-2'>
+            <CardTitle className='text-base font-medium'>
+              {isLandingView ? landingTranslations('title') : t('title')}
+            </CardTitle>
+          </div>
         </div>
       </CardHeader>
       <CardContent className='px-0'>
-        {isLandingView ? (
-          <DataTable
-            columns={landingColumns}
-            data={landingRows}
-            defaultSorting={[{ id: 'visitors', desc: true }]}
-          />
-        ) : (
-          <DataTable
-            columns={overviewColumns}
-            data={data}
-            defaultSorting={[{ id: 'visitors', desc: true }]}
-            onRowClick={handleCampaignRowClick}
-          />
-        )}
+        <div className='overflow-x-auto'>
+          {isLandingView ? (
+            <DataTable
+              columns={landingColumns}
+              data={landingRows}
+              defaultSorting={[{ id: 'visitors', desc: true }]}
+            />
+          ) : (
+            <DataTable
+              columns={overviewColumns}
+              data={data}
+              defaultSorting={[{ id: 'visitors', desc: true }]}
+              onRowClick={handleCampaignRowClick}
+            />
+          )}
+        </div>
       </CardContent>
     </Card>
   );
