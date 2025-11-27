@@ -163,6 +163,8 @@ function CampaignInlineUTMSection({
   landingPages,
   devices,
   countries,
+  browsers,
+  operatingSystems,
 }: CampaignInlineUTMSectionProps) {
   return (
     <div className='space-y-4'>
@@ -183,7 +185,12 @@ function CampaignInlineUTMSection({
         </div>
         <div className='md:col-span-1'>
           <div className='flex h-full flex-col gap-3'>
-            <CampaignAudienceProfile devices={devices} countries={countries} />
+            <CampaignAudienceProfile
+              devices={devices}
+              countries={countries}
+              browsers={browsers}
+              operatingSystems={operatingSystems}
+            />
             <UTMBreakdownTabbedChart source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
           </div>
         </div>
@@ -200,13 +207,29 @@ type AudienceShare = {
 type CampaignAudienceProfileProps = {
   devices?: AudienceShare[];
   countries?: AudienceShare[];
+  browsers?: AudienceShare[];
+  operatingSystems?: AudienceShare[];
 };
 
-function CampaignAudienceProfile({ devices, countries }: CampaignAudienceProfileProps) {
+function CampaignAudienceProfile({
+  devices,
+  countries,
+  browsers,
+  operatingSystems,
+}: CampaignAudienceProfileProps) {
   const hasDevices = devices && devices.length > 0;
   const hasCountries = countries && countries.length > 0;
+  const hasBrowsers = browsers && browsers.length > 0;
+  const hasOperatingSystems = operatingSystems && operatingSystems.length > 0;
 
-  if (!hasDevices && !hasCountries) {
+  const sections: { key: string; title: string; items: AudienceShare[] }[] = [
+    { key: 'devices', title: 'Devices', items: hasDevices ? devices!.slice(0, 3) : [] },
+    { key: 'browsers', title: 'Browsers', items: hasBrowsers ? browsers!.slice(0, 3) : [] },
+    { key: 'os', title: 'OS', items: hasOperatingSystems ? operatingSystems!.slice(0, 3) : [] },
+    { key: 'countries', title: 'Countries', items: hasCountries ? countries!.slice(0, 3) : [] },
+  ].filter((section) => section.items.length > 0);
+
+  if (sections.length === 0) {
     return (
       <Card className='border-border/60'>
         <CardContent className='text-muted-foreground flex items-center justify-center px-3 py-3 text-xs'>
@@ -222,38 +245,24 @@ function CampaignAudienceProfile({ devices, countries }: CampaignAudienceProfile
         <CardTitle className='text-sm font-medium'>Audience profile</CardTitle>
       </CardHeader>
       <CardContent className='px-3 pt-0 pb-2 text-[11px] sm:px-4'>
-        {hasDevices && (
-          <div className='mb-3'>
-            <p className='text-foreground mb-1 text-[11px] font-medium'>Devices</p>
-            <div className='flex flex-wrap gap-1.5'>
-              {devices!.map((item) => (
-                <span
-                  key={item.label}
-                  className='bg-muted/60 text-muted-foreground inline-flex items-center rounded-full px-2 py-0.5 text-[11px]'
-                >
-                  {item.label}
-                  <span className='text-foreground ml-1 font-medium'>{item.value}</span>
-                </span>
-              ))}
+        <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
+          {sections.map((section) => (
+            <div key={section.key} className='space-y-1'>
+              <p className='text-foreground text-[11px] font-medium'>{section.title}</p>
+              <div className='space-y-1.5'>
+                {section.items.map((item) => (
+                  <div
+                    key={item.label}
+                    className='bg-muted/60 text-muted-foreground flex items-center justify-between rounded-full px-2 py-0.5'
+                  >
+                    <span className='truncate'>{item.label}</span>
+                    <span className='text-foreground ml-1 font-medium'>{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-        {hasCountries && (
-          <div>
-            <p className='text-foreground mb-1 text-[11px] font-medium'>Top countries</p>
-            <div className='flex flex-wrap gap-1.5'>
-              {countries!.map((item) => (
-                <span
-                  key={item.label}
-                  className='bg-muted/60 text-muted-foreground inline-flex items-center rounded-full px-2 py-0.5 text-[11px]'
-                >
-                  {item.label}
-                  <span className='text-foreground ml-1 font-medium'>{item.value}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
