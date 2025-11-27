@@ -25,6 +25,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
 import { formatPercentage } from '@/utils/formatters';
 
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
@@ -185,6 +186,58 @@ export const fetchCampaignVisitorTrendAction = withDashboardAuthContext(
     } catch (error) {
       console.error('Error in fetchCampaignVisitorTrendAction:', error);
       return { data: [], categories: [] };
+    }
+  },
+);
+
+export type CampaignSparklinePoint = {
+  date: string;
+  visitors: number;
+};
+
+export const fetchCampaignSparklineAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    granularity: GranularityRangeValues,
+    timezone: string,
+    campaignName: string,
+  ): Promise<CampaignSparklinePoint[]> => {
+    try {
+      const allowedGranularities: GranularityRangeValues[] = ['day', 'hour', 'minute_30', 'minute_15', 'minute_1'];
+      const safeGranularity: GranularityRangeValues = allowedGranularities.includes(granularity)
+        ? granularity
+        : 'hour';
+
+      const trendRows = await fetchCampaignVisitorTrend(
+        ctx.siteId,
+        startDate,
+        endDate,
+        safeGranularity,
+        timezone,
+        campaignName,
+      );
+
+      const dateRange = { start: startDate, end: endDate };
+
+      const sparkline = toSparklineSeries({
+        data: trendRows.map((row) => ({
+          date: row.date,
+          visitors: row.visitors,
+        })),
+        granularity: safeGranularity,
+        dataKey: 'visitors',
+        dateRange,
+      });
+
+      return sparkline.map((point) => ({
+        date: point.date.toISOString(),
+        visitors: point.visitors,
+      }));
+    } catch (error) {
+      console.error('Error in fetchCampaignSparklineAction:', error);
+      return [];
     }
   },
 );
