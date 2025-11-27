@@ -233,7 +233,7 @@ function CampaignSparkline({ data, status }: CampaignSparklineProps) {
             type='linear'
             dataKey='visitors'
             stroke='var(--chart-1)'
-            strokeWidth={1.5}
+            strokeWidth={2.5}
             fill={`url(#campaign-sparkline-${gradientId})`}
             dot={false}
             activeDot={false}
