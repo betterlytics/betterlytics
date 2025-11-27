@@ -7,7 +7,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage, capitalizeFirstLetter } from '@/utils/formatters';
+import { formatPercentage, capitalizeFirstLetter } from '@/utils/formatters';
 import type { CampaignListItem } from './CampaignDirectorySection';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
@@ -95,51 +95,54 @@ export default function CampaignList({
         return (
           <article
             key={campaign.name}
-            className='border-border/70 bg-card/80 hover:bg-card/90 focus-within:ring-offset-background hover:border-border/90 relative rounded-2xl border p-4 shadow-sm transition duration-200 ease-out focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2'
+            className='border-border/70 bg-card/80 hover:bg-card/90 focus-within:ring-offset-background hover:border-border/90 group relative overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2'
           >
-            <div className='flex items-start justify-between gap-4 md:items-center'>
-              <div className='flex flex-1 flex-col gap-1'>
-                <div className='flex flex-wrap items-center gap-3'>
-                  <p className='text-base leading-tight font-semibold'>{campaign.name}</p>
-                  <Badge
-                    variant='secondary'
-                    className='border-border text-muted-foreground border text-[11px] font-normal shadow-xs'
-                  >
-                    {campaign.visitors.toLocaleString()} sessions
-                  </Badge>
-                </div>
-                <div className='text-muted-foreground mt-1 flex flex-wrap gap-2 text-xs'>
-                  <MetricPill label='Visitors' value={formatNumber(campaign.visitors)} />
-                  <MetricPill label='Bounce rate' value={formatPercentage(campaign.bounceRate)} />
-                  <MetricPill label='Avg. session' value={campaign.avgSessionDuration} />
-                  <MetricPill label='Pages / session' value={campaign.pagesPerSession.toFixed(1)} />
-                </div>
+            <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
+
+            <div className='grid grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,80px)_minmax(120px,200px)_auto]'>
+              <div className='min-w-0'>
+                <p className='truncate text-sm leading-tight font-semibold'>{campaign.name}</p>
+                <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
+                  {campaign.visitors.toLocaleString()} {campaign.visitors === 1 ? 'session' : 'sessions'}
+                </p>
               </div>
-              <div className='flex items-center gap-3'>
-                <div className='h-14 w-32 sm:w-40'>
-                  <CampaignSparkline data={sparklineData} status={sparklineStatus} />
-                </div>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='shrink-0'
-                  onClick={() => {
-                    if (isExpanded) {
-                      setExpandedCampaign(null);
-                      return;
-                    }
-                    setExpandedCampaign(campaign.name);
-                    loadCampaignDetails(campaign.name);
-                  }}
-                  aria-expanded={isExpanded}
-                  aria-controls={`campaign-${campaign.name}-details`}
-                >
-                  {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
-                </Button>
+
+              <CampaignMetric
+                label='Bounce'
+                value={formatPercentage(campaign.bounceRate)}
+                className='hidden md:flex'
+              />
+              <CampaignMetric label='Duration' value={campaign.avgSessionDuration} className='hidden md:flex' />
+              <CampaignMetric
+                label='Pages'
+                value={campaign.pagesPerSession.toFixed(1)}
+                className='hidden md:flex'
+              />
+
+              <div className='hidden h-11 md:block'>
+                <CampaignSparkline data={sparklineData} status={sparklineStatus} />
               </div>
+
+              <Button
+                variant='ghost'
+                size='icon'
+                className='shrink-0'
+                onClick={() => {
+                  if (isExpanded) {
+                    setExpandedCampaign(null);
+                    return;
+                  }
+                  setExpandedCampaign(campaign.name);
+                  loadCampaignDetails(campaign.name);
+                }}
+                aria-expanded={isExpanded}
+                aria-controls={`campaign-${campaign.name}-details`}
+              >
+                {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
+              </Button>
             </div>
             {isExpanded && (
-              <div id={`campaign-${campaign.name}-details`} className='mt-4 space-y-4'>
+              <div id={`campaign-${campaign.name}-details`} className='mx-3 mb-3 ml-5 space-y-4'>
                 {!detailsState || detailsState.status === 'loading' ? (
                   <div className='flex justify-center py-6'>
                     <Spinner size='sm' aria-label='Loading campaign details' />
@@ -170,15 +173,12 @@ export default function CampaignList({
   );
 }
 
-function MetricPill({ label, value }: { label: string; value: string }) {
+function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
-    <Badge
-      variant='secondary'
-      className='border-border text-muted-foreground flex items-center gap-1.5 border px-2.5 py-1 text-[11px] font-normal shadow-xs'
-    >
-      <span className='text-foreground/80 font-medium'>{label}</span>
-      <span className='truncate'>{value}</span>
-    </Badge>
+    <div className={`flex flex-col ${className ?? ''}`}>
+      <span className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>{label}</span>
+      <span className='text-foreground text-sm font-semibold tabular-nums'>{value}</span>
+    </div>
   );
 }
 
