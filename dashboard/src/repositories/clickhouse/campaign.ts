@@ -16,7 +16,14 @@ import {
   RawCampaignLandingPagePerformanceItem,
   RawCampaignLandingPagePerformanceArraySchema,
 } from '@/entities/campaign';
-import { DeviceType, DeviceTypeSchema } from '@/entities/devices';
+import {
+  DeviceType,
+  DeviceTypeSchema,
+  BrowserInfo,
+  BrowserInfoSchema,
+  OperatingSystemInfo,
+  OperatingSystemInfoSchema,
+} from '@/entities/devices';
 import { GeoVisitor, GeoVisitorSchema } from '@/entities/geography';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -326,4 +333,88 @@ export async function getCampaignCountryAudienceData(
       visitors: Number(row.visitors),
     })),
   );
+}
+
+export async function getCampaignBrowserAudienceData(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  campaignName?: string,
+): Promise<BrowserInfo[]> {
+  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+
+  const query = safeSql`
+    SELECT
+      browser,
+      uniq(visitor_id) AS visitors
+    FROM analytics.events
+    WHERE site_id = {siteId:String}
+      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND event_type = 1
+      AND utm_campaign != ''
+      AND browser != ''
+      ${campaignFilter}
+    GROUP BY browser
+    ORDER BY visitors DESC
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId,
+        startDate,
+        endDate,
+      },
+    })
+    .toPromise()) as Array<{ browser: string; visitors: number }>;
+
+  const mappedResults = result.map((row) => ({
+    browser: row.browser,
+    visitors: Number(row.visitors),
+  }));
+
+  return BrowserInfoSchema.array().parse(mappedResults);
+}
+
+export async function getCampaignOperatingSystemAudienceData(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  campaignName?: string,
+): Promise<OperatingSystemInfo[]> {
+  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+
+  const query = safeSql`
+    SELECT
+      os,
+      uniq(visitor_id) AS visitors
+    FROM analytics.events
+    WHERE site_id = {siteId:String}
+      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND event_type = 1
+      AND utm_campaign != ''
+      AND os != ''
+      ${campaignFilter}
+    GROUP BY os
+    ORDER BY visitors DESC
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId,
+        startDate,
+        endDate,
+      },
+    })
+    .toPromise()) as Array<{ os: string; visitors: number }>;
+
+  const mappedResults = result.map((row) => ({
+    os: row.os,
+    visitors: Number(row.visitors),
+  }));
+
+  return OperatingSystemInfoSchema.array().parse(mappedResults);
 }

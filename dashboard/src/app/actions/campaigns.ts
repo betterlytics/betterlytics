@@ -10,6 +10,8 @@ import {
   fetchCampaignLandingPagePerformance,
   fetchCampaignDeviceAudience,
   fetchCampaignCountryAudience,
+  fetchCampaignBrowserAudience,
+  fetchCampaignOperatingSystemAudience,
 } from '@/services/campaign';
 import {
   CampaignPerformance,
@@ -195,6 +197,8 @@ export type CampaignExpandedDetails = {
   landingPages: CampaignLandingPagePerformanceItem[];
   devices: { label: string; value: string }[];
   countries: { label: string; value: string }[];
+  browsers: { label: string; value: string }[];
+  operatingSystems: { label: string; value: string }[];
 };
 
 export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
@@ -208,7 +212,17 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
       const startDate = new Date(startDateIso);
       const endDate = new Date(endDateIso);
 
-      const [source, medium, content, term, landingPages, deviceAudience, countryAudience] = await Promise.all([
+      const [
+        source,
+        medium,
+        content,
+        term,
+        landingPages,
+        deviceAudience,
+        countryAudience,
+        browserAudience,
+        osAudience,
+      ] = await Promise.all([
         fetchCampaignSourceBreakdown(ctx.siteId, startDate, endDate, campaignName),
         fetchCampaignMediumBreakdown(ctx.siteId, startDate, endDate, campaignName),
         fetchCampaignContentBreakdown(ctx.siteId, startDate, endDate, campaignName),
@@ -216,10 +230,14 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
         fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
         fetchCampaignDeviceAudience(ctx.siteId, startDate, endDate, campaignName),
         fetchCampaignCountryAudience(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignBrowserAudience(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignOperatingSystemAudience(ctx.siteId, startDate, endDate, campaignName),
       ]);
 
       const totalDeviceVisitors = deviceAudience.reduce((sum, item) => sum + item.visitors, 0);
       const totalCountryVisitors = countryAudience.reduce((sum, item) => sum + item.visitors, 0);
+      const totalBrowserVisitors = browserAudience.reduce((sum, item) => sum + item.visitors, 0);
+      const totalOSVisitors = osAudience.reduce((sum, item) => sum + item.visitors, 0);
 
       const devices =
         totalDeviceVisitors === 0
@@ -237,6 +255,22 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
               value: formatPercentage((item.visitors / totalCountryVisitors) * 100, 0),
             }));
 
+      const browsers =
+        totalBrowserVisitors === 0
+          ? []
+          : browserAudience.map((item) => ({
+              label: item.browser,
+              value: formatPercentage((item.visitors / totalBrowserVisitors) * 100, 0),
+            }));
+
+      const operatingSystems =
+        totalOSVisitors === 0
+          ? []
+          : osAudience.map((item) => ({
+              label: item.os,
+              value: formatPercentage((item.visitors / totalOSVisitors) * 100, 0),
+            }));
+
       return {
         utmSource: source,
         utmMedium: medium,
@@ -245,6 +279,8 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
         landingPages,
         devices,
         countries,
+        browsers,
+        operatingSystems,
       };
     } catch (error) {
       console.error('Error in fetchCampaignExpandedDetailsAction:', error);
@@ -256,6 +292,8 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
         landingPages: [],
         devices: [],
         countries: [],
+        browsers: [],
+        operatingSystems: [],
       };
     }
   },

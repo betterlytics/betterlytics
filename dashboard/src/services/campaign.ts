@@ -10,6 +10,8 @@ import {
   getCampaignLandingPagePerformanceData,
   getCampaignDeviceAudienceData,
   getCampaignCountryAudienceData,
+  getCampaignBrowserAudienceData,
+  getCampaignOperatingSystemAudienceData,
 } from '@/repositories/clickhouse/campaign';
 import {
   CampaignPerformance,
@@ -32,7 +34,7 @@ import {
   CampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceArraySchema,
 } from '@/entities/campaign';
-import type { DeviceType } from '@/entities/devices';
+import type { BrowserInfo, DeviceType, OperatingSystemInfo } from '@/entities/devices';
 import type { GeoVisitor } from '@/entities/geography';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { formatDuration } from '@/utils/dateFormatters';
@@ -278,4 +280,28 @@ export async function fetchCampaignCountryAudience(
   const endDateTime = toDateTimeString(endDate);
 
   return getCampaignCountryAudienceData(siteId, startDateTime, endDateTime, campaignName);
+}
+
+export async function fetchCampaignBrowserAudience(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  campaignName?: string,
+): Promise<BrowserInfo[]> {
+  const startDateTime = toDateTimeString(startDate);
+  const endDateTime = toDateTimeString(endDate);
+
+  return getCampaignBrowserAudienceData(siteId, startDateTime, endDateTime, campaignName);
+}
+
+export async function fetchCampaignOperatingSystemAudience(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  campaignName?: string,
+): Promise<OperatingSystemInfo[]> {
+  const startDateTime = toDateTimeString(startDate);
+  const endDateTime = toDateTimeString(endDate);
+
+  return getCampaignOperatingSystemAudienceData(siteId, startDateTime, endDateTime, campaignName);
 }
