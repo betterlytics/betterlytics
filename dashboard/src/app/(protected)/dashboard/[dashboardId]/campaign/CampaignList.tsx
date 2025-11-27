@@ -230,7 +230,7 @@ function CampaignSparkline({ data, status }: CampaignSparklineProps) {
             }}
           />
           <Area
-            type='monotone'
+            type='linear'
             dataKey='visitors'
             stroke='var(--chart-1)'
             strokeWidth={1.5}
