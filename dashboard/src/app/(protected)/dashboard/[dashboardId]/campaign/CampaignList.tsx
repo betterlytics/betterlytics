@@ -100,9 +100,12 @@ export default function CampaignList({
               <div className='flex flex-1 flex-col gap-1'>
                 <div className='flex flex-wrap items-center gap-3'>
                   <p className='text-base leading-tight font-semibold'>{campaign.name}</p>
-                  <span className='border-border/60 text-muted-foreground rounded-full border px-2 py-0.5 text-xs'>
+                  <Badge
+                    variant='secondary'
+                    className='border-border text-muted-foreground border text-[11px] font-normal shadow-xs'
+                  >
                     {campaign.visitors.toLocaleString()} sessions
-                  </span>
+                  </Badge>
                 </div>
                 <div className='text-muted-foreground mt-1 flex flex-wrap gap-2 text-xs'>
                   <MetricPill label='Visitors' value={formatNumber(campaign.visitors)} />
@@ -112,7 +115,7 @@ export default function CampaignList({
                 </div>
               </div>
               <div className='flex items-center gap-3'>
-                <div className='h-10 w-28 sm:w-32'>
+                <div className='h-14 w-32 sm:w-40'>
                   <CampaignSparkline data={sparklineData} status={sparklineStatus} />
                 </div>
                 <Button
@@ -169,11 +172,11 @@ export default function CampaignList({
 function MetricPill({ label, value }: { label: string; value: string }) {
   return (
     <Badge
-      variant='outline'
-      className='text-muted-foreground bg-background/60 border-border/60 h-7 rounded-full px-2.5 text-[11px] font-normal'
+      variant='secondary'
+      className='border-border text-muted-foreground flex items-center gap-1.5 border px-2.5 py-1 text-[11px] font-normal shadow-xs'
     >
-      <span className='text-foreground/80 mr-1 font-medium'>{label}</span>
-      <span>{value}</span>
+      <span className='text-foreground/80 font-medium'>{label}</span>
+      <span className='truncate'>{value}</span>
     </Badge>
   );
 }
@@ -193,24 +196,24 @@ function CampaignSparkline({ data, status }: CampaignSparklineProps) {
   }
 
   if (isLoading && !hasData) {
-    return <div className='bg-muted/40 h-full w-full animate-pulse rounded-md' aria-hidden='true' />;
+    return <div className='bg-muted/50 h-full w-full animate-pulse rounded-md' aria-hidden='true' />;
   }
 
   return (
     <div className='h-full w-full'>
       <ResponsiveContainer width='100%' height='100%'>
-        <AreaChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 2 }}>
+        <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id={`campaign-sparkline-${gradientId}`} x1='0' y1='0' x2='0' y2='1'>
-              <stop offset='0%' stopColor='var(--chart-1)' stopOpacity={0.65} />
-              <stop offset='100%' stopColor='var(--chart-1)' stopOpacity={0.1} />
+              <stop offset='0%' stopColor='var(--chart-1)' stopOpacity={0.9} />
+              <stop offset='100%' stopColor='var(--chart-1)' stopOpacity={0.2} />
             </linearGradient>
           </defs>
           <Area
             type='monotone'
             dataKey='visitors'
             stroke='var(--chart-1)'
-            strokeWidth={1}
+            strokeWidth={1.5}
             fill={`url(#campaign-sparkline-${gradientId})`}
             dot={false}
             activeDot={false}
