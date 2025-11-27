@@ -1,31 +1,32 @@
 'use client';
 
-import { use, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { getCampaignSourceColor } from '@/utils/campaignColors';
 import { formatPercentage } from '@/utils/formatters';
-import {
-  fetchCampaignSourceBreakdownAction,
-  fetchCampaignMediumBreakdownAction,
-  fetchCampaignContentBreakdownAction,
-  fetchCampaignTermBreakdownAction,
-} from '@/app/actions';
 import { useTranslations } from 'next-intl';
-import DataEmptyComponent from "@/components/DataEmptyComponent";
+import DataEmptyComponent from '@/components/DataEmptyComponent';
+import type {
+  CampaignSourceBreakdownItem,
+  CampaignMediumBreakdownItem,
+  CampaignContentBreakdownItem,
+  CampaignTermBreakdownItem,
+} from '@/entities/campaign';
 
 type UTMBreakdownTabbedChartProps = {
-  sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
-  mediumBreakdownPromise: ReturnType<typeof fetchCampaignMediumBreakdownAction>;
-  contentBreakdownPromise: ReturnType<typeof fetchCampaignContentBreakdownAction>;
-  termBreakdownPromise: ReturnType<typeof fetchCampaignTermBreakdownAction>;
+  source: CampaignSourceBreakdownItem[];
+  medium: CampaignMediumBreakdownItem[];
+  content: CampaignContentBreakdownItem[];
+  term: CampaignTermBreakdownItem[];
 };
 
-interface CampaignBreakdownItem {
-  visitors: number;
-  [key: string]: unknown; // source, medium, term, content
-}
+type CampaignBreakdownItem =
+  | CampaignSourceBreakdownItem
+  | CampaignMediumBreakdownItem
+  | CampaignContentBreakdownItem
+  | CampaignTermBreakdownItem;
 
 interface ChartDataItem {
   name: string;
@@ -47,7 +48,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
     if (!data || data.length === 0) return [];
     const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);
     return data.map((item): ChartDataItem => {
-      const keyValue = item[dataKey];
+      const keyValue = (item as Record<string, unknown>)[dataKey];
       const name = typeof keyValue === 'string' ? keyValue : String(keyValue);
       return {
         name,
@@ -59,9 +60,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
   }, [data, dataKey]);
 
   if (chartData.length === 0) {
-    return (
-      <DataEmptyComponent />
-    );
+    return <DataEmptyComponent />;
   }
 
   return (
@@ -109,17 +108,12 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
   );
 }
 
-export default function UTMBreakdownTabbedChart({
-  sourceBreakdownPromise,
-  mediumBreakdownPromise,
-  contentBreakdownPromise,
-  termBreakdownPromise,
-}: UTMBreakdownTabbedChartProps) {
+export default function UTMBreakdownTabbedChart({ source, medium, content, term }: UTMBreakdownTabbedChartProps) {
   const t = useTranslations('components.campaign.utm');
-  const sourceBreakdown = use(sourceBreakdownPromise);
-  const mediumBreakdown = use(mediumBreakdownPromise);
-  const contentBreakdown = use(contentBreakdownPromise);
-  const termBreakdown = use(termBreakdownPromise);
+  const sourceBreakdown = source;
+  const mediumBreakdown = medium;
+  const contentBreakdown = content;
+  const termBreakdown = term;
 
   const tabs = useMemo(
     () => [

@@ -16,6 +16,8 @@ import {
   RawCampaignLandingPagePerformanceItem,
   RawCampaignLandingPagePerformanceArraySchema,
 } from '@/entities/campaign';
+import { DeviceType, DeviceTypeSchema } from '@/entities/devices';
+import { GeoVisitor, GeoVisitorSchema } from '@/entities/geography';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
@@ -35,8 +37,10 @@ async function getCampaignBreakdownByUTMDimension(
   startDate: DateTimeString,
   endDate: DateTimeString,
   utmDimension: ValidUTMDimension,
+  campaignName?: string,
 ): Promise<unknown[]> {
   const dimensionAlias = UTM_DIMENSION_ALIASES[utmDimension];
+  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
 
   const query = safeSql`
     SELECT
@@ -59,6 +63,7 @@ async function getCampaignBreakdownByUTMDimension(
         AND event_type = 1
         AND utm_campaign != ''
         AND ${SQL.Unsafe(utmDimension)} != ''
+        ${campaignFilter}
       GROUP BY visitor_id, session_id, ${SQL.Unsafe(utmDimension)}
     ) s
     GROUP BY s.${SQL.Unsafe(utmDimension)}
@@ -83,8 +88,15 @@ export async function getCampaignPerformanceData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  campaignName?: string,
 ): Promise<RawCampaignData[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_campaign');
+  const rawData = await getCampaignBreakdownByUTMDimension(
+    siteId,
+    startDate,
+    endDate,
+    'utm_campaign',
+    campaignName,
+  );
   return RawCampaignDataArraySchema.parse(rawData);
 }
 
@@ -92,8 +104,9 @@ export async function getCampaignSourceBreakdownData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  campaignName?: string,
 ): Promise<RawCampaignSourceBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_source');
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_source', campaignName);
   return RawCampaignSourceBreakdownArraySchema.parse(rawData);
 }
 
@@ -101,8 +114,9 @@ export async function getCampaignMediumBreakdownData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  campaignName?: string,
 ): Promise<RawCampaignMediumBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_medium');
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_medium', campaignName);
   return RawCampaignMediumBreakdownArraySchema.parse(rawData);
 }
 
@@ -110,8 +124,15 @@ export async function getCampaignContentBreakdownData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  campaignName?: string,
 ): Promise<RawCampaignContentBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_content');
+  const rawData = await getCampaignBreakdownByUTMDimension(
+    siteId,
+    startDate,
+    endDate,
+    'utm_content',
+    campaignName,
+  );
   return RawCampaignContentBreakdownArraySchema.parse(rawData);
 }
 
@@ -119,8 +140,9 @@ export async function getCampaignTermBreakdownData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  campaignName?: string,
 ): Promise<RawCampaignTermBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_term');
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_term', campaignName);
   return RawCampaignTermBreakdownArraySchema.parse(rawData);
 }
 
@@ -128,7 +150,10 @@ export async function getCampaignLandingPagePerformanceData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  campaignName?: string,
 ): Promise<RawCampaignLandingPagePerformanceItem[]> {
+  const campaignFilter = campaignName ? safeSql`AND e.utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+
   const query = safeSql`
     SELECT
         s.utm_campaign AS utm_campaign_name,
@@ -152,6 +177,7 @@ export async function getCampaignLandingPagePerformanceData(
           AND e.timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
           AND e.event_type = 1
           AND e.utm_campaign != ''
+          ${campaignFilter}
     ) s
     WHERE s.rn = 1
     GROUP BY s.utm_campaign, s.landing_page_url
@@ -178,6 +204,7 @@ export async function getCampaignVisitorTrendData(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   timezone: string,
+  campaignName?: string,
 ): Promise<CampaignTrendRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -185,6 +212,7 @@ export async function getCampaignVisitorTrendData(
     startDate,
     endDate,
   );
+  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
 
   const query = timeWrapper(
     safeSql`
@@ -196,6 +224,7 @@ export async function getCampaignVisitorTrendData(
       WHERE site_id = {siteId:String}
         AND ${range}
         AND utm_campaign != ''
+        ${campaignFilter}
       GROUP BY date, utm_campaign
       ORDER BY date ASC ${fill}, utm_campaign ASC
     `,
@@ -213,4 +242,88 @@ export async function getCampaignVisitorTrendData(
     .toPromise();
 
   return CampaignTrendRowArraySchema.parse(resultSet);
+}
+
+export async function getCampaignDeviceAudienceData(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  campaignName?: string,
+): Promise<DeviceType[]> {
+  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+
+  const query = safeSql`
+    SELECT
+      device_type,
+      uniq(visitor_id) AS visitors
+    FROM analytics.events
+    WHERE site_id = {siteId:String}
+      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND event_type = 1
+      AND utm_campaign != ''
+      AND device_type != ''
+      ${campaignFilter}
+    GROUP BY device_type
+    ORDER BY visitors DESC
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId,
+        startDate,
+        endDate,
+      },
+    })
+    .toPromise()) as Array<{ device_type: string; visitors: number }>;
+
+  const mappedResults = result.map((row) => ({
+    device_type: row.device_type,
+    visitors: Number(row.visitors),
+  }));
+
+  return DeviceTypeSchema.array().parse(mappedResults);
+}
+
+export async function getCampaignCountryAudienceData(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  campaignName?: string,
+): Promise<GeoVisitor[]> {
+  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+
+  const query = safeSql`
+    SELECT
+      country_code,
+      uniq(visitor_id) AS visitors
+    FROM analytics.events
+    WHERE site_id = {siteId:String}
+      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND country_code IS NOT NULL
+      AND country_code != ''
+      AND utm_campaign != ''
+      ${campaignFilter}
+    GROUP BY country_code
+    ORDER BY visitors DESC
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId,
+        startDate,
+        endDate,
+      },
+    })
+    .toPromise();
+
+  return GeoVisitorSchema.array().parse(
+    (result as Array<{ country_code: string; visitors: number }>).map((row) => ({
+      country_code: row.country_code,
+      visitors: Number(row.visitors),
+    })),
+  );
 }

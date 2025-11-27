@@ -1,14 +1,6 @@
 import { Suspense } from 'react';
-import {
-  fetchCampaignPerformanceAction,
-  fetchCampaignSourceBreakdownAction,
-  fetchCampaignVisitorTrendAction,
-  fetchCampaignMediumBreakdownAction,
-  fetchCampaignContentBreakdownAction,
-  fetchCampaignTermBreakdownAction,
-  fetchCampaignLandingPagePerformanceAction,
-} from '@/app/actions';
-import CampaignOverviewSection from './CampaignOverviewSection';
+import { fetchCampaignPerformanceAction } from '@/app/actions';
+import CampaignDirectorySection from './CampaignDirectorySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
@@ -25,26 +17,9 @@ type CampaignPageParams = {
 export default async function CampaignPage({ params, searchParams }: CampaignPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
-    await searchParams,
-    timezone,
-  );
+  const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams, timezone);
 
   const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
-  const sourceBreakdownPromise = fetchCampaignSourceBreakdownAction(dashboardId, startDate, endDate);
-  const visitorTrendPromise = fetchCampaignVisitorTrendAction(
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    timezone,
-    compareStartDate,
-    compareEndDate,
-  );
-  const mediumBreakdownPromise = fetchCampaignMediumBreakdownAction(dashboardId, startDate, endDate);
-  const contentBreakdownPromise = fetchCampaignContentBreakdownAction(dashboardId, startDate, endDate);
-  const termBreakdownPromise = fetchCampaignTermBreakdownAction(dashboardId, startDate, endDate);
-  const landingPagePerformancePromise = fetchCampaignLandingPagePerformanceAction(dashboardId, startDate, endDate);
 
   const t = await getTranslations('dashboard.sidebar');
 
@@ -68,14 +43,11 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
           </div>
         }
       >
-        <CampaignOverviewSection
+        <CampaignDirectorySection
+          dashboardId={dashboardId}
+          startDate={startDate}
+          endDate={endDate}
           campaignPerformancePromise={campaignPerformancePromise}
-          landingPagePerformancePromise={landingPagePerformancePromise}
-          visitorTrendPromise={visitorTrendPromise}
-          sourceBreakdownPromise={sourceBreakdownPromise}
-          mediumBreakdownPromise={mediumBreakdownPromise}
-          contentBreakdownPromise={contentBreakdownPromise}
-          termBreakdownPromise={termBreakdownPromise}
         />
       </Suspense>
     </div>
