@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState, useId } from 'react';
-import { Area, AreaChart, ResponsiveContainer } from 'recharts';
+import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
+import type { TooltipProps } from 'recharts';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -209,6 +210,25 @@ function CampaignSparkline({ data, status }: CampaignSparklineProps) {
               <stop offset='100%' stopColor='var(--chart-1)' stopOpacity={0.2} />
             </linearGradient>
           </defs>
+          <RechartsTooltip
+            cursor={{ stroke: 'var(--primary)', strokeOpacity: 0.85, strokeWidth: 1.5 }}
+            content={(props: TooltipProps<number, string>) => {
+              const { active, payload } = props;
+              if (!active || !payload || payload.length === 0) return null;
+              const point = payload[0].payload as CampaignSparklinePoint;
+              const date = new Date(point.date);
+              return (
+                <div className='bg-popover text-popover-foreground border-border rounded-md border px-3 py-1.5 text-[11px] shadow-lg'>
+                  <div className='text-muted-foreground mb-0.5'>
+                    {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </div>
+                  <div className='text-foreground text-xs font-semibold'>
+                    {point.visitors.toLocaleString()} sessions
+                  </div>
+                </div>
+              );
+            }}
+          />
           <Area
             type='monotone'
             dataKey='visitors'
