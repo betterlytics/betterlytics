@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
 import { DataTable } from '@/components/DataTable';
@@ -56,29 +55,20 @@ export default function CampaignLandingPagesTable({ landingPages }: CampaignLand
 
   if (topLandingPages.length === 0) {
     return (
-      <Card className='border-border/60 h-full'>
-        <CardContent className='flex h-full items-center justify-center py-6'>
-          <p className='text-muted-foreground text-xs'>
-            No landing page data for this campaign in the selected range.
-          </p>
-        </CardContent>
-      </Card>
+      <p className='text-muted-foreground text-xs'>
+        No landing page data for this campaign in the selected range.
+      </p>
     );
   }
 
   return (
-    <Card className='border-border/60 h-full'>
-      <CardHeader className='px-3 pt-3 pb-2 sm:px-4 sm:pt-3 sm:pb-2'>
-        <CardTitle className='text-sm font-medium'>Landing pages</CardTitle>
-      </CardHeader>
-      <CardContent className='px-3 pt-0 pb-3 sm:px-4'>
-        <DataTable
-          columns={columns}
-          data={topLandingPages}
-          defaultSorting={[{ id: 'visitors', desc: true }]}
-          className='text-xs'
-        />
-      </CardContent>
-    </Card>
+    <section className='flex h-full min-h-[300px] flex-col sm:min-h-[400px]'>
+      <DataTable
+        columns={columns}
+        data={topLandingPages}
+        defaultSorting={[{ id: 'visitors', desc: true }]}
+        className='text-xs'
+      />
+    </section>
   );
 }

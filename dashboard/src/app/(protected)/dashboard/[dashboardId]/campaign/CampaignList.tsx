@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import type { CampaignListItem } from './CampaignDirectorySection';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
@@ -72,24 +73,21 @@ export default function CampaignList({
         return (
           <article
             key={campaign.name}
-            className='border-border/50 from-background/80 via-muted/30 to-background/40 hover:border-border/80 rounded-2xl border bg-gradient-to-br p-4 shadow-sm transition'
+            className='border-border/70 bg-card/80 hover:bg-card/90 focus-within:ring-offset-background hover:border-border/90 relative rounded-2xl border p-4 shadow-sm transition duration-200 ease-out focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2'
           >
-            <div className='flex items-start gap-4 md:items-center'>
-              <div className='flex flex-1 items-start gap-3'>
-                <CampaignBadge label={campaign.name} />
-                <div className='flex flex-col gap-1'>
-                  <div className='flex flex-wrap items-center gap-3'>
-                    <p className='text-base leading-tight font-semibold'>{campaign.name}</p>
-                    <span className='border-border/60 text-muted-foreground rounded-full border px-2 py-0.5 text-xs'>
-                      {campaign.visitors.toLocaleString()} sessions
-                    </span>
-                  </div>
-                  <div className='text-muted-foreground mt-1 flex flex-wrap gap-2 text-xs'>
-                    <MetricPill label='Visitors' value={formatNumber(campaign.visitors)} />
-                    <MetricPill label='Bounce rate' value={formatPercentage(campaign.bounceRate)} />
-                    <MetricPill label='Avg. session' value={campaign.avgSessionDuration} />
-                    <MetricPill label='Pages / session' value={campaign.pagesPerSession.toFixed(1)} />
-                  </div>
+            <div className='flex items-start justify-between gap-4 md:items-center'>
+              <div className='flex flex-1 flex-col gap-1'>
+                <div className='flex flex-wrap items-center gap-3'>
+                  <p className='text-base leading-tight font-semibold'>{campaign.name}</p>
+                  <span className='border-border/60 text-muted-foreground rounded-full border px-2 py-0.5 text-xs'>
+                    {campaign.visitors.toLocaleString()} sessions
+                  </span>
+                </div>
+                <div className='text-muted-foreground mt-1 flex flex-wrap gap-2 text-xs'>
+                  <MetricPill label='Visitors' value={formatNumber(campaign.visitors)} />
+                  <MetricPill label='Bounce rate' value={formatPercentage(campaign.bounceRate)} />
+                  <MetricPill label='Avg. session' value={campaign.avgSessionDuration} />
+                  <MetricPill label='Pages / session' value={campaign.pagesPerSession.toFixed(1)} />
                 </div>
               </div>
               <div className='flex items-center'>
@@ -113,10 +111,7 @@ export default function CampaignList({
               </div>
             </div>
             {isExpanded && (
-              <div
-                id={`campaign-${campaign.name}-details`}
-                className='border-border/40 mt-4 space-y-4 border-t pt-4'
-              >
+              <div id={`campaign-${campaign.name}-details`} className='mt-4 space-y-4'>
                 {!detailsState || detailsState.status === 'loading' ? (
                   <div className='flex justify-center py-6'>
                     <Spinner size='sm' aria-label='Loading campaign details' />
@@ -147,19 +142,15 @@ export default function CampaignList({
   );
 }
 
-function CampaignBadge({ label }: { label: string }) {
-  return (
-    <div className='from-primary/10 to-primary/30 text-primary flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-lg font-semibold'>
-      {label.slice(0, 2).toUpperCase()}
-    </div>
-  );
-}
-
 function MetricPill({ label, value }: { label: string; value: string }) {
   return (
-    <span className='bg-background/80 text-foreground rounded-full px-3 py-1 font-medium'>
-      {label}: {value}
-    </span>
+    <Badge
+      variant='outline'
+      className='text-muted-foreground bg-background/60 border-border/60 h-7 rounded-full px-2.5 text-[11px] font-normal'
+    >
+      <span className='text-foreground/80 mr-1 font-medium'>{label}</span>
+      <span>{value}</span>
+    </Badge>
   );
 }
 
@@ -175,7 +166,12 @@ function CampaignInlineUTMSection({
   countries,
 }: CampaignInlineUTMSectionProps) {
   return (
-    <div className='space-y-3'>
+    <div className='space-y-4'>
+      <div className='text-muted-foreground flex items-center gap-3 text-[11px] font-medium tracking-wide uppercase'>
+        <div className='bg-border/60 h-px flex-1' />
+        <span>Campaign details</span>
+        <div className='bg-border/60 h-px flex-1' />
+      </div>
       <div className='mt-1 grid gap-3 md:grid-cols-3'>
         <div className='md:col-span-2'>
           <CampaignLandingPagesTable landingPages={landingPages} />

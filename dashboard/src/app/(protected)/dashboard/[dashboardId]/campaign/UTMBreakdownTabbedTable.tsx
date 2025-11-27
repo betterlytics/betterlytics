@@ -2,7 +2,8 @@
 
 import { useMemo, useCallback } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import TabbedTable, { TabDefinition } from '@/components/TabbedTable';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DataTable } from '@/components/DataTable';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import type {
@@ -72,35 +73,31 @@ export default function UTMBreakdownTabbedTable({ source, medium, content, term 
   const contentColumns = useMemo(() => createUTMColumns('content', t('tabs.content')), [createUTMColumns, t]);
   const termColumns = useMemo(() => createUTMColumns('term', t('tabs.terms')), [createUTMColumns, t]);
 
-  const tabs: TabDefinition<BaseUTMBreakdownItem>[] = useMemo(
+  const tabs = useMemo(
     () => [
       {
         key: 'source',
         label: t('tabs.source'),
         data: sourceBreakdown as BaseUTMBreakdownItem[],
         columns: sourceColumns,
-        defaultSorting: [{ id: 'visitors', desc: true }],
       },
       {
         key: 'medium',
         label: t('tabs.medium'),
         data: mediumBreakdown as BaseUTMBreakdownItem[],
         columns: mediumColumns,
-        defaultSorting: [{ id: 'visitors', desc: true }],
       },
       {
         key: 'content',
         label: t('tabs.content'),
         data: contentBreakdown as BaseUTMBreakdownItem[],
         columns: contentColumns,
-        defaultSorting: [{ id: 'visitors', desc: true }],
       },
       {
         key: 'term',
         label: t('tabs.terms'),
         data: termBreakdown as BaseUTMBreakdownItem[],
         columns: termColumns,
-        defaultSorting: [{ id: 'visitors', desc: true }],
       },
     ],
     [
@@ -116,5 +113,35 @@ export default function UTMBreakdownTabbedTable({ source, medium, content, term 
     ],
   );
 
-  return <TabbedTable title={t('table.title')} tabs={tabs} defaultTab='source' />;
+  return (
+    <section className='flex h-full min-h-[300px] flex-col sm:min-h-[400px]'>
+      <Tabs defaultValue='source' className='flex h-full flex-col gap-2'>
+        <div className='flex w-full items-center justify-between gap-4'>
+          <TabsList className='bg-secondary dark:inset-shadow-background inline-flex gap-1 px-1 inset-shadow-sm'>
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.key}
+                value={tab.key}
+                className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+        {tabs.map((tab) => (
+          <TabsContent key={tab.key} value={tab.key} className='flex-1'>
+            <div className='h-full overflow-x-auto'>
+              <DataTable
+                columns={tab.columns}
+                data={tab.data}
+                defaultSorting={[{ id: 'visitors', desc: true }]}
+                className='h-full text-xs'
+              />
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </section>
+  );
 }
