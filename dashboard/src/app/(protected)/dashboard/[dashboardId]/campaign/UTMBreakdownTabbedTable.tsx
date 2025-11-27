@@ -1,22 +1,22 @@
 'use client';
 
-import { use, useMemo, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { TabDefinition } from '@/components/TabbedTable';
 import { formatPercentage } from '@/utils/formatters';
-import {
-  fetchCampaignSourceBreakdownAction,
-  fetchCampaignMediumBreakdownAction,
-  fetchCampaignContentBreakdownAction,
-  fetchCampaignTermBreakdownAction,
-} from '@/app/actions';
 import { useTranslations } from 'next-intl';
+import type {
+  CampaignSourceBreakdownItem,
+  CampaignMediumBreakdownItem,
+  CampaignContentBreakdownItem,
+  CampaignTermBreakdownItem,
+} from '@/entities/campaign';
 
 type UTMBreakdownTabbedTableProps = {
-  sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
-  mediumBreakdownPromise: ReturnType<typeof fetchCampaignMediumBreakdownAction>;
-  contentBreakdownPromise: ReturnType<typeof fetchCampaignContentBreakdownAction>;
-  termBreakdownPromise: ReturnType<typeof fetchCampaignTermBreakdownAction>;
+  source: CampaignSourceBreakdownItem[];
+  medium: CampaignMediumBreakdownItem[];
+  content: CampaignContentBreakdownItem[];
+  term: CampaignTermBreakdownItem[];
 };
 
 interface BaseUTMBreakdownItem {
@@ -27,17 +27,12 @@ interface BaseUTMBreakdownItem {
   [key: string]: string | number;
 }
 
-export default function UTMBreakdownTabbedTable({
-  sourceBreakdownPromise,
-  mediumBreakdownPromise,
-  contentBreakdownPromise,
-  termBreakdownPromise,
-}: UTMBreakdownTabbedTableProps) {
+export default function UTMBreakdownTabbedTable({ source, medium, content, term }: UTMBreakdownTabbedTableProps) {
   const t = useTranslations('components.campaign.utm');
-  const sourceBreakdown = use(sourceBreakdownPromise);
-  const mediumBreakdown = use(mediumBreakdownPromise);
-  const contentBreakdown = use(contentBreakdownPromise);
-  const termBreakdown = use(termBreakdownPromise);
+  const sourceBreakdown = source;
+  const mediumBreakdown = medium;
+  const contentBreakdown = content;
+  const termBreakdown = term;
 
   const createUTMColumns = useCallback(
     (dataKey: string, dataKeyHeader: string): ColumnDef<BaseUTMBreakdownItem>[] => {

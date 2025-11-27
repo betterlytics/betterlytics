@@ -8,6 +8,8 @@ import {
   getCampaignContentBreakdownData,
   getCampaignTermBreakdownData,
   getCampaignLandingPagePerformanceData,
+  getCampaignDeviceAudienceData,
+  getCampaignCountryAudienceData,
 } from '@/repositories/clickhouse/campaign';
 import {
   CampaignPerformance,
@@ -30,6 +32,8 @@ import {
   CampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceArraySchema,
 } from '@/entities/campaign';
+import type { DeviceType } from '@/entities/devices';
+import type { GeoVisitor } from '@/entities/geography';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { formatDuration } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -65,11 +69,17 @@ export async function fetchCampaignPerformance(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  campaignName?: string,
 ): Promise<CampaignPerformance[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  const rawCampaignData: RawCampaignData[] = await getCampaignPerformanceData(siteId, startDateTime, endDateTime);
+  const rawCampaignData: RawCampaignData[] = await getCampaignPerformanceData(
+    siteId,
+    startDateTime,
+    endDateTime,
+    campaignName,
+  );
 
   const transformedData: CampaignPerformance[] = rawCampaignData.map((raw: RawCampaignData) => {
     const metrics = calculateCommonCampaignMetrics(raw);
@@ -87,6 +97,7 @@ export async function fetchCampaignSourceBreakdown(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  campaignName?: string,
 ): Promise<CampaignSourceBreakdownItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
@@ -95,6 +106,7 @@ export async function fetchCampaignSourceBreakdown(
     siteId,
     startDateTime,
     endDateTime,
+    campaignName,
   );
 
   const transformedData: CampaignSourceBreakdownItem[] = rawSourceData.map(
@@ -115,6 +127,7 @@ export async function fetchCampaignMediumBreakdown(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  campaignName?: string,
 ): Promise<CampaignMediumBreakdownItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
@@ -123,6 +136,7 @@ export async function fetchCampaignMediumBreakdown(
     siteId,
     startDateTime,
     endDateTime,
+    campaignName,
   );
 
   const transformedData: CampaignMediumBreakdownItem[] = rawMediumData.map(
@@ -143,6 +157,7 @@ export async function fetchCampaignContentBreakdown(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  campaignName?: string,
 ): Promise<CampaignContentBreakdownItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
@@ -151,6 +166,7 @@ export async function fetchCampaignContentBreakdown(
     siteId,
     startDateTime,
     endDateTime,
+    campaignName,
   );
 
   const transformedData: CampaignContentBreakdownItem[] = rawContentData.map(
@@ -171,6 +187,7 @@ export async function fetchCampaignTermBreakdown(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  campaignName?: string,
 ): Promise<CampaignTermBreakdownItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
@@ -179,6 +196,7 @@ export async function fetchCampaignTermBreakdown(
     siteId,
     startDateTime,
     endDateTime,
+    campaignName,
   );
 
   const transformedData: CampaignTermBreakdownItem[] = rawTermData.map((raw: RawCampaignTermBreakdownItem) => {
@@ -197,6 +215,7 @@ export async function fetchCampaignLandingPagePerformance(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  campaignName?: string,
 ): Promise<CampaignLandingPagePerformanceItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
@@ -205,6 +224,7 @@ export async function fetchCampaignLandingPagePerformance(
     siteId,
     startDateTime,
     endDateTime,
+    campaignName,
   );
 
   const transformedData: CampaignLandingPagePerformanceItem[] = rawLandingPageData.map(
@@ -228,9 +248,34 @@ export async function fetchCampaignVisitorTrend(
   endDate: Date,
   granularity: GranularityRangeValues,
   timezone: string,
+  campaignName?: string,
 ): Promise<CampaignTrendRow[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity, timezone);
+  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity, timezone, campaignName);
+}
+
+export async function fetchCampaignDeviceAudience(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  campaignName?: string,
+): Promise<DeviceType[]> {
+  const startDateTime = toDateTimeString(startDate);
+  const endDateTime = toDateTimeString(endDate);
+
+  return getCampaignDeviceAudienceData(siteId, startDateTime, endDateTime, campaignName);
+}
+
+export async function fetchCampaignCountryAudience(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  campaignName?: string,
+): Promise<GeoVisitor[]> {
+  const startDateTime = toDateTimeString(startDate);
+  const endDateTime = toDateTimeString(endDate);
+
+  return getCampaignCountryAudienceData(siteId, startDateTime, endDateTime, campaignName);
 }

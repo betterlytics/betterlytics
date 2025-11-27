@@ -1,0 +1,312 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
+import type { CampaignListItem } from './CampaignDirectorySection';
+import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
+import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
+import { Spinner } from '@/components/ui/spinner';
+import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
+import { useCampaignExpandedDetails } from './useCampaignExpandedDetails';
+import CampaignLandingPagesTable from './CampaignLandingPagesTable';
+
+type CampaignListProps = {
+  campaigns: CampaignListItem[];
+  dashboardId: string;
+  startDate: string;
+  endDate: string;
+  pageSize?: number;
+};
+
+const DEFAULT_PAGE_SIZE = 6;
+
+export default function CampaignList({
+  campaigns,
+  dashboardId,
+  startDate,
+  endDate,
+  pageSize = DEFAULT_PAGE_SIZE,
+}: CampaignListProps) {
+  const [pageIndex, setPageIndex] = useState(0);
+  const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
+
+  const { detailsByCampaign, loadCampaignDetails } = useCampaignExpandedDetails({
+    dashboardId,
+    startDate,
+    endDate,
+  });
+
+  const totalPages = Math.max(1, Math.ceil(campaigns.length / pageSize));
+  const safePageIndex = Math.min(pageIndex, totalPages - 1);
+
+  const paginatedCampaigns = useMemo(() => {
+    const start = safePageIndex * pageSize;
+    return campaigns.slice(start, start + pageSize);
+  }, [campaigns, pageSize, safePageIndex]);
+
+  const handlePageChange = (newIndex: number) => {
+    setPageIndex(newIndex);
+    setExpandedCampaign(null);
+  };
+
+  if (campaigns.length === 0) {
+    return (
+      <Card className='border-border/50 bg-muted/30 p-8 text-center'>
+        <p className='text-lg font-medium'>No campaigns captured yet</p>
+        <p className='text-muted-foreground mt-1 text-sm'>
+          Start tagging traffic with `utm_campaign` to see performance here.
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <div className='space-y-4'>
+      {paginatedCampaigns.map((campaign) => {
+        const isExpanded = expandedCampaign === campaign.name;
+        const detailsState = detailsByCampaign[campaign.name];
+
+        return (
+          <article
+            key={campaign.name}
+            className='border-border/50 from-background/80 via-muted/30 to-background/40 hover:border-border/80 rounded-2xl border bg-gradient-to-br p-4 shadow-sm transition'
+          >
+            <div className='flex items-start gap-4 md:items-center'>
+              <div className='flex flex-1 items-start gap-3'>
+                <CampaignBadge label={campaign.name} />
+                <div className='flex flex-col gap-1'>
+                  <div className='flex flex-wrap items-center gap-3'>
+                    <p className='text-base leading-tight font-semibold'>{campaign.name}</p>
+                    <span className='border-border/60 text-muted-foreground rounded-full border px-2 py-0.5 text-xs'>
+                      {campaign.visitors.toLocaleString()} sessions
+                    </span>
+                  </div>
+                  <div className='text-muted-foreground mt-1 flex flex-wrap gap-2 text-xs'>
+                    <MetricPill label='Visitors' value={formatNumber(campaign.visitors)} />
+                    <MetricPill label='Bounce rate' value={formatPercentage(campaign.bounceRate)} />
+                    <MetricPill label='Avg. session' value={campaign.avgSessionDuration} />
+                    <MetricPill label='Pages / session' value={campaign.pagesPerSession.toFixed(1)} />
+                  </div>
+                </div>
+              </div>
+              <div className='flex items-center'>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='shrink-0'
+                  onClick={() => {
+                    if (isExpanded) {
+                      setExpandedCampaign(null);
+                      return;
+                    }
+                    setExpandedCampaign(campaign.name);
+                    loadCampaignDetails(campaign.name);
+                  }}
+                  aria-expanded={isExpanded}
+                  aria-controls={`campaign-${campaign.name}-details`}
+                >
+                  {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
+                </Button>
+              </div>
+            </div>
+            {isExpanded && (
+              <div
+                id={`campaign-${campaign.name}-details`}
+                className='border-border/40 mt-4 space-y-4 border-t pt-4'
+              >
+                {!detailsState || detailsState.status === 'loading' ? (
+                  <div className='flex justify-center py-6'>
+                    <Spinner size='sm' aria-label='Loading campaign details' />
+                  </div>
+                ) : null}
+
+                {detailsState?.status === 'error' ? (
+                  <p className='text-destructive text-xs'>
+                    Failed to load campaign details. Please try expanding again.
+                  </p>
+                ) : null}
+
+                {detailsState?.status === 'loaded' ? <CampaignInlineUTMSection {...detailsState.data} /> : null}
+              </div>
+            )}
+          </article>
+        );
+      })}
+
+      <PaginationControls
+        pageIndex={safePageIndex}
+        totalPages={totalPages}
+        onChange={(direction) => handlePageChange(safePageIndex + direction)}
+        disablePrevious={safePageIndex === 0}
+        disableNext={safePageIndex >= totalPages - 1}
+      />
+    </div>
+  );
+}
+
+function CampaignBadge({ label }: { label: string }) {
+  return (
+    <div className='from-primary/10 to-primary/30 text-primary flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-lg font-semibold'>
+      {label.slice(0, 2).toUpperCase()}
+    </div>
+  );
+}
+
+function MetricPill({ label, value }: { label: string; value: string }) {
+  return (
+    <span className='bg-background/80 text-foreground rounded-full px-3 py-1 font-medium'>
+      {label}: {value}
+    </span>
+  );
+}
+
+type CampaignInlineUTMSectionProps = CampaignExpandedDetails;
+
+function CampaignInlineUTMSection({
+  utmSource,
+  utmMedium,
+  utmContent,
+  utmTerm,
+  landingPages,
+  devices,
+  countries,
+}: CampaignInlineUTMSectionProps) {
+  return (
+    <div className='space-y-3'>
+      <div className='mt-1 grid gap-3 md:grid-cols-3'>
+        <div className='md:col-span-2'>
+          <CampaignLandingPagesTable landingPages={landingPages} />
+        </div>
+        <div className='md:col-span-1'>
+          <CampaignAudienceProfile devices={devices} countries={countries} />
+        </div>
+      </div>
+      <div className='mt-1 grid gap-3 md:grid-cols-3'>
+        <div className='md:col-span-2'>
+          <UTMBreakdownTabbedTable source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
+        </div>
+        <div className='md:col-span-1'>
+          <UTMBreakdownTabbedChart source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type AudienceShare = {
+  label: string;
+  value: string;
+};
+
+type CampaignAudienceProfileProps = {
+  devices?: AudienceShare[];
+  countries?: AudienceShare[];
+};
+
+function CampaignAudienceProfile({ devices, countries }: CampaignAudienceProfileProps) {
+  const hasDevices = devices && devices.length > 0;
+  const hasCountries = countries && countries.length > 0;
+
+  if (!hasDevices && !hasCountries) {
+    return (
+      <Card className='border-border/60 h-full'>
+        <CardContent className='text-muted-foreground flex h-full items-center justify-center px-3 py-4 text-xs'>
+          No audience data for this campaign in the selected range.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className='border-border/60 h-full'>
+      <CardHeader className='px-3 pt-3 pb-2 sm:px-4 sm:pt-3 sm:pb-2'>
+        <CardTitle className='text-sm font-medium'>Audience profile</CardTitle>
+      </CardHeader>
+      <CardContent className='px-3 pt-0 pb-3 text-xs sm:px-4'>
+        {hasDevices && (
+          <div className='mb-3'>
+            <p className='text-foreground mb-1 text-[11px] font-medium'>Devices</p>
+            <div className='flex flex-wrap gap-1.5'>
+              {devices!.map((item) => (
+                <span
+                  key={item.label}
+                  className='bg-muted/60 text-muted-foreground inline-flex items-center rounded-full px-2 py-0.5 text-[11px]'
+                >
+                  {item.label}
+                  <span className='text-foreground ml-1 font-medium'>{item.value}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {hasCountries && (
+          <div>
+            <p className='text-foreground mb-1 text-[11px] font-medium'>Top countries</p>
+            <div className='flex flex-wrap gap-1.5'>
+              {countries!.map((item) => (
+                <span
+                  key={item.label}
+                  className='bg-muted/60 text-muted-foreground inline-flex items-center rounded-full px-2 py-0.5 text-[11px]'
+                >
+                  {item.label}
+                  <span className='text-foreground ml-1 font-medium'>{item.value}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+type PaginationControlsProps = {
+  pageIndex: number;
+  totalPages: number;
+  disablePrevious: boolean;
+  disableNext: boolean;
+  onChange: (direction: -1 | 1) => void;
+};
+
+function PaginationControls({
+  pageIndex,
+  totalPages,
+  disablePrevious,
+  disableNext,
+  onChange,
+}: PaginationControlsProps) {
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  return (
+    <div className='border-border/50 bg-background/60 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm'>
+      <p className='text-muted-foreground'>
+        Page {pageIndex + 1} of {totalPages}
+      </p>
+      <div className='flex gap-2'>
+        <Button
+          variant='outline'
+          size='sm'
+          disabled={disablePrevious}
+          onClick={() => onChange(-1)}
+          aria-label='Previous page'
+        >
+          Previous
+        </Button>
+        <Button
+          variant='outline'
+          size='sm'
+          disabled={disableNext}
+          onClick={() => onChange(1)}
+          aria-label='Next page'
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
