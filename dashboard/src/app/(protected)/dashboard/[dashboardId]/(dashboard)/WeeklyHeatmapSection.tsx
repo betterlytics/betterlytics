@@ -21,7 +21,6 @@ type WeeklyHeatmapSectionProps = {
   startDate: Date;
   endDate: Date;
   queryFilters: QueryFilter[];
-  scaleType?: ScaleType;
 };
 
 const metricOptions = [
@@ -49,7 +48,6 @@ export default function WeeklyHeatmapSection({
   startDate,
   endDate,
   queryFilters,
-  scaleType = 'log10',
 }: WeeklyHeatmapSectionProps) {
   const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
   useEffect(() => {
@@ -124,7 +122,6 @@ export default function WeeklyHeatmapSection({
           maxValue={current?.maxValue ?? 1}
           metricLabel={selectedMetricLabel}
           metric={selectedMetric}
-          scaleType={scaleType}
         />
       </CardContent>
     </Card>
@@ -136,10 +133,9 @@ type HeatmapGridProps = {
   maxValue: number;
   metricLabel: string;
   metric: HeatmapMetric;
-  scaleType: ScaleType;
 };
 
-function HeatmapGrid({ data, maxValue, metricLabel, metric, scaleType = 'log10' }: HeatmapGridProps) {
+function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) {
   const locale = useLocale();
   const dayLabels = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
@@ -147,16 +143,12 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric, scaleType = 'log10' 
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 
-  const colors = useCSSColors([
-    '--graph-fill-low',
-    '--graph-fill-medium',
-    '--graph-fill-high',
-  ] as const);
+  const colors = useCSSColors(['--weekly-heatmap-fill-low', '--weekly-heatmap-fill-high'] as const);
 
   const colorScale = useColorScale({
     maxValue,
-    scaleType,
-    colors: colors as [string, string, string],
+    scaleType: 'lab',
+    colors: colors as [string, string, ...string[]],
   });
 
   const getCellStyle = useCallback(

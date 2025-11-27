@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ScaleLinear, ScaleLogarithmic, ScalePower, scaleLinear, scaleLog, scalePow } from 'd3-scale';
+import { scaleLinear, scaleLog, scalePow } from 'd3-scale';
+import chroma from 'chroma-js';
 
-export type ScaleType = 'linear' | 'ln' | `log${number}` | `pow-${number}` | `pow-${number}/${number}`;
+export type ScaleType = 'linear' | 'lab' | 'ln' | `log${number}` | `pow-${number}` | `pow-${number}/${number}`;
 
 export type UseColorScaleProps = {
   maxValue: number;
@@ -12,26 +13,28 @@ export type UseColorScaleProps = {
   scaleType?: ScaleType;
 };
 
-export type ColorScale =
-  | ScaleLinear<string, string, never>
-  | ScaleLogarithmic<string, string, never>
-  | ScalePower<string, string, never>;
+export type ColorScale = (value: number) => string;
 
-export function useColorScale({
-  colors,
-  maxValue,
-  scaleType = 'pow-4/10',
-}: UseColorScaleProps): ColorScale {
+export function useColorScale({ colors, maxValue, scaleType = 'pow-4/10' }: UseColorScaleProps): ColorScale {
   return useMemo(() => {
+    if (scaleType === 'lab') {
+      return (value: number) =>
+        chroma
+          .scale(colors)
+          .mode('lab')(value / (maxValue || 1))
+          .hex();
+    }
 
     if (scaleType.startsWith('log') || scaleType === 'ln') {
       const base = scaleType === 'ln' ? Math.E : parseInt(scaleType.slice(3), 10);
 
       return scaleLog<string>()
         .base(base)
-        .domain(Array.from({ length: colors.length }, (_, i) =>
-          i === 0 ? 1 : 1 + (Math.max(1, maxValue) - 1) * (i / (colors.length - 1))
-        ))
+        .domain(
+          Array.from({ length: colors.length }, (_, i) =>
+            i === 0 ? 1 : 1 + (Math.max(1, maxValue) - 1) * (i / (colors.length - 1)),
+          ),
+        )
         .range(colors)
         .clamp(true);
     }

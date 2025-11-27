@@ -123,7 +123,10 @@
   --graph-fill-high: #1535c3;
   --graph-fill-none: #92a4c3;
 
-  --weekly-heatmap-fill-none: #e8ecf2;
+  --weekly-heatmap-fill-low: #abd1ff;
+  --weekly-heatmap-fill-medium: #4e82e5;
+  --weekly-heatmap-fill-high: #1535c3;
+  --weekly-heatmap-fill-none: #92a4c3;
 }
 
 .dark {
@@ -195,12 +198,15 @@
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
 
-  --graph-fill-low: #98b4ff;
+  --graph-fill-low: #2d3b53;
   --graph-fill-medium: #4967d3;
-  --graph-fill-high: #102cbb;
+  --graph-fill-high: #4c8df0;
   --graph-fill-none: #7f91b0;
 
-  --weekly-heatmap-fill-none: #676c75;
+  --weekly-heatmap-fill-low: #253a5a;
+  --weekly-heatmap-fill-high: #a6b6ec;
+  --weekly-heatmap-fill-none: #33363b;
+  /* #4766e5 */
 }
 
 @layer base {
