@@ -134,7 +134,8 @@ export default function UTMBreakdownTabbedTable({
   return (
     <section className='flex h-full min-h-[300px] flex-col sm:min-h-[400px]'>
       <Tabs defaultValue='entry' className='flex h-full flex-col gap-2'>
-        <div className='flex w-full items-center justify-between gap-4'>
+        <div className='flex w-full items-center justify-between gap-3'>
+          <p className='text-foreground text-sm font-medium'>{t('table.title')}</p>
           <TabsList className='bg-secondary dark:inset-shadow-background inline-flex gap-1 px-1 inset-shadow-sm'>
             {tabs.map((tab) => (
               <TabsTrigger
