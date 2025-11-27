@@ -72,6 +72,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
             cx='50%'
             cy='50%'
             labelLine={false}
+            innerRadius={45}
             outerRadius={80}
             fill='#8884d8'
             dataKey='value'
