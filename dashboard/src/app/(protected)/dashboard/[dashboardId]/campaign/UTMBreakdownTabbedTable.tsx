@@ -12,12 +12,14 @@ import type {
   CampaignContentBreakdownItem,
   CampaignTermBreakdownItem,
 } from '@/entities/campaign';
+import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
 
 type UTMBreakdownTabbedTableProps = {
   source: CampaignSourceBreakdownItem[];
   medium: CampaignMediumBreakdownItem[];
   content: CampaignContentBreakdownItem[];
   term: CampaignTermBreakdownItem[];
+  landingPages: CampaignExpandedDetails['landingPages'];
 };
 
 interface BaseUTMBreakdownItem {
@@ -28,12 +30,19 @@ interface BaseUTMBreakdownItem {
   [key: string]: string | number;
 }
 
-export default function UTMBreakdownTabbedTable({ source, medium, content, term }: UTMBreakdownTabbedTableProps) {
+export default function UTMBreakdownTabbedTable({
+  source,
+  medium,
+  content,
+  term,
+  landingPages,
+}: UTMBreakdownTabbedTableProps) {
   const t = useTranslations('components.campaign.utm');
   const sourceBreakdown = source;
   const mediumBreakdown = medium;
   const contentBreakdown = content;
   const termBreakdown = term;
+  const landingPagesBreakdown = landingPages as BaseUTMBreakdownItem[];
 
   const createUTMColumns = useCallback(
     (dataKey: string, dataKeyHeader: string): ColumnDef<BaseUTMBreakdownItem>[] => {
@@ -72,9 +81,16 @@ export default function UTMBreakdownTabbedTable({ source, medium, content, term 
   const mediumColumns = useMemo(() => createUTMColumns('medium', t('tabs.medium')), [createUTMColumns, t]);
   const contentColumns = useMemo(() => createUTMColumns('content', t('tabs.content')), [createUTMColumns, t]);
   const termColumns = useMemo(() => createUTMColumns('term', t('tabs.terms')), [createUTMColumns, t]);
+  const entryPageColumns = useMemo(() => createUTMColumns('landingPageUrl', 'Entry page'), [createUTMColumns]);
 
   const tabs = useMemo(
     () => [
+      {
+        key: 'entry',
+        label: 'Entry pages',
+        data: landingPagesBreakdown,
+        columns: entryPageColumns,
+      },
       {
         key: 'source',
         label: t('tabs.source'),
@@ -101,10 +117,12 @@ export default function UTMBreakdownTabbedTable({ source, medium, content, term 
       },
     ],
     [
+      landingPagesBreakdown,
       sourceBreakdown,
       mediumBreakdown,
       contentBreakdown,
       termBreakdown,
+      entryPageColumns,
       sourceColumns,
       mediumColumns,
       contentColumns,
@@ -115,7 +133,7 @@ export default function UTMBreakdownTabbedTable({ source, medium, content, term 
 
   return (
     <section className='flex h-full min-h-[300px] flex-col sm:min-h-[400px]'>
-      <Tabs defaultValue='source' className='flex h-full flex-col gap-2'>
+      <Tabs defaultValue='entry' className='flex h-full flex-col gap-2'>
         <div className='flex w-full items-center justify-between gap-4'>
           <TabsList className='bg-secondary dark:inset-shadow-background inline-flex gap-1 px-1 inset-shadow-sm'>
             {tabs.map((tab) => (
