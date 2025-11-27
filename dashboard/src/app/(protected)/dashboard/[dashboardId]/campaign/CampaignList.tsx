@@ -12,7 +12,6 @@ import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
 import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
 import { useCampaignExpandedDetails } from './useCampaignExpandedDetails';
-import CampaignLandingPagesTable from './CampaignLandingPagesTable';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
@@ -174,18 +173,19 @@ function CampaignInlineUTMSection({
       </div>
       <div className='mt-1 grid gap-3 md:grid-cols-3'>
         <div className='md:col-span-2'>
-          <CampaignLandingPagesTable landingPages={landingPages} />
+          <UTMBreakdownTabbedTable
+            source={utmSource}
+            medium={utmMedium}
+            content={utmContent}
+            term={utmTerm}
+            landingPages={landingPages}
+          />
         </div>
         <div className='md:col-span-1'>
-          <CampaignAudienceProfile devices={devices} countries={countries} />
-        </div>
-      </div>
-      <div className='mt-1 grid gap-3 md:grid-cols-3'>
-        <div className='md:col-span-2'>
-          <UTMBreakdownTabbedTable source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
-        </div>
-        <div className='md:col-span-1'>
-          <UTMBreakdownTabbedChart source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
+          <div className='flex h-full flex-col gap-3'>
+            <CampaignAudienceProfile devices={devices} countries={countries} />
+            <UTMBreakdownTabbedChart source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
+          </div>
         </div>
       </div>
     </div>
@@ -208,8 +208,8 @@ function CampaignAudienceProfile({ devices, countries }: CampaignAudienceProfile
 
   if (!hasDevices && !hasCountries) {
     return (
-      <Card className='border-border/60 h-full'>
-        <CardContent className='text-muted-foreground flex h-full items-center justify-center px-3 py-4 text-xs'>
+      <Card className='border-border/60'>
+        <CardContent className='text-muted-foreground flex items-center justify-center px-3 py-3 text-xs'>
           No audience data for this campaign in the selected range.
         </CardContent>
       </Card>
@@ -217,11 +217,11 @@ function CampaignAudienceProfile({ devices, countries }: CampaignAudienceProfile
   }
 
   return (
-    <Card className='border-border/60 h-full'>
-      <CardHeader className='px-3 pt-3 pb-2 sm:px-4 sm:pt-3 sm:pb-2'>
+    <Card className='border-border/60'>
+      <CardHeader className='px-3 pt-2 pb-1 sm:px-4 sm:pt-2 sm:pb-1'>
         <CardTitle className='text-sm font-medium'>Audience profile</CardTitle>
       </CardHeader>
-      <CardContent className='px-3 pt-0 pb-3 text-xs sm:px-4'>
+      <CardContent className='px-3 pt-0 pb-2 text-[11px] sm:px-4'>
         {hasDevices && (
           <div className='mb-3'>
             <p className='text-foreground mb-1 text-[11px] font-medium'>Devices</p>
