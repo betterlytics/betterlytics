@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useId } from 'react';
+import { Area, AreaChart, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,12 +16,17 @@ import { useCampaignExpandedDetails } from './useCampaignExpandedDetails';
 import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
 import { getCountryName } from '@/utils/countryCodes';
 import { useLocale } from 'next-intl';
+import type { GranularityRangeValues } from '@/utils/granularityRanges';
+import { useCampaignSparklines } from './useCampaignSparklines';
+import type { CampaignSparklinePoint } from '@/app/actions/campaigns';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
   dashboardId: string;
   startDate: string;
   endDate: string;
+  granularity: GranularityRangeValues;
+  timezone: string;
   pageSize?: number;
 };
 
@@ -31,6 +37,8 @@ export default function CampaignList({
   dashboardId,
   startDate,
   endDate,
+  granularity,
+  timezone,
   pageSize = DEFAULT_PAGE_SIZE,
 }: CampaignListProps) {
   const [pageIndex, setPageIndex] = useState(0);
@@ -49,6 +57,15 @@ export default function CampaignList({
     const start = safePageIndex * pageSize;
     return campaigns.slice(start, start + pageSize);
   }, [campaigns, pageSize, safePageIndex]);
+
+  const { sparklines, statuses } = useCampaignSparklines({
+    dashboardId,
+    startDate,
+    endDate,
+    granularity,
+    timezone,
+    campaignNames: paginatedCampaigns.map((campaign) => campaign.name),
+  });
 
   const handlePageChange = (newIndex: number) => {
     setPageIndex(newIndex);
@@ -71,6 +88,8 @@ export default function CampaignList({
       {paginatedCampaigns.map((campaign) => {
         const isExpanded = expandedCampaign === campaign.name;
         const detailsState = detailsByCampaign[campaign.name];
+        const sparklineData = sparklines[campaign.name];
+        const sparklineStatus = statuses[campaign.name];
 
         return (
           <article
@@ -92,7 +111,10 @@ export default function CampaignList({
                   <MetricPill label='Pages / session' value={campaign.pagesPerSession.toFixed(1)} />
                 </div>
               </div>
-              <div className='flex items-center'>
+              <div className='flex items-center gap-3'>
+                <div className='h-10 w-28 sm:w-32'>
+                  <CampaignSparkline data={sparklineData} status={sparklineStatus} />
+                </div>
                 <Button
                   variant='ghost'
                   size='icon'
@@ -153,6 +175,49 @@ function MetricPill({ label, value }: { label: string; value: string }) {
       <span className='text-foreground/80 mr-1 font-medium'>{label}</span>
       <span>{value}</span>
     </Badge>
+  );
+}
+
+type CampaignSparklineProps = {
+  data?: CampaignSparklinePoint[];
+  status?: 'idle' | 'loading' | 'loaded' | 'error';
+};
+
+function CampaignSparkline({ data, status }: CampaignSparklineProps) {
+  const gradientId = useId();
+  const isLoading = status === 'loading' && (!data || data.length === 0);
+  const hasData = data && data.length > 0;
+
+  if (!hasData && !isLoading) {
+    return <div className='bg-muted/40 h-full w-full rounded-md' aria-hidden='true' />;
+  }
+
+  if (isLoading && !hasData) {
+    return <div className='bg-muted/40 h-full w-full animate-pulse rounded-md' aria-hidden='true' />;
+  }
+
+  return (
+    <div className='h-full w-full'>
+      <ResponsiveContainer width='100%' height='100%'>
+        <AreaChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 2 }}>
+          <defs>
+            <linearGradient id={`campaign-sparkline-${gradientId}`} x1='0' y1='0' x2='0' y2='1'>
+              <stop offset='0%' stopColor='var(--chart-1)' stopOpacity={0.65} />
+              <stop offset='100%' stopColor='var(--chart-1)' stopOpacity={0.1} />
+            </linearGradient>
+          </defs>
+          <Area
+            type='monotone'
+            dataKey='visitors'
+            stroke='var(--chart-1)'
+            strokeWidth={1}
+            fill={`url(#campaign-sparkline-${gradientId})`}
+            dot={false}
+            activeDot={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 

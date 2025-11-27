@@ -17,7 +17,7 @@ type CampaignPageParams = {
 export default async function CampaignPage({ params, searchParams }: CampaignPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate } = BAFilterSearchParams.decode(await searchParams, timezone);
+  const { startDate, endDate, granularity } = BAFilterSearchParams.decode(await searchParams, timezone);
 
   const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
 
@@ -47,6 +47,8 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
           dashboardId={dashboardId}
           startDate={startDate}
           endDate={endDate}
+          granularity={granularity}
+          timezone={timezone}
           campaignPerformancePromise={campaignPerformancePromise}
         />
       </Suspense>
