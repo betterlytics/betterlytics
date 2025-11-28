@@ -4,6 +4,7 @@ import { memo, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTranslations } from 'next-intl';
 
 const PAGE_SIZE_OPTIONS = [6, 10, 25, 50] as const;
 
@@ -15,15 +16,14 @@ export type CompactPaginationControlsProps = {
 
 export const CompactPaginationControls = memo(
   ({ pageIndex, totalPages, onPageChange }: CompactPaginationControlsProps) => {
+    const t = useTranslations('components.campaign.pagination');
     const currentPage = pageIndex + 1;
     const isFirstPage = pageIndex === 0;
     const isLastPage = pageIndex === totalPages - 1;
 
     return (
       <div className='flex items-center justify-end gap-2 py-1'>
-        <span className='text-muted-foreground text-xs'>
-          Page {currentPage} of {totalPages.toLocaleString()}
-        </span>
+        <span className='text-muted-foreground text-xs'>{t('pageOf', { currentPage, totalPages })}</span>
         <div className='flex items-center'>
           <Button
             variant='ghost'
@@ -64,6 +64,7 @@ export type PaginationControlsProps = {
 
 export const PaginationControls = memo(
   ({ pageIndex, totalPages, pageSize, totalItems, onPageChange, onPageSizeChange }: PaginationControlsProps) => {
+    const t = useTranslations('components.campaign.pagination');
     const currentPage = pageIndex + 1;
     const isFirstPage = pageIndex === 0;
     const isLastPage = pageIndex === totalPages - 1;
@@ -73,17 +74,9 @@ export const PaginationControls = memo(
     const pages = useMemo(() => getPages(currentPage, totalPages), [currentPage, totalPages]);
 
     return (
-      <div className='flex flex-wrap items-center justify-between gap-4 text-sm'>
-        <p className='text-muted-foreground/80 text-sm'>
-          Showing{' '}
-          <span className='text-foreground/80 font-medium tabular-nums'>
-            {startItem}–{endItem}
-          </span>{' '}
-          of <span className='text-foreground/80 font-medium tabular-nums'>{totalItems.toLocaleString()}</span>{' '}
-          campaigns
-        </p>
-
-        <div className='flex items-center gap-4'>
+      <div className='flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between'>
+        <div className='flex w-full items-center justify-between gap-3 sm:w-auto'>
+          <p className='text-muted-foreground/80 text-sm'>{t('showing', { startItem, endItem, totalItems })}</p>
           <div className='flex items-center gap-2'>
             <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
               <SelectTrigger size='sm' className='w-[70px] cursor-pointer'>
@@ -97,79 +90,82 @@ export const PaginationControls = memo(
                 ))}
               </SelectContent>
             </Select>
-            <span className='text-muted-foreground/80 text-sm'>per page</span>
+            <span className='text-muted-foreground/80 text-sm'>{t('perPage')}</span>
           </div>
-
-          <nav aria-label='Pagination' className='border-border/40 flex items-center gap-0.5 border-l pl-4'>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-8 w-8 cursor-pointer'
-              disabled={isFirstPage}
-              onClick={() => onPageChange(0)}
-              aria-label='First page'
-            >
-              <ChevronsLeft className='h-4 w-4' />
-            </Button>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-8 w-8 cursor-pointer'
-              disabled={isFirstPage}
-              onClick={() => onPageChange(pageIndex - 1)}
-              aria-label='Previous page'
-            >
-              <ChevronLeft className='h-4 w-4' />
-            </Button>
-
-            {totalPages > 1 && (
-              <div className='flex items-center px-1'>
-                {pages.map((page) =>
-                  typeof page === 'string' ? (
-                    <span key={page} className='text-muted-foreground/50 px-1.5 text-sm select-none'>
-                      …
-                    </span>
-                  ) : (
-                    <button
-                      key={page}
-                      type='button'
-                      onClick={() => onPageChange(page - 1)}
-                      aria-current={page === currentPage ? 'page' : undefined}
-                      className={`min-w-[1.75rem] cursor-pointer rounded-md px-2 py-1 text-sm font-medium tabular-nums transition-colors ${
-                        page === currentPage
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                      }`}
-                    >
-                      {page.toLocaleString()}
-                    </button>
-                  ),
-                )}
-              </div>
-            )}
-
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-8 w-8 cursor-pointer'
-              disabled={isLastPage}
-              onClick={() => onPageChange(pageIndex + 1)}
-              aria-label='Next page'
-            >
-              <ChevronRight className='h-4 w-4' />
-            </Button>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-8 w-8 cursor-pointer'
-              disabled={isLastPage}
-              onClick={() => onPageChange(totalPages - 1)}
-              aria-label='Last page'
-            >
-              <ChevronsRight className='h-4 w-4' />
-            </Button>
-          </nav>
         </div>
+
+        <nav
+          aria-label='Pagination'
+          className='border-border/40 flex items-center justify-end gap-0.5 sm:border-l sm:pl-4'
+        >
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isFirstPage}
+            onClick={() => onPageChange(0)}
+            aria-label='First page'
+          >
+            <ChevronsLeft className='h-4 w-4' />
+          </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isFirstPage}
+            onClick={() => onPageChange(pageIndex - 1)}
+            aria-label='Previous page'
+          >
+            <ChevronLeft className='h-4 w-4' />
+          </Button>
+
+          {totalPages > 1 && (
+            <div className='flex items-center px-1'>
+              {pages.map((page) =>
+                typeof page === 'string' ? (
+                  <span key={page} className='text-muted-foreground/50 px-1.5 text-sm select-none'>
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    type='button'
+                    onClick={() => onPageChange(page - 1)}
+                    aria-current={page === currentPage ? 'page' : undefined}
+                    className={`min-w-[1.75rem] cursor-pointer rounded-md px-2 py-1 text-sm font-medium tabular-nums transition-colors ${
+                      page === currentPage
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                    }`}
+                  >
+                    {page.toLocaleString()}
+                  </button>
+                ),
+              )}
+            </div>
+          )}
+
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isLastPage}
+            onClick={() => onPageChange(pageIndex + 1)}
+            aria-label='Next page'
+          >
+            <ChevronRight className='h-4 w-4' />
+          </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isLastPage}
+            onClick={() => onPageChange(totalPages - 1)}
+            aria-label='Last page'
+          >
+            <ChevronsRight className='h-4 w-4' />
+          </Button>
+        </nav>
       </div>
     );
   },

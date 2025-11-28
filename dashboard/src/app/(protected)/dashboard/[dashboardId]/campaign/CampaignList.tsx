@@ -17,6 +17,7 @@ import { fetchCampaignExpandedDetailsAction } from '@/app/actions/campaigns';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';
+import { useTranslations } from 'next-intl';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
@@ -33,11 +34,8 @@ export default function CampaignList({
   pageSize,
   totalCampaigns,
 }: CampaignListProps) {
-  const { startDate, endDate } = useTimeRangeContext();
-  const startDateIso = startDate.toISOString();
-  const endDateIso = endDate.toISOString();
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
-
+  const t = useTranslations('components.campaign.emptyState');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -69,11 +67,8 @@ export default function CampaignList({
   if (campaigns.length === 0) {
     return (
       <Card className='border-border/50 bg-muted/30 p-8 text-center'>
-        <p className='text-lg font-medium'>No campaigns captured yet</p>
-        <p className='text-muted-foreground mt-1 text-sm'>
-          Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to
-          view performance metrics.
-        </p>
+        <p className='text-lg font-medium'>{t('title')}</p>
+        <p className='text-muted-foreground mt-1 text-sm'>{t('description')}</p>
       </Card>
     );
   }
@@ -81,7 +76,7 @@ export default function CampaignList({
   const showTopPagination = pageSize >= 25 && totalPages > 1;
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4 pb-8 md:pb-0'>
       {showTopPagination && (
         <CompactPaginationControls
           pageIndex={safePageIndex}
@@ -122,8 +117,7 @@ type CampaignListEntryProps = {
 };
 
 function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
-  const sparklineData = campaign.sparkline;
-
+  const t = useTranslations('components.campaign.campaignRow');
   return (
     <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out'>
       <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
@@ -135,24 +129,28 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         <div className='min-w-0'>
           <p className='truncate text-sm leading-tight font-semibold'>{campaign.name}</p>
           <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
-            {campaign.visitors.toLocaleString()} {campaign.visitors === 1 ? 'session' : 'sessions'}
+            {t('sessions', { count: campaign.visitors })}
           </p>
         </div>
 
         <CampaignMetric
-          label='Bounce rate'
+          label={t('bounceRate')}
           value={formatPercentage(campaign.bounceRate)}
           className='hidden md:flex'
         />
-        <CampaignMetric label='Avg. duration' value={campaign.avgSessionDuration} className='hidden md:flex' />
         <CampaignMetric
-          label='Pages/session'
+          label={t('avgSessionDuration')}
+          value={campaign.avgSessionDuration}
+          className='hidden md:flex'
+        />
+        <CampaignMetric
+          label={t('pagesPerSession')}
           value={campaign.pagesPerSession.toFixed(1)}
           className='hidden md:flex'
         />
 
         <div className='hidden h-11 md:block'>
-          <CampaignSparkline data={sparklineData} />
+          <CampaignSparkline data={campaign.sparkline} />
         </div>
 
         <Button
@@ -193,16 +191,17 @@ type CampaignInlineUTMSectionProps = {
 
 function CampaignInlineUTMSection({ details, dashboardId, campaignName }: CampaignInlineUTMSectionProps) {
   const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
+  const t = useTranslations('components.campaign.campaignExpandedRow');
 
   return (
     <div className='space-y-4'>
       <div className='text-muted-foreground flex items-center gap-3 text-[11px] font-medium tracking-wide uppercase'>
         <div className='bg-border/60 h-px flex-1' />
-        <span>Campaign details</span>
+        <span>{t('campaignDetails')}</span>
         <div className='bg-border/60 h-px flex-1' />
       </div>
       <div className='mt-1 grid gap-3 md:grid-cols-5'>
-        <div className='md:col-span-3'>
+        <div className='hidden md:col-span-3 md:block'>
           <UTMBreakdownTabbedTable
             dashboardId={dashboardId}
             campaignName={campaignName}
@@ -210,7 +209,10 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName }: Campai
             landingPages={landingPages}
           />
         </div>
-        <div className='md:col-span-2'>
+        <div className='space-y-3 md:col-span-2'>
+          <p className='border-border/60 bg-muted/30 text-muted-foreground rounded-md border border-dashed px-3 py-2 text-[11px] md:hidden'>
+            {t('onlyAvailableOnLargerScreens')}
+          </p>
           <div className='flex h-full flex-col gap-3'>
             <CampaignAudienceProfile
               devices={devices}
@@ -245,7 +247,7 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName }: Campaign
     staleTime: getExpandedDetailsStaleTime(startDate, endDate),
     gcTime: 15 * 60 * 1000,
   });
-
+  const t = useTranslations('components.campaign.campaignExpandedRow');
   if (!isExpanded) {
     return null;
   }
@@ -255,13 +257,13 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName }: Campaign
       {status === 'pending' ? (
         <div className='flex items-center justify-center gap-3 py-8'>
           <Spinner size='sm' aria-label='Loading campaign details' />
-          <span className='text-muted-foreground text-sm'>Loading campaign details...</span>
+          <span className='text-muted-foreground text-sm'>{t('loading')}</span>
         </div>
       ) : null}
 
       {status === 'error' ? (
         <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
-          <p className='text-destructive text-sm'>Failed to load campaign details. Please try expanding again.</p>
+          <p className='text-destructive text-sm'>{t('error')}</p>
         </div>
       ) : null}
 

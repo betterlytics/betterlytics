@@ -77,7 +77,10 @@ export default function UTMBreakdownTabbedTable({
   const mediumColumns = useMemo(() => createUTMColumns('medium', t('tabs.medium')), [createUTMColumns, t]);
   const contentColumns = useMemo(() => createUTMColumns('content', t('tabs.content')), [createUTMColumns, t]);
   const termColumns = useMemo(() => createUTMColumns('term', t('tabs.term')), [createUTMColumns, t]);
-  const entryPageColumns = useMemo(() => createUTMColumns('landingPageUrl', 'Entry page'), [createUTMColumns]);
+  const entryPageColumns = useMemo(
+    () => createUTMColumns('landingPageUrl', t('tabs.entryPages')),
+    [createUTMColumns, t],
+  );
 
   const mediumQuery = useUTMBreakdownData({
     dashboardId,
@@ -120,7 +123,7 @@ export default function UTMBreakdownTabbedTable({
               value='entry'
               className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
             >
-              Entry pages
+              {t('tabs.entryPages')}
             </TabsTrigger>
             {UTM_DIMENSIONS.map((dimension) => (
               <TabsTrigger
@@ -191,6 +194,7 @@ type LazyUTMTabsContentProps = {
 };
 
 function LazyUTMTabsContent({ value, isActive, columns, queryData, isPending }: LazyUTMTabsContentProps) {
+  const t = useTranslations('misc');
   return (
     <TabsContent value={value} className='flex-1'>
       <div className='relative h-full'>
@@ -206,7 +210,7 @@ function LazyUTMTabsContent({ value, isActive, columns, queryData, isPending }: 
           <div className='bg-background/70 pointer-events-none absolute inset-0 flex items-center justify-center'>
             <div className='text-muted-foreground flex items-center gap-2 text-xs'>
               <Spinner size='sm' />
-              <span>Loading...</span>
+              <span>{t('loading')}</span>
             </div>
           </div>
         ) : null}
