@@ -92,6 +92,90 @@ export async function getCampaignPerformanceData(
   return RawCampaignDataArraySchema.parse(rawData);
 }
 
+export async function getCampaignCount(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+): Promise<number> {
+  const query = safeSql`
+    SELECT
+      COUNT(DISTINCT utm_campaign) AS total_campaigns
+    FROM analytics.events
+    WHERE site_id = {siteId:String}
+      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND event_type = 1
+      AND utm_campaign != ''
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId,
+        startDate,
+        endDate,
+      },
+    })
+    .toPromise();
+
+  if (!Array.isArray(result) || result.length === 0) {
+    return 0;
+  }
+
+  const row = result[0] as { total_campaigns: number | string };
+  return typeof row.total_campaigns === 'string' ? Number(row.total_campaigns) : row.total_campaigns;
+}
+
+export async function getCampaignPerformancePageData(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  limit: number,
+  offset: number,
+): Promise<RawCampaignData[]> {
+  const query = safeSql`
+    SELECT
+      s.utm_campaign AS utm_campaign_name,
+      COUNT(DISTINCT s.visitor_id) AS total_visitors,
+      COUNT(DISTINCT IF(s.session_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
+      COUNT(DISTINCT s.session_id) AS total_sessions,
+      SUM(s.session_pageviews) AS total_pageviews,
+      SUM(s.session_duration_seconds) AS sum_session_duration_seconds
+    FROM (
+      SELECT
+        visitor_id,
+        session_id,
+        utm_campaign,
+        dateDiff('second', MIN(timestamp), MAX(timestamp)) AS session_duration_seconds,
+        COUNT(*) AS session_pageviews
+      FROM analytics.events
+      WHERE site_id = {siteId:String}
+        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+        AND event_type = 1
+        AND utm_campaign != ''
+      GROUP BY visitor_id, session_id, utm_campaign
+    ) s
+    GROUP BY s.utm_campaign
+    ORDER BY total_visitors DESC
+    LIMIT {limit:UInt32} OFFSET {offset:UInt32}
+  `;
+
+  const resultSet = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId,
+        startDate,
+        endDate,
+        limit,
+        offset,
+      },
+    })
+    .toPromise();
+
+  return RawCampaignDataArraySchema.parse(resultSet);
+}
+
 export async function getCampaignSourceBreakdownData(
   siteId: string,
   startDate: DateTimeString,

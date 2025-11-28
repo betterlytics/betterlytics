@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatPercentage } from '@/utils/formatters';
@@ -21,47 +22,48 @@ type CampaignListProps = {
   dashboardId: string;
   startDate: string;
   endDate: string;
-  pageSize?: number;
+  pageIndex: number;
+  pageSize: number;
+  totalCampaigns: number;
 };
-
-const DEFAULT_PAGE_SIZE = 10;
 
 export default function CampaignList({
   campaigns,
   dashboardId,
   startDate,
   endDate,
-  pageSize: initialPageSize = DEFAULT_PAGE_SIZE,
+  pageIndex,
+  pageSize,
+  totalCampaigns,
 }: CampaignListProps) {
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(initialPageSize);
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
 
-  const sortedCampaigns = useMemo(() => [...campaigns].sort((a, b) => b.visitors - a.visitors), [campaigns]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const totalPages = Math.max(1, Math.ceil(sortedCampaigns.length / pageSize));
-  const safePageIndex = Math.min(pageIndex, totalPages - 1);
+  const totalPages = Math.max(1, Math.ceil(totalCampaigns / pageSize));
+  const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
 
-  const paginatedCampaigns = useMemo(() => {
-    const start = safePageIndex * pageSize;
-    return sortedCampaigns.slice(start, start + pageSize);
-  }, [sortedCampaigns, pageSize, safePageIndex]);
+  const paginatedCampaigns = useMemo(() => campaigns, [campaigns]);
 
   const toggleCampaignExpanded = (campaignName: string) => {
     setExpandedCampaign((prev) => (prev === campaignName ? null : campaignName));
   };
 
   const handlePageChange = (newIndex: number) => {
-    setPageIndex(newIndex);
     setExpandedCampaign(null);
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('page', String(newIndex + 1));
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handlePageSizeChange = (newSize: number) => {
-    const firstItemIndex = pageIndex * pageSize;
-    const newPageIndex = Math.floor(firstItemIndex / newSize);
-    setPageSize(newSize);
-    setPageIndex(newPageIndex);
     setExpandedCampaign(null);
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('pageSize', String(newSize));
+    params.set('page', '1');
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   if (campaigns.length === 0) {
@@ -158,7 +160,7 @@ export default function CampaignList({
         pageIndex={safePageIndex}
         totalPages={totalPages}
         pageSize={pageSize}
-        totalItems={sortedCampaigns.length}
+        totalItems={totalCampaigns}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />

@@ -1,7 +1,7 @@
 'use server';
 
 import {
-  fetchCampaignPerformance,
+  fetchCampaignPerformancePage,
   fetchCampaignSourceBreakdown,
   fetchCampaignMediumBreakdown,
   fetchCampaignContentBreakdown,
@@ -41,13 +41,35 @@ function buildAudienceDistribution<
 }
 
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignPerformance[]> => {
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    pageIndex: number,
+    pageSize: number,
+  ): Promise<{
+    campaigns: CampaignPerformance[];
+    totalCampaigns: number;
+    pageIndex: number;
+    pageSize: number;
+  }> => {
     try {
-      const performanceData = await fetchCampaignPerformance(ctx.siteId, startDate, endDate);
-      return performanceData;
+      const performancePage = await fetchCampaignPerformancePage(
+        ctx.siteId,
+        startDate,
+        endDate,
+        pageIndex,
+        pageSize,
+      );
+      return performancePage;
     } catch (error) {
       console.error('Error in fetchCampaignPerformanceAction:', error);
-      return [];
+      return {
+        campaigns: [],
+        totalCampaigns: 0,
+        pageIndex: 0,
+        pageSize,
+      };
     }
   },
 );
