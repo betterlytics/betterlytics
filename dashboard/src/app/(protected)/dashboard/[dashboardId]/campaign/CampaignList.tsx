@@ -1,25 +1,21 @@
 'use client';
 
-import { useMemo, useState, useId } from 'react';
-import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
-import type { TooltipProps } from 'recharts';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { formatPercentage, capitalizeFirstLetter } from '@/utils/formatters';
+import { formatPercentage } from '@/utils/formatters';
 import type { CampaignListItem } from './CampaignDirectorySection';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
 import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
 import { useCampaignExpandedDetails } from './useCampaignExpandedDetails';
-import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
-import { getCountryName } from '@/utils/countryCodes';
-import { useLocale } from 'next-intl';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
 import { useCampaignSparklines } from './useCampaignSparklines';
-import type { CampaignSparklinePoint } from '@/app/actions/campaigns';
+import CampaignSparkline from './CampaignSparkline';
+import CampaignAudienceProfile from './CampaignAudienceProfile';
+import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
@@ -32,7 +28,6 @@ type CampaignListProps = {
 };
 
 const DEFAULT_PAGE_SIZE = 10;
-const PAGE_SIZE_OPTIONS = [6, 10, 25, 50] as const;
 
 export default function CampaignList({
   campaigns,
@@ -223,68 +218,6 @@ function CampaignMetric({ label, value, className }: { label: string; value: str
   );
 }
 
-type CampaignSparklineProps = {
-  data?: CampaignSparklinePoint[];
-  status?: 'idle' | 'loading' | 'loaded' | 'error';
-};
-
-function CampaignSparkline({ data, status }: CampaignSparklineProps) {
-  const gradientId = useId();
-  const isLoading = status === 'loading' && (!data || data.length === 0);
-  const hasData = data && data.length > 0;
-
-  if (!hasData && !isLoading) {
-    return <div className='bg-muted/40 h-full w-full rounded-md' aria-hidden='true' />;
-  }
-
-  if (isLoading && !hasData) {
-    return <div className='bg-muted/50 h-full w-full animate-pulse rounded-md' aria-hidden='true' />;
-  }
-
-  return (
-    <div className='h-full w-full'>
-      <ResponsiveContainer width='100%' height='100%'>
-        <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id={`campaign-sparkline-${gradientId}`} x1='0' y1='0' x2='0' y2='1'>
-              <stop offset='0%' stopColor='var(--chart-1)' stopOpacity={0.9} />
-              <stop offset='100%' stopColor='var(--chart-1)' stopOpacity={0.2} />
-            </linearGradient>
-          </defs>
-          <RechartsTooltip
-            cursor={{ stroke: 'var(--primary)', strokeOpacity: 0.85, strokeWidth: 1.5 }}
-            content={(props: TooltipProps<number, string>) => {
-              const { active, payload } = props;
-              if (!active || !payload || payload.length === 0) return null;
-              const point = payload[0].payload as CampaignSparklinePoint;
-              const date = new Date(point.date);
-              return (
-                <div className='bg-popover text-popover-foreground border-border rounded-md border px-3 py-1.5 text-[11px] shadow-lg'>
-                  <div className='text-muted-foreground mb-0.5'>
-                    {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                  </div>
-                  <div className='text-foreground text-xs font-semibold'>
-                    {point.visitors.toLocaleString()} sessions
-                  </div>
-                </div>
-              );
-            }}
-          />
-          <Area
-            type='linear'
-            dataKey='visitors'
-            stroke='var(--chart-1)'
-            strokeWidth={2.5}
-            fill={`url(#campaign-sparkline-${gradientId})`}
-            dot={false}
-            activeDot={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
 type CampaignInlineUTMSectionProps = CampaignExpandedDetails;
 
 function CampaignInlineUTMSection({
@@ -326,297 +259,6 @@ function CampaignInlineUTMSection({
             <UTMBreakdownTabbedChart source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-type AudienceShare = {
-  label: string;
-  value: string;
-};
-
-type CampaignAudienceProfileProps = {
-  devices?: AudienceShare[];
-  countries?: AudienceShare[];
-  browsers?: AudienceShare[];
-  operatingSystems?: AudienceShare[];
-};
-
-function CampaignAudienceProfile({
-  devices,
-  countries,
-  browsers,
-  operatingSystems,
-}: CampaignAudienceProfileProps) {
-  const locale = useLocale();
-
-  const hasDevices = devices && devices.length > 0;
-  const hasCountries = countries && countries.length > 0;
-  const hasBrowsers = browsers && browsers.length > 0;
-  const hasOperatingSystems = operatingSystems && operatingSystems.length > 0;
-
-  const sections: { key: string; title: string; items: AudienceShare[] }[] = [
-    { key: 'devices', title: 'Devices', items: hasDevices ? devices!.slice(0, 3) : [] },
-    { key: 'browsers', title: 'Browsers', items: hasBrowsers ? browsers!.slice(0, 3) : [] },
-    { key: 'os', title: 'OS', items: hasOperatingSystems ? operatingSystems!.slice(0, 3) : [] },
-    { key: 'countries', title: 'Countries', items: hasCountries ? countries!.slice(0, 3) : [] },
-  ].filter((section) => section.items.length > 0);
-
-  if (sections.length === 0) {
-    return (
-      <div className='text-muted-foreground flex items-center justify-end px-1 py-2 text-[11px]'>
-        No audience data for this campaign in the selected range.
-      </div>
-    );
-  }
-
-  return (
-    <section aria-label='Audience profile' className='px-2 pt-3 pb-3'>
-      <p className='text-foreground mb-1 text-sm leading-tight font-medium'>Audience profile</p>
-      <div className='grid grid-cols-2 gap-x-4 gap-y-3 pt-2.5 md:grid-cols-4'>
-        {sections.map((section) => (
-          <div key={section.key} className='space-y-1.5'>
-            <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
-              {section.title}
-            </p>
-            <div className='space-y-1'>
-              {section.items.map((item) => {
-                const { icon, label } = getAudienceIconAndLabel(section.key, item.label, locale);
-                return (
-                  <div
-                    key={item.label}
-                    className='text-muted-foreground flex items-center justify-between text-xs'
-                  >
-                    <div className='flex min-w-0 items-center gap-1.5 overflow-hidden'>
-                      {icon}
-                      <span className='block max-w-[7.5rem] truncate'>{label}</span>
-                    </div>
-                    <span className='text-foreground ml-2 shrink-0 font-medium tabular-nums'>{item.value}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function getAudienceIconAndLabel(sectionKey: string, rawLabel: string, locale: string) {
-  switch (sectionKey) {
-    case 'devices':
-      return {
-        icon: <DeviceIcon type={rawLabel} className='h-3.5 w-3.5' />,
-        label: capitalizeFirstLetter(rawLabel),
-      };
-    case 'browsers':
-      return {
-        icon: <BrowserIcon name={rawLabel} className='h-3.5 w-3.5' />,
-        label: capitalizeFirstLetter(rawLabel),
-      };
-    case 'os':
-      return {
-        icon: <OSIcon name={rawLabel} className='h-3.5 w-3.5' />,
-        label: capitalizeFirstLetter(rawLabel),
-      };
-    case 'countries': {
-      const code = rawLabel.toUpperCase() as FlagIconProps['countryCode'];
-      const name = getCountryName(code, locale as Parameters<typeof getCountryName>[1]);
-      return {
-        icon: <FlagIcon countryCode={code} countryName={name} />,
-        label: name,
-      };
-    }
-    default:
-      return {
-        icon: null,
-        label: rawLabel,
-      };
-  }
-}
-
-type CompactPaginationControlsProps = {
-  pageIndex: number;
-  totalPages: number;
-  onPageChange: (pageIndex: number) => void;
-};
-
-function CompactPaginationControls({ pageIndex, totalPages, onPageChange }: CompactPaginationControlsProps) {
-  const currentPage = pageIndex + 1;
-  const isFirstPage = pageIndex === 0;
-  const isLastPage = pageIndex === totalPages - 1;
-
-  return (
-    <div className='flex items-center justify-end gap-2 py-1'>
-      <span className='text-muted-foreground text-xs'>
-        Page {currentPage} of {totalPages.toLocaleString()}
-      </span>
-      <div className='flex items-center'>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='h-7 w-7'
-          disabled={isFirstPage}
-          onClick={() => onPageChange(pageIndex - 1)}
-          aria-label='Previous page'
-        >
-          <ChevronLeft className='h-4 w-4' />
-        </Button>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='h-7 w-7'
-          disabled={isLastPage}
-          onClick={() => onPageChange(pageIndex + 1)}
-          aria-label='Next page'
-        >
-          <ChevronRight className='h-4 w-4' />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-type PaginationControlsProps = {
-  pageIndex: number;
-  totalPages: number;
-  pageSize: number;
-  totalItems: number;
-  onPageChange: (pageIndex: number) => void;
-  onPageSizeChange: (size: number) => void;
-};
-
-function PaginationControls({
-  pageIndex,
-  totalPages,
-  pageSize,
-  totalItems,
-  onPageChange,
-  onPageSizeChange,
-}: PaginationControlsProps) {
-  const currentPage = pageIndex + 1;
-  const isFirstPage = pageIndex === 0;
-  const isLastPage = pageIndex === totalPages - 1;
-  const startItem = pageIndex * pageSize + 1;
-  const endItem = Math.min(startItem + pageSize - 1, totalItems);
-
-  const getPages = (): Array<number | 'ellipsis-start' | 'ellipsis-end'> => {
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    if (currentPage <= 4) {
-      return [1, 2, 3, 4, 5, 'ellipsis-end', totalPages];
-    }
-
-    if (currentPage >= totalPages - 3) {
-      return [1, 'ellipsis-start', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-    }
-
-    return [1, 'ellipsis-start', currentPage - 1, currentPage, currentPage + 1, 'ellipsis-end', totalPages];
-  };
-
-  const pages = getPages();
-
-  return (
-    <div className='flex flex-wrap items-center justify-between gap-4 text-sm'>
-      <p className='text-muted-foreground/80 text-sm'>
-        Showing{' '}
-        <span className='text-foreground/80 font-medium tabular-nums'>
-          {startItem}–{endItem}
-        </span>{' '}
-        of <span className='text-foreground/80 font-medium tabular-nums'>{totalItems.toLocaleString()}</span>{' '}
-        campaigns
-      </p>
-
-      <div className='flex items-center gap-4'>
-        <div className='flex items-center gap-2'>
-          <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
-            <SelectTrigger size='sm' className='w-[70px] cursor-pointer'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <SelectItem key={size} value={String(size)} className='cursor-pointer'>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span className='text-muted-foreground/80 text-sm'>per page</span>
-        </div>
-
-        <nav aria-label='Pagination' className='border-border/40 flex items-center gap-0.5 border-l pl-4'>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-8 w-8 cursor-pointer'
-            disabled={isFirstPage}
-            onClick={() => onPageChange(0)}
-            aria-label='First page'
-          >
-            <ChevronsLeft className='h-4 w-4' />
-          </Button>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-8 w-8 cursor-pointer'
-            disabled={isFirstPage}
-            onClick={() => onPageChange(pageIndex - 1)}
-            aria-label='Previous page'
-          >
-            <ChevronLeft className='h-4 w-4' />
-          </Button>
-
-          {totalPages > 1 && (
-            <div className='flex items-center px-1'>
-              {pages.map((page) =>
-                typeof page === 'string' ? (
-                  <span key={page} className='text-muted-foreground/50 px-1.5 text-sm select-none'>
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={page}
-                    type='button'
-                    onClick={() => onPageChange(page - 1)}
-                    aria-current={page === currentPage ? 'page' : undefined}
-                    className={`min-w-[1.75rem] cursor-pointer rounded-md px-2 py-1 text-sm font-medium tabular-nums transition-colors ${
-                      page === currentPage
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                    }`}
-                  >
-                    {page.toLocaleString()}
-                  </button>
-                ),
-              )}
-            </div>
-          )}
-
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-8 w-8 cursor-pointer'
-            disabled={isLastPage}
-            onClick={() => onPageChange(pageIndex + 1)}
-            aria-label='Next page'
-          >
-            <ChevronRight className='h-4 w-4' />
-          </Button>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-8 w-8 cursor-pointer'
-            disabled={isLastPage}
-            onClick={() => onPageChange(totalPages - 1)}
-            aria-label='Last page'
-          >
-            <ChevronsRight className='h-4 w-4' />
-          </Button>
-        </nav>
       </div>
     </div>
   );
