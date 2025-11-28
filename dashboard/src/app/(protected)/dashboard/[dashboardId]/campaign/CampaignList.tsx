@@ -372,9 +372,9 @@ function CampaignAudienceProfile({
   }
 
   return (
-    <section aria-label='Audience profile' className='px-3 pt-2 pb-3'>
-      <p className='text-foreground mb-2 text-sm leading-tight font-medium'>Audience profile</p>
-      <div className='grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4'>
+    <section aria-label='Audience profile' className='px-2 pt-3 pb-3'>
+      <p className='text-foreground mb-1 text-sm leading-tight font-medium'>Audience profile</p>
+      <div className='grid grid-cols-2 gap-x-4 gap-y-3 pt-2.5 md:grid-cols-4'>
         {sections.map((section) => (
           <div key={section.key} className='space-y-1.5'>
             <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
@@ -388,9 +388,9 @@ function CampaignAudienceProfile({
                     key={item.label}
                     className='text-muted-foreground flex items-center justify-between text-xs'
                   >
-                    <div className='flex min-w-0 items-center gap-1.5'>
+                    <div className='flex min-w-0 items-center gap-1.5 overflow-hidden'>
                       {icon}
-                      <span className='truncate'>{label}</span>
+                      <span className='block max-w-[7.5rem] truncate'>{label}</span>
                     </div>
                     <span className='text-foreground ml-2 shrink-0 font-medium tabular-nums'>{item.value}</span>
                   </div>
