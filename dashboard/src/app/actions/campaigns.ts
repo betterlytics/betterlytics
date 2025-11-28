@@ -24,6 +24,22 @@ import { AuthContext } from '@/entities/authContext';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { formatPercentage } from '@/utils/formatters';
 
+function buildAudienceDistribution<
+  TLabelKey extends string,
+  TItem extends { visitors: number } & Record<TLabelKey, string>,
+>(audience: TItem[], labelKey: TLabelKey): { label: string; value: string }[] {
+  const totalVisitors = audience.reduce((sum, item) => sum + item.visitors, 0);
+
+  if (totalVisitors === 0) {
+    return [];
+  }
+
+  return audience.map((item) => ({
+    label: item[labelKey],
+    value: formatPercentage((item.visitors / totalVisitors) * 100, 0),
+  }));
+}
+
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignPerformance[]> => {
     try {
@@ -95,42 +111,10 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
         operatingSystems: osAudience,
       } = audienceProfile;
 
-      const totalDeviceVisitors = deviceAudience.reduce((sum, item) => sum + item.visitors, 0);
-      const totalCountryVisitors = countryAudience.reduce((sum, item) => sum + item.visitors, 0);
-      const totalBrowserVisitors = browserAudience.reduce((sum, item) => sum + item.visitors, 0);
-      const totalOSVisitors = osAudience.reduce((sum, item) => sum + item.visitors, 0);
-
-      const devices =
-        totalDeviceVisitors === 0
-          ? []
-          : deviceAudience.map((item) => ({
-              label: item.device_type,
-              value: formatPercentage((item.visitors / totalDeviceVisitors) * 100, 0),
-            }));
-
-      const countries =
-        totalCountryVisitors === 0
-          ? []
-          : countryAudience.map((item) => ({
-              label: item.country_code,
-              value: formatPercentage((item.visitors / totalCountryVisitors) * 100, 0),
-            }));
-
-      const browsers =
-        totalBrowserVisitors === 0
-          ? []
-          : browserAudience.map((item) => ({
-              label: item.browser,
-              value: formatPercentage((item.visitors / totalBrowserVisitors) * 100, 0),
-            }));
-
-      const operatingSystems =
-        totalOSVisitors === 0
-          ? []
-          : osAudience.map((item) => ({
-              label: item.os,
-              value: formatPercentage((item.visitors / totalOSVisitors) * 100, 0),
-            }));
+      const devices = buildAudienceDistribution(deviceAudience, 'device_type');
+      const countries = buildAudienceDistribution(countryAudience, 'country_code');
+      const browsers = buildAudienceDistribution(browserAudience, 'browser');
+      const operatingSystems = buildAudienceDistribution(osAudience, 'os');
 
       return {
         utmSource,
