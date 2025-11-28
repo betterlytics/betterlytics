@@ -24,14 +24,16 @@ export default async function CampaignDirectorySection({
   timezone,
   campaignPerformancePromise,
 }: CampaignDirectorySectionProps) {
-  const campaignPerformance = await campaignPerformancePromise;
-  const campaignNames = campaignPerformance.map((campaign) => campaign.name);
+  const campaignPerformancePage = await campaignPerformancePromise;
+  const { campaigns: performanceCampaigns, totalCampaigns, pageIndex, pageSize } = campaignPerformancePage;
+
+  const campaignNames = performanceCampaigns.map((campaign) => campaign.name);
   const sparklineMap =
     campaignNames.length > 0
       ? await fetchCampaignSparklinesAction(dashboardId, startDate, endDate, granularity, timezone, campaignNames)
       : {};
 
-  const campaigns: CampaignListItem[] = campaignPerformance.map((campaign) => ({
+  const campaignsWithSparkline: CampaignListItem[] = performanceCampaigns.map((campaign) => ({
     ...campaign,
     sparkline: sparklineMap[campaign.name] ?? [],
   }));
@@ -39,9 +41,12 @@ export default async function CampaignDirectorySection({
   return (
     <CampaignList
       dashboardId={dashboardId}
-      campaigns={campaigns}
+      campaigns={campaignsWithSparkline}
       startDate={startDate.toISOString()}
       endDate={endDate.toISOString()}
+      pageIndex={pageIndex}
+      pageSize={pageSize}
+      totalCampaigns={totalCampaigns}
     />
   );
 }

@@ -9,6 +9,8 @@ import {
   getCampaignTermBreakdownData,
   getCampaignLandingPagePerformanceData,
   getCampaignAudienceProfileData,
+  getCampaignCount,
+  getCampaignPerformancePageData,
 } from '@/repositories/clickhouse/campaign';
 import {
   CampaignPerformance,
@@ -73,15 +75,36 @@ function calculateCommonCampaignMetrics(rawData: RawMetricsData): CalculatedMetr
   };
 }
 
-export async function fetchCampaignPerformance(
+export type CampaignPerformancePage = {
+  campaigns: CampaignPerformance[];
+  totalCampaigns: number;
+  pageIndex: number;
+  pageSize: number;
+};
+
+export async function fetchCampaignPerformancePage(
   siteId: string,
   startDate: Date,
   endDate: Date,
-): Promise<CampaignPerformance[]> {
+  pageIndex: number,
+  pageSize: number,
+): Promise<CampaignPerformancePage> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  const rawCampaignData: RawCampaignData[] = await getCampaignPerformanceData(siteId, startDateTime, endDateTime);
+  const safePageSize = pageSize > 0 ? Math.min(pageSize, 100) : 10;
+  const totalCampaigns = await getCampaignCount(siteId, startDateTime, endDateTime);
+  const totalPages = Math.max(1, Math.ceil(totalCampaigns / safePageSize));
+  const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
+  const offset = safePageIndex * safePageSize;
+
+  const rawCampaignData: RawCampaignData[] = await getCampaignPerformancePageData(
+    siteId,
+    startDateTime,
+    endDateTime,
+    safePageSize,
+    offset,
+  );
 
   const transformedData: CampaignPerformance[] = rawCampaignData.map((raw: RawCampaignData) => {
     const metrics = calculateCommonCampaignMetrics(raw);
@@ -92,7 +115,14 @@ export async function fetchCampaignPerformance(
     };
   });
 
-  return CampaignPerformanceArraySchema.parse(transformedData);
+  const campaigns = CampaignPerformanceArraySchema.parse(transformedData);
+
+  return {
+    campaigns,
+    totalCampaigns,
+    pageIndex: safePageIndex,
+    pageSize: safePageSize,
+  };
 }
 
 export async function fetchCampaignSourceBreakdown(

@@ -11,15 +11,33 @@ import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
 
 type CampaignPageParams = {
   params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<FilterQuerySearchParams>;
+  searchParams: Promise<FilterQuerySearchParams & { page?: string; pageSize?: string }>;
 };
+
+const DEFAULT_PAGE_SIZE = 10;
 
 export default async function CampaignPage({ params, searchParams }: CampaignPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity } = BAFilterSearchParams.decode(await searchParams, timezone);
+  const resolvedSearchParams = await searchParams;
+  const { startDate, endDate, granularity } = BAFilterSearchParams.decode(resolvedSearchParams, timezone);
 
-  const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
+  const rawPage = resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1;
+  const rawPageSize = resolvedSearchParams.pageSize ? Number(resolvedSearchParams.pageSize) : DEFAULT_PAGE_SIZE;
+
+  const pageSizeOptions = [6, 10, 25, 50] as const;
+  const safePageSize = pageSizeOptions.includes(rawPageSize as (typeof pageSizeOptions)[number])
+    ? rawPageSize
+    : DEFAULT_PAGE_SIZE;
+  const pageIndex = Number.isFinite(rawPage) && rawPage > 0 ? rawPage - 1 : 0;
+
+  const campaignPerformancePromise = fetchCampaignPerformanceAction(
+    dashboardId,
+    startDate,
+    endDate,
+    pageIndex,
+    safePageSize,
+  );
 
   const t = await getTranslations('dashboard.sidebar');
 
