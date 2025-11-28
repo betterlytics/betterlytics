@@ -16,15 +16,6 @@ import {
   RawCampaignLandingPagePerformanceItem,
   RawCampaignLandingPagePerformanceArraySchema,
 } from '@/entities/campaign';
-import {
-  DeviceType,
-  DeviceTypeSchema,
-  BrowserInfo,
-  BrowserInfoSchema,
-  OperatingSystemInfo,
-  OperatingSystemInfoSchema,
-} from '@/entities/devices';
-import { GeoVisitor, GeoVisitorSchema } from '@/entities/geography';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
