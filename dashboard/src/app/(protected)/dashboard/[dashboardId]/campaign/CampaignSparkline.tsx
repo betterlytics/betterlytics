@@ -3,24 +3,18 @@
 import { memo, useId } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import type { TooltipProps } from 'recharts';
-import type { CampaignSparklinePoint } from '@/app/actions/campaigns';
+import type { CampaignSparklinePoint } from '@/entities/campaign';
 
 export type CampaignSparklineProps = {
   data?: CampaignSparklinePoint[];
-  status?: 'idle' | 'loading' | 'loaded' | 'error';
 };
 
-const CampaignSparkline = memo(({ data, status }: CampaignSparklineProps) => {
+const CampaignSparkline = memo(({ data }: CampaignSparklineProps) => {
   const gradientId = useId();
-  const isLoading = status === 'loading' && (!data || data.length === 0);
   const hasData = data && data.length > 0;
 
-  if (!hasData && !isLoading) {
+  if (!hasData) {
     return <div className='bg-muted/40 h-full w-full rounded-md' aria-hidden='true' />;
-  }
-
-  if (isLoading && !hasData) {
-    return <div className='bg-muted/50 h-full w-full animate-pulse rounded-md' aria-hidden='true' />;
   }
 
   return (

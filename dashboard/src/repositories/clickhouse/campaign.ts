@@ -95,15 +95,8 @@ export async function getCampaignPerformanceData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
-  campaignName?: string,
 ): Promise<RawCampaignData[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(
-    siteId,
-    startDate,
-    endDate,
-    'utm_campaign',
-    campaignName,
-  );
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_campaign');
   return RawCampaignDataArraySchema.parse(rawData);
 }
 
@@ -211,15 +204,22 @@ export async function getCampaignVisitorTrendData(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   timezone: string,
-  campaignName?: string,
+  campaignNames: string[],
 ): Promise<CampaignTrendRow[]> {
+  if (campaignNames.length === 0) {
+    return [];
+  }
+
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
   );
-  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+
+  const campaignFilter = safeSql`AND utm_campaign IN (${SQL.SEPARATOR(
+    campaignNames.map((name, index) => SQL.String({ [`campaign_${index}`]: name })),
+  )})`;
 
   const query = timeWrapper(
     safeSql`
@@ -230,7 +230,6 @@ export async function getCampaignVisitorTrendData(
       FROM analytics.events
       WHERE site_id = {siteId:String}
         AND ${range}
-        AND utm_campaign != ''
         ${campaignFilter}
       GROUP BY date, utm_campaign
       ORDER BY date ASC ${fill}, utm_campaign ASC

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatPercentage } from '@/utils/formatters';
@@ -10,9 +11,7 @@ import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
 import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
-import { useCampaignExpandedDetails } from './useCampaignExpandedDetails';
-import type { GranularityRangeValues } from '@/utils/granularityRanges';
-import { useCampaignSparklines } from './useCampaignSparklines';
+import { fetchCampaignExpandedDetailsAction } from '@/app/actions/campaigns';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';
@@ -22,8 +21,6 @@ type CampaignListProps = {
   dashboardId: string;
   startDate: string;
   endDate: string;
-  granularity: GranularityRangeValues;
-  timezone: string;
   pageSize?: number;
 };
 
@@ -34,19 +31,11 @@ export default function CampaignList({
   dashboardId,
   startDate,
   endDate,
-  granularity,
-  timezone,
   pageSize: initialPageSize = DEFAULT_PAGE_SIZE,
 }: CampaignListProps) {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(initialPageSize);
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
-
-  const { detailsByCampaign, loadCampaignDetails } = useCampaignExpandedDetails({
-    dashboardId,
-    startDate,
-    endDate,
-  });
 
   const sortedCampaigns = useMemo(() => [...campaigns].sort((a, b) => b.visitors - a.visitors), [campaigns]);
 
@@ -58,23 +47,8 @@ export default function CampaignList({
     return sortedCampaigns.slice(start, start + pageSize);
   }, [sortedCampaigns, pageSize, safePageIndex]);
 
-  const { sparklines, statuses } = useCampaignSparklines({
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    timezone,
-    campaignNames: paginatedCampaigns.map((campaign) => campaign.name),
-  });
-
   const toggleCampaignExpanded = (campaignName: string) => {
-    setExpandedCampaign((prev) => {
-      if (prev === campaignName) {
-        return null;
-      }
-      loadCampaignDetails(campaignName);
-      return campaignName;
-    });
+    setExpandedCampaign((prev) => (prev === campaignName ? null : campaignName));
   };
 
   const handlePageChange = (newIndex: number) => {
@@ -115,9 +89,7 @@ export default function CampaignList({
 
       {paginatedCampaigns.map((campaign) => {
         const isExpanded = expandedCampaign === campaign.name;
-        const detailsState = detailsByCampaign[campaign.name];
-        const sparklineData = sparklines[campaign.name];
-        const sparklineStatus = statuses[campaign.name];
+        const sparklineData = campaign.sparkline;
 
         return (
           <article
@@ -154,7 +126,7 @@ export default function CampaignList({
               />
 
               <div className='hidden h-11 md:block'>
-                <CampaignSparkline data={sparklineData} status={sparklineStatus} />
+                <CampaignSparkline data={sparklineData} />
               </div>
 
               <Button
@@ -171,26 +143,13 @@ export default function CampaignList({
                 {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
               </Button>
             </div>
-            {isExpanded && (
-              <div id={`campaign-${campaign.name}-details`} className='mx-3 mb-3 ml-5 space-y-4'>
-                {!detailsState || detailsState.status === 'loading' ? (
-                  <div className='flex items-center justify-center gap-3 py-8'>
-                    <Spinner size='sm' aria-label='Loading campaign details' />
-                    <span className='text-muted-foreground text-sm'>Loading campaign details...</span>
-                  </div>
-                ) : null}
-
-                {detailsState?.status === 'error' ? (
-                  <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
-                    <p className='text-destructive text-sm'>
-                      Failed to load campaign details. Please try expanding again.
-                    </p>
-                  </div>
-                ) : null}
-
-                {detailsState?.status === 'loaded' ? <CampaignInlineUTMSection {...detailsState.data} /> : null}
-              </div>
-            )}
+            <CampaignExpandedRow
+              isExpanded={isExpanded}
+              dashboardId={dashboardId}
+              campaignName={campaign.name}
+              startDate={startDate}
+              endDate={endDate}
+            />
           </article>
         );
       })}
@@ -218,19 +177,23 @@ function CampaignMetric({ label, value, className }: { label: string; value: str
   );
 }
 
-type CampaignInlineUTMSectionProps = CampaignExpandedDetails;
+type CampaignInlineUTMSectionProps = {
+  details: CampaignExpandedDetails;
+  dashboardId: string;
+  campaignName: string;
+  startDate: string;
+  endDate: string;
+};
 
 function CampaignInlineUTMSection({
-  utmSource,
-  utmMedium,
-  utmContent,
-  utmTerm,
-  landingPages,
-  devices,
-  countries,
-  browsers,
-  operatingSystems,
+  details,
+  dashboardId,
+  campaignName,
+  startDate,
+  endDate,
 }: CampaignInlineUTMSectionProps) {
+  const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
+
   return (
     <div className='space-y-4'>
       <div className='text-muted-foreground flex items-center gap-3 text-[11px] font-medium tracking-wide uppercase'>
@@ -241,10 +204,11 @@ function CampaignInlineUTMSection({
       <div className='mt-1 grid gap-3 md:grid-cols-5'>
         <div className='md:col-span-3'>
           <UTMBreakdownTabbedTable
-            source={utmSource}
-            medium={utmMedium}
-            content={utmContent}
-            term={utmTerm}
+            dashboardId={dashboardId}
+            campaignName={campaignName}
+            startDate={startDate}
+            endDate={endDate}
+            initialSource={utmSource}
             landingPages={landingPages}
           />
         </div>
@@ -256,10 +220,83 @@ function CampaignInlineUTMSection({
               browsers={browsers}
               operatingSystems={operatingSystems}
             />
-            <UTMBreakdownTabbedChart source={utmSource} medium={utmMedium} content={utmContent} term={utmTerm} />
+            <UTMBreakdownTabbedChart
+              dashboardId={dashboardId}
+              campaignName={campaignName}
+              startDate={startDate}
+              endDate={endDate}
+              initialSource={utmSource}
+            />
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+type CampaignExpandedRowProps = {
+  isExpanded: boolean;
+  dashboardId: string;
+  campaignName: string;
+  startDate: string;
+  endDate: string;
+};
+
+function CampaignExpandedRow({
+  isExpanded,
+  dashboardId,
+  campaignName,
+  startDate,
+  endDate,
+}: CampaignExpandedRowProps) {
+  const { data, status } = useQuery({
+    queryKey: ['campaign-expanded-details', dashboardId, campaignName, startDate, endDate],
+    queryFn: () => fetchCampaignExpandedDetailsAction(dashboardId, startDate, endDate, campaignName),
+    enabled: isExpanded,
+    staleTime: getExpandedDetailsStaleTime(startDate, endDate),
+    gcTime: 15 * 60 * 1000,
+  });
+
+  if (!isExpanded) {
+    return null;
+  }
+
+  return (
+    <div id={`campaign-${campaignName}-details`} className='mx-3 mb-3 ml-5 space-y-4'>
+      {status === 'pending' ? (
+        <div className='flex items-center justify-center gap-3 py-8'>
+          <Spinner size='sm' aria-label='Loading campaign details' />
+          <span className='text-muted-foreground text-sm'>Loading campaign details...</span>
+        </div>
+      ) : null}
+
+      {status === 'error' ? (
+        <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
+          <p className='text-destructive text-sm'>Failed to load campaign details. Please try expanding again.</p>
+        </div>
+      ) : null}
+
+      {status === 'success' && data ? (
+        <CampaignInlineUTMSection
+          details={data}
+          dashboardId={dashboardId}
+          campaignName={campaignName}
+          startDate={startDate}
+          endDate={endDate}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function getExpandedDetailsStaleTime(startDateIso: string, endDateIso: string) {
+  const rangeMs = new Date(endDateIso).getTime() - new Date(startDateIso).getTime();
+  const hourMs = 60 * 60 * 1000;
+  if (rangeMs <= hourMs) {
+    return 30_000;
+  }
+  if (rangeMs <= 24 * hourMs) {
+    return 5 * 60 * 1000;
+  }
+  return 15 * 60 * 1000;
 }
