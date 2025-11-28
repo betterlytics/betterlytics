@@ -1,6 +1,6 @@
 import CampaignList from './CampaignList';
-import { fetchCampaignPerformanceAction } from '@/app/actions';
-import type { CampaignPerformance } from '@/entities/campaign';
+import { fetchCampaignPerformanceAction, fetchCampaignSparklinesAction } from '@/app/actions';
+import type { CampaignPerformance, CampaignSparklinePoint } from '@/entities/campaign';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
 
 type CampaignDirectorySectionProps = {
@@ -12,7 +12,9 @@ type CampaignDirectorySectionProps = {
   campaignPerformancePromise: ReturnType<typeof fetchCampaignPerformanceAction>;
 };
 
-export type CampaignListItem = CampaignPerformance;
+export type CampaignListItem = CampaignPerformance & {
+  sparkline: CampaignSparklinePoint[];
+};
 
 export default async function CampaignDirectorySection({
   dashboardId,
@@ -22,9 +24,17 @@ export default async function CampaignDirectorySection({
   timezone,
   campaignPerformancePromise,
 }: CampaignDirectorySectionProps) {
-  const [campaignPerformance] = await Promise.all([campaignPerformancePromise]);
+  const campaignPerformance = await campaignPerformancePromise;
+  const campaignNames = campaignPerformance.map((campaign) => campaign.name);
+  const sparklineMap =
+    campaignNames.length > 0
+      ? await fetchCampaignSparklinesAction(dashboardId, startDate, endDate, granularity, timezone, campaignNames)
+      : {};
 
-  const campaigns: CampaignListItem[] = campaignPerformance;
+  const campaigns: CampaignListItem[] = campaignPerformance.map((campaign) => ({
+    ...campaign,
+    sparkline: sparklineMap[campaign.name] ?? [],
+  }));
 
   return (
     <CampaignList
@@ -32,8 +42,6 @@ export default async function CampaignDirectorySection({
       campaigns={campaigns}
       startDate={startDate.toISOString()}
       endDate={endDate.toISOString()}
-      granularity={granularity}
-      timezone={timezone}
     />
   );
 }

@@ -33,12 +33,14 @@ import {
   RawCampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceArraySchema,
+  CampaignSparklinePoint,
 } from '@/entities/campaign';
 import type { BrowserInfo, DeviceType, OperatingSystemInfo } from '@/entities/devices';
 import type { GeoVisitor } from '@/entities/geography';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { formatDuration } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
 
 interface RawMetricsData {
   total_sessions: number;
@@ -71,17 +73,11 @@ export async function fetchCampaignPerformance(
   siteId: string,
   startDate: Date,
   endDate: Date,
-  campaignName?: string,
 ): Promise<CampaignPerformance[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  const rawCampaignData: RawCampaignData[] = await getCampaignPerformanceData(
-    siteId,
-    startDateTime,
-    endDateTime,
-    campaignName,
-  );
+  const rawCampaignData: RawCampaignData[] = await getCampaignPerformanceData(siteId, startDateTime, endDateTime);
 
   const transformedData: CampaignPerformance[] = rawCampaignData.map((raw: RawCampaignData) => {
     const metrics = calculateCommonCampaignMetrics(raw);
@@ -250,12 +246,86 @@ export async function fetchCampaignVisitorTrend(
   endDate: Date,
   granularity: GranularityRangeValues,
   timezone: string,
-  campaignName?: string,
+  campaignNames: string[],
 ): Promise<CampaignTrendRow[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity, timezone, campaignName);
+  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity, timezone, campaignNames);
+}
+
+const SPARKLINE_ALLOWED_GRANULARITIES: GranularityRangeValues[] = [
+  'day',
+  'hour',
+  'minute_30',
+  'minute_15',
+  'minute_1',
+];
+
+function getSafeSparklineGranularity(granularity: GranularityRangeValues): GranularityRangeValues {
+  return SPARKLINE_ALLOWED_GRANULARITIES.includes(granularity) ? granularity : 'hour';
+}
+
+export async function fetchCampaignSparklines(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  granularity: GranularityRangeValues,
+  timezone: string,
+  campaignNames: string[],
+): Promise<Record<string, CampaignSparklinePoint[]>> {
+  if (campaignNames.length === 0) {
+    return {};
+  }
+
+  const safeGranularity = getSafeSparklineGranularity(granularity);
+  const dateRange = { start: startDate, end: endDate };
+  const trendRows = await fetchCampaignVisitorTrend(
+    siteId,
+    startDate,
+    endDate,
+    safeGranularity,
+    timezone,
+    campaignNames,
+  );
+
+  const campaignSet = new Set(campaignNames);
+  const grouped = new Map<string, CampaignTrendRow[]>();
+  campaignNames.forEach((name) => grouped.set(name, []));
+
+  trendRows.forEach((row) => {
+    if (!campaignSet.has(row.utm_campaign)) {
+      return;
+    }
+    const bucket = grouped.get(row.utm_campaign) ?? [];
+    bucket.push(row);
+    grouped.set(row.utm_campaign, bucket);
+  });
+
+  const sparklineMap: Record<string, CampaignSparklinePoint[]> = {};
+  grouped.forEach((rows, campaignName) => {
+    if (rows.length === 0) {
+      sparklineMap[campaignName] = [];
+      return;
+    }
+
+    const sparkline = toSparklineSeries({
+      data: rows.map((row) => ({
+        date: row.date,
+        visitors: row.visitors,
+      })),
+      granularity: safeGranularity,
+      dataKey: 'visitors',
+      dateRange,
+    }) as Array<{ date: Date; visitors: number }>;
+
+    sparklineMap[campaignName] = sparkline.map((point) => ({
+      date: point.date.toISOString(),
+      visitors: point.visitors,
+    }));
+  });
+
+  return sparklineMap;
 }
 
 export async function fetchCampaignDeviceAudience(

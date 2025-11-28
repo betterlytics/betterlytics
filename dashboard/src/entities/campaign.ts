@@ -27,6 +27,11 @@ export const RawCampaignMediumBreakdownItemSchema = z.object({
   sum_session_duration_seconds: z.number().int().nonnegative(),
 });
 
+export const CampaignSparklinePointSchema = z.object({
+  date: z.string(),
+  visitors: z.number().int().nonnegative(),
+});
+
 export const CampaignPerformanceSchema = z.object({
   name: z.string(),
   visitors: z.number().int().nonnegative(),
@@ -115,6 +120,7 @@ export const CampaignTrendRowSchema = z.object({
 
 export type RawCampaignData = z.infer<typeof RawCampaignDataSchema>;
 export type CampaignPerformance = z.infer<typeof CampaignPerformanceSchema>;
+export type CampaignSparklinePoint = z.infer<typeof CampaignSparklinePointSchema>;
 export type RawCampaignSourceBreakdownItem = z.infer<typeof RawCampaignSourceBreakdownItemSchema>;
 export type CampaignSourceBreakdownItem = z.infer<typeof CampaignSourceBreakdownItemSchema>;
 export type RawCampaignMediumBreakdownItem = z.infer<typeof RawCampaignMediumBreakdownItemSchema>;
