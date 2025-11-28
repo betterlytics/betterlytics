@@ -153,8 +153,8 @@ export default function UTMBreakdownTabbedChart({
   const mediumQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate: startDateIso,
-    endDate: endDateIso,
+    startDate,
+    endDate,
     dimension: 'medium',
     enabled: activeTab === 'medium',
   });
@@ -162,8 +162,8 @@ export default function UTMBreakdownTabbedChart({
   const contentQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate: startDateIso,
-    endDate: endDateIso,
+    startDate,
+    endDate,
     dimension: 'content',
     enabled: activeTab === 'content',
   });
@@ -171,8 +171,8 @@ export default function UTMBreakdownTabbedChart({
   const termQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate: startDateIso,
-    endDate: endDateIso,
+    startDate,
+    endDate,
     dimension: 'term',
     enabled: activeTab === 'term',
   });
