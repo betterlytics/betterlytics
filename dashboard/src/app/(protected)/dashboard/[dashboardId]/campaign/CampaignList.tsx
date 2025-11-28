@@ -72,6 +72,16 @@ export default function CampaignList({
     campaignNames: paginatedCampaigns.map((campaign) => campaign.name),
   });
 
+  const toggleCampaignExpanded = (campaignName: string) => {
+    setExpandedCampaign((prev) => {
+      if (prev === campaignName) {
+        return null;
+      }
+      loadCampaignDetails(campaignName);
+      return campaignName;
+    });
+  };
+
   const handlePageChange = (newIndex: number) => {
     setPageIndex(newIndex);
     setExpandedCampaign(null);
@@ -117,11 +127,12 @@ export default function CampaignList({
         return (
           <article
             key={campaign.name}
-            className='border-border/70 bg-card/80 hover:bg-card/90 focus-within:ring-offset-background hover:border-border/90 group relative overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2'
+            className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative cursor-pointer overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out'
+            onClick={() => toggleCampaignExpanded(campaign.name)}
           >
             <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
 
-            <div className='grid grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,80px)_minmax(120px,200px)_auto]'>
+            <div className='grid grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'>
               <div className='min-w-0'>
                 <p className='truncate text-sm leading-tight font-semibold'>{campaign.name}</p>
                 <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
@@ -130,13 +141,17 @@ export default function CampaignList({
               </div>
 
               <CampaignMetric
-                label='Bounce'
+                label='Bounce rate'
                 value={formatPercentage(campaign.bounceRate)}
                 className='hidden md:flex'
               />
-              <CampaignMetric label='Duration' value={campaign.avgSessionDuration} className='hidden md:flex' />
               <CampaignMetric
-                label='Pages'
+                label='Avg. duration'
+                value={campaign.avgSessionDuration}
+                className='hidden md:flex'
+              />
+              <CampaignMetric
+                label='Pages/session'
                 value={campaign.pagesPerSession.toFixed(1)}
                 className='hidden md:flex'
               />
@@ -148,14 +163,10 @@ export default function CampaignList({
               <Button
                 variant='ghost'
                 size='icon'
-                className='shrink-0'
-                onClick={() => {
-                  if (isExpanded) {
-                    setExpandedCampaign(null);
-                    return;
-                  }
-                  setExpandedCampaign(campaign.name);
-                  loadCampaignDetails(campaign.name);
+                className='shrink-0 cursor-pointer'
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleCampaignExpanded(campaign.name);
                 }}
                 aria-expanded={isExpanded}
                 aria-controls={`campaign-${campaign.name}-details`}
@@ -201,8 +212,10 @@ export default function CampaignList({
 
 function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
-    <div className={`flex flex-col ${className ?? ''}`}>
-      <span className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>{label}</span>
+    <div className={`flex flex-col justify-end ${className ?? ''}`}>
+      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide uppercase'>
+        {label}
+      </span>
       <span className='text-foreground text-sm font-semibold tabular-nums'>{value}</span>
     </div>
   );
