@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
 import { getCountryName } from '@/utils/countryCodes';
 import { useTranslations } from 'next-intl';
+import { capitalizeFirstLetter } from '@/utils/formatters';
 
 export type AudienceShare = {
   label: string;
@@ -25,10 +26,10 @@ const CampaignAudienceProfile = memo(
     const sections = useMemo(
       () =>
         [
-          { key: 'devices', title: 'Devices', items: devices ?? [] },
-          { key: 'browsers', title: 'Browsers', items: browsers ?? [] },
-          { key: 'os', title: 'OS', items: operatingSystems ?? [] },
-          { key: 'countries', title: 'Countries', items: countries ?? [] },
+          { key: 'devices', title: t('deviceTitle'), items: devices ?? [] },
+          { key: 'browsers', title: t('browserTitle'), items: browsers ?? [] },
+          { key: 'os', title: t('osTitle'), items: operatingSystems ?? [] },
+          { key: 'countries', title: t('countryTitle'), items: countries ?? [] },
         ].filter((section) => section.items.length > 0),
       [devices, browsers, operatingSystems, countries],
     );
@@ -84,7 +85,7 @@ function getAudienceIconAndLabel(sectionKey: string, rawLabel: string, locale: s
     case 'devices':
       return {
         icon: <DeviceIcon type={rawLabel} className='h-3.5 w-3.5' />,
-        label: rawLabel,
+        label: capitalizeFirstLetter(rawLabel),
       };
     case 'browsers':
       return {

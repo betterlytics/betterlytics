@@ -73,10 +73,10 @@ export default function UTMBreakdownTabbedTable({
     [t],
   );
 
-  const sourceColumns = useMemo(() => createUTMColumns('source', t('tabs.source')), [createUTMColumns, t]);
-  const mediumColumns = useMemo(() => createUTMColumns('medium', t('tabs.medium')), [createUTMColumns, t]);
-  const contentColumns = useMemo(() => createUTMColumns('content', t('tabs.content')), [createUTMColumns, t]);
-  const termColumns = useMemo(() => createUTMColumns('term', t('tabs.term')), [createUTMColumns, t]);
+  const sourceColumns = useMemo(() => createUTMColumns('label', t('tabs.source')), [createUTMColumns, t]);
+  const mediumColumns = useMemo(() => createUTMColumns('label', t('tabs.medium')), [createUTMColumns, t]);
+  const contentColumns = useMemo(() => createUTMColumns('label', t('tabs.content')), [createUTMColumns, t]);
+  const termColumns = useMemo(() => createUTMColumns('label', t('tabs.term')), [createUTMColumns, t]);
   const entryPageColumns = useMemo(
     () => createUTMColumns('landingPageUrl', t('tabs.entryPages')),
     [createUTMColumns, t],

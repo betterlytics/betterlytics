@@ -313,32 +313,32 @@ export async function getCampaignAudienceProfileData(
   const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
 
   const query = safeSql`
-  SELECT 
-    dimension,
-    label,
-    uniq(visitor_id) AS visitors
-  FROM
-  (
     SELECT 
-      visitor_id,
-      [
-        ('device', device_type),
-        ('country', country_code),
-        ('browser', browser),
-        ('os', os)
-      ] AS dims
-    FROM analytics.events
-    WHERE site_id = {siteId:String}
-      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-      AND utm_campaign != ''
-      ${campaignFilter}
-  )
-  ARRAY JOIN dims AS (dimension, label)
-  WHERE label != '' AND label IS NOT NULL
-  GROUP BY dimension, label
-  ORDER BY dimension ASC, visitors DESC
-  LIMIT {limitPerDimension:UInt32} BY dimension
-`;
+      dim.1 AS dimension,
+      dim.2 AS label,
+      uniq(visitor_id) AS visitors
+    FROM
+    (
+      SELECT 
+        visitor_id,
+        [
+          ('device', device_type),
+          ('country', country_code),
+          ('browser', browser),
+          ('os', os)
+        ] AS dims
+      FROM analytics.events
+      WHERE site_id = {siteId:String}
+        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+        AND utm_campaign != ''
+        ${campaignFilter}
+    ) AS s
+    ARRAY JOIN dims AS dim
+    WHERE dim.2 != '' AND dim.2 IS NOT NULL
+    GROUP BY dimension, label
+    ORDER BY dimension ASC, visitors DESC
+    LIMIT {limitPerDimension:UInt32} BY dimension
+  `;
 
   const result = await clickhouse
     .query(query.taggedSql, {

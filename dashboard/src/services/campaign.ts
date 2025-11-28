@@ -213,32 +213,6 @@ export async function fetchCampaignLandingPagePerformance(
   return CampaignLandingPagePerformanceArraySchema.parse(transformedData);
 }
 
-export async function fetchCampaignVisitorTrend(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  timezone: string,
-  campaignNames: string[],
-): Promise<CampaignTrendRow[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
-  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity, timezone, campaignNames);
-}
-
-const SPARKLINE_ALLOWED_GRANULARITIES: GranularityRangeValues[] = [
-  'day',
-  'hour',
-  'minute_30',
-  'minute_15',
-  'minute_1',
-];
-
-function getSafeSparklineGranularity(granularity: GranularityRangeValues): GranularityRangeValues {
-  return SPARKLINE_ALLOWED_GRANULARITIES.includes(granularity) ? granularity : 'hour';
-}
-
 export async function fetchCampaignSparklines(
   siteId: string,
   startDate: Date,
@@ -252,34 +226,28 @@ export async function fetchCampaignSparklines(
   }
 
   const safeGranularity = getSafeSparklineGranularity(granularity);
-  const dateRange = { start: startDate, end: endDate };
-  const trendRows = await fetchCampaignVisitorTrend(
+
+  const trendRows = await getCampaignVisitorTrendData(
     siteId,
-    startDate,
-    endDate,
+    toDateTimeString(startDate),
+    toDateTimeString(endDate),
     safeGranularity,
     timezone,
     campaignNames,
   );
 
-  const campaignSet = new Set(campaignNames);
-  const grouped = new Map<string, CampaignTrendRow[]>();
-  campaignNames.forEach((name) => grouped.set(name, []));
-
-  trendRows.forEach((row) => {
-    if (!campaignSet.has(row.utm_campaign)) {
-      return;
-    }
-    const bucket = grouped.get(row.utm_campaign) ?? [];
-    bucket.push(row);
-    grouped.set(row.utm_campaign, bucket);
-  });
+  const grouped = trendRows.reduce<Record<string, CampaignTrendRow[]>>((acc, row) => {
+    (acc[row.utm_campaign] ??= []).push(row);
+    return acc;
+  }, {});
 
   const sparklineMap: Record<string, CampaignSparklinePoint[]> = {};
-  grouped.forEach((rows, campaignName) => {
-    if (rows.length === 0) {
+
+  for (const campaignName of campaignNames) {
+    const rows = grouped[campaignName];
+    if (!rows || rows.length === 0) {
       sparklineMap[campaignName] = [];
-      return;
+      continue;
     }
 
     const sparkline = toSparklineSeries({
@@ -289,14 +257,14 @@ export async function fetchCampaignSparklines(
       })),
       granularity: safeGranularity,
       dataKey: 'visitors',
-      dateRange,
+      dateRange: { start: startDate, end: endDate },
     }) as Array<{ date: Date; visitors: number }>;
 
     sparklineMap[campaignName] = sparkline.map((point) => ({
       date: point.date.toISOString(),
       visitors: point.visitors,
     }));
-  });
+  }
 
   return sparklineMap;
 }
@@ -364,4 +332,10 @@ export async function fetchCampaignAudienceProfile(
     browsers,
     operatingSystems,
   };
+}
+
+const SPARKLINE_ALLOWED_GRANULARITIES: GranularityRangeValues[] = ['day', 'hour', 'minute_30', 'minute_15'];
+
+function getSafeSparklineGranularity(granularity: GranularityRangeValues): GranularityRangeValues {
+  return SPARKLINE_ALLOWED_GRANULARITIES.includes(granularity) ? granularity : 'hour';
 }
