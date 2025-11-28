@@ -127,12 +127,14 @@ export default function CampaignList({
         return (
           <article
             key={campaign.name}
-            className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative cursor-pointer overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out'
-            onClick={() => toggleCampaignExpanded(campaign.name)}
+            className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out'
           >
             <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
 
-            <div className='grid grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'>
+            <div
+              className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'
+              onClick={() => toggleCampaignExpanded(campaign.name)}
+            >
               <div className='min-w-0'>
                 <p className='truncate text-sm leading-tight font-semibold'>{campaign.name}</p>
                 <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
