@@ -4,7 +4,6 @@ import { memo, useMemo } from 'react';
 import { useLocale } from 'next-intl';
 import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
 import { getCountryName } from '@/utils/countryCodes';
-import { capitalizeFirstLetter } from '@/utils/formatters';
 
 export type AudienceShare = {
   label: string;
@@ -84,17 +83,17 @@ function getAudienceIconAndLabel(sectionKey: string, rawLabel: string, locale: s
     case 'devices':
       return {
         icon: <DeviceIcon type={rawLabel} className='h-3.5 w-3.5' />,
-        label: capitalizeFirstLetter(rawLabel),
+        label: rawLabel,
       };
     case 'browsers':
       return {
         icon: <BrowserIcon name={rawLabel} className='h-3.5 w-3.5' />,
-        label: capitalizeFirstLetter(rawLabel),
+        label: rawLabel,
       };
     case 'os':
       return {
         icon: <OSIcon name={rawLabel} className='h-3.5 w-3.5' />,
-        label: capitalizeFirstLetter(rawLabel),
+        label: rawLabel,
       };
     case 'countries': {
       const code = rawLabel.toUpperCase() as FlagIconProps['countryCode'];
