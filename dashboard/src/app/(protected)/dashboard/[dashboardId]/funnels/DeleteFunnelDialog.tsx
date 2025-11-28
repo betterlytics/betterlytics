@@ -12,20 +12,30 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { PresentedFunnel } from '@/presenters/toFunnel';
+import { useCallback, useState } from 'react';
+import { deleteFunnelAction } from '@/app/actions';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 type DeleteFunnelDialogProps = {
   funnel: PresentedFunnel;
 };
 
 export function DeleteFunnelDialog({ funnel }: DeleteFunnelDialogProps) {
+  const dashboardId = useDashboardId();
+  const [isOpen, setIsOpen] = useState(false);
+  const deleteFunnel = useCallback(() => {
+    deleteFunnelAction(dashboardId, funnel.id).then(() => {
+      setIsOpen(false);
+    });
+  }, [dashboardId, funnel.id]);
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant='ghost' className='cursor-pointer'>
           <Trash2 className='h-4 w-4' />
         </Button>
       </DialogTrigger>
-      <DialogContent className='bg-background flex h-[90dvh] w-[70dvw] !max-w-[1000px] flex-col'>
+      <DialogContent className='bg-background flex flex-col'>
         <DialogHeader>
           <DialogTitle>Delete funnel</DialogTitle>
           <DialogDescription>
@@ -33,10 +43,10 @@ export function DeleteFunnelDialog({ funnel }: DeleteFunnelDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className='flex flex-1 items-end justify-end gap-2'>
-          <Button variant='secondary' className='w-30 cursor-pointer'>
+          <Button variant='secondary' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
             Cancel
           </Button>
-          <Button variant='destructive' className='w-30 cursor-pointer'>
+          <Button variant='destructive' className='w-30 cursor-pointer' onClick={() => deleteFunnel()}>
             Delete funnel
           </Button>
         </DialogFooter>

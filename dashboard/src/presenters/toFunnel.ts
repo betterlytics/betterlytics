@@ -1,6 +1,7 @@
 import { FunnelDetails, FunnelPreview, FunnelStep } from '@/entities/funnels';
 
 export type PresentedFunnel = {
+  id: string;
   visitorCount: {
     min: number;
     max: number;
@@ -65,6 +66,7 @@ export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel
   const name = 'name' in funnel ? funnel.name : 'Funnel';
 
   return {
+    id: 'id' in funnel ? funnel.id : '',
     visitorCount,
     steps,
     biggestDropOff,

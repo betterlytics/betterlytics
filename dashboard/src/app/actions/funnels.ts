@@ -1,12 +1,19 @@
 'use server';
 
-import { type Funnel, CreateFunnelSchema, type FunnelStep } from '@/entities/funnels';
+import {
+  type Funnel,
+  CreateFunnelSchema,
+  type FunnelStep,
+  UpdateFunnelSchema,
+  UpdateFunnel,
+} from '@/entities/funnels';
 import {
   createFunnelForDashboard,
   getFunnelDetailsById,
   getFunnelPreviewData,
   getFunnelsByDashboardId,
   deleteFunnelFromDashboard,
+  updateFunnelForDashboard,
 } from '@/services/funnels';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/authContext';
@@ -42,7 +49,6 @@ export const fetchFunnelsAction = withDashboardAuthContext(
     const funnels = await getFunnelsByDashboardId(ctx.dashboardId, ctx.siteId, startDate, endDate);
 
     return funnels.map((funnel) => ({
-      id: funnel.id,
       stepCount: funnel.funnelSteps.length,
       ...toFunnel(funnel),
     }));
@@ -60,6 +66,14 @@ export const fetchFunnelPreviewAction = withDashboardAuthContext(
 export const deleteFunnelAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, funnelId: string): Promise<void> => {
     await deleteFunnelFromDashboard(ctx.dashboardId, funnelId);
+    revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
+  },
+);
+
+export const updateFunnelAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, data: UpdateFunnel): Promise<void> => {
+    const validatedData = UpdateFunnelSchema.parse(data);
+    await updateFunnelForDashboard(validatedData);
     revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
   },
 );

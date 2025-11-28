@@ -1,5 +1,5 @@
 import { LucideFunnel, Plus } from 'lucide-react';
-import { CreateFunnelDialog } from './CreateFunnelDialogNew';
+import { CreateFunnelDialog } from './CreateFunnelDialog';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 

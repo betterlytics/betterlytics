@@ -1,4 +1,4 @@
-import { CreateFunnel, CreateFunnelSchema, Funnel, FunnelSchema } from '@/entities/funnels';
+import { CreateFunnel, CreateFunnelSchema, Funnel, FunnelSchema, UpdateFunnel } from '@/entities/funnels';
 import prisma from '@/lib/postgres';
 
 export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Funnel[]> {
@@ -42,5 +42,18 @@ export async function createFunnel(funnelData: CreateFunnel): Promise<Funnel> {
 export async function deleteFunnelById(dashboardId: string, funnelId: string): Promise<void> {
   await prisma.funnel.delete({
     where: { id: funnelId, dashboardId },
+  });
+}
+
+export async function updateFunnel(funnel: UpdateFunnel): Promise<void> {
+  await prisma.funnel.update({
+    where: { id: funnel.id },
+    data: {
+      ...funnel,
+      funnelSteps: {
+        deleteMany: {},
+        create: funnel.funnelSteps,
+      },
+    },
   });
 }

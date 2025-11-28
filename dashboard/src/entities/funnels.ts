@@ -29,8 +29,13 @@ export const CreateFunnelSchema = z.object({
   funnelSteps: z.array(FunnelStepSchema.omit({ id: true })).min(2),
 });
 
+export const UpdateFunnelSchema = CreateFunnelSchema.extend({
+  id: z.string().cuid('Valid Funnel ID is required'),
+});
+
 export type Funnel = z.infer<typeof FunnelSchema>;
 export type FunnelStep = z.infer<typeof FunnelStepSchema>;
 export type FunnelDetails = z.infer<typeof FunnelDetailsSchema>;
 export type FunnelPreview = z.infer<typeof FunnelPreviewSchema>;
 export type CreateFunnel = z.infer<typeof CreateFunnelSchema>;
+export type UpdateFunnel = z.infer<typeof UpdateFunnelSchema>;

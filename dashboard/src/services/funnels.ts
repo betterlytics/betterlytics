@@ -8,6 +8,8 @@ import {
   FunnelPreview,
   FunnelPreviewSchema,
   FunnelStep,
+  UpdateFunnel,
+  UpdateFunnelSchema,
 } from '@/entities/funnels';
 import * as PostgresFunnelRepository from '@/repositories/postgres/funnels';
 import * as ClickhouseFunnelRepository from '@/repositories/clickhouse/funnels';
@@ -103,4 +105,9 @@ export async function getFunnelPreviewData(
 
 export async function deleteFunnelFromDashboard(dashboardId: string, funnelId: string): Promise<void> {
   return PostgresFunnelRepository.deleteFunnelById(dashboardId, funnelId);
+}
+
+export async function updateFunnelForDashboard(funnel: UpdateFunnel): Promise<void> {
+  const validatedFunnel = UpdateFunnelSchema.parse(funnel);
+  return PostgresFunnelRepository.updateFunnel(validatedFunnel);
 }

@@ -40,7 +40,7 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <div className='container space-y-3 p-2 pt-4 pb-10 sm:p-6'>
       <Suspense fallback={null}>
         <FunnelsHeader funnelsPromise={funnelsPromise} title={t('funnels')} />
       </Suspense>
