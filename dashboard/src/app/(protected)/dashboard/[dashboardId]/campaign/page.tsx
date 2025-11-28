@@ -35,6 +35,8 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
     dashboardId,
     startDate,
     endDate,
+    granularity,
+    timezone,
     pageIndex,
     safePageSize,
   );
@@ -65,8 +67,6 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
           dashboardId={dashboardId}
           startDate={startDate}
           endDate={endDate}
-          granularity={granularity}
-          timezone={timezone}
           campaignPerformancePromise={campaignPerformancePromise}
         />
       </Suspense>

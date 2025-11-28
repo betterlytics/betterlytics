@@ -1,116 +1,71 @@
 import { z } from 'zod';
 
-export const RawCampaignDataSchema = z.object({
-  utm_campaign_name: z.string(),
+const RawMetricFields = {
   total_visitors: z.number().int().nonnegative(),
   bounced_sessions: z.number().int().nonnegative(),
   total_sessions: z.number().int().nonnegative(),
   total_pageviews: z.number().int().nonnegative(),
   sum_session_duration_seconds: z.number().int().nonnegative(),
-});
+};
 
-export const RawCampaignSourceBreakdownItemSchema = z.object({
-  source: z.string(),
-  total_visitors: z.number().int().nonnegative(),
-  bounced_sessions: z.number().int().nonnegative(),
-  total_sessions: z.number().int().nonnegative(),
-  total_pageviews: z.number().int().nonnegative(),
-  sum_session_duration_seconds: z.number().int().nonnegative(),
-});
+const MetricFields = {
+  visitors: z.number().int().nonnegative(),
+  bounceRate: z.number().nonnegative(),
+  avgSessionDuration: z.string(),
+  pagesPerSession: z.number().nonnegative(),
+};
 
-export const RawCampaignMediumBreakdownItemSchema = z.object({
-  medium: z.string(),
-  total_visitors: z.number().int().nonnegative(),
-  bounced_sessions: z.number().int().nonnegative(),
-  total_sessions: z.number().int().nonnegative(),
-  total_pageviews: z.number().int().nonnegative(),
-  sum_session_duration_seconds: z.number().int().nonnegative(),
-});
+const RawMetricsSchema = z.object(RawMetricFields);
+const MetricSchema = z.object(MetricFields);
+
+function createRawBreakdownSchema<TLabel extends string>(labelKey: TLabel) {
+  return RawMetricsSchema.extend({ [labelKey]: z.string() } as Record<TLabel, z.ZodString>);
+}
+
+function createBreakdownSchema<TLabel extends string>(labelKey: TLabel) {
+  return MetricSchema.extend({ [labelKey]: z.string() } as Record<TLabel, z.ZodString>);
+}
+
+export const RawCampaignDataSchema = createRawBreakdownSchema('utm_campaign_name');
+
+export const RawCampaignSourceBreakdownItemSchema = createRawBreakdownSchema('source');
+
+export const RawCampaignMediumBreakdownItemSchema = createRawBreakdownSchema('medium');
 
 export const CampaignSparklinePointSchema = z.object({
   date: z.string(),
   visitors: z.number().int().nonnegative(),
 });
 
-export const CampaignPerformanceSchema = z.object({
+export const CampaignPerformanceSchema = MetricSchema.extend({
   name: z.string(),
-  visitors: z.number().int().nonnegative(),
-  bounceRate: z.number().nonnegative(),
-  avgSessionDuration: z.string(),
-  pagesPerSession: z.number().nonnegative(),
 });
 
-export const CampaignSourceBreakdownItemSchema = z.object({
-  source: z.string(),
-  visitors: z.number().int().nonnegative(),
-  bounceRate: z.number().nonnegative(),
-  avgSessionDuration: z.string(),
-  pagesPerSession: z.number().nonnegative(),
+export const CampaignDirectoryRowSummarySchema = CampaignPerformanceSchema.extend({
+  sparkline: z.array(CampaignSparklinePointSchema),
 });
 
-// For UTM Medium Breakdown
-export const CampaignMediumBreakdownItemSchema = z.object({
-  medium: z.string(),
-  visitors: z.number().int().nonnegative(),
-  bounceRate: z.number().nonnegative(),
-  avgSessionDuration: z.string(),
-  pagesPerSession: z.number().nonnegative(),
-});
+export const CampaignSourceBreakdownItemSchema = createBreakdownSchema('source');
 
-export const RawCampaignContentBreakdownItemSchema = z.object({
-  content: z.string(),
-  total_visitors: z.number().int().nonnegative(),
-  bounced_sessions: z.number().int().nonnegative(),
-  total_sessions: z.number().int().nonnegative(),
-  total_pageviews: z.number().int().nonnegative(),
-  sum_session_duration_seconds: z.number().int().nonnegative(),
-});
+export const CampaignMediumBreakdownItemSchema = createBreakdownSchema('medium');
 
-export const CampaignContentBreakdownItemSchema = z.object({
-  content: z.string(),
-  visitors: z.number().int().nonnegative(),
-  bounceRate: z.number().nonnegative(),
-  avgSessionDuration: z.string(),
-  pagesPerSession: z.number().nonnegative(),
-});
+export const RawCampaignContentBreakdownItemSchema = createRawBreakdownSchema('content');
 
-export const RawCampaignTermBreakdownItemSchema = z.object({
-  term: z.string(),
-  total_visitors: z.number().int().nonnegative(),
-  bounced_sessions: z.number().int().nonnegative(),
-  total_sessions: z.number().int().nonnegative(),
-  total_pageviews: z.number().int().nonnegative(),
-  sum_session_duration_seconds: z.number().int().nonnegative(),
-});
+export const CampaignContentBreakdownItemSchema = createBreakdownSchema('content');
 
-export const CampaignTermBreakdownItemSchema = z.object({
-  term: z.string(),
-  visitors: z.number().int().nonnegative(),
-  bounceRate: z.number().nonnegative(),
-  avgSessionDuration: z.string(),
-  pagesPerSession: z.number().nonnegative(),
-});
+export const RawCampaignTermBreakdownItemSchema = createRawBreakdownSchema('term');
 
-export const RawCampaignLandingPagePerformanceItemSchema = z.object({
+export const CampaignTermBreakdownItemSchema = createBreakdownSchema('term');
+
+export const RawCampaignLandingPagePerformanceItemSchema = RawMetricsSchema.extend({
   utm_campaign_name: z.string(),
   landing_page_url: z.string(),
-  total_visitors: z.number().int().nonnegative(),
-  bounced_sessions: z.number().int().nonnegative(),
-  total_sessions: z.number().int().nonnegative(),
-  total_pageviews: z.number().int().nonnegative(),
-  sum_session_duration_seconds: z.number().int().nonnegative(),
 });
 
-export const CampaignLandingPagePerformanceItemSchema = z.object({
+export const CampaignLandingPagePerformanceItemSchema = MetricSchema.extend({
   campaignName: z.string(),
   landingPageUrl: z.string(),
-  visitors: z.number().int().nonnegative(),
-  bounceRate: z.number().nonnegative(),
-  avgSessionDuration: z.string(),
-  pagesPerSession: z.number().nonnegative(),
 });
-
-const CampaignVisitorValuesSchema = z.record(z.string(), z.number().nonnegative());
 
 export const CampaignTrendRowSchema = z.object({
   date: z.string(),
@@ -121,6 +76,7 @@ export const CampaignTrendRowSchema = z.object({
 export type RawCampaignData = z.infer<typeof RawCampaignDataSchema>;
 export type CampaignPerformance = z.infer<typeof CampaignPerformanceSchema>;
 export type CampaignSparklinePoint = z.infer<typeof CampaignSparklinePointSchema>;
+export type CampaignDirectoryRowSummary = z.infer<typeof CampaignDirectoryRowSummarySchema>;
 export type RawCampaignSourceBreakdownItem = z.infer<typeof RawCampaignSourceBreakdownItemSchema>;
 export type CampaignSourceBreakdownItem = z.infer<typeof CampaignSourceBreakdownItemSchema>;
 export type RawCampaignMediumBreakdownItem = z.infer<typeof RawCampaignMediumBreakdownItemSchema>;

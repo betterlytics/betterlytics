@@ -1,7 +1,7 @@
 'use server';
 
 import {
-  fetchCampaignPerformancePage,
+  fetchCampaignDirectoryPage,
   fetchCampaignSourceBreakdown,
   fetchCampaignMediumBreakdown,
   fetchCampaignContentBreakdown,
@@ -11,13 +11,13 @@ import {
   fetchCampaignSparklines,
 } from '@/services/campaign';
 import {
-  CampaignPerformance,
   CampaignSourceBreakdownItem,
   CampaignMediumBreakdownItem,
   CampaignContentBreakdownItem,
   CampaignTermBreakdownItem,
   CampaignLandingPagePerformanceItem,
   CampaignSparklinePoint,
+  CampaignDirectoryRowSummary,
 } from '@/entities/campaign';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
@@ -45,19 +45,23 @@ export const fetchCampaignPerformanceAction = withDashboardAuthContext(
     ctx: AuthContext,
     startDate: Date,
     endDate: Date,
+    granularity: GranularityRangeValues,
+    timezone: string,
     pageIndex: number,
     pageSize: number,
   ): Promise<{
-    campaigns: CampaignPerformance[];
+    campaigns: CampaignDirectoryRowSummary[];
     totalCampaigns: number;
     pageIndex: number;
     pageSize: number;
   }> => {
     try {
-      const performancePage = await fetchCampaignPerformancePage(
+      const performancePage = await fetchCampaignDirectoryPage(
         ctx.siteId,
         startDate,
         endDate,
+        granularity,
+        timezone,
         pageIndex,
         pageSize,
       );
