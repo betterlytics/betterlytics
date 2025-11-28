@@ -28,7 +28,6 @@ interface ChartDataItem {
 }
 
 function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
-  const t = useTranslations('dashboard.emptyStates');
   const chartData = useMemo((): ChartDataItem[] => {
     if (!data || data.length === 0) return [];
     const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);

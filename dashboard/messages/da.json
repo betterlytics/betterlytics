@@ -1317,7 +1317,7 @@
         "title": "Kampagne landingsside-performance",
         "columns": {
           "campaignName": "Kampagnenavn",
-          "landingPageUrl": "Landingsside-URL",
+          "entryPage": "Indgangsside",
           "visitors": "Besøgende",
           "bounceRate": "Afvisningsprocent",
           "avgSessionDuration": "Gns. sessionsvarighed",
