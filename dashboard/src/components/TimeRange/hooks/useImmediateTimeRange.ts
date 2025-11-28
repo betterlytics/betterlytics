@@ -5,7 +5,7 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { TimeRangeValue } from '@/utils/timeRanges';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { baEvent } from '@/lib/ba-event';
-import { getResolvedRanges } from '@/lib/ba-timerange';
+import { isNowInFirstBucket, getResolvedRanges } from '@/lib/ba-timerange';
 
 export function useImmediateTimeRange() {
   const ctx = useTimeRangeContext();
@@ -25,7 +25,7 @@ export function useImmediateTimeRange() {
         ctx.compareAlignWeekdays,
       );
 
-      if (resolved.main.start.getTime() >= Date.now()) {
+      if (resolved.main.start.getTime() >= Date.now() || isNowInFirstBucket(resolved, ctx.timeZone) === false) {
         return null;
       }
       return resolved;

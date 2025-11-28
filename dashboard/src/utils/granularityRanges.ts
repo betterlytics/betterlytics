@@ -34,6 +34,7 @@ export function getAllowedGranularities(startDate: Date, endDate: Date): Granula
   const twelveHoursMs = 12 * 60 * 60 * 1000;
   const twoHoursMs = 2 * 60 * 60 * 1000;
 
+  // Max granularity should be the first index of the array
   if (durationMs >= oneWeekMs) return ['day'];
   if (durationMs <= twoHoursMs) return ['minute_1'];
   if (durationMs <= twelveHoursMs) return ['hour', 'minute_30', 'minute_15'];
