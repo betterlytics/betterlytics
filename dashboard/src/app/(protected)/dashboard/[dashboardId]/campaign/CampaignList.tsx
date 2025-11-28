@@ -71,7 +71,8 @@ export default function CampaignList({
       <Card className='border-border/50 bg-muted/30 p-8 text-center'>
         <p className='text-lg font-medium'>No campaigns captured yet</p>
         <p className='text-muted-foreground mt-1 text-sm'>
-          Start tagging traffic with `utm_campaign` to see performance here.
+          Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to
+          view performance metrics.
         </p>
       </Card>
     );
@@ -90,69 +91,16 @@ export default function CampaignList({
       )}
 
       {paginatedCampaigns.map((campaign) => {
-        const isExpanded = expandedCampaign === campaign.name;
-        const sparklineData = campaign.sparkline;
-
         return (
-          <article
+          <CampaignListEntry
             key={campaign.name}
-            className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out'
-          >
-            <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
-
-            <div
-              className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'
-              onClick={() => toggleCampaignExpanded(campaign.name)}
-            >
-              <div className='min-w-0'>
-                <p className='truncate text-sm leading-tight font-semibold'>{campaign.name}</p>
-                <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
-                  {campaign.visitors.toLocaleString()} {campaign.visitors === 1 ? 'session' : 'sessions'}
-                </p>
-              </div>
-
-              <CampaignMetric
-                label='Bounce rate'
-                value={formatPercentage(campaign.bounceRate)}
-                className='hidden md:flex'
-              />
-              <CampaignMetric
-                label='Avg. duration'
-                value={campaign.avgSessionDuration}
-                className='hidden md:flex'
-              />
-              <CampaignMetric
-                label='Pages/session'
-                value={campaign.pagesPerSession.toFixed(1)}
-                className='hidden md:flex'
-              />
-
-              <div className='hidden h-11 md:block'>
-                <CampaignSparkline data={sparklineData} />
-              </div>
-
-              <Button
-                variant='ghost'
-                size='icon'
-                className='shrink-0 cursor-pointer'
-                onClick={(event) => {
-                  event.stopPropagation();
-                  toggleCampaignExpanded(campaign.name);
-                }}
-                aria-expanded={isExpanded}
-                aria-controls={`campaign-${campaign.name}-details`}
-              >
-                {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
-              </Button>
-            </div>
-            <CampaignExpandedRow
-              isExpanded={isExpanded}
-              dashboardId={dashboardId}
-              campaignName={campaign.name}
-              startDate={startDate}
-              endDate={endDate}
-            />
-          </article>
+            campaign={campaign}
+            dashboardId={dashboardId}
+            startDate={startDate}
+            endDate={endDate}
+            isExpanded={expandedCampaign === campaign.name}
+            onToggle={() => toggleCampaignExpanded(campaign.name)}
+          />
         );
       })}
 
@@ -165,6 +113,81 @@ export default function CampaignList({
         onPageSizeChange={handlePageSizeChange}
       />
     </div>
+  );
+}
+
+type CampaignListEntryProps = {
+  campaign: CampaignListItem;
+  dashboardId: string;
+  startDate: string;
+  endDate: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+};
+
+function CampaignListEntry({
+  campaign,
+  dashboardId,
+  startDate,
+  endDate,
+  isExpanded,
+  onToggle,
+}: CampaignListEntryProps) {
+  const sparklineData = campaign.sparkline;
+
+  return (
+    <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out'>
+      <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
+
+      <div
+        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'
+        onClick={onToggle}
+      >
+        <div className='min-w-0'>
+          <p className='truncate text-sm leading-tight font-semibold'>{campaign.name}</p>
+          <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
+            {campaign.visitors.toLocaleString()} {campaign.visitors === 1 ? 'session' : 'sessions'}
+          </p>
+        </div>
+
+        <CampaignMetric
+          label='Bounce rate'
+          value={formatPercentage(campaign.bounceRate)}
+          className='hidden md:flex'
+        />
+        <CampaignMetric label='Avg. duration' value={campaign.avgSessionDuration} className='hidden md:flex' />
+        <CampaignMetric
+          label='Pages/session'
+          value={campaign.pagesPerSession.toFixed(1)}
+          className='hidden md:flex'
+        />
+
+        <div className='hidden h-11 md:block'>
+          <CampaignSparkline data={sparklineData} />
+        </div>
+
+        <Button
+          variant='ghost'
+          size='icon'
+          className='shrink-0 cursor-pointer'
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggle();
+          }}
+          aria-expanded={isExpanded}
+          aria-controls={`campaign-${campaign.name}-details`}
+        >
+          {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
+        </Button>
+      </div>
+      <CampaignExpandedRow
+        isExpanded={isExpanded}
+        dashboardId={dashboardId}
+        campaignName={campaign.name}
+        startDate={startDate}
+        endDate={endDate}
+      />
+    </article>
   );
 }
 
