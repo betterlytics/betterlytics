@@ -400,5 +400,5 @@ export function isNowInFirstBucket(result: TimeRangeResult, timezone: string) {
 
   const bucketsBetween = countBucketsBetween({ start, end: now }, bucketGranularity);
 
-  return bucketsBetween >= 1;
+  return bucketsBetween < 1;
 }

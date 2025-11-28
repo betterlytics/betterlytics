@@ -25,7 +25,7 @@ export function useImmediateTimeRange() {
         ctx.compareAlignWeekdays,
       );
 
-      if (resolved.main.start.getTime() >= Date.now() || isNowInFirstBucket(resolved, ctx.timeZone) === false) {
+      if (resolved.main.start.getTime() >= Date.now() || isNowInFirstBucket(resolved, ctx.timeZone)) {
         return null;
       }
       return resolved;
