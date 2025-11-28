@@ -372,8 +372,8 @@ function CampaignAudienceProfile({
   }
 
   return (
-    <section aria-label='Audience profile' className='p-3'>
-      <p className='text-foreground mb-3 text-sm font-medium'>Audience profile</p>
+    <section aria-label='Audience profile' className='px-3 pt-2 pb-3'>
+      <p className='text-foreground mb-2 text-sm leading-tight font-medium'>Audience profile</p>
       <div className='grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4'>
         {sections.map((section) => (
           <div key={section.key} className='space-y-1.5'>
