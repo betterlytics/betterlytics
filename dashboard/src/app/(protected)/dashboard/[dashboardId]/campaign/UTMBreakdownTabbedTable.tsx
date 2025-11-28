@@ -192,16 +192,9 @@ type LazyUTMTabsContentProps = {
 };
 
 function LazyUTMTabsContent({ value, isActive, columns, queryData, isPending }: LazyUTMTabsContentProps) {
-  const hasData = (queryData?.length ?? 0) > 0;
-
   return (
     <TabsContent value={value} className='flex-1'>
-      {isActive && isPending && !hasData ? (
-        <div className='text-muted-foreground flex h-full min-h-[160px] items-center justify-center gap-2 text-xs'>
-          <Spinner size='sm' />
-          <span>Loading...</span>
-        </div>
-      ) : (
+      <div className='relative h-full'>
         <div className='h-full overflow-x-auto'>
           <DataTable
             columns={columns}
@@ -210,7 +203,15 @@ function LazyUTMTabsContent({ value, isActive, columns, queryData, isPending }: 
             className='h-full text-xs'
           />
         </div>
-      )}
+        {isActive && isPending ? (
+          <div className='bg-background/70 pointer-events-none absolute inset-0 flex items-center justify-center'>
+            <div className='text-muted-foreground flex items-center gap-2 text-xs'>
+              <Spinner size='sm' />
+              <span>Loading...</span>
+            </div>
+          </div>
+        ) : null}
+      </div>
     </TabsContent>
   );
 }
