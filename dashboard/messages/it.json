@@ -1348,7 +1348,7 @@
         "title": "Performance pagine di destinazione campagna",
         "columns": {
           "campaignName": "Nome campagna",
-          "landingPageUrl": "URL pagina di destinazione",
+          "entryPage": "Pagina di ingresso",
           "visitors": "Visitatori",
           "bounceRate": "Frequenza di rimbalzo",
           "avgSessionDuration": "Durata media sessione",
