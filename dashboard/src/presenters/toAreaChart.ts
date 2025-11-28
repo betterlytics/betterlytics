@@ -165,7 +165,8 @@ function getIncompleteSplit(
       incompleteSeriesLength += 1;
     }
   }
-  const shouldSplit = !!bucketIncomplete && hasIncompleteTail && incompleteSeriesLength >= 2;
+  const shouldSplit =
+    !!bucketIncomplete && hasIncompleteTail && incompleteSeriesLength >= 2 && firstIncompleteIndex > 0;
   if (!shouldSplit) {
     return { firstIncompleteIndex, shouldSplit, solid: chart, incomplete: undefined };
   }

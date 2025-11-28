@@ -388,3 +388,17 @@ export function getResolvedRanges(
     granularity: nextGranularity,
   };
 }
+
+/**
+ * Checks if current time is in the first bucket of the time range
+ */
+export function isNowInFirstBucket(result: TimeRangeResult, timezone: string) {
+  const now = moment.tz(Date.now(), timezone);
+  const start = moment.tz(result.main.start, timezone);
+
+  const bucketGranularity = getAllowedGranularities(result.main.start, result.main.end)[0];
+
+  const bucketsBetween = countBucketsBetween({ start, end: now }, bucketGranularity);
+
+  return bucketsBetween < 1;
+}
