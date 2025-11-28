@@ -1,48 +1,37 @@
-import {
-  fetchCampaignPerformanceAction,
-  fetchCampaignSourceBreakdownAction,
-  fetchCampaignVisitorTrendAction,
-  fetchCampaignMediumBreakdownAction,
-  fetchCampaignContentBreakdownAction,
-  fetchCampaignTermBreakdownAction,
-  fetchCampaignLandingPagePerformanceAction,
-} from '@/app/actions';
-import CampaignTabs from './CampaignTabs';
+import { Suspense } from 'react';
+import { fetchCampaignPerformanceAction } from '@/app/actions';
+import CampaignDirectorySection from './CampaignDirectorySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { getUserTimezone } from '@/lib/cookies';
+import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
 
 type CampaignPageParams = {
   params: Promise<{ dashboardId: string }>;
   searchParams: Promise<FilterQuerySearchParams>;
 };
 
+const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_INDEX = 0;
+
 export default async function CampaignPage({ params, searchParams }: CampaignPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
-    await searchParams,
-    timezone,
-  );
+  const resolvedSearchParams = await searchParams;
+  const { startDate, endDate, granularity } = BAFilterSearchParams.decode(resolvedSearchParams, timezone);
 
-  const campaignPerformancePromise = fetchCampaignPerformanceAction(dashboardId, startDate, endDate);
-  const sourceBreakdownPromise = fetchCampaignSourceBreakdownAction(dashboardId, startDate, endDate);
-  const visitorTrendPromise = fetchCampaignVisitorTrendAction(
+  const campaignPerformancePromise = fetchCampaignPerformanceAction(
     dashboardId,
     startDate,
     endDate,
     granularity,
     timezone,
-    compareStartDate,
-    compareEndDate,
+    DEFAULT_PAGE_INDEX,
+    DEFAULT_PAGE_SIZE,
   );
-  const mediumBreakdownPromise = fetchCampaignMediumBreakdownAction(dashboardId, startDate, endDate);
-  const contentBreakdownPromise = fetchCampaignContentBreakdownAction(dashboardId, startDate, endDate);
-  const termBreakdownPromise = fetchCampaignTermBreakdownAction(dashboardId, startDate, endDate);
-  const landingPagePerformancePromise = fetchCampaignLandingPagePerformanceAction(dashboardId, startDate, endDate);
 
   const t = await getTranslations('dashboard.sidebar');
 
@@ -52,15 +41,25 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
         <DashboardFilters />
       </DashboardHeader>
 
-      <CampaignTabs
-        campaignPerformancePromise={campaignPerformancePromise}
-        visitorTrendPromise={visitorTrendPromise}
-        sourceBreakdownPromise={sourceBreakdownPromise}
-        mediumBreakdownPromise={mediumBreakdownPromise}
-        contentBreakdownPromise={contentBreakdownPromise}
-        termBreakdownPromise={termBreakdownPromise}
-        landingPagePerformancePromise={landingPagePerformancePromise}
-      />
+      <Suspense
+        fallback={
+          <div className='space-y-4'>
+            <TableSkeleton />
+            <ChartSkeleton />
+            <div className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
+              <div className='lg:col-span-2'>
+                <TableSkeleton />
+              </div>
+              <ChartSkeleton />
+            </div>
+          </div>
+        }
+      >
+        <CampaignDirectorySection
+          dashboardId={dashboardId}
+          campaignPerformancePromise={campaignPerformancePromise}
+        />
+      </Suspense>
     </div>
   );
 }
