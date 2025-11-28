@@ -8,10 +8,7 @@ import {
   getCampaignContentBreakdownData,
   getCampaignTermBreakdownData,
   getCampaignLandingPagePerformanceData,
-  getCampaignDeviceAudienceData,
-  getCampaignCountryAudienceData,
-  getCampaignBrowserAudienceData,
-  getCampaignOperatingSystemAudienceData,
+  getCampaignAudienceProfileData,
 } from '@/repositories/clickhouse/campaign';
 import {
   CampaignPerformance,
@@ -35,8 +32,15 @@ import {
   CampaignLandingPagePerformanceArraySchema,
   CampaignSparklinePoint,
 } from '@/entities/campaign';
-import type { BrowserInfo, DeviceType, OperatingSystemInfo } from '@/entities/devices';
-import type { GeoVisitor } from '@/entities/geography';
+import {
+  BrowserInfoSchema,
+  DeviceTypeSchema,
+  OperatingSystemInfoSchema,
+  type BrowserInfo,
+  type DeviceType,
+  type OperatingSystemInfo,
+} from '@/entities/devices';
+import { GeoVisitorSchema, type GeoVisitor } from '@/entities/geography';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { formatDuration } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -328,50 +332,59 @@ export async function fetchCampaignSparklines(
   return sparklineMap;
 }
 
-export async function fetchCampaignDeviceAudience(
+export type CampaignAudienceProfileData = {
+  devices: DeviceType[];
+  countries: GeoVisitor[];
+  browsers: BrowserInfo[];
+  operatingSystems: OperatingSystemInfo[];
+};
+
+export async function fetchCampaignAudienceProfile(
   siteId: string,
   startDate: Date,
   endDate: Date,
   campaignName?: string,
-): Promise<DeviceType[]> {
+): Promise<CampaignAudienceProfileData> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  return getCampaignDeviceAudienceData(siteId, startDateTime, endDateTime, campaignName);
-}
+  const raw = await getCampaignAudienceProfileData(siteId, startDateTime, endDateTime, campaignName);
 
-export async function fetchCampaignCountryAudience(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  campaignName?: string,
-): Promise<GeoVisitor[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
+  const mapRows = <T>(dimension: string, mapper: (row: (typeof raw)[number]) => T): T[] =>
+    raw.filter((row) => row.dimension === dimension).map(mapper);
 
-  return getCampaignCountryAudienceData(siteId, startDateTime, endDateTime, campaignName);
-}
+  const devices = DeviceTypeSchema.array().parse(
+    mapRows('device', (row) => ({
+      device_type: row.label,
+      visitors: row.visitors,
+    })),
+  );
 
-export async function fetchCampaignBrowserAudience(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  campaignName?: string,
-): Promise<BrowserInfo[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
+  const countries = GeoVisitorSchema.array().parse(
+    mapRows('country', (row) => ({
+      country_code: row.label,
+      visitors: row.visitors,
+    })),
+  );
 
-  return getCampaignBrowserAudienceData(siteId, startDateTime, endDateTime, campaignName);
-}
+  const browsers = BrowserInfoSchema.array().parse(
+    mapRows('browser', (row) => ({
+      browser: row.label,
+      visitors: row.visitors,
+    })),
+  );
 
-export async function fetchCampaignOperatingSystemAudience(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  campaignName?: string,
-): Promise<OperatingSystemInfo[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
+  const operatingSystems = OperatingSystemInfoSchema.array().parse(
+    mapRows('os', (row) => ({
+      os: row.label,
+      visitors: row.visitors,
+    })),
+  );
 
-  return getCampaignOperatingSystemAudienceData(siteId, startDateTime, endDateTime, campaignName);
+  return {
+    devices,
+    countries,
+    browsers,
+    operatingSystems,
+  };
 }
