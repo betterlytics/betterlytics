@@ -114,17 +114,10 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
         fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
       ]);
 
-      const {
-        devices: deviceAudience,
-        countries: countryAudience,
-        browsers: browserAudience,
-        operatingSystems: osAudience,
-      } = audienceProfile;
-
-      const devices = buildAudienceDistribution(deviceAudience, 'device_type');
-      const countries = buildAudienceDistribution(countryAudience, 'country_code');
-      const browsers = buildAudienceDistribution(browserAudience, 'browser');
-      const operatingSystems = buildAudienceDistribution(osAudience, 'os');
+      const devices = buildAudienceDistribution(audienceProfile.devices, 'device_type');
+      const countries = buildAudienceDistribution(audienceProfile.countries, 'country_code');
+      const browsers = buildAudienceDistribution(audienceProfile.browsers, 'browser');
+      const operatingSystems = buildAudienceDistribution(audienceProfile.operatingSystems, 'os');
 
       return {
         utmSource,

@@ -1327,7 +1327,11 @@
       },
       "audienceProfile": {
         "title": "Målgruppeprofil",
-        "noData": "Ingen målgruppedata for denne kampagne i det valgte interval."
+        "noData": "Ingen målgruppedata for denne kampagne i det valgte interval.",
+        "deviceTitle": "Enheder",
+        "browserTitle": "Browsere",
+        "osTitle": "Styresystem",
+        "countryTitle": "Lande"
       },
       "utm": {
         "table": {

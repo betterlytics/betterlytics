@@ -1324,7 +1324,11 @@
       },
       "audienceProfile": {
         "title": "Audience Profile",
-        "noData": "No audience data for this campaign in the selected range."
+        "noData": "No audience data for this campaign in the selected range.",
+        "deviceTitle": "devices",
+        "browserTitle": "browsers",
+        "osTitle": "OS",
+        "countryTitle": "countries"
       },
       "utm": {
         "table": {

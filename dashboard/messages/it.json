@@ -1328,7 +1328,11 @@
       },
       "audienceProfile": {
         "title": "Profilo del pubblico",
-        "noData": "Nessun dato sul pubblico per questa campagna nell'intervallo selezionato."
+        "noData": "Nessun dato sul pubblico per questa campagna nell'intervallo selezionato.",
+        "deviceTitle": "Dispositivi",
+        "browserTitle": "Browser",
+        "osTitle": "Sistema Operativo",
+        "countryTitle": "Paesi"
       },
       "utm": {
         "table": {
