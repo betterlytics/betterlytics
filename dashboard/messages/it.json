@@ -1302,36 +1302,43 @@
       }
     },
     "campaign": {
-      "tabs": {
-        "overview": "Panoramica",
-        "utmBreakdowns": "Ripartizione UTM",
-        "landingPages": "Pagine di destinazione"
+      "title": "Campagne",
+      "pagination": {
+        "pageOf": "Pagina {currentPage} di {totalPages}",
+        "showing": "Mostrando {startItem}-{endItem} di {totalItems} campagne",
+        "perPage": "per pagina"
       },
-      "page": {
-        "title": "Campagne",
-        "description": "Analitiche e insight sulle performance delle campagne"
+      "emptyState": {
+        "title": "Nessuna campagna ancora registrata",
+        "description": "Le campagne appariranno qui una volta che gli URL con tag utm_campaign saranno registrati. Inizia a taggare i tuoi link per visualizzare le metriche di performance."
       },
-      "performance": {
-        "title": "Performance campagna",
-        "columns": {
-          "campaignName": "Nome campagna",
-          "visitors": "Visitatori",
-          "bounceRate": "Frequenza di rimbalzo",
-          "avgSessionDuration": "Durata media sessione",
-          "pagesPerSession": "Pagine per sessione"
-        }
+      "loading": "Caricamento delle campagne...",
+      "campaignRow": {
+        "sessions": "{count, plural, one {# sessione} other {# sessioni}}",
+        "bounceRate": "Bounce Rate",
+        "avgSessionDuration": "Durata media",
+        "pagesPerSession": "Pagine per sessione",
+        "campaignDetails": "Dettagli campagna"
       },
-      "trend": {
-        "title": "Trend visitatori campagna"
+      "campaignExpandedRow": {
+        "onlyAvailableOnLargerScreens": "La tabella UTM dettagliata è disponibile solo su schermi più grandi.",
+        "loading": "Caricamento dei dettagli della campagna...",
+        "error": "Impossibile caricare i dettagli della campagna. Riprova.",
+        "campaignDetails": "Dettagli campagna"
+      },
+      "audienceProfile": {
+        "title": "Profilo del pubblico",
+        "noData": "Nessun dato sul pubblico per questa campagna nell'intervallo selezionato."
       },
       "utm": {
         "table": {
-          "title": "Ripartizione parametri UTM"
+          "title": "Dettaglio dei parametri UTM"
         },
         "chart": {
           "title": "Distribuzione UTM"
         },
         "tabs": {
+          "entryPages": "Pagine di ingresso",
           "source": "Sorgente",
           "medium": "Mezzo",
           "content": "Contenuto",
@@ -1339,18 +1346,7 @@
         },
         "columns": {
           "visitors": "Visitatori",
-          "bounceRate": "Frequenza di rimbalzo",
-          "avgSessionDuration": "Durata media sessione",
-          "pagesPerSession": "Pagine per sessione"
-        }
-      },
-      "landing": {
-        "title": "Performance pagine di destinazione campagna",
-        "columns": {
-          "campaignName": "Nome campagna",
-          "entryPage": "Pagina di ingresso",
-          "visitors": "Visitatori",
-          "bounceRate": "Frequenza di rimbalzo",
+          "bounceRate": "Bounce Rate",
           "avgSessionDuration": "Durata media sessione",
           "pagesPerSession": "Pagine per sessione"
         }

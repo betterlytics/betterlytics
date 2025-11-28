@@ -1301,36 +1301,43 @@
       }
     },
     "campaign": {
-      "tabs": {
-        "overview": "Oversigt",
-        "utmBreakdowns": "UTM-opdeling",
-        "landingPages": "Landingssider"
+      "title": "Kampagner",
+      "pagination": {
+        "pageOf": "Side {currentPage} af {totalPages}",
+        "showing": "Viser {startItem}-{endItem} af {totalItems} kampagner",
+        "perPage": "pr. side"
       },
-      "page": {
-        "title": "Kampagner",
-        "description": "Kampagneperformance analyser og indsigter"
+      "emptyState": {
+        "title": "Ingen kampagner registreret endnu",
+        "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for at se performance-metrics."
       },
-      "performance": {
-        "title": "Kampagneperformance",
-        "columns": {
-          "campaignName": "Kampagnenavn",
-          "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
-          "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
-        }
+      "loading": "Indlæser kampagner...",
+      "campaignRow": {
+        "sessions": "{count, plural, one {# session} other {# sessioner}}",
+        "bounceRate": "Bounce Rate",
+        "avgSessionDuration": "Gns. varighed",
+        "pagesPerSession": "Sider pr. session",
+        "campaignDetails": "Kampagnedetaljer"
       },
-      "trend": {
-        "title": "Kampagne-besøgendetrend"
+      "campaignExpandedRow": {
+        "onlyAvailableOnLargerScreens": "Den detaljerede UTM-tabel er kun tilgængelig på større skærme.",
+        "loading": "Indlæser kampagnedetaljer...",
+        "error": "Kunne ikke indlæse kampagnedetaljer. Prøv igen.",
+        "campaignDetails": "Kampagnedetaljer"
+      },
+      "audienceProfile": {
+        "title": "Målgruppeprofil",
+        "noData": "Ingen målgruppedata for denne kampagne i det valgte interval."
       },
       "utm": {
         "table": {
-          "title": "UTM-parameteropdeling"
+          "title": "UTM-parameteroversigt"
         },
         "chart": {
           "title": "UTM-fordeling"
         },
         "tabs": {
+          "entryPages": "Indgangssider",
           "source": "Kilde",
           "medium": "Medium",
           "content": "Indhold",
@@ -1338,18 +1345,7 @@
         },
         "columns": {
           "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
-          "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
-        }
-      },
-      "landing": {
-        "title": "Kampagne landingsside-performance",
-        "columns": {
-          "campaignName": "Kampagnenavn",
-          "entryPage": "Indgangsside",
-          "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
+          "bounceRate": "Bounce Rate",
           "avgSessionDuration": "Gns. sessionsvarighed",
           "pagesPerSession": "Sider pr. session"
         }

@@ -4,6 +4,7 @@ import { memo, useMemo } from 'react';
 import { useLocale } from 'next-intl';
 import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
 import { getCountryName } from '@/utils/countryCodes';
+import { useTranslations } from 'next-intl';
 
 export type AudienceShare = {
   label: string;
@@ -20,7 +21,7 @@ export type CampaignAudienceProfileProps = {
 const CampaignAudienceProfile = memo(
   ({ devices, countries, browsers, operatingSystems }: CampaignAudienceProfileProps) => {
     const locale = useLocale();
-
+    const t = useTranslations('components.campaign.audienceProfile');
     const sections = useMemo(
       () =>
         [
@@ -34,15 +35,15 @@ const CampaignAudienceProfile = memo(
 
     if (sections.length === 0) {
       return (
-        <div className='text-muted-foreground flex items-center justify-end px-1 py-2 text-[11px]'>
-          No audience data for this campaign in the selected range.
+        <div className='text-muted-foreground flex items-center justify-center px-1 py-2 text-xs'>
+          {t('noData')}
         </div>
       );
     }
 
     return (
       <section aria-label='Audience profile' className='px-2 pt-3 pb-3'>
-        <p className='text-foreground mb-1 text-sm leading-tight font-medium'>Audience profile</p>
+        <p className='text-foreground mb-1 text-sm leading-tight font-medium'>{t('title')}</p>
         <div className='grid grid-cols-2 gap-x-4 gap-y-3 pt-2.5 md:grid-cols-4'>
           {sections.map((section) => (
             <div key={section.key} className='space-y-1.5'>

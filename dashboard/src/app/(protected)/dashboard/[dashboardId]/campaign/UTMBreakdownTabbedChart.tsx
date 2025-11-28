@@ -197,6 +197,7 @@ type LazyUTMChartContentProps = {
 };
 
 function LazyUTMChartContent({ value, data, isActive, isPending }: LazyUTMChartContentProps) {
+  const t = useTranslations('misc');
   const hasData = data.length > 0;
 
   return (
@@ -204,7 +205,7 @@ function LazyUTMChartContent({ value, data, isActive, isPending }: LazyUTMChartC
       {isActive && isPending && !hasData ? (
         <div className='text-muted-foreground flex h-72 items-center justify-center gap-2 text-sm md:h-80'>
           <Spinner size='sm' />
-          <span>Loading breakdown...</span>
+          <span>{t('loading')}</span>
         </div>
       ) : (
         <UTMPieChart data={data} />

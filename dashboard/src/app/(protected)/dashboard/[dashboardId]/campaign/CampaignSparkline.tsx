@@ -4,12 +4,14 @@ import { memo, useId } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import type { TooltipProps } from 'recharts';
 import type { CampaignSparklinePoint } from '@/entities/campaign';
+import { useTranslations } from 'next-intl';
 
 export type CampaignSparklineProps = {
   data?: CampaignSparklinePoint[];
 };
 
 const CampaignSparkline = memo(({ data }: CampaignSparklineProps) => {
+  const t = useTranslations('components.campaign.campaignRow');
   const gradientId = useId();
   const hasData = data && data.length > 0;
 
@@ -40,7 +42,7 @@ const CampaignSparkline = memo(({ data }: CampaignSparklineProps) => {
                     {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </div>
                   <div className='text-foreground text-xs font-semibold'>
-                    {point.visitors.toLocaleString()} sessions
+                    {point.visitors.toLocaleString()} {t('sessions', { count: point.visitors })}
                   </div>
                 </div>
               );
