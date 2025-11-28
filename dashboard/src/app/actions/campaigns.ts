@@ -7,10 +7,7 @@ import {
   fetchCampaignContentBreakdown,
   fetchCampaignTermBreakdown,
   fetchCampaignLandingPagePerformance,
-  fetchCampaignDeviceAudience,
-  fetchCampaignCountryAudience,
-  fetchCampaignBrowserAudience,
-  fetchCampaignOperatingSystemAudience,
+  fetchCampaignAudienceProfile,
   fetchCampaignSparklines,
 } from '@/services/campaign';
 import {
@@ -85,15 +82,18 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
       const startDate = new Date(startDateIso);
       const endDate = new Date(endDateIso);
 
-      const [utmSource, landingPages, deviceAudience, countryAudience, browserAudience, osAudience] =
-        await Promise.all([
-          fetchCampaignSourceBreakdown(ctx.siteId, startDate, endDate, campaignName),
-          fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
-          fetchCampaignDeviceAudience(ctx.siteId, startDate, endDate, campaignName),
-          fetchCampaignCountryAudience(ctx.siteId, startDate, endDate, campaignName),
-          fetchCampaignBrowserAudience(ctx.siteId, startDate, endDate, campaignName),
-          fetchCampaignOperatingSystemAudience(ctx.siteId, startDate, endDate, campaignName),
-        ]);
+      const [utmSource, landingPages, audienceProfile] = await Promise.all([
+        fetchCampaignSourceBreakdown(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
+      ]);
+
+      const {
+        devices: deviceAudience,
+        countries: countryAudience,
+        browsers: browserAudience,
+        operatingSystems: osAudience,
+      } = audienceProfile;
 
       const totalDeviceVisitors = deviceAudience.reduce((sum, item) => sum + item.visitors, 0);
       const totalCountryVisitors = countryAudience.reduce((sum, item) => sum + item.visitors, 0);
