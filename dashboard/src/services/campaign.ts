@@ -2,38 +2,27 @@
 
 import {
   getCampaignPerformanceData,
-  getCampaignSourceBreakdownData,
   getCampaignVisitorTrendData,
-  getCampaignMediumBreakdownData,
-  getCampaignContentBreakdownData,
-  getCampaignTermBreakdownData,
   getCampaignLandingPagePerformanceData,
   getCampaignAudienceProfileData,
   getCampaignCount,
   getCampaignPerformancePageData,
+  getCampaignUTMBreakdownData,
 } from '@/repositories/clickhouse/campaign';
 import {
   CampaignPerformance,
   CampaignPerformanceArraySchema,
-  CampaignSourceBreakdownItem,
-  CampaignSourceBreakdownArraySchema,
+  CampaignUTMBreakdownItem,
+  CampaignUTMBreakdownArraySchema,
   RawCampaignData,
-  RawCampaignSourceBreakdownItem,
+  RawCampaignUTMBreakdownItem,
   CampaignTrendRow,
-  CampaignMediumBreakdownItem,
-  CampaignMediumBreakdownArraySchema,
-  RawCampaignMediumBreakdownItem,
-  RawCampaignContentBreakdownItem,
-  CampaignContentBreakdownItem,
-  CampaignContentBreakdownArraySchema,
-  RawCampaignTermBreakdownItem,
-  CampaignTermBreakdownItem,
-  CampaignTermBreakdownArraySchema,
   RawCampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceArraySchema,
   CampaignSparklinePoint,
   CampaignDirectoryRowSummary,
+  type UTMDimension,
 } from '@/entities/campaign';
 import {
   BrowserInfoSchema,
@@ -163,122 +152,34 @@ export async function fetchCampaignDirectoryPage(
   };
 }
 
-export async function fetchCampaignSourceBreakdown(
+export async function fetchCampaignUTMBreakdown(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  dimension: UTMDimension,
   campaignName?: string,
-): Promise<CampaignSourceBreakdownItem[]> {
+): Promise<CampaignUTMBreakdownItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  const rawSourceData: RawCampaignSourceBreakdownItem[] = await getCampaignSourceBreakdownData(
+  const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(
     siteId,
     startDateTime,
     endDateTime,
+    dimension,
     campaignName,
   );
 
-  const transformedData: CampaignSourceBreakdownItem[] = rawSourceData.map(
-    (raw: RawCampaignSourceBreakdownItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
-      return {
-        source: raw.source,
-        visitors: raw.total_visitors,
-        ...metrics,
-      };
-    },
-  );
-
-  return CampaignSourceBreakdownArraySchema.parse(transformedData);
-}
-
-export async function fetchCampaignMediumBreakdown(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  campaignName?: string,
-): Promise<CampaignMediumBreakdownItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
-  const rawMediumData: RawCampaignMediumBreakdownItem[] = await getCampaignMediumBreakdownData(
-    siteId,
-    startDateTime,
-    endDateTime,
-    campaignName,
-  );
-
-  const transformedData: CampaignMediumBreakdownItem[] = rawMediumData.map(
-    (raw: RawCampaignMediumBreakdownItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
-      return {
-        medium: raw.medium,
-        visitors: raw.total_visitors,
-        ...metrics,
-      };
-    },
-  );
-
-  return CampaignMediumBreakdownArraySchema.parse(transformedData);
-}
-
-export async function fetchCampaignContentBreakdown(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  campaignName?: string,
-): Promise<CampaignContentBreakdownItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
-  const rawContentData: RawCampaignContentBreakdownItem[] = await getCampaignContentBreakdownData(
-    siteId,
-    startDateTime,
-    endDateTime,
-    campaignName,
-  );
-
-  const transformedData: CampaignContentBreakdownItem[] = rawContentData.map(
-    (raw: RawCampaignContentBreakdownItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
-      return {
-        content: raw.content,
-        visitors: raw.total_visitors,
-        ...metrics,
-      };
-    },
-  );
-
-  return CampaignContentBreakdownArraySchema.parse(transformedData);
-}
-
-export async function fetchCampaignTermBreakdown(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  campaignName?: string,
-): Promise<CampaignTermBreakdownItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
-  const rawTermData: RawCampaignTermBreakdownItem[] = await getCampaignTermBreakdownData(
-    siteId,
-    startDateTime,
-    endDateTime,
-    campaignName,
-  );
-
-  const transformedData: CampaignTermBreakdownItem[] = rawTermData.map((raw: RawCampaignTermBreakdownItem) => {
+  const transformedData: CampaignUTMBreakdownItem[] = rawData.map((raw) => {
     const metrics = calculateCommonCampaignMetrics(raw);
     return {
-      term: raw.term,
+      label: raw.label,
       visitors: raw.total_visitors,
       ...metrics,
     };
   });
 
-  return CampaignTermBreakdownArraySchema.parse(transformedData);
+  return CampaignUTMBreakdownArraySchema.parse(transformedData);
 }
 
 export async function fetchCampaignLandingPagePerformance(

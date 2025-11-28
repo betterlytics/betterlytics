@@ -6,17 +6,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/DataTable';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
-import type { CampaignSourceBreakdownItem, CampaignLandingPagePerformanceItem } from '@/entities/campaign';
+import type { CampaignUTMBreakdownItem, CampaignLandingPagePerformanceItem } from '@/entities/campaign';
+import { UTM_DIMENSIONS, type UTMDimension } from '@/entities/campaign';
 import { Spinner } from '@/components/ui/spinner';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
 
-type UTMTabsKey = 'entry' | 'source' | 'medium' | 'content' | 'term';
+type UTMTabsKey = 'entry' | UTMDimension;
 
 type UTMBreakdownTabbedTableProps = {
   dashboardId: string;
   campaignName: string;
-  initialSource: CampaignSourceBreakdownItem[];
+  initialSource: CampaignUTMBreakdownItem[];
   landingPages: CampaignLandingPagePerformanceItem[];
 };
 
@@ -75,7 +76,7 @@ export default function UTMBreakdownTabbedTable({
   const sourceColumns = useMemo(() => createUTMColumns('source', t('tabs.source')), [createUTMColumns, t]);
   const mediumColumns = useMemo(() => createUTMColumns('medium', t('tabs.medium')), [createUTMColumns, t]);
   const contentColumns = useMemo(() => createUTMColumns('content', t('tabs.content')), [createUTMColumns, t]);
-  const termColumns = useMemo(() => createUTMColumns('term', t('tabs.terms')), [createUTMColumns, t]);
+  const termColumns = useMemo(() => createUTMColumns('term', t('tabs.term')), [createUTMColumns, t]);
   const entryPageColumns = useMemo(() => createUTMColumns('landingPageUrl', 'Entry page'), [createUTMColumns]);
 
   const mediumQuery = useUTMBreakdownData({
@@ -121,13 +122,13 @@ export default function UTMBreakdownTabbedTable({
             >
               Entry pages
             </TabsTrigger>
-            {(['source', 'medium', 'content', 'term'] as Array<Exclude<UTMTabsKey, 'entry'>>).map((key) => (
+            {UTM_DIMENSIONS.map((dimension) => (
               <TabsTrigger
-                key={key}
-                value={key}
+                key={dimension}
+                value={dimension}
                 className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
               >
-                {t(`tabs.${key === 'term' ? 'terms' : key}`)}
+                {t(`tabs.${dimension}`)}
               </TabsTrigger>
             ))}
           </TabsList>

@@ -1335,7 +1335,7 @@
           "source": "Sorgente",
           "medium": "Mezzo",
           "content": "Contenuto",
-          "terms": "Termini"
+          "term": "Termine"
         },
         "columns": {
           "visitors": "Visitatori",

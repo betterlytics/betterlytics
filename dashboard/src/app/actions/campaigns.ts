@@ -2,22 +2,17 @@
 
 import {
   fetchCampaignDirectoryPage,
-  fetchCampaignSourceBreakdown,
-  fetchCampaignMediumBreakdown,
-  fetchCampaignContentBreakdown,
-  fetchCampaignTermBreakdown,
+  fetchCampaignUTMBreakdown,
   fetchCampaignLandingPagePerformance,
   fetchCampaignAudienceProfile,
   fetchCampaignSparklines,
 } from '@/services/campaign';
 import {
-  CampaignSourceBreakdownItem,
-  CampaignMediumBreakdownItem,
-  CampaignContentBreakdownItem,
-  CampaignTermBreakdownItem,
+  CampaignUTMBreakdownItem,
   CampaignLandingPagePerformanceItem,
   CampaignSparklinePoint,
   CampaignDirectoryRowSummary,
+  type UTMDimension,
 } from '@/entities/campaign';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
@@ -97,21 +92,13 @@ export const fetchCampaignSparklinesAction = withDashboardAuthContext(
 );
 
 export type CampaignExpandedDetails = {
-  utmSource: CampaignSourceBreakdownItem[];
+  utmSource: CampaignUTMBreakdownItem[];
   landingPages: CampaignLandingPagePerformanceItem[];
   devices: { label: string; value: string }[];
   countries: { label: string; value: string }[];
   browsers: { label: string; value: string }[];
   operatingSystems: { label: string; value: string }[];
 };
-
-export type CampaignUTMBreakdownItem =
-  | CampaignSourceBreakdownItem
-  | CampaignMediumBreakdownItem
-  | CampaignContentBreakdownItem
-  | CampaignTermBreakdownItem;
-
-export type CampaignUTMDimension = 'source' | 'medium' | 'content' | 'term';
 
 export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
   async (
@@ -122,7 +109,7 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
   ): Promise<CampaignExpandedDetails> => {
     try {
       const [utmSource, landingPages, audienceProfile] = await Promise.all([
-        fetchCampaignSourceBreakdown(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, 'source', campaignName),
         fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
         fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
       ]);
@@ -161,27 +148,16 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
   },
 );
 
-const utmBreakdownFetchers: Record<
-  CampaignUTMDimension,
-  (siteId: string, startDate: Date, endDate: Date, campaignName: string) => Promise<CampaignUTMBreakdownItem[]>
-> = {
-  source: fetchCampaignSourceBreakdown,
-  medium: fetchCampaignMediumBreakdown,
-  content: fetchCampaignContentBreakdown,
-  term: fetchCampaignTermBreakdown,
-};
-
 export const fetchCampaignUTMBreakdownAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     startDate: Date,
     endDate: Date,
     campaignName: string,
-    dimension: CampaignUTMDimension,
+    dimension: UTMDimension,
   ): Promise<CampaignUTMBreakdownItem[]> => {
     try {
-      const fetcher = utmBreakdownFetchers[dimension];
-      return fetcher(ctx.siteId, startDate, endDate, campaignName);
+      return fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, dimension, campaignName);
     } catch (error) {
       console.error('Error in fetchCampaignUTMBreakdownAction:', error);
       return [];

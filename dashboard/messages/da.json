@@ -1334,7 +1334,7 @@
           "source": "Kilde",
           "medium": "Medium",
           "content": "Indhold",
-          "terms": "Termer"
+          "term": "Term"
         },
         "columns": {
           "visitors": "Besøgende",
