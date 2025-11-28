@@ -33,6 +33,7 @@ import {
   CampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceArraySchema,
   CampaignSparklinePoint,
+  CampaignDirectoryRowSummary,
 } from '@/entities/campaign';
 import {
   BrowserInfoSchema,
@@ -82,7 +83,7 @@ export type CampaignPerformancePage = {
   pageSize: number;
 };
 
-export async function fetchCampaignPerformancePage(
+async function fetchCampaignPerformancePage(
   siteId: string,
   startDate: Date,
   endDate: Date,
@@ -122,6 +123,43 @@ export async function fetchCampaignPerformancePage(
     totalCampaigns,
     pageIndex: safePageIndex,
     pageSize: safePageSize,
+  };
+}
+
+export type CampaignDirectoryPage = {
+  campaigns: CampaignDirectoryRowSummary[];
+  totalCampaigns: number;
+  pageIndex: number;
+  pageSize: number;
+};
+
+export async function fetchCampaignDirectoryPage(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  granularity: GranularityRangeValues,
+  timezone: string,
+  pageIndex: number,
+  pageSize: number,
+): Promise<CampaignDirectoryPage> {
+  const performancePage = await fetchCampaignPerformancePage(siteId, startDate, endDate, pageIndex, pageSize);
+  const campaignNames = performancePage.campaigns.map((campaign) => campaign.name);
+
+  const sparklineMap =
+    campaignNames.length > 0
+      ? await fetchCampaignSparklines(siteId, startDate, endDate, granularity, timezone, campaignNames)
+      : {};
+
+  const campaigns: CampaignDirectoryRowSummary[] = performancePage.campaigns.map((campaign) => ({
+    ...campaign,
+    sparkline: sparklineMap[campaign.name] ?? [],
+  }));
+
+  return {
+    campaigns,
+    totalCampaigns: performancePage.totalCampaigns,
+    pageIndex: performancePage.pageIndex,
+    pageSize: performancePage.pageSize,
   };
 }
 
