@@ -151,7 +151,7 @@ export default function UTMBreakdownTabbedChart({ source, medium, content, term 
       <Tabs defaultValue='source'>
         <CardHeader className='px-0 pb-0'>
           <div className='flex flex-col items-center justify-between sm:flex-row'>
-            <CardTitle className='text-base font-medium'>{t('chart.title')}</CardTitle>
+            <CardTitle className='text-sm font-medium'>{t('chart.title')}</CardTitle>
             <TabsList
               className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} dark:inset-shadow-background gap-1 inset-shadow-sm`}
             >
