@@ -9,26 +9,16 @@ import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { Spinner } from '@/components/ui/spinner';
-import type {
-  CampaignSourceBreakdownItem,
-  CampaignMediumBreakdownItem,
-  CampaignContentBreakdownItem,
-  CampaignTermBreakdownItem,
-} from '@/entities/campaign';
+import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/campaign';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
+import { UTM_DIMENSIONS } from '@/entities/campaign';
 
 type UTMBreakdownTabbedChartProps = {
   dashboardId: string;
   campaignName: string;
-  initialSource: CampaignSourceBreakdownItem[];
+  initialSource: CampaignUTMBreakdownItem[];
 };
-
-type CampaignBreakdownItem =
-  | CampaignSourceBreakdownItem
-  | CampaignMediumBreakdownItem
-  | CampaignContentBreakdownItem
-  | CampaignTermBreakdownItem;
 
 interface ChartDataItem {
   name: string;
@@ -37,21 +27,13 @@ interface ChartDataItem {
   percent: number;
 }
 
-export const CampaignDataKey = {
-  SOURCE: 'source',
-  MEDIUM: 'medium',
-  TERM: 'term',
-  CONTENT: 'content',
-} as const;
-
-function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey: string }) {
+function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
   const t = useTranslations('dashboard.emptyStates');
   const chartData = useMemo((): ChartDataItem[] => {
     if (!data || data.length === 0) return [];
     const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);
     return data.map((item): ChartDataItem => {
-      const keyValue = (item as Record<string, unknown>)[dataKey];
-      const name = typeof keyValue === 'string' ? keyValue : String(keyValue);
+      const name = item.label;
       return {
         name,
         value: item.visitors,
@@ -59,7 +41,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
         percent: totalVisitors > 0 ? Math.round((item.visitors / totalVisitors) * 100) : 0,
       };
     });
-  }, [data, dataKey]);
+  }, [data]);
 
   if (chartData.length === 0) {
     return <DataEmptyComponent />;
@@ -111,7 +93,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
   );
 }
 
-type UTMChartTab = 'source' | 'medium' | 'content' | 'term';
+type UTMChartTab = UTMDimension;
 
 export default function UTMBreakdownTabbedChart({
   dashboardId,
@@ -124,26 +106,10 @@ export default function UTMBreakdownTabbedChart({
 
   const tabs = useMemo(
     () => [
-      {
-        key: 'source',
-        label: t('tabs.source'),
-        dataKey: CampaignDataKey.SOURCE,
-      },
-      {
-        key: 'medium',
-        label: t('tabs.medium'),
-        dataKey: CampaignDataKey.MEDIUM,
-      },
-      {
-        key: 'content',
-        label: t('tabs.content'),
-        dataKey: CampaignDataKey.CONTENT,
-      },
-      {
-        key: 'term',
-        label: t('tabs.terms'),
-        dataKey: CampaignDataKey.TERM,
-      },
+      ...UTM_DIMENSIONS.map((dimension: UTMDimension) => ({
+        key: dimension,
+        label: t(`tabs.${dimension}`),
+      })),
     ],
     [t],
   );
@@ -198,25 +164,22 @@ export default function UTMBreakdownTabbedChart({
         </CardHeader>
         <CardContent className='px-0'>
           <TabsContent value='source'>
-            <UTMPieChart data={initialSource} dataKey={CampaignDataKey.SOURCE} />
+            <UTMPieChart data={initialSource} />
           </TabsContent>
           <LazyUTMChartContent
             value='medium'
-            dataKey={CampaignDataKey.MEDIUM}
             isActive={activeTab === 'medium'}
             data={mediumQuery.data ?? []}
             isPending={mediumQuery.status === 'pending'}
           />
           <LazyUTMChartContent
             value='content'
-            dataKey={CampaignDataKey.CONTENT}
             isActive={activeTab === 'content'}
             data={contentQuery.data ?? []}
             isPending={contentQuery.status === 'pending'}
           />
           <LazyUTMChartContent
             value='term'
-            dataKey={CampaignDataKey.TERM}
             isActive={activeTab === 'term'}
             data={termQuery.data ?? []}
             isPending={termQuery.status === 'pending'}
@@ -229,13 +192,12 @@ export default function UTMBreakdownTabbedChart({
 
 type LazyUTMChartContentProps = {
   value: Exclude<UTMChartTab, 'source'>;
-  dataKey: string;
-  data: CampaignBreakdownItem[];
+  data: CampaignUTMBreakdownItem[];
   isActive: boolean;
   isPending: boolean;
 };
 
-function LazyUTMChartContent({ value, dataKey, data, isActive, isPending }: LazyUTMChartContentProps) {
+function LazyUTMChartContent({ value, data, isActive, isPending }: LazyUTMChartContentProps) {
   const hasData = data.length > 0;
 
   return (
@@ -246,7 +208,7 @@ function LazyUTMChartContent({ value, dataKey, data, isActive, isPending }: Lazy
           <span>Loading breakdown...</span>
         </div>
       ) : (
-        <UTMPieChart data={data} dataKey={dataKey} />
+        <UTMPieChart data={data} />
       )}
     </TabsContent>
   );

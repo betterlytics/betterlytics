@@ -5,16 +5,12 @@ import {
   RawCampaignDataArraySchema,
   CampaignTrendRow,
   CampaignTrendRowArraySchema,
-  RawCampaignSourceBreakdownItem,
-  RawCampaignSourceBreakdownArraySchema,
-  RawCampaignMediumBreakdownItem,
-  RawCampaignMediumBreakdownArraySchema,
-  RawCampaignContentBreakdownItem,
-  RawCampaignContentBreakdownArraySchema,
-  RawCampaignTermBreakdownItem,
-  RawCampaignTermBreakdownArraySchema,
+  RawCampaignUTMBreakdownItem,
+  RawCampaignUTMBreakdownArraySchema,
   RawCampaignLandingPagePerformanceItem,
   RawCampaignLandingPagePerformanceArraySchema,
+  type UTMDimension,
+  UTM_DIMENSION_TO_KEY,
 } from '@/entities/campaign';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -176,50 +172,21 @@ export async function getCampaignPerformancePageData(
   return RawCampaignDataArraySchema.parse(resultSet);
 }
 
-export async function getCampaignSourceBreakdownData(
+export async function getCampaignUTMBreakdownData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  dimension: UTMDimension,
   campaignName?: string,
-): Promise<RawCampaignSourceBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_source', campaignName);
-  return RawCampaignSourceBreakdownArraySchema.parse(rawData);
-}
-
-export async function getCampaignMediumBreakdownData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  campaignName?: string,
-): Promise<RawCampaignMediumBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_medium', campaignName);
-  return RawCampaignMediumBreakdownArraySchema.parse(rawData);
-}
-
-export async function getCampaignContentBreakdownData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  campaignName?: string,
-): Promise<RawCampaignContentBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(
-    siteId,
-    startDate,
-    endDate,
-    'utm_content',
-    campaignName,
+): Promise<RawCampaignUTMBreakdownItem[]> {
+  const utmKey = UTM_DIMENSION_TO_KEY[dimension] as ValidUTMDimension;
+  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, utmKey, campaignName);
+  return RawCampaignUTMBreakdownArraySchema.parse(
+    rawData.map((row) => ({
+      ...(row as RawCampaignUTMBreakdownItem),
+      label: (row as Record<string, unknown>)[UTM_DIMENSION_ALIASES[utmKey]],
+    })),
   );
-  return RawCampaignContentBreakdownArraySchema.parse(rawData);
-}
-
-export async function getCampaignTermBreakdownData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  campaignName?: string,
-): Promise<RawCampaignTermBreakdownItem[]> {
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_term', campaignName);
-  return RawCampaignTermBreakdownArraySchema.parse(rawData);
 }
 
 export async function getCampaignLandingPagePerformanceData(

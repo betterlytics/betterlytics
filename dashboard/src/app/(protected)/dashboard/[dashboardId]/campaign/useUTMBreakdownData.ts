@@ -1,18 +1,15 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import {
-  fetchCampaignUTMBreakdownAction,
-  type CampaignUTMBreakdownItem,
-  type CampaignUTMDimension,
-} from '@/app/actions/campaigns';
+import { fetchCampaignUTMBreakdownAction } from '@/app/actions/campaigns';
+import { CampaignUTMBreakdownItem, type UTMDimension } from '@/entities/campaign';
 
 type UseUTMBreakdownDataOptions = {
   dashboardId: string;
   campaignName: string;
   startDate: Date;
   endDate: Date;
-  dimension: CampaignUTMDimension;
+  dimension: UTMDimension;
   enabled: boolean;
 };
 

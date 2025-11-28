@@ -1301,7 +1301,7 @@
           "source": "Source",
           "medium": "Medium",
           "content": "Content",
-          "terms": "Terms"
+          "term": "Term"
         },
         "columns": {
           "visitors": "Visitors",
