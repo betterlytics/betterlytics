@@ -120,8 +120,6 @@ export default function UTMBreakdownTabbedChart({
 }: UTMBreakdownTabbedChartProps) {
   const t = useTranslations('components.campaign.utm');
   const { startDate, endDate } = useTimeRangeContext();
-  const startDateIso = startDate.toISOString();
-  const endDateIso = endDate.toISOString();
   const [activeTab, setActiveTab] = useState<UTMChartTab>('source');
 
   const tabs = useMemo(

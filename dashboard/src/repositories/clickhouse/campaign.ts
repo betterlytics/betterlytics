@@ -59,7 +59,7 @@ async function getCampaignBreakdownByUTMDimension(
       FROM analytics.events
       WHERE site_id = {siteId:String}
         AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND event_type = 1
+        AND event_type = 'pageview'
         AND utm_campaign != ''
         AND ${SQL.Unsafe(utmDimension)} != ''
         ${campaignFilter}
@@ -103,7 +103,7 @@ export async function getCampaignCount(
     FROM analytics.events
     WHERE site_id = {siteId:String}
       AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-      AND event_type = 1
+      AND event_type = 'pageview'
       AND utm_campaign != ''
   `;
 
@@ -151,7 +151,7 @@ export async function getCampaignPerformancePageData(
       FROM analytics.events
       WHERE site_id = {siteId:String}
         AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND event_type = 1
+        AND event_type = 'pageview'
         AND utm_campaign != ''
       GROUP BY visitor_id, session_id, utm_campaign
     ) s
@@ -251,7 +251,7 @@ export async function getCampaignLandingPagePerformanceData(
         FROM analytics.events e
         WHERE e.site_id = {siteId:String}
           AND e.timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-          AND e.event_type = 1
+          AND e.event_type = 'pageview'
           AND e.utm_campaign != ''
           ${campaignFilter}
     ) s
@@ -340,73 +340,38 @@ export async function getCampaignAudienceProfileData(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
-  campaignName?: string,
+  campaignName: string | undefined,
+  limitPerDimension: number,
 ): Promise<CampaignAudienceProfileRow[]> {
   const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
 
   const query = safeSql`
-    SELECT dimension, label, visitors
-    FROM (
-      SELECT
-        'device' AS dimension,
-        device_type AS label,
-        uniq(visitor_id) AS visitors
-      FROM analytics.events
-      WHERE site_id = {siteId:String}
-        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND event_type = 1
-        AND utm_campaign != ''
-        AND device_type != ''
-        ${campaignFilter}
-      GROUP BY device_type
-
-      UNION ALL
-
-      SELECT
-        'country' AS dimension,
-        country_code AS label,
-        uniq(visitor_id) AS visitors
-      FROM analytics.events
-      WHERE site_id = {siteId:String}
-        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND country_code IS NOT NULL
-        AND country_code != ''
-        AND utm_campaign != ''
-        ${campaignFilter}
-      GROUP BY country_code
-
-      UNION ALL
-
-      SELECT
-        'browser' AS dimension,
-        browser AS label,
-        uniq(visitor_id) AS visitors
-      FROM analytics.events
-      WHERE site_id = {siteId:String}
-        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND event_type = 1
-        AND utm_campaign != ''
-        AND browser != ''
-        ${campaignFilter}
-      GROUP BY browser
-
-      UNION ALL
-
-      SELECT
-        'os' AS dimension,
-        os AS label,
-        uniq(visitor_id) AS visitors
-      FROM analytics.events
-      WHERE site_id = {siteId:String}
-        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND event_type = 1
-        AND utm_campaign != ''
-        AND os != ''
-        ${campaignFilter}
-      GROUP BY os
-    )
-    ORDER BY dimension ASC, visitors DESC
-  `;
+  SELECT 
+    dimension,
+    label,
+    uniq(visitor_id) AS visitors
+  FROM
+  (
+    SELECT 
+      visitor_id,
+      [
+        ('device', device_type),
+        ('country', country_code),
+        ('browser', browser),
+        ('os', os)
+      ] AS dims
+    FROM analytics.events
+    WHERE site_id = {siteId:String}
+      AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND utm_campaign != ''
+      ${campaignFilter}
+  )
+  ARRAY JOIN dims AS (dimension, label)
+  WHERE label != '' AND label IS NOT NULL
+  GROUP BY dimension, label
+  ORDER BY dimension ASC, visitors DESC
+  LIMIT {limitPerDimension:UInt32} BY dimension
+`;
 
   const result = await clickhouse
     .query(query.taggedSql, {
@@ -415,6 +380,7 @@ export async function getCampaignAudienceProfileData(
         siteId,
         startDate,
         endDate,
+        limitPerDimension,
       },
     })
     .toPromise();

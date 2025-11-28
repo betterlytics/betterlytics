@@ -416,7 +416,15 @@ export async function fetchCampaignAudienceProfile(
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  const raw = await getCampaignAudienceProfileData(siteId, startDateTime, endDateTime, campaignName);
+  const AUDIENCE_DIMENSION_LIMIT = 3;
+
+  const raw = await getCampaignAudienceProfileData(
+    siteId,
+    startDateTime,
+    endDateTime,
+    campaignName,
+    AUDIENCE_DIMENSION_LIMIT,
+  );
 
   const mapRows = <T>(dimension: string, mapper: (row: (typeof raw)[number]) => T): T[] =>
     raw.filter((row) => row.dimension === dimension).map(mapper);

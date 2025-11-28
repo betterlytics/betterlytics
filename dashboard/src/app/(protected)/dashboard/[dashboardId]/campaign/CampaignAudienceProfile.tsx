@@ -24,10 +24,10 @@ const CampaignAudienceProfile = memo(
     const sections = useMemo(
       () =>
         [
-          { key: 'devices', title: 'Devices', items: devices?.slice(0, 3) ?? [] },
-          { key: 'browsers', title: 'Browsers', items: browsers?.slice(0, 3) ?? [] },
-          { key: 'os', title: 'OS', items: operatingSystems?.slice(0, 3) ?? [] },
-          { key: 'countries', title: 'Countries', items: countries?.slice(0, 3) ?? [] },
+          { key: 'devices', title: 'Devices', items: devices ?? [] },
+          { key: 'browsers', title: 'Browsers', items: browsers ?? [] },
+          { key: 'os', title: 'OS', items: operatingSystems ?? [] },
+          { key: 'countries', title: 'Countries', items: countries ?? [] },
         ].filter((section) => section.items.length > 0),
       [devices, browsers, operatingSystems, countries],
     );
