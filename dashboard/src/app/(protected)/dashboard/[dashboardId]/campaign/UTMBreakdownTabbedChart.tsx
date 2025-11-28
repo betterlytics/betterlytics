@@ -15,13 +15,12 @@ import type {
   CampaignContentBreakdownItem,
   CampaignTermBreakdownItem,
 } from '@/entities/campaign';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
 
 type UTMBreakdownTabbedChartProps = {
   dashboardId: string;
   campaignName: string;
-  startDate: string;
-  endDate: string;
   initialSource: CampaignSourceBreakdownItem[];
 };
 
@@ -117,11 +116,12 @@ type UTMChartTab = 'source' | 'medium' | 'content' | 'term';
 export default function UTMBreakdownTabbedChart({
   dashboardId,
   campaignName,
-  startDate,
-  endDate,
   initialSource,
 }: UTMBreakdownTabbedChartProps) {
   const t = useTranslations('components.campaign.utm');
+  const { startDate, endDate } = useTimeRangeContext();
+  const startDateIso = startDate.toISOString();
+  const endDateIso = endDate.toISOString();
   const [activeTab, setActiveTab] = useState<UTMChartTab>('source');
 
   const tabs = useMemo(
@@ -153,8 +153,8 @@ export default function UTMBreakdownTabbedChart({
   const mediumQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    startDate: startDateIso,
+    endDate: endDateIso,
     dimension: 'medium',
     enabled: activeTab === 'medium',
   });
@@ -162,8 +162,8 @@ export default function UTMBreakdownTabbedChart({
   const contentQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    startDate: startDateIso,
+    endDate: endDateIso,
     dimension: 'content',
     enabled: activeTab === 'content',
   });
@@ -171,8 +171,8 @@ export default function UTMBreakdownTabbedChart({
   const termQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    startDate: startDateIso,
+    endDate: endDateIso,
     dimension: 'term',
     enabled: activeTab === 'term',
   });

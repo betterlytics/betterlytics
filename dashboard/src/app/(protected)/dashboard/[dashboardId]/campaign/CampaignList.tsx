@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatPercentage } from '@/utils/formatters';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { CampaignListItem } from './CampaignDirectorySection';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
@@ -20,8 +21,6 @@ import { CompactPaginationControls, PaginationControls } from './CampaignPaginat
 type CampaignListProps = {
   campaigns: CampaignListItem[];
   dashboardId: string;
-  startDate: string;
-  endDate: string;
   pageIndex: number;
   pageSize: number;
   totalCampaigns: number;
@@ -30,12 +29,13 @@ type CampaignListProps = {
 export default function CampaignList({
   campaigns,
   dashboardId,
-  startDate,
-  endDate,
   pageIndex,
   pageSize,
   totalCampaigns,
 }: CampaignListProps) {
+  const { startDate, endDate } = useTimeRangeContext();
+  const startDateIso = startDate.toISOString();
+  const endDateIso = endDate.toISOString();
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
 
   const router = useRouter();
@@ -96,8 +96,6 @@ export default function CampaignList({
             key={campaign.name}
             campaign={campaign}
             dashboardId={dashboardId}
-            startDate={startDate}
-            endDate={endDate}
             isExpanded={expandedCampaign === campaign.name}
             onToggle={() => toggleCampaignExpanded(campaign.name)}
           />
@@ -119,20 +117,11 @@ export default function CampaignList({
 type CampaignListEntryProps = {
   campaign: CampaignListItem;
   dashboardId: string;
-  startDate: string;
-  endDate: string;
   isExpanded: boolean;
   onToggle: () => void;
 };
 
-function CampaignListEntry({
-  campaign,
-  dashboardId,
-  startDate,
-  endDate,
-  isExpanded,
-  onToggle,
-}: CampaignListEntryProps) {
+function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
   const sparklineData = campaign.sparkline;
 
   return (
@@ -180,13 +169,7 @@ function CampaignListEntry({
           {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
         </Button>
       </div>
-      <CampaignExpandedRow
-        isExpanded={isExpanded}
-        dashboardId={dashboardId}
-        campaignName={campaign.name}
-        startDate={startDate}
-        endDate={endDate}
-      />
+      <CampaignExpandedRow isExpanded={isExpanded} dashboardId={dashboardId} campaignName={campaign.name} />
     </article>
   );
 }
@@ -206,17 +189,9 @@ type CampaignInlineUTMSectionProps = {
   details: CampaignExpandedDetails;
   dashboardId: string;
   campaignName: string;
-  startDate: string;
-  endDate: string;
 };
 
-function CampaignInlineUTMSection({
-  details,
-  dashboardId,
-  campaignName,
-  startDate,
-  endDate,
-}: CampaignInlineUTMSectionProps) {
+function CampaignInlineUTMSection({ details, dashboardId, campaignName }: CampaignInlineUTMSectionProps) {
   const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
 
   return (
@@ -231,8 +206,6 @@ function CampaignInlineUTMSection({
           <UTMBreakdownTabbedTable
             dashboardId={dashboardId}
             campaignName={campaignName}
-            startDate={startDate}
-            endDate={endDate}
             initialSource={utmSource}
             landingPages={landingPages}
           />
@@ -248,8 +221,6 @@ function CampaignInlineUTMSection({
             <UTMBreakdownTabbedChart
               dashboardId={dashboardId}
               campaignName={campaignName}
-              startDate={startDate}
-              endDate={endDate}
               initialSource={utmSource}
             />
           </div>
@@ -263,17 +234,10 @@ type CampaignExpandedRowProps = {
   isExpanded: boolean;
   dashboardId: string;
   campaignName: string;
-  startDate: string;
-  endDate: string;
 };
 
-function CampaignExpandedRow({
-  isExpanded,
-  dashboardId,
-  campaignName,
-  startDate,
-  endDate,
-}: CampaignExpandedRowProps) {
+function CampaignExpandedRow({ isExpanded, dashboardId, campaignName }: CampaignExpandedRowProps) {
+  const { startDate, endDate } = useTimeRangeContext();
   const { data, status } = useQuery({
     queryKey: ['campaign-expanded-details', dashboardId, campaignName, startDate, endDate],
     queryFn: () => fetchCampaignExpandedDetailsAction(dashboardId, startDate, endDate, campaignName),
@@ -302,20 +266,14 @@ function CampaignExpandedRow({
       ) : null}
 
       {status === 'success' && data ? (
-        <CampaignInlineUTMSection
-          details={data}
-          dashboardId={dashboardId}
-          campaignName={campaignName}
-          startDate={startDate}
-          endDate={endDate}
-        />
+        <CampaignInlineUTMSection details={data} dashboardId={dashboardId} campaignName={campaignName} />
       ) : null}
     </div>
   );
 }
 
-function getExpandedDetailsStaleTime(startDateIso: string, endDateIso: string) {
-  const rangeMs = new Date(endDateIso).getTime() - new Date(startDateIso).getTime();
+function getExpandedDetailsStaleTime(startDate: Date, endDate: Date) {
+  const rangeMs = endDate.getTime() - startDate.getTime();
   const hourMs = 60 * 60 * 1000;
   if (rangeMs <= hourMs) {
     return 30_000;

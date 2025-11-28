@@ -65,8 +65,6 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
       >
         <CampaignDirectorySection
           dashboardId={dashboardId}
-          startDate={startDate}
-          endDate={endDate}
           campaignPerformancePromise={campaignPerformancePromise}
         />
       </Suspense>
