@@ -145,7 +145,7 @@ function FunnelStep({
               <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
                 <p className='text-muted-foreground text-xs'>Drop-off</p>
                 <p className='text-md font-semibold'>
-                  {step.dropoffCount < 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
+                  {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
                 </p>
                 <div className='flex items-center'>
                   <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />

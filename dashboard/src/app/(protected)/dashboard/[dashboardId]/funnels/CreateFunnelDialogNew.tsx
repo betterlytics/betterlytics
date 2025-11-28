@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
 import { useDebounce } from '@/hooks/useDebounce';
-import { ComponentProps, useMemo } from 'react';
-import { fetchFunnelPreviewAction } from '@/app/actions/funnels';
+import { ComponentProps, useCallback, useMemo, useState } from 'react';
+import { fetchFunnelPreviewAction, postFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
@@ -24,6 +24,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 
+type FunnelMetadata = {
+  name: string;
+  isStrict: boolean;
+};
+
 type CreateFunnelDialogProps = {
   triggerText?: string;
   triggerVariant?: ComponentProps<typeof Button>['variant'];
@@ -32,9 +37,12 @@ type CreateFunnelDialogProps = {
 export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
   const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep } = useFunnelSteps();
   const t = useTranslations('components.funnels.create');
-
+  const [isOpen, setIsOpen] = useState(false);
   const dashboardId = useDashboardId();
-
+  const [metadata, setMetadata] = useState<FunnelMetadata>({
+    name: t('defaultName'),
+    isStrict: false,
+  });
   const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
 
   const searchableFunnelSteps = useMemo(() => {
@@ -86,8 +94,16 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     }));
   }, [debouncedFunnelSteps]);
 
+  const handleCreateFunnel = useCallback(() => {
+    postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
+      .then(() => {
+        setIsOpen(false);
+      })
+      .catch(() => {});
+  }, [dashboardId, funnelSteps, metadata.name, metadata.isStrict]);
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant={triggerVariant || 'ghost'} className='cursor-pointer'>
           <PlusIcon className='h-4 w-4' />
@@ -110,14 +126,23 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
                       Name
                     </Label>
-                    <Input id='name' placeholder='Enter funnel name' />
+                    <Input
+                      id='name'
+                      placeholder='Enter funnel name'
+                      value={metadata.name}
+                      onChange={(evt) => setMetadata((prev) => ({ ...prev, name: evt.target.value }))}
+                    />
                   </div>
                   <div className='min-w-20'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
                       Strict mode
                     </Label>
                     <div className='mt-3 flex justify-center'>
-                      <Switch id='strict-mode' defaultChecked />
+                      <Switch
+                        id='strict-mode'
+                        checked={metadata.isStrict}
+                        onCheckedChange={(checked) => setMetadata((prev) => ({ ...prev, isStrict: checked }))}
+                      />
                     </div>
                   </div>
                 </div>
@@ -147,12 +172,12 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                 ))}
               </div>
             </div>
-            {funnelSteps.length < 2 && (
+            {searchableFunnelSteps.length < 2 && (
               <div className='text-muted-foreground flex h-full items-center justify-center'>
                 <p>Please add at least 2 steps to preview the funnel</p>
               </div>
             )}
-            {funnelSteps.length >= 2 &&
+            {searchableFunnelSteps.length >= 2 &&
               (!isPreviewLoading && funnelPreview ? (
                 <div className='space-y-4 rounded-lg p-4 shadow'>
                   <Label htmlFor='name' className='text-foreground mb-2 block'>
@@ -169,7 +194,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           </div>
         </div>
         <DialogFooter className='flex items-end justify-end gap-2'>
-          <Button variant='default' className='w-30 cursor-pointer'>
+          <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
             Create
           </Button>
         </DialogFooter>
