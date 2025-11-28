@@ -13,10 +13,10 @@ export type AudienceShare = {
 };
 
 export type CampaignAudienceProfileProps = {
-  devices?: AudienceShare[];
-  countries?: AudienceShare[];
-  browsers?: AudienceShare[];
-  operatingSystems?: AudienceShare[];
+  devices: AudienceShare[];
+  countries: AudienceShare[];
+  browsers: AudienceShare[];
+  operatingSystems: AudienceShare[];
 };
 
 const CampaignAudienceProfile = memo(
@@ -26,10 +26,10 @@ const CampaignAudienceProfile = memo(
     const sections = useMemo(
       () =>
         [
-          { key: 'devices', title: t('deviceTitle'), items: devices ?? [] },
-          { key: 'browsers', title: t('browserTitle'), items: browsers ?? [] },
-          { key: 'os', title: t('osTitle'), items: operatingSystems ?? [] },
-          { key: 'countries', title: t('countryTitle'), items: countries ?? [] },
+          { key: 'devices', title: t('deviceTitle'), items: devices },
+          { key: 'browsers', title: t('browserTitle'), items: browsers },
+          { key: 'os', title: t('osTitle'), items: operatingSystems },
+          { key: 'countries', title: t('countryTitle'), items: countries },
         ].filter((section) => section.items.length > 0),
       [devices, browsers, operatingSystems, countries],
     );
