@@ -3,10 +3,10 @@
 import { useMemo, useState, useId } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import type { TooltipProps } from 'recharts';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatPercentage, capitalizeFirstLetter } from '@/utils/formatters';
 import type { CampaignListItem } from './CampaignDirectorySection';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
@@ -31,7 +31,8 @@ type CampaignListProps = {
   pageSize?: number;
 };
 
-const DEFAULT_PAGE_SIZE = 6;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [6, 10, 25, 50] as const;
 
 export default function CampaignList({
   campaigns,
@@ -40,9 +41,10 @@ export default function CampaignList({
   endDate,
   granularity,
   timezone,
-  pageSize = DEFAULT_PAGE_SIZE,
+  pageSize: initialPageSize = DEFAULT_PAGE_SIZE,
 }: CampaignListProps) {
   const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(initialPageSize);
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
 
   const { detailsByCampaign, loadCampaignDetails } = useCampaignExpandedDetails({
@@ -51,13 +53,15 @@ export default function CampaignList({
     endDate,
   });
 
-  const totalPages = Math.max(1, Math.ceil(campaigns.length / pageSize));
+  const sortedCampaigns = useMemo(() => [...campaigns].sort((a, b) => b.visitors - a.visitors), [campaigns]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedCampaigns.length / pageSize));
   const safePageIndex = Math.min(pageIndex, totalPages - 1);
 
   const paginatedCampaigns = useMemo(() => {
     const start = safePageIndex * pageSize;
-    return campaigns.slice(start, start + pageSize);
-  }, [campaigns, pageSize, safePageIndex]);
+    return sortedCampaigns.slice(start, start + pageSize);
+  }, [sortedCampaigns, pageSize, safePageIndex]);
 
   const { sparklines, statuses } = useCampaignSparklines({
     dashboardId,
@@ -73,6 +77,14 @@ export default function CampaignList({
     setExpandedCampaign(null);
   };
 
+  const handlePageSizeChange = (newSize: number) => {
+    const firstItemIndex = pageIndex * pageSize;
+    const newPageIndex = Math.floor(firstItemIndex / newSize);
+    setPageSize(newSize);
+    setPageIndex(newPageIndex);
+    setExpandedCampaign(null);
+  };
+
   if (campaigns.length === 0) {
     return (
       <Card className='border-border/50 bg-muted/30 p-8 text-center'>
@@ -84,8 +96,18 @@ export default function CampaignList({
     );
   }
 
+  const showTopPagination = pageSize >= 25 && totalPages > 1;
+
   return (
     <div className='space-y-4'>
+      {showTopPagination && (
+        <CompactPaginationControls
+          pageIndex={safePageIndex}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
+
       {paginatedCampaigns.map((campaign) => {
         const isExpanded = expandedCampaign === campaign.name;
         const detailsState = detailsByCampaign[campaign.name];
@@ -144,15 +166,18 @@ export default function CampaignList({
             {isExpanded && (
               <div id={`campaign-${campaign.name}-details`} className='mx-3 mb-3 ml-5 space-y-4'>
                 {!detailsState || detailsState.status === 'loading' ? (
-                  <div className='flex justify-center py-6'>
+                  <div className='flex items-center justify-center gap-3 py-8'>
                     <Spinner size='sm' aria-label='Loading campaign details' />
+                    <span className='text-muted-foreground text-sm'>Loading campaign details...</span>
                   </div>
                 ) : null}
 
                 {detailsState?.status === 'error' ? (
-                  <p className='text-destructive text-xs'>
-                    Failed to load campaign details. Please try expanding again.
-                  </p>
+                  <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
+                    <p className='text-destructive text-sm'>
+                      Failed to load campaign details. Please try expanding again.
+                    </p>
+                  </div>
                 ) : null}
 
                 {detailsState?.status === 'loaded' ? <CampaignInlineUTMSection {...detailsState.data} /> : null}
@@ -165,9 +190,10 @@ export default function CampaignList({
       <PaginationControls
         pageIndex={safePageIndex}
         totalPages={totalPages}
-        onChange={(direction) => handlePageChange(safePageIndex + direction)}
-        disablePrevious={safePageIndex === 0}
-        disableNext={safePageIndex >= totalPages - 1}
+        pageSize={pageSize}
+        totalItems={sortedCampaigns.length}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
     </div>
   );
@@ -331,35 +357,33 @@ function CampaignAudienceProfile({
   }
 
   return (
-    <section aria-label='Audience profile' className='space-y-2'>
-      <div className='px-1'>
-        <p className='text-foreground text-sm font-medium'>Audience profile</p>
-        <div className='bg-border/60 mt-1 h-px w-full' />
-      </div>
-      <div className='pt-1 text-[11px]'>
-        <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
-          {sections.map((section) => (
-            <div key={section.key} className='space-y-1'>
-              <p className='text-foreground text-[11px] font-medium'>{section.title}</p>
-              <div className='space-y-1.5'>
-                {section.items.map((item) => (
+    <section aria-label='Audience profile' className='p-3'>
+      <p className='text-foreground mb-3 text-sm font-medium'>Audience profile</p>
+      <div className='grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4'>
+        {sections.map((section) => (
+          <div key={section.key} className='space-y-1.5'>
+            <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+              {section.title}
+            </p>
+            <div className='space-y-1'>
+              {section.items.map((item) => {
+                const { icon, label } = getAudienceIconAndLabel(section.key, item.label, locale);
+                return (
                   <div
                     key={item.label}
-                    className='bg-muted/60 text-muted-foreground flex items-center justify-between rounded-full px-2 py-0.5'
+                    className='text-muted-foreground flex items-center justify-between text-xs'
                   >
                     <div className='flex min-w-0 items-center gap-1.5'>
-                      {getAudienceIconAndLabel(section.key, item.label, locale).icon}
-                      <span className='truncate'>
-                        {getAudienceIconAndLabel(section.key, item.label, locale).label}
-                      </span>
+                      {icon}
+                      <span className='truncate'>{label}</span>
                     </div>
-                    <span className='text-foreground ml-1 shrink-0 font-medium'>{item.value}</span>
+                    <span className='text-foreground ml-2 shrink-0 font-medium tabular-nums'>{item.value}</span>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -398,49 +422,186 @@ function getAudienceIconAndLabel(sectionKey: string, rawLabel: string, locale: s
   }
 }
 
+type CompactPaginationControlsProps = {
+  pageIndex: number;
+  totalPages: number;
+  onPageChange: (pageIndex: number) => void;
+};
+
+function CompactPaginationControls({ pageIndex, totalPages, onPageChange }: CompactPaginationControlsProps) {
+  const currentPage = pageIndex + 1;
+  const isFirstPage = pageIndex === 0;
+  const isLastPage = pageIndex === totalPages - 1;
+
+  return (
+    <div className='flex items-center justify-end gap-2 py-1'>
+      <span className='text-muted-foreground text-xs'>
+        Page {currentPage} of {totalPages.toLocaleString()}
+      </span>
+      <div className='flex items-center'>
+        <Button
+          variant='ghost'
+          size='icon'
+          className='h-7 w-7'
+          disabled={isFirstPage}
+          onClick={() => onPageChange(pageIndex - 1)}
+          aria-label='Previous page'
+        >
+          <ChevronLeft className='h-4 w-4' />
+        </Button>
+        <Button
+          variant='ghost'
+          size='icon'
+          className='h-7 w-7'
+          disabled={isLastPage}
+          onClick={() => onPageChange(pageIndex + 1)}
+          aria-label='Next page'
+        >
+          <ChevronRight className='h-4 w-4' />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 type PaginationControlsProps = {
   pageIndex: number;
   totalPages: number;
-  disablePrevious: boolean;
-  disableNext: boolean;
-  onChange: (direction: -1 | 1) => void;
+  pageSize: number;
+  totalItems: number;
+  onPageChange: (pageIndex: number) => void;
+  onPageSizeChange: (size: number) => void;
 };
 
 function PaginationControls({
   pageIndex,
   totalPages,
-  disablePrevious,
-  disableNext,
-  onChange,
+  pageSize,
+  totalItems,
+  onPageChange,
+  onPageSizeChange,
 }: PaginationControlsProps) {
-  if (totalPages <= 1) {
-    return null;
-  }
+  const currentPage = pageIndex + 1;
+  const isFirstPage = pageIndex === 0;
+  const isLastPage = pageIndex === totalPages - 1;
+  const startItem = pageIndex * pageSize + 1;
+  const endItem = Math.min(startItem + pageSize - 1, totalItems);
+
+  const getPages = (): Array<number | 'ellipsis-start' | 'ellipsis-end'> => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, 'ellipsis-end', totalPages];
+    }
+
+    if (currentPage >= totalPages - 3) {
+      return [1, 'ellipsis-start', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [1, 'ellipsis-start', currentPage - 1, currentPage, currentPage + 1, 'ellipsis-end', totalPages];
+  };
+
+  const pages = getPages();
 
   return (
-    <div className='border-border/50 bg-background/60 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm'>
-      <p className='text-muted-foreground'>
-        Page {pageIndex + 1} of {totalPages}
+    <div className='flex flex-wrap items-center justify-between gap-4 text-sm'>
+      <p className='text-muted-foreground/80 text-sm'>
+        Showing{' '}
+        <span className='text-foreground/80 font-medium tabular-nums'>
+          {startItem}–{endItem}
+        </span>{' '}
+        of <span className='text-foreground/80 font-medium tabular-nums'>{totalItems.toLocaleString()}</span>{' '}
+        campaigns
       </p>
-      <div className='flex gap-2'>
-        <Button
-          variant='outline'
-          size='sm'
-          disabled={disablePrevious}
-          onClick={() => onChange(-1)}
-          aria-label='Previous page'
-        >
-          Previous
-        </Button>
-        <Button
-          variant='outline'
-          size='sm'
-          disabled={disableNext}
-          onClick={() => onChange(1)}
-          aria-label='Next page'
-        >
-          Next
-        </Button>
+
+      <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-2'>
+          <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
+            <SelectTrigger size='sm' className='w-[70px] cursor-pointer'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <SelectItem key={size} value={String(size)} className='cursor-pointer'>
+                  {size}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className='text-muted-foreground/80 text-sm'>per page</span>
+        </div>
+
+        <nav aria-label='Pagination' className='border-border/40 flex items-center gap-0.5 border-l pl-4'>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isFirstPage}
+            onClick={() => onPageChange(0)}
+            aria-label='First page'
+          >
+            <ChevronsLeft className='h-4 w-4' />
+          </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isFirstPage}
+            onClick={() => onPageChange(pageIndex - 1)}
+            aria-label='Previous page'
+          >
+            <ChevronLeft className='h-4 w-4' />
+          </Button>
+
+          {totalPages > 1 && (
+            <div className='flex items-center px-1'>
+              {pages.map((page) =>
+                typeof page === 'string' ? (
+                  <span key={page} className='text-muted-foreground/50 px-1.5 text-sm select-none'>
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    type='button'
+                    onClick={() => onPageChange(page - 1)}
+                    aria-current={page === currentPage ? 'page' : undefined}
+                    className={`min-w-[1.75rem] cursor-pointer rounded-md px-2 py-1 text-sm font-medium tabular-nums transition-colors ${
+                      page === currentPage
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                    }`}
+                  >
+                    {page.toLocaleString()}
+                  </button>
+                ),
+              )}
+            </div>
+          )}
+
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isLastPage}
+            onClick={() => onPageChange(pageIndex + 1)}
+            aria-label='Next page'
+          >
+            <ChevronRight className='h-4 w-4' />
+          </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8 cursor-pointer'
+            disabled={isLastPage}
+            onClick={() => onPageChange(totalPages - 1)}
+            aria-label='Last page'
+          >
+            <ChevronsRight className='h-4 w-4' />
+          </Button>
+        </nav>
       </div>
     </div>
   );
