@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatPercentage } from '@/utils/formatters';
@@ -13,11 +12,12 @@ import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
 import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
-import { fetchCampaignExpandedDetailsAction } from '@/app/actions/campaigns';
+import { fetchCampaignExpandedDetailsAction, fetchCampaignPerformanceAction } from '@/app/actions/campaigns';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';
 import { useTranslations } from 'next-intl';
+import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
@@ -28,17 +28,20 @@ type CampaignListProps = {
 };
 
 export default function CampaignList({
-  campaigns,
+  campaigns: initialCampaigns,
   dashboardId,
-  pageIndex,
-  pageSize,
-  totalCampaigns,
+  pageIndex: initialPageIndex,
+  pageSize: initialPageSize,
+  totalCampaigns: initialTotalCampaigns,
 }: CampaignListProps) {
+  const { startDate, endDate, granularity, timeZone } = useTimeRangeContext();
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
+  const [pageIndex, setPageIndex] = useState<number>(initialPageIndex);
+  const [pageSize, setPageSize] = useState<number>(initialPageSize);
+  const [campaigns, setCampaigns] = useState<CampaignListItem[]>(initialCampaigns);
+  const [totalCampaigns, setTotalCampaigns] = useState<number>(initialTotalCampaigns);
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false);
   const t = useTranslations('components.campaign.emptyState');
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const totalPages = Math.max(1, Math.ceil(totalCampaigns / pageSize));
   const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
@@ -49,19 +52,43 @@ export default function CampaignList({
     setExpandedCampaign((prev) => (prev === campaignName ? null : campaignName));
   };
 
-  const handlePageChange = (newIndex: number) => {
+  const loadPage = async (nextPageIndex: number, nextPageSize: number) => {
+    if (isLoadingPage) {
+      return;
+    }
+
     setExpandedCampaign(null);
-    const params = new URLSearchParams(searchParams?.toString() ?? '');
-    params.set('page', String(newIndex + 1));
-    router.replace(`${pathname}?${params.toString()}`);
+    setIsLoadingPage(true);
+
+    try {
+      const result = await fetchCampaignPerformanceAction(
+        dashboardId,
+        startDate,
+        endDate,
+        granularity,
+        timeZone,
+        nextPageIndex,
+        nextPageSize,
+      );
+
+      setCampaigns(result.campaigns as CampaignListItem[]);
+      setTotalCampaigns(result.totalCampaigns);
+      setPageIndex(result.pageIndex);
+      setPageSize(result.pageSize);
+    } catch {
+    } finally {
+      setIsLoadingPage(false);
+    }
+  };
+
+  const handlePageChange = (newIndex: number) => {
+    if (newIndex === pageIndex) return;
+    void loadPage(newIndex, pageSize);
   };
 
   const handlePageSizeChange = (newSize: number) => {
-    setExpandedCampaign(null);
-    const params = new URLSearchParams(searchParams?.toString() ?? '');
-    params.set('pageSize', String(newSize));
-    params.set('page', '1');
-    router.replace(`${pathname}?${params.toString()}`);
+    if (newSize === pageSize) return;
+    void loadPage(0, newSize);
   };
 
   if (campaigns.length === 0) {
@@ -74,6 +101,7 @@ export default function CampaignList({
   }
 
   const showTopPagination = pageSize >= 25 && totalPages > 1;
+  const skeletonRowCount = Math.min(pageSize || 10, 10);
 
   return (
     <div className='space-y-4 pb-8 md:pb-0'>
@@ -85,17 +113,19 @@ export default function CampaignList({
         />
       )}
 
-      {paginatedCampaigns.map((campaign) => {
-        return (
-          <CampaignListEntry
-            key={campaign.name}
-            campaign={campaign}
-            dashboardId={dashboardId}
-            isExpanded={expandedCampaign === campaign.name}
-            onToggle={() => toggleCampaignExpanded(campaign.name)}
-          />
-        );
-      })}
+      {isLoadingPage
+        ? Array.from({ length: skeletonRowCount }).map((_, index) => <CampaignRowSkeleton key={index} />)
+        : paginatedCampaigns.map((campaign) => {
+            return (
+              <CampaignListEntry
+                key={campaign.name}
+                campaign={campaign}
+                dashboardId={dashboardId}
+                isExpanded={expandedCampaign === campaign.name}
+                onToggle={() => toggleCampaignExpanded(campaign.name)}
+              />
+            );
+          })}
 
       <PaginationControls
         pageIndex={safePageIndex}
