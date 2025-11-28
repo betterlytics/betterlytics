@@ -8,6 +8,7 @@ import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import type { CampaignSourceBreakdownItem, CampaignLandingPagePerformanceItem } from '@/entities/campaign';
 import { Spinner } from '@/components/ui/spinner';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
 
 type UTMTabsKey = 'entry' | 'source' | 'medium' | 'content' | 'term';
@@ -15,8 +16,6 @@ type UTMTabsKey = 'entry' | 'source' | 'medium' | 'content' | 'term';
 type UTMBreakdownTabbedTableProps = {
   dashboardId: string;
   campaignName: string;
-  startDate: string;
-  endDate: string;
   initialSource: CampaignSourceBreakdownItem[];
   landingPages: CampaignLandingPagePerformanceItem[];
 };
@@ -32,12 +31,11 @@ interface BaseUTMBreakdownItem {
 export default function UTMBreakdownTabbedTable({
   dashboardId,
   campaignName,
-  startDate,
-  endDate,
   initialSource,
   landingPages,
 }: UTMBreakdownTabbedTableProps) {
   const t = useTranslations('components.campaign.utm');
+  const { startDate, endDate } = useTimeRangeContext();
   const landingPagesBreakdown = landingPages as BaseUTMBreakdownItem[];
   const [activeTab, setActiveTab] = useState<UTMTabsKey>('entry');
 

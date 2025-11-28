@@ -10,8 +10,8 @@ import {
 type UseUTMBreakdownDataOptions = {
   dashboardId: string;
   campaignName: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   dimension: CampaignUTMDimension;
   enabled: boolean;
 };

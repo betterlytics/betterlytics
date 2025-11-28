@@ -116,14 +116,11 @@ export type CampaignUTMDimension = 'source' | 'medium' | 'content' | 'term';
 export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDateIso: string,
-    endDateIso: string,
+    startDate: Date,
+    endDate: Date,
     campaignName: string,
   ): Promise<CampaignExpandedDetails> => {
     try {
-      const startDate = new Date(startDateIso);
-      const endDate = new Date(endDateIso);
-
       const [utmSource, landingPages, audienceProfile] = await Promise.all([
         fetchCampaignSourceBreakdown(ctx.siteId, startDate, endDate, campaignName),
         fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
@@ -177,14 +174,12 @@ const utmBreakdownFetchers: Record<
 export const fetchCampaignUTMBreakdownAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDateIso: string,
-    endDateIso: string,
+    startDate: Date,
+    endDate: Date,
     campaignName: string,
     dimension: CampaignUTMDimension,
   ): Promise<CampaignUTMBreakdownItem[]> => {
     try {
-      const startDate = new Date(startDateIso);
-      const endDate = new Date(endDateIso);
       const fetcher = utmBreakdownFetchers[dimension];
       return fetcher(ctx.siteId, startDate, endDate, campaignName);
     } catch (error) {

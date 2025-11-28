@@ -4,8 +4,6 @@ import type { CampaignDirectoryRowSummary } from '@/entities/campaign';
 
 type CampaignDirectorySectionProps = {
   dashboardId: string;
-  startDate: Date;
-  endDate: Date;
   campaignPerformancePromise: ReturnType<typeof fetchCampaignPerformanceAction>;
 };
 
@@ -13,8 +11,6 @@ export type CampaignListItem = CampaignDirectoryRowSummary;
 
 export default async function CampaignDirectorySection({
   dashboardId,
-  startDate,
-  endDate,
   campaignPerformancePromise,
 }: CampaignDirectorySectionProps) {
   const campaignPerformancePage = await campaignPerformancePromise;
@@ -24,8 +20,6 @@ export default async function CampaignDirectorySection({
     <CampaignList
       dashboardId={dashboardId}
       campaigns={campaigns}
-      startDate={startDate.toISOString()}
-      endDate={endDate.toISOString()}
       pageIndex={pageIndex}
       pageSize={pageSize}
       totalCampaigns={totalCampaigns}
