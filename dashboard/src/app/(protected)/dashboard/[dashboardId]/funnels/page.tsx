@@ -26,7 +26,9 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
   return (
     <DashboardHeader title={title}>
       <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-3 sm:flex-row'>
-        <CreateFunnelButton />
+        <div className='hidden md:block'>
+          <CreateFunnelButton />
+        </div>
         <DashboardFilters showComparison={false} />
       </div>
     </DashboardHeader>
