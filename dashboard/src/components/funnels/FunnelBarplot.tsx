@@ -23,7 +23,7 @@ type FunnelChartProps = {
 export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) {
   const hasEmptySteps = Boolean(emptySteps?.length);
   return (
-    <div className='bg-card w-full overflow-x-auto rounded-lg border'>
+    <div className='bg-card w-full overflow-x-auto rounded-xl border shadow-sm'>
       <div className='group/steps relative flex w-fit flex-col sm:flex-row'>
         {funnel.steps.map((step, i) => (
           <FunnelStep key={i} step={step} index={i} funnel={funnel} hasEmptySteps={hasEmptySteps} />
@@ -31,24 +31,26 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
         {emptySteps?.map((step, i) => (
           <div
             key={i}
-            className='group-hover/steps:[&:not(:hover)]:bg-background/50 flex h-40 flex-row-reverse bg-gray-600/10 transition-all duration-150 sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-50'
+            className='group-hover/steps:[&:not(:hover)]:bg-background/30 bg-muted/30 flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'
           >
             <div
               className={cn(
-                'w-35 border-b px-2 pt-2 sm:w-full sm:border-r sm:border-b-0',
+                'border-border/40 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
                 i === emptySteps.length - 1 && 'border-b-0 sm:border-r-0',
               )}
             >
               <div>
-                <p className='text-muted-foreground/75 text-xs'>Step {i + funnel.steps.length + 1}</p>
+                <p className='text-muted-foreground/60 text-[11px] font-medium tracking-wide uppercase'>
+                  Step {i + funnel.steps.length + 1}
+                </p>
               </div>
-              <h4 className='text-foreground/75 truncate text-sm font-semibold'>{step.name}</h4>
+              <h4 className='text-foreground/70 truncate text-sm font-semibold'>{step.name}</h4>
             </div>
             <div
               className={cn(
                 'hidden h-40 w-full pt-2 sm:flex',
                 i === funnel.steps.length - 1 &&
-                  'dark:border-background/40 border-foreground/5 border-r-2 border-dashed',
+                  'dark:border-muted/40 border-muted-foreground/10 border-r-2 border-dashed',
               )}
             >
               <HorizontalProgress key={i} percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
@@ -61,9 +63,9 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
             <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
               <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'></div>
               {i < emptySteps.length - 1 ? (
-                <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'></div>
+                <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center rounded-sm p-2 sm:h-full sm:w-25'></div>
               ) : (
-                <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
+                <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
                   <p className='text-muted-foreground/75 text-xs'>Conversion</p>
                   <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0)}</p>
                 </div>
@@ -94,16 +96,18 @@ function FunnelStep({
       <TooltipTrigger asChild>
         <div
           ref={hoverRef}
-          className='bg-card hover:bg-foreground/2 group-hover/steps:[&:not(:hover)]:bg-background/50 group/step flex h-40 flex-row-reverse transition-all duration-150 sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-50'
+          className='bg-card hover:bg-primary/[0.02] group-hover/steps:[&:not(:hover)]:bg-background/30 group/step flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'
         >
           <div
             className={cn(
-              'w-35 border-b px-2 pt-2 sm:w-full sm:border-r sm:border-b-0',
+              'border-border/50 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
               index === funnel.steps.length - 1 && 'border-b-0 sm:border-r-0',
             )}
           >
             <div>
-              <p className='text-muted-foreground text-xs'>Step {index + 1}</p>
+              <p className='text-muted-foreground/80 text-[11px] font-medium tracking-wide uppercase'>
+                Step {index + 1}
+              </p>
             </div>
             <h4 className='text-foreground truncate text-sm font-semibold'>{step.step.name}</h4>
           </div>
@@ -111,7 +115,7 @@ function FunnelStep({
             className={cn(
               'hidden h-40 w-full pt-2 sm:flex',
               index === funnel.steps.length - 1 &&
-                'dark:border-background/40 border-foreground/5 border-r-2 border-dashed',
+                'dark:border-muted/40 border-muted-foreground/10 border-r-2 border-dashed',
             )}
           >
             <HorizontalProgress
@@ -136,24 +140,24 @@ function FunnelStep({
             )}
           </div>
           <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
-            <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
+            <div className='flex h-20 w-20 flex-col items-center justify-center gap-0.5 p-2 sm:h-full sm:w-25'>
               <p className='text-muted-foreground text-xs'>Visitors</p>
               <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
-              <p className='text-muted-foreground text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
+              <p className='text-muted-foreground/80 text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
             </div>
             {index < funnel.steps.length - 1 || hasEmptySteps ? (
-              <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
+              <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
                 <p className='text-muted-foreground text-xs'>Drop-off</p>
                 <p className='text-md font-semibold'>
                   {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
                 </p>
-                <div className='flex items-center'>
+                <div className='flex items-center gap-0.5'>
                   <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
                   <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
                 </div>
               </div>
             ) : (
-              <div className='dark:bg-background/40 bg-foreground/5 flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'>
+              <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
                 <p className='text-muted-foreground text-xs'>Conversion</p>
                 <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
               </div>
@@ -181,7 +185,7 @@ function VerticalProgress({ percentage }: { percentage: number }) {
   return (
     <div className='relative flex h-20 w-full flex-col justify-end'>
       <div
-        className='from-primary to-primary/50 border-foreground h-20 border-r bg-gradient-to-l'
+        className='from-primary via-primary/80 to-primary/55 h-20 bg-gradient-to-l transition-colors duration-200 ease-out'
         style={{ width: `${percentage}%` }}
       />
     </div>
@@ -252,7 +256,7 @@ function HorizontalProgress({
     <div className='relative flex h-full w-25 flex-col justify-end'>
       <div
         className={cn(
-          'from-primary to-primary/50 group-hover:to-primary/75 w-full bg-gradient-to-b transition-colors duration-150',
+          'from-primary via-primary/80 to-primary/55 group-hover/step:to-primary/70 w-full bg-gradient-to-b transition-colors duration-200 ease-out',
           isFirst && 'rounded-tl-lg',
           isLast && 'rounded-tr-lg',
         )}
@@ -304,7 +308,7 @@ function HorizontalConnector({
     <div ref={ref} className='relative h-full w-25'>
       {width > 0 && height > 0 && (
         <svg
-          className='fill-primary/40 group-hover:fill-primary/60 absolute inset-0 transition-colors duration-150'
+          className='fill-primary/35 group-hover/step:fill-primary/50 absolute inset-0 transition-colors duration-200 ease-out'
           width='100%'
           height='100%'
           preserveAspectRatio='none'
