@@ -7,7 +7,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from '@/components/ui/select';
 import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
@@ -31,27 +31,24 @@ import {
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { FilterValueSearch } from './FilterValueSearch';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { FilterValueSearch } from '@/components/filters/FilterValueSearch';
+import { Input } from '@/components/ui/input';
 
-type QueryFilterInputRowProps<TEntity> = {
-  onFilterUpdate: Dispatch<QueryFilter & TEntity>;
-  filter: QueryFilter & TEntity;
-  requestRemoval: Dispatch<QueryFilter & TEntity>;
+type FunnelStepFilterProps = {
+  onFilterUpdate: Dispatch<QueryFilter & { name: string }>;
+  filter: QueryFilter & { name: string };
+  requestRemoval: Dispatch<QueryFilter & { name: string }>;
   disableDeletion?: boolean;
 };
 
-export function QueryFilterInputRow<TEntity>({
+export function FunnelStepFilter({
   filter,
   onFilterUpdate,
   requestRemoval,
   disableDeletion,
-}: QueryFilterInputRowProps<TEntity>) {
+}: FunnelStepFilterProps) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
-  const tDemo = useTranslations('components.demoMode');
-  const isDemo = useDemoMode();
-  const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
 
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
@@ -62,15 +59,19 @@ export function QueryFilterInputRow<TEntity>({
   }, [filter.column]);
 
   return (
-    <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
+    <div className='flex h-fit min-h-14 w-full items-center gap-2 p-2'>
+      <Input
+        className='w-52'
+        value={filter.name}
+        onChange={(e) => onFilterUpdate({ ...filter, name: e.target.value })}
+      />
       <Select
         value={filter.column}
         onValueChange={(column: FilterColumn) => {
-          if (isDemo && !demoAllowedColumns.has(column)) return;
           onFilterUpdate({ ...filter, column });
         }}
       >
-        <SelectTrigger className='col-span-8 w-full cursor-pointer md:col-span-4'>
+        <SelectTrigger className='w-50 cursor-pointer'>
           <SelectValue />
         </SelectTrigger>
         <SelectContent
@@ -81,14 +82,10 @@ export function QueryFilterInputRow<TEntity>({
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-              const disabled = isDemo && !demoAllowedColumns.has(column.value as FilterColumn);
               return (
-                <SelectItem className='cursor-pointer' key={column.value} value={column.value} disabled={disabled}>
+                <SelectItem className='cursor-pointer' key={column.value} value={column.value}>
                   {column.icon}
                   {t(`columns.${column.value}`)}
-                  {disabled && (
-                    <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
-                  )}
                 </SelectItem>
               );
             })}
@@ -99,7 +96,7 @@ export function QueryFilterInputRow<TEntity>({
         value={filter.operator}
         onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
       >
-        <SelectTrigger className='col-span-4 w-full cursor-pointer md:col-span-2'>
+        <SelectTrigger className='w-25 cursor-pointer'>
           <SelectValue />
         </SelectTrigger>
         <SelectContent align={'start'} position={'popper'}>
@@ -114,15 +111,10 @@ export function QueryFilterInputRow<TEntity>({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <FilterValueSearch
-        filter={filter}
-        onFilterUpdate={onFilterUpdate}
-        key={filter.column}
-        className='col-span-10 md:col-span-5'
-      />
+      <FilterValueSearch filter={filter} onFilterUpdate={onFilterUpdate} key={filter.column} className='grow' />
       <Button
         variant='ghost'
-        className='col-span-2 cursor-pointer md:col-span-1'
+        className='cursor-pointer'
         onClick={() => requestRemoval(filter)}
         disabled={disableDeletion}
       >
@@ -132,22 +124,22 @@ export function QueryFilterInputRow<TEntity>({
   );
 }
 
-type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: string }[];
+type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode }[];
 
 const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
-  { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },
-  { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },
-  { value: 'country_code', icon: <EarthIcon />, label: 'Country code' },
-  { value: 'browser', icon: <CompassIcon />, label: 'Browser' },
-  { value: 'os', icon: <MonitorSmartphoneIcon />, label: 'Operating system' },
-  { value: 'referrer_source', icon: <StepBackIcon />, label: 'Referrer source' },
-  { value: 'referrer_source_name', icon: <BatteryIcon />, label: 'Referrer name' },
-  { value: 'referrer_search_term', icon: <ShellIcon />, label: 'Referrer term' },
-  { value: 'referrer_url', icon: <ExternalLinkIcon />, label: 'Referrer URL' },
-  { value: 'utm_source', icon: <ArrowRightToLineIcon />, label: 'UTM source' },
-  { value: 'utm_medium', icon: <CableIcon />, label: 'UTM medium' },
-  { value: 'utm_campaign', icon: <FileTextIcon />, label: 'UTM campaign' },
-  { value: 'utm_term', icon: <TextSearchIcon />, label: 'UTM term' },
-  { value: 'utm_content', icon: <SquareMousePointerIcon />, label: 'UTM content' },
-  { value: 'custom_event_name', icon: <SunsetIcon />, label: 'Event' },
+  { value: 'url', icon: <TextCursorInputIcon /> },
+  { value: 'device_type', icon: <TabletSmartphoneIcon /> },
+  { value: 'country_code', icon: <EarthIcon /> },
+  { value: 'browser', icon: <CompassIcon /> },
+  { value: 'os', icon: <MonitorSmartphoneIcon /> },
+  { value: 'referrer_source', icon: <StepBackIcon /> },
+  { value: 'referrer_source_name', icon: <BatteryIcon /> },
+  { value: 'referrer_search_term', icon: <ShellIcon /> },
+  { value: 'referrer_url', icon: <ExternalLinkIcon /> },
+  { value: 'utm_source', icon: <ArrowRightToLineIcon /> },
+  { value: 'utm_medium', icon: <CableIcon /> },
+  { value: 'utm_campaign', icon: <FileTextIcon /> },
+  { value: 'utm_term', icon: <TextSearchIcon /> },
+  { value: 'utm_content', icon: <SquareMousePointerIcon /> },
+  { value: 'custom_event_name', icon: <SunsetIcon /> },
 ];

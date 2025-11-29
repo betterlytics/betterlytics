@@ -1,6 +1,6 @@
 'use client';
 
-import { PlusIcon } from 'lucide-react';
+import { Pencil, PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,26 +12,25 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
-import { ComponentProps, useCallback, useMemo, useState } from 'react';
-import { postFunnelAction } from '@/app/actions';
+import { useCallback, useMemo, useState } from 'react';
+import { updateFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelStepFilter } from './FunnelStepFilter';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { toast } from 'sonner';
+import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
-import { CreateFunnelSchema } from '@/entities/funnels';
-import { generateTempId } from '@/utils/temporaryId';
+import { UpdateFunnelSchema } from '@/entities/funnels';
 
-type CreateFunnelDialogProps = {
-  triggerText?: string;
-  triggerVariant?: ComponentProps<typeof Button>['variant'];
+type EditFunnelDialogProps = {
+  funnel: PresentedFunnel;
 };
 
-export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
-  const t = useTranslations('components.funnels.create');
+export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
+  const t = useTranslations('components.funnels.edit');
+  const tCreate = useTranslations('components.funnels.create');
   const tPreview = useTranslations('components.funnels.preview');
   const [isOpen, setIsOpen] = useState(false);
   const dashboardId = useDashboardId();
@@ -47,48 +46,59 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     funnelPreview,
     emptySteps,
     isPreviewLoading,
+    reset,
   } = useFunnelDialog({
     dashboardId,
-    initialName: '',
-    initialSteps: [
-      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
-      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
-    ],
+    initialName: funnel.name,
+    initialSteps: funnel.steps.map((step) => step.step),
   });
 
-  const isCreateValid = useMemo(
+  const isEditValid = useMemo(
     () =>
-      CreateFunnelSchema.safeParse({
+      UpdateFunnelSchema.safeParse({
+        id: funnel.id,
         name: metadata.name,
         dashboardId,
         isStrict: metadata.isStrict,
         funnelSteps,
       }).success,
-    [dashboardId, funnelSteps, metadata.isStrict, metadata.name],
+    [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name],
   );
 
-  const handleCreateFunnel = useCallback(() => {
-    postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
+  const handleEditFunnel = useCallback(() => {
+    return updateFunnelAction(dashboardId, {
+      id: funnel.id,
+      dashboardId,
+      name: metadata.name,
+      funnelSteps,
+      isStrict: metadata.isStrict,
+    })
       .then(() => {
         setIsOpen(false);
-        toast.success(t('successMessage'));
       })
-      .catch(() => {
-        toast.error(t('errorMessage'));
-      });
-  }, [dashboardId, funnelSteps, metadata.isStrict, metadata.name, t]);
+      .catch(() => {});
+  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name]);
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        reset();
+      }
+      setIsOpen(open);
+    },
+    [reset],
+  );
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant || 'ghost'} className='cursor-pointer'>
-          <PlusIcon className='h-4 w-4' />
-          {triggerText}
+        <Button variant='ghost' className='cursor-pointer'>
+          <Pencil className='h-4 w-4' />
         </Button>
       </DialogTrigger>
       <DialogContent className='bg-background flex h-[90dvh] w-[70dvw] !max-w-[1000px] flex-col'>
         <DialogHeader>
-          <DialogTitle>{t('createFunnel')}</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
@@ -98,18 +108,18 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                 <div className='flex w-1/2 gap-4'>
                   <div className='w-full max-w-md'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {t('name')}
+                      {tCreate('name')}
                     </Label>
                     <Input
                       id='name'
-                      placeholder={t('namePlaceholder')}
+                      placeholder={tCreate('namePlaceholder')}
                       value={metadata.name}
                       onChange={(evt) => setName(evt.target.value)}
                     />
                   </div>
-                  <div className='min-w-30'>
+                  <div className='min-w-20'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {t('strictMode')}
+                      {tCreate('strictMode')}
                     </Label>
                     <div className='mt-3 flex justify-center'>
                       <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
@@ -122,7 +132,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                     onClick={addEmptyFunnelStep}
                     className='cursor-pointer whitespace-nowrap'
                   >
-                    <PlusIcon className='mr-2 h-4 w-4' /> {t('addStep')}
+                    <PlusIcon className='mr-2 h-4 w-4' /> {tCreate('addStep')}
                   </Button>
                 </div>
               </div>
@@ -151,7 +161,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
               (!isPreviewLoading && funnelPreview ? (
                 <div className='space-y-4 rounded-lg p-4 shadow'>
                   <Label htmlFor='name' className='text-foreground mb-2 block'>
-                    {t('livePreview')}
+                    {tCreate('livePreview')}
                   </Label>
                   <FunnelBarplot funnel={funnelPreview} emptySteps={emptySteps} />
                 </div>
@@ -165,12 +175,22 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
         </div>
         <DialogFooter className='flex items-end justify-end gap-2'>
           <Button
+            variant='outline'
+            className='w-30 cursor-pointer'
+            onClick={() => {
+              reset();
+              setIsOpen(false);
+            }}
+          >
+            {t('cancel')}
+          </Button>
+          <Button
             variant='default'
             className='w-30 cursor-pointer'
-            onClick={handleCreateFunnel}
-            disabled={!isCreateValid}
+            onClick={handleEditFunnel}
+            disabled={!isEditValid}
           >
-            {t('create')}
+            {t('save')}
           </Button>
         </DialogFooter>
       </DialogContent>

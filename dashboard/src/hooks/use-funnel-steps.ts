@@ -1,0 +1,41 @@
+import { type FunnelStep } from '@/entities/funnels';
+import { generateTempId } from '@/utils/temporaryId';
+import { useCallback, useState } from 'react';
+
+export function useFunnelSteps(initialSteps?: FunnelStep[]) {
+  const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>(initialSteps || []);
+
+  const addFunnelStep = useCallback((funnelStep: FunnelStep | Omit<FunnelStep, 'id'>) => {
+    const step = {
+      ...funnelStep,
+      id: 'id' in funnelStep ? funnelStep.id : generateTempId(),
+    };
+    setFunnelSteps((steps) => [...steps, step]);
+  }, []);
+
+  const addEmptyFunnelStep = useCallback(() => {
+    addFunnelStep({ column: 'url', operator: '=', value: '', name: '' });
+  }, [addFunnelStep]);
+
+  const removeFunnelStep = useCallback((id: string) => {
+    setFunnelSteps((steps) => steps.filter((step) => step.id !== id));
+  }, []);
+
+  const updateFunnelStep = useCallback((funnelStep: FunnelStep) => {
+    setFunnelSteps((steps) =>
+      steps.with(
+        steps.findIndex((step) => step.id === funnelStep.id),
+        funnelStep,
+      ),
+    );
+  }, []);
+
+  return {
+    funnelSteps,
+    addFunnelStep,
+    addEmptyFunnelStep,
+    removeFunnelStep,
+    updateFunnelStep,
+    setFunnelSteps,
+  };
+}

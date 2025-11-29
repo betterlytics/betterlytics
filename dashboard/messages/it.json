@@ -1421,6 +1421,12 @@
         "successMessage": "Funnel creato!",
         "errorMessage": "Creazione funnel fallita!"
       },
+      "edit": {
+        "title": "Modifica funnel",
+        "description": "Modifica il funnel come preferisci, visualizza l'anteprima delle modifiche o elimina il funnel.",
+        "cancel": "Annulla",
+        "save": "Salva"
+      },
       "page": {
         "title": "Funnel",
         "description": "Analizza i percorsi di conversione degli utenti"

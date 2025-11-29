@@ -52,6 +52,7 @@ async function withActionSpan<T>(
       span.setStatus({ code: SpanStatusCode.OK });
       return res;
     } catch (e) {
+      console.error(e);
       const err = e as Error;
       span.recordException(err);
       span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });

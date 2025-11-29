@@ -1420,6 +1420,12 @@
         "successMessage": "Tragt oprettet!",
         "errorMessage": "Tragtoprettelse mislykkedes!"
       },
+      "edit": {
+        "title": "Rediger tragt",
+        "description": "Tilpas tragten, få en forhåndsvisning af ændringerne, eller slet tragten.",
+        "cancel": "Annuller",
+        "save": "Gem"
+      },
       "page": {
         "title": "Tragter",
         "description": "Analyser brugerens konverteringsforløb"
