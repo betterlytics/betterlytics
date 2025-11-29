@@ -24,10 +24,6 @@ import { cookies } from 'next/headers';
 const SESSION_COOKIE = 'next-auth.session-token';
 const SESSION_COOKIE_SECURE = '__Secure-next-auth.session-token';
 
-function fromDate(time: number, date = Date.now()) {
-  return new Date(date + time * 1000);
-}
-
 const adapter = PrismaAdapter(prisma) as Adapter;
 
 export const authOptions: NextAuthOptions = {
@@ -113,7 +109,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'credentials') {
         try {
           const sessionToken = generateSessionToken();
-          const sessionExpiry = fromDate(SESSION_MAX_AGE_SECONDS);
+          const sessionExpiry = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
 
           await adapter.createSession!({ sessionToken, userId: user.id, expires: sessionExpiry });
           (user as User & { sessionToken?: string }).sessionToken = sessionToken;
