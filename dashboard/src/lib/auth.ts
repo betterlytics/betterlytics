@@ -5,9 +5,14 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { encode } from 'next-auth/jwt';
-import { randomBytes } from 'crypto';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
 import { findUserByEmail } from '@/repositories/postgres/user';
+import {
+  deleteExpiredSessions,
+  generateSessionToken,
+  SESSION_MAX_AGE_SECONDS,
+  SESSION_UPDATE_AGE_SECONDS,
+} from '@/repositories/postgres/session';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
@@ -16,8 +21,6 @@ import prisma from '@/lib/postgres';
 import { getUserSettings } from '@/services/userSettings';
 import { cookies } from 'next/headers';
 
-const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
-const SESSION_UPDATE_AGE_SECONDS = 24 * 60 * 60;
 const SESSION_COOKIE = 'next-auth.session-token';
 const SESSION_COOKIE_SECURE = '__Secure-next-auth.session-token';
 
@@ -105,9 +108,11 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
+      await deleteExpiredSessions();
+
       if (account?.provider === 'credentials') {
         try {
-          const sessionToken = getSessionToken();
+          const sessionToken = generateSessionToken();
           const sessionExpiry = fromDate(SESSION_MAX_AGE_SECONDS);
 
           await adapter.createSession!({ sessionToken, userId: user.id, expires: sessionExpiry });
@@ -174,10 +179,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
-
-function getSessionToken() {
-  return randomBytes(32).toString('hex');
-}
 
 function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
