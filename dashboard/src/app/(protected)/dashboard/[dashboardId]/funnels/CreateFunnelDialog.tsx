@@ -23,6 +23,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/funnels';
+import { generateTempId } from '@/utils/temporaryId';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -49,6 +50,10 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   } = useFunnelDialog({
     dashboardId,
     initialName: t('defaultName'),
+    initialSteps: [
+      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+    ],
   });
 
   const isCreateValid = useMemo(

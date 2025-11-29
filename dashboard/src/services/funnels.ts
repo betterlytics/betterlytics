@@ -76,7 +76,7 @@ export async function getFunnelDetailsById(
   });
 }
 
-export async function createFunnelForDashboard(funnel: CreateFunnel): Promise<Funnel> {
+export async function createFunnelForDashboard(funnel: CreateFunnel) {
   return PostgresFunnelRepository.createFunnel(funnel);
 }
 

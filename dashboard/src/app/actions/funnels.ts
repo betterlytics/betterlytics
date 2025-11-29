@@ -21,7 +21,7 @@ import { revalidatePath } from 'next/cache';
 import { toFunnel } from '@/presenters/toFunnel';
 
 export const postFunnelAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, name: string, funnelSteps: FunnelStep[], isStrict: boolean): Promise<Funnel> => {
+  async (ctx: AuthContext, name: string, funnelSteps: FunnelStep[], isStrict: boolean) => {
     const funnel = CreateFunnelSchema.parse({
       dashboardId: ctx.dashboardId,
       name,

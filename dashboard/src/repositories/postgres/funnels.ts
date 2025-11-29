@@ -25,10 +25,10 @@ export async function getFunnelById(id: string): Promise<Funnel | null> {
   return FunnelSchema.parse(funnel);
 }
 
-export async function createFunnel(funnelData: CreateFunnel): Promise<Funnel> {
+export async function createFunnel(funnelData: CreateFunnel) {
   const { funnelSteps, ...funnelDataWithoutSteps } = CreateFunnelSchema.parse(funnelData);
 
-  const createdFunnel = await prisma.funnel.create({
+  return await prisma.funnel.create({
     data: {
       ...funnelDataWithoutSteps,
       funnelSteps: {
@@ -36,7 +36,6 @@ export async function createFunnel(funnelData: CreateFunnel): Promise<Funnel> {
       },
     },
   });
-  return FunnelSchema.parse(createdFunnel);
 }
 
 export async function deleteFunnelById(dashboardId: string, funnelId: string): Promise<void> {
