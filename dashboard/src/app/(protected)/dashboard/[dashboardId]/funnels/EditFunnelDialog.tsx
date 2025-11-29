@@ -12,89 +12,55 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
-import { useDebounce } from '@/hooks/useDebounce';
 import { useCallback, useMemo, useState } from 'react';
-import { fetchFunnelPreviewAction, updateFunnelAction } from '@/app/actions';
+import { updateFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useQuery } from '@tanstack/react-query';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelStepFilter } from './FunnelStepFilter';
-import { useFunnelSteps } from '@/hooks/use-funnel-steps';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { PresentedFunnel } from '@/presenters/toFunnel';
-
-type FunnelMetadata = {
-  name: string;
-  isStrict: boolean;
-};
+import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { UpdateFunnelSchema } from '@/entities/funnels';
 
 type EditFunnelDialogProps = {
   funnel: PresentedFunnel;
 };
 
 export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
-  const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep } = useFunnelSteps(
-    funnel.steps.map((step) => step.step),
-  );
   const t = useTranslations('components.funnels.create');
   const [isOpen, setIsOpen] = useState(false);
   const dashboardId = useDashboardId();
-  const [metadata, setMetadata] = useState<FunnelMetadata>({
-    name: funnel.name,
-    isStrict: false,
-  });
-  const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
-
-  const searchableFunnelSteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
-    );
-
-    const steps =
-      findFilterableIndex === -1 ? debouncedFunnelSteps : debouncedFunnelSteps.slice(0, findFilterableIndex);
-
-    return steps.map((step) => ({
-      ...step,
-      name: '',
-    }));
-  }, [debouncedFunnelSteps]);
-
-  const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, searchableFunnelSteps, false],
-    queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, searchableFunnelSteps, false);
-    },
-    enabled: searchableFunnelSteps.length >= 2,
+  const {
+    metadata,
+    setName,
+    setIsStrict,
+    funnelSteps,
+    addEmptyFunnelStep,
+    updateFunnelStep,
+    removeFunnelStep,
+    searchableFunnelSteps,
+    funnelPreview,
+    emptySteps,
+    isPreviewLoading,
+  } = useFunnelDialog({
+    dashboardId,
+    initialName: funnel.name,
+    initialSteps: funnel.steps.map((step) => step.step),
   });
 
-  const funnelPreview = useMemo(() => {
-    if (!funnelPreviewData) return null;
-    return {
-      ...funnelPreviewData,
-      steps: funnelPreviewData.steps.map((step) => ({
-        ...step,
-        step: {
-          ...step.step,
-          name: debouncedFunnelSteps.find((s) => s.id === step.step.id)?.name || ' - ',
-        },
-      })),
-    };
-  }, [funnelPreviewData, debouncedFunnelSteps]);
-
-  const emptySteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
-    );
-
-    const steps = findFilterableIndex === -1 ? [] : debouncedFunnelSteps.slice(findFilterableIndex);
-
-    return steps.map((step) => ({
-      ...step,
-      name: debouncedFunnelSteps.find((s) => s.id === step.id)?.name || ' - ',
-    }));
-  }, [debouncedFunnelSteps]);
+  const isEditValid = useMemo(
+    () =>
+      UpdateFunnelSchema.safeParse({
+        id: funnel.id,
+        name: metadata.name,
+        dashboardId,
+        isStrict: metadata.isStrict,
+        funnelSteps,
+      }).success,
+    [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name],
+  );
 
   const handleEditFunnel = useCallback(() => {
     return updateFunnelAction(dashboardId, {
@@ -108,7 +74,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
         setIsOpen(false);
       })
       .catch(() => {});
-  }, [dashboardId, funnelSteps, metadata.name, metadata.isStrict]);
+  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -137,7 +103,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                       id='name'
                       placeholder='Enter funnel name'
                       value={metadata.name}
-                      onChange={(evt) => setMetadata((prev) => ({ ...prev, name: evt.target.value }))}
+                      onChange={(evt) => setName(evt.target.value)}
                     />
                   </div>
                   <div className='min-w-20'>
@@ -145,11 +111,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                       Strict mode
                     </Label>
                     <div className='mt-3 flex justify-center'>
-                      <Switch
-                        id='strict-mode'
-                        checked={metadata.isStrict}
-                        onCheckedChange={(checked) => setMetadata((prev) => ({ ...prev, isStrict: checked }))}
-                      />
+                      <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
                     </div>
                   </div>
                 </div>
@@ -204,7 +166,12 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
           <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
             Cancel
           </Button>
-          <Button variant='default' className='w-30 cursor-pointer' onClick={handleEditFunnel}>
+          <Button
+            variant='default'
+            className='w-30 cursor-pointer'
+            onClick={handleEditFunnel}
+            disabled={!isEditValid}
+          >
             Save
           </Button>
         </DialogFooter>

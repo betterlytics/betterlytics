@@ -12,23 +12,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
-import { useDebounce } from '@/hooks/useDebounce';
 import { ComponentProps, useCallback, useMemo, useState } from 'react';
-import { fetchFunnelPreviewAction, postFunnelAction } from '@/app/actions';
+import { postFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useQuery } from '@tanstack/react-query';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelStepFilter } from './FunnelStepFilter';
-import { useFunnelSteps } from '@/hooks/use-funnel-steps';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-
-type FunnelMetadata = {
-  name: string;
-  isStrict: boolean;
-};
+import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { CreateFunnelSchema } from '@/entities/funnels';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -36,64 +30,36 @@ type CreateFunnelDialogProps = {
 };
 
 export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
-  const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep } = useFunnelSteps();
   const t = useTranslations('components.funnels.create');
   const [isOpen, setIsOpen] = useState(false);
   const dashboardId = useDashboardId();
-  const [metadata, setMetadata] = useState<FunnelMetadata>({
-    name: t('defaultName'),
-    isStrict: false,
-  });
-  const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
-
-  const searchableFunnelSteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
-    );
-
-    const steps =
-      findFilterableIndex === -1 ? debouncedFunnelSteps : debouncedFunnelSteps.slice(0, findFilterableIndex);
-
-    return steps.map((step) => ({
-      ...step,
-      name: '',
-    }));
-  }, [debouncedFunnelSteps]);
-
-  const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, searchableFunnelSteps, false],
-    queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, searchableFunnelSteps, false);
-    },
-    enabled: searchableFunnelSteps.length >= 2,
+  const {
+    metadata,
+    setName,
+    setIsStrict,
+    funnelSteps,
+    addEmptyFunnelStep,
+    updateFunnelStep,
+    removeFunnelStep,
+    searchableFunnelSteps,
+    funnelPreview,
+    emptySteps,
+    isPreviewLoading,
+  } = useFunnelDialog({
+    dashboardId,
+    initialName: t('defaultName'),
   });
 
-  const funnelPreview = useMemo(() => {
-    if (!funnelPreviewData) return null;
-    return {
-      ...funnelPreviewData,
-      steps: funnelPreviewData.steps.map((step) => ({
-        ...step,
-        step: {
-          ...step.step,
-          name: debouncedFunnelSteps.find((s) => s.id === step.step.id)?.name || ' - ',
-        },
-      })),
-    };
-  }, [funnelPreviewData, debouncedFunnelSteps]);
-
-  const emptySteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
-    );
-
-    const steps = findFilterableIndex === -1 ? [] : debouncedFunnelSteps.slice(findFilterableIndex);
-
-    return steps.map((step) => ({
-      ...step,
-      name: debouncedFunnelSteps.find((s) => s.id === step.id)?.name || ' - ',
-    }));
-  }, [debouncedFunnelSteps]);
+  const isCreateValid = useMemo(
+    () =>
+      CreateFunnelSchema.safeParse({
+        name: metadata.name,
+        dashboardId,
+        isStrict: metadata.isStrict,
+        funnelSteps,
+      }).success,
+    [dashboardId, funnelSteps, metadata.isStrict, metadata.name],
+  );
 
   const handleCreateFunnel = useCallback(() => {
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
@@ -104,7 +70,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
       .catch(() => {
         toast.error(t('errorMessage'));
       });
-  }, [dashboardId, funnelSteps, metadata.name, metadata.isStrict]);
+  }, [dashboardId, funnelSteps, metadata.isStrict, metadata.name, t]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -134,7 +100,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                       id='name'
                       placeholder='Enter funnel name'
                       value={metadata.name}
-                      onChange={(evt) => setMetadata((prev) => ({ ...prev, name: evt.target.value }))}
+                      onChange={(evt) => setName(evt.target.value)}
                     />
                   </div>
                   <div className='min-w-20'>
@@ -142,11 +108,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                       Strict mode
                     </Label>
                     <div className='mt-3 flex justify-center'>
-                      <Switch
-                        id='strict-mode'
-                        checked={metadata.isStrict}
-                        onCheckedChange={(checked) => setMetadata((prev) => ({ ...prev, isStrict: checked }))}
-                      />
+                      <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
                     </div>
                   </div>
                 </div>
@@ -198,7 +160,12 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           </div>
         </div>
         <DialogFooter className='flex items-end justify-end gap-2'>
-          <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
+          <Button
+            variant='default'
+            className='w-30 cursor-pointer'
+            onClick={handleCreateFunnel}
+            disabled={!isCreateValid}
+          >
             Create
           </Button>
         </DialogFooter>
