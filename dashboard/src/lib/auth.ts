@@ -102,30 +102,22 @@ export const authOptions: NextAuthOptions = {
     maxAge: SESSION_MAX_AGE,
   },
   jwt: {
-    // Custom encode: for credentials provider, return the session token directly
-    // For other providers, use the default JWT encoding
+    // With database sessions, we override JWT handling to work with credentials provider
+    // For credentials: return the session token we created
+    // For OAuth: NextAuth handles this via the adapter automatically
     encode: async (params) => {
-      // Check if this is a credentials callback by looking at the token
-      // When credentials provider is used, we store the session token in the token object
+      // If we have a session token (from credentials signIn), return it directly
       const sessionToken = params.token?.sessionToken as string | undefined;
       if (sessionToken) {
         return sessionToken;
       }
-      // Default JWT encode for OAuth providers
+      // For OAuth providers, encode normally (though with database strategy this is rarely called)
       return encode(params);
     },
-    decode: async (params) => {
-      // For database sessions, the token is actually a session token, not a JWT
-      // Return null to force NextAuth to look up the session in the database
-      // We detect this by checking if the token doesn't look like a JWT
-      const token = params.token;
-      if (token && !token.includes('.')) {
-        // This is a session token (UUID-like), not a JWT
-        // Return null so NextAuth uses the database adapter
-        return null;
-      }
-      // Default JWT decode for OAuth providers
-      return decode(params);
+    decode: async () => {
+      // Always return null to force NextAuth to use database session lookup
+      // This is safe because with strategy: 'database', the adapter handles session retrieval
+      return null;
     },
   },
   callbacks: {
