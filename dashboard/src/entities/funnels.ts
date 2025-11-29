@@ -26,7 +26,13 @@ export const CreateFunnelSchema = z.object({
   name: z.string().min(1, 'Funnel name is required'),
   dashboardId: z.string().cuid('Valid Dashboard ID is required'),
   isStrict: z.boolean(),
-  funnelSteps: z.array(FunnelStepSchema.omit({ id: true })).min(2),
+  funnelSteps: z
+    .array(
+      FunnelStepSchema.extend({
+        value: z.string().min(1, 'Value is required'),
+      }).omit({ id: true }),
+    )
+    .min(2),
 });
 
 export const UpdateFunnelSchema = CreateFunnelSchema.extend({

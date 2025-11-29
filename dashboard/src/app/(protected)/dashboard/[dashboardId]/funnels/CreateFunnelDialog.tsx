@@ -23,6 +23,7 @@ import { useFunnelSteps } from '@/hooks/use-funnel-steps';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 
 type FunnelMetadata = {
   name: string;
@@ -98,8 +99,11 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
         setIsOpen(false);
+        toast.success(t('successMessage'));
       })
-      .catch(() => {});
+      .catch(() => {
+        toast.error(t('errorMessage'));
+      });
   }, [dashboardId, funnelSteps, metadata.name, metadata.isStrict]);
 
   return (
