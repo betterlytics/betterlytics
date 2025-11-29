@@ -1748,6 +1748,10 @@
           "cancel": "Annulla",
           "saving": "Salvataggio...",
           "saveChanges": "Salva modifiche"
+        },
+        "toast": {
+          "success": "Impostazioni salvate con successo!",
+          "error": "Impossibile salvare le impostazioni. Riprova."
         }
       },
       "profile": {

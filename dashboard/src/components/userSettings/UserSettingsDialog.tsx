@@ -112,10 +112,10 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
       }
-      toast.success('Settings saved successfully!');
+      toast.success(tDialog('toast.success'));
       onOpenChange(false);
     } else {
-      toast.error(result.error || 'Failed to save settings. Please try again.');
+      toast.error(result.error || tDialog('toast.error'));
     }
   };
 

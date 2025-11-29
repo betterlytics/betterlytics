@@ -1747,6 +1747,10 @@
           "cancel": "Annuller",
           "saving": "Gemmer...",
           "saveChanges": "Gem ændringer"
+        },
+        "toast": {
+          "success": "Indstillinger gemt!",
+          "error": "Kunne ikke gemme indstillinger. Prøv igen."
         }
       },
       "profile": {

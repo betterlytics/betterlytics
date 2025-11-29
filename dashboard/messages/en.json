@@ -1744,6 +1744,10 @@
           "cancel": "Cancel",
           "saving": "Saving...",
           "saveChanges": "Save Changes"
+        },
+        "toast": {
+          "success": "Settings saved successfully!",
+          "error": "Failed to save settings. Please try again."
         }
       },
       "profile": {
