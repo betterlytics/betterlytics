@@ -291,6 +291,26 @@ function calculateLayout(
     return { nodePositions: [], linkPositions: [] };
   }
 
+  // Build connection maps first (before positioning)
+  const outgoingLinks = new Map<string, Array<{ targetId: string; value: number }>>();
+  const incomingLinks = new Map<string, Array<{ sourceId: string; value: number }>>();
+  const nodeById = new Map<string, (typeof nodes)[0]>();
+
+  nodes.forEach((node) => {
+    nodeById.set(node.id, node);
+    outgoingLinks.set(node.id, []);
+    incomingLinks.set(node.id, []);
+  });
+
+  links.forEach((link) => {
+    const sourceNode = nodes[link.source];
+    const targetNode = nodes[link.target];
+    if (sourceNode && targetNode) {
+      outgoingLinks.get(sourceNode.id)!.push({ targetId: targetNode.id, value: link.value });
+      incomingLinks.get(targetNode.id)!.push({ sourceId: sourceNode.id, value: link.value });
+    }
+  });
+
   // Group nodes by depth
   const depthGroups = new Map<number, typeof nodes>();
   let maxDepth = 0;
@@ -316,27 +336,119 @@ function calculateLayout(
   });
 
   // Calculate height scale factor based on max column
-  // Reserve some space for minimum padding between nodes
   const maxNodeCount = Math.max(...Array.from(depthGroups.values()).map((g) => g.length));
-  const minTotalPadding = (maxNodeCount - 1) * 8; // Minimum 8px between nodes
+  const minTotalPadding = (maxNodeCount - 1) * 8;
   const heightScale = (availableHeight - minTotalPadding) / maxColumnTraffic;
 
-  // Position each node - spread columns to fill full height
-  const nodePositions: NodePosition[] = [];
-  const nodeMap = new Map<number, NodePosition>(); // Map by original index
+  // Calculate initial Y positions for barycenter calculation
+  // (temporary positions based on order in data)
+  const nodeYCenter = new Map<string, number>();
 
-  depthGroups.forEach((depthNodes, depth) => {
-    const x = padding.left + depth * depthSpacing;
-
-    // Calculate total content height for this column (sum of node heights)
+  const positionColumn = (depthNodes: typeof nodes) => {
     const columnTraffic = depthNodes.reduce((sum, n) => sum + n.totalTraffic, 0);
     const totalNodeHeight = columnTraffic * heightScale;
-
-    // Remaining space is distributed as padding between nodes
     const remainingSpace = availableHeight - totalNodeHeight;
     const dynamicPadding = depthNodes.length > 1 ? remainingSpace / (depthNodes.length - 1) : 0;
 
-    // Start from top
+    let currentY = padding.top;
+    depthNodes.forEach((node) => {
+      const nodeHeight = Math.max(node.totalTraffic * heightScale, minNodeHeight);
+      nodeYCenter.set(node.id, currentY + nodeHeight / 2);
+      currentY += nodeHeight + dynamicPadding;
+    });
+  };
+
+  // Initial positioning
+  for (let depth = 0; depth <= maxDepth; depth++) {
+    const depthNodes = depthGroups.get(depth) || [];
+    positionColumn(depthNodes);
+  }
+
+  // Barycenter method: iteratively reorder nodes to minimize crossings
+  const ITERATIONS = 4;
+
+  for (let iter = 0; iter < ITERATIONS; iter++) {
+    // Forward pass: order by incoming connections
+    for (let depth = 1; depth <= maxDepth; depth++) {
+      const depthNodes = depthGroups.get(depth) || [];
+
+      // Calculate barycenter for each node based on incoming connections
+      const barycenters = depthNodes.map((node) => {
+        const incoming = incomingLinks.get(node.id) || [];
+        if (incoming.length === 0) {
+          return { node, barycenter: nodeYCenter.get(node.id) || 0 };
+        }
+
+        let weightedSum = 0;
+        let totalWeight = 0;
+        incoming.forEach(({ sourceId, value }) => {
+          const sourceY = nodeYCenter.get(sourceId) || 0;
+          weightedSum += sourceY * value;
+          totalWeight += value;
+        });
+
+        return {
+          node,
+          barycenter: totalWeight > 0 ? weightedSum / totalWeight : nodeYCenter.get(node.id) || 0,
+        };
+      });
+
+      // Sort by barycenter
+      barycenters.sort((a, b) => a.barycenter - b.barycenter);
+      depthGroups.set(
+        depth,
+        barycenters.map((b) => b.node),
+      );
+
+      // Recalculate positions
+      positionColumn(depthGroups.get(depth)!);
+    }
+
+    // Backward pass: order by outgoing connections
+    for (let depth = maxDepth - 1; depth >= 0; depth--) {
+      const depthNodes = depthGroups.get(depth) || [];
+
+      const barycenters = depthNodes.map((node) => {
+        const outgoing = outgoingLinks.get(node.id) || [];
+        if (outgoing.length === 0) {
+          return { node, barycenter: nodeYCenter.get(node.id) || 0 };
+        }
+
+        let weightedSum = 0;
+        let totalWeight = 0;
+        outgoing.forEach(({ targetId, value }) => {
+          const targetY = nodeYCenter.get(targetId) || 0;
+          weightedSum += targetY * value;
+          totalWeight += value;
+        });
+
+        return {
+          node,
+          barycenter: totalWeight > 0 ? weightedSum / totalWeight : nodeYCenter.get(node.id) || 0,
+        };
+      });
+
+      barycenters.sort((a, b) => a.barycenter - b.barycenter);
+      depthGroups.set(
+        depth,
+        barycenters.map((b) => b.node),
+      );
+
+      positionColumn(depthGroups.get(depth)!);
+    }
+  }
+
+  // Final node positioning
+  const nodePositions: NodePosition[] = [];
+  const nodeMap = new Map<number, NodePosition>();
+
+  depthGroups.forEach((depthNodes, depth) => {
+    const x = padding.left + depth * depthSpacing;
+    const columnTraffic = depthNodes.reduce((sum, n) => sum + n.totalTraffic, 0);
+    const totalNodeHeight = columnTraffic * heightScale;
+    const remainingSpace = availableHeight - totalNodeHeight;
+    const dynamicPadding = depthNodes.length > 1 ? remainingSpace / (depthNodes.length - 1) : 0;
+
     let currentY = padding.top;
 
     depthNodes.forEach((node) => {
@@ -378,6 +490,22 @@ function calculateLayout(
     }
   });
 
+  // Sort links at each node by target/source Y position to minimize local crossings
+  const sortedLinks = [...links].sort((a, b) => {
+    const sourceA = nodeMap.get(a.source);
+    const sourceB = nodeMap.get(b.source);
+    const targetA = nodeMap.get(a.target);
+    const targetB = nodeMap.get(b.target);
+
+    if (!sourceA || !sourceB || !targetA || !targetB) return 0;
+
+    // First sort by source node Y, then by target node Y
+    if (sourceA.id === sourceB.id) {
+      return targetA.y - targetB.y;
+    }
+    return sourceA.y - sourceB.y;
+  });
+
   // Calculate link positions with proper spacing
   const sourceOffsets = new Map<string, number>();
   const targetOffsets = new Map<string, number>();
@@ -387,19 +515,22 @@ function calculateLayout(
     const outCount = outgoingCounts.get(node.id) || 0;
     const inCount = incomingCounts.get(node.id) || 0;
 
-    // Calculate gap size based on number of links
     const outGapTotal = outCount > 1 ? node.height * linkGapRatio : 0;
     const inGapTotal = inCount > 1 ? node.height * linkGapRatio : 0;
 
-    // Start with a small initial offset for the gap
     sourceOffsets.set(node.id, outCount > 1 ? outGapTotal / (outCount + 1) : 0);
     targetOffsets.set(node.id, inCount > 1 ? inGapTotal / (inCount + 1) : 0);
   });
 
-  const linkPositions: LinkPosition[] = links
-    .map((link, index) => {
+  // Create a map to track original indices
+  const originalIndices = new Map<(typeof links)[0], number>();
+  links.forEach((link, idx) => originalIndices.set(link, idx));
+
+  const linkPositions: LinkPosition[] = sortedLinks
+    .map((link) => {
       const sourceNode = nodeMap.get(link.source);
       const targetNode = nodeMap.get(link.target);
+      const originalIndex = originalIndices.get(link) ?? 0;
 
       if (!sourceNode || !targetNode) {
         return null;
@@ -408,40 +539,30 @@ function calculateLayout(
       const outCount = outgoingCounts.get(sourceNode.id) || 1;
       const inCount = incomingCounts.get(targetNode.id) || 1;
 
-      // Calculate available height for links (after gaps)
       const sourceAvailableHeight = sourceNode.height * (1 - (outCount > 1 ? linkGapRatio : 0));
       const targetAvailableHeight = targetNode.height * (1 - (inCount > 1 ? linkGapRatio : 0));
 
-      // Link width proportional to its value relative to total outgoing/incoming
       const outTotal = outgoingTotals.get(sourceNode.id) || link.value;
       const inTotal = incomingTotals.get(targetNode.id) || link.value;
 
       const sourceWidth = (link.value / outTotal) * sourceAvailableHeight;
       const targetWidth = (link.value / inTotal) * targetAvailableHeight;
-
-      // Use a consistent width throughout the link (use the smaller to ensure it fits)
       const linkWidth = Math.min(sourceWidth, targetWidth);
 
-      // Get current offsets
       const sourceOffset = sourceOffsets.get(sourceNode.id) || 0;
       const targetOffset = targetOffsets.get(targetNode.id) || 0;
 
-      // Calculate Y positions - center the link within its allocated space
-      // For source: offset + half of allocated sourceWidth
-      // For target: offset + half of allocated targetWidth
       const sourceY = sourceNode.y + sourceOffset + sourceWidth / 2;
       const targetY = targetNode.y + targetOffset + targetWidth / 2;
 
-      // Calculate gap for next link
       const sourceGap = outCount > 1 ? (sourceNode.height * linkGapRatio) / (outCount + 1) : 0;
       const targetGap = inCount > 1 ? (targetNode.height * linkGapRatio) / (inCount + 1) : 0;
 
-      // Update offsets for next links (use allocated width, not linkWidth)
       sourceOffsets.set(sourceNode.id, sourceOffset + sourceWidth + sourceGap);
       targetOffsets.set(targetNode.id, targetOffset + targetWidth + targetGap);
 
       return {
-        index,
+        index: originalIndex,
         source: sourceNode,
         target: targetNode,
         value: link.value,
