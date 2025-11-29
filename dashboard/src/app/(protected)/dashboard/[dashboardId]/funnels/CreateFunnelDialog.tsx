@@ -49,7 +49,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     isPreviewLoading,
   } = useFunnelDialog({
     dashboardId,
-    initialName: t('defaultName'),
+    initialName: '',
     initialSteps: [
       { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
       { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
@@ -107,7 +107,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                       onChange={(evt) => setName(evt.target.value)}
                     />
                   </div>
-                  <div className='min-w-20'>
+                  <div className='min-w-30'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
                       {t('strictMode')}
                     </Label>

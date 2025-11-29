@@ -112,5 +112,3 @@ export function useFunnelDialog({
     reset,
   };
 }
-
-
