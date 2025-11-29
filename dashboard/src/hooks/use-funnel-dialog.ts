@@ -23,7 +23,8 @@ export function useFunnelDialog({
   initialIsStrict = false,
   initialSteps,
 }: UseFunnelDialogOptions) {
-  const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep } = useFunnelSteps(initialSteps);
+  const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep, setFunnelSteps } =
+    useFunnelSteps(initialSteps);
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: initialName,
     isStrict: initialIsStrict,
@@ -87,6 +88,14 @@ export function useFunnelDialog({
     setMetadata((prev) => ({ ...prev, isStrict }));
   }, []);
 
+  const reset = useCallback(() => {
+    setMetadata({
+      name: initialName,
+      isStrict: initialIsStrict,
+    });
+    setFunnelSteps(initialSteps ?? []);
+  }, [initialIsStrict, initialName, initialSteps, setFunnelSteps]);
+
   return {
     metadata,
     setMetadata,
@@ -100,6 +109,7 @@ export function useFunnelDialog({
     funnelPreview,
     emptySteps,
     isPreviewLoading,
+    reset,
   };
 }
 

@@ -31,6 +31,7 @@ type CreateFunnelDialogProps = {
 
 export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
   const t = useTranslations('components.funnels.create');
+  const tPreview = useTranslations('components.funnels.preview');
   const [isOpen, setIsOpen] = useState(false);
   const dashboardId = useDashboardId();
   const {
@@ -82,10 +83,8 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
       </DialogTrigger>
       <DialogContent className='bg-background flex h-[90dvh] w-[70dvw] !max-w-[1000px] flex-col'>
         <DialogHeader>
-          <DialogTitle>Create funnel</DialogTitle>
-          <DialogDescription>
-            Create a new funnel to track your visitors' journey through your website.
-          </DialogDescription>
+          <DialogTitle>{t('createFunnel')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
           <div className='flex flex-1 flex-col'>
@@ -94,18 +93,18 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                 <div className='flex w-1/2 gap-4'>
                   <div className='w-full max-w-md'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      Name
+                      {t('name')}
                     </Label>
                     <Input
                       id='name'
-                      placeholder='Enter funnel name'
+                      placeholder={t('namePlaceholder')}
                       value={metadata.name}
                       onChange={(evt) => setName(evt.target.value)}
                     />
                   </div>
                   <div className='min-w-20'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      Strict mode
+                      {t('strictMode')}
                     </Label>
                     <div className='mt-3 flex justify-center'>
                       <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
@@ -140,14 +139,14 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
             </div>
             {searchableFunnelSteps.length < 2 && (
               <div className='text-muted-foreground flex h-full items-center justify-center'>
-                <p>Please add at least 2 steps to preview the funnel</p>
+                <p>{tPreview('defineAtLeastTwoSteps')}</p>
               </div>
             )}
             {searchableFunnelSteps.length >= 2 &&
               (!isPreviewLoading && funnelPreview ? (
                 <div className='space-y-4 rounded-lg p-4 shadow'>
                   <Label htmlFor='name' className='text-foreground mb-2 block'>
-                    Preview
+                    {t('livePreview')}
                   </Label>
                   <FunnelBarplot funnel={funnelPreview} emptySteps={emptySteps} />
                 </div>
@@ -166,7 +165,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
             onClick={handleCreateFunnel}
             disabled={!isCreateValid}
           >
-            Create
+            {t('create')}
           </Button>
         </DialogFooter>
       </DialogContent>
