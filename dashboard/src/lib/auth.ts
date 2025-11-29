@@ -12,10 +12,9 @@ import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
-import { generateSessionToken } from '@/services/session.service';
+import { generateSessionToken, sessionUserCache, USER_SESSION_CACHE_TTL_MS, type CachedUserData } from '@/services/session.service';
 import { getUserSettings } from '@/services/userSettings';
 import { cookies } from 'next/headers';
-import { sessionUserCache, USER_SESSION_CACHE_TTL_MS, type CachedUserData } from '@/lib/session-cache';
 
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 const SESSION_UPDATE_AGE_SECONDS = 24 * 60 * 60;
