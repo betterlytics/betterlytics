@@ -5,6 +5,7 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { encode } from 'next-auth/jwt';
+import { randomBytes } from 'crypto';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
 import { findUserByEmail } from '@/repositories/postgres/user';
 import type { User } from 'next-auth';
@@ -12,7 +13,6 @@ import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
-import { generateSessionToken } from '@/services/session.service';
 import { getUserSettings } from '@/services/userSettings';
 import { cookies } from 'next/headers';
 
@@ -92,7 +92,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === 'credentials') {
         try {
-          const sessionToken = generateSessionToken();
+          const sessionToken = randomBytes(32).toString('hex');
           const sessionExpiry = fromDate(SESSION_MAX_AGE_SECONDS);
 
           await adapter.createSession!({ sessionToken, userId: user.id, expires: sessionExpiry });
