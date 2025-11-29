@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto';
 import prisma from '@/lib/postgres';
+import { clearSessionUserCache } from '@/lib/session-cache';
 
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
@@ -84,6 +85,9 @@ export async function findSessionWithUser(sessionToken: string) {
  * Deletes a session by its token
  */
 export async function deleteSession(sessionToken: string): Promise<void> {
+  // Clear in-memory cache for this session
+  clearSessionUserCache(sessionToken);
+
   await prisma.session.delete({
     where: { sessionToken },
   }).catch(() => {
@@ -95,6 +99,15 @@ export async function deleteSession(sessionToken: string): Promise<void> {
  * Deletes all sessions for a user (logout everywhere)
  */
 export async function deleteAllUserSessions(userId: string): Promise<number> {
+  // Get all session tokens for this user first to clear cache
+  const sessions = await prisma.session.findMany({
+    where: { userId },
+    select: { sessionToken: true },
+  });
+
+  // Clear in-memory cache for each session
+  sessions.forEach((session) => clearSessionUserCache(session.sessionToken));
+
   const result = await prisma.session.deleteMany({
     where: { userId },
   });
@@ -136,6 +149,19 @@ export function isSessionExpired(session: { expires: Date }): boolean {
  * This should be run periodically (e.g., via a cron job)
  */
 export async function cleanupExpiredSessions(): Promise<number> {
+  // Get expired session tokens to clear from cache
+  const expiredSessions = await prisma.session.findMany({
+    where: {
+      expires: {
+        lt: new Date(),
+      },
+    },
+    select: { sessionToken: true },
+  });
+
+  // Clear in-memory cache for expired sessions
+  expiredSessions.forEach((session) => clearSessionUserCache(session.sessionToken));
+
   const result = await prisma.session.deleteMany({
     where: {
       expires: {

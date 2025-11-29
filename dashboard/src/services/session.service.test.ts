@@ -4,6 +4,12 @@ import {
   isSessionExpired,
 } from './session.service';
 
+// Mock the session-cache module
+vi.mock('@/lib/session-cache', () => ({
+  clearSessionUserCache: vi.fn(),
+  clearAllSessionUserCache: vi.fn(),
+}));
+
 // Mock the prisma client
 vi.mock('@/lib/postgres', () => {
   const mockSession = {
@@ -90,6 +96,7 @@ describe('Session Service', () => {
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         createdAt: new Date(),
         updatedAt: new Date(),
+        userLastFetched: null,
       };
 
       vi.mocked(prisma.session.create).mockResolvedValue(mockCreatedSession);
@@ -117,6 +124,7 @@ describe('Session Service', () => {
         expires: new Date(Date.now() + customMaxAge * 1000),
         createdAt: new Date(),
         updatedAt: new Date(),
+        userLastFetched: null,
       };
 
       vi.mocked(prisma.session.create).mockResolvedValue(mockCreatedSession);
@@ -141,6 +149,7 @@ describe('Session Service', () => {
         expires: new Date(Date.now() + 1000000),
         createdAt: new Date(),
         updatedAt: new Date(),
+        userLastFetched: null,
       };
 
       vi.mocked(prisma.session.findUnique).mockResolvedValue(mockSession);
@@ -188,10 +197,19 @@ describe('Session Service', () => {
 
   describe('deleteAllUserSessions', () => {
     it('deletes all sessions for a user', async () => {
+      const mockSessions = [
+        { sessionToken: 'token-1' },
+        { sessionToken: 'token-2' },
+      ];
+      vi.mocked(prisma.session.findMany).mockResolvedValue(mockSessions as never);
       vi.mocked(prisma.session.deleteMany).mockResolvedValue({ count: 5 });
 
       const result = await deleteAllUserSessions('user-123');
 
+      expect(prisma.session.findMany).toHaveBeenCalledWith({
+        where: { userId: 'user-123' },
+        select: { sessionToken: true },
+      });
       expect(prisma.session.deleteMany).toHaveBeenCalledWith({
         where: { userId: 'user-123' },
       });
@@ -199,6 +217,7 @@ describe('Session Service', () => {
     });
 
     it('returns 0 when user has no sessions', async () => {
+      vi.mocked(prisma.session.findMany).mockResolvedValue([]);
       vi.mocked(prisma.session.deleteMany).mockResolvedValue({ count: 0 });
 
       const result = await deleteAllUserSessions('user-no-sessions');
@@ -216,6 +235,7 @@ describe('Session Service', () => {
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         createdAt: new Date(),
         updatedAt: new Date(),
+        userLastFetched: null,
       };
 
       vi.mocked(prisma.session.update).mockResolvedValue(mockUpdatedSession);
@@ -241,10 +261,23 @@ describe('Session Service', () => {
 
   describe('cleanupExpiredSessions', () => {
     it('deletes expired sessions', async () => {
+      const mockExpiredSessions = [
+        { sessionToken: 'expired-1' },
+        { sessionToken: 'expired-2' },
+      ];
+      vi.mocked(prisma.session.findMany).mockResolvedValue(mockExpiredSessions as never);
       vi.mocked(prisma.session.deleteMany).mockResolvedValue({ count: 10 });
 
       const result = await cleanupExpiredSessions();
 
+      expect(prisma.session.findMany).toHaveBeenCalledWith({
+        where: {
+          expires: {
+            lt: expect.any(Date),
+          },
+        },
+        select: { sessionToken: true },
+      });
       expect(prisma.session.deleteMany).toHaveBeenCalledWith({
         where: {
           expires: {
@@ -266,6 +299,7 @@ describe('Session Service', () => {
           expires: new Date(Date.now() + 1000000),
           createdAt: new Date(),
           updatedAt: new Date(),
+          userLastFetched: null,
         },
         {
           id: 'session-2',
@@ -274,6 +308,7 @@ describe('Session Service', () => {
           expires: new Date(Date.now() + 2000000),
           createdAt: new Date(),
           updatedAt: new Date(),
+          userLastFetched: null,
         },
       ];
 

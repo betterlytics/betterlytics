@@ -6,13 +6,16 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { encode, decode } from 'next-auth/jwt';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
+import { findUserByEmail } from '@/repositories/postgres/user';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
 import { generateSessionToken } from '@/services/session.service';
+import { getUserSettings } from '@/services/userSettings';
 import { cookies } from 'next/headers';
+import { sessionUserCache, USER_CACHE_TTL_MS, type CachedUserData } from '@/lib/session-cache';
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
 
@@ -184,7 +187,9 @@ export const authOptions: NextAuthOptions = {
         const sessionToken = (user as User & { sessionToken?: string }).sessionToken;
         if (sessionToken) {
           // Return minimal token with session reference for credentials
-          return { sessionToken };
+          // Note: With database sessions, this token is only used to pass the sessionToken
+          // to jwt.encode, the actual session data comes from the database
+          return { ...token, sessionToken };
         }
         // For OAuth, populate the token normally
         token.uid = user.id;
@@ -192,36 +197,72 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, user }) {
-      // With database sessions, we get the user directly from the database
-      // Fetch fresh user data including custom fields
-      const freshUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        include: { settings: true },
+      // Get current session from database to check cache TTL
+      const dbSession = await prisma.session.findFirst({
+        where: { userId: user.id, expires: { gt: new Date() } },
+        select: { sessionToken: true, userLastFetched: true },
       });
 
-      if (freshUser && session.user) {
+      if (!dbSession) {
+        // No valid session found, return basic session
+        return session;
+      }
+
+      const sessionToken = dbSession.sessionToken;
+
+      // Check in-memory cache first
+      const cached = sessionUserCache.get(sessionToken);
+
+      // Determine if cache is stale based on DB timestamp (5-minute TTL)
+      const isStale = !dbSession.userLastFetched ||
+        Date.now() - dbSession.userLastFetched.getTime() > USER_CACHE_TTL_MS;
+
+      let userData: CachedUserData | null = null;
+
+      if (cached && !isStale) {
+        // Use in-memory cached data (cache hit)
+        userData = cached;
+      } else {
+        // Cache miss or stale - fetch fresh data from database
+        try {
+          const freshUser = await findUserByEmail(user.email!);
+          if (freshUser) {
+            const freshSettings = await getUserSettings(freshUser.id);
+            userData = { user: freshUser, settings: freshSettings };
+
+            // Update in-memory cache
+            sessionUserCache.set(sessionToken, userData);
+
+            // Update cache TTL timestamp in database
+            await prisma.session.update({
+              where: { sessionToken },
+              data: { userLastFetched: new Date() },
+            });
+          }
+        } catch (error) {
+          console.error('Error refreshing user data:', error);
+          // If fetch fails and we have stale cache, use it as fallback
+          if (cached) {
+            userData = cached;
+          }
+        }
+      }
+
+      // Populate session with user data
+      if (userData?.user && session.user) {
+        const { user: freshUser, settings: freshSettings } = userData;
         session.user.id = freshUser.id;
         session.user.name = freshUser.name;
         session.user.email = freshUser.email!;
-        session.user.emailVerified = freshUser.emailVerified;
+        session.user.emailVerified = freshUser.emailVerified || null;
         session.user.role = freshUser.role;
         session.user.totpEnabled = freshUser.totpEnabled;
         session.user.hasPassword = Boolean(freshUser.passwordHash);
-        session.user.onboardingCompletedAt = freshUser.onboardingCompletedAt;
-        session.user.termsAcceptedAt = freshUser.termsAcceptedAt;
-        session.user.termsAcceptedVersion = freshUser.termsAcceptedVersion;
+        session.user.onboardingCompletedAt = freshUser.onboardingCompletedAt ?? null;
+        session.user.termsAcceptedAt = freshUser.termsAcceptedAt ?? null;
+        session.user.termsAcceptedVersion = freshUser.termsAcceptedVersion ?? null;
         session.user.changelogVersionSeen = freshUser.changelogVersionSeen ?? 'v0';
-
-        // Include user settings
-        if (freshUser.settings) {
-          session.user.settings = {
-            theme: freshUser.settings.theme,
-            language: freshUser.settings.language,
-            avatar: freshUser.settings.avatar,
-            emailNotifications: freshUser.settings.emailNotifications,
-            marketingEmails: freshUser.settings.marketingEmails,
-          };
-        }
+        session.user.settings = freshSettings;
       }
 
       return session;
