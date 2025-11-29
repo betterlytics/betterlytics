@@ -638,6 +638,28 @@
         "cta": {
           "noAccount": "Non hai un account?",
           "createOne": "Creane uno"
+        },
+        "form": {
+          "emailLabel": "Email",
+          "emailPlaceholder": "Inserisci la tua email",
+          "passwordLabel": "Password",
+          "passwordPlaceholder": "Inserisci la tua password",
+          "forgotPassword": "Password dimenticata?",
+          "submitButton": "Accedi",
+          "submitting": "Accesso in corso...",
+          "orDivider": "oppure",
+          "continueWithGoogle": "Continua con Google",
+          "continueWithGithub": "Continua con GitHub",
+          "errors": {
+            "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
+            "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
+            "generic": "Si è verificato un errore durante l'accesso. Riprova."
+          },
+          "twoFactor": {
+            "title": "Autenticazione a due fattori",
+            "description": "Inserisci il codice di verifica dalla tua app.",
+            "cancel": "Annulla"
+          }
         }
       },
       "register": {

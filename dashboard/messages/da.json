@@ -638,6 +638,28 @@
         "cta": {
           "noAccount": "Har du ikke en konto?",
           "createOne": "Opret en"
+        },
+        "form": {
+          "emailLabel": "E-mail",
+          "emailPlaceholder": "Indtast din e-mail",
+          "passwordLabel": "Adgangskode",
+          "passwordPlaceholder": "Indtast din adgangskode",
+          "forgotPassword": "Glemt din adgangskode?",
+          "submitButton": "Log ind",
+          "submitting": "Logger ind...",
+          "orDivider": "eller",
+          "continueWithGoogle": "Fortsæt med Google",
+          "continueWithGithub": "Fortsæt med GitHub",
+          "errors": {
+            "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
+            "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
+            "generic": "Der opstod en fejl under login. Prøv venligst igen."
+          },
+          "twoFactor": {
+            "title": "To-faktor-godkendelse",
+            "description": "Indtast bekræftelseskoden fra din app.",
+            "cancel": "Annuller"
+          }
         }
       },
       "register": {
