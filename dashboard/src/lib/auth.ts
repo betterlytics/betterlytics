@@ -43,11 +43,17 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const user = await verifyCredentials(credentials as LoginUserData);
-          if (user) return user;
-          return await attemptAdminInitialization(credentials.email, credentials.password);
+          if (user) {
+            return user;
+          }
+
+          const { email, password } = credentials;
+          return await attemptAdminInitialization(email, password);
         } catch (error) {
           console.error('Authorization error:', error);
-          if (error instanceof UserException) throw error;
+          if (isUserException(error)) {
+            throw error;
+          }
           return null;
         }
       },
@@ -55,7 +61,12 @@ export const authOptions: NextAuthOptions = {
 
     // Conditionally add GitHub provider
     ...(env.GITHUB_ID && env.GITHUB_SECRET
-      ? [GithubProvider({ clientId: env.GITHUB_ID, clientSecret: env.GITHUB_SECRET })]
+      ? [
+          GithubProvider({
+            clientId: env.GITHUB_ID,
+            clientSecret: env.GITHUB_SECRET,
+          }),
+        ]
       : []),
 
     // Conditionally add Google provider
@@ -65,7 +76,11 @@ export const authOptions: NextAuthOptions = {
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET,
             authorization: {
-              params: { prompt: 'consent', access_type: 'offline', response_type: 'code' },
+              params: {
+                prompt: 'consent',
+                access_type: 'offline',
+                response_type: 'code',
+              },
             },
           }),
         ]
@@ -92,7 +107,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === 'credentials') {
         try {
-          const sessionToken = randomBytes(32).toString('hex');
+          const sessionToken = getSessionToken();
           const sessionExpiry = fromDate(SESSION_MAX_AGE_SECONDS);
 
           await adapter.createSession!({ sessionToken, userId: user.id, expires: sessionExpiry });
@@ -159,3 +174,11 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+function getSessionToken() {
+  return randomBytes(32).toString('hex');
+}
+
+function isUserException(error: unknown): error is UserException {
+  return error instanceof UserException;
+}
