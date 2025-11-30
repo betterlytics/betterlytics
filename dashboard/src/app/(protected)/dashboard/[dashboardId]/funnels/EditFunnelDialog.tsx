@@ -105,8 +105,8 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
           <div className='flex flex-1 flex-col'>
             <div className='flex min-h-72 flex-1 flex-col gap-4 rounded-lg p-4 shadow'>
               <div className='flex w-full justify-between'>
-                <div className='flex w-1/2 gap-4'>
-                  <div className='w-full max-w-md'>
+                <div className='flex gap-4'>
+                  <div className='max-w-md min-w-40'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
                       {tCreate('name')}
                     </Label>
@@ -117,11 +117,11 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                       onChange={(evt) => setName(evt.target.value)}
                     />
                   </div>
-                  <div className='min-w-20'>
-                    <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {tCreate('strictMode')}
-                    </Label>
-                    <div className='mt-3 flex justify-center'>
+                  <div className='flex items-end'>
+                    <div className='flex h-9 items-center gap-2 rounded-lg border-2 px-2'>
+                      <Label htmlFor='name' className='text-foreground'>
+                        {tCreate('strictMode')}
+                      </Label>
                       <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
                     </div>
                   </div>
@@ -138,12 +138,14 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
               </div>
               <div className='space-y-2'>
                 {funnelSteps.map((step, i) => (
-                  <div key={step.id} className='relative flex items-center rounded-md border pl-4'>
-                    <div className='bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
+                  <div
+                    key={step.id}
+                    className='dark:border-border border-foreground/30 relative flex items-center rounded-md border pl-4'
+                  >
+                    <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
                       <p className='text-muted-foreground text-sm font-medium'>{i + 1}</p>
                     </div>
                     <FunnelStepFilter
-                      key={step.id}
                       onFilterUpdate={updateFunnelStep}
                       filter={step}
                       requestRemoval={() => removeFunnelStep(step.id)}
