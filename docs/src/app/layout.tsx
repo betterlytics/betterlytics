@@ -4,13 +4,13 @@ import { getPageMap } from "nextra/page-map";
 import "nextra-theme-docs/style.css";
 import "./globals.css";
 import { Metadata } from "next";
-import Image from "next/image";
 import { Footer } from "./components/footer";
 import { getAssetPath } from "@/lib/constants";
 import NextTopLoader from "nextjs-toploader";
 import ExternalLink from "@/shared/ExternalLink";
 import Script from "next/script";
 import { docsTrackingEnabled, env } from "@/lib/env";
+import Logo from "./components/logo";
 
 export const metadata: Metadata = {
   title: "Betterlytics Docs",
@@ -43,33 +43,17 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      {
-        url: getAssetPath("/images/favicon-dark.svg"),
-        media: "(prefers-color-scheme: light)",
-        type: "image/svg+xml",
-      },
-      {
-        url: getAssetPath("/images/favicon-light.svg"),
-        media: "(prefers-color-scheme: dark)",
-        type: "image/svg+xml",
-      },
+      { url: getAssetPath("/icon0.svg"), type: "image/svg+xml" },
+      { url: getAssetPath("/favicon.ico"), type: "image/x-icon" },
     ],
+    apple: [{ url: getAssetPath("/apple-icon.png"), sizes: "180x180" }],
   },
 };
 
 const navbar = (
   <>
     <Navbar
-      logo={
-        <Image
-          src={getAssetPath("/images/favicon-dark.svg")}
-          alt="Betterlytics"
-          width={32}
-          height={32}
-          className="object-contain"
-          priority
-        />
-      }
+      logo={<Logo variant="icon" width={32} height={32} priority />}
       projectLink="https://github.com/betterlytics/betterlytics"
       chatLink="https://discord.gg/vwqSvPn6sP"
     >
