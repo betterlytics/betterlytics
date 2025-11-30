@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -43,6 +43,16 @@ export default function CampaignList({
   const [totalCampaigns, setTotalCampaigns] = useState<number>(initialTotalCampaigns);
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false);
   const t = useTranslations('components.campaign');
+
+  // When the server-fetched campaign data changes (e.g. due to a new time range), then we sync the list state again
+  useEffect(() => {
+    setCampaigns(initialCampaigns);
+    setTotalCampaigns(initialTotalCampaigns);
+    setPageIndex(initialPageIndex);
+    setPageSize(initialPageSize);
+    setExpandedCampaign(null);
+    setIsLoadingPage(false);
+  }, [initialCampaigns, initialTotalCampaigns, initialPageIndex, initialPageSize]);
 
   const totalPages = Math.max(1, Math.ceil(totalCampaigns / pageSize));
   const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);

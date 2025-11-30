@@ -7,7 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
 import { getUserTimezone } from '@/lib/cookies';
-import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
+import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 
 type CampaignPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -38,20 +38,15 @@ export default async function CampaignPage({ params, searchParams }: CampaignPag
   return (
     <div className='container space-y-3 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('campaigns')}>
-        <DashboardFilters />
+        <DashboardFilters showQueryFilters={false} showComparison={false} />
       </DashboardHeader>
 
       <Suspense
         fallback={
-          <div className='space-y-4'>
-            <TableSkeleton />
-            <ChartSkeleton />
-            <div className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
-              <div className='lg:col-span-2'>
-                <TableSkeleton />
-              </div>
-              <ChartSkeleton />
-            </div>
+          <div className='space-y-3'>
+            {Array.from({ length: DEFAULT_PAGE_SIZE }).map((_, index) => (
+              <CampaignRowSkeleton key={index} />
+            ))}
           </div>
         }
       >

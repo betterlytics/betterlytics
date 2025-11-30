@@ -1,6 +1,7 @@
 import CampaignList from './CampaignList';
-import { fetchCampaignPerformanceAction } from '@/app/actions';
+import type { fetchCampaignPerformanceAction } from '@/app/actions';
 import type { CampaignDirectoryRowSummary } from '@/entities/campaign';
+import { use } from 'react';
 
 type CampaignDirectorySectionProps = {
   dashboardId: string;
@@ -9,11 +10,11 @@ type CampaignDirectorySectionProps = {
 
 export type CampaignListItem = CampaignDirectoryRowSummary;
 
-export default async function CampaignDirectorySection({
+export default function CampaignDirectorySection({
   dashboardId,
   campaignPerformancePromise,
 }: CampaignDirectorySectionProps) {
-  const campaignPerformancePage = await campaignPerformancePromise;
+  const campaignPerformancePage = use(campaignPerformancePromise);
   const { campaigns, totalCampaigns, pageIndex, pageSize } = campaignPerformancePage;
 
   return (
