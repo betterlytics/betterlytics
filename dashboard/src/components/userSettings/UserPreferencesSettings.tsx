@@ -20,26 +20,19 @@ interface UserPreferencesSettingsProps {
 }
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const t = useTranslations('components.userSettings.preferences');
-  const { registerEffect } = useSettingsEffects();
+  const { register: registerEffect } = useSettingsEffects();
 
   useEffect(() => {
-    const originalTheme = theme;
-
     registerEffect('theme', {
       apply: (settings: UserSettingsUpdate) => {
         if (settings.theme) {
           setTheme(settings.theme);
         }
       },
-      revert: () => {
-        if (originalTheme) {
-          setTheme(originalTheme);
-        }
-      },
     });
-  }, [registerEffect, setTheme, theme]);
+  }, [registerEffect, setTheme]);
 
   const handleLocaleChange = (newLocale: SupportedLanguages) => {
     onUpdate({ language: newLocale });

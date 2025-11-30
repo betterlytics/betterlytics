@@ -5,14 +5,12 @@ import type { UserSettingsUpdate } from '@/entities/userSettings';
 
 type SettingsEffect = {
   apply: (settings: UserSettingsUpdate) => void;
-  revert: () => void;
 };
 
 type SettingsEffectsContextType = {
-  registerEffect: (key: string, effect: SettingsEffect) => void;
-  unregisterEffect: (key: string) => void;
+  register: (key: string, effect: SettingsEffect) => void;
+  unregister: (key: string) => void;
   applyAll: (settings: UserSettingsUpdate) => void;
-  revertAll: () => void;
 };
 
 const SettingsEffectsContext = createContext<SettingsEffectsContextType | undefined>(undefined);
@@ -25,18 +23,18 @@ export function useSettingsEffects() {
   return context;
 }
 
-type Props = {
+type SettingsEffectsProviderProps = {
   children: React.ReactNode;
 };
 
-export function SettingsEffectsProvider({ children }: Props) {
+export function SettingsEffectsProvider({ children }: SettingsEffectsProviderProps) {
   const effectsRef = useRef<Map<string, SettingsEffect>>(new Map());
 
-  const registerEffect = useCallback((key: string, effect: SettingsEffect) => {
+  const register = useCallback((key: string, effect: SettingsEffect) => {
     effectsRef.current.set(key, effect);
   }, []);
 
-  const unregisterEffect = useCallback((key: string) => {
+  const unregister = useCallback((key: string) => {
     effectsRef.current.delete(key);
   }, []);
 
@@ -46,14 +44,8 @@ export function SettingsEffectsProvider({ children }: Props) {
     });
   }, []);
 
-  const revertAll = useCallback(() => {
-    effectsRef.current.forEach((effect) => {
-      effect.revert();
-    });
-  }, []);
-
   return (
-    <SettingsEffectsContext.Provider value={{ registerEffect, unregisterEffect, applyAll, revertAll }}>
+    <SettingsEffectsContext.Provider value={{ register, unregister, applyAll }}>
       {children}
     </SettingsEffectsContext.Provider>
   );

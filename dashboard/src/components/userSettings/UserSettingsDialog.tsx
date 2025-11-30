@@ -49,7 +49,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
 
 function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
-  const { applyAll, revertAll } = useSettingsEffects();
+  const { applyAll } = useSettingsEffects();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
@@ -130,20 +130,7 @@ function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogPro
     }
   };
 
-  const handleCancel = () => {
-    revertAll();
-    onOpenChange(false);
-  };
-
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      revertAll();
-    }
-    onOpenChange(isOpen);
-  };
-
   const handleCloseDialog = () => {
-    revertAll();
     onOpenChange(false);
   };
 
@@ -189,7 +176,7 @@ function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogPro
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto p-3 sm:p-6 md:max-w-11/12 md:min-w-[700px] lg:max-w-[900px] lg:min-w-[900px]'>
         <DialogHeader>
           <DialogTitle>{tDialog('title')}</DialogTitle>
@@ -224,7 +211,7 @@ function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogPro
         </Tabs>
 
         <div className='flex justify-end space-x-2 border-t pt-4'>
-          <Button variant='outline' onClick={handleCancel} className='cursor-pointer'>
+          <Button variant='outline' onClick={handleCloseDialog} className='cursor-pointer'>
             {tDialog('buttons.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving || !isFormChanged} className='cursor-pointer'>
