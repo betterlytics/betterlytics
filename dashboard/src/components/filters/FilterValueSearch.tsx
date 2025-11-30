@@ -3,7 +3,6 @@ import { useQueryFilterSearch } from './use-query-filter-search';
 import { Combobox } from '@/components/ui/combobox';
 import { type QueryFilter } from '@/entities/filter';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
