@@ -20,6 +20,7 @@ export const FunnelDetailsSchema = FunnelSchema.extend({
 export const FunnelPreviewSchema = z.object({
   funnelSteps: z.array(FunnelStepSchema),
   visitors: z.number().array(),
+  isStrict: z.boolean(),
 });
 
 export const CreateFunnelSchema = z.object({

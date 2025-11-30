@@ -52,6 +52,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
   } = useFunnelDialog({
     dashboardId,
     initialName: funnel.name,
+    initialIsStrict: funnel.isStrict,
     initialSteps: funnel.steps.map((step) => step.step),
   });
 

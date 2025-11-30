@@ -54,7 +54,6 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   } = useFunnelDialog({
     dashboardId,
     initialName: '',
-    initialIsStrict: true,
     initialSteps: [
       { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
       { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },

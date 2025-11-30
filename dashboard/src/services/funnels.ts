@@ -13,7 +13,6 @@ import {
 } from '@/entities/funnels';
 import * as PostgresFunnelRepository from '@/repositories/postgres/funnels';
 import * as ClickhouseFunnelRepository from '@/repositories/clickhouse/funnels';
-import { subHours, endOfHour } from 'date-fns';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
 export async function getFunnelsByDashboardId(
@@ -82,18 +81,20 @@ export async function createFunnelForDashboard(funnel: CreateFunnel) {
 
 export async function getFunnelPreviewData(
   siteId: string,
+  startDate: Date,
+  endDate: Date,
   funnelSteps: FunnelStep[],
   isStrict: boolean,
 ): Promise<FunnelPreview> {
-  const endDate = endOfHour(new Date());
-  const startDate = subHours(endDate, 24);
+  const formattedStart = toDateTimeString(startDate);
+  const formattedEnd = toDateTimeString(endDate);
 
   const visitors = await ClickhouseFunnelRepository.getFunnelDetails(
     siteId,
     funnelSteps,
     isStrict,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
+    formattedStart,
+    formattedEnd,
   );
 
   return FunnelPreviewSchema.parse({

@@ -24,6 +24,7 @@ export type PresentedFunnel = {
   };
   conversionRate: number;
   name: string;
+  isStrict: boolean;
 };
 
 export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel {
@@ -71,6 +72,7 @@ export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel
     steps,
     biggestDropOff,
     conversionRate,
+    isStrict: funnel.isStrict,
     name,
   };
 }

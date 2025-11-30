@@ -4,6 +4,7 @@ import { useFunnelSteps } from '@/hooks/use-funnel-steps';
 import { useQuery } from '@tanstack/react-query';
 import { fetchFunnelPreviewAction } from '@/app/actions';
 import type { FunnelStep } from '@/entities/funnels';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 export type FunnelMetadata = {
   name: string;
@@ -45,10 +46,12 @@ export function useFunnelDialog({
     }));
   }, [debouncedFunnelSteps]);
 
+  const { startDate, endDate } = useTimeRangeContext();
+
   const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, searchableFunnelSteps, metadata.isStrict],
+    queryKey: ['funnelPreview', dashboardId, startDate, endDate, searchableFunnelSteps, metadata.isStrict],
     queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, searchableFunnelSteps, metadata.isStrict);
+      return fetchFunnelPreviewAction(dashboardId, startDate, endDate, searchableFunnelSteps, metadata.isStrict);
     },
     enabled: searchableFunnelSteps.length >= 2,
   });

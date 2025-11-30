@@ -56,8 +56,8 @@ export const fetchFunnelsAction = withDashboardAuthContext(
 );
 
 export const fetchFunnelPreviewAction = withDashboardAuthContext(
-  async (ctx: AuthContext, funnelSteps: FunnelStep[], isStrict: boolean) => {
-    const funnelPreview = await getFunnelPreviewData(ctx.siteId, funnelSteps, isStrict);
+  async (ctx: AuthContext, startDate: Date, endDate: Date, funnelSteps: FunnelStep[], isStrict: boolean) => {
+    const funnelPreview = await getFunnelPreviewData(ctx.siteId, startDate, endDate, funnelSteps, isStrict);
 
     return toFunnel(funnelPreview);
   },
