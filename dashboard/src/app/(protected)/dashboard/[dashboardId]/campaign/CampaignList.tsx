@@ -184,7 +184,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
       <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b' />
 
       <div
-        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-5 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,auto)_minmax(120px,200px)_auto]'
+        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-3 px-4 py-4 lg:grid-cols-[minmax(180px,1.5fr)_repeat(3,auto)_minmax(120px,200px)_auto] lg:gap-5'
         onClick={onToggle}
       >
         <div className='min-w-0'>
@@ -197,20 +197,20 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         <CampaignMetric
           label={t('bounceRate')}
           value={formatPercentage(campaign.bounceRate)}
-          className='hidden md:flex'
+          className='hidden lg:flex'
         />
         <CampaignMetric
           label={t('avgSessionDuration')}
           value={campaign.avgSessionDuration}
-          className='hidden md:flex'
+          className='hidden lg:flex'
         />
         <CampaignMetric
           label={t('pagesPerSession')}
           value={formatNumber(campaign.pagesPerSession)}
-          className='hidden md:flex'
+          className='hidden lg:flex'
         />
 
-        <div className='hidden h-11 md:block'>
+        <div className='hidden h-11 lg:block'>
           <CampaignSparkline data={campaign.sparkline} />
         </div>
 
@@ -236,7 +236,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
 function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className={`flex flex-col justify-end ${className ?? ''}`}>
-      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide whitespace-nowrap uppercase'>
+      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide uppercase'>
         {label}
       </span>
       <span className='text-foreground text-sm font-semibold tabular-nums'>{value}</span>
@@ -261,8 +261,8 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName }: Campai
         <span>{t('campaignDetails')}</span>
         <div className='bg-border/60 h-px flex-1' />
       </div>
-      <div className='mt-1 grid gap-3 md:grid-cols-5'>
-        <div className='hidden md:col-span-3 md:block'>
+      <div className='mt-1 grid gap-3 lg:grid-cols-5'>
+        <div className='hidden lg:col-span-3 lg:block'>
           <UTMBreakdownTabbedTable
             dashboardId={dashboardId}
             campaignName={campaignName}
@@ -270,8 +270,8 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName }: Campai
             landingPages={landingPages}
           />
         </div>
-        <div className='space-y-3 md:col-span-2'>
-          <p className='border-border/60 bg-muted/30 text-muted-foreground rounded-md border border-dashed px-3 py-2 text-[11px] md:hidden'>
+        <div className='space-y-3 lg:col-span-2'>
+          <p className='border-border/60 bg-muted/30 text-muted-foreground rounded-md border border-dashed px-3 py-2 text-[11px] lg:hidden'>
             {t('onlyAvailableOnLargerScreens')}
           </p>
           <div className='flex flex-col gap-3'>

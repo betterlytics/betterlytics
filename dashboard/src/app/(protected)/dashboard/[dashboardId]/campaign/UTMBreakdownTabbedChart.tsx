@@ -147,10 +147,10 @@ export default function UTMBreakdownTabbedChart({
     <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as UTMChartTab)}>
         <CardHeader className='px-0 pb-0'>
-          <div className='flex flex-col items-center justify-between sm:flex-row'>
+          <div className='flex flex-wrap items-center justify-between gap-2 sm:flex-row'>
             <CardTitle className='pb-2 text-sm font-medium sm:pb-0'>{t('chart.title')}</CardTitle>
             <TabsList
-              className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} dark:inset-shadow-background gap-1 inset-shadow-sm`}
+              className='bg-muted/30 flex h-auto flex-wrap justify-end gap-1 px-1 dark:inset-shadow-background inset-shadow-sm'
             >
               {tabs.map((tab) => (
                 <TabsTrigger

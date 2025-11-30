@@ -116,9 +116,9 @@ export default function UTMBreakdownTabbedTable({
         onValueChange={(value) => setActiveTab(value as UTMTabsKey)}
         className='flex h-full flex-col gap-2'
       >
-        <div className='flex w-full items-center justify-between gap-3'>
+        <div className='flex w-full flex-wrap items-center justify-between gap-2 sm:gap-3'>
           <p className='text-foreground text-sm font-medium'>{t('table.title')}</p>
-          <TabsList className='bg-secondary dark:inset-shadow-background inline-flex gap-1 px-1 inset-shadow-sm'>
+          <TabsList className='bg-secondary dark:inset-shadow-background flex flex-wrap justify-end gap-1 px-1 inset-shadow-sm'>
             <TabsTrigger
               value='entry'
               className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
