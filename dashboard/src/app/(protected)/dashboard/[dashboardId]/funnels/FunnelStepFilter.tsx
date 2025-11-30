@@ -37,7 +37,7 @@ import { Input } from '@/components/ui/input';
 type FunnelStepFilterProps = {
   onFilterUpdate: Dispatch<QueryFilter & { name: string }>;
   filter: QueryFilter & { name: string };
-  requestRemoval: Dispatch<QueryFilter & { name: string }>;
+  requestRemoval: () => void;
   disableDeletion?: boolean;
 };
 
@@ -112,12 +112,7 @@ export function FunnelStepFilter({
         </SelectContent>
       </Select>
       <FilterValueSearch filter={filter} onFilterUpdate={onFilterUpdate} key={filter.column} className='grow' />
-      <Button
-        variant='ghost'
-        className='cursor-pointer'
-        onClick={() => requestRemoval(filter)}
-        disabled={disableDeletion}
-      >
+      <Button variant='ghost' className='cursor-pointer' onClick={requestRemoval} disabled={disableDeletion}>
         <Trash2 />
       </Button>
     </div>

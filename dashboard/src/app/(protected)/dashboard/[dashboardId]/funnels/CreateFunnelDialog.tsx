@@ -128,15 +128,14 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
               </div>
               <div className='space-y-2'>
                 {funnelSteps.map((step, i) => (
-                  <div key={step.id + i} className='relative flex items-center rounded-md border pl-4'>
+                  <div key={step.id} className='relative flex items-center rounded-md border pl-4'>
                     <div className='bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
                       <p className='text-muted-foreground text-sm font-medium'>{i + 1}</p>
                     </div>
                     <FunnelStepFilter
-                      key={step.id + i}
                       onFilterUpdate={updateFunnelStep}
                       filter={step}
-                      requestRemoval={(_step) => removeFunnelStep(_step.id)}
+                      requestRemoval={() => removeFunnelStep(step.id)}
                     />
                   </div>
                 ))}
