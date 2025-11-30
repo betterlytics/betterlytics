@@ -19,10 +19,6 @@ import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
 import { getUserSettings } from '@/services/userSettings';
-import { cookies } from 'next/headers';
-
-const SESSION_COOKIE = 'next-auth.session-token';
-const SESSION_COOKIE_SECURE = '__Secure-next-auth.session-token';
 
 const adapter = PrismaAdapter(prisma) as Adapter;
 
@@ -100,7 +96,6 @@ export const authOptions: NextAuthOptions = {
       const sessionToken = params.token?.sessionToken as string | undefined;
       return sessionToken ?? encode(params);
     },
-    decode: async () => null,
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -113,16 +108,6 @@ export const authOptions: NextAuthOptions = {
 
           await adapter.createSession!({ sessionToken, userId: user.id, expires: sessionExpiry });
           (user as User & { sessionToken?: string }).sessionToken = sessionToken;
-
-          const cookieStore = await cookies();
-          const isSecure = process.env.NODE_ENV === 'production';
-          cookieStore.set(isSecure ? SESSION_COOKIE_SECURE : SESSION_COOKIE, sessionToken, {
-            expires: sessionExpiry,
-            httpOnly: true,
-            secure: isSecure,
-            sameSite: 'lax',
-            path: '/',
-          });
         } catch (error) {
           console.error('Failed to create session for credentials:', error);
           return false;
