@@ -69,6 +69,3 @@ node_modules
 # Backups
 /postgresbackups
 /clickhousebackups
-
-/backups
-/target
