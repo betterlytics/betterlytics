@@ -1434,6 +1434,12 @@
         "successMessage": "Tragt opdateret!",
         "errorMessage": "Tragtopdatering mislykkedes!"
       },
+      "plot": {
+        "stepLabel": "Trin {index}",
+        "visitors": "Besøgende",
+        "dropOff": "Frafald",
+        "conversion": "Konvertering"
+      },
       "page": {
         "title": "Tragter",
         "description": "Analyser brugerens konverteringsforløb"

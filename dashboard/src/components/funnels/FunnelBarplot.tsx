@@ -20,6 +20,7 @@ type FunnelChartProps = {
 };
 
 export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) {
+  const tPlot = useTranslations('components.funnels.plot');
   const hasEmptySteps = Boolean(emptySteps?.length);
   return (
     <div className='bg-card w-full overflow-x-auto rounded-xl border shadow-sm'>
@@ -40,7 +41,7 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
             >
               <div>
                 <p className='text-muted-foreground/60 text-[11px] font-medium tracking-wide uppercase'>
-                  Step {i + funnel.steps.length + 1}
+                  {tPlot('stepLabel', { index: i + funnel.steps.length + 1 })}
                 </p>
               </div>
               <h4 className='text-foreground/70 truncate text-sm font-semibold'>{step.name}</h4>
@@ -65,7 +66,7 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
                 <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center rounded-sm p-2 sm:h-full sm:w-25'></div>
               ) : (
                 <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
-                  <p className='text-muted-foreground/75 text-xs'>Conversion</p>
+                  <p className='text-muted-foreground/75 text-xs'>{tPlot('conversion')}</p>
                   <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0)}</p>
                 </div>
               )}
@@ -89,6 +90,7 @@ function FunnelStep({
   hasEmptySteps: boolean;
 }) {
   const tFilters = useTranslations('components.filters');
+  const tPlot = useTranslations('components.funnels.plot');
   return (
     <Tooltip key={index} delayDuration={0}>
       <TooltipTrigger asChild>
@@ -101,7 +103,7 @@ function FunnelStep({
           >
             <div>
               <p className='text-muted-foreground/80 text-[11px] font-medium tracking-wide uppercase'>
-                Step {index + 1}
+                {tPlot('stepLabel', { index: index + 1 })}
               </p>
             </div>
             <h4 className='text-foreground truncate text-sm font-semibold'>{step.step.name}</h4>
@@ -136,13 +138,13 @@ function FunnelStep({
           </div>
           <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
             <div className='flex h-20 w-20 flex-col items-center justify-center gap-0.5 p-2 sm:h-full sm:w-25'>
-              <p className='text-muted-foreground text-xs'>Visitors</p>
+              <p className='text-muted-foreground text-xs'>{tPlot('visitors')}</p>
               <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
               <p className='text-muted-foreground/80 text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
             </div>
             {index < funnel.steps.length - 1 || hasEmptySteps ? (
               <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
-                <p className='text-muted-foreground text-xs'>Drop-off</p>
+                <p className='text-muted-foreground text-xs'>{tPlot('dropOff')}</p>
                 <p className='text-md font-semibold'>
                   {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
                 </p>
@@ -159,7 +161,7 @@ function FunnelStep({
               </div>
             ) : (
               <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
-                <p className='text-muted-foreground text-xs'>Conversion</p>
+                <p className='text-muted-foreground text-xs'>{tPlot('conversion')}</p>
                 <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
               </div>
             )}

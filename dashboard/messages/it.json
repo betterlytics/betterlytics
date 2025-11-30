@@ -1435,6 +1435,12 @@
         "successMessage": "Funnel aggiornato!",
         "errorMessage": "Aggiornamento funnel fallito!"
       },
+      "plot": {
+        "stepLabel": "Passaggio {index}",
+        "visitors": "Visitatori",
+        "dropOff": "Abbandono",
+        "conversion": "Conversione"
+      },
       "page": {
         "title": "Funnel",
         "description": "Analizza i percorsi di conversione degli utenti"
