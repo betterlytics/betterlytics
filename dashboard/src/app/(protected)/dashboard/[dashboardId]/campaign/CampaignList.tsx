@@ -18,6 +18,7 @@ import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';
 import { useTranslations } from 'next-intl';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
+import { toast } from 'sonner';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
@@ -41,7 +42,7 @@ export default function CampaignList({
   const [campaigns, setCampaigns] = useState<CampaignListItem[]>(initialCampaigns);
   const [totalCampaigns, setTotalCampaigns] = useState<number>(initialTotalCampaigns);
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false);
-  const t = useTranslations('components.campaign.emptyState');
+  const t = useTranslations('components.campaign');
 
   const totalPages = Math.max(1, Math.ceil(totalCampaigns / pageSize));
   const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
@@ -76,6 +77,7 @@ export default function CampaignList({
       setPageIndex(result.pageIndex);
       setPageSize(result.pageSize);
     } catch {
+      toast.error(t('campaignExpandedRow.error'));
     } finally {
       setIsLoadingPage(false);
     }
@@ -95,7 +97,7 @@ export default function CampaignList({
     return (
       <Card className='border-border/50 bg-muted/30 p-8 text-center'>
         <p className='text-lg font-medium'>{t('title')}</p>
-        <p className='text-muted-foreground mt-1 text-sm'>{t('description')}</p>
+        <p className='text-muted-foreground mt-1 text-sm'>{t('emptyState.description')}</p>
       </Card>
     );
   }
