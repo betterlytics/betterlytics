@@ -187,7 +187,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
       <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b' />
 
       <div
-        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-5 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'
+        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-5 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,auto)_minmax(120px,200px)_auto]'
         onClick={onToggle}
       >
         <div className='min-w-0'>
@@ -239,7 +239,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
 function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className={`flex flex-col justify-end ${className ?? ''}`}>
-      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide uppercase'>
+      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide whitespace-nowrap uppercase'>
         {label}
       </span>
       <span className='text-foreground text-sm font-semibold tabular-nums'>{value}</span>
