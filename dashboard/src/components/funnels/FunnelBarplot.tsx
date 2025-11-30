@@ -152,8 +152,14 @@ function FunnelStep({
                   {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
                 </p>
                 <div className='flex items-center gap-0.5'>
-                  <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
-                  <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
+                  {step.dropoffCount <= 0 ? (
+                    <p className='text-muted-foreground text-xs'>-</p>
+                  ) : (
+                    <>
+                      <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
+                      <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
