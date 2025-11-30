@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { CampaignListItem } from './CampaignDirectorySection';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
@@ -19,7 +19,6 @@ import { CompactPaginationControls, PaginationControls } from './CampaignPaginat
 import { useTranslations } from 'next-intl';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 import { toast } from 'sonner';
-import ExternalLink from '@/components/ExternalLink';
 
 type CampaignListProps = {
   campaigns: CampaignListItem[];
@@ -57,8 +56,6 @@ export default function CampaignList({
 
   const totalPages = Math.max(1, Math.ceil(totalCampaigns / pageSize));
   const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
-
-  const paginatedCampaigns = useMemo(() => campaigns, [campaigns]);
 
   const toggleCampaignExpanded = (campaignName: string) => {
     setExpandedCampaign((prev) => (prev === campaignName ? null : campaignName));
@@ -123,7 +120,7 @@ export default function CampaignList({
 
       {isLoadingPage
         ? Array.from({ length: skeletonRowCount }).map((_, index) => <CampaignRowSkeleton key={index} />)
-        : paginatedCampaigns.map((campaign) => {
+        : campaigns.map((campaign) => {
             return (
               <CampaignListEntry
                 key={campaign.name}
@@ -209,7 +206,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         />
         <CampaignMetric
           label={t('pagesPerSession')}
-          value={campaign.pagesPerSession.toFixed(1)}
+          value={formatNumber(campaign.pagesPerSession)}
           className='hidden md:flex'
         />
 

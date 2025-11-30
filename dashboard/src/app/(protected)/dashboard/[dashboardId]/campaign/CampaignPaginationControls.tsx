@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25, 50] as const;
 
@@ -132,11 +133,12 @@ export const PaginationControls = memo(
                     type='button'
                     onClick={() => onPageChange(page - 1)}
                     aria-current={page === currentPage ? 'page' : undefined}
-                    className={`min-w-[1.75rem] cursor-pointer rounded-md px-2 py-1 text-sm font-medium tabular-nums transition-colors ${
+                    className={cn(
+                      'min-w-[1.75rem] cursor-pointer rounded-md px-2 py-1 text-sm font-medium tabular-nums transition-colors',
                       page === currentPage
                         ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                    }`}
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
+                    )}
                   >
                     {page.toLocaleString()}
                   </button>
