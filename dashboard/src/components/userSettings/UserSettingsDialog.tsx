@@ -20,6 +20,7 @@ import useIsChanged from '@/hooks/use-is-changed';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { SettingsEffectsProvider, useSettingsEffects } from '@/contexts/SettingsEffectsContext';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -39,7 +40,16 @@ interface UserSettingsTabConfig {
 }
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
+  return (
+    <SettingsEffectsProvider>
+      <UserSettingsDialogContent open={open} onOpenChange={onOpenChange} />
+    </SettingsEffectsProvider>
+  );
+}
+
+function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
+  const { applyAll, revertAll } = useSettingsEffects();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
@@ -108,6 +118,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   const handleSave = async () => {
     const result = await saveSettings(formData);
     if (result.success) {
+      applyAll(formData);
       await refreshSession();
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
@@ -119,7 +130,20 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     }
   };
 
+  const handleCancel = () => {
+    revertAll();
+    onOpenChange(false);
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      revertAll();
+    }
+    onOpenChange(isOpen);
+  };
+
   const handleCloseDialog = () => {
+    revertAll();
     onOpenChange(false);
   };
 
@@ -165,7 +189,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto p-3 sm:p-6 md:max-w-11/12 md:min-w-[700px] lg:max-w-[900px] lg:min-w-[900px]'>
         <DialogHeader>
           <DialogTitle>{tDialog('title')}</DialogTitle>
@@ -200,7 +224,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
         </Tabs>
 
         <div className='flex justify-end space-x-2 border-t pt-4'>
-          <Button variant='outline' onClick={() => onOpenChange(false)} className='cursor-pointer'>
+          <Button variant='outline' onClick={handleCancel} className='cursor-pointer'>
             {tDialog('buttons.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving || !isFormChanged} className='cursor-pointer'>
