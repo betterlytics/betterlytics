@@ -110,5 +110,6 @@ export function useFunnelDialog({
     emptySteps,
     isPreviewLoading,
     reset,
+    setFunnelSteps,
   };
 }

@@ -23,6 +23,7 @@ import { Switch } from '@/components/ui/switch';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { UpdateFunnelSchema } from '@/entities/funnels';
+import { Reorder } from 'motion/react';
 
 type EditFunnelDialogProps = {
   funnel: PresentedFunnel;
@@ -40,6 +41,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
     setIsStrict,
     funnelSteps,
     addEmptyFunnelStep,
+    setFunnelSteps,
     updateFunnelStep,
     removeFunnelStep,
     searchableFunnelSteps,
@@ -136,10 +138,11 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                   </Button>
                 </div>
               </div>
-              <div className='space-y-2'>
+              <Reorder.Group axis='y' values={funnelSteps} onReorder={setFunnelSteps} className='space-y-2'>
                 {funnelSteps.map((step, i) => (
-                  <div
+                  <Reorder.Item
                     key={step.id}
+                    value={step}
                     className='dark:border-border border-foreground/30 relative flex items-center rounded-md border pl-4'
                   >
                     <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
@@ -150,9 +153,9 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                       filter={step}
                       requestRemoval={() => removeFunnelStep(step.id)}
                     />
-                  </div>
+                  </Reorder.Item>
                 ))}
-              </div>
+              </Reorder.Group>
             </div>
             {searchableFunnelSteps.length < 2 && (
               <div className='text-muted-foreground flex h-full items-center justify-center'>

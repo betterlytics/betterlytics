@@ -25,6 +25,7 @@ import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/funnels';
 import { generateTempId } from '@/utils/temporaryId';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { Reorder } from 'motion/react';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -48,6 +49,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     funnelPreview,
     emptySteps,
     isPreviewLoading,
+    setFunnelSteps,
   } = useFunnelDialog({
     dashboardId,
     initialName: '',
@@ -128,23 +130,24 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                   </Button>
                 </div>
               </div>
-              <div className='space-y-2'>
-                {funnelSteps.map((step, i) => (
-                  <div
+              <Reorder.Group axis='y' values={funnelSteps} onReorder={setFunnelSteps} className='space-y-2'>
+                {funnelSteps.map((step, index) => (
+                  <Reorder.Item
                     key={step.id}
-                    className='dark:border-border border-foreground/30 relative flex items-center rounded-md border pl-4'
+                    value={step}
+                    className='dark:border-border border-foreground/30 relative flex cursor-move items-center rounded-md border pl-4'
                   >
                     <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
-                      <p className='text-muted-foreground text-sm font-medium'>{i + 1}</p>
+                      <p className='text-muted-foreground text-sm font-medium'>{index + 1}</p>
                     </div>
                     <FunnelStepFilter
                       onFilterUpdate={updateFunnelStep}
                       filter={step}
                       requestRemoval={() => removeFunnelStep(step.id)}
                     />
-                  </div>
+                  </Reorder.Item>
                 ))}
-              </div>
+              </Reorder.Group>
             </div>
             {searchableFunnelSteps.length < 2 && (
               <div className='text-muted-foreground flex flex-1 items-center justify-center'>
