@@ -704,7 +704,15 @@
         },
         "title": "Reset your password",
         "subtitle": "Enter your email and we'll send you a password reset link",
+        "emailField": "Email Address",
+        "emailFieldPlaceholder": "Enter your email address",
+        "emailFieldDescription": "Enter the email address associated with your account and we'll send you a password reset link.",
+        "successMessage": "Password reset email sent!",
+        "errorMessage": "Failed to send password reset email, please try again.",
+        "errorMessageInvalidEmail": "Please enter a valid email address",
         "cta": {
+          "sendResetLink": "Send Password Reset Link",
+          "sending": "Sending...",
           "remember": "Remember your password?",
           "backToSignIn": "Back to Sign In"
         }

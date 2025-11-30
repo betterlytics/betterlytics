@@ -704,7 +704,15 @@
         },
         "title": "Reimposta la tua password",
         "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
+        "emailField": "Indirizzo Email",
+        "emailFieldPlaceholder": "Inserisci il tuo indirizzo email",
+        "emailFieldDescription": "Inserisci l'indirizzo email associato al tuo account e ti invieremo un link per reimpostare la password.",
+        "successMessage": "Email per il reset della password inviata!",
+        "errorMessage": "Impossibile inviare l'email per il reset della password. Riprova.",
+        "errorMessageInvalidEmail": "Inserisci un indirizzo email valido",
         "cta": {
+          "sendResetLink": "Invia link per il reset della password",
+          "sending": "Invio...",
           "remember": "Ricordi la tua password?",
           "backToSignIn": "Torna all'accesso"
         }

@@ -703,8 +703,16 @@
           ]
         },
         "title": "Nulstil din adgangskode",
-        "subtitle": "Indtast din e-mail, så sender vi et link til nulstilling af adgangskode",
+        "subtitle": "Indtast din e-mail, så sender vi dig et link til at nulstille adgangskoden",
+        "emailField": "E-mailadresse",
+        "emailFieldPlaceholder": "Indtast din e-mailadresse",
+        "emailFieldDescription": "Indtast e-mailadressen, der er tilknyttet din konto, så sender vi dig et link til at nulstille adgangskoden.",
+        "successMessage": "E-mail til nulstilling af adgangskode er sendt!",
+        "errorMessage": "Det lykkedes ikke at sende e-mailen til nulstilling af adgangskode. Prøv igen.",
+        "errorMessageInvalidEmail": "Indtast venligst en gyldig e-mailadresse",
         "cta": {
+          "sendResetLink": "Send link til nulstilling",
+          "sending": "Sender...",
           "remember": "Kan du huske din adgangskode?",
           "backToSignIn": "Tilbage til login"
         }

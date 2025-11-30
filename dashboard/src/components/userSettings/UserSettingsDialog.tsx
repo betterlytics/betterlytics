@@ -115,7 +115,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
       toast.success(tDialog('toast.success'));
       onOpenChange(false);
     } else {
-      toast.error(result.error || tDialog('toast.error'));
+      toast.error(tDialog('toast.error'));
     }
   };
 
