@@ -51,6 +51,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   } = useFunnelDialog({
     dashboardId,
     initialName: '',
+    initialIsStrict: true,
     initialSteps: [
       { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
       { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
@@ -96,8 +97,8 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           <div className='flex flex-1 flex-col'>
             <div className='flex flex-1 flex-col gap-4 rounded-lg p-4 shadow'>
               <div className='flex w-full justify-between'>
-                <div className='flex w-1/2 gap-4'>
-                  <div className='w-full max-w-md'>
+                <div className='flex gap-4'>
+                  <div className='max-w-md min-w-40'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
                       {t('name')}
                     </Label>
@@ -108,11 +109,11 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                       onChange={(evt) => setName(evt.target.value)}
                     />
                   </div>
-                  <div className='min-w-30'>
-                    <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {t('strictMode')}
-                    </Label>
-                    <div className='mt-3 flex justify-center'>
+                  <div className='flex items-end'>
+                    <div className='flex h-9 items-center gap-2 rounded-lg border-2 px-2'>
+                      <Label htmlFor='name' className='text-foreground'>
+                        {t('strictMode')}
+                      </Label>
                       <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
                     </div>
                   </div>
@@ -123,14 +124,17 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                     onClick={addEmptyFunnelStep}
                     className='cursor-pointer whitespace-nowrap'
                   >
-                    <PlusIcon className='mr-2 h-4 w-4' /> {t('addStep')}
+                    <PlusIcon className='h-4 w-4' /> {t('addStep')}
                   </Button>
                 </div>
               </div>
               <div className='space-y-2'>
                 {funnelSteps.map((step, i) => (
-                  <div key={step.id} className='relative flex items-center rounded-md border pl-4'>
-                    <div className='bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
+                  <div
+                    key={step.id}
+                    className='dark:border-border border-foreground/30 relative flex items-center rounded-md border pl-4'
+                  >
+                    <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
                       <p className='text-muted-foreground text-sm font-medium'>{i + 1}</p>
                     </div>
                     <FunnelStepFilter
