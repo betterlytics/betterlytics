@@ -104,7 +104,7 @@ export default function CampaignList({
     void loadPage(0, newSize);
   };
 
-  if (campaigns.length > 0) {
+  if (campaigns.length === 0) {
     return <CampaignEmptyState />;
   }
 
@@ -184,7 +184,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
   const t = useTranslations('components.campaign.campaignRow');
   return (
     <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative rounded-lg border pb-3 shadow-sm transition duration-200 ease-out'>
-      <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
+      <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b' />
 
       <div
         className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-5 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'
