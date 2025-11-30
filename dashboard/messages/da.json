@@ -1418,6 +1418,7 @@
         "addStep": "Tilføj trin",
         "livePreview": "Live forhåndsvisning (sidste 24 timer)",
         "create": "Opret",
+        "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
         "errorMessage": "Tragtoprettelse mislykkedes!"
       },

@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/funnels';
 import { generateTempId } from '@/utils/temporaryId';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -163,14 +164,21 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           </div>
         </div>
         <DialogFooter className='flex items-end justify-end gap-2'>
-          <Button
-            variant='default'
-            className='w-30 cursor-pointer'
-            onClick={handleCreateFunnel}
+          <DisabledTooltip
             disabled={!isCreateValid}
+            message={t.rich('createDisabledHint', { br: () => <br className='block' /> })}
           >
-            {t('create')}
-          </Button>
+            {(isDisabled) => (
+              <Button
+                variant='default'
+                className='w-30 cursor-pointer'
+                onClick={handleCreateFunnel}
+                disabled={isDisabled}
+              >
+                {t('create')}
+              </Button>
+            )}
+          </DisabledTooltip>
         </DialogFooter>
       </DialogContent>
     </Dialog>

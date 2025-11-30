@@ -1419,6 +1419,7 @@
         "addStep": "Aggiungi passaggio",
         "livePreview": "Anteprima live (ultime 24 ore)",
         "create": "Crea",
+        "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
         "errorMessage": "Creazione funnel fallita!"
       },
