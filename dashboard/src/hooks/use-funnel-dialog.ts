@@ -46,9 +46,9 @@ export function useFunnelDialog({
   }, [debouncedFunnelSteps]);
 
   const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, searchableFunnelSteps, false],
+    queryKey: ['funnelPreview', dashboardId, searchableFunnelSteps, metadata.isStrict],
     queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, searchableFunnelSteps, false);
+      return fetchFunnelPreviewAction(dashboardId, searchableFunnelSteps, metadata.isStrict);
     },
     enabled: searchableFunnelSteps.length >= 2,
   });
