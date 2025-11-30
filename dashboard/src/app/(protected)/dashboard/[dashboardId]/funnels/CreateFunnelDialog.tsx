@@ -86,14 +86,14 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           {triggerText}
         </Button>
       </DialogTrigger>
-      <DialogContent className='bg-background flex h-[90dvh] w-[70dvw] !max-w-[1000px] flex-col'>
+      <DialogContent className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'>
         <DialogHeader>
           <DialogTitle>{t('createFunnel')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
           <div className='flex flex-1 flex-col'>
-            <div className='flex min-h-72 flex-1 flex-col gap-4 rounded-lg p-4 shadow'>
+            <div className='flex flex-1 flex-col gap-4 rounded-lg p-4 shadow'>
               <div className='flex w-full justify-between'>
                 <div className='flex w-1/2 gap-4'>
                   <div className='w-full max-w-md'>
@@ -142,7 +142,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
               </div>
             </div>
             {searchableFunnelSteps.length < 2 && (
-              <div className='text-muted-foreground flex h-full items-center justify-center'>
+              <div className='text-muted-foreground flex flex-1 items-center justify-center'>
                 <p>{tPreview('defineAtLeastTwoSteps')}</p>
               </div>
             )}
