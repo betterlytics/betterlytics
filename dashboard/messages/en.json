@@ -1306,7 +1306,9 @@
       },
       "emptyState": {
         "title": "No campaigns captured yet",
-        "description": "Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to view performance metrics."
+        "description": "Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to view performance metrics.",
+        "docsHint": "Need help getting campaigns to show up?",
+        "docsLinkLabel": "Read the campaign tracking guide"
       },
       "loading": "Loading campaigns...",
       "campaignRow": {

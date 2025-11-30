@@ -1309,7 +1309,9 @@
       },
       "emptyState": {
         "title": "Ingen kampagner registreret endnu",
-        "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for at se performance-metrics."
+        "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for at se performance-metrics.",
+        "docsHint": "Brug for hjælp til at få kampagner til at dukke op?",
+        "docsLinkLabel": "Læs guiden til kampagnesporing"
       },
       "loading": "Indlæser kampagner...",
       "campaignRow": {

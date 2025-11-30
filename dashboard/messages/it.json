@@ -1310,7 +1310,9 @@
       },
       "emptyState": {
         "title": "Nessuna campagna ancora registrata",
-        "description": "Le campagne appariranno qui una volta che gli URL con tag utm_campaign saranno registrati. Inizia a taggare i tuoi link per visualizzare le metriche di performance."
+        "description": "Le campagne appariranno qui una volta che gli URL con tag utm_campaign saranno registrati. Inizia a taggare i tuoi link per visualizzare le metriche di performance.",
+        "docsHint": "Hai bisogno di aiuto per far comparire le campagne?",
+        "docsLinkLabel": "Leggi la guida al tracciamento delle campagne"
       },
       "loading": "Caricamento delle campagne...",
       "campaignRow": {
