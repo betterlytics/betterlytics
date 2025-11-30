@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
 
-const PAGE_SIZE_OPTIONS = [6, 10, 25, 50] as const;
+const PAGE_SIZE_OPTIONS = [5, 10, 25, 50] as const;
 
 export type CompactPaginationControlsProps = {
   pageIndex: number;

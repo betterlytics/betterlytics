@@ -1314,7 +1314,7 @@
       "loading": "Indlæser kampagner...",
       "campaignRow": {
         "sessions": "{count, plural, one {# session} other {# sessioner}}",
-        "bounceRate": "Bounce Rate",
+        "bounceRate": "Afvisningsprocent",
         "avgSessionDuration": "Gns. varighed",
         "pagesPerSession": "Sider pr. session",
         "campaignDetails": "Kampagnedetaljer"
@@ -1330,7 +1330,7 @@
         "noData": "Ingen målgruppedata for denne kampagne i det valgte interval.",
         "deviceTitle": "Enheder",
         "browserTitle": "Browsere",
-        "osTitle": "Styresystem",
+        "osTitle": "Operativsystem",
         "countryTitle": "Lande"
       },
       "utm": {
@@ -1349,9 +1349,9 @@
         },
         "columns": {
           "visitors": "Besøgende",
-          "bounceRate": "Bounce Rate",
+          "bounceRate": "Afvisningsprocent",
           "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
+          "pagesPerSession": "Sider / session"
         }
       }
     },

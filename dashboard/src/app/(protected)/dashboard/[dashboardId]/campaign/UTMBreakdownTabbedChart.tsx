@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { getCampaignSourceColor } from '@/utils/campaignColors';
-import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { Spinner } from '@/components/ui/spinner';
@@ -13,6 +12,8 @@ import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/campaign
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
 import { UTM_DIMENSIONS } from '@/entities/campaign';
+import PieChartTooltip from '@/components/charts/PieChartTooltip';
+import { formatPercentage } from '@/utils/formatters';
 
 type UTMBreakdownTabbedChartProps = {
   dashboardId: string;
@@ -24,10 +25,11 @@ interface ChartDataItem {
   name: string;
   value: number;
   color: string;
-  percent: number;
+  percentage: number;
 }
 
 function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
+  const t = useTranslations('components.campaign.utm');
   const chartData = useMemo((): ChartDataItem[] => {
     if (!data || data.length === 0) return [];
     const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);
@@ -37,7 +39,7 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
         name,
         value: item.visitors,
         color: getCampaignSourceColor(name),
-        percent: totalVisitors > 0 ? Math.round((item.visitors / totalVisitors) * 100) : 0,
+        percentage: totalVisitors > 0 ? (item.visitors / totalVisitors) * 100 : 0,
       };
     });
   }, [data]);
@@ -47,7 +49,7 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
   }
 
   return (
-    <div className='flex h-72 flex-col items-center md:h-80'>
+    <div className='flex flex-col items-center'>
       <ResponsiveContainer width='100%' height={200}>
         <PieChart>
           <Pie
@@ -66,10 +68,11 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
             ))}
           </Pie>
           <Tooltip
-            formatter={(value: number, name: string, props: { payload?: ChartDataItem }) => [
-              `${value.toLocaleString()} visitors (${formatPercentage(props.payload?.percent ?? 0)})`,
-              name,
-            ]}
+            content={
+              <PieChartTooltip
+                valueFormatter={(value) => t('columns.visitors', { count: value.toLocaleString() })}
+              />
+            }
           />
         </PieChart>
       </ResponsiveContainer>
@@ -83,7 +86,7 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
               style={{ backgroundColor: entry.color }}
             ></span>
             <span className='text-muted-foreground'>
-              {entry.name} ({formatPercentage(entry.percent)})
+              {entry.name} ({formatPercentage(entry.percentage)})
             </span>
           </div>
         ))}
@@ -141,11 +144,11 @@ export default function UTMBreakdownTabbedChart({
   });
 
   return (
-    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as UTMChartTab)}>
         <CardHeader className='px-0 pb-0'>
           <div className='flex flex-col items-center justify-between sm:flex-row'>
-            <CardTitle className='text-sm font-medium'>{t('chart.title')}</CardTitle>
+            <CardTitle className='pb-2 text-sm font-medium sm:pb-0'>{t('chart.title')}</CardTitle>
             <TabsList
               className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} dark:inset-shadow-background gap-1 inset-shadow-sm`}
             >

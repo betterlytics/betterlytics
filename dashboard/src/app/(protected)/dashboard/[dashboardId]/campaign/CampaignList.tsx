@@ -149,11 +149,11 @@ type CampaignListEntryProps = {
 function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
   const t = useTranslations('components.campaign.campaignRow');
   return (
-    <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative overflow-hidden rounded-lg border shadow-sm transition duration-200 ease-out'>
+    <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative rounded-lg border pb-3 shadow-sm transition duration-200 ease-out'>
       <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 bg-gradient-to-b' />
 
       <div
-        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-4 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'
+        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-5 py-4 pr-4 pl-5 md:grid-cols-[minmax(180px,1.5fr)_repeat(3,100px)_minmax(120px,200px)_auto]'
         onClick={onToggle}
       >
         <div className='min-w-0'>
@@ -243,7 +243,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName }: Campai
           <p className='border-border/60 bg-muted/30 text-muted-foreground rounded-md border border-dashed px-3 py-2 text-[11px] md:hidden'>
             {t('onlyAvailableOnLargerScreens')}
           </p>
-          <div className='flex h-full flex-col gap-3'>
+          <div className='flex flex-col gap-3'>
             <CampaignAudienceProfile
               devices={devices}
               countries={countries}
@@ -283,7 +283,7 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName }: Campaign
   }
 
   return (
-    <div id={`campaign-${campaignName}-details`} className='mx-3 mb-3 ml-5 space-y-4'>
+    <div id={`campaign-${campaignName}-details`} className='mx-3 ml-5 space-y-4 pb-3'>
       {status === 'pending' ? (
         <div className='flex items-center justify-center gap-3 py-8'>
           <Spinner size='sm' aria-label='Loading campaign details' />
