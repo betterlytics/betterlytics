@@ -51,7 +51,12 @@ export async function deleteUser(userId: string): Promise<void> {
   }
 }
 
-export async function changeUserPassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
+export async function changeUserPassword(
+  userId: string,
+  oldPassword: string,
+  newPassword: string,
+  currentSessionToken?: string,
+): Promise<void> {
   try {
     const isOldPasswordValid = await UserRepository.verifyUserPassword(userId, oldPassword);
 
@@ -59,7 +64,7 @@ export async function changeUserPassword(userId: string, oldPassword: string, ne
       throw new UserException('Current password is incorrect');
     }
 
-    await UserRepository.updateUserPassword(userId, newPassword);
+    await UserRepository.updateUserPassword(userId, newPassword, currentSessionToken);
 
     console.log(`Successfully updated password for user ${userId}`);
   } catch (error) {

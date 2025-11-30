@@ -11,6 +11,7 @@ import {
   UpdateUserData,
 } from '@/entities/user';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { deleteUserSessions } from '@/repositories/postgres/session';
 
 const SALT_ROUNDS = 10;
 
@@ -93,7 +94,11 @@ export async function deleteUser(userId: string): Promise<void> {
   }
 }
 
-export async function updateUserPassword(userId: string, newPassword: string): Promise<void> {
+export async function updateUserPassword(
+  userId: string,
+  newPassword: string,
+  currentSessionToken?: string,
+): Promise<void> {
   try {
     const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
@@ -101,6 +106,8 @@ export async function updateUserPassword(userId: string, newPassword: string): P
       where: { id: userId },
       data: { passwordHash },
     });
+
+    await deleteUserSessions(userId, currentSessionToken);
   } catch (error) {
     console.error(`Error updating password for user ${userId}:`, error);
     throw new Error(`Failed to update password for user ${userId}.`);
