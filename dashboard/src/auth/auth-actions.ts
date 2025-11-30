@@ -105,22 +105,6 @@ async function resolveDemoDashboardContext(dashboardId: string): Promise<AuthCon
   return await createDemoContext(dashboardId);
 }
 
-async function resolvePrivateDashboardContext(dashboardId: string): Promise<AuthContext> {
-  const session = await getServerSession(authOptions);
-  if (session?.user) {
-    const authorizedCtx = await tryGetAuthorizedContext(session.user.id, dashboardId);
-    if (authorizedCtx) return authorizedCtx;
-  }
-  throw new Error('Unauthorized');
-}
-
-async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
-  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
-    return await resolveDemoDashboardContext(dashboardId);
-  }
-  return await resolvePrivateDashboardContext(dashboardId);
-}
-
 async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   const session = await requireAuth();
   const ctx = await getAuthorizedDashboardContextOrNull(
@@ -128,6 +112,13 @@ async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   );
   if (!ctx) throw new Error('Unauthorized');
   return ctx;
+}
+
+async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
+  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
+    return await resolveDemoDashboardContext(dashboardId);
+  }
+  return await requireDashboardAuth(dashboardId);
 }
 
 function getArgsSignature<Args extends Array<unknown>>(args: Args): string {
