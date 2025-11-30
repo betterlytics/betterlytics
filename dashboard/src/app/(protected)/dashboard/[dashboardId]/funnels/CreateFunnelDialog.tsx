@@ -48,6 +48,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     searchableFunnelSteps,
     funnelPreview,
     emptySteps,
+    reset,
     isPreviewLoading,
     setFunnelSteps,
   } = useFunnelDialog({
@@ -74,6 +75,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   const handleCreateFunnel = useCallback(() => {
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
+        reset();
         setIsOpen(false);
         toast.success(t('successMessage'));
       })

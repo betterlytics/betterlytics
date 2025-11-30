@@ -1424,7 +1424,7 @@
       },
       "edit": {
         "title": "Rediger tragt",
-        "description": "Tilpas tragten, få en forhåndsvisning af ændringerne, eller slet tragten.",
+        "description": "Tilpas tragten, få en forhåndsvisning af ændringerne, og opdater tragten.",
         "cancel": "Annuller",
         "save": "Gem"
       },

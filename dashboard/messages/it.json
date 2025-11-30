@@ -1425,7 +1425,7 @@
       },
       "edit": {
         "title": "Modifica funnel",
-        "description": "Modifica il funnel come preferisci, visualizza l'anteprima delle modifiche o elimina il funnel.",
+        "description": "Modifica il funnel come preferisci, visualizza l'anteprima delle modifiche e aggiorna il funnel.",
         "cancel": "Annulla",
         "save": "Salva"
       },
