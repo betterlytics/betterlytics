@@ -55,8 +55,6 @@ export async function getFunnelDetailsById(
     return null;
   }
 
-  console.log('FUNNEL:', funnel);
-
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
