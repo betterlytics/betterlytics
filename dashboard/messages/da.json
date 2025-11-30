@@ -1368,7 +1368,7 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
-      "namePlaceholder": "Trinnavn",
+      "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
         "device_type": "Enhedstype",

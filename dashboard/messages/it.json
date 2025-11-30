@@ -1369,7 +1369,7 @@
       "operator": "Operatore",
       "is": "è",
       "isNot": "non è",
-      "namePlaceholder": "Nome passaggio",
+      "namePlaceholder": "Inserisci nome passaggio",
       "columns": {
         "url": "URL",
         "device_type": "Tipo di dispositivo",
