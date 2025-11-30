@@ -45,7 +45,7 @@ const CampaignAudienceProfile = memo(
     return (
       <section aria-label='Audience profile' className='px-2 pt-3 pb-3'>
         <p className='text-foreground mb-1 text-sm leading-tight font-medium'>{t('title')}</p>
-        <div className='grid grid-cols-2 gap-x-4 gap-y-3 pt-2.5 md:grid-cols-4'>
+        <div className='grid grid-cols-2 gap-x-4 gap-y-3 pt-2.5 xl:grid-cols-4'>
           {sections.map((section) => (
             <div key={section.key} className='space-y-1.5'>
               <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>

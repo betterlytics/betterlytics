@@ -179,57 +179,97 @@ type CampaignListEntryProps = {
 
 function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
   const t = useTranslations('components.campaign.campaignRow');
+  const sessionsLabel = t('sessions', { count: campaign.visitors });
+  const detailsId = `campaign-${campaign.name}-details`;
   return (
-    <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative rounded-lg border pb-3 shadow-sm transition duration-200 ease-out'>
+    <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative rounded-lg border p-1 shadow-sm transition duration-200 ease-out'>
       <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b' />
 
+      {/* Mobile / tablet header row */}
       <div
-        className='grid cursor-pointer grid-cols-[1fr_auto] items-center gap-3 px-4 py-4 lg:grid-cols-[minmax(180px,1.5fr)_repeat(3,auto)_minmax(120px,200px)_auto] lg:gap-5'
+        className='flex cursor-pointer items-center justify-between gap-3 px-4 py-3 lg:hidden'
         onClick={onToggle}
       >
-        <div className='min-w-0'>
-          <p className='truncate text-sm leading-tight font-semibold'>{campaign.name}</p>
-          <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>
-            {t('sessions', { count: campaign.visitors })}
-          </p>
+        <CampaignHeaderTitle name={campaign.name} sessionsLabel={sessionsLabel} />
+        <div className='flex items-center gap-2'>
+          <div className='h-11 min-w-[150px] flex-1'>
+            <CampaignSparkline data={campaign.sparkline} />
+          </div>
+          <CampaignToggleButton isExpanded={isExpanded} onToggle={onToggle} controlsId={detailsId} />
         </div>
+      </div>
 
-        <CampaignMetric
-          label={t('bounceRate')}
-          value={formatPercentage(campaign.bounceRate)}
-          className='hidden lg:flex'
-        />
-        <CampaignMetric
-          label={t('avgSessionDuration')}
-          value={campaign.avgSessionDuration}
-          className='hidden lg:flex'
-        />
+      {/* Desktop header row */}
+      <div
+        className='hidden cursor-pointer grid-cols-[minmax(180px,1.5fr)_repeat(3,auto)_minmax(140px,220px)_auto] items-center gap-4 px-4 py-3 lg:grid'
+        onClick={onToggle}
+      >
+        <CampaignHeaderTitle name={campaign.name} sessionsLabel={sessionsLabel} />
+
+        <CampaignMetric label={t('bounceRate')} value={formatPercentage(campaign.bounceRate)} className='flex' />
+        <CampaignMetric label={t('avgSessionDuration')} value={campaign.avgSessionDuration} className='flex' />
         <CampaignMetric
           label={t('pagesPerSession')}
           value={formatNumber(campaign.pagesPerSession)}
-          className='hidden lg:flex'
+          className='flex'
         />
 
-        <div className='hidden h-11 lg:block'>
+        <div className='h-14'>
           <CampaignSparkline data={campaign.sparkline} />
         </div>
 
-        <Button
-          variant='ghost'
-          size='icon'
-          className='shrink-0 cursor-pointer'
-          onClick={(event) => {
-            event.stopPropagation();
-            onToggle();
-          }}
-          aria-expanded={isExpanded}
-          aria-controls={`campaign-${campaign.name}-details`}
-        >
-          {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
-        </Button>
+        <CampaignToggleButton isExpanded={isExpanded} onToggle={onToggle} controlsId={detailsId} />
       </div>
-      <CampaignExpandedRow isExpanded={isExpanded} dashboardId={dashboardId} campaignName={campaign.name} />
+      <CampaignExpandedRow
+        isExpanded={isExpanded}
+        dashboardId={dashboardId}
+        campaignName={campaign.name}
+        summary={{
+          visitors: campaign.visitors,
+          bounceRate: campaign.bounceRate,
+          avgSessionDuration: campaign.avgSessionDuration,
+          pagesPerSession: campaign.pagesPerSession,
+        }}
+      />
     </article>
+  );
+}
+
+type CampaignHeaderTitleProps = {
+  name: string;
+  sessionsLabel: string;
+};
+
+function CampaignHeaderTitle({ name, sessionsLabel }: CampaignHeaderTitleProps) {
+  return (
+    <div className='min-w-0'>
+      <p className='truncate text-sm leading-tight font-semibold'>{name}</p>
+      <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>{sessionsLabel}</p>
+    </div>
+  );
+}
+
+type CampaignToggleButtonProps = {
+  isExpanded: boolean;
+  onToggle: () => void;
+  controlsId: string;
+};
+
+function CampaignToggleButton({ isExpanded, onToggle, controlsId }: CampaignToggleButtonProps) {
+  return (
+    <Button
+      variant='ghost'
+      size='icon'
+      className='shrink-0 cursor-pointer'
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      aria-expanded={isExpanded}
+      aria-controls={controlsId}
+    >
+      {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
+    </Button>
   );
 }
 
@@ -248,11 +288,18 @@ type CampaignInlineUTMSectionProps = {
   details: CampaignExpandedDetails;
   dashboardId: string;
   campaignName: string;
+  summary: {
+    visitors: number;
+    bounceRate: number;
+    avgSessionDuration: string;
+    pagesPerSession: number;
+  };
 };
 
-function CampaignInlineUTMSection({ details, dashboardId, campaignName }: CampaignInlineUTMSectionProps) {
+function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary }: CampaignInlineUTMSectionProps) {
   const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
   const t = useTranslations('components.campaign.campaignExpandedRow');
+  const tRow = useTranslations('components.campaign.campaignRow');
 
   return (
     <div className='space-y-4'>
@@ -271,9 +318,26 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName }: Campai
           />
         </div>
         <div className='space-y-3 lg:col-span-2'>
-          <p className='border-border/60 bg-muted/30 text-muted-foreground rounded-md border border-dashed px-3 py-2 text-[11px] lg:hidden'>
-            {t('onlyAvailableOnLargerScreens')}
-          </p>
+          <div className='lg:hidden'>
+            <div className='grid grid-cols-2 gap-x-4 gap-y-3 px-2'>
+              <div className='space-y-0.5'>
+                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+                  {tRow('bounceRate')}
+                </p>
+                <p className='text-foreground text-sm font-semibold tabular-nums'>
+                  {formatPercentage(summary.bounceRate)}
+                </p>
+              </div>
+              <div className='space-y-0.5'>
+                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+                  {tRow('pagesPerSession')}
+                </p>
+                <p className='text-foreground text-sm font-semibold tabular-nums'>
+                  {formatNumber(summary.pagesPerSession)}
+                </p>
+              </div>
+            </div>
+          </div>
           <div className='flex flex-col gap-3'>
             <CampaignAudienceProfile
               devices={devices}
@@ -297,9 +361,15 @@ type CampaignExpandedRowProps = {
   isExpanded: boolean;
   dashboardId: string;
   campaignName: string;
+  summary: {
+    visitors: number;
+    bounceRate: number;
+    avgSessionDuration: string;
+    pagesPerSession: number;
+  };
 };
 
-function CampaignExpandedRow({ isExpanded, dashboardId, campaignName }: CampaignExpandedRowProps) {
+function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }: CampaignExpandedRowProps) {
   const { startDate, endDate } = useTimeRangeContext();
   const { data, status } = useQuery({
     queryKey: ['campaign-expanded-details', dashboardId, campaignName, startDate, endDate],
@@ -329,7 +399,12 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName }: Campaign
       ) : null}
 
       {status === 'success' && data ? (
-        <CampaignInlineUTMSection details={data} dashboardId={dashboardId} campaignName={campaignName} />
+        <CampaignInlineUTMSection
+          details={data}
+          dashboardId={dashboardId}
+          campaignName={campaignName}
+          summary={summary}
+        />
       ) : null}
     </div>
   );
