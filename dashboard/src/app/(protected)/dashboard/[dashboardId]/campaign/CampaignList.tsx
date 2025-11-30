@@ -49,7 +49,6 @@ export default function CampaignList({
     setCampaigns(initialCampaigns);
     setTotalCampaigns(initialTotalCampaigns);
     setPageIndex(initialPageIndex);
-    setPageSize(initialPageSize);
     setExpandedCampaign(null);
     setIsLoadingPage(false);
   }, [initialCampaigns, initialTotalCampaigns, initialPageIndex, initialPageSize]);
