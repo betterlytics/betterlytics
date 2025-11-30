@@ -9,7 +9,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatQueryFilter } from '@/utils/queryFilterFormatters';
 import { useTranslations } from 'next-intl';
-import { useMouse } from '@/hooks/use-mouse';
 
 type EmptyStep = {
   name: string;
@@ -90,14 +89,10 @@ function FunnelStep({
   hasEmptySteps: boolean;
 }) {
   const tFilters = useTranslations('components.filters');
-  const { position, ref: hoverRef } = useMouse();
   return (
-    <Tooltip key={index} delayDuration={0} disableHoverableContent>
+    <Tooltip key={index} delayDuration={0}>
       <TooltipTrigger asChild>
-        <div
-          ref={hoverRef}
-          className='bg-card hover:bg-primary/[0.02] group-hover/steps:[&:not(:hover)]:bg-background/30 group/step flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'
-        >
+        <div className='bg-card hover:bg-primary/[0.02] group-hover/steps:[&:not(:hover)]:bg-background/30 group/step flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'>
           <div
             className={cn(
               'border-border/50 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
@@ -171,12 +166,7 @@ function FunnelStep({
           </div>
         </div>
       </TooltipTrigger>
-      <TooltipContent
-        align='start'
-        alignOffset={position.x}
-        sideOffset={-position.y}
-        className='bg-popover translate-x-[-50%] translate-y-[-20%] border shadow-xl'
-      >
+      <TooltipContent sideOffset={8} className='bg-popover border shadow-xl'>
         <div className='space-y-0 text-center'>
           <p className='text-popover-foreground rounded-md p-2 font-medium'>
             {formatQueryFilter(step.step, tFilters)}
