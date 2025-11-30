@@ -1440,6 +1440,14 @@
         "dropOff": "Frafald",
         "conversion": "Konvertering"
       },
+      "delete": {
+        "title": "Slet tragt",
+        "description": "Er du sikker på, at du vil slette denne tragt? Denne handling kan ikke fortrydes.",
+        "cancel": "Annuller",
+        "delete": "Slet tragt",
+        "successMessage": "Tragt slettet!",
+        "errorMessage": "Sletning af tragt mislykkedes!"
+      },
       "page": {
         "title": "Tragter",
         "description": "Analyser brugerens konverteringsforløb"

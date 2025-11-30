@@ -15,19 +15,27 @@ import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useCallback, useState } from 'react';
 import { deleteFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 type DeleteFunnelDialogProps = {
   funnel: PresentedFunnel;
 };
 
 export function DeleteFunnelDialog({ funnel }: DeleteFunnelDialogProps) {
+  const t = useTranslations('components.funnels.delete');
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
   const deleteFunnel = useCallback(() => {
-    deleteFunnelAction(dashboardId, funnel.id).then(() => {
-      setIsOpen(false);
-    });
-  }, [dashboardId, funnel.id]);
+    deleteFunnelAction(dashboardId, funnel.id)
+      .then(() => {
+        setIsOpen(false);
+        toast.success(t('successMessage'));
+      })
+      .catch(() => {
+        toast.error(t('errorMessage'));
+      });
+  }, [dashboardId, funnel.id, t]);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -37,17 +45,15 @@ export function DeleteFunnelDialog({ funnel }: DeleteFunnelDialogProps) {
       </DialogTrigger>
       <DialogContent className='bg-background flex flex-col'>
         <DialogHeader>
-          <DialogTitle>Delete funnel</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this funnel? This action cannot be undone.
-          </DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <DialogFooter className='flex flex-1 items-end justify-end gap-2'>
           <Button variant='secondary' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button variant='destructive' className='w-30 cursor-pointer' onClick={() => deleteFunnel()}>
-            Delete funnel
+            {t('delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

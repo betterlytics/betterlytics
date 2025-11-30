@@ -1441,6 +1441,14 @@
         "dropOff": "Abbandono",
         "conversion": "Conversione"
       },
+      "delete": {
+        "title": "Elimina funnel",
+        "description": "Sei sicuro di voler eliminare questo funnel? Questa azione non può essere annullata.",
+        "cancel": "Annulla",
+        "delete": "Elimina funnel",
+        "successMessage": "Funnel eliminato!",
+        "errorMessage": "Eliminazione funnel fallita!"
+      },
       "page": {
         "title": "Funnel",
         "description": "Analizza i percorsi di conversione degli utenti"
