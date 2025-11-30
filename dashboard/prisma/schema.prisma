@@ -176,6 +176,9 @@ model Funnel {
 
   dashboard    Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
   dashboardId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model FunnelStep {

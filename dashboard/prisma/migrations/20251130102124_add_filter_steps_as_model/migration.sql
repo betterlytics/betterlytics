@@ -31,3 +31,8 @@ WHERE json_typeof(f."queryFilters"::json) = 'array';
 
 -- AlterTable
 ALTER TABLE "Funnel" ALTER COLUMN "queryFilters" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Funnel" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+

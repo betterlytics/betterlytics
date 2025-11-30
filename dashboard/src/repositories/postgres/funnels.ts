@@ -7,6 +7,9 @@ export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Fu
     include: {
       funnelSteps: true,
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
   return funnels.map((funnel) => FunnelSchema.parse(funnel));
