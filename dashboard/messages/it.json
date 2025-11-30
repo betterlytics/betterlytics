@@ -1417,7 +1417,7 @@
         "namePlaceholder": "Nome del mio funnel",
         "strictMode": "Modalità ristretta",
         "addStep": "Aggiungi passaggio",
-        "livePreview": "Anteprima live (ultime 24 ore)",
+        "livePreview": "Anteprima live",
         "create": "Crea",
         "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
@@ -1425,9 +1425,15 @@
       },
       "edit": {
         "title": "Modifica funnel",
+        "name": "Nome",
         "description": "Modifica il funnel come preferisci, visualizza l'anteprima delle modifiche e aggiorna il funnel.",
+        "strictMode": "Modalità ristretta",
+        "addStep": "Aggiungi passaggio",
         "cancel": "Annulla",
-        "save": "Salva"
+        "save": "Salva",
+        "livePreview": "Anteprima live",
+        "successMessage": "Funnel aggiornato!",
+        "errorMessage": "Aggiornamento funnel fallito!"
       },
       "page": {
         "title": "Funnel",

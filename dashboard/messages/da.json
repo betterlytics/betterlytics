@@ -1416,7 +1416,7 @@
         "namePlaceholder": "Mit tragtnavn",
         "strictMode": "Strikt tilstand",
         "addStep": "Tilføj trin",
-        "livePreview": "Live forhåndsvisning (sidste 24 timer)",
+        "livePreview": "Live forhåndsvisning",
         "create": "Opret",
         "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
@@ -1424,9 +1424,15 @@
       },
       "edit": {
         "title": "Rediger tragt",
+        "name": "Navn",
         "description": "Tilpas tragten, få en forhåndsvisning af ændringerne, og opdater tragten.",
+        "strictMode": "Strikt tilstand",
+        "addStep": "Tilføj trin",
         "cancel": "Annuller",
-        "save": "Gem"
+        "save": "Gem",
+        "livePreview": "Live forhåndsvisning",
+        "successMessage": "Tragt opdateret!",
+        "errorMessage": "Tragtopdatering mislykkedes!"
       },
       "page": {
         "title": "Tragter",

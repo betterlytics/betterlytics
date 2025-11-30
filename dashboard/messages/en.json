@@ -1413,7 +1413,7 @@
         "namePlaceholder": "My Funnel Name",
         "strictMode": "Strict Mode",
         "addStep": "Add Step",
-        "livePreview": "Live Preview (Past 24 Hours)",
+        "livePreview": "Live Preview",
         "create": "Create",
         "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
@@ -1421,9 +1421,15 @@
       },
       "edit": {
         "title": "Edit funnel",
+        "name": "Name",
         "description": "Modify the funnel to your liking, preview the changes, and update the funnel.",
+        "strictMode": "Strict Mode",
+        "addStep": "Add Step",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "livePreview": "Live Preview",
+        "successMessage": "Funnel updated!",
+        "errorMessage": "Funnel update failed!"
       },
       "page": {
         "title": "Funnels",

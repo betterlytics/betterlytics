@@ -24,15 +24,14 @@ import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { UpdateFunnelSchema } from '@/entities/funnels';
 import { Reorder } from 'motion/react';
+import { toast } from 'sonner';
 
 type EditFunnelDialogProps = {
   funnel: PresentedFunnel;
 };
 
 export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
-  const t = useTranslations('components.funnels.edit');
-  const tCreate = useTranslations('components.funnels.create');
-  const tPreview = useTranslations('components.funnels.preview');
+  const t = useTranslations('components.funnels');
   const [isOpen, setIsOpen] = useState(false);
   const dashboardId = useDashboardId();
   const {
@@ -78,9 +77,12 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
     })
       .then(() => {
         setIsOpen(false);
+        toast.success(t('edit.successMessage'));
       })
-      .catch(() => {});
-  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name]);
+      .catch(() => {
+        toast.error(t('edit.errorMessage'));
+      });
+  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name, t]);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -101,8 +103,8 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
       </DialogTrigger>
       <DialogContent className='bg-background flex h-[90dvh] w-[70dvw] !max-w-[1000px] flex-col'>
         <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
+          <DialogTitle>{t('edit.title')}</DialogTitle>
+          <DialogDescription>{t('edit.description')}</DialogDescription>
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
           <div className='flex flex-1 flex-col'>
@@ -111,19 +113,14 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                 <div className='flex gap-4'>
                   <div className='max-w-md min-w-40'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {tCreate('name')}
+                      {t('edit.name')}
                     </Label>
-                    <Input
-                      id='name'
-                      placeholder={tCreate('namePlaceholder')}
-                      value={metadata.name}
-                      onChange={(evt) => setName(evt.target.value)}
-                    />
+                    <Input id='name' value={metadata.name} onChange={(evt) => setName(evt.target.value)} />
                   </div>
                   <div className='flex items-end'>
                     <div className='flex h-9 items-center gap-2 rounded-lg border-2 px-2'>
                       <Label htmlFor='name' className='text-foreground'>
-                        {tCreate('strictMode')}
+                        {t('edit.strictMode')}
                       </Label>
                       <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
                     </div>
@@ -135,7 +132,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                     onClick={addEmptyFunnelStep}
                     className='cursor-pointer whitespace-nowrap'
                   >
-                    <PlusIcon className='mr-2 h-4 w-4' /> {tCreate('addStep')}
+                    <PlusIcon className='mr-2 h-4 w-4' /> {t('edit.addStep')}
                   </Button>
                 </div>
               </div>
@@ -160,14 +157,14 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
             </div>
             {searchableFunnelSteps.length < 2 && (
               <div className='text-muted-foreground flex h-full items-center justify-center'>
-                <p>{tPreview('defineAtLeastTwoSteps')}</p>
+                <p>{t('preview.defineAtLeastTwoSteps')}</p>
               </div>
             )}
             {searchableFunnelSteps.length >= 2 &&
               (!isPreviewLoading && funnelPreview ? (
                 <div className='space-y-4 rounded-lg p-4 shadow'>
                   <Label htmlFor='name' className='text-foreground mb-2 block'>
-                    {tCreate('livePreview')}
+                    {t('edit.livePreview')}
                   </Label>
                   <FunnelBarplot funnel={funnelPreview} emptySteps={emptySteps} />
                 </div>
@@ -188,7 +185,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
               setIsOpen(false);
             }}
           >
-            {t('cancel')}
+            {t('edit.cancel')}
           </Button>
           <Button
             variant='default'
@@ -196,7 +193,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
             onClick={handleEditFunnel}
             disabled={!isEditValid}
           >
-            {t('save')}
+            {t('edit.save')}
           </Button>
         </DialogFooter>
       </DialogContent>
