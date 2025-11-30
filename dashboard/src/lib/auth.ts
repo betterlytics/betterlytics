@@ -6,7 +6,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { encode } from 'next-auth/jwt';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
-import { findUserByEmail } from '@/repositories/postgres/user';
 import {
   deleteExpiredSessions,
   generateSessionToken,
@@ -138,22 +137,21 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, user }) {
-      const freshUser = await findUserByEmail(user.email!);
-      if (!freshUser || !session.user) return session;
+      if (!session.user || !user) return session;
 
-      const settings = await getUserSettings(freshUser.id);
+      const settings = await getUserSettings(user.id);
 
-      session.user.id = freshUser.id;
-      session.user.name = freshUser.name;
-      session.user.email = freshUser.email!;
-      session.user.emailVerified = freshUser.emailVerified || null;
-      session.user.role = freshUser.role;
-      session.user.totpEnabled = freshUser.totpEnabled;
-      session.user.hasPassword = Boolean(freshUser.passwordHash);
-      session.user.onboardingCompletedAt = freshUser.onboardingCompletedAt ?? null;
-      session.user.termsAcceptedAt = freshUser.termsAcceptedAt ?? null;
-      session.user.termsAcceptedVersion = freshUser.termsAcceptedVersion ?? null;
-      session.user.changelogVersionSeen = freshUser.changelogVersionSeen ?? 'v0';
+      session.user.id = user.id;
+      session.user.name = user.name;
+      session.user.email = user.email;
+      session.user.emailVerified = user.emailVerified;
+      session.user.role = user.role;
+      session.user.totpEnabled = user.totpEnabled;
+      session.user.hasPassword = user.hasPassword;
+      session.user.onboardingCompletedAt = user.onboardingCompletedAt;
+      session.user.termsAcceptedAt = user.termsAcceptedAt;
+      session.user.termsAcceptedVersion = user.termsAcceptedVersion;
+      session.user.changelogVersionSeen = user.changelogVersionSeen;
       session.user.settings = settings;
 
       return session;
