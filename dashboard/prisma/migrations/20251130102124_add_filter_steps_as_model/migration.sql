@@ -19,7 +19,7 @@ ALTER TABLE "FunnelStep" ADD CONSTRAINT "FunnelStep_funnelId_fkey" FOREIGN KEY (
 -- Insert FunnelSteps from queryFilters
 INSERT INTO "FunnelStep" ("id", "name", "column", "operator", "value", "funnelId")
 SELECT
-    elem->>'id' AS id,
+    gen_random_uuid() AS id,
     'unnamed' AS name,
     elem->>'column' AS column,
     elem->>'operator' AS operator,
@@ -28,3 +28,6 @@ SELECT
 FROM "Funnel" f
 CROSS JOIN LATERAL json_array_elements(f."queryFilters"::json) AS elem
 WHERE json_typeof(f."queryFilters"::json) = 'array';
+
+-- AlterTable
+ALTER TABLE "Funnel" ALTER COLUMN "queryFilters" DROP NOT NULL;
