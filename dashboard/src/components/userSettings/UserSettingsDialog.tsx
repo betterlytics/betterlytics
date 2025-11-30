@@ -123,10 +123,10 @@ function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogPro
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
       }
-      toast.success('Settings saved successfully!');
+      toast.success(tDialog('toast.success'));
       onOpenChange(false);
     } else {
-      toast.error(result.error || 'Failed to save settings. Please try again.');
+      toast.error(tDialog('toast.error'));
     }
   };
 

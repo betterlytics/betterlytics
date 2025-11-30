@@ -1,10 +1,12 @@
-import { TIME_RANGE_PRESETS, TimeRangeValue } from '@/utils/timeRanges';
+import { TimeRangeValue } from '@/utils/timeRanges';
+import { SupportedLanguages } from '@/constants/i18n';
 
 interface FormatPrimaryRangeLabelParams {
   interval: TimeRangeValue;
   offset: number;
   startDate: Date;
   endDate: Date;
+  locale: SupportedLanguages;
 }
 
 export function formatPrimaryRangeLabel({
@@ -12,6 +14,7 @@ export function formatPrimaryRangeLabel({
   offset,
   startDate,
   endDate,
+  locale,
 }: FormatPrimaryRangeLabelParams): string {
   const dateOpts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
   const dateTimeOpts: Intl.DateTimeFormatOptions = {
@@ -32,14 +35,9 @@ export function formatPrimaryRangeLabel({
   const isEndEndOfDay = endDate.getHours() === 23 && endDate.getMinutes() >= 59; // tolerate seconds/millis
   const isFullDayRange = isStartMidnight && isEndEndOfDay;
 
-  if (interval !== 'custom' && offset === 0) {
-    const preset = TIME_RANGE_PRESETS.find((p) => p.value === interval);
-    return preset?.label ?? interval;
-  }
-
   if (isFullDayRange) {
-    if (isSameDay) return startDate.toLocaleDateString(undefined, dateOpts);
-    return `${startDate.toLocaleDateString(undefined, dateOpts)} - ${endDate.toLocaleDateString(undefined, dateOpts)}`;
+    if (isSameDay) return startDate.toLocaleDateString(locale, dateOpts);
+    return `${startDate.toLocaleDateString(locale, dateOpts)} - ${endDate.toLocaleDateString(locale, dateOpts)}`;
   }
 
   // Adjust displayed end time forward to the next minute if the end contains seconds/millis
@@ -59,14 +57,14 @@ export function formatPrimaryRangeLabel({
     startDate.getDate() === displayEnd.getDate();
 
   if (isSameDayForDisplay) {
-    return `${startDate.toLocaleDateString(undefined, dateOpts)} ${startDate.toLocaleTimeString(
-      undefined,
+    return `${startDate.toLocaleDateString(locale, dateOpts)} ${startDate.toLocaleTimeString(
+      locale,
       timeOpts,
-    )} - ${displayEnd.toLocaleTimeString(undefined, timeOpts)}`;
+    )} - ${displayEnd.toLocaleTimeString(locale, timeOpts)}`;
   }
 
-  return `${startDate.toLocaleString(undefined, dateTimeOpts)} - ${displayEnd.toLocaleString(
-    undefined,
+  return `${startDate.toLocaleString(locale, dateTimeOpts)} - ${displayEnd.toLocaleString(
+    locale,
     dateTimeOpts,
   )}`;
 }
