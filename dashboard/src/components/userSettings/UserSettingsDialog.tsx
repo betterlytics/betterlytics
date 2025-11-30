@@ -106,10 +106,10 @@ function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogPro
   const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
-    if (settings) {
+    if (settings && open) {
       setFormData({ ...settings });
     }
-  }, [settings]);
+  }, [settings, open]);
 
   const handleUpdate = (updates: Partial<UserSettingsUpdate>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
