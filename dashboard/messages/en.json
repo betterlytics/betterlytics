@@ -1365,6 +1365,7 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
+      "namePlaceholder": "Step name",
       "columns": {
         "url": "URL",
         "device_type": "Device type",

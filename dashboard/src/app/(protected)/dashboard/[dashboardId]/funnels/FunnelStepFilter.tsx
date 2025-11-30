@@ -64,6 +64,7 @@ export function FunnelStepFilter({
         className='w-52'
         value={filter.name}
         onChange={(e) => onFilterUpdate({ ...filter, name: e.target.value })}
+        placeholder={t('namePlaceholder')}
       />
       <Select
         value={filter.column}
