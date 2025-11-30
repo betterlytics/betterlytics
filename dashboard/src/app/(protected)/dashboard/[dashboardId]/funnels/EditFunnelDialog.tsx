@@ -143,7 +143,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                   <Reorder.Item
                     key={step.id}
                     value={step}
-                    className='dark:border-border border-foreground/30 relative flex items-center rounded-md border pl-4'
+                    className='dark:border-border border-foreground/30 relative flex cursor-move items-center rounded-md border pl-4'
                   >
                     <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
                       <p className='text-muted-foreground text-sm font-medium'>{i + 1}</p>
