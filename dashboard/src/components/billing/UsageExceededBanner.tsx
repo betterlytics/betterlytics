@@ -26,7 +26,7 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
 
     const { usage } = billingData.data;
 
-    if (!usage.isOverLimit) {
+    if (usage.usagePercentage < 100 || !usage.isOverLimit) {
       removeBanner('usage-exceeded-banner');
       return;
     }

@@ -638,6 +638,28 @@
         "cta": {
           "noAccount": "Don't have an account?",
           "createOne": "Create one"
+        },
+        "form": {
+          "emailLabel": "Email",
+          "emailPlaceholder": "Enter your email",
+          "passwordLabel": "Password",
+          "passwordPlaceholder": "Enter your password",
+          "forgotPassword": "Forgot your password?",
+          "submitButton": "Sign in",
+          "submitting": "Signing in...",
+          "orDivider": "or",
+          "continueWithGoogle": "Continue with Google",
+          "continueWithGithub": "Continue with GitHub",
+          "errors": {
+            "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
+            "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
+            "generic": "An error occurred during sign in. Please try again."
+          },
+          "twoFactor": {
+            "title": "Two-factor authentication",
+            "description": "Enter the verification code from your authenticator app.",
+            "cancel": "Cancel"
+          }
         }
       },
       "register": {
@@ -682,7 +704,15 @@
         },
         "title": "Reset your password",
         "subtitle": "Enter your email and we'll send you a password reset link",
+        "emailField": "Email Address",
+        "emailFieldPlaceholder": "Enter your email address",
+        "emailFieldDescription": "Enter the email address associated with your account and we'll send you a password reset link.",
+        "successMessage": "Password reset email sent!",
+        "errorMessage": "Failed to send password reset email, please try again.",
+        "errorMessageInvalidEmail": "Please enter a valid email address",
         "cta": {
+          "sendResetLink": "Send Password Reset Link",
+          "sending": "Sending...",
           "remember": "Remember your password?",
           "backToSignIn": "Back to Sign In"
         }
@@ -1772,6 +1802,10 @@
           "cancel": "Cancel",
           "saving": "Saving...",
           "saveChanges": "Save Changes"
+        },
+        "toast": {
+          "success": "Settings saved successfully!",
+          "error": "Failed to save settings. Please try again."
         }
       },
       "profile": {
