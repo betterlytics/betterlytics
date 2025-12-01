@@ -112,7 +112,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                     />
                   </div>
                   <div className='flex items-end'>
-                    <div className='flex h-9 items-center gap-2 rounded-lg border-2 px-2'>
+                    <div className='flex h-9 items-center gap-2 rounded-lg px-2'>
                       <Label htmlFor='name' className='text-foreground'>
                         {t('create.strictMode')}
                       </Label>
