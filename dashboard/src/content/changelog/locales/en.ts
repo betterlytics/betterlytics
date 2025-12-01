@@ -2,8 +2,8 @@ import type { ChangelogEntryData } from '@/entities/changelog';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.5',
-    releasedAt: '2025-11-24',
+    version: 'v1.2.6',
+    releasedAt: '2025-12-01',
     title: '',
     summary: '',
   },
@@ -15,9 +15,10 @@ export const latestChangelogModalEn: ChangelogEntryData = {
         {
           type: 'list',
           items: [
+            'Funnels page has been fully redesigned with a more intuitive, visual layout. Go check it out!',
             'Compare data over selected periods directly in the world map visualization.',
             'Block events from specific IP addresses to avoid skewed or unwanted traffic (e.g., your own visits).',
-            "Automatically reject events from domains that don't match your dashboard domain.",
+            "Automatically reject events from domains that don't match your dashboard's domain.",
           ],
         },
       ],
@@ -45,6 +46,7 @@ export const latestChangelogModalEn: ChangelogEntryData = {
           items: [
             'Fixed an issue causing the Core Web Vitals page to fail loading.',
             'Resolved daylight saving time issues affecting displayed analytics.',
+            'Fixed an issue where selecting future time ranges would fail to load data.',
           ],
         },
       ],
@@ -53,6 +55,54 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.6',
+      releasedAt: '2025-12-01',
+      title: 'Redesigned Funnels & Smarter Map',
+      summary:
+        'Funnels are fully redesigned with improved visualizations. World map interactions now include comparison features and better tooltips. This release also includes bug fixes and updated translations.',
+    },
+    sections: [
+      {
+        id: 'v126-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              "Funnels page has a brand-new, visual layout that's easier to use and understand.",
+              'World map now supports period-over-period comparisons.',
+              'World map tooltips now show clearer insights with improved performance.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v126-enhancements',
+        title: 'Enhancements',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Added missing translations so users worldwide get a smoother experience.'],
+          },
+        ],
+      },
+      {
+        id: 'v126-bug-fixes',
+        title: 'Bug Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed duplicate notifications when exceeding plan limits.',
+              'Fixed loading problems when choosing future date ranges.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.5',
@@ -85,6 +135,7 @@ export const changelogEntriesEn: readonly ChangelogEntryData[] = [
               'Core Web Vitals labels refined for clearer understanding.',
               'Antarctica is hidden from the world map unless it has visitor data.',
               'Added an in-app "Report a bug" button for quick feedback submissions.',
+              'Added favicons to dashboard domains.',
             ],
           },
         ],

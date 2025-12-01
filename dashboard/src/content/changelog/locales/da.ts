@@ -2,8 +2,8 @@ import type { ChangelogEntryData } from '@/entities/changelog';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.5',
-    releasedAt: '2025-11-24',
+    version: 'v1.2.6',
+    releasedAt: '2025-12-01',
     title: '',
     summary: '',
   },
@@ -15,6 +15,7 @@ export const latestChangelogModalDa: ChangelogEntryData = {
         {
           type: 'list',
           items: [
+            'Funnels-siden er fuldstændig redesignet med et mere intuitivt og visuelt layout. Tjek den ud!',
             'Sammenlign perioder direkte i verdenskort-visualiseringen.',
             'Bloker events fra specifikke IP-adresser for at undgå skæve eller uønskede besøg (fx dine egne).',
             'Afvis automatisk events fra domæner, der ikke matcher dit dashboard-domæne.',
@@ -45,6 +46,7 @@ export const latestChangelogModalDa: ChangelogEntryData = {
           items: [
             'Fikset et problem, der kunne forhindre Core Web Vitals-siden i at loade.',
             'Løst sommertid-problemer, der påvirkede viste analyser.',
+            'Fikset et problem, hvor valg af fremtidige tidsintervaller ikke ville indlæse data.',
           ],
         },
       ],
@@ -53,6 +55,54 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.6',
+      releasedAt: '2025-12-01',
+      title: 'Redesignet Funnels og Smartere Kort',
+      summary:
+        'Funnels er fuldt redesignet med bedre visualiseringer. Verdenskortet understøtter nu sammenligninger og har forbedrede tooltips. Denne udgivelse inkluderer også fejlrettelser og opdaterede oversættelser.',
+    },
+    sections: [
+      {
+        id: 'v126-new-features',
+        title: 'Nye Funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Funnels-siden har et helt nyt, visuelt layout, der er lettere at bruge og forstå.',
+              'Verdenskortet understøtter nu sammenligninger mellem forskellige perioder.',
+              'Tooltips på verdenskortet giver nu klarere indsigt og bedre ydeevne.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v126-enhancements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Manglende oversættelser er tilføjet, så brugere verden over får en mere ensartet oplevelse.'],
+          },
+        ],
+      },
+      {
+        id: 'v126-bug-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettede dublerede notifikationer ved overskridelse af planbegrænsninger.',
+              'Rettede indlæsningsproblemer ved valg af fremtidige datointervaller.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.5',
@@ -86,6 +136,7 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
               'Core Web Vitals-labels er gjort klarere og mere forståelige.',
               'Antarktis skjules fra verdenskortet, medmindre der er besøgsdata.',
               'Tilføjet en "Rapportér en bug"-knap direkte i appen.',
+              'Favicons er blevet tilføjet til dashboards.',
             ],
           },
         ],
