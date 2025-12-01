@@ -20,6 +20,7 @@ import { FunnelStepFilter } from './FunnelStepFilter';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { UpdateFunnelSchema } from '@/entities/funnels';
@@ -141,7 +142,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                   <Reorder.Item
                     key={step.id}
                     value={step}
-                    className='dark:border-border border-foreground/30 relative flex cursor-move items-center rounded-md border pl-4'
+                    className='dark:border-border bg-card border-foreground/30 relative flex cursor-move items-center rounded-md border pl-4'
                   >
                     <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
                       <p className='text-muted-foreground text-sm font-medium'>{i + 1}</p>
@@ -187,14 +188,21 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
           >
             {t('edit.cancel')}
           </Button>
-          <Button
-            variant='default'
-            className='w-30 cursor-pointer'
-            onClick={handleEditFunnel}
+          <DisabledTooltip
             disabled={!isEditValid}
+            message={t.rich('edit.disabledHint', { br: () => <br className='block' /> })}
           >
-            {t('edit.save')}
-          </Button>
+            {(isDisabled) => (
+              <Button
+                variant='default'
+                className='w-30 cursor-pointer'
+                onClick={handleEditFunnel}
+                disabled={isDisabled}
+              >
+                {t('edit.save')}
+              </Button>
+            )}
+          </DisabledTooltip>
         </DialogFooter>
       </DialogContent>
     </Dialog>

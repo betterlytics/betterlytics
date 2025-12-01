@@ -1458,6 +1458,7 @@
         "cancel": "Cancel",
         "save": "Save",
         "livePreview": "Live Preview",
+        "disabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel updated!",
         "errorMessage": "Funnel update failed!"
       },

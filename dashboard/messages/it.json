@@ -1462,6 +1462,7 @@
         "cancel": "Annulla",
         "save": "Salva",
         "livePreview": "Anteprima live",
+        "disabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel aggiornato!",
         "errorMessage": "Aggiornamento funnel fallito!"
       },
