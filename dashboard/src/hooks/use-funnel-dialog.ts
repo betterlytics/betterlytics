@@ -91,13 +91,16 @@ export function useFunnelDialog({
     setMetadata((prev) => ({ ...prev, isStrict }));
   }, []);
 
-  const reset = useCallback(() => {
-    setMetadata({
-      name: initialName,
-      isStrict: initialIsStrict,
-    });
-    setFunnelSteps(initialSteps ?? []);
-  }, [initialIsStrict, initialName, initialSteps, setFunnelSteps]);
+  const reset = useCallback(
+    (resetTo: { name: string; isStrict: boolean; steps: FunnelStep[] }) => {
+      setMetadata({
+        name: resetTo.name,
+        isStrict: resetTo.isStrict,
+      });
+      setFunnelSteps(resetTo.steps);
+    },
+    [setFunnelSteps],
+  );
 
   return {
     metadata,

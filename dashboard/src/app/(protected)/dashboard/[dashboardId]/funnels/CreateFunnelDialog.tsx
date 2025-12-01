@@ -72,14 +72,21 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   const handleCreateFunnel = useCallback(() => {
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
-        reset();
         setIsOpen(false);
         toast.success(t('create.successMessage'));
+        reset({
+          name: '',
+          isStrict: false,
+          steps: [
+            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+          ],
+        });
       })
       .catch(() => {
         toast.error(t('create.errorMessage'));
       });
-  }, [dashboardId, funnelSteps, metadata.isStrict, metadata.name, t]);
+  }, [dashboardId, funnelSteps, metadata.isStrict, metadata.name, reset, t]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
