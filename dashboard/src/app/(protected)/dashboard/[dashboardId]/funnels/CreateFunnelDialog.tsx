@@ -71,10 +71,17 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     }
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
-        reset();
         setHasAttemptedSubmit(false);
         setIsOpen(false);
         toast.success(t('create.successMessage'));
+        reset({
+          name: '',
+          isStrict: false,
+          steps: [
+            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+          ],
+        });
       })
       .catch(() => {
         toast.error(t('create.errorMessage'));

@@ -16,12 +16,27 @@ import { updateFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
-import { UpdateFunnelSchema } from '@/entities/funnels';
+import { UpdateFunnelSchema, type FunnelStep } from '@/entities/funnels';
 import { toast } from 'sonner';
 import { FunnelDialogContent } from './FunnelDialogContent';
 
 type EditFunnelDialogProps = {
   funnel: PresentedFunnel;
+};
+
+const areFunnelStepsEqual = (a: FunnelStep[], b: FunnelStep[]): boolean => {
+  if (a.length !== b.length) return false;
+
+  return a.every((step, index) => {
+    const other = b[index];
+    return (
+      step.id === other.id &&
+      step.column === other.column &&
+      step.operator === other.operator &&
+      step.value === other.value &&
+      step.name === other.name
+    );
+  });
 };
 
 export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
@@ -62,6 +77,16 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
     [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name],
   );
 
+  const isDirty = useMemo(() => {
+    const initialSteps = funnel.steps.map((step) => step.step);
+
+    if (metadata.name !== funnel.name) return true;
+    if (metadata.isStrict !== funnel.isStrict) return true;
+    if (!areFunnelStepsEqual(funnelSteps, initialSteps)) return true;
+
+    return false;
+  }, [funnel, funnelSteps, metadata.isStrict, metadata.name]);
+
   const handleEditFunnel = useCallback(() => {
     setHasAttemptedSubmit(true);
     if (!isEditValid) {
@@ -87,12 +112,18 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
-        reset();
         setHasAttemptedSubmit(false);
       }
       setIsOpen(open);
+      if (open) {
+        reset({
+          name: funnel.name,
+          isStrict: funnel.isStrict,
+          steps: funnel.steps.map((s) => s.step),
+        });
+      }
     },
-    [reset],
+    [funnel, reset],
   );
 
   return (
@@ -129,18 +160,11 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>
-          <Button
-            variant='outline'
-            className='w-30 cursor-pointer'
-            onClick={() => {
-              reset();
-              setIsOpen(false);
-            }}
-          >
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
             {t('edit.cancel')}
           </Button>
 
-          <Button variant='default' className='w-30 cursor-pointer' onClick={handleEditFunnel}>
+          <Button variant='default' className='w-30 cursor-pointer' onClick={handleEditFunnel} disabled={!isDirty}>
             {t('edit.save')}
           </Button>
         </DialogFooter>
