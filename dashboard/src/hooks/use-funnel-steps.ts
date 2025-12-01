@@ -1,6 +1,6 @@
 import { type FunnelStep } from '@/entities/funnels';
 import { generateTempId } from '@/utils/temporaryId';
-import { useCallback, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 
 export function useFunnelSteps(initialSteps?: FunnelStep[]) {
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>(initialSteps || []);
@@ -16,6 +16,12 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
   const addEmptyFunnelStep = useCallback(() => {
     addFunnelStep({ column: 'url', operator: '=', value: '', name: '' });
   }, [addFunnelStep]);
+
+  useLayoutEffect(() => {
+    if (funnelSteps.length < 2) {
+      addEmptyFunnelStep();
+    }
+  }, [funnelSteps.length, addEmptyFunnelStep]);
 
   const removeFunnelStep = useCallback((id: string) => {
     setFunnelSteps((steps) => steps.filter((step) => step.id !== id));

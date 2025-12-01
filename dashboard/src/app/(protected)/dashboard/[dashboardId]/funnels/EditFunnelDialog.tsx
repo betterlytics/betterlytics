@@ -20,12 +20,12 @@ import { FunnelStepFilter } from './FunnelStepFilter';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { UpdateFunnelSchema } from '@/entities/funnels';
 import { Reorder } from 'motion/react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 type EditFunnelDialogProps = {
   funnel: PresentedFunnel;
@@ -34,6 +34,7 @@ type EditFunnelDialogProps = {
 export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
   const t = useTranslations('components.funnels');
   const [isOpen, setIsOpen] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const dashboardId = useDashboardId();
   const {
     metadata,
@@ -56,6 +57,9 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
     initialSteps: funnel.steps.map((step) => step.step),
   });
 
+  const isNameEmpty = metadata.name.trim() === '';
+  const showNameError = hasAttemptedSubmit && isNameEmpty;
+
   const isEditValid = useMemo(
     () =>
       UpdateFunnelSchema.safeParse({
@@ -69,6 +73,10 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
   );
 
   const handleEditFunnel = useCallback(() => {
+    setHasAttemptedSubmit(true);
+    if (!isEditValid) {
+      return;
+    }
     return updateFunnelAction(dashboardId, {
       id: funnel.id,
       dashboardId,
@@ -78,17 +86,19 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
     })
       .then(() => {
         setIsOpen(false);
+        setHasAttemptedSubmit(false);
         toast.success(t('edit.successMessage'));
       })
       .catch(() => {
         toast.error(t('edit.errorMessage'));
       });
-  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name, t]);
+  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name, t, reset]);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
         reset();
+        setHasAttemptedSubmit(false);
       }
       setIsOpen(open);
     },
@@ -114,9 +124,14 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                 <div className='flex gap-4'>
                   <div className='max-w-md min-w-40'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {t('edit.name')}
+                      {t('edit.name')} <span className='text-destructive'>*</span>
                     </Label>
-                    <Input id='name' value={metadata.name} onChange={(evt) => setName(evt.target.value)} />
+                    <Input
+                      id='name'
+                      value={metadata.name}
+                      onChange={(evt) => setName(evt.target.value)}
+                      className={cn(showNameError && 'border-destructive')}
+                    />
                   </div>
                   <div className='flex items-end'>
                     <div className='flex h-9 items-center gap-2 rounded-lg px-2'>
@@ -151,6 +166,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                       onFilterUpdate={updateFunnelStep}
                       filter={step}
                       requestRemoval={() => removeFunnelStep(step.id)}
+                      showEmptyError={hasAttemptedSubmit}
                     />
                   </Reorder.Item>
                 ))}
@@ -188,21 +204,10 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
           >
             {t('edit.cancel')}
           </Button>
-          <DisabledTooltip
-            disabled={!isEditValid}
-            message={t.rich('edit.disabledHint', { br: () => <br className='block' /> })}
-          >
-            {(isDisabled) => (
-              <Button
-                variant='default'
-                className='w-30 cursor-pointer'
-                onClick={handleEditFunnel}
-                disabled={isDisabled}
-              >
-                {t('edit.save')}
-              </Button>
-            )}
-          </DisabledTooltip>
+
+          <Button variant='default' className='w-30 cursor-pointer' onClick={handleEditFunnel}>
+            {t('edit.save')}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
