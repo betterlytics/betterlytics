@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -54,6 +55,27 @@ export function FunnelDialogContent({
   const isNameEmpty = metadata.name.trim() === '';
   const showNameError = hasAttemptedSubmit && isNameEmpty;
 
+  // Local state for smooth drag reordering without triggering refetches
+  const [localSteps, setLocalSteps] = useState(funnelSteps);
+  const isDraggingRef = useRef(false);
+
+  // Sync local state when funnelSteps changes externally (e.g., add/remove step)
+  useEffect(() => {
+    if (!isDraggingRef.current) {
+      setLocalSteps(funnelSteps);
+    }
+  }, [funnelSteps]);
+
+  const handleDragStart = () => {
+    isDraggingRef.current = true;
+  };
+
+  const handleDragEnd = () => {
+    isDraggingRef.current = false;
+    // Only commit the reorder to parent state on drop
+    setFunnelSteps(localSteps);
+  };
+
   return (
     <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
       <div className='flex flex-1 flex-col'>
@@ -92,11 +114,13 @@ export function FunnelDialogContent({
               </Button>
             </div>
           </div>
-          <Reorder.Group axis='y' values={funnelSteps} onReorder={setFunnelSteps} className='space-y-2'>
-            {funnelSteps.map((step, index) => (
+          <Reorder.Group axis='y' values={localSteps} onReorder={setLocalSteps} className='space-y-2'>
+            {localSteps.map((step, index) => (
               <Reorder.Item
                 key={step.id}
                 value={step}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
                 className='dark:border-border border-foreground/30 bg-card relative flex cursor-move items-center rounded-md border pl-4'
               >
                 <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
