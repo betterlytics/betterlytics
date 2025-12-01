@@ -184,7 +184,7 @@ function VerticalProgress({ percentage }: { percentage: number }) {
     <div className='relative flex h-20 w-full flex-col justify-end'>
       <div
         className='from-primary via-primary/80 to-primary/55 h-20 bg-gradient-to-l transition-colors duration-200 ease-out'
-        style={{ width: `${percentage}%` }}
+        style={{ width: `${percentage || 1}%` }}
       />
     </div>
   );
