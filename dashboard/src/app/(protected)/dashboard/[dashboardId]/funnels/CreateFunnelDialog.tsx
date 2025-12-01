@@ -23,8 +23,8 @@ import { toast } from 'sonner';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/funnels';
 import { generateTempId } from '@/utils/temporaryId';
-import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Reorder } from 'motion/react';
+import { cn } from '@/lib/utils';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -34,6 +34,7 @@ type CreateFunnelDialogProps = {
 export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
   const t = useTranslations('components.funnels');
   const [isOpen, setIsOpen] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const dashboardId = useDashboardId();
   const {
     metadata,
@@ -58,6 +59,9 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
     ],
   });
 
+  const isNameEmpty = metadata.name.trim() === '';
+  const showNameError = hasAttemptedSubmit && isNameEmpty;
+
   const isCreateValid = useMemo(
     () =>
       CreateFunnelSchema.safeParse({
@@ -70,8 +74,13 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
   );
 
   const handleCreateFunnel = useCallback(() => {
+    setHasAttemptedSubmit(true);
+    if (!isCreateValid) {
+      return;
+    }
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
+        setHasAttemptedSubmit(false);
         setIsOpen(false);
         toast.success(t('create.successMessage'));
         reset({
@@ -86,10 +95,18 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
       .catch(() => {
         toast.error(t('create.errorMessage'));
       });
-  }, [dashboardId, funnelSteps, metadata.isStrict, metadata.name, reset, t]);
+  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setHasAttemptedSubmit(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant={triggerVariant || 'ghost'} className='cursor-pointer'>
           <PlusIcon className='h-4 w-4' />
@@ -107,13 +124,14 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                 <div className='flex gap-4'>
                   <div className='max-w-md min-w-40'>
                     <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {t('create.name')}
+                      {t('create.name')} <span className='text-destructive'>*</span>
                     </Label>
                     <Input
                       id='name'
                       placeholder={t('create.namePlaceholder')}
                       value={metadata.name}
                       onChange={(evt) => setName(evt.target.value)}
+                      className={cn(showNameError && 'border-destructive')}
                     />
                   </div>
                   <div className='flex items-end'>
@@ -154,6 +172,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
                       onFilterUpdate={updateFunnelStep}
                       filter={step}
                       requestRemoval={() => removeFunnelStep(step.id)}
+                      showEmptyError={hasAttemptedSubmit}
                     />
                   </Reorder.Item>
                 ))}
@@ -181,21 +200,9 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           </div>
         </div>
         <DialogFooter className='flex items-end justify-end gap-2'>
-          <DisabledTooltip
-            disabled={!isCreateValid}
-            message={t.rich('create.createDisabledHint', { br: () => <br className='block' /> })}
-          >
-            {(isDisabled) => (
-              <Button
-                variant='default'
-                className='w-30 cursor-pointer'
-                onClick={handleCreateFunnel}
-                disabled={isDisabled}
-              >
-                {t('create.create')}
-              </Button>
-            )}
-          </DisabledTooltip>
+          <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
+            {t('create.create')}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

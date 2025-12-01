@@ -8,12 +8,14 @@ type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   className?: string;
+  triggerClassName?: string;
 };
 
 export function FilterValueSearch<TEntity>({
   filter,
   onFilterUpdate,
   className,
+  triggerClassName,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
 
@@ -22,6 +24,7 @@ export function FilterValueSearch<TEntity>({
   return (
     <Combobox
       className={className}
+      triggerClassName={triggerClassName}
       value={filter.value}
       placeholder={t('selectValue')}
       onValueChange={(value) => onFilterUpdate({ ...filter, value })}

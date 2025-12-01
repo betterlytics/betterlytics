@@ -23,6 +23,7 @@ type FunnelStepFilterProps = {
   filter: QueryFilter & { name: string };
   requestRemoval: () => void;
   disableDeletion?: boolean;
+  showEmptyError?: boolean;
 };
 
 export function FunnelStepFilter({
@@ -30,6 +31,7 @@ export function FunnelStepFilter({
   onFilterUpdate,
   requestRemoval,
   disableDeletion,
+  showEmptyError,
 }: FunnelStepFilterProps) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
@@ -42,10 +44,13 @@ export function FunnelStepFilter({
     }
   }, [filter.column]);
 
+  const showNameEmptyError = showEmptyError && filter.name.trim() === '';
+  const showValueEmptyError = showEmptyError && filter.value.trim() === '';
+
   return (
     <div className='flex h-fit min-h-14 w-full items-center gap-2 p-2'>
       <Input
-        className='w-52'
+        className={cn('w-52', showNameEmptyError && 'border-destructive')}
         value={filter.name}
         onChange={(e) => onFilterUpdate({ ...filter, name: e.target.value })}
         placeholder={t('namePlaceholder')}
@@ -96,7 +101,13 @@ export function FunnelStepFilter({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <FilterValueSearch filter={filter} onFilterUpdate={onFilterUpdate} key={filter.column} className='grow' />
+      <FilterValueSearch
+        filter={filter}
+        onFilterUpdate={onFilterUpdate}
+        key={filter.column}
+        className='grow'
+        triggerClassName={cn(showValueEmptyError && 'border-destructive')}
+      />
       <Button variant='ghost' className='cursor-pointer' onClick={requestRemoval} disabled={disableDeletion}>
         <Trash2 />
       </Button>
