@@ -105,28 +105,6 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
   },
   {
     metadata: {
-      version: 'v1.2.6',
-      releasedAt: '2025-11-23',
-      title: '',
-      summary: '',
-    },
-    sections: [
-      {
-        id: 'v126-new-features',
-        title: 'Nuove funzionalità',
-        blocks: [
-          {
-            type: 'list',
-            items: [
-              'La pagina Funnels è stata completamente riprogettata con un layout più intuitivo e visivo. Dai un’occhiata!',
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    metadata: {
       version: 'v1.2.5',
       releasedAt: '2025-11-23',
       title: '',
