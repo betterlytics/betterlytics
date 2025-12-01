@@ -105,7 +105,6 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
       <DialogContent className='bg-background flex h-[90dvh] w-[70dvw] !max-w-[1000px] flex-col'>
         <DialogHeader>
           <DialogTitle>{t('edit.title')}</DialogTitle>
-          <DialogDescription>{t('edit.description')}</DialogDescription>
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
           <div className='flex flex-1 flex-col'>
