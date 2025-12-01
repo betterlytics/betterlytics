@@ -150,7 +150,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
               </Reorder.Group>
             </div>
             {searchableFunnelSteps.length < 2 && (
-              <div className='text-muted-foreground flex flex-1 items-center justify-center'>
+              <div className='text-muted-foreground flex flex-1 items-center justify-center p-4'>
                 <p>{t('preview.defineAtLeastTwoSteps')}</p>
               </div>
             )}

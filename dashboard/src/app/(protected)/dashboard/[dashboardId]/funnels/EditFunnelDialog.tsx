@@ -109,7 +109,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
           <div className='flex flex-1 flex-col'>
-            <div className='flex min-h-72 flex-1 flex-col gap-4 rounded-lg p-4'>
+            <div className='flex flex-1 flex-col gap-4 rounded-lg p-4'>
               <div className='flex w-full justify-between'>
                 <div className='flex gap-4'>
                   <div className='max-w-md min-w-40'>
@@ -157,7 +157,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
               </Reorder.Group>
             </div>
             {searchableFunnelSteps.length < 2 && (
-              <div className='text-muted-foreground flex h-full items-center justify-center'>
+              <div className='text-muted-foreground flex flex-1 items-center justify-center p-4'>
                 <p>{t('preview.defineAtLeastTwoSteps')}</p>
               </div>
             )}
