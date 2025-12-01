@@ -1399,6 +1399,7 @@
       "operator": "Operatore",
       "is": "è",
       "isNot": "non è",
+      "namePlaceholder": "Inserisci nome passaggio",
       "columns": {
         "url": "URL",
         "device_type": "Tipo di dispositivo",
@@ -1441,15 +1442,41 @@
         "defaultName": "Il mio nuovo funnel",
         "createFunnel": "Crea Funnel",
         "createFunnelLower": "Crea funnel",
-        "description": "Crea un nuovo funnel per il tuo sito.",
-        "name": "Nome",
+        "name": "Nome funnel",
         "namePlaceholder": "Nome del mio funnel",
         "strictMode": "Modalità ristretta",
         "addStep": "Aggiungi passaggio",
-        "livePreview": "Anteprima live (ultime 24 ore)",
+        "livePreview": "Anteprima live",
         "create": "Crea",
+        "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
         "errorMessage": "Creazione funnel fallita!"
+      },
+      "edit": {
+        "title": "Modifica funnel",
+        "name": "Nome funnel",
+        "strictMode": "Modalità ristretta",
+        "addStep": "Aggiungi passaggio",
+        "cancel": "Annulla",
+        "save": "Salva",
+        "livePreview": "Anteprima live",
+        "disabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
+        "successMessage": "Funnel aggiornato!",
+        "errorMessage": "Aggiornamento funnel fallito!"
+      },
+      "plot": {
+        "stepLabel": "Passaggio {index}",
+        "visitors": "Visitatori",
+        "dropOff": "Abbandono",
+        "conversion": "Conversione"
+      },
+      "delete": {
+        "title": "Elimina funnel",
+        "description": "Sei sicuro di voler eliminare questo funnel? Questa azione non può essere annullata.",
+        "cancel": "Annulla",
+        "delete": "Elimina funnel",
+        "successMessage": "Funnel eliminato!",
+        "errorMessage": "Eliminazione funnel fallita!"
       },
       "page": {
         "title": "Funnel",

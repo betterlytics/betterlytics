@@ -1395,6 +1395,7 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
+      "namePlaceholder": "Enter step name",
       "columns": {
         "url": "URL",
         "device_type": "Device type",
@@ -1437,15 +1438,41 @@
         "defaultName": "My new funnel",
         "createFunnel": "Create Funnel",
         "createFunnelLower": "Create funnel",
-        "description": "Create a new funnel for your website.",
-        "name": "Name",
+        "name": "Funnel Name",
         "namePlaceholder": "My Funnel Name",
         "strictMode": "Strict Mode",
         "addStep": "Add Step",
-        "livePreview": "Live Preview (Past 24 Hours)",
+        "livePreview": "Live Preview",
         "create": "Create",
+        "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
         "errorMessage": "Funnel creation failed!"
+      },
+      "edit": {
+        "title": "Edit funnel",
+        "name": "Funnel Name",
+        "strictMode": "Strict Mode",
+        "addStep": "Add Step",
+        "cancel": "Cancel",
+        "save": "Save",
+        "livePreview": "Live Preview",
+        "disabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
+        "successMessage": "Funnel updated!",
+        "errorMessage": "Funnel update failed!"
+      },
+      "plot": {
+        "stepLabel": "Step {index}",
+        "visitors": "Visitors",
+        "dropOff": "Drop-off",
+        "conversion": "Conversion"
+      },
+      "delete": {
+        "title": "Delete funnel",
+        "description": "Are you sure you want to delete this funnel? This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete funnel",
+        "successMessage": "Funnel deleted!",
+        "errorMessage": "Funnel deletion failed!"
       },
       "page": {
         "title": "Funnels",
