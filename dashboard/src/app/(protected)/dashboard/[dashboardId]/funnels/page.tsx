@@ -29,7 +29,7 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
         <div className='hidden md:block'>
           <CreateFunnelButton />
         </div>
-        <DashboardFilters showComparison={false} />
+        <DashboardFilters showComparison={false} showQueryFilters={false} />
       </div>
     </DashboardHeader>
   );
