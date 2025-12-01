@@ -144,7 +144,7 @@ export function FunnelDialogContent({
         {searchableFunnelSteps.length >= 2 &&
           (!isPreviewLoading && funnelPreview ? (
             <div className='space-y-4 rounded-lg p-4'>
-              <Label htmlFor='name' className='text-foreground mb-2 block'>
+              <Label htmlFor='name' className='text-foreground mb-2 block pl-1'>
                 {labels.livePreview}
               </Label>
               <FunnelBarplot funnel={funnelPreview} emptySteps={emptySteps} />
