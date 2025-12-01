@@ -133,10 +133,15 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
                   </div>
                   <div className='flex items-end'>
                     <div className='flex h-9 items-center gap-2 rounded-lg px-2'>
-                      <Label htmlFor='name' className='text-foreground'>
+                      <Label htmlFor='strict-mode' className='text-foreground cursor-pointer'>
                         {t('edit.strictMode')}
                       </Label>
-                      <Switch id='strict-mode' checked={metadata.isStrict} onCheckedChange={setIsStrict} />
+                      <Switch
+                        id='strict-mode'
+                        checked={metadata.isStrict}
+                        onCheckedChange={setIsStrict}
+                        className='cursor-pointer'
+                      />
                     </div>
                   </div>
                 </div>
