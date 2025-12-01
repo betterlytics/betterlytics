@@ -97,7 +97,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
           <div className='flex flex-1 flex-col'>
-            <div className='flex flex-1 flex-col gap-4 rounded-lg p-4 shadow'>
+            <div className='flex flex-1 flex-col gap-4 rounded-lg p-4'>
               <div className='flex w-full justify-between'>
                 <div className='flex gap-4'>
                   <div className='max-w-md min-w-40'>
@@ -156,7 +156,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
             )}
             {searchableFunnelSteps.length >= 2 &&
               (!isPreviewLoading && funnelPreview ? (
-                <div className='space-y-4 rounded-lg p-4 shadow'>
+                <div className='space-y-4 rounded-lg p-4'>
                   <Label htmlFor='name' className='text-foreground mb-2 block'>
                     {t('create.livePreview')}
                   </Label>

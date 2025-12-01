@@ -109,7 +109,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
         </DialogHeader>
         <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
           <div className='flex flex-1 flex-col'>
-            <div className='flex min-h-72 flex-1 flex-col gap-4 rounded-lg p-4 shadow'>
+            <div className='flex min-h-72 flex-1 flex-col gap-4 rounded-lg p-4'>
               <div className='flex w-full justify-between'>
                 <div className='flex gap-4'>
                   <div className='max-w-md min-w-40'>
@@ -163,7 +163,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
             )}
             {searchableFunnelSteps.length >= 2 &&
               (!isPreviewLoading && funnelPreview ? (
-                <div className='space-y-4 rounded-lg p-4 shadow'>
+                <div className='space-y-4 rounded-lg p-4'>
                   <Label htmlFor='name' className='text-foreground mb-2 block'>
                     {t('edit.livePreview')}
                   </Label>
