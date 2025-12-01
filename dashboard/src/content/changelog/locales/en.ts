@@ -9,7 +9,7 @@ export const latestChangelogModalEn: ChangelogEntryData = {
   },
   sections: [
     {
-      id: 'v125-new-features',
+      id: 'v126-new-features',
       title: 'New Features',
       blocks: [
         {
@@ -24,7 +24,7 @@ export const latestChangelogModalEn: ChangelogEntryData = {
       ],
     },
     {
-      id: 'v125-enhancements',
+      id: 'v126-enhancements',
       title: 'Enhancements',
       blocks: [
         {
@@ -38,7 +38,7 @@ export const latestChangelogModalEn: ChangelogEntryData = {
       ],
     },
     {
-      id: 'v125-bug-fixes',
+      id: 'v126-bug-fixes',
       title: 'Bug Fixes',
       blocks: [
         {
