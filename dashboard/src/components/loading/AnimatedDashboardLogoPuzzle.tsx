@@ -135,7 +135,41 @@ const LOGO_OFFSET_Y = SCATTER_PADDING;
 const SCATTER_DURATION = 1800;   // Phase 1: pieces scatter from center
 const SCATTER_HOLD = 1080;       // Hold scattered state (1.8x longer)
 const ASSEMBLY_DURATION = 1600;  // Time for each piece to complete its path
-const ASSEMBLED_HOLD = 2000;     // Hold assembled state before restarting
+// Line animation timing - segment by segment with pauses
+const LINE_TOTAL_DRAW_TIME = 1500;  // Total time for drawing (distributed by segment length)
+const LINE_PAUSE_DURATION = 700;    // Pause at each circle
+const LINE_HOLD = 1000;             // Hold complete line visible
+const LINE_FADE_DURATION = 500;     // Fade out before restart
+
+// Total line draw phase: drawing time + 3 pauses
+const LINE_DRAW_DURATION = LINE_TOTAL_DRAW_TIME + (LINE_PAUSE_DURATION * 3);
+
+// Line graph points - starts outside left, angled to match flow into circle 2
+const LINE_POINTS = [
+  { x: 0, y: 680 },  // Start: outside left edge, angled to flow into circle 2
+  { x: 161, y: 509 },   // Piece 2: left-circle
+  { x: 536, y: 800 },   // Piece 5: middle-circle
+  { x: 1024, y: 201 },  // Piece 8: right-circle
+];
+
+// Calculate total line path length for stroke animation
+const LINE_PATH = `M ${LINE_POINTS[0].x} ${LINE_POINTS[0].y} L ${LINE_POINTS[1].x} ${LINE_POINTS[1].y} L ${LINE_POINTS[2].x} ${LINE_POINTS[2].y} L ${LINE_POINTS[3].x} ${LINE_POINTS[3].y}`;
+const LINE_LENGTH = Math.sqrt(
+  Math.pow(LINE_POINTS[1].x - LINE_POINTS[0].x, 2) + Math.pow(LINE_POINTS[1].y - LINE_POINTS[0].y, 2)
+) + Math.sqrt(
+  Math.pow(LINE_POINTS[2].x - LINE_POINTS[1].x, 2) + Math.pow(LINE_POINTS[2].y - LINE_POINTS[1].y, 2)
+) + Math.sqrt(
+  Math.pow(LINE_POINTS[3].x - LINE_POINTS[2].x, 2) + Math.pow(LINE_POINTS[3].y - LINE_POINTS[2].y, 2)
+);
+
+// Proportions for when each circle gets highlighted (based on path length)
+const SEG1 = Math.sqrt(Math.pow(LINE_POINTS[1].x - LINE_POINTS[0].x, 2) + Math.pow(LINE_POINTS[1].y - LINE_POINTS[0].y, 2));
+const SEG2 = Math.sqrt(Math.pow(LINE_POINTS[2].x - LINE_POINTS[1].x, 2) + Math.pow(LINE_POINTS[2].y - LINE_POINTS[1].y, 2));
+const CIRCLE_THRESHOLDS = [
+  SEG1 / LINE_LENGTH,                    // Circle 2 (left)
+  (SEG1 + SEG2) / LINE_LENGTH,           // Circle 5 (middle)
+  1.0,                                    // Circle 8 (right)
+];
 
 // COLLISION-FREE PUZZLE ASSEMBLY v10
 // Validated by puzzleCollisionCheck.ts - ALL CHECKS PASSED
@@ -238,7 +272,8 @@ const PIECE_START_TIMES: Record<number, number> = {
 // Animation timing (in ms) - part 2 (calculated from PIECE_START_TIMES)
 const MAX_START_TIME = Math.max(...Object.values(PIECE_START_TIMES));
 const ASSEMBLY_TOTAL = MAX_START_TIME + ASSEMBLY_DURATION;
-const TOTAL_CYCLE = SCATTER_DURATION + SCATTER_HOLD + ASSEMBLY_TOTAL + ASSEMBLED_HOLD;
+const LINE_TOTAL = LINE_DRAW_DURATION + LINE_HOLD + LINE_FADE_DURATION;
+const TOTAL_CYCLE = SCATTER_DURATION + SCATTER_HOLD + ASSEMBLY_TOTAL + LINE_TOTAL;
 
 // Easing functions
 function easeOutCubic(t: number): number {
@@ -300,6 +335,10 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
     PIECES.map(() => ({ x: 0, y: 0 }))
   );
 
+  // Line animation state: 0 = hidden, 0-1 = drawing, 1 = full, fade uses opacity
+  const [lineProgress, setLineProgress] = useState(0);
+  const [lineOpacity, setLineOpacity] = useState(0);
+
   const animate = useCallback((time: number) => {
     // Apply speed multiplier to time
     const scaledTime = time * speed;
@@ -345,6 +384,67 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
     });
 
     setTransforms(newTransforms);
+
+    // Phase 4: Line animation (after assembly completes)
+    // Draws segment by segment: edge→2, pause, 2→5, pause, 5→8, pause, hold, fade
+    const lineStartTime = SCATTER_DURATION + SCATTER_HOLD + ASSEMBLY_TOTAL;
+    const lineTime = cycleTime - lineStartTime;
+
+    if (lineTime < 0) {
+      // Before line phase
+      setLineProgress(0);
+      setLineOpacity(0);
+    } else if (lineTime < LINE_DRAW_DURATION) {
+      // Drawing phase - segment by segment with pauses
+      // Each segment duration proportional to its length
+      const segmentLengths = [
+        SEG1 / LINE_LENGTH,                           // Segment 0: edge → circle 2
+        SEG2 / LINE_LENGTH,                           // Segment 1: circle 2 → circle 5
+        (LINE_LENGTH - SEG1 - SEG2) / LINE_LENGTH,   // Segment 2: circle 5 → circle 8
+      ];
+
+      // Duration for each segment based on length
+      const segmentDurations = segmentLengths.map(len => len * LINE_TOTAL_DRAW_TIME);
+
+      // Find which segment we're in
+      let elapsed = lineTime;
+      let progress = 0;
+
+      for (let i = 0; i < 3; i++) {
+        const segDuration = segmentDurations[i];
+
+        if (elapsed < segDuration) {
+          // Currently drawing this segment
+          const segmentProgress = elapsed / segDuration;
+          progress += segmentLengths[i] * segmentProgress;
+          break;
+        }
+        elapsed -= segDuration;
+        progress += segmentLengths[i];
+
+        if (elapsed < LINE_PAUSE_DURATION) {
+          // In pause after this segment - line stays at current progress
+          break;
+        }
+        elapsed -= LINE_PAUSE_DURATION;
+      }
+
+      setLineProgress(Math.min(progress, 1));
+      setLineOpacity(1);
+    } else if (lineTime < LINE_DRAW_DURATION + LINE_HOLD) {
+      // Hold line fully visible
+      setLineProgress(1);
+      setLineOpacity(1);
+    } else if (lineTime < LINE_TOTAL) {
+      // Fade out
+      const fadeProgress = (lineTime - LINE_DRAW_DURATION - LINE_HOLD) / LINE_FADE_DURATION;
+      setLineProgress(1);
+      setLineOpacity(1 - easeOutQuad(fadeProgress));
+    } else {
+      // Hidden
+      setLineProgress(0);
+      setLineOpacity(0);
+    }
   }, [speed]);
 
   useAnimationFrame(animate);
@@ -366,6 +466,18 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
+        {/* Subtle glow filter for line */}
+        <defs>
+          <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur1" />
+            <feGaussianBlur stdDeviation="8" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         {/* Group offset to center logo in expanded viewBox */}
         <g transform={`translate(${LOGO_OFFSET_X}, ${LOGO_OFFSET_Y})`}>
           {PIECES.map((piece, i) => {
@@ -374,13 +486,34 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
             const transform = `translate(${t.x}, ${t.y})`;
 
             if (piece.type === 'circle') {
+              // Calculate if this circle should be highlighted
+              // Circle order in line: piece 2, piece 5, piece 8
+              const circleLineIndex = i === 2 ? 0 : i === 5 ? 1 : i === 8 ? 2 : -1;
+              const circleThreshold = circleLineIndex >= 0 ? CIRCLE_THRESHOLDS[circleLineIndex] : 2;
+              const isHighlighted = circleLineIndex >= 0 && lineProgress >= circleThreshold && lineOpacity > 0;
+
+              // Light blue highlight matching the line color
+              const highlightColor = '#5CC8FF';
+              const currentFill = isHighlighted ? highlightColor : piece.fill;
+
               return (
                 <g key={piece.id} transform={transform}>
+                  {/* Glow layer for highlighted circles */}
+                  {isHighlighted && (
+                    <circle
+                      cx={piece.cx}
+                      cy={piece.cy}
+                      r={piece.r! + 12}
+                      fill={highlightColor}
+                      style={{ opacity: lineOpacity * 0.5 }}
+                      filter="url(#neon-glow)"
+                    />
+                  )}
                   <circle
                     cx={piece.cx}
                     cy={piece.cy}
                     r={piece.r}
-                    fill={piece.fill}
+                    fill={currentFill}
                   />
                   {showLabels && (
                     <text
@@ -426,6 +559,50 @@ export const AnimatedDashboardLogoPuzzle = memo(function AnimatedDashboardLogoPu
               </g>
             );
           })}
+
+          {/* Animated line graph connecting the circles */}
+          {lineOpacity > 0 && (
+            <>
+              {/* Outer glow - big blur */}
+              <path
+                d={LINE_PATH}
+                fill="none"
+                stroke="#3BA8E8"
+                strokeWidth={40}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ opacity: lineOpacity * 0.3 }}
+                filter="url(#neon-glow)"
+                strokeDasharray={LINE_LENGTH}
+                strokeDashoffset={LINE_LENGTH * (1 - lineProgress)}
+              />
+              {/* Mid glow layer */}
+              <path
+                d={LINE_PATH}
+                fill="none"
+                stroke="#4CB8F0"
+                strokeWidth={20}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ opacity: lineOpacity * 0.5 }}
+                filter="url(#neon-glow)"
+                strokeDasharray={LINE_LENGTH}
+                strokeDashoffset={LINE_LENGTH * (1 - lineProgress)}
+              />
+              {/* Main line - light blue matching logo */}
+              <path
+                d={LINE_PATH}
+                fill="none"
+                stroke="#5CC8FF"
+                strokeWidth={6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ opacity: lineOpacity }}
+                strokeDasharray={LINE_LENGTH}
+                strokeDashoffset={LINE_LENGTH * (1 - lineProgress)}
+              />
+            </>
+          )}
         </g>
       </svg>
     </div>
