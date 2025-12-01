@@ -2,19 +2,20 @@ import type { ChangelogEntryData } from '@/entities/changelog';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.5',
-    releasedAt: '2025-11-23',
+    version: 'v1.2.6',
+    releasedAt: '2025-12-01',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v125-new-features',
+      id: 'v126-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
+            'La pagina Funnels è stata completamente riprogettata con un layout più intuitivo e visivo. Dai un’occhiata!',
             'Confronta i periodi direttamente nella visualizzazione della mappa del mondo.',
             'Blocca gli eventi da indirizzi IP specifici per evitare traffico distorto o indesiderato (ad esempio le tue visite).',
             'Rifiuta automaticamente gli eventi da domini che non corrispondono al dominio della dashboard.',
@@ -23,7 +24,7 @@ export const latestChangelogModalIt: ChangelogEntryData = {
       ],
     },
     {
-      id: 'v125-enhancements',
+      id: 'v126-enhancements',
       title: 'Miglioramenti',
       blocks: [
         {
@@ -37,7 +38,7 @@ export const latestChangelogModalIt: ChangelogEntryData = {
       ],
     },
     {
-      id: 'v125-bug-fixes',
+      id: 'v126-bug-fixes',
       title: 'Correzioni di bug',
       blocks: [
         {
@@ -45,6 +46,7 @@ export const latestChangelogModalIt: ChangelogEntryData = {
           items: [
             'Risolto un problema che causava il mancato caricamento della pagina Core Web Vitals.',
             'Risolti i problemi legati all’ora legale che influenzavano le analisi visualizzate.',
+            'Risolto un problema che impediva il caricamento dei dati quando si selezionavano intervalli di tempo futuri.',
           ],
         },
       ],
@@ -53,6 +55,54 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.6',
+      releasedAt: '2025-12-01',
+      title: 'Funnel Ridisegnati e Mappe Più Intelligenti',
+      summary:
+        'I funnel sono stati completamente ridisegnati con visualizzazioni migliorate. Le interazioni sulla mappa mondiale includono ora funzionalità di confronto e tooltip più chiari. Questa versione include anche correzioni di bug e traduzioni aggiornate.',
+    },
+    sections: [
+      {
+        id: 'v126-new-features',
+        title: 'Nuove Funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La pagina dei funnel ha un layout completamente nuovo, visivo e più intuitivo da usare.',
+              'La mappa mondiale ora supporta confronti tra periodi diversi.',
+              'I tooltip sulla mappa mondiale forniscono informazioni più chiare e prestazioni migliorate.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v126-enhancements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Aggiunte traduzioni mancanti per offrire un’esperienza più uniforme a tutti gli utenti.'],
+          },
+        ],
+      },
+      {
+        id: 'v126-bug-fixes',
+        title: 'Correzioni di Bug',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolte notifiche duplicate quando si superano i limiti del piano.',
+              'Risolti problemi di caricamento quando si selezionano intervalli di date futuri.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.5',
@@ -85,6 +135,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
               'Le etichette dei Core Web Vitals sono state affinate per una comprensione più chiara.',
               'L’Antartide viene nascosta dalla mappa del mondo a meno che non ci siano dati di visitatori.',
               'Aggiunto un pulsante "Segnala un bug" direttamente nell’app per inviare feedback rapidi.',
+              'Aggiunti favicon ai domini della dashboard.',
             ],
           },
         ],
