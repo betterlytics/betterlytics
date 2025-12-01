@@ -14,17 +14,11 @@ import { useTranslations } from 'next-intl';
 import { ComponentProps, useCallback, useMemo, useState } from 'react';
 import { postFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import FunnelBarplot from '@/components/funnels/FunnelBarplot';
-import { FunnelStepFilter } from './FunnelStepFilter';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/funnels';
 import { generateTempId } from '@/utils/temporaryId';
-import { Reorder } from 'motion/react';
-import { cn } from '@/lib/utils';
+import { FunnelDialogContent } from './FunnelDialogContent';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -58,9 +52,6 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
       { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
     ],
   });
-
-  const isNameEmpty = metadata.name.trim() === '';
-  const showNameError = hasAttemptedSubmit && isNameEmpty;
 
   const isCreateValid = useMemo(
     () =>
@@ -110,88 +101,29 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
         <DialogHeader>
           <DialogTitle>{t('create.createFunnel')}</DialogTitle>
         </DialogHeader>
-        <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
-          <div className='flex flex-1 flex-col'>
-            <div className='flex flex-1 flex-col gap-4 rounded-lg p-4'>
-              <div className='flex w-full justify-between'>
-                <div className='flex gap-4'>
-                  <div className='max-w-md min-w-40'>
-                    <Label htmlFor='name' className='text-foreground mb-1 block'>
-                      {t('create.name')} <span className='text-destructive'>*</span>
-                    </Label>
-                    <Input
-                      id='name'
-                      placeholder={t('create.namePlaceholder')}
-                      value={metadata.name}
-                      onChange={(evt) => setName(evt.target.value)}
-                      className={cn(showNameError && 'border-destructive')}
-                    />
-                  </div>
-                  <div className='flex items-end'>
-                    <div className='flex h-9 items-center gap-2 rounded-lg px-2'>
-                      <Label htmlFor='strict-mode' className='text-foreground cursor-pointer'>
-                        {t('create.strictMode')}
-                      </Label>
-                      <Switch
-                        id='strict-mode'
-                        className='cursor-pointer'
-                        checked={metadata.isStrict}
-                        onCheckedChange={setIsStrict}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className='flex items-end'>
-                  <Button
-                    variant='outline'
-                    onClick={addEmptyFunnelStep}
-                    className='cursor-pointer whitespace-nowrap'
-                  >
-                    <PlusIcon className='h-4 w-4' /> {t('create.addStep')}
-                  </Button>
-                </div>
-              </div>
-              <Reorder.Group axis='y' values={funnelSteps} onReorder={setFunnelSteps} className='space-y-2'>
-                {funnelSteps.map((step, index) => (
-                  <Reorder.Item
-                    key={step.id}
-                    value={step}
-                    className='dark:border-border border-foreground/30 bg-card relative flex cursor-move items-center rounded-md border pl-4'
-                  >
-                    <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
-                      <p className='text-muted-foreground text-sm font-medium'>{index + 1}</p>
-                    </div>
-                    <FunnelStepFilter
-                      onFilterUpdate={updateFunnelStep}
-                      filter={step}
-                      requestRemoval={() => removeFunnelStep(step.id)}
-                      showEmptyError={hasAttemptedSubmit}
-                    />
-                  </Reorder.Item>
-                ))}
-              </Reorder.Group>
-            </div>
-            {searchableFunnelSteps.length < 2 && (
-              <div className='text-muted-foreground flex flex-1 items-center justify-center p-4'>
-                <p>{t('preview.defineAtLeastTwoSteps')}</p>
-              </div>
-            )}
-            {searchableFunnelSteps.length >= 2 &&
-              (!isPreviewLoading && funnelPreview ? (
-                <div className='space-y-4 rounded-lg p-4'>
-                  <Label htmlFor='name' className='text-foreground mb-2 block'>
-                    {t('create.livePreview')}
-                  </Label>
-                  <FunnelBarplot funnel={funnelPreview} emptySteps={emptySteps} />
-                </div>
-              ) : (
-                <section className='space-y-3'>
-                  <div className='bg-muted h-6 w-48 animate-pulse rounded' />
-                  <div className='bg-muted h-40 w-full animate-pulse rounded' />
-                </section>
-              ))}
-          </div>
-        </div>
+        <FunnelDialogContent
+          metadata={metadata}
+          setName={setName}
+          setIsStrict={setIsStrict}
+          funnelSteps={funnelSteps}
+          addEmptyFunnelStep={addEmptyFunnelStep}
+          setFunnelSteps={setFunnelSteps}
+          updateFunnelStep={updateFunnelStep}
+          removeFunnelStep={removeFunnelStep}
+          searchableFunnelSteps={searchableFunnelSteps}
+          funnelPreview={funnelPreview}
+          emptySteps={emptySteps}
+          isPreviewLoading={isPreviewLoading}
+          hasAttemptedSubmit={hasAttemptedSubmit}
+          labels={{
+            name: t('create.name'),
+            namePlaceholder: t('create.namePlaceholder'),
+            strictMode: t('create.strictMode'),
+            addStep: t('create.addStep'),
+            livePreview: t('create.livePreview'),
+            defineAtLeastTwoSteps: t('preview.defineAtLeastTwoSteps'),
+          }}
+        />
         <DialogFooter className='flex items-end justify-end gap-2'>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
             {t('create.create')}
