@@ -13,6 +13,8 @@ import prisma from '@/lib/postgres';
 import { getUserSettings } from '@/services/userSettings';
 import { upsertSubscription } from '@/repositories/postgres/subscription';
 import { STARTER_SUBSCRIPTION_STATIC, buildStarterSubscriptionWindow } from '@/entities/billing';
+import { createUserSettings } from '@/repositories/postgres/userSettings';
+import { DEFAULT_USER_SETTINGS } from '@/entities/userSettings';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -95,6 +97,12 @@ export const authOptions: NextAuthOptions = {
         });
       } catch (error) {
         console.error('Failed to create initial subscription for user in NextAuth event:', error);
+      }
+
+      try {
+        await createUserSettings(user.id, DEFAULT_USER_SETTINGS);
+      } catch (error) {
+        console.error('Failed to create initial user settings for user in NextAuth event:', error);
       }
     },
   },
