@@ -1,9 +1,29 @@
 import { z } from 'zod';
 import { SubscriptionTier as PrismaSubscriptionTier, Currency as PrismaCurrency } from '@prisma/client';
+import { addMonths, startOfDay } from 'date-fns';
 
 export const TierSchema = z.nativeEnum(PrismaSubscriptionTier);
 export const CurrencySchema = z.nativeEnum(PrismaCurrency).default('USD');
 export const PaymentStatusSchema = z.enum(['paid', 'pending', 'failed', 'refunded', 'past-due']);
+
+export const STARTER_SUBSCRIPTION_STATIC = {
+  tier: PrismaSubscriptionTier.growth,
+  eventLimit: 10_000,
+  pricePerMonth: 0,
+  currency: PrismaCurrency.USD,
+  status: 'active' as const,
+  cancelAtPeriodEnd: false,
+};
+
+export function buildStarterSubscriptionWindow(): {
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+} {
+  const currentPeriodStart = startOfDay(new Date());
+  const currentPeriodEnd = addMonths(currentPeriodStart, 1);
+
+  return { currentPeriodStart, currentPeriodEnd };
+}
 
 export const SubscriptionSchema = z.object({
   id: z.string(),

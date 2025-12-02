@@ -11,6 +11,7 @@ import {
   UpdateUserData,
 } from '@/entities/user';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { STARTER_SUBSCRIPTION_STATIC, buildStarterSubscriptionWindow } from '@/entities/billing';
 
 const SALT_ROUNDS = 10;
 
@@ -39,8 +40,19 @@ export async function createUser(data: CreateUserData): Promise<User> {
   try {
     const validatedData = CreateUserSchema.parse(data);
 
+    const { currentPeriodStart, currentPeriodEnd } = buildStarterSubscriptionWindow();
+
     const prismaUser = await prisma.user.create({
-      data: validatedData,
+      data: {
+        ...validatedData,
+        subscription: {
+          create: {
+            ...STARTER_SUBSCRIPTION_STATIC,
+            currentPeriodStart,
+            currentPeriodEnd,
+          },
+        },
+      },
     });
 
     return UserSchema.parse(prismaUser);

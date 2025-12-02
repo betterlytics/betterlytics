@@ -11,6 +11,8 @@ import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
 import { getUserSettings } from '@/services/userSettings';
+import { upsertSubscription } from '@/repositories/postgres/subscription';
+import { STARTER_SUBSCRIPTION_STATIC, buildStarterSubscriptionWindow } from '@/entities/billing';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -79,6 +81,22 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60,
+  },
+  events: {
+    async createUser({ user }) {
+      try {
+        const { currentPeriodStart, currentPeriodEnd } = buildStarterSubscriptionWindow();
+
+        await upsertSubscription({
+          userId: user.id,
+          ...STARTER_SUBSCRIPTION_STATIC,
+          currentPeriodStart,
+          currentPeriodEnd,
+        });
+      } catch (error) {
+        console.error('Failed to create initial subscription for user in NextAuth event:', error);
+      }
+    },
   },
   callbacks: {
     async jwt({ token, user, trigger, account, profile }) {
