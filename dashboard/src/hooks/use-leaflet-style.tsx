@@ -35,13 +35,13 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseM
 
   const fillColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType,
+    scaleType: 'lab',
     colors: fillColors as [string, string, string],
   });
 
   const borderColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType,
+    scaleType: 'lab',
     colors: borderColors as [string, string, string],
   });
 

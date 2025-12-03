@@ -21,6 +21,7 @@ export function useColorScale({ colors, maxValue, scaleType = 'pow-4/10' }: UseC
       return (value: number) =>
         chroma
           .scale(colors)
+          .correctLightness(true)
           .mode('lab')(value / (maxValue || 1))
           .hex();
     }
