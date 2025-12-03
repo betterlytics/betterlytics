@@ -11,13 +11,22 @@ export async function getUserSettings(userId: string): Promise<UserSettings> {
     const settings = await UserSettingsRepository.findSettingsByUserId(userId);
 
     if (!settings) {
-      return await UserSettingsRepository.createUserSettings(userId, DEFAULT_USER_SETTINGS);
+      return await createDefaultUserSettings(userId);
     }
 
     return settings;
   } catch (error) {
     console.error('Error getting user settings:', error);
     throw new Error('Failed to get user settings');
+  }
+}
+
+export async function createDefaultUserSettings(userId: string): Promise<UserSettings> {
+  try {
+    return await UserSettingsRepository.createUserSettings(userId, DEFAULT_USER_SETTINGS);
+  } catch (error) {
+    console.error('Error creating default user settings:', error);
+    throw new Error('Failed to create default user settings');
   }
 }
 

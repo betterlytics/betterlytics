@@ -1398,6 +1398,7 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
         "device_type": "Enhedstype",
@@ -1440,15 +1441,41 @@
         "defaultName": "Min nye tragt",
         "createFunnel": "Opret tragt",
         "createFunnelLower": "Opret tragt",
-        "description": "Opret en ny tragt til dit websted.",
-        "name": "Navn",
+        "name": "Tragtnavn",
         "namePlaceholder": "Mit tragtnavn",
         "strictMode": "Strikt tilstand",
         "addStep": "Tilføj trin",
-        "livePreview": "Live forhåndsvisning (sidste 24 timer)",
+        "livePreview": "Live forhåndsvisning",
         "create": "Opret",
+        "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
         "errorMessage": "Tragtoprettelse mislykkedes!"
+      },
+      "edit": {
+        "title": "Rediger tragt",
+        "name": "Tragtnavn",
+        "strictMode": "Strikt tilstand",
+        "addStep": "Tilføj trin",
+        "cancel": "Annuller",
+        "save": "Gem",
+        "livePreview": "Live forhåndsvisning",
+        "disabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
+        "successMessage": "Tragt opdateret!",
+        "errorMessage": "Tragtopdatering mislykkedes!"
+      },
+      "plot": {
+        "stepLabel": "Trin {index}",
+        "visitors": "Besøgende",
+        "dropOff": "Frafald",
+        "conversion": "Konvertering"
+      },
+      "delete": {
+        "title": "Slet tragt",
+        "description": "Er du sikker på, at du vil slette denne tragt? Denne handling kan ikke fortrydes.",
+        "cancel": "Annuller",
+        "delete": "Slet tragt",
+        "successMessage": "Tragt slettet!",
+        "errorMessage": "Sletning af tragt mislykkedes!"
       },
       "page": {
         "title": "Tragter",

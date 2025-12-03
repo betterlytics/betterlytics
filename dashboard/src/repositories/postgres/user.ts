@@ -11,6 +11,9 @@ import {
   UpdateUserData,
 } from '@/entities/user';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { buildStarterSubscription } from '@/entities/billing';
+import { DEFAULT_USER_SETTINGS } from '@/entities/userSettings';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 const SALT_ROUNDS = 10;
 
@@ -35,12 +38,26 @@ async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | nu
   }
 }
 
-export async function createUser(data: CreateUserData): Promise<User> {
+export async function createUser(
+  data: CreateUserData,
+  options?: { language?: SupportedLanguages },
+): Promise<User> {
   try {
     const validatedData = CreateUserSchema.parse(data);
 
+    const subscriptionData = buildStarterSubscription();
+
+    const settingsData = {
+      ...DEFAULT_USER_SETTINGS,
+      ...(options?.language && { language: options.language }),
+    };
+
     const prismaUser = await prisma.user.create({
-      data: validatedData,
+      data: {
+        ...validatedData,
+        subscription: { create: subscriptionData },
+        settings: { create: settingsData },
+      },
     });
 
     return UserSchema.parse(prismaUser);
@@ -56,14 +73,17 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
 
     const passwordHash = await bcrypt.hash(validatedData.password, SALT_ROUNDS);
 
-    return await createUser({
-      email: validatedData.email,
-      name: validatedData.name,
-      passwordHash,
-      role: validatedData.role || 'admin',
-      termsAcceptedVersion: CURRENT_TERMS_VERSION,
-      termsAcceptedAt: data.acceptedTerms ? new Date() : null,
-    });
+    return await createUser(
+      {
+        email: validatedData.email,
+        name: validatedData.name,
+        passwordHash,
+        role: validatedData.role || 'admin',
+        termsAcceptedVersion: CURRENT_TERMS_VERSION,
+        termsAcceptedAt: data.acceptedTerms ? new Date() : null,
+      },
+      { language: validatedData.language },
+    );
   } catch (error) {
     console.error('Error registering user:', error);
     throw error;
