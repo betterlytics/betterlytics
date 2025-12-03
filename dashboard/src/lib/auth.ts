@@ -10,7 +10,8 @@ import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
-import { getUserSettings } from '@/services/userSettings';
+import { createDefaultUserSettings, getUserSettings } from '@/services/userSettings';
+import { createStarterSubscriptionForUser } from '@/services/subscription.service';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -79,6 +80,21 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60,
+  },
+  events: {
+    async createUser({ user }) {
+      try {
+        await createStarterSubscriptionForUser(user.id);
+      } catch (error) {
+        console.error('Failed to create initial subscription for user in NextAuth event:', error);
+      }
+
+      try {
+        await createDefaultUserSettings(user.id);
+      } catch (error) {
+        console.error('Failed to create initial user settings for user in NextAuth event:', error);
+      }
+    },
   },
   callbacks: {
     async jwt({ token, user, trigger, account, profile }) {

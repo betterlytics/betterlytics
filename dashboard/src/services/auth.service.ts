@@ -1,11 +1,9 @@
 import * as bcrypt from 'bcrypt';
 import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user';
-import { findDashboardById, findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard';
+import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
 import { type User } from 'next-auth';
 import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/user';
-import { DEFAULT_USER_SETTINGS } from '@/entities/userSettings';
-import { createUserSettings } from '@/repositories/postgres/userSettings';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthContextSchema } from '@/entities/authContext';
 import { UserException } from '@/lib/exceptions';
@@ -101,15 +99,6 @@ export async function registerNewUser(registrationData: RegisterUserData): Promi
   }
 
   const newUser = await registerUser(registrationData);
-
-  try {
-    await createUserSettings(newUser.id, {
-      ...DEFAULT_USER_SETTINGS,
-      language: registrationData.language,
-    });
-  } catch (e) {
-    console.error('Failed to create initial user settings with language:', e);
-  }
 
   return UserSchema.parse(newUser);
 }
