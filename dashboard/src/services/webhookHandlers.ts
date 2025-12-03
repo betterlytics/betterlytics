@@ -1,14 +1,13 @@
 import Stripe from 'stripe';
-import {
-  upsertSubscription,
-  updateSubscriptionStatus,
-  getSubscriptionByPaymentId,
-} from '@/repositories/postgres/subscription';
-
 import type { Currency } from '@/entities/billing';
 import { stripe } from '@/lib/billing/stripe';
 import { getTierConfigFromLookupKey } from '@/lib/billing/plans';
 import { addMonths } from 'date-fns';
+import {
+  findSubscriptionByPaymentId,
+  setSubscriptionStatus,
+  upsertUserSubscription,
+} from '@/services/subscription.service';
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   try {
@@ -28,7 +27,7 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
     const paymentCurrency = session.currency || subscriptionItem.price.currency;
     const pricePerMonth = await getPriceAmountByCurrency(subscriptionItem.price.id, paymentCurrency);
 
-    await upsertSubscription({
+    await upsertUserSubscription({
       userId,
       tier: tierConfig.tier,
       status: 'active',
@@ -58,14 +57,14 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     }
 
     const subscriptionId = subscriptionDetails.subscription as string;
-    const subscription = await getSubscriptionByPaymentId(subscriptionId);
+    const subscription = await findSubscriptionByPaymentId(subscriptionId);
 
     if (!subscription) {
       console.log('No local subscription found for failed payment:', subscriptionId);
       return;
     }
 
-    await updateSubscriptionStatus(subscription.userId, 'past_due');
+    await setSubscriptionStatus(subscription.userId, 'past_due');
   } catch (error) {
     console.error('Error handling invoice payment failed:', error);
     throw error;
@@ -74,7 +73,7 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
 export async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   try {
-    const localSubscription = await getSubscriptionByPaymentId(subscription.id);
+    const localSubscription = await findSubscriptionByPaymentId(subscription.id);
     if (!localSubscription) {
       console.log('No local subscription found for Stripe subscription:', subscription.id);
       return;
@@ -83,7 +82,7 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
     const now = new Date();
 
     // Downgrade to free Growth plan
-    await upsertSubscription({
+    await upsertUserSubscription({
       userId: localSubscription.userId,
       tier: 'growth',
       status: 'active',
@@ -104,7 +103,7 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
 
 export async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   try {
-    const localSubscription = await getSubscriptionByPaymentId(subscription.id);
+    const localSubscription = await findSubscriptionByPaymentId(subscription.id);
     if (!localSubscription) {
       throw new Error(`No local subscription found for Stripe subscription: ${subscription.id}`);
     }
@@ -113,7 +112,7 @@ export async function handleSubscriptionUpdated(subscription: Stripe.Subscriptio
     const tierConfig = getTierConfigFromLookupKey(subscriptionItem.price.lookup_key as string);
     const pricePerMonth = await getPriceAmountByCurrency(subscriptionItem.price.id, localSubscription.currency);
 
-    await upsertSubscription({
+    await upsertUserSubscription({
       userId: localSubscription.userId,
       tier: tierConfig.tier,
       status: subscription.status,
