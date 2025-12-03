@@ -1,3 +1,5 @@
+'use client';
+
 import { getFilterOptionsAction } from '@/app/actions/filters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { QueryFilter } from '@/entities/filter';

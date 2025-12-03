@@ -170,10 +170,31 @@ model Funnel {
 
   name     String
   isStrict Boolean @default(true)
-  queryFilters Json
+  queryFilters Json? // Optional, will be removed in the future
+
+  funnelSteps FunnelStep[]
 
   dashboard    Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
   dashboardId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  deletedAt DateTime?
+}
+
+model FunnelStep {
+  id String @id @default(cuid())
+  
+  name String
+  column String
+  operator String
+  value String
+
+  funnel Funnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  funnelId String
+
+  @@index([funnelId])
 }
 
 model DashboardSettings {

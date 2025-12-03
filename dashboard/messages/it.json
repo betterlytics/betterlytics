@@ -638,6 +638,28 @@
         "cta": {
           "noAccount": "Non hai un account?",
           "createOne": "Creane uno"
+        },
+        "form": {
+          "emailLabel": "Email",
+          "emailPlaceholder": "Inserisci la tua email",
+          "passwordLabel": "Password",
+          "passwordPlaceholder": "Inserisci la tua password",
+          "forgotPassword": "Password dimenticata?",
+          "submitButton": "Accedi",
+          "submitting": "Accesso in corso...",
+          "orDivider": "oppure",
+          "continueWithGoogle": "Continua con Google",
+          "continueWithGithub": "Continua con GitHub",
+          "errors": {
+            "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
+            "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
+            "generic": "Si è verificato un errore durante l'accesso. Riprova."
+          },
+          "twoFactor": {
+            "title": "Autenticazione a due fattori",
+            "description": "Inserisci il codice di verifica dalla tua app.",
+            "cancel": "Annulla"
+          }
         }
       },
       "register": {
@@ -682,7 +704,15 @@
         },
         "title": "Reimposta la tua password",
         "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
+        "emailField": "Indirizzo Email",
+        "emailFieldPlaceholder": "Inserisci il tuo indirizzo email",
+        "emailFieldDescription": "Inserisci l'indirizzo email associato al tuo account e ti invieremo un link per reimpostare la password.",
+        "successMessage": "Email per il reset della password inviata!",
+        "errorMessage": "Impossibile inviare l'email per il reset della password. Riprova.",
+        "errorMessageInvalidEmail": "Inserisci un indirizzo email valido",
         "cta": {
+          "sendResetLink": "Invia link per il reset della password",
+          "sending": "Invio...",
           "remember": "Ricordi la tua password?",
           "backToSignIn": "Torna all'accesso"
         }
@@ -1369,6 +1399,7 @@
       "operator": "Operatore",
       "is": "è",
       "isNot": "non è",
+      "namePlaceholder": "Inserisci nome passaggio",
       "columns": {
         "url": "URL",
         "device_type": "Tipo di dispositivo",
@@ -1411,15 +1442,41 @@
         "defaultName": "Il mio nuovo funnel",
         "createFunnel": "Crea Funnel",
         "createFunnelLower": "Crea funnel",
-        "description": "Crea un nuovo funnel per il tuo sito.",
-        "name": "Nome",
+        "name": "Nome funnel",
         "namePlaceholder": "Nome del mio funnel",
         "strictMode": "Modalità ristretta",
         "addStep": "Aggiungi passaggio",
-        "livePreview": "Anteprima live (ultime 24 ore)",
+        "livePreview": "Anteprima live",
         "create": "Crea",
+        "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
         "errorMessage": "Creazione funnel fallita!"
+      },
+      "edit": {
+        "title": "Modifica funnel",
+        "name": "Nome funnel",
+        "strictMode": "Modalità ristretta",
+        "addStep": "Aggiungi passaggio",
+        "cancel": "Annulla",
+        "save": "Salva",
+        "livePreview": "Anteprima live",
+        "disabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
+        "successMessage": "Funnel aggiornato!",
+        "errorMessage": "Aggiornamento funnel fallito!"
+      },
+      "plot": {
+        "stepLabel": "Passaggio {index}",
+        "visitors": "Visitatori",
+        "dropOff": "Abbandono",
+        "conversion": "Conversione"
+      },
+      "delete": {
+        "title": "Elimina funnel",
+        "description": "Sei sicuro di voler eliminare questo funnel? Questa azione non può essere annullata.",
+        "cancel": "Annulla",
+        "delete": "Elimina funnel",
+        "successMessage": "Funnel eliminato!",
+        "errorMessage": "Eliminazione funnel fallita!"
       },
       "page": {
         "title": "Funnel",
@@ -1748,6 +1805,10 @@
           "cancel": "Annulla",
           "saving": "Salvataggio...",
           "saveChanges": "Salva modifiche"
+        },
+        "toast": {
+          "success": "Impostazioni salvate con successo!",
+          "error": "Impossibile salvare le impostazioni. Riprova."
         }
       },
       "profile": {

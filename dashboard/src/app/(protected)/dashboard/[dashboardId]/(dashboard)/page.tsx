@@ -49,7 +49,13 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     compareStartDate,
     compareEndDate,
   );
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, { startDate, endDate, queryFilters });
+  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, {
+    startDate,
+    endDate,
+    queryFilters,
+    compareStartDate,
+    compareEndDate,
+  });
   const topCountriesPromise = getTopCountryVisitsAction(dashboardId, {
     startDate,
     endDate,

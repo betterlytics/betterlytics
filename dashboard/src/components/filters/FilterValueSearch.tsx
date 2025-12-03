@@ -7,16 +7,24 @@ import { useTranslations } from 'next-intl';
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
+  className?: string;
+  triggerClassName?: string;
 };
 
-export function FilterValueSearch<TEntity>({ filter, onFilterUpdate }: FilterValueSearchProps<TEntity>) {
+export function FilterValueSearch<TEntity>({
+  filter,
+  onFilterUpdate,
+  className,
+  triggerClassName,
+}: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
 
   const { options, isLoading, setSearch, search, isDirty } = useQueryFilterSearch(filter);
 
   return (
     <Combobox
-      className='col-span-10 md:col-span-5'
+      className={className}
+      triggerClassName={triggerClassName}
       value={filter.value}
       placeholder={t('selectValue')}
       onValueChange={(value) => onFilterUpdate({ ...filter, value })}

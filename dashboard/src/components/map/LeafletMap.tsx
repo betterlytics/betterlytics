@@ -5,7 +5,7 @@ import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
 import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
-import { GeoVisitor } from '@/entities/geography';
+import type { WorldMapResponse } from '@/entities/geography';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -14,23 +14,20 @@ import { Spinner } from '../ui/spinner';
 import { useTranslations } from 'next-intl';
 import type { ScaleType } from '@/hooks/use-color-scale';
 
-interface LeafletMapProps {
-  visitorData: GeoVisitor[];
-  maxVisitors?: number;
-  colorScaleType?: ScaleType;
+type LeafletMapProps = WorldMapResponse & {
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
-}
+};
 
 export default function LeafletMap({
   visitorData,
+  compareData,
   maxVisitors,
   showZoomControls,
   showLegend = true,
   size = 'sm',
-  colorScaleType = 'log10',
   initialZoom,
 }: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
@@ -42,7 +39,7 @@ export default function LeafletMap({
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('components.geography');
-  const style = useMapStyle({ maxValue: maxVisitors || 1, scaleType: colorScaleType });
+  const style = useMapStyle({ maxValue: maxVisitors || 1 });
 
   useEffect(() => {
     startTransition(() => {
@@ -111,7 +108,13 @@ export default function LeafletMap({
         {
           <MapSelectionContextProvider style={style}>
             <MapBackgroundLayer Polygon={Polygon} />
-            <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
+            <MapCountryGeoJSON
+              GeoJSON={GeoJSON}
+              geoData={worldGeoJson}
+              visitorData={visitorData}
+              compareData={compareData}
+              style={style}
+            />
             <MapStickyTooltip size={size} />
             {showLegend && <MapLegend maxVisitors={maxVisitors} />}
           </MapSelectionContextProvider>

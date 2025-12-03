@@ -638,6 +638,28 @@
         "cta": {
           "noAccount": "Don't have an account?",
           "createOne": "Create one"
+        },
+        "form": {
+          "emailLabel": "Email",
+          "emailPlaceholder": "Enter your email",
+          "passwordLabel": "Password",
+          "passwordPlaceholder": "Enter your password",
+          "forgotPassword": "Forgot your password?",
+          "submitButton": "Sign in",
+          "submitting": "Signing in...",
+          "orDivider": "or",
+          "continueWithGoogle": "Continue with Google",
+          "continueWithGithub": "Continue with GitHub",
+          "errors": {
+            "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
+            "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
+            "generic": "An error occurred during sign in. Please try again."
+          },
+          "twoFactor": {
+            "title": "Two-factor authentication",
+            "description": "Enter the verification code from your authenticator app.",
+            "cancel": "Cancel"
+          }
         }
       },
       "register": {
@@ -682,7 +704,15 @@
         },
         "title": "Reset your password",
         "subtitle": "Enter your email and we'll send you a password reset link",
+        "emailField": "Email Address",
+        "emailFieldPlaceholder": "Enter your email address",
+        "emailFieldDescription": "Enter the email address associated with your account and we'll send you a password reset link.",
+        "successMessage": "Password reset email sent!",
+        "errorMessage": "Failed to send password reset email, please try again.",
+        "errorMessageInvalidEmail": "Please enter a valid email address",
         "cta": {
+          "sendResetLink": "Send Password Reset Link",
+          "sending": "Sending...",
           "remember": "Remember your password?",
           "backToSignIn": "Back to Sign In"
         }
@@ -1365,6 +1395,7 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
+      "namePlaceholder": "Enter step name",
       "columns": {
         "url": "URL",
         "device_type": "Device type",
@@ -1407,15 +1438,41 @@
         "defaultName": "My new funnel",
         "createFunnel": "Create Funnel",
         "createFunnelLower": "Create funnel",
-        "description": "Create a new funnel for your website.",
-        "name": "Name",
+        "name": "Funnel Name",
         "namePlaceholder": "My Funnel Name",
         "strictMode": "Strict Mode",
         "addStep": "Add Step",
-        "livePreview": "Live Preview (Past 24 Hours)",
+        "livePreview": "Live Preview",
         "create": "Create",
+        "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
         "errorMessage": "Funnel creation failed!"
+      },
+      "edit": {
+        "title": "Edit funnel",
+        "name": "Funnel Name",
+        "strictMode": "Strict Mode",
+        "addStep": "Add Step",
+        "cancel": "Cancel",
+        "save": "Save",
+        "livePreview": "Live Preview",
+        "disabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
+        "successMessage": "Funnel updated!",
+        "errorMessage": "Funnel update failed!"
+      },
+      "plot": {
+        "stepLabel": "Step {index}",
+        "visitors": "Visitors",
+        "dropOff": "Drop-off",
+        "conversion": "Conversion"
+      },
+      "delete": {
+        "title": "Delete funnel",
+        "description": "Are you sure you want to delete this funnel? This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete funnel",
+        "successMessage": "Funnel deleted!",
+        "errorMessage": "Funnel deletion failed!"
       },
       "page": {
         "title": "Funnels",
@@ -1744,6 +1801,10 @@
           "cancel": "Cancel",
           "saving": "Saving...",
           "saveChanges": "Save Changes"
+        },
+        "toast": {
+          "success": "Settings saved successfully!",
+          "error": "Failed to save settings. Please try again."
         }
       },
       "profile": {

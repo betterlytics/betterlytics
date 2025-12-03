@@ -55,12 +55,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
           data: [],
           customContent: (
             <div className='h-[280px] w-full'>
-              <LeafletMap
-                visitorData={worldMapData.visitorData}
-                maxVisitors={worldMapData.maxVisitors}
-                showZoomControls={false}
-                initialZoom={1}
-              />
+              <LeafletMap {...worldMapData} showZoomControls={false} initialZoom={1} />
             </div>
           ),
         },
