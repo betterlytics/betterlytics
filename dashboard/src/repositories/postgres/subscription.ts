@@ -1,24 +1,21 @@
 import prisma from '@/lib/postgres';
 import {
-  STARTER_SUBSCRIPTION_STATIC,
   Subscription,
   SubscriptionSchema,
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
-  buildStarterSubscriptionWindow,
+  buildStarterSubscription,
 } from '@/entities/billing';
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
-    const { currentPeriodStart, currentPeriodEnd } = buildStarterSubscriptionWindow();
+    const starterSubscription = buildStarterSubscription();
 
     const subscription = await prisma.subscription.upsert({
       where: { userId },
       create: {
         user: { connect: { id: userId } },
-        ...STARTER_SUBSCRIPTION_STATIC,
-        currentPeriodStart,
-        currentPeriodEnd,
+        ...starterSubscription,
       },
       update: {},
     });

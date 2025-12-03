@@ -15,14 +15,14 @@ export const STARTER_SUBSCRIPTION_STATIC = {
   cancelAtPeriodEnd: false,
 };
 
-export function buildStarterSubscriptionWindow(): {
-  currentPeriodStart: Date;
-  currentPeriodEnd: Date;
-} {
+export function buildStarterSubscription() {
   const currentPeriodStart = startOfDay(new Date());
   const currentPeriodEnd = addMonths(currentPeriodStart, 1);
-
-  return { currentPeriodStart, currentPeriodEnd };
+  return {
+    ...STARTER_SUBSCRIPTION_STATIC,
+    currentPeriodStart,
+    currentPeriodEnd,
+  };
 }
 
 export const SubscriptionSchema = z.object({

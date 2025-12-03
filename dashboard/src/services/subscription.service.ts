@@ -5,16 +5,14 @@ import {
   upsertSubscription as upsertSubscriptionRepository,
   updateSubscriptionStatus as updateSubscriptionStatusRepository,
 } from '@/repositories/postgres/subscription';
-import { STARTER_SUBSCRIPTION_STATIC, buildStarterSubscriptionWindow } from '@/entities/billing';
+import { buildStarterSubscription } from '@/entities/billing';
 
 export async function createStarterSubscriptionForUser(userId: string): Promise<void> {
-  const { currentPeriodStart, currentPeriodEnd } = buildStarterSubscriptionWindow();
+  const starterSubscription = buildStarterSubscription();
 
   await upsertSubscriptionRepository({
     userId,
-    ...STARTER_SUBSCRIPTION_STATIC,
-    currentPeriodStart,
-    currentPeriodEnd,
+    ...starterSubscription,
   });
 }
 
