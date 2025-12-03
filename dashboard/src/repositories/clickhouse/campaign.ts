@@ -152,7 +152,7 @@ export async function getCampaignPerformancePageData(
       GROUP BY visitor_id, session_id, utm_campaign
     ) s
     GROUP BY s.utm_campaign
-    ORDER BY total_visitors DESC
+    ORDER BY total_visitors DESC, total_sessions DESC, s.utm_campaign ASC
     LIMIT {limit:UInt32} OFFSET {offset:UInt32}
   `;
 
