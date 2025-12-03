@@ -21,7 +21,7 @@ import {
   CampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceArraySchema,
   CampaignSparklinePoint,
-  CampaignDirectoryRowSummary,
+  CampaignListRowSummary,
   type UTMDimension,
 } from '@/entities/campaign';
 import {
@@ -116,7 +116,7 @@ async function fetchCampaignPerformancePage(
 }
 
 export type CampaignDirectoryPage = {
-  campaigns: CampaignDirectoryRowSummary[];
+  campaigns: CampaignListRowSummary[];
   totalCampaigns: number;
   pageIndex: number;
   pageSize: number;
@@ -139,7 +139,7 @@ export async function fetchCampaignDirectoryPage(
       ? await fetchCampaignSparklines(siteId, startDate, endDate, granularity, timezone, campaignNames)
       : {};
 
-  const campaigns: CampaignDirectoryRowSummary[] = performancePage.campaigns.map((campaign) => ({
+  const campaigns: CampaignListRowSummary[] = performancePage.campaigns.map((campaign) => ({
     ...campaign,
     sparkline: sparklineMap[campaign.name] ?? [],
   }));

@@ -11,7 +11,7 @@ import {
   CampaignUTMBreakdownItem,
   CampaignLandingPagePerformanceItem,
   CampaignSparklinePoint,
-  CampaignDirectoryRowSummary,
+  CampaignListRowSummary,
   type UTMDimension,
 } from '@/entities/campaign';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
@@ -45,7 +45,7 @@ export const fetchCampaignPerformanceAction = withDashboardAuthContext(
     pageIndex: number,
     pageSize: number,
   ): Promise<{
-    campaigns: CampaignDirectoryRowSummary[];
+    campaigns: CampaignListRowSummary[];
     totalCampaigns: number;
     pageIndex: number;
     pageSize: number;

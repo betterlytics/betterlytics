@@ -51,7 +51,7 @@ export const CampaignPerformanceSchema = MetricSchema.extend({
   name: z.string(),
 });
 
-export const CampaignDirectoryRowSummarySchema = CampaignPerformanceSchema.extend({
+export const CampaignListRowSummarySchema = CampaignPerformanceSchema.extend({
   sparkline: z.array(CampaignSparklinePointSchema),
 });
 
@@ -76,7 +76,7 @@ export const CampaignTrendRowSchema = z.object({
 export type RawCampaignData = z.infer<typeof RawCampaignDataSchema>;
 export type CampaignPerformance = z.infer<typeof CampaignPerformanceSchema>;
 export type CampaignSparklinePoint = z.infer<typeof CampaignSparklinePointSchema>;
-export type CampaignDirectoryRowSummary = z.infer<typeof CampaignDirectoryRowSummarySchema>;
+export type CampaignListRowSummary = z.infer<typeof CampaignListRowSummarySchema>;
 export type RawCampaignUTMBreakdownItem = z.infer<typeof RawCampaignUTMBreakdownItemSchema>;
 export type CampaignUTMBreakdownItem = z.infer<typeof CampaignUTMBreakdownItemSchema>;
 export type CampaignTrendRow = z.infer<typeof CampaignTrendRowSchema>;
