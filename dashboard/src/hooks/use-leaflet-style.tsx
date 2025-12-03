@@ -21,27 +21,22 @@ export interface MapStyle {
 }
 
 export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle {
-  const fillColors = useCSSColors([
-    MAP_VISITOR_COLORS.LOW_VISITORS,
-    // MAP_VISITOR_COLORS.MEDIUM_VISITORS,
-    MAP_VISITOR_COLORS.HIGH_VISITORS,
-  ] as const);
+  const fillColors = useCSSColors([MAP_VISITOR_COLORS.LOW_VISITORS, MAP_VISITOR_COLORS.HIGH_VISITORS] as const);
 
   const borderColors = useCSSColors([
     MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
-    // MAP_FEATURE_BORDER_COLORS.MEDIUM_VISITORS,
     MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
   ] as const);
 
   const fillColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType: 'lab',
+    scaleType: 'gamma-1/4',
     colors: fillColors as [string, string, string],
   });
 
   const borderColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType: 'lab',
+    scaleType: 'gamma-1/4',
     colors: borderColors as [string, string, string],
   });
 

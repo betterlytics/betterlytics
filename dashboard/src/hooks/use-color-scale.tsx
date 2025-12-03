@@ -4,7 +4,15 @@ import { useMemo } from 'react';
 import { scaleLinear, scaleLog, scalePow } from 'd3-scale';
 import chroma from 'chroma-js';
 
-export type ScaleType = 'linear' | 'lab' | 'ln' | `log${number}` | `pow-${number}` | `pow-${number}/${number}`;
+export type ScaleType =
+  | 'linear'
+  | 'lab'
+  | 'ln'
+  | `log${number}`
+  | `pow-${number}`
+  | `pow-${number}/${number}`
+  | `gamma-${number}`
+  | `gamma-${number}/${number}`;
 
 export type UseColorScaleProps = {
   maxValue: number;
@@ -21,9 +29,31 @@ export function useColorScale({ colors, maxValue, scaleType = 'pow-4/10' }: UseC
       return (value: number) =>
         chroma
           .scale(colors)
-          .correctLightness(true)
           .mode('lab')(value / (maxValue || 1))
           .hex();
+    }
+
+    // Gamma scale: great for exponentially distributed data (e.g., country visitor counts)
+    // gamma < 1 stretches lower values, compresses higher values
+    // Example: 'gamma-1/3' for heavy skew (1-1000 where most values are 1-100)
+    //          'gamma-1/2' for moderate skew
+    if (scaleType.startsWith('gamma-')) {
+      const gammaStr = scaleType.replace('gamma-', '');
+      let gamma: number;
+      if (gammaStr.includes('/')) {
+        const [num, den] = gammaStr.split('/').map(Number);
+        gamma = num / den;
+      } else {
+        gamma = Number(gammaStr);
+      }
+
+      const scale = chroma
+        .scale(colors)
+        .mode('lab')
+        .domain([1, maxValue || 1])
+        .gamma(gamma);
+
+      return (value: number) => scale(Math.max(0, value)).hex();
     }
 
     if (scaleType.startsWith('log') || scaleType === 'ln') {
