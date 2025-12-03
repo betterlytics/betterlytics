@@ -1,3 +1,28 @@
+const fs = require("fs");
+const path = require("path");
+
+/**
+ * Load environment variables from .env file
+ */
+function loadEnv() {
+  const envPath = path.resolve(__dirname, ".env");
+  if (!fs.existsSync(envPath)) return {};
+
+  const envContent = fs.readFileSync(envPath, "utf-8");
+  const env = {};
+  for (const line of envContent.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const [key, ...valueParts] = trimmed.split("=");
+    if (key && valueParts.length > 0) {
+      env[key.trim()] = valueParts.join("=").trim().replace(/^["']|["']$/g, "");
+    }
+  }
+  return env;
+}
+
+const ENV = loadEnv();
+
 /**
  * CLI Argument Parsing
  */
@@ -115,6 +140,8 @@ function generateCampaignUrl(baseUrl) {
   return `${baseUrl}?${params.toString()}`;
 }
 
+const PUBLIC_BASE_URL = ENV.PUBLIC_BASE_URL || "http://localhost:3000";
+
 const BASE_PAYLOAD = {
   referrer: null,
   screen_resolution: "1920x1080",
@@ -123,7 +150,7 @@ const BASE_PAYLOAD = {
   is_custom_event: false,
   properties: JSON.stringify({}),
   timestamp: 0,
-  url: "http://localhost:3000/dashboard",
+  url: `${PUBLIC_BASE_URL}/dashboard`,
   user_agent:
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
   visitor_id: "placeholder",
@@ -214,7 +241,7 @@ CAMPAIGN_DATA.utm_campaign = new Array(NUM_CAMPAIGNS)
 
 function getExtraPayload(payload) {
   const hasCampaign = Math.random() < CAMPAIGN_FREQUENCY;
-  const baseUrl = "http://localhost:3000/dashboard";
+  const baseUrl = `${PUBLIC_BASE_URL}/dashboard`;
 
   return {
     ...payload,
