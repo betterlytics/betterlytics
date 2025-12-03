@@ -10,11 +10,8 @@ import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
-import { getUserSettings } from '@/services/userSettings';
-import { upsertSubscription } from '@/repositories/postgres/subscription';
-import { STARTER_SUBSCRIPTION_STATIC, buildStarterSubscriptionWindow } from '@/entities/billing';
-import { createUserSettings } from '@/repositories/postgres/userSettings';
-import { DEFAULT_USER_SETTINGS } from '@/entities/userSettings';
+import { createDefaultUserSettings, getUserSettings } from '@/services/userSettings';
+import { createStarterSubscriptionForUser } from '@/services/subscription.service';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -87,20 +84,13 @@ export const authOptions: NextAuthOptions = {
   events: {
     async createUser({ user }) {
       try {
-        const { currentPeriodStart, currentPeriodEnd } = buildStarterSubscriptionWindow();
-
-        await upsertSubscription({
-          userId: user.id,
-          ...STARTER_SUBSCRIPTION_STATIC,
-          currentPeriodStart,
-          currentPeriodEnd,
-        });
+        await createStarterSubscriptionForUser(user.id);
       } catch (error) {
         console.error('Failed to create initial subscription for user in NextAuth event:', error);
       }
 
       try {
-        await createUserSettings(user.id, DEFAULT_USER_SETTINGS);
+        await createDefaultUserSettings(user.id);
       } catch (error) {
         console.error('Failed to create initial user settings for user in NextAuth event:', error);
       }
