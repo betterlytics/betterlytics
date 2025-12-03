@@ -1,27 +1,4 @@
-const fs = require("fs");
-const path = require("path");
-
-/**
- * Load environment variables from .env file
- */
-function loadEnv() {
-  const envPath = path.resolve(__dirname, ".env");
-  if (!fs.existsSync(envPath)) return {};
-
-  const envContent = fs.readFileSync(envPath, "utf-8");
-  const env = {};
-  for (const line of envContent.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-    const [key, ...valueParts] = trimmed.split("=");
-    if (key && valueParts.length > 0) {
-      env[key.trim()] = valueParts.join("=").trim().replace(/^["']|["']$/g, "");
-    }
-  }
-  return env;
-}
-
-const ENV = loadEnv();
+const ENV = require("dotenv").config({ path: "./.env" });
 
 /**
  * CLI Argument Parsing
