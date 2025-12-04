@@ -177,9 +177,10 @@ export async function getPagesSummaryWithChartsForSite(
   const avgTimeOnPage = pageAnalytics.reduce((sum, page) => sum + page.avgTime, 0) / Math.max(totalPages, 1);
   const avgBounceRate = pageAnalytics.reduce((sum, page) => sum + page.bounceRate, 0) / Math.max(totalPages, 1);
 
+  const totalSessions = sessionMetricsData.reduce((sum, row) => sum + row.sessions, 0);
   const avgPagesPerSession =
-    sessionMetricsData.length > 0
-      ? sessionMetricsData.reduce((sum, row) => sum + row.pages_per_session, 0) / sessionMetricsData.length
+    totalSessions > 0
+      ? sessionMetricsData.reduce((sum, row) => sum + row.sessions * row.pages_per_session, 0) / totalSessions
       : 0;
 
   const pagesPerSessionChartData = sessionMetricsData.map((row) => ({
