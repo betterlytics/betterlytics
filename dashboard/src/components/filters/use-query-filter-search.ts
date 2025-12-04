@@ -1,11 +1,11 @@
 'use client';
 
 import { getFilterOptionsAction } from '@/app/actions/filters';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { QueryFilter } from '@/entities/filter';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
+import { subWeeks } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SEARCH_LIMIT = 5000;
@@ -15,7 +15,6 @@ type SearchMetadataResult = {
 };
 
 export function useQueryFilterSearch(filter: QueryFilter) {
-  const { startDate, endDate } = useTimeRangeContext();
   const dashboardId = useDashboardId();
 
   const [isDirty, setIsDirty] = useState(false);
@@ -36,11 +35,11 @@ export function useQueryFilterSearch(filter: QueryFilter) {
   }, [searchMetadataResult]);
 
   const { data: fetchedOptions = [], isLoading } = useQuery({
-    queryKey: ['filter-options', filter.column, startDate?.toString(), endDate?.toString(), debouncedSearch],
+    queryKey: ['filter-options', filter.column, debouncedSearch],
     queryFn: () =>
       getFilterOptionsAction(dashboardId, {
-        startDate,
-        endDate,
+        startDate: subWeeks(new Date(), 1),
+        endDate: new Date(),
         column: filter.column,
         search: isDirty ? debouncedSearch || undefined : undefined,
         limit: SEARCH_LIMIT,
