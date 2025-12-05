@@ -1,9 +1,9 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
-import { HeatmapMetric, WeeklyHeatmapRow, WeeklyHeatmapRowSchema } from '@/entities/weeklyHeatmap';
+import { HeatmapMetric, WeeklyHeatmapRow, WeeklyHeatmapRowSchema } from '@/entities/analytics/weeklyHeatmap';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 
 function getBaseAggregation(metric: HeatmapMetric) {
   switch (metric) {

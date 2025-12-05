@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { Fragment } from 'react';
-import type { ChangelogContentBlock, ChangelogEntry, ChangelogEntryData } from '@/entities/changelog';
+import type { ChangelogContentBlock, ChangelogEntry, ChangelogEntryData } from '@/entities/system/changelog';
 
 function renderText(body: ChangelogContentBlock & { type: 'text' }) {
   const paragraphs = Array.isArray(body.body) ? body.body : [body.body];

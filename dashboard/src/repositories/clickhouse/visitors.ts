@@ -1,15 +1,15 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { DailyUniqueVisitorsRow, DailyUniqueVisitorsRowSchema } from '@/entities/visitors';
+import { DailyUniqueVisitorsRow, DailyUniqueVisitorsRowSchema } from '@/entities/analytics/visitors';
 import {
   DailySessionMetricsRow,
   DailySessionMetricsRowSchema,
   RangeSessionMetrics,
   RangeSessionMetricsSchema,
-} from '@/entities/sessionMetrics';
+} from '@/entities/analytics/sessionMetrics';
 import { DateString } from '@/types/dates';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { safeSql, SQL } from '@/lib/safe-sql';
 
 export async function getUniqueVisitors(

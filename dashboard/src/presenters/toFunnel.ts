@@ -1,4 +1,4 @@
-import { FunnelDetails, FunnelPreview, FunnelStep } from '@/entities/funnels';
+import { FunnelDetails, FunnelPreview, FunnelStep } from '@/entities/analytics/funnels';
 
 export type PresentedFunnel = {
   id: string;

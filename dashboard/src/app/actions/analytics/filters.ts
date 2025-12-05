@@ -1,9 +1,9 @@
 'use server';
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/authContext';
+import { AuthContext } from '@/entities/auth/authContext';
 import { z } from 'zod';
-import { FILTER_COLUMNS } from '@/entities/filter';
+import { FILTER_COLUMNS } from '@/entities/analytics/filter';
 import { getDistinctValuesForFilterColumn } from '@/services/analytics/filters';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toFormatted } from '@/presenters/toFormatted';

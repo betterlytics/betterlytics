@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { createStripeCustomerPortalSessionForCancellation } from '@/actions/stripe';
 import { toast } from 'sonner';
-import type { Tier } from '@/entities/billing';
+import type { Tier } from '@/entities/billing/billing';
 import { ExternalLink } from 'lucide-react';
 
 interface CancelSubscriptionDialogProps {

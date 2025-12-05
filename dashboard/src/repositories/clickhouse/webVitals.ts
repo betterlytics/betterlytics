@@ -14,7 +14,7 @@ import {
   CWVDimension,
   CoreWebVitalsAllPercentilesPerDimensionRow,
   CoreWebVitalsAllPercentilesPerDimensionRowSchema,
-} from '@/entities/webVitals';
+} from '@/entities/analytics/webVitals';
 
 export async function getCoreWebVitalsP75(
   siteId: string,

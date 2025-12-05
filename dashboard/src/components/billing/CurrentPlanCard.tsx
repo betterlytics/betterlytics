@@ -9,7 +9,7 @@ import { formatPrice } from '@/utils/pricing';
 import { createStripeCustomerPortalSession } from '@/actions/stripe';
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
 import { toast } from 'sonner';
-import type { UserBillingData } from '@/entities/billing';
+import type { UserBillingData } from '@/entities/billing/billing';
 import { useTranslations } from 'next-intl';
 
 interface CurrentPlanCardProps {

@@ -13,10 +13,10 @@ import {
   BrowserRollupRow,
   OperatingSystemRollupRowSchema,
   OperatingSystemRollupRow,
-} from '@/entities/devices';
+} from '@/entities/analytics/devices';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { TimeRangeValue } from '@/utils/timeRanges';
 

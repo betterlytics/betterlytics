@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useSession } from 'next-auth/react';
 import { Lock, Eye, EyeOff, Loader2, Check } from 'lucide-react';
-import { ChangePasswordData, ChangePasswordSchema } from '@/entities/password';
+import { ChangePasswordData, ChangePasswordSchema } from '@/entities/auth/password';
 import { changePasswordAction } from '@/app/actions/account/userSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

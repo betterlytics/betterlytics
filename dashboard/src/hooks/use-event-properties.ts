@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { EventPropertiesOverview } from '@/entities/events';
+import { EventPropertiesOverview } from '@/entities/analytics/events';
 import { fetchEventPropertiesAnalyticsAction } from '@/app/actions/analytics/events';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 
 export function useEventProperties(
   dashboardId: string,

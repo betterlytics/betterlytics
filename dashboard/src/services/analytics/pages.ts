@@ -15,7 +15,7 @@ import {
   getDailyBounceRate,
 } from '@/repositories/clickhouse';
 import { getSessionMetrics } from '@/repositories/clickhouse/visitors';
-import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/pageviews';
+import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/analytics/pageviews';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   PageAnalytics,
@@ -26,9 +26,9 @@ import {
   DailyBounceRateRow,
   PagesSummaryWithCharts,
   PagesSummaryWithChartsSchema,
-} from '@/entities/pages';
+} from '@/entities/analytics/pages';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 
 export async function getTotalPageViewsForSite(
   siteId: string,

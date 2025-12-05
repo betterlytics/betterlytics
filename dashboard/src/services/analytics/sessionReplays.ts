@@ -3,8 +3,8 @@
 import { getSessionReplays } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { S3ReplaySegmentsRepository } from '@/repositories/s3ReplaySegmentsRepository';
-import type { ReplaySegmentManifest } from '@/entities/sessionReplays';
-import type { QueryFilter } from '@/entities/filter';
+import type { ReplaySegmentManifest } from '@/entities/analytics/sessionReplays';
+import type { QueryFilter } from '@/entities/analytics/filter';
 
 export async function getSessionReplaysForSite(
   siteId: string,

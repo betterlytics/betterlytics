@@ -1,9 +1,9 @@
 'use server';
 
 import { withDashboardMutationAuthContext } from '@/auth/auth-actions';
-import { BugReportSubmission, BugReportSubmissionSchema } from '@/entities/bugReport';
+import { BugReportSubmission, BugReportSubmissionSchema } from '@/entities/system/bugReport';
 import { submitBugReport } from '@/services/system/bugReports';
-import { type AuthContext } from '@/entities/authContext';
+import { type AuthContext } from '@/entities/auth/authContext';
 
 export const submitBugReportAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, payload: BugReportSubmission) => {

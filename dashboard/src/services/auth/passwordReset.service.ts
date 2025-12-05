@@ -1,6 +1,6 @@
 'server-only';
 
-import { ForgotPasswordData, ResetPasswordData } from '@/entities/passwordReset';
+import { ForgotPasswordData, ResetPasswordData } from '@/entities/auth/passwordReset';
 import { findUserByEmail, findUserById, updateUserPassword } from '@/repositories/postgres/user';
 import {
   createPasswordResetToken,

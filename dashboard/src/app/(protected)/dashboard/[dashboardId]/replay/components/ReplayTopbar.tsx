@@ -7,7 +7,7 @@ import { useLocale } from 'next-intl';
 import { memo } from 'react';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useTranslations } from 'next-intl';
-import { SessionReplay } from '@/entities/sessionReplays';
+import { SessionReplay } from '@/entities/analytics/sessionReplays';
 
 type ReplayTopbarProps = {
   session?: SessionReplay | null;

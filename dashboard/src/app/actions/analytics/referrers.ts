@@ -11,9 +11,14 @@ import {
 } from '@/services/analytics/referrers';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/authContext';
-import { TopReferrerUrl, TopChannel, TopReferrerSource, TrafficSourcesCombinedSchema } from '@/entities/referrers';
-import { QueryFilter } from '@/entities/filter';
+import { AuthContext } from '@/entities/auth/authContext';
+import {
+  TopReferrerUrl,
+  TopChannel,
+  TopReferrerSource,
+  TrafficSourcesCombinedSchema,
+} from '@/entities/analytics/referrers';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { toPieChart } from '@/presenters/toPieChart';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';

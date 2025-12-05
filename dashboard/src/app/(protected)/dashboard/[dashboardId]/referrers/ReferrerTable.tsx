@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import { formatDuration } from '@/utils/dateFormatters';
-import { ReferrerTableRow } from '@/entities/referrers';
+import { ReferrerTableRow } from '@/entities/analytics/referrers';
 import { getReferrerColor } from '@/utils/referrerColors';
 import { Globe, Link } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';

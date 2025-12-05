@@ -1,10 +1,10 @@
 'use server';
 
 import { getUserJourneyForSankeyDiagram } from '@/services/analytics/userJourney';
-import { SankeyData } from '@/entities/userJourney';
-import { QueryFilter } from '@/entities/filter';
+import { SankeyData } from '@/entities/analytics/userJourney';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/authContext';
+import { AuthContext } from '@/entities/auth/authContext';
 
 /**
  * Fetch user journey data for Sankey diagram visualization

@@ -6,7 +6,7 @@ import {
   type FunnelStep,
   UpdateFunnelSchema,
   UpdateFunnel,
-} from '@/entities/funnels';
+} from '@/entities/analytics/funnels';
 import {
   createFunnelForDashboard,
   getFunnelDetailsById,
@@ -16,7 +16,7 @@ import {
   updateFunnelForDashboard,
 } from '@/services/analytics/funnels';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
-import { type AuthContext } from '@/entities/authContext';
+import { type AuthContext } from '@/entities/auth/authContext';
 import { revalidatePath } from 'next/cache';
 import { toFunnel } from '@/presenters/toFunnel';
 

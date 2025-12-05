@@ -7,13 +7,13 @@ import {
   TopOutboundLinksDistrubution,
   OutboundLinksSummary,
   OutboundLinkSummarySchema,
-} from '@/entities/outboundLinks';
+} from '@/entities/analytics/outboundLinks';
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 
 /**
  * Get outbound links analytics data for table display

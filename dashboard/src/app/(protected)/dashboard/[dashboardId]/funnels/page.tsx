@@ -5,7 +5,7 @@ import FunnelsStack from './FunnelsStack';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { getUserTimezone } from '@/lib/cookies';
 

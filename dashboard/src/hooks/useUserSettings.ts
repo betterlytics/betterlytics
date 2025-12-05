@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
 import { getUserSettingsAction, updateUserSettingsAction } from '@/app/actions/account/userSettings';
-import { UserSettings, UserSettingsUpdate } from '@/entities/userSettings';
+import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings';
 
 interface UseUserSettingsReturn {
   settings: UserSettings | null;

@@ -1,8 +1,8 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { SequentialPath, SequentialPathSchema } from '@/entities/userJourney';
+import { SequentialPath, SequentialPathSchema } from '@/entities/analytics/userJourney';
 import { DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { BAQuery } from '@/lib/ba-query';
 
 /**
@@ -15,7 +15,7 @@ export async function getUserSequentialPaths(
   endDate: DateTimeString,
   maxPathLength: number = 3,
   limit: number = 25,
-  queryFilters: QueryFilter[]
+  queryFilters: QueryFilter[],
 ): Promise<SequentialPath[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
@@ -48,16 +48,18 @@ export async function getUserSequentialPaths(
     LIMIT {limit:UInt32}
   `;
 
-  const result = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      site_id: siteId,
-      start: startDate,
-      end: endDate,
-      max_length: maxPathLength,
-      limit: limit
-    },
-  }).toPromise() as Array<{path: string[], count: number}>;
-  
-  return result.map(path => SequentialPathSchema.parse(path));
-} 
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start: startDate,
+        end: endDate,
+        max_length: maxPathLength,
+        limit: limit,
+      },
+    })
+    .toPromise()) as Array<{ path: string[]; count: number }>;
+
+  return result.map((path) => SequentialPathSchema.parse(path));
+}

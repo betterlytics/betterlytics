@@ -7,9 +7,9 @@ import {
   getTotalEventCount,
 } from '@/repositories/clickhouse';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { EventPropertiesOverview, EventPropertyAnalytics, EventPropertyValue } from '@/entities/events';
+import { EventPropertiesOverview, EventPropertyAnalytics, EventPropertyValue } from '@/entities/analytics/events';
 import { calculatePercentage } from '@/utils/mathUtils';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 
 const MAX_TOP_VALUES = 10;
 

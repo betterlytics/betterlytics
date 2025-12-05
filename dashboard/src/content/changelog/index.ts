@@ -1,11 +1,11 @@
 import type { SupportedLanguages } from '@/constants/i18n';
-import type { ChangelogEntry, ChangelogEntryData } from '@/entities/changelog';
+import type { ChangelogEntry, ChangelogEntryData } from '@/entities/system/changelog';
 import { createChangelogEntry } from './entry-renderer';
 import { changelogEntriesEn, latestChangelogModalEn } from './locales/en';
 import { changelogEntriesDa, latestChangelogModalDa } from './locales/da';
 import { changelogEntriesIt, latestChangelogModalIt } from './locales/it';
 
-export type { ChangelogEntry } from '@/entities/changelog';
+export type { ChangelogEntry } from '@/entities/system/changelog';
 
 const defaultLocale = (process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en') as SupportedLanguages;
 

@@ -2,7 +2,7 @@ import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Activity, ExternalLink, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { EventLogEntry } from '@/entities/events';
+import { EventLogEntry } from '@/entities/analytics/events';
 import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { DeviceIcon, BrowserIcon, FlagIcon, FlagIconProps } from '@/components/icons';
 import { useLocale } from 'next-intl';

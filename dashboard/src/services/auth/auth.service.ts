@@ -3,13 +3,13 @@ import { findUserByEmail, createUser, registerUser } from '@/repositories/postgr
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';
 import { type User } from 'next-auth';
-import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/user';
+import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/auth/user';
 import { v4 as uuidv4 } from 'uuid';
-import { AuthContextSchema } from '@/entities/authContext';
+import { AuthContextSchema } from '@/entities/auth/authContext';
 import { UserException } from '@/lib/exceptions';
 import { isValidTotp } from '@/services/auth/totp.service';
 import { notFound } from 'next/navigation';
-import { DashboardFindByUserData } from '@/entities/dashboard';
+import { DashboardFindByUserData } from '@/entities/dashboard/dashboard';
 
 const SALT_ROUNDS = 10;
 

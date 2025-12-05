@@ -5,7 +5,7 @@ import {
   DashboardSettingsUpdate,
   DashboardSettingsUpdateSchema,
   DashboardSettingsCreateSchema,
-} from '@/entities/dashboardSettings';
+} from '@/entities/dashboard/dashboardSettings';
 
 export async function findSettingsByDashboardId(dashboardId: string): Promise<DashboardSettings | null> {
   try {

@@ -1,6 +1,6 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { EventCountResultSchema } from '@/entities/billing';
+import { EventCountResultSchema } from '@/entities/billing/billing';
 import { DateString } from '@/types/dates';
 
 /**

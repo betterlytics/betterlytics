@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { type FilterColumn, type FilterOperator } from '@/entities/filter';
+import { type FilterColumn, type FilterOperator } from '@/entities/analytics/filter';
 import { useDemoMode } from '@/contexts/DemoModeContextProvider';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getUserBillingData } from '@/actions/billing';
-import type { UserBillingData } from '@/entities/billing';
+import type { UserBillingData } from '@/entities/billing/billing';
 
 interface UseBillingDataReturn {
   billingData: UserBillingData | null;

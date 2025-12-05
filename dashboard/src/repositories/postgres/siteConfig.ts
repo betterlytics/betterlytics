@@ -1,5 +1,5 @@
 import prisma from '@/lib/postgres';
-import { SiteConfig, SiteConfigSchema, SiteConfigUpdate } from '@/entities/siteConfig';
+import { SiteConfig, SiteConfigSchema, SiteConfigUpdate } from '@/entities/dashboard/siteConfig';
 
 export async function findSiteConfigByDashboardId(dashboardId: string): Promise<SiteConfig | null> {
   try {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
-import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboardSettings';
+import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings';
 import {
   getDashboardSettingsAction,
   updateDashboardSettingsAction,

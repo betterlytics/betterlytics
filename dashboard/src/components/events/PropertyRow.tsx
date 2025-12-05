@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { EventPropertyAnalytics } from '@/entities/events';
+import { EventPropertyAnalytics } from '@/entities/analytics/events';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
 import { cn } from '@/lib/utils';
 

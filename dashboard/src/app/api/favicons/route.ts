@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { lookup } from 'dns/promises';
 import ipaddr from 'ipaddr.js';
-import { domainValidation } from '@/entities/dashboard';
+import { domainValidation } from '@/entities/dashboard/dashboard';
 
 const USER_AGENT = 'Better Analytics Favicon Proxy';
 const SUPPORTED_PROTOCOLS: Array<'https' | 'http'> = ['https', 'http'];

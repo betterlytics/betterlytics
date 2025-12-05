@@ -9,10 +9,10 @@ import {
   RegisterUserSchema,
   RegisterUserData,
   UpdateUserData,
-} from '@/entities/user';
+} from '@/entities/auth/user';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
-import { buildStarterSubscription } from '@/entities/billing';
-import { DEFAULT_USER_SETTINGS } from '@/entities/userSettings';
+import { buildStarterSubscription } from '@/entities/billing/billing';
+import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings';
 import type { SupportedLanguages } from '@/constants/i18n';
 
 const SALT_ROUNDS = 10;

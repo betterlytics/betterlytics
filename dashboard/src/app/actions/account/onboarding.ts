@@ -1,6 +1,6 @@
 'use server';
 
-import { Dashboard } from '@/entities/dashboard';
+import { Dashboard } from '@/entities/dashboard/dashboard';
 import { withUserAuth } from '@/auth/auth-actions';
 import { completeOnboardingAndCreateDashboard } from '@/services/dashboard/dashboard';
 import { acceptUserTerms } from '@/services/auth/user.service';

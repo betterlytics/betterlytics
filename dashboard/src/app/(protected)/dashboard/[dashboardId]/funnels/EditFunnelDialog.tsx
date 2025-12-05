@@ -16,7 +16,7 @@ import { updateFunnelAction } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
-import { UpdateFunnelSchema, type FunnelStep } from '@/entities/funnels';
+import { UpdateFunnelSchema, type FunnelStep } from '@/entities/analytics/funnels';
 import { toast } from 'sonner';
 import { FunnelDialogContent } from './FunnelDialogContent';
 

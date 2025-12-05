@@ -1,8 +1,8 @@
 'server-only';
 
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { HeatmapMetric, WeeklyHeatmap } from '@/entities/weeklyHeatmap';
-import { QueryFilter } from '@/entities/filter';
+import { HeatmapMetric, WeeklyHeatmap } from '@/entities/analytics/weeklyHeatmap';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { getWeeklyHeatmap } from '@/repositories/clickhouse/weeklyHeatmap';
 
 export async function getWeeklyHeatmapForSite(

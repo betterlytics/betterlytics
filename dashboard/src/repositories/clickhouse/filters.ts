@@ -1,5 +1,5 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { type FilterColumn } from '@/entities/filter';
+import { type FilterColumn } from '@/entities/analytics/filter';
 import { type DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
 

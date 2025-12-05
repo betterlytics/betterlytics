@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
-import type { UserBillingData, Tier, Currency } from '@/entities/billing';
+import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing';
 import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';

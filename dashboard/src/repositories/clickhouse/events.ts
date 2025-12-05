@@ -5,10 +5,10 @@ import {
   EventOccurrenceAggregate,
   RawEventPropertyData,
   RawEventPropertyDataArraySchema,
-} from '@/entities/events';
+} from '@/entities/analytics/events';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { EventLogEntry, EventLogEntrySchema } from '@/entities/events';
-import { QueryFilter } from '@/entities/filter';
+import { EventLogEntry, EventLogEntrySchema } from '@/entities/analytics/events';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { BAQuery } from '@/lib/ba-query';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 

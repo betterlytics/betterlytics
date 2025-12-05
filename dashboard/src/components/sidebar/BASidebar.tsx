@@ -38,7 +38,7 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { Dashboard } from '@/entities/dashboard';
+import { Dashboard } from '@/entities/dashboard/dashboard';
 
 type BASidebarProps = {
   dashboardId: string;

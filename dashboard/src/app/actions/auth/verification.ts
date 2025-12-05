@@ -1,7 +1,7 @@
 'use server';
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/authContext';
+import { AuthContext } from '@/entities/auth/authContext';
 import { checkTrackingDataExists } from '@/services/dashboard/verification';
 import { checkRateLimit } from '@/services/account/verification.service';
 import {
@@ -10,7 +10,7 @@ import {
   VerifyEmailData,
   VerifyEmailSchema,
   VerificationResult,
-} from '@/entities/verification';
+} from '@/entities/account/verification';
 import { sendVerificationEmail, verifyEmail } from '@/services/account/verification.service';
 
 export const verifyTrackingInstallation = withDashboardAuthContext(async (ctx: AuthContext): Promise<boolean> => {

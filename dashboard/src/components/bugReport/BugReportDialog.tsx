@@ -15,7 +15,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { submitBugReportAction } from '@/app/actions/system/bugReports';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-import { BUG_REPORT_MAX_LENGTH } from '@/entities/bugReport';
+import { BUG_REPORT_MAX_LENGTH } from '@/entities/system/bugReport';
 
 type BugReportDialogProps = {
   open: boolean;

@@ -4,7 +4,7 @@ import {
   DashboardSettings,
   DashboardSettingsUpdate,
   DEFAULT_DASHBOARD_SETTINGS,
-} from '@/entities/dashboardSettings';
+} from '@/entities/dashboard/dashboardSettings';
 import * as SettingsRepository from '@/repositories/postgres/settings';
 
 export async function getDashboardSettings(dashboardId: string): Promise<DashboardSettings> {

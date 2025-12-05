@@ -1,6 +1,6 @@
 'use server';
 
-import { RegisterUserData, RegisterUserSchema } from '@/entities/user';
+import { RegisterUserData, RegisterUserSchema } from '@/entities/auth/user';
 import { registerNewUser } from '@/services/auth/auth.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { sendVerificationEmail } from '@/services/account/verification.service';

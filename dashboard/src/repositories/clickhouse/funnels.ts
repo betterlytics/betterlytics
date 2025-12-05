@@ -3,7 +3,7 @@ import { clickhouse } from '@/lib/clickhouse';
 import { SQL, safeSql } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { DateTimeString } from '@/types/dates';
-import { FunnelStep } from '@/entities/funnels';
+import { FunnelStep } from '@/entities/analytics/funnels';
 
 export async function getFunnelDetails(
   siteId: string,

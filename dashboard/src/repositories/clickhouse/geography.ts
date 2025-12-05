@@ -1,8 +1,8 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
-import { GeoVisitor, GeoVisitorSchema } from '@/entities/geography';
+import { GeoVisitor, GeoVisitorSchema } from '@/entities/analytics/geography';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { BAQuery } from '@/lib/ba-query';
 
 /**
@@ -14,10 +14,10 @@ export async function getVisitorsByCountry(
   startDate: DateTimeString,
   endDate: DateTimeString,
   queryFilters: QueryFilter[],
-  limit: number = 1000
+  limit: number = 1000,
 ): Promise<GeoVisitor[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
-  
+
   const query = safeSql`
     SELECT
       country_code,
@@ -33,20 +33,22 @@ export async function getVisitorsByCountry(
     LIMIT {limit:UInt32}
   `;
 
-  const result = await clickhouse.query(query.taggedSql, {
-    params: {
-      ...query.taggedParams,
-      site_id: siteId,
-      start: startDate,
-      end: endDate,
-      limit,
-    },
-  }).toPromise() as any[];
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start: startDate,
+        end: endDate,
+        limit,
+      },
+    })
+    .toPromise()) as any[];
 
-  return result.map(row => 
+  return result.map((row) =>
     GeoVisitorSchema.parse({
       country_code: row.country_code,
-      visitors: Number(row.visitors)
-    })
+      visitors: Number(row.visitors),
+    }),
   );
 }

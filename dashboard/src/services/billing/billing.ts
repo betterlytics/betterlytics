@@ -2,7 +2,7 @@ import { getUserSubscription } from '@/repositories/postgres/subscription';
 import { getUserSiteIds } from '@/repositories/postgres/dashboard';
 import { getUserEventCountForPeriod } from '@/repositories/clickhouse/usage';
 import { toDateString } from '@/utils/dateFormatters';
-import { UserBillingDataSchema, type UsageData, type UserBillingData } from '@/entities/billing';
+import { UserBillingDataSchema, type UsageData, type UserBillingData } from '@/entities/billing/billing';
 import { UserException } from '@/lib/exceptions';
 
 export async function getUserBillingStats(userId: string): Promise<UserBillingData> {

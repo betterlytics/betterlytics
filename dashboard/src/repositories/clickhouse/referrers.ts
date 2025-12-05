@@ -15,13 +15,13 @@ import {
   DailyReferralPercentageRowSchema,
   DailyReferralSessionDurationRow,
   DailyReferralSessionDurationRowSchema,
-} from '@/entities/referrers';
+} from '@/entities/analytics/referrers';
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 
 /**
  * Get the distribution of referrers by source type using unique sessions

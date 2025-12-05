@@ -1,8 +1,8 @@
 'use server';
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/authContext';
-import { QueryFilter } from '@/entities/filter';
+import { AuthContext } from '@/entities/auth/authContext';
+import { QueryFilter } from '@/entities/analytics/filter';
 import {
   getAllCoreWebVitalPercentilesTimeseries,
   getCoreWebVitalsSummaryForSite,
@@ -10,10 +10,10 @@ import {
   getHasCoreWebVitalsData,
 } from '@/services/analytics/webVitals';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { CoreWebVitalName } from '@/entities/webVitals';
+import { CoreWebVitalName } from '@/entities/analytics/webVitals';
 import { toWebVitalsPercentileChart, type PercentilePoint } from '@/presenters/toMultiLine';
 import { toDataTable } from '@/presenters/toDataTable';
-import { type CWVDimension } from '@/entities/webVitals';
+import { type CWVDimension } from '@/entities/analytics/webVitals';
 
 export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {

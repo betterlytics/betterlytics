@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchSessionReplaysAction } from '@/app/actions/analytics/sessionReplays';
-import type { SessionReplay } from '@/entities/sessionReplays';
+import type { SessionReplay } from '@/entities/analytics/sessionReplays';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useUrlSearchParam } from '@/hooks/use-sync-url-filters';

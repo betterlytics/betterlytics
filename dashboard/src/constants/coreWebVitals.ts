@@ -1,4 +1,4 @@
-import type { CoreWebVitalName } from '@/entities/webVitals';
+import type { CoreWebVitalName } from '@/entities/analytics/webVitals';
 
 // Thresholds values are taken from Web.dev
 // Tuple: [goodThreshold, fairThreshold]
