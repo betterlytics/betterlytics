@@ -18,3 +18,4 @@ export * from './weeklyHeatmap';
 export * from './sessionReplays';
 export * from './siteConfig';
 export * from './bugReports';
+export * from './annotations';

@@ -18,15 +18,14 @@ import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/cha
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale } from 'next-intl';
-import { Pencil, X } from 'lucide-react';
+import { Pencil, X, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-// Annotation types for the chart
 export interface ChartAnnotation {
   id: string;
-  date: number; // timestamp
+  date: number;
   label: string;
   description?: string;
   color?: string;
@@ -54,6 +53,8 @@ interface InteractiveChartProps {
   labelPaddingLeft?: number;
   annotations?: ChartAnnotation[];
   onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;
+  onUpdateAnnotation?: (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'color'>) => void;
+  onDeleteAnnotation?: (id: string) => void;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
@@ -69,6 +70,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     labelPaddingLeft,
     annotations,
     onAddAnnotation,
+    onUpdateAnnotation,
+    onDeleteAnnotation,
   }) => {
     const locale = useLocale();
     const [hoveredAnnotation, setHoveredAnnotation] = useState<string | null>(null);
@@ -78,6 +81,12 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const [showAnnotationDialog, setShowAnnotationDialog] = useState(false);
     const [pendingAnnotationDate, setPendingAnnotationDate] = useState<number | null>(null);
     const [annotationName, setAnnotationName] = useState('');
+
+    // Edit annotation state
+    const [selectedAnnotation, setSelectedAnnotation] = useState<ChartAnnotation | null>(null);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [editAnnotationName, setEditAnnotationName] = useState('');
+    const [editAnnotationDescription, setEditAnnotationDescription] = useState('');
 
     const annotationsWithValues: AnnotationWithValue[] = useMemo(() => {
       if (!annotations || !data) return [];
@@ -131,6 +140,43 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       setAnnotationName('');
       setIsAnnotationMode(false);
     }, [pendingAnnotationDate, annotationName, onAddAnnotation]);
+
+    const handleAnnotationClick = useCallback(
+      (annotation: ChartAnnotation) => {
+        if (isAnnotationMode) return; // Don't open edit when in annotation mode
+        setSelectedAnnotation(annotation);
+        setEditAnnotationName(annotation.label);
+        setEditAnnotationDescription(annotation.description ?? '');
+        setShowEditDialog(true);
+      },
+      [isAnnotationMode],
+    );
+
+    const handleUpdateAnnotation = useCallback(() => {
+      if (!selectedAnnotation || !editAnnotationName.trim() || !onUpdateAnnotation) return;
+
+      onUpdateAnnotation(selectedAnnotation.id, {
+        label: editAnnotationName.trim(),
+        description: editAnnotationDescription.trim() || undefined,
+        color: selectedAnnotation.color,
+      });
+
+      setShowEditDialog(false);
+      setSelectedAnnotation(null);
+      setEditAnnotationName('');
+      setEditAnnotationDescription('');
+    }, [selectedAnnotation, editAnnotationName, editAnnotationDescription, onUpdateAnnotation]);
+
+    const handleDeleteAnnotation = useCallback(() => {
+      if (!selectedAnnotation || !onDeleteAnnotation) return;
+
+      onDeleteAnnotation(selectedAnnotation.id);
+
+      setShowEditDialog(false);
+      setSelectedAnnotation(null);
+      setEditAnnotationName('');
+      setEditAnnotationDescription('');
+    }, [selectedAnnotation, onDeleteAnnotation]);
 
     const isMobile = useIsMobile();
     return (
@@ -261,6 +307,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                           annotation={annotation}
                           isHovered={hoveredAnnotation === annotation.id}
                           onHover={setHoveredAnnotation}
+                          onClick={handleAnnotationClick}
                         />
                       }
                     />
@@ -304,6 +351,59 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent className='sm:max-w-md'>
+            <DialogHeader>
+              <DialogTitle>Edit Annotation</DialogTitle>
+            </DialogHeader>
+            <div className='space-y-4 py-4'>
+              <div>
+                <label className='text-sm font-medium'>Name</label>
+                <Input
+                  placeholder='Annotation name'
+                  value={editAnnotationName}
+                  onChange={(e) => setEditAnnotationName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && editAnnotationName.trim()) {
+                      handleUpdateAnnotation();
+                    }
+                  }}
+                  autoFocus
+                  className='mt-1.5'
+                />
+              </div>
+              <div>
+                <label className='text-sm font-medium'>Description (optional)</label>
+                <Input
+                  placeholder='Add a description...'
+                  value={editAnnotationDescription}
+                  onChange={(e) => setEditAnnotationDescription(e.target.value)}
+                  className='mt-1.5'
+                />
+              </div>
+              {selectedAnnotation && (
+                <p className='text-muted-foreground text-sm'>
+                  Date: {new Date(selectedAnnotation.date).toLocaleDateString(locale)}
+                </p>
+              )}
+            </div>
+            <DialogFooter className='flex-col gap-2 sm:flex-row sm:justify-between'>
+              <Button variant='destructive' onClick={handleDeleteAnnotation} className='w-full sm:w-auto'>
+                <Trash2 className='mr-2 h-4 w-4' />
+                Delete
+              </Button>
+              <div className='flex gap-2'>
+                <Button variant='outline' onClick={() => setShowEditDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdateAnnotation} disabled={!editAnnotationName.trim()}>
+                  Save
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Card>
     );
   },
@@ -316,11 +416,19 @@ interface AnnotationMarkerProps {
   annotation: AnnotationWithValue;
   isHovered: boolean;
   onHover: (id: string | null) => void;
+  onClick?: (annotation: ChartAnnotation) => void;
   cx?: number; // X position of the data point (from ReferenceDot)
   cy?: number; // Y position of the data point (from ReferenceDot)
 }
 
-const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({ annotation, isHovered, onHover, cx = 0, cy = 0 }) => {
+const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({
+  annotation,
+  isHovered,
+  onHover,
+  onClick,
+  cx = 0,
+  cy = 0,
+}) => {
   const pillColor = annotation.color ?? '#f59e0b';
   const pillY = 8; // Fixed Y position for the pill near top
   const pillHeight = 22;
@@ -333,10 +441,16 @@ const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({ annotation, isHover
   const lineStartY = pillY + pillHeight / 2;
   const lineEndY = cy;
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick?.(annotation);
+  };
+
   return (
     <g
       onMouseEnter={() => onHover(annotation.id)}
       onMouseLeave={() => onHover(null)}
+      onClick={handleClick}
       style={{ cursor: 'pointer' }}
     >
       {/* Dashed line from pill to data point */}
