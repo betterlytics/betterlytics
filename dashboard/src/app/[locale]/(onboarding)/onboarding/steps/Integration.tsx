@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
 import { baEvent } from '@/lib/ba-event';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 import './Integration.css';
 
@@ -31,6 +32,7 @@ export default function Integration() {
   const t = useTranslations('onboarding.integration');
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
+  const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
   const { isVerified, verifySilently } = useTrackingVerificationWithId(dashboard.id);
   const baRouter = useBARouter();
@@ -107,7 +109,10 @@ export default function Integration() {
     );
   }
 
-  const trackingScript = `<script async src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${dashboard.siteId}" data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`;
+  const trackingScript = `<script async
+    src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
+    data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n  data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}>
+  </script>`;
 
   const htmlExample = `<!DOCTYPE html>
 <html>
@@ -133,8 +138,7 @@ export default function RootLayout({
         <Script
           async
           src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-          data-site-id="${dashboard.siteId}"
-          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
+          data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}
         />
       </head>
       <body>{children}</body>
@@ -154,8 +158,7 @@ function App() {
     const script = document.createElement('script');
     script.async = true;
     script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
-    script.setAttribute('data-site-id', "${dashboard.siteId}");
-    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/track");
+    script.setAttribute('data-site-id', "${dashboard.siteId}");${!IS_CLOUD ? `\n    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/event");` : ''}
     document.head.appendChild(script);
 
     return () => {

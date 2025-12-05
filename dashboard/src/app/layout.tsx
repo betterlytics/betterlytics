@@ -54,7 +54,7 @@ export default async function RootLayout({
             async
             src={`${env.PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
             data-site-id={env.APP_TRACKING_SITE_ID}
-            data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/track`}
+            data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/event`}
             data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*,/*/share/*'
             data-web-vitals='true'
           />

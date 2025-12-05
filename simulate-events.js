@@ -57,7 +57,7 @@ const getFlag = (name, fallback) => {
  * Parameters
  */
 const SITE_ID = args[0];
-const TARGET_URL = "http://127.0.0.1:3001/track";
+const TARGET_URL = "http://127.0.0.1:3001/event";
 const NUMBER_OF_EVENTS = getFlag("events", DEFAULT_ARGS.NUMBER_OF_EVENTS);
 const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
 const SIMULATED_DAYS = 0; /** Not supported on the backend for now */
