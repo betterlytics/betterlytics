@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,9 +10,9 @@ import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
-import { useUserSettings } from '@/hooks/useUserSettings';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
+import { useSettingsEffects } from '@/contexts/SettingsEffectsContext';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -19,22 +20,29 @@ interface UserPreferencesSettingsProps {
 }
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
-  const { theme, setTheme } = useTheme();
-  const { refreshSettings, settings, updateSetting } = useUserSettings();
+  const { setTheme } = useTheme();
   const t = useTranslations('components.userSettings.preferences');
+  const { register: registerEffect } = useSettingsEffects();
 
-  const handleLocaleChange = async (newLocale: SupportedLanguages) => {
+  useEffect(() => {
+    registerEffect('theme', {
+      apply: (settings: UserSettingsUpdate) => {
+        if (settings.theme) {
+          setTheme(settings.theme);
+        }
+      },
+    });
+  }, [registerEffect, setTheme]);
+
+  const handleLocaleChange = (newLocale: SupportedLanguages) => {
     onUpdate({ language: newLocale });
-    await refreshSettings();
   };
 
   const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
     onUpdate({ theme: newTheme as 'light' | 'dark' | 'system' });
   };
 
   const handleAvatarChange = (newAvatar: 'default' | 'gravatar') => {
-    updateSetting('avatar', newAvatar);
     onUpdate({ avatar: newAvatar });
   };
 
@@ -43,7 +51,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
       <SettingsCard icon={Monitor} title={t('appearance.title')} description={t('appearance.description')}>
         <div className='flex items-center justify-between'>
           <Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>
-          <Select value={theme} onValueChange={handleThemeChange}>
+          <Select value={formData.theme} onValueChange={handleThemeChange}>
             <SelectTrigger className='w-32 cursor-pointer'>
               <SelectValue />
             </SelectTrigger>
@@ -73,7 +81,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
         <div>
           <div className='flex items-center justify-between'>
             <Label htmlFor='avatar'>{t('avatar.label')}</Label>
-            <Select value={settings?.avatar} onValueChange={handleAvatarChange}>
+            <Select value={formData.avatar} onValueChange={handleAvatarChange}>
               <SelectTrigger className='w-32 cursor-pointer'>
                 <SelectValue />
               </SelectTrigger>
@@ -93,7 +101,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
               </SelectContent>
             </Select>
           </div>
-          {settings?.avatar === 'gravatar' && (
+          {formData.avatar === 'gravatar' && (
             <div className='text-muted-foreground pt-2 text-xs text-pretty'>
               {t('avatar.noteIntro')}{' '}
               <ExternalLink
@@ -115,7 +123,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>{t('localization.language')}</Label>
             <LanguageSelect
-              value={(formData.language as SupportedLanguages) || settings?.language}
+              value={formData.language as SupportedLanguages}
               onUpdate={handleLocaleChange}
             />
           </div>

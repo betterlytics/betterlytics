@@ -20,6 +20,7 @@ import useIsChanged from '@/hooks/use-is-changed';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { SettingsEffectsProvider, useSettingsEffects } from '@/contexts/SettingsEffectsContext';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -39,7 +40,16 @@ interface UserSettingsTabConfig {
 }
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
+  return (
+    <SettingsEffectsProvider>
+      <UserSettingsDialogContent open={open} onOpenChange={onOpenChange} />
+    </SettingsEffectsProvider>
+  );
+}
+
+function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
+  const { applyAll } = useSettingsEffects();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
@@ -96,10 +106,10 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
-    if (settings) {
+    if (settings && open) {
       setFormData({ ...settings });
     }
-  }, [settings]);
+  }, [settings, open]);
 
   const handleUpdate = (updates: Partial<UserSettingsUpdate>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -108,6 +118,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   const handleSave = async () => {
     const result = await saveSettings(formData);
     if (result.success) {
+      applyAll(formData);
       await refreshSession();
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
@@ -200,7 +211,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
         </Tabs>
 
         <div className='flex justify-end space-x-2 border-t pt-4'>
-          <Button variant='outline' onClick={() => onOpenChange(false)} className='cursor-pointer'>
+          <Button variant='outline' onClick={handleCloseDialog} className='cursor-pointer'>
             {tDialog('buttons.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={isSaving || !isFormChanged} className='cursor-pointer'>
