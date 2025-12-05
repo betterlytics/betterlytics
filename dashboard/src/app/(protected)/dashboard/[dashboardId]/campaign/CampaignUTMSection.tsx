@@ -7,7 +7,7 @@ import {
   fetchCampaignMediumBreakdownAction,
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 
 type CampaignUTMSectionProps = {
   sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;

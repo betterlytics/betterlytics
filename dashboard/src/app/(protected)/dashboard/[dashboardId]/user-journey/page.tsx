@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { fetchUserJourneyAction } from '@/app/actions/userJourney';
+import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.action';
 import { Spinner } from '@/components/ui/spinner';
 import UserJourneySection from '@/app/(protected)/dashboard/[dashboardId]/user-journey/UserJourneySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
@@ -7,7 +7,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { UserJourneyFilters } from './UserJourneyFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams';
 import { getUserTimezone } from '@/lib/cookies';
 
 type UserJourneyPageParams = {

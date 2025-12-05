@@ -3,7 +3,7 @@
 import { use } from 'react';
 import CampaignPerformanceTable from '@/app/(protected)/dashboard/[dashboardId]/campaign/CampaignPerformanceTable';
 import CampaignVisitorTrendChart from '@/app/(protected)/dashboard/[dashboardId]/campaign/CampaignVisitorTrendChart';
-import { fetchCampaignPerformanceAction, fetchCampaignVisitorTrendAction } from '@/app/actions';
+import { fetchCampaignPerformanceAction, fetchCampaignVisitorTrendAction } from '@/app/actions/index.action';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 type CampaignOverviewSectionProps = {

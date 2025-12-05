@@ -7,7 +7,7 @@ import {
   type fetchSessionMetricsAction,
   type fetchTotalPageViewsAction,
   type fetchUniqueVisitorsAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection';

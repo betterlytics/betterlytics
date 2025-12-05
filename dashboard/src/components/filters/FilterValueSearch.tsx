@@ -1,7 +1,7 @@
 import React, { Dispatch } from 'react';
 import { useQueryFilterSearch } from './use-query-filter-search';
 import { Combobox } from '@/components/ui/combobox';
-import { type QueryFilter } from '@/entities/filter';
+import { type QueryFilter } from '@/entities/analytics/filter';
 import { useTranslations } from 'next-intl';
 
 type FilterValueSearchProps<TEntity> = {

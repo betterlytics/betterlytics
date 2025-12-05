@@ -1,5 +1,5 @@
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
+import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.action';
 import { OnboardingFooter } from '@/components/footer/OnboardingFooter';
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {

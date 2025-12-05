@@ -4,7 +4,7 @@ import { useState, use } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { ChevronDown, List } from 'lucide-react';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { Dashboard } from '@/entities/dashboard';
+import { Dashboard } from '@/entities/dashboard/dashboard';
 import {
   DropdownMenu,
   DropdownMenuContent,

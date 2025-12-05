@@ -18,7 +18,7 @@ import {
   CampaignLandingPagePerformanceItem,
 } from '@/entities/campaign';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/authContext';
+import { AuthContext } from '@/entities/auth/authContext';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 

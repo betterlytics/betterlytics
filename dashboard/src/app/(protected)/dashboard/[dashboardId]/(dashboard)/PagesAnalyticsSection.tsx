@@ -1,6 +1,6 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchPageAnalyticsCombinedAction } from '@/app/actions';
+import { fetchPageAnalyticsCombinedAction } from '@/app/actions/index.action';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';

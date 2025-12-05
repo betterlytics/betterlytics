@@ -1,8 +1,8 @@
-import { EventTypeRow } from '@/entities/events';
+import { EventTypeRow } from '@/entities/analytics/events';
 import { PropertyRow } from '@/components/events/PropertyRow';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useEventProperties } from '@/hooks/use-event-properties';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
 

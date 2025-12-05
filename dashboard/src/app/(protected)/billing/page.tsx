@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect, notFound } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 import { BillingNavigationBanner } from './BillingNavigationBanner';
 import { BillingFAQGrid } from './BillingFAQGrid';
 import { BillingInteractive } from './BillingInteractive';

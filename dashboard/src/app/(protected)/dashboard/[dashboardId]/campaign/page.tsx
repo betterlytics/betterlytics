@@ -6,13 +6,13 @@ import {
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
   fetchCampaignLandingPagePerformanceAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import CampaignTabs from './CampaignTabs';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams';
 import { getUserTimezone } from '@/lib/cookies';
 
 type CampaignPageParams = {

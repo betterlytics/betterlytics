@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import LeafletMap from '@/components/map/LeafletMap';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS, MOCK_COMPARE_GEOVISITORS } from '@/constants/geographyData';
-import type { GeoVisitor } from '@/entities/geography';
+import type { GeoVisitor } from '@/entities/analytics/geography';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { SupportedLanguages } from '@/constants/i18n';
 import { getCountryName } from '@/utils/countryCodes';

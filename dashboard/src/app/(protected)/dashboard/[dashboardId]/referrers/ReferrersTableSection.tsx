@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import ReferrerTable from '@/app/(protected)/dashboard/[dashboardId]/referrers/ReferrerTable';
-import { fetchReferrerTableDataForSite } from '@/app/actions';
+import { fetchReferrerTableDataForSite } from '@/app/actions/index.action';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 

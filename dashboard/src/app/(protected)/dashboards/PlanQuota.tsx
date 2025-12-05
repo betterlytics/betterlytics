@@ -1,4 +1,4 @@
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { getPlanNameKey } from '@/lib/billing/plans';

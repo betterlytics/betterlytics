@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { CoreWebVitalName } from '@/entities/webVitals';
+import { CoreWebVitalName } from '@/entities/analytics/webVitals';
 
 type Props = {
   metric: CoreWebVitalName;

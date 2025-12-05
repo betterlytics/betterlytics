@@ -4,7 +4,7 @@ import { Maximize2, Minimize2, Pause, Play, ChevronDown } from 'lucide-react';
 import { memo, useCallback, useEffect, useId, useMemo, useState } from 'react';
 import type { TimelineMarker } from './ReplayTimeline';
 import { markerFillColorForLabel } from './utils/colors';
-import type { SessionReplay } from '@/entities/sessionReplays';
+import type { SessionReplay } from '@/entities/analytics/sessionReplays';
 import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';

@@ -9,7 +9,7 @@ import {
   fetchCampaignMediumBreakdownAction,
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import { useTranslations } from 'next-intl';
 
 type UTMBreakdownTabbedTableProps = {

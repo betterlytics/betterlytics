@@ -14,7 +14,7 @@ import {
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
   fetchCampaignLandingPagePerformanceAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import { useTranslations } from 'next-intl';
 
 type TabValue = 'overview' | 'utmBreakdowns' | 'landingPages';

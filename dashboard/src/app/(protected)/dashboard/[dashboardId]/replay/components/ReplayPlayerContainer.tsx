@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ReplayPlayer } from '../ReplayPlayer';
 import { ReplayControls } from '../ReplayControls';
-import type { SessionReplay } from '@/entities/sessionReplays';
+import type { SessionReplay } from '@/entities/analytics/sessionReplays';
 import type { UsePlayerStateReturn } from '../hooks/usePlayerState';
 import { useReplayPlayer } from '../hooks/useReplayPlayer';
 import { ReplayTopbar } from './ReplayTopbar';

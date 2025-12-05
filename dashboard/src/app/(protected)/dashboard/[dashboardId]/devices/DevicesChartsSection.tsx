@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import DeviceUsageTrendChart from '@/app/(protected)/dashboard/[dashboardId]/devices/DeviceUsageTrendChart';
-import { fetchDeviceTypeBreakdownAction, fetchDeviceUsageTrendAction } from '@/app/actions';
+import { fetchDeviceTypeBreakdownAction, fetchDeviceUsageTrendAction } from '@/app/actions/index.action';
 import BAPieChart from '@/components/BAPieChart';
 import { getDeviceColor, getDeviceLabel } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';

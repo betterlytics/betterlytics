@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { fetchReferrerSummaryWithChartsDataForSite } from '@/app/actions';
+import { fetchReferrerSummaryWithChartsDataForSite } from '@/app/actions/index.action';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { formatNumber, formatPercentage } from '@/utils/formatters';

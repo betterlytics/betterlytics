@@ -1,5 +1,5 @@
-import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
-import { getUserBillingData } from '@/actions/billing';
+import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
+import { getUserBillingData } from '@/actions/billing.action';
 import { CreateDashboardDialog } from '@/app/(protected)/dashboards/CreateDashboardDialog';
 import DashboardCard from '@/app/(protected)/dashboards/DashboardCard';
 import { CreateDashboardCard } from '@/app/(protected)/dashboards/CreateDashboardCard';

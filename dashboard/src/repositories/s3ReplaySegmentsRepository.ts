@@ -4,7 +4,7 @@ import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getS3Client } from '@/lib/s3-client';
 import { s3Env } from '@/lib/env';
-import type { ReplaySegmentManifestEntry } from '@/entities/sessionReplays';
+import type { ReplaySegmentManifestEntry } from '@/entities/analytics/sessionReplays';
 
 export class S3ReplaySegmentsRepository {
   async listAndPresign(prefix: string, ttlSeconds = 60): Promise<ReplaySegmentManifestEntry[]> {

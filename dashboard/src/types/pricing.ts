@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TierSchema, CurrencySchema } from '@/entities/billing';
+import { TierSchema, CurrencySchema } from '@/entities/billing/billing';
 
 export const SelectedPlanSchema = z.object({
   tier: TierSchema,

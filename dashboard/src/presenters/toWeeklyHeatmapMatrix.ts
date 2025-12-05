@@ -1,4 +1,4 @@
-import { type WeeklyHeatmapRow } from '@/entities/weeklyHeatmap';
+import { type WeeklyHeatmapRow } from '@/entities/analytics/weeklyHeatmap';
 
 export type WeeklyHeatmapMatrix = {
   weekday: number; // 1-7 (Mon..Sun)

@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { CreditCard, ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
-import { createStripeCustomerPortalSession } from '@/actions/stripe';
+import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import { toast } from 'sonner';
 import { useBillingData } from '@/hooks/useBillingData';
 import SettingsCard from '@/components/SettingsCard';

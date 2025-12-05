@@ -1,5 +1,5 @@
 import { use } from 'react';
-import type { fetchFunnelsAction } from '@/app/actions';
+import type { fetchFunnelsAction } from '@/app/actions/index.action';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from '@/app/(protected)/dashboard/[dashboardId]/funnels/FunnelsEmptyState';
 import { EditFunnelDialog } from './EditFunnelDialog';

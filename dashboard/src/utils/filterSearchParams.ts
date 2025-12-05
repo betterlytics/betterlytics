@@ -1,4 +1,8 @@
-import { FilterQueryParams, FilterQueryParamsSchema, FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import {
+  FilterQueryParams,
+  FilterQueryParamsSchema,
+  FilterQuerySearchParams,
+} from '@/entities/analytics/filterQueryParams';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';

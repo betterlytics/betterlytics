@@ -5,7 +5,7 @@ import ReferrerTrafficTrendChart from '@/app/(protected)/dashboard/[dashboardId]
 import {
   fetchReferrerSourceAggregationDataForSite,
   fetchReferrerTrafficTrendBySourceDataForSite,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import BAPieChart from '@/components/BAPieChart';
 import { getReferrerColor } from '@/utils/referrerColors';
 import { capitalizeFirstLetter } from '@/utils/formatters';
