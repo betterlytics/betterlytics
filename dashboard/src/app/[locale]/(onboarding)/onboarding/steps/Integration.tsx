@@ -111,7 +111,7 @@ export default function Integration() {
 
   const trackingScript = `<script async
     src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-    data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n  data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"` : ''}>
+    data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n  data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}>
   </script>`;
 
   const htmlExample = `<!DOCTYPE html>
@@ -138,7 +138,7 @@ export default function RootLayout({
         <Script
           async
           src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-          data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"` : ''}
+          data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}
         />
       </head>
       <body>{children}</body>
@@ -158,7 +158,7 @@ function App() {
     const script = document.createElement('script');
     script.async = true;
     script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
-    script.setAttribute('data-site-id', "${dashboard.siteId}");${!IS_CLOUD ? `\n    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/track");` : ''}
+    script.setAttribute('data-site-id', "${dashboard.siteId}");${!IS_CLOUD ? `\n    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/event");` : ''}
     document.head.appendChild(script);
 
     return () => {
