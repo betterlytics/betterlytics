@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   ResponsiveContainer,
   Area,
@@ -18,6 +18,10 @@ import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/cha
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale } from 'next-intl';
+import { Pencil, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 // Annotation types for the chart
 export interface ChartAnnotation {
@@ -49,6 +53,7 @@ interface InteractiveChartProps {
   tooltipTitle?: string;
   labelPaddingLeft?: number;
   annotations?: ChartAnnotation[];
+  onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
@@ -63,9 +68,16 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     tooltipTitle,
     labelPaddingLeft,
     annotations,
+    onAddAnnotation,
   }) => {
     const locale = useLocale();
     const [hoveredAnnotation, setHoveredAnnotation] = useState<string | null>(null);
+
+    // Annotation mode state
+    const [isAnnotationMode, setIsAnnotationMode] = useState(false);
+    const [showAnnotationDialog, setShowAnnotationDialog] = useState(false);
+    const [pendingAnnotationDate, setPendingAnnotationDate] = useState<number | null>(null);
+    const [annotationName, setAnnotationName] = useState('');
 
     const annotationsWithValues: AnnotationWithValue[] = useMemo(() => {
       if (!annotations || !data) return [];
@@ -90,16 +102,67 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       };
     }, [formatValue]);
 
+    const handleChartClick = useCallback(
+      (chartEvent: { activeLabel?: string | number } | null) => {
+        if (!isAnnotationMode || !chartEvent?.activeLabel) return;
+
+        const clickedDate =
+          typeof chartEvent.activeLabel === 'number'
+            ? chartEvent.activeLabel
+            : new Date(chartEvent.activeLabel).getTime();
+
+        setPendingAnnotationDate(clickedDate);
+        setAnnotationName('');
+        setShowAnnotationDialog(true);
+      },
+      [isAnnotationMode],
+    );
+
+    const handleCreateAnnotation = useCallback(() => {
+      if (!pendingAnnotationDate || !annotationName.trim() || !onAddAnnotation) return;
+
+      onAddAnnotation({
+        date: pendingAnnotationDate,
+        label: annotationName.trim(),
+      });
+
+      setShowAnnotationDialog(false);
+      setPendingAnnotationDate(null);
+      setAnnotationName('');
+      setIsAnnotationMode(false);
+    }, [pendingAnnotationDate, annotationName, onAddAnnotation]);
+
     const isMobile = useIsMobile();
     return (
       <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
-          <div className='h-80 py-1 sm:px-2 md:px-4'>
+          <div className='relative h-80 py-1 sm:px-2 md:px-4'>
+            {onAddAnnotation && (
+              <button
+                onClick={() => setIsAnnotationMode(!isAnnotationMode)}
+                className={`absolute top-0 right-0 z-10 rounded-md p-1.5 transition-colors ${
+                  isAnnotationMode
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+                title={isAnnotationMode ? 'Exit annotation mode' : 'Add annotation'}
+              >
+                {isAnnotationMode ? <X className='h-4 w-4' /> : <Pencil className='h-4 w-4' />}
+              </button>
+            )}
+
+            {isAnnotationMode && (
+              <div className='bg-primary/10 text-primary absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded-b-md px-3 py-1 text-xs font-medium'>
+                Click on the chart to add an annotation
+              </div>
+            )}
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
               <ComposedChart
                 data={data}
                 margin={{ top: 10, left: isMobile ? 0 : (labelPaddingLeft ?? 6), bottom: 0, right: 1 }}
+                onClick={isAnnotationMode ? handleChartClick : undefined}
+                style={{ cursor: isAnnotationMode ? 'crosshair' : undefined }}
               >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
@@ -207,6 +270,40 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
             </ResponsiveContainer>
           </div>
         </CardContent>
+
+        <Dialog open={showAnnotationDialog} onOpenChange={setShowAnnotationDialog}>
+          <DialogContent className='sm:max-w-md'>
+            <DialogHeader>
+              <DialogTitle>Add Annotation</DialogTitle>
+            </DialogHeader>
+            <div className='py-4'>
+              <Input
+                placeholder='Annotation name (e.g., "Product Launch")'
+                value={annotationName}
+                onChange={(e) => setAnnotationName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && annotationName.trim()) {
+                    handleCreateAnnotation();
+                  }
+                }}
+                autoFocus
+              />
+              {pendingAnnotationDate && (
+                <p className='text-muted-foreground mt-2 text-sm'>
+                  Date: {new Date(pendingAnnotationDate).toLocaleDateString(locale)}
+                </p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant='outline' onClick={() => setShowAnnotationDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateAnnotation} disabled={!annotationName.trim()}>
+                Add
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Card>
     );
   },
