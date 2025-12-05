@@ -14,7 +14,7 @@ import {
   getFunnelsByDashboardId,
   deleteFunnelFromDashboard,
   updateFunnelForDashboard,
-} from '@/services/funnels';
+} from '@/services/analytics/funnels';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/authContext';
 import { revalidatePath } from 'next/cache';

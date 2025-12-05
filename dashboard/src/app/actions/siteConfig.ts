@@ -3,7 +3,7 @@
 import { withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/authContext';
 import { SiteConfigUpdateSchema, type SiteConfigUpdate } from '@/entities/siteConfig';
-import { getSiteConfig, saveSiteConfig } from '@/services/siteConfig';
+import { getSiteConfig, saveSiteConfig } from '@/services/dashboard/siteConfig';
 
 export const getSiteConfigAction = withDashboardMutationAuthContext(async (ctx: AuthContext) => {
   return await getSiteConfig(ctx.dashboardId);

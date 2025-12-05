@@ -1,7 +1,7 @@
 'use server';
 
 import { withUserAuth } from '@/auth/auth-actions';
-import { acceptUserTerms } from '@/services/user.service';
+import { acceptUserTerms } from '@/services/auth/user.service';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import type { User } from 'next-auth';
 

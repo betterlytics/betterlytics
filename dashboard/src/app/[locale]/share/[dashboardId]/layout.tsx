@@ -4,7 +4,7 @@ import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironment
 import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
 import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/DashboardProvider';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
-import { assertPublicDashboardAccess } from '@/services/auth.service';
+import { assertPublicDashboardAccess } from '@/services/auth/auth.service';
 import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import TimezoneCookieInitializer from '@/app/(protected)/TimezoneCookieInitializer';

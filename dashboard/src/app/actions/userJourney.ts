@@ -1,10 +1,10 @@
-"use server";
+'use server';
 
-import { getUserJourneyForSankeyDiagram } from "@/services/userJourney";
-import { SankeyData } from "@/entities/userJourney";
-import { QueryFilter } from "@/entities/filter";
-import { withDashboardAuthContext } from "@/auth/auth-actions";
-import { AuthContext } from "@/entities/authContext";
+import { getUserJourneyForSankeyDiagram } from '@/services/analytics/userJourney';
+import { SankeyData } from '@/entities/userJourney';
+import { QueryFilter } from '@/entities/filter';
+import { withDashboardAuthContext } from '@/auth/auth-actions';
+import { AuthContext } from '@/entities/authContext';
 
 /**
  * Fetch user journey data for Sankey diagram visualization
@@ -20,15 +20,8 @@ export const fetchUserJourneyAction = withDashboardAuthContext(
     endDate: Date,
     maxSteps: number = 3,
     limit: number = 50,
-    queryFilters: QueryFilter[]
+    queryFilters: QueryFilter[],
   ): Promise<SankeyData> => {
-    return getUserJourneyForSankeyDiagram(
-      ctx.siteId,
-      startDate,
-      endDate,
-      maxSteps,
-      limit,
-      queryFilters
-    );
-  }
+    return getUserJourneyForSankeyDiagram(ctx.siteId, startDate, endDate, maxSteps, limit, queryFilters);
+  },
 );

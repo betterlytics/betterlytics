@@ -17,7 +17,7 @@ import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
-import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
+import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
 import { DashboardFindByUserSchema } from '@/entities/dashboard';
 import { env } from '@/lib/env';
 

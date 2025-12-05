@@ -2,8 +2,8 @@
 
 import { Dashboard } from '@/entities/dashboard';
 import { withUserAuth } from '@/auth/auth-actions';
-import { completeOnboardingAndCreateDashboard } from '@/services/dashboard';
-import { acceptUserTerms } from '@/services/user.service';
+import { completeOnboardingAndCreateDashboard } from '@/services/dashboard/dashboard';
+import { acceptUserTerms } from '@/services/auth/user.service';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { UserException } from '@/lib/exceptions';
 import { User } from 'next-auth';

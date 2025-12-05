@@ -5,7 +5,7 @@ import {
   getDailyOutboundClicksForSite,
   getOutboundLinksSummaryWithChartsForSite,
   getOutboundLinksDistributionForSite,
-} from '@/services/outboundLinks';
+} from '@/services/analytics/outboundLinks';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';

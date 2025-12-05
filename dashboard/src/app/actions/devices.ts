@@ -7,7 +7,7 @@ import {
   getDeviceUsageTrendForSite,
   getBrowserRollupForSite,
   getOperatingSystemRollupForSite,
-} from '@/services/devices';
+} from '@/services/analytics/devices';
 import { BrowserStats, DeviceBreakdownCombinedSchema } from '@/entities/devices';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';

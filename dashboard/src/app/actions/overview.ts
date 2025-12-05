@@ -6,9 +6,9 @@ import {
   getTotalPageViewsForSite,
   getTopEntryPagesForSite,
   getTopExitPagesForSite,
-} from '@/services/pages';
-import { getSummaryStatsWithChartsForSite } from '@/services/visitors';
-import { getUniqueVisitorsForSite } from '@/services/visitors';
+} from '@/services/analytics/pages';
+import { getSummaryStatsWithChartsForSite } from '@/services/analytics/visitors';
+import { getUniqueVisitorsForSite } from '@/services/analytics/visitors';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';

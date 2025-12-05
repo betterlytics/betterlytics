@@ -4,7 +4,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
 import { SessionReplay, ReplaySegmentManifest } from '@/entities/sessionReplays';
 import { type QueryFilter } from '@/entities/filter';
-import { getReplaySegmentManifest, getSessionReplaysForSite } from '@/services/sessionReplays';
+import { getReplaySegmentManifest, getSessionReplaysForSite } from '@/services/analytics/sessionReplays';
 
 export const fetchSessionReplaysAction = withDashboardAuthContext(
   async (

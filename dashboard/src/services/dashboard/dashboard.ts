@@ -7,9 +7,9 @@ import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
 import { UserException } from '@/lib/exceptions';
 import { markOnboardingCompleted } from '@/repositories/postgres/user';
-import { updateUserSettings } from '@/services/userSettings';
+import { updateUserSettings } from '@/services/account/userSettings';
 import { SupportedLanguages } from '@/constants/i18n';
-import { ensureTermsAccepted } from '@/services/user.service';
+import { ensureTermsAccepted } from '@/services/auth/user.service';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
   await validateDashboardCreationLimit(userId);

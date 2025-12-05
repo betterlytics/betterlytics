@@ -6,7 +6,7 @@ import {
   getEventPropertiesAnalyticsForSite,
   getRecentEventsForSite,
   getTotalEventCountForSite,
-} from '@/services/events';
+} from '@/services/analytics/events';
 import { type AuthContext } from '@/entities/authContext';
 import { QueryFilter } from '@/entities/filter';
 import { toDataTable } from '@/presenters/toDataTable';

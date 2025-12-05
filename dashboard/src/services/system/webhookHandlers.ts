@@ -7,7 +7,7 @@ import {
   findSubscriptionByPaymentId,
   setSubscriptionStatus,
   upsertUserSubscription,
-} from '@/services/subscription.service';
+} from '@/services/billing/subscription.service';
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   try {

@@ -7,7 +7,7 @@ import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/e
 import { v4 as uuidv4 } from 'uuid';
 import { AuthContextSchema } from '@/entities/authContext';
 import { UserException } from '@/lib/exceptions';
-import { isValidTotp } from '@/services/totp.service';
+import { isValidTotp } from '@/services/auth/totp.service';
 import { notFound } from 'next/navigation';
 import { DashboardFindByUserData } from '@/entities/dashboard';
 

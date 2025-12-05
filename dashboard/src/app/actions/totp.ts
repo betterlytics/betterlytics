@@ -1,7 +1,7 @@
 'use server';
 
 import { withUserAuth } from '@/auth/auth-actions';
-import * as TotpService from '@/services/totp.service';
+import * as TotpService from '@/services/auth/totp.service';
 import { User } from 'next-auth';
 
 export const setupTotpAction = withUserAuth(async (user: User): Promise<string> => {

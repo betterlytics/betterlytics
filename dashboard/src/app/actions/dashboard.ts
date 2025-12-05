@@ -2,7 +2,7 @@
 
 import { Dashboard } from '@/entities/dashboard';
 import { withUserAuth, withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
-import { createNewDashboard, getAllUserDashboards, getUserDashboardStats } from '@/services/dashboard';
+import { createNewDashboard, getAllUserDashboards, getUserDashboardStats } from '@/services/dashboard/dashboard';
 import { findFirstUserDashboard, findDashboardById, deleteDashboard } from '@/repositories/postgres/dashboard';
 import { User } from 'next-auth';
 import { AuthContext } from '@/entities/authContext';

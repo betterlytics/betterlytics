@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 import { type AuthContext } from '@/entities/authContext';
-import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
+import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
 import { withServerAction } from '@/middlewares/serverActionHandler';
 import { findDashboardById } from '@/repositories/postgres/dashboard';
 import { env } from '@/lib/env';

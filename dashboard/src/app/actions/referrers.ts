@@ -8,7 +8,7 @@ import {
   getTopReferrerUrlsForSite,
   getTopChannelsForSite,
   getTopReferrerSourcesForSite,
-} from '@/services/referrers';
+} from '@/services/analytics/referrers';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';

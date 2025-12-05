@@ -2,8 +2,8 @@
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/authContext';
-import { checkTrackingDataExists } from '@/services/verification';
-import { checkRateLimit } from '@/services/verification.service';
+import { checkTrackingDataExists } from '@/services/dashboard/verification';
+import { checkRateLimit } from '@/services/account/verification.service';
 import {
   SendVerificationEmailData,
   SendVerificationEmailSchema,
@@ -11,7 +11,7 @@ import {
   VerifyEmailSchema,
   VerificationResult,
 } from '@/entities/verification';
-import { sendVerificationEmail, verifyEmail } from '@/services/verification.service';
+import { sendVerificationEmail, verifyEmail } from '@/services/account/verification.service';
 
 export const verifyTrackingInstallation = withDashboardAuthContext(async (ctx: AuthContext): Promise<boolean> => {
   const { siteId } = ctx;

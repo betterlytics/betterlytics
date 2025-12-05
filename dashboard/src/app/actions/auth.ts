@@ -1,9 +1,9 @@
 'use server';
 
 import { RegisterUserData, RegisterUserSchema } from '@/entities/user';
-import { registerNewUser } from '@/services/auth.service';
+import { registerNewUser } from '@/services/auth/auth.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { sendVerificationEmail } from '@/services/verification.service';
+import { sendVerificationEmail } from '@/services/account/verification.service';
 import { withServerAction } from '@/middlewares/serverActionHandler';
 import { UserException } from '@/lib/exceptions';
 
