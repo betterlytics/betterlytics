@@ -7,11 +7,10 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { encode } from 'next-auth/jwt';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
 import {
-  deleteExpiredSessions,
   generateSessionToken,
   SESSION_MAX_AGE_SECONDS,
   SESSION_UPDATE_AGE_SECONDS,
-} from '@/repositories/postgres/session';
+} from '@/services/session.service';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
@@ -114,8 +113,6 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      await deleteExpiredSessions();
-
       if (account?.provider === 'credentials') {
         try {
           const sessionToken = generateSessionToken();
