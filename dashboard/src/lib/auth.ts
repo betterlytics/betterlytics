@@ -1,10 +1,17 @@
 import type { NextAuthOptions } from 'next-auth';
+import type { Adapter } from 'next-auth/adapters';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { encode } from 'next-auth/jwt';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
-import { findUserByEmail } from '@/repositories/postgres/user';
+import {
+  deleteExpiredSessions,
+  generateSessionToken,
+  SESSION_MAX_AGE_SECONDS,
+  SESSION_UPDATE_AGE_SECONDS,
+} from '@/repositories/postgres/session';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
@@ -13,8 +20,10 @@ import prisma from '@/lib/postgres';
 import { createDefaultUserSettings, getUserSettings } from '@/services/userSettings';
 import { createStarterSubscriptionForUser } from '@/services/subscription.service';
 
+const adapter = PrismaAdapter(prisma) as Adapter;
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter,
   providers: [
     CredentialsProvider({
       credentials: {
@@ -78,8 +87,15 @@ export const authOptions: NextAuthOptions = {
     newUser: '/onboarding',
   },
   session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60,
+    strategy: 'database',
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    updateAge: SESSION_UPDATE_AGE_SECONDS,
+  },
+  jwt: {
+    encode: async (params) => {
+      const sessionToken = params.token?.sessionToken as string | undefined;
+      return sessionToken ?? encode(params);
+    },
   },
   events: {
     async createUser({ user }) {
@@ -97,98 +113,63 @@ export const authOptions: NextAuthOptions = {
     },
   },
   callbacks: {
-    async jwt({ token, user, trigger, account, profile }) {
-      if (user) {
-        token.uid = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.emailVerified = user.emailVerified;
-        token.role = user.role;
-        token.totpEnabled = user.totpEnabled;
-        token.hasPassword = Boolean((user as unknown as { passwordHash?: string | null })?.passwordHash);
-        token.onboardingCompletedAt =
-          (user as unknown as { onboardingCompletedAt?: Date | null })?.onboardingCompletedAt ?? null;
-        token.termsAcceptedAt = (user as unknown as { termsAcceptedAt?: Date | null })?.termsAcceptedAt ?? null;
-        token.termsAcceptedVersion =
-          (user as unknown as { termsAcceptedVersion?: number | null })?.termsAcceptedVersion ?? null;
-        token.changelogVersionSeen =
-          (user as unknown as { changelogVersionSeen?: string | null })?.changelogVersionSeen ?? 'v0';
+    async signIn({ user, account }) {
+      await deleteExpiredSessions();
 
-        if (account?.provider === 'google') {
-          const emailVerifiedByGoogle = Boolean(
-            (profile as unknown as { email_verified?: boolean })?.email_verified,
-          );
-          const userIsUnverified = !user.emailVerified;
+      if (account?.provider === 'credentials') {
+        try {
+          const sessionToken = generateSessionToken();
+          const sessionExpiry = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
 
-          if (emailVerifiedByGoogle && userIsUnverified) {
-            const verifiedAt = new Date();
-            token.emailVerified = verifiedAt;
-
-            try {
-              await prisma.user.update({
-                where: { id: user.id },
-                data: { emailVerified: verifiedAt },
-              });
-            } catch (e) {
-              console.error('Failed to update verified email from Google:', e);
-            }
-          }
+          await adapter.createSession!({ sessionToken, userId: user.id, expires: sessionExpiry });
+          (user as User & { sessionToken?: string }).sessionToken = sessionToken;
+        } catch (error) {
+          console.error('Failed to create session for credentials:', error);
+          return false;
         }
-      } else if (trigger === 'update' && token.email) {
-        // Clears TTL on fetching user
-        token.userLastFetched = 0;
       }
 
-      // Fetch user / user settings to token / session on cache TTL expirery
-      if (token.uid) {
-        const staleThreshold = 5 * 60 * 1000;
-        const isStale = !token.userLastFetched || Date.now() - token.userLastFetched > staleThreshold;
-        if (isStale) {
+      if (account?.provider === 'google') {
+        const emailVerifiedByGoogle = Boolean((user as unknown as { email_verified?: boolean })?.email_verified);
+        if (emailVerifiedByGoogle && !user.emailVerified) {
           try {
-            const freshUser = await findUserByEmail(token.email as string);
-            if (freshUser) {
-              // Refresh user
-              token.uid = freshUser.id;
-              token.name = freshUser.name;
-              token.email = freshUser.email;
-              token.emailVerified = freshUser.emailVerified || null;
-              token.role = freshUser.role;
-              token.totpEnabled = freshUser.totpEnabled;
-              token.hasPassword = Boolean(freshUser.passwordHash);
-              token.onboardingCompletedAt = freshUser.onboardingCompletedAt ?? null;
-              token.termsAcceptedAt = freshUser.termsAcceptedAt ?? null;
-              token.termsAcceptedVersion = freshUser.termsAcceptedVersion ?? null;
-              token.changelogVersionSeen = freshUser.changelogVersionSeen ?? 'v0';
-
-              // Refresh usersettings
-              const freshSettings = await getUserSettings(token.uid);
-              token.settings = freshSettings;
-
-              // Update TTL
-              token.userLastFetched = Date.now();
-            }
-          } catch (error) {
-            console.error('Error refreshing user:', error);
+            await prisma.user.update({ where: { id: user.id }, data: { emailVerified: new Date() } });
+          } catch (e) {
+            console.error('Failed to update verified email from Google:', e);
           }
         }
+      }
+
+      return true;
+    },
+
+    async jwt({ token, user }) {
+      if (user) {
+        const sessionToken = (user as User & { sessionToken?: string }).sessionToken;
+        if (sessionToken) return { ...token, sessionToken };
+        token.uid = user.id;
       }
       return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.uid;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.emailVerified = token.emailVerified;
-        session.user.role = token.role;
-        session.user.totpEnabled = token.totpEnabled;
-        session.user.hasPassword = token.hasPassword;
-        session.user.settings = token.settings;
-        session.user.onboardingCompletedAt = token.onboardingCompletedAt;
-        session.user.termsAcceptedAt = token.termsAcceptedAt;
-        session.user.termsAcceptedVersion = token.termsAcceptedVersion;
-        session.user.changelogVersionSeen = token.changelogVersionSeen ?? 'v0';
-      }
+
+    async session({ session, user }) {
+      if (!session.user || !user) return session;
+
+      const settings = await getUserSettings(user.id);
+
+      session.user.id = user.id;
+      session.user.name = user.name;
+      session.user.email = user.email;
+      session.user.emailVerified = user.emailVerified;
+      session.user.role = user.role;
+      session.user.totpEnabled = user.totpEnabled;
+      session.user.hasPassword = user.hasPassword;
+      session.user.onboardingCompletedAt = user.onboardingCompletedAt;
+      session.user.termsAcceptedAt = user.termsAcceptedAt;
+      session.user.termsAcceptedVersion = user.termsAcceptedVersion;
+      session.user.changelogVersionSeen = user.changelogVersionSeen;
+      session.user.settings = settings;
+
       return session;
     },
   },
