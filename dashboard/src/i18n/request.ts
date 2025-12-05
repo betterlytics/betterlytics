@@ -1,13 +1,12 @@
 import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth/next';
 import { getRequestConfig } from 'next-intl/server';
+import { getAuthSession } from '@/auth/auth-actions';
 
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
   if (!locale) {
     try {
-      const session = await getServerSession(authOptions);
+      const session = await getAuthSession();
 
       if (session?.user.settings?.language) {
         locale = session.user.settings.language;

@@ -41,11 +41,11 @@ function getActionSignature(fn: AnyFn): string {
 
 const tracer = trace.getTracer('dashboard');
 
-const getCachedSession = cache(async () => {
+export const getCachedSession = cache(async () => {
   return await getServerSession(authOptions);
 });
 
-const getCachedAuthorizedContext = cache(
+export const getCachedAuthorizedContext = cache(
   async (userId: string, dashboardId: string): Promise<AuthContext | null> => {
     return await getAuthorizedDashboardContextOrNull(DashboardFindByUserSchema.parse({ userId, dashboardId }));
   },
