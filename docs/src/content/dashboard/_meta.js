@@ -2,6 +2,7 @@ export default {
   index: "Dashboard Overview",
   referrers: "Referrers",
   geography: "Geography",
+  campaigns: "Campaigns",
   "user-journey": "User Journey Page",
   devices: "Device Breakdown",
   events: "Events Page",
