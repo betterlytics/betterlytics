@@ -766,7 +766,23 @@
           "returnToDashboard": "Return to Dashboard",
           "backToSignIn": "Back to Sign In"
         },
-        "helpLine": "Need help? Contact support at support@betterlytics.io"
+        "helpLine": "Need help? Contact support at support@betterlytics.io",
+        "success": {
+          "title": "Email Verified!",
+          "description": "Your email has been successfully verified.",
+          "celebration": "Welcome aboard!",
+          "redirecting": "Taking you to your dashboard...",
+          "clickHere": "Click here if not redirected automatically",
+          "redirectingToSignin": "Taking you to sign in...",
+          "errors": {
+            "redirectTimeout": "Redirect is taking longer than expected.",
+            "redirectFailed": "Something went wrong during the redirect."
+          }
+        },
+        "verifying": {
+          "title": "Verifying your email...",
+          "description": "Please wait while we confirm your email address."
+        }
       }
     },
     "demo": {
