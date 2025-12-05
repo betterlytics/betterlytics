@@ -27,6 +27,61 @@ interface AnnotationWithValue extends ChartAnnotation {
   dataValue: number | null;
 }
 
+// Annotation with tier for staggering overlapping markers
+interface AnnotationWithTier extends AnnotationWithValue {
+  tier: number;
+}
+
+// Calculate tiers to prevent overlapping annotation pills
+// Uses a greedy algorithm: for each annotation (sorted by date), find the lowest tier
+// where it doesn't overlap with existing annotations in that tier
+function calculateAnnotationTiers(
+  annotations: AnnotationWithValue[],
+  chartData: ChartDataPoint[],
+): AnnotationWithTier[] {
+  if (annotations.length === 0) return [];
+
+  // Estimate the chart's date range to calculate relative positions
+  const dates = chartData.map((d) => (typeof d.date === 'number' ? d.date : new Date(d.date).getTime()));
+  const minDate = Math.min(...dates);
+  const maxDate = Math.max(...dates);
+  const dateRange = maxDate - minDate || 1;
+
+  // Sort annotations by date
+  const sorted = [...annotations].sort((a, b) => a.date - b.date);
+
+  // Track the "right edge" of the last annotation in each tier (as a percentage of chart width)
+  const tierRightEdges: number[] = [];
+
+  // Estimate pill width as percentage of chart (assume 800px chart width as reference)
+  const estimatePillWidth = (label: string) => {
+    const pixelWidth = label.length * 6.5 + 16;
+    return (pixelWidth / 800) * 100; // as percentage
+  };
+
+  return sorted.map((annotation) => {
+    const position = ((annotation.date - minDate) / dateRange) * 100;
+    const halfWidth = estimatePillWidth(annotation.label) / 2;
+    const leftEdge = position - halfWidth;
+    const rightEdge = position + halfWidth;
+
+    // Find the lowest tier where this annotation doesn't overlap
+    let tier = 0;
+    for (let t = 0; t < tierRightEdges.length; t++) {
+      if (leftEdge >= tierRightEdges[t]) {
+        tier = t;
+        break;
+      }
+      tier = t + 1;
+    }
+
+    // Update the right edge for this tier
+    tierRightEdges[tier] = rightEdge;
+
+    return { ...annotation, tier };
+  });
+}
+
 interface ChartDataPoint {
   date: string | number;
   value: Array<number | null>;
@@ -69,9 +124,9 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
     const annotationDialogsRef = useRef<AnnotationDialogsRef>(null);
 
-    const annotationsWithValues: AnnotationWithValue[] = useMemo(() => {
+    const annotationsWithTiers: AnnotationWithTier[] = useMemo(() => {
       if (!annotations || !data) return [];
-      return annotations.map((annotation) => {
+      const withValues: AnnotationWithValue[] = annotations.map((annotation) => {
         // Find the data point matching this annotation's date
         const dataPoint = data.find((d) => {
           const dataDate = typeof d.date === 'number' ? d.date : new Date(d.date).getTime();
@@ -82,6 +137,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
           dataValue: dataPoint?.value?.[0] ?? null,
         };
       });
+      return calculateAnnotationTiers(withValues, data);
     }, [annotations, data]);
 
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
@@ -231,7 +287,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   dot={false}
                 />
                 {/* Annotations - using ReferenceDot with custom shape */}
-                {annotationsWithValues.map((annotation) =>
+                {annotationsWithTiers.map((annotation) =>
                   annotation.dataValue !== null ? (
                     <ReferenceDot
                       key={annotation.id}
@@ -244,6 +300,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                           isHovered={hoveredAnnotation === annotation.id}
                           onHover={setHoveredAnnotation}
                           onClick={handleAnnotationClick}
+                          tier={annotation.tier}
                         />
                       }
                     />
