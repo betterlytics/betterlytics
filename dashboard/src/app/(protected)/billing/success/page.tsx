@@ -3,11 +3,10 @@ import NextLink from 'next/link';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getServerSession } from 'next-auth';
 import { notFound, redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import ExternalLink from '@/components/ExternalLink';
+import { requireAuth } from '@/auth/auth-actions';
 
 interface SuccessPageProps {
   searchParams: Promise<{
@@ -20,11 +19,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
     return notFound();
   }
 
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/signin');
-  }
+  await requireAuth();
 
   const resolvedSearchParams = await searchParams;
   const sessionId = resolvedSearchParams.session_id;

@@ -1,5 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { verifyEmailAction } from '@/app/actions/verification';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
@@ -8,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { XCircle, AlertCircle } from 'lucide-react';
 import { VerificationRedirectHandler } from '@/components/accountVerification/VerificationRedirectHandler';
 import { getTranslations } from 'next-intl/server';
+import { getAuthSession } from '@/auth/auth-actions';
 
 export async function generateMetadata() {
   return {
@@ -32,7 +31,7 @@ interface VerifyEmailPageProps {
 }
 
 export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   const { token } = await searchParams;
   const t = await getTranslations('public.auth.verifyEmail');
 
