@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getEmailPreview } from '@/app/actions/email';
+import { getEmailPreview } from '@/app/actions/system/email';
 import { EMAIL_TEMPLATES, EmailTemplateType } from '@/constants/emailTemplateConst';
 
 interface EmailPreviewCardProps {

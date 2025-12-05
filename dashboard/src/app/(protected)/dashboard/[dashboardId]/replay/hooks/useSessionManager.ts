@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchSessionReplaysAction } from '@/app/actions/sessionReplays';
+import { fetchSessionReplaysAction } from '@/app/actions/analytics/sessionReplays';
 import type { SessionReplay } from '@/entities/sessionReplays';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';

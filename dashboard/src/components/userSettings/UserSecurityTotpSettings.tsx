@@ -1,4 +1,4 @@
-import { disableTotpAction, enableTotpAction, setupTotpAction } from '@/app/actions/totp';
+import { disableTotpAction, enableTotpAction, setupTotpAction } from '@/app/actions/auth/totp';
 import SettingsCard from '@/components/SettingsCard';
 import {
   AlertDialog,

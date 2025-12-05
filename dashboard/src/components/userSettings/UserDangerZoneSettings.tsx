@@ -4,7 +4,7 @@ import { useTransition, useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
-import { deleteUserAccountAction } from '@/app/actions/userSettings';
+import { deleteUserAccountAction } from '@/app/actions/account/userSettings';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,

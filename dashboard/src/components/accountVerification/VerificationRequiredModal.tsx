@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { resendVerificationEmailAction } from '@/app/actions/verification';
+import { resendVerificationEmailAction } from '@/app/actions/auth/verification';
 import { toast } from 'sonner';
 import { ShieldCheck, Mail, CheckCircle } from 'lucide-react';
 import { getDisplayName } from '@/utils/userUtils';

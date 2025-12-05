@@ -6,7 +6,7 @@ import { User as SessionUser } from 'next-auth';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { ZodError } from 'zod';
-import { updateUserAction } from '@/app/actions/userSettings';
+import { updateUserAction } from '@/app/actions/account/userSettings';
 import SettingsCard from '@/components/SettingsCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

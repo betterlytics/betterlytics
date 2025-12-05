@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState, useTransition } from 'react';
-import { fetchReplaySegmentsAction } from '@/app/actions/sessionReplays';
+import { fetchReplaySegmentsAction } from '@/app/actions/analytics/sessionReplays';
 import type { ReplaySegmentManifestEntry, SessionReplay } from '@/entities/sessionReplays';
 import type { eventWithTime } from '@rrweb/types';
 

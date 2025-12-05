@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { verifyEmailAction } from '@/app/actions/verification';
+import { verifyEmailAction } from '@/app/actions/auth/verification';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
 import NextLink from 'next/link';

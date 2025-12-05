@@ -3,7 +3,7 @@
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { OSIcon } from '@/components/icons';
-import { fetchOperatingSystemBreakdownAction } from '@/app/actions/devices';
+import { fetchOperatingSystemBreakdownAction } from '@/app/actions/analytics/devices';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';

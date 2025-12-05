@@ -1,4 +1,4 @@
-import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
+import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard';
 import { getUserBillingData } from '@/actions/billing';
 import { CreateDashboardDialog } from '@/app/(protected)/dashboards/CreateDashboardDialog';
 import DashboardCard from '@/app/(protected)/dashboards/DashboardCard';

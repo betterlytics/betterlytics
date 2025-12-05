@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import type { fetchPublicEnvironmentVariablesAction } from '@/app/actions/environment';
+import type { fetchPublicEnvironmentVariablesAction } from '@/app/actions/system/environment';
 
 type PublicEnvironmentVariablesContextProps = {
   publicEnvironmentVariables: Awaited<ReturnType<typeof fetchPublicEnvironmentVariablesAction>>;

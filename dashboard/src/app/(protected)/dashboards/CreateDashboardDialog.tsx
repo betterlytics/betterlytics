@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { Plus, Lock } from 'lucide-react';
-import { createDashboardAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
+import { createDashboardAction, getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard';
 import { domainValidation } from '@/entities/dashboard';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useTranslations } from 'next-intl';

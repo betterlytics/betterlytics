@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { getSiteConfigAction } from '@/app/actions/siteConfig';
+import { getSiteConfigAction } from '@/app/actions/dashboard/siteConfig';
 import type { SiteConfigUpdate } from '@/entities/siteConfig';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 

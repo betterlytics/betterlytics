@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
-import { acceptTermsAction } from '@/app/actions/legal';
+import { acceptTermsAction } from '@/app/actions/account/legal';
 import { signOut } from 'next-auth/react';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useRouter } from 'next/navigation';

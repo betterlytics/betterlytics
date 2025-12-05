@@ -1,6 +1,6 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchDeviceBreakdownCombinedAction } from '@/app/actions/devices';
+import { fetchDeviceBreakdownCombinedAction } from '@/app/actions/analytics/devices';
 import { use } from 'react';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';

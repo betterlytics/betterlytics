@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { resendVerificationEmailAction } from '@/app/actions/verification';
+import { resendVerificationEmailAction } from '@/app/actions/auth/verification';
 import { toast } from 'sonner';
 
 type VerificationBannerProps = {

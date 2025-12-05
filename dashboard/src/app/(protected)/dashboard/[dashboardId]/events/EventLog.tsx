@@ -4,7 +4,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/events';
-import { fetchRecentEventsAction, fetchTotalEventCountAction } from '@/app/actions/events';
+import { fetchRecentEventsAction, fetchTotalEventCountAction } from '@/app/actions/analytics/events';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';

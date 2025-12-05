@@ -3,7 +3,7 @@
 import { Card } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import { CreateDashboardDialog } from '@/app/(protected)/dashboards/CreateDashboardDialog';
-import { getUserDashboardStatsAction } from '@/app/actions/dashboard';
+import { getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard';
 import { useTranslations } from 'next-intl';
 
 export function CreateDashboardCard({

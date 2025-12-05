@@ -21,8 +21,8 @@ import {
   getTopCountryVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions';
-import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
+import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers';
+import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';

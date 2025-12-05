@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { markChangelogSeenAction } from '@/app/actions/changelog';
+import { markChangelogSeenAction } from '@/app/actions/system/changelog';
 import { useLocale, useTranslations } from 'next-intl';
 
 export function ChangelogModal() {

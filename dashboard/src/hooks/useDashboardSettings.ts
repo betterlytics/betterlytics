@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
 import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboardSettings';
-import { getDashboardSettingsAction, updateDashboardSettingsAction } from '@/app/actions/dashboardSettings';
+import {
+  getDashboardSettingsAction,
+  updateDashboardSettingsAction,
+} from '@/app/actions/dashboard/dashboardSettings';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 interface UseDashboardSettingsReturn {
