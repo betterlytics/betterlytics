@@ -19,9 +19,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale } from 'next-intl';
 import { Pencil, X } from 'lucide-react';
-import AnnotationMarker, { type ChartAnnotation } from './charts/AnnotationMarker';
+import { type ChartAnnotation } from './charts/AnnotationMarker';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
-import { mapAnnotationsToBuckets } from '@/utils/chartAnnotations';
+import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
+import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
+import { groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
 
 interface ChartDataPoint {
   date: string | number;
@@ -61,14 +63,16 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     onDeleteAnnotation,
   }) => {
     const locale = useLocale();
-    const [hoveredAnnotation, setHoveredAnnotation] = useState<string | null>(null);
+    const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
     const annotationDialogsRef = useRef<AnnotationDialogsRef>(null);
+    const chartContainerRef = useRef<HTMLDivElement>(null);
 
-    const annotationsWithTiers = useMemo(
-      () => mapAnnotationsToBuckets(annotations ?? [], data),
-      [annotations, data],
-    );
+    // State for group popover
+    const [openGroup, setOpenGroup] = useState<AnnotationGroup | null>(null);
+    const [popoverAnchorRect, setPopoverAnchorRect] = useState<DOMRect | null>(null);
+
+    const annotationGroups = useMemo(() => groupAnnotationsByBucket(annotations ?? [], data), [annotations, data]);
 
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
@@ -92,12 +96,37 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       [isAnnotationMode],
     );
 
-    const handleAnnotationClick = useCallback(
+    const handleSingleAnnotationClick = useCallback(
       (annotation: ChartAnnotation) => {
-        if (isAnnotationMode) return; // Don't open edit when in annotation mode
+        if (isAnnotationMode) return;
         annotationDialogsRef.current?.openEditDialog(annotation);
       },
       [isAnnotationMode],
+    );
+
+    const handleGroupClick = useCallback(
+      (group: AnnotationGroup, anchorRect: DOMRect) => {
+        if (isAnnotationMode) return;
+        setOpenGroup(group);
+        setPopoverAnchorRect(anchorRect);
+      },
+      [isAnnotationMode],
+    );
+
+    const handleClosePopover = useCallback(() => {
+      setOpenGroup(null);
+      setPopoverAnchorRect(null);
+    }, []);
+
+    const handleEditFromPopover = useCallback((annotation: ChartAnnotation) => {
+      annotationDialogsRef.current?.openEditDialog(annotation);
+    }, []);
+
+    const handleDeleteFromPopover = useCallback(
+      (id: string) => {
+        onDeleteAnnotation?.(id);
+      },
+      [onDeleteAnnotation],
     );
 
     const isMobile = useIsMobile();
@@ -105,7 +134,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
-          <div className='relative h-80 py-1 sm:px-2 md:px-4'>
+          <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
             {onAddAnnotation && (
               <button
                 onClick={() => setIsAnnotationMode(!isAnnotationMode)}
@@ -216,28 +245,34 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   strokeOpacity={0.5}
                   dot={false}
                 />
-                {/* Annotations - using ReferenceDot with custom shape */}
-                {annotationsWithTiers.map((annotation) =>
-                  annotation.dataValue !== null ? (
-                    <ReferenceDot
-                      key={annotation.id}
-                      x={annotation.date}
-                      y={annotation.dataValue}
-                      r={0} // We'll draw our own dot in the shape
-                      shape={
-                        <AnnotationMarker
-                          annotation={annotation}
-                          isHovered={hoveredAnnotation === annotation.id}
-                          onHover={setHoveredAnnotation}
-                          onClick={handleAnnotationClick}
-                          tier={annotation.tier}
-                        />
-                      }
-                    />
-                  ) : null,
-                )}
+                {annotationGroups.map((group) => (
+                  <ReferenceDot
+                    key={group.bucketDate}
+                    x={group.bucketDate}
+                    y={group.dataValue}
+                    r={0}
+                    shape={
+                      <AnnotationGroupMarker
+                        group={group}
+                        isHovered={hoveredGroup === group.bucketDate}
+                        onHover={setHoveredGroup}
+                        onGroupClick={handleGroupClick}
+                        onSingleClick={handleSingleAnnotationClick}
+                      />
+                    }
+                  />
+                ))}
               </ComposedChart>
             </ResponsiveContainer>
+
+            <AnnotationGroupPopover
+              group={openGroup}
+              anchorRect={popoverAnchorRect}
+              containerRef={chartContainerRef}
+              onClose={handleClosePopover}
+              onEdit={handleEditFromPopover}
+              onDelete={handleDeleteFromPopover}
+            />
           </div>
         </CardContent>
 
