@@ -4,7 +4,7 @@ import { UpdateUserData, UpdateUserSchema } from '@/entities/auth/user';
 import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings';
 import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password';
 import { withUserAuth } from '@/auth/auth-actions';
-import * as UserSettingsService from '@/services/account/userSettings';
+import * as UserSettingsService from '@/services/account/userSettings.service';
 import { User } from 'next-auth';
 
 export const getUserSettingsAction = withUserAuth(async (user: User): Promise<UserSettings> => {

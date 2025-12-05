@@ -1,6 +1,6 @@
 'use server';
 
-import { fetchVisitorsByGeography } from '@/services/analytics/geography';
+import { fetchVisitorsByGeography } from '@/services/analytics/geography.service';
 import { z } from 'zod';
 import { QueryFilterSchema } from '@/entities/analytics/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';

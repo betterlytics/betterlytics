@@ -2,7 +2,7 @@
 
 import { Dashboard } from '@/entities/dashboard/dashboard';
 import { withUserAuth } from '@/auth/auth-actions';
-import { completeOnboardingAndCreateDashboard } from '@/services/dashboard/dashboard';
+import { completeOnboardingAndCreateDashboard } from '@/services/dashboard/dashboard.service';
 import { acceptUserTerms } from '@/services/auth/user.service';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { UserException } from '@/lib/exceptions';

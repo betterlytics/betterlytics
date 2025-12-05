@@ -8,7 +8,7 @@ import {
   getCoreWebVitalsSummaryForSite,
   getCoreWebVitalsPreparedByDimension,
   getHasCoreWebVitalsData,
-} from '@/services/analytics/webVitals';
+} from '@/services/analytics/webVitals.service';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { CoreWebVitalName } from '@/entities/analytics/webVitals';
 import { toWebVitalsPercentileChart, type PercentilePoint } from '@/presenters/toMultiLine';

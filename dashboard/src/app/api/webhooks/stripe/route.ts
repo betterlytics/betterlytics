@@ -7,7 +7,7 @@ import {
   handleInvoicePaymentFailed,
   handleSubscriptionDeleted,
   handleSubscriptionUpdated,
-} from '@/services/system/webhookHandlers';
+} from '@/services/system/webhookHandlers.service';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 

@@ -10,7 +10,7 @@ import { toDateTimeString } from '@/utils/dateFormatters';
 import { SummaryStatsWithChartsSchema } from '@/entities/analytics/stats';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/analytics/filter';
-import { getTotalPageViewsForSite } from '@/services/analytics/pages';
+import { getTotalPageViewsForSite } from '@/services/analytics/pages.service';
 
 export async function getUniqueVisitorsForSite(
   siteId: string,

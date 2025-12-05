@@ -4,7 +4,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext';
 import { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap';
 import { QueryFilter } from '@/entities/analytics/filter';
-import { getWeeklyHeatmapForSite } from '@/services/analytics/weeklyHeatmap';
+import { getWeeklyHeatmapForSite } from '@/services/analytics/weeklyHeatmap.service';
 import { toWeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 
 export const fetchWeeklyHeatmapAllAction = withDashboardAuthContext(

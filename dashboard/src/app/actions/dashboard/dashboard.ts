@@ -2,7 +2,11 @@
 
 import { Dashboard } from '@/entities/dashboard/dashboard';
 import { withUserAuth, withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
-import { createNewDashboard, getAllUserDashboards, getUserDashboardStats } from '@/services/dashboard/dashboard';
+import {
+  createNewDashboard,
+  getAllUserDashboards,
+  getUserDashboardStats,
+} from '@/services/dashboard/dashboard.service';
 import {
   findFirstUserDashboard,
   findDashboardById,

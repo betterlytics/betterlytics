@@ -4,7 +4,7 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext';
 import { z } from 'zod';
 import { FILTER_COLUMNS } from '@/entities/analytics/filter';
-import { getDistinctValuesForFilterColumn } from '@/services/analytics/filters';
+import { getDistinctValuesForFilterColumn } from '@/services/analytics/filters.service';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toFormatted } from '@/presenters/toFormatted';
 

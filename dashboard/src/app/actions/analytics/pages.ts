@@ -7,7 +7,7 @@ import {
   getEntryPageAnalyticsForSite,
   getExitPageAnalyticsForSite,
   getPagesSummaryWithChartsForSite,
-} from '@/services/analytics/pages';
+} from '@/services/analytics/pages.service';
 import { PageAnalytics } from '@/entities/analytics/pages';
 import { TotalPageViewsRow } from '@/entities/analytics/pageviews';
 import { GranularityRangeValues } from '@/utils/granularityRanges';

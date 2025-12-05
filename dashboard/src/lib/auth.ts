@@ -10,7 +10,7 @@ import type { LoginUserData } from '@/entities/auth/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
-import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings';
+import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 
 export const authOptions: NextAuthOptions = {

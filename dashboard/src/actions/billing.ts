@@ -1,7 +1,7 @@
 'use server';
 
 import { withUserAuth } from '@/auth/auth-actions';
-import { getUserBillingStats } from '@/services/billing/billing';
+import { getUserBillingStats } from '@/services/billing/billing.service';
 import { type UserBillingData } from '@/entities/billing/billing';
 import { User } from 'next-auth';
 

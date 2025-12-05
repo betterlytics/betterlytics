@@ -2,7 +2,7 @@
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext';
-import { checkTrackingDataExists } from '@/services/dashboard/verification';
+import { checkTrackingDataExists } from '@/services/dashboard/verification.service';
 import { checkRateLimit } from '@/services/account/verification.service';
 import {
   SendVerificationEmailData,

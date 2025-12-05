@@ -2,7 +2,7 @@
 
 import { withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { BugReportSubmission, BugReportSubmissionSchema } from '@/entities/system/bugReport';
-import { submitBugReport } from '@/services/system/bugReports';
+import { submitBugReport } from '@/services/system/bugReports.service';
 import { type AuthContext } from '@/entities/auth/authContext';
 
 export const submitBugReportAction = withDashboardMutationAuthContext(

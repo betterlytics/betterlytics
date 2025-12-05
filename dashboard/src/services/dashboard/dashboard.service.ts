@@ -7,7 +7,7 @@ import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
 import { UserException } from '@/lib/exceptions';
 import { markOnboardingCompleted } from '@/repositories/postgres/user.repository';
-import { updateUserSettings } from '@/services/account/userSettings';
+import { updateUserSettings } from '@/services/account/userSettings.service';
 import { SupportedLanguages } from '@/constants/i18n';
 import { ensureTermsAccepted } from '@/services/auth/user.service';
 
