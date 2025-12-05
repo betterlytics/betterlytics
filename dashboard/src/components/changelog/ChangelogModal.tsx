@@ -105,8 +105,8 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
       </TooltipProvider>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className='border-none bg-transparent p-0 shadow-none'>
-          <article className='border-border/90 bg-background flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-3xl border shadow-2xl ring-1 ring-black/5 sm:max-h-[calc(100vh-5rem)] dark:ring-white/5'>
+        <DialogContent className='h-full w-full border-none bg-transparent p-0 shadow-none'>
+          <article className='border-border/90 bg-background flex flex-col overflow-hidden rounded-2xl border shadow-lg ring-1 ring-black/5 sm:max-h-full sm:rounded-3xl sm:shadow-2xl dark:ring-white/5'>
             <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-4 py-3 sm:px-6 sm:py-4'>
               <div className='absolute inset-y-0 right-0 hidden w-1/2 opacity-40 md:block'>
                 <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]' />
