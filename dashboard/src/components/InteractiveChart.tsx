@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import {
   ResponsiveContainer,
   Area,
@@ -18,18 +18,9 @@ import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/cha
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale } from 'next-intl';
-import { Pencil, X, Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-
-export interface ChartAnnotation {
-  id: string;
-  date: number;
-  label: string;
-  description?: string;
-  color?: string;
-}
+import { Pencil, X } from 'lucide-react';
+import AnnotationMarker, { type ChartAnnotation } from './charts/AnnotationMarker';
+import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
 
 // Internal type with computed value for positioning
 interface AnnotationWithValue extends ChartAnnotation {
@@ -75,18 +66,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   }) => {
     const locale = useLocale();
     const [hoveredAnnotation, setHoveredAnnotation] = useState<string | null>(null);
-
-    // Annotation mode state
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
-    const [showAnnotationDialog, setShowAnnotationDialog] = useState(false);
-    const [pendingAnnotationDate, setPendingAnnotationDate] = useState<number | null>(null);
-    const [annotationName, setAnnotationName] = useState('');
-
-    // Edit annotation state
-    const [selectedAnnotation, setSelectedAnnotation] = useState<ChartAnnotation | null>(null);
-    const [showEditDialog, setShowEditDialog] = useState(false);
-    const [editAnnotationName, setEditAnnotationName] = useState('');
-    const [editAnnotationDescription, setEditAnnotationDescription] = useState('');
+    const annotationDialogsRef = useRef<AnnotationDialogsRef>(null);
 
     const annotationsWithValues: AnnotationWithValue[] = useMemo(() => {
       if (!annotations || !data) return [];
@@ -120,63 +101,18 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
             ? chartEvent.activeLabel
             : new Date(chartEvent.activeLabel).getTime();
 
-        setPendingAnnotationDate(clickedDate);
-        setAnnotationName('');
-        setShowAnnotationDialog(true);
+        annotationDialogsRef.current?.openCreateDialog(clickedDate);
       },
       [isAnnotationMode],
     );
-
-    const handleCreateAnnotation = useCallback(() => {
-      if (!pendingAnnotationDate || !annotationName.trim() || !onAddAnnotation) return;
-
-      onAddAnnotation({
-        date: pendingAnnotationDate,
-        label: annotationName.trim(),
-      });
-
-      setShowAnnotationDialog(false);
-      setPendingAnnotationDate(null);
-      setAnnotationName('');
-      setIsAnnotationMode(false);
-    }, [pendingAnnotationDate, annotationName, onAddAnnotation]);
 
     const handleAnnotationClick = useCallback(
       (annotation: ChartAnnotation) => {
         if (isAnnotationMode) return; // Don't open edit when in annotation mode
-        setSelectedAnnotation(annotation);
-        setEditAnnotationName(annotation.label);
-        setEditAnnotationDescription(annotation.description ?? '');
-        setShowEditDialog(true);
+        annotationDialogsRef.current?.openEditDialog(annotation);
       },
       [isAnnotationMode],
     );
-
-    const handleUpdateAnnotation = useCallback(() => {
-      if (!selectedAnnotation || !editAnnotationName.trim() || !onUpdateAnnotation) return;
-
-      onUpdateAnnotation(selectedAnnotation.id, {
-        label: editAnnotationName.trim(),
-        description: editAnnotationDescription.trim() || undefined,
-        color: selectedAnnotation.color,
-      });
-
-      setShowEditDialog(false);
-      setSelectedAnnotation(null);
-      setEditAnnotationName('');
-      setEditAnnotationDescription('');
-    }, [selectedAnnotation, editAnnotationName, editAnnotationDescription, onUpdateAnnotation]);
-
-    const handleDeleteAnnotation = useCallback(() => {
-      if (!selectedAnnotation || !onDeleteAnnotation) return;
-
-      onDeleteAnnotation(selectedAnnotation.id);
-
-      setShowEditDialog(false);
-      setSelectedAnnotation(null);
-      setEditAnnotationName('');
-      setEditAnnotationDescription('');
-    }, [selectedAnnotation, onDeleteAnnotation]);
 
     const isMobile = useIsMobile();
     return (
@@ -318,210 +254,17 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
           </div>
         </CardContent>
 
-        <Dialog open={showAnnotationDialog} onOpenChange={setShowAnnotationDialog}>
-          <DialogContent className='sm:max-w-md'>
-            <DialogHeader>
-              <DialogTitle>Add Annotation</DialogTitle>
-            </DialogHeader>
-            <div className='py-4'>
-              <Input
-                placeholder='Annotation name (e.g., "Product Launch")'
-                value={annotationName}
-                onChange={(e) => setAnnotationName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && annotationName.trim()) {
-                    handleCreateAnnotation();
-                  }
-                }}
-                autoFocus
-              />
-              {pendingAnnotationDate && (
-                <p className='text-muted-foreground mt-2 text-sm'>
-                  Date: {new Date(pendingAnnotationDate).toLocaleDateString(locale)}
-                </p>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant='outline' onClick={() => setShowAnnotationDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateAnnotation} disabled={!annotationName.trim()}>
-                Add
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className='sm:max-w-md'>
-            <DialogHeader>
-              <DialogTitle>Edit Annotation</DialogTitle>
-            </DialogHeader>
-            <div className='space-y-4 py-4'>
-              <div>
-                <label className='text-sm font-medium'>Name</label>
-                <Input
-                  placeholder='Annotation name'
-                  value={editAnnotationName}
-                  onChange={(e) => setEditAnnotationName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && editAnnotationName.trim()) {
-                      handleUpdateAnnotation();
-                    }
-                  }}
-                  autoFocus
-                  className='mt-1.5'
-                />
-              </div>
-              <div>
-                <label className='text-sm font-medium'>Description (optional)</label>
-                <Input
-                  placeholder='Add a description...'
-                  value={editAnnotationDescription}
-                  onChange={(e) => setEditAnnotationDescription(e.target.value)}
-                  className='mt-1.5'
-                />
-              </div>
-              {selectedAnnotation && (
-                <p className='text-muted-foreground text-sm'>
-                  Date: {new Date(selectedAnnotation.date).toLocaleDateString(locale)}
-                </p>
-              )}
-            </div>
-            <DialogFooter className='flex-col gap-2 sm:flex-row sm:justify-between'>
-              <Button variant='destructive' onClick={handleDeleteAnnotation} className='w-full sm:w-auto'>
-                <Trash2 className='mr-2 h-4 w-4' />
-                Delete
-              </Button>
-              <div className='flex gap-2'>
-                <Button variant='outline' onClick={() => setShowEditDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleUpdateAnnotation} disabled={!editAnnotationName.trim()}>
-                  Save
-                </Button>
-              </div>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <AnnotationDialogs
+          ref={annotationDialogsRef}
+          onAddAnnotation={onAddAnnotation}
+          onUpdateAnnotation={onUpdateAnnotation}
+          onDeleteAnnotation={onDeleteAnnotation}
+        />
       </Card>
     );
   },
 );
 
 InteractiveChart.displayName = 'InteractiveChart';
-
-// Complete annotation marker: dot on line + dashed line up to pill + pill label
-interface AnnotationMarkerProps {
-  annotation: AnnotationWithValue;
-  isHovered: boolean;
-  onHover: (id: string | null) => void;
-  onClick?: (annotation: ChartAnnotation) => void;
-  cx?: number; // X position of the data point (from ReferenceDot)
-  cy?: number; // Y position of the data point (from ReferenceDot)
-}
-
-const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({
-  annotation,
-  isHovered,
-  onHover,
-  onClick,
-  cx = 0,
-  cy = 0,
-}) => {
-  const pillColor = annotation.color ?? '#f59e0b';
-  const pillY = 8; // Fixed Y position for the pill near top
-  const pillHeight = 22;
-  const pillRadius = 11;
-
-  // Approximate text width for pill sizing
-  const textWidth = annotation.label.length * 6.5 + 16;
-
-  // Line goes from bottom of pill to the dot on the chart line
-  const lineStartY = pillY + pillHeight / 2;
-  const lineEndY = cy;
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClick?.(annotation);
-  };
-
-  return (
-    <g
-      onMouseEnter={() => onHover(annotation.id)}
-      onMouseLeave={() => onHover(null)}
-      onClick={handleClick}
-      style={{ cursor: 'pointer' }}
-    >
-      {/* Dashed line from pill to data point */}
-      <line
-        x1={cx}
-        y1={lineStartY}
-        x2={cx}
-        y2={lineEndY}
-        stroke={pillColor}
-        strokeWidth={2}
-        strokeDasharray='4 4'
-        opacity={0.8}
-      />
-
-      {/* Dot on the chart line */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={isHovered ? 6 : 5}
-        fill={pillColor}
-        stroke='white'
-        strokeWidth={2}
-        style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : 'none' }}
-      />
-
-      {/* Pill background */}
-      <rect
-        x={cx - textWidth / 2}
-        y={pillY - pillHeight / 2}
-        width={textWidth}
-        height={pillHeight}
-        rx={pillRadius}
-        ry={pillRadius}
-        fill={pillColor}
-        opacity={isHovered ? 1 : 0.9}
-        style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
-      />
-
-      {/* Label text */}
-      <text x={cx} y={pillY + 4} textAnchor='middle' fill='white' fontSize={11} fontWeight={500}>
-        {annotation.label}
-      </text>
-
-      {/* Expanded tooltip on hover */}
-      {isHovered && annotation.description && (
-        <g>
-          <rect
-            x={cx - 90}
-            y={pillY + pillHeight / 2 + 8}
-            width={180}
-            height={32}
-            rx={6}
-            fill='var(--popover, #1f2937)'
-            stroke='var(--border, #374151)'
-            strokeWidth={1}
-          />
-          <text
-            x={cx}
-            y={pillY + pillHeight / 2 + 28}
-            textAnchor='middle'
-            fill='var(--popover-foreground, #f3f4f6)'
-            fontSize={11}
-          >
-            {annotation.description}
-          </text>
-        </g>
-      )}
-    </g>
-  );
-};
-
-AnnotationMarker.displayName = 'AnnotationMarker';
 
 export default InteractiveChart;
