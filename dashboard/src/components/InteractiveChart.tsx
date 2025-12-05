@@ -32,6 +32,44 @@ interface AnnotationWithTier extends AnnotationWithValue {
   tier: number;
 }
 
+/**
+ * Finds the chart bucket that contains the given timestamp.
+ * The buckets are timezone-aware (created in user's timezone), so we can't
+ * simply floor the timestamp - we need to find which bucket interval contains it.
+ *
+ * Returns the bucket timestamp, or null if the annotation is outside all buckets.
+ */
+function findContainingBucket(timestamp: number, sortedBuckets: number[]): number | null {
+  if (sortedBuckets.length === 0) return null;
+
+  // If before first bucket, no match
+  if (timestamp < sortedBuckets[0]) return null;
+
+  // Estimate bucket duration from the gap between first two buckets (or use a day as fallback)
+  const bucketDuration = sortedBuckets.length >= 2 ? sortedBuckets[1] - sortedBuckets[0] : 24 * 60 * 60 * 1000; // 1 day fallback
+
+  // Find the bucket where: bucketStart <= timestamp < nextBucketStart
+  for (let i = 0; i < sortedBuckets.length; i++) {
+    const bucketStart = sortedBuckets[i];
+    const nextBucketStart = sortedBuckets[i + 1];
+
+    if (nextBucketStart !== undefined) {
+      // Not the last bucket: check if timestamp falls in this interval
+      if (timestamp >= bucketStart && timestamp < nextBucketStart) {
+        return bucketStart;
+      }
+    } else {
+      // Last bucket: only match if timestamp is within one bucket duration
+      // This prevents annotations from the future matching old date ranges
+      if (timestamp >= bucketStart && timestamp < bucketStart + bucketDuration) {
+        return bucketStart;
+      }
+    }
+  }
+
+  return null;
+}
+
 // Calculate tiers to prevent overlapping annotation pills
 // Uses a greedy algorithm: for each annotation (sorted by date), find the lowest tier
 // where it doesn't overlap with existing annotations in that tier
@@ -125,18 +163,46 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const annotationDialogsRef = useRef<AnnotationDialogsRef>(null);
 
     const annotationsWithTiers: AnnotationWithTier[] = useMemo(() => {
-      if (!annotations || !data) return [];
-      const withValues: AnnotationWithValue[] = annotations.map((annotation) => {
-        // Find the data point matching this annotation's date
-        const dataPoint = data.find((d) => {
-          const dataDate = typeof d.date === 'number' ? d.date : new Date(d.date).getTime();
-          return dataDate === annotation.date;
-        });
-        return {
-          ...annotation,
-          dataValue: dataPoint?.value?.[0] ?? null,
-        };
-      });
+      if (!annotations || !data || data.length === 0) return [];
+
+      // Build a map of bucket timestamps to data points for O(1) lookup
+      const dataMap = new Map<number, ChartDataPoint>();
+      const sortedBuckets: number[] = [];
+
+      for (const d of data) {
+        const dataDate = typeof d.date === 'number' ? d.date : new Date(d.date).getTime();
+        dataMap.set(dataDate, d);
+        sortedBuckets.push(dataDate);
+      }
+
+      // Sort buckets for binary search
+      sortedBuckets.sort((a, b) => a - b);
+
+      const withValues: AnnotationWithValue[] = annotations
+        .map((annotation) => {
+          // Find which chart bucket contains this annotation's timestamp
+          // This handles timezone-aware buckets (e.g., day bucket at midnight in user's timezone)
+          const bucketTimestamp = findContainingBucket(annotation.date, sortedBuckets);
+
+          if (bucketTimestamp === null) {
+            // Annotation is outside the chart's date range
+            return null;
+          }
+
+          const dataPoint = dataMap.get(bucketTimestamp);
+
+          if (!dataPoint) {
+            return null;
+          }
+
+          return {
+            ...annotation,
+            date: bucketTimestamp, // Use the bucket timestamp for chart positioning
+            dataValue: dataPoint.value?.[0] ?? null,
+          };
+        })
+        .filter((a): a is AnnotationWithValue => a !== null && a.dataValue !== null);
+
       return calculateAnnotationTiers(withValues, data);
     }, [annotations, data]);
 
