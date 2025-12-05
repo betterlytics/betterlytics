@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { submitBugReportAction } from '@/app/actions/system/bugReports';
+import { submitBugReportAction } from '@/app/actions/system/bugReports.action';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { BUG_REPORT_MAX_LENGTH } from '@/entities/system/bugReport';

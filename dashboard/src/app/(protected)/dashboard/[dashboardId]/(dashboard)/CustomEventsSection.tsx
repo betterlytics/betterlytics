@@ -1,7 +1,7 @@
 'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events';
+import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.action';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';

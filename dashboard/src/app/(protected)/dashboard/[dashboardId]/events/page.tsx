@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events';
+import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.action';
 import { TableSkeleton } from '@/components/skeleton';
 import EventsTableSection from './EventsTableSection';
 import { EventLog } from '@/app/(protected)/dashboard/[dashboardId]/events/EventLog';

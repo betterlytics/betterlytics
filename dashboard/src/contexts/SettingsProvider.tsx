@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { DashboardSettings } from '@/entities/dashboard/dashboardSettings';
-import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings';
+import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 
 type SettingsContextType = {
   settings: DashboardSettings | null;

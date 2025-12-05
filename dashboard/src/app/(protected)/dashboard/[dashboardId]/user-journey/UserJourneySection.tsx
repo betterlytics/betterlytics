@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney';
+import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.action';
 import UserJourneyChart from '@/app/(protected)/dashboard/[dashboardId]/user-journey/UserJourneyChart';
 import { useTranslations } from 'next-intl';
 

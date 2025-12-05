@@ -7,7 +7,7 @@ import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
 import { formatCWV, formatString, getCwvStatusColor } from '@/utils/formatters';
 import MetricInfo from '@/app/(protected)/dashboard/[dashboardId]/web-vitals/MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals';
-import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals';
+import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.action';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';

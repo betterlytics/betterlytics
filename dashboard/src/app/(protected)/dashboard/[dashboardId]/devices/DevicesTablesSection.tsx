@@ -3,7 +3,7 @@
 import { use } from 'react';
 import BrowserTable from '@/components/analytics/BrowserTable';
 import OperatingSystemTable from '@/components/analytics/OperatingSystemTable';
-import { fetchBrowserBreakdownAction, fetchOperatingSystemBreakdownAction } from '@/app/actions';
+import { fetchBrowserBreakdownAction, fetchOperatingSystemBreakdownAction } from '@/app/actions/index.action';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 

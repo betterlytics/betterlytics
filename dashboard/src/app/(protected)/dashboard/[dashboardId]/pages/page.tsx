@@ -4,7 +4,7 @@ import {
   fetchEntryPageAnalyticsAction,
   fetchExitPageAnalyticsAction,
   fetchPagesSummaryWithChartsAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import { SummaryCardsSkeleton, TableSkeleton } from '@/components/skeleton';
 import PagesSummarySection from '@/app/(protected)/dashboard/[dashboardId]/pages/PagesSummarySection';
 import PagesTableSection from './PagesTableSection';

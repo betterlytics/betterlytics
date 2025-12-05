@@ -7,7 +7,7 @@ import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
 import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
-import { validateResetTokenAction } from '@/app/actions/auth/passwordReset';
+import { validateResetTokenAction } from '@/app/actions/auth/passwordReset.action';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 

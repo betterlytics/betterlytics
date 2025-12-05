@@ -3,7 +3,7 @@ import {
   fetchOutboundLinksAnalyticsAction,
   fetchOutboundClicksChartAction,
   fetchOutboundLinksDistributionAction,
-} from '@/app/actions/analytics/outboundLinks';
+} from '@/app/actions/analytics/outboundLinks.action';
 import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import OutboundLinksTableSection from './OutboundLinksTableSection';
 import OutboundLinksChartSection from './OutboundLinksChartSection';

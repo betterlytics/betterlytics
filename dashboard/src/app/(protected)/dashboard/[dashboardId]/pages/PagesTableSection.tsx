@@ -6,7 +6,7 @@ import {
   fetchPageAnalyticsAction,
   fetchEntryPageAnalyticsAction,
   fetchExitPageAnalyticsAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 
 type PagesTableSectionProps = {
   pageAnalyticsPromise: ReturnType<typeof fetchPageAnalyticsAction>;

@@ -1,5 +1,5 @@
 import BATopbar from '@/components/topbar/BATopbar';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/system/environment';
+import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/system/environment.action';
 import { type ReactNode } from 'react';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 

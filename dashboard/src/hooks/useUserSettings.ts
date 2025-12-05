@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
-import { getUserSettingsAction, updateUserSettingsAction } from '@/app/actions/account/userSettings';
+import { getUserSettingsAction, updateUserSettingsAction } from '@/app/actions/account/userSettings.action';
 import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings';
 
 interface UseUserSettingsReturn {

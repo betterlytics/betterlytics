@@ -4,7 +4,7 @@ import {
   fetchReferrerSummaryWithChartsDataForSite,
   fetchReferrerTableDataForSite,
   fetchReferrerTrafficTrendBySourceDataForSite,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import { SummaryCardsSkeleton, TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import ReferrersSummarySection from './ReferrersSummarySection';
 import ReferrersChartsSection from './ReferrersChartsSection';

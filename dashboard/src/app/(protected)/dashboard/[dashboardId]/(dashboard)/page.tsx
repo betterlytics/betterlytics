@@ -20,9 +20,9 @@ import {
   fetchUniqueVisitorsAction,
   getTopCountryVisitsAction,
   getWorldMapDataAlpha2,
-} from '@/app/actions';
-import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events';
+} from '@/app/actions/index.action';
+import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.action';
+import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.action';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';

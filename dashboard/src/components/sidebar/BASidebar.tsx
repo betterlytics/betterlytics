@@ -30,7 +30,7 @@ import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
 import type { ReactElement } from 'react';
-import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard';
+import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
 import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { DashboardDropdown } from './DashboardDropdown';
 

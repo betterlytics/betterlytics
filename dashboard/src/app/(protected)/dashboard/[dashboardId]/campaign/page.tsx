@@ -6,7 +6,7 @@ import {
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
   fetchCampaignLandingPagePerformanceAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import CampaignTabs from './CampaignTabs';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';

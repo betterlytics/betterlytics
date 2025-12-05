@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { createStripeCustomerPortalSessionForCancellation } from '@/actions/stripe';
+import { createStripeCustomerPortalSessionForCancellation } from '@/actions/stripe.action';
 import { toast } from 'sonner';
 import type { Tier } from '@/entities/billing/billing';
 import { ExternalLink } from 'lucide-react';

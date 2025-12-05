@@ -4,7 +4,7 @@ import {
   fetchBrowserBreakdownAction,
   fetchOperatingSystemBreakdownAction,
   fetchDeviceUsageTrendAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import DevicesChartsSection from './DevicesChartsSection';
 import DevicesTablesSection from './DevicesTablesSection';

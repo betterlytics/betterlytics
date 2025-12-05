@@ -5,7 +5,7 @@ import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboard
 import {
   getDashboardSettingsAction,
   updateDashboardSettingsAction,
-} from '@/app/actions/dashboard/dashboardSettings';
+} from '@/app/actions/dashboard/dashboardSettings.action';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 interface UseDashboardSettingsReturn {

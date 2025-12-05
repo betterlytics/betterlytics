@@ -1,7 +1,7 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/map/LeafletMap';
-import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography';
+import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.action';
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';

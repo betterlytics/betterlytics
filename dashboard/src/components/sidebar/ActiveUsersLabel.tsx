@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { fetchActiveUsersAction } from '@/app/actions/analytics/visitors';
+import { fetchActiveUsersAction } from '@/app/actions/analytics/visitors.action';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { LiveIndicator } from '@/components/live-indicator';
 import { AnimatedCounter } from '@/components/animated-counter';

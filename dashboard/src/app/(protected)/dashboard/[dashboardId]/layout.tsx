@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation';
 import { DashboardProvider } from './DashboardProvider';
-import { getCurrentDashboardAction } from '@/app/actions';
+import { getCurrentDashboardAction } from '@/app/actions/index.action';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 import { Suspense } from 'react';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
+import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.action';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';

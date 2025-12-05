@@ -3,7 +3,7 @@ import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
 import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/DashboardProvider';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
+import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.action';
 import { assertPublicDashboardAccess } from '@/services/auth/auth.service';
 import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';

@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { toast } from 'sonner';
-import { resetPasswordAction } from '@/app/actions/auth/passwordReset';
+import { resetPasswordAction } from '@/app/actions/auth/passwordReset.action';
 import { ResetPasswordSchema } from '@/entities/auth/passwordReset';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

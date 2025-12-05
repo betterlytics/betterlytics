@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney';
+import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.action';
 import { Spinner } from '@/components/ui/spinner';
 import UserJourneySection from '@/app/(protected)/dashboard/[dashboardId]/user-journey/UserJourneySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';

@@ -11,9 +11,9 @@ import {
   fetchCampaignMediumBreakdownAction,
   fetchCampaignContentBreakdownAction,
   fetchCampaignTermBreakdownAction,
-} from '@/app/actions';
+} from '@/app/actions/index.action';
 import { useTranslations } from 'next-intl';
-import DataEmptyComponent from "@/components/DataEmptyComponent";
+import DataEmptyComponent from '@/components/DataEmptyComponent';
 
 type UTMBreakdownTabbedChartProps = {
   sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
@@ -59,9 +59,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
   }, [data, dataKey]);
 
   if (chartData.length === 0) {
-    return (
-      <DataEmptyComponent />
-    );
+    return <DataEmptyComponent />;
   }
 
   return (

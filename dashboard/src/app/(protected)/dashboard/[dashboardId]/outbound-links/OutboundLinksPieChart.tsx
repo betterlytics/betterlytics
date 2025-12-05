@@ -3,7 +3,7 @@
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import BAPieChart from '@/components/BAPieChart';
-import { fetchOutboundLinksDistributionAction } from '@/app/actions/analytics/outboundLinks';
+import { fetchOutboundLinksDistributionAction } from '@/app/actions/analytics/outboundLinks.action';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type OutboundLinksPieChartProps = {

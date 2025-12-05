@@ -20,7 +20,7 @@ import { calculatePercentage } from '@/utils/mathUtils';
 import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { formatPercentage } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
-import type { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events';
+import type { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.action';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { useTranslations } from 'next-intl';
 

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { setTimezoneCookieAction } from '@/app/actions/system/timezone';
+import { setTimezoneCookieAction } from '@/app/actions/system/timezone.action';
 
 export default function TimezoneCookieInitializer() {
   const router = useRouter();
