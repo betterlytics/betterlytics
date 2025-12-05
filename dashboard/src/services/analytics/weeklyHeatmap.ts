@@ -3,7 +3,7 @@
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { HeatmapMetric, WeeklyHeatmap } from '@/entities/analytics/weeklyHeatmap';
 import { QueryFilter } from '@/entities/analytics/filter';
-import { getWeeklyHeatmap } from '@/repositories/clickhouse/weeklyHeatmap';
+import { getWeeklyHeatmap } from '@/repositories/clickhouse/weeklyHeatmap.repository';
 
 export async function getWeeklyHeatmapForSite(
   siteId: string,

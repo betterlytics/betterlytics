@@ -5,7 +5,7 @@ import {
   getEventPropertyData,
   getRecentEvents,
   getTotalEventCount,
-} from '@/repositories/clickhouse';
+} from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { EventPropertiesOverview, EventPropertyAnalytics, EventPropertyValue } from '@/entities/analytics/events';
 import { calculatePercentage } from '@/utils/mathUtils';

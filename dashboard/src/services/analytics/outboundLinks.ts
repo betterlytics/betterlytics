@@ -5,7 +5,7 @@ import {
   getDailyOutboundClicks,
   getOutboundLinksSummary,
   getOutboundLinksDistribution,
-} from '@/repositories/clickhouse/outboundLinks';
+} from '@/repositories/clickhouse/outboundLinks.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   OutboundLinkRow,

@@ -1,7 +1,7 @@
 'use server';
 
 import { withUserAuth } from '@/auth/auth-actions';
-import { setChangelogVersionSeen } from '@/repositories/postgres/user';
+import { setChangelogVersionSeen } from '@/repositories/postgres/user.repository';
 import { ChangelogVersionSchema } from '@/entities/system/changelog';
 
 export const markChangelogSeenAction = withUserAuth(async (user, version: unknown) => {

@@ -7,8 +7,8 @@ import {
   markUserEmailAsVerified,
   findVerificationTokenByIdentifier,
   deleteExpiredVerificationTokens,
-} from '@/repositories/postgres/verification';
-import { findUserByEmail } from '@/repositories/postgres/user';
+} from '@/repositories/postgres/verification.repository';
+import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { sendEmailVerificationEmail } from '@/services/email/mail.service';
 import { env } from '@/lib/env';
 import {

@@ -13,7 +13,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/analytics/filter';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext';
-import { getSessionMetrics } from '@/repositories/clickhouse';
+import { getSessionMetrics } from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';

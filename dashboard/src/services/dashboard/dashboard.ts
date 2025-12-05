@@ -1,12 +1,12 @@
 'server-only';
 
 import { Dashboard } from '@/entities/dashboard/dashboard';
-import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard';
-import { getUserSubscription } from '@/repositories/postgres/subscription';
+import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard.repository';
+import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { getDashboardLimitForTier } from '@/lib/billing/plans';
 import { UserException } from '@/lib/exceptions';
-import { markOnboardingCompleted } from '@/repositories/postgres/user';
+import { markOnboardingCompleted } from '@/repositories/postgres/user.repository';
 import { updateUserSettings } from '@/services/account/userSettings';
 import { SupportedLanguages } from '@/constants/i18n';
 import { ensureTermsAccepted } from '@/services/auth/user.service';

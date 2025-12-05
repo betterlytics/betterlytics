@@ -7,7 +7,7 @@ import { Session } from 'next-auth';
 import { type AuthContext } from '@/entities/auth/authContext';
 import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
 import { withServerAction } from '@/middlewares/serverActionHandler';
-import { findDashboardById } from '@/repositories/postgres/dashboard';
+import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { env } from '@/lib/env';
 import { unstable_cache } from 'next/cache';
 import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard';

@@ -4,7 +4,7 @@ import {
   getSubscriptionByPaymentId as getSubscriptionByPaymentIdRepository,
   upsertSubscription as upsertSubscriptionRepository,
   updateSubscriptionStatus as updateSubscriptionStatusRepository,
-} from '@/repositories/postgres/subscription';
+} from '@/repositories/postgres/subscription.repository';
 import { buildStarterSubscription } from '@/entities/billing/billing';
 
 export async function createStarterSubscriptionForUser(userId: string): Promise<void> {

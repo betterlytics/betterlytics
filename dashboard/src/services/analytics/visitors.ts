@@ -5,7 +5,7 @@ import {
   getSessionMetrics,
   getActiveUsersCount,
   getSessionRangeMetrics,
-} from '@/repositories/clickhouse';
+} from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { SummaryStatsWithChartsSchema } from '@/entities/analytics/stats';
 import { GranularityRangeValues } from '@/utils/granularityRanges';

@@ -5,7 +5,7 @@ import { stripe } from '@/lib/billing/stripe';
 import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
 import { User } from 'next-auth';
 import { env } from '@/lib/env';
-import { getUserSubscription } from '@/repositories/postgres/subscription';
+import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { Stripe } from 'stripe';
 import { UserException } from '@/lib/exceptions';
 

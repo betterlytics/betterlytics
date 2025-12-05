@@ -11,7 +11,7 @@ import {
   getDailyReferralTrafficPercentage,
   getDailyReferralSessionDuration,
   getTopReferrerSource,
-} from '@/repositories/clickhouse';
+} from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   ReferrerSourceAggregation,

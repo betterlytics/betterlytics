@@ -2,7 +2,7 @@
 
 import { symmetricDecrypt, symmetricEncrypt } from '@/lib/crypto';
 import { env } from '@/lib/env';
-import * as UsersRepository from '@/repositories/postgres/user';
+import * as UsersRepository from '@/repositories/postgres/user.repository';
 import * as OTPAuth from 'otpauth';
 
 export async function setupTotp(userId: string): Promise<string> {

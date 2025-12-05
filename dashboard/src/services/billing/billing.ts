@@ -1,6 +1,6 @@
-import { getUserSubscription } from '@/repositories/postgres/subscription';
-import { getUserSiteIds } from '@/repositories/postgres/dashboard';
-import { getUserEventCountForPeriod } from '@/repositories/clickhouse/usage';
+import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
+import { getUserSiteIds } from '@/repositories/postgres/dashboard.repository';
+import { getUserEventCountForPeriod } from '@/repositories/clickhouse/usage.repository';
 import { toDateString } from '@/utils/dateFormatters';
 import { UserBillingDataSchema, type UsageData, type UserBillingData } from '@/entities/billing/billing';
 import { UserException } from '@/lib/exceptions';

@@ -11,8 +11,8 @@ import {
   UpdateFunnel,
   UpdateFunnelSchema,
 } from '@/entities/analytics/funnels';
-import * as PostgresFunnelRepository from '@/repositories/postgres/funnels';
-import * as ClickhouseFunnelRepository from '@/repositories/clickhouse/funnels';
+import * as PostgresFunnelRepository from '@/repositories/postgres/funnels.repository';
+import * as ClickhouseFunnelRepository from '@/repositories/clickhouse/funnels.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
 export async function getFunnelsByDashboardId(

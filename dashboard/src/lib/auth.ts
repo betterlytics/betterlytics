@@ -4,7 +4,7 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { verifyCredentials, attemptAdminInitialization } from '@/services/auth/auth.service';
-import { findUserByEmail } from '@/repositories/postgres/user';
+import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import type { User } from 'next-auth';
 import type { LoginUserData } from '@/entities/auth/user';
 import { UserException } from '@/lib/exceptions';

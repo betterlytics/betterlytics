@@ -3,7 +3,7 @@ import {
   getCoreWebVitalsP75,
   getCoreWebVitalsAllPercentilesByDimension,
   hasCoreWebVitalsData,
-} from '@/repositories/clickhouse/webVitals';
+} from '@/repositories/clickhouse/webVitals.repository';
 import { CoreWebVitalsSummary, type CWVDimension, type CoreWebVitalName } from '@/entities/analytics/webVitals';
 import { QueryFilter } from '@/entities/analytics/filter';
 import { toDateTimeString } from '@/utils/dateFormatters';

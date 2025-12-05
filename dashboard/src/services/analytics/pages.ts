@@ -13,8 +13,8 @@ import {
   getExitPageAnalytics as getExitPageAnalyticsRepo,
   getDailyAverageTimeOnPage,
   getDailyBounceRate,
-} from '@/repositories/clickhouse';
-import { getSessionMetrics } from '@/repositories/clickhouse/visitors';
+} from '@/repositories/clickhouse/index.repository';
+import { getSessionMetrics } from '@/repositories/clickhouse/visitors.repository';
 import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/analytics/pageviews';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {

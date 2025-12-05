@@ -1,6 +1,6 @@
 'server-only';
 
-import { getSessionReplays } from '@/repositories/clickhouse';
+import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { S3ReplaySegmentsRepository } from '@/repositories/s3ReplaySegmentsRepository';
 import type { ReplaySegmentManifest } from '@/entities/analytics/sessionReplays';

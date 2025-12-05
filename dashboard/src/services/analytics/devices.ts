@@ -7,7 +7,7 @@ import {
   getDeviceUsageTrend,
   getBrowserRollup,
   getOperatingSystemRollup,
-} from '@/repositories/clickhouse/devices';
+} from '@/repositories/clickhouse/devices.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   DeviceType,

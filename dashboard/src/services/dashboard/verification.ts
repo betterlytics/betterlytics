@@ -1,6 +1,6 @@
-"server-only";
+'server-only';
 
-import { hasAnalyticsData } from "@/repositories/clickhouse/verification";
+import { hasAnalyticsData } from '@/repositories/clickhouse/verification.repository';
 
 export async function checkTrackingDataExists(siteId: string): Promise<boolean> {
   try {
@@ -9,4 +9,4 @@ export async function checkTrackingDataExists(siteId: string): Promise<boolean> 
     console.error('Error checking tracking data existence:', error);
     return false;
   }
-} 
+}

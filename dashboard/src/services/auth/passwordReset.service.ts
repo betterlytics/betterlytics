@@ -1,13 +1,13 @@
 'server-only';
 
 import { ForgotPasswordData, ResetPasswordData } from '@/entities/auth/passwordReset';
-import { findUserByEmail, findUserById, updateUserPassword } from '@/repositories/postgres/user';
+import { findUserByEmail, findUserById, updateUserPassword } from '@/repositories/postgres/user.repository';
 import {
   createPasswordResetToken,
   findPasswordResetToken,
   deletePasswordResetToken,
   deleteUserPasswordResetTokens,
-} from '@/repositories/postgres/passwordReset';
+} from '@/repositories/postgres/passwordReset.repository';
 import { sendResetPasswordEmail } from '@/services/email/mail.service';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 import { getDisplayName } from '@/utils/userUtils';

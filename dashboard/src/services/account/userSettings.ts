@@ -2,8 +2,8 @@
 
 import { UpdateUserData } from '@/entities/auth/user';
 import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings';
-import * as UserSettingsRepository from '@/repositories/postgres/userSettings';
-import * as UserRepository from '@/repositories/postgres/user';
+import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
+import * as UserRepository from '@/repositories/postgres/user.repository';
 import { UserException } from '@/lib/exceptions';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {

@@ -1,6 +1,6 @@
 'server-only';
 
-import { getUserSequentialPaths } from '@/repositories/clickhouse/userJourney';
+import { getUserSequentialPaths } from '@/repositories/clickhouse/userJourney.repository';
 import { SankeyData, SankeyNode, SankeyLink, SequentialPath } from '@/entities/analytics/userJourney';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { QueryFilter } from '@/entities/analytics/filter';

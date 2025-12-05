@@ -1,4 +1,4 @@
-import { getVisitorsByCountry } from '@/repositories/clickhouse/geography';
+import { getVisitorsByCountry } from '@/repositories/clickhouse/geography.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { GeoVisitor } from '@/entities/analytics/geography';
 import { QueryFilter } from '@/entities/analytics/filter';

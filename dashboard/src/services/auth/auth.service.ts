@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
-import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user';
-import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard';
+import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user.repository';
+import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
 import { env } from '@/lib/env';
 import { type User } from 'next-auth';
 import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/auth/user';

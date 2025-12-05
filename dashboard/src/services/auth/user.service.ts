@@ -1,6 +1,6 @@
 'server-only';
 
-import { acceptTermsForUser, findUserById } from '@/repositories/postgres/user';
+import { acceptTermsForUser, findUserById } from '@/repositories/postgres/user.repository';
 import { UserException } from '@/lib/exceptions';
 import { getTranslations } from 'next-intl/server';
 
