@@ -110,6 +110,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   }
                 }}
                 autoFocus
+                maxLength={20}
               />
               {pendingAnnotationDate && (
                 <p className='text-muted-foreground mt-2 text-sm'>
@@ -118,10 +119,14 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               )}
             </div>
             <DialogFooter>
-              <Button variant='outline' onClick={() => setShowCreateDialog(false)}>
+              <Button variant='outline' className='cursor-pointer' onClick={() => setShowCreateDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateAnnotation} disabled={!createAnnotationName.trim()}>
+              <Button
+                className='cursor-pointer'
+                onClick={handleCreateAnnotation}
+                disabled={!createAnnotationName.trim()}
+              >
                 Add
               </Button>
             </DialogFooter>
@@ -146,6 +151,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                     }
                   }}
                   autoFocus
+                  maxLength={20}
                   className='mt-1.5'
                 />
               </div>
@@ -155,6 +161,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   placeholder='Add a description...'
                   value={editAnnotationDescription}
                   onChange={(e) => setEditAnnotationDescription(e.target.value)}
+                  maxLength={200}
                   className='mt-1.5'
                 />
               </div>
@@ -165,15 +172,23 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               )}
             </div>
             <DialogFooter className='flex-col gap-2 sm:flex-row sm:justify-between'>
-              <Button variant='destructive' onClick={handleDeleteAnnotation} className='w-full sm:w-auto'>
+              <Button
+                variant='destructive'
+                onClick={handleDeleteAnnotation}
+                className='w-full cursor-pointer sm:w-auto'
+              >
                 <Trash2 className='mr-2 h-4 w-4' />
                 Delete
               </Button>
               <div className='flex gap-2'>
-                <Button variant='outline' onClick={() => setShowEditDialog(false)}>
+                <Button variant='outline' className='cursor-pointer' onClick={() => setShowEditDialog(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleUpdateAnnotation} disabled={!editAnnotationName.trim()}>
+                <Button
+                  className='cursor-pointer'
+                  onClick={handleUpdateAnnotation}
+                  disabled={!editAnnotationName.trim()}
+                >
                   Save
                 </Button>
               </div>
