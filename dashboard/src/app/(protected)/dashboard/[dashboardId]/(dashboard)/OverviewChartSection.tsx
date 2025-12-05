@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import InteractiveChart from '@/components/InteractiveChart';
+import InteractiveChart, { type ChartAnnotation } from '@/components/InteractiveChart';
 import { formatDuration } from '@/utils/dateFormatters';
 import {
   type fetchSessionMetricsAction,
@@ -122,6 +122,36 @@ export default function OverviewChartSection({
   const currentMetricConfig = useMemo(() => metricConfigs[activeMetric], [activeMetric, metricConfigs]);
   const { granularity } = useTimeRangeContext();
 
+  // POC: Hardcoded annotations
+  const demoAnnotations: ChartAnnotation[] = useMemo(() => {
+    if (!chartData || chartData.length < 5) return [];
+
+    const idx1 = Math.floor(chartData.length * 0.25);
+    const idx2 = Math.floor(chartData.length * 0.75);
+
+    const date1 = chartData[idx1]?.date;
+    const date2 = chartData[idx2]?.date;
+
+    if (!date1 || !date2) return [];
+
+    return [
+      {
+        id: 'demo-1',
+        date: typeof date1 === 'number' ? date1 : new Date(date1).getTime(),
+        label: '🚀 v2.0 Launch',
+        description: 'Major product update released',
+        color: '#10b981',
+      },
+      {
+        id: 'demo-2',
+        date: typeof date2 === 'number' ? date2 : new Date(date2).getTime(),
+        label: '📧 Newsletter',
+        description: 'Monthly newsletter sent to 5k subscribers',
+        color: '#8b5cf6',
+      },
+    ];
+  }, [chartData]);
+
   return (
     <InteractiveChart
       data={chartData}
@@ -133,6 +163,7 @@ export default function OverviewChartSection({
       headerContent={cards ? <InlineMetricsHeader cards={cards} /> : undefined}
       tooltipTitle={currentMetricConfig.title}
       labelPaddingLeft={activeMetric === 'avgDuration' ? 20 : undefined}
+      annotations={demoAnnotations}
     />
   );
 }

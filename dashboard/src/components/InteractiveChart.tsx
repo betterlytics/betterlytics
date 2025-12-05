@@ -1,5 +1,15 @@
-import React, { useMemo } from 'react';
-import { ResponsiveContainer, Area, XAxis, YAxis, CartesianGrid, Tooltip, Line, ComposedChart } from 'recharts';
+import React, { useMemo, useState } from 'react';
+import {
+  ResponsiveContainer,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Line,
+  ComposedChart,
+  ReferenceDot,
+} from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -8,6 +18,20 @@ import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/cha
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale } from 'next-intl';
+
+// Annotation types for the chart
+export interface ChartAnnotation {
+  id: string;
+  date: number; // timestamp
+  label: string;
+  description?: string;
+  color?: string;
+}
+
+// Internal type with computed value for positioning
+interface AnnotationWithValue extends ChartAnnotation {
+  dataValue: number | null;
+}
 
 interface ChartDataPoint {
   date: string | number;
@@ -24,6 +48,7 @@ interface InteractiveChartProps {
   headerContent?: React.ReactNode;
   tooltipTitle?: string;
   labelPaddingLeft?: number;
+  annotations?: ChartAnnotation[];
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
@@ -37,8 +62,26 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     headerContent,
     tooltipTitle,
     labelPaddingLeft,
+    annotations,
   }) => {
     const locale = useLocale();
+    const [hoveredAnnotation, setHoveredAnnotation] = useState<string | null>(null);
+
+    const annotationsWithValues: AnnotationWithValue[] = useMemo(() => {
+      if (!annotations || !data) return [];
+      return annotations.map((annotation) => {
+        // Find the data point matching this annotation's date
+        const dataPoint = data.find((d) => {
+          const dataDate = typeof d.date === 'number' ? d.date : new Date(d.date).getTime();
+          return dataDate === annotation.date;
+        });
+        return {
+          ...annotation,
+          dataValue: dataPoint?.value?.[0] ?? null,
+        };
+      });
+    }, [annotations, data]);
+
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
@@ -142,6 +185,24 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   strokeOpacity={0.5}
                   dot={false}
                 />
+                {/* Annotations - using ReferenceDot with custom shape */}
+                {annotationsWithValues.map((annotation) =>
+                  annotation.dataValue !== null ? (
+                    <ReferenceDot
+                      key={annotation.id}
+                      x={annotation.date}
+                      y={annotation.dataValue}
+                      r={0} // We'll draw our own dot in the shape
+                      shape={
+                        <AnnotationMarker
+                          annotation={annotation}
+                          isHovered={hoveredAnnotation === annotation.id}
+                          onHover={setHoveredAnnotation}
+                        />
+                      }
+                    />
+                  ) : null,
+                )}
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -152,5 +213,104 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 );
 
 InteractiveChart.displayName = 'InteractiveChart';
+
+// Complete annotation marker: dot on line + dashed line up to pill + pill label
+interface AnnotationMarkerProps {
+  annotation: AnnotationWithValue;
+  isHovered: boolean;
+  onHover: (id: string | null) => void;
+  cx?: number; // X position of the data point (from ReferenceDot)
+  cy?: number; // Y position of the data point (from ReferenceDot)
+}
+
+const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({ annotation, isHovered, onHover, cx = 0, cy = 0 }) => {
+  const pillColor = annotation.color ?? '#f59e0b';
+  const pillY = 8; // Fixed Y position for the pill near top
+  const pillHeight = 22;
+  const pillRadius = 11;
+
+  // Approximate text width for pill sizing
+  const textWidth = annotation.label.length * 6.5 + 16;
+
+  // Line goes from bottom of pill to the dot on the chart line
+  const lineStartY = pillY + pillHeight / 2;
+  const lineEndY = cy;
+
+  return (
+    <g
+      onMouseEnter={() => onHover(annotation.id)}
+      onMouseLeave={() => onHover(null)}
+      style={{ cursor: 'pointer' }}
+    >
+      {/* Dashed line from pill to data point */}
+      <line
+        x1={cx}
+        y1={lineStartY}
+        x2={cx}
+        y2={lineEndY}
+        stroke={pillColor}
+        strokeWidth={2}
+        strokeDasharray='4 4'
+        opacity={0.8}
+      />
+
+      {/* Dot on the chart line */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={isHovered ? 6 : 5}
+        fill={pillColor}
+        stroke='white'
+        strokeWidth={2}
+        style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : 'none' }}
+      />
+
+      {/* Pill background */}
+      <rect
+        x={cx - textWidth / 2}
+        y={pillY - pillHeight / 2}
+        width={textWidth}
+        height={pillHeight}
+        rx={pillRadius}
+        ry={pillRadius}
+        fill={pillColor}
+        opacity={isHovered ? 1 : 0.9}
+        style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
+      />
+
+      {/* Label text */}
+      <text x={cx} y={pillY + 4} textAnchor='middle' fill='white' fontSize={11} fontWeight={500}>
+        {annotation.label}
+      </text>
+
+      {/* Expanded tooltip on hover */}
+      {isHovered && annotation.description && (
+        <g>
+          <rect
+            x={cx - 90}
+            y={pillY + pillHeight / 2 + 8}
+            width={180}
+            height={32}
+            rx={6}
+            fill='var(--popover, #1f2937)'
+            stroke='var(--border, #374151)'
+            strokeWidth={1}
+          />
+          <text
+            x={cx}
+            y={pillY + pillHeight / 2 + 28}
+            textAnchor='middle'
+            fill='var(--popover-foreground, #f3f4f6)'
+            fontSize={11}
+          >
+            {annotation.description}
+          </text>
+        </g>
+      )}
+    </g>
+  );
+};
+
+AnnotationMarker.displayName = 'AnnotationMarker';
 
 export default InteractiveChart;
