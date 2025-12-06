@@ -20,7 +20,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale } from 'next-intl';
 import { Pencil, X } from 'lucide-react';
-import { type ChartAnnotation } from './charts/AnnotationMarker';
+import { type ChartAnnotation } from '@/entities/annotation';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
 import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';

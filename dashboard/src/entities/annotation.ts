@@ -18,6 +18,14 @@ export const ANNOTATION_COLOR_TOKENS = [
 
 export type AnnotationColorToken = (typeof ANNOTATION_COLOR_TOKENS)[number];
 
+export interface ChartAnnotation {
+  id: string;
+  date: number;
+  label: string;
+  description?: string;
+  colorToken?: AnnotationColorToken;
+}
+
 export const AnnotationSchema = z.object({
   id: z.string(),
   dashboardId: z.string(),

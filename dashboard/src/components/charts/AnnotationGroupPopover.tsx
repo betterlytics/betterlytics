@@ -5,8 +5,9 @@ import { useLocale } from 'next-intl';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { type AnnotationGroup } from '@/utils/chartAnnotations';
-import { type ChartAnnotation } from './AnnotationMarker';
+import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
+import { type ChartAnnotation } from '@/entities/annotation';
+import { useTheme } from 'next-themes';
 
 interface AnnotationGroupPopoverProps {
   group: AnnotationGroup | null;
@@ -35,6 +36,8 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
   const anchorTop = anchorRect ? anchorRect.bottom - containerRect.top : 0;
 
   const bucketDate = group ? new Date(group.bucketDate) : null;
+  const { resolvedTheme } = useTheme();
+  const themeMode = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   return (
     <Popover open={!!group} onOpenChange={(open) => !open && onClose()}>
@@ -72,7 +75,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                 <div key={annotation.id} className='hover:bg-muted/50 group flex items-center gap-2 px-3 py-2'>
                   <div
                     className='h-2.5 w-2.5 shrink-0 rounded-full'
-                    style={{ backgroundColor: annotation.color ?? '#f59e0b' }}
+                    style={{ backgroundColor: resolveAnnotationColor(annotation.colorToken, themeMode) }}
                   />
 
                   <div className='min-w-0 flex-1'>

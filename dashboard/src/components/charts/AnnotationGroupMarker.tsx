@@ -3,7 +3,7 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
-import { type ChartAnnotation } from './AnnotationMarker';
+import { type ChartAnnotation } from '@/entities/annotation';
 
 interface AnnotationGroupMarkerProps {
   group: AnnotationGroup;

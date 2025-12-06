@@ -11,15 +11,7 @@ import {
   DEFAULT_ANNOTATION_COLOR_TOKEN,
   resolveAnnotationColor,
 } from '@/utils/chartAnnotations';
-import { AnnotationColorToken } from '@/entities/annotation';
-
-export interface ChartAnnotation {
-  id: string;
-  date: number;
-  label: string;
-  description?: string;
-  colorToken?: AnnotationColorToken;
-}
+import { AnnotationColorToken, type ChartAnnotation } from '@/entities/annotation';
 
 interface AnnotationDialogsProps {
   onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;

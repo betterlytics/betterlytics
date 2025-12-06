@@ -1,5 +1,4 @@
-import { type ChartAnnotation } from '@/components/charts/AnnotationMarker';
-import { type AnnotationColorToken } from '@/entities/annotation';
+import { type AnnotationColorToken, type ChartAnnotation } from '@/entities/annotation';
 
 export type ThemeMode = 'light' | 'dark';
 
