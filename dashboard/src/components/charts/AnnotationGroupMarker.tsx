@@ -3,7 +3,12 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
+import {
+  ANNOTATION_BADGE_WIDTH,
+  getAnnotationPillWidth,
+  resolveAnnotationColor,
+  type AnnotationGroup,
+} from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from '@/entities/annotation';
 
 interface AnnotationGroupMarkerProps {
@@ -86,9 +91,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
 
   // Calculate pill width
   const labelText = firstAnnotation?.label ?? '';
-  const baseTextWidth = labelText.length * 6.5 + 16;
-  const badgeWidth = hasMultiple ? 28 : 0;
-  const totalWidth = baseTextWidth + badgeWidth;
+  const totalWidth = getAnnotationPillWidth(labelText, extraCount);
+  const badgeWidth = hasMultiple ? ANNOTATION_BADGE_WIDTH : 0;
 
   const lineStartY = pillY + pillHeight / 2;
   const lineEndY = animatedY;

@@ -2,6 +2,9 @@ import { type AnnotationColorToken, type ChartAnnotation } from '@/entities/anno
 
 export type ThemeMode = 'light' | 'dark';
 
+export const ANNOTATION_BADGE_WIDTH = 28;
+const ANNOTATION_MIN_BASE_WIDTH = 44;
+
 export const ANNOTATION_COLOR_MAP: Record<AnnotationColorToken, { light: string; dark: string }> = {
   slate: { light: '#64748b', dark: '#94a3b8' },
   primary: { light: '#4766E5', dark: '#93b4ff' },
@@ -61,10 +64,9 @@ function findContainingBucket(timestamp: number, sortedBuckets: number[]): numbe
   return null;
 }
 
-function estimatePillWidth(label: string, extraCount: number): number {
-  const minBaseWidth = 44;
-  const baseWidth = Math.max(label.length * 6.5 + 16, minBaseWidth);
-  const badgeWidth = extraCount > 0 ? 28 : 0;
+export function getAnnotationPillWidth(label: string, extraCount: number): number {
+  const baseWidth = Math.max(label.length * 6.5 + 16, ANNOTATION_MIN_BASE_WIDTH);
+  const badgeWidth = extraCount > 0 ? ANNOTATION_BADGE_WIDTH : 0;
   return baseWidth + badgeWidth;
 }
 
@@ -101,7 +103,7 @@ function calculateGroupTiers(
     const label = getGroupLabel(group.annotations);
     const extraCount = group.annotations.length - 1;
 
-    const pillWidthPx = estimatePillWidth(label, extraCount);
+    const pillWidthPx = getAnnotationPillWidth(label, extraCount);
     const halfWidthPx = pillWidthPx / 2;
 
     const spacingBufferPx = 8;
