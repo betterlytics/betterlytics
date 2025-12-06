@@ -43,7 +43,10 @@ interface InteractiveChartProps {
   labelPaddingLeft?: number;
   annotations?: ChartAnnotation[];
   onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;
-  onUpdateAnnotation?: (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'color'>) => void;
+  onUpdateAnnotation?: (
+    id: string,
+    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>,
+  ) => void;
   onDeleteAnnotation?: (id: string) => void;
 }
 

@@ -109,6 +109,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
 
   const handleMouseEnter = () => {
     onHover(group.bucketDate);
+    onHoverPill?.(null);
   };
 
   const handleMouseLeave = () => {

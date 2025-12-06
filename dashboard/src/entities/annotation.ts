@@ -30,6 +30,7 @@ export const AnnotationUpdateSchema = z.object({
   label: z.string().min(1).max(ANNOTATION_LABEL_MAX_LENGTH).optional(),
   description: z.string().max(ANNOTATION_DESCRIPTION_MAX_LENGTH).nullable().optional(),
   color: z.string().nullable().optional(),
+  date: z.date().optional(),
 });
 
 export type Annotation = z.infer<typeof AnnotationSchema>;

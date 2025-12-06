@@ -67,7 +67,7 @@ export async function getAnnotationById(id: string): Promise<Annotation | null> 
 
 export async function updateAnnotation(
   id: string,
-  data: Partial<Pick<Annotation, 'label' | 'description' | 'color'>>,
+  data: Partial<Pick<Annotation, 'label' | 'description' | 'color' | 'date'>>,
 ): Promise<Annotation> {
   try {
     const payload = AnnotationUpdateSchema.parse(data);

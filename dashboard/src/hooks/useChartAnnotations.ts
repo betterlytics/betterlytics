@@ -31,7 +31,7 @@ interface UseChartAnnotationsReturn {
   createAnnotation: (annotation: Omit<ChartAnnotation, 'id'>) => Promise<void>;
   updateAnnotation: (
     id: string,
-    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color'>,
+    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>,
   ) => Promise<void>;
   deleteAnnotation: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
@@ -124,7 +124,7 @@ export function useChartAnnotations({
   );
 
   const updateAnnotation = useCallback(
-    async (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'color'>) => {
+    async (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>) => {
       if (!dashboardId) return;
 
       // Store previous state for rollback
@@ -139,6 +139,7 @@ export function useChartAnnotations({
                 label: updates.label,
                 description: updates.description ?? null,
                 color: updates.color ?? null,
+                date: updates.date ? new Date(updates.date) : a.date,
               }
             : a,
         ),
@@ -149,6 +150,7 @@ export function useChartAnnotations({
           label: updates.label,
           description: updates.description ?? undefined,
           color: updates.color ?? undefined,
+          date: updates.date ? new Date(updates.date) : undefined,
         });
       } catch (error) {
         console.error('Failed to update annotation:', error);

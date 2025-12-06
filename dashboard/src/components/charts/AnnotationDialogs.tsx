@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
+import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
 
 export interface ChartAnnotation {
   id: string;
@@ -15,7 +16,10 @@ export interface ChartAnnotation {
 
 interface AnnotationDialogsProps {
   onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;
-  onUpdateAnnotation?: (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'color'>) => void;
+  onUpdateAnnotation?: (
+    id: string,
+    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>,
+  ) => void;
   onDeleteAnnotation?: (id: string) => void;
 }
 
@@ -38,6 +42,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const [selectedAnnotation, setSelectedAnnotation] = useState<ChartAnnotation | null>(null);
     const [editAnnotationName, setEditAnnotationName] = useState('');
     const [editAnnotationDescription, setEditAnnotationDescription] = useState('');
+    const [editAnnotationDate, setEditAnnotationDate] = useState<Date | null>(null);
 
     useImperativeHandle(ref, () => ({
       openCreateDialog: (date: number) => {
@@ -49,6 +54,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         setSelectedAnnotation(annotation);
         setEditAnnotationName(annotation.label);
         setEditAnnotationDescription(annotation.description ?? '');
+        const date = new Date(annotation.date);
+        setEditAnnotationDate(date);
         setShowEditDialog(true);
       },
     }));
@@ -69,10 +76,13 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const handleUpdateAnnotation = () => {
       if (!selectedAnnotation || !editAnnotationName.trim() || !onUpdateAnnotation) return;
 
+      const nextDate = editAnnotationDate ?? new Date(selectedAnnotation.date);
+
       onUpdateAnnotation(selectedAnnotation.id, {
         label: editAnnotationName.trim(),
         description: editAnnotationDescription.trim() || undefined,
         color: selectedAnnotation.color,
+        date: nextDate.getTime(),
       });
 
       setShowEditDialog(false);
@@ -165,11 +175,13 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   className='mt-1.5'
                 />
               </div>
-              {selectedAnnotation && (
-                <p className='text-muted-foreground text-sm'>
-                  Date: {new Date(selectedAnnotation.date).toLocaleDateString(locale)}
-                </p>
-              )}
+              <div className='grid gap-2'>
+                <label className='text-sm font-medium'>Date &amp; time</label>
+                <DateTimePicker24h
+                  value={editAnnotationDate ?? new Date(selectedAnnotation?.date ?? Date.now())}
+                  onChange={(d) => setEditAnnotationDate(d ?? null)}
+                />
+              </div>
             </div>
             <DialogFooter className='flex-col gap-2 sm:flex-row sm:justify-between'>
               <Button
