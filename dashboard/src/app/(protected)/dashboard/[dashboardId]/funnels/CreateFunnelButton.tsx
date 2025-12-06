@@ -6,5 +6,5 @@ import { CreateFunnelDialog } from './CreateFunnelDialog';
 export default function CreateFunnelButton() {
   const isDemo = useDemoMode();
   if (isDemo) return null;
-  return <CreateFunnelDialog />;
+  return <CreateFunnelDialog triggerText='Create funnel' triggerVariant='outline' />;
 }

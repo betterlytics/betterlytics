@@ -167,6 +167,29 @@
         "docsLinkTitle": "Komplet Betterlytics-dokumentation"
       }
     },
+    "changelog": {
+      "seo": {
+        "title": "Changelog | Betterlytics Udgivelsesnoter & Produktopdateringer",
+        "description": "Læs alle Betterlytics udgivelsesnoter ét sted. Følg produktopdateringer, stabilitetsrettelser og roadmap-højdepunkter for vores privacy-fokuserede analyseplatform.",
+        "keywords": [
+          "Betterlytics changelog",
+          "Produktopdateringer",
+          "Udgivelsesnoter",
+          "Analyse roadmap",
+          "Privacy-fokuserede analyseopdateringer"
+        ]
+      },
+      "hero": {
+        "eyebrow": "Udgivelseshistorik",
+        "title": "Betterlytics changelog",
+        "lead": "Se, hvad der er nyt i Betterlytics! Fra nye funktioner til performance-forbedringer – følg vores rejse og oplev, hvordan din analysetilgang bliver bedre."
+      },
+      "feed": {
+        "subhead": "Friske udgivelser frigives månedligt. Scroll kronologisk for at gense hver iteration.",
+        "loadMore": "Bliv ved med at scrolle. Nyere udgivelser indlæses automatisk.",
+        "end": "Du er helt opdateret. Flere forbedringer er på vej."
+      }
+    },
     "privacy": {
       "seo": {
         "title": "Privatlivspolitik | GDPR & Cookieless Analyse",
@@ -615,6 +638,28 @@
         "cta": {
           "noAccount": "Har du ikke en konto?",
           "createOne": "Opret en"
+        },
+        "form": {
+          "emailLabel": "E-mail",
+          "emailPlaceholder": "Indtast din e-mail",
+          "passwordLabel": "Adgangskode",
+          "passwordPlaceholder": "Indtast din adgangskode",
+          "forgotPassword": "Glemt din adgangskode?",
+          "submitButton": "Log ind",
+          "submitting": "Logger ind...",
+          "orDivider": "eller",
+          "continueWithGoogle": "Fortsæt med Google",
+          "continueWithGithub": "Fortsæt med GitHub",
+          "errors": {
+            "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
+            "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
+            "generic": "Der opstod en fejl under login. Prøv venligst igen."
+          },
+          "twoFactor": {
+            "title": "To-faktor-godkendelse",
+            "description": "Indtast bekræftelseskoden fra din app.",
+            "cancel": "Annuller"
+          }
         }
       },
       "register": {
@@ -658,8 +703,16 @@
           ]
         },
         "title": "Nulstil din adgangskode",
-        "subtitle": "Indtast din e-mail, så sender vi et link til nulstilling af adgangskode",
+        "subtitle": "Indtast din e-mail, så sender vi dig et link til at nulstille adgangskoden",
+        "emailField": "E-mailadresse",
+        "emailFieldPlaceholder": "Indtast din e-mailadresse",
+        "emailFieldDescription": "Indtast e-mailadressen, der er tilknyttet din konto, så sender vi dig et link til at nulstille adgangskoden.",
+        "successMessage": "E-mail til nulstilling af adgangskode er sendt!",
+        "errorMessage": "Det lykkedes ikke at sende e-mailen til nulstilling af adgangskode. Prøv igen.",
+        "errorMessageInvalidEmail": "Indtast venligst en gyldig e-mailadresse",
         "cta": {
+          "sendResetLink": "Send link til nulstilling",
+          "sending": "Sender...",
           "remember": "Kan du huske din adgangskode?",
           "backToSignIn": "Tilbage til login"
         }
@@ -924,6 +977,7 @@
       "termsOfService": "Servicevilkår",
       "dpa": "Databehandleraftale",
       "documentation": "Dokumentation",
+      "changelog": "Ændringslog",
       "pricing": "Priser",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1344,6 +1398,7 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
         "device_type": "Enhedstype",
@@ -1386,15 +1441,41 @@
         "defaultName": "Min nye tragt",
         "createFunnel": "Opret tragt",
         "createFunnelLower": "Opret tragt",
-        "description": "Opret en ny tragt til dit websted.",
-        "name": "Navn",
+        "name": "Tragtnavn",
         "namePlaceholder": "Mit tragtnavn",
         "strictMode": "Strikt tilstand",
         "addStep": "Tilføj trin",
-        "livePreview": "Live forhåndsvisning (sidste 24 timer)",
+        "livePreview": "Live forhåndsvisning",
         "create": "Opret",
+        "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
         "errorMessage": "Tragtoprettelse mislykkedes!"
+      },
+      "edit": {
+        "title": "Rediger tragt",
+        "name": "Tragtnavn",
+        "strictMode": "Strikt tilstand",
+        "addStep": "Tilføj trin",
+        "cancel": "Annuller",
+        "save": "Gem",
+        "livePreview": "Live forhåndsvisning",
+        "disabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
+        "successMessage": "Tragt opdateret!",
+        "errorMessage": "Tragtopdatering mislykkedes!"
+      },
+      "plot": {
+        "stepLabel": "Trin {index}",
+        "visitors": "Besøgende",
+        "dropOff": "Frafald",
+        "conversion": "Konvertering"
+      },
+      "delete": {
+        "title": "Slet tragt",
+        "description": "Er du sikker på, at du vil slette denne tragt? Denne handling kan ikke fortrydes.",
+        "cancel": "Annuller",
+        "delete": "Slet tragt",
+        "successMessage": "Tragt slettet!",
+        "errorMessage": "Sletning af tragt mislykkedes!"
       },
       "page": {
         "title": "Tragter",
@@ -1692,6 +1773,7 @@
         "dashboards": "Dashboards",
         "upgradePlan": "Opgrader plan",
         "settings": "Indstillinger",
+        "reportBug": "Rapportér fejl",
         "documentation": "Dokumentation",
         "documentationTitle": "Komplet Betterlytics-dokumentation",
         "logout": "Log ud"
@@ -1722,6 +1804,10 @@
           "cancel": "Annuller",
           "saving": "Gemmer...",
           "saveChanges": "Gem ændringer"
+        },
+        "toast": {
+          "success": "Indstillinger gemt!",
+          "error": "Kunne ikke gemme indstillinger. Prøv igen."
         }
       },
       "profile": {
@@ -1860,6 +1946,21 @@
           "y1": "1 år",
           "y2": "2 år",
           "y3": "3 år"
+        },
+        "siteRules": {
+          "title": "Webstedsregler",
+          "description": "Kontroller, hvilke indgående hændelser der accepteres.",
+          "enforceDomain": "Håndhæv domæne",
+          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet."
+        },
+        "blacklistedIps": {
+          "title": "Blokerede IP-adresser",
+          "description": "Administrer IP-adresser, for hvilke indgående hændelser blokeres.",
+          "addIp": "Tilføj IP",
+          "addIpPlaceholder": "Indtast IPv4/IPv6 eller CIDR (f.eks. 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
+          "addIpError": "Indtast en gyldig IPv4/IPv6-adresse eller CIDR-range",
+          "noIps": "Ingen IP-adresser er i øjeblikket blokeret",
+          "remove": "Fjern"
         }
       },
       "danger": {
@@ -1884,6 +1985,28 @@
     "demoMode": {
       "notAvailable": "Ikke tilgængelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
+    },
+    "bugReport": {
+      "trigger": "Rapportér fejl",
+      "title": "Rapportér en fejl",
+      "description": "Fortæl os hvad der gik galt eller føles forkert. Jo mere info, jo bedre!",
+      "placeholder": "Beskriv hvad der skete, hvad du forventede, og alt der kan hjælpe os med at genskabe problemet.",
+      "submit": "Send rapport",
+      "submitting": "Sender...",
+      "toast": {
+        "success": "Tak! Vi har modtaget din rapport.",
+        "error": "Rapporten kunne ikke sendes. Prøv igen.",
+        "empty": "Skriv en kort beskrivelse før du sender."
+      }
+    },
+    "changelog": {
+      "title": "Nyheder",
+      "haveFeedback": "Har du feedback? Sig endelig til, så næste udgivelse bliver endnu bedre.",
+      "viewAll": "Se alle opdateringer",
+      "gotIt": "Forstået",
+      "badgeNew": "Ny",
+      "tooltipWhatsNew": "Se hvad der er nyt",
+      "openButtonAria": "Se hvad der er nyt i version {version}"
     }
   },
   "onboarding": {

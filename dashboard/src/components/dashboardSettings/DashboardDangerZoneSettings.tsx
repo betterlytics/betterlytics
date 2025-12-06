@@ -14,7 +14,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { useBARouter } from '@/hooks/use-ba-router';
@@ -24,12 +23,7 @@ import { useTranslations } from 'next-intl';
 import { useCountdown } from '@/hooks/use-countdown';
 import { CountdownButton } from '@/components/uiExtensions/CountdownButton';
 
-type DangerZoneSettingsProps = {
-  formData: DashboardSettingsUpdate;
-  onUpdate: (updates: Partial<DashboardSettingsUpdate>) => void;
-};
-
-export default function DangerZoneSettings({}: DangerZoneSettingsProps) {
+export default function DangerZoneSettings() {
   const dashboardId = useDashboardId();
   const router = useBARouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);

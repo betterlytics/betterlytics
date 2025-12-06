@@ -1,18 +1,18 @@
 import { z } from 'zod';
 import { clickhouse } from '@/lib/clickhouse';
 import { SQL, safeSql } from '@/lib/safe-sql';
-import { type QueryFilter } from '@/entities/filter';
 import { BAQuery } from '@/lib/ba-query';
 import { DateTimeString } from '@/types/dates';
+import { FunnelStep } from '@/entities/funnels';
 
 export async function getFunnelDetails(
   siteId: string,
-  queryFilters: QueryFilter[],
+  funnelSteps: FunnelStep[],
   isStrict: boolean,
   startDate?: DateTimeString,
   endDate?: DateTimeString,
 ): Promise<number[]> {
-  const filters = BAQuery.getFilterQuery(queryFilters);
+  const filters = BAQuery.getFilterQuery(funnelSteps);
 
   const levelsArray = new Array(filters.length).fill(0).map((_, i) => i + 1);
 

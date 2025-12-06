@@ -13,6 +13,7 @@ import { unstable_cache } from 'next/cache';
 import { DashboardFindByUserSchema } from '@/entities/dashboard';
 import { stableStringify } from '@/utils/stableStringify';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
+import { cache } from 'react';
 
 // Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
 type AnyFn = (...args: unknown[]) => unknown;
@@ -40,6 +41,16 @@ function getActionSignature(fn: AnyFn): string {
 
 const tracer = trace.getTracer('dashboard');
 
+const getCachedSession = cache(async () => {
+  return await getServerSession(authOptions);
+});
+
+const getCachedAuthorizedContext = cache(
+  async (userId: string, dashboardId: string): Promise<AuthContext | null> => {
+    return await getAuthorizedDashboardContextOrNull(DashboardFindByUserSchema.parse({ userId, dashboardId }));
+  },
+);
+
 async function withActionSpan<T>(
   name: string,
   attrs: Record<string, string | number | boolean>,
@@ -52,9 +63,11 @@ async function withActionSpan<T>(
       span.setStatus({ code: SpanStatusCode.OK });
       return res;
     } catch (e) {
+      console.error(e);
       const err = e as Error;
       span.recordException(err);
       span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+      console.error(e);
       // Mask the UI-facing error
       throw new Error('An error occurred');
     } finally {
@@ -64,7 +77,7 @@ async function withActionSpan<T>(
 }
 
 export async function getAuthSession(): Promise<Session | null> {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedSession();
   return session;
 }
 
@@ -81,7 +94,7 @@ export async function requireAuth(): Promise<Session> {
 type ActionRequiringAuthContext<Args extends Array<unknown>, Ret> = (context: AuthContext, ...args: Args) => Ret;
 
 async function tryGetAuthorizedContext(userId: string, dashboardId: string): Promise<AuthContext | null> {
-  return await getAuthorizedDashboardContextOrNull(DashboardFindByUserSchema.parse({ userId, dashboardId }));
+  return await getCachedAuthorizedContext(userId, dashboardId);
 }
 
 async function createDemoContext(dashboardId: string): Promise<AuthContext> {
@@ -96,7 +109,7 @@ async function createDemoContext(dashboardId: string): Promise<AuthContext> {
 }
 
 async function resolveDemoDashboardContext(dashboardId: string): Promise<AuthContext> {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedSession();
   if (session?.user) {
     const authorizedCtx = await tryGetAuthorizedContext(session.user.id, dashboardId);
     if (authorizedCtx) return authorizedCtx;
@@ -105,7 +118,7 @@ async function resolveDemoDashboardContext(dashboardId: string): Promise<AuthCon
 }
 
 async function resolvePrivateDashboardContext(dashboardId: string): Promise<AuthContext> {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedSession();
   if (session?.user) {
     const authorizedCtx = await tryGetAuthorizedContext(session.user.id, dashboardId);
     if (authorizedCtx) return authorizedCtx;
@@ -122,9 +135,7 @@ async function resolveDashboardContext(dashboardId: string): Promise<AuthContext
 
 async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   const session = await requireAuth();
-  const ctx = await getAuthorizedDashboardContextOrNull(
-    DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
-  );
+  const ctx = await getCachedAuthorizedContext(session.user.id, dashboardId);
   if (!ctx) throw new Error('Unauthorized');
   return ctx;
 }

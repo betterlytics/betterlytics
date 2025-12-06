@@ -49,10 +49,13 @@ export async function createUserSettings(userId: string, settings: UserSettingsU
       userId,
     });
 
-    const createdSettings = await prisma.userSettings.create({
-      data: validatedSettings,
+    const prismaSettings = await prisma.userSettings.upsert({
+      where: { userId },
+      create: validatedSettings,
+      update: {},
     });
-    return UserSettingsSchema.parse(createdSettings);
+
+    return UserSettingsSchema.parse(prismaSettings);
   } catch (error) {
     console.error('Error creating user settings:', error);
     throw new Error('Failed to create user settings');

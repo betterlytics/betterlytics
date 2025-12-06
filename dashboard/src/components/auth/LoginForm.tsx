@@ -18,10 +18,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { getProviders } from 'next-auth/react';
 import ExternalLink from '@/components/ExternalLink';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
+import { useTranslations } from 'next-intl';
 
 export default function LoginForm() {
   const router = useBARouter();
   const isMobile = useIsMobile();
+  const t = useTranslations('public.auth.signin.form');
   const totpInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -77,15 +79,15 @@ export default function LoginForm() {
             setIsDialogOpen(true);
           } else if (result.error == 'invalid_otp') {
             setTotp('');
-            setError('Invalid verification code. Please check your credentials and try again.');
+            setError(t('errors.invalidOtp'));
           } else {
-            setError('Invalid email or password. Please check your credentials and try again.');
+            setError(t('errors.invalidCredentials'));
           }
         } else if (result?.url) {
           router.push(result.url);
         }
       } catch {
-        setError('An error occurred during sign in. Please try again.');
+        setError(t('errors.generic'));
       }
     });
   };
@@ -105,10 +107,10 @@ export default function LoginForm() {
           router.push(result.url);
         }
       } catch {
-        setError('An error occurred during sign in. Please try again.');
+        setError(t('errors.generic'));
       }
     });
-  }, []);
+  }, [t]);
 
   return (
     <form id='login' className='space-y-6' onSubmit={handleSubmit}>
@@ -116,7 +118,7 @@ export default function LoginForm() {
       <div className='space-y-4'>
         <div>
           <label htmlFor='email' className='text-foreground mb-2 block text-sm font-medium'>
-            Email
+            {t('emailLabel')}
           </label>
           <input
             id='email'
@@ -126,7 +128,7 @@ export default function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className='border-input bg-background text-foreground focus:ring-ring placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none'
-            placeholder='Enter your email'
+            placeholder={t('emailPlaceholder')}
             disabled={isDialogOpen}
             tabIndex={1}
           />
@@ -134,14 +136,14 @@ export default function LoginForm() {
         <div>
           <div className='mb-2 flex items-center justify-between'>
             <label htmlFor='password' className='text-foreground block text-sm font-medium'>
-              Password
+              {t('passwordLabel')}
             </label>
             <ExternalLink
               href='/forgot-password'
               className='text-primary hover:text-primary/80 text-sm font-medium underline'
               tabIndex={2}
             >
-              Forgot your password?
+              {t('forgotPassword')}
             </ExternalLink>
           </div>
           <input
@@ -152,7 +154,7 @@ export default function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className='border-input bg-background text-foreground focus:ring-ring placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none'
-            placeholder='Enter your password'
+            placeholder={t('passwordPlaceholder')}
             disabled={isDialogOpen}
             tabIndex={1}
           />
@@ -166,14 +168,14 @@ export default function LoginForm() {
           disabled={isPending || isDialogOpen}
           className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex h-10 w-full cursor-pointer justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
         >
-          {isPending || isDialogOpen ? 'Signing in...' : 'Sign in'}
+          {isPending || isDialogOpen ? t('submitting') : t('submitButton')}
         </button>
       </div>
 
       {providers?.google || providers?.github ? (
         <div className='relative my-6 flex items-center'>
           <div className='border-border flex-grow border-t'></div>
-          <span className='text-muted-foreground mx-4 flex-shrink text-sm'>or</span>
+          <span className='text-muted-foreground mx-4 flex-shrink text-sm'>{t('orDivider')}</span>
           <div className='border-border flex-grow border-t'></div>
         </div>
       ) : null}
@@ -190,7 +192,7 @@ export default function LoginForm() {
             <GoogleIcon />
 
             <span className='font-roboto grow-0 truncate align-top font-medium'>
-              {isGooglePending ? 'Signing in...' : 'Continue with Google'}
+              {isGooglePending ? t('submitting') : t('continueWithGoogle')}
             </span>
           </button>
         )}
@@ -206,7 +208,7 @@ export default function LoginForm() {
             <GitHubIcon />
 
             <span className='font-roboto grow-0 truncate align-top font-medium'>
-              {isGithubPending ? 'Signing in...' : 'Continue with GitHub'}
+              {isGithubPending ? t('submitting') : t('continueWithGithub')}
             </span>
           </button>
         )}
@@ -215,10 +217,8 @@ export default function LoginForm() {
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent className='max-h-[90vh] w-80 overflow-y-auto'>
           <AlertDialogHeader>
-            <AlertDialogTitle>Two-factor authentication</AlertDialogTitle>
-            <AlertDialogDescription>
-              Enter the verification code from your authenticator app.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('twoFactor.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('twoFactor.description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <Error />
           {isPending ? (
@@ -234,7 +234,7 @@ export default function LoginForm() {
             />
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>{t('twoFactor.cancel')}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

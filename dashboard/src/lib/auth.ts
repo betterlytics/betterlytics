@@ -10,7 +10,8 @@ import type { LoginUserData } from '@/entities/user';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
-import { getUserSettings } from '@/services/userSettings';
+import { createDefaultUserSettings, getUserSettings } from '@/services/userSettings';
+import { createStarterSubscriptionForUser } from '@/services/subscription.service';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -80,6 +81,21 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60,
   },
+  events: {
+    async createUser({ user }) {
+      try {
+        await createStarterSubscriptionForUser(user.id);
+      } catch (error) {
+        console.error('Failed to create initial subscription for user in NextAuth event:', error);
+      }
+
+      try {
+        await createDefaultUserSettings(user.id);
+      } catch (error) {
+        console.error('Failed to create initial user settings for user in NextAuth event:', error);
+      }
+    },
+  },
   callbacks: {
     async jwt({ token, user, trigger, account, profile }) {
       if (user) {
@@ -95,6 +111,8 @@ export const authOptions: NextAuthOptions = {
         token.termsAcceptedAt = (user as unknown as { termsAcceptedAt?: Date | null })?.termsAcceptedAt ?? null;
         token.termsAcceptedVersion =
           (user as unknown as { termsAcceptedVersion?: number | null })?.termsAcceptedVersion ?? null;
+        token.changelogVersionSeen =
+          (user as unknown as { changelogVersionSeen?: string | null })?.changelogVersionSeen ?? 'v0';
 
         if (account?.provider === 'google') {
           const emailVerifiedByGoogle = Boolean(
@@ -140,6 +158,7 @@ export const authOptions: NextAuthOptions = {
               token.onboardingCompletedAt = freshUser.onboardingCompletedAt ?? null;
               token.termsAcceptedAt = freshUser.termsAcceptedAt ?? null;
               token.termsAcceptedVersion = freshUser.termsAcceptedVersion ?? null;
+              token.changelogVersionSeen = freshUser.changelogVersionSeen ?? 'v0';
 
               // Refresh usersettings
               const freshSettings = await getUserSettings(token.uid);
@@ -168,6 +187,7 @@ export const authOptions: NextAuthOptions = {
         session.user.onboardingCompletedAt = token.onboardingCompletedAt;
         session.user.termsAcceptedAt = token.termsAcceptedAt;
         session.user.termsAcceptedVersion = token.termsAcceptedVersion;
+        session.user.changelogVersionSeen = token.changelogVersionSeen ?? 'v0';
       }
       return session;
     },

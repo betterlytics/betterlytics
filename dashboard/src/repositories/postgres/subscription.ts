@@ -1,43 +1,30 @@
 import prisma from '@/lib/postgres';
-import { Subscription, SubscriptionSchema } from '@/entities/billing';
-import { addMonths, startOfDay } from 'date-fns';
-import { UpsertSubscriptionData, UpsertSubscriptionSchema } from '@/entities/billing';
+import {
+  Subscription,
+  SubscriptionSchema,
+  UpsertSubscriptionData,
+  UpsertSubscriptionSchema,
+  buildStarterSubscription,
+} from '@/entities/billing';
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
-    let subscription = await prisma.subscription.findUnique({
-      where: { userId },
-    });
+    const starterSubscription = buildStarterSubscription();
 
-    if (!subscription) {
-      subscription = await createDefaultStarterSubscription(userId);
-    }
+    const subscription = await prisma.subscription.upsert({
+      where: { userId },
+      create: {
+        user: { connect: { id: userId } },
+        ...starterSubscription,
+      },
+      update: {},
+    });
 
     return SubscriptionSchema.parse(subscription);
   } catch (error) {
     console.error('Failed to get user subscription:', error);
     return null;
   }
-}
-
-async function createDefaultStarterSubscription(userId: string): Promise<Subscription> {
-  const now = startOfDay(new Date());
-  const periodEnd = addMonths(now, 1);
-
-  const subscription = await prisma.subscription.create({
-    data: {
-      user: { connect: { id: userId } },
-      tier: 'growth',
-      eventLimit: 10000,
-      pricePerMonth: 0,
-      currentPeriodStart: now,
-      currentPeriodEnd: periodEnd,
-      status: 'active',
-      cancelAtPeriodEnd: false,
-    },
-  });
-
-  return SubscriptionSchema.parse(subscription);
 }
 
 export async function upsertSubscription(data: UpsertSubscriptionData): Promise<Subscription> {

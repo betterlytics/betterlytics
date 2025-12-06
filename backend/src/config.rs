@@ -35,6 +35,8 @@ pub struct Config {
     pub s3_endpoint: Option<String>, // allow custom/local endpoints (e.g., MinIO, LocalStack)
     pub s3_force_path_style: bool,   // needed for many local providers
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
+    // Site-config cache database (read-only)
+    pub site_config_database_url: String,
 }
 
 impl Config {
@@ -105,6 +107,8 @@ impl Config {
             s3_endpoint: env::var("S3_ENDPOINT").ok(),
             s3_force_path_style: env::var("S3_FORCE_PATH_STYLE").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
+            site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
+                .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
         }
     }
 } 

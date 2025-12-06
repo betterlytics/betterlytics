@@ -1,8 +1,7 @@
 import { Suspense } from 'react';
 import { fetchFunnelsAction } from '@/app/actions';
-import FunnelsListSection from './FunnelsListSection';
 import CreateFunnelButton from './CreateFunnelButton';
-import FunnelSkeleton from '@/components/skeleton/FunnelSkeleton';
+import FunnelsStack from './FunnelsStack';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
@@ -27,8 +26,10 @@ async function FunnelsHeader({ funnelsPromise, title }: FunnelsHeaderProps) {
   return (
     <DashboardHeader title={title}>
       <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-3 sm:flex-row'>
-        <CreateFunnelButton />
-        <DashboardFilters showComparison={false} />
+        <div className='hidden md:block'>
+          <CreateFunnelButton />
+        </div>
+        <DashboardFilters showComparison={false} showQueryFilters={false} />
       </div>
     </DashboardHeader>
   );
@@ -41,21 +42,13 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <div className='container space-y-3 p-2 pt-4 pb-10 sm:p-6'>
       <Suspense fallback={null}>
         <FunnelsHeader funnelsPromise={funnelsPromise} title={t('funnels')} />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <div className='space-y-5'>
-            {[1, 2, 3].map((i) => (
-              <FunnelSkeleton key={i} />
-            ))}
-          </div>
-        }
-      >
-        <FunnelsListSection funnelsPromise={funnelsPromise} />
+      <Suspense fallback={<FunnelsStack.Skeleton />}>
+        <FunnelsStack promise={funnelsPromise} />
       </Suspense>
     </div>
   );

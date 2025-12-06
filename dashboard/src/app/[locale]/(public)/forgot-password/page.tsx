@@ -9,6 +9,7 @@ import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
+import { Card, CardContent } from '@/components/ui/card';
 
 export async function generateMetadata({
   params,
@@ -45,7 +46,7 @@ export default async function ForgotPasswordPage() {
   return (
     <>
       <StructuredData config={seoConfig} />
-      <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
+      <div className='bg-background flex items-center justify-center px-4 py-12 sm:px-6 sm:pt-20 lg:px-8'>
         <div className='w-full max-w-md space-y-8'>
           <div className='text-center'>
             <div className='mb-6 flex justify-center'>
@@ -54,17 +55,19 @@ export default async function ForgotPasswordPage() {
             <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('title')}</h2>
             <p className='text-muted-foreground mt-2 text-sm'>{t('subtitle')}</p>
           </div>
-          <div className='bg-card rounded-lg border p-8 shadow-sm'>
-            <ForgotPasswordForm />
-            <div className='mt-6 text-center'>
-              <p className='text-muted-foreground text-sm'>
-                {t('cta.remember')}{' '}
-                <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
-                  {t('cta.backToSignIn')}
-                </Link>
-              </p>
-            </div>
-          </div>
+          <Card className='p-0 shadow-sm'>
+            <CardContent className='p-3 py-8 sm:p-8'>
+              <ForgotPasswordForm />
+              <div className='mt-6 text-center'>
+                <p className='text-muted-foreground text-sm'>
+                  {t('cta.remember')}{' '}
+                  <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
+                    {t('cta.backToSignIn')}
+                  </Link>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>

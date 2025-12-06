@@ -76,15 +76,22 @@ export function useMapStyle({ calculatedMaxVisitors }: UseMapStyleProps): MapSty
             outline: none !important;
           }
           .leaflet-popup-content {
-            margin: 0 0.5rem !important;
+            margin: 0 !important;
             padding: 0 !important;
             display: flex;
             flex-direction: column;
           }
+          .map-sticky-tooltip .leaflet-popup-content {
+            border-radius: 1rem;
+            overflow: hidden;
+          }
           .leaflet-popup-content,
           .leaflet-popup-tip {
             background-color: var(--color-card);
-            filter: drop-shadow(0 0.5px 2px var(--color-sidebar-accent-foreground));
+            filter: drop-shadow(0 0.5px 1px var(--color-sidebar-accent-foreground));
+          }
+          .map-sticky-tooltip .leaflet-popup-content,
+          .map-sticky-tooltip .leaflet-popup-tip {
             pointer-events: none;
           }
           .leaflet-popup-content-wrapper {
@@ -95,7 +102,6 @@ export function useMapStyle({ calculatedMaxVisitors }: UseMapStyleProps): MapSty
           }
           .leaflet-popup {
             z-index: 11;
-            pointer-events: none;
           }
         `}
       </style>

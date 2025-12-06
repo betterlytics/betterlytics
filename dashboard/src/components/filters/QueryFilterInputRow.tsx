@@ -114,7 +114,12 @@ export function QueryFilterInputRow<TEntity>({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <FilterValueSearch filter={filter} onFilterUpdate={onFilterUpdate} key={filter.column} />
+      <FilterValueSearch
+        filter={filter}
+        onFilterUpdate={onFilterUpdate}
+        key={filter.column}
+        className='col-span-10 md:col-span-5'
+      />
       <Button
         variant='ghost'
         className='col-span-2 cursor-pointer md:col-span-1'
@@ -129,7 +134,7 @@ export function QueryFilterInputRow<TEntity>({
 
 type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: string }[];
 
-const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
+export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },
   { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },
   { value: 'country_code', icon: <EarthIcon />, label: 'Country code' },
