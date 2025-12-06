@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl';
 import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import { formatPercentage } from '@/utils/formatters';
+import { useChartAnnotations, CHART_IDS } from '@/hooks/useChartAnnotations';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
@@ -122,6 +123,10 @@ export default function OverviewChartSection({
   const currentMetricConfig = useMemo(() => metricConfigs[activeMetric], [activeMetric, metricConfigs]);
   const { granularity } = useTimeRangeContext();
 
+  const { annotations, createAnnotation, updateAnnotation, deleteAnnotation } = useChartAnnotations({
+    chartId: CHART_IDS.OVERVIEW,
+  });
+
   return (
     <InteractiveChart
       data={chartData}
@@ -133,6 +138,10 @@ export default function OverviewChartSection({
       headerContent={cards ? <InlineMetricsHeader cards={cards} /> : undefined}
       tooltipTitle={currentMetricConfig.title}
       labelPaddingLeft={activeMetric === 'avgDuration' ? 20 : undefined}
+      annotations={annotations}
+      onAddAnnotation={createAnnotation}
+      onUpdateAnnotation={updateAnnotation}
+      onDeleteAnnotation={deleteAnnotation}
     />
   );
 }

@@ -100,6 +100,7 @@ model User {
   subscription Subscription?
   passwordResetTokens PasswordResetToken[]
   bugReports BugReport[]
+  annotations Annotation[]
 }
 
 model VerificationToken {
@@ -144,6 +145,7 @@ model Dashboard {
   settings DashboardSettings?
   config SiteConfig?
   bugReports BugReport[]
+  annotations Annotation[]
 }
 
 model UserDashboard {
@@ -286,6 +288,32 @@ model BugReport {
 
   @@index([dashboardId])
   @@index([userId])
+}
+
+model Annotation {
+  id String @id @default(cuid())
+
+  dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+
+  // Chart identifier (e.g., "overview", "web-vitals", "page-traffic", etc.)
+  chartId String
+
+  date DateTime
+  label String @db.VarChar(48)
+  description String? @db.VarChar(256)
+
+  color String?
+
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dashboardId, chartId])
+  @@index([dashboardId, date])
+  @@index([createdById])
 }
 
 model PasswordResetToken {

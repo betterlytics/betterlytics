@@ -1,6 +1,17 @@
-import React, { useMemo } from 'react';
-import { ResponsiveContainer, Area, XAxis, YAxis, CartesianGrid, Tooltip, Line, ComposedChart } from 'recharts';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import {
+  ResponsiveContainer,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Line,
+  ComposedChart,
+  ReferenceDot,
+} from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
@@ -8,6 +19,12 @@ import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/cha
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale } from 'next-intl';
+import { Pencil, X } from 'lucide-react';
+import { type ChartAnnotation } from './charts/AnnotationMarker';
+import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
+import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
+import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
+import { groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
 
 interface ChartDataPoint {
   date: string | number;
@@ -24,6 +41,13 @@ interface InteractiveChartProps {
   headerContent?: React.ReactNode;
   tooltipTitle?: string;
   labelPaddingLeft?: number;
+  annotations?: ChartAnnotation[];
+  onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;
+  onUpdateAnnotation?: (
+    id: string,
+    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>,
+  ) => void;
+  onDeleteAnnotation?: (id: string) => void;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
@@ -37,8 +61,34 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     headerContent,
     tooltipTitle,
     labelPaddingLeft,
+    annotations,
+    onAddAnnotation,
+    onUpdateAnnotation,
+    onDeleteAnnotation,
   }) => {
     const locale = useLocale();
+    const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
+    const [isAnnotationMode, setIsAnnotationMode] = useState(false);
+    const [chartWidth, setChartWidth] = useState<number>(800);
+    const annotationDialogsRef = useRef<AnnotationDialogsRef>(null);
+    const chartContainerRef = useRef<HTMLDivElement>(null);
+
+    // State for group popover
+    const [openGroup, setOpenGroup] = useState<AnnotationGroup | null>(null);
+    const [popoverAnchorRect, setPopoverAnchorRect] = useState<DOMRect | null>(null);
+
+    const annotationGroups = useMemo(
+      () => groupAnnotationsByBucket(annotations ?? [], data, chartWidth),
+      [annotations, data, chartWidth],
+    );
+
+    const orderedAnnotationGroups = useMemo(() => {
+      if (hoveredGroup === null) return annotationGroups;
+      const hovered = annotationGroups.find((g) => g.bucketDate === hoveredGroup);
+      if (!hovered) return annotationGroups;
+      return [...annotationGroups.filter((g) => g.bucketDate !== hoveredGroup), hovered];
+    }, [annotationGroups, hoveredGroup]);
+
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
@@ -47,16 +97,135 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       };
     }, [formatValue]);
 
+    useEffect(() => {
+      if (!chartContainerRef.current) return;
+
+      const updateWidth = () => {
+        const nextWidth = chartContainerRef.current?.getBoundingClientRect().width;
+        if (nextWidth && Math.abs(nextWidth - chartWidth) > 0.5) {
+          setChartWidth(nextWidth);
+        }
+      };
+
+      updateWidth();
+
+      let observer: ResizeObserver | null = null;
+
+      if (typeof ResizeObserver !== 'undefined') {
+        observer = new ResizeObserver(updateWidth);
+        observer.observe(chartContainerRef.current);
+      } else {
+        window.addEventListener('resize', updateWidth);
+      }
+
+      return () => {
+        if (observer) {
+          observer.disconnect();
+        } else {
+          window.removeEventListener('resize', updateWidth);
+        }
+      };
+    }, [chartWidth]);
+
+    const handleChartClick = useCallback(
+      (chartEvent: { activeLabel?: string | number } | null) => {
+        if (!isAnnotationMode || !chartEvent?.activeLabel) return;
+
+        const clickedDate =
+          typeof chartEvent.activeLabel === 'number'
+            ? chartEvent.activeLabel
+            : new Date(chartEvent.activeLabel).getTime();
+
+        annotationDialogsRef.current?.openCreateDialog(clickedDate);
+      },
+      [isAnnotationMode],
+    );
+
+    const handleSingleAnnotationClick = useCallback((annotation: ChartAnnotation) => {
+      annotationDialogsRef.current?.openEditDialog(annotation);
+    }, []);
+
+    const handleGroupClick = useCallback((group: AnnotationGroup, anchorRect: DOMRect) => {
+      if (group.annotations.length === 1) {
+        annotationDialogsRef.current?.openEditDialog(group.annotations[0]);
+      } else {
+        setOpenGroup(group);
+        setPopoverAnchorRect(anchorRect);
+      }
+    }, []);
+
+    const handleClosePopover = useCallback(() => {
+      setOpenGroup(null);
+      setPopoverAnchorRect(null);
+    }, []);
+
+    const handleEditFromPopover = useCallback((annotation: ChartAnnotation) => {
+      annotationDialogsRef.current?.openEditDialog(annotation);
+    }, []);
+
+    const handleDeleteFromPopover = useCallback(
+      (id: string) => {
+        onDeleteAnnotation?.(id);
+      },
+      [onDeleteAnnotation],
+    );
+
     const isMobile = useIsMobile();
+    const [hoveredPillGroup, setHoveredPillGroup] = useState<number | null>(null);
+
+    const renderChartTooltip = useCallback(
+      (tooltipProps: any) => {
+        if (hoveredPillGroup !== null) return null;
+        return (
+          <ChartTooltip
+            {...tooltipProps}
+            labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
+            formatter={formatValue}
+            comparisonMap={comparisonMap}
+            title={tooltipTitle}
+          />
+        );
+      },
+      [hoveredPillGroup, granularity, locale, formatValue, comparisonMap, tooltipTitle],
+    );
+
     return (
       <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
-          <div className='h-80 py-1 sm:px-2 md:px-4'>
+          <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
+            {onAddAnnotation && (
+              <button
+                onClick={() => setIsAnnotationMode(!isAnnotationMode)}
+                className={`absolute top-0 right-0 z-10 rounded-md p-1.5 transition-colors ${
+                  isAnnotationMode
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+                title={isAnnotationMode ? 'Exit annotation mode' : 'Add annotation'}
+              >
+                {isAnnotationMode ? (
+                  <X className='h-4 w-4 cursor-pointer' />
+                ) : (
+                  <Pencil className='h-4 w-4 cursor-pointer' />
+                )}
+              </button>
+            )}
+
+            {isAnnotationMode && (
+              <Badge
+                variant='secondary'
+                className='border-border/80 bg-secondary/90 text-foreground dark:bg-accent/95 absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded-md border px-3 py-1 text-xs font-semibold shadow-md backdrop-blur-sm'
+              >
+                Click on the chart to add an annotation
+              </Badge>
+            )}
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
               <ComposedChart
                 data={data}
                 margin={{ top: 10, left: isMobile ? 0 : (labelPaddingLeft ?? 6), bottom: 0, right: 1 }}
+                onClick={isAnnotationMode ? handleChartClick : undefined}
+                style={{ cursor: isAnnotationMode ? 'crosshair' : undefined }}
               >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
@@ -94,16 +263,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   mirror={isMobile}
                 />
 
-                <Tooltip
-                  content={
-                    <ChartTooltip
-                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
-                      formatter={formatValue}
-                      comparisonMap={comparisonMap}
-                      title={tooltipTitle}
-                    />
-                  }
-                />
+                <Tooltip content={renderChartTooltip} />
+
                 <Area
                   type='linear'
                   data={data}
@@ -142,10 +303,46 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   strokeOpacity={0.5}
                   dot={false}
                 />
+                {orderedAnnotationGroups.map((group) => (
+                  <ReferenceDot
+                    key={group.bucketDate}
+                    x={group.bucketDate}
+                    y={group.dataValue}
+                    r={0}
+                    isFront
+                    shape={
+                      <AnnotationGroupMarker
+                        group={group}
+                        isHovered={hoveredGroup === group.bucketDate}
+                        onHover={setHoveredGroup}
+                        onHoverPill={setHoveredPillGroup}
+                        onGroupClick={handleGroupClick}
+                        onSingleClick={handleSingleAnnotationClick}
+                        isAnnotationMode={isAnnotationMode}
+                      />
+                    }
+                  />
+                ))}
               </ComposedChart>
             </ResponsiveContainer>
+
+            <AnnotationGroupPopover
+              group={openGroup}
+              anchorRect={popoverAnchorRect}
+              containerRef={chartContainerRef}
+              onClose={handleClosePopover}
+              onEdit={handleEditFromPopover}
+              onDelete={handleDeleteFromPopover}
+            />
           </div>
         </CardContent>
+
+        <AnnotationDialogs
+          ref={annotationDialogsRef}
+          onAddAnnotation={onAddAnnotation}
+          onUpdateAnnotation={onUpdateAnnotation}
+          onDeleteAnnotation={onDeleteAnnotation}
+        />
       </Card>
     );
   },
