@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from '@/entities/annotation';
@@ -28,6 +29,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   cx = 0,
   cy = 0,
 }) => {
+  const t = useTranslations('components.annotations.groupMarker');
   const pillRef = useRef<SVGGElement>(null);
   const animationRef = useRef<number | null>(null);
   const animatedYRef = useRef(cy);
@@ -299,7 +301,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
             fill='var(--popover-foreground, #f3f4f6)'
             fontSize={11}
           >
-            Click to see all
+            {t('clickToSeeAll')}
           </text>
         </g>
       )}

@@ -2,13 +2,14 @@
 
 import * as React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { useLocale } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { resolveDateFnsLocale } from '@/constants/i18n';
 
 type DateTimePicker24hProps = {
   value?: Date;
@@ -16,6 +17,8 @@ type DateTimePicker24hProps = {
 };
 
 export function DateTimePicker24h({ value, onChange }: DateTimePicker24hProps) {
+  const locale = useLocale();
+  const dateFnsLocale = React.useMemo(() => resolveDateFnsLocale(locale), [locale]);
   const [date, setDate] = React.useState<Date | undefined>(value);
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -65,12 +68,29 @@ export function DateTimePicker24h({ value, onChange }: DateTimePicker24hProps) {
           className={cn('w-full justify-start text-left font-normal', !date && 'text-muted-foreground')}
         >
           <CalendarIcon className='mr-2 h-4 w-4' />
-          {date ? format(date, 'dd-MM-yyyy HH:mm') : <span>dd-MM-yyyy HH:mm</span>}
+          {date ? (
+            new Intl.DateTimeFormat(locale, {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            }).format(date)
+          ) : (
+            <span>dd-MM-yyyy HH:mm</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-0'>
         <div className='sm:flex'>
-          <Calendar mode='single' selected={date} onSelect={handleDateSelect} initialFocus />
+          <Calendar
+            mode='single'
+            selected={date}
+            onSelect={handleDateSelect}
+            initialFocus
+            locale={dateFnsLocale}
+          />
           <div className='flex flex-col divide-y sm:h-[300px] sm:flex-row sm:divide-x sm:divide-y-0'>
             <ScrollArea className='w-64 sm:w-auto'>
               <div className='flex p-2 sm:flex-col'>

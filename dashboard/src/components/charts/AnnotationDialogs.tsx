@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -43,9 +43,16 @@ interface ColorSwatchPickerProps {
   value: AnnotationColorToken;
   onChange: (color: AnnotationColorToken) => void;
   label?: string;
+  ariaLabelForColor?: (color: AnnotationColorToken) => string;
 }
 
-const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({ palette, value, onChange, label }) => {
+const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
+  palette,
+  value,
+  onChange,
+  label,
+  ariaLabelForColor,
+}) => {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
@@ -65,7 +72,7 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({ palette, value, o
                 isSelected ? 'ring-offset-background ring-primary ring-2 ring-offset-2' : 'border-border'
               }`}
               style={{ backgroundColor: hex }}
-              aria-label={`Select color ${colorToken}`}
+              aria-label={ariaLabelForColor ? ariaLabelForColor(colorToken) : `Select color ${colorToken}`}
             />
           );
         })}
@@ -76,7 +83,7 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({ palette, value, o
 
 const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProps>(
   ({ onAddAnnotation, onUpdateAnnotation, onDeleteAnnotation }, ref) => {
-    const locale = useLocale();
+    const t = useTranslations('components.annotations.dialogs');
     const colorPalette = Object.keys(ANNOTATION_COLOR_MAP) as AnnotationColorToken[];
     const defaultColorToken = DEFAULT_ANNOTATION_COLOR_TOKEN;
 
@@ -176,11 +183,11 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogContent className='sm:max-w-md'>
             <DialogHeader>
-              <DialogTitle>Add Annotation</DialogTitle>
+              <DialogTitle>{t('addTitle')}</DialogTitle>
             </DialogHeader>
             <div className='space-y-4 py-4'>
               <Input
-                placeholder='Annotation name (e.g., "Product Launch")'
+                placeholder={t('createNamePlaceholder')}
                 value={createAnnotationName}
                 onChange={(e) => setCreateAnnotationName(e.target.value)}
                 onKeyDown={(e) => {
@@ -193,9 +200,9 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 className='text-sm placeholder:text-xs sm:text-base sm:placeholder:text-sm'
               />
               <div>
-                <label className='text-sm font-medium'>Description (optional)</label>
+                <label className='text-sm font-medium'>{t('descriptionLabel')}</label>
                 <Input
-                  placeholder='Add a description...'
+                  placeholder={t('descriptionPlaceholder')}
                   value={createAnnotationDescription}
                   onChange={(e) => setCreateAnnotationDescription(e.target.value)}
                   maxLength={200}
@@ -203,7 +210,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 />
               </div>
               <div className='grid gap-2'>
-                <label className='text-sm font-medium'>Date &amp; time</label>
+                <label className='text-sm font-medium'>{t('dateTimeLabel')}</label>
                 <DateTimePicker24h
                   value={
                     createAnnotationDate ?? (pendingAnnotationDate ? new Date(pendingAnnotationDate) : new Date())
@@ -215,19 +222,20 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 palette={colorPalette}
                 value={createAnnotationColor}
                 onChange={setCreateAnnotationColor}
-                label='Color'
+                label={t('colorLabel')}
+                ariaLabelForColor={(token) => t('selectColorAria', { token })}
               />
             </div>
             <DialogFooter>
               <Button variant='outline' className='cursor-pointer' onClick={() => setShowCreateDialog(false)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 className='cursor-pointer'
                 onClick={handleCreateAnnotation}
                 disabled={!createAnnotationName.trim()}
               >
-                Add
+                {t('add')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -244,13 +252,13 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         >
           <DialogContent className='sm:max-w-md'>
             <DialogHeader>
-              <DialogTitle>Edit Annotation</DialogTitle>
+              <DialogTitle>{t('editTitle')}</DialogTitle>
             </DialogHeader>
             <div className='space-y-4 py-4'>
               <div>
-                <label className='text-sm font-medium'>Name</label>
+                <label className='text-sm font-medium'>{t('nameLabel')}</label>
                 <Input
-                  placeholder='Annotation name'
+                  placeholder={t('editNamePlaceholder')}
                   value={editAnnotationName}
                   onChange={(e) => setEditAnnotationName(e.target.value)}
                   onKeyDown={(e) => {
@@ -264,9 +272,9 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 />
               </div>
               <div>
-                <label className='text-sm font-medium'>Description (optional)</label>
+                <label className='text-sm font-medium'>{t('descriptionLabel')}</label>
                 <Input
-                  placeholder='Add a description...'
+                  placeholder={t('descriptionPlaceholder')}
                   value={editAnnotationDescription}
                   onChange={(e) => setEditAnnotationDescription(e.target.value)}
                   maxLength={200}
@@ -274,7 +282,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 />
               </div>
               <div className='grid gap-2'>
-                <label className='text-sm font-medium'>Date &amp; time</label>
+                <label className='text-sm font-medium'>{t('dateTimeLabel')}</label>
                 <DateTimePicker24h
                   value={editAnnotationDate ?? new Date(selectedAnnotation?.date ?? Date.now())}
                   onChange={(d) => setEditAnnotationDate(d ?? null)}
@@ -284,29 +292,32 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 palette={colorPalette}
                 value={editAnnotationColor}
                 onChange={setEditAnnotationColor}
-                label='Color'
+                label={t('colorLabel')}
+                ariaLabelForColor={(token) => t('selectColorAria', { token })}
               />
             </div>
             <DialogFooter className='flex w-full flex-row items-center gap-2'>
               <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
                 <AlertDialogTrigger asChild>
-                  <Button variant='destructive' className='cursor-pointer px-3' aria-label='Delete annotation'>
+                  <Button
+                    variant='destructive'
+                    className='cursor-pointer px-3'
+                    aria-label={t('deleteAnnotationAria')}
+                  >
                     <Trash2 className='h-4 w-4' />
-                    <span className='ml-2 hidden sm:inline'>Delete</span>
+                    <span className='ml-2 hidden sm:inline'>{t('delete')}</span>
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete the annotation?
-                    </AlertDialogDescription>
+                    <AlertDialogTitle>{t('deleteConfirmTitle')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('deleteConfirmDescription')}</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className='cursor-pointer'>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel className='cursor-pointer'>{t('cancel')}</AlertDialogCancel>
                     <AlertDialogAction asChild>
                       <Button variant='destructive' className='cursor-pointer' onClick={handleDeleteAnnotation}>
-                        Delete
+                        {t('delete')}
                       </Button>
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -318,14 +329,14 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   className='min-w-[104px] cursor-pointer'
                   onClick={() => setShowEditDialog(false)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button
                   className='min-w-[104px] cursor-pointer'
                   onClick={handleUpdateAnnotation}
                   disabled={!editAnnotationName.trim()}
                 >
-                  Save
+                  {t('save')}
                 </Button>
               </div>
             </DialogFooter>

@@ -1139,6 +1139,42 @@
         "sunShort": "Søn."
       }
     },
+    "annotations": {
+      "dialogs": {
+        "addTitle": "Tilføj annotation",
+        "editTitle": "Redigér annotation",
+        "nameLabel": "Navn",
+        "createNamePlaceholder": "Annoteringsnavn (f.eks. \"Produktlancering\")",
+        "editNamePlaceholder": "Annoteringsnavn",
+        "descriptionLabel": "Beskrivelse (valgfrit)",
+        "descriptionPlaceholder": "Tilføj en beskrivelse...",
+        "dateTimeLabel": "Dato og tidspunkt",
+        "colorLabel": "Farve",
+        "selectColorAria": "Vælg farve {token}",
+        "cancel": "Annuller",
+        "add": "Tilføj",
+        "save": "Gem",
+        "delete": "Slet",
+        "deleteAnnotationAria": "Slet annotation",
+        "deleteConfirmTitle": "Bekræft sletning",
+        "deleteConfirmDescription": "Er du sikker på, at du vil slette denne annotation?"
+      },
+      "chart": {
+        "exitAnnotationMode": "Forlad annoteringstilstand",
+        "enterAnnotationMode": "Tilføj annotation",
+        "annotationModeHint": "Klik på diagrammet for at tilføje en annotation"
+      },
+      "groupMarker": {
+        "clickToSeeAll": "Klik for at se alle"
+      },
+      "popover": {
+        "annotationsCount": "{count, plural, one {# annotation} other {# annotationer}}",
+        "edit": "Redigér",
+        "delete": "Slet",
+        "editAria": "Redigér annotation",
+        "deleteAria": "Slet annotation"
+      }
+    },
     "dashboards": {
       "createDialog": {
         "title": "Opret nyt dashboard",

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
   onDelete,
 }) => {
   const locale = useLocale();
+  const t = useTranslations('components.annotations.popover');
 
   if (!containerRef.current) return null;
 
@@ -65,7 +66,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                 })}
               </p>
               <p className='text-muted-foreground mt-0.5 text-xs'>
-                {group.annotations.length} annotation{group.annotations.length !== 1 ? 's' : ''}
+                {t('annotationsCount', { count: group.annotations.length })}
               </p>
             </div>
 
@@ -96,9 +97,10 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                         onEdit(annotation);
                         onClose();
                       }}
-                      aria-label='Edit annotation'
+                      aria-label={t('editAria')}
                     >
                       <Pencil className='h-3.5 w-3.5' />
+                      <span className='sr-only'>{t('edit')}</span>
                     </Button>
                     <Button
                       variant='ghost'
@@ -108,9 +110,10 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                         onDelete(annotation.id);
                         onClose();
                       }}
-                      aria-label='Delete annotation'
+                      aria-label={t('deleteAria')}
                     >
                       <Trash2 className='h-3.5 w-3.5' />
+                      <span className='sr-only'>{t('delete')}</span>
                     </Button>
                   </div>
                 </div>

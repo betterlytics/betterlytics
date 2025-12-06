@@ -18,7 +18,7 @@ import { type ComparisonMapping } from '@/types/charts';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Pencil, X } from 'lucide-react';
 import { type ChartAnnotation } from '@/entities/annotation';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
@@ -67,6 +67,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     onDeleteAnnotation,
   }) => {
     const locale = useLocale();
+    const t = useTranslations('components.annotations.chart');
     const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
     const [chartWidth, setChartWidth] = useState<number>(800);
@@ -210,7 +211,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
-                title={isAnnotationMode ? 'Exit annotation mode' : 'Add annotation'}
+                title={isAnnotationMode ? t('exitAnnotationMode') : t('enterAnnotationMode')}
               >
                 {isAnnotationMode ? (
                   <X className='h-4 w-4 cursor-pointer' />
@@ -225,7 +226,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                 variant='secondary'
                 className='border-border/80 bg-secondary/90 text-foreground dark:bg-accent/95 absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded-md border px-3 py-1 text-xs font-semibold shadow-md backdrop-blur-sm'
               >
-                Click on the chart to add an annotation
+                {t('annotationModeHint')}
               </Badge>
             )}
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
