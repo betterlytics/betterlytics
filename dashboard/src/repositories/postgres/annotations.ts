@@ -18,7 +18,7 @@ export async function createAnnotation(data: AnnotationCreate): Promise<Annotati
         date: payload.date,
         label: payload.label,
         description: payload.description,
-        color: payload.color,
+        colorToken: payload.colorToken,
         createdById: payload.createdById,
       },
     });
@@ -68,7 +68,7 @@ export async function getAnnotationById(id: string): Promise<Annotation | null> 
 
 export async function updateAnnotation(
   id: string,
-  data: Partial<Pick<Annotation, 'label' | 'description' | 'color' | 'date'>>,
+  data: Partial<Pick<Annotation, 'label' | 'description' | 'colorToken' | 'date'>>,
 ): Promise<Annotation> {
   try {
     const payload = AnnotationUpdateSchema.parse(data);

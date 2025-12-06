@@ -31,7 +31,7 @@ interface UseChartAnnotationsReturn {
   createAnnotation: (annotation: Omit<ChartAnnotation, 'id'>) => Promise<void>;
   updateAnnotation: (
     id: string,
-    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>,
+    updates: Pick<ChartAnnotation, 'label' | 'description' | 'colorToken' | 'date'>,
   ) => Promise<void>;
   deleteAnnotation: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
@@ -46,7 +46,7 @@ function toChartAnnotation(annotation: Annotation): ChartAnnotation {
     date: annotation.date.getTime(),
     label: annotation.label,
     description: annotation.description ?? undefined,
-    color: annotation.color ?? undefined,
+    colorToken: annotation.colorToken ?? undefined,
   };
 }
 
@@ -92,10 +92,11 @@ export function useChartAnnotations({
         date: new Date(chartAnnotation.date),
         label: chartAnnotation.label,
         description: chartAnnotation.description ?? null,
-        color: chartAnnotation.color ?? null,
+        colorToken: chartAnnotation.colorToken ?? null,
         createdById: '',
         createdAt: new Date(),
         updatedAt: new Date(),
+        deletedAt: null,
       };
 
       // Optimistically add the annotation
@@ -108,7 +109,7 @@ export function useChartAnnotations({
             date: new Date(chartAnnotation.date),
             label: chartAnnotation.label,
             description: chartAnnotation.description ?? null,
-            color: chartAnnotation.color ?? null,
+            colorToken: chartAnnotation.colorToken ?? null,
           });
 
           // Replace optimistic annotation with the real one
@@ -124,7 +125,7 @@ export function useChartAnnotations({
   );
 
   const updateAnnotation = useCallback(
-    async (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>) => {
+    async (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'colorToken' | 'date'>) => {
       if (!dashboardId) return;
 
       // Store previous state for rollback
@@ -138,7 +139,7 @@ export function useChartAnnotations({
                 ...a,
                 label: updates.label,
                 description: updates.description ?? null,
-                color: updates.color ?? null,
+                colorToken: updates.colorToken ?? null,
                 date: updates.date ? new Date(updates.date) : a.date,
               }
             : a,
@@ -149,7 +150,7 @@ export function useChartAnnotations({
         await updateAnnotationAction(dashboardId, id, {
           label: updates.label,
           description: updates.description ?? undefined,
-          color: updates.color ?? undefined,
+          colorToken: updates.colorToken ?? undefined,
           date: updates.date ? new Date(updates.date) : undefined,
         });
       } catch (error) {

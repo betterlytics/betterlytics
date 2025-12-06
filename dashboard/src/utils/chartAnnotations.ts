@@ -1,19 +1,27 @@
 import { type ChartAnnotation } from '@/components/charts/AnnotationMarker';
 
-export const ANNOTATION_COLORS = [
-  '#4766E5', // primary-ish
-  '#f59e0b', // amber
-  '#10b981', // emerald
-  '#ef4444', // red
-  '#8b5cf6', // violet
-  '#06b6d4', // cyan
-  '#f97316', // orange
-  '#22c55e', // green
-  '#64748b', // slate
-  '#14b8a6', // teal
-] as const;
+export const ANNOTATION_COLOR_MAP = {
+  primary: '#4766E5',
+  amber: '#f59e0b',
+  emerald: '#10b981',
+  red: '#ef4444',
+  violet: '#8b5cf6',
+  cyan: '#06b6d4',
+  orange: '#f97316',
+  green: '#22c55e',
+  slate: '#64748b',
+  teal: '#14b8a6',
+} as const;
 
-export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLORS[0];
+export type AnnotationColorToken = keyof typeof ANNOTATION_COLOR_MAP;
+
+export const DEFAULT_ANNOTATION_COLOR_TOKEN: AnnotationColorToken = 'primary';
+export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN];
+
+export function resolveAnnotationColor(token?: string | null): string {
+  if (!token) return DEFAULT_ANNOTATION_COLOR;
+  return ANNOTATION_COLOR_MAP[token as AnnotationColorToken] ?? DEFAULT_ANNOTATION_COLOR;
+}
 
 export interface AnnotationGroup {
   /** Bucket timestamp (used as x position) */

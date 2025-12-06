@@ -5,21 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
 import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
-import { ANNOTATION_COLORS, DEFAULT_ANNOTATION_COLOR } from '@/utils/chartAnnotations';
+import {
+  ANNOTATION_COLOR_MAP,
+  DEFAULT_ANNOTATION_COLOR,
+  DEFAULT_ANNOTATION_COLOR_TOKEN,
+  resolveAnnotationColor,
+  type AnnotationColorToken,
+} from '@/utils/chartAnnotations';
 
 export interface ChartAnnotation {
   id: string;
   date: number;
   label: string;
   description?: string;
-  color?: string;
+  colorToken?: string;
 }
 
 interface AnnotationDialogsProps {
   onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;
   onUpdateAnnotation?: (
     id: string,
-    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>,
+    updates: Pick<ChartAnnotation, 'label' | 'description' | 'colorToken' | 'date'>,
   ) => void;
   onDeleteAnnotation?: (id: string) => void;
 }
@@ -30,9 +36,9 @@ export interface AnnotationDialogsRef {
 }
 
 interface ColorSwatchPickerProps {
-  palette: readonly string[];
-  value: string;
-  onChange: (color: string) => void;
+  palette: readonly AnnotationColorToken[];
+  value: AnnotationColorToken;
+  onChange: (color: AnnotationColorToken) => void;
   label?: string;
 }
 
@@ -40,18 +46,19 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({ palette, value, o
   <div className='grid gap-2'>
     {label ? <label className='text-sm font-medium'>{label}</label> : null}
     <div className='flex flex-wrap gap-2'>
-      {palette.map((color) => {
-        const isSelected = value === color;
+      {palette.map((colorToken) => {
+        const hex = resolveAnnotationColor(colorToken);
+        const isSelected = value === colorToken;
         return (
           <button
-            key={color}
+            key={colorToken}
             type='button'
-            onClick={() => onChange(color)}
+            onClick={() => onChange(colorToken)}
             className={`h-8 w-8 rounded-full border transition ${
               isSelected ? 'ring-offset-background ring-primary ring-2 ring-offset-2' : 'border-border'
             }`}
-            style={{ backgroundColor: color }}
-            aria-label={`Select color ${color}`}
+            style={{ backgroundColor: hex }}
+            aria-label={`Select color ${colorToken}`}
           />
         );
       })}
@@ -62,8 +69,8 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({ palette, value, o
 const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProps>(
   ({ onAddAnnotation, onUpdateAnnotation, onDeleteAnnotation }, ref) => {
     const locale = useLocale();
-    const colorPalette = ANNOTATION_COLORS;
-    const defaultColor = DEFAULT_ANNOTATION_COLOR;
+    const colorPalette = Object.keys(ANNOTATION_COLOR_MAP) as AnnotationColorToken[];
+    const defaultColorToken = DEFAULT_ANNOTATION_COLOR_TOKEN;
 
     // Create annotation state
     const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -71,7 +78,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const [createAnnotationDate, setCreateAnnotationDate] = useState<Date | null>(null);
     const [createAnnotationName, setCreateAnnotationName] = useState('');
     const [createAnnotationDescription, setCreateAnnotationDescription] = useState('');
-    const [createAnnotationColor, setCreateAnnotationColor] = useState<string>(defaultColor);
+    const [createAnnotationColor, setCreateAnnotationColor] = useState<AnnotationColorToken>(defaultColorToken);
 
     // Edit annotation state
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -79,7 +86,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const [editAnnotationName, setEditAnnotationName] = useState('');
     const [editAnnotationDescription, setEditAnnotationDescription] = useState('');
     const [editAnnotationDate, setEditAnnotationDate] = useState<Date | null>(null);
-    const [editAnnotationColor, setEditAnnotationColor] = useState<string>(defaultColor);
+    const [editAnnotationColor, setEditAnnotationColor] = useState<AnnotationColorToken>(defaultColorToken);
 
     useImperativeHandle(ref, () => ({
       openCreateDialog: (date: number) => {
@@ -87,7 +94,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         setCreateAnnotationDate(new Date(date));
         setCreateAnnotationName('');
         setCreateAnnotationDescription('');
-        setCreateAnnotationColor(defaultColor);
+        setCreateAnnotationColor(defaultColorToken);
         setShowCreateDialog(true);
       },
       openEditDialog: (annotation: ChartAnnotation) => {
@@ -96,7 +103,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         setEditAnnotationDescription(annotation.description ?? '');
         const date = new Date(annotation.date);
         setEditAnnotationDate(date);
-        setEditAnnotationColor(annotation.color ?? defaultColor);
+        const token = (annotation.colorToken as AnnotationColorToken | undefined) ?? defaultColorToken;
+        setEditAnnotationColor(token);
         setShowEditDialog(true);
       },
     }));
@@ -112,7 +120,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         date: targetDate.getTime(),
         label: createAnnotationName.trim(),
         description: createAnnotationDescription.trim() || undefined,
-        color: createAnnotationColor,
+        colorToken: createAnnotationColor,
       });
 
       setShowCreateDialog(false);
@@ -120,7 +128,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
       setCreateAnnotationDate(null);
       setCreateAnnotationName('');
       setCreateAnnotationDescription('');
-      setCreateAnnotationColor(defaultColor);
+      setCreateAnnotationColor(defaultColorToken);
     };
 
     const handleUpdateAnnotation = () => {
@@ -131,7 +139,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
       onUpdateAnnotation(selectedAnnotation.id, {
         label: editAnnotationName.trim(),
         description: editAnnotationDescription.trim() || undefined,
-        color: editAnnotationColor,
+        colorToken: editAnnotationColor,
         date: nextDate.getTime(),
       });
 
@@ -139,7 +147,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
       setSelectedAnnotation(null);
       setEditAnnotationName('');
       setEditAnnotationDescription('');
-      setEditAnnotationColor(defaultColor);
+      setEditAnnotationColor(defaultColorToken);
     };
 
     const handleDeleteAnnotation = () => {

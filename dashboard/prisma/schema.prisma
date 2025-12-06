@@ -303,7 +303,7 @@ model Annotation {
   label String @db.VarChar(48)
   description String? @db.VarChar(256)
 
-  color String?
+  colorToken String?
 
   createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById String

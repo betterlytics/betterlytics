@@ -51,7 +51,7 @@ export const updateAnnotationAction = withDashboardMutationAuthContext(
   async (
     ctx: AuthContext,
     annotationId: string,
-    payload: Partial<Pick<Annotation, 'label' | 'description' | 'color' | 'date'>>,
+    payload: Partial<Pick<Annotation, 'label' | 'description' | 'colorToken' | 'date'>>,
   ) => {
     // First check that the annotation belongs to the user's dashboard
     const annotation = await getDashboardAnnotation(annotationId);

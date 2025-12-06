@@ -6,10 +6,11 @@ CREATE TABLE "Annotation" (
     "date" TIMESTAMP(3) NOT NULL,
     "label" VARCHAR(48) NOT NULL,
     "description" VARCHAR(256),
-    "color" TEXT,
+    "colorToken" TEXT,
     "createdById" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Annotation_pkey" PRIMARY KEY ("id")
 );

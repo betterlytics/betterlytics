@@ -1,11 +1,12 @@
 import React from 'react';
+import { resolveAnnotationColor } from '@/utils/chartAnnotations';
 
 export interface ChartAnnotation {
   id: string;
   date: number;
   label: string;
   description?: string;
-  color?: string;
+  colorToken?: string;
 }
 
 // Internal type with computed value for positioning
@@ -33,7 +34,7 @@ const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({
   cy = 0,
   tier = 0,
 }) => {
-  const pillColor = annotation.color ?? '#f59e0b';
+  const pillColor = resolveAnnotationColor(annotation.colorToken);
   const pillHeight = 22;
   const pillGap = 2; // Gap between stacked pills
   const pillY = 12 + tier * (pillHeight + pillGap); // Stagger vertically based on tier
