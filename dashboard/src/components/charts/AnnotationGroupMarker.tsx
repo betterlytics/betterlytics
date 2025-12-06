@@ -176,6 +176,9 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
           fill='currentColor'
           fillOpacity={0.35}
           opacity={isHovered ? 1 : 0.9}
+          stroke='currentColor'
+          strokeWidth={0.5}
+          strokeOpacity={0.65}
           style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
         />
 
@@ -202,6 +205,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
               height={16}
               rx={8}
               fill='rgba(0,0,0,0.25)'
+              stroke='rgba(255,255,255,0.35)'
+              strokeWidth={0.5}
             />
             {/* Badge text */}
             <text
