@@ -4,6 +4,7 @@ export type ThemeMode = 'light' | 'dark';
 
 export const ANNOTATION_BADGE_WIDTH = 28;
 const ANNOTATION_MIN_BASE_WIDTH = 44;
+const ANNOTATION_TEXT_PADDING = 16;
 
 export type MeasureTextWidth = (text: string) => number;
 
@@ -72,7 +73,7 @@ export function getAnnotationPillWidth(
   measureTextWidth?: MeasureTextWidth,
 ): number {
   const measuredTextWidth = measureTextWidth ? measureTextWidth(label) : label.length * 6.5;
-  const baseWidth = Math.max(measuredTextWidth + 16, ANNOTATION_MIN_BASE_WIDTH);
+  const baseWidth = Math.max(measuredTextWidth + ANNOTATION_TEXT_PADDING, ANNOTATION_MIN_BASE_WIDTH);
   const badgeWidth = extraCount > 0 ? ANNOTATION_BADGE_WIDTH : 0;
   return baseWidth + badgeWidth;
 }
@@ -166,6 +167,7 @@ export function groupAnnotationsByBucket(
   }
 
   // Convert to groups, sorting annotations within each group by date
+  // this is important to ensure that annotations overlap correctly
   const groups: Omit<AnnotationGroup, 'tier'>[] = [];
 
   for (const [bucketDate, groupAnnotations] of groupMap) {

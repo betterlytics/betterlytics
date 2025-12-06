@@ -11,6 +11,25 @@ import {
 } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from '@/entities/annotation';
 
+const PILL_HEIGHT = 22;
+const PILL_GAP = 2;
+const PILL_RADIUS = 11;
+const PILL_BACKDROP_PADDING = 1;
+const PILL_BASE_Y = 12;
+const TOOLTIP_MAX_WIDTH = 240;
+const TOOLTIP_PADDING = 10;
+const TOOLTIP_LINE_HEIGHT = 16;
+const TOOLTIP_CHARS_PER_LINE = 32;
+const TOOLTIP_OFFSET_Y = 8;
+const BADGE_RECT_WIDTH = 24;
+const BADGE_RECT_HEIGHT = 16;
+const BADGE_RECT_RADIUS = 8;
+const LABEL_FONT_SIZE = 11;
+const BADGE_TEXT_FONT_SIZE = 10;
+const PILL_TEXT_FONT_WEIGHT = 500;
+const BADGE_TEXT_FONT_WEIGHT = 600;
+const NEUTRAL_STROKE = '#cbd5e1';
+
 interface AnnotationGroupMarkerProps {
   group: AnnotationGroup;
   isHovered: boolean;
@@ -82,19 +101,14 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const isDark = resolvedTheme === 'dark';
   const primaryColor = resolveAnnotationColor(firstAnnotation.colorToken, isDark ? 'dark' : 'light');
   const fillOpacity = isDark ? 0.75 : 0.95;
-  const neutralStroke = '#cbd5e1';
-  const pillHeight = 22;
-  const pillGap = 2;
-  const pillY = 12 + tier * (pillHeight + pillGap);
-  const pillRadius = 11;
-  const pillBackdropPadding = 1;
+  const pillY = PILL_BASE_Y + tier * (PILL_HEIGHT + PILL_GAP);
 
   // Calculate pill width
   const labelText = firstAnnotation?.label ?? '';
   const totalWidth = getAnnotationPillWidth(labelText, extraCount);
   const badgeWidth = hasMultiple ? ANNOTATION_BADGE_WIDTH : 0;
 
-  const lineStartY = pillY + pillHeight / 2;
+  const lineStartY = pillY + PILL_HEIGHT / 2;
   const lineEndY = animatedY;
 
   const handleClick = useCallback(
@@ -141,7 +155,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         y1={lineStartY}
         x2={cx}
         y2={lineEndY}
-        stroke={neutralStroke}
+        stroke={NEUTRAL_STROKE}
         strokeWidth={2}
         strokeDasharray='4 4'
         opacity={0.8}
@@ -170,12 +184,12 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       >
         {/* Backdrop to keep other lines from showing through the pill */}
         <rect
-          x={cx - totalWidth / 2 - pillBackdropPadding}
-          y={pillY - pillHeight / 2 - pillBackdropPadding}
-          width={totalWidth + pillBackdropPadding * 2}
-          height={pillHeight + pillBackdropPadding * 2}
-          rx={pillRadius + 2}
-          ry={pillRadius + 2}
+          x={cx - totalWidth / 2 - PILL_BACKDROP_PADDING}
+          y={pillY - PILL_HEIGHT / 2 - PILL_BACKDROP_PADDING}
+          width={totalWidth + PILL_BACKDROP_PADDING * 2}
+          height={PILL_HEIGHT + PILL_BACKDROP_PADDING * 2}
+          rx={PILL_RADIUS + 2}
+          ry={PILL_RADIUS + 2}
           fill='var(--background, #0b1221)'
           opacity={1}
         />
@@ -183,15 +197,15 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         {/* Pill background */}
         <rect
           x={cx - totalWidth / 2}
-          y={pillY - pillHeight / 2}
+          y={pillY - PILL_HEIGHT / 2}
           width={totalWidth}
-          height={pillHeight}
-          rx={pillRadius}
-          ry={pillRadius}
+          height={PILL_HEIGHT}
+          rx={PILL_RADIUS}
+          ry={PILL_RADIUS}
           fill='currentColor'
           fillOpacity={fillOpacity}
           opacity={isHovered ? 1 : 0.9}
-          stroke={neutralStroke}
+          stroke={NEUTRAL_STROKE}
           strokeWidth={0.75}
           strokeOpacity={0.9}
           style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
@@ -203,8 +217,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
           y={pillY + 4}
           textAnchor='middle'
           fill='white'
-          fontSize={11}
-          fontWeight={500}
+          fontSize={LABEL_FONT_SIZE}
+          fontWeight={PILL_TEXT_FONT_WEIGHT}
         >
           {labelText}
         </text>
@@ -216,9 +230,9 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
             <rect
               x={cx + totalWidth / 2 - badgeWidth - 4}
               y={pillY - 8}
-              width={24}
-              height={16}
-              rx={8}
+              width={BADGE_RECT_WIDTH}
+              height={BADGE_RECT_HEIGHT}
+              rx={BADGE_RECT_RADIUS}
               fill='rgba(0,0,0,0.25)'
               stroke='rgba(255,255,255,0.35)'
               strokeWidth={0.5}
@@ -229,8 +243,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
               y={pillY + 3}
               textAnchor='middle'
               fill='white'
-              fontSize={10}
-              fontWeight={600}
+              fontSize={BADGE_TEXT_FONT_SIZE}
+              fontWeight={BADGE_TEXT_FONT_WEIGHT}
             >
               +{extraCount}
             </text>
@@ -244,35 +258,31 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         !hasMultiple &&
         firstAnnotation.description &&
         (() => {
-          const maxWidth = 240;
-          const padding = 10;
-          const lineHeight = 16;
-          const charsPerLine = 32;
-          const lines = Math.max(1, Math.ceil(firstAnnotation.description.length / charsPerLine));
-          const height = lines * lineHeight + padding * 2;
-          const tooltipX = cx - maxWidth / 2;
-          const tooltipY = pillY + pillHeight / 2 + 8;
+          const lines = Math.max(1, Math.ceil(firstAnnotation.description.length / TOOLTIP_CHARS_PER_LINE));
+          const height = lines * TOOLTIP_LINE_HEIGHT + TOOLTIP_PADDING * 2;
+          const tooltipX = cx - TOOLTIP_MAX_WIDTH / 2;
+          const tooltipY = pillY + PILL_HEIGHT / 2 + TOOLTIP_OFFSET_Y;
 
           return (
             <g>
               <rect
                 x={tooltipX}
                 y={tooltipY}
-                width={maxWidth}
+                width={TOOLTIP_MAX_WIDTH}
                 height={height}
                 rx={8}
                 fill='var(--popover, #1f2937)'
                 stroke='var(--border, #374151)'
                 strokeWidth={1}
               />
-              <foreignObject x={tooltipX} y={tooltipY} width={maxWidth} height={height}>
+              <foreignObject x={tooltipX} y={tooltipY} width={TOOLTIP_MAX_WIDTH} height={height}>
                 <div
                   style={{
                     height: '100%',
-                    padding: `${padding}px`,
+                    padding: `${TOOLTIP_PADDING}px`,
                     color: 'var(--popover-foreground, #f3f4f6)',
-                    fontSize: '11px',
-                    lineHeight: `${lineHeight}px`,
+                    fontSize: `${LABEL_FONT_SIZE}px`,
+                    lineHeight: `${TOOLTIP_LINE_HEIGHT}px`,
                     textAlign: 'left',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
@@ -290,7 +300,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         <g>
           <rect
             x={cx - 60}
-            y={pillY + pillHeight / 2 + 8}
+            y={pillY + PILL_HEIGHT / 2 + TOOLTIP_OFFSET_Y}
             width={120}
             height={24}
             rx={6}
@@ -300,7 +310,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
           />
           <text
             x={cx}
-            y={pillY + pillHeight / 2 + 24}
+            y={pillY + PILL_HEIGHT / 2 + 24}
             textAnchor='middle'
             fill='var(--popover-foreground, #f3f4f6)'
             fontSize={11}

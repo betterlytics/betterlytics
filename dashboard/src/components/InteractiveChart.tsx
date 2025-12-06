@@ -26,6 +26,17 @@ import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
 import { groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
 
+const AXIS_FONT_SIZE = 12;
+const AXIS_TICK_MARGIN = 6;
+const AXIS_MIN_TICK_GAP = 100;
+const CHART_MARGIN_TOP = 10;
+const CHART_MARGIN_BOTTOM = 0;
+const CHART_MARGIN_RIGHT = 1;
+const DEFAULT_LABEL_PADDING_LEFT = 6;
+const VALUE_GRADIENT_OPACITY = 0.35;
+const INCOMPLETE_GRADIENT_OPACITY = 0.09;
+const PILL_TEXT_FONT = '500 11px Inter, system-ui, -apple-system, sans-serif';
+
 interface ChartDataPoint {
   date: string | number;
   value: Array<number | null>;
@@ -85,7 +96,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       if (!context) return undefined;
 
       // Match pill text styling in AnnotationGroupMarker
-      context.font = '500 11px Inter, system-ui, -apple-system, sans-serif';
+      context.font = PILL_TEXT_FONT;
 
       return (text: string) => context.measureText(text).width;
     }, []);
@@ -244,40 +255,45 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
               <ComposedChart
                 data={data}
-                margin={{ top: 10, left: isMobile ? 0 : (labelPaddingLeft ?? 6), bottom: 0, right: 1 }}
+                margin={{
+                  top: CHART_MARGIN_TOP,
+                  left: isMobile ? 0 : (labelPaddingLeft ?? DEFAULT_LABEL_PADDING_LEFT),
+                  bottom: CHART_MARGIN_BOTTOM,
+                  right: CHART_MARGIN_RIGHT,
+                }}
                 onClick={isAnnotationMode ? handleChartClick : undefined}
                 style={{ cursor: isAnnotationMode ? 'crosshair' : undefined }}
               >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='5%' stopColor={color} stopOpacity={0.35} />
+                    <stop offset='5%' stopColor={color} stopOpacity={VALUE_GRADIENT_OPACITY} />
                     <stop offset='95%' stopColor={color} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id={`gradient-incomplete`} x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='5%' stopColor={color} stopOpacity={0.09} />
+                    <stop offset='5%' stopColor={color} stopOpacity={INCOMPLETE_GRADIENT_OPACITY} />
                     <stop offset='95%' stopColor={color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
                 <XAxis
                   dataKey='date'
-                  fontSize={12}
+                  fontSize={AXIS_FONT_SIZE}
                   tickLine={false}
                   axisLine={false}
                   className='text-muted-foreground'
-                  tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                  tick={{ fontSize: AXIS_FONT_SIZE, fill: 'var(--muted-foreground)' }}
                   tickFormatter={(value) =>
                     axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
                   }
-                  minTickGap={100}
-                  tickMargin={6}
+                  minTickGap={AXIS_MIN_TICK_GAP}
+                  tickMargin={AXIS_TICK_MARGIN}
                   allowDuplicatedCategory={false}
                 />
                 <YAxis
-                  fontSize={12}
+                  fontSize={AXIS_FONT_SIZE}
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                  tick={{ fontSize: AXIS_FONT_SIZE, fill: 'var(--muted-foreground)' }}
                   tickFormatter={yTickFormatter}
                   className='text-muted-foreground'
                   width={40}
