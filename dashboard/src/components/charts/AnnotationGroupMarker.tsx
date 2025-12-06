@@ -122,8 +122,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       ref={pillRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-      style={{ cursor: 'pointer', color: primaryColor }}
+      style={{ color: primaryColor }}
     >
       {/* Dashed line from pill to data point */}
       <line
@@ -135,6 +134,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         strokeWidth={2}
         strokeDasharray='4 4'
         opacity={0.8}
+        style={{ pointerEvents: 'none' }}
       />
 
       {/* Dot on the chart line */}
@@ -145,13 +145,17 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         fill='currentColor'
         stroke='white'
         strokeWidth={2}
-        style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : 'none' }}
+        style={{
+          filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : 'none',
+          pointerEvents: 'none',
+        }}
       />
 
       <g
         onMouseEnter={() => onHoverPill?.(group.bucketDate)}
         onMouseLeave={() => onHoverPill?.(null)}
-        style={{ pointerEvents: 'auto' }}
+        onClick={handleClick}
+        style={{ pointerEvents: 'auto', cursor: 'pointer' }}
       >
         {/* Backdrop to keep other lines from showing through the pill */}
         <rect

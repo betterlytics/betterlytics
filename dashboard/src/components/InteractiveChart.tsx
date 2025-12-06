@@ -141,28 +141,18 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       [isAnnotationMode],
     );
 
-    const handleSingleAnnotationClick = useCallback(
-      (annotation: ChartAnnotation) => {
-        if (isAnnotationMode) {
-          annotationDialogsRef.current?.openCreateDialog(annotation.date);
-          return;
-        }
-        annotationDialogsRef.current?.openEditDialog(annotation);
-      },
-      [isAnnotationMode],
-    );
+    const handleSingleAnnotationClick = useCallback((annotation: ChartAnnotation) => {
+      annotationDialogsRef.current?.openEditDialog(annotation);
+    }, []);
 
-    const handleGroupClick = useCallback(
-      (group: AnnotationGroup, anchorRect: DOMRect) => {
-        if (isAnnotationMode) {
-          annotationDialogsRef.current?.openCreateDialog(group.bucketDate);
-          return;
-        }
+    const handleGroupClick = useCallback((group: AnnotationGroup, anchorRect: DOMRect) => {
+      if (group.annotations.length === 1) {
+        annotationDialogsRef.current?.openEditDialog(group.annotations[0]);
+      } else {
         setOpenGroup(group);
         setPopoverAnchorRect(anchorRect);
-      },
-      [isAnnotationMode],
-    );
+      }
+    }, []);
 
     const handleClosePopover = useCallback(() => {
       setOpenGroup(null);
