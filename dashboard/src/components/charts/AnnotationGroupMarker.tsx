@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useCallback, useEffect, useState } from 'react';
-import { DEFAULT_ANNOTATION_COLOR, resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
+import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from './AnnotationMarker';
 
 interface AnnotationGroupMarkerProps {
@@ -70,7 +70,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const extraCount = annotations.length - 1;
   const hasMultiple = extraCount > 0;
 
-  const primaryColor = resolveAnnotationColor(firstAnnotation.colorToken) ?? DEFAULT_ANNOTATION_COLOR;
+  const primaryColor = resolveAnnotationColor(firstAnnotation.colorToken);
+  const neutralStroke = '#cbd5e1';
   const pillHeight = 22;
   const pillGap = 2;
   const pillY = 12 + tier * (pillHeight + pillGap);
@@ -130,7 +131,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         y1={lineStartY}
         x2={cx}
         y2={lineEndY}
-        stroke='currentColor'
+        stroke={neutralStroke}
         strokeWidth={2}
         strokeDasharray='4 4'
         opacity={0.8}
@@ -180,9 +181,9 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
           fill='currentColor'
           fillOpacity={0.35}
           opacity={isHovered ? 1 : 0.9}
-          stroke='currentColor'
+          stroke={neutralStroke}
           strokeWidth={0.5}
-          strokeOpacity={0.65}
+          strokeOpacity={0.9}
           style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
         />
 

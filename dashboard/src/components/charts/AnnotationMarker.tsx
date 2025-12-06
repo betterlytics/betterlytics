@@ -35,6 +35,7 @@ const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({
   tier = 0,
 }) => {
   const pillColor = resolveAnnotationColor(annotation.colorToken);
+  const neutralStroke = '#cbd5e1';
   const pillHeight = 22;
   const pillGap = 2; // Gap between stacked pills
   const pillY = 12 + tier * (pillHeight + pillGap); // Stagger vertically based on tier
@@ -65,8 +66,8 @@ const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({
         y1={lineStartY}
         x2={cx}
         y2={lineEndY}
-        stroke={pillColor}
-        strokeWidth={2}
+        stroke={neutralStroke}
+        strokeWidth={1}
         strokeDasharray='4 4'
         opacity={0.8}
       />
@@ -92,6 +93,8 @@ const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({
         ry={pillRadius}
         fill={pillColor}
         opacity={isHovered ? 1 : 0.9}
+        stroke={neutralStroke}
+        strokeWidth={1}
         style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
       />
 

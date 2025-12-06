@@ -1,6 +1,7 @@
 import { type ChartAnnotation } from '@/components/charts/AnnotationMarker';
 
 export const ANNOTATION_COLOR_MAP = {
+  grey: '#bec4cf',
   primary: '#4766E5',
   amber: '#f59e0b',
   emerald: '#10b981',
@@ -15,7 +16,7 @@ export const ANNOTATION_COLOR_MAP = {
 
 export type AnnotationColorToken = keyof typeof ANNOTATION_COLOR_MAP;
 
-export const DEFAULT_ANNOTATION_COLOR_TOKEN: AnnotationColorToken = 'primary';
+export const DEFAULT_ANNOTATION_COLOR_TOKEN: AnnotationColorToken = 'grey';
 export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN];
 
 export function resolveAnnotationColor(token?: string | null): string {
