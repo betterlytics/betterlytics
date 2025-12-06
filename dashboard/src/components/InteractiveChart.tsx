@@ -145,6 +145,14 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       annotationDialogsRef.current?.openEditDialog(annotation);
     }, []);
 
+    const handleAddAnnotation = useCallback(
+      (annotation: Omit<ChartAnnotation, 'id'>) => {
+        onAddAnnotation?.(annotation);
+        setIsAnnotationMode(false);
+      },
+      [onAddAnnotation],
+    );
+
     const handleGroupClick = useCallback((group: AnnotationGroup, anchorRect: DOMRect) => {
       if (group.annotations.length === 1) {
         annotationDialogsRef.current?.openEditDialog(group.annotations[0]);
@@ -339,7 +347,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
         <AnnotationDialogs
           ref={annotationDialogsRef}
-          onAddAnnotation={onAddAnnotation}
+          onAddAnnotation={handleAddAnnotation}
           onUpdateAnnotation={onUpdateAnnotation}
           onDeleteAnnotation={onDeleteAnnotation}
         />
