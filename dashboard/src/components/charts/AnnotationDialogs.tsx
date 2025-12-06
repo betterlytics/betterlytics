@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { useLocale } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +8,6 @@ import { Trash2 } from 'lucide-react';
 import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
 import {
   ANNOTATION_COLOR_MAP,
-  DEFAULT_ANNOTATION_COLOR,
   DEFAULT_ANNOTATION_COLOR_TOKEN,
   resolveAnnotationColor,
   type AnnotationColorToken,
@@ -42,29 +42,34 @@ interface ColorSwatchPickerProps {
   label?: string;
 }
 
-const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({ palette, value, onChange, label }) => (
-  <div className='grid gap-2'>
-    {label ? <label className='text-sm font-medium'>{label}</label> : null}
-    <div className='flex flex-wrap gap-2'>
-      {palette.map((colorToken) => {
-        const hex = resolveAnnotationColor(colorToken);
-        const isSelected = value === colorToken;
-        return (
-          <button
-            key={colorToken}
-            type='button'
-            onClick={() => onChange(colorToken)}
-            className={`h-8 w-8 rounded-full border transition ${
-              isSelected ? 'ring-offset-background ring-primary ring-2 ring-offset-2' : 'border-border'
-            }`}
-            style={{ backgroundColor: hex }}
-            aria-label={`Select color ${colorToken}`}
-          />
-        );
-      })}
+const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({ palette, value, onChange, label }) => {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+
+  return (
+    <div className='grid gap-2'>
+      {label ? <label className='text-sm font-medium'>{label}</label> : null}
+      <div className='flex flex-wrap gap-2'>
+        {palette.map((colorToken) => {
+          const hex = resolveAnnotationColor(colorToken, isDark ? 'dark' : 'light');
+          const isSelected = value === colorToken;
+          return (
+            <button
+              key={colorToken}
+              type='button'
+              onClick={() => onChange(colorToken)}
+              className={`h-8 w-8 rounded-full border transition ${
+                isSelected ? 'ring-offset-background ring-primary ring-2 ring-offset-2' : 'border-border'
+              }`}
+              style={{ backgroundColor: hex }}
+              aria-label={`Select color ${colorToken}`}
+            />
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProps>(
   ({ onAddAnnotation, onUpdateAnnotation, onDeleteAnnotation }, ref) => {

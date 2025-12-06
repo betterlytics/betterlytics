@@ -1,27 +1,30 @@
 import { type ChartAnnotation } from '@/components/charts/AnnotationMarker';
 
+export type ThemeMode = 'light' | 'dark';
+
 export const ANNOTATION_COLOR_MAP = {
-  grey: '#bec4cf',
-  primary: '#4766E5',
-  amber: '#f59e0b',
-  emerald: '#10b981',
-  red: '#ef4444',
-  violet: '#8b5cf6',
-  cyan: '#06b6d4',
-  orange: '#f97316',
-  green: '#22c55e',
-  slate: '#64748b',
-  teal: '#14b8a6',
+  slate: { light: '#64748b', dark: '#94a3b8' },
+  primary: { light: '#4766E5', dark: '#93b4ff' },
+  amber: { light: '#f59e0b', dark: '#fbbf24' },
+  emerald: { light: '#10b981', dark: '#34d399' },
+  red: { light: '#ef4444', dark: '#f87171' },
+  violet: { light: '#8b5cf6', dark: '#a78bfa' },
+  cyan: { light: '#06b6d4', dark: '#22d3ee' },
+  orange: { light: '#f97316', dark: '#fb923c' },
+  green: { light: '#22c55e', dark: '#4ade80' },
+  teal: { light: '#14b8a6', dark: '#2dd4bf' },
 } as const;
 
 export type AnnotationColorToken = keyof typeof ANNOTATION_COLOR_MAP;
 
-export const DEFAULT_ANNOTATION_COLOR_TOKEN: AnnotationColorToken = 'grey';
-export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN];
+export const DEFAULT_ANNOTATION_COLOR_TOKEN: AnnotationColorToken = 'slate';
+export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN].light;
 
-export function resolveAnnotationColor(token?: string | null): string {
-  if (!token) return DEFAULT_ANNOTATION_COLOR;
-  return ANNOTATION_COLOR_MAP[token as AnnotationColorToken] ?? DEFAULT_ANNOTATION_COLOR;
+export function resolveAnnotationColor(token?: string | null, mode: ThemeMode = 'light'): string {
+  const safeToken =
+    token && (token as AnnotationColorToken) in ANNOTATION_COLOR_MAP ? (token as AnnotationColorToken) : null;
+  const map = safeToken ? ANNOTATION_COLOR_MAP[safeToken] : ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN];
+  return map[mode];
 }
 
 export interface AnnotationGroup {

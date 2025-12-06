@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useCallback, useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from './AnnotationMarker';
 
@@ -70,7 +71,10 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const extraCount = annotations.length - 1;
   const hasMultiple = extraCount > 0;
 
-  const primaryColor = resolveAnnotationColor(firstAnnotation.colorToken);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const primaryColor = resolveAnnotationColor(firstAnnotation.colorToken, isDark ? 'dark' : 'light');
+  const fillOpacity = isDark ? 0.75 : 0.95;
   const neutralStroke = '#cbd5e1';
   const pillHeight = 22;
   const pillGap = 2;
@@ -179,10 +183,10 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
           rx={pillRadius}
           ry={pillRadius}
           fill='currentColor'
-          fillOpacity={0.35}
+          fillOpacity={fillOpacity}
           opacity={isHovered ? 1 : 0.9}
           stroke={neutralStroke}
-          strokeWidth={0.5}
+          strokeWidth={0.75}
           strokeOpacity={0.9}
           style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
         />

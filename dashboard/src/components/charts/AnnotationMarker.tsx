@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from 'next-themes';
 import { resolveAnnotationColor } from '@/utils/chartAnnotations';
 
 export interface ChartAnnotation {
@@ -34,7 +35,9 @@ const AnnotationMarker: React.FC<AnnotationMarkerProps> = ({
   cy = 0,
   tier = 0,
 }) => {
-  const pillColor = resolveAnnotationColor(annotation.colorToken);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const pillColor = resolveAnnotationColor(annotation.colorToken, isDark ? 'dark' : 'light');
   const neutralStroke = '#cbd5e1';
   const pillHeight = 22;
   const pillGap = 2; // Gap between stacked pills
