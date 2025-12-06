@@ -25,32 +25,34 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
 }) => {
   const pillRef = useRef<SVGGElement>(null);
   const animationRef = useRef<number | null>(null);
-  const prevY = useRef(cy);
+  const animatedYRef = useRef(cy);
   const [animatedY, setAnimatedY] = useState(cy);
 
   useEffect(() => {
-    const from = prevY.current;
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+    const from = animatedYRef.current;
     const to = cy;
     const delta = to - from;
 
     if (delta === 0) return;
 
-    const duration = 1000;
+    const duration = 2000;
     const ease = (t: number) => 1 - (1 - t) ** 3;
     const start = performance.now();
 
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / duration);
-      setAnimatedY(from + delta * ease(t));
+      const next = from + delta * ease(t);
+      animatedYRef.current = next;
+      setAnimatedY(next);
 
       if (t < 1) {
         animationRef.current = requestAnimationFrame(tick);
       } else {
-        prevY.current = to;
+        animatedYRef.current = to;
       }
     };
-
-    if (animationRef.current) cancelAnimationFrame(animationRef.current);
 
     animationRef.current = requestAnimationFrame(tick);
 
