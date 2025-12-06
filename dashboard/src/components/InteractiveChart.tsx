@@ -11,6 +11,7 @@ import {
   ReferenceDot,
 } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
@@ -179,14 +180,21 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                 }`}
                 title={isAnnotationMode ? 'Exit annotation mode' : 'Add annotation'}
               >
-                {isAnnotationMode ? <X className='h-4 w-4' /> : <Pencil className='h-4 w-4' />}
+                {isAnnotationMode ? (
+                  <X className='h-4 w-4 cursor-pointer' />
+                ) : (
+                  <Pencil className='h-4 w-4 cursor-pointer' />
+                )}
               </button>
             )}
 
             {isAnnotationMode && (
-              <div className='bg-primary/10 text-primary absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded-b-md px-3 py-1 text-xs font-medium'>
+              <Badge
+                variant='secondary'
+                className='border-border/80 bg-secondary/90 text-foreground dark:bg-accent/95 absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded-md border px-3 py-1 text-xs font-semibold shadow-md backdrop-blur-sm'
+              >
                 Click on the chart to add an annotation
-              </div>
+              </Badge>
             )}
             <ResponsiveContainer width='100%' height='100%' className='mt-4'>
               <ComposedChart

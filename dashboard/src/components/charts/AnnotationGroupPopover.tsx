@@ -4,6 +4,7 @@ import React from 'react';
 import { useLocale } from 'next-intl';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 import { type AnnotationGroup } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from './AnnotationMarker';
 
@@ -84,26 +85,30 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                   </div>
 
                   <div className='flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
-                    <button
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='cursor-pointer'
                       onClick={() => {
                         onEdit(annotation);
                         onClose();
                       }}
-                      className='text-muted-foreground hover:text-foreground rounded p-1 transition-colors'
-                      title='Edit'
+                      aria-label='Edit annotation'
                     >
                       <Pencil className='h-3.5 w-3.5' />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='text-destructive hover:text-destructive cursor-pointer'
                       onClick={() => {
                         onDelete(annotation.id);
                         onClose();
                       }}
-                      className='text-muted-foreground hover:text-destructive rounded p-1 transition-colors'
-                      title='Delete'
+                      aria-label='Delete annotation'
                     >
                       <Trash2 className='h-3.5 w-3.5' />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
