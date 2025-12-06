@@ -1,8 +1,10 @@
 import { type ChartAnnotation } from '@/components/charts/AnnotationMarker';
+import { ANNOTATION_COLOR_TOKENS, type AnnotationColorToken } from '@/entities/annotation';
 
 export type ThemeMode = 'light' | 'dark';
 
-export const ANNOTATION_COLOR_MAP = {
+export const ANNOTATION_COLOR_MAP: Record<AnnotationColorToken, { light: string; dark: string }> = {
+  grey: { light: '#bec4cf', dark: '#e2e8f0' },
   slate: { light: '#64748b', dark: '#94a3b8' },
   primary: { light: '#4766E5', dark: '#93b4ff' },
   amber: { light: '#f59e0b', dark: '#fbbf24' },
@@ -13,17 +15,16 @@ export const ANNOTATION_COLOR_MAP = {
   orange: { light: '#f97316', dark: '#fb923c' },
   green: { light: '#22c55e', dark: '#4ade80' },
   teal: { light: '#14b8a6', dark: '#2dd4bf' },
-} as const;
-
-export type AnnotationColorToken = keyof typeof ANNOTATION_COLOR_MAP;
+};
 
 export const DEFAULT_ANNOTATION_COLOR_TOKEN: AnnotationColorToken = 'slate';
 export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN].light;
 
-export function resolveAnnotationColor(token?: string | null, mode: ThemeMode = 'light'): string {
-  const safeToken =
-    token && (token as AnnotationColorToken) in ANNOTATION_COLOR_MAP ? (token as AnnotationColorToken) : null;
-  const map = safeToken ? ANNOTATION_COLOR_MAP[safeToken] : ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN];
+export function resolveAnnotationColor(
+  token: AnnotationColorToken | undefined,
+  mode: ThemeMode = 'light',
+): string {
+  const map = token ? ANNOTATION_COLOR_MAP[token] : ANNOTATION_COLOR_MAP[DEFAULT_ANNOTATION_COLOR_TOKEN];
   return map[mode];
 }
 

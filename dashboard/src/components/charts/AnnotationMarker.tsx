@@ -1,13 +1,14 @@
 import React from 'react';
 import { useTheme } from 'next-themes';
 import { resolveAnnotationColor } from '@/utils/chartAnnotations';
+import { AnnotationColorToken } from '@/entities/annotation';
 
 export interface ChartAnnotation {
   id: string;
   date: number;
   label: string;
   description?: string;
-  colorToken?: string;
+  colorToken?: AnnotationColorToken;
 }
 
 // Internal type with computed value for positioning

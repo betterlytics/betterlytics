@@ -10,8 +10,8 @@ import {
   ANNOTATION_COLOR_MAP,
   DEFAULT_ANNOTATION_COLOR_TOKEN,
   resolveAnnotationColor,
-  type AnnotationColorToken,
 } from '@/utils/chartAnnotations';
+import { AnnotationColorToken } from '@/entities/annotation';
 
 export interface ChartAnnotation {
   id: string;
