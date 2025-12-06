@@ -34,6 +34,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const pillGap = 2;
   const pillY = 12 + tier * (pillHeight + pillGap);
   const pillRadius = 11;
+  const pillBackdropPadding = 1;
 
   // Calculate pill width
   const labelText = firstAnnotation?.label ?? '';
@@ -94,6 +95,18 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         stroke='white'
         strokeWidth={2}
         style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : 'none' }}
+      />
+
+      {/* Backdrop to keep other lines from showing through the pill */}
+      <rect
+        x={cx - totalWidth / 2 - pillBackdropPadding}
+        y={pillY - pillHeight / 2 - pillBackdropPadding}
+        width={totalWidth + pillBackdropPadding * 2}
+        height={pillHeight + pillBackdropPadding * 2}
+        rx={pillRadius + 2}
+        ry={pillRadius + 2}
+        fill='var(--background, #0b1221)'
+        opacity={1}
       />
 
       {/* Pill background */}
