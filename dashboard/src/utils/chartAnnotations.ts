@@ -17,9 +17,7 @@ interface ChartDataPoint {
 }
 
 /**
- * Finds the chart bucket that contains the given timestamp.
- * Buckets are timezone-aware, so we find which interval contains the timestamp
- * rather than flooring to a fixed duration.
+ * Finds the chart bucket that contains the given timestamp
  */
 function findContainingBucket(timestamp: number, sortedBuckets: number[]): number | null {
   if (sortedBuckets.length === 0 || timestamp < sortedBuckets[0]) return null;
@@ -37,52 +35,58 @@ function findContainingBucket(timestamp: number, sortedBuckets: number[]): numbe
   return null;
 }
 
-/**
- * Estimate pill width for a group label.
- */
 function estimatePillWidth(label: string, extraCount: number): number {
-  const baseWidth = label.length * 6.5 + 16;
-  // Add width for "+N" badge if there are multiple
-  const badgeWidth = extraCount > 0 ? 24 : 0;
+  const minBaseWidth = 44;
+  const baseWidth = Math.max(label.length * 6.5 + 16, minBaseWidth);
+  const badgeWidth = extraCount > 0 ? 28 : 0;
   return baseWidth + badgeWidth;
 }
 
-/**
- * Get the display label for a group (first annotation's label).
- */
 function getGroupLabel(annotations: ChartAnnotation[]): string {
-  return annotations[0]?.label ?? '';
+  return annotations[0]?.label;
 }
 
 /**
  * Calculate tiers to prevent overlapping annotation groups.
  * Greedy algorithm: assign each group to the lowest tier where it doesn't overlap.
+ * Uses chartWidth and the full chart domain so pills from neighboring buckets don't collide.
  */
-function calculateGroupTiers(groups: Omit<AnnotationGroup, 'tier'>[]): AnnotationGroup[] {
+function calculateGroupTiers(
+  groups: Omit<AnnotationGroup, 'tier'>[],
+  chartWidth: number = 800,
+  domainMin?: number,
+  domainMax?: number,
+): AnnotationGroup[] {
   if (groups.length === 0) return [];
 
   const dates = groups.map((g) => g.bucketDate);
-  const minDate = Math.min(...dates);
-  const dateRange = Math.max(...dates) - minDate || 1;
+  const minDate = domainMin ?? Math.min(...dates);
+  const maxDate = domainMax ?? Math.max(...dates);
+  const dateRange = Math.max(maxDate - minDate, 1);
 
-  // Track right edge of each tier (as % of chart width)
-  const tierRightEdges: number[] = [];
+  // Track right edge of each tier in px
+  const tierRightEdgesPx: number[] = [];
+  const safeChartWidth = Math.max(chartWidth, 320);
 
   const sorted = [...groups].sort((a, b) => a.bucketDate - b.bucketDate);
 
   return sorted.map((group) => {
-    const position = ((group.bucketDate - minDate) / dateRange) * 100;
+    const positionPx = ((group.bucketDate - minDate) / dateRange) * safeChartWidth;
     const label = getGroupLabel(group.annotations);
     const extraCount = group.annotations.length - 1;
-    const halfWidth = (estimatePillWidth(label, extraCount) / 800) * 50;
-    const leftEdge = position - halfWidth;
-    const rightEdge = position + halfWidth;
+
+    const pillWidthPx = estimatePillWidth(label, extraCount);
+    const halfWidthPx = pillWidthPx / 2;
+
+    const spacingBufferPx = 8;
+    const leftEdgePx = positionPx - halfWidthPx - spacingBufferPx;
+    const rightEdgePx = positionPx + halfWidthPx + spacingBufferPx;
 
     // Find first tier with no overlap, or create new tier
-    let tier = tierRightEdges.findIndex((edge) => leftEdge >= edge);
-    if (tier === -1) tier = tierRightEdges.length;
+    let tier = tierRightEdgesPx.findIndex((edge) => leftEdgePx >= edge);
+    if (tier === -1) tier = tierRightEdgesPx.length;
 
-    tierRightEdges[tier] = rightEdge;
+    tierRightEdgesPx[tier] = rightEdgePx;
 
     return { ...group, tier };
   });
@@ -95,6 +99,7 @@ function calculateGroupTiers(groups: Omit<AnnotationGroup, 'tier'>[]): Annotatio
 export function groupAnnotationsByBucket(
   annotations: ChartAnnotation[],
   chartData: ChartDataPoint[],
+  chartWidth: number = 800,
 ): AnnotationGroup[] {
   if (annotations.length === 0 || chartData.length === 0) return [];
 
@@ -137,5 +142,8 @@ export function groupAnnotationsByBucket(
     });
   }
 
-  return calculateGroupTiers(groups);
+  const domainMin = sortedBuckets[0];
+  const domainMax = sortedBuckets[sortedBuckets.length - 1];
+
+  return calculateGroupTiers(groups, chartWidth, domainMin, domainMax);
 }

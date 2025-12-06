@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useRef } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import {
   ResponsiveContainer,
   Area,
@@ -65,6 +65,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const locale = useLocale();
     const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
+    const [chartWidth, setChartWidth] = useState<number>(800);
     const annotationDialogsRef = useRef<AnnotationDialogsRef>(null);
     const chartContainerRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +73,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const [openGroup, setOpenGroup] = useState<AnnotationGroup | null>(null);
     const [popoverAnchorRect, setPopoverAnchorRect] = useState<DOMRect | null>(null);
 
-    const annotationGroups = useMemo(() => groupAnnotationsByBucket(annotations ?? [], data), [annotations, data]);
+    const annotationGroups = useMemo(
+      () => groupAnnotationsByBucket(annotations ?? [], data, chartWidth),
+      [annotations, data, chartWidth],
+    );
 
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
@@ -81,6 +85,36 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
       };
     }, [formatValue]);
+
+    useEffect(() => {
+      if (!chartContainerRef.current) return;
+
+      const updateWidth = () => {
+        const nextWidth = chartContainerRef.current?.getBoundingClientRect().width;
+        if (nextWidth && Math.abs(nextWidth - chartWidth) > 0.5) {
+          setChartWidth(nextWidth);
+        }
+      };
+
+      updateWidth();
+
+      let observer: ResizeObserver | null = null;
+
+      if (typeof ResizeObserver !== 'undefined') {
+        observer = new ResizeObserver(updateWidth);
+        observer.observe(chartContainerRef.current);
+      } else {
+        window.addEventListener('resize', updateWidth);
+      }
+
+      return () => {
+        if (observer) {
+          observer.disconnect();
+        } else {
+          window.removeEventListener('resize', updateWidth);
+        }
+      };
+    }, [chartWidth]);
 
     const handleChartClick = useCallback(
       (chartEvent: { activeLabel?: string | number } | null) => {

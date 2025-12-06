@@ -29,7 +29,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const extraCount = annotations.length - 1;
   const hasMultiple = extraCount > 0;
 
-  const pillColor = firstAnnotation?.color ?? '#f59e0b';
+  const primaryColor = 'hsl(var(--primary))'; // or #4766E5 ?
   const pillHeight = 22;
   const pillGap = 2;
   const pillY = 12 + tier * (pillHeight + pillGap);
@@ -71,7 +71,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       onMouseEnter={() => onHover(group.bucketDate)}
       onMouseLeave={() => onHover(null)}
       onClick={handleClick}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', color: primaryColor }}
     >
       {/* Dashed line from pill to data point */}
       <line
@@ -79,7 +79,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         y1={lineStartY}
         x2={cx}
         y2={lineEndY}
-        stroke={pillColor}
+        stroke='currentColor'
         strokeWidth={2}
         strokeDasharray='4 4'
         opacity={0.8}
@@ -90,7 +90,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         cx={cx}
         cy={cy}
         r={isHovered ? 6 : 5}
-        fill={pillColor}
+        fill='currentColor'
         stroke='white'
         strokeWidth={2}
         style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : 'none' }}
@@ -104,7 +104,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         height={pillHeight}
         rx={pillRadius}
         ry={pillRadius}
-        fill={pillColor}
+        fill='currentColor'
+        fillOpacity={0.35}
         opacity={isHovered ? 1 : 0.9}
         style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
       />
