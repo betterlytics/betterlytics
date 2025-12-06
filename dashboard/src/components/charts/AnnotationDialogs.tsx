@@ -35,6 +35,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     // Create annotation state
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [pendingAnnotationDate, setPendingAnnotationDate] = useState<number | null>(null);
+    const [createAnnotationDate, setCreateAnnotationDate] = useState<Date | null>(null);
     const [createAnnotationName, setCreateAnnotationName] = useState('');
 
     // Edit annotation state
@@ -47,6 +48,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     useImperativeHandle(ref, () => ({
       openCreateDialog: (date: number) => {
         setPendingAnnotationDate(date);
+        setCreateAnnotationDate(new Date(date));
         setCreateAnnotationName('');
         setShowCreateDialog(true);
       },
@@ -61,15 +63,20 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     }));
 
     const handleCreateAnnotation = () => {
-      if (!pendingAnnotationDate || !createAnnotationName.trim() || !onAddAnnotation) return;
+      if ((!pendingAnnotationDate && !createAnnotationDate) || !createAnnotationName.trim() || !onAddAnnotation)
+        return;
+
+      const targetDate = createAnnotationDate ?? (pendingAnnotationDate ? new Date(pendingAnnotationDate) : null);
+      if (!targetDate) return;
 
       onAddAnnotation({
-        date: pendingAnnotationDate,
+        date: targetDate.getTime(),
         label: createAnnotationName.trim(),
       });
 
       setShowCreateDialog(false);
       setPendingAnnotationDate(null);
+      setCreateAnnotationDate(null);
       setCreateAnnotationName('');
     };
 
@@ -109,7 +116,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
             <DialogHeader>
               <DialogTitle>Add Annotation</DialogTitle>
             </DialogHeader>
-            <div className='py-4'>
+            <div className='space-y-4 py-4'>
               <Input
                 placeholder='Annotation name (e.g., "Product Launch")'
                 value={createAnnotationName}
@@ -122,11 +129,15 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 autoFocus
                 maxLength={20}
               />
-              {pendingAnnotationDate && (
-                <p className='text-muted-foreground mt-2 text-sm'>
-                  Date: {new Date(pendingAnnotationDate).toLocaleDateString(locale)}
-                </p>
-              )}
+              <div className='grid gap-2'>
+                <label className='text-sm font-medium'>Date &amp; time</label>
+                <DateTimePicker24h
+                  value={
+                    createAnnotationDate ?? (pendingAnnotationDate ? new Date(pendingAnnotationDate) : new Date())
+                  }
+                  onChange={(d) => setCreateAnnotationDate(d ?? null)}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant='outline' className='cursor-pointer' onClick={() => setShowCreateDialog(false)}>
