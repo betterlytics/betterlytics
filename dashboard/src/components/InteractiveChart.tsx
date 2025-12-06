@@ -82,6 +82,13 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       [annotations, data, chartWidth],
     );
 
+    const orderedAnnotationGroups = useMemo(() => {
+      if (hoveredGroup === null) return annotationGroups;
+      const hovered = annotationGroups.find((g) => g.bucketDate === hoveredGroup);
+      if (!hovered) return annotationGroups;
+      return [...annotationGroups.filter((g) => g.bucketDate !== hoveredGroup), hovered];
+    }, [annotationGroups, hoveredGroup]);
+
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
@@ -306,12 +313,13 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   strokeOpacity={0.5}
                   dot={false}
                 />
-                {annotationGroups.map((group) => (
+                {orderedAnnotationGroups.map((group) => (
                   <ReferenceDot
                     key={group.bucketDate}
                     x={group.bucketDate}
                     y={group.dataValue}
                     r={0}
+                    isFront
                     shape={
                       <AnnotationGroupMarker
                         group={group}
