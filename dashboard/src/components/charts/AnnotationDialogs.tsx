@@ -185,6 +185,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 }}
                 autoFocus
                 maxLength={20}
+                className='placeholder:text-xs sm:placeholder:text-sm'
               />
               <div>
                 <label className='text-sm font-medium'>Description (optional)</label>
@@ -193,7 +194,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   value={createAnnotationDescription}
                   onChange={(e) => setCreateAnnotationDescription(e.target.value)}
                   maxLength={200}
-                  className='mt-1.5'
+                  className='mt-1.5 placeholder:text-xs sm:placeholder:text-sm'
                 />
               </div>
               <div className='grid gap-2'>
@@ -246,7 +247,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   }}
                   autoFocus
                   maxLength={20}
-                  className='mt-1.5'
+                  className='mt-1.5 placeholder:text-xs sm:placeholder:text-sm'
                 />
               </div>
               <div>
@@ -256,7 +257,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   value={editAnnotationDescription}
                   onChange={(e) => setEditAnnotationDescription(e.target.value)}
                   maxLength={200}
-                  className='mt-1.5'
+                  className='mt-1.5 placeholder:text-xs sm:placeholder:text-sm'
                 />
               </div>
               <div className='grid gap-2'>
