@@ -7,6 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
 import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   ANNOTATION_COLOR_MAP,
   DEFAULT_ANNOTATION_COLOR_TOKEN,
   resolveAnnotationColor,
@@ -84,6 +95,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const [editAnnotationDescription, setEditAnnotationDescription] = useState('');
     const [editAnnotationDate, setEditAnnotationDate] = useState<Date | null>(null);
     const [editAnnotationColor, setEditAnnotationColor] = useState<AnnotationColorToken>(defaultColorToken);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     useImperativeHandle(ref, () => ({
       openCreateDialog: (date: number) => {
@@ -152,6 +164,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
 
       onDeleteAnnotation(selectedAnnotation.id);
 
+      setShowDeleteConfirm(false);
       setShowEditDialog(false);
       setSelectedAnnotation(null);
       setEditAnnotationName('');
@@ -220,7 +233,15 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
           </DialogContent>
         </Dialog>
 
-        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <Dialog
+          open={showEditDialog}
+          onOpenChange={(open) => {
+            setShowEditDialog(open);
+            if (!open) {
+              setShowDeleteConfirm(false);
+            }
+          }}
+        >
           <DialogContent className='sm:max-w-md'>
             <DialogHeader>
               <DialogTitle>Edit Annotation</DialogTitle>
@@ -267,15 +288,30 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               />
             </div>
             <DialogFooter className='flex w-full flex-row items-center gap-2'>
-              <Button
-                variant='destructive'
-                onClick={handleDeleteAnnotation}
-                className='cursor-pointer px-3'
-                aria-label='Delete annotation'
-              >
-                <Trash2 className='h-4 w-4' />
-                <span className='ml-2 hidden sm:inline'>Delete</span>
-              </Button>
+              <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+                <AlertDialogTrigger asChild>
+                  <Button variant='destructive' className='cursor-pointer px-3' aria-label='Delete annotation'>
+                    <Trash2 className='h-4 w-4' />
+                    <span className='ml-2 hidden sm:inline'>Delete</span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete the annotation?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className='cursor-pointer'>Cancel</AlertDialogCancel>
+                    <AlertDialogAction asChild>
+                      <Button variant='destructive' className='cursor-pointer' onClick={handleDeleteAnnotation}>
+                        Delete
+                      </Button>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <div className='ml-auto flex gap-2'>
                 <Button
                   variant='outline'
