@@ -18,7 +18,7 @@ export interface ChartAnnotation {
   date: number;
   label: string;
   description?: string;
-  colorToken?: string;
+  colorToken?: AnnotationColorToken;
 }
 
 interface AnnotationDialogsProps {

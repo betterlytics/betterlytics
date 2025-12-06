@@ -4,7 +4,7 @@ export const ANNOTATION_LABEL_MAX_LENGTH = 48;
 export const ANNOTATION_DESCRIPTION_MAX_LENGTH = 256;
 
 export const ANNOTATION_COLOR_TOKENS = [
-  'grey',
+  'slate',
   'primary',
   'amber',
   'emerald',
@@ -13,7 +13,6 @@ export const ANNOTATION_COLOR_TOKENS = [
   'cyan',
   'orange',
   'green',
-  'slate',
   'teal',
 ] as const;
 

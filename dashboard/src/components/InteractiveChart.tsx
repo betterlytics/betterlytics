@@ -45,7 +45,7 @@ interface InteractiveChartProps {
   onAddAnnotation?: (annotation: Omit<ChartAnnotation, 'id'>) => void;
   onUpdateAnnotation?: (
     id: string,
-    updates: Pick<ChartAnnotation, 'label' | 'description' | 'color' | 'date'>,
+    updates: Pick<ChartAnnotation, 'label' | 'description' | 'colorToken' | 'date'>,
   ) => void;
   onDeleteAnnotation?: (id: string) => void;
 }

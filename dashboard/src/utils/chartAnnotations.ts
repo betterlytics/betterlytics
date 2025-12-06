@@ -1,10 +1,9 @@
 import { type ChartAnnotation } from '@/components/charts/AnnotationMarker';
-import { ANNOTATION_COLOR_TOKENS, type AnnotationColorToken } from '@/entities/annotation';
+import { type AnnotationColorToken } from '@/entities/annotation';
 
 export type ThemeMode = 'light' | 'dark';
 
 export const ANNOTATION_COLOR_MAP: Record<AnnotationColorToken, { light: string; dark: string }> = {
-  grey: { light: '#bec4cf', dark: '#e2e8f0' },
   slate: { light: '#64748b', dark: '#94a3b8' },
   primary: { light: '#4766E5', dark: '#93b4ff' },
   amber: { light: '#f59e0b', dark: '#fbbf24' },
