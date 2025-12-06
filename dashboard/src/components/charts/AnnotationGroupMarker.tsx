@@ -233,29 +233,51 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       </g>
 
       {/* Hover tooltip for single annotation with description */}
-      {isHovered && !isAnnotationMode && !hasMultiple && firstAnnotation.description && (
-        <g>
-          <rect
-            x={cx - 90}
-            y={pillY + pillHeight / 2 + 8}
-            width={180}
-            height={32}
-            rx={6}
-            fill='var(--popover, #1f2937)'
-            stroke='var(--border, #374151)'
-            strokeWidth={1}
-          />
-          <text
-            x={cx}
-            y={pillY + pillHeight / 2 + 28}
-            textAnchor='middle'
-            fill='var(--popover-foreground, #f3f4f6)'
-            fontSize={11}
-          >
-            {firstAnnotation.description}
-          </text>
-        </g>
-      )}
+      {isHovered &&
+        !isAnnotationMode &&
+        !hasMultiple &&
+        firstAnnotation.description &&
+        (() => {
+          const maxWidth = 240;
+          const padding = 10;
+          const lineHeight = 16;
+          const charsPerLine = 32;
+          const lines = Math.max(1, Math.ceil(firstAnnotation.description.length / charsPerLine));
+          const height = lines * lineHeight + padding * 2;
+          const tooltipX = cx - maxWidth / 2;
+          const tooltipY = pillY + pillHeight / 2 + 8;
+
+          return (
+            <g>
+              <rect
+                x={tooltipX}
+                y={tooltipY}
+                width={maxWidth}
+                height={height}
+                rx={8}
+                fill='var(--popover, #1f2937)'
+                stroke='var(--border, #374151)'
+                strokeWidth={1}
+              />
+              <foreignObject x={tooltipX} y={tooltipY} width={maxWidth} height={height}>
+                <div
+                  style={{
+                    height: '100%',
+                    padding: `${padding}px`,
+                    color: 'var(--popover-foreground, #f3f4f6)',
+                    fontSize: '11px',
+                    lineHeight: `${lineHeight}px`,
+                    textAlign: 'left',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {firstAnnotation.description}
+                </div>
+              </foreignObject>
+            </g>
+          );
+        })()}
 
       {/* Hover hint for multiple annotations */}
       {isHovered && !isAnnotationMode && hasMultiple && (
