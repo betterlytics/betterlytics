@@ -8,6 +8,7 @@ interface AnnotationGroupMarkerProps {
   group: AnnotationGroup;
   isHovered: boolean;
   onHover: (bucketDate: number | null) => void;
+  onHoverPill?: (bucketDate: number | null) => void;
   onGroupClick: (group: AnnotationGroup, anchorRect: DOMRect) => void;
   onSingleClick: (annotation: ChartAnnotation) => void;
   isAnnotationMode?: boolean;
@@ -19,6 +20,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   group,
   isHovered,
   onHover,
+  onHoverPill,
   onGroupClick,
   onSingleClick,
   isAnnotationMode = false,
@@ -105,11 +107,20 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
 
   if (!firstAnnotation) return null;
 
+  const handleMouseEnter = () => {
+    onHover(group.bucketDate);
+  };
+
+  const handleMouseLeave = () => {
+    onHover(null);
+    onHoverPill?.(null);
+  };
+
   return (
     <g
       ref={pillRef}
-      onMouseEnter={() => onHover(group.bucketDate)}
-      onMouseLeave={() => onHover(null)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
       style={{ cursor: 'pointer', color: primaryColor }}
     >
@@ -136,69 +147,75 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : 'none' }}
       />
 
-      {/* Backdrop to keep other lines from showing through the pill */}
-      <rect
-        x={cx - totalWidth / 2 - pillBackdropPadding}
-        y={pillY - pillHeight / 2 - pillBackdropPadding}
-        width={totalWidth + pillBackdropPadding * 2}
-        height={pillHeight + pillBackdropPadding * 2}
-        rx={pillRadius + 2}
-        ry={pillRadius + 2}
-        fill='var(--background, #0b1221)'
-        opacity={1}
-      />
-
-      {/* Pill background */}
-      <rect
-        x={cx - totalWidth / 2}
-        y={pillY - pillHeight / 2}
-        width={totalWidth}
-        height={pillHeight}
-        rx={pillRadius}
-        ry={pillRadius}
-        fill='currentColor'
-        fillOpacity={0.35}
-        opacity={isHovered ? 1 : 0.9}
-        style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
-      />
-
-      {/* Label text */}
-      <text
-        x={cx - (hasMultiple ? badgeWidth / 2 : 0)}
-        y={pillY + 4}
-        textAnchor='middle'
-        fill='white'
-        fontSize={11}
-        fontWeight={500}
+      <g
+        onMouseEnter={() => onHoverPill?.(group.bucketDate)}
+        onMouseLeave={() => onHoverPill?.(null)}
+        style={{ pointerEvents: 'auto' }}
       >
-        {labelText}
-      </text>
+        {/* Backdrop to keep other lines from showing through the pill */}
+        <rect
+          x={cx - totalWidth / 2 - pillBackdropPadding}
+          y={pillY - pillHeight / 2 - pillBackdropPadding}
+          width={totalWidth + pillBackdropPadding * 2}
+          height={pillHeight + pillBackdropPadding * 2}
+          rx={pillRadius + 2}
+          ry={pillRadius + 2}
+          fill='var(--background, #0b1221)'
+          opacity={1}
+        />
 
-      {/* +N badge for multiple annotations */}
-      {hasMultiple && (
-        <>
-          {/* Badge background (slightly darker) */}
-          <rect
-            x={cx + totalWidth / 2 - badgeWidth - 4}
-            y={pillY - 8}
-            width={24}
-            height={16}
-            rx={8}
-            fill='rgba(0,0,0,0.25)'
-          />
-          {/* Badge text */}
-          <text
-            x={cx + totalWidth / 2 - badgeWidth / 2 - 7}
-            y={pillY + 3}
-            textAnchor='middle'
-            fill='white'
-            fontSize={10}
-            fontWeight={600}
-          >
-            +{extraCount}
-          </text>
-        </>
-      )}
+        {/* Pill background */}
+        <rect
+          x={cx - totalWidth / 2}
+          y={pillY - pillHeight / 2}
+          width={totalWidth}
+          height={pillHeight}
+          rx={pillRadius}
+          ry={pillRadius}
+          fill='currentColor'
+          fillOpacity={0.35}
+          opacity={isHovered ? 1 : 0.9}
+          style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
+        />
+
+        {/* Label text */}
+        <text
+          x={cx - (hasMultiple ? badgeWidth / 2 : 0)}
+          y={pillY + 4}
+          textAnchor='middle'
+          fill='white'
+          fontSize={11}
+          fontWeight={500}
+        >
+          {labelText}
+        </text>
+
+        {/* +N badge for multiple annotations */}
+        {hasMultiple && (
+          <>
+            {/* Badge background (slightly darker) */}
+            <rect
+              x={cx + totalWidth / 2 - badgeWidth - 4}
+              y={pillY - 8}
+              width={24}
+              height={16}
+              rx={8}
+              fill='rgba(0,0,0,0.25)'
+            />
+            {/* Badge text */}
+            <text
+              x={cx + totalWidth / 2 - badgeWidth / 2 - 7}
+              y={pillY + 3}
+              textAnchor='middle'
+              fill='white'
+              fontSize={10}
+              fontWeight={600}
+            >
+              +{extraCount}
+            </text>
+          </>
+        )}
+      </g>
 
       {/* Hover tooltip for single annotation with description */}
       {isHovered && !isAnnotationMode && !hasMultiple && firstAnnotation.description && (

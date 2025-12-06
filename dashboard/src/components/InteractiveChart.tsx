@@ -171,6 +171,24 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     );
 
     const isMobile = useIsMobile();
+    const [hoveredPillGroup, setHoveredPillGroup] = useState<number | null>(null);
+
+    const renderChartTooltip = useCallback(
+      (tooltipProps: any) => {
+        if (hoveredPillGroup !== null) return null;
+        return (
+          <ChartTooltip
+            {...tooltipProps}
+            labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
+            formatter={formatValue}
+            comparisonMap={comparisonMap}
+            title={tooltipTitle}
+          />
+        );
+      },
+      [hoveredPillGroup, granularity, locale, formatValue, comparisonMap, tooltipTitle],
+    );
+
     return (
       <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
         <CardContent className='p-0'>
@@ -245,16 +263,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   mirror={isMobile}
                 />
 
-                <Tooltip
-                  content={
-                    <ChartTooltip
-                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
-                      formatter={formatValue}
-                      comparisonMap={comparisonMap}
-                      title={tooltipTitle}
-                    />
-                  }
-                />
+                <Tooltip content={renderChartTooltip} />
+
                 <Area
                   type='linear'
                   data={data}
@@ -304,6 +314,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                         group={group}
                         isHovered={hoveredGroup === group.bucketDate}
                         onHover={setHoveredGroup}
+                        onHoverPill={setHoveredPillGroup}
                         onGroupClick={handleGroupClick}
                         onSingleClick={handleSingleAnnotationClick}
                         isAnnotationMode={isAnnotationMode}
