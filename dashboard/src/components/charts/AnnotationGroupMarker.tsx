@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { type AnnotationGroup } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from './AnnotationMarker';
 
@@ -24,6 +24,41 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   cy = 0,
 }) => {
   const pillRef = useRef<SVGGElement>(null);
+  const animationRef = useRef<number | null>(null);
+  const prevY = useRef(cy);
+  const [animatedY, setAnimatedY] = useState(cy);
+
+  useEffect(() => {
+    const from = prevY.current;
+    const to = cy;
+    const delta = to - from;
+
+    if (delta === 0) return;
+
+    const duration = 1000;
+    const ease = (t: number) => 1 - (1 - t) ** 3;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      setAnimatedY(from + delta * ease(t));
+
+      if (t < 1) {
+        animationRef.current = requestAnimationFrame(tick);
+      } else {
+        prevY.current = to;
+      }
+    };
+
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+    animationRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [cy]);
+
   const { annotations, tier } = group;
   const firstAnnotation = annotations[0];
   const extraCount = annotations.length - 1;
@@ -43,7 +78,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const totalWidth = baseTextWidth + badgeWidth;
 
   const lineStartY = pillY + pillHeight / 2;
-  const lineEndY = cy;
+  const lineEndY = animatedY;
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -89,7 +124,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       {/* Dot on the chart line */}
       <circle
         cx={cx}
-        cy={cy}
+        cy={animatedY}
         r={isHovered ? 6 : 5}
         fill='currentColor'
         stroke='white'
