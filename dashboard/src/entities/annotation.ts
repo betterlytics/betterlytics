@@ -14,6 +14,7 @@ export const AnnotationSchema = z.object({
   createdById: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
 });
 
 export const AnnotationCreateSchema = z.object({

@@ -39,6 +39,7 @@ export async function getAnnotationsByDashboardAndChart(
       where: {
         dashboardId,
         chartId,
+        deletedAt: null,
       },
       orderBy: {
         date: 'asc',
@@ -54,8 +55,8 @@ export async function getAnnotationsByDashboardAndChart(
 
 export async function getAnnotationById(id: string): Promise<Annotation | null> {
   try {
-    const annotation = await prisma.annotation.findUnique({
-      where: { id },
+    const annotation = await prisma.annotation.findFirst({
+      where: { id, deletedAt: null },
     });
 
     return annotation ? AnnotationSchema.parse(annotation) : null;
@@ -72,10 +73,14 @@ export async function updateAnnotation(
   try {
     const payload = AnnotationUpdateSchema.parse(data);
 
-    const annotation = await prisma.annotation.update({
-      where: { id },
-      data: payload,
+    const existing = await prisma.annotation.findFirst({
+      where: { id, deletedAt: null },
     });
+    if (!existing) {
+      throw new Error('Annotation not found');
+    }
+
+    const annotation = await prisma.annotation.update({ where: { id }, data: payload });
 
     return AnnotationSchema.parse(annotation);
   } catch (error) {
@@ -86,9 +91,14 @@ export async function updateAnnotation(
 
 export async function deleteAnnotation(id: string): Promise<void> {
   try {
-    await prisma.annotation.delete({
-      where: { id },
+    const existing = await prisma.annotation.findFirst({
+      where: { id, deletedAt: null },
     });
+    if (!existing) {
+      throw new Error('Annotation not found');
+    }
+
+    await prisma.annotation.update({ where: { id }, data: { deletedAt: new Date() } });
   } catch (error) {
     console.error('Failed to delete annotation', error);
     throw new Error('Unable to delete annotation');
@@ -97,8 +107,9 @@ export async function deleteAnnotation(id: string): Promise<void> {
 
 export async function deleteAnnotationsByDashboard(dashboardId: string): Promise<void> {
   try {
-    await prisma.annotation.deleteMany({
-      where: { dashboardId },
+    await prisma.annotation.updateMany({
+      where: { dashboardId, deletedAt: null },
+      data: { deletedAt: new Date() },
     });
   } catch (error) {
     console.error('Failed to delete annotations for dashboard', error);

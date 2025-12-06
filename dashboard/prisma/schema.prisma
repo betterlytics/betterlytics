@@ -310,6 +310,7 @@ model Annotation {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   @@index([dashboardId, chartId])
   @@index([dashboardId, date])
