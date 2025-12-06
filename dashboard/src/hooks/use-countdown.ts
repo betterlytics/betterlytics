@@ -25,11 +25,11 @@ export function useCountdown(options: UseCountdownOptions) {
   const isFinished = currentCount <= 0;
 
   useEffect(() => {
-    setCurrentCount(initialValue);
-
     if (!isRunning) {
       return;
     }
+
+    setCurrentCount(initialValue);
     const timer = setInterval(() => {
       setCurrentCount((prev) => {
         const nextCount = prev - step;
