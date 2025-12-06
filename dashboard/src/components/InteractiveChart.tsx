@@ -133,7 +133,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const handleSingleAnnotationClick = useCallback(
       (annotation: ChartAnnotation) => {
-        if (isAnnotationMode) return;
+        if (isAnnotationMode) {
+          annotationDialogsRef.current?.openCreateDialog(annotation.date);
+          return;
+        }
         annotationDialogsRef.current?.openEditDialog(annotation);
       },
       [isAnnotationMode],
@@ -141,7 +144,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const handleGroupClick = useCallback(
       (group: AnnotationGroup, anchorRect: DOMRect) => {
-        if (isAnnotationMode) return;
+        if (isAnnotationMode) {
+          annotationDialogsRef.current?.openCreateDialog(group.bucketDate);
+          return;
+        }
         setOpenGroup(group);
         setPopoverAnchorRect(anchorRect);
       },
@@ -300,6 +306,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                         onHover={setHoveredGroup}
                         onGroupClick={handleGroupClick}
                         onSingleClick={handleSingleAnnotationClick}
+                        isAnnotationMode={isAnnotationMode}
                       />
                     }
                   />

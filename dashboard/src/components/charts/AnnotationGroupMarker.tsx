@@ -10,6 +10,7 @@ interface AnnotationGroupMarkerProps {
   onHover: (bucketDate: number | null) => void;
   onGroupClick: (group: AnnotationGroup, anchorRect: DOMRect) => void;
   onSingleClick: (annotation: ChartAnnotation) => void;
+  isAnnotationMode?: boolean;
   cx?: number;
   cy?: number;
 }
@@ -20,6 +21,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   onHover,
   onGroupClick,
   onSingleClick,
+  isAnnotationMode = false,
   cx = 0,
   cy = 0,
 }) => {
@@ -199,7 +201,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       )}
 
       {/* Hover tooltip for single annotation with description */}
-      {isHovered && !hasMultiple && firstAnnotation.description && (
+      {isHovered && !isAnnotationMode && !hasMultiple && firstAnnotation.description && (
         <g>
           <rect
             x={cx - 90}
@@ -224,7 +226,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       )}
 
       {/* Hover hint for multiple annotations */}
-      {isHovered && hasMultiple && (
+      {isHovered && !isAnnotationMode && hasMultiple && (
         <g>
           <rect
             x={cx - 60}
