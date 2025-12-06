@@ -77,7 +77,9 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                   <div className='min-w-0 flex-1'>
                     <p className='truncate text-sm font-medium'>{annotation.label}</p>
                     {annotation.description && (
-                      <p className='text-muted-foreground truncate text-xs'>{annotation.description}</p>
+                      <p className='text-muted-foreground line-clamp-2 text-xs leading-5 whitespace-normal'>
+                        {annotation.description}
+                      </p>
                     )}
                   </div>
 
