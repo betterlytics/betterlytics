@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
-import { type Annotation, type ChartAnnotation } from '@/entities/annotation';
+import { type Annotation, type ChartAnnotation, type ChartId } from '@/entities/annotation';
 import {
   getAnnotationsAction,
   createAnnotationAction,
@@ -9,14 +9,6 @@ import {
   deleteAnnotationAction,
 } from '@/app/actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-
-export const CHART_IDS = {
-  OVERVIEW: 'overview',
-  WEB_VITALS: 'web-vitals',
-  PAGE_TRAFFIC: 'page-traffic',
-} as const;
-
-export type ChartId = (typeof CHART_IDS)[keyof typeof CHART_IDS];
 
 interface UseChartAnnotationsOptions {
   chartId: ChartId;
@@ -127,7 +119,6 @@ export function useChartAnnotations({
     async (id: string, updates: Pick<ChartAnnotation, 'label' | 'description' | 'colorToken' | 'date'>) => {
       if (!dashboardId) return;
 
-      // Store previous state for rollback
       const previousAnnotations = annotations;
 
       // Optimistically update the annotation
@@ -153,7 +144,6 @@ export function useChartAnnotations({
           date: updates.date ? new Date(updates.date) : undefined,
         });
       } catch (error) {
-        console.error('Failed to update annotation:', error);
         // Restore on failure
         setAnnotations(previousAnnotations);
       }
@@ -172,7 +162,6 @@ export function useChartAnnotations({
       try {
         await deleteAnnotationAction(dashboardId, id);
       } catch (error) {
-        console.error('Failed to delete annotation:', error);
         // Restore on failure
         setAnnotations(previousAnnotations);
       }

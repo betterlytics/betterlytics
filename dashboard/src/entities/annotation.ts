@@ -18,6 +18,10 @@ export const ANNOTATION_COLOR_TOKENS = [
 
 export type AnnotationColorToken = (typeof ANNOTATION_COLOR_TOKENS)[number];
 
+export const CHART_IDS = ['overview'] as const;
+export const ChartIdEnum = z.enum(CHART_IDS);
+export type ChartId = z.infer<typeof ChartIdEnum>;
+
 export interface ChartAnnotation {
   id: string;
   date: number;
@@ -29,7 +33,7 @@ export interface ChartAnnotation {
 export const AnnotationSchema = z.object({
   id: z.string(),
   dashboardId: z.string(),
-  chartId: z.string(),
+  chartId: ChartIdEnum,
   date: z.date(),
   label: z.string(),
   description: z.string().nullable(),
@@ -42,7 +46,7 @@ export const AnnotationSchema = z.object({
 
 export const AnnotationCreateSchema = z.object({
   dashboardId: z.string().min(1),
-  chartId: z.string().min(1),
+  chartId: ChartIdEnum,
   date: z.date(),
   label: z.string().min(1).max(ANNOTATION_LABEL_MAX_LENGTH),
   description: z.string().max(ANNOTATION_DESCRIPTION_MAX_LENGTH).nullable(),
@@ -55,6 +59,7 @@ export const AnnotationUpdateSchema = z.object({
   description: z.string().max(ANNOTATION_DESCRIPTION_MAX_LENGTH).nullable().optional(),
   colorToken: z.enum(ANNOTATION_COLOR_TOKENS).nullable().optional(),
   date: z.date().optional(),
+  chartId: ChartIdEnum.optional(),
 });
 
 export type Annotation = z.infer<typeof AnnotationSchema>;

@@ -13,7 +13,8 @@ import { useTranslations } from 'next-intl';
 import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import { formatPercentage } from '@/utils/formatters';
-import { useChartAnnotations, CHART_IDS } from '@/hooks/useChartAnnotations';
+import { useChartAnnotations } from '@/hooks/useChartAnnotations';
+import { CHART_IDS } from '@/entities/annotation';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
@@ -124,7 +125,7 @@ export default function OverviewChartSection({
   const { granularity } = useTimeRangeContext();
 
   const { annotations, createAnnotation, updateAnnotation, deleteAnnotation } = useChartAnnotations({
-    chartId: CHART_IDS.OVERVIEW,
+    chartId: 'overview',
   });
 
   return (

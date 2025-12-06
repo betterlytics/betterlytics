@@ -28,6 +28,8 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
 }) => {
   const locale = useLocale();
   const t = useTranslations('components.annotations.popover');
+  const { resolvedTheme } = useTheme();
+  const themeMode = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   if (!containerRef.current) return null;
 
@@ -37,8 +39,6 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
   const anchorTop = anchorRect ? anchorRect.bottom - containerRect.top : 0;
 
   const bucketDate = group ? new Date(group.bucketDate) : null;
-  const { resolvedTheme } = useTheme();
-  const themeMode = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   return (
     <Popover open={!!group} onOpenChange={(open) => !open && onClose()}>
