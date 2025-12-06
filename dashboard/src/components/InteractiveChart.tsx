@@ -74,13 +74,25 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const annotationDialogsRef = useRef<AnnotationDialogsRef>(null);
     const chartContainerRef = useRef<HTMLDivElement>(null);
 
-    // State for group popover
     const [openGroup, setOpenGroup] = useState<AnnotationGroup | null>(null);
     const [popoverAnchorRect, setPopoverAnchorRect] = useState<DOMRect | null>(null);
 
+    const measureTextWidth = useMemo<((text: string) => number) | undefined>(() => {
+      if (typeof document === 'undefined') return undefined;
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) return undefined;
+
+      // Match pill text styling in AnnotationGroupMarker
+      context.font = '500 11px Inter, system-ui, -apple-system, sans-serif';
+
+      return (text: string) => context.measureText(text).width;
+    }, []);
+
     const annotationGroups = useMemo(
-      () => groupAnnotationsByBucket(annotations ?? [], data, chartWidth),
-      [annotations, data, chartWidth],
+      () => groupAnnotationsByBucket(annotations ?? [], data, chartWidth, measureTextWidth),
+      [annotations, data, chartWidth, measureTextWidth],
     );
 
     const orderedAnnotationGroups = useMemo(() => {

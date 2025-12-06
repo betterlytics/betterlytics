@@ -5,6 +5,8 @@ export type ThemeMode = 'light' | 'dark';
 export const ANNOTATION_BADGE_WIDTH = 28;
 const ANNOTATION_MIN_BASE_WIDTH = 44;
 
+export type MeasureTextWidth = (text: string) => number;
+
 export const ANNOTATION_COLOR_MAP: Record<AnnotationColorToken, { light: string; dark: string }> = {
   slate: { light: '#64748b', dark: '#94a3b8' },
   primary: { light: '#4766E5', dark: '#93b4ff' },
@@ -64,8 +66,13 @@ function findContainingBucket(timestamp: number, sortedBuckets: number[]): numbe
   return null;
 }
 
-export function getAnnotationPillWidth(label: string, extraCount: number): number {
-  const baseWidth = Math.max(label.length * 6.5 + 16, ANNOTATION_MIN_BASE_WIDTH);
+export function getAnnotationPillWidth(
+  label: string,
+  extraCount: number,
+  measureTextWidth?: MeasureTextWidth,
+): number {
+  const measuredTextWidth = measureTextWidth ? measureTextWidth(label) : label.length * 6.5;
+  const baseWidth = Math.max(measuredTextWidth + 16, ANNOTATION_MIN_BASE_WIDTH);
   const badgeWidth = extraCount > 0 ? ANNOTATION_BADGE_WIDTH : 0;
   return baseWidth + badgeWidth;
 }
@@ -84,6 +91,7 @@ function calculateGroupTiers(
   chartWidth: number = 800,
   domainMin?: number,
   domainMax?: number,
+  measureTextWidth?: MeasureTextWidth,
 ): AnnotationGroup[] {
   if (groups.length === 0) return [];
 
@@ -103,7 +111,7 @@ function calculateGroupTiers(
     const label = getGroupLabel(group.annotations);
     const extraCount = group.annotations.length - 1;
 
-    const pillWidthPx = getAnnotationPillWidth(label, extraCount);
+    const pillWidthPx = getAnnotationPillWidth(label, extraCount, measureTextWidth);
     const halfWidthPx = pillWidthPx / 2;
 
     const spacingBufferPx = 8;
@@ -128,6 +136,7 @@ export function groupAnnotationsByBucket(
   annotations: ChartAnnotation[],
   chartData: ChartDataPoint[],
   chartWidth: number = 800,
+  measureTextWidth?: MeasureTextWidth,
 ): AnnotationGroup[] {
   if (annotations.length === 0 || chartData.length === 0) return [];
 
@@ -173,5 +182,5 @@ export function groupAnnotationsByBucket(
   const domainMin = sortedBuckets[0];
   const domainMax = sortedBuckets[sortedBuckets.length - 1];
 
-  return calculateGroupTiers(groups, chartWidth, domainMin, domainMax);
+  return calculateGroupTiers(groups, chartWidth, domainMin, domainMax, measureTextWidth);
 }
