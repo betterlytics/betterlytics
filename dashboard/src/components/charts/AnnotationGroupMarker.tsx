@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback, useEffect, useState } from 'react';
+import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import {
@@ -101,14 +101,14 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const isDark = resolvedTheme === 'dark';
   const primaryColor = resolveAnnotationColor(firstAnnotation.colorToken, isDark ? 'dark' : 'light');
   const fillOpacity = isDark ? 0.75 : 0.95;
-  const pillY = PILL_BASE_Y + tier * (PILL_HEIGHT + PILL_GAP);
+  const pillY = useMemo(() => PILL_BASE_Y + tier * (PILL_HEIGHT + PILL_GAP), [tier]);
 
   // Calculate pill width
   const labelText = firstAnnotation?.label ?? '';
-  const totalWidth = getAnnotationPillWidth(labelText, extraCount);
-  const badgeWidth = hasMultiple ? ANNOTATION_BADGE_WIDTH : 0;
+  const totalWidth = useMemo(() => getAnnotationPillWidth(labelText, extraCount), [labelText, extraCount]);
+  const badgeWidth = useMemo(() => (hasMultiple ? ANNOTATION_BADGE_WIDTH : 0), [hasMultiple]);
 
-  const lineStartY = pillY + PILL_HEIGHT / 2;
+  const lineStartY = useMemo(() => pillY + PILL_HEIGHT / 2, [pillY]);
   const lineEndY = animatedY;
 
   const handleClick = useCallback(
@@ -141,6 +141,148 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
     onHover(null);
     onHoverPill?.(null);
   };
+
+  const renderDescriptionTooltip = () => {
+    if (!isHovered || isAnnotationMode || !firstAnnotation?.description || hasMultiple) return null;
+
+    const lines = Math.max(1, Math.ceil(firstAnnotation.description.length / TOOLTIP_CHARS_PER_LINE));
+    const height = lines * TOOLTIP_LINE_HEIGHT + TOOLTIP_PADDING * 2;
+    const tooltipX = cx - TOOLTIP_MAX_WIDTH / 2;
+    const tooltipY = pillY + PILL_HEIGHT / 2 + TOOLTIP_OFFSET_Y;
+
+    return (
+      <g>
+        <rect
+          x={tooltipX}
+          y={tooltipY}
+          width={TOOLTIP_MAX_WIDTH}
+          height={height}
+          rx={8}
+          fill='var(--popover, #1f2937)'
+          stroke='var(--border, #374151)'
+          strokeWidth={1}
+        />
+        <foreignObject x={tooltipX} y={tooltipY} width={TOOLTIP_MAX_WIDTH} height={height}>
+          <div
+            style={{
+              height: '100%',
+              padding: `${TOOLTIP_PADDING}px`,
+              color: 'var(--popover-foreground, #f3f4f6)',
+              fontSize: `${LABEL_FONT_SIZE}px`,
+              lineHeight: `${TOOLTIP_LINE_HEIGHT}px`,
+              textAlign: 'left',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}
+          >
+            {firstAnnotation.description}
+          </div>
+        </foreignObject>
+      </g>
+    );
+  };
+
+  const renderBadge = () => {
+    if (!hasMultiple) return null;
+    return (
+      <>
+        <rect
+          x={cx + totalWidth / 2 - badgeWidth - 4}
+          y={pillY - 8}
+          width={BADGE_RECT_WIDTH}
+          height={BADGE_RECT_HEIGHT}
+          rx={BADGE_RECT_RADIUS}
+          fill='rgba(0,0,0,0.25)'
+          stroke='rgba(255,255,255,0.35)'
+          strokeWidth={0.5}
+        />
+        <text
+          x={cx + totalWidth / 2 - badgeWidth / 2 - 7}
+          y={pillY + 3}
+          textAnchor='middle'
+          fill='white'
+          fontSize={BADGE_TEXT_FONT_SIZE}
+          fontWeight={BADGE_TEXT_FONT_WEIGHT}
+        >
+          +{extraCount}
+        </text>
+      </>
+    );
+  };
+
+  const renderPill = () => (
+    <g
+      onMouseEnter={() => onHoverPill?.(group.bucketDate)}
+      onMouseLeave={() => onHoverPill?.(null)}
+      onClick={handleClick}
+      style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+    >
+      <rect
+        x={cx - totalWidth / 2 - PILL_BACKDROP_PADDING}
+        y={pillY - PILL_HEIGHT / 2 - PILL_BACKDROP_PADDING}
+        width={totalWidth + PILL_BACKDROP_PADDING * 2}
+        height={PILL_HEIGHT + PILL_BACKDROP_PADDING * 2}
+        rx={PILL_RADIUS + 2}
+        ry={PILL_RADIUS + 2}
+        fill='var(--background, #0b1221)'
+        opacity={1}
+      />
+
+      <rect
+        x={cx - totalWidth / 2}
+        y={pillY - PILL_HEIGHT / 2}
+        width={totalWidth}
+        height={PILL_HEIGHT}
+        rx={PILL_RADIUS}
+        ry={PILL_RADIUS}
+        fill='currentColor'
+        fillOpacity={fillOpacity}
+        opacity={isHovered ? 1 : 0.9}
+        stroke={NEUTRAL_STROKE}
+        strokeWidth={0.75}
+        strokeOpacity={0.9}
+        style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
+      />
+
+      <text
+        x={cx - (hasMultiple ? badgeWidth / 2 : 0)}
+        y={pillY + 4}
+        textAnchor='middle'
+        fill='white'
+        fontSize={LABEL_FONT_SIZE}
+        fontWeight={PILL_TEXT_FONT_WEIGHT}
+      >
+        {labelText}
+      </text>
+
+      {renderBadge()}
+    </g>
+  );
+
+  const renderMultiHint = () =>
+    isHovered && !isAnnotationMode && hasMultiple ? (
+      <g>
+        <rect
+          x={cx - 60}
+          y={pillY + PILL_HEIGHT / 2 + TOOLTIP_OFFSET_Y}
+          width={120}
+          height={24}
+          rx={6}
+          fill='var(--popover, #1f2937)'
+          stroke='var(--border, #374151)'
+          strokeWidth={1}
+        />
+        <text
+          x={cx}
+          y={pillY + PILL_HEIGHT / 2 + 24}
+          textAnchor='middle'
+          fill='var(--popover-foreground, #f3f4f6)'
+          fontSize={11}
+        >
+          {t('clickToSeeAll')}
+        </text>
+      </g>
+    ) : null;
 
   return (
     <g
@@ -176,149 +318,11 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
         }}
       />
 
-      <g
-        onMouseEnter={() => onHoverPill?.(group.bucketDate)}
-        onMouseLeave={() => onHoverPill?.(null)}
-        onClick={handleClick}
-        style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-      >
-        {/* Backdrop to keep other lines from showing through the pill */}
-        <rect
-          x={cx - totalWidth / 2 - PILL_BACKDROP_PADDING}
-          y={pillY - PILL_HEIGHT / 2 - PILL_BACKDROP_PADDING}
-          width={totalWidth + PILL_BACKDROP_PADDING * 2}
-          height={PILL_HEIGHT + PILL_BACKDROP_PADDING * 2}
-          rx={PILL_RADIUS + 2}
-          ry={PILL_RADIUS + 2}
-          fill='var(--background, #0b1221)'
-          opacity={1}
-        />
+      {renderPill()}
 
-        {/* Pill background */}
-        <rect
-          x={cx - totalWidth / 2}
-          y={pillY - PILL_HEIGHT / 2}
-          width={totalWidth}
-          height={PILL_HEIGHT}
-          rx={PILL_RADIUS}
-          ry={PILL_RADIUS}
-          fill='currentColor'
-          fillOpacity={fillOpacity}
-          opacity={isHovered ? 1 : 0.9}
-          stroke={NEUTRAL_STROKE}
-          strokeWidth={0.75}
-          strokeOpacity={0.9}
-          style={{ filter: isHovered ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none' }}
-        />
+      {renderDescriptionTooltip()}
 
-        {/* Label text */}
-        <text
-          x={cx - (hasMultiple ? badgeWidth / 2 : 0)}
-          y={pillY + 4}
-          textAnchor='middle'
-          fill='white'
-          fontSize={LABEL_FONT_SIZE}
-          fontWeight={PILL_TEXT_FONT_WEIGHT}
-        >
-          {labelText}
-        </text>
-
-        {/* +N badge for multiple annotations */}
-        {hasMultiple && (
-          <>
-            {/* Badge background (slightly darker) */}
-            <rect
-              x={cx + totalWidth / 2 - badgeWidth - 4}
-              y={pillY - 8}
-              width={BADGE_RECT_WIDTH}
-              height={BADGE_RECT_HEIGHT}
-              rx={BADGE_RECT_RADIUS}
-              fill='rgba(0,0,0,0.25)'
-              stroke='rgba(255,255,255,0.35)'
-              strokeWidth={0.5}
-            />
-            {/* Badge text */}
-            <text
-              x={cx + totalWidth / 2 - badgeWidth / 2 - 7}
-              y={pillY + 3}
-              textAnchor='middle'
-              fill='white'
-              fontSize={BADGE_TEXT_FONT_SIZE}
-              fontWeight={BADGE_TEXT_FONT_WEIGHT}
-            >
-              +{extraCount}
-            </text>
-          </>
-        )}
-      </g>
-
-      {/* Hover tooltip for single annotation with description */}
-      {isHovered &&
-        !isAnnotationMode &&
-        !hasMultiple &&
-        firstAnnotation.description &&
-        (() => {
-          const lines = Math.max(1, Math.ceil(firstAnnotation.description.length / TOOLTIP_CHARS_PER_LINE));
-          const height = lines * TOOLTIP_LINE_HEIGHT + TOOLTIP_PADDING * 2;
-          const tooltipX = cx - TOOLTIP_MAX_WIDTH / 2;
-          const tooltipY = pillY + PILL_HEIGHT / 2 + TOOLTIP_OFFSET_Y;
-
-          return (
-            <g>
-              <rect
-                x={tooltipX}
-                y={tooltipY}
-                width={TOOLTIP_MAX_WIDTH}
-                height={height}
-                rx={8}
-                fill='var(--popover, #1f2937)'
-                stroke='var(--border, #374151)'
-                strokeWidth={1}
-              />
-              <foreignObject x={tooltipX} y={tooltipY} width={TOOLTIP_MAX_WIDTH} height={height}>
-                <div
-                  style={{
-                    height: '100%',
-                    padding: `${TOOLTIP_PADDING}px`,
-                    color: 'var(--popover-foreground, #f3f4f6)',
-                    fontSize: `${LABEL_FONT_SIZE}px`,
-                    lineHeight: `${TOOLTIP_LINE_HEIGHT}px`,
-                    textAlign: 'left',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                  }}
-                >
-                  {firstAnnotation.description}
-                </div>
-              </foreignObject>
-            </g>
-          );
-        })()}
-
-      {/* Hover hint for multiple annotations */}
-      {isHovered && !isAnnotationMode && hasMultiple && (
-        <g>
-          <rect
-            x={cx - 60}
-            y={pillY + PILL_HEIGHT / 2 + TOOLTIP_OFFSET_Y}
-            width={120}
-            height={24}
-            rx={6}
-            fill='var(--popover, #1f2937)'
-            stroke='var(--border, #374151)'
-            strokeWidth={1}
-          />
-          <text
-            x={cx}
-            y={pillY + PILL_HEIGHT / 2 + 24}
-            textAnchor='middle'
-            fill='var(--popover-foreground, #f3f4f6)'
-            fontSize={11}
-          >
-            {t('clickToSeeAll')}
-          </text>
-        </g>
-      )}
+      {renderMultiHint()}
     </g>
   );
 };
