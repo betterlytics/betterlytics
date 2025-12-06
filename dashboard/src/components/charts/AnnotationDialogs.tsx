@@ -37,6 +37,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const [pendingAnnotationDate, setPendingAnnotationDate] = useState<number | null>(null);
     const [createAnnotationDate, setCreateAnnotationDate] = useState<Date | null>(null);
     const [createAnnotationName, setCreateAnnotationName] = useState('');
+    const [createAnnotationDescription, setCreateAnnotationDescription] = useState('');
 
     // Edit annotation state
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -50,6 +51,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         setPendingAnnotationDate(date);
         setCreateAnnotationDate(new Date(date));
         setCreateAnnotationName('');
+        setCreateAnnotationDescription('');
         setShowCreateDialog(true);
       },
       openEditDialog: (annotation: ChartAnnotation) => {
@@ -72,12 +74,14 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
       onAddAnnotation({
         date: targetDate.getTime(),
         label: createAnnotationName.trim(),
+        description: createAnnotationDescription.trim() || undefined,
       });
 
       setShowCreateDialog(false);
       setPendingAnnotationDate(null);
       setCreateAnnotationDate(null);
       setCreateAnnotationName('');
+      setCreateAnnotationDescription('');
     };
 
     const handleUpdateAnnotation = () => {
@@ -129,6 +133,16 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 autoFocus
                 maxLength={20}
               />
+              <div>
+                <label className='text-sm font-medium'>Description (optional)</label>
+                <Input
+                  placeholder='Add a description...'
+                  value={createAnnotationDescription}
+                  onChange={(e) => setCreateAnnotationDescription(e.target.value)}
+                  maxLength={200}
+                  className='mt-1.5'
+                />
+              </div>
               <div className='grid gap-2'>
                 <label className='text-sm font-medium'>Date &amp; time</label>
                 <DateTimePicker24h
