@@ -37,7 +37,6 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
 
   return (
     <Popover open={!!group} onOpenChange={(open) => !open && onClose()}>
-      {/* Virtual anchor positioned where the pill was clicked */}
       <PopoverAnchor asChild>
         <div
           className='pointer-events-none absolute h-0 w-0'

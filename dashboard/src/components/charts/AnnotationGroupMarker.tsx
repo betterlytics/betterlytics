@@ -135,8 +135,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
           />
           {/* Badge text */}
           <text
-            x={cx + totalWidth / 2 - badgeWidth / 2 - 4}
-            y={pillY + 2}
+            x={cx + totalWidth / 2 - badgeWidth / 2 - 7}
+            y={pillY + 3}
             textAnchor='middle'
             fill='white'
             fontSize={10}
