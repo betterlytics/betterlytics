@@ -274,21 +274,26 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 label='Color'
               />
             </div>
-            <DialogFooter className='flex-col gap-2 sm:flex-row sm:justify-between'>
+            <DialogFooter className='flex w-full flex-row items-center gap-2'>
               <Button
                 variant='destructive'
                 onClick={handleDeleteAnnotation}
-                className='w-full cursor-pointer sm:w-auto'
+                className='cursor-pointer px-3'
+                aria-label='Delete annotation'
               >
-                <Trash2 className='mr-2 h-4 w-4' />
-                Delete
+                <Trash2 className='h-4 w-4' />
+                <span className='ml-2 hidden sm:inline'>Delete</span>
               </Button>
-              <div className='flex gap-2'>
-                <Button variant='outline' className='cursor-pointer' onClick={() => setShowEditDialog(false)}>
+              <div className='ml-auto flex gap-2'>
+                <Button
+                  variant='outline'
+                  className='min-w-[104px] cursor-pointer'
+                  onClick={() => setShowEditDialog(false)}
+                >
                   Cancel
                 </Button>
                 <Button
-                  className='cursor-pointer'
+                  className='min-w-[104px] cursor-pointer'
                   onClick={handleUpdateAnnotation}
                   disabled={!editAnnotationName.trim()}
                 >
