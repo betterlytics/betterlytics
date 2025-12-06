@@ -1,5 +1,20 @@
 import { type ChartAnnotation } from '@/components/charts/AnnotationMarker';
 
+export const ANNOTATION_COLORS = [
+  '#4766E5', // primary-ish
+  '#f59e0b', // amber
+  '#10b981', // emerald
+  '#ef4444', // red
+  '#8b5cf6', // violet
+  '#06b6d4', // cyan
+  '#f97316', // orange
+  '#22c55e', // green
+  '#64748b', // slate
+  '#14b8a6', // teal
+] as const;
+
+export const DEFAULT_ANNOTATION_COLOR = ANNOTATION_COLORS[0];
+
 export interface AnnotationGroup {
   /** Bucket timestamp (used as x position) */
   bucketDate: number;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useCallback, useEffect, useState } from 'react';
-import { type AnnotationGroup } from '@/utils/chartAnnotations';
+import { DEFAULT_ANNOTATION_COLOR, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from './AnnotationMarker';
 
 interface AnnotationGroupMarkerProps {
@@ -70,7 +70,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   const extraCount = annotations.length - 1;
   const hasMultiple = extraCount > 0;
 
-  const primaryColor = 'hsl(var(--primary))'; // or #4766E5 ?
+  const primaryColor = firstAnnotation.color ?? DEFAULT_ANNOTATION_COLOR;
   const pillHeight = 22;
   const pillGap = 2;
   const pillY = 12 + tier * (pillHeight + pillGap);
