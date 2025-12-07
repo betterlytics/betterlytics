@@ -17,7 +17,7 @@ function CountdownButton({
   ...props
 }: CountdownButtonProps) {
   const baseClasses =
-    'hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto';
+    '!bg-destructive/85 hover:!bg-destructive/80 dark:!bg-destructive/65 dark:hover:!bg-destructive/80 w-full cursor-pointer sm:w-auto !text-white';
 
   return (
     <Button ref={ref} variant={variant} className={cn(baseClasses, className)} {...props}>
