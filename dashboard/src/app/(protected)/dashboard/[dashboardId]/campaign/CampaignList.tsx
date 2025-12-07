@@ -20,6 +20,7 @@ import { useTranslations } from 'next-intl';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 import { toast } from 'sonner';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
+import ExternalLink from '@/components/ExternalLink';
 
 type CampaignListItem = CampaignListRowSummary;
 
@@ -151,14 +152,15 @@ function CampaignEmptyState() {
         <h3 className='text-lg font-semibold'>{t('title')}</h3>
         <p className='text-muted-foreground mt-2 text-sm'>{t('description')}</p>
 
-        {/* TODO: Uncomment when campaign page is implemented
         <p className='text-muted-foreground mt-6 text-sm'>
           {t('docsHint')}{' '}
-          <ExternalLink href='/docs/campaign-tracking' className='text-primary underline-offset-4 hover:underline'>
+          <ExternalLink
+            href='/docs/dashboard/campaigns'
+            className='text-primary underline-offset-4 hover:underline'
+          >
             {t('docsLinkLabel')}
           </ExternalLink>
         </p>
-        */}
       </div>
     </Card>
   );
