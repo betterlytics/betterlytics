@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { UserSettingsUpdate } from '@/entities/userSettings';
+import { UserSettings, UserSettingsUpdate } from '@/entities/userSettings';
 import { toast } from 'sonner';
 import UserProfileSettings from '@/components/userSettings/UserProfileSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
@@ -20,7 +20,7 @@ import useIsChanged from '@/hooks/use-is-changed';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { SettingsEffectsProvider, useSettingsEffects } from '@/contexts/SettingsEffectsContext';
+import { UserSettingsPreviewProvider, useUserSettingsPreview } from '@/contexts/UserSettingsPreviewContext';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -40,16 +40,79 @@ interface UserSettingsTabConfig {
 }
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
+  const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
+  const tDialog = useTranslations('components.userSettings.dialog');
+
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
+          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
+            <Spinner />
+            <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (error) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
+          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
+            <AlertTriangle className='text-destructive h-8 w-8' />
+            <div className='text-center'>
+              <p className='text-destructive font-medium'>{tDialog('loadFailed')}</p>
+              <p className='text-muted-foreground mt-1 text-sm'>{error}</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!settings) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
+          <div className='flex items-center justify-center py-8'>
+            <span>{tDialog('noSettings')}</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <SettingsEffectsProvider>
-      <UserSettingsDialogContent open={open} onOpenChange={onOpenChange} />
-    </SettingsEffectsProvider>
+    <UserSettingsPreviewProvider originalSettings={settings}>
+      <UserSettingsDialogContent
+        open={open}
+        onOpenChange={onOpenChange}
+        settings={settings}
+        isSaving={isSaving}
+        saveSettings={saveSettings}
+      />
+    </UserSettingsPreviewProvider>
   );
 }
 
-function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogProps) {
-  const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
-  const { applyAll } = useSettingsEffects();
+interface UserSettingsDialogContentProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  settings: UserSettings;
+  isSaving: boolean;
+  saveSettings: (newSettings?: Partial<UserSettingsUpdate>) => Promise<{ success: boolean; error?: string }>;
+}
+
+function UserSettingsDialogContent({
+  open,
+  onOpenChange,
+  settings,
+  isSaving,
+  saveSettings,
+}: UserSettingsDialogContentProps) {
+  const { preview, restore } = useUserSettingsPreview();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
@@ -96,29 +159,33 @@ function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogPro
         component: UserDangerZoneSettings,
       },
     ],
-    [isFeatureFlagEnabled],
+    [isFeatureFlagEnabled, tTabs],
   );
 
   const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
-  const [formData, setFormData] = useState<UserSettingsUpdate>({});
+  const [formData, setFormData] = useState<UserSettingsUpdate>({ ...settings });
   const { refreshSession } = useSessionRefresh();
   const isFormChanged = useIsChanged(formData, settings);
 
   useEffect(() => {
-    if (settings && open) {
+    if (open) {
       setFormData({ ...settings });
     }
   }, [settings, open]);
 
+  useEffect(() => {
+    return () => restore();
+  }, [restore]);
+
   const handleUpdate = (updates: Partial<UserSettingsUpdate>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
+    preview(updates);
   };
 
   const handleSave = async () => {
     const result = await saveSettings(formData);
     if (result.success) {
-      applyAll(formData);
       await refreshSession();
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
@@ -131,52 +198,19 @@ function UserSettingsDialogContent({ open, onOpenChange }: UserSettingsDialogPro
   };
 
   const handleCloseDialog = () => {
+    restore();
     onOpenChange(false);
   };
 
-  if (isLoading) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
-            <Spinner />
-            <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (error) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
-            <AlertTriangle className='text-destructive h-8 w-8' />
-            <div className='text-center'>
-              <p className='text-destructive font-medium'>{tDialog('loadFailed')}</p>
-              <p className='text-muted-foreground mt-1 text-sm'>{error}</p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (!settings) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <div className='flex items-center justify-center py-8'>
-            <span>{tDialog('noSettings')}</span>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      restore();
+    }
+    onOpenChange(isOpen);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto p-3 sm:p-6 md:max-w-11/12 md:min-w-[700px] lg:max-w-[900px] lg:min-w-[900px]'>
         <DialogHeader>
           <DialogTitle>{tDialog('title')}</DialogTitle>

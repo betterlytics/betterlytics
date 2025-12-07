@@ -1,18 +1,16 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTheme } from 'next-themes';
-import { Monitor, Moon, Sun, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
+import { Monitor, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/userSettings';
 import SettingsCard from '@/components/SettingsCard';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
-import { useSettingsEffects } from '@/contexts/SettingsEffectsContext';
+import UserThemeSelector from './UserThemeSelector';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -20,26 +18,10 @@ interface UserPreferencesSettingsProps {
 }
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
-  const { setTheme } = useTheme();
   const t = useTranslations('components.userSettings.preferences');
-  const { register: registerEffect } = useSettingsEffects();
-
-  useEffect(() => {
-    registerEffect('theme', {
-      apply: (settings: UserSettingsUpdate) => {
-        if (settings.theme) {
-          setTheme(settings.theme);
-        }
-      },
-    });
-  }, [registerEffect, setTheme]);
 
   const handleLocaleChange = (newLocale: SupportedLanguages) => {
     onUpdate({ language: newLocale });
-  };
-
-  const handleThemeChange = (newTheme: string) => {
-    onUpdate({ theme: newTheme as 'light' | 'dark' | 'system' });
   };
 
   const handleAvatarChange = (newAvatar: 'default' | 'gravatar') => {
@@ -49,34 +31,10 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
   return (
     <div className='space-y-6'>
       <SettingsCard icon={Monitor} title={t('appearance.title')} description={t('appearance.description')}>
-        <div className='flex items-center justify-between'>
-          <Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>
-          <Select value={formData.theme} onValueChange={handleThemeChange}>
-            <SelectTrigger className='w-32 cursor-pointer'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='light' className='cursor-pointer'>
-                <div className='flex items-center space-x-2'>
-                  <Sun className='h-4 w-4' />
-                  <span>{t('appearance.light')}</span>
-                </div>
-              </SelectItem>
-              <SelectItem value='dark' className='cursor-pointer'>
-                <div className='flex items-center space-x-2'>
-                  <Moon className='h-4 w-4' />
-                  <span>{t('appearance.dark')}</span>
-                </div>
-              </SelectItem>
-              <SelectItem value='system' className='cursor-pointer'>
-                <div className='flex items-center space-x-2'>
-                  <Monitor className='h-4 w-4' />
-                  <span>{t('appearance.system')}</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <UserThemeSelector
+          value={formData.theme}
+          onUpdate={(theme) => onUpdate({ theme })}
+        />
 
         <div>
           <div className='flex items-center justify-between'>
