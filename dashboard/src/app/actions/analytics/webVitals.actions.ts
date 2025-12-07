@@ -10,10 +10,10 @@ import {
   getHasCoreWebVitalsData,
 } from '@/services/analytics/webVitals.service';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { CoreWebVitalName } from '@/entities/analytics/webVitals';
+import { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { toWebVitalsPercentileChart, type PercentilePoint } from '@/presenters/toMultiLine';
 import { toDataTable } from '@/presenters/toDataTable';
-import { type CWVDimension } from '@/entities/analytics/webVitals';
+import { type CWVDimension } from '@/entities/analytics/webVitals.entities';
 
 export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
   async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {

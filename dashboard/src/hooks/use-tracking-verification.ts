@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDashboardId } from './use-dashboard-id';
-import { verifyTrackingInstallation } from '@/app/actions/index.action';
+import { verifyTrackingInstallation } from '@/app/actions/index.actions';
 import { toast } from 'sonner';
 
 export function useTrackingVerificationWithId(dashboardId: string | undefined) {

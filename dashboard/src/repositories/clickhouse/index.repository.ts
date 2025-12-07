@@ -1,4 +1,4 @@
-export * from './campaign';
+export * from './campaign.repository';
 export * from './devices.repository';
 export * from './pages.repository';
 export * from './visitors.repository';

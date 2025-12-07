@@ -8,7 +8,7 @@ import {
   getCampaignCount,
   getCampaignPerformancePageData,
   getCampaignUTMBreakdownData,
-} from '@/repositories/clickhouse/campaign';
+} from '@/repositories/clickhouse/campaign.repository';
 import {
   CampaignPerformance,
   CampaignPerformanceArraySchema,

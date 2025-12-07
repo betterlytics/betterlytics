@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useCallback, useState } from 'react';
-import { deleteFunnelAction } from '@/app/actions/index.action';
+import { deleteFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';

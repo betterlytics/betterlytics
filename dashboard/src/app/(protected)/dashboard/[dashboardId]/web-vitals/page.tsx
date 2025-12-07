@@ -7,7 +7,7 @@ import {
   fetchCoreWebVitalChartDataAction,
   fetchCoreWebVitalsByDimensionAction,
   fetchHasCoreWebVitalsData,
-} from '@/app/actions/index.action';
+} from '@/app/actions/index.actions';
 import InteractiveWebVitalsChartSection from './InteractiveWebVitalsChartSection';
 import WebVitalsTableSection from './webVitalsTableSection';
 import { getTranslations } from 'next-intl/server';

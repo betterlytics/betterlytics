@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getFirstUserDashboardAction } from '@/app/actions/index.action';
+import { getFirstUserDashboardAction } from '@/app/actions/index.actions';
 
 export default async function DashboardPage() {
   const dashboard = await getFirstUserDashboardAction();

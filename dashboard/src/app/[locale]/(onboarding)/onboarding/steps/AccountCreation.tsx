@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { registerUserAction } from '@/app/actions/index.action';
+import { registerUserAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { signIn, getProviders } from 'next-auth/react';
 import { ZodError } from 'zod';

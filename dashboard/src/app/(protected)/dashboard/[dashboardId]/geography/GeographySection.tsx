@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.action';
+import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import LeafletMap from '@/components/map/LeafletMap';
 import { useTranslations } from 'next-intl';
 

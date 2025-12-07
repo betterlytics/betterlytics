@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
 import { ComponentProps, useCallback, useMemo, useState } from 'react';
-import { postFunnelAction } from '@/app/actions/index.action';
+import { postFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { toast } from 'sonner';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';

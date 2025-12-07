@@ -1,7 +1,7 @@
 'use client';
 
 import { Fragment, useMemo, useState, type CSSProperties, useCallback, useEffect } from 'react';
-import { fetchWeeklyHeatmapAllAction } from '@/app/actions/analytics/weeklyHeatmap.action';
+import { fetchWeeklyHeatmapAllAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
 import type { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';

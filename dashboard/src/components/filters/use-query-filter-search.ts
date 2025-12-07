@@ -1,6 +1,6 @@
 'use client';
 
-import { getFilterOptionsAction } from '@/app/actions/analytics/filters.action';
+import { getFilterOptionsAction } from '@/app/actions/analytics/filters.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';

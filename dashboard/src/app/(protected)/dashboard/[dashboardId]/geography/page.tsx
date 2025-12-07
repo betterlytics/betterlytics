@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.action';
+import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import GeographySection from '@/app/(protected)/dashboard/[dashboardId]/geography/GeographySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';

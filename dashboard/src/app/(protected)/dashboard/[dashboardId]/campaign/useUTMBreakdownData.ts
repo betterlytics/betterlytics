@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { fetchCampaignUTMBreakdownAction } from '@/app/actions/campaigns';
+import { fetchCampaignUTMBreakdownAction } from '@/app/actions/analytics/campaign.actions';
 import { CampaignUTMBreakdownItem, type UTMDimension } from '@/entities/analytics/campaign.entities';
 
 type UseUTMBreakdownDataOptions = {

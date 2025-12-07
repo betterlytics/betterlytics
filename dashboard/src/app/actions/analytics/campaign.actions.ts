@@ -6,7 +6,7 @@ import {
   fetchCampaignLandingPagePerformance,
   fetchCampaignAudienceProfile,
   fetchCampaignSparklines,
-} from '@/services/campaign';
+} from '@/services/analytics/campaign.service';
 import {
   CampaignUTMBreakdownItem,
   CampaignLandingPagePerformanceItem,

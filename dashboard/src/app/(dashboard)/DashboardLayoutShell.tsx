@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 import { IntegrationManager } from '@/app/(protected)/dashboard/[dashboardId]/IntegrationManager';
 import { TrackingScript } from '@/app/(protected)/dashboard/[dashboardId]/TrackingScript';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { fetchSiteId } from '@/app/actions/index.action';
+import { fetchSiteId } from '@/app/actions/index.actions';
 import { DashboardNavigationProvider } from '@/contexts/DashboardNavigationContext';
 
 export type DashboardLayoutShellProps = {

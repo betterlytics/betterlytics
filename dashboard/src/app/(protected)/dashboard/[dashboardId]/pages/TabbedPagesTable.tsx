@@ -6,7 +6,7 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import TabbedTable from '@/components/TabbedTable';
-import { fetchPageAnalyticsAction } from '@/app/actions/analytics/pages.action';
+import { fetchPageAnalyticsAction } from '@/app/actions/analytics/pages.actions';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatDuration } from '@/utils/dateFormatters';

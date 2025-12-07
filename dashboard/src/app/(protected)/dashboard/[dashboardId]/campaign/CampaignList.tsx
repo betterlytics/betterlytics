@@ -11,8 +11,11 @@ import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entit
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
-import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
-import { fetchCampaignExpandedDetailsAction, fetchCampaignPerformanceAction } from '@/app/actions/campaigns';
+import type { CampaignExpandedDetails } from '@/app/actions/analytics/campaign.actions';
+import {
+  fetchCampaignExpandedDetailsAction,
+  fetchCampaignPerformanceAction,
+} from '@/app/actions/analytics/campaign.actions';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';

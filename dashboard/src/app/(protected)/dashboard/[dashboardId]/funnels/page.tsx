@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { fetchFunnelsAction } from '@/app/actions/index.action';
+import { fetchFunnelsAction } from '@/app/actions/index.actions';
 import CreateFunnelButton from './CreateFunnelButton';
 import FunnelsStack from './FunnelsStack';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';

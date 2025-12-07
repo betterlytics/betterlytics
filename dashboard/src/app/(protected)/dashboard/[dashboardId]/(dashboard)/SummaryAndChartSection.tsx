@@ -6,7 +6,7 @@ import {
   fetchUniqueVisitorsAction,
   fetchTotalPageViewsAction,
   fetchSessionMetricsAction,
-} from '@/app/actions/index.action';
+} from '@/app/actions/index.actions';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useTranslations } from 'next-intl';

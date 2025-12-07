@@ -2,7 +2,7 @@
 
 import { use, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.action';
+import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TableCompareCell } from '@/components/TableCompareCell';
