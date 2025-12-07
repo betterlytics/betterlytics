@@ -2,14 +2,13 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { authOptions } from '@/lib/auth';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
-import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
 import { validateResetTokenAction } from '@/app/actions/auth/passwordReset.action';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
+import { getAuthSession } from '@/auth/auth-actions';
 
 export async function generateMetadata({
   params,
@@ -64,7 +63,7 @@ function ResetPasswordLayout({ title, description, children }: ResetPasswordLayo
 }
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   const t = await getTranslations('public.auth.resetPassword');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.resetPassword);
 

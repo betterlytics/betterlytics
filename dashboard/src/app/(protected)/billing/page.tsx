@@ -1,6 +1,4 @@
-import { getServerSession } from 'next-auth';
-import { redirect, notFound } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+import { notFound } from 'next/navigation';
 import { getUserBillingData } from '@/actions/billing.action';
 import { BillingNavigationBanner } from './BillingNavigationBanner';
 import { BillingFAQGrid } from './BillingFAQGrid';
@@ -12,18 +10,16 @@ import { getTranslations } from 'next-intl/server';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { requireAuth } from '@/auth/auth-actions';
 
 export default async function BillingPage() {
   if (!isClientFeatureEnabled('enableBilling')) {
     return notFound();
   }
 
-  const session = await getServerSession(authOptions);
-  const t = await getTranslations('components.billing.page');
+  const session = await requireAuth();
 
-  if (!session) {
-    redirect('/signin');
-  }
+  const t = await getTranslations('components.billing.page');
 
   const billingData = await getUserBillingData();
 

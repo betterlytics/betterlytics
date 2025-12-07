@@ -14,12 +14,9 @@ import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
-import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
-import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entities';
 import { env } from '@/lib/env';
+import { getCachedAuthorizedContext, requireAuth } from '@/auth/auth-actions';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -27,17 +24,11 @@ type DashboardLayoutProps = {
 };
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
+  const session = await requireAuth();
 
   const { dashboardId } = await params;
 
-  const authCtx = await getAuthorizedDashboardContextOrNull(
-    DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
-  );
+  const authCtx = await getCachedAuthorizedContext(session.user.id, dashboardId);
 
   if (!authCtx) {
     if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {

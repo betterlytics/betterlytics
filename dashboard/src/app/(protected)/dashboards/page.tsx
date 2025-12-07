@@ -7,15 +7,11 @@ import PlanQuota from './PlanQuota';
 import ButtonSkeleton from '@/components/skeleton/ButtonSkeleton';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { requireAuth } from '@/auth/auth-actions';
 
 export default async function DashboardsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect('/signin');
-  }
+  await requireAuth();
+
   const dashboards = await getAllUserDashboardsAction();
   const dashboardStatsPromise = getUserDashboardStatsAction();
   const billingDataPromise = getUserBillingData();
