@@ -21,10 +21,18 @@ export function DateTimePicker24h({ value, onChange }: DateTimePicker24hProps) {
   const dateFnsLocale = React.useMemo(() => resolveDateFnsLocale(locale), [locale]);
   const [date, setDate] = React.useState<Date | undefined>(value);
   const [isOpen, setIsOpen] = React.useState(false);
+  const pendingOnChangeRef = React.useRef<Date | undefined>(undefined);
 
   React.useEffect(() => {
     setDate(value);
   }, [value]);
+
+  React.useEffect(() => {
+    if (pendingOnChangeRef.current) {
+      onChange?.(pendingOnChangeRef.current);
+      pendingOnChangeRef.current = undefined;
+    }
+  }, [date, onChange]);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 }, (_, i) => i);
@@ -32,7 +40,7 @@ export function DateTimePicker24h({ value, onChange }: DateTimePicker24hProps) {
   const updateDate = (updater: (prev: Date) => Date) => {
     setDate((prev) => {
       const next = updater(prev ?? new Date());
-      onChange?.(next);
+      pendingOnChangeRef.current = next;
       return next;
     });
   };
