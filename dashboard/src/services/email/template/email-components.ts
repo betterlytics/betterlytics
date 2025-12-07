@@ -152,7 +152,14 @@ export function getEmailHeader(): string {
       <div class="email-wrapper">
         <div class="email-content-box">
           <div class="email-logo-header">
-            <img src="https://betterlytics.io/betterlytics-logo-dark-simple.svg" alt="Betterlytics" class="logo" width="120" height="32"/>
+            <img 
+              src="https://betterlytics.io/betterlytics-logo-dark-simple-96x96-q75.png"
+              alt="Betterlytics"
+              width="48"
+              height="48"
+              style="display: block; border: 0; width: 48px; height: 48px; margin-right: 12px;"
+              border="0"
+            />
             <div class="company-name">Betterlytics</div>
           </div>
   `;
