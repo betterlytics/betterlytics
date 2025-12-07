@@ -9,7 +9,7 @@ import {
   resolveAnnotationColor,
   type AnnotationGroup,
 } from '@/utils/chartAnnotations';
-import { type ChartAnnotation } from '@/entities/annotation';
+import { type ChartAnnotation } from '@/entities/annotation.entities';
 
 const PILL_HEIGHT = 22;
 const PILL_GAP = 2;

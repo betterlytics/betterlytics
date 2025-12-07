@@ -6,14 +6,14 @@ import {
   type AnnotationCreate,
   AnnotationCreateSchema,
   AnnotationUpdateSchema,
-} from '@/entities/annotation';
+} from '@/entities/annotation.entities';
 import {
   createDashboardAnnotation,
   getDashboardAnnotations,
   getDashboardAnnotation,
   updateDashboardAnnotation,
   deleteDashboardAnnotation,
-} from '@/services/annotations';
+} from '@/services/annotations.service';
 import { type AuthContext } from '@/entities/authContext';
 
 export const createAnnotationAction = withDashboardMutationAuthContext(

@@ -1,13 +1,13 @@
 'server-only';
 
-import { type Annotation, type AnnotationCreate, type AnnotationUpdate } from '@/entities/annotation';
+import { type Annotation, type AnnotationCreate, type AnnotationUpdate } from '@/entities/annotation.entities';
 import {
   createAnnotation,
   getAnnotationsByDashboardAndChart,
   getAnnotationById,
   updateAnnotation,
   deleteAnnotation,
-} from '@/repositories/postgres/annotations';
+} from '@/repositories/postgres/annotations.repository';
 
 export async function createDashboardAnnotation(data: AnnotationCreate): Promise<Annotation> {
   return createAnnotation(data);

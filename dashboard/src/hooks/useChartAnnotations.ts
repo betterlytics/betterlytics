@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
-import { type Annotation, type ChartAnnotation, type ChartId } from '@/entities/annotation';
+import { type Annotation, type ChartAnnotation, type ChartId } from '@/entities/annotation.entities';
 import {
   getAnnotationsAction,
   createAnnotationAction,
