@@ -10,7 +10,7 @@ import {
   resolveAnnotationColor,
   type AnnotationGroup,
 } from '@/utils/chartAnnotations';
-import { type ChartAnnotation } from '@/entities/annotation.entities';
+import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 
 const PILL = {
   height: 22,

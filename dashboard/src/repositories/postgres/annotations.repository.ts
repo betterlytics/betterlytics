@@ -5,7 +5,7 @@ import {
   AnnotationCreateSchema,
   AnnotationSchema,
   AnnotationUpdateSchema,
-} from '@/entities/annotation.entities';
+} from '@/entities/dashboard/annotation.entities';
 
 export async function createAnnotation(data: AnnotationCreate): Promise<Annotation> {
   try {

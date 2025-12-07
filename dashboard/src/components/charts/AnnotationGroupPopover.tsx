@@ -6,7 +6,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
-import { type ChartAnnotation } from '@/entities/annotation.entities';
+import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 import { useTheme } from 'next-themes';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';

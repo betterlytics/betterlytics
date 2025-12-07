@@ -1,6 +1,10 @@
 'server-only';
 
-import { type Annotation, type AnnotationCreate, type AnnotationUpdate } from '@/entities/annotation.entities';
+import {
+  type Annotation,
+  type AnnotationCreate,
+  type AnnotationUpdate,
+} from '@/entities/dashboard/annotation.entities';
 import {
   createAnnotation,
   getAnnotationsByDashboardAndChart,

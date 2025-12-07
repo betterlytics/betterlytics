@@ -6,15 +6,15 @@ import {
   type AnnotationCreate,
   AnnotationCreateSchema,
   AnnotationUpdateSchema,
-} from '@/entities/annotation.entities';
+} from '@/entities/dashboard/annotation.entities';
 import {
   createDashboardAnnotation,
   getDashboardAnnotations,
   getDashboardAnnotation,
   updateDashboardAnnotation,
   deleteDashboardAnnotation,
-} from '@/services/annotations.service';
-import { type AuthContext } from '@/entities/authContext';
+} from '@/services/dashboard/annotations.service';
+import { type AuthContext } from '@/entities/auth/authContext.entities';
 
 export const createAnnotationAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, payload: Omit<AnnotationCreate, 'dashboardId' | 'createdById'>) => {

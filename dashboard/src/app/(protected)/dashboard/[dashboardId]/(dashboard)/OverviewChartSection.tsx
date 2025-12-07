@@ -14,7 +14,7 @@ import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import { formatPercentage } from '@/utils/formatters';
 import { useChartAnnotations } from '@/hooks/useChartAnnotations';
-import { CHART_IDS } from '@/entities/annotation.entities';
+import { CHART_IDS } from '@/entities/dashboard/annotation.entities';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 

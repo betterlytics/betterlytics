@@ -1,4 +1,4 @@
-import { type AnnotationColorToken, type ChartAnnotation } from '@/entities/annotation.entities';
+import { type AnnotationColorToken, type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 
 export type ThemeMode = 'light' | 'dark';
 

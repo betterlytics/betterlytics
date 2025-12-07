@@ -18,3 +18,4 @@ export * from './analytics/weeklyHeatmap.actions';
 export * from './analytics/sessionReplays.actions';
 export * from './dashboard/siteConfig.action';
 export * from './system/bugReports.action';
+export * from './dashboard/annotations.action';

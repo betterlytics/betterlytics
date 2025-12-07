@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
-import { type Annotation, type ChartAnnotation, type ChartId } from '@/entities/annotation.entities';
+import { type Annotation, type ChartAnnotation, type ChartId } from '@/entities/dashboard/annotation.entities';
 import {
   getAnnotationsAction,
   createAnnotationAction,
   updateAnnotationAction,
   deleteAnnotationAction,
-} from '@/app/actions';
+} from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 interface UseChartAnnotationsOptions {
