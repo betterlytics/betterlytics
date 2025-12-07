@@ -3,7 +3,7 @@ import {
   fetchOutboundLinksAnalyticsAction,
   fetchOutboundClicksChartAction,
   fetchOutboundLinksDistributionAction,
-} from '@/app/actions/outboundLinks';
+} from '@/app/actions/analytics/outboundLinks.actions';
 import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import OutboundLinksTableSection from './OutboundLinksTableSection';
 import OutboundLinksChartSection from './OutboundLinksChartSection';
@@ -12,7 +12,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
 
 type OutboundLinksPageParams = {

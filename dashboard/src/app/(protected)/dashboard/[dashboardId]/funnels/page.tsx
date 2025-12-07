@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
-import { fetchFunnelsAction } from '@/app/actions';
+import { fetchFunnelsAction } from '@/app/actions/index.actions';
 import CreateFunnelButton from './CreateFunnelButton';
 import FunnelsStack from './FunnelsStack';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { getUserTimezone } from '@/lib/cookies';
 

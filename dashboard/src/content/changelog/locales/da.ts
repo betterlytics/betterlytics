@@ -1,52 +1,50 @@
-import type { ChangelogEntryData } from '@/entities/changelog';
+import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.6',
-    releasedAt: '2025-12-01',
+    version: 'v1.2.7',
+    releasedAt: '2025-12-07',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v126-new-features',
+      id: 'v127-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Funnels-siden er fuldstændig redesignet med et mere intuitivt og visuelt layout. Tjek den ud!',
-            'Sammenlign perioder direkte i verdenskort-visualiseringen.',
-            'Bloker events fra specifikke IP-adresser for at undgå skæve eller uønskede besøg (fx dine egne).',
-            'Afvis automatisk events fra domæner, der ikke matcher dit dashboard-domæne.',
+            'Kampagnesiden er fuldstændig genopbygget med fokus på navngivne UTM-kampagner.',
+            'Du kan nu tilføje annotationer til hoveddiagrammer for at fremhæve vigtige begivenheder, udgivelser eller trafikændringer.',
+            'Funnels-siden er fuldstændig redesignet med et mere intuitivt, visuelt layout. Tjek det ud!',
+            'Bloker events fra specifikke IP-adresser for at undgå skæv eller uønsket trafik (f.eks. dine egne besøg).',
           ],
         },
       ],
     },
     {
-      id: 'v126-enhancements',
-      title: 'Forbedringer',
+      id: 'v127-security-auth',
+      title: 'Sikkerhed & Autentificering',
       blocks: [
         {
           type: 'list',
           items: [
-            'Core Web Vitals-labels er gjort klarere og mere forståelige.',
-            'Antarktis skjules fra verdenskortet, medmindre der er besøgsdata.',
-            'Tilføjet en "Rapportér en bug"-knap direkte i appen.',
+            'Din konto-sikkerhed er blevet styrket og forbedret.',
+            'Patchet den seneste React Server Components-sårbarhed (CVE-2025-66478).',
           ],
         },
       ],
     },
     {
-      id: 'v126-bug-fixes',
-      title: 'Bugfixes',
+      id: 'v127-improvements-and-fixes',
+      title: 'Forbedringer & Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fikset et problem, der kunne forhindre Core Web Vitals-siden i at loade.',
-            'Løst sommertid-problemer, der påvirkede viste analyser.',
-            'Fikset et problem, hvor valg af fremtidige tidsintervaller ikke ville indlæse data.',
+            'Tilføjet en in-app "Rapporter en fejl"-knap for hurtig indsendelse af feedback.',
+            'Fikset side-per-session-beregninger, så metrikker nu nøjagtigt afspejler faktisk brug.',
           ],
         },
       ],
@@ -55,6 +53,59 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.7',
+      releasedAt: '2025-12-07',
+      title: 'Diagramannoteringer, kampagne-fokuseret visning og sikkerhedsstyrkelse',
+      summary:
+        'Kampagnesiden fokuserer nu på navngivne UTM-kampagner, hoveddiagrammer understøtter annotationer, autentificering er styrket, og flere pålidelighedsrettelser forbedrer nøjagtighed og sikkerhed.',
+    },
+    sections: [
+      {
+        id: 'v127-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Kampagnesiden er fuldstændig genopbygget med fokus på navngivne UTM-kampagner, hvilket giver tydeligere og mere meningsfuld indsigt end den tidligere aggregerede visning.',
+              'Du kan nu tilføje annotationer til hoveddiagrammer for at fremhæve vigtige begivenheder, udgivelser eller trafikændringer.',
+              'Sletning af et dashboard inkluderer nu en kort sikkerhedsnedtælling for at forhindre utilsigtet fjernelse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-security-auth',
+        title: 'Sikkerhed & Autentificering',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Autentificering er styrket, hvilket forbedrer sessionernes integritet og beskyttelse.',
+              'Patchet den seneste React Server Components-sårbarhed (CVE-2025-66478) ved at opdatere til den seneste sikre Next.js-udgivelse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-improvements-and-fixes',
+        title: 'Forbedringer & Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fikset en race condition, der kunne oprette dublerede abonnementer, når nye konti blev oprettet.',
+              'Korrigerede side-per-session-beregninger i Pages-visningen, så metrikkerne nu nøjagtigt afspejler faktisk brug.',
+              'Kontoverificering giver nu klarere feedback under verifikationsprocessen.',
+              'Changelog-popup-layoutet er nu optimeret til små skærme, hvilket forbedrer læsbarheden på mobile enheder.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.6',

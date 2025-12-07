@@ -6,8 +6,8 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
 import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
-import { createStripeCheckoutSession, createStripeCustomerPortalSession } from '@/actions/stripe';
-import type { UserBillingData } from '@/entities/billing';
+import { createStripeCheckoutSession, createStripeCustomerPortalSession } from '@/actions/stripe.action';
+import type { UserBillingData } from '@/entities/billing/billing.entities';
 import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
 import { useTranslations } from 'next-intl';
 

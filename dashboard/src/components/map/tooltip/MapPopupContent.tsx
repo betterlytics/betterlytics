@@ -4,7 +4,7 @@ import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
-import type { GeoVisitorWithCompare } from '@/entities/geography';
+import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { TimeRangeContextProps } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';

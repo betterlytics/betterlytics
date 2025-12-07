@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { UserSettings, UserSettingsUpdate } from '@/entities/userSettings';
+import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import { toast } from 'sonner';
 import UserProfileSettings from '@/components/userSettings/UserProfileSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';

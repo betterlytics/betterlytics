@@ -1,0 +1,112 @@
+'server-only';
+
+import {
+  type Funnel,
+  type CreateFunnel,
+  type FunnelDetails,
+  FunnelDetailsSchema,
+  FunnelPreview,
+  FunnelPreviewSchema,
+  FunnelStep,
+  UpdateFunnel,
+  UpdateFunnelSchema,
+} from '@/entities/analytics/funnels.entities';
+import * as PostgresFunnelRepository from '@/repositories/postgres/funnels.repository';
+import * as ClickhouseFunnelRepository from '@/repositories/clickhouse/funnels.repository';
+import { toDateTimeString } from '@/utils/dateFormatters';
+
+export async function getFunnelsByDashboardId(
+  dashboardId: string,
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+): Promise<FunnelDetails[]> {
+  const funnels = await PostgresFunnelRepository.getFunnelsByDashboardId(dashboardId);
+
+  const formattedStart = toDateTimeString(startDate);
+  const formattedEnd = toDateTimeString(endDate);
+
+  const funnelsDetails = await Promise.all(
+    funnels.map(async (funnel: Funnel) =>
+      FunnelDetailsSchema.parse({
+        ...funnel,
+        visitors: await ClickhouseFunnelRepository.getFunnelDetails(
+          siteId,
+          funnel.funnelSteps,
+          funnel.isStrict,
+          formattedStart,
+          formattedEnd,
+        ),
+      }),
+    ),
+  );
+  return funnelsDetails;
+}
+
+export async function getFunnelDetailsById(
+  siteId: string,
+  funnelId: string,
+  startDate: Date,
+  endDate: Date,
+): Promise<FunnelDetails | null> {
+  const funnel = await PostgresFunnelRepository.getFunnelById(funnelId);
+
+  if (funnel === null) {
+    return null;
+  }
+
+  const formattedStart = toDateTimeString(startDate);
+  const formattedEnd = toDateTimeString(endDate);
+
+  const visitors = await ClickhouseFunnelRepository.getFunnelDetails(
+    siteId,
+    funnel.funnelSteps,
+    funnel.isStrict,
+    formattedStart,
+    formattedEnd,
+  );
+
+  return FunnelDetailsSchema.parse({
+    ...funnel,
+    visitors,
+    isStrict: funnel.isStrict,
+  });
+}
+
+export async function createFunnelForDashboard(funnel: CreateFunnel) {
+  return PostgresFunnelRepository.createFunnel(funnel);
+}
+
+export async function getFunnelPreviewData(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  funnelSteps: FunnelStep[],
+  isStrict: boolean,
+): Promise<FunnelPreview> {
+  const formattedStart = toDateTimeString(startDate);
+  const formattedEnd = toDateTimeString(endDate);
+
+  const visitors = await ClickhouseFunnelRepository.getFunnelDetails(
+    siteId,
+    funnelSteps,
+    isStrict,
+    formattedStart,
+    formattedEnd,
+  );
+
+  return FunnelPreviewSchema.parse({
+    funnelSteps,
+    visitors,
+    isStrict,
+  });
+}
+
+export async function deleteFunnelFromDashboard(dashboardId: string, funnelId: string): Promise<void> {
+  return PostgresFunnelRepository.deleteFunnelById(dashboardId, funnelId);
+}
+
+export async function updateFunnelForDashboard(funnel: UpdateFunnel): Promise<void> {
+  const validatedFunnel = UpdateFunnelSchema.parse(funnel);
+  return PostgresFunnelRepository.updateFunnel(validatedFunnel);
+}

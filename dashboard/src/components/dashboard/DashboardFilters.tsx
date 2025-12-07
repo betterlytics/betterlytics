@@ -26,7 +26,6 @@ export default function DashboardFilters({
         {showQueryFilters && <QueryFiltersSelector />}
         <TimeRangeToolbar showComparison={showComparison} />
       </div>
-      {/* {showAutoRefresh && <AutoRefresh />} */}
       {showQueryFilters && <ActiveQueryFilters />}
       {isMobile && <div className='grid grid-cols-2 gap-2'>{children}</div>}
     </div>

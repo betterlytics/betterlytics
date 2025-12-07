@@ -1,9 +1,7 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Link } from '@/i18n/navigation';
 import Logo from '@/components/logo';
-import { getFirstUserDashboardAction } from '@/app/actions';
+import { getFirstUserDashboardAction } from '@/app/actions/index.actions';
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
@@ -13,9 +11,10 @@ import OnboardingPage from './OnboardingPage';
 import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
+import { getAuthSession } from '@/auth/auth-actions';
 
 export default async function Onboarding() {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   const t = await getTranslations('onboarding.main');
 
   if (!isFeatureEnabled('enableRegistration')) {

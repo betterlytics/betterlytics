@@ -3,8 +3,8 @@
 import { useTransition, useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { Trash2, AlertTriangle, Loader2 } from 'lucide-react';
-import { UserSettingsUpdate } from '@/entities/userSettings';
-import { deleteUserAccountAction } from '@/app/actions/userSettings';
+import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
+import { deleteUserAccountAction } from '@/app/actions/account/userSettings.action';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -20,6 +20,7 @@ import {
 import { toast } from 'sonner';
 import SettingsCard from '@/components/SettingsCard';
 import { useTranslations } from 'next-intl';
+import { CountdownButton } from '@/components/uiExtensions/CountdownButton';
 
 interface UserDangerZoneSettingsProps {
   formData: UserSettingsUpdate;
@@ -122,19 +123,13 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
                   {t('dialog.cancel')}
                 </AlertDialogCancel>
                 <AlertDialogAction asChild>
-                  <Button
-                    variant='destructive'
+                  <CountdownButton
                     onClick={handleDeleteAccount}
+                    isPending={isPending}
                     disabled={isPending || !canDelete}
-                    className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
                   >
-                    {isPending ? (
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    ) : (
-                      <Trash2 className='mr-2 h-4 w-4' />
-                    )}
                     {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
-                  </Button>
+                  </CountdownButton>
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
