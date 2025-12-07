@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteDashboardAction } from '@/app/actions';
+import { deleteDashboardAction } from '@/app/actions/index.actions';
 import SettingsCard from '@/components/SettingsCard';
 import {
   AlertDialog,

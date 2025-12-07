@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
-import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboardSettings';
-import { getDashboardSettingsAction, updateDashboardSettingsAction } from '@/app/actions/dashboardSettings';
+import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
+import {
+  getDashboardSettingsAction,
+  updateDashboardSettingsAction,
+} from '@/app/actions/dashboard/dashboardSettings.action';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 interface UseDashboardSettingsReturn {

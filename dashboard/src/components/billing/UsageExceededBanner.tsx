@@ -7,7 +7,7 @@ import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 
 interface UsageExceededBannerProps {
   billingDataPromise: ReturnType<typeof getUserBillingData>;

@@ -5,15 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { getCampaignSourceColor } from '@/utils/campaignColors';
+import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { Spinner } from '@/components/ui/spinner';
-import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/campaign';
+import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/analytics/campaign.entities';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
-import { UTM_DIMENSIONS } from '@/entities/campaign';
+import { UTM_DIMENSIONS } from '@/entities/analytics/campaign.entities';
 import PieChartTooltip from '@/components/charts/PieChartTooltip';
-import { formatPercentage } from '@/utils/formatters';
 
 type UTMBreakdownTabbedChartProps = {
   dashboardId: string;
@@ -149,9 +149,7 @@ export default function UTMBreakdownTabbedChart({
         <CardHeader className='px-0 pb-0'>
           <div className='flex flex-wrap items-center justify-between gap-2 sm:flex-row'>
             <CardTitle className='pb-2 text-sm font-medium sm:pb-0'>{t('chart.title')}</CardTitle>
-            <TabsList
-              className='bg-muted/30 flex h-auto flex-wrap justify-end gap-1 px-1 dark:inset-shadow-background inset-shadow-sm'
-            >
+            <TabsList className='bg-muted/30 dark:inset-shadow-background flex h-auto flex-wrap justify-end gap-1 px-1 inset-shadow-sm'>
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.key}

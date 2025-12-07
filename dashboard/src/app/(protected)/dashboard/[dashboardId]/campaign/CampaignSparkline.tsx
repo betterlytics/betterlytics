@@ -3,7 +3,7 @@
 import { memo, useId } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import type { TooltipProps } from 'recharts';
-import type { CampaignSparklinePoint } from '@/entities/campaign';
+import type { CampaignSparklinePoint } from '@/entities/analytics/campaign.entities';
 import { useTranslations } from 'next-intl';
 
 export type CampaignSparklineProps = {

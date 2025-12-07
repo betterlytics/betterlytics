@@ -6,8 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/DataTable';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
-import type { CampaignUTMBreakdownItem, CampaignLandingPagePerformanceItem } from '@/entities/campaign';
-import { UTM_DIMENSIONS, type UTMDimension } from '@/entities/campaign';
+import type {
+  CampaignUTMBreakdownItem,
+  CampaignLandingPagePerformanceItem,
+} from '@/entities/analytics/campaign.entities';
+import { UTM_DIMENSIONS, type UTMDimension } from '@/entities/analytics/campaign.entities';
 import { Spinner } from '@/components/ui/spinner';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';

@@ -1,6 +1,6 @@
 'server only';
 
-import { QueryFilter, QueryFilterSchema } from '@/entities/filter';
+import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
