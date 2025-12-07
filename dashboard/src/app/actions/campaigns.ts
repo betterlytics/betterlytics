@@ -1,135 +1,159 @@
 'use server';
 
 import {
-  fetchCampaignPerformance,
-  fetchCampaignSourceBreakdown,
-  fetchCampaignVisitorTrend,
-  fetchCampaignMediumBreakdown,
-  fetchCampaignContentBreakdown,
-  fetchCampaignTermBreakdown,
+  fetchCampaignDirectoryPage,
+  fetchCampaignUTMBreakdown,
   fetchCampaignLandingPagePerformance,
+  fetchCampaignAudienceProfile,
+  fetchCampaignSparklines,
 } from '@/services/campaign';
 import {
-  CampaignPerformance,
-  CampaignSourceBreakdownItem,
-  CampaignMediumBreakdownItem,
-  CampaignContentBreakdownItem,
-  CampaignTermBreakdownItem,
+  CampaignUTMBreakdownItem,
   CampaignLandingPagePerformanceItem,
+  CampaignSparklinePoint,
+  CampaignListRowSummary,
+  type UTMDimension,
 } from '@/entities/campaign';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
+import { formatPercentage } from '@/utils/formatters';
+
+function buildAudienceDistribution<
+  TLabelKey extends string,
+  TItem extends { visitors: number } & Record<TLabelKey, string>,
+>(audience: TItem[], labelKey: TLabelKey): { label: string; value: string }[] {
+  const totalVisitors = audience.reduce((sum, item) => sum + item.visitors, 0);
+
+  if (totalVisitors === 0) {
+    return [];
+  }
+
+  return audience.map((item) => ({
+    label: item[labelKey],
+    value: formatPercentage((item.visitors / totalVisitors) * 100, 0),
+  }));
+}
 
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignPerformance[]> => {
-    try {
-      const performanceData = await fetchCampaignPerformance(ctx.siteId, startDate, endDate);
-      return performanceData;
-    } catch (error) {
-      console.error('Error in fetchCampaignPerformanceAction:', error);
-      return [];
-    }
-  },
-);
-
-export const fetchCampaignSourceBreakdownAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignSourceBreakdownItem[]> => {
-    try {
-      const breakdownData = await fetchCampaignSourceBreakdown(ctx.siteId, startDate, endDate);
-      return breakdownData;
-    } catch (error) {
-      console.error('Error in fetchCampaignSourceBreakdownAction:', error);
-      return [];
-    }
-  },
-);
-
-export const fetchCampaignMediumBreakdownAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignMediumBreakdownItem[]> => {
-    try {
-      const breakdownData = await fetchCampaignMediumBreakdown(ctx.siteId, startDate, endDate);
-      return breakdownData;
-    } catch (error) {
-      console.error('Error in fetchCampaignMediumBreakdownAction:', error);
-      return [];
-    }
-  },
-);
-
-export const fetchCampaignContentBreakdownAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignContentBreakdownItem[]> => {
-    try {
-      const breakdownData = await fetchCampaignContentBreakdown(ctx.siteId, startDate, endDate);
-      return breakdownData;
-    } catch (error) {
-      console.error('Error in fetchCampaignContentBreakdownAction:', error);
-      return [];
-    }
-  },
-);
-
-export const fetchCampaignTermBreakdownAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignTermBreakdownItem[]> => {
-    try {
-      const breakdownData = await fetchCampaignTermBreakdown(ctx.siteId, startDate, endDate);
-      return breakdownData;
-    } catch (error) {
-      console.error('Error in fetchCampaignTermBreakdownAction:', error);
-      return [];
-    }
-  },
-);
-
-export const fetchCampaignLandingPagePerformanceAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date): Promise<CampaignLandingPagePerformanceItem[]> => {
-    try {
-      const performanceData = await fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate);
-      return performanceData;
-    } catch (error) {
-      console.error('Error in fetchCampaignLandingPagePerformanceAction:', error);
-      return [];
-    }
-  },
-);
-
-export const fetchCampaignVisitorTrendAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     startDate: Date,
     endDate: Date,
     granularity: GranularityRangeValues,
     timezone: string,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
+    pageIndex: number,
+    pageSize: number,
+  ): Promise<{
+    campaigns: CampaignListRowSummary[];
+    totalCampaigns: number;
+    pageIndex: number;
+    pageSize: number;
+  }> => {
     try {
-      const rawData = await fetchCampaignVisitorTrend(ctx.siteId, startDate, endDate, granularity, timezone);
-
-      const compareData =
-        compareStartDate &&
-        compareEndDate &&
-        (await fetchCampaignVisitorTrend(ctx.siteId, compareStartDate, compareEndDate, granularity, timezone));
-
-      const sortedCategories = getSortedCategories(rawData, 'utm_campaign', 'visitors');
-
-      const result = toStackedAreaChart({
-        data: rawData,
-        categoryKey: 'utm_campaign',
-        valueKey: 'visitors',
-        categories: sortedCategories,
+      const performancePage = await fetchCampaignDirectoryPage(
+        ctx.siteId,
+        startDate,
+        endDate,
         granularity,
-        dateRange: { start: startDate, end: endDate },
-        compare: compareData,
-        compareDateRange:
-          compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
-      });
-
-      return result;
+        timezone,
+        pageIndex,
+        pageSize,
+      );
+      return performancePage;
     } catch (error) {
-      console.error('Error in fetchCampaignVisitorTrendAction:', error);
-      return { data: [], categories: [] };
+      console.error('Error in fetchCampaignPerformanceAction:', error);
+      return {
+        campaigns: [],
+        totalCampaigns: 0,
+        pageIndex: 0,
+        pageSize,
+      };
+    }
+  },
+);
+
+export const fetchCampaignSparklinesAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    granularity: GranularityRangeValues,
+    timezone: string,
+    campaignNames: string[],
+  ): Promise<Record<string, CampaignSparklinePoint[]>> => {
+    try {
+      return fetchCampaignSparklines(ctx.siteId, startDate, endDate, granularity, timezone, campaignNames);
+    } catch (error) {
+      console.error('Error in fetchCampaignSparklinesAction:', error);
+      return {};
+    }
+  },
+);
+
+export type CampaignExpandedDetails = {
+  utmSource: CampaignUTMBreakdownItem[];
+  landingPages: CampaignLandingPagePerformanceItem[];
+  devices: { label: string; value: string }[];
+  countries: { label: string; value: string }[];
+  browsers: { label: string; value: string }[];
+  operatingSystems: { label: string; value: string }[];
+};
+
+export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    campaignName: string,
+  ): Promise<CampaignExpandedDetails> => {
+    try {
+      const [utmSource, landingPages, audienceProfile] = await Promise.all([
+        fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, 'source', campaignName),
+        fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
+      ]);
+
+      const devices = buildAudienceDistribution(audienceProfile.devices, 'device_type');
+      const countries = buildAudienceDistribution(audienceProfile.countries, 'country_code');
+      const browsers = buildAudienceDistribution(audienceProfile.browsers, 'browser');
+      const operatingSystems = buildAudienceDistribution(audienceProfile.operatingSystems, 'os');
+
+      return {
+        utmSource,
+        landingPages,
+        devices,
+        countries,
+        browsers,
+        operatingSystems,
+      };
+    } catch (error) {
+      console.error('Error in fetchCampaignExpandedDetailsAction:', error);
+      return {
+        utmSource: [],
+        landingPages: [],
+        devices: [],
+        countries: [],
+        browsers: [],
+        operatingSystems: [],
+      };
+    }
+  },
+);
+
+export const fetchCampaignUTMBreakdownAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    campaignName: string,
+    dimension: UTMDimension,
+  ): Promise<CampaignUTMBreakdownItem[]> => {
+    try {
+      return fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, dimension, campaignName);
+    } catch (error) {
+      console.error('Error in fetchCampaignUTMBreakdownAction:', error);
+      return [];
     }
   },
 );

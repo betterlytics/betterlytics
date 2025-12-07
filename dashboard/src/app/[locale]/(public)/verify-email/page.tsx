@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { verifyEmailAction } from '@/app/actions/auth/verification.action';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { XCircle, AlertCircle } from 'lucide-react';
 import { VerificationRedirectHandler } from '@/components/accountVerification/VerificationRedirectHandler';
 import { getTranslations } from 'next-intl/server';
+import VerifyEmailLoading from './loading';
 
 export async function generateMetadata() {
   return {
@@ -31,37 +33,9 @@ interface VerifyEmailPageProps {
   }>;
 }
 
-export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+async function VerificationResult({ token }: { token: string }) {
   const session = await getServerSession(authOptions);
-  const { token } = await searchParams;
   const t = await getTranslations('public.auth.verifyEmail');
-
-  if (!token) {
-    return (
-      <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
-        <div className='w-full max-w-md space-y-8'>
-          <div className='text-center'>
-            <div className='mb-6 flex justify-center'>
-              <Logo variant='full' width={200} height={60} priority />
-            </div>
-            <div className='bg-destructive/10 border-destructive/20 text-destructive rounded-lg border p-6'>
-              <XCircle className='mx-auto mb-4 h-12 w-12' />
-              <h2 className='mb-2 text-xl font-semibold'>{t('invalid.title')}</h2>
-              <p className='text-sm'>{t('invalid.description')}</p>
-            </div>
-            <div className='mt-6'>
-              <Link href='/signin'>
-                <Button variant='outline' className='w-full'>
-                  {t('invalid.backToSignIn')}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const result = await verifyEmailAction({ token });
 
   if (result.success) {
@@ -91,13 +65,13 @@ export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageP
           <div className='mt-6 space-y-3'>
             {session ? (
               <NextLink href='/dashboards'>
-                <Button variant='outline' className='w-full'>
+                <Button variant='outline' className='w-full cursor-pointer'>
                   {t('buttons.returnToDashboard')}
                 </Button>
               </NextLink>
             ) : (
               <Link href='/signin'>
-                <Button variant='outline' className='w-full'>
+                <Button variant='outline' className='w-full cursor-pointer'>
                   {t('buttons.backToSignIn')}
                 </Button>
               </Link>
@@ -107,5 +81,42 @@ export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageP
         </div>
       </div>
     </div>
+  );
+}
+
+export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+  const { token } = await searchParams;
+  const t = await getTranslations('public.auth.verifyEmail');
+
+  if (!token) {
+    return (
+      <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
+        <div className='w-full max-w-md space-y-8'>
+          <div className='text-center'>
+            <div className='mb-6 flex justify-center'>
+              <Logo variant='full' width={200} height={60} priority />
+            </div>
+            <div className='bg-destructive/10 border-destructive/20 text-destructive rounded-lg border p-6'>
+              <XCircle className='mx-auto mb-4 h-12 w-12' />
+              <h2 className='mb-2 text-xl font-semibold'>{t('invalid.title')}</h2>
+              <p className='text-sm'>{t('invalid.description')}</p>
+            </div>
+            <div className='mt-6'>
+              <Link href='/signin'>
+                <Button variant='outline' className='w-full cursor-pointer'>
+                  {t('invalid.backToSignIn')}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Suspense fallback={<VerifyEmailLoading />}>
+      <VerificationResult token={token} />
+    </Suspense>
   );
 }

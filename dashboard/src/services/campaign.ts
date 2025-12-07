@@ -2,37 +2,41 @@
 
 import {
   getCampaignPerformanceData,
-  getCampaignSourceBreakdownData,
   getCampaignVisitorTrendData,
-  getCampaignMediumBreakdownData,
-  getCampaignContentBreakdownData,
-  getCampaignTermBreakdownData,
   getCampaignLandingPagePerformanceData,
+  getCampaignAudienceProfileData,
+  getCampaignCount,
+  getCampaignPerformancePageData,
+  getCampaignUTMBreakdownData,
 } from '@/repositories/clickhouse/campaign';
 import {
   CampaignPerformance,
   CampaignPerformanceArraySchema,
-  CampaignSourceBreakdownItem,
-  CampaignSourceBreakdownArraySchema,
+  CampaignUTMBreakdownItem,
+  CampaignUTMBreakdownArraySchema,
   RawCampaignData,
-  RawCampaignSourceBreakdownItem,
+  RawCampaignUTMBreakdownItem,
   CampaignTrendRow,
-  CampaignMediumBreakdownItem,
-  CampaignMediumBreakdownArraySchema,
-  RawCampaignMediumBreakdownItem,
-  RawCampaignContentBreakdownItem,
-  CampaignContentBreakdownItem,
-  CampaignContentBreakdownArraySchema,
-  RawCampaignTermBreakdownItem,
-  CampaignTermBreakdownItem,
-  CampaignTermBreakdownArraySchema,
   RawCampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceItem,
   CampaignLandingPagePerformanceArraySchema,
+  CampaignSparklinePoint,
+  CampaignListRowSummary,
+  type UTMDimension,
 } from '@/entities/campaign';
+import {
+  BrowserInfoSchema,
+  DeviceTypeSchema,
+  OperatingSystemInfoSchema,
+  type BrowserInfo,
+  type DeviceType,
+  type OperatingSystemInfo,
+} from '@/entities/devices';
+import { GeoVisitorSchema, type GeoVisitor } from '@/entities/geography';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { formatDuration } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { toSparklineSeries } from '@/presenters/toAreaChart';
 
 interface RawMetricsData {
   total_sessions: number;
@@ -61,15 +65,36 @@ function calculateCommonCampaignMetrics(rawData: RawMetricsData): CalculatedMetr
   };
 }
 
-export async function fetchCampaignPerformance(
+export type CampaignPerformancePage = {
+  campaigns: CampaignPerformance[];
+  totalCampaigns: number;
+  pageIndex: number;
+  pageSize: number;
+};
+
+async function fetchCampaignPerformancePage(
   siteId: string,
   startDate: Date,
   endDate: Date,
-): Promise<CampaignPerformance[]> {
+  pageIndex: number,
+  pageSize: number,
+): Promise<CampaignPerformancePage> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  const rawCampaignData: RawCampaignData[] = await getCampaignPerformanceData(siteId, startDateTime, endDateTime);
+  const safePageSize = pageSize > 0 ? Math.min(pageSize, 100) : 10;
+  const totalCampaigns = await getCampaignCount(siteId, startDateTime, endDateTime);
+  const totalPages = Math.max(1, Math.ceil(totalCampaigns / safePageSize));
+  const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
+  const offset = safePageIndex * safePageSize;
+
+  const rawCampaignData: RawCampaignData[] = await getCampaignPerformancePageData(
+    siteId,
+    startDateTime,
+    endDateTime,
+    safePageSize,
+    offset,
+  );
 
   const transformedData: CampaignPerformance[] = rawCampaignData.map((raw: RawCampaignData) => {
     const metrics = calculateCommonCampaignMetrics(raw);
@@ -80,123 +105,88 @@ export async function fetchCampaignPerformance(
     };
   });
 
-  return CampaignPerformanceArraySchema.parse(transformedData);
+  const campaigns = CampaignPerformanceArraySchema.parse(transformedData);
+
+  return {
+    campaigns,
+    totalCampaigns,
+    pageIndex: safePageIndex,
+    pageSize: safePageSize,
+  };
 }
 
-export async function fetchCampaignSourceBreakdown(
+export type CampaignDirectoryPage = {
+  campaigns: CampaignListRowSummary[];
+  totalCampaigns: number;
+  pageIndex: number;
+  pageSize: number;
+};
+
+export async function fetchCampaignDirectoryPage(
   siteId: string,
   startDate: Date,
   endDate: Date,
-): Promise<CampaignSourceBreakdownItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
+  granularity: GranularityRangeValues,
+  timezone: string,
+  pageIndex: number,
+  pageSize: number,
+): Promise<CampaignDirectoryPage> {
+  const performancePage = await fetchCampaignPerformancePage(siteId, startDate, endDate, pageIndex, pageSize);
+  const campaignNames = performancePage.campaigns.map((campaign) => campaign.name);
 
-  const rawSourceData: RawCampaignSourceBreakdownItem[] = await getCampaignSourceBreakdownData(
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
+  const sparklineMap =
+    campaignNames.length > 0
+      ? await fetchCampaignSparklines(siteId, startDate, endDate, granularity, timezone, campaignNames)
+      : {};
 
-  const transformedData: CampaignSourceBreakdownItem[] = rawSourceData.map(
-    (raw: RawCampaignSourceBreakdownItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
-      return {
-        source: raw.source,
-        visitors: raw.total_visitors,
-        ...metrics,
-      };
-    },
-  );
+  const campaigns: CampaignListRowSummary[] = performancePage.campaigns.map((campaign) => ({
+    ...campaign,
+    sparkline: sparklineMap[campaign.name] ?? [],
+  }));
 
-  return CampaignSourceBreakdownArraySchema.parse(transformedData);
+  return {
+    campaigns,
+    totalCampaigns: performancePage.totalCampaigns,
+    pageIndex: performancePage.pageIndex,
+    pageSize: performancePage.pageSize,
+  };
 }
 
-export async function fetchCampaignMediumBreakdown(
+export async function fetchCampaignUTMBreakdown(
   siteId: string,
   startDate: Date,
   endDate: Date,
-): Promise<CampaignMediumBreakdownItem[]> {
+  dimension: UTMDimension,
+  campaignName?: string,
+): Promise<CampaignUTMBreakdownItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  const rawMediumData: RawCampaignMediumBreakdownItem[] = await getCampaignMediumBreakdownData(
+  const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(
     siteId,
     startDateTime,
     endDateTime,
+    dimension,
+    campaignName,
   );
 
-  const transformedData: CampaignMediumBreakdownItem[] = rawMediumData.map(
-    (raw: RawCampaignMediumBreakdownItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
-      return {
-        medium: raw.medium,
-        visitors: raw.total_visitors,
-        ...metrics,
-      };
-    },
-  );
-
-  return CampaignMediumBreakdownArraySchema.parse(transformedData);
-}
-
-export async function fetchCampaignContentBreakdown(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<CampaignContentBreakdownItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
-  const rawContentData: RawCampaignContentBreakdownItem[] = await getCampaignContentBreakdownData(
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
-
-  const transformedData: CampaignContentBreakdownItem[] = rawContentData.map(
-    (raw: RawCampaignContentBreakdownItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
-      return {
-        content: raw.content,
-        visitors: raw.total_visitors,
-        ...metrics,
-      };
-    },
-  );
-
-  return CampaignContentBreakdownArraySchema.parse(transformedData);
-}
-
-export async function fetchCampaignTermBreakdown(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<CampaignTermBreakdownItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
-  const rawTermData: RawCampaignTermBreakdownItem[] = await getCampaignTermBreakdownData(
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
-
-  const transformedData: CampaignTermBreakdownItem[] = rawTermData.map((raw: RawCampaignTermBreakdownItem) => {
+  const transformedData: CampaignUTMBreakdownItem[] = rawData.map((raw) => {
     const metrics = calculateCommonCampaignMetrics(raw);
     return {
-      term: raw.term,
+      label: raw.label,
       visitors: raw.total_visitors,
       ...metrics,
     };
   });
 
-  return CampaignTermBreakdownArraySchema.parse(transformedData);
+  return CampaignUTMBreakdownArraySchema.parse(transformedData);
 }
 
 export async function fetchCampaignLandingPagePerformance(
   siteId: string,
   startDate: Date,
   endDate: Date,
+  campaignName?: string,
 ): Promise<CampaignLandingPagePerformanceItem[]> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
@@ -205,6 +195,7 @@ export async function fetchCampaignLandingPagePerformance(
     siteId,
     startDateTime,
     endDateTime,
+    campaignName,
   );
 
   const transformedData: CampaignLandingPagePerformanceItem[] = rawLandingPageData.map(
@@ -222,15 +213,129 @@ export async function fetchCampaignLandingPagePerformance(
   return CampaignLandingPagePerformanceArraySchema.parse(transformedData);
 }
 
-export async function fetchCampaignVisitorTrend(
+export async function fetchCampaignSparklines(
   siteId: string,
   startDate: Date,
   endDate: Date,
   granularity: GranularityRangeValues,
   timezone: string,
-): Promise<CampaignTrendRow[]> {
+  campaignNames: string[],
+): Promise<Record<string, CampaignSparklinePoint[]>> {
+  if (campaignNames.length === 0) {
+    return {};
+  }
+
+  const safeGranularity = getSafeSparklineGranularity(granularity);
+
+  const trendRows = await getCampaignVisitorTrendData(
+    siteId,
+    toDateTimeString(startDate),
+    toDateTimeString(endDate),
+    safeGranularity,
+    timezone,
+    campaignNames,
+  );
+
+  const grouped = trendRows.reduce<Record<string, CampaignTrendRow[]>>((acc, row) => {
+    (acc[row.utm_campaign] ??= []).push(row);
+    return acc;
+  }, {});
+
+  const sparklineMap: Record<string, CampaignSparklinePoint[]> = {};
+
+  for (const campaignName of campaignNames) {
+    const rows = grouped[campaignName];
+    if (!rows || rows.length === 0) {
+      sparklineMap[campaignName] = [];
+      continue;
+    }
+
+    const sparkline = toSparklineSeries({
+      data: rows.map((row) => ({
+        date: row.date,
+        visitors: row.visitors,
+      })),
+      granularity: safeGranularity,
+      dataKey: 'visitors',
+      dateRange: { start: startDate, end: endDate },
+    }) as Array<{ date: Date; visitors: number }>;
+
+    sparklineMap[campaignName] = sparkline.map((point) => ({
+      date: point.date.toISOString(),
+      visitors: point.visitors,
+    }));
+  }
+
+  return sparklineMap;
+}
+
+export type CampaignAudienceProfileData = {
+  devices: DeviceType[];
+  countries: GeoVisitor[];
+  browsers: BrowserInfo[];
+  operatingSystems: OperatingSystemInfo[];
+};
+
+export async function fetchCampaignAudienceProfile(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  campaignName?: string,
+): Promise<CampaignAudienceProfileData> {
   const startDateTime = toDateTimeString(startDate);
   const endDateTime = toDateTimeString(endDate);
 
-  return getCampaignVisitorTrendData(siteId, startDateTime, endDateTime, granularity, timezone);
+  const AUDIENCE_DIMENSION_LIMIT = 3;
+
+  const raw = await getCampaignAudienceProfileData(
+    siteId,
+    startDateTime,
+    endDateTime,
+    campaignName,
+    AUDIENCE_DIMENSION_LIMIT,
+  );
+
+  const mapRows = <T>(dimension: string, mapper: (row: (typeof raw)[number]) => T): T[] =>
+    raw.filter((row) => row.dimension === dimension).map(mapper);
+
+  const devices = DeviceTypeSchema.array().parse(
+    mapRows('device', (row) => ({
+      device_type: row.label,
+      visitors: row.visitors,
+    })),
+  );
+
+  const countries = GeoVisitorSchema.array().parse(
+    mapRows('country', (row) => ({
+      country_code: row.label,
+      visitors: row.visitors,
+    })),
+  );
+
+  const browsers = BrowserInfoSchema.array().parse(
+    mapRows('browser', (row) => ({
+      browser: row.label,
+      visitors: row.visitors,
+    })),
+  );
+
+  const operatingSystems = OperatingSystemInfoSchema.array().parse(
+    mapRows('os', (row) => ({
+      os: row.label,
+      visitors: row.visitors,
+    })),
+  );
+
+  return {
+    devices,
+    countries,
+    browsers,
+    operatingSystems,
+  };
+}
+
+const SPARKLINE_ALLOWED_GRANULARITIES: GranularityRangeValues[] = ['day', 'hour', 'minute_30', 'minute_15'];
+
+function getSafeSparklineGranularity(granularity: GranularityRangeValues): GranularityRangeValues {
+  return SPARKLINE_ALLOWED_GRANULARITIES.includes(granularity) ? granularity : 'hour';
 }

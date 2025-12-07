@@ -6,6 +6,7 @@ import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/a
 import { withUserAuth } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
 import { User } from 'next-auth';
+import { setLocaleCookie } from '@/constants/cookies';
 
 export const getUserSettingsAction = withUserAuth(async (user: User): Promise<UserSettings> => {
   return UserSettingsService.getUserSettings(user.id);
@@ -13,7 +14,13 @@ export const getUserSettingsAction = withUserAuth(async (user: User): Promise<Us
 
 export const updateUserSettingsAction = withUserAuth(
   async (user: User, updates: UserSettingsUpdate): Promise<UserSettings> => {
-    return UserSettingsService.updateUserSettings(user.id, updates);
+    const result = await UserSettingsService.updateUserSettings(user.id, updates);
+
+    if (updates.language) {
+      await setLocaleCookie(updates.language);
+    }
+
+    return result;
   },
 );
 
