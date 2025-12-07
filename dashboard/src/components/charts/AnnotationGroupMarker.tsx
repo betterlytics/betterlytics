@@ -89,6 +89,7 @@ interface AnnotationGroupMarkerProps {
   onGroupClick: (group: AnnotationGroup, anchorRect: DOMRect) => void;
   onSingleClick: (annotation: ChartAnnotation) => void;
   isAnnotationMode?: boolean;
+  isDisabled?: boolean;
   cx?: number;
   cy?: number;
 }
@@ -101,6 +102,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   onGroupClick,
   onSingleClick,
   isAnnotationMode = false,
+  isDisabled = false,
   cx = 0,
   cy = 0,
 }) => {
@@ -231,8 +233,8 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
     <g
       onMouseEnter={() => onHoverPill?.(group.bucketDate)}
       onMouseLeave={() => onHoverPill?.(null)}
-      onClick={handleClick}
-      style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+      onClick={isDisabled ? undefined : handleClick}
+      style={{ pointerEvents: 'auto', cursor: isDisabled ? 'default' : 'pointer' }}
     >
       <rect
         x={cx - totalWidth / 2 - PILL.backdropPadding}
@@ -278,7 +280,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   );
 
   const renderMultiHint = () =>
-    isHovered && !isAnnotationMode && hasMultiple ? (
+    isHovered && !isAnnotationMode && hasMultiple && !isDisabled ? (
       <g>
         <rect
           x={cx - 60}

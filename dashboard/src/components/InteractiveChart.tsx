@@ -25,6 +25,7 @@ import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/Annotatio
 import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
 import { ANNOTATION_PILL_TEXT, groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
+import { useDemoMode } from '@/contexts/DemoModeContextProvider';
 
 const AXIS = {
   fontSize: 12,
@@ -90,6 +91,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   }) => {
     const locale = useLocale();
     const t = useTranslations('components.annotations.chart');
+    const isDemo = useDemoMode();
     const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
     const [chartWidth, setChartWidth] = useState<number>(800);
@@ -176,9 +178,13 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       [isAnnotationMode],
     );
 
-    const handleSingleAnnotationClick = useCallback((annotation: ChartAnnotation) => {
-      annotationDialogsRef.current?.openEditDialog(annotation);
-    }, []);
+    const handleSingleAnnotationClick = useCallback(
+      (annotation: ChartAnnotation) => {
+        if (isDemo) return;
+        annotationDialogsRef.current?.openEditDialog(annotation);
+      },
+      [isDemo],
+    );
 
     const handleAddAnnotation = useCallback(
       (annotation: Omit<ChartAnnotation, 'id'>) => {
@@ -188,14 +194,18 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       [onAddAnnotation],
     );
 
-    const handleGroupClick = useCallback((group: AnnotationGroup, anchorRect: DOMRect) => {
-      if (group.annotations.length === 1) {
-        annotationDialogsRef.current?.openEditDialog(group.annotations[0]);
-      } else {
-        setOpenGroup(group);
-        setPopoverAnchorRect(anchorRect);
-      }
-    }, []);
+    const handleGroupClick = useCallback(
+      (group: AnnotationGroup, anchorRect: DOMRect) => {
+        if (isDemo) return;
+        if (group.annotations.length === 1) {
+          annotationDialogsRef.current?.openEditDialog(group.annotations[0]);
+        } else {
+          setOpenGroup(group);
+          setPopoverAnchorRect(anchorRect);
+        }
+      },
+      [isDemo],
+    );
 
     const handleClosePopover = useCallback(() => {
       setOpenGroup(null);
@@ -237,7 +247,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
-            {onAddAnnotation && (
+            {onAddAnnotation && !isDemo && (
               <button
                 onClick={() => setIsAnnotationMode(!isAnnotationMode)}
                 className={`absolute top-0 right-0 z-10 rounded-md p-1.5 transition-colors ${
@@ -272,8 +282,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   bottom: CHART_MARGIN.bottom,
                   right: CHART_MARGIN.right,
                 }}
-                onClick={isAnnotationMode ? handleChartClick : undefined}
-                style={{ cursor: isAnnotationMode ? 'crosshair' : undefined }}
+                onClick={isAnnotationMode && !isDemo ? handleChartClick : undefined}
+                style={{ cursor: isAnnotationMode && !isDemo ? 'crosshair' : undefined }}
               >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
@@ -367,6 +377,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                         onGroupClick={handleGroupClick}
                         onSingleClick={handleSingleAnnotationClick}
                         isAnnotationMode={isAnnotationMode}
+                        isDisabled={isDemo}
                       />
                     }
                   />
