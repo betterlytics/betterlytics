@@ -67,10 +67,9 @@ model Session {
   userId       String
   expires      DateTime
   sessionToken String   @unique
-  accessToken  String   @unique
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -172,7 +171,6 @@ model Funnel {
 
   name     String
   isStrict Boolean @default(true)
-  queryFilters Json? // Optional, will be removed in the future
 
   funnelSteps FunnelStep[]
 

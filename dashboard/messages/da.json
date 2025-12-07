@@ -753,20 +753,40 @@
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Ugyldigt bekræftelseslink",
-          "description": "Bekræftelseslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen.",
-          "backToSignIn": "Tilbage til login"
+          "title": "Ugyldigt Verifikationslink",
+          "description": "Verifikationslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen.",
+          "backToSignIn": "Tilbage til Log ind"
         },
         "failed": {
-          "title": "Bekræftelse mislykkedes",
-          "expiredInfo": "Bekræftelseslinks udløber efter 24 timer af sikkerhedshensyn. Du kan anmode om et nyt og prøve igen.",
-          "genericFallback": "Der opstod en fejl under bekræftelsen."
+          "title": "Verifikation Mislykkedes",
+          "expiredInfo": "Verifikationslinks udløber efter 24 timer af sikkerhedsmæssige årsager. Du kan anmode om et nyt og prøve igen.",
+          "genericFallback": "Der opstod en fejl under verifikationen."
         },
         "buttons": {
-          "returnToDashboard": "Tilbage til dashboard",
-          "backToSignIn": "Tilbage til login"
+          "returnToDashboard": "Tilbage til Dashboard",
+          "backToSignIn": "Tilbage til Log ind"
         },
-        "helpLine": "Har du brug for hjælp? Kontakt support på support@betterlytics.io"
+        "helpLine": "Brug for hjælp? Kontakt support på support@betterlytics.io",
+        "loading": {
+          "title": "Verificerer...",
+          "description": "Vent venligst et øjeblik, mens vi bekræfter din e-mailadresse."
+        },
+        "success": {
+          "title": "E-mail Verificeret!",
+          "description": "Din e-mail er blevet verificeret.",
+          "celebration": "Velkommen ombord!",
+          "redirecting": "Sender dig videre til dit dashboard...",
+          "clickHere": "Klik her hvis du ikke omdirigeres automatisk",
+          "redirectingToSignin": "Sender dig videre til login...",
+          "errors": {
+            "redirectTimeout": "Omdirigeringen tager længere tid end forventet.",
+            "redirectFailed": "Noget gik galt under omdirigeringen."
+          }
+        },
+        "verifying": {
+          "title": "Verificerer din e-mail...",
+          "description": "Vent venligst mens vi bekræfter din e-mailadresse."
+        }
       }
     },
     "demo": {
@@ -1337,57 +1357,59 @@
       }
     },
     "campaign": {
-      "tabs": {
-        "overview": "Oversigt",
-        "utmBreakdowns": "UTM-opdeling",
-        "landingPages": "Landingssider"
+      "title": "Kampagner",
+      "pagination": {
+        "pageOf": "Side {currentPage} af {totalPages}",
+        "showing": "Viser {startItem}-{endItem} af {totalItems} kampagner",
+        "perPage": "pr. side"
       },
-      "page": {
-        "title": "Kampagner",
-        "description": "Kampagneperformance analyser og indsigter"
+      "emptyState": {
+        "title": "Ingen kampagner registreret endnu",
+        "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for at se performance-metrics.",
+        "docsHint": "Brug for hjælp til at få kampagner til at dukke op?",
+        "docsLinkLabel": "Læs guiden til kampagnesporing"
       },
-      "performance": {
-        "title": "Kampagneperformance",
-        "columns": {
-          "campaignName": "Kampagnenavn",
-          "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
-          "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
-        }
+      "loading": "Indlæser kampagner...",
+      "campaignRow": {
+        "sessions": "{count, plural, one {# session} other {# sessioner}}",
+        "bounceRate": "Afvisningsprocent",
+        "avgSessionDuration": "Gns. varighed",
+        "pagesPerSession": "Sider pr. session",
+        "campaignDetails": "Kampagnedetaljer"
       },
-      "trend": {
-        "title": "Kampagne-besøgendetrend"
+      "campaignExpandedRow": {
+        "onlyAvailableOnLargerScreens": "Den detaljerede UTM-tabel er kun tilgængelig på større skærme.",
+        "loading": "Indlæser kampagnedetaljer...",
+        "error": "Kunne ikke indlæse kampagnedetaljer. Prøv igen.",
+        "campaignDetails": "Kampagnedetaljer"
+      },
+      "audienceProfile": {
+        "title": "Målgruppeprofil",
+        "noData": "Ingen målgruppedata for denne kampagne i det valgte interval.",
+        "deviceTitle": "Enheder",
+        "browserTitle": "Browsere",
+        "osTitle": "Operativsystem",
+        "countryTitle": "Lande"
       },
       "utm": {
         "table": {
-          "title": "UTM-parameteropdeling"
+          "title": "UTM-parameteroversigt"
         },
         "chart": {
           "title": "UTM-fordeling"
         },
         "tabs": {
+          "entryPages": "Indgangssider",
           "source": "Kilde",
           "medium": "Medium",
           "content": "Indhold",
-          "terms": "Termer"
+          "term": "Term"
         },
         "columns": {
           "visitors": "Besøgende",
           "bounceRate": "Afvisningsprocent",
           "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
-        }
-      },
-      "landing": {
-        "title": "Kampagne landingsside-performance",
-        "columns": {
-          "campaignName": "Kampagnenavn",
-          "landingPageUrl": "Landingsside-URL",
-          "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
-          "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
+          "pagesPerSession": "Sider / session"
         }
       }
     },

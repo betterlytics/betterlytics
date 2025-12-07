@@ -1,4 +1,4 @@
-import { type QueryFilter } from '@/entities/filter';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { useCallback, useState } from 'react';
 

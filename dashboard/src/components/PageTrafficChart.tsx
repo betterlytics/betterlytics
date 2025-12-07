@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { TotalPageViewsRow } from '@/entities/pageviews';
+import { TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { timeFormat } from 'd3-time-format';
 import { GranularityRangeValues } from '@/utils/granularityRanges';

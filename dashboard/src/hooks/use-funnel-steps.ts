@@ -1,4 +1,4 @@
-import { type FunnelStep } from '@/entities/funnels';
+import { type FunnelStep } from '@/entities/analytics/funnels.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { useCallback, useLayoutEffect, useState } from 'react';
 

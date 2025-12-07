@@ -30,7 +30,7 @@ import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
 import type { ReactElement } from 'react';
-import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
+import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
 import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { DashboardDropdown } from './DashboardDropdown';
 
@@ -38,7 +38,7 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { Dashboard } from '@/entities/dashboard';
+import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 
 type BASidebarProps = {
   dashboardId: string;

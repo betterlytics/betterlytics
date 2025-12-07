@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { FileText, Plus, X } from 'lucide-react';
-import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
+import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
 import { z } from 'zod';
 import SettingsCard from '@/components/SettingsCard';
 

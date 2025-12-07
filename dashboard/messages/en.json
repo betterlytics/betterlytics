@@ -766,7 +766,27 @@
           "returnToDashboard": "Return to Dashboard",
           "backToSignIn": "Back to Sign In"
         },
-        "helpLine": "Need help? Contact support at support@betterlytics.io"
+        "helpLine": "Need help? Contact support at support@betterlytics.io",
+        "loading": {
+          "title": "Verifying...",
+          "description": "Please wait a moment while we verify your email address."
+        },
+        "success": {
+          "title": "Email Verified!",
+          "description": "Your email has been successfully verified.",
+          "celebration": "Welcome aboard!",
+          "redirecting": "Taking you to your dashboard...",
+          "clickHere": "Click here if not redirected automatically",
+          "redirectingToSignin": "Taking you to sign in...",
+          "errors": {
+            "redirectTimeout": "Redirect is taking longer than expected.",
+            "redirectFailed": "Something went wrong during the redirect."
+          }
+        },
+        "verifying": {
+          "title": "Verifying your email...",
+          "description": "Please wait while we confirm your email address."
+        }
       }
     },
     "demo": {
@@ -1334,27 +1354,39 @@
       }
     },
     "campaign": {
-      "tabs": {
-        "overview": "Overview",
-        "utmBreakdowns": "UTM Breakdowns",
-        "landingPages": "Landing Pages"
+      "title": "Campaigns",
+      "pagination": {
+        "pageOf": "Page {currentPage} of {totalPages}",
+        "showing": "Showing {startItem}-{endItem} of {totalItems} campaigns",
+        "perPage": "per page"
       },
-      "page": {
-        "title": "Campaigns",
-        "description": "Campaign performance analytics and insights"
+      "emptyState": {
+        "title": "No campaigns captured yet",
+        "description": "Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to view performance metrics.",
+        "docsHint": "Need help getting campaigns to show up?",
+        "docsLinkLabel": "Read the campaign tracking guide"
       },
-      "performance": {
-        "title": "Campaign Performance",
-        "columns": {
-          "campaignName": "Campaign Name",
-          "visitors": "Visitors",
-          "bounceRate": "Bounce Rate",
-          "avgSessionDuration": "Avg. Session Duration",
-          "pagesPerSession": "Pages / Session"
-        }
+      "loading": "Loading campaigns...",
+      "campaignRow": {
+        "sessions": "{count, plural, one {# session} other {# sessions}}",
+        "bounceRate": "Bounce Rate",
+        "avgSessionDuration": "Avg. Duration",
+        "pagesPerSession": "Pages / Session",
+        "campaignDetails": "Campaign Details"
       },
-      "trend": {
-        "title": "Campaign Visitor Trend"
+      "campaignExpandedRow": {
+        "onlyAvailableOnLargerScreens": "Detailed UTM table is only available on larger screens.",
+        "loading": "Loading campaign details...",
+        "error": "Failed to load campaign details. Please try again.",
+        "campaignDetails": "Campaign Details"
+      },
+      "audienceProfile": {
+        "title": "Audience Profile",
+        "noData": "No audience data for this campaign in the selected range.",
+        "deviceTitle": "devices",
+        "browserTitle": "browsers",
+        "osTitle": "OS",
+        "countryTitle": "countries"
       },
       "utm": {
         "table": {
@@ -1364,23 +1396,13 @@
           "title": "UTM Distribution"
         },
         "tabs": {
+          "entryPages": "Entry Pages",
           "source": "Source",
           "medium": "Medium",
           "content": "Content",
-          "terms": "Terms"
+          "term": "Term"
         },
         "columns": {
-          "visitors": "Visitors",
-          "bounceRate": "Bounce Rate",
-          "avgSessionDuration": "Avg. Session Duration",
-          "pagesPerSession": "Pages / Session"
-        }
-      },
-      "landing": {
-        "title": "Campaign Landing Page Performance",
-        "columns": {
-          "campaignName": "Campaign Name",
-          "landingPageUrl": "Landing Page URL",
           "visitors": "Visitors",
           "bounceRate": "Bounce Rate",
           "avgSessionDuration": "Avg. Session Duration",

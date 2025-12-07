@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteDashboardAction } from '@/app/actions';
+import { deleteDashboardAction } from '@/app/actions/index.actions';
 import SettingsCard from '@/components/SettingsCard';
 import {
   AlertDialog,
@@ -17,15 +17,19 @@ import { Button } from '@/components/ui/button';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { useBARouter } from '@/hooks/use-ba-router';
-import { startTransition, useState } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useCountdown } from '@/hooks/use-countdown';
+import { CountdownButton } from '@/components/uiExtensions/CountdownButton';
 
 export default function DangerZoneSettings() {
   const dashboardId = useDashboardId();
   const router = useBARouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const t = useTranslations('components.dashboardSettingsDialog.danger');
+  const { countdown, isFinished: canDelete } = useCountdown({ initialValue: 5, isRunning: isDialogOpen });
+  const [isPending, startTransition] = useTransition();
 
   const handleDeleteDashboard = async () => {
     startTransition(async () => {
@@ -70,14 +74,14 @@ export default function DangerZoneSettings() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className='cursor-pointer'>{t('dialog.cancel')}</AlertDialogCancel>
-              <AlertDialogAction asChild onClick={handleDeleteDashboard}>
-                <Button
-                  variant='destructive'
-                  className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
+              <AlertDialogAction asChild>
+                <CountdownButton
+                  isPending={isPending}
+                  disabled={isPending || !canDelete}
+                  onClick={handleDeleteDashboard}
                 >
-                  <Trash2 className='h-4 w-4' />
-                  {t('dialog.confirm')}
-                </Button>
+                  {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
+                </CountdownButton>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -6,10 +6,10 @@ import { Progress } from '@/components/ui/progress';
 import { Calendar, TrendingUp, AlertTriangle, ExternalLink, AlertCircle } from 'lucide-react';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { formatPrice } from '@/utils/pricing';
-import { createStripeCustomerPortalSession } from '@/actions/stripe';
+import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
 import { toast } from 'sonner';
-import type { UserBillingData } from '@/entities/billing';
+import type { UserBillingData } from '@/entities/billing/billing.entities';
 import { useTranslations } from 'next-intl';
 
 interface CurrentPlanCardProps {
