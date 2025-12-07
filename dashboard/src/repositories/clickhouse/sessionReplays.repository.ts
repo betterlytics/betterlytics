@@ -3,9 +3,9 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays';
+import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
 import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 
 export async function getSessionReplays(
   siteId: string,

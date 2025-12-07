@@ -16,7 +16,7 @@ import { postFunnelAction } from '@/app/actions/index.action';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { toast } from 'sonner';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
-import { CreateFunnelSchema } from '@/entities/analytics/funnels';
+import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { FunnelDialogContent } from './FunnelDialogContent';
 

@@ -1,7 +1,7 @@
 'server-only';
 
-import { UpdateUserData } from '@/entities/auth/user';
-import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings';
+import { UpdateUserData } from '@/entities/auth/user.entities';
+import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
 import * as UserRepository from '@/repositories/postgres/user.repository';
 import { UserException } from '@/lib/exceptions';

@@ -11,7 +11,7 @@ import {
   RawCampaignLandingPagePerformanceArraySchema,
   type UTMDimension,
   UTM_DIMENSION_TO_KEY,
-} from '@/entities/campaign';
+} from '@/entities/analytics/campaign.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';

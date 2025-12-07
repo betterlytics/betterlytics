@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useFunnelSteps } from '@/hooks/use-funnel-steps';
 import { useQuery } from '@tanstack/react-query';
 import { fetchFunnelPreviewAction } from '@/app/actions/index.action';
-import type { FunnelStep } from '@/entities/analytics/funnels';
+import type { FunnelStep } from '@/entities/analytics/funnels.entities';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 export type FunnelMetadata = {

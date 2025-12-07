@@ -5,7 +5,7 @@ import {
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
   buildStarterSubscription,
-} from '@/entities/billing/billing';
+} from '@/entities/billing/billing.entities';
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {

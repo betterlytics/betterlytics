@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import type { Currency } from '@/entities/billing/billing';
+import type { Currency } from '@/entities/billing/billing.entities';
 import { stripe } from '@/lib/billing/stripe';
 import { getTierConfigFromLookupKey } from '@/lib/billing/plans';
 import { addMonths } from 'date-fns';

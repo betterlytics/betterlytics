@@ -10,7 +10,7 @@ import {
   FunnelStep,
   UpdateFunnel,
   UpdateFunnelSchema,
-} from '@/entities/analytics/funnels';
+} from '@/entities/analytics/funnels.entities';
 import * as PostgresFunnelRepository from '@/repositories/postgres/funnels.repository';
 import * as ClickhouseFunnelRepository from '@/repositories/clickhouse/funnels.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';

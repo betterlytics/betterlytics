@@ -1,6 +1,6 @@
 'use client';
 
-import type { GeoVisitorWithCompare } from '@/entities/analytics/geography';
+import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { createContext, useCallback, useContext } from 'react';

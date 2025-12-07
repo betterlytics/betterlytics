@@ -1,5 +1,5 @@
 import React, { type Dispatch, type SetStateAction } from 'react';
-import { type QueryFilter } from '@/entities/analytics/filter';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { useQueryFilters } from '@/hooks/use-query-filters';
 
 type QueryFiltersContextProps = {

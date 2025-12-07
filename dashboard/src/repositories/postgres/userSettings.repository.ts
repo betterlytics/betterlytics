@@ -5,7 +5,7 @@ import {
   UserSettingsUpdate,
   UserSettingsUpdateSchema,
   UserSettingsCreateSchema,
-} from '@/entities/account/userSettings';
+} from '@/entities/account/userSettings.entities';
 
 export async function findSettingsByUserId(userId: string): Promise<UserSettings | null> {
   try {

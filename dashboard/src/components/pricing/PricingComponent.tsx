@@ -5,7 +5,7 @@ import { PricingSlider } from './PricingSlider';
 import { PricingCards } from './PricingCards';
 import { SelectedPlan } from '@/types/pricing';
 import { EVENT_RANGES } from '@/lib/billing/plans';
-import type { Currency, UserBillingData } from '@/entities/billing/billing';
+import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
 import {
   Select,
   SelectContent,

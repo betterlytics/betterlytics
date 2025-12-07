@@ -5,7 +5,7 @@ import {
   hasCoreWebVitalsData,
 } from '@/repositories/clickhouse/webVitals.repository';
 import { CoreWebVitalsSummary, type CWVDimension, type CoreWebVitalName } from '@/entities/analytics/webVitals';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 

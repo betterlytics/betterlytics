@@ -1,8 +1,8 @@
 'use server';
 
-import { UpdateUserData, UpdateUserSchema } from '@/entities/auth/user';
-import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings';
-import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password';
+import { UpdateUserData, UpdateUserSchema } from '@/entities/auth/user.entities';
+import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
+import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password.entities';
 import { withUserAuth } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
 import { User } from 'next-auth';

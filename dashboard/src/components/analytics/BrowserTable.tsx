@@ -1,6 +1,6 @@
 'use client';
 
-import { BrowserStats } from '@/entities/analytics/devices';
+import { BrowserStats } from '@/entities/analytics/devices.entities';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { BrowserIcon } from '@/components/icons';

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Monitor } from 'lucide-react';
-import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings';
+import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
 import { TIME_RANGE_PRESETS } from '@/utils/timeRanges';
 import SettingsCard from '@/components/SettingsCard';
 

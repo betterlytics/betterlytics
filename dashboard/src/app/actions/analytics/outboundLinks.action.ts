@@ -7,9 +7,9 @@ import {
   getOutboundLinksDistributionForSite,
 } from '@/services/analytics/outboundLinks.service';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
+import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toAreaChart } from '@/presenters/toAreaChart';
 import { toPieChart } from '@/presenters/toPieChart';

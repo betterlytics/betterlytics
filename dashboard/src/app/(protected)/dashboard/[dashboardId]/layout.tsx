@@ -18,7 +18,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
-import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard';
+import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entities';
 import { env } from '@/lib/env';
 
 type DashboardLayoutProps = {

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
 import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
 import { createStripeCheckoutSession, createStripeCustomerPortalSession } from '@/actions/stripe.action';
-import type { UserBillingData } from '@/entities/billing/billing';
+import type { UserBillingData } from '@/entities/billing/billing.entities';
 import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
 import { useTranslations } from 'next-intl';
 

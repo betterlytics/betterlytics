@@ -1,6 +1,6 @@
 'server-only';
 
-import { FilterColumn } from '@/entities/analytics/filter';
+import { FilterColumn } from '@/entities/analytics/filter.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { getFilterDistinctValues } from '@/repositories/clickhouse/filters.repository';
 

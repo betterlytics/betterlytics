@@ -10,9 +10,9 @@ import {
   DashboardWithSiteConfigSchema,
   DashboardWriteData,
   DashboardWriteSchema,
-} from '@/entities/dashboard/dashboard';
-import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings';
-import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig';
+} from '@/entities/dashboard/dashboard.entities';
+import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
+import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {

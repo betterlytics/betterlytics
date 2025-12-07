@@ -5,7 +5,7 @@ import { useBARouter } from '@/hooks/use-ba-router';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
 import { registerUserAction } from '@/app/actions/index.action';
-import { RegisterUserSchema } from '@/entities/auth/user';
+import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { ZodError } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

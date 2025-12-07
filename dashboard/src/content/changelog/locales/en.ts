@@ -1,4 +1,4 @@
-import type { ChangelogEntryData } from '@/entities/system/changelog';
+import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {

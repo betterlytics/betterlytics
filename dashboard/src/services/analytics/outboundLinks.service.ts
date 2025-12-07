@@ -13,9 +13,9 @@ import {
   OutboundLinksSummaryWithCharts,
   OutboundLinksSummaryWithChartsSchema,
   TopOutboundLinksDistrubution,
-} from '@/entities/analytics/outboundLinks';
+} from '@/entities/analytics/outboundLinks.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 
 export async function getOutboundLinksAnalyticsForSite(
   siteId: string,

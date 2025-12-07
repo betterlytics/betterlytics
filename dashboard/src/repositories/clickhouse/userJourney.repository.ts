@@ -1,8 +1,8 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { SequentialPath, SequentialPathSchema } from '@/entities/analytics/userJourney';
+import { SequentialPath, SequentialPathSchema } from '@/entities/analytics/userJourney.entities';
 import { DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
 
 /**

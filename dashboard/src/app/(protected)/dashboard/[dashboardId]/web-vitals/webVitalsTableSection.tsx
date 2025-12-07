@@ -16,7 +16,7 @@ import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import type { FilterColumn } from '@/entities/analytics/filter';
+import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];

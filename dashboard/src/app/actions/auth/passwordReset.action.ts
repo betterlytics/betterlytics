@@ -5,7 +5,7 @@ import {
   ForgotPasswordSchema,
   ResetPasswordData,
   ResetPasswordSchema,
-} from '@/entities/auth/passwordReset';
+} from '@/entities/auth/passwordReset.entities';
 import { initiatePasswordReset, resetPassword, validateResetToken } from '@/services/auth/passwordReset.service';
 
 export async function forgotPasswordAction(formData: ForgotPasswordData) {

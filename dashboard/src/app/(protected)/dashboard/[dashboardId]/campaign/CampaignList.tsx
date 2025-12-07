@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import type { CampaignListRowSummary } from '@/entities/campaign';
+import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';

@@ -1,8 +1,8 @@
 'use server';
 
-import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings';
+import { DashboardSettings, DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
+import { AuthContext } from '@/entities/auth/authContext.entities';
 import * as SettingsService from '@/services/dashboard/dashboardSettings.service';
 
 export const getDashboardSettingsAction = withDashboardAuthContext(

@@ -1,9 +1,9 @@
 'use server';
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
-import { SessionReplay, ReplaySegmentManifest } from '@/entities/analytics/sessionReplays';
-import { type QueryFilter } from '@/entities/analytics/filter';
+import { AuthContext } from '@/entities/auth/authContext.entities';
+import { SessionReplay, ReplaySegmentManifest } from '@/entities/analytics/sessionReplays.entities';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getReplaySegmentManifest, getSessionReplaysForSite } from '@/services/analytics/sessionReplays.service';
 
 export const fetchSessionReplaysAction = withDashboardAuthContext(

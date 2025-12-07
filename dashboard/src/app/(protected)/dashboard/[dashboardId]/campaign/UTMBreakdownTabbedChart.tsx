@@ -9,10 +9,10 @@ import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { Spinner } from '@/components/ui/spinner';
-import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/campaign';
+import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/analytics/campaign.entities';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
-import { UTM_DIMENSIONS } from '@/entities/campaign';
+import { UTM_DIMENSIONS } from '@/entities/analytics/campaign.entities';
 import PieChartTooltip from '@/components/charts/PieChartTooltip';
 
 type UTMBreakdownTabbedChartProps = {

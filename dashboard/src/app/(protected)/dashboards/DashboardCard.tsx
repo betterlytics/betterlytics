@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useBARouter } from '@/hooks/use-ba-router';
-import { Dashboard } from '@/entities/dashboard/dashboard';
+import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Calendar, Settings } from 'lucide-react';
 import { useFormattedDate } from '@/hooks/use-formatted-date';

@@ -5,7 +5,7 @@ import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
 import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
-import type { WorldMapResponse } from '@/entities/analytics/geography';
+import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';

@@ -16,10 +16,10 @@ import {
   OperatingSystemStats,
   OperatingSystemStatsSchema,
   DeviceUsageTrendRow,
-} from '@/entities/analytics/devices';
+} from '@/entities/analytics/devices.entities';
 import { getDeviceLabel } from '@/constants/deviceTypes';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { TimeRangeValue } from '@/utils/timeRanges';
 
 export async function getDeviceTypeBreakdownForSite(

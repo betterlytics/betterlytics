@@ -7,8 +7,8 @@ import {
   getRecentEventsForSite,
   getTotalEventCountForSite,
 } from '@/services/analytics/events.service';
-import { type AuthContext } from '@/entities/auth/authContext';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { type AuthContext } from '@/entities/auth/authContext.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 
 export const fetchCustomEventsOverviewAction = withDashboardAuthContext(

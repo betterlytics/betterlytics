@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PasswordSchema } from './user';
+import { PasswordSchema } from './user.entities';
 
 export const ForgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

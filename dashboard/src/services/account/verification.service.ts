@@ -17,7 +17,7 @@ import {
   VerifyEmailData,
   VerifyEmailSchema,
   VerificationResult,
-} from '@/entities/account/verification';
+} from '@/entities/account/verification.entities';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 import { addMinutes, isBefore, subMinutes } from 'date-fns';
 import { isFeatureEnabled } from '@/lib/feature-flags';

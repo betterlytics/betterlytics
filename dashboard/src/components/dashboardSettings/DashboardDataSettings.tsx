@@ -3,7 +3,7 @@
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Ban, Database, Shield, Plus } from 'lucide-react';
-import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings';
+import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import SettingsCard from '@/components/SettingsCard';
 import { useTranslations } from 'next-intl';
@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import type { SiteConfigUpdate } from '@/entities/dashboard/siteConfig';
+import type { SiteConfigUpdate } from '@/entities/dashboard/siteConfig.entities';
 import { isIP } from 'is-ip';
 import isCidr from 'is-cidr';
 

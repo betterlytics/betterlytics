@@ -1,9 +1,9 @@
 'server-only';
 
 import { getUserSequentialPaths } from '@/repositories/clickhouse/userJourney.repository';
-import { SankeyData, SankeyNode, SankeyLink, SequentialPath } from '@/entities/analytics/userJourney';
+import { SankeyData, SankeyNode, SankeyLink, SequentialPath } from '@/entities/analytics/userJourney.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 
 /**
  * Fetches user journey data and transforms it into Sankey diagram format

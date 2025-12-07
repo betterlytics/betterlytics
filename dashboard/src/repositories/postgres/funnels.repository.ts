@@ -4,7 +4,7 @@ import {
   Funnel,
   FunnelSchema,
   UpdateFunnel,
-} from '@/entities/analytics/funnels';
+} from '@/entities/analytics/funnels.entities';
 import prisma from '@/lib/postgres';
 
 export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Funnel[]> {

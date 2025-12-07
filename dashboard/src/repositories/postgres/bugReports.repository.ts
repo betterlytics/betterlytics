@@ -4,7 +4,7 @@ import {
   type BugReportCreate,
   BugReportCreateSchema,
   BugReportSchema,
-} from '@/entities/system/bugReport';
+} from '@/entities/system/bugReport.entities';
 
 export async function createBugReport(data: BugReportCreate): Promise<BugReport> {
   try {

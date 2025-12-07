@@ -2,7 +2,7 @@
 
 import { getFilterOptionsAction } from '@/app/actions/analytics/filters.action';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';

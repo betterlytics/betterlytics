@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchCampaignUTMBreakdownAction } from '@/app/actions/campaigns';
-import { CampaignUTMBreakdownItem, type UTMDimension } from '@/entities/campaign';
+import { CampaignUTMBreakdownItem, type UTMDimension } from '@/entities/analytics/campaign.entities';
 
 type UseUTMBreakdownDataOptions = {
   dashboardId: string;

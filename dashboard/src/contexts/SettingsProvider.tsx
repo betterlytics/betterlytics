@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { DashboardSettings } from '@/entities/dashboard/dashboardSettings';
+import { DashboardSettings } from '@/entities/dashboard/dashboardSettings.entities';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 
 type SettingsContextType = {

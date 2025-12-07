@@ -1,9 +1,9 @@
 'use server';
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
-import { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { AuthContext } from '@/entities/auth/authContext.entities';
+import { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { getWeeklyHeatmapForSite } from '@/services/analytics/weeklyHeatmap.service';
 import { toWeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 

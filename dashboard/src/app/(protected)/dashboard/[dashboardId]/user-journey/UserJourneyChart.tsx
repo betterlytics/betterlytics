@@ -1,6 +1,6 @@
 'use client';
 
-import { SankeyData } from '@/entities/analytics/userJourney';
+import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { useTranslations } from 'next-intl';
 import { Sankey, Rectangle, ResponsiveContainer, Layer, Text } from 'recharts';
 import { useState, useRef, useEffect, useMemo, memo, useCallback } from 'react';

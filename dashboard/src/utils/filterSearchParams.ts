@@ -2,7 +2,7 @@ import {
   FilterQueryParams,
   FilterQueryParamsSchema,
   FilterQuerySearchParams,
-} from '@/entities/analytics/filterQueryParams';
+} from '@/entities/analytics/filterQueryParams.entities';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';

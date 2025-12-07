@@ -1,5 +1,5 @@
 import prisma from '@/lib/postgres';
-import { CreateVerificationTokenData, VerificationToken } from '@/entities/account/verification';
+import { CreateVerificationTokenData, VerificationToken } from '@/entities/account/verification.entities';
 
 export async function createVerificationToken(data: CreateVerificationTokenData): Promise<VerificationToken> {
   try {

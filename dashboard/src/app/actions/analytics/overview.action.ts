@@ -1,6 +1,6 @@
 'use server';
 
-import { TopEntryPageRow, TopExitPageRow, PageAnalyticsCombinedSchema } from '@/entities/analytics/pages';
+import { TopEntryPageRow, TopExitPageRow, PageAnalyticsCombinedSchema } from '@/entities/analytics/pages.entities';
 import {
   getTopPagesForSite,
   getTotalPageViewsForSite,
@@ -10,9 +10,9 @@ import {
 import { getSummaryStatsWithChartsForSite } from '@/services/analytics/visitors.service';
 import { getUniqueVisitorsForSite } from '@/services/analytics/visitors.service';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
+import { AuthContext } from '@/entities/auth/authContext.entities';
 import { getSessionMetrics } from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';

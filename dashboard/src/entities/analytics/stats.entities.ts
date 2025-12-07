@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { DailyUniqueVisitorsRowSchema } from './visitors';
-import { TotalPageViewRowSchema } from './pageviews';
-import { DailySessionMetricsRowSchema } from './sessionMetrics';
+import { DailyUniqueVisitorsRowSchema } from './visitors.entities';
+import { TotalPageViewRowSchema } from './pageviews.entities';
+import { DailySessionMetricsRowSchema } from './sessionMetrics.entities';
 
 export const SummaryStatsWithChartsSchema = z.object({
   uniqueVisitors: z.number(),

@@ -3,7 +3,7 @@ import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.action'
 import GeographySection from '@/app/(protected)/dashboard/[dashboardId]/geography/GeographySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
-import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
 
 type GeographyPageParams = {

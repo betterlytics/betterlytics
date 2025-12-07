@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { QueryFilterSchema } from './filter';
+import { QueryFilterSchema } from './filter.entities';
 
 export const FunnelStepSchema = QueryFilterSchema.extend({
   name: z.string(),

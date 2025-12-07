@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { DashboardRole } from '@prisma/client';
-import { SiteConfigSchema } from './siteConfig';
+import { SiteConfigSchema } from './siteConfig.entities';
 
 // Domain validation schema (example.com)
 export const domainValidation = z

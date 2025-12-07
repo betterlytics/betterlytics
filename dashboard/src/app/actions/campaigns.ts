@@ -13,9 +13,9 @@ import {
   CampaignSparklinePoint,
   CampaignListRowSummary,
   type UTMDimension,
-} from '@/entities/campaign';
+} from '@/entities/analytics/campaign.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
+import { AuthContext } from '@/entities/auth/authContext.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { formatPercentage } from '@/utils/formatters';
 

@@ -7,9 +7,9 @@ import {
   getSessionRangeMetrics,
 } from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { SummaryStatsWithChartsSchema } from '@/entities/analytics/stats';
+import { SummaryStatsWithChartsSchema } from '@/entities/analytics/stats.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { getTotalPageViewsForSite } from '@/services/analytics/pages.service';
 
 export async function getUniqueVisitorsForSite(

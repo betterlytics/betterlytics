@@ -1,4 +1,4 @@
-import { GeoVisitor } from '@/entities/analytics/geography';
+import { GeoVisitor } from '@/entities/analytics/geography.entities';
 
 export const MOCK_WORLD_GEOVISITORS: GeoVisitor[] = [
   {

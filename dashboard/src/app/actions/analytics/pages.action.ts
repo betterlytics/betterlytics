@@ -8,12 +8,12 @@ import {
   getExitPageAnalyticsForSite,
   getPagesSummaryWithChartsForSite,
 } from '@/services/analytics/pages.service';
-import { PageAnalytics } from '@/entities/analytics/pages';
-import { TotalPageViewsRow } from '@/entities/analytics/pageviews';
+import { PageAnalytics } from '@/entities/analytics/pages.entities';
+import { TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
+import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';

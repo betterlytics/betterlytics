@@ -1,5 +1,5 @@
 import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
-import type { WorldMapResponse, GeoVisitorWithCompare } from '@/entities/analytics/geography';
+import type { WorldMapResponse, GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
 import React, { useCallback, useEffect } from 'react';

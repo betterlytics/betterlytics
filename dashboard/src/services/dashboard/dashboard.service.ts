@@ -1,6 +1,6 @@
 'server-only';
 
-import { Dashboard } from '@/entities/dashboard/dashboard';
+import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard.repository';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { generateSiteId } from '@/lib/site-id-generator';

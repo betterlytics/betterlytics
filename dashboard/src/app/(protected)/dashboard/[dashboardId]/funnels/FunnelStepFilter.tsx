@@ -1,4 +1,4 @@
-import { FilterColumn, FilterOperator, QueryFilter } from '@/entities/analytics/filter';
+import { FilterColumn, FilterOperator, QueryFilter } from '@/entities/analytics/filter.entities';
 import {
   Select,
   SelectContent,

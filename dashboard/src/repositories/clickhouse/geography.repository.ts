@@ -1,8 +1,8 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
-import { GeoVisitor, GeoVisitorSchema } from '@/entities/analytics/geography';
+import { GeoVisitor, GeoVisitorSchema } from '@/entities/analytics/geography.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
 
 /**

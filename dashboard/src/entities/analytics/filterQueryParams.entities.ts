@@ -3,7 +3,7 @@ import z from 'zod';
 import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { COMPARE_URL_MODES } from '@/utils/compareRanges';
-import { QueryFilterSchema } from '@/entities/analytics/filter';
+import { QueryFilterSchema } from '@/entities/analytics/filter.entities';
 
 export const FilterQueryParamsSchema = z.object({
   queryFilters: z.array(QueryFilterSchema),

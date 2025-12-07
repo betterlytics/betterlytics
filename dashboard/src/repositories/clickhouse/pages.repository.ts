@@ -4,7 +4,7 @@ import {
   DailyPageViewRow,
   TotalPageViewsRow,
   TotalPageViewRowSchema,
-} from '@/entities/analytics/pageviews';
+} from '@/entities/analytics/pageviews.entities';
 import {
   PageAnalytics,
   PageAnalyticsSchema,
@@ -18,12 +18,12 @@ import {
   DailyAverageTimeRowSchema,
   DailyBounceRateRow,
   DailyBounceRateRowSchema,
-} from '@/entities/analytics/pages';
+} from '@/entities/analytics/pages.entities';
 import { DateString, DateTimeString } from '@/types/dates';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 
 export async function getTotalPageViews(
   siteId: string,

@@ -2,11 +2,11 @@
 
 import { fetchVisitorsByGeography } from '@/services/analytics/geography.service';
 import { z } from 'zod';
-import { QueryFilterSchema } from '@/entities/analytics/filter';
+import { QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
+import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
-import type { WorldMapResponse } from '@/entities/analytics/geography';
+import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 
 const queryParamsSchema = z.object({

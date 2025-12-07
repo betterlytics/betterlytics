@@ -23,7 +23,7 @@ import {
   CampaignSparklinePoint,
   CampaignListRowSummary,
   type UTMDimension,
-} from '@/entities/campaign';
+} from '@/entities/analytics/campaign.entities';
 import {
   BrowserInfoSchema,
   DeviceTypeSchema,

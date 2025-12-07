@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { registerUserAction } from '@/app/actions/index.action';
-import { RegisterUserSchema } from '@/entities/auth/user';
+import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { signIn, getProviders } from 'next-auth/react';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';

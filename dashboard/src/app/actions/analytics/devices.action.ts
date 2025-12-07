@@ -8,11 +8,11 @@ import {
   getBrowserRollupForSite,
   getOperatingSystemRollupForSite,
 } from '@/services/analytics/devices.service';
-import { BrowserStats, DeviceBreakdownCombinedSchema } from '@/entities/analytics/devices';
+import { BrowserStats, DeviceBreakdownCombinedSchema } from '@/entities/analytics/devices.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
+import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toPieChart } from '@/presenters/toPieChart';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { ToDataTable, toDataTable } from '@/presenters/toDataTable';

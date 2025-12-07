@@ -1,8 +1,8 @@
 'use server';
 
 import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { AuthContext } from '@/entities/auth/authContext.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import {
   getAllCoreWebVitalPercentilesTimeseries,
   getCoreWebVitalsSummaryForSite,

@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState, useTransition } from 'react';
 import { fetchReplaySegmentsAction } from '@/app/actions/analytics/sessionReplays.action';
-import type { ReplaySegmentManifestEntry, SessionReplay } from '@/entities/analytics/sessionReplays';
+import type { ReplaySegmentManifestEntry, SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import type { eventWithTime } from '@rrweb/types';
 
 export type SessionWithSegments = SessionReplay & {

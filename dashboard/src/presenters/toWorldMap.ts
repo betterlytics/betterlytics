@@ -1,5 +1,5 @@
 import { alpha2ToAlpha3Code, alpha3ToAlpha2Code } from '@/utils/countryCodes';
-import { GeoVisitor, WorldMapResponse } from '@/entities/analytics/geography';
+import { GeoVisitor, WorldMapResponse } from '@/entities/analytics/geography.entities';
 
 export const CountryCodeFormat = {
   ToAlpha2: 'ToAlpha2',

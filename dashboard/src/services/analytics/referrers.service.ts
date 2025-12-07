@@ -23,9 +23,9 @@ import {
   TopReferrerUrl,
   TopChannel,
   TopReferrerSource,
-} from '@/entities/analytics/referrers';
+} from '@/entities/analytics/referrers.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 
 /**
  * Gets the aggregated referrers by source for a given site and time period
