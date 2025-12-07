@@ -105,26 +105,24 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
       </TooltipProvider>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className='h-full w-full border-none bg-transparent p-0 shadow-none'>
-          <article className='border-border/90 bg-background flex flex-col overflow-hidden rounded-2xl border shadow-lg ring-1 ring-black/5 sm:max-h-full sm:rounded-3xl sm:shadow-2xl dark:ring-white/5'>
-            <header className='from-primary/90 via-primary to-primary/80 border-border/60 relative overflow-hidden border-b bg-gradient-to-br px-4 py-3 sm:px-6 sm:py-4'>
+        <DialogContent className='max-h-[86vh] w-[min(900px,calc(100vw-1.25rem))] overflow-hidden rounded-2xl border-none p-0 shadow-xl sm:max-h-[90vh] sm:w-[min(840px,calc(100vw-2rem))] sm:rounded-3xl'>
+          <div className='border-border/90 bg-background grid max-h-[86vh] grid-rows-[auto,minmax(0,1fr),auto] overflow-hidden rounded-2xl border shadow-lg ring-1 ring-black/5 sm:max-h-[90vh] sm:rounded-3xl sm:shadow-2xl dark:ring-white/5'>
+            <div className='from-primary/90 via-primary to-primary/80 relative border-b bg-gradient-to-br px-4 py-3 sm:px-6 sm:py-4'>
               <div className='absolute inset-y-0 right-0 hidden w-1/2 opacity-40 md:block'>
                 <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_60%)]' />
               </div>
-              <div className='relative flex items-center justify-between'>
-                <DialogHeader className='text-left'>
-                  <DialogTitle className='text-primary-foreground/90 flex items-center gap-2 text-xs font-semibold tracking-[0.32em] uppercase sm:text-sm'>
-                    <Sparkles className='text-primary-foreground size-3.5' />
-                    {t('title')}
-                  </DialogTitle>
-                  <DialogDescription className='text-primary-foreground/80 mt-0.5 text-xs'>
-                    {metadata.version} &middot; {releaseDateLabel}
-                  </DialogDescription>
-                </DialogHeader>
-              </div>
-            </header>
+              <DialogHeader className='relative space-y-1 text-left'>
+                <DialogTitle className='text-primary-foreground/90 flex items-center gap-2 text-xs font-semibold tracking-[0.32em] uppercase sm:text-sm'>
+                  <Sparkles className='text-primary-foreground size-3.5' />
+                  {t('title')}
+                </DialogTitle>
+                <DialogDescription className='text-primary-foreground/80 text-xs'>
+                  {metadata.version} &middot; {releaseDateLabel}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
 
-            <ScrollArea className='min-h-0 flex-1'>
+            <ScrollArea className='h-full min-h-0'>
               <section className='text-muted-foreground/90 space-y-3 px-4 py-4 text-[0.8rem] leading-5 sm:space-y-4 sm:px-5 sm:py-6 sm:text-sm sm:leading-6 md:px-6'>
                 <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-muted-foreground [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
                   <Content />
@@ -145,7 +143,7 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
                 </Button>
               </div>
             </DialogFooter>
-          </article>
+          </div>
         </DialogContent>
       </Dialog>
     </>
