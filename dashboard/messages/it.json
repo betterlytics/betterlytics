@@ -1160,6 +1160,42 @@
         "sunShort": "Dom."
       }
     },
+    "annotations": {
+      "dialogs": {
+        "addTitle": "Aggiungi annotazione",
+        "editTitle": "Modifica annotazione",
+        "nameLabel": "Nome",
+        "createNamePlaceholder": "Nome dell’annotazione (es. \"Lancio del prodotto\")",
+        "editNamePlaceholder": "Nome dell’annotazione",
+        "descriptionLabel": "Descrizione (opzionale)",
+        "descriptionPlaceholder": "Aggiungi una descrizione...",
+        "dateTimeLabel": "Data e ora",
+        "colorLabel": "Colore",
+        "selectColorAria": "Seleziona colore {token}",
+        "cancel": "Annulla",
+        "add": "Aggiungi",
+        "save": "Salva",
+        "delete": "Elimina",
+        "deleteAnnotationAria": "Elimina annotazione",
+        "deleteConfirmTitle": "Conferma eliminazione",
+        "deleteConfirmDescription": "Sei sicuro di voler eliminare questa annotazione?"
+      },
+      "chart": {
+        "exitAnnotationMode": "Esci dalla modalità annotazione",
+        "enterAnnotationMode": "Aggiungi annotazione",
+        "annotationModeHint": "Clicca sul grafico per aggiungere un’annotazione"
+      },
+      "groupMarker": {
+        "clickToSeeAll": "Clicca per vedere tutto"
+      },
+      "popover": {
+        "annotationsCount": "{count, plural, one {# annotazione} other {# annotazioni}}",
+        "edit": "Modifica",
+        "delete": "Elimina",
+        "editAria": "Modifica annotazione",
+        "deleteAria": "Elimina annotazione"
+      }
+    },
     "dashboards": {
       "createDialog": {
         "title": "Crea nuova dashboard",

@@ -1156,6 +1156,42 @@
         "sunShort": "Sun."
       }
     },
+    "annotations": {
+      "dialogs": {
+        "addTitle": "Add Annotation",
+        "editTitle": "Edit Annotation",
+        "nameLabel": "Name",
+        "createNamePlaceholder": "Annotation name (e.g., \"Product Launch\")",
+        "editNamePlaceholder": "Annotation name",
+        "descriptionLabel": "Description (optional)",
+        "descriptionPlaceholder": "Add a description...",
+        "dateTimeLabel": "Date & time",
+        "colorLabel": "Color",
+        "selectColorAria": "Select color {token}",
+        "cancel": "Cancel",
+        "add": "Add",
+        "save": "Save",
+        "delete": "Delete",
+        "deleteAnnotationAria": "Delete annotation",
+        "deleteConfirmTitle": "Confirm Deletion",
+        "deleteConfirmDescription": "Are you sure you want to delete the annotation?"
+      },
+      "chart": {
+        "exitAnnotationMode": "Exit annotation mode",
+        "enterAnnotationMode": "Add annotation",
+        "annotationModeHint": "Click on the chart to add an annotation"
+      },
+      "groupMarker": {
+        "clickToSeeAll": "Click to see all"
+      },
+      "popover": {
+        "annotationsCount": "{count, plural, one {# annotation} other {# annotations}}",
+        "edit": "Edit",
+        "delete": "Delete",
+        "editAria": "Edit annotation",
+        "deleteAria": "Delete annotation"
+      }
+    },
     "dashboards": {
       "createDialog": {
         "title": "Create New Dashboard",
