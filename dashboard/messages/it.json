@@ -767,6 +767,10 @@
           "backToSignIn": "Torna al Login"
         },
         "helpLine": "Hai bisogno di aiuto? Contatta il supporto a support@betterlytics.io",
+        "loading": {
+          "title": "Verifica in corso...",
+          "description": "Attendi un momento mentre verifichiamo il tuo indirizzo email."
+        },
         "success": {
           "title": "Email Verificata!",
           "description": "La tua email è stata verificata con successo.",

@@ -767,6 +767,10 @@
           "backToSignIn": "Tilbage til Log ind"
         },
         "helpLine": "Brug for hjælp? Kontakt support på support@betterlytics.io",
+        "loading": {
+          "title": "Verificerer...",
+          "description": "Vent venligst et øjeblik, mens vi bekræfter din e-mailadresse."
+        },
         "success": {
           "title": "E-mail Verificeret!",
           "description": "Din e-mail er blevet verificeret.",

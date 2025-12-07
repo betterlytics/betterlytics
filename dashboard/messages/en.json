@@ -767,6 +767,10 @@
           "backToSignIn": "Back to Sign In"
         },
         "helpLine": "Need help? Contact support at support@betterlytics.io",
+        "loading": {
+          "title": "Verifying...",
+          "description": "Please wait a moment while we verify your email address."
+        },
         "success": {
           "title": "Email Verified!",
           "description": "Your email has been successfully verified.",

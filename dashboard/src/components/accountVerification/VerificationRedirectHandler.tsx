@@ -74,12 +74,12 @@ export function VerificationRedirectHandler({ hasSession }: VerificationRedirect
   const { refreshSession } = useSessionRefresh();
   const router = useBARouter();
   const { status } = useSession();
-  const t = useTranslations('public.auth.verifyEmail.success');
+  const t = useTranslations('public.auth.verifyEmail');
   const [redirectState, setRedirectState] = useState<'celebrating' | 'redirecting' | 'error'>('celebrating');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const targetUrl = hasSession ? '/dashboards' : '/signin';
-  const targetLabel = hasSession ? 'Go to Dashboard' : 'Go to Sign In';
+  const targetLabel = hasSession ? t('buttons.returnToDashboard') : t('buttons.backToSignIn');
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -103,13 +103,13 @@ export function VerificationRedirectHandler({ hasSession }: VerificationRedirect
 
           safetyTimeout = setTimeout(() => {
             setRedirectState('error');
-            setErrorMessage(t('errors.redirectTimeout'));
+            setErrorMessage(t('success.errors.redirectTimeout'));
           }, 5000);
         }, 2000);
       } catch (error) {
         console.error('Redirect failed:', error);
         setRedirectState('error');
-        setErrorMessage(t('errors.redirectFailed'));
+        setErrorMessage(t('success.errors.redirectFailed'));
       }
     };
 
@@ -163,14 +163,14 @@ export function VerificationRedirectHandler({ hasSession }: VerificationRedirect
                 className='text-foreground mb-2 text-2xl font-semibold opacity-0'
                 style={{ animation: 'fade-up 0.4s ease-out 0.7s forwards' }}
               >
-                {t('title')}
+                {t('success.title')}
               </h2>
 
               <p
                 className='text-muted-foreground mb-5 text-sm opacity-0'
                 style={{ animation: 'fade-up 0.4s ease-out 0.9s forwards' }}
               >
-                {t('description')}
+                {t('success.description')}
               </p>
 
               <div className='opacity-0' style={{ animation: 'fade-up 0.4s ease-out 1.1s forwards' }}>
@@ -187,11 +187,11 @@ export function VerificationRedirectHandler({ hasSession }: VerificationRedirect
                 ) : (
                   <div className='text-muted-foreground flex items-center justify-center gap-2 text-sm'>
                     {redirectState === 'celebrating' ? (
-                      <span className='text-primary font-medium'>{t('celebration')} 🎉</span>
+                      <span className='text-primary font-medium'>{t('success.celebration')} 🎉</span>
                     ) : (
                       <>
                         <Loader2 className='h-4 w-4 animate-spin' />
-                        <span>{hasSession ? t('redirecting') : t('redirectingToSignin')}</span>
+                        <span>{hasSession ? t('success.redirecting') : t('success.redirectingToSignin')}</span>
                       </>
                     )}
                   </div>
@@ -204,7 +204,7 @@ export function VerificationRedirectHandler({ hasSession }: VerificationRedirect
             <div className='mt-6 opacity-0' style={{ animation: 'fade-up 0.4s ease-out 1.5s forwards' }}>
               <Link href={targetUrl}>
                 <Button variant='ghost' className='text-muted-foreground cursor-pointer text-sm'>
-                  {t('clickHere')}
+                  {t('success.clickHere')}
                 </Button>
               </Link>
             </div>

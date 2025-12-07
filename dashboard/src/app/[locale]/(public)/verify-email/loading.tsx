@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import Logo from '@/components/logo';
 
 function AnimatedVerifyingIcon() {
@@ -40,6 +41,8 @@ function AnimatedBorderCard({ children }: { children: React.ReactNode }) {
 }
 
 export default function VerifyEmailLoading() {
+  const t = useTranslations('public.auth.verifyEmail.loading');
+
   return (
     <div className='bg-background flex min-h-[60vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
       <div className='w-full max-w-md space-y-8'>
@@ -51,9 +54,9 @@ export default function VerifyEmailLoading() {
           <AnimatedBorderCard>
             <AnimatedVerifyingIcon />
 
-            <h2 className='text-foreground mb-2 text-2xl font-semibold'>Verifying...</h2>
+            <h2 className='text-foreground mb-2 text-2xl font-semibold'>{t('title')}</h2>
 
-            <p className='text-muted-foreground text-sm'>Please wait a moment</p>
+            <p className='text-muted-foreground text-sm'>{t('description')}</p>
           </AnimatedBorderCard>
         </div>
       </div>
