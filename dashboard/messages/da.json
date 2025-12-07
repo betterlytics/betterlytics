@@ -753,20 +753,40 @@
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Ugyldigt bekræftelseslink",
-          "description": "Bekræftelseslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen.",
-          "backToSignIn": "Tilbage til login"
+          "title": "Ugyldigt Verifikationslink",
+          "description": "Verifikationslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen.",
+          "backToSignIn": "Tilbage til Log ind"
         },
         "failed": {
-          "title": "Bekræftelse mislykkedes",
-          "expiredInfo": "Bekræftelseslinks udløber efter 24 timer af sikkerhedshensyn. Du kan anmode om et nyt og prøve igen.",
-          "genericFallback": "Der opstod en fejl under bekræftelsen."
+          "title": "Verifikation Mislykkedes",
+          "expiredInfo": "Verifikationslinks udløber efter 24 timer af sikkerhedsmæssige årsager. Du kan anmode om et nyt og prøve igen.",
+          "genericFallback": "Der opstod en fejl under verifikationen."
         },
         "buttons": {
-          "returnToDashboard": "Tilbage til dashboard",
-          "backToSignIn": "Tilbage til login"
+          "returnToDashboard": "Tilbage til Dashboard",
+          "backToSignIn": "Tilbage til Log ind"
         },
-        "helpLine": "Har du brug for hjælp? Kontakt support på support@betterlytics.io"
+        "helpLine": "Brug for hjælp? Kontakt support på support@betterlytics.io",
+        "loading": {
+          "title": "Verificerer...",
+          "description": "Vent venligst et øjeblik, mens vi bekræfter din e-mailadresse."
+        },
+        "success": {
+          "title": "E-mail Verificeret!",
+          "description": "Din e-mail er blevet verificeret.",
+          "celebration": "Velkommen ombord!",
+          "redirecting": "Sender dig videre til dit dashboard...",
+          "clickHere": "Klik her hvis du ikke omdirigeres automatisk",
+          "redirectingToSignin": "Sender dig videre til login...",
+          "errors": {
+            "redirectTimeout": "Omdirigeringen tager længere tid end forventet.",
+            "redirectFailed": "Noget gik galt under omdirigeringen."
+          }
+        },
+        "verifying": {
+          "title": "Verificerer din e-mail...",
+          "description": "Vent venligst mens vi bekræfter din e-mailadresse."
+        }
       }
     },
     "demo": {

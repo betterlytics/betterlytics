@@ -753,20 +753,40 @@
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Link di verifica non valido",
-          "description": "Il link di verifica non è valido o mancante. Controlla la tua email e riprova.",
-          "backToSignIn": "Torna all'accesso"
+          "title": "Link di Verifica Non Valido",
+          "description": "Il link di verifica è non valido o mancante. Controlla la tua email e riprova.",
+          "backToSignIn": "Torna al Login"
         },
         "failed": {
-          "title": "Verifica fallita",
-          "expiredInfo": "I link di verifica scadono dopo 24 ore per sicurezza. Puoi richiederne uno nuovo e riprovare.",
+          "title": "Verifica Fallita",
+          "expiredInfo": "I link di verifica scadono dopo 24 ore per motivi di sicurezza. Puoi richiederne uno nuovo e riprovare.",
           "genericFallback": "Si è verificato un errore durante la verifica."
         },
         "buttons": {
-          "returnToDashboard": "Torna alla dashboard",
-          "backToSignIn": "Torna all'accesso"
+          "returnToDashboard": "Torna alla Dashboard",
+          "backToSignIn": "Torna al Login"
         },
-        "helpLine": "Serve aiuto? Contatta il supporto a support@betterlytics.io"
+        "helpLine": "Hai bisogno di aiuto? Contatta il supporto a support@betterlytics.io",
+        "loading": {
+          "title": "Verifica in corso...",
+          "description": "Attendi un momento mentre verifichiamo il tuo indirizzo email."
+        },
+        "success": {
+          "title": "Email Verificata!",
+          "description": "La tua email è stata verificata con successo.",
+          "celebration": "Benvenuto a bordo!",
+          "redirecting": "Ti stiamo portando alla tua dashboard...",
+          "clickHere": "Clicca qui se non vieni reindirizzato automaticamente",
+          "redirectingToSignin": "Ti stiamo portando alla pagina di login...",
+          "errors": {
+            "redirectTimeout": "Il reindirizzamento sta impiegando più tempo del previsto.",
+            "redirectFailed": "Qualcosa è andato storto durante il reindirizzamento."
+          }
+        },
+        "verifying": {
+          "title": "Verifica della tua email...",
+          "description": "Attendi mentre confermiamo il tuo indirizzo email."
+        }
       }
     },
     "demo": {
