@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import CoreWebVitalBar from '@/components/dashboard/CoreWebVitalBar';
-import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/analytics/webVitals';
+import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/analytics/webVitals.entities';
 import MultiSeriesChart from '@/components/MultiSeriesChart';
 import type { MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';

@@ -6,7 +6,7 @@ import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
 import { formatCWV, formatString, getCwvStatusColor } from '@/utils/formatters';
 import MetricInfo from '@/app/(protected)/dashboard/[dashboardId]/web-vitals/MetricInfo';
-import type { CoreWebVitalName } from '@/entities/analytics/webVitals';
+import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';

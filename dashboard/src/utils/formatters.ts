@@ -1,4 +1,4 @@
-import { CoreWebVitalName } from '@/entities/analytics/webVitals';
+import { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { formatCompactFromMilliseconds } from './dateFormatters';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 

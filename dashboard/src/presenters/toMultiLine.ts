@@ -1,4 +1,4 @@
-import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/analytics/webVitals';
+import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/analytics/webVitals.entities';
 import { getDateKey } from '@/utils/dateHelpers';
 
 export type PercentilePoint = { date: number; value: [number, number, number, number] };
