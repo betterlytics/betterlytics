@@ -9,11 +9,13 @@ import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnot
 import { type ChartAnnotation } from '@/entities/annotation.entities';
 import { useTheme } from 'next-themes';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
-interface AnnotationGroupPopoverProps {
+export interface AnnotationGroupPopoverProps {
   group: AnnotationGroup | null;
   anchorRect: DOMRect | null;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  disableActions?: boolean;
   onClose: () => void;
   onEdit: (annotation: ChartAnnotation) => void;
   onDelete: (id: string) => void;
@@ -23,6 +25,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
   group,
   anchorRect,
   containerRef,
+  disableActions = false,
   onClose,
   onEdit,
   onDelete,
@@ -92,34 +95,40 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                       )}
                     </div>
 
-                    <div className='flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='cursor-pointer'
-                        onClick={() => {
-                          onEdit(annotation);
-                          onClose();
-                        }}
-                        aria-label={t('editAria')}
-                      >
-                        <Pencil className='h-3.5 w-3.5' />
-                        <span className='sr-only'>{t('edit')}</span>
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='text-destructive hover:text-destructive cursor-pointer'
-                        onClick={() => {
-                          onDelete(annotation.id);
-                          onClose();
-                        }}
-                        aria-label={t('deleteAria')}
-                      >
-                        <Trash2 className='h-3.5 w-3.5' />
-                        <span className='sr-only'>{t('delete')}</span>
-                      </Button>
-                    </div>
+                    <DisabledDemoTooltip disabled={disableActions}>
+                      {(isDisabled) => (
+                        <div className='flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='cursor-pointer disabled:cursor-not-allowed'
+                            disabled={isDisabled}
+                            onClick={() => {
+                              onEdit(annotation);
+                              onClose();
+                            }}
+                            aria-label={t('editAria')}
+                          >
+                            <Pencil className='h-3.5 w-3.5' />
+                            <span className='sr-only'>{t('edit')}</span>
+                          </Button>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='text-destructive hover:text-destructive cursor-pointer disabled:cursor-not-allowed'
+                            disabled={isDisabled}
+                            onClick={() => {
+                              onDelete(annotation.id);
+                              onClose();
+                            }}
+                            aria-label={t('deleteAria')}
+                          >
+                            <Trash2 className='h-3.5 w-3.5' />
+                            <span className='sr-only'>{t('delete')}</span>
+                          </Button>
+                        </div>
+                      )}
+                    </DisabledDemoTooltip>
                   </div>
                 ))}
               </div>

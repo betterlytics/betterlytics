@@ -196,8 +196,9 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const handleGroupClick = useCallback(
       (group: AnnotationGroup, anchorRect: DOMRect) => {
-        if (isDemo) return;
-        if (group.annotations.length === 1) {
+        const hasSingleAnnotation = group.annotations.length === 1;
+        if (isDemo && hasSingleAnnotation) return;
+        if (hasSingleAnnotation) {
           annotationDialogsRef.current?.openEditDialog(group.annotations[0]);
         } else {
           setOpenGroup(group);
@@ -377,7 +378,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                         onGroupClick={handleGroupClick}
                         onSingleClick={handleSingleAnnotationClick}
                         isAnnotationMode={isAnnotationMode}
-                        isDisabled={isDemo}
+                        isDisabled={isDemo && group.annotations.length === 1}
                       />
                     }
                   />
@@ -389,6 +390,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
               group={openGroup}
               anchorRect={popoverAnchorRect}
               containerRef={chartContainerRef}
+              disableActions={isDemo}
               onClose={handleClosePopover}
               onEdit={handleEditFromPopover}
               onDelete={handleDeleteFromPopover}
