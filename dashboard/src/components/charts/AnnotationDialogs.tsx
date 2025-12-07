@@ -48,6 +48,13 @@ interface ColorSwatchPickerProps {
   ariaLabelForColor?: (color: AnnotationColorToken) => string;
 }
 
+interface AnnotationFormState {
+  date: Date | null;
+  name: string;
+  description: string;
+  color: AnnotationColorToken;
+}
+
 const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
   palette,
   value,
@@ -88,84 +95,76 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const t = useTranslations('components.annotations.dialogs');
     const colorPalette = Object.keys(ANNOTATION_COLOR_MAP) as AnnotationColorToken[];
     const defaultColorToken = DEFAULT_ANNOTATION_COLOR_TOKEN;
+    const emptyForm: AnnotationFormState = {
+      date: null,
+      name: '',
+      description: '',
+      color: defaultColorToken,
+    };
 
     // Create annotation state
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    const [pendingAnnotationDate, setPendingAnnotationDate] = useState<number | null>(null);
-    const [createAnnotationDate, setCreateAnnotationDate] = useState<Date | null>(null);
-    const [createAnnotationName, setCreateAnnotationName] = useState('');
-    const [createAnnotationDescription, setCreateAnnotationDescription] = useState('');
-    const [createAnnotationColor, setCreateAnnotationColor] = useState<AnnotationColorToken>(defaultColorToken);
+    const [createForm, setCreateForm] = useState<AnnotationFormState>(emptyForm);
 
     // Edit annotation state
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [selectedAnnotation, setSelectedAnnotation] = useState<ChartAnnotation | null>(null);
-    const [editAnnotationName, setEditAnnotationName] = useState('');
-    const [editAnnotationDescription, setEditAnnotationDescription] = useState('');
-    const [editAnnotationDate, setEditAnnotationDate] = useState<Date | null>(null);
-    const [editAnnotationColor, setEditAnnotationColor] = useState<AnnotationColorToken>(defaultColorToken);
+    const [editForm, setEditForm] = useState<AnnotationFormState>(emptyForm);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     useImperativeHandle(ref, () => ({
       openCreateDialog: (date: number) => {
-        setPendingAnnotationDate(date);
-        setCreateAnnotationDate(new Date(date));
-        setCreateAnnotationName('');
-        setCreateAnnotationDescription('');
-        setCreateAnnotationColor(defaultColorToken);
+        setCreateForm({
+          date: new Date(date),
+          name: '',
+          description: '',
+          color: defaultColorToken,
+        });
         setShowCreateDialog(true);
       },
       openEditDialog: (annotation: ChartAnnotation) => {
         setSelectedAnnotation(annotation);
-        setEditAnnotationName(annotation.label);
-        setEditAnnotationDescription(annotation.description ?? '');
-        const date = new Date(annotation.date);
-        setEditAnnotationDate(date);
         const token = (annotation.colorToken as AnnotationColorToken | undefined) ?? defaultColorToken;
-        setEditAnnotationColor(token);
+        setEditForm({
+          date: new Date(annotation.date),
+          name: annotation.label,
+          description: annotation.description ?? '',
+          color: token,
+        });
         setShowEditDialog(true);
       },
     }));
 
     const handleCreateAnnotation = () => {
-      if ((!pendingAnnotationDate && !createAnnotationDate) || !createAnnotationName.trim() || !onAddAnnotation)
-        return;
+      if (!createForm.name.trim() || !onAddAnnotation) return;
 
-      const targetDate = createAnnotationDate ?? (pendingAnnotationDate ? new Date(pendingAnnotationDate) : null);
+      const targetDate = createForm.date ?? new Date();
       if (!targetDate) return;
 
       onAddAnnotation({
         date: targetDate.getTime(),
-        label: createAnnotationName.trim(),
-        description: createAnnotationDescription.trim() || undefined,
-        colorToken: createAnnotationColor,
+        label: createForm.name.trim(),
+        description: createForm.description.trim() || undefined,
+        colorToken: createForm.color,
       });
 
       setShowCreateDialog(false);
-      setPendingAnnotationDate(null);
-      setCreateAnnotationDate(null);
-      setCreateAnnotationName('');
-      setCreateAnnotationDescription('');
-      setCreateAnnotationColor(defaultColorToken);
+      setCreateForm(emptyForm);
     };
 
     const handleUpdateAnnotation = () => {
-      if (!selectedAnnotation || !editAnnotationName.trim() || !onUpdateAnnotation) return;
-
-      const nextDate = editAnnotationDate ?? new Date(selectedAnnotation.date);
+      if (!selectedAnnotation || !editForm.name.trim() || !onUpdateAnnotation) return;
 
       onUpdateAnnotation(selectedAnnotation.id, {
-        label: editAnnotationName.trim(),
-        description: editAnnotationDescription.trim() || undefined,
-        colorToken: editAnnotationColor,
-        date: nextDate.getTime(),
+        label: editForm.name.trim(),
+        description: editForm.description.trim() || undefined,
+        colorToken: editForm.color,
+        date: (editForm.date ?? new Date(selectedAnnotation.date)).getTime(),
       });
 
       setShowEditDialog(false);
       setSelectedAnnotation(null);
-      setEditAnnotationName('');
-      setEditAnnotationDescription('');
-      setEditAnnotationColor(defaultColorToken);
+      setEditForm(emptyForm);
     };
 
     const handleDeleteAnnotation = () => {
@@ -176,8 +175,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
       setShowDeleteConfirm(false);
       setShowEditDialog(false);
       setSelectedAnnotation(null);
-      setEditAnnotationName('');
-      setEditAnnotationDescription('');
+      setEditForm(emptyForm);
     };
 
     return (
@@ -190,10 +188,10 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
             <div className='space-y-4 py-4'>
               <Input
                 placeholder={t('createNamePlaceholder')}
-                value={createAnnotationName}
-                onChange={(e) => setCreateAnnotationName(e.target.value)}
+                value={createForm.name}
+                onChange={(e) => setCreateForm((prev) => ({ ...prev, name: e.target.value }))}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && createAnnotationName.trim()) {
+                  if (e.key === 'Enter' && createForm.name.trim()) {
                     handleCreateAnnotation();
                   }
                 }}
@@ -205,8 +203,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 <label className='text-sm font-medium'>{t('descriptionLabel')}</label>
                 <Input
                   placeholder={t('descriptionPlaceholder')}
-                  value={createAnnotationDescription}
-                  onChange={(e) => setCreateAnnotationDescription(e.target.value)}
+                  value={createForm.description}
+                  onChange={(e) => setCreateForm((prev) => ({ ...prev, description: e.target.value }))}
                   maxLength={200}
                   className='mt-1.5 text-sm placeholder:text-xs sm:text-base sm:placeholder:text-sm'
                 />
@@ -214,16 +212,14 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               <div className='grid gap-2'>
                 <label className='text-sm font-medium'>{t('dateTimeLabel')}</label>
                 <DateTimePicker24h
-                  value={
-                    createAnnotationDate ?? (pendingAnnotationDate ? new Date(pendingAnnotationDate) : new Date())
-                  }
-                  onChange={(d) => setCreateAnnotationDate(d ?? null)}
+                  value={createForm.date ?? new Date()}
+                  onChange={(d) => setCreateForm((prev) => ({ ...prev, date: d ?? null }))}
                 />
               </div>
               <ColorSwatchPicker
                 palette={colorPalette}
-                value={createAnnotationColor}
-                onChange={setCreateAnnotationColor}
+                value={createForm.color}
+                onChange={(color) => setCreateForm((prev) => ({ ...prev, color }))}
                 label={t('colorLabel')}
                 ariaLabelForColor={(token) => t('selectColorAria', { token })}
               />
@@ -235,7 +231,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               <Button
                 className='cursor-pointer'
                 onClick={handleCreateAnnotation}
-                disabled={!createAnnotationName.trim()}
+                disabled={!createForm.name.trim()}
               >
                 {t('add')}
               </Button>
@@ -261,10 +257,10 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 <label className='text-sm font-medium'>{t('nameLabel')}</label>
                 <Input
                   placeholder={t('editNamePlaceholder')}
-                  value={editAnnotationName}
-                  onChange={(e) => setEditAnnotationName(e.target.value)}
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && editAnnotationName.trim()) {
+                    if (e.key === 'Enter' && editForm.name.trim()) {
                       handleUpdateAnnotation();
                     }
                   }}
@@ -277,8 +273,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 <label className='text-sm font-medium'>{t('descriptionLabel')}</label>
                 <Input
                   placeholder={t('descriptionPlaceholder')}
-                  value={editAnnotationDescription}
-                  onChange={(e) => setEditAnnotationDescription(e.target.value)}
+                  value={editForm.description}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
                   maxLength={200}
                   className='mt-1.5 text-sm placeholder:text-xs sm:text-base sm:placeholder:text-sm'
                 />
@@ -286,14 +282,14 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               <div className='grid gap-2'>
                 <label className='text-sm font-medium'>{t('dateTimeLabel')}</label>
                 <DateTimePicker24h
-                  value={editAnnotationDate ?? new Date(selectedAnnotation?.date ?? Date.now())}
-                  onChange={(d) => setEditAnnotationDate(d ?? null)}
+                  value={editForm.date ?? new Date(selectedAnnotation?.date ?? Date.now())}
+                  onChange={(d) => setEditForm((prev) => ({ ...prev, date: d ?? null }))}
                 />
               </div>
               <ColorSwatchPicker
                 palette={colorPalette}
-                value={editAnnotationColor}
-                onChange={setEditAnnotationColor}
+                value={editForm.color}
+                onChange={(color) => setEditForm((prev) => ({ ...prev, color }))}
                 label={t('colorLabel')}
                 ariaLabelForColor={(token) => t('selectColorAria', { token })}
               />
@@ -336,7 +332,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 <Button
                   className='min-w-[104px] cursor-pointer'
                   onClick={handleUpdateAnnotation}
-                  disabled={!editAnnotationName.trim()}
+                  disabled={!editForm.name.trim()}
                 >
                   {t('save')}
                 </Button>
