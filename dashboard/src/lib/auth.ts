@@ -5,19 +5,20 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { encode } from 'next-auth/jwt';
-import { verifyCredentials, attemptAdminInitialization } from '@/services/auth.service';
 import {
   generateSessionToken,
   SESSION_MAX_AGE_SECONDS,
   SESSION_UPDATE_AGE_SECONDS,
 } from '@/services/session.service';
+import { verifyCredentials, attemptAdminInitialization } from '@/services/auth/auth.service';
 import type { User } from 'next-auth';
-import type { LoginUserData } from '@/entities/user';
+import type { LoginUserData } from '@/entities/auth/user.entities';
 import { UserException } from '@/lib/exceptions';
 import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
-import { createDefaultUserSettings, getUserSettings } from '@/services/userSettings';
-import { createStarterSubscriptionForUser } from '@/services/subscription.service';
+import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
+import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
+import { setLocaleCookie } from '@/constants/cookies';
 
 const adapter = PrismaAdapter(prisma) as Adapter;
 
@@ -166,6 +167,10 @@ export const authOptions: NextAuthOptions = {
       session.user.termsAcceptedVersion = user.termsAcceptedVersion;
       session.user.changelogVersionSeen = user.changelogVersionSeen;
       session.user.settings = settings;
+
+      if (session.user.settings?.language) {
+        await setLocaleCookie(session.user.settings.language);
+      }
 
       return session;
     },

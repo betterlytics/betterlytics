@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
+import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { TableSkeleton } from '@/components/skeleton';
 import EventsTableSection from './EventsTableSection';
 import { EventLog } from '@/app/(protected)/dashboard/[dashboardId]/events/EventLog';
@@ -7,7 +7,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
 
 type EventsPageParams = {

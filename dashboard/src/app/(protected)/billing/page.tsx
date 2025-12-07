@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 import { BillingNavigationBanner } from './BillingNavigationBanner';
 import { BillingFAQGrid } from './BillingFAQGrid';
 import { BillingInteractive } from './BillingInteractive';

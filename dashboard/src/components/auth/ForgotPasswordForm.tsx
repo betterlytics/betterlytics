@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { forgotPasswordAction } from '@/app/actions/passwordReset';
-import { ForgotPasswordSchema } from '@/entities/passwordReset';
+import { forgotPasswordAction } from '@/app/actions/auth/passwordReset.action';
+import { ForgotPasswordSchema } from '@/entities/auth/passwordReset.entities';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

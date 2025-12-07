@@ -1,7 +1,7 @@
 'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchTrafficSourcesCombinedAction } from '@/app/actions/referrers';
+import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';

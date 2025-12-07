@@ -1,7 +1,7 @@
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Link } from '@/i18n/navigation';
 import Logo from '@/components/logo';
-import { getFirstUserDashboardAction } from '@/app/actions';
+import { getFirstUserDashboardAction } from '@/app/actions/index.actions';
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';

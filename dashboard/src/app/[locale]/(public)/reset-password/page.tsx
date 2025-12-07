@@ -5,7 +5,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
-import { validateResetTokenAction } from '@/app/actions/passwordReset';
+import { validateResetTokenAction } from '@/app/actions/auth/passwordReset.action';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';

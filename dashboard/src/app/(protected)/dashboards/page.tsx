@@ -1,12 +1,11 @@
-import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard';
-import { getUserBillingData } from '@/actions/billing';
+import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
+import { getUserBillingData } from '@/actions/billing.action';
 import { CreateDashboardDialog } from '@/app/(protected)/dashboards/CreateDashboardDialog';
 import DashboardCard from '@/app/(protected)/dashboards/DashboardCard';
 import { CreateDashboardCard } from '@/app/(protected)/dashboards/CreateDashboardCard';
 import PlanQuota from './PlanQuota';
 import ButtonSkeleton from '@/components/skeleton/ButtonSkeleton';
 import { Suspense } from 'react';
-import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
 import { getTranslations } from 'next-intl/server';
 import { requireAuth } from '@/auth/auth-actions';
 
@@ -24,8 +23,6 @@ export default async function DashboardsPage() {
 
   return (
     <div className='container mx-auto max-w-7xl px-4 py-8'>
-      <VerificationSuccessHandler />
-
       <div className='bg-card mb-8 rounded-xl border p-6'>
         <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
           <div>

@@ -8,7 +8,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
-import { getDashboardSettingsAction } from '@/app/actions/dashboardSettings';
+import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
 
