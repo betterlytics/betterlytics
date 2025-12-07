@@ -28,9 +28,6 @@ interface UseChartAnnotationsReturn {
   refresh: () => Promise<void>;
 }
 
-/**
- * Converts a database Annotation to the ChartAnnotation format used by the chart component
- */
 function toChartAnnotation(annotation: Annotation): ChartAnnotation {
   return {
     id: annotation.id,
@@ -57,8 +54,7 @@ export function useChartAnnotations({
       setIsLoading(true);
       const result = await getAnnotationsAction(dashboardId, chartId);
       setAnnotations(result);
-    } catch (error) {
-      console.error('Failed to fetch annotations:', error);
+    } catch {
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +102,6 @@ export function useChartAnnotations({
           // Replace optimistic annotation with the real one
           setAnnotations((prev) => prev.map((a) => (a.id === optimisticId ? created : a)));
         } catch (error) {
-          console.error('Failed to create annotation:', error);
           // Remove optimistic annotation on failure
           setAnnotations((prev) => prev.filter((a) => a.id !== optimisticId));
         }

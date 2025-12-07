@@ -24,18 +24,29 @@ import { type ChartAnnotation } from '@/entities/annotation.entities';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
 import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
-import { groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
+import { ANNOTATION_PILL_TEXT, groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
 
-const AXIS_FONT_SIZE = 12;
-const AXIS_TICK_MARGIN = 6;
-const AXIS_MIN_TICK_GAP = 100;
-const CHART_MARGIN_TOP = 10;
-const CHART_MARGIN_BOTTOM = 0;
-const CHART_MARGIN_RIGHT = 1;
-const DEFAULT_LABEL_PADDING_LEFT = 6;
-const VALUE_GRADIENT_OPACITY = 0.35;
-const INCOMPLETE_GRADIENT_OPACITY = 0.09;
-const PILL_TEXT_FONT = '500 11px Inter, system-ui, -apple-system, sans-serif';
+const AXIS = {
+  fontSize: 12,
+  tickMargin: 6,
+  minTickGap: 100,
+} as const;
+
+const CHART_MARGIN = {
+  top: 10,
+  bottom: 0,
+  right: 1,
+  defaultLabelPaddingLeft: 6,
+} as const;
+
+const GRADIENT = {
+  valueOpacity: 0.35,
+  incompleteOpacity: 0.09,
+} as const;
+
+const PILL = {
+  textFont: ANNOTATION_PILL_TEXT.font,
+} as const;
 
 interface ChartDataPoint {
   date: string | number;
@@ -96,7 +107,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       if (!context) return undefined;
 
       // Match pill text styling in AnnotationGroupMarker
-      context.font = PILL_TEXT_FONT;
+      context.font = PILL.textFont;
 
       return (text: string) => context.measureText(text).width;
     }, []);
@@ -256,44 +267,44 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
               <ComposedChart
                 data={data}
                 margin={{
-                  top: CHART_MARGIN_TOP,
-                  left: isMobile ? 0 : (labelPaddingLeft ?? DEFAULT_LABEL_PADDING_LEFT),
-                  bottom: CHART_MARGIN_BOTTOM,
-                  right: CHART_MARGIN_RIGHT,
+                  top: CHART_MARGIN.top,
+                  left: isMobile ? 0 : (labelPaddingLeft ?? CHART_MARGIN.defaultLabelPaddingLeft),
+                  bottom: CHART_MARGIN.bottom,
+                  right: CHART_MARGIN.right,
                 }}
                 onClick={isAnnotationMode ? handleChartClick : undefined}
                 style={{ cursor: isAnnotationMode ? 'crosshair' : undefined }}
               >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='5%' stopColor={color} stopOpacity={VALUE_GRADIENT_OPACITY} />
+                    <stop offset='5%' stopColor={color} stopOpacity={GRADIENT.valueOpacity} />
                     <stop offset='95%' stopColor={color} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id={`gradient-incomplete`} x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='5%' stopColor={color} stopOpacity={INCOMPLETE_GRADIENT_OPACITY} />
+                    <stop offset='5%' stopColor={color} stopOpacity={GRADIENT.incompleteOpacity} />
                     <stop offset='95%' stopColor={color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
                 <XAxis
                   dataKey='date'
-                  fontSize={AXIS_FONT_SIZE}
+                  fontSize={AXIS.fontSize}
                   tickLine={false}
                   axisLine={false}
                   className='text-muted-foreground'
-                  tick={{ fontSize: AXIS_FONT_SIZE, fill: 'var(--muted-foreground)' }}
+                  tick={{ fontSize: AXIS.fontSize, fill: 'var(--muted-foreground)' }}
                   tickFormatter={(value) =>
                     axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
                   }
-                  minTickGap={AXIS_MIN_TICK_GAP}
-                  tickMargin={AXIS_TICK_MARGIN}
+                  minTickGap={AXIS.minTickGap}
+                  tickMargin={AXIS.tickMargin}
                   allowDuplicatedCategory={false}
                 />
                 <YAxis
-                  fontSize={AXIS_FONT_SIZE}
+                  fontSize={AXIS.fontSize}
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: AXIS_FONT_SIZE, fill: 'var(--muted-foreground)' }}
+                  tick={{ fontSize: AXIS.fontSize, fill: 'var(--muted-foreground)' }}
                   tickFormatter={yTickFormatter}
                   className='text-muted-foreground'
                   width={40}

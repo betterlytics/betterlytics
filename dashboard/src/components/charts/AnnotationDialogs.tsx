@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
 import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
+import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,7 +68,7 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
 
   return (
     <div className='grid gap-2'>
-      {label ? <label className='text-sm font-medium'>{label}</label> : null}
+      {label ? <Label className='text-sm font-medium'>{label}</Label> : null}
       <div className='flex flex-wrap gap-2'>
         {palette.map((colorToken) => {
           const hex = resolveAnnotationColor(colorToken, isDark ? 'dark' : 'light');
@@ -200,7 +201,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 className='text-sm placeholder:text-xs sm:text-base sm:placeholder:text-sm'
               />
               <div>
-                <label className='text-sm font-medium'>{t('descriptionLabel')}</label>
+                <Label className='text-sm font-medium'>{t('descriptionLabel')}</Label>
                 <Input
                   placeholder={t('descriptionPlaceholder')}
                   value={createForm.description}
@@ -210,7 +211,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 />
               </div>
               <div className='grid gap-2'>
-                <label className='text-sm font-medium'>{t('dateTimeLabel')}</label>
+                <Label className='text-sm font-medium'>{t('dateTimeLabel')}</Label>
                 <DateTimePicker24h
                   value={createForm.date ?? new Date()}
                   onChange={(d) => setCreateForm((prev) => ({ ...prev, date: d ?? null }))}
@@ -254,7 +255,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
             </DialogHeader>
             <div className='space-y-4 py-4'>
               <div>
-                <label className='text-sm font-medium'>{t('nameLabel')}</label>
+                <Label className='text-sm font-medium'>{t('nameLabel')}</Label>
                 <Input
                   placeholder={t('editNamePlaceholder')}
                   value={editForm.name}
@@ -270,7 +271,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 />
               </div>
               <div>
-                <label className='text-sm font-medium'>{t('descriptionLabel')}</label>
+                <Label className='text-sm font-medium'>{t('descriptionLabel')}</Label>
                 <Input
                   placeholder={t('descriptionPlaceholder')}
                   value={editForm.description}
@@ -280,7 +281,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 />
               </div>
               <div className='grid gap-2'>
-                <label className='text-sm font-medium'>{t('dateTimeLabel')}</label>
+                <Label className='text-sm font-medium'>{t('dateTimeLabel')}</Label>
                 <DateTimePicker24h
                   value={editForm.date ?? new Date(selectedAnnotation?.date ?? Date.now())}
                   onChange={(d) => setEditForm((prev) => ({ ...prev, date: d ?? null }))}

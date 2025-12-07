@@ -3,8 +3,16 @@ import { type AnnotationColorToken, type ChartAnnotation } from '@/entities/anno
 export type ThemeMode = 'light' | 'dark';
 
 export const ANNOTATION_BADGE_WIDTH = 28;
+export const ANNOTATION_PILL_TEXT = {
+  font: '500 11px Inter, system-ui, -apple-system, sans-serif',
+  fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+  fontSize: 11,
+  fontWeight: 500,
+} as const;
 const ANNOTATION_MIN_BASE_WIDTH = 44;
 const ANNOTATION_TEXT_PADDING = 16;
+const MIN_CHART_WIDTH = 320;
+const GROUP_SPACING_BUFFER_PX = 8;
 
 export type MeasureTextWidth = (text: string) => number;
 
@@ -33,14 +41,10 @@ export function resolveAnnotationColor(
 }
 
 export interface AnnotationGroup {
-  /** Bucket timestamp (used as x position) */
   bucketDate: number;
-  /** Y value at this bucket (for positioning the dot) */
   dataValue: number;
-  /** All annotations in this bucket, sorted by original date */
   annotations: ChartAnnotation[];
-  /** Tier for vertical staggering to avoid horizontal overlap */
-  tier: number;
+  tier: number; // Tier for vertical staggering to avoid horizontal overlap
 }
 
 interface ChartDataPoint {
@@ -48,9 +52,6 @@ interface ChartDataPoint {
   value: Array<number | null>;
 }
 
-/**
- * Finds the chart bucket that contains the given timestamp
- */
 function findContainingBucket(timestamp: number, sortedBuckets: number[]): number | null {
   if (sortedBuckets.length === 0 || timestamp < sortedBuckets[0]) return null;
 
@@ -101,10 +102,8 @@ function calculateGroupTiers(
   const maxDate = domainMax ?? Math.max(...dates);
   const dateRange = Math.max(maxDate - minDate, 1);
 
-  // Track right edge of each tier in px
   const tierRightEdgesPx: number[] = [];
-  const safeChartWidth = Math.max(chartWidth, 320);
-
+  const safeChartWidth = Math.max(chartWidth, MIN_CHART_WIDTH);
   const sorted = [...groups].sort((a, b) => a.bucketDate - b.bucketDate);
 
   return sorted.map((group) => {
@@ -115,11 +114,9 @@ function calculateGroupTiers(
     const pillWidthPx = getAnnotationPillWidth(label, extraCount, measureTextWidth);
     const halfWidthPx = pillWidthPx / 2;
 
-    const spacingBufferPx = 8;
-    const leftEdgePx = positionPx - halfWidthPx - spacingBufferPx;
-    const rightEdgePx = positionPx + halfWidthPx + spacingBufferPx;
+    const leftEdgePx = positionPx - halfWidthPx - GROUP_SPACING_BUFFER_PX;
+    const rightEdgePx = positionPx + halfWidthPx + GROUP_SPACING_BUFFER_PX;
 
-    // Find first tier with no overlap, or create new tier
     let tier = tierRightEdgesPx.findIndex((edge) => leftEdgePx >= edge);
     if (tier === -1) tier = tierRightEdgesPx.length;
 
@@ -145,13 +142,12 @@ export function groupAnnotationsByBucket(
   const sortedBuckets: number[] = [];
 
   for (const d of chartData) {
-    const ts = typeof d.date === 'number' ? d.date : new Date(d.date).getTime();
-    bucketValues.set(ts, d.value?.[0] ?? null);
-    sortedBuckets.push(ts);
+    const timestamp = typeof d.date === 'number' ? d.date : new Date(d.date).getTime();
+    bucketValues.set(timestamp, d.value?.[0] ?? null);
+    sortedBuckets.push(timestamp);
   }
   sortedBuckets.sort((a, b) => a - b);
 
-  // Group annotations by bucket
   const groupMap = new Map<number, ChartAnnotation[]>();
 
   for (const annotation of annotations) {

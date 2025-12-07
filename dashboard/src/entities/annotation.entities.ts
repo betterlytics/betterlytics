@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-export const ANNOTATION_LABEL_MAX_LENGTH = 48;
-export const ANNOTATION_DESCRIPTION_MAX_LENGTH = 256;
+const ANNOTATION_LABEL_MAX_LENGTH = 48;
+const ANNOTATION_DESCRIPTION_MAX_LENGTH = 256;
 
 export const ANNOTATION_COLOR_TOKENS = [
   'slate',
