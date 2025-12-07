@@ -12,6 +12,7 @@ import { env } from '@/lib/env';
 import prisma from '@/lib/postgres';
 import { createDefaultUserSettings, getUserSettings } from '@/services/userSettings';
 import { createStarterSubscriptionForUser } from '@/services/subscription.service';
+import { setLocaleCookie } from '@/constants/cookies';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -188,6 +189,10 @@ export const authOptions: NextAuthOptions = {
         session.user.termsAcceptedAt = token.termsAcceptedAt;
         session.user.termsAcceptedVersion = token.termsAcceptedVersion;
         session.user.changelogVersionSeen = token.changelogVersionSeen ?? 'v0';
+
+        if (session.user.settings?.language) {
+          await setLocaleCookie(session.user.settings.language);
+        }
       }
       return session;
     },
