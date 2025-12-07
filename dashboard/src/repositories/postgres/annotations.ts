@@ -53,10 +53,10 @@ export async function getAnnotationsByDashboardAndChart(
   }
 }
 
-export async function getAnnotationById(id: string): Promise<Annotation | null> {
+export async function getAnnotationById(dashboardId: string, id: string): Promise<Annotation | null> {
   try {
     const annotation = await prisma.annotation.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, dashboardId, deletedAt: null },
     });
 
     return annotation ? AnnotationSchema.parse(annotation) : null;
@@ -102,17 +102,5 @@ export async function deleteAnnotation(id: string): Promise<void> {
   } catch (error) {
     console.error('Failed to delete annotation', error);
     throw new Error('Unable to delete annotation');
-  }
-}
-
-export async function deleteAnnotationsByDashboard(dashboardId: string): Promise<void> {
-  try {
-    await prisma.annotation.updateMany({
-      where: { dashboardId, deletedAt: null },
-      data: { deletedAt: new Date() },
-    });
-  } catch (error) {
-    console.error('Failed to delete annotations for dashboard', error);
-    throw new Error('Unable to delete annotations for dashboard');
   }
 }

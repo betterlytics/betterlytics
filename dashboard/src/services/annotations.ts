@@ -7,7 +7,6 @@ import {
   getAnnotationById,
   updateAnnotation,
   deleteAnnotation,
-  deleteAnnotationsByDashboard,
 } from '@/repositories/postgres/annotations';
 
 export async function createDashboardAnnotation(data: AnnotationCreate): Promise<Annotation> {
@@ -18,8 +17,8 @@ export async function getDashboardAnnotations(dashboardId: string, chartId: stri
   return getAnnotationsByDashboardAndChart(dashboardId, chartId);
 }
 
-export async function getDashboardAnnotation(id: string): Promise<Annotation | null> {
-  return getAnnotationById(id);
+export async function getDashboardAnnotation(dashboardId: string, id: string): Promise<Annotation | null> {
+  return getAnnotationById(dashboardId, id);
 }
 
 export async function updateDashboardAnnotation(id: string, data: AnnotationUpdate): Promise<Annotation> {
@@ -28,8 +27,4 @@ export async function updateDashboardAnnotation(id: string, data: AnnotationUpda
 
 export async function deleteDashboardAnnotation(id: string): Promise<void> {
   return deleteAnnotation(id);
-}
-
-export async function deleteDashboardAnnotations(dashboardId: string): Promise<void> {
-  return deleteAnnotationsByDashboard(dashboardId);
 }

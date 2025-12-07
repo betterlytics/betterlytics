@@ -34,28 +34,14 @@ export const getAnnotationsAction = withDashboardAuthContext(
   },
 );
 
-export const getAnnotationAction = withDashboardAuthContext(
-  async (ctx: AuthContext, annotationId: string): Promise<Annotation | null> => {
-    const annotation = await getDashboardAnnotation(annotationId);
-
-    // Ensure the annotation belongs to the user's dashboard
-    if (annotation?.dashboardId !== ctx.dashboardId) {
-      return null;
-    }
-
-    return annotation;
-  },
-);
-
 export const updateAnnotationAction = withDashboardMutationAuthContext(
   async (
     ctx: AuthContext,
     annotationId: string,
     payload: Partial<Pick<Annotation, 'label' | 'description' | 'colorToken' | 'date'>>,
   ) => {
-    // First check that the annotation belongs to the user's dashboard
-    const annotation = await getDashboardAnnotation(annotationId);
-    if (!annotation || annotation.dashboardId !== ctx.dashboardId) {
+    const annotation = await getDashboardAnnotation(ctx.dashboardId, annotationId);
+    if (!annotation) {
       throw new Error('Annotation not found or access denied');
     }
 
@@ -66,9 +52,8 @@ export const updateAnnotationAction = withDashboardMutationAuthContext(
 
 export const deleteAnnotationAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, annotationId: string) => {
-    // First check that the annotation belongs to the user's dashboard
-    const annotation = await getDashboardAnnotation(annotationId);
-    if (!annotation || annotation.dashboardId !== ctx.dashboardId) {
+    const annotation = await getDashboardAnnotation(ctx.dashboardId, annotationId);
+    if (!annotation) {
       throw new Error('Annotation not found or access denied');
     }
 
