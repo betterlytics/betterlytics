@@ -1,7 +1,6 @@
 'server-only';
 
 import {
-  getCampaignPerformanceData,
   getCampaignVisitorTrendData,
   getCampaignLandingPagePerformanceData,
   getCampaignAudienceProfileData,
@@ -31,8 +30,8 @@ import {
   type BrowserInfo,
   type DeviceType,
   type OperatingSystemInfo,
-} from '@/entities/devices';
-import { GeoVisitorSchema, type GeoVisitor } from '@/entities/geography';
+} from '@/entities/analytics/devices.entities';
+import { GeoVisitorSchema, type GeoVisitor } from '@/entities/analytics/geography.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { formatDuration } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
