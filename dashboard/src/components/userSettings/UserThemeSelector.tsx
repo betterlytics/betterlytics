@@ -8,7 +8,7 @@ import { Monitor, Moon, Sun, LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useUserSettingsPreview } from '@/contexts/UserSettingsPreviewContext';
 import { Theme } from '@prisma/client';
-import { UserSettingsUpdate } from '@/entities/userSettings';
+import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 
 const THEME_ICONS: Record<Theme, LucideIcon> = {
   [Theme.light]: Sun,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useCallback, useRef, Dispatch } from 'react';
-import type { UserSettingsUpdate } from '@/entities/userSettings';
+import type { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 
 type UserSettingsPreviewContextType = {
   register: (key: string, handler: Dispatch<UserSettingsUpdate>) => void;
