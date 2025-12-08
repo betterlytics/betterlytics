@@ -108,9 +108,8 @@
 
   --flagicon-border: oklch(0.5 0 0 / 0.5);
 
-  --map-feature-border-low: #9ac5f8;
-  --map-feature-border-medium: #4a7ce0;
-  --map-feature-border-high: #1535c3;
+  --map-feature-border-low: #7196d3;
+  --map-feature-border-high: #3b82f6;
   --map-feature-border-hovered: #cce6cc;
   --map-feature-border-clicked: #ffc067;
   --map-feature-border-none: #e0e0e0;
@@ -118,15 +117,13 @@
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
 
-  --graph-fill-low: #abd1ff;
-  --graph-fill-medium: #4e82e5;
-  --graph-fill-high: #1535c3;
+  --graph-fill-low: #98b4ff;
+  --graph-fill-high: #1e40af;
   --graph-fill-none: #92a4c3;
 
   --weekly-heatmap-fill-low: #abd1ff;
-  --weekly-heatmap-fill-medium: #4e82e5;
-  --weekly-heatmap-fill-high: #1535c3;
-  --weekly-heatmap-fill-none: #92a4c3;
+  --weekly-heatmap-fill-high: #4d6cf5;
+  --weekly-heatmap-fill-none: #e2e2e2;
 }
 
 .dark {
@@ -189,7 +186,6 @@
   --flagicon-border: oklch(68.273% 0.0186 267.741 / 0.281);
 
   --map-feature-border-low: #93c5fd;
-  --map-feature-border-medium: #5570e0;
   --map-feature-border-high: #3b82f6;
   --map-feature-border-hovered: #cce6cc;
   --map-feature-border-clicked: #ffc067;
@@ -198,7 +194,7 @@
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
 
-  --graph-fill-low: #60a5fa;
+  --graph-fill-low: #98b4ff;
   --graph-fill-high: #1e40af;
   --graph-fill-none: #6b7280;
 
