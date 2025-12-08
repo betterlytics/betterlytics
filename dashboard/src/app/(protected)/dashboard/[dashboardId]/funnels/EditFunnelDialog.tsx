@@ -12,11 +12,11 @@ import {
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import { updateFunnelAction } from '@/app/actions';
+import { updateFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
-import { UpdateFunnelSchema, type FunnelStep } from '@/entities/funnels';
+import { UpdateFunnelSchema, type FunnelStep } from '@/entities/analytics/funnels.entities';
 import { toast } from 'sonner';
 import { FunnelDialogContent } from './FunnelDialogContent';
 

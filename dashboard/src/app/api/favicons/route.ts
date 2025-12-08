@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { lookup } from 'dns/promises';
 import ipaddr from 'ipaddr.js';
-import { domainValidation } from '@/entities/dashboard';
+import { domainValidation } from '@/entities/dashboard/dashboard.entities';
 
 const USER_AGENT = 'Better Analytics Favicon Proxy';
 const SUPPORTED_PROTOCOLS: Array<'https' | 'http'> = ['https', 'http'];
@@ -10,6 +10,7 @@ const FAVICON_PATHS: string[] = ['/favicon.ico', '/favicon.png', '/favicon.jpg',
 const CONFIG = {
   timeoutMs: 2_000,
   cacheSeconds: 60 * 60 * 24 * 3,
+  negativeCacheSeconds: 60 * 60 * 6,
   maxBytes: 100 * 1024,
   maxRedirects: 5,
 };
@@ -26,7 +27,19 @@ export async function GET(request: NextRequest) {
   }
 
   const response = await proxyFavicon(parsed.data);
-  return response ?? new NextResponse(null, { status: 404 });
+  if (response) {
+    return response;
+  }
+
+  // Negative cache: if we fail to resolve a favicon for this domain, return a 404
+  // with the same caching semantics as a successful favicon. This prevents repeated
+  // lookups for obviously bad or misconfigured domains.
+  return new NextResponse(null, {
+    status: 404,
+    headers: {
+      'Cache-Control': `public, max-age=${CONFIG.negativeCacheSeconds}`,
+    },
+  });
 }
 
 async function proxyFavicon(domain: string): Promise<NextResponse | null> {
@@ -95,9 +108,8 @@ async function fetchFavicon(url: string): Promise<NextResponse | null> {
       },
     });
   } catch (error) {
-    if ((error as Error).name !== 'AbortError') {
-      console.warn('[favicon-proxy] Failed to fetch favicon from', url, error);
-    }
+    // Network/TLS issues for arbitrary user domains are expected.
+    // We don't want to log these in production to avoid log spam.
     return null;
   } finally {
     clearTimeout(timeoutId);

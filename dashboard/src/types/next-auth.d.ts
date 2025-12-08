@@ -1,6 +1,6 @@
 import 'next-auth';
 import 'next-auth/jwt';
-import type { UserSettings } from '@/entities/userSettings';
+import type { UserSettings } from '@/entities/account/userSettings.entities';
 
 declare module 'next-auth' {
   interface User {

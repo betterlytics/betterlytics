@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
-import { fetchSiteId } from '@/app/actions';
+import { fetchSiteId } from '@/app/actions/index.actions';
 import { useTrackingVerification } from '@/hooks/use-tracking-verification';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';

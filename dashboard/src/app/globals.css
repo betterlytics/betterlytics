@@ -290,3 +290,8 @@
   border-color: rgba(0, 0, 0, 0.9) !important;
   background: color-mix(in oklab, var(--primary), white 20%) !important;
 }
+
+/* Allow chart tooltips/annotations to extend beyond the SVG bounds */
+.recharts-wrapper svg {
+  overflow: visible !important;
+}

@@ -1,0 +1,66 @@
+'use server';
+
+import { withDashboardAuthContext } from '@/auth/auth-actions';
+import { AuthContext } from '@/entities/auth/authContext.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
+import {
+  getAllCoreWebVitalPercentilesTimeseries,
+  getCoreWebVitalsSummaryForSite,
+  getCoreWebVitalsPreparedByDimension,
+  getHasCoreWebVitalsData,
+} from '@/services/analytics/webVitals.service';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
+import { toWebVitalsPercentileChart, type PercentilePoint } from '@/presenters/toMultiLine';
+import { toDataTable } from '@/presenters/toDataTable';
+import { type CWVDimension } from '@/entities/analytics/webVitals.entities';
+
+export const fetchCoreWebVitalsSummaryAction = withDashboardAuthContext(
+  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
+    return getCoreWebVitalsSummaryForSite(ctx.siteId, startDate, endDate, queryFilters);
+  },
+);
+
+export const fetchHasCoreWebVitalsData = withDashboardAuthContext(async (ctx: AuthContext) => {
+  return getHasCoreWebVitalsData(ctx.siteId);
+});
+
+export const fetchCoreWebVitalChartDataAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    granularity: GranularityRangeValues,
+    queryFilters: QueryFilter[],
+    timezone: string,
+  ): Promise<Record<CoreWebVitalName, PercentilePoint[]>> => {
+    const rows = await getAllCoreWebVitalPercentilesTimeseries(
+      ctx.siteId,
+      startDate,
+      endDate,
+      granularity,
+      queryFilters,
+      timezone,
+    );
+    return toWebVitalsPercentileChart(rows);
+  },
+);
+
+export const fetchCoreWebVitalsByDimensionAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    queryFilters: QueryFilter[],
+    dimension: CWVDimension,
+  ) => {
+    const prepared = await getCoreWebVitalsPreparedByDimension(
+      ctx.siteId,
+      startDate,
+      endDate,
+      queryFilters,
+      dimension,
+    );
+    return toDataTable({ categoryKey: 'key', data: prepared });
+  },
+);

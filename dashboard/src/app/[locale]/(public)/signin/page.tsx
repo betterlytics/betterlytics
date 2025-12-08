@@ -2,16 +2,14 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { authOptions } from '@/lib/auth';
 import LoginForm from '@/components/auth/LoginForm';
 import Logo from '@/components/logo';
-import { getServerSession } from 'next-auth';
 import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { VerificationSuccessHandler } from '@/components/accountVerification/VerificationSuccessHandler';
 import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { StructuredData } from '@/components/StructuredData';
+import { getAuthSession } from '@/auth/auth-actions';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -45,7 +43,7 @@ export async function generateMetadata({
 }
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   const registrationEnabled = isFeatureEnabled('enableRegistration');
   const { error } = await searchParams;
   const t = await getTranslations('public.auth.signin');
@@ -68,8 +66,6 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     <>
       <StructuredData config={seoConfig} />
       <div className='bg-background flex items-center justify-center px-4 py-12 sm:px-6 sm:pt-20 lg:px-8'>
-        <VerificationSuccessHandler />
-
         <div className='w-full max-w-md space-y-8'>
           <div className='text-center'>
             <div className='mb-6 flex justify-center'>

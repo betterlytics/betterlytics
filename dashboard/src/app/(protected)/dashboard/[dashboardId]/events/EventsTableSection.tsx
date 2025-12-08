@@ -1,6 +1,6 @@
 import { use } from 'react';
 import { EventsTable } from '@/app/(protected)/dashboard/[dashboardId]/events/EventsTable';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/events';
+import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 
 type EventsTableSectionProps = {
   eventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;

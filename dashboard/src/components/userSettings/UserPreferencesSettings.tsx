@@ -5,7 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
-import { UserSettingsUpdate } from '@/entities/userSettings';
+import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import SettingsCard from '@/components/SettingsCard';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';

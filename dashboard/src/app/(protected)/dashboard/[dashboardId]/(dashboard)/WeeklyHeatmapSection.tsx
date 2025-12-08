@@ -1,15 +1,15 @@
 'use client';
 
 import { Fragment, useMemo, useState, type CSSProperties, useCallback, useEffect } from 'react';
-import { fetchWeeklyHeatmapAllAction } from '@/app/actions/weeklyHeatmap';
-import type { HeatmapMetric } from '@/entities/weeklyHeatmap';
+import { fetchWeeklyHeatmapAllAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
+import type { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale, type ScaleType } from '@/hooks/use-color-scale';
