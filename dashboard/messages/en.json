@@ -1518,6 +1518,18 @@
         "successMessage": "Funnel updated!",
         "errorMessage": "Funnel update failed!"
       },
+      "clone": {
+        "title": "Clone funnel",
+        "name": "Funnel Name",
+        "namePlaceholder": "My funnel (copy)",
+        "strictMode": "Strict Mode",
+        "addStep": "Add Step",
+        "livePreview": "Live Preview",
+        "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview.",
+        "cta": "Create clone",
+        "successMessage": "Funnel cloned!",
+        "errorMessage": "Funnel clone failed!"
+      },
       "plot": {
         "stepLabel": "Step {index}",
         "visitors": "Visitors",

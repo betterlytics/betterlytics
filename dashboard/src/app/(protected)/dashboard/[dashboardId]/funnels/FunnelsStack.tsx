@@ -4,6 +4,7 @@ import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from '@/app/(protected)/dashboard/[dashboardId]/funnels/FunnelsEmptyState';
 import { EditFunnelDialog } from './EditFunnelDialog';
 import { DeleteFunnelDialog } from './DeleteFunnelDialog';
+import { CloneFunnelDialog } from './CloneFunnelDialog';
 
 type FunnelsStackProps = {
   promise: ReturnType<typeof fetchFunnelsAction>;
@@ -19,8 +20,9 @@ export function FunnelsStack({ promise }: FunnelsStackProps) {
           <div className='flex w-full items-center justify-between'>
             <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
             <div className='hidden gap-2 md:flex'>
-              <DeleteFunnelDialog funnel={funnel} />
               <EditFunnelDialog funnel={funnel} />
+              <CloneFunnelDialog funnel={funnel} />
+              <DeleteFunnelDialog funnel={funnel} />
             </div>
           </div>
           <FunnelBarplot funnel={funnel} />

@@ -1522,6 +1522,18 @@
         "successMessage": "Funnel aggiornato!",
         "errorMessage": "Aggiornamento funnel fallito!"
       },
+      "clone": {
+        "title": "Clona funnel",
+        "name": "Nome funnel",
+        "namePlaceholder": "Il mio funnel (copia)",
+        "strictMode": "Modalità ristretta",
+        "addStep": "Aggiungi passaggio",
+        "livePreview": "Anteprima live",
+        "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima.",
+        "cta": "Crea copia",
+        "successMessage": "Funnel clonato!",
+        "errorMessage": "Clonazione funnel fallita!"
+      },
       "plot": {
         "stepLabel": "Passaggio {index}",
         "visitors": "Visitatori",
