@@ -55,7 +55,6 @@ export function useChartAnnotations({
     try {
       setIsLoading(true);
       const result = await getAnnotationsAction(dashboardId, chartId);
-      console.log(result.map((a) => [a.id, typeof a.date, a.date?.constructor?.name]));
       setAnnotations(result);
     } catch {
     } finally {
