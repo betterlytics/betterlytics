@@ -20,26 +20,24 @@ interface UserPreferencesSettingsProps {
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
   const t = useTranslations('components.userSettings.preferences');
 
-  const handleLocaleChange = (newLocale: SupportedLanguages) => {
-    onUpdate({ language: newLocale });
-  };
-
-  const handleAvatarChange = (newAvatar: 'default' | 'gravatar') => {
-    onUpdate({ avatar: newAvatar });
-  };
+  const updateField =
+    <TSetting extends keyof UserSettingsUpdate>(key: TSetting) =>
+    (value: UserSettingsUpdate[TSetting]) => {
+      onUpdate({ [key]: value });
+    };
 
   return (
     <div className='space-y-6'>
       <SettingsCard icon={Monitor} title={t('appearance.title')} description={t('appearance.description')}>
-        <UserThemeSelector
-          value={formData.theme}
-          onUpdate={(theme) => onUpdate({ theme })}
-        />
+        <UserThemeSelector value={formData.theme} onUpdate={updateField('theme')} />
 
         <div>
           <div className='flex items-center justify-between'>
             <Label htmlFor='avatar'>{t('avatar.label')}</Label>
-            <Select value={formData.avatar} onValueChange={handleAvatarChange}>
+            <Select
+              value={formData.avatar}
+              onValueChange={(v) => updateField('avatar')(v as UserSettingsUpdate['avatar'])}
+            >
               <SelectTrigger className='w-32 cursor-pointer'>
                 <SelectValue />
               </SelectTrigger>
@@ -80,10 +78,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
         <div className='space-y-4'>
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>{t('localization.language')}</Label>
-            <LanguageSelect
-              value={formData.language as SupportedLanguages}
-              onUpdate={handleLocaleChange}
-            />
+            <LanguageSelect value={formData.language as SupportedLanguages} onUpdate={updateField('language')} />
           </div>
         </div>
       </SettingsCard>
@@ -98,7 +93,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             <Switch
               id='email-notifications'
               checked={formData.emailNotifications ?? true}
-              onCheckedChange={(checked) => onUpdate({ emailNotifications: checked })}
+              onCheckedChange={updateField('emailNotifications')}
               className='cursor-pointer'
             />
           </div>
@@ -111,7 +106,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             <Switch
               id='marketing-emails'
               checked={formData.marketingEmails ?? false}
-              onCheckedChange={(checked) => onUpdate({ marketingEmails: checked })}
+              onCheckedChange={updateField('marketingEmails')}
               className='cursor-pointer'
             />
           </div>
