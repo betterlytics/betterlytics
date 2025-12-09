@@ -126,6 +126,9 @@ export function CloneFunnelDialog({ funnel }: CloneFunnelDialogProps) {
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
+            {t('cancel')}
+          </Button>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleCloneFunnel}>
             {t('cta')}
           </Button>
