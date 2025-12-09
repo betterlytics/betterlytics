@@ -2,9 +2,7 @@ import { use } from 'react';
 import type { fetchFunnelsAction } from '@/app/actions/index.actions';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from '@/app/(protected)/dashboard/[dashboardId]/funnels/FunnelsEmptyState';
-import { EditFunnelDialog } from './EditFunnelDialog';
-import { DeleteFunnelDialog } from './DeleteFunnelDialog';
-import { CloneFunnelDialog } from './CloneFunnelDialog';
+import { FunnelActionButtons } from './FunnelActionButtons';
 
 type FunnelsStackProps = {
   promise: ReturnType<typeof fetchFunnelsAction>;
@@ -19,11 +17,7 @@ export function FunnelsStack({ promise }: FunnelsStackProps) {
         <div key={funnel.id + i} className='bg-card w-full gap-10 space-y-4 rounded-xl border p-2'>
           <div className='flex w-full items-center justify-between'>
             <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
-            <div className='hidden gap-2 md:flex'>
-              <EditFunnelDialog funnel={funnel} />
-              <CloneFunnelDialog funnel={funnel} />
-              <DeleteFunnelDialog funnel={funnel} />
-            </div>
+            <FunnelActionButtons funnel={funnel} />
           </div>
           <FunnelBarplot funnel={funnel} />
         </div>

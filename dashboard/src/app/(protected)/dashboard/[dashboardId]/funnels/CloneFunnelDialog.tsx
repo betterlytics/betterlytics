@@ -23,9 +23,10 @@ import { FunnelDialogContent } from './FunnelDialogContent';
 
 type CloneFunnelDialogProps = {
   funnel: PresentedFunnel;
+  disabled?: boolean;
 };
 
-export function CloneFunnelDialog({ funnel }: CloneFunnelDialogProps) {
+export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) {
   const t = useTranslations('components.funnels.clone');
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
@@ -94,7 +95,7 @@ export function CloneFunnelDialog({ funnel }: CloneFunnelDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant='ghost' className='cursor-pointer'>
+        <Button variant='ghost' className='cursor-pointer' disabled={disabled}>
           <Copy className='h-4 w-4' />
         </Button>
       </DialogTrigger>
