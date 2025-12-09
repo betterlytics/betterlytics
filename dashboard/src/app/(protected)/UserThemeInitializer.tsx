@@ -13,7 +13,7 @@ export default function UserThemeInitializer() {
     if (settings?.theme && settings.theme !== theme) {
       setTheme(settings.theme);
     }
-  }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   return null;
 }
