@@ -116,6 +116,11 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
+      if (account?.provider === 'dummy') {
+        console.error('Dummy provider is not allowed');
+        return false;
+      }
+
       if (account?.provider === 'credentials') {
         try {
           const sessionToken = generateSessionToken();
