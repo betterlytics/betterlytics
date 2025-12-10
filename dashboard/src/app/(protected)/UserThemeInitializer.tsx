@@ -2,18 +2,20 @@
 
 import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { useUserSettings } from '@/hooks/useUserSettings';
+import { Theme } from '@prisma/client';
 
-export default function UserThemeInitializer() {
-  const { settings, isLoading } = useUserSettings();
+interface UserThemeInitializerProps {
+  theme: Theme | undefined;
+}
+
+export default function UserThemeInitializer({ theme: userTheme }: UserThemeInitializerProps) {
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    if (isLoading) return;
-    if (settings?.theme && settings.theme !== theme) {
-      setTheme(settings.theme);
+    if (userTheme) {
+      setTheme(userTheme);
     }
-  }, [isLoading]);
+  }, []);
 
   return null;
 }

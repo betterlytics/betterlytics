@@ -24,7 +24,7 @@ interface UserThemeSelectorProps {
 export default function UserThemeSelector({ value, onUpdate }: UserThemeSelectorProps) {
   const { setTheme } = useTheme();
   const t = useTranslations('components.userSettings.preferences.appearance');
-  const { register, unregister } = useUserSettingsPreview();
+  const { register } = useUserSettingsPreview();
 
   useEffect(() => {
     register('theme', (settings: UserSettingsUpdate) => {
@@ -32,9 +32,7 @@ export default function UserThemeSelector({ value, onUpdate }: UserThemeSelector
         setTheme(settings.theme);
       }
     });
-
-    return () => unregister('theme');
-  }, [register, unregister, setTheme]);
+  }, [register, setTheme]);
 
   const handleChange = (newTheme: string) => {
     onUpdate(newTheme as Theme);

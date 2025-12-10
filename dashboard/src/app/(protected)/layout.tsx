@@ -13,7 +13,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   return (
     <>
       <TimezoneCookieInitializer />
-      <UserThemeInitializer />
+      <UserThemeInitializer theme={session.user.settings?.theme} />
       {children}
     </>
   );

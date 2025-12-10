@@ -27,8 +27,6 @@ type UserSettingsPreviewProviderProps = {
 
 export function UserSettingsPreviewProvider({ children, originalSettings }: UserSettingsPreviewProviderProps) {
   const handlersRef = useRef<Map<string, Dispatch<UserSettingsUpdate>>>(new Map());
-  const originalSettingsRef = useRef(originalSettings);
-  originalSettingsRef.current = originalSettings;
 
   const register = useCallback((key: string, handler: Dispatch<UserSettingsUpdate>) => {
     handlersRef.current.set(key, handler);
@@ -43,8 +41,8 @@ export function UserSettingsPreviewProvider({ children, originalSettings }: User
   }, []);
 
   const restore = useCallback(() => {
-    handlersRef.current.forEach((handler) => handler(originalSettingsRef.current));
-  }, []);
+    handlersRef.current.forEach((handler) => handler(originalSettings));
+  }, [originalSettings]);
 
   return (
     <UserSettingsPreviewContext.Provider value={{ register, unregister, preview, restore }}>
