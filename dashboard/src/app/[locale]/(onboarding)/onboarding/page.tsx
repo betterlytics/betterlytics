@@ -12,12 +12,14 @@ import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
+import { isRootAdminUserAction } from '@/app/actions/account/userSettings.action';
 
 export default async function Onboarding() {
   const session = await getAuthSession();
   const t = await getTranslations('onboarding.main');
+  const isRootAdmin = await isRootAdminUserAction();
 
-  if (!isFeatureEnabled('enableRegistration')) {
+  if (!isFeatureEnabled('enableRegistration') && !isRootAdmin) {
     const seoConfig = await buildSEOConfig(SEO_CONFIGS.onboarding);
     return (
       <>
