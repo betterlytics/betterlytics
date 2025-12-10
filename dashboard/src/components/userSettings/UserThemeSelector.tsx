@@ -1,14 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useUserSettingsPreview } from '@/contexts/UserSettingsPreviewContext';
 import { Theme } from '@prisma/client';
-import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 
 const THEME_ICONS: Record<Theme, LucideIcon> = {
   [Theme.light]: Sun,
@@ -24,17 +21,9 @@ interface UserThemeSelectorProps {
 export default function UserThemeSelector({ value, onUpdate }: UserThemeSelectorProps) {
   const { setTheme } = useTheme();
   const t = useTranslations('components.userSettings.preferences.appearance');
-  const { register } = useUserSettingsPreview();
-
-  useEffect(() => {
-    register('theme', (settings: UserSettingsUpdate) => {
-      if (settings.theme) {
-        setTheme(settings.theme);
-      }
-    });
-  }, [register, setTheme]);
 
   const handleChange = (newTheme: string) => {
+    setTheme(newTheme);
     onUpdate(newTheme as Theme);
   };
 

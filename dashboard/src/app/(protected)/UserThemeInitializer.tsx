@@ -9,7 +9,7 @@ interface UserThemeInitializerProps {
 }
 
 export default function UserThemeInitializer({ theme: userTheme }: UserThemeInitializerProps) {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   useEffect(() => {
     if (userTheme) {

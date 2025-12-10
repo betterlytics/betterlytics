@@ -21,7 +21,8 @@ import useIsChanged from '@/hooks/use-is-changed';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { UserSettingsPreviewProvider, useUserSettingsPreview } from '@/contexts/UserSettingsPreviewContext';
+import { useTheme } from 'next-themes';
+import type { Theme } from '@prisma/client';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -95,15 +96,13 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
   }
 
   return (
-    <UserSettingsPreviewProvider originalSettings={settings}>
-      <UserSettingsDialogContent
-        open={open}
-        onOpenChange={onOpenChange}
-        settings={settings}
-        isSaving={isSaving}
-        saveSettings={saveSettings}
-      />
-    </UserSettingsPreviewProvider>
+    <UserSettingsDialogContent
+      open={open}
+      onOpenChange={onOpenChange}
+      settings={settings}
+      isSaving={isSaving}
+      saveSettings={saveSettings}
+    />
   );
 }
 
@@ -122,7 +121,8 @@ function UserSettingsDialogContent({
   isSaving,
   saveSettings,
 }: UserSettingsDialogContentProps) {
-  const { preview, restore } = useUserSettingsPreview();
+  const { setTheme } = useTheme();
+  const [originalTheme] = useState<Theme | undefined>(settings.theme);
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
@@ -186,7 +186,6 @@ function UserSettingsDialogContent({
 
   const handleUpdate = (updates: Partial<UserSettingsUpdate>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
-    preview(updates);
   };
 
   const handleSave = async () => {
@@ -204,8 +203,8 @@ function UserSettingsDialogContent({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      restore();
+    if (!isOpen && originalTheme) {
+      setTheme(originalTheme);
     }
     onOpenChange(isOpen);
   };
