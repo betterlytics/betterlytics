@@ -7,6 +7,8 @@ import { Link } from '@/i18n/navigation';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { env } from '@/lib/env';
+import { redirect } from 'next/navigation';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
@@ -14,6 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: S
 }
 
 export default async function AboutPage() {
+  if (!env.IS_CLOUD) {
+    redirect('/');
+  }
+
   const t = await getTranslations('public.about');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.about);
 
