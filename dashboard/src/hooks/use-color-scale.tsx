@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { scaleLinear, scaleLog, scalePow } from 'd3-scale';
 import chroma from 'chroma-js';
+import { type CSSVariableName, useCSSColors } from './use-css-colors';
 
 export type ScaleType =
   | 'linear'
@@ -17,13 +18,19 @@ export type ScaleType =
 export type UseColorScaleProps = {
   maxValue: number;
   /** Array of resolved color values (hex, rgb, or rgba) - at least 2 colors required */
-  colors: [string, string, ...string[]];
+  colors: CSSVariableName[];
   scaleType?: ScaleType;
 };
 
 export type ColorScale = (value: number) => string;
 
-export function useColorScale({ colors, maxValue, scaleType = 'pow-4/10' }: UseColorScaleProps): ColorScale {
+export function useColorScale({
+  colors: colorVariables,
+  maxValue,
+  scaleType = 'pow-4/10',
+}: UseColorScaleProps): ColorScale {
+  const colors = useCSSColors(colorVariables);
+
   return useMemo(() => {
     if (scaleType === 'lab') {
       return (value: number) =>

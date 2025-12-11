@@ -5,7 +5,6 @@ import { ScaleLinear } from 'd3-scale';
 import type { PathOptions } from 'leaflet';
 import { type JSX, useCallback, useMemo } from 'react';
 import { ColorScale, useColorScale, UseColorScaleProps } from '@/hooks/use-color-scale';
-import { useCSSColors } from '@/hooks/use-css-colors';
 
 export type UseMapStyleProps = Omit<UseColorScaleProps, 'colors'>;
 export type FeatureStyle = PathOptions;
@@ -20,24 +19,17 @@ export interface MapStyle {
   borderColorScale: ColorScale;
 }
 
-export function useMapStyle({ maxValue: maxVisitors, scaleType = 'log10' }: UseMapStyleProps): MapStyle {
-  const fillColors = useCSSColors([MAP_VISITOR_COLORS.LOW_VISITORS, MAP_VISITOR_COLORS.HIGH_VISITORS] as const);
-
-  const borderColors = useCSSColors([
-    MAP_FEATURE_BORDER_COLORS.LOW_VISITORS,
-    MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS,
-  ] as const);
-
+export function useMapStyle({ maxValue: maxVisitors, scaleType = 'gamma-1/4' }: UseMapStyleProps): MapStyle {
   const fillColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType: 'gamma-1/4',
-    colors: fillColors as [string, string, string],
+    scaleType: scaleType,
+    colors: [MAP_VISITOR_COLORS.LOW_VISITORS, MAP_VISITOR_COLORS.HIGH_VISITORS],
   });
 
   const borderColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType: 'gamma-1/4',
-    colors: borderColors as [string, string, string],
+    scaleType: scaleType,
+    colors: [MAP_FEATURE_BORDER_COLORS.LOW_VISITORS, MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS],
   });
 
   const originalStyle = useCallback(

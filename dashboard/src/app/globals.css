@@ -108,21 +108,21 @@
 
   --flagicon-border: oklch(0.5 0 0 / 0.5);
 
-  --map-feature-border-low: #7196d3;
+  --map-feature-border-low: #93c5fd;
   --map-feature-border-high: #3b82f6;
   --map-feature-border-hovered: #cce6cc;
   --map-feature-border-clicked: #ffc067;
-  --map-feature-border-none: #e0e0e0;
+  --map-feature-border-none: #9ca3af;
 
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
 
-  --graph-fill-low: #98b4ff;
-  --graph-fill-high: #1e40af;
-  --graph-fill-none: #92a4c3;
+  --graph-fill-low: #abddff;
+  --graph-fill-high: #3b74b4;
+  --graph-fill-none: #6b7280;
 
-  --weekly-heatmap-fill-low: #abd1ff;
-  --weekly-heatmap-fill-high: #4d6cf5;
+  --weekly-heatmap-fill-low: #85bcff;
+  --weekly-heatmap-fill-high: #3567a0;
   --weekly-heatmap-fill-none: #e2e2e2;
 }
 

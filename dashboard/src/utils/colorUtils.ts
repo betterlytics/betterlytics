@@ -10,9 +10,7 @@ export function getResolvedHexColor(variableName: `--${string}`): string {
   const value = getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
 
   if (!value.startsWith('#')) {
-    throw new Error(
-      `CSS variable "${variableName}" must be a hex color for interpolation, got: "${value}"`,
-    );
+    throw new Error(`CSS variable "${variableName}" must be a hex color for interpolation, got: "${value}"`);
   }
 
   return value;

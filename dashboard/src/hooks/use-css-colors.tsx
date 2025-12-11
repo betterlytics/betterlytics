@@ -2,20 +2,24 @@
 
 import { useMemo } from 'react';
 import { getResolvedHexColor } from '@/utils/colorUtils';
+import { useTheme } from 'next-themes';
+import { useDebounce } from './useDebounce';
 
-type CSSVariableName = `--${string}`;
+export type CSSVariableName = `--${string}`;
 
 /**
  * Reads and resolves a set of CSS color variables into hex strings.
  * @param cssVariables - Array of CSS variable names (e.g., '--my-color')
  * @returns Array of resolved hex color strings
  */
-export function useCSSColors(
-  cssVariables: CSSVariableName[] | readonly CSSVariableName[],
-): string[] {
+export function useCSSColors(cssVariables: CSSVariableName[]): string[] {
+  const { resolvedTheme } = useTheme();
+
+  const deboucedTheme = useDebounce(resolvedTheme, 50);
+
   const colors = useMemo(() => {
     return cssVariables.map((v) => getResolvedHexColor(v));
-  }, [cssVariables]);
+  }, [cssVariables.join(','), deboucedTheme]);
 
   return colors;
 }

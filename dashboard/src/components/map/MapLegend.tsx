@@ -14,7 +14,7 @@ function MapLegendComponent({ maxVisitors = 1 }: { maxVisitors?: number }) {
         <div
           className='h-2 w-24 rounded'
           style={{
-            background: `linear-gradient(to right, ${cssVar(MAP_VISITOR_COLORS.NO_VISITORS)} 0%, ${cssVar(MAP_VISITOR_COLORS.LOW_VISITORS)} 3%, ${cssVar(MAP_VISITOR_COLORS.MEDIUM_VISITORS)} 50%, ${cssVar(MAP_VISITOR_COLORS.HIGH_VISITORS)} 100%)`,
+            background: `linear-gradient(to right, ${cssVar(MAP_VISITOR_COLORS.NO_VISITORS)} 0%, ${cssVar(MAP_VISITOR_COLORS.LOW_VISITORS)} 3%, ${cssVar(MAP_VISITOR_COLORS.HIGH_VISITORS)} 100%)`,
           }}
         ></div>
         <span className='text-muted-foreground ml-1 text-xs'>{formatNumber(maxVisitors)}</span>

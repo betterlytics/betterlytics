@@ -12,9 +12,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useColorScale, type ScaleType } from '@/hooks/use-color-scale';
+import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber } from '@/utils/formatters';
-import { useCSSColors } from '@/hooks/use-css-colors';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -143,12 +142,10 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 
-  const colors = useCSSColors(['--weekly-heatmap-fill-low', '--weekly-heatmap-fill-high'] as const);
-
   const colorScale = useColorScale({
     maxValue,
     scaleType: 'lab',
-    colors: colors as [string, string, ...string[]],
+    colors: ['--weekly-heatmap-fill-low', '--weekly-heatmap-fill-high'],
   });
 
   const getCellStyle = useCallback(
