@@ -18,7 +18,7 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { z } from 'zod';
-import { buildCursorWhereClause, buildOrderByClause } from '@/lib/cursor-pagination';
+import { withCursorPagination } from '@/lib/cursor-pagination';
 import type { CursorData } from '@/entities/pagination.entities';
 
 const UTM_DIMENSION_ALIASES = {
@@ -195,43 +195,38 @@ export async function getCampaignPerformancePageDataCursor(
   cursor: CursorData | null,
   limit: number,
 ): Promise<RawCampaignData[]> {
-  const cursorCondition = buildCursorWhereClause(cursor, sortConfig, CAMPAIGN_SORT_FIELD_TO_COLUMN);
-  const orderByClause = buildOrderByClause(sortConfig, CAMPAIGN_SORT_FIELD_TO_COLUMN);
-
-  // We use a CTE (Common Table Expression) to first aggregate all campaigns,
-  // then apply cursor filtering and ordering on the aggregated results.
-  // This is necessary because cursor fields like 'total_visitors' are aggregate values.
-  const query = safeSql`
-    WITH campaign_aggregates AS (
+  const baseQuery = safeSql`
+    SELECT
+      s.utm_campaign AS utm_campaign_name,
+      COUNT(DISTINCT s.visitor_id) AS total_visitors,
+      COUNT(DISTINCT IF(s.session_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
+      COUNT(DISTINCT s.session_id) AS total_sessions,
+      SUM(s.session_pageviews) AS total_pageviews,
+      SUM(s.session_duration_seconds) AS sum_session_duration_seconds
+    FROM (
       SELECT
-        s.utm_campaign AS utm_campaign_name,
-        COUNT(DISTINCT s.visitor_id) AS total_visitors,
-        COUNT(DISTINCT IF(s.session_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
-        COUNT(DISTINCT s.session_id) AS total_sessions,
-        SUM(s.session_pageviews) AS total_pageviews,
-        SUM(s.session_duration_seconds) AS sum_session_duration_seconds
-      FROM (
-        SELECT
-          visitor_id,
-          session_id,
-          utm_campaign,
-          dateDiff('second', MIN(timestamp), MAX(timestamp)) AS session_duration_seconds,
-          COUNT(*) AS session_pageviews
-        FROM analytics.events
-        WHERE site_id = {siteId:String}
-          AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-          AND event_type = 'pageview'
-          AND utm_campaign != ''
-        GROUP BY visitor_id, session_id, utm_campaign
-      ) s
-      GROUP BY s.utm_campaign
-    )
-    SELECT *
-    FROM campaign_aggregates
-    WHERE ${cursorCondition}
-    ${orderByClause}
-    LIMIT {limit:UInt32}
+        visitor_id,
+        session_id,
+        utm_campaign,
+        dateDiff('second', MIN(timestamp), MAX(timestamp)) AS session_duration_seconds,
+        COUNT(*) AS session_pageviews
+      FROM analytics.events
+      WHERE site_id = {siteId:String}
+        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+        AND event_type = 'pageview'
+        AND utm_campaign != ''
+      GROUP BY visitor_id, session_id, utm_campaign
+    ) s
+    GROUP BY s.utm_campaign
   `;
+
+  const query = withCursorPagination({
+    baseQuery,
+    cursor,
+    sortConfig,
+    fieldToColumn: CAMPAIGN_SORT_FIELD_TO_COLUMN,
+    limit,
+  });
 
   const resultSet = await clickhouse
     .query(query.taggedSql, {
@@ -240,7 +235,6 @@ export async function getCampaignPerformancePageDataCursor(
         siteId,
         startDate,
         endDate,
-        limit: limit + 1, // Fetch one extra to determine hasMore
       },
     })
     .toPromise();

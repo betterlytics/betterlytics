@@ -198,6 +198,66 @@ export function extractCursorFromItem<TField extends string, TItem extends Recor
 export const LimitSchema = z.number().int().positive().max(100).default(10);
 
 /**
+ * Options for withCursorPagination
+ */
+export type WithCursorPaginationOptions<TField extends string> = {
+  /** The base query that produces rows to paginate */
+  baseQuery: ReturnType<typeof safeSql>;
+  /** Decoded cursor data (null for first page) */
+  cursor: CursorData | null;
+  /** Sort configuration defining field ordering */
+  sortConfig: SortConfig<TField>;
+  /** Maps sort field names to SQL column names in the base query output */
+  fieldToColumn: FieldToColumnMap<TField>;
+  /** Number of items to fetch (will automatically fetch limit+1 for hasMore detection) */
+  limit: number;
+};
+
+/**
+ * Wraps a base query with cursor-based pagination.
+ *
+ * This helper wraps any query in a CTE and applies cursor filtering, ordering, and limiting.
+ * The base query should produce the rows you want to paginate - it can be a simple SELECT
+ * or a complex aggregation. The cursor condition is applied AFTER the base query executes.
+ *
+ * @example
+ * ```ts
+ * const baseQuery = safeSql`
+ *   SELECT utm_campaign, COUNT(*) as visitors
+ *   FROM events
+ *   WHERE site_id = {siteId:String}
+ *   GROUP BY utm_campaign
+ * `;
+ *
+ * const query = withCursorPagination({
+ *   baseQuery,
+ *   cursor: decodeCursor(cursorString),
+ *   sortConfig: { fields: [{ field: 'visitors', direction: 'desc' }] },
+ *   fieldToColumn: { visitors: 'visitors' },
+ *   limit: 10,
+ * });
+ * ```
+ */
+export function withCursorPagination<TField extends string>({
+  baseQuery,
+  cursor,
+  sortConfig,
+  fieldToColumn,
+  limit,
+}: WithCursorPaginationOptions<TField>): ReturnType<typeof safeSql> {
+  const cursorCondition = buildCursorWhereClause(cursor, sortConfig, fieldToColumn);
+  const orderBy = buildOrderByClause(sortConfig, fieldToColumn);
+
+  return safeSql`
+    WITH base AS (${baseQuery})
+    SELECT * FROM base
+    WHERE ${cursorCondition}
+    ${orderBy}
+    LIMIT ${SQL.UInt32({ limit: limit + 1 })}
+  `;
+}
+
+/**
  * Create a cursor-paginated response from query results
  *
  * @param items The query results
