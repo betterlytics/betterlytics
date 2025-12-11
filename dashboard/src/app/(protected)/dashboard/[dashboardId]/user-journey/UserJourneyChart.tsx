@@ -3,6 +3,7 @@
 import { useMemo, useState, useCallback } from 'react';
 import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { formatString } from '@/utils/formatters';
+import { useTheme } from 'next-themes';
 
 // ============================================
 // COLOR MAP - Customize colors here
@@ -83,6 +84,7 @@ interface UserJourneyChartProps {
 // MAIN COMPONENT
 // ============================================
 export default function UserJourneyChart({ data }: UserJourneyChartProps) {
+  const { resolvedTheme } = useTheme();
   const width = 900;
   const height = 500;
 
@@ -244,8 +246,11 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       >
         {/* Definitions for filters */}
         <defs>
-          <filter id='textShadow' x='-50%' y='-50%' width='200%' height='200%'>
-            <feDropShadow dx='0' dy='0' stdDeviation='2' floodColor='#ffffff' floodOpacity='0.9' />
+          <filter id='textShadowLight' x='-50%' y='-50%' width='200%' height='200%'>
+            <feDropShadow dx='0' dy='0' stdDeviation='1.4' floodColor='#0f172a' floodOpacity='0.2' />
+          </filter>
+          <filter id='textShadowDark' x='-50%' y='-50%' width='200%' height='200%'>
+            <feDropShadow dx='0' dy='0' stdDeviation='1.2' floodColor='#ffffff' floodOpacity='0.32' />
           </filter>
         </defs>
 
@@ -271,6 +276,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
               isHighlighted={isHighlighting && highlightState.nodeIds.has(node.id)}
               isMuted={isHighlighting && !highlightState.nodeIds.has(node.id)}
               onHover={handleNodeHover}
+              theme={resolvedTheme as 'light' | 'dark' | undefined}
             />
           ))}
         </g>
@@ -289,6 +295,7 @@ function calculateLayout(
 ): { nodePositions: NodePosition[]; linkPositions: LinkPosition[] } {
   const { nodes, links } = data;
   const { padding, nodeWidth, minNodeHeight, linkGapRatio } = LAYOUT;
+  const labelMargin = 110; // reserve space on the right for inline labels
 
   if (nodes.length === 0) {
     return { nodePositions: [], linkPositions: [] };
@@ -327,7 +334,7 @@ function calculateLayout(
   });
 
   // Calculate available space
-  const availableWidth = width - padding.left - padding.right - nodeWidth;
+  const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
   const availableHeight = height - padding.top - padding.bottom;
   const depthSpacing = maxDepth > 0 ? availableWidth / maxDepth : 0;
 
@@ -589,17 +596,28 @@ interface SankeyNodeProps {
   isHighlighted: boolean;
   isMuted: boolean;
   onHover: (nodeId: string | null) => void;
+  theme: 'light' | 'dark' | undefined;
 }
 
-function SankeyNode({ node, isHighlighted, isMuted, onHover }: SankeyNodeProps) {
+function SankeyNode({ node, isHighlighted, isMuted, onHover, theme }: SankeyNodeProps) {
   // Inline label positioning - text directly to the right of the node
   const labelX = node.x + node.width + 6;
-  const labelY = node.y + Math.max(node.height / 2, 8);
+  const labelCenterY = node.y + node.height / 2;
+  const textShadowId = theme === 'dark' ? 'textShadowDark' : 'textShadowLight';
 
+  const isDark = theme === 'dark';
   const nodeFill = isMuted ? COLORS.node.mutedFill : COLORS.node.fill;
   const nodeStroke = isMuted ? COLORS.node.mutedStroke : COLORS.node.stroke;
-  const textFill = isMuted ? COLORS.label.mutedText : COLORS.label.text;
-  const subtextFill = isMuted ? COLORS.label.mutedSubtext : COLORS.label.subtext;
+  const textFill = isMuted
+    ? COLORS.label.mutedText
+    : isDark
+      ? '#f8fafc' // near-white for dark mode
+      : '#0f172a'; // slate-900 for light mode
+  const subtextFill = isMuted
+    ? COLORS.label.mutedSubtext
+    : isDark
+      ? '#e2e8f0' // lighter gray for dark mode
+      : '#475569'; // slate-600 for light mode
   const labelOpacity = isMuted ? 0.4 : 1;
 
   return (
@@ -621,13 +639,13 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover }: SankeyNodeProps) 
       {/* Inline label - node name */}
       <text
         x={labelX}
-        y={labelY - 1}
+        y={labelCenterY - 5}
         textAnchor='start'
         dominantBaseline='middle'
         fontSize={10}
         fontWeight={500}
         fill={textFill}
-        filter='url(#textShadow)'
+        filter={`url(#${textShadowId})`}
         className='pointer-events-none transition-colors duration-150 select-none'
         opacity={labelOpacity}
       >
@@ -637,12 +655,13 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover }: SankeyNodeProps) 
       {/* Inline label - traffic count */}
       <text
         x={labelX}
-        y={labelY + 11}
+        y={labelCenterY + 7}
         textAnchor='start'
         dominantBaseline='middle'
-        fontSize={9}
+        fontSize={10.5}
+        fontWeight={600}
         fill={subtextFill}
-        filter='url(#textShadow)'
+        filter={`url(#${textShadowId})`}
         className='pointer-events-none transition-colors duration-150 select-none'
         opacity={labelOpacity}
       >
