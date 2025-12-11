@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useCallback } from 'react';
-import type { SankeyData } from '@/entities/userJourney';
+import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { formatString } from '@/utils/formatters';
 
 // ============================================

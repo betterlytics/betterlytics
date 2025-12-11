@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { UserSettingsUpdate } from '@/entities/userSettings';
+import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import { toast } from 'sonner';
 import UserProfileSettings from '@/components/userSettings/UserProfileSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
@@ -112,10 +112,10 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
       }
-      toast.success('Settings saved successfully!');
+      toast.success(tDialog('toast.success'));
       onOpenChange(false);
     } else {
-      toast.error(result.error || 'Failed to save settings. Please try again.');
+      toast.error(tDialog('toast.error'));
     }
   };
 

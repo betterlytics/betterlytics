@@ -1,50 +1,50 @@
-import type { ChangelogEntryData } from '@/entities/changelog';
+import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.5',
-    releasedAt: '2025-11-24',
+    version: 'v1.2.7',
+    releasedAt: '2025-12-07',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v125-new-features',
+      id: 'v127-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Sammenlign perioder direkte i verdenskort-visualiseringen.',
-            'Bloker events fra specifikke IP-adresser for at undgå skæve eller uønskede besøg (fx dine egne).',
-            'Afvis automatisk events fra domæner, der ikke matcher dit dashboard-domæne.',
+            'Kampagnesiden er fuldstændig genopbygget med fokus på navngivne UTM-kampagner.',
+            'Du kan nu tilføje annotationer til hoveddiagrammer for at fremhæve vigtige begivenheder, udgivelser eller trafikændringer.',
+            'Funnels-siden er fuldstændig redesignet med et mere intuitivt, visuelt layout. Tjek det ud!',
+            'Bloker events fra specifikke IP-adresser for at undgå skæv eller uønsket trafik (f.eks. dine egne besøg).',
           ],
         },
       ],
     },
     {
-      id: 'v125-enhancements',
-      title: 'Forbedringer',
+      id: 'v127-security-auth',
+      title: 'Sikkerhed & Autentificering',
       blocks: [
         {
           type: 'list',
           items: [
-            'Core Web Vitals-labels er gjort klarere og mere forståelige.',
-            'Antarktis skjules fra verdenskortet, medmindre der er besøgsdata.',
-            'Tilføjet en "Rapportér en bug"-knap direkte i appen.',
+            'Din konto-sikkerhed er blevet styrket og forbedret.',
+            'Patchet den seneste React Server Components-sårbarhed (CVE-2025-66478).',
           ],
         },
       ],
     },
     {
-      id: 'v125-bug-fixes',
-      title: 'Bugfixes',
+      id: 'v127-improvements-and-fixes',
+      title: 'Forbedringer & Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fikset et problem, der kunne forhindre Core Web Vitals-siden i at loade.',
-            'Løst sommertid-problemer, der påvirkede viste analyser.',
+            'Tilføjet en in-app "Rapporter en fejl"-knap for hurtig indsendelse af feedback.',
+            'Fikset side-per-session-beregninger, så metrikker nu nøjagtigt afspejler faktisk brug.',
           ],
         },
       ],
@@ -53,6 +53,107 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.7',
+      releasedAt: '2025-12-07',
+      title: 'Diagramannoteringer, kampagne-fokuseret visning og sikkerhedsstyrkelse',
+      summary:
+        'Kampagnesiden fokuserer nu på navngivne UTM-kampagner, hoveddiagrammer understøtter annotationer, autentificering er styrket, og flere pålidelighedsrettelser forbedrer nøjagtighed og sikkerhed.',
+    },
+    sections: [
+      {
+        id: 'v127-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Kampagnesiden er fuldstændig genopbygget med fokus på navngivne UTM-kampagner, hvilket giver tydeligere og mere meningsfuld indsigt end den tidligere aggregerede visning.',
+              'Du kan nu tilføje annotationer til hoveddiagrammer for at fremhæve vigtige begivenheder, udgivelser eller trafikændringer.',
+              'Sletning af et dashboard inkluderer nu en kort sikkerhedsnedtælling for at forhindre utilsigtet fjernelse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-security-auth',
+        title: 'Sikkerhed & Autentificering',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Autentificering er styrket, hvilket forbedrer sessionernes integritet og beskyttelse.',
+              'Patchet den seneste React Server Components-sårbarhed (CVE-2025-66478) ved at opdatere til den seneste sikre Next.js-udgivelse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-improvements-and-fixes',
+        title: 'Forbedringer & Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fikset en race condition, der kunne oprette dublerede abonnementer, når nye konti blev oprettet.',
+              'Korrigerede side-per-session-beregninger i Pages-visningen, så metrikkerne nu nøjagtigt afspejler faktisk brug.',
+              'Kontoverificering giver nu klarere feedback under verifikationsprocessen.',
+              'Changelog-popup-layoutet er nu optimeret til små skærme, hvilket forbedrer læsbarheden på mobile enheder.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.2.6',
+      releasedAt: '2025-12-01',
+      title: 'Redesignet Funnels og Smartere Kort',
+      summary:
+        'Funnels er fuldt redesignet med bedre visualiseringer. Verdenskortet understøtter nu sammenligninger og har forbedrede tooltips. Denne udgivelse inkluderer også fejlrettelser og opdaterede oversættelser.',
+    },
+    sections: [
+      {
+        id: 'v126-new-features',
+        title: 'Nye Funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Funnels-siden har et helt nyt, visuelt layout, der er lettere at bruge og forstå.',
+              'Verdenskortet understøtter nu sammenligninger mellem forskellige perioder.',
+              'Tooltips på verdenskortet giver nu klarere indsigt og bedre ydeevne.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v126-enhancements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Manglende oversættelser er tilføjet, så brugere verden over får en mere ensartet oplevelse.'],
+          },
+        ],
+      },
+      {
+        id: 'v126-bug-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettede dublerede notifikationer ved overskridelse af planbegrænsninger.',
+              'Rettede indlæsningsproblemer ved valg af fremtidige datointervaller.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.5',
@@ -86,6 +187,7 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
               'Core Web Vitals-labels er gjort klarere og mere forståelige.',
               'Antarktis skjules fra verdenskortet, medmindre der er besøgsdata.',
               'Tilføjet en "Rapportér en bug"-knap direkte i appen.',
+              'Favicons er blevet tilføjet til dashboards.',
             ],
           },
         ],

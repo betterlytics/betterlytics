@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import { fetchPagesSummaryWithChartsAction } from '@/app/actions';
+import { fetchPagesSummaryWithChartsAction } from '@/app/actions/index.actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useTranslations } from 'next-intl';

@@ -1,34 +1,35 @@
-import { FunnelDetails, FunnelPreview } from '@/entities/funnels';
-import { QueryFilter } from '@/entities/filter';
+import { FunnelDetails, FunnelPreview, FunnelStep } from '@/entities/analytics/funnels.entities';
 
 export type PresentedFunnel = {
+  id: string;
   visitorCount: {
     min: number;
     max: number;
   };
   steps: {
-    queryFilter: QueryFilter;
+    step: FunnelStep;
     visitors: number;
     visitorsRatio: number;
     dropoffCount: number;
     dropoffRatio: number;
-    stepFilters: QueryFilter[];
+    stepFilters: FunnelStep[];
   }[];
   biggestDropOff: {
-    queryFilter: QueryFilter;
+    step: FunnelStep;
     visitors: number;
     visitorsRatio: number;
     dropoffCount: number;
     dropoffRatio: number;
-    stepFilters: QueryFilter[];
+    stepFilters: FunnelStep[];
   };
   conversionRate: number;
   name: string;
+  isStrict: boolean;
 };
 
 export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel {
-  const stepVisitors = funnel.queryFilters.map((filter, index) => ({
-    queryFilter: filter,
+  const stepVisitors = funnel.funnelSteps.map((step, index) => ({
+    step: step,
     visitors: funnel.visitors[index],
   }));
 
@@ -37,23 +38,23 @@ export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel
     max: Math.max(...(funnel.visitors.length > 0 ? funnel.visitors : [1])),
   };
 
-  const steps = stepVisitors.map(({ queryFilter, visitors }, index) => {
+  const steps = stepVisitors.map(({ step, visitors }, index) => {
     const actualVisitors = visitors || 0;
 
     const nextStep = stepVisitors[index + 1]
       ? stepVisitors[index + 1]
-      : { visitors: visitorCount.max, queryFilter: queryFilter };
+      : { visitors: visitorCount.max, step: step };
 
     nextStep.visitors = nextStep.visitors || 0;
     const dropoffRatio = actualVisitors ? 1 - nextStep.visitors / (actualVisitors || 1) : 0;
 
     return {
-      queryFilter,
+      step,
       visitors,
       visitorsRatio: actualVisitors / (visitorCount.max || 1),
       dropoffCount: actualVisitors - nextStep.visitors,
       dropoffRatio: dropoffRatio,
-      stepFilters: [queryFilter, nextStep.queryFilter],
+      stepFilters: [step, nextStep.step],
     };
   });
 
@@ -66,10 +67,12 @@ export function toFunnel(funnel: FunnelDetails | FunnelPreview): PresentedFunnel
   const name = 'name' in funnel ? funnel.name : 'Funnel';
 
   return {
+    id: 'id' in funnel ? funnel.id : '',
     visitorCount,
     steps,
     biggestDropOff,
     conversionRate,
+    isStrict: funnel.isStrict,
     name,
   };
 }

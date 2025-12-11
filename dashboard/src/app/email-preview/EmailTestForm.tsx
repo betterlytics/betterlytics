@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { sendTestEmail } from '@/app/actions/email';
+import { sendTestEmail } from '@/app/actions/system/email.action';
 import { EMAIL_TEMPLATES, EmailTemplateType } from '@/constants/emailTemplateConst';
 
 export function EmailTestForm() {

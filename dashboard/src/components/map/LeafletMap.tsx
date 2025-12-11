@@ -5,7 +5,7 @@ import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
 import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
-import { GeoVisitor } from '@/entities/geography';
+import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -13,17 +13,16 @@ import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { Spinner } from '../ui/spinner';
 import { useTranslations } from 'next-intl';
 
-interface LeafletMapProps {
-  visitorData: GeoVisitor[];
-  maxVisitors?: number;
+type LeafletMapProps = WorldMapResponse & {
   showZoomControls?: boolean;
   showLegend?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
-}
+};
 
 export default function LeafletMap({
   visitorData,
+  compareData,
   maxVisitors,
   showZoomControls,
   showLegend = true,
@@ -108,7 +107,14 @@ export default function LeafletMap({
       >
         <MapSelectionContextProvider style={style}>
           <MapBackgroundLayer Polygon={Polygon} />
-          <MapCountryGeoJSON GeoJSON={GeoJSON} geoData={worldGeoJson} visitorData={visitorData} style={style} />
+          <MapCountryGeoJSON
+            GeoJSON={GeoJSON}
+            geoData={worldGeoJson}
+            visitorData={visitorData}
+            compareData={compareData}
+            style={style}
+            size={size}
+          />
           <MapStickyTooltip size={size} />
           {showLegend && <MapLegend maxVisitors={maxVisitors} />}
         </MapSelectionContextProvider>

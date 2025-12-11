@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getUserBillingData } from '@/actions/billing';
-import type { UserBillingData } from '@/entities/billing';
+import { getUserBillingData } from '@/actions/billing.action';
+import type { UserBillingData } from '@/entities/billing/billing.entities';
 
 interface UseBillingDataReturn {
   billingData: UserBillingData | null;

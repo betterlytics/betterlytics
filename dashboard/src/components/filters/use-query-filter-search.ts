@@ -1,6 +1,8 @@
-import { getFilterOptionsAction } from '@/app/actions/filters';
+'use client';
+
+import { getFilterOptionsAction } from '@/app/actions/analytics/filters.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { QueryFilter } from '@/entities/filter';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
