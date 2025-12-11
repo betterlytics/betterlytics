@@ -26,8 +26,6 @@ const COLORS = {
     mutedStrokeMiddle: '#6fa8ff44',
   },
   label: {
-    background: '#ffffffee', // popover-like with slight opacity
-    border: '#d7dde7', // subtle cool-gray border
     text: '#334155', // Slate-700
     subtext: '#64748b', // Slate-500
     mutedText: '#94a3b8', // Slate-400
@@ -246,17 +244,9 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       >
         {/* Definitions for filters */}
         <defs>
-          <filter id='cardShadow' x='-20%' y='-20%' width='140%' height='140%'>
-            <feDropShadow dx='0' dy='4' stdDeviation='6' floodOpacity='0.12' />
+          <filter id='textShadow' x='-50%' y='-50%' width='200%' height='200%'>
+            <feDropShadow dx='0' dy='0' stdDeviation='2' floodColor='#ffffff' floodOpacity='0.9' />
           </filter>
-          <linearGradient id='cardGradient' x1='0%' y1='0%' x2='0%' y2='100%'>
-            <stop offset='0%' stopColor='#ffffff' stopOpacity='0.9' />
-            <stop offset='100%' stopColor='#f3f6fb' stopOpacity='0.8' />
-          </linearGradient>
-          <linearGradient id='cardAccent' x1='0%' y1='0%' x2='100%' y2='0%'>
-            <stop offset='0%' stopColor='#6fa8ff' stopOpacity='0.7' />
-            <stop offset='100%' stopColor='#3f8cff' stopOpacity='0.9' />
-          </linearGradient>
         </defs>
 
         {/* Links layer (rendered behind nodes) */}
@@ -278,7 +268,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
             <SankeyNode
               key={node.id}
               node={node}
-              canvasWidth={width}
               isHighlighted={isHighlighting && highlightState.nodeIds.has(node.id)}
               isMuted={isHighlighting && !highlightState.nodeIds.has(node.id)}
               onHover={handleNodeHover}
@@ -600,27 +589,18 @@ interface SankeyNodeProps {
   isHighlighted: boolean;
   isMuted: boolean;
   onHover: (nodeId: string | null) => void;
-  canvasWidth: number;
 }
 
-function SankeyNode({ node, isHighlighted, isMuted, onHover, canvasWidth }: SankeyNodeProps) {
-  // Card dimensions
-  const cardPadding = { x: 8, y: 6 };
-  const cardHeight = 40;
-  const cardWidth = Math.max(120, Math.min(node.name.length * 6 + cardPadding.x * 2, 180));
-  const labelCenterX = node.x + node.width / 2 + 20;
-  const unclampedCardX = labelCenterX - cardWidth / 2;
-  const minCardX = LAYOUT.padding.left;
-  const maxCardX = Math.max(minCardX, canvasWidth - LAYOUT.padding.right - cardWidth);
-  const cardX = Math.min(Math.max(unclampedCardX, minCardX), maxCardX);
-  const cardY = node.y + 6;
-  const cardRadius = 10;
+function SankeyNode({ node, isHighlighted, isMuted, onHover }: SankeyNodeProps) {
+  // Inline label positioning - text directly to the right of the node
+  const labelX = node.x + node.width + 6;
+  const labelY = node.y + Math.max(node.height / 2, 8);
 
   const nodeFill = isMuted ? COLORS.node.mutedFill : COLORS.node.fill;
   const nodeStroke = isMuted ? COLORS.node.mutedStroke : COLORS.node.stroke;
   const textFill = isMuted ? COLORS.label.mutedText : COLORS.label.text;
   const subtextFill = isMuted ? COLORS.label.mutedSubtext : COLORS.label.subtext;
-  const labelOpacity = isMuted ? 0.5 : 1;
+  const labelOpacity = isMuted ? 0.4 : 1;
 
   return (
     <g onMouseEnter={() => onHover(node.id)} onMouseLeave={() => onHover(null)} className='cursor-pointer'>
@@ -638,69 +618,35 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover, canvasWidth }: Sank
         className='transition-colors duration-150'
       />
 
-      {/* Label card background with gradient overlay and accent */}
-      <rect
-        x={cardX}
-        y={cardY}
-        width={cardWidth}
-        height={cardHeight}
-        rx={cardRadius}
-        ry={cardRadius}
-        fill={COLORS.label.background}
-        stroke={COLORS.label.border}
-        strokeWidth={1}
-        filter='url(#cardShadow)'
-        opacity={labelOpacity}
-        className='transition-opacity duration-150'
-      />
-      <rect
-        x={cardX + 1}
-        y={cardY + 1}
-        width={cardWidth - 2}
-        height={cardHeight - 2}
-        rx={cardRadius - 1}
-        ry={cardRadius - 1}
-        fill='url(#cardGradient)'
-        opacity={labelOpacity}
-        className='pointer-events-none'
-      />
-      <rect
-        x={cardX + 8}
-        y={cardY + 6}
-        width={cardWidth - 16}
-        height={3}
-        rx={2}
-        ry={2}
-        fill='url(#cardAccent)'
-        opacity={labelOpacity}
-        className='pointer-events-none'
-      />
-
-      {/* Node name */}
+      {/* Inline label - node name */}
       <text
-        x={cardX + cardWidth / 2}
-        y={cardY + 15}
-        textAnchor='middle'
+        x={labelX}
+        y={labelY - 1}
+        textAnchor='start'
+        dominantBaseline='middle'
         fontSize={10}
-        fontWeight={600}
+        fontWeight={500}
         fill={textFill}
+        filter='url(#textShadow)'
         className='pointer-events-none transition-colors duration-150 select-none'
         opacity={labelOpacity}
       >
-        {formatString(node.name, 20)}
+        {formatString(node.name, 18)}
       </text>
 
-      {/* Traffic count */}
+      {/* Inline label - traffic count */}
       <text
-        x={cardX + cardWidth / 2}
-        y={cardY + 29}
-        textAnchor='middle'
-        fontSize={10}
+        x={labelX}
+        y={labelY + 11}
+        textAnchor='start'
+        dominantBaseline='middle'
+        fontSize={9}
         fill={subtextFill}
+        filter='url(#textShadow)'
         className='pointer-events-none transition-colors duration-150 select-none'
         opacity={labelOpacity}
       >
-        {formatNumber(node.totalTraffic)} users
+        {formatNumber(node.totalTraffic)}
       </text>
     </g>
   );
