@@ -17,13 +17,13 @@ const COLORS = {
   },
   link: {
     stroke: '#6fa8ff88', // blue-ish
-    strokeMiddle: '#6fa8ff44', // gray-blue-ish
+    strokeMiddle: '#6fa8ff55', // gray-blue-ish
 
     highlightStroke: '#3f8cff',
     highlightStrokeMiddle: '#3f8cffaa',
 
     mutedStroke: '#6fa8ff66',
-    mutedStrokeMiddle: '#6fa8ff33',
+    mutedStrokeMiddle: '#6fa8ff44',
   },
   label: {
     background: '#ffffff99',
