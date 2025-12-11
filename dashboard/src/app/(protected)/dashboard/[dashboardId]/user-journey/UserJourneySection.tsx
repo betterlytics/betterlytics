@@ -15,7 +15,7 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
   console.log('heloooo', journeyData);
 
   return (
-    <div className='relative mt-8 min-h-[400px] overflow-x-auto'>
+    <div className='relative min-h-[400px] overflow-x-auto'>
       {((journeyData && journeyData.nodes.length > 0) || true) && (
         <UserJourneyChart
           data={{

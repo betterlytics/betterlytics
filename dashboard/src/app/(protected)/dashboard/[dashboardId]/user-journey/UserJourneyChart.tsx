@@ -16,7 +16,7 @@ const COLORS = {
     mutedStroke: '#1d4ed833',
   },
   link: {
-    stroke: '#6fa8ffaa', // blue-ish
+    stroke: '#6fa8ff88', // blue-ish
     strokeMiddle: '#6fa8ff44', // gray-blue-ish
 
     highlightStroke: '#3f8cff',
@@ -270,6 +270,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
             <SankeyNode
               key={node.id}
               node={node}
+              canvasWidth={width}
               isHighlighted={isHighlighting && highlightState.nodeIds.has(node.id)}
               isMuted={isHighlighting && !highlightState.nodeIds.has(node.id)}
               onHover={handleNodeHover}
@@ -591,14 +592,19 @@ interface SankeyNodeProps {
   isHighlighted: boolean;
   isMuted: boolean;
   onHover: (nodeId: string | null) => void;
+  canvasWidth: number;
 }
 
-function SankeyNode({ node, isHighlighted, isMuted, onHover }: SankeyNodeProps) {
+function SankeyNode({ node, isHighlighted, isMuted, onHover, canvasWidth }: SankeyNodeProps) {
   // Card dimensions
   const cardPadding = { x: 2, y: 1 };
   const cardHeight = 32;
   const cardWidth = Math.max(60, Math.min(node.name.length * 5, 120) + cardPadding.x * 2 + 10);
-  const cardX = node.x + node.width / 2 - cardWidth / 2 + 20;
+  const labelCenterX = node.x + node.width / 2 + 20;
+  const unclampedCardX = labelCenterX - cardWidth / 2;
+  const minCardX = LAYOUT.padding.left;
+  const maxCardX = Math.max(minCardX, canvasWidth - LAYOUT.padding.right - cardWidth);
+  const cardX = Math.min(Math.max(unclampedCardX, minCardX), maxCardX);
   const cardY = node.y + 6;
   const cardRadius = 1;
 
