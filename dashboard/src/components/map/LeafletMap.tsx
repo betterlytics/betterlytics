@@ -92,7 +92,7 @@ export default function LeafletMap({
   const { MapContainer, GeoJSON, Polygon } = mapComponents;
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div className='h-full w-full'>
       {style.LeafletCSS}
       <MapContainer
         center={[20, 0]}
@@ -103,6 +103,8 @@ export default function LeafletMap({
         maxBoundsViscosity={0.5}
         minZoom={1}
         maxZoom={7}
+        zoomDelta={0.1}
+        zoomSnap={0.1}
         attributionControl={false}
       >
         {

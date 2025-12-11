@@ -76,7 +76,7 @@ export function useMapStyle({ maxValue: maxVisitors, scaleType = 'gamma-1/4' }: 
       <style jsx global>
         {`
           .leaflet-container {
-            background-color: var(--color-card);
+            background-color: var(--card);
           }
           .leaflet-interactive:focus {
             outline: none !important;
