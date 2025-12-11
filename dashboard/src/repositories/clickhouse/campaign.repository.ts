@@ -11,11 +11,15 @@ import {
   RawCampaignLandingPagePerformanceArraySchema,
   type UTMDimension,
   UTM_DIMENSION_TO_KEY,
+  type CampaignSortConfig,
+  CAMPAIGN_SORT_FIELD_TO_COLUMN,
 } from '@/entities/analytics/campaign.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { z } from 'zod';
+import { buildCursorWhereClause, buildOrderByClause } from '@/lib/cursor-pagination';
+import type { CursorData } from '@/entities/pagination.entities';
 
 const UTM_DIMENSION_ALIASES = {
   utm_campaign: 'utm_campaign_name',
@@ -165,6 +169,78 @@ export async function getCampaignPerformancePageData(
         endDate,
         limit,
         offset,
+      },
+    })
+    .toPromise();
+
+  return RawCampaignDataArraySchema.parse(resultSet);
+}
+
+/**
+ * Get paginated campaign performance data using cursor-based pagination.
+ * Supports flexible sorting via sortConfig.
+ *
+ * @param siteId - The site ID to query
+ * @param startDate - Start of date range
+ * @param endDate - End of date range
+ * @param sortConfig - Sort configuration defining field ordering
+ * @param cursor - Cursor data for pagination (null for first page)
+ * @param limit - Maximum number of items to return (will fetch limit+1 to determine hasMore)
+ */
+export async function getCampaignPerformancePageDataCursor(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  sortConfig: CampaignSortConfig,
+  cursor: CursorData | null,
+  limit: number,
+): Promise<RawCampaignData[]> {
+  const cursorCondition = buildCursorWhereClause(cursor, sortConfig, CAMPAIGN_SORT_FIELD_TO_COLUMN);
+  const orderByClause = buildOrderByClause(sortConfig, CAMPAIGN_SORT_FIELD_TO_COLUMN);
+
+  // We use a CTE (Common Table Expression) to first aggregate all campaigns,
+  // then apply cursor filtering and ordering on the aggregated results.
+  // This is necessary because cursor fields like 'total_visitors' are aggregate values.
+  const query = safeSql`
+    WITH campaign_aggregates AS (
+      SELECT
+        s.utm_campaign AS utm_campaign_name,
+        COUNT(DISTINCT s.visitor_id) AS total_visitors,
+        COUNT(DISTINCT IF(s.session_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
+        COUNT(DISTINCT s.session_id) AS total_sessions,
+        SUM(s.session_pageviews) AS total_pageviews,
+        SUM(s.session_duration_seconds) AS sum_session_duration_seconds
+      FROM (
+        SELECT
+          visitor_id,
+          session_id,
+          utm_campaign,
+          dateDiff('second', MIN(timestamp), MAX(timestamp)) AS session_duration_seconds,
+          COUNT(*) AS session_pageviews
+        FROM analytics.events
+        WHERE site_id = {siteId:String}
+          AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+          AND event_type = 'pageview'
+          AND utm_campaign != ''
+        GROUP BY visitor_id, session_id, utm_campaign
+      ) s
+      GROUP BY s.utm_campaign
+    )
+    SELECT *
+    FROM campaign_aggregates
+    WHERE ${cursorCondition}
+    ${orderByClause}
+    LIMIT {limit:UInt32}
+  `;
+
+  const resultSet = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        siteId,
+        startDate,
+        endDate,
+        limit: limit + 1, // Fetch one extra to determine hasMore
       },
     })
     .toPromise();

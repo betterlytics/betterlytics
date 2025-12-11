@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { createSortConfigSchema, type SortConfig } from '@/entities/pagination.entities';
+import type { FieldToColumnMap, FieldToCursorKeyMap } from '@/lib/cursor-pagination';
 
 const RawMetricFields = {
   total_visitors: z.number().int().nonnegative(),
@@ -90,3 +92,46 @@ export const CampaignUTMBreakdownArraySchema = z.array(CampaignUTMBreakdownItemS
 export const CampaignTrendRowArraySchema = z.array(CampaignTrendRowSchema);
 export const RawCampaignLandingPagePerformanceArraySchema = z.array(RawCampaignLandingPagePerformanceItemSchema);
 export const CampaignLandingPagePerformanceArraySchema = z.array(CampaignLandingPagePerformanceItemSchema);
+
+/**
+ * Campaign sort field definitions for cursor pagination
+ */
+export const CAMPAIGN_SORT_FIELDS = ['visitors', 'sessions', 'campaignName'] as const;
+
+export const CampaignSortFieldSchema = z.enum(CAMPAIGN_SORT_FIELDS);
+export type CampaignSortField = z.infer<typeof CampaignSortFieldSchema>;
+
+export const CampaignSortConfigSchema = createSortConfigSchema(CAMPAIGN_SORT_FIELDS);
+export type CampaignSortConfig = SortConfig<CampaignSortField>;
+
+/**
+ * Maps frontend sort field names to SQL column expressions
+ * These are the column names/expressions used in ORDER BY and WHERE clauses
+ */
+export const CAMPAIGN_SORT_FIELD_TO_COLUMN: FieldToColumnMap<CampaignSortField> = {
+  visitors: 'total_visitors',
+  sessions: 'total_sessions',
+  campaignName: 'utm_campaign_name',
+};
+
+/**
+ * Maps frontend sort field names to the keys in RawCampaignData
+ * Used for extracting cursor values from query results
+ */
+export const CAMPAIGN_SORT_FIELD_TO_CURSOR_KEY: FieldToCursorKeyMap<CampaignSortField, keyof RawCampaignData> = {
+  visitors: 'total_visitors',
+  sessions: 'total_sessions',
+  campaignName: 'utm_campaign_name',
+};
+
+/**
+ * Default sort configuration for campaign list
+ * Primary sort: visitors descending (most popular first)
+ * Tiebreaker: campaign name ascending (deterministic ordering)
+ */
+export const DEFAULT_CAMPAIGN_SORT: CampaignSortConfig = {
+  fields: [
+    { field: 'visitors', direction: 'desc' },
+    { field: 'campaignName', direction: 'asc' },
+  ],
+};

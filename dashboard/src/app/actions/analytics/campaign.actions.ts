@@ -2,6 +2,7 @@
 
 import {
   fetchCampaignDirectoryPage,
+  fetchCampaignDirectoryPageCursor,
   fetchCampaignUTMBreakdown,
   fetchCampaignLandingPagePerformance,
   fetchCampaignAudienceProfile,
@@ -13,7 +14,11 @@ import {
   CampaignSparklinePoint,
   CampaignListRowSummary,
   type UTMDimension,
+  type CampaignSortConfig,
+  DEFAULT_CAMPAIGN_SORT,
+  CampaignSortConfigSchema,
 } from '@/entities/analytics/campaign.entities';
+import type { CursorPaginatedResult } from '@/entities/pagination.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -68,6 +73,50 @@ export const fetchCampaignPerformanceAction = withDashboardAuthContext(
         totalCampaigns: 0,
         pageIndex: 0,
         pageSize,
+      };
+    }
+  },
+);
+
+/**
+ * Server action for cursor-based campaign pagination.
+ * Returns paginated campaigns with sparklines using cursor-based navigation.
+ */
+export const fetchCampaignPerformanceCursorAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    granularity: GranularityRangeValues,
+    timezone: string,
+    cursor: string | null,
+    limit: number,
+    sortConfig?: CampaignSortConfig,
+  ): Promise<CursorPaginatedResult<CampaignListRowSummary>> => {
+    try {
+      // Use provided sort config or fall back to default
+      const validatedSortConfig = sortConfig
+        ? CampaignSortConfigSchema.parse(sortConfig)
+        : DEFAULT_CAMPAIGN_SORT;
+
+      const result = await fetchCampaignDirectoryPageCursor(
+        ctx.siteId,
+        startDate,
+        endDate,
+        granularity,
+        timezone,
+        validatedSortConfig,
+        cursor,
+        limit,
+      );
+
+      return result;
+    } catch (error) {
+      console.error('Error in fetchCampaignPerformanceCursorAction:', error);
+      return {
+        items: [],
+        nextCursor: null,
+        hasMore: false,
       };
     }
   },

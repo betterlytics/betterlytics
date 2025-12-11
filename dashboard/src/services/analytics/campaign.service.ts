@@ -6,6 +6,7 @@ import {
   getCampaignAudienceProfileData,
   getCampaignCount,
   getCampaignPerformancePageData,
+  getCampaignPerformancePageDataCursor,
   getCampaignUTMBreakdownData,
 } from '@/repositories/clickhouse/campaign.repository';
 import {
@@ -21,8 +22,13 @@ import {
   CampaignLandingPagePerformanceArraySchema,
   CampaignSparklinePoint,
   CampaignListRowSummary,
+  CampaignListRowSummarySchema,
   type UTMDimension,
+  type CampaignSortConfig,
+  CAMPAIGN_SORT_FIELD_TO_CURSOR_KEY,
 } from '@/entities/analytics/campaign.entities';
+import { decodeCursor, createCursorPaginatedResponse, LimitSchema } from '@/lib/cursor-pagination';
+import type { CursorPaginatedResult } from '@/entities/pagination.entities';
 import {
   BrowserInfoSchema,
   DeviceTypeSchema,
@@ -148,6 +154,94 @@ export async function fetchCampaignDirectoryPage(
     totalCampaigns: performancePage.totalCampaigns,
     pageIndex: performancePage.pageIndex,
     pageSize: performancePage.pageSize,
+  };
+}
+
+/**
+ * Response type for cursor-based campaign directory pagination
+ */
+export type CampaignDirectoryPageCursor = CursorPaginatedResult<CampaignListRowSummary>;
+
+/**
+ * Fetch campaign directory page using cursor-based pagination.
+ * Returns items with sparklines, nextCursor, and hasMore flag.
+ *
+ * @param siteId - Site ID
+ * @param startDate - Start of date range
+ * @param endDate - End of date range
+ * @param granularity - Granularity for sparklines
+ * @param timezone - Timezone for date calculations
+ * @param sortConfig - Sort configuration
+ * @param encodedCursor - Base64-encoded cursor string (null for first page)
+ * @param limit - Number of items to fetch
+ */
+export async function fetchCampaignDirectoryPageCursor(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  granularity: GranularityRangeValues,
+  timezone: string,
+  sortConfig: CampaignSortConfig,
+  encodedCursor: string | null,
+  limit: number,
+): Promise<CampaignDirectoryPageCursor> {
+  const startDateTime = toDateTimeString(startDate);
+  const endDateTime = toDateTimeString(endDate);
+
+  // Validate and constrain limit
+  const safeLimit = LimitSchema.parse(limit);
+
+  // Decode cursor (returns null for invalid or missing cursor)
+  const cursor = decodeCursor(encodedCursor);
+
+  // Fetch raw campaign data with cursor pagination
+  const rawCampaignData = await getCampaignPerformancePageDataCursor(
+    siteId,
+    startDateTime,
+    endDateTime,
+    sortConfig,
+    cursor,
+    safeLimit,
+  );
+
+  // Create cursor-paginated response (handles hasMore detection and cursor extraction)
+  const paginatedRaw = createCursorPaginatedResponse(
+    rawCampaignData,
+    safeLimit,
+    sortConfig,
+    CAMPAIGN_SORT_FIELD_TO_CURSOR_KEY,
+  );
+
+  // Transform raw data to campaign performance format
+  const transformedCampaigns: CampaignPerformance[] = paginatedRaw.items.map((raw) => {
+    const metrics = calculateCommonCampaignMetrics(raw);
+    return {
+      name: raw.utm_campaign_name,
+      visitors: raw.total_visitors,
+      ...metrics,
+    };
+  });
+
+  const campaignNames = transformedCampaigns.map((c) => c.name);
+
+  // Fetch sparklines for the current page of campaigns
+  const sparklineMap =
+    campaignNames.length > 0
+      ? await fetchCampaignSparklines(siteId, startDate, endDate, granularity, timezone, campaignNames)
+      : {};
+
+  // Combine performance data with sparklines
+  const campaigns: CampaignListRowSummary[] = transformedCampaigns.map((campaign) =>
+    CampaignListRowSummarySchema.parse({
+      ...campaign,
+      sparkline: sparklineMap[campaign.name] ?? [],
+    }),
+  );
+
+  return {
+    items: campaigns,
+    nextCursor: paginatedRaw.nextCursor,
+    hasMore: paginatedRaw.hasMore,
   };
 }
 

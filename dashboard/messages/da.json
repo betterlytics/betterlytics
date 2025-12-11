@@ -1148,6 +1148,10 @@
     "it": "Italiano"
   },
   "components": {
+    "pagination": {
+      "loadMore": "Indlæs flere",
+      "loading": "Indlæser..."
+    },
     "weeklyHeatmap": {
       "days": {
         "monShort": "Man.",
