@@ -16,9 +16,14 @@ const COLORS = {
     mutedStroke: '#1d4ed833',
   },
   link: {
-    stroke: '#44444877',
-    highlightStroke: '#4766e577',
-    mutedStroke: '#44444844',
+    stroke: '#6fa8ffaa', // blue-ish
+    strokeMiddle: '#6fa8ff44', // gray-blue-ish
+
+    highlightStroke: '#3f8cff',
+    highlightStrokeMiddle: '#3f8cffaa',
+
+    mutedStroke: '#6fa8ff66',
+    mutedStrokeMiddle: '#6fa8ff33',
   },
   label: {
     background: '#ffffff99',
@@ -693,36 +698,52 @@ function SankeyLink({ link, isHighlighted, isMuted, onHover }: SankeyLinkProps) 
   const x1 = link.target.x;
   const y1 = link.targetY;
 
-  // Control points for smooth cubic bezier curve
-  // Using 0.5 curvature for a nice S-curve
+  // Curvature
   const curvature = 0.5;
   const cx0 = x0 + (x1 - x0) * curvature;
   const cx1 = x1 - (x1 - x0) * curvature;
 
-  // Draw a single centerline path and use stroke-width for thickness
-  // This ensures constant width throughout the curve
   const path = `M ${x0},${y0} C ${cx0},${y0} ${cx1},${y1} ${x1},${y1}`;
 
-  // Determine opacity based on highlight state
-  let strokeColor = COLORS.link.stroke;
-  if (isMuted) {
-    strokeColor = COLORS.link.mutedStroke;
-  } else if (isHighlighted) {
-    strokeColor = COLORS.link.highlightStroke;
-  }
+  // Build a unique gradient ID per link
+  const gradientId = `gradient-${link.source.id}-${link.target.id}`.replace(/\s+/g, '-');
+
+  // Base colors — you can tune these or derive from highlight/muted state
+  const start = isMuted
+    ? COLORS.link.mutedStroke
+    : isHighlighted
+      ? COLORS.link.highlightStroke
+      : COLORS.link.stroke;
+  const mid = isMuted
+    ? COLORS.link.mutedStrokeMiddle
+    : isHighlighted
+      ? COLORS.link.highlightStrokeMiddle
+      : COLORS.link.strokeMiddle;
+  const end = start; // symmetric
 
   return (
-    <path
-      d={path}
-      fill='none'
-      stroke={strokeColor}
-      strokeWidth={link.width}
-      strokeLinecap='butt'
-      className='cursor-pointer transition-[stroke-opacity] duration-150'
-      onMouseEnter={() => onHover(link)}
-      onMouseLeave={() => onHover(null)}
-    >
-      <title>{`${link.source.name} → ${link.target.name}: ${formatNumber(link.value)} users`}</title>
-    </path>
+    <>
+      <defs>
+        <linearGradient id={gradientId} gradientUnits='userSpaceOnUse' x1={x0} y1={y0} x2={x1} y2={y1}>
+          <stop offset='0%' stopColor={start} />
+          <stop offset='30%' stopColor={mid} />
+          <stop offset='70%' stopColor={mid} />
+          <stop offset='100%' stopColor={end} />
+        </linearGradient>
+      </defs>
+
+      <path
+        d={path}
+        fill='none'
+        stroke={`url(#${gradientId})`}
+        strokeWidth={link.width}
+        strokeLinecap='butt'
+        className='cursor-pointer transition-[stroke-opacity] duration-150'
+        onMouseEnter={() => onHover(link)}
+        onMouseLeave={() => onHover(null)}
+      >
+        <title>{`${link.source.name} → ${link.target.name}: ${formatNumber(link.value)} users`}</title>
+      </path>
+    </>
   );
 }
