@@ -26,8 +26,8 @@ const COLORS = {
     mutedStrokeMiddle: '#6fa8ff44',
   },
   label: {
-    background: '#ffffff99',
-    border: '#e2e8f0', // Slate-200
+    background: '#ffffffee', // popover-like with slight opacity
+    border: '#d7dde7', // subtle cool-gray border
     text: '#334155', // Slate-700
     subtext: '#64748b', // Slate-500
     mutedText: '#94a3b8', // Slate-400
@@ -247,8 +247,16 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
         {/* Definitions for filters */}
         <defs>
           <filter id='cardShadow' x='-20%' y='-20%' width='140%' height='140%'>
-            <feDropShadow dx='0' dy='1' stdDeviation='2' floodOpacity='0.1' />
+            <feDropShadow dx='0' dy='4' stdDeviation='6' floodOpacity='0.12' />
           </filter>
+          <linearGradient id='cardGradient' x1='0%' y1='0%' x2='0%' y2='100%'>
+            <stop offset='0%' stopColor='#ffffff' stopOpacity='0.9' />
+            <stop offset='100%' stopColor='#f3f6fb' stopOpacity='0.8' />
+          </linearGradient>
+          <linearGradient id='cardAccent' x1='0%' y1='0%' x2='100%' y2='0%'>
+            <stop offset='0%' stopColor='#6fa8ff' stopOpacity='0.7' />
+            <stop offset='100%' stopColor='#3f8cff' stopOpacity='0.9' />
+          </linearGradient>
         </defs>
 
         {/* Links layer (rendered behind nodes) */}
@@ -597,16 +605,16 @@ interface SankeyNodeProps {
 
 function SankeyNode({ node, isHighlighted, isMuted, onHover, canvasWidth }: SankeyNodeProps) {
   // Card dimensions
-  const cardPadding = { x: 2, y: 1 };
-  const cardHeight = 32;
-  const cardWidth = Math.max(60, Math.min(node.name.length * 5, 120) + cardPadding.x * 2 + 10);
+  const cardPadding = { x: 8, y: 6 };
+  const cardHeight = 40;
+  const cardWidth = Math.max(120, Math.min(node.name.length * 6 + cardPadding.x * 2, 180));
   const labelCenterX = node.x + node.width / 2 + 20;
   const unclampedCardX = labelCenterX - cardWidth / 2;
   const minCardX = LAYOUT.padding.left;
   const maxCardX = Math.max(minCardX, canvasWidth - LAYOUT.padding.right - cardWidth);
   const cardX = Math.min(Math.max(unclampedCardX, minCardX), maxCardX);
   const cardY = node.y + 6;
-  const cardRadius = 1;
+  const cardRadius = 10;
 
   const nodeFill = isMuted ? COLORS.node.mutedFill : COLORS.node.fill;
   const nodeStroke = isMuted ? COLORS.node.mutedStroke : COLORS.node.stroke;
@@ -630,7 +638,7 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover, canvasWidth }: Sank
         className='transition-colors duration-150'
       />
 
-      {/* Label card background */}
+      {/* Label card background with gradient overlay and accent */}
       <rect
         x={cardX}
         y={cardY}
@@ -645,14 +653,36 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover, canvasWidth }: Sank
         opacity={labelOpacity}
         className='transition-opacity duration-150'
       />
+      <rect
+        x={cardX + 1}
+        y={cardY + 1}
+        width={cardWidth - 2}
+        height={cardHeight - 2}
+        rx={cardRadius - 1}
+        ry={cardRadius - 1}
+        fill='url(#cardGradient)'
+        opacity={labelOpacity}
+        className='pointer-events-none'
+      />
+      <rect
+        x={cardX + 8}
+        y={cardY + 6}
+        width={cardWidth - 16}
+        height={3}
+        rx={2}
+        ry={2}
+        fill='url(#cardAccent)'
+        opacity={labelOpacity}
+        className='pointer-events-none'
+      />
 
       {/* Node name */}
       <text
         x={cardX + cardWidth / 2}
-        y={cardY + 11}
+        y={cardY + 15}
         textAnchor='middle'
-        fontSize={9}
-        fontWeight={500}
+        fontSize={10}
+        fontWeight={600}
         fill={textFill}
         className='pointer-events-none transition-colors duration-150 select-none'
         opacity={labelOpacity}
@@ -663,9 +693,9 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover, canvasWidth }: Sank
       {/* Traffic count */}
       <text
         x={cardX + cardWidth / 2}
-        y={cardY + 24}
+        y={cardY + 29}
         textAnchor='middle'
-        fontSize={9}
+        fontSize={10}
         fill={subtextFill}
         className='pointer-events-none transition-colors duration-150 select-none'
         opacity={labelOpacity}
