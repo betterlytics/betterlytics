@@ -5,11 +5,14 @@ import {
   getCustomEventsOverviewForSite,
   getEventPropertiesAnalyticsForSite,
   getRecentEventsForSite,
+  getRecentEventsForSiteCursor,
   getTotalEventCountForSite,
 } from '@/services/analytics/events.service';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { toDataTable } from '@/presenters/toDataTable';
+import type { EventLogEntry } from '@/entities/analytics/events.entities';
+import type { CursorPaginatedResult } from '@/entities/pagination.entities';
 
 export const fetchCustomEventsOverviewAction = withDashboardAuthContext(
   async (
@@ -50,6 +53,22 @@ export const fetchRecentEventsAction = withDashboardAuthContext(
     queryFilters?: QueryFilter[],
   ) => {
     return getRecentEventsForSite(ctx.siteId, startDate, endDate, limit, offset, queryFilters);
+  },
+);
+
+/**
+ * Server action for cursor-based event log pagination.
+ */
+export const fetchRecentEventsCursorAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    startDate: Date,
+    endDate: Date,
+    cursor: string | null,
+    limit: number,
+    queryFilters?: QueryFilter[],
+  ): Promise<CursorPaginatedResult<EventLogEntry>> => {
+    return getRecentEventsForSiteCursor(ctx.siteId, startDate, endDate, cursor, limit, queryFilters);
   },
 );
 

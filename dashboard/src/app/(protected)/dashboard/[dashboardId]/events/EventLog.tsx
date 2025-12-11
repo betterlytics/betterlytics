@@ -4,10 +4,11 @@ import React, { useEffect, useMemo } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
-import { fetchRecentEventsAction, fetchTotalEventCountAction } from '@/app/actions/analytics/events.actions';
+import { fetchRecentEventsCursorAction, fetchTotalEventCountAction } from '@/app/actions/analytics/events.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import type { CursorPaginatedResult } from '@/entities/pagination.entities';
 
 import { formatNumber } from '@/utils/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -75,12 +76,12 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['recentEvents', dashboardId, startDate, endDate, pageSize, queryFilters],
-    queryFn: ({ pageParam = 0 }) =>
-      fetchRecentEventsAction(dashboardId, startDate, endDate, pageSize, pageParam, queryFilters),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage: EventLogEntry[], allPages: EventLogEntry[][]) => {
-      if (lastPage.length < pageSize) return undefined;
-      return allPages.length * pageSize;
+    queryFn: ({ pageParam }) =>
+      fetchRecentEventsCursorAction(dashboardId, startDate, endDate, pageParam, pageSize, queryFilters),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage: CursorPaginatedResult<EventLogEntry>) => {
+      if (!lastPage.hasMore) return undefined;
+      return lastPage.nextCursor;
     },
     refetchInterval: EVENTS_REFRESH_INTERVAL_MS,
   });
@@ -92,7 +93,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   });
 
   const allEvents: EventLogEntry[] = useMemo(
-    () => data?.pages.flatMap((page: EventLogEntry[]) => page) ?? [],
+    () => data?.pages.flatMap((page: CursorPaginatedResult<EventLogEntry>) => page.items) ?? [],
     [data],
   );
 
@@ -103,12 +104,12 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   });
 
   useEffect(() => {
-    if (!inView || !hasNextPage || isFetchingNextPage) {
+    if (!inView || !hasNextPage || isFetchingNextPage || isLoading) {
       return;
     }
 
     fetchNextPage();
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [inView, hasNextPage, isFetchingNextPage, isLoading, fetchNextPage]);
 
   const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t), [allEvents, totalCount, t]);
 

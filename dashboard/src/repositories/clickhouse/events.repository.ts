@@ -5,12 +5,17 @@ import {
   EventOccurrenceAggregate,
   RawEventPropertyData,
   RawEventPropertyDataArraySchema,
+  EventLogEntry,
+  EventLogEntrySchema,
+  EVENT_LOG_SORT_FIELD_TO_COLUMN,
+  type EventLogSortConfig,
 } from '@/entities/analytics/events.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { EventLogEntry, EventLogEntrySchema } from '@/entities/analytics/events.entities';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
+import { withCursorPagination } from '@/lib/cursor-pagination';
+import type { CursorData } from '@/entities/pagination.entities';
 
 export async function getCustomEventsOverview(
   siteId: string,
@@ -133,6 +138,68 @@ export async function getRecentEvents(
         end_date: endDate,
         limit,
         offset,
+      },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
+}
+
+/**
+ * Get paginated recent events using cursor-based pagination.
+ *
+ * @param siteId - The site ID to query
+ * @param startDate - Start of date range
+ * @param endDate - End of date range
+ * @param sortConfig - Sort configuration defining field ordering
+ * @param cursor - Cursor data for pagination (null for first page)
+ * @param limit - Maximum number of items to return
+ * @param queryFilters - Optional query filters
+ */
+export async function getRecentEventsCursor(
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+  sortConfig: EventLogSortConfig,
+  cursor: CursorData | null,
+  limit: number,
+  queryFilters?: QueryFilter[],
+): Promise<EventLogEntry[]> {
+  const filters = BAQuery.getFilterQuery(queryFilters || []);
+
+  const baseQuery = safeSql`
+    SELECT
+      timestamp,
+      custom_event_name as event_name,
+      visitor_id,
+      url,
+      custom_event_json,
+      country_code,
+      device_type,
+      browser
+    FROM analytics.events
+    WHERE
+          site_id = {site_id:String}
+      AND event_type = 'custom'
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND ${SQL.AND(filters)}
+  `;
+
+  const query = withCursorPagination({
+    baseQuery,
+    cursor,
+    sortConfig,
+    fieldToColumn: EVENT_LOG_SORT_FIELD_TO_COLUMN,
+    limit,
+  });
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start_date: startDate,
+        end_date: endDate,
       },
     })
     .toPromise()) as any[];

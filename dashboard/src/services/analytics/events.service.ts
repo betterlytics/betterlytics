@@ -4,6 +4,7 @@ import {
   getCustomEventsOverview,
   getEventPropertyData,
   getRecentEvents,
+  getRecentEventsCursor,
   getTotalEventCount,
 } from '@/repositories/clickhouse/index.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
@@ -11,9 +12,14 @@ import {
   EventPropertiesOverview,
   EventPropertyAnalytics,
   EventPropertyValue,
+  EventLogEntry,
+  DEFAULT_EVENT_LOG_SORT,
+  type EventLogSortConfig,
 } from '@/entities/analytics/events.entities';
 import { calculatePercentage } from '@/utils/mathUtils';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { decodeCursor, createCursorPaginatedResponse } from '@/lib/cursor-pagination';
+import type { CursorPaginatedResult } from '@/entities/pagination.entities';
 
 const MAX_TOP_VALUES = 10;
 
@@ -39,6 +45,43 @@ export async function getRecentEventsForSite(
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
   return getRecentEvents(siteId, formattedStart, formattedEnd, limit, offset, queryFilters);
+}
+
+/**
+ * Fetch recent events with cursor-based pagination
+ */
+export async function getRecentEventsForSiteCursor(
+  siteId: string,
+  startDate: Date,
+  endDate: Date,
+  cursor: string | null,
+  limit: number,
+  queryFilters?: QueryFilter[],
+  sortConfig?: EventLogSortConfig,
+): Promise<CursorPaginatedResult<EventLogEntry>> {
+  const formattedStart = toDateTimeString(startDate);
+  const formattedEnd = toDateTimeString(endDate);
+
+  const validatedSortConfig = sortConfig ?? DEFAULT_EVENT_LOG_SORT;
+  const decodedCursor = decodeCursor(cursor);
+
+  const items = await getRecentEventsCursor(
+    siteId,
+    formattedStart,
+    formattedEnd,
+    validatedSortConfig,
+    decodedCursor,
+    limit,
+    queryFilters,
+  );
+
+  // Map sort fields to the keys in EventLogEntry for cursor extraction
+  const fieldToCursorKey = {
+    timestamp: 'timestamp' as const,
+    visitorId: 'visitor_id' as const,
+  };
+
+  return createCursorPaginatedResponse(items, limit, validatedSortConfig, fieldToCursorKey);
 }
 
 export async function getTotalEventCountForSite(
