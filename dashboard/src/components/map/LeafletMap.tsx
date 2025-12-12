@@ -12,7 +12,8 @@ import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { Spinner } from '../ui/spinner';
 import { useTranslations } from 'next-intl';
-import type { ScaleType } from '@/hooks/use-color-scale';
+import { useTheme } from 'next-themes';
+import { useDebounce } from '@/hooks/useDebounce';
 
 type LeafletMapProps = WorldMapResponse & {
   showZoomControls?: boolean;
@@ -40,6 +41,9 @@ export default function LeafletMap({
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('components.geography');
   const style = useMapStyle({ maxValue: maxVisitors || 1 });
+
+  const { resolvedTheme } = useTheme();
+  const deboucedTheme = useDebounce(resolvedTheme, 50);
 
   useEffect(() => {
     startTransition(() => {
@@ -92,7 +96,7 @@ export default function LeafletMap({
   const { MapContainer, GeoJSON, Polygon } = mapComponents;
 
   return (
-    <div className='h-full w-full'>
+    <div className='h-full w-full' key={deboucedTheme}>
       {style.LeafletCSS}
       <MapContainer
         center={[20, 0]}
