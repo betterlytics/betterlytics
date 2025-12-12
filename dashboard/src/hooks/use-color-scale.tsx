@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { scaleLinear, scaleLog, scalePow } from 'd3-scale';
-import chroma from 'chroma-js';
+import { interpolateLab } from 'd3-interpolate';
 import { type CSSVariableName, useCSSColors } from './use-css-colors';
 
 export type ScaleType =
@@ -33,11 +33,13 @@ export function useColorScale({
 
   return useMemo(() => {
     if (scaleType === 'lab') {
-      return (value: number) =>
-        chroma
-          .scale(colors)
-          .mode('lab')(value / (maxValue || 1))
-          .hex();
+      const scale = scaleLinear<string>()
+        .domain([0, maxValue || 1])
+        .interpolate(interpolateLab)
+        .range(colors)
+        .clamp(true);
+
+      return (value: number) => scale(value);
     }
 
     // Gamma scale: great for exponentially distributed data (e.g., country visitor counts)
@@ -54,13 +56,18 @@ export function useColorScale({
         gamma = Number(gammaStr);
       }
 
-      const scale = chroma
-        .scale(colors)
-        .mode('lab')
+      const base = scaleLinear<string>()
         .domain([1, maxValue || 1])
-        .gamma(gamma);
+        .range(colors)
+        .interpolate(interpolateLab);
 
-      return (value: number) => scale(Math.max(0, value)).hex();
+      return (value: number) => {
+        const normalized = (value - 1) / ((maxValue || 1) - 1);
+        const adjusted = Math.pow(Math.max(0, normalized), gamma);
+        const result = base(1 + adjusted * ((maxValue || 1) - 1));
+
+        return result;
+      };
     }
 
     if (scaleType.startsWith('log') || scaleType === 'ln') {
