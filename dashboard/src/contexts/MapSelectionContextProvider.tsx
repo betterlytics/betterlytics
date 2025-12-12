@@ -1,18 +1,22 @@
 'use client';
 
-import { GeoVisitor } from '@/entities/geography';
+import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { createContext, useCallback, useContext } from 'react';
 
 export type MapFeatureVisitor = {
-  geoVisitor: GeoVisitor;
+  geoVisitor: GeoVisitorWithCompare;
   layer: L.Polygon;
+  mousePosition?: { x: number; y: number };
 };
 
-type MapSelectionContextType = {
+type MapSelectionStateContextType = {
   hoveredFeature: MapFeatureVisitor | undefined;
   clickedFeature: MapFeatureVisitor | undefined;
+};
+
+type MapSelectionSetterContextType = {
   setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
 };
 
@@ -22,12 +26,21 @@ type MapFeatureSelection = {
   clicked: MapFeatureVisitor | undefined;
 };
 
-const MapSelectionContext = createContext<MapSelectionContextType | undefined>(undefined);
+const MapSelectionStateContext = createContext<MapSelectionStateContextType | undefined>(undefined);
+const MapSelectionSetterContext = createContext<MapSelectionSetterContextType | undefined>(undefined);
 
-export function useMapSelection() {
-  const context = useContext(MapSelectionContext);
+export function useMapSelectionState() {
+  const context = useContext(MapSelectionStateContext);
   if (!context) {
-    throw new Error('useMapSelection must be used within a MapSelectionContextProvider');
+    throw new Error('useMapSelectionState must be used within a MapSelectionContextProvider');
+  }
+  return context;
+}
+
+export function useMapSelectionSetter() {
+  const context = useContext(MapSelectionSetterContext);
+  if (!context) {
+    throw new Error('useMapSelectionSetter must be used within a MapSelectionContextProvider');
   }
   return context;
 }
@@ -79,13 +92,22 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
           return { ...prev, ...next };
         }
 
-        if (prev.clicked || prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
+        if (prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
           return { ...prev };
         }
 
-        prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
-        next.hovered?.layer.setStyle(style.hoveredStyle(next.hovered.geoVisitor.visitors));
-        next.hovered?.layer.bringToFront();
+        if (prev.hovered && prev.hovered.geoVisitor.country_code !== prev.clicked?.geoVisitor.country_code) {
+          prev.hovered.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
+        }
+
+        if (!prev.clicked || next.hovered?.geoVisitor.country_code !== prev.clicked.geoVisitor.country_code) {
+          next.hovered?.layer.setStyle(style.hoveredStyle(next.hovered.geoVisitor.visitors));
+          next.hovered?.layer.bringToFront();
+
+          if (prev.clicked) {
+            prev.clicked.layer.bringToFront();
+          }
+        }
 
         return { ...prev, ...next };
       });
@@ -93,15 +115,24 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
     [style, isMobile],
   );
 
+  const stateValue = React.useMemo(
+    () => ({
+      hoveredFeature: combined.hovered,
+      clickedFeature: combined.clicked,
+    }),
+    [combined.hovered, combined.clicked],
+  );
+
+  const setterValue = React.useMemo(
+    () => ({
+      setMapSelection,
+    }),
+    [setMapSelection],
+  );
+
   return (
-    <MapSelectionContext.Provider
-      value={{
-        hoveredFeature: combined.hovered,
-        clickedFeature: combined.clicked,
-        setMapSelection,
-      }}
-    >
-      {children}
-    </MapSelectionContext.Provider>
+    <MapSelectionSetterContext.Provider value={setterValue}>
+      <MapSelectionStateContext.Provider value={stateValue}>{children}</MapSelectionStateContext.Provider>
+    </MapSelectionSetterContext.Provider>
   );
 }

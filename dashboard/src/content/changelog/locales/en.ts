@@ -1,50 +1,50 @@
-import type { ChangelogEntryData } from '@/entities/changelog';
+import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.5',
-    releasedAt: '2025-11-24',
+    version: 'v1.2.7',
+    releasedAt: '2025-12-07',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v125-new-features',
+      id: 'v127-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Compare data over selected periods directly in the world map visualization.',
+            'The Campaign page has been fully rebuilt to focus on named UTM campaigns.',
+            'You can now add annotations to main charts to highlight important events, releases, or traffic changes.',
+            'Funnels page has been fully redesigned with a more intuitive, visual layout. Go check it out!',
             'Block events from specific IP addresses to avoid skewed or unwanted traffic (e.g., your own visits).',
-            "Automatically reject events from domains that don't match your dashboard domain.",
           ],
         },
       ],
     },
     {
-      id: 'v125-enhancements',
-      title: 'Enhancements',
+      id: 'v127-security-auth',
+      title: 'Security & Authentication',
       blocks: [
         {
           type: 'list',
           items: [
-            'Core Web Vitals labels refined for clearer understanding.',
-            'Antarctica is hidden from the world map unless it has visitor data.',
+            'Your account security has been strengthened and improved.',
+            'Patched the recent React Server Components vulnerability (CVE-2025-66478).',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v127-improvements-and-fixes',
+      title: 'Improvements & Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
             'Added an in-app "Report a bug" button for quick feedback submissions.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v125-bug-fixes',
-      title: 'Bug Fixes',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Fixed an issue causing the Core Web Vitals page to fail loading.',
-            'Resolved daylight saving time issues affecting displayed analytics.',
+            'Corrected page-per-session calculations in the Pages view so metrics now accurately reflect actual usage.',
           ],
         },
       ],
@@ -53,6 +53,107 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.7',
+      releasedAt: '2025-12-07',
+      title: 'Chart annotations, campaign-first view, and security hardening',
+      summary:
+        'The campaign page now centers on named UTM campaigns, main charts support annotations, authentication is strengthened, and several reliability fixes improve accuracy and safety.',
+    },
+    sections: [
+      {
+        id: 'v127-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The Campaign page has been fully rebuilt to focus on named UTM campaigns, providing clearer, more meaningful insights than the previous aggregated view.',
+              'You can now add annotations to main charts to highlight important events, releases, or traffic changes.',
+              'Delete a dashboard now includes a short safety countdown to prevent accidental removal.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-security-auth',
+        title: 'Security & Authentication',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Authentication has been strengthened, improving session integrity and protection.',
+              'Patched the recent React Server Components vulnerability (CVE-2025-66478) by updating to the latest secure Next.js release.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-improvements-and-fixes',
+        title: 'Improvements & Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed a race condition that could create duplicate subscriptions when new accounts were created.',
+              'Corrected page-per-session calculations in the Pages view so metrics now accurately reflect actual usage.',
+              'Account verification now provides clearer feedback during the verification process.',
+              'The changelog popup layout is now optimized for small screens, improving readability on mobile devices.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.2.6',
+      releasedAt: '2025-12-01',
+      title: 'Redesigned Funnels & Smarter Map',
+      summary:
+        'Funnels are fully redesigned with improved visualizations. World map interactions now include comparison features and better tooltips. This release also includes bug fixes and updated translations.',
+    },
+    sections: [
+      {
+        id: 'v126-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              "Funnels page has a brand-new, visual layout that's easier to use and understand.",
+              'World map now supports period-over-period comparisons.',
+              'World map tooltips now show clearer insights with improved performance.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v126-enhancements',
+        title: 'Enhancements',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Added missing translations so users worldwide get a smoother experience.'],
+          },
+        ],
+      },
+      {
+        id: 'v126-bug-fixes',
+        title: 'Bug Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed duplicate notifications when exceeding plan limits.',
+              'Fixed loading problems when choosing future date ranges.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.5',
@@ -85,6 +186,7 @@ export const changelogEntriesEn: readonly ChangelogEntryData[] = [
               'Core Web Vitals labels refined for clearer understanding.',
               'Antarctica is hidden from the world map unless it has visitor data.',
               'Added an in-app "Report a bug" button for quick feedback submissions.',
+              'Added favicons to dashboard domains.',
             ],
           },
         ],

@@ -638,6 +638,28 @@
         "cta": {
           "noAccount": "Har du ikke en konto?",
           "createOne": "Opret en"
+        },
+        "form": {
+          "emailLabel": "E-mail",
+          "emailPlaceholder": "Indtast din e-mail",
+          "passwordLabel": "Adgangskode",
+          "passwordPlaceholder": "Indtast din adgangskode",
+          "forgotPassword": "Glemt din adgangskode?",
+          "submitButton": "Log ind",
+          "submitting": "Logger ind...",
+          "orDivider": "eller",
+          "continueWithGoogle": "Fortsæt med Google",
+          "continueWithGithub": "Fortsæt med GitHub",
+          "errors": {
+            "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
+            "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
+            "generic": "Der opstod en fejl under login. Prøv venligst igen."
+          },
+          "twoFactor": {
+            "title": "To-faktor-godkendelse",
+            "description": "Indtast bekræftelseskoden fra din app.",
+            "cancel": "Annuller"
+          }
         }
       },
       "register": {
@@ -681,8 +703,16 @@
           ]
         },
         "title": "Nulstil din adgangskode",
-        "subtitle": "Indtast din e-mail, så sender vi et link til nulstilling af adgangskode",
+        "subtitle": "Indtast din e-mail, så sender vi dig et link til at nulstille adgangskoden",
+        "emailField": "E-mailadresse",
+        "emailFieldPlaceholder": "Indtast din e-mailadresse",
+        "emailFieldDescription": "Indtast e-mailadressen, der er tilknyttet din konto, så sender vi dig et link til at nulstille adgangskoden.",
+        "successMessage": "E-mail til nulstilling af adgangskode er sendt!",
+        "errorMessage": "Det lykkedes ikke at sende e-mailen til nulstilling af adgangskode. Prøv igen.",
+        "errorMessageInvalidEmail": "Indtast venligst en gyldig e-mailadresse",
         "cta": {
+          "sendResetLink": "Send link til nulstilling",
+          "sending": "Sender...",
           "remember": "Kan du huske din adgangskode?",
           "backToSignIn": "Tilbage til login"
         }
@@ -723,20 +753,40 @@
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Ugyldigt bekræftelseslink",
-          "description": "Bekræftelseslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen.",
-          "backToSignIn": "Tilbage til login"
+          "title": "Ugyldigt Verifikationslink",
+          "description": "Verifikationslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen.",
+          "backToSignIn": "Tilbage til Log ind"
         },
         "failed": {
-          "title": "Bekræftelse mislykkedes",
-          "expiredInfo": "Bekræftelseslinks udløber efter 24 timer af sikkerhedshensyn. Du kan anmode om et nyt og prøve igen.",
-          "genericFallback": "Der opstod en fejl under bekræftelsen."
+          "title": "Verifikation Mislykkedes",
+          "expiredInfo": "Verifikationslinks udløber efter 24 timer af sikkerhedsmæssige årsager. Du kan anmode om et nyt og prøve igen.",
+          "genericFallback": "Der opstod en fejl under verifikationen."
         },
         "buttons": {
-          "returnToDashboard": "Tilbage til dashboard",
-          "backToSignIn": "Tilbage til login"
+          "returnToDashboard": "Tilbage til Dashboard",
+          "backToSignIn": "Tilbage til Log ind"
         },
-        "helpLine": "Har du brug for hjælp? Kontakt support på support@betterlytics.io"
+        "helpLine": "Brug for hjælp? Kontakt support på support@betterlytics.io",
+        "loading": {
+          "title": "Verificerer...",
+          "description": "Vent venligst et øjeblik, mens vi bekræfter din e-mailadresse."
+        },
+        "success": {
+          "title": "E-mail Verificeret!",
+          "description": "Din e-mail er blevet verificeret.",
+          "celebration": "Velkommen ombord!",
+          "redirecting": "Sender dig videre til dit dashboard...",
+          "clickHere": "Klik her hvis du ikke omdirigeres automatisk",
+          "redirectingToSignin": "Sender dig videre til login...",
+          "errors": {
+            "redirectTimeout": "Omdirigeringen tager længere tid end forventet.",
+            "redirectFailed": "Noget gik galt under omdirigeringen."
+          }
+        },
+        "verifying": {
+          "title": "Verificerer din e-mail...",
+          "description": "Vent venligst mens vi bekræfter din e-mailadresse."
+        }
       }
     },
     "demo": {
@@ -1109,6 +1159,42 @@
         "sunShort": "Søn."
       }
     },
+    "annotations": {
+      "dialogs": {
+        "addTitle": "Tilføj annotation",
+        "editTitle": "Redigér annotation",
+        "nameLabel": "Navn",
+        "createNamePlaceholder": "Annoteringsnavn (f.eks. \"Produktlancering\")",
+        "editNamePlaceholder": "Annoteringsnavn",
+        "descriptionLabel": "Beskrivelse (valgfrit)",
+        "descriptionPlaceholder": "Tilføj en beskrivelse...",
+        "dateTimeLabel": "Dato og tidspunkt",
+        "colorLabel": "Farve",
+        "selectColorAria": "Vælg farve {token}",
+        "cancel": "Annuller",
+        "add": "Tilføj",
+        "save": "Gem",
+        "delete": "Slet",
+        "deleteAnnotationAria": "Slet annotation",
+        "deleteConfirmTitle": "Bekræft sletning",
+        "deleteConfirmDescription": "Er du sikker på, at du vil slette denne annotation?"
+      },
+      "chart": {
+        "exitAnnotationMode": "Forlad annoteringstilstand",
+        "enterAnnotationMode": "Tilføj annotation",
+        "annotationModeHint": "Klik på diagrammet for at tilføje en annotation"
+      },
+      "groupMarker": {
+        "clickToSeeAll": "Klik for at se alle"
+      },
+      "popover": {
+        "annotationsCount": "{count, plural, one {# annotation} other {# annotationer}}",
+        "edit": "Redigér",
+        "delete": "Slet",
+        "editAria": "Redigér annotation",
+        "deleteAria": "Slet annotation"
+      }
+    },
     "dashboards": {
       "createDialog": {
         "title": "Opret nyt dashboard",
@@ -1271,57 +1357,59 @@
       }
     },
     "campaign": {
-      "tabs": {
-        "overview": "Oversigt",
-        "utmBreakdowns": "UTM-opdeling",
-        "landingPages": "Landingssider"
+      "title": "Kampagner",
+      "pagination": {
+        "pageOf": "Side {currentPage} af {totalPages}",
+        "showing": "Viser {startItem}-{endItem} af {totalItems} kampagner",
+        "perPage": "pr. side"
       },
-      "page": {
-        "title": "Kampagner",
-        "description": "Kampagneperformance analyser og indsigter"
+      "emptyState": {
+        "title": "Ingen kampagner registreret endnu",
+        "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for at se performance-metrics.",
+        "docsHint": "Brug for hjælp til at få kampagner til at dukke op?",
+        "docsLinkLabel": "Læs guiden til kampagnesporing"
       },
-      "performance": {
-        "title": "Kampagneperformance",
-        "columns": {
-          "campaignName": "Kampagnenavn",
-          "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
-          "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
-        }
+      "loading": "Indlæser kampagner...",
+      "campaignRow": {
+        "sessions": "{count, plural, one {# session} other {# sessioner}}",
+        "bounceRate": "Afvisningsprocent",
+        "avgSessionDuration": "Gns. varighed",
+        "pagesPerSession": "Sider pr. session",
+        "campaignDetails": "Kampagnedetaljer"
       },
-      "trend": {
-        "title": "Kampagne-besøgendetrend"
+      "campaignExpandedRow": {
+        "onlyAvailableOnLargerScreens": "Den detaljerede UTM-tabel er kun tilgængelig på større skærme.",
+        "loading": "Indlæser kampagnedetaljer...",
+        "error": "Kunne ikke indlæse kampagnedetaljer. Prøv igen.",
+        "campaignDetails": "Kampagnedetaljer"
+      },
+      "audienceProfile": {
+        "title": "Målgruppeprofil",
+        "noData": "Ingen målgruppedata for denne kampagne i det valgte interval.",
+        "deviceTitle": "Enheder",
+        "browserTitle": "Browsere",
+        "osTitle": "Operativsystem",
+        "countryTitle": "Lande"
       },
       "utm": {
         "table": {
-          "title": "UTM-parameteropdeling"
+          "title": "UTM-parameteroversigt"
         },
         "chart": {
           "title": "UTM-fordeling"
         },
         "tabs": {
+          "entryPages": "Indgangssider",
           "source": "Kilde",
           "medium": "Medium",
           "content": "Indhold",
-          "terms": "Termer"
+          "term": "Term"
         },
         "columns": {
           "visitors": "Besøgende",
           "bounceRate": "Afvisningsprocent",
           "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
-        }
-      },
-      "landing": {
-        "title": "Kampagne landingsside-performance",
-        "columns": {
-          "campaignName": "Kampagnenavn",
-          "landingPageUrl": "Landingsside-URL",
-          "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
-          "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider pr. session"
+          "pagesPerSession": "Sider / session"
         }
       }
     },
@@ -1368,6 +1456,7 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
         "device_type": "Enhedstype",
@@ -1410,15 +1499,41 @@
         "defaultName": "Min nye tragt",
         "createFunnel": "Opret tragt",
         "createFunnelLower": "Opret tragt",
-        "description": "Opret en ny tragt til dit websted.",
-        "name": "Navn",
+        "name": "Tragtnavn",
         "namePlaceholder": "Mit tragtnavn",
         "strictMode": "Strikt tilstand",
         "addStep": "Tilføj trin",
-        "livePreview": "Live forhåndsvisning (sidste 24 timer)",
+        "livePreview": "Live forhåndsvisning",
         "create": "Opret",
+        "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
         "errorMessage": "Tragtoprettelse mislykkedes!"
+      },
+      "edit": {
+        "title": "Rediger tragt",
+        "name": "Tragtnavn",
+        "strictMode": "Strikt tilstand",
+        "addStep": "Tilføj trin",
+        "cancel": "Annuller",
+        "save": "Gem",
+        "livePreview": "Live forhåndsvisning",
+        "disabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
+        "successMessage": "Tragt opdateret!",
+        "errorMessage": "Tragtopdatering mislykkedes!"
+      },
+      "plot": {
+        "stepLabel": "Trin {index}",
+        "visitors": "Besøgende",
+        "dropOff": "Frafald",
+        "conversion": "Konvertering"
+      },
+      "delete": {
+        "title": "Slet tragt",
+        "description": "Er du sikker på, at du vil slette denne tragt? Denne handling kan ikke fortrydes.",
+        "cancel": "Annuller",
+        "delete": "Slet tragt",
+        "successMessage": "Tragt slettet!",
+        "errorMessage": "Sletning af tragt mislykkedes!"
       },
       "page": {
         "title": "Tragter",
@@ -1747,6 +1862,10 @@
           "cancel": "Annuller",
           "saving": "Gemmer...",
           "saveChanges": "Gem ændringer"
+        },
+        "toast": {
+          "success": "Indstillinger gemt!",
+          "error": "Kunne ikke gemme indstillinger. Prøv igen."
         }
       },
       "profile": {

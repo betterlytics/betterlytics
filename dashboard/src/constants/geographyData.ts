@@ -1,4 +1,4 @@
-import { GeoVisitor } from '@/entities/geography';
+import { GeoVisitor } from '@/entities/analytics/geography.entities';
 
 export const MOCK_WORLD_GEOVISITORS: GeoVisitor[] = [
   {
@@ -968,6 +968,1025 @@ export const MOCK_WORLD_GEOVISITORS: GeoVisitor[] = [
   {
     country_code: 'MF',
     visitors: 121,
+  },
+  {
+    country_code: 'AQ',
+    visitors: 0,
+  },
+  {
+    country_code: 'CF',
+    visitors: 0,
+  },
+  {
+    country_code: 'ER',
+    visitors: 0,
+  },
+  {
+    country_code: 'GN',
+    visitors: 0,
+  },
+  {
+    country_code: 'GW',
+    visitors: 0,
+  },
+  {
+    country_code: 'KP',
+    visitors: 0,
+  },
+  {
+    country_code: 'NR',
+    visitors: 0,
+  },
+  {
+    country_code: 'SS',
+    visitors: 0,
+  },
+  {
+    country_code: 'SY',
+    visitors: 0,
+  },
+  {
+    country_code: 'TV',
+    visitors: 0,
+  },
+  {
+    country_code: 'WS',
+    visitors: 0,
+  },
+  {
+    country_code: 'YE',
+    visitors: 0,
+  },
+] as const;
+
+export const MOCK_COMPARE_GEOVISITORS: GeoVisitor[] = [
+  {
+    country_code: 'BE',
+    visitors: 2142,
+  },
+  {
+    country_code: 'US',
+    visitors: 996,
+  },
+  {
+    country_code: 'IS',
+    visitors: 1517,
+  },
+  {
+    country_code: 'CH',
+    visitors: 411,
+  },
+  {
+    country_code: 'FI',
+    visitors: 1842,
+  },
+  {
+    country_code: 'GB',
+    visitors: 721,
+  },
+  {
+    country_code: 'FR',
+    visitors: 558,
+  },
+  {
+    country_code: 'PL',
+    visitors: 633,
+  },
+  {
+    country_code: 'SE',
+    visitors: 2233,
+  },
+  {
+    country_code: 'HU',
+    visitors: 1624,
+  },
+  {
+    country_code: 'LV',
+    visitors: 936,
+  },
+  {
+    country_code: 'NL',
+    visitors: 1509,
+  },
+  {
+    country_code: 'BG',
+    visitors: 724,
+  },
+  {
+    country_code: 'DK',
+    visitors: 402,
+  },
+  {
+    country_code: 'IN',
+    visitors: 441,
+  },
+  {
+    country_code: 'MT',
+    visitors: 2689,
+  },
+  {
+    country_code: 'LT',
+    visitors: 37,
+  },
+  {
+    country_code: 'SI',
+    visitors: 1536,
+  },
+  {
+    country_code: 'LI',
+    visitors: 128,
+  },
+  {
+    country_code: 'UA',
+    visitors: 2048,
+  },
+  {
+    country_code: 'GR',
+    visitors: 2036,
+  },
+  {
+    country_code: 'ES',
+    visitors: 1544,
+  },
+  {
+    country_code: 'PT',
+    visitors: 2017,
+  },
+  {
+    country_code: 'HR',
+    visitors: 1440,
+  },
+  {
+    country_code: 'SK',
+    visitors: 945,
+  },
+  {
+    country_code: 'TZ',
+    visitors: 2675,
+  },
+  {
+    country_code: 'ZM',
+    visitors: 1267,
+  },
+  {
+    country_code: 'DE',
+    visitors: 1967,
+  },
+  {
+    country_code: 'IT',
+    visitors: 346,
+  },
+  {
+    country_code: 'AT',
+    visitors: 218,
+  },
+  {
+    country_code: 'CZ',
+    visitors: 2671,
+  },
+  {
+    country_code: 'EG',
+    visitors: 998,
+  },
+  {
+    country_code: 'PK',
+    visitors: 2350,
+  },
+  {
+    country_code: 'GH',
+    visitors: 1679,
+  },
+  {
+    country_code: 'EE',
+    visitors: 96,
+  },
+  {
+    country_code: 'IE',
+    visitors: 2510,
+  },
+  {
+    country_code: 'NO',
+    visitors: 370,
+  },
+  {
+    country_code: 'LU',
+    visitors: 1854,
+  },
+  {
+    country_code: 'KE',
+    visitors: 1879,
+  },
+  {
+    country_code: 'PH',
+    visitors: 2108,
+  },
+  {
+    country_code: 'SO',
+    visitors: 690,
+  },
+  {
+    country_code: 'NG',
+    visitors: 2151,
+  },
+  {
+    country_code: 'RU',
+    visitors: 2279,
+  },
+  {
+    country_code: 'AE',
+    visitors: 1156,
+  },
+  {
+    country_code: 'VI',
+    visitors: 2024,
+  },
+  {
+    country_code: 'LA',
+    visitors: 470,
+  },
+  {
+    country_code: 'GT',
+    visitors: 1818,
+  },
+  {
+    country_code: 'UG',
+    visitors: 1480,
+  },
+  {
+    country_code: 'AU',
+    visitors: 993,
+  },
+  {
+    country_code: 'MG',
+    visitors: 1225,
+  },
+  {
+    country_code: 'NP',
+    visitors: 1859,
+  },
+  {
+    country_code: 'KI',
+    visitors: 1784,
+  },
+  {
+    country_code: 'PY',
+    visitors: 333,
+  },
+  {
+    country_code: 'LY',
+    visitors: 835,
+  },
+  {
+    country_code: 'MR',
+    visitors: 103,
+  },
+  {
+    country_code: 'KH',
+    visitors: 1664,
+  },
+  {
+    country_code: 'FO',
+    visitors: 2406,
+  },
+  {
+    country_code: 'CR',
+    visitors: 298,
+  },
+  {
+    country_code: 'TD',
+    visitors: 967,
+  },
+  {
+    country_code: 'KN',
+    visitors: 743,
+  },
+  {
+    country_code: 'MY',
+    visitors: 2104,
+  },
+  {
+    country_code: 'BQ',
+    visitors: 764,
+  },
+  {
+    country_code: 'QA',
+    visitors: 1947,
+  },
+  {
+    country_code: 'SZ',
+    visitors: 812,
+  },
+  {
+    country_code: 'VE',
+    visitors: 1087,
+  },
+  {
+    country_code: 'PG',
+    visitors: 678,
+  },
+  {
+    country_code: 'TK',
+    visitors: 1647,
+  },
+  {
+    country_code: 'AL',
+    visitors: 1207,
+  },
+  {
+    country_code: 'GE',
+    visitors: 2125,
+  },
+  {
+    country_code: 'NE',
+    visitors: 57,
+  },
+  {
+    country_code: 'GQ',
+    visitors: 211,
+  },
+  {
+    country_code: 'MS',
+    visitors: 618,
+  },
+  {
+    country_code: 'KG',
+    visitors: 526,
+  },
+  {
+    country_code: 'NZ',
+    visitors: 288,
+  },
+  {
+    country_code: 'LS',
+    visitors: 1497,
+  },
+  {
+    country_code: 'AZ',
+    visitors: 1763,
+  },
+  {
+    country_code: 'LB',
+    visitors: 1824,
+  },
+  {
+    country_code: 'CU',
+    visitors: 2090,
+  },
+  {
+    country_code: 'PM',
+    visitors: 445,
+  },
+  {
+    country_code: 'VA',
+    visitors: 2105,
+  },
+  {
+    country_code: 'GI',
+    visitors: 277,
+  },
+  {
+    country_code: 'TR',
+    visitors: 112,
+  },
+  {
+    country_code: 'PE',
+    visitors: 479,
+  },
+  {
+    country_code: 'VU',
+    visitors: 1142,
+  },
+  {
+    country_code: 'CM',
+    visitors: 323,
+  },
+  {
+    country_code: 'TN',
+    visitors: 1130,
+  },
+  {
+    country_code: 'BM',
+    visitors: 146,
+  },
+  {
+    country_code: 'MX',
+    visitors: 1030,
+  },
+  {
+    country_code: 'KY',
+    visitors: 565,
+  },
+  {
+    country_code: 'BI',
+    visitors: 1553,
+  },
+  {
+    country_code: 'MA',
+    visitors: 1695,
+  },
+  {
+    country_code: 'TT',
+    visitors: 464,
+  },
+  {
+    country_code: 'HN',
+    visitors: 197,
+  },
+  {
+    country_code: 'GA',
+    visitors: 734,
+  },
+  {
+    country_code: 'RS',
+    visitors: 1359,
+  },
+  {
+    country_code: 'CN',
+    visitors: 433,
+  },
+  {
+    country_code: 'CO',
+    visitors: 10,
+  },
+  {
+    country_code: 'FM',
+    visitors: 1213,
+  },
+  {
+    country_code: 'ST',
+    visitors: 573,
+  },
+  {
+    country_code: 'AI',
+    visitors: 1185,
+  },
+  {
+    country_code: 'CD',
+    visitors: 1307,
+  },
+  {
+    country_code: 'GU',
+    visitors: 455,
+  },
+  {
+    country_code: 'BN',
+    visitors: 129,
+  },
+  {
+    country_code: 'AF',
+    visitors: 49,
+  },
+  {
+    country_code: 'PS',
+    visitors: 22,
+  },
+  {
+    country_code: 'VG',
+    visitors: 587,
+  },
+  {
+    country_code: 'GF',
+    visitors: 1256,
+  },
+  {
+    country_code: 'CC',
+    visitors: 584,
+  },
+  {
+    country_code: 'ID',
+    visitors: 467,
+  },
+  {
+    country_code: 'SJ',
+    visitors: 32,
+  },
+  {
+    country_code: 'MD',
+    visitors: 829,
+  },
+  {
+    country_code: 'BY',
+    visitors: 736,
+  },
+  {
+    country_code: 'LR',
+    visitors: 326,
+  },
+  {
+    country_code: 'MK',
+    visitors: 893,
+  },
+  {
+    country_code: 'IR',
+    visitors: 406,
+  },
+  {
+    country_code: 'PW',
+    visitors: 610,
+  },
+  {
+    country_code: 'MU',
+    visitors: 745,
+  },
+  {
+    country_code: 'BJ',
+    visitors: 874,
+  },
+  {
+    country_code: 'MO',
+    visitors: 878,
+  },
+  {
+    country_code: 'PR',
+    visitors: 53,
+  },
+  {
+    country_code: 'SM',
+    visitors: 179,
+  },
+  {
+    country_code: 'KR',
+    visitors: 324,
+  },
+  {
+    country_code: 'GM',
+    visitors: 358,
+  },
+  {
+    country_code: 'IL',
+    visitors: 731,
+  },
+  {
+    country_code: 'AW',
+    visitors: 1100,
+  },
+  {
+    country_code: 'IO',
+    visitors: 358,
+  },
+  {
+    country_code: 'DJ',
+    visitors: 1149,
+  },
+  {
+    country_code: 'AS',
+    visitors: 40,
+  },
+  {
+    country_code: 'JM',
+    visitors: 1072,
+  },
+  {
+    country_code: 'JO',
+    visitors: 64,
+  },
+  {
+    country_code: 'LC',
+    visitors: 882,
+  },
+  {
+    country_code: 'SC',
+    visitors: 1169,
+  },
+  {
+    country_code: 'NF',
+    visitors: 528,
+  },
+  {
+    country_code: 'CG',
+    visitors: 1292,
+  },
+  {
+    country_code: 'BZ',
+    visitors: 1395,
+  },
+  {
+    country_code: 'XK',
+    visitors: 909,
+  },
+  {
+    country_code: 'TA',
+    visitors: 1127,
+  },
+  {
+    country_code: 'MC',
+    visitors: 387,
+  },
+  {
+    country_code: 'FK',
+    visitors: 988,
+  },
+  {
+    country_code: 'TM',
+    visitors: 588,
+  },
+  {
+    country_code: 'EH',
+    visitors: 955,
+  },
+  {
+    country_code: 'EC',
+    visitors: 994,
+  },
+  {
+    country_code: 'SR',
+    visitors: 1098,
+  },
+  {
+    country_code: 'AM',
+    visitors: 44,
+  },
+  {
+    country_code: 'GP',
+    visitors: 600,
+  },
+  {
+    country_code: 'IM',
+    visitors: 685,
+  },
+  {
+    country_code: 'ML',
+    visitors: 895,
+  },
+  {
+    country_code: 'AD',
+    visitors: 1318,
+  },
+  {
+    country_code: 'UZ',
+    visitors: 764,
+  },
+  {
+    country_code: 'MN',
+    visitors: 566,
+  },
+  {
+    country_code: 'ET',
+    visitors: 657,
+  },
+  {
+    country_code: 'ME',
+    visitors: 679,
+  },
+  {
+    country_code: 'LK',
+    visitors: 474,
+  },
+  {
+    country_code: 'MP',
+    visitors: 313,
+  },
+  {
+    country_code: 'BT',
+    visitors: 472,
+  },
+  {
+    country_code: 'NU',
+    visitors: 343,
+  },
+  {
+    country_code: 'GY',
+    visitors: 615,
+  },
+  {
+    country_code: 'SN',
+    visitors: 268,
+  },
+  {
+    country_code: 'AO',
+    visitors: 1219,
+  },
+  {
+    country_code: 'MZ',
+    visitors: 868,
+  },
+  {
+    country_code: 'DM',
+    visitors: 447,
+  },
+  {
+    country_code: 'ZA',
+    visitors: 311,
+  },
+  {
+    country_code: 'UY',
+    visitors: 45,
+  },
+  {
+    country_code: 'SH',
+    visitors: 953,
+  },
+  {
+    country_code: 'BO',
+    visitors: 270,
+  },
+  {
+    country_code: 'BR',
+    visitors: 870,
+  },
+  {
+    country_code: 'UM',
+    visitors: 209,
+  },
+  {
+    country_code: 'YT',
+    visitors: 704,
+  },
+  {
+    country_code: 'JE',
+    visitors: 436,
+  },
+  {
+    country_code: 'RO',
+    visitors: 989,
+  },
+  {
+    country_code: 'DZ',
+    visitors: 15,
+  },
+  {
+    country_code: 'AC',
+    visitors: 274,
+  },
+  {
+    country_code: 'CK',
+    visitors: 301,
+  },
+  {
+    country_code: 'EU',
+    visitors: 63,
+  },
+  {
+    country_code: 'MW',
+    visitors: 569,
+  },
+  {
+    country_code: 'TW',
+    visitors: 441,
+  },
+  {
+    country_code: 'MH',
+    visitors: 839,
+  },
+  {
+    country_code: 'BL',
+    visitors: 479,
+  },
+  {
+    country_code: 'BH',
+    visitors: 405,
+  },
+  {
+    country_code: 'HK',
+    visitors: 437,
+  },
+  {
+    country_code: 'VN',
+    visitors: 647,
+  },
+  {
+    country_code: 'CX',
+    visitors: 263,
+  },
+  {
+    country_code: 'KW',
+    visitors: 905,
+  },
+  {
+    country_code: 'SD',
+    visitors: 290,
+  },
+  {
+    country_code: 'GL',
+    visitors: 298,
+  },
+  {
+    country_code: 'CA',
+    visitors: 229,
+  },
+  {
+    country_code: 'NA',
+    visitors: 293,
+  },
+  {
+    country_code: 'RE',
+    visitors: 756,
+  },
+  {
+    country_code: 'WF',
+    visitors: 442,
+  },
+  {
+    country_code: 'BV',
+    visitors: 342,
+  },
+  {
+    country_code: 'TJ',
+    visitors: 353,
+  },
+  {
+    country_code: 'PF',
+    visitors: 275,
+  },
+  {
+    country_code: 'CV',
+    visitors: 74,
+  },
+  {
+    country_code: 'PA',
+    visitors: 13,
+  },
+  {
+    country_code: 'HM',
+    visitors: 623,
+  },
+  {
+    country_code: 'CL',
+    visitors: 168,
+  },
+  {
+    country_code: 'TG',
+    visitors: 272,
+  },
+  {
+    country_code: 'HT',
+    visitors: 218,
+  },
+  {
+    country_code: 'CY',
+    visitors: 431,
+  },
+  {
+    country_code: 'TL',
+    visitors: 242,
+  },
+  {
+    country_code: 'TH',
+    visitors: 608,
+  },
+  {
+    country_code: 'SX',
+    visitors: 589,
+  },
+  {
+    country_code: 'TO',
+    visitors: 339,
+  },
+  {
+    country_code: 'DO',
+    visitors: 591,
+  },
+  {
+    country_code: 'AR',
+    visitors: 111,
+  },
+  {
+    country_code: 'IQ',
+    visitors: 264,
+  },
+  {
+    country_code: 'BB',
+    visitors: 354,
+  },
+  {
+    country_code: 'ZW',
+    visitors: 358,
+  },
+  {
+    country_code: 'MV',
+    visitors: 92,
+  },
+  {
+    country_code: 'SV',
+    visitors: 332,
+  },
+  {
+    country_code: 'SA',
+    visitors: 303,
+  },
+  {
+    country_code: 'CI',
+    visitors: 245,
+  },
+  {
+    country_code: 'MM',
+    visitors: 586,
+  },
+  {
+    country_code: 'AX',
+    visitors: 99,
+  },
+  {
+    country_code: 'BF',
+    visitors: 185,
+  },
+  {
+    country_code: 'BW',
+    visitors: 269,
+  },
+  {
+    country_code: 'SB',
+    visitors: 493,
+  },
+  {
+    country_code: 'NI',
+    visitors: 139,
+  },
+  {
+    country_code: 'PN',
+    visitors: 8,
+  },
+  {
+    country_code: 'BD',
+    visitors: 89,
+  },
+  {
+    country_code: 'SG',
+    visitors: 60,
+  },
+  {
+    country_code: 'AG',
+    visitors: 41,
+  },
+  {
+    country_code: 'FJ',
+    visitors: 410,
+  },
+  {
+    country_code: 'OM',
+    visitors: 201,
+  },
+  {
+    country_code: 'BA',
+    visitors: 258,
+  },
+  {
+    country_code: 'SL',
+    visitors: 343,
+  },
+  {
+    country_code: 'MQ',
+    visitors: 27,
+  },
+  {
+    country_code: 'BS',
+    visitors: 145,
+  },
+  {
+    country_code: 'VC',
+    visitors: 236,
+  },
+  {
+    country_code: 'KZ',
+    visitors: 375,
+  },
+  {
+    country_code: 'JP',
+    visitors: 380,
+  },
+  {
+    country_code: 'IC',
+    visitors: 83,
+  },
+  {
+    country_code: 'CW',
+    visitors: 352,
+  },
+  {
+    country_code: 'GG',
+    visitors: 163,
+  },
+  {
+    country_code: 'RW',
+    visitors: 231,
+  },
+  {
+    country_code: 'NC',
+    visitors: 52,
+  },
+  {
+    country_code: 'GS',
+    visitors: 88,
+  },
+  {
+    country_code: 'KM',
+    visitors: 120,
+  },
+  {
+    country_code: 'GD',
+    visitors: 281,
+  },
+  {
+    country_code: 'TC',
+    visitors: 112,
+  },
+  {
+    country_code: 'TF',
+    visitors: 191,
+  },
+  {
+    country_code: 'MF',
+    visitors: 298,
   },
   {
     country_code: 'AQ',

@@ -2,17 +2,19 @@
 
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { forgotPasswordAction } from '@/app/actions/passwordReset';
-import { ForgotPasswordSchema } from '@/entities/passwordReset';
+import { forgotPasswordAction } from '@/app/actions/auth/passwordReset.action';
+import { ForgotPasswordSchema } from '@/entities/auth/passwordReset.entities';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslations } from 'next-intl';
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('public.auth.forgotPassword');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,15 +28,15 @@ export default function ForgotPasswordForm() {
         const result = await forgotPasswordAction(validatedData);
 
         if (result) {
-          setSuccess('Password reset email sent!');
+          setSuccess(t('successMessage'));
           setEmail('');
-          toast.success('Password reset email sent!');
+          toast.success(t('successMessage'));
         } else {
-          setError('Failed to send password reset email');
+          setError(t('errorMessage'));
         }
       });
     } catch (error) {
-      setError('Please enter a valid email address');
+      setError(t('errorMessageInvalidEmail'));
     }
   };
 
@@ -55,9 +57,9 @@ export default function ForgotPasswordForm() {
         </div>
       )}
 
-      <div>
-        <Label htmlFor='email' className='text-foreground mb-2 block text-sm font-medium'>
-          Email Address
+      <div className='space-y-2'>
+        <Label htmlFor='email' className='text-foreground text-sm font-medium'>
+          {t('emailField')}
         </Label>
         <Input
           id='email'
@@ -66,17 +68,15 @@ export default function ForgotPasswordForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className='w-full'
-          placeholder='Enter your email address'
+          className='h-10 w-full rounded-md'
+          placeholder={t('emailFieldPlaceholder')}
           disabled={isPending}
         />
-        <p className='text-muted-foreground mt-3 ml-1 text-sm'>
-          Enter the email address associated with your account and we'll send you a password reset link.
-        </p>
+        <p className='text-muted-foreground pt-1 text-sm'>{t('emailFieldDescription')}</p>
       </div>
 
-      <Button type='submit' disabled={isPending || !email.trim()} className='w-full'>
-        {isPending ? 'Sending...' : 'Send Password Reset Link'}
+      <Button type='submit' disabled={isPending || !email.trim()} className='h-10 w-full'>
+        {isPending ? t('cta.sending') : t('cta.sendResetLink')}
       </Button>
     </form>
   );

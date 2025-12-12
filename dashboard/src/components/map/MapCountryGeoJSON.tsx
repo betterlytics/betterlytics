@@ -1,20 +1,21 @@
-import { useMapSelection } from '@/contexts/MapSelectionContextProvider';
-import { GeoVisitor } from '@/entities/geography';
+import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
+import type { WorldMapResponse, GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
+import MapPopupContent from './tooltip/MapPopupContent';
 import { useLocale, useTranslations } from 'next-intl';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
-interface MapCountryGeoJSONProps {
+type MapCountryGeoJSONProps = Omit<WorldMapResponse, 'maxVisitors'> & {
   GeoJSON: typeof GeoJSON;
   geoData: GeoJSON.FeatureCollection;
-  visitorData: GeoVisitor[];
   style: MapStyle;
   size?: 'sm' | 'lg';
-}
+};
 
 const DEFAULT_OPTS = {
   updateWhenIdle: true,
@@ -28,17 +29,18 @@ export default function MapCountryGeoJSON({
   GeoJSON,
   geoData,
   visitorData,
+  compareData,
   size = 'sm',
   style,
 }: MapCountryGeoJSONProps) {
-  const { setMapSelection } = useMapSelection();
+  const { setMapSelection } = useMapSelectionSetter();
   const locale = useLocale();
-  const t = useTranslations('components.geography');
-  const ref = useRef({ setMapSelection });
+  const t = useTranslations('components');
+  const timeRangeCtx = useTimeRangeContext();
 
   useEffect(() => {
-    ref.current = { setMapSelection };
-  }, [setMapSelection]);
+    setMapSelection(null);
+  }, [visitorData, compareData, setMapSelection]);
 
   const onEachFeature = useCallback(
     (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
@@ -53,6 +55,12 @@ export default function MapCountryGeoJSON({
       if (!geoVisitor) {
         geoVisitor = { country_code, visitors: 0 };
       }
+      const compareVisitor = compareData.find((d) => d.country_code === country_code);
+
+      const geoVisitorWithComparison: GeoVisitorWithCompare = {
+        ...geoVisitor,
+        compareVisitors: timeRangeCtx.compareMode === 'off' ? undefined : (compareVisitor?.visitors ?? 0),
+      };
 
       const popupContainer = document.createElement('div');
 
@@ -67,18 +75,39 @@ export default function MapCountryGeoJSON({
       });
 
       layer.on({
-        mouseover: () => {
-          ref.current.setMapSelection({ hovered: { geoVisitor, layer } });
+        mouseover: (e) => {
+          const mousePosition = e.originalEvent
+            ? { x: e.originalEvent.clientX, y: e.originalEvent.clientY }
+            : undefined;
+          setMapSelection({ hovered: { geoVisitor: geoVisitorWithComparison, layer, mousePosition } });
         },
         click: () => {
-          ref.current.setMapSelection({ clicked: { geoVisitor, layer } });
+          setMapSelection({ clicked: { geoVisitor: geoVisitorWithComparison, layer } });
         },
         popupopen: () => {
           if (!(popupContainer as any)._reactRoot) {
             (popupContainer as any)._reactRoot = createRoot(popupContainer);
           }
+
           (popupContainer as any)._reactRoot.render(
-            <MapTooltipContent locale={locale} geoVisitor={geoVisitor} size={size} label={t('visitors')} />,
+            size === 'lg' ? (
+              <MapPopupContent
+                locale={locale}
+                geoVisitor={geoVisitorWithComparison}
+                size={size}
+                t={t}
+                timeRangeCtx={timeRangeCtx}
+                onMouseEnter={() => setMapSelection({ hovered: undefined })}
+              />
+            ) : (
+              <MapTooltipContent
+                locale={locale}
+                geoVisitor={geoVisitorWithComparison}
+                size={size}
+                label={t('geography.visitors')}
+                onMouseEnter={() => setMapSelection({ hovered: undefined })}
+              />
+            ),
           );
 
           requestAnimationFrame(() => {
@@ -87,12 +116,12 @@ export default function MapCountryGeoJSON({
         },
       });
     },
-    [size, style, visitorData, locale],
+    [size, style, visitorData, compareData, locale, t, timeRangeCtx, setMapSelection],
   );
 
   return (
     <GeoJSON
-      key={`${visitorData.length}-${locale}`}
+      key={`${visitorData.length}-${timeRangeCtx.compareMode}-${compareData.length}-${locale}`}
       data={geoData}
       onEachFeature={onEachFeature}
       {...DEFAULT_OPTS}

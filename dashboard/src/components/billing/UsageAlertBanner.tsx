@@ -7,7 +7,7 @@ import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 
 interface UsageAlertBannerProps {
   billingDataPromise: ReturnType<typeof getUserBillingData>;
@@ -26,7 +26,7 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
 
     const { usage } = billingData.data;
 
-    if (usage.usagePercentage < 100) {
+    if (usage.usagePercentage < 80 || usage.usagePercentage >= 100 || usage.isOverLimit) {
       removeBanner('usage-alert-banner');
       return;
     }

@@ -1,16 +1,15 @@
 import { redirect } from 'next/navigation';
 import { redirect as i18nRedirect } from '@/i18n/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import LandingPage from './(landing)/landingPage';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { getLocale } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { getAuthSession } from '@/auth/auth-actions';
 
 export default async function HomePage() {
   if (!isClientFeatureEnabled('isCloud')) {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession();
     const locale = await getLocale();
 
     if (session) {

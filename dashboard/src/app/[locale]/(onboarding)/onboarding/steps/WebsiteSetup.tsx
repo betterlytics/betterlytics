@@ -3,8 +3,8 @@
 import { useState, useTransition, useCallback, Dispatch } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { completeOnboardingAndCreateDashboardAction } from '@/app/actions/onboarding';
-import { domainValidation } from '@/entities/dashboard';
+import { completeOnboardingAndCreateDashboardAction } from '@/app/actions/account/onboarding.action';
+import { domainValidation } from '@/entities/dashboard/dashboard.entities';
 import { toast } from 'sonner';
 import { PrefixInput } from '@/components/inputs/PrefixInput';
 import { useTranslations, useLocale } from 'next-intl';

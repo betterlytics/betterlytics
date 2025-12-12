@@ -7,12 +7,12 @@ import {
   fetchCoreWebVitalChartDataAction,
   fetchCoreWebVitalsByDimensionAction,
   fetchHasCoreWebVitalsData,
-} from '@/app/actions';
+} from '@/app/actions/index.actions';
 import InteractiveWebVitalsChartSection from './InteractiveWebVitalsChartSection';
 import WebVitalsTableSection from './webVitalsTableSection';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import type { FilterQuerySearchParams } from '@/entities/filterQueryParams';
+import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { WebVitalsBanner } from './WebVitalsBanner';
 import { getUserTimezone } from '@/lib/cookies';
 

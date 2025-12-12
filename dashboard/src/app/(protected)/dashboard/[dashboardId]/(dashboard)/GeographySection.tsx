@@ -1,7 +1,7 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/map/LeafletMap';
-import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/geography';
+import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
@@ -55,12 +55,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
           data: [],
           customContent: (
             <div className='h-[280px] w-full'>
-              <LeafletMap
-                visitorData={worldMapData.visitorData}
-                maxVisitors={worldMapData.maxVisitors}
-                showZoomControls={false}
-                initialZoom={1}
-              />
+              <LeafletMap {...worldMapData} showZoomControls={false} initialZoom={1} />
             </div>
           ),
         },

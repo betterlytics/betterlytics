@@ -1,37 +1,24 @@
 'use client';
 
-import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
-import { postFunnelAction } from '@/app/actions';
+import { PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { useCallback, useState, useMemo, ComponentProps, useEffect } from 'react';
-import { Plus, PlusIcon } from 'lucide-react';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { FunnelPreviewDisplay } from './FunnelPreviewDisplay';
-import { fetchFunnelPreviewAction } from '@/app/actions/funnels';
-import { useDebounce } from '@/hooks/useDebounce';
-import { useQueryFilters } from '@/hooks/use-query-filters';
-import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { useTranslations } from 'next-intl';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
-
-type FunnelMetadata = {
-  name: string;
-  isStrict: boolean;
-};
+import { ComponentProps, useCallback, useMemo, useState } from 'react';
+import { postFunnelAction } from '@/app/actions/index.actions';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { toast } from 'sonner';
+import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
+import { generateTempId } from '@/utils/temporaryId';
+import { FunnelDialogContent } from './FunnelDialogContent';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -39,138 +26,114 @@ type CreateFunnelDialogProps = {
 };
 
 export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
-  const dashboardId = useDashboardId();
+  const t = useTranslations('components.funnels');
   const [isOpen, setIsOpen] = useState(false);
-  const t = useTranslations('components.funnels.create');
-  const isMobile = useIsMobile();
-
-  const [metadata, setMetadata] = useState<FunnelMetadata>({
-    name: t('defaultName'),
-    isStrict: false,
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const dashboardId = useDashboardId();
+  const {
+    metadata,
+    setName,
+    setIsStrict,
+    funnelSteps,
+    addEmptyFunnelStep,
+    updateFunnelStep,
+    removeFunnelStep,
+    searchableFunnelSteps,
+    funnelPreview,
+    emptySteps,
+    reset,
+    isPreviewLoading,
+    setFunnelSteps,
+  } = useFunnelDialog({
+    dashboardId,
+    initialName: '',
+    initialSteps: [
+      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+    ],
   });
 
-  const { queryFilters, addEmptyQueryFilter, updateQueryFilter, removeQueryFilter } = useQueryFilters();
+  const isCreateValid = useMemo(
+    () =>
+      CreateFunnelSchema.safeParse({
+        name: metadata.name,
+        dashboardId,
+        isStrict: metadata.isStrict,
+        funnelSteps,
+      }).success,
+    [dashboardId, funnelSteps, metadata.isStrict, metadata.name],
+  );
 
-  useEffect(() => {
-    if (queryFilters.length === 0) {
-      addEmptyQueryFilter();
+  const handleCreateFunnel = useCallback(() => {
+    setHasAttemptedSubmit(true);
+    if (!isCreateValid) {
+      return;
     }
-  }, [queryFilters]);
-
-  const processedQueryFilters = useMemo(() => {
-    return queryFilters.map((p) => p.value).filter((p) => p.trim() !== '');
-  }, [queryFilters]);
-
-  const debouncedFunnelPages = useDebounce(processedQueryFilters, 500);
-
-  const isPreviewEnabled = !isMobile && debouncedFunnelPages.length >= 2;
-
-  const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, queryFilters, metadata.isStrict],
-    queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, queryFilters, metadata.isStrict);
-    },
-    enabled: isPreviewEnabled,
-  });
-
-  const submit = useCallback(() => {
-    postFunnelAction(dashboardId, metadata.name, queryFilters, metadata.isStrict)
+    postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
-        toast.success(t('successMessage'));
+        setHasAttemptedSubmit(false);
         setIsOpen(false);
+        toast.success(t('create.successMessage'));
+        reset({
+          name: '',
+          isStrict: false,
+          steps: [
+            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
+          ],
+        });
       })
-      .catch(() => toast.error(t('errorMessage')));
-  }, [metadata, queryFilters, dashboardId]);
+      .catch(() => {
+        toast.error(t('create.errorMessage'));
+      });
+  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DisabledDemoTooltip>
-        {(disabled) => (
-          <DialogTrigger asChild disabled={disabled}>
-            <Button
-              variant={triggerVariant || 'secondary'}
-              className='cursor-pointer justify-between border shadow-xs transition-[color,box-shadow]'
-            >
-              <Plus className='size-5' />
-              {triggerText || t('createFunnel')}
-            </Button>
-          </DialogTrigger>
-        )}
-      </DisabledDemoTooltip>
-      <DialogContent className='bg-background flex h-[70dvh] w-[80dvw] !max-w-[1250px] flex-col'>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setHasAttemptedSubmit(false);
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button variant={triggerVariant || 'ghost'} className='cursor-pointer'>
+          <PlusIcon className='h-4 w-4' />
+          {triggerText}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'>
         <DialogHeader>
-          <DialogTitle>{t('createFunnelLower')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
+          <DialogTitle>{t('create.createFunnel')}</DialogTitle>
         </DialogHeader>
-        <div className='flex flex-1 flex-col gap-6 overflow-hidden lg:flex-row'>
-          <div className='flex h-full flex-col overflow-hidden lg:max-w-2xl'>
-            <div className='flex items-start justify-between gap-4 pb-4'>
-              <div className='h-full'>
-                <Label htmlFor='name' className='text-foreground mb-1 block'>
-                  {t('name')}
-                </Label>
-                <Input
-                  id='name'
-                  placeholder={t('namePlaceholder')}
-                  className='bg-input placeholder:text-muted-foreground w-full'
-                  value={metadata.name}
-                  onChange={(evt) => setMetadata((prev) => ({ ...prev, name: evt.target.value }))}
-                />
-              </div>
-              <div className='h-full' title='If active, steps must occur right after each other'>
-                <Label htmlFor='strict-mode' className='text-foreground mb-1 block'>
-                  {t('strictMode')}
-                </Label>
-                <div className='flex h-9 flex-grow items-center justify-center'>
-                  <Switch
-                    id='strict-mode'
-                    className='bg-input placeholder:text-muted-foreground my-auto cursor-pointer'
-                    checked={metadata.isStrict}
-                    onCheckedChange={(checked: boolean) => setMetadata((prev) => ({ ...prev, isStrict: checked }))}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className='scrollbar-thin bg-card flex-1 overflow-y-auto rounded-lg p-4 shadow'>
-              <div className='space-y-2'>
-                {queryFilters.map((filter) => (
-                  <QueryFilterInputRow
-                    key={filter.id}
-                    onFilterUpdate={updateQueryFilter}
-                    filter={filter}
-                    requestRemoval={(_filter) => removeQueryFilter(_filter.id)}
-                  />
-                ))}
-                <div className='mt-auto'>
-                  <Button
-                    variant='outline'
-                    onClick={addEmptyQueryFilter}
-                    className='cursor-pointer whitespace-nowrap'
-                  >
-                    <PlusIcon className='mr-2 h-4 w-4' /> {t('addStep')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-          {!isMobile && (
-            <div className='bg-card flex h-full flex-grow flex-col overflow-hidden rounded-lg p-4 shadow'>
-              <div className='mb-4 flex items-center justify-between'>
-                <h3 className='text-card-foreground text-lg font-semibold'>{t('livePreview')}</h3>
-              </div>
-              <div className='scrollbar-thin flex-1 overflow-y-auto'>
-                <FunnelPreviewDisplay
-                  funnelDetails={funnelPreviewData}
-                  funnelName={metadata.name}
-                  isLoading={isPreviewLoading}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-        <DialogFooter className='mt-auto pt-2'>
-          <Button type='submit' onClick={submit} disabled={queryFilters.length < 2} className='cursor-pointer'>
-            {t('create')}
+        <FunnelDialogContent
+          metadata={metadata}
+          setName={setName}
+          setIsStrict={setIsStrict}
+          funnelSteps={funnelSteps}
+          addEmptyFunnelStep={addEmptyFunnelStep}
+          setFunnelSteps={setFunnelSteps}
+          updateFunnelStep={updateFunnelStep}
+          removeFunnelStep={removeFunnelStep}
+          searchableFunnelSteps={searchableFunnelSteps}
+          funnelPreview={funnelPreview}
+          emptySteps={emptySteps}
+          isPreviewLoading={isPreviewLoading}
+          hasAttemptedSubmit={hasAttemptedSubmit}
+          labels={{
+            name: t('create.name'),
+            namePlaceholder: t('create.namePlaceholder'),
+            strictMode: t('create.strictMode'),
+            addStep: t('create.addStep'),
+            livePreview: t('create.livePreview'),
+            defineAtLeastTwoSteps: t('preview.defineAtLeastTwoSteps'),
+          }}
+        />
+        <DialogFooter className='flex items-end justify-end gap-2'>
+          <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
+            {t('create.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

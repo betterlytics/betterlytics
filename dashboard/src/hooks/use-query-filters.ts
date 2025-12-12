@@ -1,9 +1,9 @@
-import { type QueryFilter } from '@/entities/filter';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { useCallback, useState } from 'react';
 
-export function useQueryFilters() {
-  const [queryFilters, setQueryFilters] = useState<QueryFilter[]>([]);
+export function useQueryFilters(initialFilters?: QueryFilter[]) {
+  const [queryFilters, setQueryFilters] = useState<QueryFilter[]>(initialFilters || []);
 
   const addQueryFilter = useCallback((queryFilter: QueryFilter | Omit<QueryFilter, 'id'>) => {
     const filter = {

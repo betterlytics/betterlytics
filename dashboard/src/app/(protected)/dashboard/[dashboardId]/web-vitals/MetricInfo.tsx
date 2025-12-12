@@ -5,7 +5,7 @@ import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from '@/comp
 import { Separator } from '@/components/ui/separator';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import { formatCWV } from '@/utils/formatters';
-import type { CoreWebVitalName } from '@/entities/webVitals';
+import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { useTranslations } from 'next-intl';
 
 type MetricInfoProps = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import { getWorldMapDataAlpha2 } from '@/app/actions/geography';
+import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import LeafletMap from '@/components/map/LeafletMap';
 import { useTranslations } from 'next-intl';
 
@@ -16,12 +16,7 @@ export default function GeographySection({ worldMapPromise }: GeographySectionPr
   return (
     <>
       <div className='h-full w-full'>
-        <LeafletMap
-          visitorData={mapData.visitorData}
-          maxVisitors={mapData.maxVisitors}
-          showZoomControls={true}
-          size='lg'
-        />
+        <LeafletMap {...mapData} showZoomControls={true} size='lg' />
       </div>
 
       {mapData.visitorData.length === 0 && (

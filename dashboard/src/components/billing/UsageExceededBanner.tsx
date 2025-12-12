@@ -7,7 +7,7 @@ import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 
 interface UsageExceededBannerProps {
   billingDataPromise: ReturnType<typeof getUserBillingData>;
@@ -26,7 +26,7 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
 
     const { usage } = billingData.data;
 
-    if (!usage.isOverLimit) {
+    if (usage.usagePercentage < 100 || !usage.isOverLimit) {
       removeBanner('usage-exceeded-banner');
       return;
     }

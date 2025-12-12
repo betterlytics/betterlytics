@@ -1,4 +1,4 @@
-import { type QueryFilter } from '@/entities/filter';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 
 /**
  * Equality checking between query filters

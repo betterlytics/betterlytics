@@ -1,71 +1,55 @@
 'use client';
 
-import { use, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { getCampaignSourceColor } from '@/utils/campaignColors';
 import { formatPercentage } from '@/utils/formatters';
-import {
-  fetchCampaignSourceBreakdownAction,
-  fetchCampaignMediumBreakdownAction,
-  fetchCampaignContentBreakdownAction,
-  fetchCampaignTermBreakdownAction,
-} from '@/app/actions';
 import { useTranslations } from 'next-intl';
-import DataEmptyComponent from "@/components/DataEmptyComponent";
+import DataEmptyComponent from '@/components/DataEmptyComponent';
+import { Spinner } from '@/components/ui/spinner';
+import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/analytics/campaign.entities';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useUTMBreakdownData } from './useUTMBreakdownData';
+import { UTM_DIMENSIONS } from '@/entities/analytics/campaign.entities';
+import PieChartTooltip from '@/components/charts/PieChartTooltip';
 
 type UTMBreakdownTabbedChartProps = {
-  sourceBreakdownPromise: ReturnType<typeof fetchCampaignSourceBreakdownAction>;
-  mediumBreakdownPromise: ReturnType<typeof fetchCampaignMediumBreakdownAction>;
-  contentBreakdownPromise: ReturnType<typeof fetchCampaignContentBreakdownAction>;
-  termBreakdownPromise: ReturnType<typeof fetchCampaignTermBreakdownAction>;
+  dashboardId: string;
+  campaignName: string;
+  initialSource: CampaignUTMBreakdownItem[];
 };
-
-interface CampaignBreakdownItem {
-  visitors: number;
-  [key: string]: unknown; // source, medium, term, content
-}
 
 interface ChartDataItem {
   name: string;
   value: number;
   color: string;
-  percent: number;
+  percentage: number;
 }
 
-export const CampaignDataKey = {
-  SOURCE: 'source',
-  MEDIUM: 'medium',
-  TERM: 'term',
-  CONTENT: 'content',
-} as const;
-
-function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey: string }) {
-  const t = useTranslations('dashboard.emptyStates');
+function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
+  const t = useTranslations('components.campaign.utm');
   const chartData = useMemo((): ChartDataItem[] => {
     if (!data || data.length === 0) return [];
     const totalVisitors = data.reduce((sum, item) => sum + item.visitors, 0);
     return data.map((item): ChartDataItem => {
-      const keyValue = item[dataKey];
-      const name = typeof keyValue === 'string' ? keyValue : String(keyValue);
+      const name = item.label;
       return {
         name,
         value: item.visitors,
         color: getCampaignSourceColor(name),
-        percent: totalVisitors > 0 ? Math.round((item.visitors / totalVisitors) * 100) : 0,
+        percentage: totalVisitors > 0 ? (item.visitors / totalVisitors) * 100 : 0,
       };
     });
-  }, [data, dataKey]);
+  }, [data]);
 
   if (chartData.length === 0) {
-    return (
-      <DataEmptyComponent />
-    );
+    return <DataEmptyComponent />;
   }
 
   return (
-    <div className='flex h-72 flex-col items-center md:h-80'>
+    <div className='flex flex-col items-center'>
       <ResponsiveContainer width='100%' height={200}>
         <PieChart>
           <Pie
@@ -73,6 +57,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
             cx='50%'
             cy='50%'
             labelLine={false}
+            innerRadius={45}
             outerRadius={80}
             fill='#8884d8'
             dataKey='value'
@@ -83,10 +68,11 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
             ))}
           </Pie>
           <Tooltip
-            formatter={(value: number, name: string, props: { payload?: ChartDataItem }) => [
-              `${value.toLocaleString()} visitors (${formatPercentage(props.payload?.percent ?? 0)})`,
-              name,
-            ]}
+            content={
+              <PieChartTooltip
+                valueFormatter={(value) => t('columns.visitors', { count: value.toLocaleString() })}
+              />
+            }
           />
         </PieChart>
       </ResponsiveContainer>
@@ -100,7 +86,7 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
               style={{ backgroundColor: entry.color }}
             ></span>
             <span className='text-muted-foreground'>
-              {entry.name} ({formatPercentage(entry.percent)})
+              {entry.name} ({formatPercentage(entry.percentage)})
             </span>
           </div>
         ))}
@@ -109,57 +95,61 @@ function UTMPieChart({ data, dataKey }: { data: CampaignBreakdownItem[]; dataKey
   );
 }
 
+type UTMChartTab = UTMDimension;
+
 export default function UTMBreakdownTabbedChart({
-  sourceBreakdownPromise,
-  mediumBreakdownPromise,
-  contentBreakdownPromise,
-  termBreakdownPromise,
+  dashboardId,
+  campaignName,
+  initialSource,
 }: UTMBreakdownTabbedChartProps) {
   const t = useTranslations('components.campaign.utm');
-  const sourceBreakdown = use(sourceBreakdownPromise);
-  const mediumBreakdown = use(mediumBreakdownPromise);
-  const contentBreakdown = use(contentBreakdownPromise);
-  const termBreakdown = use(termBreakdownPromise);
+  const { startDate, endDate } = useTimeRangeContext();
+  const [activeTab, setActiveTab] = useState<UTMChartTab>('source');
 
   const tabs = useMemo(
     () => [
-      {
-        key: 'source',
-        label: t('tabs.source'),
-        data: sourceBreakdown,
-        dataKey: CampaignDataKey.SOURCE,
-      },
-      {
-        key: 'medium',
-        label: t('tabs.medium'),
-        data: mediumBreakdown,
-        dataKey: CampaignDataKey.MEDIUM,
-      },
-      {
-        key: 'content',
-        label: t('tabs.content'),
-        data: contentBreakdown,
-        dataKey: CampaignDataKey.CONTENT,
-      },
-      {
-        key: 'term',
-        label: t('tabs.terms'),
-        data: termBreakdown,
-        dataKey: CampaignDataKey.TERM,
-      },
+      ...UTM_DIMENSIONS.map((dimension: UTMDimension) => ({
+        key: dimension,
+        label: t(`tabs.${dimension}`),
+      })),
     ],
-    [sourceBreakdown, mediumBreakdown, contentBreakdown, termBreakdown, t],
+    [t],
   );
 
+  const mediumQuery = useUTMBreakdownData({
+    dashboardId,
+    campaignName,
+    startDate,
+    endDate,
+    dimension: 'medium',
+    enabled: activeTab === 'medium',
+  });
+
+  const contentQuery = useUTMBreakdownData({
+    dashboardId,
+    campaignName,
+    startDate,
+    endDate,
+    dimension: 'content',
+    enabled: activeTab === 'content',
+  });
+
+  const termQuery = useUTMBreakdownData({
+    dashboardId,
+    campaignName,
+    startDate,
+    endDate,
+    dimension: 'term',
+    enabled: activeTab === 'term',
+  });
+
   return (
-    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-      <Tabs defaultValue='source'>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as UTMChartTab)}>
         <CardHeader className='px-0 pb-0'>
-          <div className='flex flex-col items-center justify-between sm:flex-row'>
-            <CardTitle className='text-base font-medium'>{t('chart.title')}</CardTitle>
-            <TabsList
-              className={`bg-muted/30 grid h-8 w-auto grid-cols-${tabs.length} dark:inset-shadow-background gap-1 inset-shadow-sm`}
-            >
+          <div className='flex flex-wrap items-center justify-between gap-2 sm:flex-row'>
+            <CardTitle className='pb-2 text-sm font-medium sm:pb-0'>{t('chart.title')}</CardTitle>
+            <TabsList className='bg-muted/30 dark:inset-shadow-background flex h-auto flex-wrap justify-end gap-1 px-1 inset-shadow-sm'>
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.key}
@@ -173,13 +163,54 @@ export default function UTMBreakdownTabbedChart({
           </div>
         </CardHeader>
         <CardContent className='px-0'>
-          {tabs.map((tab) => (
-            <TabsContent key={tab.key} value={tab.key}>
-              <UTMPieChart data={tab.data} dataKey={tab.dataKey} />
-            </TabsContent>
-          ))}
+          <TabsContent value='source'>
+            <UTMPieChart data={initialSource} />
+          </TabsContent>
+          <LazyUTMChartContent
+            value='medium'
+            isActive={activeTab === 'medium'}
+            data={mediumQuery.data ?? []}
+            isPending={mediumQuery.status === 'pending'}
+          />
+          <LazyUTMChartContent
+            value='content'
+            isActive={activeTab === 'content'}
+            data={contentQuery.data ?? []}
+            isPending={contentQuery.status === 'pending'}
+          />
+          <LazyUTMChartContent
+            value='term'
+            isActive={activeTab === 'term'}
+            data={termQuery.data ?? []}
+            isPending={termQuery.status === 'pending'}
+          />
         </CardContent>
       </Tabs>
     </Card>
+  );
+}
+
+type LazyUTMChartContentProps = {
+  value: Exclude<UTMChartTab, 'source'>;
+  data: CampaignUTMBreakdownItem[];
+  isActive: boolean;
+  isPending: boolean;
+};
+
+function LazyUTMChartContent({ value, data, isActive, isPending }: LazyUTMChartContentProps) {
+  const t = useTranslations('misc');
+  const hasData = data.length > 0;
+
+  return (
+    <TabsContent value={value}>
+      {isActive && isPending && !hasData ? (
+        <div className='text-muted-foreground flex h-72 items-center justify-center gap-2 text-sm md:h-80'>
+          <Spinner size='sm' />
+          <span>{t('loading')}</span>
+        </div>
+      ) : (
+        <UTMPieChart data={data} />
+      )}
+    </TabsContent>
   );
 }

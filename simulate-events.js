@@ -1,3 +1,5 @@
+const ENV = require("dotenv").config({ path: "./.env" });
+
 /**
  * CLI Argument Parsing
  */
@@ -9,6 +11,8 @@ const DEFAULT_ARGS = {
   SIMULATED_DAYS: 7,
   BATCH_SIZE: 500,
   CUSTOM_EVENT_FREQUENCY: 0.2,
+  CAMPAIGN_FREQUENCY: 0.3,
+  NUM_CAMPAIGNS: 6,
 }
 
 
@@ -21,21 +25,25 @@ if (!args[0] || args[0].startsWith("--")) {
   };
   console.error("[Error] ❌ Missing SITE_ID.\nUsage:");
   console.error(`
-    ----------------------------------------------------------------------------------------
-    | Flag           | Description                                              | Default  |
-    | -------------- | -------------------------------------------------------- | -------- |
-    | '--events'     | Total number of events to simulate                       | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_EVENTS)} |
-    | '--users'      | Number of unique simulated users                         | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_USERS)} |
-    | '--batch-size' | Number of events sent per batch (concurrent POSTs)       | ${formatNumber(DEFAULT_ARGS.BATCH_SIZE)} |
-    | '--event-freq' | Fraction (0–1) of events that are custom (non-pageview)  | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
-    ----------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------
+    | Flag             | Description                                                | Default  |
+    | ---------------- | ---------------------------------------------------------- | -------- |
+    | '--events'       | Total number of events to simulate                         | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_EVENTS)} |
+    | '--users'        | Number of unique simulated users                           | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_USERS)} |
+    | '--batch-size'   | Number of events sent per batch (concurrent POSTs)         | ${formatNumber(DEFAULT_ARGS.BATCH_SIZE)} |
+    | '--event-freq'   | Fraction (0–1) of events that are custom (non-pageview)    | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
+    | '--campaign-freq'| Fraction (0–1) of events that have campaign UTM tags       | ${formatNumber(DEFAULT_ARGS.CAMPAIGN_FREQUENCY)} |
+    | '--campaigns'    | Number of unique campaigns to generate                     | ${formatNumber(DEFAULT_ARGS.NUM_CAMPAIGNS)} |
+    ------------------------------------------------------------------------------------------------
 
     Example:
     ./simulate-events "your-site-id" \\
       --events=${DEFAULT_ARGS.NUMBER_OF_EVENTS} \\
       --users=${DEFAULT_ARGS.NUMBER_OF_USERS} \\
       --batch-size=${DEFAULT_ARGS.BATCH_SIZE} \\
-      --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY}
+      --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} \\
+      --campaign-freq=${DEFAULT_ARGS.CAMPAIGN_FREQUENCY} \\
+      --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS}
   `);
   process.exit(1);
 }
@@ -55,6 +63,8 @@ const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
 const SIMULATED_DAYS = 0; /** Not supported on the backend for now */
 const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
+const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);
+const NUM_CAMPAIGNS = getFlag("campaigns", DEFAULT_ARGS.NUM_CAMPAIGNS);
 
 const CUSTOM_EVENTS = [
   {
@@ -68,6 +78,47 @@ const CUSTOM_EVENTS = [
 ];
 const SCREEN_SIZES = ["1920x1080", "900x400", "500x300"];
 
+/**
+ * Campaign UTM data for simulating marketing campaigns
+ * Note: utm_campaign array is generated dynamically after uuidv4() is defined
+ */
+const CAMPAIGN_DATA = {
+  utm_source: ["google", "facebook", "twitter", "linkedin", "newsletter", "bing", "instagram"],
+  utm_medium: ["cpc", "social", "email", "organic", "referral", "display", "affiliate"],
+  utm_campaign: [], // populated dynamically below
+  utm_term: ["analytics", "dashboard", "tracking", "marketing", "conversion", ""],
+  utm_content: ["banner_a", "banner_b", "sidebar", "footer", "hero", ""],
+};
+
+function getRandomElement(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * Select element using normal distribution (middle elements more likely)
+ */
+function getNormalDistributedElement(arr) {
+  const index = Math.floor(gaussianRand() * arr.length);
+  return arr[Math.min(index, arr.length - 1)];
+}
+
+function generateCampaignUrl(baseUrl) {
+  const params = new URLSearchParams();
+  params.set("utm_source", getRandomElement(CAMPAIGN_DATA.utm_source));
+  params.set("utm_medium", getRandomElement(CAMPAIGN_DATA.utm_medium));
+  params.set("utm_campaign", getNormalDistributedElement(CAMPAIGN_DATA.utm_campaign));
+
+  const term = getRandomElement(CAMPAIGN_DATA.utm_term);
+  if (term) params.set("utm_term", term);
+
+  const content = getRandomElement(CAMPAIGN_DATA.utm_content);
+  if (content) params.set("utm_content", content);
+
+  return `${baseUrl}?${params.toString()}`;
+}
+
+const PUBLIC_BASE_URL = ENV.PUBLIC_BASE_URL || "http://localhost:3000";
+
 const BASE_PAYLOAD = {
   referrer: null,
   screen_resolution: "1920x1080",
@@ -76,7 +127,7 @@ const BASE_PAYLOAD = {
   is_custom_event: false,
   properties: JSON.stringify({}),
   timestamp: 0,
-  url: "http://localhost:3000/dashboard",
+  url: `${PUBLIC_BASE_URL}/dashboard`,
   user_agent:
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
   visitor_id: "placeholder",
@@ -104,10 +155,10 @@ function gaussianRand() {
 /**
  * Generates a random public IPv4 address by repeatedly sampling until
  * an address outside of private, reserved, or special-use ranges is found.
- * 
+ *
  * Excluded CIDR blocks include private, loopback, link-local, multicast,
  * and documentation/test addresses.
- * 
+ *
  * The excluded CIDRs are from IANA registries
  * - https://www.iana.org/assignments/iana-ipv4-special-registry
  */
@@ -160,9 +211,18 @@ const users = new Array(NUMBER_OF_USERS).fill(0).map(() => ({
   ip: getRandomPublicIp(),
 }));
 
+// Generate unique campaign IDs (short UUIDs)
+CAMPAIGN_DATA.utm_campaign = new Array(NUM_CAMPAIGNS)
+  .fill(0)
+  .map(() => uuidv4().slice(0, 8));
+
 function getExtraPayload(payload) {
+  const hasCampaign = Math.random() < CAMPAIGN_FREQUENCY;
+  const baseUrl = `${PUBLIC_BASE_URL}/dashboard`;
+
   return {
     ...payload,
+    url: hasCampaign ? generateCampaignUrl(baseUrl) : baseUrl,
     ...(Math.random() < CUSTOM_EVENT_FREQUENCY
       ? {
           ...CUSTOM_EVENTS[Math.floor(Math.random() * CUSTOM_EVENTS.length)],
