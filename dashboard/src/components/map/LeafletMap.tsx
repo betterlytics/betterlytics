@@ -111,20 +111,18 @@ export default function LeafletMap({
         zoomSnap={0.1}
         attributionControl={false}
       >
-        {
-          <MapSelectionContextProvider style={style}>
-            <MapBackgroundLayer Polygon={Polygon} />
-            <MapCountryGeoJSON
-              GeoJSON={GeoJSON}
-              geoData={worldGeoJson}
-              visitorData={visitorData}
-              compareData={compareData}
-              style={style}
-            />
-            <MapStickyTooltip size={size} />
-            {showLegend && <MapLegend maxVisitors={maxVisitors} />}
-          </MapSelectionContextProvider>
-        }
+        <MapSelectionContextProvider style={style}>
+          <MapBackgroundLayer Polygon={Polygon} />
+          <MapCountryGeoJSON
+            GeoJSON={GeoJSON}
+            geoData={worldGeoJson}
+            visitorData={visitorData}
+            compareData={compareData}
+            style={style}
+          />
+          <MapStickyTooltip size={size} />
+          {showLegend && <MapLegend maxVisitors={maxVisitors} />}
+        </MapSelectionContextProvider>
       </MapContainer>
     </div>
   );
