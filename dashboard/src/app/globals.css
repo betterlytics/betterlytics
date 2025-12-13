@@ -110,8 +110,8 @@
 
   --map-feature-border-low: #6998bd;
   --map-feature-border-high: #1048a1;
-  --map-feature-border-hovered: #cce6cc;
-  --map-feature-border-clicked: #ffc067;
+  --map-feature-border-hovered: #08e966;
+  --map-feature-border-clicked: #f59733;
   --map-feature-border-none: #9ca3af;
 
   --trend-up: rgb(14, 148, 70);
@@ -187,8 +187,8 @@
 
   --map-feature-border-low: #575757;
   --map-feature-border-high: #1d1d1d;
-  --map-feature-border-hovered: #cce6cc;
-  --map-feature-border-clicked: #ffc067;
+  --map-feature-border-hovered: #07da5f;
+  --map-feature-border-clicked: #f5b97a;
   --map-feature-border-none: #888888;
 
   --trend-up: rgb(88, 207, 146);
