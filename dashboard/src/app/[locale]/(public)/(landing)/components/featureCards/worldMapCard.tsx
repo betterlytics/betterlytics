@@ -54,7 +54,7 @@ export default async function WorldMapCard() {
                 <CountryCol
                   key={MOCK_WORLD_GEOVISITORS[i].country_code}
                   geoVisitor={MOCK_WORLD_GEOVISITORS[i]}
-                  locale={locale as SupportedLanguages}
+                  locale={locale}
                 />
               ))}
             </div>
