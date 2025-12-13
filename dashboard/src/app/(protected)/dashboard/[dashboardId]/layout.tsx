@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation';
 import { DashboardProvider } from './DashboardProvider';
-import { getCurrentDashboardAction } from '@/app/actions';
+import { getCurrentDashboardAction } from '@/app/actions/index.actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 import { Suspense } from 'react';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
+import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
@@ -17,8 +17,8 @@ import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
-import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
-import { DashboardFindByUserSchema } from '@/entities/dashboard';
+import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
+import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entities';
 import { env } from '@/lib/env';
 
 type DashboardLayoutProps = {

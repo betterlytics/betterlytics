@@ -2,7 +2,7 @@ import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
-import type { GeoVisitorWithCompare } from '@/entities/geography';
+import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
 import { formatNumber } from '@/utils/formatters';
@@ -20,11 +20,12 @@ export type MapTooltipContentProps = {
 function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouseEnter }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
 
-  const percentageChange = geoVisitor.compareVisitors !== undefined
-    ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
-      ? undefined
-      : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
-    : undefined;
+  const percentageChange =
+    geoVisitor.compareVisitors !== undefined
+      ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
+        ? undefined
+        : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
+      : undefined;
 
   return (
     <div

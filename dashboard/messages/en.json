@@ -1069,7 +1069,8 @@
       "events": "Events",
       "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}",
       "webVitals": "Web Vitals",
-      "sessionReplay": "Session Replay"
+      "sessionReplay": "Session Replay",
+      "monitoring": "Monitoring"
     },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
@@ -1121,6 +1122,227 @@
     "createCard": {
       "title": "Create Dashboard",
       "description": "Add a new dashboard"
+    }
+  },
+  "monitoring": {
+    "status": {
+      "paused": "Paused",
+      "up": "Up",
+      "warn": "Degraded",
+      "down": "Down",
+      "error": "Error",
+      "notChecked": "Not checked yet",
+      "monitoringActive": "Monitoring active",
+      "monitoringPaused": "Monitoring paused"
+    },
+    "latency": {
+      "paused": "Paused",
+      "fast": "Fast",
+      "elevated": "Elevated",
+      "slow": "Slow",
+      "noData": "No data yet"
+    },
+    "ssl": {
+      "valid": "Valid",
+      "expiringSoon": "Expiring soon",
+      "expired": "Expired",
+      "error": "Error",
+      "notChecked": "Not checked",
+      "badgeValid": "Certificate valid",
+      "badgeExpiringSoon": "Certificate expiring soon",
+      "badgeExpired": "Certificate expired",
+      "badgeError": "Certificate error",
+      "badgeNotChecked": "Certificate not checked"
+    },
+    "labels": {
+      "noData": "No data",
+      "noDataYet": "No data yet",
+      "uptimeSuffix": "uptime",
+      "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}",
+      "ssl": "SSL"
+    },
+    "actions": {
+      "pause": "Pause monitor",
+      "resume": "Resume monitor",
+      "pausing": "Pausing...",
+      "resuming": "Resuming..."
+    }
+  },
+  "monitoringPage": {
+    "title": "Monitoring",
+    "table": {
+      "emptyTitle": "No monitors yet",
+      "emptyDescription": "Create your first monitor to start tracking uptime.",
+      "headers": {
+        "name": "Name",
+        "url": "URL",
+        "uptime": "Uptime (24h)"
+      },
+      "enabled": "Enabled",
+      "disabled": "Paused"
+    },
+    "filters": {
+      "statusLabel": "Status",
+      "sortLabel": "Sort",
+      "statusAll": "All",
+      "statusUp": "Up",
+      "statusDown": "Down",
+      "statusSslExpiring": "Expiring SSL certificate",
+      "statusPaused": "Paused",
+      "statusNotStarted": "Not started",
+      "sortDownFirst": "Down first",
+      "sortUpFirst": "Up first",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "sortNameAsc": "Name (A-Z)",
+      "sortNameDesc": "Name (Z-A)",
+      "sortSslExpires": "SSL expires"
+    },
+    "list": {
+      "noData": "No data yet",
+      "intervalMinutes": "{value} min",
+      "intervalSeconds": "{value}s",
+      "state": {
+        "on": "On",
+        "paused": "Paused"
+      }
+    },
+    "form": {
+      "create": "New monitor",
+      "title": "Create monitor",
+      "description": "Track an endpoint for uptime, latency, and SSL health.",
+      "fields": {
+        "name": "Name",
+        "url": "URL",
+        "interval": "Check interval (seconds)",
+        "timeout": "Request timeout (ms)",
+        "enabled": "Monitoring enabled"
+      },
+      "placeholders": {
+        "name": "Optional label",
+        "url": "https://example.com/health"
+      },
+      "errors": {
+        "url": "Please enter a valid URL.",
+        "interval": "Interval must be at least 5 seconds.",
+        "timeout": "Timeout must be at least 500ms."
+      },
+      "helper": {
+        "enabled": "Toggle to pause monitoring at creation."
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "create": "Create monitor",
+        "creating": "Creating..."
+      },
+      "success": "Monitor created",
+      "error": "Failed to create monitor"
+    }
+  },
+  "monitoringDetailPage": {
+    "actions": {
+      "edit": "Edit monitor"
+    },
+    "header": {
+      "back": "Back to Monitors",
+      "monitoring": "Monitoring"
+    },
+    "responseTime": {
+      "title": "Response time",
+      "badge": "Last 24 hours",
+      "empty": "No latency data yet"
+    },
+    "downtime": {
+      "days": "{value}d down",
+      "hours": "{value}h down",
+      "minutes": "{value}m down",
+      "unknown": "— down"
+    },
+    "incidents": {
+      "title": "Incidents",
+      "badge": "Last 7 days",
+      "emptyTitle": "No incidents recorded",
+      "emptyDescription": "We'll list root causes, timelines, and downtime windows once incidents occur.",
+      "headers": {
+        "status": "Status",
+        "root": "Root cause",
+        "started": "Started",
+        "duration": "Duration"
+      }
+    },
+    "recent": {
+      "title": "Recent monitoring results",
+      "badge": "Last 10",
+      "empty": "No checks recorded yet",
+      "headers": {
+        "status": "Status",
+        "ran": "Ran",
+        "latency": "Latency",
+        "statusCode": "Status code",
+        "reason": "Reason"
+      }
+    },
+    "uptime": {
+      "title": "Uptime",
+      "badge": "Last {days} days",
+      "grid": {
+        "uptimeLabel": "{value} uptime"
+      },
+      "stats": {
+        "label": "Last {days} days",
+        "downFallback": "— down"
+      }
+    },
+    "summary": {
+      "avgResponseTime": "Avg response time",
+      "lastCheck": {
+        "title": "Last check",
+        "paused": "Paused",
+        "preparing": "Preparing first check",
+        "helperPaused": "Resume monitor to restart checks.",
+        "helperPreparing": "We're scheduling your first check. Results will appear soon.",
+        "helperScheduled": "Scheduled every {seconds}s"
+      },
+      "last24h": {
+        "title": "Last 24 hours",
+        "helperNone": "No incidents",
+        "helperWithIncidents": "{count, plural, one {{count} incident} other {{count} incidents}}, {downtime}"
+      },
+      "ssl": {
+        "title": "SSL Certificate",
+        "timeLeft": "Time left",
+        "timeLeftWithUnit": "{unit} left",
+        "expires": "Exp. {date}"
+      }
+    },
+    "toast": {
+      "status": {
+        "paused": "Monitoring paused",
+        "resumed": "Monitoring resumed"
+      },
+      "statusError": "Unable to update monitor status. Try again.",
+      "updateSuccess": "Monitor updated",
+      "updateError": "Unable to update monitor, please try again."
+    },
+    "editDialog": {
+      "trigger": "Edit monitor",
+      "title": "Edit monitor",
+      "description": "Adjust the monitor cadence and timeout thresholds.",
+      "interval": {
+        "title": "Monitor interval",
+        "description": "Your monitor will be checked every {value}.",
+        "helper": "Use shorter intervals for critical endpoints; longer for low-sensitivity checks."
+      },
+      "timeout": {
+        "title": "Request timeout",
+        "description": "The request timeout is {value}. The shorter the timeout, the earlier we mark the site as down.",
+        "helper": "Choose a value that matches typical response times; too short can cause false alarms."
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "save": "Save changes",
+        "saving": "Saving..."
+      }
     }
   },
   "charts": {

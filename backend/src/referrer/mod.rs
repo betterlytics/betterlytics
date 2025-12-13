@@ -1,9 +1,9 @@
-use refparser::RefDb;
-use std::sync::OnceLock;
-use url::Url;
-use std::path::Path;
-use tracing::info;
 use crate::url_utils::normalize_url;
+use refparser::RefDb;
+use std::path::Path;
+use std::sync::OnceLock;
+use tracing::info;
+use url::Url;
 
 /// Referrer source categories
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -66,56 +66,68 @@ static PARSER: OnceLock<RefDb> = OnceLock::new();
 pub fn initialize(referrer_db_path: &Path) {
     info!("Initializing referrer parser from: {:?}", referrer_db_path);
 
-    PARSER.get_or_init(|| {
-        match RefDb::from_json(referrer_db_path.to_str().unwrap_or("")) {
+    PARSER.get_or_init(
+        || match RefDb::from_json(referrer_db_path.to_str().unwrap_or("")) {
             Ok(db) => db,
             Err(e) => {
-                eprintln!("Warning: Could not load referer database from {:?}: {}. Using empty database.", referrer_db_path, e);
+                eprintln!(
+                    "Warning: Could not load referer database from {:?}: {}. Using empty database.",
+                    referrer_db_path, e
+                );
                 RefDb::default()
             }
-        }
-    });
+        },
+    );
 }
 
 fn get_parser() -> &'static RefDb {
-    PARSER.get().expect("Referrer parser not initialized. Call initialize() first.")
+    PARSER
+        .get()
+        .expect("Referrer parser not initialized. Call initialize() first.")
 }
 
 /// Sanitize a referrer URL for privacy compliance
 /// - For search engines: keeps only search query parameters
 /// - For all other sites: strips all query parameters
 /// - For all URLs: strips protocol prefixes (http://, https://)
-fn sanitize_referrer_url(referrer_url: &Url, is_search_engine: bool, search_params: &[String]) -> String {
+fn sanitize_referrer_url(
+    referrer_url: &Url,
+    is_search_engine: bool,
+    search_params: &[String],
+) -> String {
     if is_search_engine && !search_params.is_empty() {
         // For search engines, keep only search query parameters
-        let mut clean_url = Url::parse(&format!("http://{}{}", 
-            referrer_url.host_str().unwrap_or(""), 
+        let mut clean_url = Url::parse(&format!(
+            "http://{}{}",
+            referrer_url.host_str().unwrap_or(""),
             referrer_url.path()
-        )).unwrap_or_else(|_| referrer_url.clone());
-        
+        ))
+        .unwrap_or_else(|_| referrer_url.clone());
+
         // Only copy search parameters that are relevant
         for param in search_params {
-            if let Some(value) = referrer_url.query_pairs()
+            if let Some(value) = referrer_url
+                .query_pairs()
                 .find(|(key, _)| key == param)
-                .map(|(_, val)| val.to_string()) 
+                .map(|(_, val)| val.to_string())
             {
                 clean_url.query_pairs_mut().append_pair(param, &value);
             }
         }
-        
+
         match normalize_url(&clean_url) {
             Some(normalized) => normalized,
-            None => clean_url.to_string()
+            None => clean_url.to_string(),
         }
     } else {
         // For all other URLs, strip query parameters and fragments
         let mut clean_url = referrer_url.clone();
         clean_url.set_query(None);
         clean_url.set_fragment(None);
-        
+
         match normalize_url(&clean_url) {
             Some(normalized) => normalized,
-            None => clean_url.to_string()
+            None => clean_url.to_string(),
         }
     }
 }
@@ -123,9 +135,11 @@ fn sanitize_referrer_url(referrer_url: &Url, is_search_engine: bool, search_para
 /// Parse a referrer URL and extract useful information
 pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> ReferrerInfo {
     let current_host = current_url.and_then(|url| {
-        Url::parse(url).ok().and_then(|u| u.host_str().map(|h| h.to_string()))
+        Url::parse(url)
+            .ok()
+            .and_then(|u| u.host_str().map(|h| h.to_string()))
     });
-    
+
     // If no referrer, it's a direct visit
     let referrer_str = match referrer {
         Some(r) if !r.is_empty() => r,
@@ -135,7 +149,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
                 source_type: ReferrerSource::Direct,
                 source_name: None,
                 search_term: None,
-            }
+            };
         }
     };
 
@@ -150,7 +164,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
             };
         }
     };
-    
+
     // Get the parser and lookup the referrer URL
     let parser = get_parser();
     let referrer_info = parser.lookup(&referrer_url);
@@ -158,9 +172,9 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
     // Determine the source based on refparser result
     let source_type = if let Some(ref_info) = &referrer_info {
         let medium = if ref_info.medium.is_empty() {
-            None 
-        } else { 
-            Some(ref_info.medium.as_str()) 
+            None
+        } else {
+            Some(ref_info.medium.as_str())
         };
 
         ReferrerSource::from_referrer_medium(medium)
@@ -185,7 +199,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
             ReferrerSource::Other
         }
     };
-    
+
     // Extract search term if available
     let search_term = if let Some(ref_info) = &referrer_info {
         if ref_info.medium == "search" {
@@ -196,7 +210,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
     } else {
         None
     };
-    
+
     let referrer_name = referrer_info.as_ref().map(|r| r.source.clone());
 
     // Determine if this is a search medium and get search parameters
@@ -225,7 +239,7 @@ fn is_internal_referrer(referrer_host: &str, current_host: &String) -> bool {
 /// Extract search term from URL using parameter names
 fn extract_search_term(url: &Url, param_names: &[String]) -> Option<String> {
     let query_pairs = url.query_pairs();
-    
+
     for param in param_names {
         for (key, value) in query_pairs.clone() {
             if key == param.as_str() && !value.is_empty() {
@@ -235,4 +249,3 @@ fn extract_search_term(url: &Url, param_names: &[String]) -> Option<String> {
     }
     None
 }
-

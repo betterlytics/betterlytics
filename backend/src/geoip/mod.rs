@@ -1,13 +1,13 @@
-use maxminddb::{geoip2, Reader};
-use std::net::IpAddr;
-use std::sync::{Arc, Mutex, RwLock};
-use std::sync::atomic::{AtomicU64, Ordering};
-use tracing::{info, warn, error, debug};
 use crate::config::Config;
 use crate::geoip_updater::GeoIpWatchRx;
 use anyhow::Result;
+use maxminddb::{Reader, geoip2};
 use moka::sync::Cache;
+use std::net::IpAddr;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tracing::{debug, error, info, warn};
 
 const CACHE_TTI: Duration = Duration::from_secs(1200);
 const CACHE_SIZE: u64 = 100000; // Cache up to 100k IP addresses
@@ -34,11 +34,17 @@ impl GeoIpService {
                         initial_reader = Some(Arc::new(reader));
                     }
                     Err(e) => {
-                        error!("Failed to load initial GeoIP database from {:?}: {}. Geolocation may be delayed until first update.", db_path, e);
+                        error!(
+                            "Failed to load initial GeoIP database from {:?}: {}. Geolocation may be delayed until first update.",
+                            db_path, e
+                        );
                     }
                 }
             } else {
-                warn!("Initial GeoIP database file not found at {:?}. Geolocation will be disabled until first update.", db_path);
+                warn!(
+                    "Initial GeoIP database file not found at {:?}. Geolocation will be disabled until first update.",
+                    db_path
+                );
             }
         } else {
             info!("Geolocation is disabled via config.");
@@ -74,17 +80,23 @@ impl GeoIpService {
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
             .as_secs();
-        
+
         let last_check_secs = self.last_reader_check.load(Ordering::Relaxed);
-        
+
         if now_secs.saturating_sub(last_check_secs) < READER_UPDATE_CHECK_INTERVAL.as_secs() {
             return;
         }
 
         // Try to atomically update the timestamp to claim the right to check
         // If another thread beats us to it, we can just return
-        if self.last_reader_check
-            .compare_exchange_weak(last_check_secs, now_secs, Ordering::Relaxed, Ordering::Relaxed)
+        if self
+            .last_reader_check
+            .compare_exchange_weak(
+                last_check_secs,
+                now_secs,
+                Ordering::Relaxed,
+                Ordering::Relaxed,
+            )
             .is_err()
         {
             return;
@@ -94,7 +106,8 @@ impl GeoIpService {
         let mut rx_guard = match self.geoip_watch_rx.try_lock() {
             Ok(guard) => guard,
             Err(_) => {
-                self.last_reader_check.store(last_check_secs, Ordering::Relaxed);
+                self.last_reader_check
+                    .store(last_check_secs, Ordering::Relaxed);
                 return;
             }
         };
@@ -102,14 +115,14 @@ impl GeoIpService {
         if rx_guard.has_changed().unwrap_or(false) {
             let latest_reader_option = rx_guard.borrow_and_update().clone();
             debug!("GeoIpService detected database update via watch channel.");
-            
+
             // Drop the rx_guard before acquiring the write lock to avoid holding multiple locks
             drop(rx_guard);
-            
+
             let mut current_reader_guard = self.current_reader.write().unwrap();
             *current_reader_guard = latest_reader_option;
             drop(current_reader_guard);
-            
+
             self.ip_cache.invalidate_all();
             info!("GeoIP cache cleared due to database update");
         }
@@ -153,7 +166,7 @@ impl GeoIpService {
         };
 
         self.ip_cache.insert(ip_address.to_string(), result.clone());
-        
+
         result
     }
 }

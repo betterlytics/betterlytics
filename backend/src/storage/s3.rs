@@ -1,11 +1,11 @@
-use std::time::Duration;
+use crate::config::Config;
 use anyhow::Result;
 use aws_config::BehaviorVersion;
-use aws_sdk_s3::{Client, config::Region};
-use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
+use aws_sdk_s3::config::{Builder as S3ConfigBuilder, Credentials};
 use aws_sdk_s3::presigning::PresigningConfig;
 use aws_sdk_s3::types::ServerSideEncryption;
-use crate::config::Config;
+use aws_sdk_s3::{Client, config::Region};
+use std::time::Duration;
 
 #[derive(Clone, Debug)]
 pub struct S3Service {
@@ -20,23 +20,34 @@ impl S3Service {
             return Ok(None);
         }
 
-        let region = cfg.s3_region.clone().unwrap_or_else(|| "eu-central-1".to_string());
-        let bucket = cfg.s3_bucket.clone().ok_or_else(|| anyhow::anyhow!("S3_BUCKET not set"))?;
+        let region = cfg
+            .s3_region
+            .clone()
+            .unwrap_or_else(|| "eu-central-1".to_string());
+        let bucket = cfg
+            .s3_bucket
+            .clone()
+            .ok_or_else(|| anyhow::anyhow!("S3_BUCKET not set"))?;
 
         // Base loader
-        let loader = aws_config::defaults(BehaviorVersion::latest()).region(Region::new(region.clone()));
+        let loader =
+            aws_config::defaults(BehaviorVersion::latest()).region(Region::new(region.clone()));
 
         // Credentials override if provided (useful for local S3 like MinIO)
         let mut creds_opt = None;
-        if let (Some(ak), Some(sk)) = (cfg.s3_access_key_id.clone(), cfg.s3_secret_access_key.clone()) {
+        if let (Some(ak), Some(sk)) = (
+            cfg.s3_access_key_id.clone(),
+            cfg.s3_secret_access_key.clone(),
+        ) {
             creds_opt = Some(Credentials::new(ak, sk, None, None, "static"));
         }
 
         let base_config = loader.load().await;
-        let mut s3_builder = S3ConfigBuilder::from(&base_config)
-            .region(Region::new(region));
+        let mut s3_builder = S3ConfigBuilder::from(&base_config).region(Region::new(region));
 
-        if let Some(creds) = creds_opt { s3_builder = s3_builder.credentials_provider(creds); }
+        if let Some(creds) = creds_opt {
+            s3_builder = s3_builder.credentials_provider(creds);
+        }
 
         if let Some(endpoint) = cfg.s3_endpoint.clone() {
             s3_builder = s3_builder.endpoint_url(endpoint);
@@ -50,10 +61,19 @@ impl S3Service {
         let client = Client::from_conf(s3_config);
         let sse_enabled = cfg.s3_sse_enabled;
 
-        Ok(Some(Self { client, bucket, sse_enabled }))
+        Ok(Some(Self {
+            client,
+            bucket,
+            sse_enabled,
+        }))
     }
 
-    pub fn build_replay_object_key(&self, site_id: &str, session_id: &str, epoch_ms: i64) -> String {
+    pub fn build_replay_object_key(
+        &self,
+        site_id: &str,
+        session_id: &str,
+        epoch_ms: i64,
+    ) -> String {
         let suffix: String = nanoid::nanoid!(6);
         let filename = format!("{:013}-{}.json", epoch_ms, suffix);
         format!("site/{}/sess/{}/{}", site_id, session_id, filename)
@@ -67,7 +87,8 @@ impl S3Service {
         content_length: u64,
         ttl_secs: u64,
     ) -> Result<String> {
-        let mut req = self.client
+        let mut req = self
+            .client
             .put_object()
             .bucket(&self.bucket)
             .key(key)
@@ -84,5 +105,3 @@ impl S3Service {
         Ok(presigned.uri().to_string())
     }
 }
-
-

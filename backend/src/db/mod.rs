@@ -1,9 +1,9 @@
 use anyhow::Result;
-use clickhouse::{error::Error as ClickHouseError, Client};
+use clickhouse::{Client, error::Error as ClickHouseError};
 use std::sync::Arc;
 use std::time::Duration;
 
-use tokio::sync::mpsc::{self, error::TryRecvError, Receiver};
+use tokio::sync::mpsc::{self, Receiver, error::TryRecvError};
 use tokio::time::timeout;
 
 use crate::config::Config;
@@ -35,12 +35,22 @@ impl Database {
         let worker_senders = Self::spawn_inserter_workers(client.clone());
         Self::spawn_dispatcher(event_rx, worker_senders);
 
-        Ok(Self { client, event_tx, config })
+        Ok(Self {
+            client,
+            event_tx,
+            config,
+        })
     }
 
     async fn create_client(config: Arc<Config>) -> Result<Client> {
-        println!("Creating ClickHouse client with URL: {}", &config.clickhouse_url);
-        let client = Client::default().with_user(&config.clickhouse_user).with_password(&config.clickhouse_password).with_url(&config.clickhouse_url);
+        println!(
+            "Creating ClickHouse client with URL: {}",
+            &config.clickhouse_url
+        );
+        let client = Client::default()
+            .with_user(&config.clickhouse_user)
+            .with_password(&config.clickhouse_password)
+            .with_url(&config.clickhouse_url);
         println!("ClickHouse client created successfully");
         Ok(client)
     }
@@ -87,13 +97,14 @@ impl Database {
 
     pub async fn validate_schema(&self) -> Result<()> {
         self.check_connection().await?;
-        
+
         println!("Validating database schema");
-        let db_exists: u8 = self.client
+        let db_exists: u8 = self
+            .client
             .query("SELECT count() FROM system.databases WHERE name = 'analytics'")
             .fetch_one()
             .await?;
-        
+
         if db_exists == 0 {
             println!("[WARNING] Analytics database does not exist. Please run migrations.");
             return Ok(());
@@ -110,13 +121,18 @@ impl Database {
         }
 
         if self.config.data_retention_days == -1 {
-            println!("[INFO] Data retention explicitly disabled (data_retention_days = -1). Removing TTL if present.");
+            println!(
+                "[INFO] Data retention explicitly disabled (data_retention_days = -1). Removing TTL if present."
+            );
             if let Err(e) = Self::remove_data_retention_policy(&self.client).await {
                 eprintln!("[ERROR] Could not remove data retention policy: {}", e);
                 return Err(e);
             }
         } else if self.config.data_retention_days > 0 {
-            if let Err(e) = Self::apply_data_retention_policy(&self.client, self.config.data_retention_days).await {
+            if let Err(e) =
+                Self::apply_data_retention_policy(&self.client, self.config.data_retention_days)
+                    .await
+            {
                 eprintln!("[ERROR] Could not apply data retention policy: {}", e);
                 return Err(e);
             }
@@ -145,9 +161,12 @@ impl Database {
             "ALTER TABLE analytics.events MODIFY TTL timestamp + INTERVAL {} DAY",
             data_retention_days
         );
-        client.query(&alter_query).execute().await.map_err(|e| 
-            anyhow::anyhow!("Failed to apply data retention policy for analytics.events table: {}.", e)
-        )?;
+        client.query(&alter_query).execute().await.map_err(|e| {
+            anyhow::anyhow!(
+                "Failed to apply data retention policy for analytics.events table: {}.",
+                e
+            )
+        })?;
         Ok(())
     }
 
@@ -175,7 +194,7 @@ impl Database {
 
     async fn ensure_billing_materialized_view(&self) -> Result<()> {
         println!("[INFO] Checking billing materialized view...");
-        
+
         let mv_exists: u8 = self.client
             .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'usage_by_site_daily' AND engine LIKE '%MaterializedView%'")
             .fetch_one()
@@ -183,7 +202,7 @@ impl Database {
 
         if mv_exists == 0 {
             println!("[INFO] Creating billing usage materialized view...");
-            
+
             let create_mv_query = r#"
                 CREATE MATERIALIZED VIEW analytics.usage_by_site_daily
                 ENGINE = SummingMergeTree()
@@ -200,8 +219,10 @@ impl Database {
                 .query(create_mv_query)
                 .execute()
                 .await
-                .map_err(|e| anyhow::anyhow!("Failed to create billing materialized view: {}", e))?;
-            
+                .map_err(|e| {
+                    anyhow::anyhow!("Failed to create billing materialized view: {}", e)
+                })?;
+
             println!("[INFO] Billing usage materialized view created successfully.");
         } else {
             println!("[INFO] Billing usage materialized view already exists.");
@@ -242,10 +263,7 @@ async fn run_inserter_worker(
 
     let mut inserter = client
         .inserter("analytics.events")?
-        .with_timeouts(
-            Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
-            None,
-        )
+        .with_timeouts(Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)), None)
         .with_period(Some(Duration::from_secs(INSERTER_PERIOD_SECS)))
         .with_max_rows(INSERTER_MAX_ROWS)
         .with_max_bytes(INSERTER_MAX_BYTES);
@@ -289,17 +307,17 @@ async fn run_inserter_worker(
         let row = EventRow::from_processed(event);
 
         tracing::debug!(
-            worker_id = worker_id, 
-            site_id = %row.site_id, 
+            worker_id = worker_id,
+            site_id = %row.site_id,
             visitor_id = %row.visitor_id,
             session_id = %row.session_id,
             event_type = ?row.event_type,
             custom_event_name = ?row.custom_event_name,
-            url = %row.url, 
-            timestamp = %row.timestamp, 
+            url = %row.url,
+            timestamp = %row.timestamp,
             device_type = %row.device_type,
-            browser = %row.browser, 
-            os = %row.os, 
+            browser = %row.browser,
+            os = %row.os,
             "Prepared row for ClickHouse insertion");
         if let Err(e) = inserter.write(&row) {
             eprintln!(
@@ -311,14 +329,11 @@ async fn run_inserter_worker(
         }
     }
 
-    println!(
-        "Worker {}: Exiting loop. Finalizing inserter.",
-        worker_id
-    );
+    println!("Worker {}: Exiting loop. Finalizing inserter.", worker_id);
     let stats = inserter.end().await?;
     println!(
         "Worker {}: Shutdown complete. Final stats: {:?}",
         worker_id, stats
     );
     Ok(())
-} 
+}

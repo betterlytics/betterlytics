@@ -7,12 +7,15 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import type { CampaignListRowSummary } from '@/entities/campaign';
+import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
-import type { CampaignExpandedDetails } from '@/app/actions/campaigns';
-import { fetchCampaignExpandedDetailsAction, fetchCampaignPerformanceAction } from '@/app/actions/campaigns';
+import type { CampaignExpandedDetails } from '@/app/actions/analytics/campaign.actions';
+import {
+  fetchCampaignExpandedDetailsAction,
+  fetchCampaignPerformanceAction,
+} from '@/app/actions/analytics/campaign.actions';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';

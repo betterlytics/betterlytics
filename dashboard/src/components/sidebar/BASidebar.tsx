@@ -11,6 +11,7 @@ import {
   ExternalLink as ExternalLinkIcon,
   Gauge,
   Video,
+  Activity,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -30,7 +31,7 @@ import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
 import type { ReactElement } from 'react';
-import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard';
+import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
 import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { DashboardDropdown } from './DashboardDropdown';
 
@@ -38,7 +39,7 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { Dashboard } from '@/entities/dashboard';
+import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 
 type BASidebarProps = {
   dashboardId: string;
@@ -83,6 +84,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
     { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={18} /> },
     { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} />, hidden: isDemo },
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
+    { name: t('monitoring'), key: 'monitoring', href: '/monitoring', icon: <Activity size={18} /> },
   ];
 
   const behaviorItems: SidebarItem[] = [

@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
 use nanoid::nanoid;
+use serde::{Deserialize, Serialize};
 
-mod fingerprint;
 mod device;
-pub use fingerprint::*;
+mod fingerprint;
 pub use device::*;
+pub use fingerprint::*;
 
 /// Raw tracking data received from the client
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -48,14 +48,11 @@ pub struct AnalyticsEvent {
 
 impl AnalyticsEvent {
     pub fn new(raw: RawTrackingEvent, ip_address: String) -> Self {
-        Self {
-            raw,
-            ip_address,
-        }
+        Self { raw, ip_address }
     }
 }
 
 /// Generate a unique site ID
 pub fn generate_site_id() -> String {
     nanoid!(12)
-} 
+}

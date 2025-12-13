@@ -16,9 +16,9 @@ pub fn parse_campaign_params(url_str: &str) -> CampaignInfo {
         Ok(url) => url,
         Err(_) => return CampaignInfo::default(),
     };
-    
+
     let mut campaign_info = CampaignInfo::default();
-    
+
     for (key, value) in url.query_pairs() {
         match key.as_ref() {
             "utm_source" => campaign_info.utm_source = Some(value.to_string()),
@@ -29,6 +29,6 @@ pub fn parse_campaign_params(url_str: &str) -> CampaignInfo {
             _ => {}
         }
     }
-    
+
     campaign_info
 }

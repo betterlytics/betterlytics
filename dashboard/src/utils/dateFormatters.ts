@@ -42,23 +42,42 @@ export function formatDuration(seconds: number): string {
   return parts.join(' ');
 }
 
-// Helper function to format time ago in a user-friendly way
-export function formatTimeAgo(date: Date): string {
+// Helper function to format time ago in a user-friendly way.
+// When `precise` is true, include seconds (e.g., "1m 23s ago", "11s ago").
+export function formatTimeAgo(date: Date, precise?: boolean): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalHours / 24);
 
-  if (diffDays > 0) {
-    return `${diffDays}d ago`;
-  } else if (diffHours > 0) {
-    return `${diffHours}h ago`;
-  } else if (diffMinutes > 0) {
-    return `${diffMinutes}m ago`;
-  } else {
-    return 'Recently';
+  if (precise) {
+    if (days > 0) {
+      const hoursRemainder = totalHours % 24;
+      return `${days}d${hoursRemainder ? ` ${hoursRemainder}h` : ''} ago`;
+    }
+    if (totalHours > 0) {
+      const minutesRemainder = totalMinutes % 60;
+      return `${totalHours}h${minutesRemainder ? ` ${minutesRemainder}m` : ''} ago`;
+    }
+    if (totalMinutes > 0) {
+      const secondsRemainder = totalSeconds % 60;
+      return `${totalMinutes}m${secondsRemainder ? ` ${secondsRemainder}s` : ''} ago`;
+    }
+    return `${totalSeconds}s ago`;
   }
+
+  if (days > 0) {
+    return `${days}d ago`;
+  }
+  if (totalHours > 0) {
+    return `${totalHours}h ago`;
+  }
+  if (totalMinutes > 0) {
+    return `${totalMinutes}m ago`;
+  }
+  return 'Recently';
 }
 
 /**
@@ -124,6 +143,15 @@ export function formatDurationPrecise(ms: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}m ${seconds}s`;
+}
+
+export function formatTimeLeft(daysLeft: number | null): { value: string; unit: string } {
+  if (daysLeft == null) {
+    return { value: '—', unit: '' };
+  }
+  const roundedDays = Math.max(0, Math.round(daysLeft));
+  const unit = roundedDays === 1 ? 'day' : 'days';
+  return { value: `${roundedDays}`, unit };
 }
 
 // Formats a date/time to a locale-aware human-readable string

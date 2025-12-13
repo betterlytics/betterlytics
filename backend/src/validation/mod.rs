@@ -1,13 +1,13 @@
-use anyhow::Result;
-use chrono::{DateTime, Utc};
-use std::net::IpAddr;
-use ipnet::IpNet;
-use std::str::FromStr;
-use url::Url;
 use crate::analytics::RawTrackingEvent;
 use crate::site_config::SiteConfigCache;
+use anyhow::Result;
+use chrono::{DateTime, Utc};
+use ipnet::IpNet;
 use sha2::{Digest, Sha256};
+use std::net::IpAddr;
+use std::str::FromStr;
 use tracing::warn;
+use url::Url;
 
 #[derive(Debug, Clone)]
 pub struct ValidationConfig {
@@ -22,12 +22,12 @@ pub struct ValidationConfig {
 impl Default for ValidationConfig {
     fn default() -> Self {
         Self {
-            max_custom_properties_size: 10 * 1024,    // 10KB - pretty generous in my opinion
-            max_url_length: 2048,                     // This is a common limit for URLs
-            max_event_name_length: 100,               // Event name is usually short, but we should keep leeway for extra long event names
-            max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
-            max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
-            max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
+            max_custom_properties_size: 10 * 1024, // 10KB - pretty generous in my opinion
+            max_url_length: 2048,                  // This is a common limit for URLs
+            max_event_name_length: 100, // Event name is usually short, but we should keep leeway for extra long event names
+            max_site_id_length: 100, // Site ID is usually short, but we should keep leeway for extra long domain names
+            max_user_agent_length: 8 * 1024, // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
+            max_timestamp_drift_seconds: 300, // 5 minutes - we should allow for some clock drift to account for packet latency
         }
     }
 }
@@ -79,12 +79,12 @@ impl EventValidator {
         ip_address: String,
     ) -> Result<ValidatedTrackingEvent, ValidationError> {
         let result = self.validate_event_internal(&raw_event, &ip_address);
-        
+
         // Log sanitized rejection details if validation fails
         if let Err(ref error) = result {
             self.log_sanitized_rejection(error, &raw_event, &ip_address);
         }
-        
+
         result
     }
 
@@ -96,7 +96,7 @@ impl EventValidator {
         self.validate_required_fields(raw_event)?;
         self.validate_payload_sizes(raw_event)?;
         self.validate_formats(raw_event, ip_address)?;
-        
+
         if raw_event.event_name == "outbound_link" {
             self.validate_outbound_link_url(raw_event)?;
         }
@@ -117,35 +117,56 @@ impl EventValidator {
     }
 
     /// Validate required fields are not empty and don't contain control characters
-    fn validate_required_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+    fn validate_required_fields(
+        &self,
+        raw_event: &RawTrackingEvent,
+    ) -> Result<(), ValidationError> {
         if raw_event.site_id.is_empty() {
-            return Err(ValidationError::InvalidSiteId("Site ID cannot be empty".to_string()));
+            return Err(ValidationError::InvalidSiteId(
+                "Site ID cannot be empty".to_string(),
+            ));
         }
         if raw_event.url.is_empty() {
-            return Err(ValidationError::InvalidUrl("URL cannot be empty".to_string()));
+            return Err(ValidationError::InvalidUrl(
+                "URL cannot be empty".to_string(),
+            ));
         }
         if raw_event.event_name.is_empty() {
-            return Err(ValidationError::InvalidEventName("Event name cannot be empty".to_string()));
+            return Err(ValidationError::InvalidEventName(
+                "Event name cannot be empty".to_string(),
+            ));
         }
         if raw_event.user_agent.is_empty() {
-            return Err(ValidationError::InvalidUserAgent("User agent cannot be empty".to_string()));
+            return Err(ValidationError::InvalidUserAgent(
+                "User agent cannot be empty".to_string(),
+            ));
         }
 
         if contains_control_characters(&raw_event.site_id) {
-            return Err(ValidationError::InvalidSiteId("Site ID contains invalid control characters".to_string()));
+            return Err(ValidationError::InvalidSiteId(
+                "Site ID contains invalid control characters".to_string(),
+            ));
         }
         if contains_control_characters(&raw_event.url) {
-            return Err(ValidationError::InvalidUrl("URL contains invalid control characters".to_string()));
+            return Err(ValidationError::InvalidUrl(
+                "URL contains invalid control characters".to_string(),
+            ));
         }
         if contains_control_characters(&raw_event.event_name) {
-            return Err(ValidationError::InvalidEventName("Event name contains invalid control characters".to_string()));
+            return Err(ValidationError::InvalidEventName(
+                "Event name contains invalid control characters".to_string(),
+            ));
         }
         if contains_control_characters(&raw_event.user_agent) {
-            return Err(ValidationError::InvalidUserAgent("User agent contains invalid control characters".to_string()));
+            return Err(ValidationError::InvalidUserAgent(
+                "User agent contains invalid control characters".to_string(),
+            ));
         }
         if let Some(ref referrer) = raw_event.referrer {
             if contains_control_characters(referrer) {
-                return Err(ValidationError::InvalidUrl("Referrer contains invalid control characters".to_string()));
+                return Err(ValidationError::InvalidUrl(
+                    "Referrer contains invalid control characters".to_string(),
+                ));
             }
         }
 
@@ -155,33 +176,49 @@ impl EventValidator {
     /// Validate payload sizes to reject excessively large payloads
     fn validate_payload_sizes(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         if raw_event.site_id.len() > self.config.max_site_id_length {
-            return Err(ValidationError::InvalidSiteId("Site ID too long".to_string()));
+            return Err(ValidationError::InvalidSiteId(
+                "Site ID too long".to_string(),
+            ));
         }
         if raw_event.url.len() > self.config.max_url_length {
             return Err(ValidationError::InvalidUrl("URL too long".to_string()));
         }
         if raw_event.event_name.len() > self.config.max_event_name_length {
-            return Err(ValidationError::InvalidEventName("Event name too long".to_string()));
+            return Err(ValidationError::InvalidEventName(
+                "Event name too long".to_string(),
+            ));
         }
         if raw_event.user_agent.len() > self.config.max_user_agent_length {
-            return Err(ValidationError::InvalidUserAgent("User agent too long".to_string()));
+            return Err(ValidationError::InvalidUserAgent(
+                "User agent too long".to_string(),
+            ));
         }
         if raw_event.properties.len() > self.config.max_custom_properties_size {
-            return Err(ValidationError::PayloadTooLarge("Properties payload too large".to_string()));
+            return Err(ValidationError::PayloadTooLarge(
+                "Properties payload too large".to_string(),
+            ));
         }
         Ok(())
     }
 
     /// Basic format validation
-    fn validate_formats(&self, raw_event: &RawTrackingEvent, ip_address: &str) -> Result<(), ValidationError> {
+    fn validate_formats(
+        &self,
+        raw_event: &RawTrackingEvent,
+        ip_address: &str,
+    ) -> Result<(), ValidationError> {
         // Validate URL format
         if let Err(_) = Url::parse(&raw_event.url) {
-            return Err(ValidationError::InvalidUrl("Invalid URL format".to_string()));
+            return Err(ValidationError::InvalidUrl(
+                "Invalid URL format".to_string(),
+            ));
         }
 
         // Validate IP address format
         if IpAddr::from_str(ip_address).is_err() {
-            return Err(ValidationError::InvalidIpAddress("Invalid IP address format".to_string()));
+            return Err(ValidationError::InvalidIpAddress(
+                "Invalid IP address format".to_string(),
+            ));
         }
 
         // Validate timestamp is reasonable (config allows for some clock drift to account for packet latency)
@@ -189,10 +226,14 @@ impl EventValidator {
             let now = Utc::now();
             let drift = (event_time - now).num_seconds().abs();
             if drift > self.config.max_timestamp_drift_seconds {
-                return Err(ValidationError::InvalidTimestamp("Timestamp too far from current time".to_string()));
+                return Err(ValidationError::InvalidTimestamp(
+                    "Timestamp too far from current time".to_string(),
+                ));
             }
         } else {
-            return Err(ValidationError::InvalidTimestamp("Invalid timestamp".to_string()));
+            return Err(ValidationError::InvalidTimestamp(
+                "Invalid timestamp".to_string(),
+            ));
         }
 
         Ok(())
@@ -204,7 +245,9 @@ impl EventValidator {
         // (allow newlines/tabs in case someone tracks form texts)
         // but we still disallow and reject dangerous control characters
         if contains_dangerous_control_characters(properties) {
-            return Err(ValidationError::InvalidJson("Properties contain dangerous control characters".to_string()));
+            return Err(ValidationError::InvalidJson(
+                "Properties contain dangerous control characters".to_string(),
+            ));
         }
 
         match serde_json::from_str::<serde_json::Value>(properties) {
@@ -213,42 +256,67 @@ impl EventValidator {
         }
     }
 
-    fn validate_outbound_link_url(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+    fn validate_outbound_link_url(
+        &self,
+        raw_event: &RawTrackingEvent,
+    ) -> Result<(), ValidationError> {
         let outbound_url = match &raw_event.outbound_link_url {
             Some(url) => url,
-            None => return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL required for outbound_link events".to_string())),
+            None => {
+                return Err(ValidationError::InvalidOutboundLinkUrl(
+                    "Outbound link URL required for outbound_link events".to_string(),
+                ));
+            }
         };
 
         if outbound_url.is_empty() {
-            return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL cannot be empty".to_string()));
+            return Err(ValidationError::InvalidOutboundLinkUrl(
+                "Outbound link URL cannot be empty".to_string(),
+            ));
         }
 
         // Check length using existing max_url_length config
         if outbound_url.len() > self.config.max_url_length {
-            return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL too long".to_string()));
+            return Err(ValidationError::InvalidOutboundLinkUrl(
+                "Outbound link URL too long".to_string(),
+            ));
         }
 
         if contains_control_characters(outbound_url) {
-            return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL contains invalid control characters".to_string()));
+            return Err(ValidationError::InvalidOutboundLinkUrl(
+                "Outbound link URL contains invalid control characters".to_string(),
+            ));
         }
 
         // Validate URL format
         let parsed_url = match Url::parse(outbound_url) {
             Ok(url) => url,
-            Err(_) => return Err(ValidationError::InvalidOutboundLinkUrl("Invalid outbound link URL format".to_string())),
+            Err(_) => {
+                return Err(ValidationError::InvalidOutboundLinkUrl(
+                    "Invalid outbound link URL format".to_string(),
+                ));
+            }
         };
 
         // Only allow http/https protocols for security
         match parsed_url.scheme() {
-            "http" | "https" => {},
-            _ => return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL must use http or https protocol".to_string())),
+            "http" | "https" => {}
+            _ => {
+                return Err(ValidationError::InvalidOutboundLinkUrl(
+                    "Outbound link URL must use http or https protocol".to_string(),
+                ));
+            }
         }
 
         // Validate that it's actually external (different domain from source)
         if let Ok(source_url) = Url::parse(&raw_event.url) {
-            if let (Some(source_domain), Some(outbound_domain)) = (source_url.domain(), parsed_url.domain()) {
+            if let (Some(source_domain), Some(outbound_domain)) =
+                (source_url.domain(), parsed_url.domain())
+            {
                 if source_domain == outbound_domain {
-                    return Err(ValidationError::InvalidOutboundLinkUrl("Outbound link URL must be external (different domain)".to_string()));
+                    return Err(ValidationError::InvalidOutboundLinkUrl(
+                        "Outbound link URL must be external (different domain)".to_string(),
+                    ));
                 }
             }
         }
@@ -258,13 +326,35 @@ impl EventValidator {
 
     /// Validate Core Web Vitals fields when present
     fn validate_cwv_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
-        fn valid_f32(v: f32) -> bool { v.is_finite() }
+        fn valid_f32(v: f32) -> bool {
+            v.is_finite()
+        }
 
-        if let Some(v) = raw_event.cwv_cls { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_cls".to_string())); } }
-        if let Some(v) = raw_event.cwv_lcp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_lcp".to_string())); } }
-        if let Some(v) = raw_event.cwv_inp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_inp".to_string())); } }
-        if let Some(v) = raw_event.cwv_fcp { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_fcp".to_string())); } }
-        if let Some(v) = raw_event.cwv_ttfb { if !valid_f32(v) || v < 0.0 { return Err(ValidationError::InvalidJson("Invalid cwv_ttfb".to_string())); } }
+        if let Some(v) = raw_event.cwv_cls {
+            if !valid_f32(v) || v < 0.0 {
+                return Err(ValidationError::InvalidJson("Invalid cwv_cls".to_string()));
+            }
+        }
+        if let Some(v) = raw_event.cwv_lcp {
+            if !valid_f32(v) || v < 0.0 {
+                return Err(ValidationError::InvalidJson("Invalid cwv_lcp".to_string()));
+            }
+        }
+        if let Some(v) = raw_event.cwv_inp {
+            if !valid_f32(v) || v < 0.0 {
+                return Err(ValidationError::InvalidJson("Invalid cwv_inp".to_string()));
+            }
+        }
+        if let Some(v) = raw_event.cwv_fcp {
+            if !valid_f32(v) || v < 0.0 {
+                return Err(ValidationError::InvalidJson("Invalid cwv_fcp".to_string()));
+            }
+        }
+        if let Some(v) = raw_event.cwv_ttfb {
+            if !valid_f32(v) || v < 0.0 {
+                return Err(ValidationError::InvalidJson("Invalid cwv_ttfb".to_string()));
+            }
+        }
         Ok(())
     }
 
@@ -277,7 +367,7 @@ impl EventValidator {
     ) {
         // Hash IP address for privacy
         let ip_hash = self.hash_ip_address(ip_address);
-        
+
         warn!(
             rejection_reason = self.get_rejection_reason(error),
             site_id = %self.sanitize_and_truncate(&raw_event.site_id, 50),
@@ -315,7 +405,7 @@ impl EventValidator {
 
     /// Sanitize string for safe logging (escape control characters and limit length)
     fn sanitize_and_truncate(&self, s: &str, max_len: usize) -> String {
-      s.escape_debug().take(max_len).collect()
+        s.escape_debug().take(max_len).collect()
     }
 
     fn extract_domain(&self, url: &str) -> String {
@@ -355,7 +445,9 @@ pub fn check_blacklist(
     });
 
     if is_blocked {
-        Err(ValidationError::BlacklistedIp("IP is blacklisted".to_string()))
+        Err(ValidationError::BlacklistedIp(
+            "IP is blacklisted".to_string(),
+        ))
     } else {
         Ok(())
     }
@@ -390,8 +482,8 @@ pub async fn validate_site_policies(
             Ok(())
         }
         None => Err(ValidationError::InvalidSiteId(
-                "SiteID not recognized or missing".to_string(),
-            )),
+            "SiteID not recognized or missing".to_string(),
+        )),
     }
 }
 
@@ -407,7 +499,8 @@ pub fn check_domain_allowed(
         let expected_lc = expected_domain.to_ascii_lowercase();
 
         let allowed = if allow_subdomains {
-            event_domain_lc == expected_lc || event_domain_lc.ends_with(&format!(".{}", expected_lc))
+            event_domain_lc == expected_lc
+                || event_domain_lc.ends_with(&format!(".{}", expected_lc))
         } else {
             event_domain_lc == expected_lc
         };
@@ -428,5 +521,7 @@ fn contains_control_characters(input: &str) -> bool {
 
 /// Check if a string contains control characters (excluding newlines and tabs for custom properties)
 fn contains_dangerous_control_characters(input: &str) -> bool {
-    input.chars().any(|c| c.is_control() && c != '\n' && c != '\t')
+    input
+        .chars()
+        .any(|c| c.is_control() && c != '\n' && c != '\t')
 }

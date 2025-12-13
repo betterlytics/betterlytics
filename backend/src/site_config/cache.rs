@@ -5,11 +5,11 @@ use std::time::Duration as StdDuration;
 use arc_swap::ArcSwap;
 use chrono::{DateTime, TimeZone, Utc};
 use tokio::sync::RwLock;
-use tokio::time::{interval, MissedTickBehavior};
+use tokio::time::{MissedTickBehavior, interval};
 use tracing::{info, warn};
 
-use crate::metrics::MetricsCollector;
 use super::repository::{SiteConfigDataSource, SiteConfigRecord, SiteConfigRepositoryError};
+use crate::metrics::MetricsCollector;
 
 const CACHE_NAME: &str = "site_config";
 const HEALTH_CHECK_INTERVAL: StdDuration = StdDuration::from_secs(30);
@@ -100,10 +100,7 @@ impl SiteConfigCache {
         let map = self.configs.load();
         let cfg = map.get(site_id).cloned();
         if let Some(metrics) = &self.metrics {
-            metrics.increment_cache_lookup(
-                CACHE_NAME,
-                if cfg.is_some() { "hit" } else { "miss" },
-            );
+            metrics.increment_cache_lookup(CACHE_NAME, if cfg.is_some() { "hit" } else { "miss" });
         }
         cfg
     }
@@ -134,32 +131,29 @@ impl SiteConfigCache {
             .read()
             .await
             .unwrap_or_else(epoch_timestamp);
-    
-        let updates = self
-            .data_source
-            .fetch_configs_updated_since(since)
-            .await?;
-    
+
+        let updates = self.data_source.fetch_configs_updated_since(since).await?;
+
         if updates.is_empty() {
             self.mark_refresh_success().await;
             return Ok(());
         }
-    
+
         let max_updated = updates.iter().map(|r| r.updated_at).max();
-    
+
         self.configs.rcu(|current| {
             let mut new_map = (**current).clone();
-    
+
             for record in &updates {
                 new_map.insert(
                     record.site_id.clone(),
                     Arc::new(SiteConfig::from(record.clone())),
                 );
             }
-    
+
             Arc::new(new_map)
         });
-    
+
         let updated = updates.len();
         self.update_last_seen(max_updated).await;
         self.mark_refresh_success().await;
@@ -235,7 +229,9 @@ impl SiteConfigCache {
 
     async fn evaluate_health(&self) {
         let stale_after = self.refresh_config.stale_after;
-        if stale_after.is_zero() { return; }
+        if stale_after.is_zero() {
+            return;
+        }
         let healthy = {
             let last = self.last_refresh_success_at.read().await.clone();
             match last {
@@ -264,5 +260,3 @@ impl SiteConfigCache {
 fn epoch_timestamp() -> DateTime<Utc> {
     Utc.timestamp_opt(0, 0).unwrap()
 }
-
-

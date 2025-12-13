@@ -1,8 +1,8 @@
-use chrono::{DateTime, Utc, NaiveDate};
+use crate::processing::ProcessedEvent;
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum_macros::EnumString;
-use crate::processing::ProcessedEvent;
 
 // Ensure field order exactly matches ClickHouse table schema
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]

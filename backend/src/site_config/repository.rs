@@ -70,8 +70,8 @@ pub struct SiteConfigRepository {
 
 impl SiteConfigRepository {
     pub async fn new(database_url: &str) -> Result<Self, SiteConfigRepositoryError> {
-        let mut config =
-            PgConfig::from_str(database_url).map_err(|e| SiteConfigRepositoryError::InvalidDatabaseUrl(e.to_string()))?;
+        let mut config = PgConfig::from_str(database_url)
+            .map_err(|e| SiteConfigRepositoryError::InvalidDatabaseUrl(e.to_string()))?;
         config.connect_timeout(Duration::from_secs(5));
         config.application_name("betterlytics_site_config_cache");
 
@@ -83,7 +83,8 @@ impl SiteConfigRepository {
 
     async fn connection(
         &self,
-    ) -> Result<PooledConnection<'_, PostgresConnectionManager<NoTls>>, SiteConfigRepositoryError> {
+    ) -> Result<PooledConnection<'_, PostgresConnectionManager<NoTls>>, SiteConfigRepositoryError>
+    {
         Ok(self.pool.get().await?)
     }
 
@@ -110,14 +111,8 @@ impl SiteConfigDataSource for SiteConfigRepository {
         since: DateTime<Utc>,
     ) -> Result<Vec<SiteConfigRecord>, SiteConfigRepositoryError> {
         let conn = self.connection().await?;
-        let query = format!(
-            r#"{BASE_SELECT} WHERE sc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#
-        );
-        let rows = conn
-            .query(&query, &[&since.naive_utc()])
-            .await?;
+        let query = format!(r#"{BASE_SELECT} WHERE sc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#);
+        let rows = conn.query(&query, &[&since.naive_utc()]).await?;
         Self::rowset_to_records(rows)
     }
 }
-
-

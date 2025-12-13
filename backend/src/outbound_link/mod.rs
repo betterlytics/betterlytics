@@ -9,13 +9,12 @@ pub struct OutboundLinkInfo {
 }
 
 /// Process and clean an outbound link URL for storage
-/// 
+///
 /// This function returns the domain of the url
 pub fn process_outbound_link(url: &Url) -> OutboundLinkInfo {
     let cleaned_url = normalize_url(&url);
     let cleaned_url_str: String = cleaned_url.unwrap();
     OutboundLinkInfo {
-        url: cleaned_url_str
+        url: cleaned_url_str,
     }
 }
-

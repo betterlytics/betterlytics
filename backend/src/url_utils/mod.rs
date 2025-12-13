@@ -3,7 +3,7 @@ use url::Url;
 
 /// Normalizes a URL by removing protocol, www prefix, and trailing slashes
 /// Used for both referrer URLs and outbound link URLs for consistent data storage
-/// 
+///
 /// Examples:
 /// - "https://www.example.com/path/" -> "example.com/path"  
 /// - "http://subdomain.example.com/page" -> "subdomain.example.com/page"

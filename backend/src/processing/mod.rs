@@ -1,17 +1,17 @@
+use crate::analytics::detect_device_type_from_resolution_with_fallback;
+use crate::analytics::{AnalyticsEvent, generate_fingerprint};
+use crate::bot_detection;
+use crate::campaign::{CampaignInfo, parse_campaign_params};
+use crate::geoip::GeoIpService;
+use crate::outbound_link::process_outbound_link;
+use crate::referrer::{ReferrerInfo, parse_referrer};
+use crate::session;
+use crate::ua_parser;
+use crate::url_utils::extract_domain_and_path_from_url;
 use anyhow::Result;
 use tokio::sync::mpsc;
-use tracing::{error, debug};
-use crate::analytics::{AnalyticsEvent, generate_fingerprint};
-use crate::geoip::GeoIpService;
-use crate::session;
-use crate::bot_detection;
-use crate::referrer::{ReferrerInfo, parse_referrer};
-use crate::url_utils::extract_domain_and_path_from_url;
+use tracing::{debug, error};
 use url::Url;
-use crate::campaign::{CampaignInfo, parse_campaign_params};
-use crate::ua_parser;
-use crate::outbound_link::process_outbound_link;
-use crate::analytics::detect_device_type_from_resolution_with_fallback;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -63,12 +63,19 @@ pub struct EventProcessor {
 impl EventProcessor {
     pub fn new(geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
         let (event_tx, event_rx) = mpsc::channel(100_000);
-        (Self { event_tx, geoip_service }, event_rx)
+        (
+            Self {
+                event_tx,
+                geoip_service,
+            },
+            event_rx,
+        )
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
         let site_id = event.raw.site_id.clone();
-        let timestamp = chrono::DateTime::from_timestamp(event.raw.timestamp as i64, 0).unwrap_or_else(|| chrono::Utc::now());
+        let timestamp = chrono::DateTime::from_timestamp(event.raw.timestamp as i64, 0)
+            .unwrap_or_else(|| chrono::Utc::now());
         let raw_url = event.raw.url.clone();
         let referrer = event.raw.referrer.clone();
         let user_agent = event.raw.user_agent.clone();
@@ -80,7 +87,10 @@ impl EventProcessor {
         }
 
         let (domain, path) = extract_domain_and_path_from_url(&raw_url);
-        debug!("Extracted domain '{:?}' and path '{}' from URL '{}'", domain, path, raw_url);
+        debug!(
+            "Extracted domain '{:?}' and path '{}' from URL '{}'",
+            domain, path, raw_url
+        );
 
         let mut processed = ProcessedEvent {
             event: event.clone(),
@@ -118,7 +128,7 @@ impl EventProcessor {
         // Parse referrer information
         processed.referrer_info = parse_referrer(referrer.as_deref(), Some(&raw_url));
         debug!("referrer_info: {:?}", processed.referrer_info);
-        
+
         // Parse campaign parameters from URL
         processed.campaign_info = parse_campaign_params(&raw_url);
         debug!("campaign_info: {:?}", processed.campaign_info);
@@ -127,10 +137,13 @@ impl EventProcessor {
             error!("Failed to get geolocation: {}", e);
         }
 
-        if let Err(e) = self.detect_device_type_from_resolution(&mut processed).await {
+        if let Err(e) = self
+            .detect_device_type_from_resolution(&mut processed)
+            .await
+        {
             error!("Failed to detect device type from resolution: {}", e);
         }
-        
+
         if let Err(e) = self.parse_user_agent(&mut processed).await {
             error!("Failed to parse user agent: {}", e);
         }
@@ -143,15 +156,16 @@ impl EventProcessor {
             processed.os.as_deref(),
         );
 
-        let session_id_result = session::get_or_create_session_id(
-            &site_id, 
-            &processed.visitor_fingerprint, 
-        );
+        let session_id_result =
+            session::get_or_create_session_id(&site_id, &processed.visitor_fingerprint);
 
         match session_id_result {
             Ok(id) => processed.session_id = id,
             Err(e) => {
-                error!("Failed to get session ID: {}. Event processing aborted for: {:?}", e, processed.event);
+                error!(
+                    "Failed to get session ID: {}. Event processing aborted for: {:?}",
+                    e, processed.event
+                );
                 return Ok(());
             }
         };
@@ -194,14 +208,16 @@ impl EventProcessor {
         } else {
             processed.event_type = event_name;
         }
-        
+
         Ok(())
     }
 
     /// Get geolocation data for the IP
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {
         debug!("Performing Geolocation lookup");
-        processed.country_code = self.geoip_service.lookup_country_code(&processed.event.ip_address);
+        processed.country_code = self
+            .geoip_service
+            .lookup_country_code(&processed.event.ip_address);
         if processed.country_code.is_some() {
             debug!("Geolocation successful: {:?}", processed.country_code);
         } else {
@@ -212,23 +228,32 @@ impl EventProcessor {
 
     async fn parse_user_agent(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let parsed = ua_parser::parse_user_agent(&processed.user_agent);
-        
+
         processed.browser = Some(parsed.browser);
         processed.browser_version = parsed.browser_version;
         processed.os = Some(parsed.os);
         processed.os_version = parsed.os_version;
-        
+
         debug!(
             "User agent parsed: browser={:?}, version={:?}, os={:?}, os_version={:?}, device_type={:?}",
-            processed.browser, processed.browser_version, processed.os, processed.os_version, processed.device_type
+            processed.browser,
+            processed.browser_version,
+            processed.os,
+            processed.os_version,
+            processed.device_type
         );
-        
+
         Ok(())
     }
-    
-    async fn detect_device_type_from_resolution(&self, processed: &mut ProcessedEvent) -> Result<()> {
-        let device_type = detect_device_type_from_resolution_with_fallback(&processed.event.raw.screen_resolution);
+
+    async fn detect_device_type_from_resolution(
+        &self,
+        processed: &mut ProcessedEvent,
+    ) -> Result<()> {
+        let device_type = detect_device_type_from_resolution_with_fallback(
+            &processed.event.raw.screen_resolution,
+        );
         processed.device_type = Some(device_type);
         Ok(())
-    } 
+    }
 }
