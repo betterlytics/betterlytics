@@ -37,30 +37,30 @@ Betterlytics is a **high-performance, privacy-first** analytics platform that pu
 
 #### Core Analytics
 
-| Feature                        | Description                                               |
-| ------------------------------ | --------------------------------------------------------- |
-| **Page Analytics**             | Detailed page views, bounce rates, and engagement metrics |
-| **Referrer Tracking**          | Complete referral source analysis and traffic attribution |
-| **Geographic Insights**        | Global visitor mapping with MaxMind GeoIP integration     |
-| **Device & Browser Insights**  | Comprehensive device, OS, and browser analytics           |
-| **UTM Campaign Insights**      | UTM parameter tracking and marketing campaign analysis    |
-| **Advanced Filtering**         | Filter data across numerous dimensions and time ranges    |
-| **User Journey Mapping**       | Visualize complete user paths through your site           |
-| **Conversion Funnels**         | Track multi-step conversion processes and drop-off points |
-| **Outbound Link Tracking**     | Automatic tracking of clicks to external websites and affiliate URLs |
-| **Custom Events**              | Track any custom interactions and business metrics        |
-| **Core Web Vitals**            | Performance metrics including LCP, FID/INP, CLS, TTFB, and more |
+| Feature                        | Description                                                             |
+| ------------------------------ | ----------------------------------------------------------------------- |
+| **Page Analytics**             | Detailed page views, bounce rates, and engagement metrics               |
+| **Referrer Tracking**          | Complete referral source analysis and traffic attribution               |
+| **Geographic Insights**        | Global visitor mapping with MaxMind GeoIP integration                   |
+| **Device & Browser Insights**  | Comprehensive device, OS, and browser analytics                         |
+| **UTM Campaign Insights**      | UTM parameter tracking and marketing campaign analysis                  |
+| **Advanced Filtering**         | Filter data across numerous dimensions and time ranges                  |
+| **User Journey Mapping**       | Visualize complete user paths through your site                         |
+| **Conversion Funnels**         | Track multi-step conversion processes and drop-off points               |
+| **Outbound Link Tracking**     | Automatic tracking of clicks to external websites and affiliate URLs    |
+| **Custom Events**              | Track any custom interactions and business metrics                      |
+| **Core Web Vitals**            | Performance metrics including LCP, FID/INP, CLS, TTFB, and more         |
 | **Anonymized Session Replays** | Privacy-first replay of user interactions without storing personal data |
 
 #### Platform & Integration
 
-| Feature                      | Description                                                           |
-| ---------------------------- | --------------------------------------------------------------------- |
-| **Modern UI**                | Beautiful dashboard built with Next.js 15, React 19, and Tailwind CSS |
-| **Lightweight Script**       | Minimal tracking script with zero performance impact                  |
-| **SPA Support**              | Full support for Single Page Applications and client-side routing     |
-| **Easy Integration**         | Simple one-line script installation                                   |
-| **Performance Optimized**    | Built on ClickHouse for sub-second query responses                    |
+| Feature                      | Description                                                                |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| **Modern UI**                | Beautiful dashboard built with Next.js 15, React 19, and Tailwind CSS      |
+| **Lightweight Script**       | Minimal tracking script with zero performance impact                       |
+| **SPA Support**              | Full support for Single Page Applications and client-side routing          |
+| **Easy Integration**         | Simple one-line script installation                                        |
+| **Performance Optimized**    | Built on ClickHouse for sub-second query responses                         |
 | **High-Performance Backend** | Rust-powered event processing for ultra-fast, memory-efficient performance |
 
 ## Getting Started
@@ -117,27 +117,27 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 
 ### Overview
 
-![Dashboard Overview](.github/assets/betterlytics-showcase-overview.png)
+![Dashboard Overview](.github/assets/betterlytics-showcase-overview.webp)
 
 ### Geography Insights
 
-![Real-time Analytics](.github/assets/betterlytics-showcase-geography.png)
+![Real-time Analytics](.github/assets/betterlytics-showcase-geography.webp)
 
 ### User Journey Diagram
 
-![Detailed Reports](.github/assets/betterlytics-showcase-journey.png)
+![Detailed Reports](.github/assets/betterlytics-showcase-journey.webp)
 
 ### Events and Live Event Insights
 
-![Events Analytics](.github/assets/betterlytics-showcase-events.png)
+![Events Analytics](.github/assets/betterlytics-showcase-events.webp)
 
 ### Devices Breakdown
 
-![Detailed Reports](.github/assets/betterlytics-showcase-devices.png)
+![Detailed Reports](.github/assets/betterlytics-showcase-devices.webp)
 
 ### Pages Breakdown
 
-![Detailed Reports](.github/assets/betterlytics-showcase-pages.png)
+![Detailed Reports](.github/assets/betterlytics-showcase-pages.webp)
 
 ... and much more
 
@@ -164,13 +164,13 @@ We're constantly working to improve Betterlytics. Here's what's coming next:
 
 ### Planned Features
 
-| Feature                    | Description                                           |
-| -------------------------- | ----------------------------------------------------- |
-| **Alerts & Notifications** | Custom alerts for traffic spikes and anomalies        |
-| **Advanced Reporting**     | Scheduled reports                                     |
-| **A/B Testing**            | Built-in experimentation platform                     |
-| **AI Insights**            | Automated insights and recommendations                |
-| **Data API**               | Full API access to query your analytics data          |
+| Feature                    | Description                                    |
+| -------------------------- | ---------------------------------------------- |
+| **Alerts & Notifications** | Custom alerts for traffic spikes and anomalies |
+| **Advanced Reporting**     | Scheduled reports                              |
+| **A/B Testing**            | Built-in experimentation platform              |
+| **AI Insights**            | Automated insights and recommendations         |
+| **Data API**               | Full API access to query your analytics data   |
 
 </td>
 </tr>
