@@ -1504,6 +1504,7 @@
         "strictMode": "Strikt tilstand",
         "addStep": "Tilføj trin",
         "livePreview": "Live forhåndsvisning",
+        "cancel": "Annuller",
         "create": "Opret",
         "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
@@ -1520,6 +1521,19 @@
         "disabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt opdateret!",
         "errorMessage": "Tragtopdatering mislykkedes!"
+      },
+      "clone": {
+        "title": "Klon tragt",
+        "name": "Tragtnavn",
+        "namePlaceholder": "Min tragt (kopi)",
+        "strictMode": "Strikt tilstand",
+        "addStep": "Tilføj trin",
+        "livePreview": "Live forhåndsvisning",
+        "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen.",
+        "cancel": "Annuller",
+        "cta": "Opret kopi",
+        "successMessage": "Tragt klonet!",
+        "errorMessage": "Tragtkopiering mislykkedes!"
       },
       "plot": {
         "stepLabel": "Trin {index}",

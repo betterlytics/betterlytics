@@ -23,9 +23,10 @@ import { FunnelDialogContent } from './FunnelDialogContent';
 type CreateFunnelDialogProps = {
   triggerText?: string;
   triggerVariant?: ComponentProps<typeof Button>['variant'];
+  disabled?: boolean;
 };
 
-export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnelDialogProps) {
+export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: CreateFunnelDialogProps) {
   const t = useTranslations('components.funnels');
   const [isOpen, setIsOpen] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -99,7 +100,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
       }}
     >
       <DialogTrigger asChild>
-        <Button variant={triggerVariant || 'ghost'} className='cursor-pointer'>
+        <Button variant={triggerVariant || 'ghost'} className='cursor-pointer' disabled={disabled}>
           <PlusIcon className='h-4 w-4' />
           {triggerText}
         </Button>
@@ -132,6 +133,9 @@ export function CreateFunnelDialog({ triggerText, triggerVariant }: CreateFunnel
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
+            {t('create.cancel')}
+          </Button>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
             {t('create.create')}
           </Button>

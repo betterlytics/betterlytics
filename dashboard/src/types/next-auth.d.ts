@@ -1,6 +1,7 @@
 import 'next-auth';
 import 'next-auth/jwt';
 import type { UserSettings } from '@/entities/account/userSettings.entities';
+import type { AdapterUser } from 'next-auth/adapters';
 
 declare module 'next-auth' {
   interface User {
@@ -39,5 +40,11 @@ declare module 'next-auth/jwt' {
     termsAcceptedAt?: Date | null;
     termsAcceptedVersion?: number | null;
     changelogVersionSeen?: string | null;
+  }
+}
+
+declare module 'next-auth/adapters' {
+  interface AdapterUser {
+    passwordHash?: string | null;
   }
 }

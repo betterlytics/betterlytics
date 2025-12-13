@@ -1,5 +1,5 @@
 import type { NextAuthOptions } from 'next-auth';
-import type { Adapter } from 'next-auth/adapters';
+import type { Adapter, AdapterUser } from 'next-auth/adapters';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { Provider } from 'next-auth/providers/index';
 import GithubProvider from 'next-auth/providers/github';
@@ -142,7 +142,7 @@ export const authOptions: NextAuthOptions = {
       session.user.emailVerified = user.emailVerified;
       session.user.role = user.role;
       session.user.totpEnabled = user.totpEnabled;
-      session.user.hasPassword = user.hasPassword;
+      session.user.hasPassword = Boolean((user as AdapterUser).passwordHash);
       session.user.onboardingCompletedAt = user.onboardingCompletedAt;
       session.user.termsAcceptedAt = user.termsAcceptedAt;
       session.user.termsAcceptedVersion = user.termsAcceptedVersion;

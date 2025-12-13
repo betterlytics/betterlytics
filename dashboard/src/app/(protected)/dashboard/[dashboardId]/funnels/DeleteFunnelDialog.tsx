@@ -20,9 +20,10 @@ import { toast } from 'sonner';
 
 type DeleteFunnelDialogProps = {
   funnel: PresentedFunnel;
+  disabled?: boolean;
 };
 
-export function DeleteFunnelDialog({ funnel }: DeleteFunnelDialogProps) {
+export function DeleteFunnelDialog({ funnel, disabled }: DeleteFunnelDialogProps) {
   const t = useTranslations('components.funnels.delete');
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +40,7 @@ export function DeleteFunnelDialog({ funnel }: DeleteFunnelDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant='ghost' className='cursor-pointer'>
+        <Button variant='ghost' className='cursor-pointer' disabled={disabled}>
           <Trash2 className='h-4 w-4' />
         </Button>
       </DialogTrigger>

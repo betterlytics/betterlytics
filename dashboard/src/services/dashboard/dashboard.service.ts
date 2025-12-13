@@ -10,6 +10,7 @@ import { markOnboardingCompleted } from '@/repositories/postgres/user.repository
 import { updateUserSettings } from '@/services/account/userSettings.service';
 import { SupportedLanguages } from '@/constants/i18n';
 import { ensureTermsAccepted } from '@/services/auth/user.service';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
   await validateDashboardCreationLimit(userId);
@@ -28,6 +29,10 @@ export async function getAllUserDashboards(userId: string): Promise<Dashboard[]>
 }
 
 export async function validateDashboardCreationLimit(userId: string): Promise<void> {
+  if (!isFeatureEnabled('enableBilling')) {
+    return;
+  }
+
   const subscription = await getUserSubscription(userId);
   if (!subscription) {
     throw new Error('No subscription found for user');
@@ -63,6 +68,15 @@ export async function getUserDashboardStats(userId: string): Promise<{
   limit: number;
   canCreateMore: boolean;
 }> {
+  if (!isFeatureEnabled('enableBilling')) {
+    const currentDashboards = await findAllUserDashboards(userId);
+    return {
+      current: currentDashboards.length,
+      limit: -1,
+      canCreateMore: true,
+    };
+  }
+
   const subscription = await getUserSubscription(userId);
   if (!subscription) {
     throw new Error('No subscription found for user');

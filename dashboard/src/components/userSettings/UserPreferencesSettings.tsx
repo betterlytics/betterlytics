@@ -3,15 +3,14 @@
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTheme } from 'next-themes';
-import { Monitor, Moon, Sun, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
+import { Monitor, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import SettingsCard from '@/components/SettingsCard';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
-import { useUserSettings } from '@/hooks/useUserSettings';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
+import UserThemeSelector from './UserThemeSelector';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -19,61 +18,26 @@ interface UserPreferencesSettingsProps {
 }
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
-  const { theme, setTheme } = useTheme();
-  const { refreshSettings, settings, updateSetting } = useUserSettings();
   const t = useTranslations('components.userSettings.preferences');
 
-  const handleLocaleChange = async (newLocale: SupportedLanguages) => {
-    onUpdate({ language: newLocale });
-    await refreshSettings();
-  };
-
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-    onUpdate({ theme: newTheme as 'light' | 'dark' | 'system' });
-  };
-
-  const handleAvatarChange = (newAvatar: 'default' | 'gravatar') => {
-    updateSetting('avatar', newAvatar);
-    onUpdate({ avatar: newAvatar });
-  };
+  const updateField =
+    <TSetting extends keyof UserSettingsUpdate>(key: TSetting) =>
+    (value: UserSettingsUpdate[TSetting]) => {
+      onUpdate({ [key]: value });
+    };
 
   return (
     <div className='space-y-6'>
       <SettingsCard icon={Monitor} title={t('appearance.title')} description={t('appearance.description')}>
-        <div className='flex items-center justify-between'>
-          <Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>
-          <Select value={theme} onValueChange={handleThemeChange}>
-            <SelectTrigger className='w-32 cursor-pointer'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='light' className='cursor-pointer'>
-                <div className='flex items-center space-x-2'>
-                  <Sun className='h-4 w-4' />
-                  <span>{t('appearance.light')}</span>
-                </div>
-              </SelectItem>
-              <SelectItem value='dark' className='cursor-pointer'>
-                <div className='flex items-center space-x-2'>
-                  <Moon className='h-4 w-4' />
-                  <span>{t('appearance.dark')}</span>
-                </div>
-              </SelectItem>
-              <SelectItem value='system' className='cursor-pointer'>
-                <div className='flex items-center space-x-2'>
-                  <Monitor className='h-4 w-4' />
-                  <span>{t('appearance.system')}</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <UserThemeSelector value={formData.theme} onUpdate={updateField('theme')} />
 
         <div>
           <div className='flex items-center justify-between'>
             <Label htmlFor='avatar'>{t('avatar.label')}</Label>
-            <Select value={settings?.avatar} onValueChange={handleAvatarChange}>
+            <Select
+              value={formData.avatar}
+              onValueChange={(v) => updateField('avatar')(v as UserSettingsUpdate['avatar'])}
+            >
               <SelectTrigger className='w-32 cursor-pointer'>
                 <SelectValue />
               </SelectTrigger>
@@ -93,7 +57,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
               </SelectContent>
             </Select>
           </div>
-          {settings?.avatar === 'gravatar' && (
+          {formData.avatar === 'gravatar' && (
             <div className='text-muted-foreground pt-2 text-xs text-pretty'>
               {t('avatar.noteIntro')}{' '}
               <ExternalLink
@@ -114,10 +78,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
         <div className='space-y-4'>
           <div className='flex items-center justify-between'>
             <Label htmlFor='language'>{t('localization.language')}</Label>
-            <LanguageSelect
-              value={(formData.language as SupportedLanguages) || settings?.language}
-              onUpdate={handleLocaleChange}
-            />
+            <LanguageSelect value={formData.language as SupportedLanguages} onUpdate={updateField('language')} />
           </div>
         </div>
       </SettingsCard>
@@ -132,7 +93,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             <Switch
               id='email-notifications'
               checked={formData.emailNotifications ?? true}
-              onCheckedChange={(checked) => onUpdate({ emailNotifications: checked })}
+              onCheckedChange={updateField('emailNotifications')}
               className='cursor-pointer'
             />
           </div>
@@ -145,7 +106,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             <Switch
               id='marketing-emails'
               checked={formData.marketingEmails ?? false}
-              onCheckedChange={(checked) => onUpdate({ marketingEmails: checked })}
+              onCheckedChange={updateField('marketingEmails')}
               className='cursor-pointer'
             />
           </div>
