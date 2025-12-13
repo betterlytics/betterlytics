@@ -1,6 +1,7 @@
 'use client';
 
-import { PlusIcon } from 'lucide-react';
+import { Copy } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,47 +12,45 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
-import { ComponentProps, useCallback, useMemo, useState } from 'react';
-import { postFunnelAction } from '@/app/actions/index.actions';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { toast } from 'sonner';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
+import { PresentedFunnel } from '@/presenters/toFunnel';
+import { postFunnelAction } from '@/app/actions/index.actions';
 import { generateTempId } from '@/utils/temporaryId';
 import { FunnelDialogContent } from './FunnelDialogContent';
 
-type CreateFunnelDialogProps = {
-  triggerText?: string;
-  triggerVariant?: ComponentProps<typeof Button>['variant'];
+type CloneFunnelDialogProps = {
+  funnel: PresentedFunnel;
   disabled?: boolean;
 };
 
-export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: CreateFunnelDialogProps) {
-  const t = useTranslations('components.funnels');
+export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) {
+  const t = useTranslations('components.funnels.clone');
+  const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
-  const dashboardId = useDashboardId();
+
   const {
     metadata,
     setName,
     setIsStrict,
     funnelSteps,
     addEmptyFunnelStep,
+    setFunnelSteps,
     updateFunnelStep,
     removeFunnelStep,
     searchableFunnelSteps,
     funnelPreview,
     emptySteps,
-    reset,
     isPreviewLoading,
-    setFunnelSteps,
+    reset,
   } = useFunnelDialog({
     dashboardId,
-    initialName: '',
-    initialSteps: [
-      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
-      { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
-    ],
+    initialName: `${funnel.name} (copy)`,
+    initialIsStrict: funnel.isStrict,
+    initialSteps: funnel.steps.map(({ step }) => ({ ...step, id: generateTempId() })),
   });
 
   const isCreateValid = useMemo(
@@ -65,49 +64,44 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     [dashboardId, funnelSteps, metadata.isStrict, metadata.name],
   );
 
-  const handleCreateFunnel = useCallback(() => {
+  const handleCloneFunnel = useCallback(() => {
     setHasAttemptedSubmit(true);
-    if (!isCreateValid) {
-      return;
-    }
+    if (!isCreateValid) return;
+
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
-        setHasAttemptedSubmit(false);
         setIsOpen(false);
-        toast.success(t('create.successMessage'));
-        reset({
-          name: '',
-          isStrict: false,
-          steps: [
-            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
-            { id: generateTempId(), column: 'url', operator: '=', value: '', name: '' },
-          ],
-        });
+        setHasAttemptedSubmit(false);
+        toast.success(t('successMessage'));
       })
       .catch(() => {
-        toast.error(t('create.errorMessage'));
+        toast.error(t('errorMessage'));
       });
-  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t]);
+  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, t]);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      reset({
+        name: `${funnel.name} (copy)`,
+        isStrict: funnel.isStrict,
+        steps: funnel.steps.map(({ step }) => ({ ...step, id: generateTempId() })),
+      });
+      return;
+    }
+    setHasAttemptedSubmit(false);
+  };
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        if (!open) {
-          setHasAttemptedSubmit(false);
-        }
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={triggerVariant || 'ghost'} className='cursor-pointer' disabled={disabled}>
-          <PlusIcon className='h-4 w-4' />
-          {triggerText}
+        <Button variant='ghost' className='cursor-pointer' disabled={disabled}>
+          <Copy className='h-4 w-4' />
         </Button>
       </DialogTrigger>
       <DialogContent className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'>
         <DialogHeader>
-          <DialogTitle>{t('create.createFunnel')}</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
         </DialogHeader>
         <FunnelDialogContent
           metadata={metadata}
@@ -124,20 +118,20 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           isPreviewLoading={isPreviewLoading}
           hasAttemptedSubmit={hasAttemptedSubmit}
           labels={{
-            name: t('create.name'),
-            namePlaceholder: t('create.namePlaceholder'),
-            strictMode: t('create.strictMode'),
-            addStep: t('create.addStep'),
-            livePreview: t('create.livePreview'),
-            defineAtLeastTwoSteps: t('preview.defineAtLeastTwoSteps'),
+            name: t('name'),
+            namePlaceholder: t('namePlaceholder'),
+            strictMode: t('strictMode'),
+            addStep: t('addStep'),
+            livePreview: t('livePreview'),
+            defineAtLeastTwoSteps: t('defineAtLeastTwoSteps'),
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>
           <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
-            {t('create.cancel')}
+            {t('cancel')}
           </Button>
-          <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
-            {t('create.create')}
+          <Button variant='default' className='w-30 cursor-pointer' onClick={handleCloneFunnel}>
+            {t('cta')}
           </Button>
         </DialogFooter>
       </DialogContent>

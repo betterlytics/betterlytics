@@ -34,6 +34,9 @@ function MapPopupContentComponent({
 }: MapPopupContentProps) {
   if (!geoVisitor) return null;
 
+  const resolvedMain = timeRangeCtx.resolvedMainRange;
+  const resolvedCompare = timeRangeCtx.resolvedCompareRange;
+
   const percentageChange =
     geoVisitor.compareVisitors !== undefined
       ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
@@ -101,19 +104,19 @@ function MapPopupContentComponent({
                 : formatPrimaryRangeLabel({
                     interval: timeRangeCtx.interval,
                     offset: timeRangeCtx.offset,
-                    startDate: timeRangeCtx.startDate,
-                    endDate: timeRangeCtx.endDate,
+                    startDate: resolvedMain.start,
+                    endDate: resolvedMain.end,
                     locale,
                   })
             }
-            tooltip={`${timeRangeCtx.startDate.toLocaleString()} - ${timeRangeCtx.endDate.toLocaleString()}`}
+            tooltip={`${resolvedMain.start.toLocaleString()} - ${resolvedMain.end.toLocaleString()}`}
             value={formatNumber(geoVisitor.visitors)}
           />
-          {timeRangeCtx.compareStartDate && timeRangeCtx.compareEndDate && (
+          {resolvedCompare && (
             <Row
               color='bg-chart-comparison'
               label={t('timeRange.previousPeriod')}
-              tooltip={`${timeRangeCtx.compareStartDate.toLocaleString()} - ${timeRangeCtx.compareEndDate.toLocaleString()}`}
+              tooltip={`${resolvedCompare.start.toLocaleString()} - ${resolvedCompare.end.toLocaleString()}`}
               value={formatNumber(geoVisitor.compareVisitors ?? 0)}
               muted
             />

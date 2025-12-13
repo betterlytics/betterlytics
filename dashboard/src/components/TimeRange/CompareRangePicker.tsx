@@ -23,22 +23,24 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
 
+  const resolvedCompareDates = ctx.compareMode === 'off' ? undefined : ctx.resolvedCompareRange;
+
   const label = () => {
-    if (ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate) return t('disabled');
+    if (ctx.compareMode === 'off' || !resolvedCompareDates) return t('disabled');
     if (isDerivedCompareMode(ctx.compareMode)) {
       return ctx.compareMode === 'previous' ? t('previousPeriod') : t('previousYear');
     }
     const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-    return `${ctx.compareStartDate.toLocaleDateString(undefined, opts)} - ${ctx.compareEndDate.toLocaleDateString(
+    return `${resolvedCompareDates.start.toLocaleDateString(undefined, opts)} - ${resolvedCompareDates.end.toLocaleDateString(
       undefined,
       opts,
     )}`;
   };
 
   const titleText =
-    ctx.compareMode === 'off' || !ctx.compareStartDate || !ctx.compareEndDate
+    ctx.compareMode === 'off' || !resolvedCompareDates
       ? t('disabled')
-      : `${ctx.compareStartDate.toLocaleString()} - ${ctx.compareEndDate.toLocaleString()}`;
+      : `${resolvedCompareDates.start.toLocaleString()} - ${resolvedCompareDates.end.toLocaleString()}`;
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>
@@ -81,8 +83,8 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
           )}
         </DisabledDemoTooltip>
         <DateRangeSection
-          startDate={ctx.compareStartDate}
-          endDate={ctx.compareEndDate}
+          startDate={resolvedCompareDates?.start}
+          endDate={resolvedCompareDates?.end}
           onDateRangeSelect={(from) => {
             actions.setCompareCustomStart(from);
             setOpen(false);
