@@ -2066,13 +2066,7 @@
     }
   },
   "onboarding": {
-    "main": {
-      "registrationDisabled": {
-        "title": "Registration Disabled",
-        "description": "Registration is currently disabled on this instance.",
-        "backToSignIn": "Back to Sign In"
-      }
-    },
+    "registrationDisabled": "Registration is currently disabled on this instance.",
     "account": {
       "features": {
         "feature1": {
