@@ -7,7 +7,6 @@ import { withUserAuth } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
 import { User } from 'next-auth';
 import { setLocaleCookie } from '@/constants/cookies';
-import { env } from '@/lib/env';
 
 export const getUserSettingsAction = withUserAuth(async (user: User): Promise<UserSettings> => {
   return UserSettingsService.getUserSettings(user.id);
@@ -46,7 +45,3 @@ export const changePasswordAction = withUserAuth(
     );
   },
 );
-
-export const isRootAdminUserAction = withUserAuth(async (user: User): Promise<boolean> => {
-  return user.email === env.ADMIN_EMAIL;
-});

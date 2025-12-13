@@ -12,7 +12,7 @@ import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
-import { isRootAdminUserAction } from '@/app/actions/account/userSettings.action';
+import { isRootAdminUserAction } from '@/app/actions/auth/user.action';
 
 export default async function Onboarding() {
   const session = await getAuthSession();
