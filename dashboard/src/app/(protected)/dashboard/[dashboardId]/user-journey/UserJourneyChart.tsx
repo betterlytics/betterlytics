@@ -38,10 +38,11 @@ const COLORS = {
 // LAYOUT CONFIGURATION
 // ============================================
 const LAYOUT = {
-  padding: { top: 60, right: 20, bottom: 24, left: 20 },
+  padding: { top: 20, right: 20, bottom: 24, left: 20 },
   nodeWidth: 16,
   nodeRadius: 2,
   minNodeHeight: 8,
+  nodeHeightRatio: 0.5,
   linkGapRatio: 0, // Gap between links as a ratio of available space
 };
 
@@ -240,7 +241,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
   return (
     <div className='w-full overflow-x-auto'>
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${width} ${2 * height}`}
         className='min-w-[700px]'
         onMouseLeave={() => setHighlightState(null)}
       >
@@ -294,7 +295,7 @@ function calculateLayout(
   height: number,
 ): { nodePositions: NodePosition[]; linkPositions: LinkPosition[] } {
   const { nodes, links } = data;
-  const { padding, nodeWidth, minNodeHeight, linkGapRatio } = LAYOUT;
+  const { padding, nodeWidth, minNodeHeight, linkGapRatio, nodeHeightRatio } = LAYOUT;
   const labelMargin = 110; // reserve space on the right for inline labels
 
   if (nodes.length === 0) {
@@ -348,7 +349,7 @@ function calculateLayout(
   // Calculate height scale factor based on max column
   const maxNodeCount = Math.max(...Array.from(depthGroups.values()).map((g) => g.length));
   const minTotalPadding = (maxNodeCount - 1) * 8;
-  const heightScale = (availableHeight - minTotalPadding) / maxColumnTraffic;
+  const heightScale = ((availableHeight - minTotalPadding) / maxColumnTraffic) * nodeHeightRatio;
 
   // Calculate initial Y positions for barycenter calculation
   // (temporary positions based on order in data)
@@ -455,7 +456,7 @@ function calculateLayout(
   depthGroups.forEach((depthNodes, depth) => {
     const x = padding.left + depth * depthSpacing;
     const columnTraffic = depthNodes.reduce((sum, n) => sum + n.totalTraffic, 0);
-    const totalNodeHeight = columnTraffic * heightScale;
+    const totalNodeHeight = columnTraffic * heightScale * nodeHeightRatio;
     const remainingSpace = availableHeight - totalNodeHeight;
     const dynamicPadding = depthNodes.length > 1 ? remainingSpace / (depthNodes.length - 1) : 0;
 
@@ -549,8 +550,8 @@ function calculateLayout(
       const outCount = outgoingCounts.get(sourceNode.id) || 1;
       const inCount = incomingCounts.get(targetNode.id) || 1;
 
-      const sourceAvailableHeight = sourceNode.height * (1 - (outCount > 1 ? linkGapRatio : 0));
-      const targetAvailableHeight = targetNode.height * (1 - (inCount > 1 ? linkGapRatio : 0));
+      const sourceAvailableHeight = sourceNode.height;
+      const targetAvailableHeight = targetNode.height;
 
       const outTotal = outgoingTotals.get(sourceNode.id) || link.value;
       const inTotal = incomingTotals.get(targetNode.id) || link.value;
@@ -565,8 +566,8 @@ function calculateLayout(
       const sourceY = sourceNode.y + sourceOffset + sourceWidth / 2;
       const targetY = targetNode.y + targetOffset + targetWidth / 2;
 
-      const sourceGap = outCount > 1 ? (sourceNode.height * linkGapRatio) / (outCount + 1) : 0;
-      const targetGap = inCount > 1 ? (targetNode.height * linkGapRatio) / (inCount + 1) : 0;
+      const sourceGap = (sourceNode.height * linkGapRatio) / (outCount || 1);
+      const targetGap = (targetNode.height * linkGapRatio) / (inCount || 1);
 
       sourceOffsets.set(sourceNode.id, sourceOffset + sourceWidth + sourceGap);
       targetOffsets.set(targetNode.id, targetOffset + targetWidth + targetGap);
@@ -608,16 +609,8 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover, theme }: SankeyNode
   const isDark = theme === 'dark';
   const nodeFill = isMuted ? COLORS.node.mutedFill : COLORS.node.fill;
   const nodeStroke = isMuted ? COLORS.node.mutedStroke : COLORS.node.stroke;
-  const textFill = isMuted
-    ? COLORS.label.mutedText
-    : isDark
-      ? '#f8fafc' // near-white for dark mode
-      : '#0f172a'; // slate-900 for light mode
-  const subtextFill = isMuted
-    ? COLORS.label.mutedSubtext
-    : isDark
-      ? '#e2e8f0' // lighter gray for dark mode
-      : '#475569'; // slate-600 for light mode
+  const textFill = isMuted ? COLORS.label.mutedText : isDark ? '#f8fafc' : '#0f172a';
+  const subtextFill = isMuted ? COLORS.label.mutedSubtext : isDark ? '#e2e8f0' : '#475569';
   const labelOpacity = isMuted ? 0.4 : 1;
 
   return (
