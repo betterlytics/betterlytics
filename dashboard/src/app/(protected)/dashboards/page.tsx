@@ -8,13 +8,14 @@ import ButtonSkeleton from '@/components/skeleton/ButtonSkeleton';
 import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { requireAuth } from '@/auth/auth-actions';
+import { featureFlagGuard } from '@/lib/feature-flags';
 
 export default async function DashboardsPage() {
   await requireAuth();
 
   const dashboards = await getAllUserDashboardsAction();
   const dashboardStatsPromise = getUserDashboardStatsAction();
-  const billingDataPromise = getUserBillingData();
+  const billingDataPromiseGuard = featureFlagGuard('enableBilling', () => getUserBillingData());
   const t = await getTranslations('dashboardsPage');
 
   if (!dashboards.success) {
@@ -31,12 +32,13 @@ export default async function DashboardsPage() {
           </div>
 
           <hr className='border-border w-full border-t sm:hidden' />
-
-          <div className='flex w-full items-center gap-4 sm:w-auto'>
-            <Suspense fallback={<div className='bg-muted h-8 w-full animate-pulse rounded sm:w-48' />}>
-              <PlanQuota billingDataPromise={billingDataPromise} />
-            </Suspense>
-          </div>
+          {billingDataPromiseGuard.enabled && (
+            <div className='flex w-full items-center gap-4 sm:w-auto'>
+              <Suspense fallback={<div className='bg-muted h-8 w-full animate-pulse rounded sm:w-48' />}>
+                <PlanQuota billingDataPromise={billingDataPromiseGuard.value} />
+              </Suspense>
+            </div>
+          )}
         </div>
       </div>
 

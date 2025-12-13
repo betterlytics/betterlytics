@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -41,6 +42,8 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
 
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
 
+  const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
+
   const dashboardId = useDashboardId();
   const { isVerifying, isVerified, verify } = useTrackingVerification();
 
@@ -57,7 +60,10 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
   }, [isVerified]);
 
   const trackingScript = siteId
-    ? `<script async src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js" data-site-id="${siteId}" data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"></script>`
+    ? `<script async
+    src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
+    data-site-id="${siteId}"${!IS_CLOUD ? `\n  data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}>
+  </script>`
     : '';
 
   const handleVerifyInstallation = async () => {
@@ -103,8 +109,7 @@ export default function RootLayout({
         <Script
           async
           src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-          data-site-id="${siteId}"
-          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/track"
+          data-site-id="${siteId}"${!IS_CLOUD ? `\n          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}
         />
       </head>
       <body>{children}</body>
@@ -119,8 +124,7 @@ function App() {
     const script = document.createElement('script');
     script.async = true;
     script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
-    script.setAttribute('data-site-id', "${siteId}");
-    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/track")
+    script.setAttribute('data-site-id', "${siteId}");${!IS_CLOUD ? `\n    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/event");` : ''}
     document.head.appendChild(script);
 
     return () => {

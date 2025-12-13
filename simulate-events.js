@@ -57,10 +57,10 @@ const getFlag = (name, fallback) => {
  * Parameters
  */
 const SITE_ID = args[0];
-const TARGET_URL = "http://127.0.0.1:3001/track";
+const TARGET_URL = "http://127.0.0.1:3001/event";
 const NUMBER_OF_EVENTS = getFlag("events", DEFAULT_ARGS.NUMBER_OF_EVENTS);
 const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
-const SIMULATED_DAYS = 0; /** Not supported on the backend for now */
+const SIMULATED_DAYS = 7; /** Not supported on the backend for now */
 const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
 const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);
@@ -164,25 +164,27 @@ function gaussianRand() {
  */
 function getRandomPublicIp() {
   while (true) {
-    const ip = Array.from({ length: 4 }, () => Math.floor(Math.random() * 256)).join(".");
+    const ip = Array.from({ length: 4 }, () =>
+      Math.floor(Math.random() * 256)
+    ).join(".");
     if (isPublicIp(ip)) return ip;
   }
 }
 
 function isPublicIp(ip) {
   const excludedCidrs = [
-    ['10.0.0.0', 8],
-    ['172.16.0.0', 12],
-    ['192.168.0.0', 16],
-    ['127.0.0.0', 8],
-    ['0.0.0.0', 8],
-    ['169.254.0.0', 16],
-    ['224.0.0.0', 4],
-    ['192.0.2.0', 24],
-    ['198.51.100.0', 24],
-    ['203.0.113.0', 24],
-    ['100.64.0.0', 10],
-    ['198.18.0.0', 15],
+    ["10.0.0.0", 8],
+    ["172.16.0.0", 12],
+    ["192.168.0.0", 16],
+    ["127.0.0.0", 8],
+    ["0.0.0.0", 8],
+    ["169.254.0.0", 16],
+    ["224.0.0.0", 4],
+    ["192.0.2.0", 24],
+    ["198.51.100.0", 24],
+    ["203.0.113.0", 24],
+    ["100.64.0.0", 10],
+    ["198.18.0.0", 15],
   ];
 
   return !excludedCidrs.some(([cidrBase, cidrBits]) =>
@@ -198,7 +200,7 @@ function ipInCidr(ip, cidrBase, cidrBits) {
 }
 
 function ipToInt(ip) {
-  return ip.split('.').reduce((int, octet) => (int << 8) + Number(octet), 0);
+  return ip.split(".").reduce((int, octet) => (int << 8) + Number(octet), 0);
 }
 
 /**
@@ -235,9 +237,10 @@ function getExtraPayload(payload) {
 const events = new Array(NUMBER_OF_EVENTS)
   .fill(0)
   .map(() => {
-    const daysAgo = SIMULATED_DAYS === 0
-      ? 0
-      : Math.floor(Math.random() * SIMULATED_DAYS) + gaussianRand(); // same logic
+    const daysAgo =
+      SIMULATED_DAYS === 0
+        ? 0
+        : Math.floor(Math.random() * SIMULATED_DAYS) + gaussianRand(); // same logic
 
     const secondsAgo = Math.floor(daysAgo * 86400);
     const timestamp = Math.floor(Date.now() / 1000 - secondsAgo);
@@ -247,7 +250,8 @@ const events = new Array(NUMBER_OF_EVENTS)
       timestamp,
       visitor_id: user.visitor_id,
       user_ip: user.ip,
-      screen_resolution: SCREEN_SIZES[Math.floor(Math.random() * SCREEN_SIZES.length)],
+      screen_resolution:
+        SCREEN_SIZES[Math.floor(Math.random() * SCREEN_SIZES.length)],
     };
   })
   .sort((a, b) => a.timestamp - b.timestamp)

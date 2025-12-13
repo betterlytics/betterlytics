@@ -22,6 +22,7 @@ import { FunnelDialogContent } from './FunnelDialogContent';
 
 type EditFunnelDialogProps = {
   funnel: PresentedFunnel;
+  disabled?: boolean;
 };
 
 const areFunnelStepsEqual = (a: FunnelStep[], b: FunnelStep[]): boolean => {
@@ -39,7 +40,7 @@ const areFunnelStepsEqual = (a: FunnelStep[], b: FunnelStep[]): boolean => {
   });
 };
 
-export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
+export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
   const t = useTranslations('components.funnels');
   const [isOpen, setIsOpen] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -129,7 +130,7 @@ export function EditFunnelDialog({ funnel }: EditFunnelDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant='ghost' className='cursor-pointer'>
+        <Button variant='ghost' className='cursor-pointer' disabled={disabled}>
           <Pencil className='h-4 w-4' />
         </Button>
       </DialogTrigger>

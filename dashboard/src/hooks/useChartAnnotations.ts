@@ -29,9 +29,11 @@ interface UseChartAnnotationsReturn {
 }
 
 function toChartAnnotation(annotation: Annotation): ChartAnnotation {
+  const parsedDate = annotation.date instanceof Date ? annotation.date : new Date(annotation.date);
+
   return {
     id: annotation.id,
-    date: annotation.date.getTime(),
+    date: parsedDate.getTime(),
     label: annotation.label,
     description: annotation.description ?? undefined,
     colorToken: annotation.colorToken ?? undefined,

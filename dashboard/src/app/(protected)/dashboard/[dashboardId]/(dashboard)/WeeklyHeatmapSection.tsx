@@ -12,7 +12,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { useColorScale } from '@/hooks/use-color-scale';
+import { formatNumber } from '@/utils/formatters';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -41,17 +42,22 @@ function formatHeatmapMetricValue(metric: HeatmapMetric, value: number): string 
   }
 }
 
-export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
+export default function WeeklyHeatmapSection({
+  dashboardId,
+  startDate,
+  endDate,
+  queryFilters,
+}: WeeklyHeatmapSectionProps) {
   const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
   useEffect(() => {
     fetchWeeklyHeatmapAllAction(
-      props.dashboardId,
-      props.startDate,
-      props.endDate,
-      props.queryFilters,
+      dashboardId,
+      startDate,
+      endDate,
+      queryFilters,
       Intl.DateTimeFormat().resolvedOptions().timeZone,
     ).then((res) => setAllData(res));
-  }, [props.dashboardId, props.startDate, props.endDate, props.queryFilters]);
+  }, [dashboardId, startDate, endDate, queryFilters]);
 
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
@@ -61,7 +67,6 @@ export default function WeeklyHeatmapSection(props: WeeklyHeatmapSectionProps) {
     return pair ? pair[1] : undefined;
   }, [allData, selectedMetric]);
 
-  // Base mapping for metric -> translated label
   const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
     () => ({
       pageviews: t('metrics.totalPageviews'),
@@ -137,20 +142,20 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 
-  const effectiveMax = Math.max(1, maxValue);
+  const colorScale = useColorScale({
+    maxValue,
+    scaleType: 'lab',
+    colors: ['--weekly-heatmap-fill-low', '--weekly-heatmap-fill-high'],
+  });
 
   const getCellStyle = useCallback(
     (value: number): CSSProperties => {
-      if (value <= 0) return {};
-
-      const t = Math.log1p(value) / Math.log1p(effectiveMax);
-      const eased = Math.pow(t, 0.85) * 0.9 + 0.1;
-
-      return {
-        backgroundColor: `oklch(62% 0.17 268.71 / ${eased})`,
-      };
+      if (value <= 0 || !colorScale) {
+        return { backgroundColor: 'var(--weekly-heatmap-fill-none)', opacity: 0.85 };
+      }
+      return { backgroundColor: colorScale(value) };
     },
-    [effectiveMax],
+    [colorScale],
   );
 
   return (
@@ -177,7 +182,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                 <TooltipTrigger asChild>
                   <div
                     className={cn(
-                      'hover:ring-primary/60 h-2.5 w-full rounded-[2px] transition-colors ring-inset hover:ring-1',
+                      'hover:ring-foreground/60 h-2.5 w-full rounded-[2px] transition-colors ring-inset hover:ring-2',
                       value <= 0 && 'bg-gray-500/10 dark:bg-gray-400/20',
                     )}
                     style={getCellStyle(value)}
