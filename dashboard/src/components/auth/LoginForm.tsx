@@ -19,8 +19,13 @@ import { getProviders } from 'next-auth/react';
 import ExternalLink from '@/components/ExternalLink';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
-export default function LoginForm() {
+type LoginFormProps = {
+  registrationDisabledMessage?: string | null;
+};
+
+export default function LoginForm({ registrationDisabledMessage }: LoginFormProps) {
   const router = useBARouter();
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
@@ -40,6 +45,11 @@ export default function LoginForm() {
   useEffect(() => {
     getProviders().then(setProviders);
   }, []);
+
+  useEffect(() => {
+    if (!registrationDisabledMessage) return;
+    toast.warning(registrationDisabledMessage, { duration: 6000 });
+  }, [registrationDisabledMessage]);
 
   useEffect(() => {
     if (isMobile) return;
@@ -92,25 +102,28 @@ export default function LoginForm() {
     });
   };
 
-  const handleOAuthLogin = useCallback(async (oauthProvider: 'google' | 'github') => {
-    setError('');
+  const handleOAuthLogin = useCallback(
+    async (oauthProvider: 'google' | 'github') => {
+      setError('');
 
-    const transition = oauthProvider === 'github' ? startGithubTransition : startGoogleTransition;
+      const transition = oauthProvider === 'github' ? startGithubTransition : startGoogleTransition;
 
-    transition(async () => {
-      try {
-        const result = await signIn(oauthProvider, {
-          callbackUrl: '/dashboards',
-        });
+      transition(async () => {
+        try {
+          const result = await signIn(oauthProvider, {
+            callbackUrl: '/dashboards',
+          });
 
-        if (result?.url) {
-          router.push(result.url);
+          if (result?.url) {
+            router.push(result.url);
+          }
+        } catch {
+          setError(t('errors.generic'));
         }
-      } catch {
-        setError(t('errors.generic'));
-      }
-    });
-  }, [t]);
+      });
+    },
+    [t],
+  );
 
   return (
     <form id='login' className='space-y-6' onSubmit={handleSubmit}>
