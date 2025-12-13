@@ -20,6 +20,7 @@ type MapCountryGeoJSONProps = Omit<WorldMapResponse, 'maxVisitors'> & {
 const DEFAULT_OPTS = {
   updateWhenIdle: true,
   buffer: 2,
+  smoothFactor: 0.5,
 };
 
 const getFeatureId = (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
@@ -116,7 +117,18 @@ export default function MapCountryGeoJSON({
         },
       });
     },
-    [size, style, visitorData, compareData, locale, t, timeRangeCtx, setMapSelection],
+    [
+      size,
+      style.borderColorScale,
+      style.fillColorScale,
+      visitorData,
+      compareData,
+      locale,
+      t,
+      timeRangeCtx,
+      setMapSelection,
+      locale,
+    ],
   );
 
   return (
