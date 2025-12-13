@@ -9,8 +9,13 @@
     document.currentScript ||
     document.querySelector('script[src*="analytics.js"]');
   var siteId = script.getAttribute("data-site-id");
-  var serverUrl =
-    script.getAttribute("data-server-url") ?? "https://betterlytics.io/event";
+
+  var serverUrl = script.getAttribute("data-server-url");
+  if (!serverUrl) {
+    serverUrl = "https://betterlytics.io/event";
+    script.setAttribute("data-server-url", serverUrl);
+  }
+
   var urlPatterns =
     script
       .getAttribute("data-dynamic-urls")
