@@ -1,8 +1,9 @@
-import React, { Dispatch, SetStateAction, useCallback, useMemo, useEffect } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode } from '@/utils/compareRanges';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { getResolvedRanges, type TimeRangeResult } from '@/lib/ba-timerange';
 
 export type TimeRangeContextProps = {
   startDate: Date;
@@ -22,6 +23,10 @@ export type TimeRangeContextProps = {
   compareAlignWeekdays: boolean;
   setCompareAlignWeekdays: Dispatch<SetStateAction<boolean>>;
   timeZone: string;
+  resolvedRanges: TimeRangeResult;
+  resolvedMainRange: TimeRangeResult['main'];
+  resolvedCompareRange?: TimeRangeResult['compare'];
+  resolvedGranularity: TimeRangeResult['granularity'];
 };
 
 const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRangeContextProps);
@@ -47,6 +52,34 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
   const [compareAlignWeekdays, setCompareAlignWeekdays] = React.useState<boolean>(false);
 
   const timeZone = React.useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+
+  const resolvedRanges = useMemo(
+    () =>
+      getResolvedRanges(
+        interval,
+        compareMode,
+        timeZone,
+        startDate,
+        endDate,
+        granularity,
+        compareStartDate,
+        compareEndDate,
+        offset,
+        compareAlignWeekdays,
+      ),
+    [
+      interval,
+      compareMode,
+      timeZone,
+      startDate,
+      endDate,
+      granularity,
+      compareStartDate,
+      compareEndDate,
+      offset,
+      compareAlignWeekdays,
+    ],
+  );
 
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
     setStartDate(newStartDate);
@@ -79,6 +112,10 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         compareAlignWeekdays,
         setCompareAlignWeekdays,
         timeZone,
+        resolvedRanges,
+        resolvedMainRange: resolvedRanges.main,
+        resolvedCompareRange: resolvedRanges.compare,
+        resolvedGranularity: resolvedRanges.granularity,
       }}
     >
       {children}

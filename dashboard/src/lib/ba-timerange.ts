@@ -291,7 +291,7 @@ function getCompareRange(
   }
 }
 
-interface TimeRangeResult {
+export interface TimeRangeResult {
   main: {
     start: Date;
     end: Date;
