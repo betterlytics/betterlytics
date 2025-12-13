@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useSession } from 'next-auth/react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { baEvent } from '@/lib/ba-event';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type WebsiteSetupProps = {
   onNext: Dispatch<void>;
@@ -26,8 +27,9 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
   const [isPending, startTransition] = useTransition();
   const [agree, setAgree] = useState(false);
   const { data: session } = useSession();
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
 
-  const effectiveShowTos = !session?.user?.termsAcceptedAt;
+  const effectiveShowTos = isFeatureFlagEnabled('isCloud') && !session?.user?.termsAcceptedAt;
 
   const { setDashboard } = useOnboarding();
   const { update } = useSession();

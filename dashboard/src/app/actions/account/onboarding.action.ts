@@ -9,6 +9,7 @@ import { UserException } from '@/lib/exceptions';
 import { User } from 'next-auth';
 import { getTranslations } from 'next-intl/server';
 import { SupportedLanguages } from '@/constants/i18n';
+import { env } from '@/lib/env';
 
 export const completeOnboardingAndCreateDashboardAction = withUserAuth(
   async (
@@ -17,7 +18,7 @@ export const completeOnboardingAndCreateDashboardAction = withUserAuth(
   ): Promise<Dashboard> => {
     const { domain, acceptTerms, language } = payload;
 
-    const mustAcceptTerms = Boolean(!user.termsAcceptedAt);
+    const mustAcceptTerms = Boolean(!user.termsAcceptedAt) && env.IS_CLOUD;
     if (mustAcceptTerms && acceptTerms !== true) {
       const t = await getTranslations('validation');
       throw new UserException(t('termsOfServiceRequired'));
