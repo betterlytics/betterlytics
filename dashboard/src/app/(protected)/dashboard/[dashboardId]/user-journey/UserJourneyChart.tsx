@@ -501,6 +501,22 @@ function calculateLayout(
     }
   });
 
+  // Determine available vertical space for outgoing/incoming links based on actual flow
+  const outgoingAvailableHeights = new Map<string, number>();
+  const incomingAvailableHeights = new Map<string, number>();
+
+  nodePositions.forEach((node) => {
+    const outTotal = outgoingTotals.get(node.id) || 0;
+    const inTotal = incomingTotals.get(node.id) || 0;
+    const total = node.totalTraffic || 0;
+
+    const outgoingScale = total > 0 ? Math.min(1, outTotal / total) : 1;
+    const incomingScale = total > 0 ? Math.min(1, inTotal / total) : 1;
+
+    outgoingAvailableHeights.set(node.id, node.height * outgoingScale);
+    incomingAvailableHeights.set(node.id, node.height * incomingScale);
+  });
+
   // Sort links at each node by target/source Y position to minimize local crossings
   const sortedLinks = [...links].sort((a, b) => {
     const sourceA = nodeMap.get(a.source);
@@ -526,11 +542,18 @@ function calculateLayout(
     const outCount = outgoingCounts.get(node.id) || 0;
     const inCount = incomingCounts.get(node.id) || 0;
 
-    const outGapTotal = outCount > 1 ? node.height * linkGapRatio : 0;
-    const inGapTotal = inCount > 1 ? node.height * linkGapRatio : 0;
+    const outgoingHeight = outgoingAvailableHeights.get(node.id) ?? node.height;
+    const incomingHeight = incomingAvailableHeights.get(node.id) ?? node.height;
 
-    sourceOffsets.set(node.id, outCount > 1 ? outGapTotal / (outCount + 1) : 0);
-    targetOffsets.set(node.id, inCount > 1 ? inGapTotal / (inCount + 1) : 0);
+    const outGapTotal = outCount > 1 ? outgoingHeight * linkGapRatio : 0;
+    const inGapTotal = inCount > 1 ? incomingHeight * linkGapRatio : 0;
+
+    // Center the flow band within the node when drop-off exists
+    const outgoingPadding = (node.height - outgoingHeight) / 2;
+    const incomingPadding = (node.height - incomingHeight) / 2;
+
+    sourceOffsets.set(node.id, outgoingPadding + (outCount > 1 ? outGapTotal / (outCount + 1) : 0));
+    targetOffsets.set(node.id, incomingPadding + (inCount > 1 ? inGapTotal / (inCount + 1) : 0));
   });
 
   // Create a map to track original indices
@@ -550,8 +573,8 @@ function calculateLayout(
       const outCount = outgoingCounts.get(sourceNode.id) || 1;
       const inCount = incomingCounts.get(targetNode.id) || 1;
 
-      const sourceAvailableHeight = sourceNode.height;
-      const targetAvailableHeight = targetNode.height;
+      const sourceAvailableHeight = outgoingAvailableHeights.get(sourceNode.id) ?? sourceNode.height;
+      const targetAvailableHeight = incomingAvailableHeights.get(targetNode.id) ?? targetNode.height;
 
       const outTotal = outgoingTotals.get(sourceNode.id) || link.value;
       const inTotal = incomingTotals.get(targetNode.id) || link.value;
@@ -566,8 +589,8 @@ function calculateLayout(
       const sourceY = sourceNode.y + sourceOffset + sourceWidth / 2;
       const targetY = targetNode.y + targetOffset + targetWidth / 2;
 
-      const sourceGap = (sourceNode.height * linkGapRatio) / (outCount || 1);
-      const targetGap = (targetNode.height * linkGapRatio) / (inCount || 1);
+      const sourceGap = (sourceAvailableHeight * linkGapRatio) / (outCount || 1);
+      const targetGap = (targetAvailableHeight * linkGapRatio) / (inCount || 1);
 
       sourceOffsets.set(sourceNode.id, sourceOffset + sourceWidth + sourceGap);
       targetOffsets.set(targetNode.id, targetOffset + targetWidth + targetGap);
