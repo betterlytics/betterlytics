@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { ChevronDownIcon, ScaleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -15,7 +15,6 @@ import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
-import { getResolvedRanges } from '@/lib/ba-timerange';
 
 export function CompareRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -24,24 +23,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
 
-  const resolvedCompareDates = useMemo(() => {
-    if (ctx.compareMode === 'off') return undefined;
-
-    const resolved = getResolvedRanges(
-      ctx.interval,
-      ctx.compareMode,
-      ctx.timeZone,
-      ctx.startDate,
-      ctx.endDate,
-      ctx.granularity,
-      ctx.compareStartDate,
-      ctx.compareEndDate,
-      ctx.offset,
-      ctx.compareAlignWeekdays,
-    );
-
-    return resolved.compare;
-  }, [ctx]);
+  const resolvedCompareDates = ctx.compareMode === 'off' ? undefined : ctx.resolvedCompareRange;
 
   const label = () => {
     if (ctx.compareMode === 'off' || !resolvedCompareDates) return t('disabled');
