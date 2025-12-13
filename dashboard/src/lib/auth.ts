@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import type { Provider } from 'next-auth/providers/index';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { DummyProvider } from '@/lib/nextauth-dummy-provider';
@@ -54,34 +55,7 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-
-    // Conditionally add GitHub provider
-    ...(env.GITHUB_ID && env.GITHUB_SECRET
-      ? [
-          GithubProvider({
-            clientId: env.GITHUB_ID,
-            clientSecret: env.GITHUB_SECRET,
-          }),
-        ]
-      : []),
-
-    // Conditionally add Google provider
-    ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
-      ? [
-          GoogleProvider({
-            clientId: env.GOOGLE_CLIENT_ID,
-            clientSecret: env.GOOGLE_CLIENT_SECRET,
-            authorization: {
-              params: {
-                prompt: 'consent',
-                access_type: 'offline',
-                response_type: 'code',
-              },
-            },
-          }),
-        ]
-      : []),
-    DummyProvider(),
+    ...buildSocialProviders(),
   ],
   pages: {
     signIn: '/signin',
@@ -186,4 +160,34 @@ export const authOptions: NextAuthOptions = {
 
 function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
+}
+
+function buildSocialProviders(): Provider[] {
+  const providers: Provider[] = [];
+
+  if (env.GITHUB_ID && env.GITHUB_SECRET) {
+    providers.push(
+      GithubProvider({
+        clientId: env.GITHUB_ID,
+        clientSecret: env.GITHUB_SECRET,
+      }),
+    );
+  }
+
+  if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
+      GoogleProvider({
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
+      }),
+    );
+  }
+
+  // Check if dummy provider should be added
+  // This should be checked last
+  if (providers.length === 0) {
+    providers.push(DummyProvider());
+  }
+
+  return providers;
 }
