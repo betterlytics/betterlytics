@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { SessionReplay } from '@/entities/sessionReplays';
+import { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { Spinner } from '@/components/ui/spinner';
 import { Clock, ListVideo } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';

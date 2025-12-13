@@ -6,12 +6,12 @@ import { User as SessionUser } from 'next-auth';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { ZodError } from 'zod';
-import { updateUserAction } from '@/app/actions/userSettings';
+import { updateUserAction } from '@/app/actions/account/userSettings.action';
 import SettingsCard from '@/components/SettingsCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UpdateUserData, UpdateUserSchema } from '@/entities/user';
+import { UpdateUserData, UpdateUserSchema } from '@/entities/auth/user.entities';
 import { useTranslations } from 'next-intl';
 import useIsChanged from '@/hooks/use-is-changed';
 

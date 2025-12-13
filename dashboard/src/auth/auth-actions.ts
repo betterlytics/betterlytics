@@ -4,13 +4,13 @@ import { getServerSession, User } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
-import { type AuthContext } from '@/entities/authContext';
-import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
+import { type AuthContext } from '@/entities/auth/authContext.entities';
+import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
 import { withServerAction } from '@/middlewares/serverActionHandler';
-import { findDashboardById } from '@/repositories/postgres/dashboard';
+import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { env } from '@/lib/env';
 import { unstable_cache } from 'next/cache';
-import { DashboardFindByUserSchema } from '@/entities/dashboard';
+import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entities';
 import { stableStringify } from '@/utils/stableStringify';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { cache } from 'react';
@@ -41,11 +41,11 @@ function getActionSignature(fn: AnyFn): string {
 
 const tracer = trace.getTracer('dashboard');
 
-const getCachedSession = cache(async () => {
+export const getCachedSession = cache(async () => {
   return await getServerSession(authOptions);
 });
 
-const getCachedAuthorizedContext = cache(
+export const getCachedAuthorizedContext = cache(
   async (userId: string, dashboardId: string): Promise<AuthContext | null> => {
     return await getAuthorizedDashboardContextOrNull(DashboardFindByUserSchema.parse({ userId, dashboardId }));
   },
@@ -117,27 +117,18 @@ async function resolveDemoDashboardContext(dashboardId: string): Promise<AuthCon
   return await createDemoContext(dashboardId);
 }
 
-async function resolvePrivateDashboardContext(dashboardId: string): Promise<AuthContext> {
-  const session = await getCachedSession();
-  if (session?.user) {
-    const authorizedCtx = await tryGetAuthorizedContext(session.user.id, dashboardId);
-    if (authorizedCtx) return authorizedCtx;
-  }
-  throw new Error('Unauthorized');
+async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
+  const session = await requireAuth();
+  const ctx = await getCachedAuthorizedContext(session.user.id, dashboardId);
+  if (!ctx) throw new Error('Unauthorized');
+  return ctx;
 }
 
 async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
   if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
     return await resolveDemoDashboardContext(dashboardId);
   }
-  return await resolvePrivateDashboardContext(dashboardId);
-}
-
-async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
-  const session = await requireAuth();
-  const ctx = await getCachedAuthorizedContext(session.user.id, dashboardId);
-  if (!ctx) throw new Error('Unauthorized');
-  return ctx;
+  return await requireDashboardAuth(dashboardId);
 }
 
 function getArgsSignature<Args extends Array<unknown>>(args: Args): string {

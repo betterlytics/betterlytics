@@ -43,6 +43,8 @@ export default function BATopbar() {
   const isEmbedded = useIsEmbedded();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
+  const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
+  const isCloud = isFeatureFlagEnabled('isCloud');
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -124,12 +126,14 @@ export default function BATopbar() {
                           <span>{t('dashboards')}</span>
                         </NextLink>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className='cursor-pointer'>
-                        <NextLink href='/billing'>
-                          <CreditCard className='mr-2 h-4 w-4' />
-                          <span>{t('upgradePlan')}</span>
-                        </NextLink>
-                      </DropdownMenuItem>
+                      {isBillingEnabled && (
+                        <DropdownMenuItem asChild className='cursor-pointer'>
+                          <NextLink href='/billing'>
+                            <CreditCard className='mr-2 h-4 w-4' />
+                            <span>{t('upgradePlan')}</span>
+                          </NextLink>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={handleSettingsClick} className='cursor-pointer'>
                         <Settings className='mr-2 h-4 w-4' />
                         <span>{t('settings')}</span>
@@ -137,17 +141,21 @@ export default function BATopbar() {
 
                       <DropdownMenuSeparator />
 
-                      <DropdownMenuItem className='cursor-pointer' onClick={() => setShowBugReportDialog(true)}>
-                        <Bug className='mr-2 h-4 w-4' />
-                        <span>{t('reportBug')}</span>
-                      </DropdownMenuItem>
+                      {isBugReportsEnabled && (
+                        <DropdownMenuItem className='cursor-pointer' onClick={() => setShowBugReportDialog(true)}>
+                          <Bug className='mr-2 h-4 w-4' />
+                          <span>{t('reportBug')}</span>
+                        </DropdownMenuItem>
+                      )}
 
-                      <DropdownMenuItem asChild className='cursor-pointer'>
-                        <ExternalLink href='/docs' title={t('documentationTitle')}>
-                          <ExternalLinkIcon className='mr-2 h-4 w-4' />
-                          <span>{t('documentation')}</span>
-                        </ExternalLink>
-                      </DropdownMenuItem>
+                      {isCloud && (
+                        <DropdownMenuItem asChild className='cursor-pointer'>
+                          <ExternalLink href='/docs' title={t('documentationTitle')}>
+                            <ExternalLinkIcon className='mr-2 h-4 w-4' />
+                            <span>{t('documentation')}</span>
+                          </ExternalLink>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
                         <LogOut className='mr-2 h-4 w-4' />
                         <span>{t('logout')}</span>
