@@ -12,6 +12,8 @@ import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { Spinner } from '../ui/spinner';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
+import { useDebounce } from '@/hooks/useDebounce';
 
 type LeafletMapProps = WorldMapResponse & {
   showZoomControls?: boolean;
@@ -38,8 +40,10 @@ export default function LeafletMap({
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('components.geography');
-  const calculatedMaxVisitors = maxVisitors || Math.max(...visitorData.map((d) => d.visitors), 1);
-  const style = useMapStyle({ calculatedMaxVisitors });
+  const style = useMapStyle({ maxValue: maxVisitors || 1 });
+
+  const { resolvedTheme } = useTheme();
+  const debouncedTheme = useDebounce(resolvedTheme, 50);
 
   useEffect(() => {
     startTransition(() => {
@@ -78,7 +82,7 @@ export default function LeafletMap({
     );
   }, [mapComponents, visitorData]);
 
-  if (isPending || !mapComponents || !worldGeoJson) {
+  if (isPending || !mapComponents || !worldGeoJson || !style) {
     return (
       <div className='bg-background/70 flex h-full w-full items-center justify-center'>
         <div className='flex flex-col items-center'>
@@ -92,7 +96,7 @@ export default function LeafletMap({
   const { MapContainer, GeoJSON, Polygon } = mapComponents;
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div className='h-full w-full' key={debouncedTheme}>
       {style.LeafletCSS}
       <MapContainer
         center={[20, 0]}
@@ -103,6 +107,8 @@ export default function LeafletMap({
         maxBoundsViscosity={0.5}
         minZoom={1}
         maxZoom={7}
+        zoomDelta={0.1}
+        zoomSnap={0.1}
         attributionControl={false}
       >
         <MapSelectionContextProvider style={style}>
@@ -113,7 +119,6 @@ export default function LeafletMap({
             visitorData={visitorData}
             compareData={compareData}
             style={style}
-            size={size}
           />
           <MapStickyTooltip size={size} />
           {showLegend && <MapLegend maxVisitors={maxVisitors} />}
