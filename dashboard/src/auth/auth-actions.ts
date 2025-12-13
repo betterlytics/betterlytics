@@ -14,6 +14,7 @@ import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entiti
 import { stableStringify } from '@/utils/stableStringify';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { cache } from 'react';
+import { UserException } from '@/lib/exceptions';
 
 // Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
 type AnyFn = (...args: unknown[]) => unknown;
@@ -67,8 +68,10 @@ async function withActionSpan<T>(
       const err = e as Error;
       span.recordException(err);
       span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
-      console.error(e);
-      // Mask the UI-facing error
+      // Propagate user-safe errors; mask the rest
+      if (e instanceof UserException) {
+        throw e;
+      }
       throw new Error('An error occurred');
     } finally {
       span.end();
