@@ -6,6 +6,8 @@ import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { CtaStrip } from '../(landing)/components/ctaStrip';
+import { env } from '@/lib/env';
+import { redirect } from 'next/navigation';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
@@ -13,6 +15,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: S
 }
 
 export default async function ChangelogPage() {
+  if (!env.IS_CLOUD) {
+    redirect('/');
+  }
+
   const t = await getTranslations('public.changelog');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.changelog);
   const locale = await getLocale();
