@@ -1,9 +1,7 @@
 import { use } from 'react';
 import type { fetchFunnelsAction } from '@/app/actions/index.actions';
-import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from '@/app/(protected)/dashboard/[dashboardId]/funnels/FunnelsEmptyState';
-import { EditFunnelDialog } from './EditFunnelDialog';
-import { DeleteFunnelDialog } from './DeleteFunnelDialog';
+import { FunnelsStackClient } from './FunnelsStackClient';
 
 type FunnelsStackProps = {
   promise: ReturnType<typeof fetchFunnelsAction>;
@@ -12,22 +10,7 @@ type FunnelsStackProps = {
 export function FunnelsStack({ promise }: FunnelsStackProps) {
   const funnels = use(promise);
   if (!funnels.length) return <FunnelsEmptyState />;
-  return (
-    <div className='space-y-10'>
-      {funnels.map((funnel, i) => (
-        <div key={funnel.id + i} className='bg-card w-full gap-10 space-y-4 rounded-xl border p-2'>
-          <div className='flex w-full items-center justify-between'>
-            <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
-            <div className='hidden gap-2 md:flex'>
-              <DeleteFunnelDialog funnel={funnel} />
-              <EditFunnelDialog funnel={funnel} />
-            </div>
-          </div>
-          <FunnelBarplot funnel={funnel} />
-        </div>
-      ))}
-    </div>
-  );
+  return <FunnelsStackClient funnels={funnels} />;
 }
 
 FunnelsStack.Skeleton = function Skeleton() {
