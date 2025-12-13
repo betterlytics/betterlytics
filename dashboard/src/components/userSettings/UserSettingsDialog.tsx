@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
@@ -49,9 +48,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <VisuallyHidden asChild>
-            <DialogTitle>{tDialog('title')}</DialogTitle>
-          </VisuallyHidden>
+          <DialogTitle>{tDialog('title')}</DialogTitle>
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <Spinner />
             <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
@@ -65,9 +62,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <VisuallyHidden asChild>
-            <DialogTitle>{tDialog('title')}</DialogTitle>
-          </VisuallyHidden>
+          <DialogTitle>{tDialog('title')}</DialogTitle>
           <div className='flex flex-col items-center justify-center space-y-3 py-16'>
             <AlertTriangle className='text-destructive h-8 w-8' />
             <div className='text-center'>
@@ -84,9 +79,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <VisuallyHidden asChild>
-            <DialogTitle>{tDialog('title')}</DialogTitle>
-          </VisuallyHidden>
+          <DialogTitle>{tDialog('title')}</DialogTitle>
           <div className='flex items-center justify-center py-8'>
             <span>{tDialog('noSettings')}</span>
           </div>
@@ -238,7 +231,11 @@ function UserSettingsDialogContent({
             const Component = tab.component;
             return (
               <TabsContent key={tab.id} value={tab.id} className='mt-6 min-h-[420px]'>
-                <Component formData={formData} onUpdate={handleUpdate} onCloseDialog={() => handleOpenChange(false)} />
+                <Component
+                  formData={formData}
+                  onUpdate={handleUpdate}
+                  onCloseDialog={() => handleOpenChange(false)}
+                />
               </TabsContent>
             );
           })}
