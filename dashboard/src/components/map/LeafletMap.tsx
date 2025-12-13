@@ -43,7 +43,7 @@ export default function LeafletMap({
   const style = useMapStyle({ maxValue: maxVisitors || 1 });
 
   const { resolvedTheme } = useTheme();
-  const deboucedTheme = useDebounce(resolvedTheme, 50);
+  const debouncedTheme = useDebounce(resolvedTheme, 50);
 
   useEffect(() => {
     startTransition(() => {
@@ -96,7 +96,7 @@ export default function LeafletMap({
   const { MapContainer, GeoJSON, Polygon } = mapComponents;
 
   return (
-    <div className='h-full w-full' key={deboucedTheme}>
+    <div className='h-full w-full' key={debouncedTheme}>
       {style.LeafletCSS}
       <MapContainer
         center={[20, 0]}
