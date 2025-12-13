@@ -5,12 +5,17 @@
   }
   window.__betterlytics_analytics_initialized__ = true;
 
-  // Get the script element and required attributes
   var script =
     document.currentScript ||
     document.querySelector('script[src*="analytics.js"]');
   var siteId = script.getAttribute("data-site-id");
+
   var serverUrl = script.getAttribute("data-server-url");
+  if (!serverUrl) {
+    serverUrl = "https://betterlytics.io/event";
+    script.setAttribute("data-server-url", serverUrl);
+  }
+
   var urlPatterns =
     script
       .getAttribute("data-dynamic-urls")
@@ -49,11 +54,7 @@
     return console.error("Betterlytics: data-site-id attribute missing");
   }
 
-  if (!serverUrl) {
-    return console.error("Betterlytics: data-server-url attribute missing");
-  }
-
-  // Track current path for SPA navigation
+  // Store current path for SPA navigation
   var currentPath = window.location.pathname;
 
   function normalize(url) {
@@ -72,13 +73,13 @@
     return url;
   }
 
-  function trackEvent(eventName, overrides = {}) {
+  function sendEvent(eventName, overrides = {}) {
     var url = normalize(window.location.href);
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
-    // Send tracking data
+    // Send event data
     fetch(serverUrl, {
       method: "POST",
       keepalive: true,
@@ -100,7 +101,7 @@
     })
       .then((res) => res.text())
       .catch(function (error) {
-        console.error("Analytics tracking failed:", error);
+        console.error("Analytics event failed:", error);
       });
   }
 
@@ -110,7 +111,7 @@
 
   window.betterlytics = {
     event: (eventName, eventProps = {}) =>
-      trackEvent(eventName, {
+      sendEvent(eventName, {
         is_custom_event: true,
         properties: JSON.stringify(eventProps),
       }),
@@ -182,7 +183,7 @@
         acc[m.name] = m.value;
         return acc;
       }, {});
-      trackEvent("cwv", {
+      sendEvent("cwv", {
         cwv_cls: byName.CLS,
         cwv_lcp: byName.LCP,
         cwv_inp: byName.INP,
@@ -217,31 +218,30 @@
     document.head.appendChild(s);
   }
 
-  // Track initial page view
-  trackEvent("pageview");
+  // Send initial page view
+  sendEvent("pageview");
 
-  // Track SPA navigation
+  // Detect SPA navigation
   if (window.history.pushState) {
-    // Override pushState to track navigation
+    // Override pushState to send navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
       originalPushState.apply(this, arguments);
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        trackEvent("pageview");
+        sendEvent("pageview");
       }
     };
 
-    // Track popstate (back/forward navigation)
+    // Detect popstate (back/forward navigation)
     window.addEventListener("popstate", function () {
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        trackEvent("pageview");
+        sendEvent("pageview");
       }
     });
   }
 
-  // Outbound link tracking
   function parseOutboundLink(link) {
     var linkUrl = URL.parse(link.href, window.location.origin);
     if (
@@ -258,13 +258,12 @@
 
   // Only enable if outbounds is set to "domain" or "full"
   if (["domain", "full"].includes(outboundLinks)) {
-    // Set up outbound link click tracking
     document.addEventListener("click", function (event) {
       var target = event.target.closest("a");
       if (target && target.href) {
         const parsed = parseOutboundLink(target);
         if (parsed) {
-          trackEvent("outbound_link", {
+          sendEvent("outbound_link", {
             outbound_link_url: parsed,
           });
         }
@@ -272,7 +271,6 @@
     });
   }
 
-  // Replay
   if (enableReplay) {
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
