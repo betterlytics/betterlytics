@@ -2083,13 +2083,7 @@
     }
   },
   "onboarding": {
-    "main": {
-      "registrationDisabled": {
-        "title": "Registrazione disabilitata",
-        "description": "La registrazione è attualmente disabilitata su questa istanza.",
-        "backToSignIn": "Torna all'accesso"
-      }
-    },
+    "registrationDisabled": "La registrazione è attualmente disabilitata su questa istanza.",
     "account": {
       "features": {
         "feature1": {
