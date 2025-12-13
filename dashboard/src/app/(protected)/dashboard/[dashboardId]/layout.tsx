@@ -1,25 +1,22 @@
 import { redirect } from 'next/navigation';
 import { DashboardProvider } from './DashboardProvider';
-import { getCurrentDashboardAction } from '@/app/actions';
+import { getCurrentDashboardAction } from '@/app/actions/index.actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
-import { getUserBillingData } from '@/actions/billing';
+import { getUserBillingData } from '@/actions/billing.action';
 import { Suspense } from 'react';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions';
+import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.actions';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { IntegrationBanner } from './IntegrationBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
-import { getAuthorizedDashboardContextOrNull } from '@/services/auth.service';
-import { DashboardFindByUserSchema } from '@/entities/dashboard';
 import { env } from '@/lib/env';
+import { getCachedAuthorizedContext, requireAuth } from '@/auth/auth-actions';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -27,17 +24,11 @@ type DashboardLayoutProps = {
 };
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/');
-  }
+  const session = await requireAuth();
 
   const { dashboardId } = await params;
 
-  const authCtx = await getAuthorizedDashboardContextOrNull(
-    DashboardFindByUserSchema.parse({ userId: session.user.id, dashboardId }),
-  );
+  const authCtx = await getCachedAuthorizedContext(session.user.id, dashboardId);
 
   if (!authCtx) {
     if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {

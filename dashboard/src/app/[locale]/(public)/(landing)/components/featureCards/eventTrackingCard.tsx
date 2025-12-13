@@ -1,4 +1,4 @@
-import { EventLogEntry } from '@/entities/events';
+import { EventLogEntry } from '@/entities/analytics/events.entities';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { LucideIcon } from 'lucide-react';

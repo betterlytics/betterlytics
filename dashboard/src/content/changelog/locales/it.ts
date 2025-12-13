@@ -1,52 +1,50 @@
-import type { ChangelogEntryData } from '@/entities/changelog';
+import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.6',
-    releasedAt: '2025-12-01',
+    version: 'v1.2.7',
+    releasedAt: '2025-12-07',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v126-new-features',
+      id: 'v127-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'La pagina Funnels è stata completamente riprogettata con un layout più intuitivo e visivo. Dai un’occhiata!',
-            'Confronta i periodi direttamente nella visualizzazione della mappa del mondo.',
-            'Blocca gli eventi da indirizzi IP specifici per evitare traffico distorto o indesiderato (ad esempio le tue visite).',
-            'Rifiuta automaticamente gli eventi da domini che non corrispondono al dominio della dashboard.',
+            'La pagina delle campagne è stata completamente ricostruita per concentrarsi sulle campagne UTM nominate.',
+            'Ora puoi aggiungere annotazioni ai grafici principali per evidenziare eventi importanti, rilasci o variazioni del traffico.',
+            'La pagina Funnels è stata completamente ridisegnata con un layout più intuitivo e visivo. Vai a dare un’occhiata!',
+            'Blocca eventi provenienti da indirizzi IP specifici per evitare traffico distorto o indesiderato (ad esempio, le tue visite).',
           ],
         },
       ],
     },
     {
-      id: 'v126-enhancements',
-      title: 'Miglioramenti',
+      id: 'v127-security-auth',
+      title: 'Sicurezza & Autenticazione',
       blocks: [
         {
           type: 'list',
           items: [
-            'Le etichette dei Core Web Vitals sono state affinate per una comprensione più chiara.',
-            'L’Antartide viene nascosta dalla mappa del mondo a meno che non ci siano dati di visitatori.',
-            'Aggiunto un pulsante "Segnala un bug" direttamente nell’app per inviare feedback rapidi.',
+            'La tua sicurezza account è stata rafforzata e migliorata.',
+            'Corretta la vulnerabilità recente di React Server Components (CVE-2025-66478).',
           ],
         },
       ],
     },
     {
-      id: 'v126-bug-fixes',
-      title: 'Correzioni di bug',
+      id: 'v127-improvements-and-fixes',
+      title: 'Miglioramenti & Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema che causava il mancato caricamento della pagina Core Web Vitals.',
-            'Risolti i problemi legati all’ora legale che influenzavano le analisi visualizzate.',
-            'Risolto un problema che impediva il caricamento dei dati quando si selezionavano intervalli di tempo futuri.',
+            'Aggiunto un pulsante in-app "Segnala un bug" per inviare rapidamente feedback.',
+            "Corrette le metriche pagine-per-sessione nella vista Pages, ora rispecchiano correttamente l'utilizzo effettivo.",
           ],
         },
       ],
@@ -55,6 +53,59 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.7',
+      releasedAt: '2025-12-07',
+      title: 'Annotazioni dei grafici, visualizzazione centrata sulle campagne e rafforzamento della sicurezza',
+      summary:
+        "La pagina delle campagne ora si concentra sulle campagne UTM nominate, i grafici principali supportano le annotazioni, l'autenticazione è stata rafforzata e diverse correzioni migliorano precisione e sicurezza.",
+    },
+    sections: [
+      {
+        id: 'v127-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La pagina delle campagne è stata completamente ricostruita per concentrarsi sulle campagne UTM nominate, offrendo informazioni più chiare e significative rispetto alla visualizzazione aggregata precedente.',
+              'Ora puoi aggiungere annotazioni ai grafici principali per evidenziare eventi importanti, rilasci o variazioni del traffico.',
+              'La cancellazione di una dashboard include ora un breve conto alla rovescia di sicurezza per evitare rimozioni accidentali.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-security-auth',
+        title: 'Sicurezza & Autenticazione',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              "L'autenticazione è stata rafforzata, migliorando l'integrità della sessione e la protezione complessiva.",
+              "Vulnerabilità recente di React Server Components (CVE-2025-66478) corretta aggiornando all'ultima versione sicura di Next.js.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v127-improvements-and-fixes',
+        title: 'Miglioramenti & Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolta una race condition che poteva generare abbonamenti duplicati durante la creazione di nuovi account.',
+              "Corrette le metriche pagine-per-sessione nella vista Pages, ora rispecchiano correttamente l'utilizzo effettivo.",
+              "La verifica dell'account fornisce ora feedback più chiari durante il processo di verifica.",
+              'Il layout del popup del changelog è ora ottimizzato per schermi piccoli, migliorando la leggibilità sui dispositivi mobili.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.6',

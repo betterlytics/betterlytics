@@ -8,14 +8,14 @@ import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { updateDashboardSettingsAction } from '@/app/actions/dashboardSettings';
-import { DashboardSettingsUpdate } from '@/entities/dashboardSettings';
+import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
+import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
 import DataDashboardSettings from '@/components/dashboardSettings/DashboardDataSettings';
 import DangerZoneDashboardSettings from '@/components/dashboardSettings/DashboardDangerZoneSettings';
 import useIsChanged from '@/hooks/use-is-changed';
 import { useTranslations } from 'next-intl';
-import { saveSiteConfigAction } from '@/app/actions/siteConfig';
-import type { SiteConfigUpdate } from '@/entities/siteConfig';
+import { saveSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
+import type { SiteConfigUpdate } from '@/entities/dashboard/siteConfig.entities';
 import { useSiteConfig } from '@/hooks/use-site-config';
 
 interface SettingsTabConfig {
