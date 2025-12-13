@@ -6,7 +6,7 @@ import type { PathOptions } from 'leaflet';
 import { type JSX, useCallback, useMemo } from 'react';
 import { ColorScale, useColorScale, UseColorScaleProps } from '@/hooks/use-color-scale';
 
-export type UseMapStyleProps = Omit<UseColorScaleProps, 'colors'>;
+export type UseMapStyleProps = Omit<UseColorScaleProps, 'colors' | 'scaleType'>;
 export type FeatureStyle = PathOptions;
 export type MapColorScale = ScaleLinear<string, string, never>;
 
