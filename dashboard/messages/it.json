@@ -1505,6 +1505,7 @@
         "strictMode": "Modalità ristretta",
         "addStep": "Aggiungi passaggio",
         "livePreview": "Anteprima live",
+      "cancel": "Annulla",
         "create": "Crea",
         "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
@@ -1521,6 +1522,19 @@
         "disabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel aggiornato!",
         "errorMessage": "Aggiornamento funnel fallito!"
+      },
+      "clone": {
+        "title": "Clona funnel",
+        "name": "Nome funnel",
+        "namePlaceholder": "Il mio funnel (copia)",
+        "strictMode": "Modalità ristretta",
+        "addStep": "Aggiungi passaggio",
+        "livePreview": "Anteprima live",
+        "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima.",
+      "cancel": "Annulla",
+        "cta": "Crea copia",
+        "successMessage": "Funnel clonato!",
+        "errorMessage": "Clonazione funnel fallita!"
       },
       "plot": {
         "stepLabel": "Passaggio {index}",

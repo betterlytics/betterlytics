@@ -1501,6 +1501,7 @@
         "strictMode": "Strict Mode",
         "addStep": "Add Step",
         "livePreview": "Live Preview",
+        "cancel": "Cancel",
         "create": "Create",
         "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
@@ -1517,6 +1518,19 @@
         "disabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel updated!",
         "errorMessage": "Funnel update failed!"
+      },
+      "clone": {
+        "title": "Clone funnel",
+        "name": "Funnel Name",
+        "namePlaceholder": "My funnel (copy)",
+        "strictMode": "Strict Mode",
+        "addStep": "Add Step",
+        "livePreview": "Live Preview",
+        "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview.",
+        "cancel": "Cancel",
+        "cta": "Create clone",
+        "successMessage": "Funnel cloned!",
+        "errorMessage": "Funnel clone failed!"
       },
       "plot": {
         "stepLabel": "Step {index}",
