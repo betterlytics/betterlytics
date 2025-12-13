@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
+import { useSvgTextWidth } from './useSvgTextWidth';
 import { SankeyData } from '@/entities/analytics/userJourney.entities';
-import { formatString } from '@/utils/formatters';
-import { useTheme } from 'next-themes';
+import { formatPercentage, formatString } from '@/utils/formatters';
 
 // ============================================
 // COLOR MAP - Customize colors here
@@ -31,6 +31,16 @@ const COLORS = {
     subtext: '#64748b', // Slate-500
     mutedText: '#94a3b8', // Slate-400
     mutedSubtext: '#cbd5e1', // Slate-300
+  },
+  card: {
+    bg: 'fill-[var(--sankey-card-bg)]',
+    bgMuted: 'fill-[var(--sankey-card-bg-muted)]',
+    bgHighlight: 'fill-[var(--sankey-card-bg-highlight)]',
+    border: 'stroke-[var(--sankey-card-border)]',
+    borderMuted: 'stroke-[var(--sankey-card-border-muted)]',
+    borderHighlight: 'stroke-[var(--sankey-card-border-highlight)]',
+    text: 'fill-[var(--foreground)]',
+    textMuted: 'fill-[var(--muted-foreground)]',
   },
 };
 
@@ -85,7 +95,6 @@ interface UserJourneyChartProps {
 // MAIN COMPONENT
 // ============================================
 export default function UserJourneyChart({ data }: UserJourneyChartProps) {
-  const { resolvedTheme } = useTheme();
   const width = 900;
   const height = 500;
 
@@ -238,6 +247,8 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
   const isHighlighting = highlightState !== null;
 
+  const maxTraffic = useMemo(() => Math.max(...nodePositions.map((n) => n.totalTraffic), 1), [nodePositions]);
+
   return (
     <div className='w-full overflow-x-auto'>
       <svg
@@ -252,6 +263,9 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
           </filter>
           <filter id='textShadowDark' x='-50%' y='-50%' width='200%' height='200%'>
             <feDropShadow dx='0' dy='0' stdDeviation='1.2' floodColor='#ffffff' floodOpacity='0.32' />
+          </filter>
+          <filter id='cardGlow' x='-20%' y='-20%' width='140%' height='140%'>
+            <feDropShadow dx='0' dy='1' stdDeviation='3' floodColor='#6366f1' floodOpacity='0.15' />
           </filter>
         </defs>
 
@@ -277,7 +291,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
               isHighlighted={isHighlighting && highlightState.nodeIds.has(node.id)}
               isMuted={isHighlighting && !highlightState.nodeIds.has(node.id)}
               onHover={handleNodeHover}
-              theme={resolvedTheme as 'light' | 'dark' | undefined}
+              maxTraffic={maxTraffic}
             />
           ))}
         </g>
@@ -620,21 +634,55 @@ interface SankeyNodeProps {
   isHighlighted: boolean;
   isMuted: boolean;
   onHover: (nodeId: string | null) => void;
-  theme: 'light' | 'dark' | undefined;
+  maxTraffic: number;
 }
 
-function SankeyNode({ node, isHighlighted, isMuted, onHover, theme }: SankeyNodeProps) {
-  // Inline label positioning - text directly to the right of the node
-  const labelX = node.x + node.width + 6;
-  const labelCenterY = node.y + node.height / 2;
-  const textShadowId = theme === 'dark' ? 'textShadowDark' : 'textShadowLight';
+function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }: SankeyNodeProps) {
+  const cardPadding = { x: 5, y: 4 };
+  const cardGap = 5;
+  const cardHeight = 30;
+  const cardRadius = 4;
 
-  const isDark = theme === 'dark';
+  const titleRef = useRef<SVGTextElement>(null);
+  const countRef = useRef<SVGTextElement>(null);
+
+  // Position label card to the right of the node
+  const cardX = node.x + node.width + cardGap;
+  const cardY = node.y + node.height / 2 - cardHeight / 2;
+
+  const percentageRaw = maxTraffic > 0 ? (node.totalTraffic / maxTraffic) * 100 : 0;
+  const percentageValue = Math.max(0, Math.min(100, percentageRaw));
+  const percentageLabel = formatPercentage(percentageValue, 1);
+
+  const titleText = formatString(node.name, 11);
+  const countText = `${formatNumber(node.totalTraffic)} (${percentageLabel})`;
+
+  const titleWidth = useSvgTextWidth(titleRef, [titleText], {
+    min: 56,
+    max: 140,
+    padding: cardPadding.x * 2,
+  });
+  const countWidth = useSvgTextWidth(countRef, [countText, percentageLabel], {
+    min: 56,
+    max: 140,
+    padding: cardPadding.x * 2,
+  });
+  const cardWidth = Math.max(titleWidth, countWidth);
+
+  // Colors based on state
   const nodeFill = isMuted ? COLORS.node.mutedFill : COLORS.node.fill;
   const nodeStroke = isMuted ? COLORS.node.mutedStroke : COLORS.node.stroke;
-  const textFill = isMuted ? COLORS.label.mutedText : isDark ? '#f8fafc' : '#0f172a';
-  const subtextFill = isMuted ? COLORS.label.mutedSubtext : isDark ? '#e2e8f0' : '#475569';
-  const labelOpacity = isMuted ? 0.4 : 1;
+
+  const cardBgClass = isMuted ? COLORS.card.bgMuted : isHighlighted ? COLORS.card.bgHighlight : COLORS.card.bg;
+
+  const cardBorderClass = isMuted
+    ? COLORS.card.borderMuted
+    : isHighlighted
+      ? COLORS.card.borderHighlight
+      : COLORS.card.border;
+
+  const titleClass = isMuted ? COLORS.card.textMuted : COLORS.card.text;
+  const labelOpacity = isMuted ? 0.5 : 1;
 
   return (
     <g onMouseEnter={() => onHover(node.id)} onMouseLeave={() => onHover(null)} className='cursor-pointer'>
@@ -649,39 +697,56 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover, theme }: SankeyNode
         fill={nodeFill}
         stroke={nodeStroke}
         strokeWidth={COLORS.node.strokeWidth}
-        className='transition-colors duration-150'
+        className='transition-all duration-200'
       />
 
-      {/* Inline label - node name */}
+      {/* Label card background */}
+      <rect
+        x={cardX}
+        y={cardY}
+        width={cardWidth}
+        height={cardHeight}
+        rx={cardRadius}
+        ry={cardRadius}
+        strokeWidth={1}
+        className={`pointer-events-none transition-all duration-200 ${cardBgClass} ${cardBorderClass}`}
+        opacity={labelOpacity}
+        filter={isHighlighted ? 'url(#cardGlow)' : undefined}
+      />
+
+      {/* Page name */}
       <text
-        x={labelX}
-        y={labelCenterY - 5}
+        ref={titleRef}
+        x={cardX + cardPadding.x}
+        y={cardY + cardPadding.y + 6}
         textAnchor='start'
         dominantBaseline='middle'
-        fontSize={10}
+        fontSize={9}
         fontWeight={500}
-        fill={textFill}
-        filter={`url(#${textShadowId})`}
-        className='pointer-events-none transition-colors duration-150 select-none'
+        letterSpacing='-0.01em'
+        className={`pointer-events-none transition-colors duration-200 select-none ${titleClass}`}
         opacity={labelOpacity}
       >
-        {formatString(node.name, 18)}
+        {titleText}
       </text>
 
-      {/* Inline label - traffic count */}
+      {/* Traffic count */}
       <text
-        x={labelX}
-        y={labelCenterY + 7}
+        ref={countRef}
+        x={cardX + cardPadding.x}
+        y={cardY + cardPadding.y + 17}
         textAnchor='start'
         dominantBaseline='middle'
-        fontSize={10.5}
-        fontWeight={600}
-        fill={subtextFill}
-        filter={`url(#${textShadowId})`}
-        className='pointer-events-none transition-colors duration-150 select-none'
+        fontSize={8}
+        fontWeight={700}
+        letterSpacing='-0.01em'
+        className={`pointer-events-none transition-colors duration-200 select-none ${COLORS.card.textMuted}`}
         opacity={labelOpacity}
       >
         {formatNumber(node.totalTraffic)}
+        <tspan fontSize={7} fontWeight={600} dx={2}>
+          ({percentageLabel})
+        </tspan>
       </text>
     </g>
   );
