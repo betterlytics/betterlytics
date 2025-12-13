@@ -19,16 +19,16 @@ export interface MapStyle {
   borderColorScale: ColorScale;
 }
 
-export function useMapStyle({ maxValue: maxVisitors, scaleType = 'gamma-1/4' }: UseMapStyleProps): MapStyle {
+export function useMapStyle({ maxValue: maxVisitors }: UseMapStyleProps): MapStyle {
   const fillColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType: scaleType,
+    scaleType: 'gamma',
     colors: [MAP_VISITOR_COLORS.LOW_VISITORS, MAP_VISITOR_COLORS.HIGH_VISITORS],
   });
 
   const borderColorScale = useColorScale({
     maxValue: maxVisitors,
-    scaleType: scaleType,
+    scaleType: 'gamma',
     colors: [MAP_FEATURE_BORDER_COLORS.LOW_VISITORS, MAP_FEATURE_BORDER_COLORS.HIGH_VISITORS],
   });
 

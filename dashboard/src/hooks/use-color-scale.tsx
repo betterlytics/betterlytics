@@ -8,27 +8,22 @@ import { type CSSVariableName, useCSSColors } from './use-css-colors';
 export type ScaleType =
   | 'linear'
   | 'lab'
+  | `gamma`
   | 'ln'
   | `log${number}`
   | `pow-${number}`
-  | `pow-${number}/${number}`
-  | `gamma-${number}`
-  | `gamma-${number}/${number}`;
+  | `pow-${number}/${number}`;
 
 export type UseColorScaleProps = {
   maxValue: number;
   /** Array of resolved color values (hex, rgb, or rgba) - at least 2 colors required */
   colors: CSSVariableName[];
-  scaleType?: ScaleType;
+  scaleType: ScaleType;
 };
 
 export type ColorScale = (value: number) => string;
 
-export function useColorScale({
-  colors: colorVariables,
-  maxValue,
-  scaleType = 'pow-4/10',
-}: UseColorScaleProps): ColorScale {
+export function useColorScale({ colors: colorVariables, maxValue, scaleType }: UseColorScaleProps): ColorScale {
   const colors = useCSSColors(colorVariables);
 
   return useMemo(() => {
@@ -43,18 +38,8 @@ export function useColorScale({
     }
 
     // Gamma scale: great for exponentially distributed data (e.g., country visitor counts)
-    // gamma < 1 stretches lower values, compresses higher values
-    // Example: 'gamma-1/3' for heavy skew (1-1000 where most values are 1-100)
-    //          'gamma-1/2' for moderate skew
-    if (scaleType.startsWith('gamma-')) {
-      const gammaStr = scaleType.replace('gamma-', '');
-      let gamma: number;
-      if (gammaStr.includes('/')) {
-        const [num, den] = gammaStr.split('/').map(Number);
-        gamma = num / den;
-      } else {
-        gamma = Number(gammaStr);
-      }
+    if (scaleType.startsWith('gamma')) {
+      const gamma = 1 / 4;
 
       const base = scaleLinear<string>()
         .domain([1, maxValue || 1])
