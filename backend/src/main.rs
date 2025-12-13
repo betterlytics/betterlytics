@@ -129,7 +129,8 @@ async fn main() {
 
 	let mut router = Router::new()
 		.route("/health", get(health_check))
-		.route("/track", post(track_event))
+		.route("/event", post(track_event))
+		.route("/track", post(track_event)) // Deprecated: use /event instead
 		.route("/site-id", get(generate_site_id_handler))
 		.route("/metrics", get(metrics_handler));
 

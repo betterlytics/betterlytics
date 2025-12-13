@@ -14,7 +14,7 @@
     "migrate-clickhouse": "node scripts/run-migration.js",
     "generate": "pnpm --filter dashboard generate",
     "simulate": "node simulate-events.js",
-    "performance": "k6 run -e TARGET_URL=http://localhost:3001/track -e VUS=100 -e DURATION=30s k6-perf-test.js",
+    "performance": "k6 run -e TARGET_URL=http://localhost:3001/event -e VUS=100 -e DURATION=30s k6-perf-test.js",
     "unit-tests": "pnpm --filter dashboard unit-tests",
     "check-translations": "node scripts/check-translations.js"
   },

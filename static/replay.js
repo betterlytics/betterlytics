@@ -8185,7 +8185,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
   var script = document.querySelector('script[src*="analytics.js"]');
 
   var siteId = script.getAttribute("data-site-id");
-  var serverUrl = script.getAttribute("data-server-url");
+  var serverUrl =
+    script.getAttribute("data-server-url") ?? "https://betterlytics.io/event";
   var urlPatterns =
     script
       .getAttribute("data-dynamic-urls")

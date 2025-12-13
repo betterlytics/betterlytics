@@ -235,14 +235,14 @@ to simulate global traffic.
 pnpm simulate $SITE_ID $FLAGS
 ```
 
-| Flag             | Description                                              | Default |
-| ---------------- | -------------------------------------------------------- | ------- |
-| `--events`       | Total number of events to simulate                       | `4000`  |
-| `--users`        | Number of unique simulated users                         | `2000`  |
-| `--batch-size`   | Number of events sent per batch (concurrent POSTs)       | `500`   |
-| `--event-freq`   | Fraction (0–1) of events that are custom (non-pageview)  | `0.2`   |
-| `--campaign-freq`| Fraction (0–1) of events that have campaign UTM tags     | `0.3`   |
-| `--campaigns`    | Number of unique campaigns to generate                   | `6`     |
+| Flag              | Description                                             | Default |
+| ----------------- | ------------------------------------------------------- | ------- |
+| `--events`        | Total number of events to simulate                      | `4000`  |
+| `--users`         | Number of unique simulated users                        | `2000`  |
+| `--batch-size`    | Number of events sent per batch (concurrent POSTs)      | `500`   |
+| `--event-freq`    | Fraction (0–1) of events that are custom (non-pageview) | `0.2`   |
+| `--campaign-freq` | Fraction (0–1) of events that have campaign UTM tags    | `0.3`   |
+| `--campaigns`     | Number of unique campaigns to generate                  | `6`     |
 
 #### Usage examples
 
@@ -265,7 +265,7 @@ pnpm simulate "betterlytics-md3brmol" \
 Test the analytics ingestion performance:
 
 ```bash
-k6 run -e TARGET_URL=http://localhost:3001/track -e VUS=100 -e DURATION=1m k6-perf-test.js
+k6 run -e TARGET_URL=http://localhost:3001/event -e VUS=100 -e DURATION=1m k6-perf-test.js
 
 # or run the following command to test with standard configurations:
 pnpm run performance
