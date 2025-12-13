@@ -17,3 +17,50 @@ export const featureFlags = {
 export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {
   return featureFlags[flag];
 }
+
+type FeatureFlagGuardResponse<T> =
+  | {
+      enabled: true;
+      value: T;
+    }
+  | {
+      enabled: false;
+    };
+/**
+ * This is used to simplify the usage of feature flags for blocking server actions
+ * and hiding UI elements.
+ *
+ * Usage:
+ *
+ * ```ts
+ * const billingDataPromiseGuard = featureFlagGuard('enableBilling', () => getUserBillingData());
+ * ...
+ * <div>
+ *   {billingDataPromiseGuard.enabled && (
+ *     <PlanQuota billingDataPromise={billingDataPromiseGuard.value} />
+ *   )}
+ * </div>
+ * ```
+ *
+ * If regular `isFeatureEnabled` is used, you'll have code like the following, where you need to re-check that the feature flag is enabled, and that the promise not not null.:
+ *
+ * ```ts
+ * const billingDataPromise = isFeatureEnabled('enableBilling') ? getUserBillingData() : null;
+ * ...
+ * <div>
+ *   {isFeatureEnabled('enableBilling') && billingDataPromise && (
+ *     <PlanQuota billingDataPromise={billingDataPromise} />
+ *   )}
+ * </div>
+ * ```
+ */
+export function featureFlagGuard<T>(
+  flag: keyof typeof featureFlags,
+  factory: () => T,
+): FeatureFlagGuardResponse<T> {
+  if (!isFeatureEnabled(flag)) {
+    return { enabled: false };
+  }
+
+  return { enabled: true, value: factory() };
+}
