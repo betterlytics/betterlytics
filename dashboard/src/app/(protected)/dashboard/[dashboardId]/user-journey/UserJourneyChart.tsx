@@ -68,6 +68,7 @@ interface NodePosition {
   height: number;
   depth: number;
   totalTraffic: number;
+  percentageOfMax: number;
 }
 
 interface LinkPosition {
@@ -256,8 +257,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
   const isHighlighting = highlightState !== null;
 
-  const maxTraffic = useMemo(() => Math.max(...nodePositions.map((n) => n.totalTraffic), 1), [nodePositions]);
-
   if (!data.nodes.length) {
     return (
       <div className='text-muted-foreground flex h-[500px] w-full items-center justify-center'>
@@ -303,7 +302,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
             isHighlighted={isHighlighting && highlightState.nodeIds.has(node.id)}
             isMuted={isHighlighting && !highlightState.nodeIds.has(node.id)}
             onHover={handleNodeHover}
-            maxTraffic={maxTraffic}
           />
         ))}
       </g>
@@ -500,6 +498,7 @@ function calculateLayout(
         height: nodeHeight,
         depth: node.depth,
         totalTraffic: node.totalTraffic,
+        percentageOfMax: node.percentageOfMax,
       };
 
       nodePositions.push(pos);
@@ -645,10 +644,9 @@ interface SankeyNodeProps {
   isHighlighted: boolean;
   isMuted: boolean;
   onHover: (nodeId: string | null) => void;
-  maxTraffic: number;
 }
 
-function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }: SankeyNodeProps) {
+function SankeyNode({ node, isHighlighted, isMuted, onHover }: SankeyNodeProps) {
   const cardPadding = { x: 5, y: 4 };
   const cardGap = 5;
   const cardHeight = 30;
@@ -661,9 +659,7 @@ function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }: Sanke
   const cardX = node.x + node.width + cardGap;
   const cardY = node.y + node.height / 2 - cardHeight / 2;
 
-  const percentageRaw = maxTraffic > 0 ? (node.totalTraffic / maxTraffic) * 100 : 0;
-  const percentageValue = Math.max(0, Math.min(100, percentageRaw));
-  const percentageLabel = formatPercentage(percentageValue, 1);
+  const percentageLabel = formatPercentage(node.percentageOfMax, 1);
 
   const titleText = formatString(node.name, 11);
   const countText = `${formatNumber(node.totalTraffic)} (${percentageLabel})`;

@@ -9,6 +9,7 @@ export const SankeyNodeSchema = z.object({
   name: z.string(), // The URL for display
   depth: z.number(), // The depth of the node in the journey
   totalTraffic: z.number(), // Total number of users passing through this node
+  percentageOfMax: z.number().min(0).max(100), // Share vs. busiest node (0-100)
 });
 
 export const SankeyLinkSchema = z.object({
@@ -30,6 +31,7 @@ export const JourneyTransitionSchema = z.object({
 export const SankeyDataSchema = z.object({
   nodes: z.array(SankeyNodeSchema),
   links: z.array(SankeyLinkSchema),
+  maxTraffic: z.number(),
 });
 
 export type SankeyNode = z.infer<typeof SankeyNodeSchema>;
