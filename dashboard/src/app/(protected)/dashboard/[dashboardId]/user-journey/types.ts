@@ -29,3 +29,14 @@ export interface HighlightState {
   nodeIds: Set<string>;
   linkIndices: Set<number>;
 }
+
+export interface TooltipState {
+  visible: boolean;
+  x: number;
+  y: number;
+  content: {
+    source: string;
+    target: string;
+    value: number;
+  } | null;
+}

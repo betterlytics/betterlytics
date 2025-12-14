@@ -61,9 +61,7 @@ export function SankeyLink({ link, isHighlighted, isMuted, onHover }: SankeyLink
         className='cursor-pointer transition-[stroke-opacity] duration-150'
         onMouseEnter={() => onHover(link)}
         onMouseLeave={() => onHover(null)}
-      >
-        <title>{`${link.source.name} → ${link.target.name}: ${formatNumber(link.value)} users`}</title>
-      </path>
+      />
     </>
   );
 }
