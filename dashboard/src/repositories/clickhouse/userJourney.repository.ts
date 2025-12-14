@@ -1,28 +1,28 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { SequentialPath, SequentialPathSchema } from '@/entities/analytics/userJourney.entities';
+import { JourneyTransition, JourneyTransitionSchema } from '@/entities/analytics/userJourney.entities';
 import { DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
 
 /**
- * Gets complete sequential path data for sessions
- * This returns full paths like Home→Products→Cart grouped by frequency
+ * Gets aggregated link transitions suitable for Sankey without client-side path expansion.
+ * Each row represents a transition between consecutive steps (depth preserved).
  */
-export async function getUserSequentialPaths(
+export async function getUserJourneyTransitions(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
   maxPathLength: number = 3,
-  limit: number = 25,
+  limit: number = 50,
   queryFilters: QueryFilter[],
-): Promise<SequentialPath[]> {
+): Promise<JourneyTransition[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     WITH ordered_events AS (
       SELECT
         session_id,
-        groupArray((timestamp, url)) AS page_tuples
+        arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples
       FROM analytics.events
       WHERE
         site_id = {site_id:String}
@@ -35,16 +35,37 @@ export async function getUserSequentialPaths(
     session_paths AS (
       SELECT
         session_id,
-        arrayMap(x -> x.2, arraySlice(arraySort(x -> x.1, page_tuples), 1, {max_length:UInt8})) AS path
+        /* Collapse consecutive duplicate URLs per session, keep order, then trim to max_length */
+        arrayMap(
+          x -> x.2,
+          arraySlice(
+            arrayFilter(
+              (x, idx) -> idx = 1 OR x.2 != sorted_tuples[idx - 1].2,
+              sorted_tuples,
+              arrayEnumerate(sorted_tuples)
+            ),
+            1,
+            {max_length:UInt8}
+          )
+        ) AS path
       FROM ordered_events
-      HAVING length(path) > 1
+    ),
+    filtered_paths AS (
+      SELECT path
+      FROM session_paths
+      WHERE length(path) > 1
     )
     SELECT
-      path,
-      COUNT(*) AS count
-    FROM session_paths
-    GROUP BY path
-    ORDER BY count DESC
+      path[i]     AS source,
+      path[i + 1] AS target,
+      (i - 1)     AS source_depth,
+      i           AS target_depth,
+      COUNT(*)    AS value
+    FROM filtered_paths
+    ARRAY JOIN arrayEnumerate(path) AS i
+    WHERE i < length(path)
+    GROUP BY source, target, source_depth, target_depth
+    ORDER BY value DESC
     LIMIT {limit:UInt32}
   `;
 
@@ -56,10 +77,10 @@ export async function getUserSequentialPaths(
         start: startDate,
         end: endDate,
         max_length: maxPathLength,
-        limit: limit,
+        limit,
       },
     })
-    .toPromise()) as Array<{ path: string[]; count: number }>;
+    .toPromise()) as JourneyTransition[];
 
-  return result.map((path) => SequentialPathSchema.parse(path));
+  return result.map((row) => JourneyTransitionSchema.parse(row));
 }

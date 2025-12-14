@@ -1,12 +1,13 @@
 'server-only';
 
-import { getUserSequentialPaths } from '@/repositories/clickhouse/userJourney.repository';
-import { SankeyData, SankeyNode, SankeyLink, SequentialPath } from '@/entities/analytics/userJourney.entities';
+import { getUserJourneyTransitions } from '@/repositories/clickhouse/userJourney.repository';
+import { SankeyData, SankeyNode, SankeyLink, JourneyTransition } from '@/entities/analytics/userJourney.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 
 /**
  * Fetches user journey data and transforms it into Sankey diagram format
+ * using pre-aggregated transitions from ClickHouse.
  */
 export async function getUserJourneyForSankeyDiagram(
   siteId: string,
@@ -19,7 +20,7 @@ export async function getUserJourneyForSankeyDiagram(
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
-  const sequentialPaths = await getUserSequentialPaths(
+  const transitions = await getUserJourneyTransitions(
     siteId,
     formattedStart,
     formattedEnd,
@@ -28,92 +29,69 @@ export async function getUserJourneyForSankeyDiagram(
     queryFilters,
   );
 
-  return transformSequentialPathsToSankeyData(sequentialPaths, maxSteps);
+  return buildSankeyFromTransitions(transitions);
 }
 
-/**
- * Transforms sequential journey data into Sankey format
- */
-function transformSequentialPathsToSankeyData(
-  sequentialPaths: SequentialPath[],
-  maxSteps: number = 3,
-): SankeyData {
-  // Track unique nodes and their indices
+function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyData {
   const nodeMap = new Map<string, number>(); // nodeId -> index
   const nodes: SankeyNode[] = [];
+  const linkMap = new Map<string, number>(); // 'sourceIndex|targetIndex' -> value
 
-  // Track links and their values
-  const linkMap = new Map<string, number>(); // linkId key is formatted as 'sourceIndex|targetIndex'
+  const nodeIncomingTrafficMap = new Map<number, number>(); // nodeIndex -> incoming
+  const nodeOutgoingTrafficMap = new Map<number, number>(); // nodeIndex -> outgoing
 
-  const nodeIncomingTrafficMap = new Map<number, number>(); // nodeIndex -> incoming traffic count
-  const nodeOutgoingTrafficMap = new Map<number, number>(); // nodeIndex -> outgoing traffic count
+  transitions.forEach(({ source, target, source_depth, target_depth, value }) => {
+    const sourceId = `${source}_${source_depth}`;
+    const targetId = `${target}_${target_depth}`;
 
-  // Process each user journey path from each session
-  sequentialPaths.forEach(({ path, count }) => {
-    // Limit to maxSteps nodes
-    const limitedPath = path.slice(0, maxSteps);
-
-    // Process each step in the path
-    for (let i = 0; i < limitedPath.length - 1; i++) {
-      const currentPage = limitedPath[i];
-      const nextPage = limitedPath[i + 1];
-
-      // Create unique node IDs based on page and position
-      const sourceId = `${currentPage}_${i}`;
-      const targetId = `${nextPage}_${i + 1}`;
-
-      // Get or create source node index
-      let sourceIndex = nodeMap.get(sourceId);
-      if (sourceIndex === undefined) {
-        sourceIndex = nodes.length;
-        nodeMap.set(sourceId, sourceIndex);
-        nodes.push({
-          id: sourceId,
-          name: currentPage,
-          depth: i,
-          totalTraffic: 0,
-        });
-        nodeIncomingTrafficMap.set(sourceIndex, 0);
-        nodeOutgoingTrafficMap.set(sourceIndex, 0);
-      }
-
-      // Get or create target node index
-      let targetIndex = nodeMap.get(targetId);
-      if (targetIndex === undefined) {
-        targetIndex = nodes.length;
-        nodeMap.set(targetId, targetIndex);
-        nodes.push({
-          id: targetId,
-          name: nextPage,
-          depth: i + 1,
-          totalTraffic: 0,
-        });
-        nodeIncomingTrafficMap.set(targetIndex, 0);
-        nodeOutgoingTrafficMap.set(targetIndex, 0);
-      }
-
-      // Create or update link counter
-      const linkId = `${sourceIndex}|${targetIndex}`;
-      linkMap.set(linkId, (linkMap.get(linkId) || 0) + count);
-
-      // Update traffic counts
-      nodeIncomingTrafficMap.set(targetIndex, (nodeIncomingTrafficMap.get(targetIndex) || 0) + count);
-      nodeOutgoingTrafficMap.set(sourceIndex, (nodeOutgoingTrafficMap.get(sourceIndex) || 0) + count);
+    // Source node
+    let sourceIndex = nodeMap.get(sourceId);
+    if (sourceIndex === undefined) {
+      sourceIndex = nodes.length;
+      nodeMap.set(sourceId, sourceIndex);
+      nodes.push({
+        id: sourceId,
+        name: source,
+        depth: source_depth,
+        totalTraffic: 0,
+      });
+      nodeIncomingTrafficMap.set(sourceIndex, 0);
+      nodeOutgoingTrafficMap.set(sourceIndex, 0);
     }
+
+    // Target node
+    let targetIndex = nodeMap.get(targetId);
+    if (targetIndex === undefined) {
+      targetIndex = nodes.length;
+      nodeMap.set(targetId, targetIndex);
+      nodes.push({
+        id: targetId,
+        name: target,
+        depth: target_depth,
+        totalTraffic: 0,
+      });
+      nodeIncomingTrafficMap.set(targetIndex, 0);
+      nodeOutgoingTrafficMap.set(targetIndex, 0);
+    }
+
+    // Link aggregation
+    const linkId = `${sourceIndex}|${targetIndex}`;
+    linkMap.set(linkId, (linkMap.get(linkId) || 0) + value);
+
+    // Traffic bookkeeping
+    nodeIncomingTrafficMap.set(targetIndex, (nodeIncomingTrafficMap.get(targetIndex) || 0) + value);
+    nodeOutgoingTrafficMap.set(sourceIndex, (nodeOutgoingTrafficMap.get(sourceIndex) || 0) + value);
   });
 
-  // Assign total traffic to each node based on its position
+  // Finalize node traffic
   nodes.forEach((node, index) => {
     if (node.depth === 0) {
-      // Root nodes: use outgoing traffic as total traffic
       node.totalTraffic = nodeOutgoingTrafficMap.get(index) || 0;
     } else {
-      // Non-root nodes: use incoming traffic as total traffic
       node.totalTraffic = nodeIncomingTrafficMap.get(index) || 0;
     }
   });
 
-  // Convert link map to SankeyLinks
   const links: SankeyLink[] = Array.from(linkMap.entries()).map(([linkId, value]): SankeyLink => {
     const [source, target] = linkId.split('|').map(Number);
     return { source, target, value };
