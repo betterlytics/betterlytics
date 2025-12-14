@@ -59,7 +59,6 @@ function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyDat
         name: source,
         depth: source_depth,
         totalTraffic: 0,
-        percentageOfMax: 0,
       });
       nodeIncomingTrafficMap.set(sourceIndex, 0);
       nodeOutgoingTrafficMap.set(sourceIndex, 0);
@@ -75,7 +74,6 @@ function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyDat
         name: target,
         depth: target_depth,
         totalTraffic: 0,
-        percentageOfMax: 0,
       });
       nodeIncomingTrafficMap.set(targetIndex, 0);
       nodeOutgoingTrafficMap.set(targetIndex, 0);
@@ -91,17 +89,10 @@ function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyDat
   });
 
   // Finalize node traffic
-  let maxTraffic = 1;
   nodes.forEach((node, index) => {
     const traffic =
       node.depth === 0 ? nodeOutgoingTrafficMap.get(index) || 0 : nodeIncomingTrafficMap.get(index) || 0;
     node.totalTraffic = traffic;
-    if (traffic > maxTraffic) maxTraffic = traffic;
-  });
-
-  nodes.forEach((node) => {
-    const raw = maxTraffic > 0 ? (node.totalTraffic / maxTraffic) * 100 : 0;
-    node.percentageOfMax = Math.max(0, Math.min(100, raw));
   });
 
   const links: SankeyLink[] = Array.from(linkMap.entries()).map(([linkId, value]): SankeyLink => {
@@ -109,5 +100,5 @@ function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyDat
     return { source, target, value };
   });
 
-  return { nodes, links, maxTraffic };
+  return { nodes, links };
 }

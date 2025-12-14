@@ -3,11 +3,11 @@
 // ============================================
 export const COLORS = {
   node: {
-    fill: '#4766e5',
-    stroke: '#1d4ed8',
+    fill: 'var(--sankey-node-fill)',
+    stroke: 'var(--sankey-node-stroke)',
     strokeWidth: 1,
-    mutedFill: '#4766e533',
-    mutedStroke: '#1d4ed833',
+    mutedFill: 'var(--sankey-node-fill-muted)',
+    mutedStroke: 'var(--sankey-node-stroke-muted)',
   },
   link: {
     stroke: '#6fa8ff88', // blue-ish
@@ -26,14 +26,14 @@ export const COLORS = {
     mutedSubtext: '#cbd5e1', // Slate-300
   },
   card: {
-    bg: 'fill-[var(--sankey-card-bg)]',
-    bgMuted: 'fill-[var(--sankey-card-bg-muted)]',
-    bgHighlight: 'fill-[var(--sankey-card-bg-highlight)]',
-    border: 'stroke-[var(--sankey-card-border)]',
-    borderMuted: 'stroke-[var(--sankey-card-border-muted)]',
-    borderHighlight: 'stroke-[var(--sankey-card-border-highlight)]',
-    text: 'fill-[var(--foreground)]',
-    textMuted: 'fill-[var(--muted-foreground)]',
+    bg: 'var(--sankey-card-bg)',
+    bgMuted: 'var(--sankey-card-bg-muted)',
+    bgHighlight: 'var(--sankey-card-bg-highlight)',
+    border: 'var(--sankey-card-border)',
+    borderMuted: 'var(--sankey-card-border-muted)',
+    borderHighlight: 'var(--sankey-card-border-highlight)',
+    text: 'var(--foreground)',
+    textMuted: 'var(--muted-foreground)',
   },
 };
 

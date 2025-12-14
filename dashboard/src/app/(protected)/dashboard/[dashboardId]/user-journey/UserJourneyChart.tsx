@@ -128,14 +128,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
   const isHighlighting = highlightState !== null;
 
-  if (graph.isEmpty) {
-    return (
-      <div className='text-muted-foreground flex h-[500px] w-full items-center justify-center'>
-        No journey data available
-      </div>
-    );
-  }
-
   return (
     <div className='relative z-10'>
       <svg
