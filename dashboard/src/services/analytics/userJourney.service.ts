@@ -20,11 +20,16 @@ export async function getUserJourneyForSankeyDiagram(
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
 
+  // UI exposes "steps" as transitions (hops). The ClickHouse query expects
+  // maximum path length in nodes. Convert transitions -> nodes and ensure
+  // we request at least two nodes so a single transition exists.
+  const maxPathLength = Math.max(2, maxSteps + 1);
+
   const transitions = await getUserJourneyTransitions(
     siteId,
     formattedStart,
     formattedEnd,
-    maxSteps,
+    maxPathLength,
     limit,
     queryFilters,
   );

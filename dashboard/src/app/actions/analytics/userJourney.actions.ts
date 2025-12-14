@@ -11,7 +11,7 @@ import { AuthContext } from '@/entities/auth/authContext.entities';
  *
  * This returns complete user journeys grouped by frequency,
  * showing the exact paths users take through a site.
- * maxSteps is the number of steps in the journey (e.g., maxSteps=3 shows A→B→C)
+ * maxSteps counts transitions (hops). e.g., maxSteps=2 shows A -> B -> C.
  */
 export const fetchUserJourneyAction = withDashboardAuthContext(
   async (
