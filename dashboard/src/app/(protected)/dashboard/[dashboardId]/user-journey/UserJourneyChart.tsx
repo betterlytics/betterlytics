@@ -13,7 +13,6 @@ interface UserJourneyChartProps {
 }
 
 export default function UserJourneyChart({ data }: UserJourneyChartProps) {
-  // Build the graph structure once - this contains all nodes, links, and adjacency info
   const graph = useMemo(() => createSankeyGraph(data), [data]);
 
   // Calculate SVG dimensions based on graph structure
@@ -30,10 +29,8 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
     [graph, width, height],
   );
 
-  // Track hover/highlight state
   const [highlightState, setHighlightState] = useState<HighlightState | null>(null);
 
-  // Tooltip
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
     x: 0,
@@ -64,7 +61,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      // Check if mouse is outside the container
       if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
         setHighlightState(null);
       }
@@ -94,7 +90,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
     [updateTooltip],
   );
 
-  // Handle node hover - use graph's traversal method
   const handleNodeHover = useCallback(
     (nodeId: string | null) => {
       if (nodeId === null) {
@@ -106,7 +101,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
     [graph],
   );
 
-  // Handle link hover - use graph's traversal method
   const handleLinkHover = useCallback(
     (linkIndex: number | null) => {
       if (linkIndex === null) {

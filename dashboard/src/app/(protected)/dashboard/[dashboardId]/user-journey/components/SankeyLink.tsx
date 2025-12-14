@@ -1,8 +1,7 @@
 'use client';
 
-import { LinkPosition } from '../types';
-import { COLORS } from '../constants';
-import { formatNumber } from '@/utils/formatters';
+import { LinkPosition } from '@/app/(protected)/dashboard/[dashboardId]/user-journey/types';
+import { COLORS } from '@/app/(protected)/dashboard/[dashboardId]/user-journey/constants';
 
 export interface SankeyLinkProps {
   link: LinkPosition;
@@ -25,10 +24,8 @@ export function SankeyLink({ link, isHighlighted, isMuted, onHover }: SankeyLink
 
   const path = `M ${x0},${y0} C ${cx0},${y0} ${cx1},${y1} ${x1},${y1}`;
 
-  // Build a unique gradient ID per link
   const gradientId = `gradient-${link.source.id}-${link.target.id}`.replace(/\s+/g, '-');
 
-  // Base colors — you can tune these or derive from highlight/muted state
   const start = isMuted
     ? COLORS.link.mutedStroke
     : isHighlighted
@@ -39,6 +36,7 @@ export function SankeyLink({ link, isHighlighted, isMuted, onHover }: SankeyLink
     : isHighlighted
       ? COLORS.link.highlightStrokeMiddle
       : COLORS.link.strokeMiddle;
+
   const end = start; // symmetric
 
   return (
