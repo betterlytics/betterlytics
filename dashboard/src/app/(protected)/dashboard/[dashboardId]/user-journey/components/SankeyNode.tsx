@@ -87,7 +87,9 @@ export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }
         rx={cardRadius}
         ry={cardRadius}
         strokeWidth={1}
-        className={`pointer-events-none transition-all duration-200 ${cardBgClass} ${cardBorderClass}`}
+        fill={cardBgClass}
+        stroke={cardBorderClass}
+        className={`pointer-events-none transition-all duration-200`}
         opacity={labelOpacity}
         filter={isHighlighted ? 'url(#cardGlow)' : undefined}
       />
@@ -102,7 +104,8 @@ export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }
         fontSize={9}
         fontWeight={500}
         letterSpacing='-0.01em'
-        className={`pointer-events-none transition-colors duration-200 select-none ${titleClass}`}
+        fill={titleClass}
+        className={`pointer-events-none transition-colors duration-200 select-none`}
         opacity={labelOpacity}
       >
         {titleText}
@@ -118,7 +121,8 @@ export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }
         fontSize={8}
         fontWeight={700}
         letterSpacing='-0.01em'
-        className={`pointer-events-none transition-colors duration-200 select-none ${COLORS.card.textMuted}`}
+        fill={COLORS.card.textMuted}
+        className={`pointer-events-none transition-colors duration-200 select-none`}
         opacity={labelOpacity}
       >
         {formatNumber(node.totalTraffic)}
