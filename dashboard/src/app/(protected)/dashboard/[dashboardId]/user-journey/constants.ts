@@ -3,11 +3,11 @@
 // ============================================
 export const COLORS = {
   node: {
-    fill: '#4766e5',
-    stroke: '#1d4ed8',
+    fill: 'var(--sankey-node-fill)',
+    stroke: 'var(--sankey-node-stroke)',
     strokeWidth: 1,
-    mutedFill: '#4766e533',
-    mutedStroke: '#1d4ed833',
+    mutedFill: 'var(--sankey-node-fill-muted)',
+    mutedStroke: 'var(--sankey-node-stroke-muted)',
   },
   link: {
     stroke: '#6fa8ff88', // blue-ish
