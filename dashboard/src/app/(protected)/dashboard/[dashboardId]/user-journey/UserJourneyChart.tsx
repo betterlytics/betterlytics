@@ -100,15 +100,19 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       if (nodeId === null) {
         setHighlightState(null);
       } else {
+        updateTooltip({
+          visible: false,
+        });
         setHighlightState(graph.findConnectedFromNode(nodeId));
       }
     },
-    [graph],
+    [graph, updateTooltip],
   );
 
   // Handle link hover - use graph's traversal method
   const handleLinkHover = useCallback(
     (linkIndex: number | null) => {
+      console.log('handleLinkHover', linkIndex);
       if (linkIndex === null) {
         setHighlightState(null);
       } else {
