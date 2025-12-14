@@ -201,7 +201,7 @@ function calculateLinkPositions(
   config: LayoutConfig,
 ): LinkPosition[] {
   // Pre-compute available heights for links (using pre-computed totals from GraphNode)
-  const availableHeights = computeAvailableHeights(graph, nodePositions, nodePositionMap);
+  const availableHeights = computeAvailableHeights(graph, nodePositions);
 
   // Sort links to minimize crossings
   const sortedLinks = sortLinksByPosition(graph.links, nodePositionMap);
@@ -221,7 +221,6 @@ function calculateLinkPositions(
 function computeAvailableHeights(
   graph: SankeyGraph,
   nodePositions: NodePosition[],
-  nodePositionMap: Map<string, NodePosition>,
 ): { outgoing: Map<string, number>; incoming: Map<string, number> } {
   const outgoing = new Map<string, number>();
   const incoming = new Map<string, number>();
