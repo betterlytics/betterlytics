@@ -46,5 +46,4 @@ export const LAYOUT = {
   nodeRadius: 2,
   minNodeHeight: 8,
   nodeHeightRatio: 0.5,
-  linkGapRatio: 0, // Gap between links as a ratio of available space
 };

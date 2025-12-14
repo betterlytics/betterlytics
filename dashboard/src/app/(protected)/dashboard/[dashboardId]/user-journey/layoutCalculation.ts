@@ -16,7 +16,6 @@ interface LayoutConfig {
   paddingLeft: number;
   nodeWidth: number;
   minNodeHeight: number;
-  linkGapRatio: number;
 }
 
 /**
@@ -39,7 +38,7 @@ export function calculateLayout(graph: SankeyGraph, width: number, height: numbe
  * Create layout configuration from graph metrics and dimensions
  */
 function createLayoutConfig(graph: SankeyGraph, width: number, height: number): LayoutConfig {
-  const { padding, nodeWidth, minNodeHeight, linkGapRatio, nodeHeightRatio } = LAYOUT;
+  const { padding, nodeWidth, minNodeHeight, nodeHeightRatio } = LAYOUT;
   const labelMargin = 110;
 
   const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
@@ -58,7 +57,6 @@ function createLayoutConfig(graph: SankeyGraph, width: number, height: number): 
     paddingLeft: padding.left,
     nodeWidth,
     minNodeHeight,
-    linkGapRatio,
   };
 }
 
@@ -274,14 +272,11 @@ function initializeLinkOffsets(
     const outHeight = availableHeights.outgoing.get(pos.id) ?? pos.height;
     const inHeight = availableHeights.incoming.get(pos.id) ?? pos.height;
 
-    const outGap = node.outgoingCount > 1 ? outHeight * config.linkGapRatio : 0;
-    const inGap = node.incomingCount > 1 ? inHeight * config.linkGapRatio : 0;
-
     const outPadding = (pos.height - outHeight) / 2;
     const inPadding = (pos.height - inHeight) / 2;
 
-    source.set(pos.id, outPadding + (node.outgoingCount > 1 ? outGap / (node.outgoingCount + 1) : 0));
-    target.set(pos.id, inPadding + (node.incomingCount > 1 ? inGap / (node.incomingCount + 1) : 0));
+    source.set(pos.id, outPadding);
+    target.set(pos.id, inPadding);
   });
 
   return { source, target };
@@ -318,12 +313,8 @@ function calculateSingleLinkPosition(
   const sourceY = sourcePos.y + sourceOffset + sourceWidth / 2;
   const targetY = targetPos.y + targetOffset + targetWidth / 2;
 
-  // Update offsets for next link
-  const sourceGap = (sourceAvailHeight * config.linkGapRatio) / (sourceNode.outgoingCount || 1);
-  const targetGap = (targetAvailHeight * config.linkGapRatio) / (targetNode.incomingCount || 1);
-
-  offsets.source.set(link.sourceId, sourceOffset + sourceWidth + sourceGap);
-  offsets.target.set(link.targetId, targetOffset + targetWidth + targetGap);
+  offsets.source.set(link.sourceId, sourceOffset + sourceWidth);
+  offsets.target.set(link.targetId, targetOffset + targetWidth);
 
   return {
     index: link.index,
