@@ -58,6 +58,20 @@
   --card-foreground: oklch(0.2 0.01 265);
   --card-interactive: oklch(96% 0.005 260);
 
+  /* Sankey node colors */
+  --sankey-node-fill: #6b8ef5;
+  --sankey-node-stroke: #3b82f6;
+  --sankey-node-fill-muted: rgba(107, 142, 245, 0.2);
+  --sankey-node-stroke-muted: rgba(59, 130, 246, 0.2);
+
+  /* Sankey node cards */
+  --sankey-card-bg: rgba(255, 255, 255, 0.92);
+  --sankey-card-bg-muted: rgba(241, 245, 249, 0.4);
+  --sankey-card-bg-highlight: rgba(255, 255, 255, 0.98);
+  --sankey-card-border: rgba(203, 213, 225, 0.6);
+  --sankey-card-border-muted: rgba(203, 213, 225, 0.3);
+  --sankey-card-border-highlight: rgba(99, 102, 241, 0.4);
+
   --popover: white;
   --popover-foreground: oklch(0.15 0 0);
 
@@ -134,6 +148,20 @@
   --card: hsl(240, 3%, 10%); /* card */
   --card-foreground: oklch(0.95 0.01 265);
   --card-interactive: hsl(0 0% 15%);
+
+  /* Sankey node colors */
+  --sankey-node-fill: #4766e5;
+  --sankey-node-stroke: #1d4ed8;
+  --sankey-node-fill-muted: rgba(71, 102, 229, 0.2);
+  --sankey-node-stroke-muted: rgba(29, 78, 216, 0.2);
+
+  /* Sankey node cards */
+  --sankey-card-bg: rgba(30, 41, 59, 0.85);
+  --sankey-card-bg-muted: rgba(30, 41, 59, 0.3);
+  --sankey-card-bg-highlight: rgba(51, 65, 85, 0.95);
+  --sankey-card-border: rgba(71, 85, 105, 0.4);
+  --sankey-card-border-muted: rgba(71, 85, 105, 0.2);
+  --sankey-card-border-highlight: rgba(99, 102, 241, 0.5);
 
   --popover: hsl(0 0% 15%);
   --popover-foreground: oklch(0.95 0.01 265);
