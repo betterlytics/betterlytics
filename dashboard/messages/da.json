@@ -2082,13 +2082,7 @@
     }
   },
   "onboarding": {
-    "main": {
-      "registrationDisabled": {
-        "title": "Registrering deaktiveret",
-        "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
-        "backToSignIn": "Tilbage til log ind"
-      }
-    },
+    "registrationDisabled": "Registrering er i øjeblikket deaktiveret på denne instans.",
     "account": {
       "features": {
         "feature1": {

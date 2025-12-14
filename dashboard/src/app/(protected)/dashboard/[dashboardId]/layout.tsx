@@ -47,7 +47,8 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
 
   const mustAcceptTerms =
-    !session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION;
+    isClientFeatureEnabled('isCloud') &&
+    (!session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION);
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
