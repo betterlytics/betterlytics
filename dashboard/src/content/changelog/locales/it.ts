@@ -2,49 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.7',
-    releasedAt: '2025-12-07',
+    version: 'v1.2.8',
+    releasedAt: '2025-12-14',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v127-new-features',
+      id: 'v128-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'La pagina delle campagne è stata completamente ricostruita per concentrarsi sulle campagne UTM nominate.',
-            'Ora puoi aggiungere annotazioni ai grafici principali per evidenziare eventi importanti, rilasci o variazioni del traffico.',
-            'La pagina Funnels è stata completamente ridisegnata con un layout più intuitivo e visivo. Vai a dare un’occhiata!',
-            'Blocca eventi provenienti da indirizzi IP specifici per evitare traffico distorto o indesiderato (ad esempio, le tue visite).',
+            'La visualizzazione di User Journey è stata ridisegnata con un’interfaccia moderna che rende più semplice comprendere come i visitatori navigano sul tuo sito.',
+            'Ora puoi clonare i funnel esistenti per creare rapidamente varianti o testare diverse configurazioni.',
           ],
         },
       ],
     },
     {
-      id: 'v127-security-auth',
-      title: 'Sicurezza & Autenticazione',
+      id: 'v128-improvements-and-fixes',
+      title: 'Miglioramenti e correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'La tua sicurezza account è stata rafforzata e migliorata.',
-            'Corretta la vulnerabilità recente di React Server Components (CVE-2025-66478).',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v127-improvements-and-fixes',
-      title: 'Miglioramenti & Correzioni',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Aggiunto un pulsante in-app "Segnala un bug" per inviare rapidamente feedback.',
-            "Corrette le metriche pagine-per-sessione nella vista Pages, ora rispecchiano correttamente l'utilizzo effettivo.",
+            'I colori della mappa geografica e della heatmap settimanale sono stati aggiornati per evidenziare meglio le differenze nel numero di visitatori.',
+            'Introdotto un nuovo endpoint di tracciamento /event con semantica più chiara e un nome privacy-friendly. Le integrazioni esistenti basate su /track continuano a funzionare senza modifiche.',
+            'Corretto un bug per cui i tooltip dell’intervallo di confronto mostravano date errate; i dati sottostanti erano sempre corretti.',
+            'Risolto un problema che impediva il cambio della password per gli account che accedono tramite email e password invece che con login social.',
           ],
         },
       ],
@@ -53,6 +40,60 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.8',
+      releasedAt: '2025-12-14',
+      title: 'User Journey ridisegnato, clonazione dei funnel e miglioramenti all’affidabilità della piattaforma',
+      summary:
+        'User Journey riceve un completo aggiornamento visivo, i funnel ora possono essere clonati e i miglioramenti in affidabilità e precisione dei dati migliorano l’esperienza utente.',
+    },
+    sections: [
+      {
+        id: 'v128-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La visualizzazione di User Journey è stata ridisegnata con un’interfaccia moderna che rende più semplice comprendere come i visitatori navigano sul tuo sito.',
+              'Ora puoi clonare i funnel esistenti per creare rapidamente varianti o testare diverse configurazioni senza dover ripartire da zero.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v128-security',
+        title: 'Sicurezza',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Next.js e React sono stati aggiornati per correggere vulnerabilità di sicurezza recentemente divulgate e proteggere i tuoi dati e account.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v128-improvements-and-fixes',
+        title: 'Miglioramenti e correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La precisione dei dati di User Journey è stata migliorata per offrire informazioni più affidabili sui percorsi dei visitatori.',
+              'I colori della mappa geografica e della heatmap settimanale sono stati aggiornati per evidenziare meglio le differenze nel numero di visitatori.',
+              'Risolto un problema che impediva il cambio della password per gli account che utilizzano accesso tramite email e password.',
+              'Le modifiche alle impostazioni richiedono ora il clic su "Salva" prima di essere applicate, evitando cambiamenti accidentali.',
+              'Corretto un bug per cui i tooltip dell’intervallo di confronto mostravano date errate.',
+              'Risolto un problema che poteva impedire il corretto rendering dei grafici a causa delle annotazioni.',
+              'Introdotto un nuovo endpoint di tracciamento /event con una semantica più chiara e un migliore allineamento alla nostra architettura privacy-first. Le integrazioni esistenti basate su /track continuano a funzionare senza modifiche.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.7',

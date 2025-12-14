@@ -2,49 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.7',
-    releasedAt: '2025-12-07',
+    version: 'v1.2.8',
+    releasedAt: '2025-12-14',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v127-new-features',
+      id: 'v128-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'The Campaign page has been fully rebuilt to focus on named UTM campaigns.',
-            'You can now add annotations to main charts to highlight important events, releases, or traffic changes.',
-            'Funnels page has been fully redesigned with a more intuitive, visual layout. Go check it out!',
-            'Block events from specific IP addresses to avoid skewed or unwanted traffic (e.g., your own visits).',
+            'User Journey visualization has been redesigned with a modern interface that makes it easier to understand how visitors navigate your site.',
+            'You can now clone existing funnels to quickly create variations or test different configurations.',
           ],
         },
       ],
     },
     {
-      id: 'v127-security-auth',
-      title: 'Security & Authentication',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Your account security has been strengthened and improved.',
-            'Patched the recent React Server Components vulnerability (CVE-2025-66478).',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v127-improvements-and-fixes',
+      id: 'v128-improvements-and-fixes',
       title: 'Improvements & Fixes',
       blocks: [
         {
           type: 'list',
           items: [
-            'Added an in-app "Report a bug" button for quick feedback submissions.',
-            'Corrected page-per-session calculations in the Pages view so metrics now accurately reflect actual usage.',
+            'Geography map and weekly heatmap colors have been updated to better highlight differences in visitor numbers.',
+            'Introduced a new /event tracking endpoint with clearer semantics and a privacy-friendly name. Existing /track integrations continue to work without changes.',
+            'Fixed a bug where comparison range tooltips displayed incorrect dates; the underlying data was always correct.',
+            'Fixed an issue where password changes were not working for accounts that signed in with email and password instead of social login.',
           ],
         },
       ],
@@ -53,6 +40,60 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.8',
+      releasedAt: '2025-12-14',
+      title: 'Redesigned User Journey, funnel cloning, and platform reliability improvements',
+      summary:
+        'User Journey gets a complete visual refresh, funnels can now be cloned, and reliability and accuracy improvements enhance user experience',
+    },
+    sections: [
+      {
+        id: 'v128-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'User Journey visualization has been redesigned with a fresh, modern interface that makes it easier to understand how visitors navigate your site.',
+              'You can now clone existing funnels to quickly create variations or test different configurations without starting from scratch.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v128-security',
+        title: 'Security',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Updated Next.js and React to patch recently disclosed security vulnerabilities, keeping your data and accounts secure.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v128-improvements-and-fixes',
+        title: 'Improvements & Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'User Journey data accuracy has been improved for more reliable insights into visitor paths.',
+              'Geography map and weekly heatmap colors have been updated to better highlight differences in visitor numbers, making patterns easier to spot at a glance.',
+              'Fixed an issue where password changes were not working for accounts that signed in with email and password instead of social login providers.',
+              'Settings changes now require clicking "Save" before taking effect, preventing accidental modifications.',
+              'Fixed a bug where comparison range tooltips displayed incorrect dates.',
+              'Resolved an issue where chart annotations could prevent charts from rendering properly.',
+              'Introduced a new /event tracking endpoint with clearer semantics and improved alignment with our privacy-first architecture. Existing /track integrations continue to work without changes.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.7',

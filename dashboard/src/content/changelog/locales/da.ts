@@ -2,49 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.7',
-    releasedAt: '2025-12-07',
+    version: 'v1.2.8',
+    releasedAt: '2025-12-14',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v127-new-features',
+      id: 'v128-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Kampagnesiden er fuldstændig genopbygget med fokus på navngivne UTM-kampagner.',
-            'Du kan nu tilføje annotationer til hoveddiagrammer for at fremhæve vigtige begivenheder, udgivelser eller trafikændringer.',
-            'Funnels-siden er fuldstændig redesignet med et mere intuitivt, visuelt layout. Tjek det ud!',
-            'Bloker events fra specifikke IP-adresser for at undgå skæv eller uønsket trafik (f.eks. dine egne besøg).',
+            'Visualiseringen af User Journey er blevet redesignet med en moderne brugerflade, der gør det nemmere at forstå, hvordan besøgende navigerer på dit website.',
+            'Du kan nu klone eksisterende funnels for hurtigt at oprette variationer eller teste forskellige konfigurationer.',
           ],
         },
       ],
     },
     {
-      id: 'v127-security-auth',
-      title: 'Sikkerhed & Autentificering',
+      id: 'v128-improvements-and-fixes',
+      title: 'Forbedringer & rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Din konto-sikkerhed er blevet styrket og forbedret.',
-            'Patchet den seneste React Server Components-sårbarhed (CVE-2025-66478).',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v127-improvements-and-fixes',
-      title: 'Forbedringer & Rettelser',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Tilføjet en in-app "Rapporter en fejl"-knap for hurtig indsendelse af feedback.',
-            'Fikset side-per-session-beregninger, så metrikker nu nøjagtigt afspejler faktisk brug.',
+            'Farverne på verdenskortet og det ugentlige heatmap er opdateret for tydeligere at fremhæve forskelle i besøgsantal.',
+            'Introduceret et nyt /event tracking-endpoint med tydeligere semantik og et privacy-venligt navn. Eksisterende /track-integrationer fungerer fortsat uden ændringer.',
+            'Rettet en fejl, hvor tooltips for sammenligningsperioder viste forkerte datoer; de underliggende data var altid korrekte.',
+            'Rettet et problem, hvor ændring af adgangskode ikke virkede for konti, der logger ind med e-mail og adgangskode i stedet for social login.',
           ],
         },
       ],
@@ -53,6 +40,60 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.8',
+      releasedAt: '2025-12-14',
+      title: 'Redesignet User Journey, kloning af funnels og forbedret platformstabilitet',
+      summary:
+        'User Journey har fået et komplet visuelt løft, funnels kan nu klones, og forbedringer i stabilitet og datanøjagtighed giver en bedre brugeroplevelse.',
+    },
+    sections: [
+      {
+        id: 'v128-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Visualiseringen af User Journey er blevet redesignet med en moderne brugerflade, der gør det nemmere at forstå, hvordan besøgende navigerer på dit website.',
+              'Du kan nu klone eksisterende funnels for hurtigt at oprette variationer eller teste forskellige konfigurationer uden at starte forfra.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v128-security',
+        title: 'Sikkerhed',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Next.js og React er blevet opdateret for at rette nyligt offentliggjorte sikkerhedssårbarheder og sikre dine data og konti.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v128-improvements-and-fixes',
+        title: 'Forbedringer & rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Datanøjagtigheden i User Journey er forbedret for at give mere pålidelige indsigter i besøgendes adfærd.',
+              'Farverne på verdenskortet og det ugentlige heatmap er opdateret for tydeligere at fremhæve forskelle i besøgsantal.',
+              'Rettet et problem, hvor ændring af adgangskode ikke virkede for konti, der logger ind med e-mail og adgangskode.',
+              'Ændringer i indstillinger kræver nu, at der klikkes på "Gem", før de træder i kraft, for at forhindre utilsigtede ændringer.',
+              'Rettet en fejl, hvor tooltips for sammenligningsperioder viste forkerte datoer.',
+              'Løst et problem, hvor diagramannotationer kunne forhindre diagrammer i at blive vist korrekt.',
+              'Introduceret et nyt /event tracking-endpoint med tydeligere semantik og et navn, der bedre afspejler vores privacy-first arkitektur. Eksisterende /track-integrationer fungerer fortsat uden ændringer.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.7',
