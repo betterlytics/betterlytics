@@ -1,7 +1,3 @@
-// ============================================
-// TYPES
-// ============================================
-
 export interface NodePosition {
   id: string;
   name: string;

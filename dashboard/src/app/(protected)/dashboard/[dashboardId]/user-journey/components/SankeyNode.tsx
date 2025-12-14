@@ -2,9 +2,9 @@
 
 import { useRef } from 'react';
 import { formatPercentage, formatString } from '@/utils/formatters';
-import { useSvgTextWidth } from '../useSvgTextWidth';
-import { NodePosition } from '../types';
-import { COLORS, LAYOUT } from '../constants';
+import { useSvgTextWidth } from '@/app/(protected)/dashboard/[dashboardId]/user-journey/useSvgTextWidth';
+import { NodePosition } from '@/app/(protected)/dashboard/[dashboardId]/user-journey/types';
+import { COLORS, LAYOUT } from '@/app/(protected)/dashboard/[dashboardId]/user-journey/constants';
 import { formatNumber } from '@/utils/formatters';
 
 export interface SankeyNodeProps {
@@ -16,7 +16,7 @@ export interface SankeyNodeProps {
 }
 
 export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }: SankeyNodeProps) {
-  const cardPadding = { x: 5, y: 4 };
+  const cardPadding = { x: 7, y: 5 };
   const cardGap = 5;
   const cardHeight = 30;
   const cardRadius = 4;
@@ -32,17 +32,17 @@ export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }
   const percentageValue = Math.max(0, Math.min(100, percentageRaw));
   const percentageLabel = formatPercentage(percentageValue, 1);
 
-  const titleText = formatString(node.name, 11);
+  const titleText = formatString(node.name, 17);
   const countText = `${formatNumber(node.totalTraffic)} (${percentageLabel})`;
 
   const titleWidth = useSvgTextWidth(titleRef, [titleText], {
     min: 56,
-    max: 140,
+    max: 170,
     padding: cardPadding.x * 2,
   });
   const countWidth = useSvgTextWidth(countRef, [countText, percentageLabel], {
     min: 56,
-    max: 140,
+    max: 170,
     padding: cardPadding.x * 2,
   });
   const cardWidth = Math.max(titleWidth, countWidth);
@@ -115,7 +115,7 @@ export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }
       <text
         ref={countRef}
         x={cardX + cardPadding.x}
-        y={cardY + cardPadding.y + 17}
+        y={cardY + cardPadding.y + 18}
         textAnchor='start'
         dominantBaseline='middle'
         fontSize={8}
