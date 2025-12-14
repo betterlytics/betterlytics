@@ -91,7 +91,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
       updateTooltip({ x, y });
     },
-    [highlightState, updateTooltip],
+    [updateTooltip],
   );
 
   // Handle node hover - use graph's traversal method
@@ -123,7 +123,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
         });
       }
     },
-    [graph],
+    [graph, updateTooltip],
   );
 
   const isHighlighting = highlightState !== null;
