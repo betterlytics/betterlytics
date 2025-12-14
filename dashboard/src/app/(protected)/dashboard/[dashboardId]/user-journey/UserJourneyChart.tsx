@@ -254,6 +254,10 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
     [outgoingLinks, incomingLinks],
   );
 
+  const isHighlighting = highlightState !== null;
+
+  const maxTraffic = useMemo(() => Math.max(...nodePositions.map((n) => n.totalTraffic), 1), [nodePositions]);
+
   if (!data.nodes.length) {
     return (
       <div className='text-muted-foreground flex h-[500px] w-full items-center justify-center'>
@@ -261,10 +265,6 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       </div>
     );
   }
-
-  const isHighlighting = highlightState !== null;
-
-  const maxTraffic = useMemo(() => Math.max(...nodePositions.map((n) => n.totalTraffic), 1), [nodePositions]);
 
   return (
     <svg viewBox={`0 0 ${width} ${1.25 * height}`} onMouseLeave={() => setHighlightState(null)}>
