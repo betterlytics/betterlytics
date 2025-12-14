@@ -6,12 +6,15 @@ import { HighlightState } from './types';
 import { createSankeyGraph } from './SankeyGraph';
 import { calculateLayout } from './layoutCalculation';
 import { SankeyNode, SankeyLink } from './components';
+import { useTranslations } from 'next-intl';
 
 interface UserJourneyChartProps {
   data: SankeyData;
 }
 
 export default function UserJourneyChart({ data }: UserJourneyChartProps) {
+  const t = useTranslations('dashboard.emptyStates');
+
   // Build the graph structure once - this contains all nodes, links, and adjacency info
   const graph = useMemo(() => createSankeyGraph(data), [data]);
 
@@ -61,7 +64,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
   if (graph.isEmpty) {
     return (
       <div className='text-muted-foreground flex h-[500px] w-full items-center justify-center'>
-        No journey data available
+        {t('noUserJourneyData')}
       </div>
     );
   }
