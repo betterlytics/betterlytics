@@ -95,8 +95,25 @@ interface UserJourneyChartProps {
 // MAIN COMPONENT
 // ============================================
 export default function UserJourneyChart({ data }: UserJourneyChartProps) {
-  const width = 900;
-  const height = 500;
+  const { width, height } = useMemo(() => {
+    const depthSet = new Map<number, number>();
+    data.nodes.forEach((node) => {
+      if (!depthSet.has(node.depth)) {
+        depthSet.set(node.depth, 0);
+      }
+      depthSet.set(node.depth, depthSet.get(node.depth)! + 1);
+    });
+
+    let maxDepth = 0;
+    depthSet.forEach((count) => {
+      maxDepth = Math.max(maxDepth, count);
+    });
+
+    return {
+      width: 900,
+      height: maxDepth * 100,
+    };
+  }, [data]);
 
   const { nodePositions, linkPositions } = useMemo(
     () => calculateLayout(data, width, height),
@@ -250,7 +267,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
   const maxTraffic = useMemo(() => Math.max(...nodePositions.map((n) => n.totalTraffic), 1), [nodePositions]);
 
   return (
-    <svg viewBox={`0 0 ${width} ${1.5 * height}`} onMouseLeave={() => setHighlightState(null)}>
+    <svg viewBox={`0 0 ${width} ${1.25 * height}`} onMouseLeave={() => setHighlightState(null)}>
       {/* Definitions for filters */}
       <defs>
         <filter id='textShadowLight' x='-50%' y='-50%' width='200%' height='200%'>
