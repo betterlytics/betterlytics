@@ -34,7 +34,7 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
 
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <div className='container flex h-[calc(100svh-70px)] max-h-[calc(100svh-70px)] flex-col space-y-3 overflow-y-hidden p-2 pt-4 pb-0 sm:p-6 sm:pb-0'>
       <DashboardHeader title={t('userJourney')}>
         <DashboardFilters showComparison={false}>
           <div className='hidden 2xl:inline-block'>
