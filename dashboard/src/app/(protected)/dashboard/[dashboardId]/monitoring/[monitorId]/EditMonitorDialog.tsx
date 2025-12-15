@@ -60,7 +60,6 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     setCheckSslErrors(monitor.checkSslErrors);
     setSslExpiryReminders(monitor.sslExpiryReminders);
     setHttpMethod(monitor.httpMethod);
-    // Always ensure there's at least one empty row for headers
     const existingHeaders = monitor.requestHeaders ?? [];
     const hasEmptyRow = existingHeaders.some((h) => h.key === '' && h.value === '');
     setRequestHeaders(hasEmptyRow ? existingHeaders : [...existingHeaders, { key: '', value: '' }]);
@@ -161,7 +160,6 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const handleSave = () => {
     startTransition(async () => {
       try {
-        // Filter out headers with empty keys
         const validHeaders = requestHeaders.filter((h) => h.key.trim() !== '');
         await updateMonitorCheckAction(dashboardId, {
           id: monitor.id,
@@ -255,13 +253,13 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
             </Card>
 
             <Collapsible defaultOpen={false} className='group/ssl'>
-              <Card className='bg-card border-border gap-0 py-2'>
+              <Card className='bg-card border-border gap-3 py-2'>
                 <CollapsibleTrigger className='hover:bg-muted/30 flex w-full cursor-pointer items-center gap-2 px-4 py-3 transition-colors'>
                   <ChevronRight className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/ssl:rotate-90' />
                   <span className='text-sm font-medium'>SSL certificate and Domain checks</span>
                 </CollapsibleTrigger>
                 <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
-                  <CardContent className='space-y-5 pt-4'>
+                  <CardContent className='space-y-5 pb-2'>
                     <div className='flex items-center justify-between'>
                       <div className='space-y-0.5'>
                         <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
@@ -301,14 +299,13 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
             </Collapsible>
 
             <Collapsible defaultOpen={false} className='group/advanced'>
-              <Card className='bg-card border-border gap-0 py-2'>
+              <Card className='bg-card border-border gap-3 py-2'>
                 <CollapsibleTrigger className='hover:bg-muted/30 flex w-full cursor-pointer items-center gap-2 px-4 py-3 transition-colors'>
                   <ChevronRight className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/advanced:rotate-90' />
                   <span className='text-sm font-medium'>Advanced settings</span>
                 </CollapsibleTrigger>
                 <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
-                  <CardContent className='space-y-6 pt-4'>
-                    {/* HTTP Method */}
+                  <CardContent className='space-y-6 pb-2'>
                     <div className='space-y-3'>
                       <div className='space-y-0.5'>
                         <Label className='text-sm font-medium'>HTTP method</Label>
@@ -337,7 +334,6 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
                     <Separator />
 
-                    {/* Request Headers */}
                     <div className='space-y-3'>
                       <div className='space-y-0.5'>
                         <Label className='text-sm font-medium'>Request headers</Label>
@@ -392,7 +388,6 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
                     <Separator />
 
-                    {/* Accepted Status Codes */}
                     <div className='space-y-3'>
                       <div className='space-y-0.5'>
                         <Label className='text-sm font-medium'>Accepted status codes</Label>
