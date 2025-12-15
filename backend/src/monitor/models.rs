@@ -6,25 +6,6 @@ use std::time::Duration;
 use url::Url;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum BackoffReason {
-    None,
-    Failure,
-    Manual,
-    RateLimited,
-}
-
-impl BackoffReason {
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            BackoffReason::None => "none",
-            BackoffReason::Failure => "failure",
-            BackoffReason::Manual => "manual",
-            BackoffReason::RateLimited => "rate_limited",
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ReasonCode {
     Ok,
     TlsHandshakeFailed,
@@ -99,6 +80,15 @@ pub enum MonitorStatus {
     Warn = 2,
     Down = 3,
     Error = 4,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum BackoffReason {
+    None = 0,
+    Failure = 1,
+    Manual = 2,
+    RateLimited = 3,
 }
 
 #[derive(Debug, Clone)]
@@ -205,7 +195,7 @@ pub struct MonitorResultRow {
     pub backoff_level: u8,
     pub consecutive_failures: u16,
     pub consecutive_successes: u16,
-    pub backoff_reason: String,
+    pub backoff_reason: BackoffReason,
     pub error: String,
     pub extra: String,
 }
@@ -236,7 +226,7 @@ impl MonitorResultRow {
             backoff_level: backoff.backoff_level,
             consecutive_failures: backoff.consecutive_failures,
             consecutive_successes: backoff.consecutive_successes,
-            backoff_reason: backoff.backoff_reason.as_str().to_string(),
+            backoff_reason: backoff.backoff_reason,
             error: outcome.error.clone().unwrap_or_default(),
             extra: serde_json::json!({
                 "redirect_hops": outcome.redirect_hops,
@@ -266,7 +256,7 @@ impl MonitorResultRow {
             backoff_level: backoff.backoff_level,
             consecutive_failures: backoff.consecutive_failures,
             consecutive_successes: backoff.consecutive_successes,
-            backoff_reason: backoff.backoff_reason.as_str().to_string(),
+            backoff_reason: backoff.backoff_reason,
             error: outcome.error.clone().unwrap_or_default(),
             extra: String::new(),
         }

@@ -57,13 +57,6 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    info!(
-        enable_uptime_monitoring_env = %std::env::var("ENABLE_UPTIME_MONITORING").unwrap_or_else(|_| "<unset>".to_string()),
-        enable_uptime_monitoring = config.enable_uptime_monitoring,
-        monitor_db_url_present = config.monitor_database_url.is_some(),
-        "monitoring configuration snapshot"
-    );
-
     referrer::initialize(&config.referrer_db_path);
 
     ua_parser::initialize(&config.ua_regexes_path);
