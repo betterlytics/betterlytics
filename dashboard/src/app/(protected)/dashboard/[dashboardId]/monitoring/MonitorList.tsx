@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
+import { formatIntervalLabel } from './utils';
 import {
   type MonitorStatus,
   type MonitorTlsResult,
@@ -47,15 +48,6 @@ export function MonitorList({ monitors }: MonitorListProps) {
   const tMonitoringLabels = useTranslations('monitoring.labels');
   const tSsl = useTranslations('monitoring.ssl');
 
-  const formatIntervalLabel = (intervalSeconds?: number): string => {
-    if (intervalSeconds == null || Number.isNaN(intervalSeconds)) return '—';
-    if (intervalSeconds % 60 === 0) {
-      const mins = intervalSeconds / 60;
-      return t('list.intervalMinutes', { value: mins });
-    }
-    return t('list.intervalSeconds', { value: intervalSeconds });
-  };
-
   if (!monitors.length) {
     return (
       <Card className='border-border/50 bg-card/80 px-6 py-10 text-center'>
@@ -91,7 +83,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const { theme } = presentUptimeTone(uptimePercent ?? null);
 
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;
-        const effectiveLabel = formatIntervalLabel(monitor.effectiveIntervalSeconds ?? monitor.intervalSeconds);
+        const effectiveLabel = formatIntervalLabel(t, monitor.effectiveIntervalSeconds ?? monitor.intervalSeconds);
 
         return (
           <Link
@@ -122,7 +114,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     </div>
                     <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs md:hidden'>
                       <RefreshCcw size={14} aria-hidden />
-                      <span>{formatIntervalLabel(monitor.intervalSeconds)}</span>
+                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
                       {isBackedOff ? (
                         <BackoffBadge
                           label={effectiveLabel}
@@ -137,7 +129,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   <div className='text-muted-foreground flex items-center gap-2 text-[11px] font-semibold whitespace-nowrap'>
                     <span className='flex items-center gap-1'>
                       <RefreshCcw size={14} aria-hidden />
-                      <span>{formatIntervalLabel(monitor.intervalSeconds)}</span>
+                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
                     </span>
                     {isBackedOff ? (
                       <BackoffBadge
@@ -269,7 +261,9 @@ function BackoffBadge({ label, message }: { label: string; message: string }) {
           <span>{label}</span>
         </Badge>
       </TooltipTrigger>
-      <TooltipContent side='top'>{message}</TooltipContent>
+      <TooltipContent side='top' className='max-w-[260px] break-words'>
+        {message}
+      </TooltipContent>
     </Tooltip>
   );
 }

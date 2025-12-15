@@ -19,7 +19,12 @@ import {
 import { toIsoUtc } from '@/utils/dateHelpers';
 
 type UpCountRow = { up_count: number; total_count: number; incident_count: number };
-type LastCheckRow = { ts: string; status: MonitorStatus };
+type LastCheckRow = {
+  ts: string;
+  status: MonitorStatus;
+  effective_interval_seconds: number | null;
+  backoff_level: number | null;
+};
 type LatencyRow = { avg_ms: number | null; min_ms: number | null; max_ms: number | null };
 type UptimeBucketRow = { bucket: string; up_ratio: number | null };
 type LatencySeriesRow = { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null };
@@ -61,6 +66,8 @@ export async function getMonitorMetrics(checkId: string, siteId: string): Promis
       p95Ms: point.p95_ms,
       avgMs: point.avg_ms,
     })),
+    effectiveIntervalSeconds: lastRow?.effective_interval_seconds ?? null,
+    backoffLevel: lastRow?.backoff_level ?? null,
   });
 }
 
@@ -401,7 +408,7 @@ async function fetchUptime(checkId: string, siteId: string): Promise<UpCountRow>
 
 async function fetchLastCheck(checkId: string, siteId: string): Promise<LastCheckRow | null> {
   const query = safeSql`
-    SELECT ts, status
+    SELECT ts, status, effective_interval_seconds, backoff_level
     FROM analytics.monitor_results
     WHERE check_id = {check_id:String}
       AND kind != 'tls'

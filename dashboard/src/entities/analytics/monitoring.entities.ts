@@ -67,6 +67,8 @@ export const MonitorMetricsSchema = z.object({
   uptimeBuckets: z.array(MonitorUptimeBucketSchema),
   latency: MonitorLatencyStatsSchema,
   latencySeries: z.array(MonitorLatencyPointSchema),
+  effectiveIntervalSeconds: z.number().int().nullable().optional(),
+  backoffLevel: z.number().int().nullable().optional(),
 });
 
 export type MonitorMetrics = z.infer<typeof MonitorMetricsSchema>;

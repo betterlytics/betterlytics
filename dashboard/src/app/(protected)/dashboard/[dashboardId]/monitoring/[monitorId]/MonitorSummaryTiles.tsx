@@ -21,10 +21,20 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from '../components/PillBar';
 import { useTranslations } from 'next-intl';
+import { AlertCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { formatIntervalLabel } from '../utils';
 
 type MonitorSummaryMetrics = Pick<
   MonitorMetrics,
-  'lastCheckAt' | 'lastStatus' | 'uptime24hPercent' | 'incidents24h' | 'uptimeBuckets' | 'latency'
+  | 'lastCheckAt'
+  | 'lastStatus'
+  | 'uptime24hPercent'
+  | 'incidents24h'
+  | 'uptimeBuckets'
+  | 'latency'
+  | 'effectiveIntervalSeconds'
+  | 'backoffLevel'
 >;
 
 type MonitorSummaryTilesProps = {
@@ -90,6 +100,8 @@ function LastCheckCard({
   metrics?: MonitorSummaryMetrics;
 }) {
   const t = useTranslations('monitoringDetailPage.summary.lastCheck');
+  const tMonitoringPage = useTranslations('monitoringPage');
+  const tList = useTranslations('monitoringPage.list');
   const lastCheckAt = metrics?.lastCheckAt ? new Date(metrics.lastCheckAt).getTime() : null;
   const [now, setNow] = useState(() => Date.now());
   const isPaused = !monitor.isEnabled;
@@ -112,6 +124,12 @@ function LastCheckCard({
     return t('helperScheduled', { seconds: monitor.intervalSeconds ?? 0 });
   })();
 
+  const isBackedOff = (metrics?.backoffLevel ?? 0) > 0 && (metrics?.effectiveIntervalSeconds ?? 0) > 0;
+  const effectiveLabel = isBackedOff
+    ? formatIntervalLabel(tMonitoringPage, metrics?.effectiveIntervalSeconds ?? monitor.intervalSeconds)
+    : null;
+  const backoffTooltipMessage = effectiveLabel ? tList('backoffTooltip', { value: effectiveLabel }) : null;
+
   return (
     <SummaryTile
       title={t('title')}
@@ -120,6 +138,19 @@ function LastCheckCard({
     >
       <StatusDot active={monitor.isEnabled} status={metrics?.lastStatus} />
       <span className='text-foreground tabular-nums'>{lastCheckLabel}</span>
+      {isBackedOff && backoffTooltipMessage ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <AlertCircle
+              className='h-4 w-4 shrink-0 text-amber-600 dark:text-amber-500'
+              aria-label={backoffTooltipMessage}
+            />
+          </TooltipTrigger>
+          <TooltipContent side='top' className='max-w-[260px] break-words'>
+            {backoffTooltipMessage}
+          </TooltipContent>
+        </Tooltip>
+      ) : null}
     </SummaryTile>
   );
 }
