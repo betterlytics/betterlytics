@@ -189,29 +189,26 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
       <SheetTrigger asChild>{trigger ?? <Button size='sm'>Edit</Button>}</SheetTrigger>
       <SheetContent side='right' className='w-full max-w-2xl overflow-y-auto p-0 lg:max-w-3xl xl:max-w-4xl'>
         <div className='flex h-full flex-col'>
-          <SheetHeader className='border-border space-y-1.5 border-b p-6'>
+          <SheetHeader className='space-y-1.5 px-6 pt-6 pb-0'>
             <SheetTitle className='text-xl'>Edit monitor</SheetTitle>
-            <SheetDescription className='text-muted-foreground text-sm'>
-              Adjust the monitor cadence and timeout thresholds.
-            </SheetDescription>
           </SheetHeader>
 
           <div className='flex-grow space-y-6 overflow-y-auto p-6'>
-            <Card className='bg-card border-border'>
-              <CardHeader>
+            <Card className='bg-card gap-3 py-4'>
+              <CardHeader className='gap-1 px-4 py-0'>
                 <div className='flex items-center justify-between'>
-                  <CardTitle className='text-card-foreground font-medium'>Monitor interval</CardTitle>
-                  <span className='inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'>
-                    <Info className='h-3.5 w-3.5' />
+                  <CardTitle className='text-card-foreground text-sm font-medium'>Monitor interval</CardTitle>
+                  <span className='inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'>
+                    <Info className='h-3 w-3' />
                     Use shorter intervals for critical endpoints
                   </span>
                 </div>
-                <CardDescription className='text-muted-foreground text-sm'>
+                <CardDescription className='text-muted-foreground text-xs'>
                   Your monitor will be checked every{' '}
                   <span className='text-foreground font-medium'>{formatSeconds(intervalSeconds)}</span>.
                 </CardDescription>
               </CardHeader>
-              <CardContent className='space-y-4'>
+              <CardContent className='space-y-4 px-4 pt-2'>
                 <Slider
                   value={[intervalIdx]}
                   min={0}
@@ -219,7 +216,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                   step={1}
                   onValueChange={([val]) => setIntervalIdx(val)}
                   disabled={isPending}
-                  className='[&>span:first-child]:bg-muted'
+                  className='[&>span:first-child]:bg-muted [&_[role=slider]]:border-primary [&_[role=slider]]:bg-card [&_[role=slider]]:shadow-md'
                 />
                 <IntervalMarkRow totalSteps={MONITOR_INTERVAL_MARKS.length - 1} activeIndex={intervalIdx} />
               </CardContent>
@@ -227,18 +224,16 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
             <Separator />
 
-            <Card className='bg-card border-border'>
-              <CardHeader>
-                <div className='flex items-center justify-between'>
-                  <CardTitle className='text-card-foreground font-medium'>Request timeout</CardTitle>
-                </div>
-                <CardDescription className='text-muted-foreground text-sm'>
+            <Card className='bg-card gap-3 py-4'>
+              <CardHeader className='gap-1 px-4 py-0'>
+                <CardTitle className='text-card-foreground text-sm font-medium'>Request timeout</CardTitle>
+                <CardDescription className='text-muted-foreground text-xs'>
                   The request timeout is{' '}
                   <span className='text-foreground font-medium'>{formatSeconds(timeoutMs / 1000)}</span>. The
                   shorter the timeout, the earlier we mark the site as down.
                 </CardDescription>
               </CardHeader>
-              <CardContent className='space-y-4'>
+              <CardContent className='space-y-4 px-4 pt-2'>
                 <Slider
                   value={[timeoutIdx]}
                   min={0}
@@ -246,14 +241,14 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                   step={1}
                   onValueChange={([val]) => setTimeoutIdx(val)}
                   disabled={isPending}
-                  className='[&>span:first-child]:bg-muted'
+                  className='[&>span:first-child]:bg-muted [&_[role=slider]]:border-primary [&_[role=slider]]:bg-card [&_[role=slider]]:shadow-md'
                 />
                 <TimeoutMarkRow totalSteps={REQUEST_TIMEOUT_MARKS.length - 1} activeIndex={timeoutIdx} />
               </CardContent>
             </Card>
 
             <Collapsible defaultOpen={false} className='group/ssl'>
-              <Card className='bg-card border-border gap-3 py-2'>
+              <Card className='bg-card gap-3 py-2'>
                 <CollapsibleTrigger className='hover:bg-muted/30 flex w-full cursor-pointer items-center gap-2 px-4 py-3 transition-colors'>
                   <ChevronRight className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/ssl:rotate-90' />
                   <span className='text-sm font-medium'>SSL certificate and Domain checks</span>
@@ -299,7 +294,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
             </Collapsible>
 
             <Collapsible defaultOpen={false} className='group/advanced'>
-              <Card className='bg-card border-border gap-3 py-2'>
+              <Card className='bg-card gap-3 py-2'>
                 <CollapsibleTrigger className='hover:bg-muted/30 flex w-full cursor-pointer items-center gap-2 px-4 py-3 transition-colors'>
                   <ChevronRight className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/advanced:rotate-90' />
                   <span className='text-sm font-medium'>Advanced settings</span>
