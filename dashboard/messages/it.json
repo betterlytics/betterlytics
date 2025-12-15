@@ -1072,7 +1072,8 @@
       "events": "Eventi",
       "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
       "webVitals": "Web Vitals",
-      "sessionReplay": "Replay sessioni"
+      "sessionReplay": "Replay sessioni",
+      "monitoring": "Monitoraggio"
     },
     "metrics": {
       "uniqueVisitors": "Visitatori unici",
@@ -1126,7 +1127,227 @@
       "description": "Aggiungi una nuova dashboard"
     }
   },
-
+  "monitoring": {
+    "status": {
+      "paused": "In pausa",
+      "up": "Online",
+      "warn": "Degradato",
+      "down": "Offline",
+      "error": "Errore",
+      "notChecked": "Non ancora verificato",
+      "monitoringActive": "Monitoraggio attivo",
+      "monitoringPaused": "Monitoraggio in pausa"
+    },
+    "latency": {
+      "paused": "In pausa",
+      "fast": "Veloce",
+      "elevated": "Elevata",
+      "slow": "Lenta",
+      "noData": "Nessun dato ancora"
+    },
+    "ssl": {
+      "valid": "Valido",
+      "expiringSoon": "In scadenza",
+      "expired": "Scaduto",
+      "error": "Errore",
+      "notChecked": "Non verificato",
+      "badgeValid": "Certificato valido",
+      "badgeExpiringSoon": "Certificato in scadenza",
+      "badgeExpired": "Certificato scaduto",
+      "badgeError": "Errore certificato",
+      "badgeNotChecked": "Certificato non verificato"
+    },
+    "labels": {
+      "noData": "Nessun dato",
+      "noDataYet": "Nessun dato ancora",
+      "uptimeSuffix": "uptime",
+      "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}",
+      "ssl": "SSL"
+    },
+    "actions": {
+      "pause": "Metti in pausa monitor",
+      "resume": "Riprendi monitor",
+      "pausing": "Messa in pausa...",
+      "resuming": "Ripristino..."
+    }
+  },
+  "monitoringPage": {
+    "title": "Monitoraggio",
+    "table": {
+      "emptyTitle": "Nessun monitor ancora",
+      "emptyDescription": "Crea il tuo primo monitor per iniziare a tracciare l’uptime.",
+      "headers": {
+        "name": "Nome",
+        "url": "URL",
+        "uptime": "Uptime (24h)"
+      },
+      "enabled": "Attivo",
+      "disabled": "In pausa"
+    },
+    "filters": {
+      "statusLabel": "Stato",
+      "sortLabel": "Ordina",
+      "statusAll": "Tutti",
+      "statusUp": "Online",
+      "statusDown": "Offline",
+      "statusSslExpiring": "Certificato SSL in scadenza",
+      "statusPaused": "In pausa",
+      "statusNotStarted": "Non avviato",
+      "sortDownFirst": "Offline prima",
+      "sortUpFirst": "Online prima",
+      "sortNewest": "Più recenti",
+      "sortOldest": "Più vecchi",
+      "sortNameAsc": "Nome (A–Z)",
+      "sortNameDesc": "Nome (Z–A)",
+      "sortSslExpires": "Scadenza SSL"
+    },
+    "list": {
+      "noData": "Nessun dato ancora",
+      "intervalMinutes": "{value} min",
+      "intervalSeconds": "{value}s",
+      "state": {
+        "on": "Attivo",
+        "paused": "In pausa"
+      }
+    },
+    "form": {
+      "create": "Nuovo monitor",
+      "title": "Crea monitor",
+      "description": "Monitora un endpoint per uptime, latenza e stato SSL.",
+      "fields": {
+        "name": "Nome",
+        "url": "URL",
+        "interval": "Intervallo di controllo (secondi)",
+        "timeout": "Timeout richiesta (ms)",
+        "enabled": "Monitoraggio attivo"
+      },
+      "placeholders": {
+        "name": "Etichetta opzionale",
+        "url": "https://example.com/health"
+      },
+      "errors": {
+        "url": "Inserisci un URL valido.",
+        "interval": "L’intervallo deve essere almeno 5 secondi.",
+        "timeout": "Il timeout deve essere almeno 500ms."
+      },
+      "helper": {
+        "enabled": "Attiva/disattiva per creare il monitor in pausa."
+      },
+      "actions": {
+        "cancel": "Annulla",
+        "create": "Crea monitor",
+        "creating": "Creazione..."
+      },
+      "success": "Monitor creato",
+      "error": "Impossibile creare il monitor"
+    }
+  },
+  "monitoringDetailPage": {
+    "actions": {
+      "edit": "Modifica monitor"
+    },
+    "header": {
+      "back": "Torna ai monitor",
+      "monitoring": "Monitoraggio"
+    },
+    "responseTime": {
+      "title": "Tempo di risposta",
+      "badge": "Ultime 24 ore",
+      "empty": "Nessun dato di latenza ancora"
+    },
+    "downtime": {
+      "days": "{value}g offline",
+      "hours": "{value}h offline",
+      "minutes": "{value}m offline",
+      "unknown": "— offline"
+    },
+    "incidents": {
+      "title": "Incidenti",
+      "badge": "Ultimi 7 giorni",
+      "emptyTitle": "Nessun incidente registrato",
+      "emptyDescription": "Mostreremo cause, tempistiche e finestre di inattività quando si verificheranno incidenti.",
+      "headers": {
+        "status": "Stato",
+        "root": "Causa",
+        "started": "Inizio",
+        "duration": "Durata"
+      }
+    },
+    "recent": {
+      "title": "Risultati di monitoraggio recenti",
+      "badge": "Ultimi 10",
+      "empty": "Nessun controllo registrato ancora",
+      "headers": {
+        "status": "Stato",
+        "ran": "Eseguito",
+        "latency": "Latenza",
+        "statusCode": "Codice stato",
+        "reason": "Motivo"
+      }
+    },
+    "uptime": {
+      "title": "Uptime",
+      "badge": "Ultimi {days} giorni",
+      "grid": {
+        "uptimeLabel": "{value} uptime"
+      },
+      "stats": {
+        "label": "Ultimi {days} giorni",
+        "downFallback": "— offline"
+      }
+    },
+    "summary": {
+      "avgResponseTime": "Tempo di risposta medio",
+      "lastCheck": {
+        "title": "Ultimo controllo",
+        "paused": "In pausa",
+        "preparing": "Preparazione del primo controllo",
+        "helperPaused": "Riprendi il monitor per riattivare i controlli.",
+        "helperPreparing": "Stiamo programmando il primo controllo. I risultati appariranno presto.",
+        "helperScheduled": "Programmato ogni {seconds}s"
+      },
+      "last24h": {
+        "title": "Ultime 24 ore",
+        "helperNone": "Nessun incidente",
+        "helperWithIncidents": "{count, plural, one {{count} incidente} other {{count} incidenti}}, {downtime}"
+      },
+      "ssl": {
+        "title": "Certificato SSL",
+        "timeLeft": "Tempo rimanente",
+        "timeLeftWithUnit": "{unit} rimanenti",
+        "expires": "Scad. {date}"
+      }
+    },
+    "toast": {
+      "status": {
+        "paused": "Monitoraggio in pausa",
+        "resumed": "Monitoraggio ripreso"
+      },
+      "statusError": "Impossibile aggiornare lo stato del monitor. Riprova.",
+      "updateSuccess": "Monitor aggiornato",
+      "updateError": "Impossibile aggiornare il monitor. Riprova."
+    },
+    "editDialog": {
+      "trigger": "Modifica monitor",
+      "title": "Modifica monitor",
+      "description": "Regola la frequenza dei controlli e le soglie di timeout.",
+      "interval": {
+        "title": "Intervallo monitor",
+        "description": "Il monitor verrà controllato ogni {value}.",
+        "helper": "Intervalli più brevi per endpoint critici; più lunghi per controlli meno sensibili."
+      },
+      "timeout": {
+        "title": "Timeout richiesta",
+        "description": "Il timeout è {value}. Un timeout più breve segna il sito come offline più velocemente.",
+        "helper": "Scegli un valore adatto ai tempi di risposta tipici; valori troppo brevi possono causare falsi allarmi."
+      },
+      "actions": {
+        "cancel": "Annulla",
+        "save": "Salva modifiche",
+        "saving": "Salvataggio..."
+      }
+    }
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",

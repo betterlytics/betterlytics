@@ -26,10 +26,15 @@ export function formatNumber(num: number, decimalPlaces = 1): string {
  * Format a number as a percentage with % symbol
  * @param num The number to format as a percentage
  * @param decimalPlaces Number of decimal places (default: 1)
+ * @param options Optional formatting tweaks
  * @returns Formatted percentage string (e.g., "42.5%")
  */
-export function formatPercentage(num: number, decimalPlaces = 1): string {
-  return `${num.toFixed(decimalPlaces)}%`;
+export function formatPercentage(num: number, decimalPlaces = 1, options?: { trimHundred?: boolean }): string {
+  const formatted = num.toFixed(decimalPlaces);
+  if (options?.trimHundred && Math.abs(num - 100) < Number.EPSILON) {
+    return '100%';
+  }
+  return `${formatted}%`;
 }
 
 /**
@@ -71,4 +76,21 @@ export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null
   if (value > fairThreshold) return 'var(--cwv-threshold-poor)';
   if (value > goodThreshold) return 'var(--cwv-threshold-fair)';
   return 'var(--cwv-threshold-good)';
+}
+
+export function formatDowntimeFromUptimeHours(uptimePercent: number, hours: number): string {
+  const downtimeHours = ((100 - uptimePercent) / 100) * hours;
+  if (downtimeHours >= 24) {
+    const days = downtimeHours / 24;
+    return `${days.toFixed(1)}d down`;
+  }
+  if (downtimeHours >= 1) {
+    return `${downtimeHours.toFixed(1)}h down`;
+  }
+  const minutes = downtimeHours * 60;
+  return `${minutes.toFixed(0)}m down`;
+}
+
+export function formatDowntimeFromUptimeDays(uptimePercent: number, days: number): string {
+  return formatDowntimeFromUptimeHours(uptimePercent, days * 24);
 }

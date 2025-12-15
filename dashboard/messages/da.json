@@ -1072,7 +1072,8 @@
       "funnels": "Tragter",
       "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
       "webVitals": "Web Vitals",
-      "sessionReplay": "Sessionsafspilninger"
+      "sessionReplay": "Sessionsafspilninger",
+      "monitoring": "Overvågning"
     },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
@@ -1124,6 +1125,227 @@
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
+    }
+  },
+  "monitoring": {
+    "status": {
+      "paused": "Sat på pause",
+      "up": "Oppe",
+      "warn": "Nedsat",
+      "down": "Nede",
+      "error": "Fejl",
+      "notChecked": "Endnu ikke tjekket",
+      "monitoringActive": "Overvågning aktiv",
+      "monitoringPaused": "Overvågning sat på pause"
+    },
+    "latency": {
+      "paused": "Sat på pause",
+      "fast": "Hurtig",
+      "elevated": "Forhøjet",
+      "slow": "Langsom",
+      "noData": "Ingen data endnu"
+    },
+    "ssl": {
+      "valid": "Gyldigt",
+      "expiringSoon": "Udløber snart",
+      "expired": "Udløbet",
+      "error": "Fejl",
+      "notChecked": "Ikke tjekket",
+      "badgeValid": "Certifikat gyldigt",
+      "badgeExpiringSoon": "Certifikat udløber snart",
+      "badgeExpired": "Certifikat udløbet",
+      "badgeError": "Certifikatfejl",
+      "badgeNotChecked": "Certifikat ikke tjekket"
+    },
+    "labels": {
+      "noData": "Ingen data",
+      "noDataYet": "Ingen data endnu",
+      "uptimeSuffix": "oppetid",
+      "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}",
+      "ssl": "SSL"
+    },
+    "actions": {
+      "pause": "Sæt overvågning på pause",
+      "resume": "Genoptag overvågning",
+      "pausing": "Sætter på pause...",
+      "resuming": "Genoptager..."
+    }
+  },
+  "monitoringPage": {
+    "title": "Overvågning",
+    "table": {
+      "emptyTitle": "Ingen overvågninger endnu",
+      "emptyDescription": "Opret din første overvågning for at begynde at spore oppetid.",
+      "headers": {
+        "name": "Navn",
+        "url": "URL",
+        "uptime": "Oppetid (24t)"
+      },
+      "enabled": "Aktiveret",
+      "disabled": "Sat på pause"
+    },
+    "filters": {
+      "statusLabel": "Status",
+      "sortLabel": "Sortér",
+      "statusAll": "Alle",
+      "statusUp": "Oppe",
+      "statusDown": "Nede",
+      "statusSslExpiring": "SSL-certifikat udløber",
+      "statusPaused": "Sat på pause",
+      "statusNotStarted": "Ikke startet",
+      "sortDownFirst": "Nede først",
+      "sortUpFirst": "Oppe først",
+      "sortNewest": "Nyeste først",
+      "sortOldest": "Ældste først",
+      "sortNameAsc": "Navn (A–Z)",
+      "sortNameDesc": "Navn (Z–A)",
+      "sortSslExpires": "SSL udløber"
+    },
+    "list": {
+      "noData": "Ingen data endnu",
+      "intervalMinutes": "{value} min",
+      "intervalSeconds": "{value}s",
+      "state": {
+        "on": "Tændt",
+        "paused": "Sat på pause"
+      }
+    },
+    "form": {
+      "create": "Ny overvågning",
+      "title": "Opret overvågning",
+      "description": "Overvåg et endpoint for oppetid, latenstid og SSL-status.",
+      "fields": {
+        "name": "Navn",
+        "url": "URL",
+        "interval": "Tjek-interval (sekunder)",
+        "timeout": "Timeout for forespørgsel (ms)",
+        "enabled": "Overvågning aktiveret"
+      },
+      "placeholders": {
+        "name": "Valgfrit label",
+        "url": "https://example.com/health"
+      },
+      "errors": {
+        "url": "Indtast venligst en gyldig URL.",
+        "interval": "Intervallet skal være mindst 5 sekunder.",
+        "timeout": "Timeout skal være mindst 500ms."
+      },
+      "helper": {
+        "enabled": "Skift for at sætte overvågning på pause ved oprettelse."
+      },
+      "actions": {
+        "cancel": "Annullér",
+        "create": "Opret overvågning",
+        "creating": "Opretter..."
+      },
+      "success": "Overvågning oprettet",
+      "error": "Kunne ikke oprette overvågning"
+    }
+  },
+  "monitoringDetailPage": {
+    "actions": {
+      "edit": "Redigér overvågning"
+    },
+    "header": {
+      "back": "Tilbage til overvågninger",
+      "monitoring": "Overvåger"
+    },
+    "responseTime": {
+      "title": "Responstid",
+      "badge": "Seneste 24 timer",
+      "empty": "Ingen latenstidsdata endnu"
+    },
+    "downtime": {
+      "days": "{value}d nede",
+      "hours": "{value}t nede",
+      "minutes": "{value}m nede",
+      "unknown": "— nede"
+    },
+    "incidents": {
+      "title": "Hændelser",
+      "badge": "Seneste 7 dage",
+      "emptyTitle": "Ingen hændelser registreret",
+      "emptyDescription": "Vi viser rodårsager, tidslinjer og nedetidsperioder, når der opstår hændelser.",
+      "headers": {
+        "status": "Status",
+        "root": "Rodårsag",
+        "started": "Startet",
+        "duration": "Varighed"
+      }
+    },
+    "recent": {
+      "title": "Seneste overvågningsresultater",
+      "badge": "Seneste 10",
+      "empty": "Ingen tjek registreret endnu",
+      "headers": {
+        "status": "Status",
+        "ran": "Kørt",
+        "latency": "Latenstid",
+        "statusCode": "Statuskode",
+        "reason": "Årsag"
+      }
+    },
+    "uptime": {
+      "title": "Oppetid",
+      "badge": "Seneste {days} dage",
+      "grid": {
+        "uptimeLabel": "{value} oppetid"
+      },
+      "stats": {
+        "label": "Seneste {days} dage",
+        "downFallback": "— nede"
+      }
+    },
+    "summary": {
+      "avgResponseTime": "Gns. responstid",
+      "lastCheck": {
+        "title": "Seneste tjek",
+        "paused": "Sat på pause",
+        "preparing": "Forbereder første tjek",
+        "helperPaused": "Genoptag overvågning for at starte tjek igen.",
+        "helperPreparing": "Vi planlægger dit første tjek. Resultater vises snart.",
+        "helperScheduled": "Planlagt hvert {seconds}s"
+      },
+      "last24h": {
+        "title": "Seneste 24 timer",
+        "helperNone": "Ingen hændelser",
+        "helperWithIncidents": "{count, plural, one {{count} hændelse} other {{count} hændelser}}, {downtime}"
+      },
+      "ssl": {
+        "title": "SSL-certifikat",
+        "timeLeft": "Tid tilbage",
+        "timeLeftWithUnit": "{unit} tilbage",
+        "expires": "Udløber {date}"
+      }
+    },
+    "toast": {
+      "status": {
+        "paused": "Overvågning sat på pause",
+        "resumed": "Overvågning genoptaget"
+      },
+      "statusError": "Kunne ikke opdatere overvågning-status. Prøv igen.",
+      "updateSuccess": "Overvågning opdateret",
+      "updateError": "Kunne ikke opdatere overvågning. Prøv igen."
+    },
+    "editDialog": {
+      "trigger": "Redigér overvågning",
+      "title": "Redigér overvågning",
+      "description": "Juster tjekfrekvens og timeout-grænser.",
+      "interval": {
+        "title": "Overvågnings-interval",
+        "description": "Din side tjekkes hver {value}.",
+        "helper": "Brug kortere intervaller for kritiske endpoints; længere for mindre følsomme tjek."
+      },
+      "timeout": {
+        "title": "Forespørgsels-timeout",
+        "description": "Timeout er {value}. Jo kortere timeout, desto hurtigere markeres sitet som nede.",
+        "helper": "Vælg en værdi, der matcher normale svartider; for kort kan give falske alarmer."
+      },
+      "actions": {
+        "cancel": "Annullér",
+        "save": "Gem ændringer",
+        "saving": "Gemmer..."
+      }
     }
   },
   "charts": {

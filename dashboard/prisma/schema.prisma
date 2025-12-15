@@ -145,6 +145,7 @@ model Dashboard {
   config SiteConfig?
   bugReports BugReport[]
   annotations Annotation[]
+  monitorChecks MonitorCheck[]
 }
 
 model UserDashboard {
@@ -233,6 +234,22 @@ model SiteConfig {
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+}
+
+
+model MonitorCheck {
+  id             String    @id @default(cuid())
+  dashboard      Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId    String
+  name           String?
+  url            String
+  intervalSeconds Int      @default(30)
+  timeoutMs      Int       @default(3000)
+  isEnabled      Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([dashboardId])
 }
 
 model Subscription {
