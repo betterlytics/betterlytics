@@ -1266,10 +1266,10 @@
       "title": "Hændelser",
       "badge": "Seneste 7 dage",
       "emptyTitle": "Ingen hændelser registreret",
-      "emptyDescription": "Vi viser rodårsager, tidslinjer og nedetidsperioder, når der opstår hændelser.",
+      "emptyDescription": "Vi viser årsager, tidspunkter og nedetidsperioder, når der opstår hændelser.",
       "headers": {
         "status": "Status",
-        "root": "Rodårsag",
+        "root": "Årsag",
         "started": "Startet",
         "duration": "Varighed"
       }
