@@ -146,6 +146,10 @@ impl BackoffController {
 
 impl BackoffPolicy {
     pub fn interval_for_level(&self, base: StdDuration, level: u8) -> StdDuration {
+        if self.allowed_intervals_secs.is_empty() {
+            return base;
+        }
+
         let base_secs = base.as_secs();
         let maybe_base_idx = self
             .allowed_intervals_secs
@@ -158,18 +162,22 @@ impl BackoffPolicy {
         };
 
         let target_idx =
-            (base_idx + level as usize).min(self.allowed_intervals_secs.len().saturating_sub(1));
+            (base_idx + level as usize).min(self.allowed_intervals_secs.len() - 1);
         StdDuration::from_secs(self.allowed_intervals_secs[target_idx])
     }
 
     pub fn max_level(&self, base: StdDuration) -> u8 {
+        if self.allowed_intervals_secs.is_empty() {
+            return 0;
+        }
+
         let base_secs = base.as_secs();
         let base_idx = self
             .allowed_intervals_secs
             .iter()
             .position(|&v| v >= base_secs)
-            .unwrap_or(self.allowed_intervals_secs.len().saturating_sub(1));
-        let max_steps = self.allowed_intervals_secs.len().saturating_sub(1) - base_idx;
+            .unwrap_or(self.allowed_intervals_secs.len() - 1);
+        let max_steps = (self.allowed_intervals_secs.len() - 1) - base_idx;
         max_steps as u8
     }
 }

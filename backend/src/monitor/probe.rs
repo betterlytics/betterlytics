@@ -19,7 +19,7 @@ use crate::monitor::guard::{GuardError, MAX_REDIRECTS, MAX_RESPONSE_BYTES, valid
 use crate::monitor::models::{HttpMethod, MonitorStatus};
 use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct ProbeError {
     reason_code: ReasonCode,
     message: String,
@@ -301,31 +301,22 @@ impl MonitorProbe {
         
         match check.http_method {
             HttpMethod::Get => {
-                self.request_get_capped_with_headers(url, timeout, &check.request_headers).await
+                self.request_get_capped(url, timeout, &check.request_headers).await
             }
             HttpMethod::Head => {
-                self.request_head_with_headers(url, timeout, &check.request_headers).await
+                self.request_head(url, timeout, &check.request_headers).await
             }
         }
     }
     
-    async fn request_head_with_headers(
+    async fn request_head(
         &self,
         url: &Url,
         timeout: Duration,
         request_headers: &[crate::monitor::RequestHeader],
     ) -> Result<CappedResponse, ProbeError> {
-        let mut request = self.client.head(url.clone()).timeout(timeout);
-        
-        // Add custom headers
-        for header in request_headers {
-            if let Ok(header_name) = reqwest::header::HeaderName::from_bytes(header.key.as_bytes()) {
-                if let Ok(header_value) = reqwest::header::HeaderValue::from_str(&header.value) {
-                    request = request.header(header_name, header_value);
-                }
-            }
-        }
-        
+        let request = self.client.head(url.clone()).timeout(timeout);
+        let request = apply_custom_headers(request, request_headers);
         let resp = request.send().await.map_err(map_reqwest_error)?;
 
         let status = resp.status();
@@ -341,23 +332,14 @@ impl MonitorProbe {
         ))
     }
 
-    async fn request_get_capped_with_headers(
+    async fn request_get_capped(
         &self,
         url: &Url,
         timeout: Duration,
         request_headers: &[crate::monitor::RequestHeader],
     ) -> Result<CappedResponse, ProbeError> {
-        let mut request = self.client.get(url.clone()).timeout(timeout);
-        
-        // Add custom headers
-        for header in request_headers {
-            if let Ok(header_name) = reqwest::header::HeaderName::from_bytes(header.key.as_bytes()) {
-                if let Ok(header_value) = reqwest::header::HeaderValue::from_str(&header.value) {
-                    request = request.header(header_name, header_value);
-                }
-            }
-        }
-        
+        let request = self.client.get(url.clone()).timeout(timeout);
+        let request = apply_custom_headers(request, request_headers);
         let resp = request.send().await.map_err(map_reqwest_error)?;
 
         let status = resp.status();
@@ -483,7 +465,7 @@ fn load_root_store() -> Result<Arc<RootCertStore>, ProbeError> {
         Ok(Arc::new(roots))
     }) {
         Ok(store) => Ok(Arc::clone(store)),
-        Err(err) => Err(ProbeError::new(err.reason_code, err.message.clone())),
+        Err(err) => Err(err.clone()),
     }
 }
 
@@ -494,6 +476,20 @@ fn ensure_crypto_provider() {
             warn!(error = ?err, "failed to install ring crypto provider");
         }
     });
+}
+
+fn apply_custom_headers(
+    mut builder: reqwest::RequestBuilder,
+    headers: &[crate::monitor::RequestHeader],
+) -> reqwest::RequestBuilder {
+    for header in headers {
+        if let Ok(name) = reqwest::header::HeaderName::from_bytes(header.key.as_bytes()) {
+            if let Ok(value) = reqwest::header::HeaderValue::from_str(&header.value) {
+                builder = builder.header(name, value);
+            }
+        }
+    }
+    builder
 }
 
 fn classify_reqwest_error(err: &reqwest::Error) -> ReasonCode {
