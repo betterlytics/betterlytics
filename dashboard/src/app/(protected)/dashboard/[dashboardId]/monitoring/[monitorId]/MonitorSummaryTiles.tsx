@@ -142,7 +142,7 @@ function LastCheckCard({
         <Tooltip>
           <TooltipTrigger asChild>
             <AlertCircle
-              className='h-4 w-4 shrink-0 text-amber-600 dark:text-amber-500'
+              className='mt-1 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-500'
               aria-label={backoffTooltipMessage}
             />
           </TooltipTrigger>
