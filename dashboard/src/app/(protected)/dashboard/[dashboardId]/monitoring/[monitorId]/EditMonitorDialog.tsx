@@ -60,21 +60,31 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     setCheckSslErrors(monitor.checkSslErrors);
     setSslExpiryReminders(monitor.sslExpiryReminders);
     setHttpMethod(monitor.httpMethod);
-    setRequestHeaders(monitor.requestHeaders ?? []);
+    // Always ensure there's at least one empty row for headers
+    const existingHeaders = monitor.requestHeaders ?? [];
+    const hasEmptyRow = existingHeaders.some((h) => h.key === '' && h.value === '');
+    setRequestHeaders(hasEmptyRow ? existingHeaders : [...existingHeaders, { key: '', value: '' }]);
     setAcceptedStatusCodes(monitor.acceptedStatusCodes?.length ? monitor.acceptedStatusCodes : ['2xx']);
     setStatusCodeInput('');
   }, [monitor, open]);
 
-  const addHeader = () => {
-    setRequestHeaders([...requestHeaders, { key: '', value: '' }]);
-  };
-
   const removeHeader = (index: number) => {
-    setRequestHeaders(requestHeaders.filter((_, i) => i !== index));
+    const newHeaders = requestHeaders.filter((_, i) => i !== index);
+    // Ensure there's always at least one empty row
+    const hasEmptyRow = newHeaders.some((h) => h.key === '' && h.value === '');
+    setRequestHeaders(hasEmptyRow ? newHeaders : [...newHeaders, { key: '', value: '' }]);
   };
 
   const updateHeader = (index: number, field: 'key' | 'value', value: string) => {
-    setRequestHeaders(requestHeaders.map((header, i) => (i === index ? { ...header, [field]: value } : header)));
+    const newHeaders = requestHeaders.map((header, i) => (i === index ? { ...header, [field]: value } : header));
+    // If editing the last row and it now has content, add a new empty row
+    const isLastRow = index === requestHeaders.length - 1;
+    const updatedRow = newHeaders[index];
+    const rowHasContent = updatedRow.key !== '' || updatedRow.value !== '';
+    if (isLastRow && rowHasContent) {
+      newHeaders.push({ key: '', value: '' });
+    }
+    setRequestHeaders(newHeaders);
   };
 
   const removeStatusCode = (code: StatusCodeValue) => {
@@ -278,56 +288,50 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                 </div>
 
                 <div className='space-y-3'>
-                  <div className='flex items-center justify-between'>
-                    <Label className='text-sm font-medium'>Request headers</Label>
-                    <Button
-                      type='button'
-                      variant='outline'
-                      size='sm'
-                      onClick={addHeader}
-                      disabled={isPending}
-                      className='h-8 cursor-pointer'
-                    >
-                      <Plus className='mr-1 h-3.5 w-3.5' />
-                      Add header
-                    </Button>
-                  </div>
-                  {requestHeaders.length === 0 ? (
-                    <p className='text-muted-foreground text-xs'>
-                      No custom headers configured. Add headers for authentication or custom requirements.
-                    </p>
-                  ) : (
-                    <div className='space-y-2'>
-                      {requestHeaders.map((header, index) => (
+                  <Label className='text-sm font-medium'>Request headers</Label>
+                  <div className='space-y-2'>
+                    {requestHeaders.map((header, index) => {
+                      const isEmptyRow = header.key === '' && header.value === '';
+                      const isLastRow = index === requestHeaders.length - 1;
+                      const showDeleteButton = !isEmptyRow || !isLastRow;
+
+                      return (
                         <div key={index} className='flex items-center gap-2'>
-                          <Input
-                            placeholder='Header name'
-                            value={header.key}
-                            onChange={(e) => updateHeader(index, 'key', e.target.value)}
-                            disabled={isPending}
-                            className='flex-1'
-                          />
-                          <Input
-                            placeholder='Value'
-                            value={header.value}
-                            onChange={(e) => updateHeader(index, 'value', e.target.value)}
-                            disabled={isPending}
-                            className='flex-1'
-                          />
+                          <div className='border-input flex flex-1 overflow-hidden rounded-md border'>
+                            <Input
+                              placeholder='X-Header-Name'
+                              value={header.key}
+                              onChange={(e) => updateHeader(index, 'key', e.target.value)}
+                              disabled={isPending}
+                              className='flex-1 rounded-none border-0 focus-visible:z-10 focus-visible:ring-1'
+                            />
+                            <div className='bg-border w-px' />
+                            <Input
+                              placeholder='Value'
+                              value={header.value}
+                              onChange={(e) => updateHeader(index, 'value', e.target.value)}
+                              disabled={isPending}
+                              className='flex-1 rounded-none border-0 focus-visible:ring-1'
+                            />
+                          </div>
                           <Button
                             type='button'
                             variant='ghost'
                             size='icon'
                             onClick={() => removeHeader(index)}
-                            disabled={isPending}
-                            className='text-destructive hover:text-destructive hover:bg-destructive/10 h-9 w-9 flex-shrink-0 cursor-pointer'
+                            disabled={isPending || !showDeleteButton}
+                            className={`h-9 w-9 flex-shrink-0 cursor-pointer ${
+                              showDeleteButton
+                                ? 'text-destructive hover:text-destructive hover:bg-destructive/10'
+                                : 'invisible'
+                            }`}
                           >
                             <Trash2 className='h-4 w-4' />
                           </Button>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      );
+                    })}
+                  </div>
                 </div>
               </CardContent>
             </Card>
