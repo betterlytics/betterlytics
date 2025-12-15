@@ -10,7 +10,8 @@ pub mod writer;
 pub use cache::{MonitorCache, RefreshConfig as MonitorCacheConfig};
 pub use backoff::{BackoffController, BackoffPolicy};
 pub use models::{
-    BackoffReason, BackoffSnapshot, MonitorCheck, MonitorResultRow, ProbeOutcome, ReasonCode,
+    BackoffReason, BackoffSnapshot, HttpMethod, MonitorCheck, MonitorResultRow, ProbeOutcome,
+    ReasonCode, RequestHeader,
 };
 pub use probe::MonitorProbe;
 pub use repository::{MonitorCheckDataSource, MonitorRepository};

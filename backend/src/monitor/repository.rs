@@ -9,7 +9,7 @@ use thiserror::Error;
 use tokio_postgres::{Config as PgConfig, NoTls, Row};
 use url::Url;
 
-use crate::monitor::MonitorCheck;
+use crate::monitor::{HttpMethod, MonitorCheck, RequestHeader};
 
 const BASE_SELECT: &str = r#"
 SELECT
@@ -20,6 +20,10 @@ SELECT
     mc."isEnabled" AS is_enabled,
     mc."updatedAt" AS updated_at,
     mc."name" AS name,
+    mc."httpMethod" AS http_method,
+    mc."requestHeaders" AS request_headers,
+    mc."acceptedStatusCodes" AS accepted_status_codes,
+    mc."checkSslErrors" AS check_ssl_errors,
     d."siteId" AS site_id
 FROM "MonitorCheck" mc
 JOIN "Dashboard" d ON mc."dashboardId" = d.id
@@ -49,6 +53,10 @@ pub struct MonitorCheckRecord {
     pub interval_seconds: i32,
     pub timeout_ms: i32,
     pub updated_at: DateTime<Utc>,
+    pub http_method: String,
+    pub request_headers: Option<String>,
+    pub accepted_status_codes: Vec<i32>,
+    pub check_ssl_errors: bool,
 }
 
 impl TryFrom<Row> for MonitorCheckRecord {
@@ -64,6 +72,10 @@ impl TryFrom<Row> for MonitorCheckRecord {
             interval_seconds: row.try_get("interval_seconds")?,
             timeout_ms: row.try_get("timeout_ms")?,
             updated_at: DateTime::<Utc>::from_naive_utc_and_offset(updated_at, Utc),
+            http_method: row.try_get("http_method")?,
+            request_headers: row.try_get("request_headers")?,
+            accepted_status_codes: row.try_get("accepted_status_codes")?,
+            check_ssl_errors: row.try_get("check_ssl_errors")?,
         })
     }
 }
@@ -75,6 +87,28 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
         let url = Url::parse(&record.url)
             .map_err(|e| MonitorRepositoryError::InvalidUrl(e.to_string()))?;
 
+        let http_method = match record.http_method.to_uppercase().as_str() {
+            "GET" => HttpMethod::Get,
+            _ => HttpMethod::Head,
+        };
+
+        let request_headers = record
+            .request_headers
+            .and_then(|json_str| {
+                serde_json::from_str::<Vec<RequestHeaderJson>>(&json_str).ok()
+            })
+            .map(|headers| {
+                headers
+                    .into_iter()
+                    .filter(|h| !h.key.is_empty())
+                    .map(|h| RequestHeader {
+                        key: h.key,
+                        value: h.value,
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
         Ok(Self {
             id: record.id,
             site_id: record.site_id,
@@ -83,8 +117,19 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
             interval: Duration::from_secs(record.interval_seconds.max(1) as u64),
             timeout: Duration::from_millis(record.timeout_ms.max(1) as u64),
             updated_at: record.updated_at,
+            http_method,
+            request_headers,
+            accepted_status_codes: record.accepted_status_codes,
+            check_ssl_errors: record.check_ssl_errors,
         })
     }
+}
+
+#[derive(serde::Deserialize)]
+struct RequestHeaderJson {
+    key: String,
+    #[serde(default)]
+    value: String,
 }
 
 #[async_trait]

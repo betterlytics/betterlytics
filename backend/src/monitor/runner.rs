@@ -158,7 +158,8 @@ impl TlsMonitorRunner {
                 max_concurrency: self.runtime.max_concurrency,
             },
             move |check, now, last_run| {
-                if check.url.scheme() != "https" {
+                // Skip if not HTTPS or if SSL checks are disabled
+                if check.url.scheme() != "https" || !check.check_ssl_errors {
                     return false;
                 }
                 let last = last_run.get(&check.id);

@@ -478,7 +478,6 @@ const COMMON_STATUS_CODES = [
   { code: 401, label: 'Unauthorized' },
   { code: 403, label: 'Forbidden' },
   { code: 404, label: 'Not Found' },
-  { code: 503, label: 'Unavailable' },
 ];
 
 // 30s through 59s (1-second ticks), then 1m through 59m (1-minute ticks), then 1h through 24h (1-hour ticks)

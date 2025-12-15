@@ -62,6 +62,33 @@ impl ReasonCode {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum HttpMethod {
+    Head,
+    Get,
+}
+
+impl HttpMethod {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            HttpMethod::Head => "HEAD",
+            HttpMethod::Get => "GET",
+        }
+    }
+}
+
+impl Default for HttpMethod {
+    fn default() -> Self {
+        HttpMethod::Head
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct RequestHeader {
+    pub key: String,
+    pub value: String,
+}
+
 #[derive(Clone, Debug)]
 pub struct MonitorCheck {
     pub id: String,
@@ -71,6 +98,10 @@ pub struct MonitorCheck {
     pub interval: Duration,
     pub timeout: Duration,
     pub updated_at: DateTime<Utc>,
+    pub http_method: HttpMethod,
+    pub request_headers: Vec<RequestHeader>,
+    pub accepted_status_codes: Vec<i32>,
+    pub check_ssl_errors: bool,
 }
 
 #[derive(Debug, Clone, Copy, Serialize_repr, Deserialize_repr)]
@@ -186,6 +217,7 @@ pub struct MonitorResultRow {
     pub reason_code: String,
     pub latency_ms: Option<f64>,
     pub status_code: Option<u16>,
+    pub http_method: String,
     pub resolved_ip: Option<Ipv6Addr>,
     pub port: Option<u16>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
@@ -218,6 +250,7 @@ impl MonitorResultRow {
             reason_code: outcome.reason_code.as_str().to_string(),
             latency_ms: Some(outcome.latency.as_secs_f64() * 1000.0),
             status_code: outcome.status_code,
+            http_method: check.http_method.as_str().to_string(),
             resolved_ip: outcome.resolved_ip,
             port: check.url.port_or_known_default(),
             tls_not_after: outcome.tls_not_after,
@@ -248,6 +281,7 @@ impl MonitorResultRow {
             reason_code: outcome.reason_code.as_str().to_string(),
             latency_ms: Some(outcome.latency.as_secs_f64() * 1000.0),
             status_code: None,
+            http_method: String::new(), // TLS probes don't use HTTP methods
             resolved_ip: outcome.resolved_ip,
             port: check.url.port_or_known_default(),
             tls_not_after: outcome.tls_not_after,

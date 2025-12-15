@@ -16,7 +16,7 @@ use url::Url;
 use x509_parser::prelude::FromDer;
 
 use crate::monitor::guard::{GuardError, MAX_REDIRECTS, MAX_RESPONSE_BYTES, validate_target};
-use crate::monitor::models::MonitorStatus;
+use crate::monitor::models::{HttpMethod, MonitorStatus};
 use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
 
 #[derive(Debug)]
@@ -86,7 +86,7 @@ impl MonitorProbe {
 
     pub async fn run(&self, check: &MonitorCheck) -> ProbeOutcome {
         let start = Instant::now();
-        let response = self.follow_with_guards(&check.url, check.timeout).await;
+        let response = self.follow_with_guards(check).await;
 
         let latency = start.elapsed();
 
@@ -97,6 +97,7 @@ impl MonitorProbe {
                 resolved_ip,
                 final_url,
                 redirect_hops,
+                &check.accepted_status_codes,
             ),
             Err(error) => self.http_failure(latency, check, error),
         }
@@ -159,10 +160,17 @@ impl MonitorProbe {
         resolved_ip: std::net::Ipv6Addr,
         final_url: String,
         redirect_hops: usize,
+        accepted_status_codes: &[i32],
     ) -> ProbeOutcome {
         let status = resp.status;
-        if status.is_success() {
-            let mut outcome = ProbeOutcome::success(latency, Some(status.as_u16()), resolved_ip);
+        let status_code = status.as_u16();
+        
+        // Check if status is successful (2xx) or in the accepted status codes list
+        let is_accepted = status.is_success() 
+            || accepted_status_codes.contains(&(status_code as i32));
+        
+        if is_accepted {
+            let mut outcome = ProbeOutcome::success(latency, Some(status_code), resolved_ip);
             outcome.final_url = Some(final_url);
             outcome.redirect_hops = redirect_hops;
             outcome.body_truncated = resp.body_truncated
@@ -180,7 +188,7 @@ impl MonitorProbe {
         } else {
             ReasonCode::HttpOther
         };
-        ProbeOutcome::failure(latency, Some(status.as_u16()), reason_code, None)
+        ProbeOutcome::failure(latency, Some(status_code), reason_code, None)
     }
 
     fn http_failure(
@@ -232,15 +240,14 @@ impl MonitorProbe {
 
     async fn follow_with_guards(
         &self,
-        url: &Url,
-        timeout: Duration,
+        check: &MonitorCheck,
     ) -> Result<(CappedResponse, std::net::Ipv6Addr, String, usize), ProbeError> {
-        let mut current_url = url.clone();
+        let mut current_url = check.url.clone();
         let mut resolved_ip = validate_target(&current_url).await.map_err(ProbeError::from)?.resolved_ip;
         let mut hops = 0usize;
 
         for hop in 0..=MAX_REDIRECTS {
-            let response = self.request_head_or_get(&current_url, timeout).await?;
+            let response = self.request_with_method(check, &current_url).await?;
             let status = response.status;
 
             if !status.is_redirection() {
@@ -285,50 +292,73 @@ impl MonitorProbe {
         ))
     }
 
-    async fn request_head_or_get(
+    async fn request_with_method(
+        &self,
+        check: &MonitorCheck,
+        url: &Url,
+    ) -> Result<CappedResponse, ProbeError> {
+        let timeout = check.timeout;
+        
+        match check.http_method {
+            HttpMethod::Get => {
+                self.request_get_capped_with_headers(url, timeout, &check.request_headers).await
+            }
+            HttpMethod::Head => {
+                self.request_head_with_headers(url, timeout, &check.request_headers).await
+            }
+        }
+    }
+    
+    async fn request_head_with_headers(
         &self,
         url: &Url,
         timeout: Duration,
+        request_headers: &[crate::monitor::RequestHeader],
     ) -> Result<CappedResponse, ProbeError> {
-        let head = self
-            .client
-            .head(url.clone())
-            .timeout(timeout)
-            .send()
-            .await
-            .map_err(map_reqwest_error)?;
+        let mut request = self.client.head(url.clone()).timeout(timeout);
+        
+        // Add custom headers
+        for header in request_headers {
+            if let Ok(header_name) = reqwest::header::HeaderName::from_bytes(header.key.as_bytes()) {
+                if let Ok(header_value) = reqwest::header::HeaderValue::from_str(&header.value) {
+                    request = request.header(header_name, header_value);
+                }
+            }
+        }
+        
+        let resp = request.send().await.map_err(map_reqwest_error)?;
 
-        self.guard_content_length(head.content_length())?;
-
-        let status = head.status();
-        let headers = head.headers().clone();
-        let content_length = head.content_length();
+        let status = resp.status();
+        let headers = resp.headers().clone();
+        let content_length = resp.content_length();
         let body_truncated = matches!(content_length, Some(len) if len > MAX_RESPONSE_BYTES as u64);
 
-        if !should_fallback_to_get(status) {
-            return Ok(CappedResponse::new(
-                status,
-                headers,
-                content_length,
-                body_truncated,
-            ));
-        }
-
-        self.request_get_capped(url, timeout).await
+        Ok(CappedResponse::new(
+            status,
+            headers,
+            content_length,
+            body_truncated,
+        ))
     }
 
-    async fn request_get_capped(
+    async fn request_get_capped_with_headers(
         &self,
         url: &Url,
         timeout: Duration,
+        request_headers: &[crate::monitor::RequestHeader],
     ) -> Result<CappedResponse, ProbeError> {
-        let resp = self
-            .client
-            .get(url.clone())
-            .timeout(timeout)
-            .send()
-            .await
-            .map_err(map_reqwest_error)?;
+        let mut request = self.client.get(url.clone()).timeout(timeout);
+        
+        // Add custom headers
+        for header in request_headers {
+            if let Ok(header_name) = reqwest::header::HeaderName::from_bytes(header.key.as_bytes()) {
+                if let Ok(header_value) = reqwest::header::HeaderValue::from_str(&header.value) {
+                    request = request.header(header_name, header_value);
+                }
+            }
+        }
+        
+        let resp = request.send().await.map_err(map_reqwest_error)?;
 
         let status = resp.status();
         let headers = resp.headers().clone();
@@ -364,18 +394,6 @@ impl MonitorProbe {
             Some(read_bytes as u64),
             false,
         ))
-    }
-
-    fn guard_content_length(&self, content_length: Option<u64>) -> Result<(), ProbeError> {
-        if let Some(len) = content_length {
-            if len > MAX_RESPONSE_BYTES as u64 {
-                return Err(ProbeError::new(
-                    ReasonCode::ResponseTooLarge,
-                    format!("content-length {} exceeds limit", len),
-                ));
-            }
-        }
-        Ok(())
     }
 
     async fn direct_rustls_not_after(
@@ -490,16 +508,6 @@ fn classify_reqwest_error(err: &reqwest::Error) -> ReasonCode {
     } else {
         ReasonCode::HttpError
     }
-}
-
-fn should_fallback_to_get(status: StatusCode) -> bool {
-    matches!(
-        status,
-        StatusCode::METHOD_NOT_ALLOWED
-            | StatusCode::NOT_IMPLEMENTED
-            | StatusCode::FORBIDDEN
-            | StatusCode::BAD_REQUEST
-    )
 }
 
 fn map_reqwest_error(err: reqwest::Error) -> ProbeError {
