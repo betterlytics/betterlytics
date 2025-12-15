@@ -35,6 +35,8 @@ export async function createMonitorCheck(input: MonitorCheckCreate): Promise<Mon
       intervalSeconds: data.intervalSeconds,
       timeoutMs: data.timeoutMs,
       isEnabled: data.isEnabled,
+      checkSslErrors: data.checkSslErrors,
+      sslExpiryReminders: data.sslExpiryReminders,
     },
   });
 
@@ -60,6 +62,8 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
       intervalSeconds: data.intervalSeconds,
       timeoutMs: data.timeoutMs,
       isEnabled: data.isEnabled,
+      checkSslErrors: data.checkSslErrors,
+      sslExpiryReminders: data.sslExpiryReminders,
     },
   });
 

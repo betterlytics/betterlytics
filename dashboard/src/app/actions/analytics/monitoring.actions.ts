@@ -58,6 +58,8 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       intervalSeconds: number;
       timeoutMs: number;
       isEnabled: boolean;
+      checkSslErrors: boolean;
+      sslExpiryReminders: boolean;
     },
   ) => {
     const payload = MonitorCheckUpdateSchema.parse({

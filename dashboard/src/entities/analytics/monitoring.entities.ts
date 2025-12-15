@@ -11,6 +11,8 @@ export const MonitorCheckSchema = z.object({
   intervalSeconds: z.number().int().min(5),
   timeoutMs: z.number().int().min(500),
   isEnabled: z.boolean(),
+  checkSslErrors: z.boolean(),
+  sslExpiryReminders: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -22,6 +24,8 @@ export const MonitorCheckCreateSchema = z.object({
   intervalSeconds: z.number().int().min(5).max(3600).default(30),
   timeoutMs: z.number().int().min(500).max(120_000).default(3000),
   isEnabled: z.boolean().default(true),
+  checkSslErrors: z.boolean().default(true),
+  sslExpiryReminders: z.boolean().default(true),
 });
 
 export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({
@@ -33,6 +37,8 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({
   intervalSeconds: true,
   timeoutMs: true,
   isEnabled: true,
+  checkSslErrors: true,
+  sslExpiryReminders: true,
 });
 
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;

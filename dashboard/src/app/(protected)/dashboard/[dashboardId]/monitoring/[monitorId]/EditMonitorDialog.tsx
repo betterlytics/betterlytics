@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { updateMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
@@ -15,6 +17,9 @@ import {
 } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
+import { Clock, Info, ShieldCheck, Timer } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 type EditMonitorDialogProps = {
   dashboardId: string;
@@ -31,11 +36,15 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     nearestIndex(MONITOR_INTERVAL_MARKS, monitor.intervalSeconds),
   );
   const [timeoutIdx, setTimeoutIdx] = useState(() => nearestIndex(REQUEST_TIMEOUT_MARKS, monitor.timeoutMs));
+  const [checkSslErrors, setCheckSslErrors] = useState(monitor.checkSslErrors);
+  const [sslExpiryReminders, setSslExpiryReminders] = useState(monitor.sslExpiryReminders);
 
   useEffect(() => {
     if (!open) return;
     setIntervalIdx(nearestIndex(MONITOR_INTERVAL_MARKS, monitor.intervalSeconds));
     setTimeoutIdx(nearestIndex(REQUEST_TIMEOUT_MARKS, monitor.timeoutMs));
+    setCheckSslErrors(monitor.checkSslErrors);
+    setSslExpiryReminders(monitor.sslExpiryReminders);
   }, [monitor, open]);
 
   const intervalSeconds = MONITOR_INTERVAL_MARKS[intervalIdx];
@@ -51,6 +60,8 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
           intervalSeconds,
           timeoutMs,
           isEnabled: monitor.isEnabled,
+          checkSslErrors,
+          sslExpiryReminders,
         });
         toast.success('Monitor updated');
         setOpen(false);
@@ -65,63 +76,149 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{trigger ?? <Button size='sm'>Edit</Button>}</SheetTrigger>
-      <SheetContent
-        side='right'
-        className='w-[95vw] max-w-4xl p-0 sm:w-[85vw] sm:max-w-3xl md:max-w-4xl lg:max-w-5xl'
-      >
-        <SheetHeader className='border-b px-6 pt-6 pb-4'>
-          <SheetTitle className='text-xl font-semibold'>Edit monitor</SheetTitle>
-          <SheetDescription className='text-muted-foreground text-sm'>
-            Adjust the monitor cadence and timeout thresholds.
-          </SheetDescription>
-        </SheetHeader>
-
+      <SheetContent side='right' className='w-full max-w-2xl overflow-y-auto p-0 lg:max-w-3xl xl:max-w-4xl'>
         <div className='flex h-full flex-col'>
-          <div className='flex h-full flex-col gap-6 overflow-y-auto px-6 py-6'>
-            <Section
-              title='Monitor interval'
-              description={`Your monitor will be checked every ${formatSeconds(intervalSeconds)}.`}
-              helper='Use shorter intervals for critical endpoints; longer for low-sensitivity checks.'
-            >
-              <Slider
-                value={[intervalIdx]}
-                min={0}
-                max={MONITOR_INTERVAL_MARKS.length - 1}
-                step={1}
-                onValueChange={([val]) => setIntervalIdx(val)}
-                disabled={isPending}
-              />
-              <MarkRow marks={MONITOR_INTERVAL_MARKS} format={(v) => formatSeconds(v)} activeIndex={intervalIdx} />
-            </Section>
+          <SheetHeader className='border-border space-y-1.5 border-b p-6'>
+            <SheetTitle className='text-xl'>Edit monitor</SheetTitle>
+            <SheetDescription className='text-muted-foreground text-sm'>
+              Adjust the monitor cadence and timeout thresholds.
+            </SheetDescription>
+          </SheetHeader>
 
-            <Section
-              title='Request timeout'
-              description={`The request timeout is ${formatSeconds(timeoutMs / 1000)}. The shorter the timeout, the earlier we mark the site as down.`}
-              helper='Choose a value that matches typical response times; too short can cause false alarms.'
-            >
-              <Slider
-                value={[timeoutIdx]}
-                min={0}
-                max={REQUEST_TIMEOUT_MARKS.length - 1}
-                step={1}
-                onValueChange={([val]) => setTimeoutIdx(val)}
-                disabled={isPending}
-              />
-              <MarkRow
-                marks={REQUEST_TIMEOUT_MARKS}
-                format={(v) => formatSeconds(v / 1000)}
-                activeIndex={timeoutIdx}
-              />
-            </Section>
+          <div className='flex-grow space-y-6 overflow-y-auto p-6'>
+            <Card className='bg-card border-border'>
+              <CardHeader className='flex flex-row items-start space-x-3'>
+                <Info className='mt-1 h-5 w-5 flex-shrink-0 text-blue-500 dark:text-blue-400' />
+                <div>
+                  <CardTitle className='text-card-foreground text-base font-medium'>Configuration tips</CardTitle>
+                  <CardDescription className='text-muted-foreground text-sm'>
+                    Use shorter intervals for critical endpoints. Choose timeout values that match typical response
+                    times to avoid false alarms.
+                  </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
 
-            <div className='flex justify-end gap-2 border-t pt-4'>
-              <Button type='button' variant='outline' onClick={() => setOpen(false)} disabled={isPending}>
-                Cancel
-              </Button>
-              <Button type='button' onClick={handleSave} disabled={isPending} className='min-w-[120px]'>
-                {isPending ? 'Saving...' : 'Save changes'}
-              </Button>
-            </div>
+            <Card className='bg-card border-border'>
+              <CardHeader>
+                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
+                  <Clock className='text-muted-foreground mr-2 h-4 w-4' />
+                  Monitor interval
+                </CardTitle>
+                <CardDescription className='text-muted-foreground text-sm'>
+                  Your monitor will be checked every{' '}
+                  <span className='text-foreground font-medium'>{formatSeconds(intervalSeconds)}</span>.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <Slider
+                  value={[intervalIdx]}
+                  min={0}
+                  max={MONITOR_INTERVAL_MARKS.length - 1}
+                  step={1}
+                  onValueChange={([val]) => setIntervalIdx(val)}
+                  disabled={isPending}
+                  className='[&>span:first-child]:bg-muted'
+                />
+                <IntervalMarkRow totalSteps={MONITOR_INTERVAL_MARKS.length - 1} activeIndex={intervalIdx} />
+              </CardContent>
+            </Card>
+
+            <Separator />
+
+            <Card className='bg-card border-border'>
+              <CardHeader>
+                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
+                  <Timer className='text-muted-foreground mr-2 h-4 w-4' />
+                  Request timeout
+                </CardTitle>
+                <CardDescription className='text-muted-foreground text-sm'>
+                  The request timeout is{' '}
+                  <span className='text-foreground font-medium'>{formatSeconds(timeoutMs / 1000)}</span>. The
+                  shorter the timeout, the earlier we mark the site as down.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <Slider
+                  value={[timeoutIdx]}
+                  min={0}
+                  max={REQUEST_TIMEOUT_MARKS.length - 1}
+                  step={1}
+                  onValueChange={([val]) => setTimeoutIdx(val)}
+                  disabled={isPending}
+                  className='[&>span:first-child]:bg-muted'
+                />
+                <TimeoutMarkRow totalSteps={REQUEST_TIMEOUT_MARKS.length - 1} activeIndex={timeoutIdx} />
+              </CardContent>
+            </Card>
+
+            <Separator />
+
+            <Card className='bg-card border-border'>
+              <CardHeader>
+                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
+                  <ShieldCheck className='text-muted-foreground mr-2 h-4 w-4' />
+                  SSL certificate checks
+                </CardTitle>
+                <CardDescription className='text-muted-foreground text-sm'>
+                  Configure how SSL/TLS certificates are monitored for this endpoint.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className='space-y-5'>
+                <div className='flex items-center justify-between'>
+                  <div className='space-y-0.5'>
+                    <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
+                      Check SSL errors
+                    </Label>
+                    <p className='text-muted-foreground text-xs'>
+                      Alert when SSL certificate errors are detected (invalid, self-signed, expired).
+                    </p>
+                  </div>
+                  <Switch
+                    id='check-ssl-errors'
+                    checked={checkSslErrors}
+                    onCheckedChange={setCheckSslErrors}
+                    disabled={isPending}
+                  />
+                </div>
+                <div className='flex items-center justify-between'>
+                  <div className='space-y-0.5'>
+                    <Label htmlFor='ssl-expiry-reminders' className='text-sm font-medium'>
+                      Enable SSL expiry reminders
+                    </Label>
+                    <p className='text-muted-foreground text-xs'>
+                      Receive notifications before your SSL certificate expires.
+                    </p>
+                  </div>
+                  <Switch
+                    id='ssl-expiry-reminders'
+                    checked={sslExpiryReminders}
+                    onCheckedChange={setSslExpiryReminders}
+                    disabled={isPending}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className='border-border bg-background sticky mt-auto flex justify-end gap-2 border-t p-6'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+              className='cursor-pointer'
+            >
+              Cancel
+            </Button>
+            <Button
+              type='button'
+              onClick={handleSave}
+              disabled={isPending}
+              className='min-w-[120px] cursor-pointer'
+            >
+              {isPending ? 'Saving...' : 'Save changes'}
+            </Button>
           </div>
         </div>
       </SheetContent>
@@ -129,8 +226,17 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   );
 }
 
-const MONITOR_INTERVAL_MARKS = [30, 60, 300, 1800, 3600, 43200, 86400];
-const REQUEST_TIMEOUT_MARKS = [1000, 15000, 30000, 45000, 60000];
+// 30s through 59s (1-second ticks), then 1m through 59m (1-minute ticks), then 1h through 24h (1-hour ticks)
+const MONITOR_INTERVAL_MARKS = [
+  // 1-second ticks: 30s to 59s (30 values, indices 0-29)
+  ...Array.from({ length: 30 }, (_, i) => 30 + i),
+  // 1-minute ticks: 1m to 59m (59 values, indices 30-88)
+  ...Array.from({ length: 59 }, (_, i) => (i + 1) * 60),
+  // 1-hour ticks: 1h to 24h (24 values, indices 89-112)
+  ...Array.from({ length: 24 }, (_, i) => (i + 1) * 3600),
+];
+// 1s through 30s in 1s increments
+const REQUEST_TIMEOUT_MARKS = Array.from({ length: 30 }, (_, i) => (i + 1) * 1000);
 
 function nearestIndex(values: number[], target: number) {
   let bestIdx = 0;
@@ -155,45 +261,76 @@ function formatSeconds(value: number) {
   return `${days}d`;
 }
 
-function Section({
-  title,
-  description,
-  helper,
-  children,
-}: {
-  title: string;
-  description: string;
-  helper?: string;
-  children: React.ReactNode;
-}) {
+function IntervalMarkRow({ totalSteps, activeIndex }: { totalSteps: number; activeIndex: number }) {
+  // Display labels at their actual slider positions
+  // Seconds: 30s(0), 31s(1), ..., 59s(29)
+  // Minutes: 1m(30), 2m(31), ..., 59m(88)
+  // Hours: 1h(89), 2h(90), ..., 24h(112)
+  // Show: 30s, 1m, 15m, 30m, 1h, 6h, 12h, 24h
+  const displayMarks = [
+    { idx: 0, label: '30s' }, // 30s
+    { idx: 30, label: '1m' }, // 1m (first minute tick)
+    { idx: 44, label: '15m' }, // 15m = idx 30 + (15-1) = 44
+    { idx: 59, label: '30m' }, // 30m = idx 30 + (30-1) = 59
+    { idx: 89, label: '1h' }, // 1h (first hour tick)
+    { idx: 94, label: '6h' }, // 6h = idx 89 + (6-1) = 94
+    { idx: 100, label: '12h' }, // 12h = idx 89 + (12-1) = 100
+    { idx: 112, label: '24h' }, // 24h = idx 89 + (24-1) = 112
+  ];
+
   return (
-    <section className='bg-card/50 rounded-lg border p-4 shadow-sm'>
-      <div className='space-y-1'>
-        <p className='text-sm font-semibold'>{title}</p>
-        <p className='text-muted-foreground text-sm'>{description}</p>
-        {helper ? <p className='text-muted-foreground text-xs'>{helper}</p> : null}
-      </div>
-      <div className='mt-4 space-y-2'>{children}</div>
-    </section>
+    <div className='relative h-5'>
+      {displayMarks.map(({ idx, label }, i) => {
+        // Calculate position as percentage based on actual slider index
+        const position = (idx / totalSteps) * 100;
+        // Adjust first and last label positions to prevent overflow
+        const isFirst = i === 0;
+        const isLast = i === displayMarks.length - 1;
+
+        return (
+          <span
+            key={idx}
+            className={`text-muted-foreground absolute text-xs ${idx === activeIndex ? 'text-foreground font-semibold' : ''} ${isFirst ? '' : isLast ? '-translate-x-full' : '-translate-x-1/2'}`}
+            style={{ left: `${position}%` }}
+          >
+            {label}
+          </span>
+        );
+      })}
+    </div>
   );
 }
 
-function MarkRow({
-  marks,
-  format,
-  activeIndex,
-}: {
-  marks: number[];
-  format: (value: number) => string;
-  activeIndex: number;
-}) {
+function TimeoutMarkRow({ totalSteps, activeIndex }: { totalSteps: number; activeIndex: number }) {
+  const displayMarks = [
+    { idx: 0, label: '1s' },
+    { idx: 4, label: '5s' },
+    { idx: 9, label: '10s' },
+    { idx: 14, label: '15s' },
+    { idx: 19, label: '20s' },
+    { idx: 24, label: '25s' },
+    { idx: 29, label: '30s' },
+  ];
+
   return (
-    <div className='text-muted-foreground flex justify-between text-xs'>
-      {marks.map((mark, idx) => (
-        <span key={mark} className={idx === activeIndex ? 'text-foreground font-semibold' : undefined}>
-          {format(mark)}
-        </span>
-      ))}
+    <div className='relative h-5'>
+      {displayMarks.map(({ idx, label }, i) => {
+        // Calculate position as percentage based on actual slider index
+        const position = (idx / totalSteps) * 100;
+        // Adjust first and last label positions to prevent overflow
+        const isFirst = i === 0;
+        const isLast = i === displayMarks.length - 1;
+
+        return (
+          <span
+            key={idx}
+            className={`text-muted-foreground absolute text-xs ${idx === activeIndex ? 'text-foreground font-semibold' : ''} ${isFirst ? '' : isLast ? '-translate-x-full' : '-translate-x-1/2'}`}
+            style={{ left: `${position}%` }}
+          >
+            {label}
+          </span>
+        );
+      })}
     </div>
   );
 }
