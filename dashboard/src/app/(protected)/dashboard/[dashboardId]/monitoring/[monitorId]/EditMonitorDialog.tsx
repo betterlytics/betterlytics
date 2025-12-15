@@ -22,11 +22,12 @@ import {
   type RequestHeader,
   type StatusCodeValue,
 } from '@/entities/analytics/monitoring.entities';
-import { Info, Plus, Trash2, X } from 'lucide-react';
+import { ChevronRight, Info, Plus, Trash2, X } from 'lucide-react';
 import { getStatusCodeColorClasses } from '@/utils/monitoringStyles';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 type EditMonitorDialogProps = {
   dashboardId: string;
@@ -253,177 +254,201 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
               </CardContent>
             </Card>
 
-            <Separator />
-
-            <Card className='bg-card border-border'>
-              <CardHeader>
-                <CardTitle className='text-card-foreground font-medium'>HTTP request settings</CardTitle>
-                <CardDescription className='text-muted-foreground text-sm'>
-                  Configure the HTTP method and custom headers for this monitor.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='space-y-5'>
-                <div className='flex items-center gap-3'>
-                  <Label className='text-sm font-medium'>HTTP method</Label>
-                  <div className='bg-muted inline-flex rounded-lg p-1'>
-                    {(['HEAD', 'GET'] as const).map((method) => (
-                      <button
-                        key={method}
-                        type='button'
-                        onClick={() => setHttpMethod(method)}
+            <Collapsible defaultOpen={false} className='group/ssl'>
+              <Card className='bg-card border-border gap-0 py-2'>
+                <CollapsibleTrigger className='hover:bg-muted/30 flex w-full cursor-pointer items-center gap-2 px-4 py-3 transition-colors'>
+                  <ChevronRight className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/ssl:rotate-90' />
+                  <span className='text-sm font-medium'>SSL certificate and Domain checks</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
+                  <CardContent className='space-y-5 pt-4'>
+                    <div className='flex items-center justify-between'>
+                      <div className='space-y-0.5'>
+                        <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
+                          Check SSL errors
+                        </Label>
+                        <p className='text-muted-foreground text-xs'>
+                          Create incidents when SSL certificate errors are detected
+                        </p>
+                      </div>
+                      <Switch
+                        id='check-ssl-errors'
+                        checked={checkSslErrors}
+                        onCheckedChange={setCheckSslErrors}
                         disabled={isPending}
-                        className={`cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition-all disabled:cursor-not-allowed ${
-                          httpMethod === method
-                            ? 'bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        {method}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                      />
+                    </div>
+                    <Separator />
+                    <div className='flex items-center justify-between'>
+                      <div className='space-y-0.5'>
+                        <Label htmlFor='ssl-expiry-reminders' className='text-sm font-medium'>
+                          SSL expiry reminders
+                        </Label>
+                        <p className='text-muted-foreground text-xs'>
+                          Get notified before your SSL certificate expires
+                        </p>
+                      </div>
+                      <Switch
+                        id='ssl-expiry-reminders'
+                        checked={sslExpiryReminders}
+                        onCheckedChange={setSslExpiryReminders}
+                        disabled={isPending}
+                      />
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
 
-                <div className='space-y-3'>
-                  <Label className='text-sm font-medium'>Request headers</Label>
-                  <div className='space-y-2'>
-                    {requestHeaders.map((header, index) => {
-                      const isEmptyRow = header.key === '' && header.value === '';
-                      const isLastRow = index === requestHeaders.length - 1;
-                      const showDeleteButton = !isEmptyRow || !isLastRow;
+            <Collapsible defaultOpen={false} className='group/advanced'>
+              <Card className='bg-card border-border gap-0 py-2'>
+                <CollapsibleTrigger className='hover:bg-muted/30 flex w-full cursor-pointer items-center gap-2 px-4 py-3 transition-colors'>
+                  <ChevronRight className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/advanced:rotate-90' />
+                  <span className='text-sm font-medium'>Advanced settings</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
+                  <CardContent className='space-y-6 pt-4'>
+                    {/* HTTP Method */}
+                    <div className='space-y-3'>
+                      <div className='space-y-0.5'>
+                        <Label className='text-sm font-medium'>HTTP method</Label>
+                        <p className='text-muted-foreground text-xs'>
+                          HEAD is faster but some servers may not support it
+                        </p>
+                      </div>
+                      <div className='bg-muted inline-flex rounded-lg p-1'>
+                        {(['HEAD', 'GET'] as const).map((method) => (
+                          <button
+                            key={method}
+                            type='button'
+                            onClick={() => setHttpMethod(method)}
+                            disabled={isPending}
+                            className={`cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition-all disabled:cursor-not-allowed ${
+                              httpMethod === method
+                                ? 'bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            {method}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                      return (
-                        <div key={index} className='flex items-center gap-2'>
-                          <div className='border-input flex flex-1 overflow-hidden rounded-md border'>
-                            <Input
-                              placeholder='X-Header-Name'
-                              value={header.key}
-                              onChange={(e) => updateHeader(index, 'key', e.target.value)}
+                    <Separator />
+
+                    {/* Request Headers */}
+                    <div className='space-y-3'>
+                      <div className='space-y-0.5'>
+                        <Label className='text-sm font-medium'>Request headers</Label>
+                        <p className='text-muted-foreground text-xs'>
+                          Custom headers to include with each request
+                        </p>
+                      </div>
+                      <div className='space-y-2'>
+                        {requestHeaders.map((header, index) => {
+                          const isEmptyRow = header.key === '' && header.value === '';
+                          const isLastRow = index === requestHeaders.length - 1;
+                          const showDeleteButton = !isEmptyRow || !isLastRow;
+
+                          return (
+                            <div key={index} className='flex items-center gap-2'>
+                              <div className='border-input flex flex-1 overflow-hidden rounded-md border'>
+                                <Input
+                                  placeholder='X-Header-Name'
+                                  value={header.key}
+                                  onChange={(e) => updateHeader(index, 'key', e.target.value)}
+                                  disabled={isPending}
+                                  className='flex-1 rounded-none border-0 focus-visible:z-10 focus-visible:ring-1'
+                                />
+                                <div className='bg-border w-px' />
+                                <Input
+                                  placeholder='Value'
+                                  value={header.value}
+                                  onChange={(e) => updateHeader(index, 'value', e.target.value)}
+                                  disabled={isPending}
+                                  className='flex-1 rounded-none border-0 focus-visible:ring-1'
+                                />
+                              </div>
+                              <Button
+                                type='button'
+                                variant='ghost'
+                                size='icon'
+                                onClick={() => removeHeader(index)}
+                                disabled={isPending || !showDeleteButton}
+                                className={`h-9 w-9 flex-shrink-0 cursor-pointer ${
+                                  showDeleteButton
+                                    ? 'text-destructive hover:text-destructive hover:bg-destructive/10'
+                                    : 'invisible'
+                                }`}
+                              >
+                                <Trash2 className='h-4 w-4' />
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Accepted Status Codes */}
+                    <div className='space-y-3'>
+                      <div className='space-y-0.5'>
+                        <Label className='text-sm font-medium'>Accepted status codes</Label>
+                        <p className='text-muted-foreground text-xs'>
+                          Status codes that indicate the site is up. Other codes will trigger incidents.
+                        </p>
+                      </div>
+                      <div className='flex flex-wrap items-center gap-2'>
+                        {acceptedStatusCodes.map((code) => (
+                          <span
+                            key={code}
+                            className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-xs font-medium ${getStatusCodeColorClasses(code)}`}
+                          >
+                            {code}
+                            <button
+                              type='button'
+                              onClick={() => removeStatusCode(code)}
                               disabled={isPending}
-                              className='flex-1 rounded-none border-0 focus-visible:z-10 focus-visible:ring-1'
-                            />
-                            <div className='bg-border w-px' />
-                            <Input
-                              placeholder='Value'
-                              value={header.value}
-                              onChange={(e) => updateHeader(index, 'value', e.target.value)}
-                              disabled={isPending}
-                              className='flex-1 rounded-none border-0 focus-visible:ring-1'
-                            />
-                          </div>
+                              className='-mr-0.5 cursor-pointer rounded p-0.5 transition-opacity hover:opacity-70 disabled:cursor-not-allowed'
+                            >
+                              <X className='h-3 w-3' />
+                            </button>
+                          </span>
+                        ))}
+                        <div className='flex items-center gap-1.5'>
+                          <Input
+                            type='text'
+                            placeholder='2xx or 200'
+                            value={statusCodeInput}
+                            onChange={(e) => handleStatusCodeInputChange(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddStatusCode();
+                              }
+                            }}
+                            disabled={isPending}
+                            className='h-8 w-24 font-mono text-xs'
+                          />
                           <Button
                             type='button'
                             variant='ghost'
                             size='icon'
-                            onClick={() => removeHeader(index)}
-                            disabled={isPending || !showDeleteButton}
-                            className={`h-9 w-9 flex-shrink-0 cursor-pointer ${
-                              showDeleteButton
-                                ? 'text-destructive hover:text-destructive hover:bg-destructive/10'
-                                : 'invisible'
-                            }`}
+                            onClick={handleAddStatusCode}
+                            disabled={isPending || !statusCodeInput.trim()}
+                            className='h-8 w-8 cursor-pointer'
                           >
-                            <Trash2 className='h-4 w-4' />
+                            <Plus className='h-4 w-4' />
                           </Button>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Separator />
-
-            <Card className='bg-card border-border'>
-              <CardHeader>
-                <CardTitle className='text-card-foreground font-medium'>Up HTTP status codes</CardTitle>
-                <CardDescription className='text-muted-foreground text-sm'>
-                  We will create incident when we receive HTTP status code other than defined below.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='flex flex-wrap items-center gap-2'>
-                  {acceptedStatusCodes.map((code) => (
-                    <span
-                      key={code}
-                      className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-xs font-medium ${getStatusCodeColorClasses(code)}`}
-                    >
-                      {code}
-                      <button
-                        type='button'
-                        onClick={() => removeStatusCode(code)}
-                        disabled={isPending}
-                        className='-mr-0.5 cursor-pointer rounded p-0.5 transition-opacity hover:opacity-70 disabled:cursor-not-allowed'
-                      >
-                        <X className='h-3 w-3' />
-                      </button>
-                    </span>
-                  ))}
-                  <div className='flex items-center gap-1.5'>
-                    <Input
-                      type='text'
-                      placeholder='2xx or 200'
-                      value={statusCodeInput}
-                      onChange={(e) => handleStatusCodeInputChange(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddStatusCode();
-                        }
-                      }}
-                      disabled={isPending}
-                      className='h-8 w-24 font-mono text-xs'
-                    />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='icon'
-                      onClick={handleAddStatusCode}
-                      disabled={isPending || !statusCodeInput.trim()}
-                      className='h-8 w-8 cursor-pointer'
-                    >
-                      <Plus className='h-4 w-4' />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Separator />
-
-            <Card className='bg-card border-border'>
-              <CardHeader>
-                <CardTitle className='text-card-foreground font-medium'>SSL certificate checks</CardTitle>
-                <CardDescription className='text-muted-foreground text-sm'>
-                  Configure how SSL/TLS certificates are monitored for this endpoint.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='space-y-5'>
-                <div className='flex items-center justify-between'>
-                  <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
-                    Check SSL errors
-                  </Label>
-                  <Switch
-                    id='check-ssl-errors'
-                    checked={checkSslErrors}
-                    onCheckedChange={setCheckSslErrors}
-                    disabled={isPending}
-                  />
-                </div>
-                <div className='flex items-center justify-between'>
-                  <Label htmlFor='ssl-expiry-reminders' className='text-sm font-medium'>
-                    Enable SSL expiry reminders
-                  </Label>
-                  <Switch
-                    id='ssl-expiry-reminders'
-                    checked={sslExpiryReminders}
-                    onCheckedChange={setSslExpiryReminders}
-                    disabled={isPending}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                      </div>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
           </div>
 
           <div className='border-border bg-background sticky mt-auto flex justify-end gap-2 border-t p-6'>
