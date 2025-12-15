@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use bb8::{Pool, PooledConnection, RunError};
 use bb8_postgres::PostgresConnectionManager;
 use chrono::{DateTime, NaiveDateTime, Utc};
+use tokio_postgres::types::Json;
 use thiserror::Error;
 use tokio_postgres::{Config as PgConfig, NoTls, Row};
 use url::Url;
@@ -54,7 +55,7 @@ pub struct MonitorCheckRecord {
     pub timeout_ms: i32,
     pub updated_at: DateTime<Utc>,
     pub http_method: String,
-    pub request_headers: Option<String>,
+    pub request_headers: Vec<RequestHeader>,
     pub accepted_status_codes: Vec<i32>,
     pub check_ssl_errors: bool,
 }
@@ -64,6 +65,14 @@ impl TryFrom<Row> for MonitorCheckRecord {
 
     fn try_from(row: Row) -> Result<Self, Self::Error> {
         let updated_at: NaiveDateTime = row.try_get("updated_at")?;
+        let request_headers = row
+            .try_get::<_, Option<Json<Vec<RequestHeaderJson>>>>("request_headers")?
+            .map(|json| json.0)
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|h| !h.key.is_empty())
+            .map(Into::into)
+            .collect();
         Ok(Self {
             id: row.try_get("id")?,
             site_id: row.try_get("site_id")?,
@@ -73,7 +82,7 @@ impl TryFrom<Row> for MonitorCheckRecord {
             timeout_ms: row.try_get("timeout_ms")?,
             updated_at: DateTime::<Utc>::from_naive_utc_and_offset(updated_at, Utc),
             http_method: row.try_get("http_method")?,
-            request_headers: row.try_get("request_headers")?,
+            request_headers,
             accepted_status_codes: row.try_get("accepted_status_codes")?,
             check_ssl_errors: row.try_get("check_ssl_errors")?,
         })
@@ -92,23 +101,6 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
             _ => HttpMethod::Head,
         };
 
-        let request_headers = record
-            .request_headers
-            .and_then(|json_str| {
-                serde_json::from_str::<Vec<RequestHeaderJson>>(&json_str).ok()
-            })
-            .map(|headers| {
-                headers
-                    .into_iter()
-                    .filter(|h| !h.key.is_empty())
-                    .map(|h| RequestHeader {
-                        key: h.key,
-                        value: h.value,
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
-
         Ok(Self {
             id: record.id,
             site_id: record.site_id,
@@ -118,7 +110,7 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
             timeout: Duration::from_millis(record.timeout_ms.max(1) as u64),
             updated_at: record.updated_at,
             http_method,
-            request_headers,
+            request_headers: record.request_headers,
             accepted_status_codes: record.accepted_status_codes,
             check_ssl_errors: record.check_ssl_errors,
         })
@@ -130,6 +122,12 @@ struct RequestHeaderJson {
     key: String,
     #[serde(default)]
     value: String,
+}
+
+impl From<RequestHeaderJson> for RequestHeader {
+    fn from(h: RequestHeaderJson) -> Self {
+        Self { key: h.key, value: h.value }
+    }
 }
 
 #[async_trait]
