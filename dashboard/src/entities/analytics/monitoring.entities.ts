@@ -12,6 +12,13 @@ export const RequestHeaderSchema = z.object({
 });
 export type RequestHeader = z.infer<typeof RequestHeaderSchema>;
 
+// Status code can be a specific number (200, 301) or a range string ('2xx', '3xx')
+export const StatusCodeValueSchema = z.union([
+  z.number().int().min(100).max(599),
+  z.string().regex(/^[2-5]xx$/, 'Must be a valid range like 2xx, 3xx, 4xx, or 5xx'),
+]);
+export type StatusCodeValue = z.infer<typeof StatusCodeValueSchema>;
+
 export const MonitorCheckSchema = z.object({
   id: z.string(),
   dashboardId: z.string(),
@@ -24,7 +31,7 @@ export const MonitorCheckSchema = z.object({
   sslExpiryReminders: z.boolean(),
   httpMethod: HttpMethodSchema,
   requestHeaders: z.array(RequestHeaderSchema).nullable(),
-  acceptedStatusCodes: z.array(z.number().int().min(100).max(599)),
+  acceptedStatusCodes: z.array(StatusCodeValueSchema),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -40,7 +47,7 @@ export const MonitorCheckCreateSchema = z.object({
   sslExpiryReminders: z.boolean().default(true),
   httpMethod: HttpMethodSchema.default('HEAD'),
   requestHeaders: z.array(RequestHeaderSchema).nullable().default(null),
-  acceptedStatusCodes: z.array(z.number().int().min(100).max(599)).default([]),
+  acceptedStatusCodes: z.array(StatusCodeValueSchema).default(['2xx']),
 });
 
 export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({

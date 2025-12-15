@@ -3,6 +3,7 @@
 import {
   MonitorCheckCreateSchema,
   MonitorCheckUpdateSchema,
+  StatusCodeValue,
   type HttpMethod,
   type RequestHeader,
 } from '@/entities/analytics/monitoring.entities';
@@ -67,7 +68,7 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       sslExpiryReminders: boolean;
       httpMethod: HttpMethod;
       requestHeaders: RequestHeader[] | null;
-      acceptedStatusCodes: number[];
+      acceptedStatusCodes: StatusCodeValue[];
     },
   ) => {
     const payload = MonitorCheckUpdateSchema.parse({

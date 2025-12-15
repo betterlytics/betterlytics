@@ -16,8 +16,14 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
-import { type MonitorCheck, type HttpMethod, type RequestHeader } from '@/entities/analytics/monitoring.entities';
-import { Check, Clock, Globe, Info, Plus, ShieldCheck, Timer, Trash2, X } from 'lucide-react';
+import {
+  type MonitorCheck,
+  type HttpMethod,
+  type RequestHeader,
+  type StatusCodeValue,
+} from '@/entities/analytics/monitoring.entities';
+import { Info, Plus, Trash2, X } from 'lucide-react';
+import { getStatusCodeColorClasses } from '@/utils/monitoringStyles';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,7 +48,9 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const [sslExpiryReminders, setSslExpiryReminders] = useState(monitor.sslExpiryReminders);
   const [httpMethod, setHttpMethod] = useState<HttpMethod>(monitor.httpMethod);
   const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>(monitor.requestHeaders ?? []);
-  const [acceptedStatusCodes, setAcceptedStatusCodes] = useState<number[]>(monitor.acceptedStatusCodes ?? []);
+  const [acceptedStatusCodes, setAcceptedStatusCodes] = useState<StatusCodeValue[]>(
+    monitor.acceptedStatusCodes?.length ? monitor.acceptedStatusCodes : ['2xx'],
+  );
   const [statusCodeInput, setStatusCodeInput] = useState('');
 
   useEffect(() => {
@@ -53,7 +61,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     setSslExpiryReminders(monitor.sslExpiryReminders);
     setHttpMethod(monitor.httpMethod);
     setRequestHeaders(monitor.requestHeaders ?? []);
-    setAcceptedStatusCodes(monitor.acceptedStatusCodes ?? []);
+    setAcceptedStatusCodes(monitor.acceptedStatusCodes?.length ? monitor.acceptedStatusCodes : ['2xx']);
     setStatusCodeInput('');
   }, [monitor, open]);
 
@@ -69,23 +77,46 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     setRequestHeaders(requestHeaders.map((header, i) => (i === index ? { ...header, [field]: value } : header)));
   };
 
-  const addStatusCode = () => {
-    const code = parseInt(statusCodeInput.trim(), 10);
-    if (!isNaN(code) && code >= 100 && code <= 599 && !acceptedStatusCodes.includes(code)) {
-      setAcceptedStatusCodes([...acceptedStatusCodes, code].sort((a, b) => a - b));
-      setStatusCodeInput('');
-    }
-  };
-
-  const removeStatusCode = (code: number) => {
+  const removeStatusCode = (code: StatusCodeValue) => {
     setAcceptedStatusCodes(acceptedStatusCodes.filter((c) => c !== code));
   };
 
-  const toggleCommonStatusCode = (code: number) => {
-    if (acceptedStatusCodes.includes(code)) {
-      removeStatusCode(code);
-    } else {
-      setAcceptedStatusCodes([...acceptedStatusCodes, code].sort((a, b) => a - b));
+  const sortStatusCodes = (codes: StatusCodeValue[]): StatusCodeValue[] => {
+    return [...codes].sort((a, b) => {
+      // Sort ranges (like '2xx') before specific codes
+      const aStr = String(a);
+      const bStr = String(b);
+      const aIsRange = aStr.includes('x');
+      const bIsRange = bStr.includes('x');
+      if (aIsRange && !bIsRange) return -1;
+      if (!aIsRange && bIsRange) return 1;
+      return aStr.localeCompare(bStr);
+    });
+  };
+
+  const handleStatusCodeInputChange = (value: string) => {
+    // Allow 'x' character for ranges like 2xx, 3xx
+    const sanitized = value.replace(/[^0-9xX]/g, '').toLowerCase();
+    setStatusCodeInput(sanitized);
+  };
+
+  const handleAddStatusCode = () => {
+    const input = statusCodeInput.trim().toLowerCase();
+
+    // Check for range pattern like 2xx, 3xx, 4xx, 5xx
+    if (/^[2-5]xx$/.test(input)) {
+      if (!acceptedStatusCodes.includes(input)) {
+        setAcceptedStatusCodes(sortStatusCodes([...acceptedStatusCodes, input]));
+      }
+      setStatusCodeInput('');
+      return;
+    }
+
+    // Otherwise treat as specific code
+    const code = parseInt(input, 10);
+    if (!isNaN(code) && code >= 100 && code <= 599 && !acceptedStatusCodes.includes(code)) {
+      setAcceptedStatusCodes(sortStatusCodes([...acceptedStatusCodes, code]));
+      setStatusCodeInput('');
     }
   };
 
@@ -134,24 +165,14 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
           <div className='flex-grow space-y-6 overflow-y-auto p-6'>
             <Card className='bg-card border-border'>
-              <CardHeader className='flex flex-row items-start space-x-3'>
-                <Info className='mt-1 h-5 w-5 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                <div>
-                  <CardTitle className='text-card-foreground text-base font-medium'>Configuration tips</CardTitle>
-                  <CardDescription className='text-muted-foreground text-sm'>
-                    Use shorter intervals for critical endpoints. Choose timeout values that match typical response
-                    times to avoid false alarms.
-                  </CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-
-            <Card className='bg-card border-border'>
               <CardHeader>
-                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
-                  <Clock className='text-muted-foreground mr-2 h-4 w-4' />
-                  Monitor interval
-                </CardTitle>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-card-foreground font-medium'>Monitor interval</CardTitle>
+                  <span className='inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'>
+                    <Info className='h-3.5 w-3.5' />
+                    Use shorter intervals for critical endpoints
+                  </span>
+                </div>
                 <CardDescription className='text-muted-foreground text-sm'>
                   Your monitor will be checked every{' '}
                   <span className='text-foreground font-medium'>{formatSeconds(intervalSeconds)}</span>.
@@ -175,10 +196,9 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
             <Card className='bg-card border-border'>
               <CardHeader>
-                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
-                  <Timer className='text-muted-foreground mr-2 h-4 w-4' />
-                  Request timeout
-                </CardTitle>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-card-foreground font-medium'>Request timeout</CardTitle>
+                </div>
                 <CardDescription className='text-muted-foreground text-sm'>
                   The request timeout is{' '}
                   <span className='text-foreground font-medium'>{formatSeconds(timeoutMs / 1000)}</span>. The
@@ -203,10 +223,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
             <Card className='bg-card border-border'>
               <CardHeader>
-                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
-                  <Globe className='text-muted-foreground mr-2 h-4 w-4' />
-                  HTTP request settings
-                </CardTitle>
+                <CardTitle className='text-card-foreground font-medium'>HTTP request settings</CardTitle>
                 <CardDescription className='text-muted-foreground text-sm'>
                   Configure the HTTP method and custom headers for this monitor.
                 </CardDescription>
@@ -294,106 +311,56 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
             <Card className='bg-card border-border'>
               <CardHeader>
-                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
-                  <Check className='text-muted-foreground mr-2 h-4 w-4' />
-                  Accepted status codes
-                </CardTitle>
+                <CardTitle className='text-card-foreground font-medium'>Up HTTP status codes</CardTitle>
                 <CardDescription className='text-muted-foreground text-sm'>
-                  By default, only 2xx status codes are considered healthy. Add additional status codes that should
-                  not trigger an incident.
+                  We will create incident when we receive HTTP status code other than defined below.
                 </CardDescription>
               </CardHeader>
               <CardContent className='space-y-4'>
-                <div className='space-y-3'>
-                  <Label className='text-sm font-medium'>Quick add common codes</Label>
-                  <div className='flex flex-wrap gap-2'>
-                    {COMMON_STATUS_CODES.map(({ code, label }) => {
-                      const isSelected = acceptedStatusCodes.includes(code);
-                      return (
-                        <button
-                          key={code}
-                          type='button'
-                          onClick={() => toggleCommonStatusCode(code)}
-                          disabled={isPending}
-                          className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                            isSelected
-                              ? 'border-primary bg-primary/10 text-primary'
-                              : 'border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground'
-                          } cursor-pointer disabled:cursor-not-allowed disabled:opacity-50`}
-                        >
-                          <span className='font-mono'>{code}</span>
-                          <span className='text-muted-foreground'>{label}</span>
-                          {isSelected && <Check className='h-3 w-3' />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className='space-y-2'>
-                  <Label className='text-sm font-medium'>Add custom status code</Label>
-                  <div className='flex gap-2'>
+                <div className='flex flex-wrap items-center gap-2'>
+                  {acceptedStatusCodes.map((code) => (
+                    <span
+                      key={code}
+                      className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-xs font-medium ${getStatusCodeColorClasses(code)}`}
+                    >
+                      {code}
+                      <button
+                        type='button'
+                        onClick={() => removeStatusCode(code)}
+                        disabled={isPending}
+                        className='-mr-0.5 cursor-pointer rounded p-0.5 transition-opacity hover:opacity-70 disabled:cursor-not-allowed'
+                      >
+                        <X className='h-3 w-3' />
+                      </button>
+                    </span>
+                  ))}
+                  <div className='flex items-center gap-1.5'>
                     <Input
-                      type='number'
-                      min={100}
-                      max={599}
-                      placeholder='e.g. 418'
+                      type='text'
+                      placeholder='2xx or 200'
                       value={statusCodeInput}
-                      onChange={(e) => setStatusCodeInput(e.target.value)}
+                      onChange={(e) => handleStatusCodeInputChange(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
-                          addStatusCode();
+                          handleAddStatusCode();
                         }
                       }}
                       disabled={isPending}
-                      className='w-32 font-mono'
+                      className='h-8 w-24 font-mono text-xs'
                     />
                     <Button
                       type='button'
-                      variant='outline'
-                      size='sm'
-                      onClick={addStatusCode}
+                      variant='ghost'
+                      size='icon'
+                      onClick={handleAddStatusCode}
                       disabled={isPending || !statusCodeInput.trim()}
-                      className='h-9 cursor-pointer'
+                      className='h-8 w-8 cursor-pointer'
                     >
-                      <Plus className='mr-1 h-3.5 w-3.5' />
-                      Add
+                      <Plus className='h-4 w-4' />
                     </Button>
                   </div>
                 </div>
-
-                {acceptedStatusCodes.length > 0 && (
-                  <div className='space-y-2'>
-                    <Label className='text-sm font-medium'>
-                      Additional accepted codes ({acceptedStatusCodes.length})
-                    </Label>
-                    <div className='flex flex-wrap gap-1.5'>
-                      {acceptedStatusCodes.map((code) => (
-                        <span
-                          key={code}
-                          className='bg-muted text-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 font-mono text-xs'
-                        >
-                          {code}
-                          <button
-                            type='button'
-                            onClick={() => removeStatusCode(code)}
-                            disabled={isPending}
-                            className='text-muted-foreground hover:text-foreground -mr-0.5 cursor-pointer rounded p-0.5 transition-colors disabled:cursor-not-allowed'
-                          >
-                            <X className='h-3 w-3' />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {acceptedStatusCodes.length === 0 && (
-                  <p className='text-muted-foreground text-xs'>
-                    No additional status codes configured. Only 2xx responses will be considered healthy.
-                  </p>
-                )}
               </CardContent>
             </Card>
 
@@ -401,24 +368,16 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
             <Card className='bg-card border-border'>
               <CardHeader>
-                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
-                  <ShieldCheck className='text-muted-foreground mr-2 h-4 w-4' />
-                  SSL certificate checks
-                </CardTitle>
+                <CardTitle className='text-card-foreground font-medium'>SSL certificate checks</CardTitle>
                 <CardDescription className='text-muted-foreground text-sm'>
                   Configure how SSL/TLS certificates are monitored for this endpoint.
                 </CardDescription>
               </CardHeader>
               <CardContent className='space-y-5'>
                 <div className='flex items-center justify-between'>
-                  <div className='space-y-0.5'>
-                    <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
-                      Check SSL errors
-                    </Label>
-                    <p className='text-muted-foreground text-xs'>
-                      Alert when SSL certificate errors are detected (invalid, self-signed, expired).
-                    </p>
-                  </div>
+                  <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
+                    Check SSL errors
+                  </Label>
                   <Switch
                     id='check-ssl-errors'
                     checked={checkSslErrors}
@@ -427,14 +386,9 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                   />
                 </div>
                 <div className='flex items-center justify-between'>
-                  <div className='space-y-0.5'>
-                    <Label htmlFor='ssl-expiry-reminders' className='text-sm font-medium'>
-                      Enable SSL expiry reminders
-                    </Label>
-                    <p className='text-muted-foreground text-xs'>
-                      Receive notifications before your SSL certificate expires.
-                    </p>
-                  </div>
+                  <Label htmlFor='ssl-expiry-reminders' className='text-sm font-medium'>
+                    Enable SSL expiry reminders
+                  </Label>
                   <Switch
                     id='ssl-expiry-reminders'
                     checked={sslExpiryReminders}
@@ -470,15 +424,6 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     </Sheet>
   );
 }
-
-const COMMON_STATUS_CODES = [
-  { code: 301, label: 'Moved' },
-  { code: 302, label: 'Found' },
-  { code: 304, label: 'Not Modified' },
-  { code: 401, label: 'Unauthorized' },
-  { code: 403, label: 'Forbidden' },
-  { code: 404, label: 'Not Found' },
-];
 
 // 30s through 59s (1-second ticks), then 1m through 59m (1-minute ticks), then 1h through 24h (1-hour ticks)
 const MONITOR_INTERVAL_MARKS = [

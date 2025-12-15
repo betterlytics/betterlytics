@@ -2,6 +2,46 @@ import { LiveIndicatorColor } from '@/components/live-indicator';
 import { type MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { LucideIcon, ShieldAlert, ShieldX, ShieldCheck, Shield } from 'lucide-react';
 
+// HTTP Status Code color categories
+export type StatusCodeCategory = '2xx' | '3xx' | '4xx' | '5xx';
+
+export const STATUS_CODE_COLORS: Record<StatusCodeCategory, { bg: string; text: string; border: string }> = {
+  '2xx': {
+    bg: 'bg-emerald-500/20',
+    text: 'text-emerald-400',
+    border: 'border-emerald-500/40',
+  },
+  '3xx': {
+    bg: 'bg-sky-500/20',
+    text: 'text-sky-400',
+    border: 'border-sky-500/40',
+  },
+  '4xx': {
+    bg: 'bg-amber-500/20',
+    text: 'text-amber-400',
+    border: 'border-amber-500/40',
+  },
+  '5xx': {
+    bg: 'bg-red-500/20',
+    text: 'text-red-400',
+    border: 'border-red-500/40',
+  },
+};
+
+export function getStatusCodeCategory(code: number | string): StatusCodeCategory {
+  const codeStr = String(code);
+  if (codeStr.startsWith('2') || codeStr.toLowerCase() === '2xx') return '2xx';
+  if (codeStr.startsWith('3') || codeStr.toLowerCase() === '3xx') return '3xx';
+  if (codeStr.startsWith('4') || codeStr.toLowerCase() === '4xx') return '4xx';
+  return '5xx';
+}
+
+export function getStatusCodeColorClasses(code: number | string): string {
+  const category = getStatusCodeCategory(code);
+  const colors = STATUS_CODE_COLORS[category];
+  return `${colors.bg} ${colors.text} ${colors.border}`;
+}
+
 export type MonitorTone = 'ok' | 'warn' | 'down' | 'neutral';
 export type MonitorStatusCategory = MonitorStatus | 'unknown';
 export type MonitorToneTheme = (typeof MONITOR_TONE)[MonitorTone];
