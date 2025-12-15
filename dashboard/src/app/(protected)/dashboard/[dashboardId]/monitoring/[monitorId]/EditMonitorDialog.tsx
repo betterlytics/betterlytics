@@ -26,7 +26,6 @@ import { Info, Plus, Trash2, X } from 'lucide-react';
 import { getStatusCodeColorClasses } from '@/utils/monitoringStyles';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 
 type EditMonitorDialogProps = {
@@ -264,27 +263,25 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                 </CardDescription>
               </CardHeader>
               <CardContent className='space-y-5'>
-                <div className='space-y-2'>
-                  <Label htmlFor='http-method' className='text-sm font-medium'>
-                    HTTP method
-                  </Label>
-                  <Select
-                    value={httpMethod}
-                    onValueChange={(val) => setHttpMethod(val as HttpMethod)}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger id='http-method' className='w-full sm:w-48'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='HEAD'>HEAD</SelectItem>
-                      <SelectItem value='GET'>GET</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className='text-muted-foreground text-xs'>
-                    HEAD is more efficient but some servers don&apos;t support it. Use GET if HEAD doesn&apos;t
-                    work.
-                  </p>
+                <div className='flex items-center gap-3'>
+                  <Label className='text-sm font-medium'>HTTP method</Label>
+                  <div className='bg-muted inline-flex rounded-lg p-1'>
+                    {(['HEAD', 'GET'] as const).map((method) => (
+                      <button
+                        key={method}
+                        type='button'
+                        onClick={() => setHttpMethod(method)}
+                        disabled={isPending}
+                        className={`cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition-all disabled:cursor-not-allowed ${
+                          httpMethod === method
+                            ? 'bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {method}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className='space-y-3'>
