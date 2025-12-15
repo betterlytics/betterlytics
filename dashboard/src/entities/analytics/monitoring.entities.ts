@@ -3,6 +3,15 @@ import { z } from 'zod';
 export const MonitorStatusSchema = z.enum(['ok', 'warn', 'down', 'error']);
 export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
 
+export const HttpMethodSchema = z.enum(['HEAD', 'GET']);
+export type HttpMethod = z.infer<typeof HttpMethodSchema>;
+
+export const RequestHeaderSchema = z.object({
+  key: z.string().min(1),
+  value: z.string(),
+});
+export type RequestHeader = z.infer<typeof RequestHeaderSchema>;
+
 export const MonitorCheckSchema = z.object({
   id: z.string(),
   dashboardId: z.string(),
@@ -13,6 +22,9 @@ export const MonitorCheckSchema = z.object({
   isEnabled: z.boolean(),
   checkSslErrors: z.boolean(),
   sslExpiryReminders: z.boolean(),
+  httpMethod: HttpMethodSchema,
+  requestHeaders: z.array(RequestHeaderSchema).nullable(),
+  acceptedStatusCodes: z.array(z.number().int().min(100).max(599)),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -26,6 +38,9 @@ export const MonitorCheckCreateSchema = z.object({
   isEnabled: z.boolean().default(true),
   checkSslErrors: z.boolean().default(true),
   sslExpiryReminders: z.boolean().default(true),
+  httpMethod: HttpMethodSchema.default('HEAD'),
+  requestHeaders: z.array(RequestHeaderSchema).nullable().default(null),
+  acceptedStatusCodes: z.array(z.number().int().min(100).max(599)).default([]),
 });
 
 export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({
@@ -39,6 +54,9 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({
   isEnabled: true,
   checkSslErrors: true,
   sslExpiryReminders: true,
+  httpMethod: true,
+  requestHeaders: true,
+  acceptedStatusCodes: true,
 });
 
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;

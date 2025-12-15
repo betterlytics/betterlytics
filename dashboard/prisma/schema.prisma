@@ -248,6 +248,9 @@ model MonitorCheck {
   isEnabled             Boolean   @default(true)
   checkSslErrors        Boolean   @default(true)
   sslExpiryReminders    Boolean   @default(true)
+  httpMethod            String    @default("HEAD")
+  requestHeaders        Json?
+  acceptedStatusCodes   Int[]     @default([])
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 

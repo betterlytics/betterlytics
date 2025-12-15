@@ -37,6 +37,9 @@ export async function createMonitorCheck(input: MonitorCheckCreate): Promise<Mon
       isEnabled: data.isEnabled,
       checkSslErrors: data.checkSslErrors,
       sslExpiryReminders: data.sslExpiryReminders,
+      httpMethod: data.httpMethod,
+      requestHeaders: data.requestHeaders ?? undefined,
+      acceptedStatusCodes: data.acceptedStatusCodes,
     },
   });
 
@@ -64,6 +67,9 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
       isEnabled: data.isEnabled,
       checkSslErrors: data.checkSslErrors,
       sslExpiryReminders: data.sslExpiryReminders,
+      httpMethod: data.httpMethod,
+      requestHeaders: data.requestHeaders ?? undefined,
+      acceptedStatusCodes: data.acceptedStatusCodes,
     },
   });
 

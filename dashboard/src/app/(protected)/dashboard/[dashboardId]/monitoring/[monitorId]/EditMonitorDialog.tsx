@@ -16,10 +16,12 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
-import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
-import { Clock, Info, ShieldCheck, Timer } from 'lucide-react';
+import { type MonitorCheck, type HttpMethod, type RequestHeader } from '@/entities/analytics/monitoring.entities';
+import { Check, Clock, Globe, Info, Plus, ShieldCheck, Timer, Trash2, X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 type EditMonitorDialogProps = {
   dashboardId: string;
@@ -38,6 +40,10 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const [timeoutIdx, setTimeoutIdx] = useState(() => nearestIndex(REQUEST_TIMEOUT_MARKS, monitor.timeoutMs));
   const [checkSslErrors, setCheckSslErrors] = useState(monitor.checkSslErrors);
   const [sslExpiryReminders, setSslExpiryReminders] = useState(monitor.sslExpiryReminders);
+  const [httpMethod, setHttpMethod] = useState<HttpMethod>(monitor.httpMethod);
+  const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>(monitor.requestHeaders ?? []);
+  const [acceptedStatusCodes, setAcceptedStatusCodes] = useState<number[]>(monitor.acceptedStatusCodes ?? []);
+  const [statusCodeInput, setStatusCodeInput] = useState('');
 
   useEffect(() => {
     if (!open) return;
@@ -45,7 +51,43 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     setTimeoutIdx(nearestIndex(REQUEST_TIMEOUT_MARKS, monitor.timeoutMs));
     setCheckSslErrors(monitor.checkSslErrors);
     setSslExpiryReminders(monitor.sslExpiryReminders);
+    setHttpMethod(monitor.httpMethod);
+    setRequestHeaders(monitor.requestHeaders ?? []);
+    setAcceptedStatusCodes(monitor.acceptedStatusCodes ?? []);
+    setStatusCodeInput('');
   }, [monitor, open]);
+
+  const addHeader = () => {
+    setRequestHeaders([...requestHeaders, { key: '', value: '' }]);
+  };
+
+  const removeHeader = (index: number) => {
+    setRequestHeaders(requestHeaders.filter((_, i) => i !== index));
+  };
+
+  const updateHeader = (index: number, field: 'key' | 'value', value: string) => {
+    setRequestHeaders(requestHeaders.map((header, i) => (i === index ? { ...header, [field]: value } : header)));
+  };
+
+  const addStatusCode = () => {
+    const code = parseInt(statusCodeInput.trim(), 10);
+    if (!isNaN(code) && code >= 100 && code <= 599 && !acceptedStatusCodes.includes(code)) {
+      setAcceptedStatusCodes([...acceptedStatusCodes, code].sort((a, b) => a - b));
+      setStatusCodeInput('');
+    }
+  };
+
+  const removeStatusCode = (code: number) => {
+    setAcceptedStatusCodes(acceptedStatusCodes.filter((c) => c !== code));
+  };
+
+  const toggleCommonStatusCode = (code: number) => {
+    if (acceptedStatusCodes.includes(code)) {
+      removeStatusCode(code);
+    } else {
+      setAcceptedStatusCodes([...acceptedStatusCodes, code].sort((a, b) => a - b));
+    }
+  };
 
   const intervalSeconds = MONITOR_INTERVAL_MARKS[intervalIdx];
   const timeoutMs = REQUEST_TIMEOUT_MARKS[timeoutIdx];
@@ -53,6 +95,8 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const handleSave = () => {
     startTransition(async () => {
       try {
+        // Filter out headers with empty keys
+        const validHeaders = requestHeaders.filter((h) => h.key.trim() !== '');
         await updateMonitorCheckAction(dashboardId, {
           id: monitor.id,
           name: monitor.name ?? null,
@@ -62,6 +106,9 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
           isEnabled: monitor.isEnabled,
           checkSslErrors,
           sslExpiryReminders,
+          httpMethod,
+          requestHeaders: validHeaders.length > 0 ? validHeaders : null,
+          acceptedStatusCodes,
         });
         toast.success('Monitor updated');
         setOpen(false);
@@ -157,6 +204,204 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
             <Card className='bg-card border-border'>
               <CardHeader>
                 <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
+                  <Globe className='text-muted-foreground mr-2 h-4 w-4' />
+                  HTTP request settings
+                </CardTitle>
+                <CardDescription className='text-muted-foreground text-sm'>
+                  Configure the HTTP method and custom headers for this monitor.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className='space-y-5'>
+                <div className='space-y-2'>
+                  <Label htmlFor='http-method' className='text-sm font-medium'>
+                    HTTP method
+                  </Label>
+                  <Select
+                    value={httpMethod}
+                    onValueChange={(val) => setHttpMethod(val as HttpMethod)}
+                    disabled={isPending}
+                  >
+                    <SelectTrigger id='http-method' className='w-full sm:w-48'>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='HEAD'>HEAD</SelectItem>
+                      <SelectItem value='GET'>GET</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className='text-muted-foreground text-xs'>
+                    HEAD is more efficient but some servers don&apos;t support it. Use GET if HEAD doesn&apos;t
+                    work.
+                  </p>
+                </div>
+
+                <div className='space-y-3'>
+                  <div className='flex items-center justify-between'>
+                    <Label className='text-sm font-medium'>Request headers</Label>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={addHeader}
+                      disabled={isPending}
+                      className='h-8 cursor-pointer'
+                    >
+                      <Plus className='mr-1 h-3.5 w-3.5' />
+                      Add header
+                    </Button>
+                  </div>
+                  {requestHeaders.length === 0 ? (
+                    <p className='text-muted-foreground text-xs'>
+                      No custom headers configured. Add headers for authentication or custom requirements.
+                    </p>
+                  ) : (
+                    <div className='space-y-2'>
+                      {requestHeaders.map((header, index) => (
+                        <div key={index} className='flex items-center gap-2'>
+                          <Input
+                            placeholder='Header name'
+                            value={header.key}
+                            onChange={(e) => updateHeader(index, 'key', e.target.value)}
+                            disabled={isPending}
+                            className='flex-1'
+                          />
+                          <Input
+                            placeholder='Value'
+                            value={header.value}
+                            onChange={(e) => updateHeader(index, 'value', e.target.value)}
+                            disabled={isPending}
+                            className='flex-1'
+                          />
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='icon'
+                            onClick={() => removeHeader(index)}
+                            disabled={isPending}
+                            className='text-destructive hover:text-destructive hover:bg-destructive/10 h-9 w-9 flex-shrink-0 cursor-pointer'
+                          >
+                            <Trash2 className='h-4 w-4' />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Separator />
+
+            <Card className='bg-card border-border'>
+              <CardHeader>
+                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
+                  <Check className='text-muted-foreground mr-2 h-4 w-4' />
+                  Accepted status codes
+                </CardTitle>
+                <CardDescription className='text-muted-foreground text-sm'>
+                  By default, only 2xx status codes are considered healthy. Add additional status codes that should
+                  not trigger an incident.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <div className='space-y-3'>
+                  <Label className='text-sm font-medium'>Quick add common codes</Label>
+                  <div className='flex flex-wrap gap-2'>
+                    {COMMON_STATUS_CODES.map(({ code, label }) => {
+                      const isSelected = acceptedStatusCodes.includes(code);
+                      return (
+                        <button
+                          key={code}
+                          type='button'
+                          onClick={() => toggleCommonStatusCode(code)}
+                          disabled={isPending}
+                          className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                            isSelected
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground'
+                          } cursor-pointer disabled:cursor-not-allowed disabled:opacity-50`}
+                        >
+                          <span className='font-mono'>{code}</span>
+                          <span className='text-muted-foreground'>{label}</span>
+                          {isSelected && <Check className='h-3 w-3' />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className='space-y-2'>
+                  <Label className='text-sm font-medium'>Add custom status code</Label>
+                  <div className='flex gap-2'>
+                    <Input
+                      type='number'
+                      min={100}
+                      max={599}
+                      placeholder='e.g. 418'
+                      value={statusCodeInput}
+                      onChange={(e) => setStatusCodeInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addStatusCode();
+                        }
+                      }}
+                      disabled={isPending}
+                      className='w-32 font-mono'
+                    />
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={addStatusCode}
+                      disabled={isPending || !statusCodeInput.trim()}
+                      className='h-9 cursor-pointer'
+                    >
+                      <Plus className='mr-1 h-3.5 w-3.5' />
+                      Add
+                    </Button>
+                  </div>
+                </div>
+
+                {acceptedStatusCodes.length > 0 && (
+                  <div className='space-y-2'>
+                    <Label className='text-sm font-medium'>
+                      Additional accepted codes ({acceptedStatusCodes.length})
+                    </Label>
+                    <div className='flex flex-wrap gap-1.5'>
+                      {acceptedStatusCodes.map((code) => (
+                        <span
+                          key={code}
+                          className='bg-muted text-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 font-mono text-xs'
+                        >
+                          {code}
+                          <button
+                            type='button'
+                            onClick={() => removeStatusCode(code)}
+                            disabled={isPending}
+                            className='text-muted-foreground hover:text-foreground -mr-0.5 cursor-pointer rounded p-0.5 transition-colors disabled:cursor-not-allowed'
+                          >
+                            <X className='h-3 w-3' />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {acceptedStatusCodes.length === 0 && (
+                  <p className='text-muted-foreground text-xs'>
+                    No additional status codes configured. Only 2xx responses will be considered healthy.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Separator />
+
+            <Card className='bg-card border-border'>
+              <CardHeader>
+                <CardTitle className='text-card-foreground flex items-center text-base font-medium'>
                   <ShieldCheck className='text-muted-foreground mr-2 h-4 w-4' />
                   SSL certificate checks
                 </CardTitle>
@@ -225,6 +470,16 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     </Sheet>
   );
 }
+
+const COMMON_STATUS_CODES = [
+  { code: 301, label: 'Moved' },
+  { code: 302, label: 'Found' },
+  { code: 304, label: 'Not Modified' },
+  { code: 401, label: 'Unauthorized' },
+  { code: 403, label: 'Forbidden' },
+  { code: 404, label: 'Not Found' },
+  { code: 503, label: 'Unavailable' },
+];
 
 // 30s through 59s (1-second ticks), then 1m through 59m (1-minute ticks), then 1h through 24h (1-hour ticks)
 const MONITOR_INTERVAL_MARKS = [

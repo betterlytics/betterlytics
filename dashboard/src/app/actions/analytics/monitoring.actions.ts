@@ -1,6 +1,11 @@
 'use server';
 
-import { MonitorCheckCreateSchema, MonitorCheckUpdateSchema } from '@/entities/analytics/monitoring.entities';
+import {
+  MonitorCheckCreateSchema,
+  MonitorCheckUpdateSchema,
+  type HttpMethod,
+  type RequestHeader,
+} from '@/entities/analytics/monitoring.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import {
@@ -60,6 +65,9 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       isEnabled: boolean;
       checkSslErrors: boolean;
       sslExpiryReminders: boolean;
+      httpMethod: HttpMethod;
+      requestHeaders: RequestHeader[] | null;
+      acceptedStatusCodes: number[];
     },
   ) => {
     const payload = MonitorCheckUpdateSchema.parse({
