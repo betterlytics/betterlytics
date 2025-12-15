@@ -103,21 +103,46 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const handleAddStatusCode = () => {
     const input = statusCodeInput.trim().toLowerCase();
 
+    if (!input) return;
+
     // Check for range pattern like 2xx, 3xx, 4xx, 5xx
     if (/^[2-5]xx$/.test(input)) {
-      if (!acceptedStatusCodes.includes(input)) {
+      if (acceptedStatusCodes.includes(input)) {
+        toast.error(`${input} is already added`);
+      } else {
         setAcceptedStatusCodes(sortStatusCodes([...acceptedStatusCodes, input]));
       }
       setStatusCodeInput('');
       return;
     }
 
+    // Check for invalid range patterns (1xx, 6xx, etc.)
+    if (/^[0-9]xx$/.test(input)) {
+      toast.error('Only ranges 2xx-5xx are valid HTTP status codes');
+      return;
+    }
+
     // Otherwise treat as specific code
     const code = parseInt(input, 10);
-    if (!isNaN(code) && code >= 100 && code <= 599 && !acceptedStatusCodes.includes(code)) {
-      setAcceptedStatusCodes(sortStatusCodes([...acceptedStatusCodes, code]));
-      setStatusCodeInput('');
+
+    if (isNaN(code)) {
+      toast.error('Please enter a valid status code (e.g., 200) or range (e.g., 2xx)');
+      return;
     }
+
+    if (code < 100 || code > 599) {
+      toast.error('Status code must be between 100 and 599');
+      return;
+    }
+
+    if (acceptedStatusCodes.includes(code)) {
+      toast.error(`${code} is already added`);
+      setStatusCodeInput('');
+      return;
+    }
+
+    setAcceptedStatusCodes(sortStatusCodes([...acceptedStatusCodes, code]));
+    setStatusCodeInput('');
   };
 
   const intervalSeconds = MONITOR_INTERVAL_MARKS[intervalIdx];
