@@ -1202,6 +1202,7 @@
       "noData": "No data yet",
       "intervalMinutes": "{value} min",
       "intervalSeconds": "{value}s",
+      "backoffTooltip": "Monitoring temporarily reduced to {value} because this monitor has been down repeatedly. Normal frequency resumes automatically once the service is healthy.",
       "state": {
         "on": "On",
         "paused": "Paused"

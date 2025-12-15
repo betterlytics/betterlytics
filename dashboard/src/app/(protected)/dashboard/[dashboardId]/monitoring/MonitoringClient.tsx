@@ -20,6 +20,8 @@ type MonitorView = {
   name?: string | null;
   url: string;
   intervalSeconds?: number;
+  effectiveIntervalSeconds?: number | null;
+  backoffLevel?: number | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
   isEnabled: boolean;

@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Activity, ChevronRight, Link2, RefreshCcw } from 'lucide-react';
+import { Activity, AlertTriangle, ChevronRight, Link2, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
 import {
   type MonitorStatus,
@@ -27,6 +28,8 @@ type MonitorView = {
   name?: string | null;
   url: string;
   intervalSeconds?: number;
+  effectiveIntervalSeconds?: number | null;
+  backoffLevel?: number | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
   isEnabled: boolean;
@@ -87,6 +90,9 @@ export function MonitorList({ monitors }: MonitorListProps) {
           uptimePercent != null ? formatPercentage(uptimePercent, 2, { trimHundred: true }) : '— %';
         const { theme } = presentUptimeTone(uptimePercent ?? null);
 
+        const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;
+        const effectiveLabel = formatIntervalLabel(monitor.effectiveIntervalSeconds ?? monitor.intervalSeconds);
+
         return (
           <Link
             key={monitor.id}
@@ -117,14 +123,28 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs md:hidden'>
                       <RefreshCcw size={14} aria-hidden />
                       <span>{formatIntervalLabel(monitor.intervalSeconds)}</span>
+                      {isBackedOff ? (
+                        <BackoffBadge
+                          label={effectiveLabel}
+                          message={t('list.backoffTooltip', { value: effectiveLabel })}
+                        />
+                      ) : null}
                     </div>
                   </div>
                 </div>
 
                 <div className='hidden md:grid md:w-full md:grid-cols-[120px_minmax(220px,280px)_minmax(220px,1fr)_max-content] md:items-center md:gap-4'>
-                  <div className='text-muted-foreground flex items-center gap-1 text-[11px] font-semibold whitespace-nowrap'>
-                    <RefreshCcw size={14} aria-hidden />
-                    <span>{formatIntervalLabel(monitor.intervalSeconds)}</span>
+                  <div className='text-muted-foreground flex items-center gap-2 text-[11px] font-semibold whitespace-nowrap'>
+                    <span className='flex items-center gap-1'>
+                      <RefreshCcw size={14} aria-hidden />
+                      <span>{formatIntervalLabel(monitor.intervalSeconds)}</span>
+                    </span>
+                    {isBackedOff ? (
+                      <BackoffBadge
+                        label={effectiveLabel}
+                        message={t('list.backoffTooltip', { value: effectiveLabel })}
+                      />
+                    ) : null}
                   </div>
                   <div className='min-w-[200px]'>
                     <SslStatusPill
@@ -235,4 +255,21 @@ function sslBadgeKey(category: SslPresentation['category']) {
     default:
       return 'badgeNotChecked';
   }
+}
+
+function BackoffBadge({ label, message }: { label: string; message: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Badge
+          variant='outline'
+          className='inline-flex items-center gap-1 border-amber-500/60 bg-amber-500/10 px-2 py-[3px] text-[10px] font-semibold text-amber-700'
+        >
+          <AlertTriangle size={12} aria-hidden />
+          <span>{label}</span>
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent side='top'>{message}</TooltipContent>
+    </Tooltip>
+  );
 }

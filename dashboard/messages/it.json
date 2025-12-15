@@ -1205,6 +1205,7 @@
       "noData": "Nessun dato ancora",
       "intervalMinutes": "{value} min",
       "intervalSeconds": "{value}s",
+      "backoffTooltip": "Monitoraggio temporaneamente ridotto a {value} perché questo monitor è stato offline ripetutamente. La frequenza normale riprenderà automaticamente quando il servizio torna online.",
       "state": {
         "on": "Attivo",
         "paused": "In pausa"
@@ -1726,7 +1727,7 @@
         "strictMode": "Modalità ristretta",
         "addStep": "Aggiungi passaggio",
         "livePreview": "Anteprima live",
-      "cancel": "Annulla",
+        "cancel": "Annulla",
         "create": "Crea",
         "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
@@ -1752,7 +1753,7 @@
         "addStep": "Aggiungi passaggio",
         "livePreview": "Anteprima live",
         "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima.",
-      "cancel": "Annulla",
+        "cancel": "Annulla",
         "cta": "Crea copia",
         "successMessage": "Funnel clonato!",
         "errorMessage": "Clonazione funnel fallita!"

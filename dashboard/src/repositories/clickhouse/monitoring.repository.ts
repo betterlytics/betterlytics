@@ -23,7 +23,12 @@ type LastCheckRow = { ts: string; status: MonitorStatus };
 type LatencyRow = { avg_ms: number | null; min_ms: number | null; max_ms: number | null };
 type UptimeBucketRow = { bucket: string; up_ratio: number | null };
 type LatencySeriesRow = { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null };
-type LatestStatusRow = { check_id: string; status: MonitorStatus };
+type LatestStatusRow = {
+  check_id: string;
+  status: MonitorStatus;
+  effective_interval_seconds: number | null;
+  backoff_level: number | null;
+};
 
 export async function getMonitorMetrics(checkId: string, siteId: string): Promise<MonitorMetrics> {
   const [uptimeRow, lastRow, latencyRow, buckets, latencySeries] = await Promise.all([
@@ -289,13 +294,17 @@ export async function getMonitorIncidentSegments(
 export async function getLatestStatusesForMonitors(
   checkIds: string[],
   siteId: string,
-): Promise<Record<string, MonitorStatus>> {
+): Promise<
+  Record<string, { status: MonitorStatus; effectiveIntervalSeconds: number | null; backoffLevel: number | null }>
+> {
   if (!checkIds.length) return {};
 
   const query = safeSql`
     SELECT
       check_id,
-      argMax(status, ts) AS status
+      argMax(status, ts) AS status,
+      argMax(effective_interval_seconds, ts) AS effective_interval_seconds,
+      argMax(backoff_level, ts) AS backoff_level
     FROM analytics.monitor_results
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
@@ -309,8 +318,14 @@ export async function getLatestStatusesForMonitors(
     })
     .toPromise()) as LatestStatusRow[];
 
-  return rows.reduce<Record<string, MonitorStatus>>((acc, row) => {
-    acc[row.check_id] = MonitorStatusSchema.parse(row.status);
+  return rows.reduce<
+    Record<string, { status: MonitorStatus; effectiveIntervalSeconds: number | null; backoffLevel: number | null }>
+  >((acc, row) => {
+    acc[row.check_id] = {
+      status: MonitorStatusSchema.parse(row.status),
+      effectiveIntervalSeconds: row.effective_interval_seconds ?? null,
+      backoffLevel: row.backoff_level ?? null,
+    };
     return acc;
   }, {});
 }

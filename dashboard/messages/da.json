@@ -1205,6 +1205,7 @@
       "noData": "Ingen data endnu",
       "intervalMinutes": "{value} min",
       "intervalSeconds": "{value}s",
+      "backoffTooltip": "Overvågning midlertidigt reduceret til {value}, fordi denne monitor har været nede gentagne gange. Normal frekvens genoptages automatisk, når tjenesten er oppe igen.",
       "state": {
         "on": "Tændt",
         "paused": "Sat på pause"

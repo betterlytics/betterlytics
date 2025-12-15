@@ -47,7 +47,9 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
 
   return checks.map((check) => ({
     ...check,
-    lastStatus: latestStatuses[check.id] ?? null,
+    lastStatus: latestStatuses[check.id]?.status ?? null,
+    effectiveIntervalSeconds: latestStatuses[check.id]?.effectiveIntervalSeconds ?? null,
+    backoffLevel: latestStatuses[check.id]?.backoffLevel ?? null,
     uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets[check.id] ?? [], 24, now),
     tls: tlsResults[check.id] ?? null,
   }));
