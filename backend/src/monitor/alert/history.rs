@@ -3,7 +3,7 @@ use bb8_postgres::PostgresConnectionManager;
 use chrono::Utc;
 use std::time::Duration;
 use thiserror::Error;
-use tokio_postgres::{NoTls, Config as PgConfig};
+use tokio_postgres::{types::Type, NoTls, Config as PgConfig};
 use tracing::info;
 
 use super::tracker::AlertType;
@@ -77,17 +77,15 @@ impl AlertHistoryWriter {
     pub async fn record_alert(&self, record: &AlertHistoryRecord) -> Result<(), AlertHistoryError> {
         let conn = self.pool.get().await?;
         
-        let alert_type_str = match record.alert_type {
-            AlertType::Down => "down",
-            AlertType::Recovery => "recovery",
-            AlertType::SslExpiring => "ssl_expiring",
-            AlertType::SslExpired => "ssl_expired",
-        };
+        let alert_type_str = record.alert_type.as_str().to_string();
 
         // Generate a cuid-like ID (simple approach using nanoid pattern)
         let id = generate_cuid();
+        let sent_at = Utc::now().naive_utc();
 
-        conn.execute(
+        // Use query_typed to explicitly specify TEXT type for the enum string,
+        // allowing PostgreSQL to cast it to the enum type
+        let stmt = conn.prepare_typed(
             r#"
             INSERT INTO "MonitorAlertHistory" (
                 id,
@@ -99,14 +97,29 @@ impl AlertHistoryWriter {
                 "errorMessage",
                 "latencyMs",
                 "sslDaysLeft"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            ) VALUES ($1, $2, $3::"MonitorAlertType", $4, $5, $6, $7, $8, $9)
             "#,
+            &[
+                Type::TEXT,  // id
+                Type::TEXT,  // monitorCheckId
+                Type::TEXT,  // alertType - will be cast to enum
+                Type::TEXT_ARRAY,  // sentTo
+                Type::TIMESTAMP,  // sentAt
+                Type::INT4,  // statusCode
+                Type::TEXT,  // errorMessage
+                Type::INT4,  // latencyMs
+                Type::INT4,  // sslDaysLeft
+            ],
+        ).await?;
+
+        conn.execute(
+            &stmt,
             &[
                 &id,
                 &record.monitor_check_id,
                 &alert_type_str,
                 &record.sent_to,
-                &Utc::now().naive_utc(),
+                &sent_at,
                 &record.status_code,
                 &record.error_message,
                 &record.latency_ms,
