@@ -15,8 +15,6 @@ use super::tracker::AlertType;
 pub enum EmailError {
     #[error("HTTP request failed: {0}")]
     Request(#[from] reqwest::Error),
-    #[error("Email service not configured")]
-    NotConfigured,
     #[error("API error: {status} - {message}")]
     ApiError { status: u16, message: String },
 }

@@ -14,4 +14,3 @@ pub mod tracker;
 
 pub use history::{AlertHistoryWriter};
 pub use service::{AlertContext, AlertService, AlertServiceConfig};
-pub use tracker::{AlertTracker};

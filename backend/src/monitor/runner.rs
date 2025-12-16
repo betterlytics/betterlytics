@@ -450,15 +450,14 @@ async fn run_loop<S, FProbe, FRow>(
                         &check,
                         &outcome,
                         post_snapshot.consecutive_failures,
-                        post_snapshot.consecutive_successes,
                     );
                     
                     if is_tls_runner {
                         // TLS runner only processes SSL alerts
-                        let _ = alert_svc.process_tls_probe_outcome(&alert_ctx).await;
+                        alert_svc.process_tls_probe_outcome(&alert_ctx).await;
                     } else {
                         // HTTP runner processes down/recovery alerts
-                        let _ = alert_svc.process_probe_outcome(&alert_ctx).await;
+                        alert_svc.process_probe_outcome(&alert_ctx).await;
                     }
                 }
                 

@@ -21,7 +21,6 @@ use crate::monitor::{MonitorCheck, MonitorStatus, ProbeOutcome};
 pub struct AlertContext {
     pub check: Arc<MonitorCheck>,
     pub consecutive_failures: u16,
-    pub consecutive_successes: u16,
     pub status: MonitorStatus,
     pub status_code: Option<u16>,
     pub error_message: Option<String>,
@@ -34,12 +33,10 @@ impl AlertContext {
         check: &Arc<MonitorCheck>,
         outcome: &ProbeOutcome,
         consecutive_failures: u16,
-        consecutive_successes: u16,
     ) -> Self {
         Self {
             check: Arc::clone(check),
             consecutive_failures,
-            consecutive_successes,
             status: outcome.status,
             status_code: outcome.status_code,
             error_message: outcome.error.clone(),
@@ -57,13 +54,6 @@ impl AlertContext {
     }
 }
 
-/// Result of alert processing
-#[derive(Clone, Debug)]
-pub struct AlertResult {
-    pub alert_sent: bool,
-    pub alert_type: Option<AlertType>,
-    pub recipients_count: usize,
-}
 
 /// Configuration for the alert service
 #[derive(Clone, Debug)]
@@ -116,23 +106,15 @@ impl AlertService {
     /// Process a probe outcome and send alerts if needed
     ///
     /// This is the main entry point called after each probe completes.
-    pub async fn process_probe_outcome(&self, ctx: &AlertContext) -> AlertResult {
+    pub async fn process_probe_outcome(&self, ctx: &AlertContext) {
         if !self.enabled {
-            return AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            };
+            return;
         }
 
         let alert_config = &ctx.check.alert;
 
         if !alert_config.enabled {
-            return AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            };
+            return;
         }
 
         // Check for different alert conditions
@@ -142,58 +124,34 @@ impl AlertService {
             MonitorStatus::Warn => {
                 // Check for SSL warnings
                 if let Some(days_left) = ctx.tls_days_left {
-                    self.handle_ssl_alert(ctx, days_left).await
-                } else {
-                    AlertResult {
-                        alert_sent: false,
-                        alert_type: None,
-                        recipients_count: 0,
-                    }
+                    self.handle_ssl_alert(ctx, days_left).await;
                 }
             }
         }
     }
 
     /// Process a TLS probe outcome specifically for SSL alerts
-    pub async fn process_tls_probe_outcome(&self, ctx: &AlertContext) -> AlertResult {
+    pub async fn process_tls_probe_outcome(&self, ctx: &AlertContext) {
         if !self.enabled {
-            return AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            };
+            return;
         }
 
         let alert_config = &ctx.check.alert;
 
         if !alert_config.enabled || !alert_config.on_ssl_expiry {
-            return AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            };
+            return;
         }
 
         if let Some(days_left) = ctx.tls_days_left {
-            self.handle_ssl_alert(ctx, days_left).await
-        } else {
-            AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            }
+            self.handle_ssl_alert(ctx, days_left).await;
         }
     }
 
-    async fn handle_failure_alert(&self, ctx: &AlertContext) -> AlertResult {
+    async fn handle_failure_alert(&self, ctx: &AlertContext) {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_down {
-            return AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            };
+            return;
         }
 
         let decision = self
@@ -210,11 +168,7 @@ impl AlertService {
             self.tracker
                 .update_failure_count(&ctx.check.id, ctx.consecutive_failures)
                 .await;
-            return AlertResult {
-                alert_sent: false,
-                alert_type: Some(AlertType::Down),
-                recipients_count: 0,
-            };
+            return;
         }
 
         let recipients = &alert_config.recipients;
@@ -225,11 +179,7 @@ impl AlertService {
                 "No recipients configured for down alert"
             );
             self.tracker.record_down_alert(&ctx.check.id).await;
-            return AlertResult {
-                alert_sent: false,
-                alert_type: Some(AlertType::Down),
-                recipients_count: 0,
-            };
+            return;
         }
 
         let result = self.send_down_alert(ctx, recipients).await;
@@ -254,15 +204,9 @@ impl AlertService {
                 "Down alert sent"
             );
         }
-
-        AlertResult {
-            alert_sent: result,
-            alert_type: Some(AlertType::Down),
-            recipients_count: recipients.len(),
-        }
     }
 
-    async fn handle_success(&self, ctx: &AlertContext) -> AlertResult {
+    async fn handle_success(&self, ctx: &AlertContext) {
         let alert_config = &ctx.check.alert;
 
         // Check if we need to send a recovery alert
@@ -271,31 +215,19 @@ impl AlertService {
         if !decision.should_alert {
             // Mark as recovered without alerting (wasn't down long enough)
             self.tracker.mark_recovered(&ctx.check.id).await;
-            return AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            };
+            return;
         }
 
         if !alert_config.on_recovery {
             self.tracker.record_recovery_alert(&ctx.check.id).await;
-            return AlertResult {
-                alert_sent: false,
-                alert_type: Some(AlertType::Recovery),
-                recipients_count: 0,
-            };
+            return;
         }
 
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
             self.tracker.record_recovery_alert(&ctx.check.id).await;
-            return AlertResult {
-                alert_sent: false,
-                alert_type: Some(AlertType::Recovery),
-                recipients_count: 0,
-            };
+            return;
         }
 
         let result = self
@@ -323,23 +255,13 @@ impl AlertService {
                 "Recovery alert sent"
             );
         }
-
-        AlertResult {
-            alert_sent: result,
-            alert_type: Some(AlertType::Recovery),
-            recipients_count: recipients.len(),
-        }
     }
 
-    async fn handle_ssl_alert(&self, ctx: &AlertContext, days_left: i32) -> AlertResult {
+    async fn handle_ssl_alert(&self, ctx: &AlertContext, days_left: i32) {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_ssl_expiry {
-            return AlertResult {
-                alert_sent: false,
-                alert_type: None,
-                recipients_count: 0,
-            };
+            return;
         }
 
         let decision = self
@@ -348,11 +270,7 @@ impl AlertService {
             .await;
 
         if !decision.should_alert {
-            return AlertResult {
-                alert_sent: false,
-                alert_type: Some(decision.alert_type),
-                recipients_count: 0,
-            };
+            return;
         }
 
         let recipients = &alert_config.recipients;
@@ -361,11 +279,7 @@ impl AlertService {
             self.tracker
                 .record_ssl_alert(&ctx.check.id, days_left)
                 .await;
-            return AlertResult {
-                alert_sent: false,
-                alert_type: Some(decision.alert_type),
-                recipients_count: 0,
-            };
+            return;
         }
 
         let result = self.send_ssl_alert(ctx, recipients, days_left).await;
@@ -392,12 +306,6 @@ impl AlertService {
                 recipients = recipients.len(),
                 "SSL alert sent"
             );
-        }
-
-        AlertResult {
-            alert_sent: result,
-            alert_type: Some(decision.alert_type),
-            recipients_count: recipients.len(),
         }
     }
 
