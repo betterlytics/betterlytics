@@ -1,6 +1,7 @@
 use bb8::{Pool, RunError};
 use bb8_postgres::PostgresConnectionManager;
-use chrono::Utc;
+use chrono::{DateTime, NaiveDateTime, Utc};
+use std::collections::HashMap;
 use std::time::Duration;
 use thiserror::Error;
 use tokio_postgres::{types::Type, NoTls, Config as PgConfig};
@@ -27,6 +28,14 @@ pub struct AlertHistoryRecord {
     pub status_code: Option<i32>,
     pub error_message: Option<String>,
     pub latency_ms: Option<i32>,
+    pub ssl_days_left: Option<i32>,
+}
+
+/// Latest alert state for a monitor, used for warming the tracker on startup
+#[derive(Clone, Debug)]
+pub struct LatestAlertState {
+    pub last_alert_type: AlertType,
+    pub last_alert_at: DateTime<Utc>,
     pub ssl_days_left: Option<i32>,
 }
 
@@ -136,6 +145,62 @@ impl AlertHistoryWriter {
         );
 
         Ok(())
+    }
+
+    /// Fetch the latest alert state for each monitor
+    /// 
+    /// This is used to warm the alert tracker on startup, so we don't
+    /// re-send alerts for monitors that are already down.
+    pub async fn fetch_latest_alert_states(&self) -> Result<HashMap<String, LatestAlertState>, AlertHistoryError> {
+        let conn = self.pool.get().await?;
+        
+        // Get the most recent alert for each monitor
+        // We use DISTINCT ON to get only the latest alert per monitor
+        let rows = conn.query(
+            r#"
+            SELECT DISTINCT ON ("monitorCheckId")
+                "monitorCheckId",
+                "alertType"::text,
+                "sentAt",
+                "sslDaysLeft"
+            FROM "MonitorAlertHistory"
+            ORDER BY "monitorCheckId", "sentAt" DESC
+            "#,
+            &[],
+        ).await.map_err(|e| {
+            tracing::error!(error = ?e, "Failed to fetch latest alert states from MonitorAlertHistory");
+            e
+        })?;
+
+        let mut states = HashMap::new();
+        
+        for row in rows {
+            let monitor_check_id: String = row.get(0);
+            let alert_type_str: String = row.get(1);
+            let sent_at: NaiveDateTime = row.get(2);
+            let ssl_days_left: Option<i32> = row.get(3);
+            
+            let alert_type = match alert_type_str.as_str() {
+                "down" => AlertType::Down,
+                "recovery" => AlertType::Recovery,
+                "ssl_expiring" => AlertType::SslExpiring,
+                "ssl_expired" => AlertType::SslExpired,
+                _ => continue, // Skip unknown types
+            };
+            
+            states.insert(monitor_check_id, LatestAlertState {
+                last_alert_type: alert_type,
+                last_alert_at: DateTime::from_naive_utc_and_offset(sent_at, Utc),
+                ssl_days_left,
+            });
+        }
+        
+        info!(
+            monitors = states.len(),
+            "Fetched latest alert states for warming"
+        );
+        
+        Ok(states)
     }
 }
 

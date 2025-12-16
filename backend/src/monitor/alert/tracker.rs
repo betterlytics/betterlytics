@@ -1,6 +1,9 @@
 use chrono::{DateTime, Duration, Utc};
 use std::collections::HashMap;
 use tokio::sync::RwLock;
+use tracing::info;
+
+use super::history::LatestAlertState;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AlertType {
@@ -268,5 +271,46 @@ impl AlertTracker {
     pub async fn prune_inactive(&self, active_ids: &std::collections::HashSet<String>) {
         let mut states = self.states.write().await;
         states.retain(|id, _| active_ids.contains(id));
+    }
+
+    /// Warm the tracker from historical alert data
+    /// 
+    /// This should be called on startup to restore state from the database,
+    /// preventing re-alerting for monitors that were already down before restart.
+    pub async fn warm_from_history(&self, latest_states: HashMap<String, LatestAlertState>) {
+        let mut states = self.states.write().await;
+        let mut down_count = 0;
+        let mut ssl_count = 0;
+
+        for (monitor_id, latest) in latest_states {
+            match latest.last_alert_type {
+                AlertType::Down => {
+                    // Monitor was last alerted as down - mark it as down
+                    // so we don't re-alert until it recovers
+                    let state = states.entry(monitor_id).or_default();
+                    state.is_down = true;
+                    state.down_since = Some(latest.last_alert_at);
+                    state.last_down_alert = Some(latest.last_alert_at);
+                    down_count += 1;
+                }
+                AlertType::Recovery => {
+                    // Monitor recovered - no special state needed
+                    // (default state is "not down")
+                }
+                AlertType::SslExpiring | AlertType::SslExpired => {
+                    // Restore SSL alert state to respect cooldowns
+                    let state = states.entry(monitor_id).or_default();
+                    state.last_ssl_alert = Some(latest.last_alert_at);
+                    state.last_ssl_days_left = latest.ssl_days_left;
+                    ssl_count += 1;
+                }
+            }
+        }
+
+        info!(
+            down_monitors = down_count,
+            ssl_alerted = ssl_count,
+            "Alert tracker warmed from history"
+        );
     }
 }

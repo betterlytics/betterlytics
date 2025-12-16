@@ -205,7 +205,7 @@ async fn main() {
                 };
 
                 // Initialize alert service (email config from env, alert config from MonitorCheck)
-                let alert_service = Arc::new(AlertService::new(AlertServiceConfig::default(), history_writer));
+                let alert_service = Arc::new(AlertService::new(AlertServiceConfig::default(), history_writer).await);
                 info!("Alert service initialized");
 
                 let mut monitor_runner = MonitorRunner::new(

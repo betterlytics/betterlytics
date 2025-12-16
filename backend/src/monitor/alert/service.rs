@@ -82,7 +82,7 @@ pub struct AlertService {
 }
 
 impl AlertService {
-    pub fn new(config: AlertServiceConfig, history_writer: Option<AlertHistoryWriter>) -> Self {
+    pub async fn new(config: AlertServiceConfig, history_writer: Option<AlertHistoryWriter>) -> Self {
         let email_service = config.email_config.map(EmailService::new);
 
         if email_service.is_none() {
@@ -95,8 +95,23 @@ impl AlertService {
             warn!("Alert history writer not configured - alerts will not be recorded");
         }
 
+        let tracker = AlertTracker::new(config.tracker_config);
+
+        // Warm the tracker from alert history to prevent re-alerting on restart
+        if let Some(ref writer) = history_writer {
+            match writer.fetch_latest_alert_states().await {
+                Ok(states) => {
+                    tracker.warm_from_history(states).await;
+                }
+                Err(e) => {
+                    error!(error = ?e, "Failed to warm alert tracker from history");
+                    warn!("Alert tracker starting cold - may re-send alerts for monitors that were already down");
+                }
+            }
+        }
+
         Self {
-            tracker: AlertTracker::new(config.tracker_config),
+            tracker,
             email_service,
             history_writer,
             enabled: config.enabled,
