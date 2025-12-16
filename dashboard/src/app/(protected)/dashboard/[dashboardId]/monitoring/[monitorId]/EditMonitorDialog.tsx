@@ -247,51 +247,46 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
               </CardContent>
             </Card>
 
-            <Collapsible defaultOpen={false} className='group/ssl'>
-              <Card className='bg-card gap-3 py-2'>
-                <CollapsibleTrigger className='hover:bg-muted/30 flex w-full cursor-pointer items-center gap-2 px-4 py-3 transition-colors'>
-                  <ChevronRight className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/ssl:rotate-90' />
-                  <span className='text-sm font-medium'>SSL certificate and Domain checks</span>
-                </CollapsibleTrigger>
-                <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
-                  <CardContent className='space-y-5 pb-2'>
-                    <div className='flex items-center justify-between'>
-                      <div className='space-y-0.5'>
-                        <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
-                          Check SSL errors
-                        </Label>
-                        <p className='text-muted-foreground text-xs'>
-                          Create incidents when SSL certificate errors are detected
-                        </p>
-                      </div>
-                      <Switch
-                        id='check-ssl-errors'
-                        checked={checkSslErrors}
-                        onCheckedChange={setCheckSslErrors}
-                        disabled={isPending}
-                      />
-                    </div>
-                    <Separator />
-                    <div className='flex items-center justify-between'>
-                      <div className='space-y-0.5'>
-                        <Label htmlFor='ssl-expiry-reminders' className='text-sm font-medium'>
-                          SSL expiry reminders
-                        </Label>
-                        <p className='text-muted-foreground text-xs'>
-                          Get notified before your SSL certificate expires
-                        </p>
-                      </div>
-                      <Switch
-                        id='ssl-expiry-reminders'
-                        checked={sslExpiryReminders}
-                        onCheckedChange={setSslExpiryReminders}
-                        disabled={isPending}
-                      />
-                    </div>
-                  </CardContent>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
+            <Card className='bg-card gap-3 py-4'>
+              <CardHeader className='gap-1 px-4 py-0'>
+                <CardTitle className='text-card-foreground text-sm font-medium'>SSL certificate checks</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-5 px-4 pt-2'>
+                <div className='flex items-center justify-between'>
+                  <div className='space-y-0.5'>
+                    <Label htmlFor='check-ssl-errors' className='text-sm font-medium'>
+                      Check SSL errors
+                    </Label>
+                    <p className='text-muted-foreground text-xs'>
+                      Create incidents when SSL certificate errors are detected
+                    </p>
+                  </div>
+                  <Switch
+                    id='check-ssl-errors'
+                    checked={checkSslErrors}
+                    onCheckedChange={setCheckSslErrors}
+                    disabled={isPending}
+                  />
+                </div>
+                <Separator />
+                <div className='flex items-center justify-between'>
+                  <div className='space-y-0.5'>
+                    <Label htmlFor='ssl-expiry-reminders' className='text-sm font-medium'>
+                      SSL expiry reminders
+                    </Label>
+                    <p className='text-muted-foreground text-xs'>
+                      Get notified before your SSL certificate expires
+                    </p>
+                  </div>
+                  <Switch
+                    id='ssl-expiry-reminders'
+                    checked={sslExpiryReminders}
+                    onCheckedChange={setSslExpiryReminders}
+                    disabled={isPending}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
             <Collapsible defaultOpen={false} className='group/advanced'>
               <Card className='bg-card gap-3 py-2'>
