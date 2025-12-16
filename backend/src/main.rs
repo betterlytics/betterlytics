@@ -39,10 +39,12 @@ use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
 use monitor::{
+    AlertService, AlertServiceConfig,
     MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe, MonitorRepository,
     MonitorRunner, MonitorRuntimeConfig, MonitorWriter, TlsMonitorRunner,
     TlsMonitorRuntimeConfig,
 };
+use monitor::alert::AlertHistoryWriter;
 use processing::EventProcessor;
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
@@ -191,23 +193,43 @@ async fn main() {
                 let tls_writer = Arc::clone(&writer);
                 let tls_cache = Arc::clone(&monitor_cache);
 
-                MonitorRunner::new(
+                let history_writer = match AlertHistoryWriter::new(&monitor_db_url).await {
+                    Ok(writer) => {
+                        info!("Alert history writer initialized");
+                        Some(writer)
+                    }
+                    Err(err) => {
+                        warn!(error = ?err, "Failed to initialize alert history writer; alerts will not be recorded");
+                        None
+                    }
+                };
+
+                // Initialize alert service (email config from env, alert config from MonitorCheck)
+                let alert_service = Arc::new(AlertService::new(AlertServiceConfig::default(), history_writer));
+                info!("Alert service initialized");
+
+                let mut monitor_runner = MonitorRunner::new(
                     Arc::clone(&monitor_cache),
                     probe,
                     Arc::clone(&writer),
                     metrics_for_monitor.clone(),
                     MonitorRuntimeConfig::default(),
-                )
-                .spawn();
-
-                TlsMonitorRunner::new(
+                );
+                
+                let mut tls_runner = TlsMonitorRunner::new(
                     tls_cache,
                     tls_probe,
                     tls_writer,
                     metrics_for_monitor.clone(),
                     TlsMonitorRuntimeConfig::default(),
-                )
-                .spawn();
+                );
+
+                // Wire up alert service
+                monitor_runner = monitor_runner.with_alert_service(Arc::clone(&alert_service));
+                tls_runner = tls_runner.with_alert_service(Arc::clone(&alert_service));
+
+                monitor_runner.spawn();
+                tls_runner.spawn();
 
                 info!("uptime monitoring started");
                 break;

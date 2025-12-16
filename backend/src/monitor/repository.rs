@@ -10,11 +10,12 @@ use thiserror::Error;
 use tokio_postgres::{Config as PgConfig, NoTls, Row};
 use url::Url;
 
-use crate::monitor::{HttpMethod, MonitorCheck, RequestHeader};
+use crate::monitor::{AlertConfig, HttpMethod, MonitorCheck, RequestHeader};
 
 const BASE_SELECT: &str = r#"
 SELECT
     mc.id AS id,
+    mc."dashboardId" AS dashboard_id,
     mc.url AS url,
     mc."intervalSeconds" AS interval_seconds,
     mc."timeoutMs" AS timeout_ms,
@@ -25,7 +26,16 @@ SELECT
     mc."requestHeaders" AS request_headers,
     mc."acceptedStatusCodes" AS accepted_status_codes,
     mc."checkSslErrors" AS check_ssl_errors,
-    d."siteId" AS site_id
+    d."siteId" AS site_id,
+    -- Alert configuration
+    mc."alertsEnabled" AS alerts_enabled,
+    mc."alertOnDown" AS alert_on_down,
+    mc."alertOnRecovery" AS alert_on_recovery,
+    mc."alertOnSslExpiry" AS alert_on_ssl_expiry,
+    mc."sslExpiryAlertDays" AS ssl_expiry_alert_days,
+    mc."failureThreshold" AS failure_threshold,
+    -- Alert recipients (user-configured emails)
+    COALESCE(mc."alertEmails", ARRAY[]::text[]) AS alert_recipients
 FROM "MonitorCheck" mc
 JOIN "Dashboard" d ON mc."dashboardId" = d.id
 WHERE mc."isEnabled" = TRUE
@@ -48,6 +58,7 @@ pub enum MonitorRepositoryError {
 #[derive(Clone, Debug)]
 pub struct MonitorCheckRecord {
     pub id: String,
+    pub dashboard_id: String,
     pub site_id: String,
     pub name: Option<String>,
     pub url: String,
@@ -58,6 +69,14 @@ pub struct MonitorCheckRecord {
     pub request_headers: Vec<RequestHeader>,
     pub accepted_status_codes: Vec<i32>,
     pub check_ssl_errors: bool,
+    // Alert configuration
+    pub alerts_enabled: bool,
+    pub alert_on_down: bool,
+    pub alert_on_recovery: bool,
+    pub alert_on_ssl_expiry: bool,
+    pub ssl_expiry_alert_days: i32,
+    pub failure_threshold: i32,
+    pub alert_recipients: Vec<String>,
 }
 
 impl TryFrom<Row> for MonitorCheckRecord {
@@ -73,8 +92,15 @@ impl TryFrom<Row> for MonitorCheckRecord {
             .filter(|h| !h.key.is_empty())
             .map(Into::into)
             .collect();
+        
+        // Parse alert recipients (may be NULL or empty array)
+        let alert_recipients: Vec<String> = row
+            .try_get::<_, Option<Vec<String>>>("alert_recipients")?
+            .unwrap_or_default();
+
         Ok(Self {
             id: row.try_get("id")?,
+            dashboard_id: row.try_get("dashboard_id")?,
             site_id: row.try_get("site_id")?,
             name: row.try_get("name")?,
             url: row.try_get("url")?,
@@ -85,6 +111,14 @@ impl TryFrom<Row> for MonitorCheckRecord {
             request_headers,
             accepted_status_codes: row.try_get("accepted_status_codes")?,
             check_ssl_errors: row.try_get("check_ssl_errors")?,
+            // Alert configuration
+            alerts_enabled: row.try_get("alerts_enabled")?,
+            alert_on_down: row.try_get("alert_on_down")?,
+            alert_on_recovery: row.try_get("alert_on_recovery")?,
+            alert_on_ssl_expiry: row.try_get("alert_on_ssl_expiry")?,
+            ssl_expiry_alert_days: row.try_get("ssl_expiry_alert_days")?,
+            failure_threshold: row.try_get("failure_threshold")?,
+            alert_recipients,
         })
     }
 }
@@ -103,6 +137,7 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
 
         Ok(Self {
             id: record.id,
+            dashboard_id: record.dashboard_id,
             site_id: record.site_id,
             name: record.name,
             url,
@@ -113,6 +148,15 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
             request_headers: record.request_headers,
             accepted_status_codes: record.accepted_status_codes,
             check_ssl_errors: record.check_ssl_errors,
+            alert: AlertConfig {
+                enabled: record.alerts_enabled,
+                on_down: record.alert_on_down,
+                on_recovery: record.alert_on_recovery,
+                on_ssl_expiry: record.alert_on_ssl_expiry,
+                ssl_expiry_days: record.ssl_expiry_alert_days,
+                failure_threshold: record.failure_threshold,
+                recipients: record.alert_recipients,
+            },
         })
     }
 }

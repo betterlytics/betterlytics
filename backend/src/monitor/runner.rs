@@ -10,6 +10,7 @@ use tokio::time::{Instant, MissedTickBehavior, interval};
 use tracing::{info, warn};
 
 use crate::metrics::MetricsCollector;
+use crate::monitor::alert::{AlertContext, AlertService};
 use crate::monitor::{
     BackoffController, BackoffPolicy, BackoffSnapshot, MonitorCache, MonitorCheck, MonitorProbe,
     MonitorResultRow, MonitorWriter, ProbeOutcome,
@@ -63,6 +64,7 @@ pub struct MonitorRunner {
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
+    alert_service: Option<Arc<AlertService>>,
     runtime: MonitorRuntimeConfig,
 }
 
@@ -79,8 +81,15 @@ impl MonitorRunner {
             probe,
             writer,
             metrics,
+            alert_service: None,
             runtime,
         }
+    }
+
+    /// Set the alert service for this runner
+    pub fn with_alert_service(mut self, alert_service: Arc<AlertService>) -> Self {
+        self.alert_service = Some(alert_service);
+        self
     }
 
     pub fn spawn(self) {
@@ -104,11 +113,12 @@ impl MonitorRunner {
             self.probe,
             self.writer,
             self.metrics,
+            self.alert_service,
             config,
             scheduler,
             |probe, check| Box::pin(async move { probe.run(&check).await }),
             |check, outcome, backoff| MonitorResultRow::from_probe(check, outcome, backoff),
-            |_check, _outcome| {},
+            false, // is_tls_runner
         )
         .await
     }
@@ -119,6 +129,7 @@ pub struct TlsMonitorRunner {
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
+    alert_service: Option<Arc<AlertService>>,
     runtime: TlsMonitorRuntimeConfig,
 }
 
@@ -135,8 +146,15 @@ impl TlsMonitorRunner {
             probe,
             writer,
             metrics,
+            alert_service: None,
             runtime,
         }
+    }
+
+    /// Set the alert service for this runner
+    pub fn with_alert_service(mut self, alert_service: Arc<AlertService>) -> Self {
+        self.alert_service = Some(alert_service);
+        self
     }
 
     pub fn spawn(self) {
@@ -160,6 +178,7 @@ impl TlsMonitorRunner {
             self.probe,
             self.writer,
             self.metrics,
+            self.alert_service,
             config,
             scheduler,
             |probe, check| Box::pin(async move { probe.run_tls(&check).await }),
@@ -175,7 +194,7 @@ impl TlsMonitorRunner {
                 let _ = backoff;
                 MonitorResultRow::from_tls_probe(check, outcome)
             },
-            |_check, _outcome| {},
+            true, // is_tls_runner
         )
         .await
     }
@@ -321,16 +340,17 @@ impl ProbeScheduler for FixedIntervalScheduler {
     }
 }
 
-async fn run_loop<S, FProbe, FRow, FLog>(
+async fn run_loop<S, FProbe, FRow>(
     cache: Arc<MonitorCache>,
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
+    alert_service: Option<Arc<AlertService>>,
     config: RunLoopConfig,
     mut scheduler: S,
     probe_fn: FProbe,
     build_row: FRow,
-    log_probe: FLog,
+    is_tls_runner: bool,
 ) where
     S: ProbeScheduler,
     FProbe: Fn(MonitorProbe, Arc<MonitorCheck>) -> ProbeFuture + Copy + Send + Sync + 'static,
@@ -339,7 +359,6 @@ async fn run_loop<S, FProbe, FRow, FLog>(
         + Send
         + Sync
         + 'static,
-    FLog: Fn(&MonitorCheck, &ProbeOutcome) + Copy + Send + Sync + 'static,
 {
     let mut ticker = interval(config.scheduler_tick);
     ticker.set_missed_tick_behavior(MissedTickBehavior::Skip);
@@ -353,6 +372,7 @@ async fn run_loop<S, FProbe, FRow, FLog>(
         runner = config.name,
         tick_ms = config.scheduler_tick.as_millis(),
         max_concurrency = config.max_concurrency,
+        alerts_enabled = alert_service.is_some(),
         "monitor runner started"
     );
 
@@ -370,6 +390,11 @@ async fn run_loop<S, FProbe, FRow, FLog>(
             let active_ids: HashSet<String> = snapshot.iter().map(|c| c.id.clone()).collect();
             scheduler.prune_inactive(&active_ids);
             last_run.retain(|id, _| active_ids.contains(id));
+            
+            // Also prune alert service state
+            if let Some(ref alert_svc) = alert_service {
+                alert_svc.prune_inactive(&active_ids).await;
+            }
         }
 
         let now = Instant::now();
@@ -409,8 +434,6 @@ async fn run_loop<S, FProbe, FRow, FLog>(
                     );
                 }
 
-                log_probe(&check_for_probe, &outcome);
-
                 Some((check_for_probe, outcome, finished_at, pre_snapshot))
             });
         }
@@ -420,6 +443,25 @@ async fn run_loop<S, FProbe, FRow, FLog>(
             if let Ok(Some((check, outcome, finished_at, _pre_snapshot))) = res {
                 last_run.insert(check.id.clone(), finished_at);
                 let post_snapshot = scheduler.apply_outcome(&check, &outcome, finished_at);
+                
+                // Process alerts if alert service is configured
+                if let Some(ref alert_svc) = alert_service {
+                    let alert_ctx = AlertContext::from_probe(
+                        &check,
+                        &outcome,
+                        post_snapshot.consecutive_failures,
+                        post_snapshot.consecutive_successes,
+                    );
+                    
+                    if is_tls_runner {
+                        // TLS runner only processes SSL alerts
+                        let _ = alert_svc.process_tls_probe_outcome(&alert_ctx).await;
+                    } else {
+                        // HTTP runner processes down/recovery alerts
+                        let _ = alert_svc.process_probe_outcome(&alert_ctx).await;
+                    }
+                }
+                
                 collected.push(build_row(&check, &outcome, &post_snapshot));
             }
         }

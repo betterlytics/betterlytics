@@ -254,7 +254,44 @@ model MonitorCheck {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  // Alert configuration
+  alertsEnabled         Boolean   @default(true)
+  alertEmails           String[]  @default([])  // Email addresses to notify for alerts
+  alertOnDown           Boolean   @default(true)
+  alertOnRecovery       Boolean   @default(true)
+  alertOnSslExpiry      Boolean   @default(true)
+  sslExpiryAlertDays    Int       @default(14)  // Days before expiry to alert
+  failureThreshold      Int       @default(3)   // Consecutive failures before alerting
+
+  alertHistory          MonitorAlertHistory[]
+
   @@index([dashboardId])
+}
+
+enum MonitorAlertType {
+  down
+  recovery
+  ssl_expiring
+  ssl_expired
+}
+
+model MonitorAlertHistory {
+  id              String            @id @default(cuid())
+  monitorCheck    MonitorCheck      @relation(fields: [monitorCheckId], references: [id], onDelete: Cascade)
+  monitorCheckId  String
+  
+  alertType       MonitorAlertType
+  sentTo          String[]          // Email addresses notified
+  sentAt          DateTime          @default(now())
+  
+  // Context at time of alert
+  statusCode      Int?
+  errorMessage    String?
+  latencyMs       Int?
+  sslDaysLeft     Int?
+  
+  @@index([monitorCheckId])
+  @@index([sentAt])
 }
 
 model Subscription {

@@ -75,6 +75,11 @@ async function main() {
     );
     await client.query(`GRANT SELECT ON TABLE "Dashboard" TO monitoring_ro;`);
 
+    // Alert history: allow INSERT for recording sent alerts
+    await client.query(
+      `GRANT INSERT ON TABLE "MonitorAlertHistory" TO monitoring_ro;`
+    );
+
     console.log(
       "Post-migration (monitoring_ro): role and privileges ensured successfully."
     );

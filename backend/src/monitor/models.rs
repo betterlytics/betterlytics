@@ -89,9 +89,22 @@ pub struct RequestHeader {
     pub value: String,
 }
 
+/// Alert configuration embedded in MonitorCheck
+#[derive(Clone, Debug, Default)]
+pub struct AlertConfig {
+    pub enabled: bool,
+    pub on_down: bool,
+    pub on_recovery: bool,
+    pub on_ssl_expiry: bool,
+    pub ssl_expiry_days: i32,
+    pub failure_threshold: i32,
+    pub recipients: Vec<String>,
+}
+
 #[derive(Clone, Debug)]
 pub struct MonitorCheck {
     pub id: String,
+    pub dashboard_id: String,
     pub site_id: String,
     pub name: Option<String>,
     pub url: Url,
@@ -102,6 +115,8 @@ pub struct MonitorCheck {
     pub request_headers: Vec<RequestHeader>,
     pub accepted_status_codes: Vec<i32>,
     pub check_ssl_errors: bool,
+    /// Alert configuration for this monitor
+    pub alert: AlertConfig,
 }
 
 #[derive(Debug, Clone, Copy, Serialize_repr, Deserialize_repr)]
