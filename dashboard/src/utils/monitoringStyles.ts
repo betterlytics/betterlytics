@@ -1,5 +1,5 @@
 import { LiveIndicatorColor } from '@/components/live-indicator';
-import { type MonitorStatus } from '@/entities/analytics/monitoring.entities';
+import { type MonitorOperationalState, type MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { LucideIcon, ShieldAlert, ShieldX, ShieldCheck, Shield } from 'lucide-react';
 
 // HTTP Status Code color categories
@@ -46,7 +46,8 @@ export type MonitorTone = 'ok' | 'warn' | 'down' | 'neutral';
 export type MonitorStatusCategory = MonitorStatus | 'unknown';
 export type MonitorToneTheme = (typeof MONITOR_TONE)[MonitorTone];
 
-type MonitorStatusLabelKey = 'paused' | 'up' | 'warn' | 'down' | 'error' | 'notChecked';
+/** Label keys for operational state (used for i18n) */
+export type OperationalStateLabelKey = 'paused' | 'preparing' | 'up' | 'degraded' | 'down' | 'error';
 type LatencyLabelKey = 'paused' | 'noData' | 'fast' | 'elevated' | 'slow';
 type SslLabelKey = 'valid' | 'expiringSoon' | 'expired' | 'error' | 'notChecked';
 type SslBadgeLabelKey = 'badgeValid' | 'badgeExpiringSoon' | 'badgeExpired' | 'badgeError' | 'badgeNotChecked';
@@ -60,10 +61,17 @@ type PresentationBase = {
 };
 
 export type MonitorPresentation = PresentationBase & {
+  operationalState: MonitorOperationalState;
   label: string;
-  labelKey: MonitorStatusLabelKey;
+  labelKey: OperationalStateLabelKey;
   indicator: LiveIndicatorColor;
   gradient: string;
+};
+
+export type CheckStatusPresentation = {
+  tone: MonitorTone;
+  theme: MonitorToneTheme;
+  labelKey: MonitorStatus;
 };
 
 export type SslPresentation = PresentationBase & {
@@ -88,13 +96,16 @@ export const LATENCY_THRESHOLDS_MS = {
   elevated: 1500,
 };
 
-const MONITOR_STATUS_LABELS: Record<MonitorStatusCategory, { label: string; key: MonitorStatusLabelKey }> = {
-  ok: { label: 'Up', key: 'up' },
-  warn: { label: 'Degraded', key: 'warn' },
-  down: { label: 'Down', key: 'down' },
-  error: { label: 'Error', key: 'error' },
-  unknown: { label: 'Not checked yet', key: 'notChecked' },
-};
+/** Maps operational state to display labels and i18n keys */
+const OPERATIONAL_STATE_LABELS: Record<MonitorOperationalState, { label: string; key: OperationalStateLabelKey }> =
+  {
+    paused: { label: 'Paused', key: 'paused' },
+    preparing: { label: 'Preparing', key: 'preparing' },
+    up: { label: 'Up', key: 'up' },
+    degraded: { label: 'Degraded', key: 'degraded' },
+    down: { label: 'Down', key: 'down' },
+    error: { label: 'Error', key: 'error' },
+  };
 
 const LATENCY_TONE_LABELS: Record<MonitorTone, { label: string; key: LatencyLabelKey }> = {
   neutral: { label: 'No data yet', key: 'noData' },
@@ -160,6 +171,16 @@ const STATUS_TO_TONE: Record<MonitorStatusCategory, MonitorTone> = {
   unknown: 'neutral',
 };
 
+/** Maps operational state to visual tone */
+const OPERATIONAL_STATE_TO_TONE: Record<MonitorOperationalState, MonitorTone> = {
+  paused: 'neutral',
+  preparing: 'neutral',
+  up: 'ok',
+  degraded: 'warn',
+  down: 'down',
+  error: 'down',
+};
+
 export const MONITOR_TONE: Record<
   MonitorTone,
   {
@@ -205,10 +226,9 @@ export const MONITOR_TONE: Record<
   },
 };
 
-function toMonitorTone(isEnabled: boolean, status?: MonitorStatus | null): MonitorTone {
-  if (!isEnabled) return 'neutral';
-  const category: MonitorStatusCategory = status ?? 'unknown';
-  return STATUS_TO_TONE[category];
+/** Convert operational state to visual tone */
+export function operationalStateToTone(state: MonitorOperationalState): MonitorTone {
+  return OPERATIONAL_STATE_TO_TONE[state];
 }
 
 function uptimeToneFromPercent(uptimePercent: number | null | undefined): MonitorTone {
@@ -222,8 +242,11 @@ export function statusCategoryToTone(category: MonitorStatusCategory): MonitorTo
   return STATUS_TO_TONE[category];
 }
 
-function resolveLatencyTone(avgMs: number | null | undefined, isEnabled: boolean): MonitorTone {
-  if (!isEnabled) return 'neutral';
+function resolveLatencyTone(
+  avgMs: number | null | undefined,
+  operationalState: MonitorOperationalState,
+): MonitorTone {
+  if (operationalState === 'paused' || operationalState === 'preparing') return 'neutral';
   if (avgMs == null) return 'neutral';
   if (avgMs <= LATENCY_THRESHOLDS_MS.fast) return 'ok';
   if (avgMs <= LATENCY_THRESHOLDS_MS.elevated) return 'warn';
@@ -234,30 +257,20 @@ function latencyToneToLabel(tone: MonitorTone): { label: string; key: LatencyLab
   return LATENCY_TONE_LABELS[tone];
 }
 
-function monitorStatusToLabel(
-  isEnabled: boolean,
-  status?: MonitorStatus | null,
-): { label: string; key: MonitorStatusLabelKey } {
-  if (!isEnabled) return { label: 'Paused', key: 'paused' };
-  const category: MonitorStatusCategory = status ?? 'unknown';
-  return MONITOR_STATUS_LABELS[category];
-}
-
-export function presentMonitorStatus({
-  isEnabled,
-  status,
-}: {
-  isEnabled: boolean;
-  status?: MonitorStatus | null;
-}): MonitorPresentation {
-  const tone = toMonitorTone(isEnabled, status);
+/**
+ * Present monitor status based on operational state.
+ * This is the primary presentation function - takes the pre-computed operationalState.
+ */
+export function presentMonitorStatus(operationalState: MonitorOperationalState): MonitorPresentation {
+  const tone = operationalStateToTone(operationalState);
   const theme = MONITOR_TONE[tone];
   const indicator: LiveIndicatorColor =
     tone === 'ok' ? 'green' : tone === 'warn' ? 'orange' : tone === 'down' ? 'red' : 'grey';
-  const { label, key } = monitorStatusToLabel(isEnabled, status);
+  const { label, key } = OPERATIONAL_STATE_LABELS[operationalState];
   const gradient = monitorStatusGradientForTone(tone);
 
   return {
+    operationalState,
     tone,
     label,
     labelKey: key,
@@ -268,18 +281,28 @@ export function presentMonitorStatus({
   };
 }
 
+/**
+ * Present a raw check status (for historical data like incidents, recent checks).
+ */
+export function presentCheckStatus(status: MonitorStatus): CheckStatusPresentation {
+  const tone = STATUS_TO_TONE[status];
+  const theme = MONITOR_TONE[tone];
+  return { tone, theme, labelKey: status };
+}
+
 export function presentLatencyStatus({
   avgMs,
-  isEnabled,
+  operationalState,
 }: {
   avgMs: number | null | undefined;
-  isEnabled: boolean;
+  operationalState: MonitorOperationalState;
 }): LatencyPresentation {
-  const tone = resolveLatencyTone(avgMs, isEnabled);
+  const tone = resolveLatencyTone(avgMs, operationalState);
   const theme = MONITOR_TONE[tone];
   const indicator: LiveIndicatorColor =
     tone === 'ok' ? 'green' : tone === 'warn' ? 'orange' : tone === 'down' ? 'red' : 'grey';
-  const { label, key } = !isEnabled ? { label: 'Paused', key: 'paused' as const } : latencyToneToLabel(tone);
+  const { label, key } =
+    operationalState === 'paused' ? { label: 'Paused', key: 'paused' as const } : latencyToneToLabel(tone);
 
   return {
     tone,

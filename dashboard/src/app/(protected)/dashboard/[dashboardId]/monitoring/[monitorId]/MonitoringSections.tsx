@@ -12,9 +12,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { formatCompactFromMilliseconds, formatDuration } from '@/utils/dateFormatters';
 import {
   MONITOR_TONE,
-  presentMonitorStatus,
+  presentCheckStatus,
   presentUptimeTone,
-  type MonitorPresentation,
+  type CheckStatusPresentation,
   type MonitorTone,
 } from '@/utils/monitoringStyles';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
@@ -179,18 +179,17 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
 }
 
 function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
-  const t = useTranslations('monitoringDetailPage');
   const misc = useTranslations('misc');
-  const tStatus = useTranslations('monitoring.status');
+  const tCheckStatus = useTranslations('monitoring.checkStatus');
   const start = new Date(segment.start);
   const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000)) : '—';
-  const presentation = presentMonitorStatus({ isEnabled: true, status: segment.status });
-  const label = tStatus(presentation.labelKey);
+  const presentation = presentCheckStatus(segment.status);
+  const label = tCheckStatus(presentation.labelKey);
   return (
     <TableRow className='text-sm'>
       <TableCell>
         <div className='flex items-center gap-2'>
-          <StatusBadge presentation={presentation} label={label} />
+          <CheckStatusDot presentation={presentation} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </div>
       </TableCell>
@@ -206,17 +205,16 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
 }
 
 function CheckRow({ check }: { check: MonitorResult }) {
-  const t = useTranslations('monitoringDetailPage');
   const misc = useTranslations('misc');
-  const tStatus = useTranslations('monitoring.status');
+  const tCheckStatus = useTranslations('monitoring.checkStatus');
   const timestamp = new Date(check.ts);
-  const presentation = presentMonitorStatus({ isEnabled: true, status: check.status });
-  const label = tStatus(presentation.labelKey);
+  const presentation = presentCheckStatus(check.status);
+  const label = tCheckStatus(presentation.labelKey);
   return (
     <TableRow className='text-sm'>
       <TableCell>
         <div className='flex items-center gap-2'>
-          <StatusBadge presentation={presentation} label={label} />
+          <CheckStatusDot presentation={presentation} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </div>
       </TableCell>
@@ -236,7 +234,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
   );
 }
 
-function StatusBadge({ presentation, label }: { presentation: MonitorPresentation; label: string }) {
+function CheckStatusDot({ presentation, label }: { presentation: CheckStatusPresentation; label: string }) {
   return <span className={`inline-block h-2.5 w-2.5 rounded-full ${presentation.theme.dot}`} aria-label={label} />;
 }
 

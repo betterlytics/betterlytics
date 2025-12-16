@@ -1127,13 +1127,19 @@
   "monitoring": {
     "status": {
       "paused": "Paused",
+      "preparing": "Preparing",
       "up": "Up",
-      "warn": "Degraded",
+      "degraded": "Degraded",
       "down": "Down",
       "error": "Error",
-      "notChecked": "Not checked yet",
       "monitoringActive": "Monitoring active",
       "monitoringPaused": "Monitoring paused"
+    },
+    "checkStatus": {
+      "ok": "OK",
+      "warn": "Warning",
+      "down": "Down",
+      "error": "Error"
     },
     "latency": {
       "paused": "Paused",
@@ -1189,7 +1195,7 @@
       "statusDown": "Down",
       "statusSslExpiring": "Expiring SSL certificate",
       "statusPaused": "Paused",
-      "statusNotStarted": "Not started",
+      "statusPreparing": "Preparing",
       "sortDownFirst": "Down first",
       "sortUpFirst": "Up first",
       "sortNewest": "Newest first",

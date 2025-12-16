@@ -3,6 +3,46 @@ import { z } from 'zod';
 export const MonitorStatusSchema = z.enum(['ok', 'warn', 'down', 'error']);
 export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
 
+/**
+ * Operational state represents the current state of a monitor from a user's perspective.
+ * This is a derived/computed field based on isEnabled, lastStatus, and whether data exists.
+ *
+ * - `paused`: Monitor is disabled by user
+ * - `preparing`: Monitor is enabled but no checks have run yet (waiting for first probe)
+ * - `up`: Monitor is healthy (lastStatus === 'ok')
+ * - `degraded`: Monitor is experiencing issues but not down (lastStatus === 'warn')
+ * - `down`: Monitor is down (lastStatus === 'down')
+ * - `error`: Monitor check failed with an error (lastStatus === 'error')
+ */
+export const MonitorOperationalStateSchema = z.enum(['paused', 'preparing', 'up', 'degraded', 'down', 'error']);
+export type MonitorOperationalState = z.infer<typeof MonitorOperationalStateSchema>;
+
+/**
+ * Derives the operational state from monitor data.
+ * This is the single source of truth for determining a monitor's state.
+ */
+export function deriveOperationalState(
+  isEnabled: boolean,
+  lastStatus: MonitorStatus | null | undefined,
+  hasData: boolean,
+): MonitorOperationalState {
+  if (!isEnabled) return 'paused';
+  if (!lastStatus && !hasData) return 'preparing';
+
+  switch (lastStatus) {
+    case 'ok':
+      return 'up';
+    case 'warn':
+      return 'degraded';
+    case 'down':
+      return 'down';
+    case 'error':
+      return 'error';
+    default:
+      return 'preparing';
+  }
+}
+
 export const HttpMethodSchema = z.enum(['HEAD', 'GET']);
 export type HttpMethod = z.infer<typeof HttpMethodSchema>;
 
@@ -69,6 +109,19 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;
 export type MonitorCheckCreate = z.infer<typeof MonitorCheckCreateSchema>;
 export type MonitorCheckUpdate = z.infer<typeof MonitorCheckUpdateSchema>;
+
+/**
+ * Monitor with computed status fields, as returned by getMonitorChecksWithStatus.
+ * This is the primary type used in list views.
+ */
+export type MonitorWithStatus = MonitorCheck & {
+  lastStatus: MonitorStatus | null;
+  effectiveIntervalSeconds: number | null;
+  backoffLevel: number | null;
+  uptimeBuckets: MonitorUptimeBucket[];
+  tls: MonitorTlsResult | null;
+  operationalState: MonitorOperationalState;
+};
 
 export const MonitorUptimeBucketSchema = z.object({
   bucket: z.string(), // ISO timestamp string

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, PauseCircle, Pencil, PlayCircle } from 'lucide-react';
-import { presentMonitorStatus, type MonitorPresentation } from '@/utils/monitoringStyles';
+import { presentMonitorStatus } from '@/utils/monitoringStyles';
 import {
   fetchLatestMonitorTlsResultAction,
   fetchMonitorCheckAction,
@@ -13,12 +13,13 @@ import {
   fetchRecentMonitorResultsAction,
 } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
-import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
 import {
+  deriveOperationalState,
+  type MonitorCheck,
   type MonitorIncidentSegment,
   type MonitorMetrics,
+  type MonitorOperationalState,
   type MonitorResult,
-  type MonitorStatus,
   type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
 import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
@@ -103,8 +104,11 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
         dashboardId={dashboardId}
         hostname={hostname}
         url={monitorData.url}
-        isEnabled={monitorData.isEnabled}
-        lastStatus={metricsQuery.data?.lastStatus}
+        operationalState={deriveOperationalState(
+          monitorData.isEnabled,
+          metricsQuery.data?.lastStatus,
+          (metricsQuery.data?.uptimeBuckets?.length ?? 0) > 0,
+        )}
         actionSlot={
           <div className='flex items-center gap-2 self-start sm:self-auto'>
             <Button
@@ -175,19 +179,17 @@ function MonitorHeader({
   dashboardId,
   hostname,
   url,
-  isEnabled,
-  lastStatus,
+  operationalState,
   actionSlot,
 }: {
   dashboardId: string;
   hostname: string;
   url: string;
-  isEnabled: boolean;
-  lastStatus?: MonitorStatus | null;
+  operationalState: MonitorOperationalState;
   actionSlot?: ReactNode;
 }) {
   const tHeader = useTranslations('monitoringDetailPage.header');
-  const presentation = presentMonitorStatus({ isEnabled, status: lastStatus });
+  const presentation = presentMonitorStatus(operationalState);
 
   return (
     <div className='space-y-3 px-1 sm:px-0'>

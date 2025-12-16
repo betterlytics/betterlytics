@@ -1130,13 +1130,19 @@
   "monitoring": {
     "status": {
       "paused": "Sat på pause",
+      "preparing": "Forbereder",
       "up": "Oppe",
-      "warn": "Nedsat",
+      "degraded": "Nedsat",
       "down": "Nede",
       "error": "Fejl",
-      "notChecked": "Endnu ikke tjekket",
       "monitoringActive": "Overvågning aktiv",
       "monitoringPaused": "Overvågning sat på pause"
+    },
+    "checkStatus": {
+      "ok": "OK",
+      "warn": "Advarsel",
+      "down": "Nede",
+      "error": "Fejl"
     },
     "latency": {
       "paused": "Sat på pause",
@@ -1192,7 +1198,7 @@
       "statusDown": "Nede",
       "statusSslExpiring": "SSL-certifikat udløber",
       "statusPaused": "Sat på pause",
-      "statusNotStarted": "Ikke startet",
+      "statusPreparing": "Forbereder",
       "sortDownFirst": "Nede først",
       "sortUpFirst": "Oppe først",
       "sortNewest": "Nyeste først",

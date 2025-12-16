@@ -1,6 +1,10 @@
 'server-only';
 
-import { MonitorCheckCreate, MonitorCheckUpdate } from '@/entities/analytics/monitoring.entities';
+import {
+  MonitorCheckCreate,
+  MonitorCheckUpdate,
+  deriveOperationalState,
+} from '@/entities/analytics/monitoring.entities';
 import {
   createMonitorCheck,
   getMonitorCheckById,
@@ -45,14 +49,21 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
     getLatestTlsResultsForMonitors(checkIds, siteId),
   ]);
 
-  return checks.map((check) => ({
-    ...check,
-    lastStatus: latestStatuses[check.id]?.status ?? null,
-    effectiveIntervalSeconds: latestStatuses[check.id]?.effectiveIntervalSeconds ?? null,
-    backoffLevel: latestStatuses[check.id]?.backoffLevel ?? null,
-    uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets[check.id] ?? [], 24, now),
-    tls: tlsResults[check.id] ?? null,
-  }));
+  return checks.map((check) => {
+    const lastStatus = latestStatuses[check.id]?.status ?? null;
+    const buckets = normalizeUptimeBuckets(uptimeBuckets[check.id] ?? [], 24, now);
+    const hasData = buckets.length > 0;
+
+    return {
+      ...check,
+      lastStatus,
+      effectiveIntervalSeconds: latestStatuses[check.id]?.effectiveIntervalSeconds ?? null,
+      backoffLevel: latestStatuses[check.id]?.backoffLevel ?? null,
+      uptimeBuckets: buckets,
+      tls: tlsResults[check.id] ?? null,
+      operationalState: deriveOperationalState(check.isEnabled, lastStatus, hasData),
+    };
+  });
 }
 
 export async function addMonitorCheck(input: MonitorCheckCreate) {

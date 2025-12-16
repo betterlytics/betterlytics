@@ -8,11 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
 import { formatIntervalLabel } from './utils';
-import {
-  type MonitorStatus,
-  type MonitorTlsResult,
-  type MonitorUptimeBucket,
-} from '@/entities/analytics/monitoring.entities';
+import { type MonitorUptimeBucket, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import {
   presentMonitorStatus,
   presentUptimeTone,
@@ -23,24 +19,8 @@ import { formatPercentage } from '@/utils/formatters';
 import { PillBar } from './components/PillBar';
 import { MonitorStatusBadge } from './components/MonitorStatusBadge';
 
-type MonitorView = {
-  id: string;
-  dashboardId: string;
-  name?: string | null;
-  url: string;
-  intervalSeconds?: number;
-  effectiveIntervalSeconds?: number | null;
-  backoffLevel?: number | null;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
-  isEnabled: boolean;
-  lastStatus?: MonitorStatus | null;
-  uptimeBuckets?: MonitorUptimeBucket[];
-  tls?: MonitorTlsResult | null;
-};
-
 type MonitorListProps = {
-  monitors: MonitorView[];
+  monitors: MonitorWithStatus[];
 };
 
 export function MonitorList({ monitors }: MonitorListProps) {
@@ -65,10 +45,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
   return (
     <div className='space-y-3'>
       {monitors.map((monitor) => {
-        const statusPresentation = presentMonitorStatus({
-          isEnabled: monitor.isEnabled,
-          status: monitor.lastStatus,
-        });
+        const statusPresentation = presentMonitorStatus(monitor.operationalState);
 
         const sslPresentation = presentSslStatusPresentation({
           status: monitor.tls?.status,

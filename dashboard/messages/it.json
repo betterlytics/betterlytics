@@ -1130,13 +1130,19 @@
   "monitoring": {
     "status": {
       "paused": "In pausa",
+      "preparing": "In preparazione",
       "up": "Online",
-      "warn": "Degradato",
+      "degraded": "Degradato",
       "down": "Offline",
       "error": "Errore",
-      "notChecked": "Non ancora verificato",
       "monitoringActive": "Monitoraggio attivo",
       "monitoringPaused": "Monitoraggio in pausa"
+    },
+    "checkStatus": {
+      "ok": "OK",
+      "warn": "Avviso",
+      "down": "Offline",
+      "error": "Errore"
     },
     "latency": {
       "paused": "In pausa",
@@ -1192,7 +1198,7 @@
       "statusDown": "Offline",
       "statusSslExpiring": "Certificato SSL in scadenza",
       "statusPaused": "In pausa",
-      "statusNotStarted": "Non avviato",
+      "statusPreparing": "In preparazione",
       "sortDownFirst": "Offline prima",
       "sortUpFirst": "Online prima",
       "sortNewest": "Più recenti",

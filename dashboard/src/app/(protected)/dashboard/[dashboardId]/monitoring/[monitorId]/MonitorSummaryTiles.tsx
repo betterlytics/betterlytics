@@ -12,9 +12,10 @@ import {
   presentSslStatus,
 } from '@/utils/monitoringStyles';
 import {
+  deriveOperationalState,
   type MonitorCheck,
   type MonitorMetrics,
-  type MonitorStatus,
+  type MonitorOperationalState,
   type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
 import { type ReactNode, useEffect, useState } from 'react';
@@ -46,16 +47,21 @@ type MonitorSummaryTilesProps = {
 export function MonitorSummaryTiles({ monitor, metrics, tls }: MonitorSummaryTilesProps) {
   const t = useTranslations('monitoringDetailPage.summary');
   const latencyAvg = metrics?.latency?.avgMs ?? null;
+  const operationalState = deriveOperationalState(
+    monitor.isEnabled,
+    metrics?.lastStatus,
+    (metrics?.uptimeBuckets?.length ?? 0) > 0,
+  );
 
   return (
     <div className='grid gap-4 lg:grid-cols-2 xl:grid-cols-4'>
-      <LastCheckCard monitor={monitor} metrics={metrics} />
+      <LastCheckCard monitor={monitor} metrics={metrics} operationalState={operationalState} />
       <Last24hCard
         uptimePercent={metrics?.uptime24hPercent}
         incidents={metrics?.incidents24h ?? 0}
         buckets={metrics?.uptimeBuckets}
       />
-      <ResponseSummaryTile title={t('avgResponseTime')} avg={latencyAvg} isEnabled={monitor.isEnabled} />
+      <ResponseSummaryTile title={t('avgResponseTime')} avg={latencyAvg} operationalState={operationalState} />
       <SslSummaryCard tls={tls} />
     </div>
   );
@@ -95,16 +101,19 @@ function SummaryTile({
 function LastCheckCard({
   monitor,
   metrics,
+  operationalState,
 }: {
   monitor: MonitorSummaryTilesProps['monitor'];
   metrics?: MonitorSummaryMetrics;
+  operationalState: MonitorOperationalState;
 }) {
   const t = useTranslations('monitoringDetailPage.summary.lastCheck');
   const tMonitoringPage = useTranslations('monitoringPage');
   const tList = useTranslations('monitoringPage.list');
   const lastCheckAt = metrics?.lastCheckAt ? new Date(metrics.lastCheckAt).getTime() : null;
   const [now, setNow] = useState(() => Date.now());
-  const isPaused = !monitor.isEnabled;
+  const isPaused = operationalState === 'paused';
+  const isPreparing = operationalState === 'preparing';
 
   useEffect(() => {
     if (!lastCheckAt || isPaused) return;
@@ -114,13 +123,13 @@ function LastCheckCard({
 
   const lastCheckLabel = (() => {
     if (isPaused) return t('paused');
-    if (!lastCheckAt) return t('preparing');
-    return formatTimeAgo(new Date(lastCheckAt), true);
+    if (isPreparing) return t('preparing');
+    return formatTimeAgo(lastCheckAt ? new Date(lastCheckAt) : new Date(), true);
   })();
 
   const helper = (() => {
     if (isPaused) return t('helperPaused');
-    if (!lastCheckAt) return t('helperPreparing');
+    if (isPreparing) return t('helperPreparing');
     return t('helperScheduled', { seconds: monitor.intervalSeconds ?? 0 });
   })();
 
@@ -136,7 +145,7 @@ function LastCheckCard({
       helper={helper}
       bodyClassName='flex flex-1 items-center gap-2 text-lg font-semibold sm:text-xl'
     >
-      <StatusDot active={monitor.isEnabled} status={metrics?.lastStatus} />
+      <StatusDot operationalState={operationalState} />
       <span className='text-foreground tabular-nums'>{lastCheckLabel}</span>
       {isBackedOff && backoffTooltipMessage ? (
         <Tooltip>
@@ -158,14 +167,14 @@ function LastCheckCard({
 function ResponseSummaryTile({
   title,
   avg,
-  isEnabled,
+  operationalState,
 }: {
   title: string;
   avg: number | null;
-  isEnabled: boolean;
+  operationalState: MonitorOperationalState;
 }) {
   const tLatency = useTranslations('monitoring.latency');
-  const presentation = presentLatencyStatus({ avgMs: avg, isEnabled });
+  const presentation = presentLatencyStatus({ avgMs: avg, operationalState });
   const theme = presentation.theme;
   const badgeClass = presentation.badgeClass;
   const badgeLabel = tLatency(presentation.labelKey);
@@ -218,20 +227,16 @@ function Last24hCard({
   );
 }
 
-function StatusDot({ active, status }: { active: boolean; status?: MonitorStatus | null }) {
+function StatusDot({ operationalState }: { operationalState: MonitorOperationalState }) {
   const tStatus = useTranslations('monitoring.status');
-  const { indicator: color } = presentMonitorStatus({ isEnabled: active, status });
+  const { indicator: color } = presentMonitorStatus(operationalState);
+  const isActive = operationalState !== 'paused' && operationalState !== 'preparing';
   return (
     <span
       className='relative inline-flex h-3 w-3 align-middle'
-      aria-label={active ? tStatus('monitoringActive') : tStatus('monitoringPaused')}
+      aria-label={operationalState === 'paused' ? tStatus('monitoringPaused') : tStatus('monitoringActive')}
     >
-      <LiveIndicator
-        color={color}
-        positionClassName='static'
-        sizeClassName='h-3 w-3'
-        pulse={status !== null && status !== undefined}
-      />
+      <LiveIndicator color={color} positionClassName='static' sizeClassName='h-3 w-3' pulse={isActive} />
     </span>
   );
 }

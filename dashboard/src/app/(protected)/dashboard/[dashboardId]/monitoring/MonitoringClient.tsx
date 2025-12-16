@@ -5,30 +5,10 @@ import { ArrowUpDown, Filter, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import {
-  type MonitorStatus,
-  type MonitorTlsResult,
-  type MonitorUptimeBucket,
-} from '@/entities/analytics/monitoring.entities';
+import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
 import { presentSslStatus } from '@/utils/monitoringStyles';
-
-type MonitorView = {
-  id: string;
-  dashboardId: string;
-  name?: string | null;
-  url: string;
-  intervalSeconds?: number;
-  effectiveIntervalSeconds?: number | null;
-  backoffLevel?: number | null;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
-  isEnabled: boolean;
-  lastStatus?: MonitorStatus | null;
-  uptimeBuckets?: MonitorUptimeBucket[];
-  tls?: MonitorTlsResult | null;
-};
 
 type FiltersCopy = {
   statusLabel: string;
@@ -38,7 +18,7 @@ type FiltersCopy = {
   statusDown: string;
   statusSslExpiring: string;
   statusPaused: string;
-  statusNotStarted: string;
+  statusPreparing: string;
   sortDownFirst: string;
   sortUpFirst: string;
   sortNewest: string;
@@ -48,7 +28,7 @@ type FiltersCopy = {
   sortSslExpires: string;
 };
 
-type StatusFilter = 'all' | 'up' | 'down' | 'ssl' | 'paused' | 'notStarted';
+type StatusFilter = 'all' | 'up' | 'down' | 'ssl' | 'paused' | 'preparing';
 type SortKey = 'downFirst' | 'upFirst' | 'newest' | 'oldest' | 'nameAsc' | 'nameDesc' | 'ssl';
 
 const STATUS_LABEL_KEY: Record<StatusFilter, keyof FiltersCopy> = {
@@ -57,7 +37,7 @@ const STATUS_LABEL_KEY: Record<StatusFilter, keyof FiltersCopy> = {
   down: 'statusDown',
   ssl: 'statusSslExpiring',
   paused: 'statusPaused',
-  notStarted: 'statusNotStarted',
+  preparing: 'statusPreparing',
 };
 
 const SORT_LABEL_KEY: Record<SortKey, keyof FiltersCopy> = {
@@ -70,9 +50,29 @@ const SORT_LABEL_KEY: Record<SortKey, keyof FiltersCopy> = {
   ssl: 'sortSslExpires',
 };
 
+/** Maps status filter to matching operational states */
+const STATUS_FILTER_STATES: Record<StatusFilter, MonitorOperationalState[] | null> = {
+  all: null, // null means match all
+  up: ['up'],
+  down: ['down', 'error'],
+  paused: ['paused'],
+  preparing: ['preparing'],
+  ssl: null, // SSL filter uses different logic
+};
+
+/** Sort priority for operational states (lower = more urgent) */
+const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
+  down: 0,
+  error: 0,
+  degraded: 1,
+  up: 2,
+  preparing: 3,
+  paused: 4,
+};
+
 type MonitoringClientProps = {
   dashboardId: string;
-  monitors: MonitorView[];
+  monitors: MonitorWithStatus[];
 };
 
 export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProps) {
@@ -86,7 +86,7 @@ export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProp
       statusDown: t('filters.statusDown'),
       statusSslExpiring: t('filters.statusSslExpiring'),
       statusPaused: t('filters.statusPaused'),
-      statusNotStarted: t('filters.statusNotStarted'),
+      statusPreparing: t('filters.statusPreparing'),
       sortDownFirst: t('filters.sortDownFirst'),
       sortUpFirst: t('filters.sortUpFirst'),
       sortNewest: t('filters.sortNewest'),
@@ -103,34 +103,28 @@ export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProp
   const filteredMonitors = useMemo(
     () =>
       monitors.filter((monitor) => {
-        const sslStatus = presentSslStatus({
-          status: monitor.tls?.status,
-          daysLeft: monitor.tls?.tlsDaysLeft ?? null,
-        });
-        if (statusFilter === 'paused') return !monitor.isEnabled;
-        if (statusFilter === 'up') return monitor.isEnabled && monitor.lastStatus === 'ok';
-        if (statusFilter === 'down')
-          return monitor.isEnabled && (monitor.lastStatus === 'down' || monitor.lastStatus === 'error');
-        if (statusFilter === 'ssl')
+        // SSL filter uses different logic based on TLS status
+        if (statusFilter === 'ssl') {
+          const sslStatus = presentSslStatus({
+            status: monitor.tls?.status,
+            daysLeft: monitor.tls?.tlsDaysLeft ?? null,
+          });
           return sslStatus.category === 'warn' || sslStatus.category === 'down' || sslStatus.category === 'error';
-        if (statusFilter === 'notStarted')
-          return monitor.isEnabled && !monitor.lastStatus && !monitor.uptimeBuckets?.length;
-        return true;
+        }
+
+        // All other filters use operationalState directly
+        const allowedStates = STATUS_FILTER_STATES[statusFilter];
+        if (allowedStates === null) return true;
+        return allowedStates.includes(monitor.operationalState);
       }),
     [monitors, statusFilter],
   );
 
   const sortedMonitors = useMemo(() => {
-    const statusRankDown = (monitor: MonitorView) => {
-      if (!monitor.isEnabled) return 4;
-      const map: Record<string, number> = { down: 0, error: 0, warn: 1, ok: 2 };
-      return map[monitor.lastStatus ?? ''] ?? 3;
-    };
-    const statusRankUp = (monitor: MonitorView) => -statusRankDown(monitor);
-    const nameValue = (monitor: MonitorView) => (monitor.name || monitor.url || '').toLowerCase();
-    const createdAtMs = (monitor: MonitorView) =>
+    const nameValue = (monitor: MonitorWithStatus) => (monitor.name || monitor.url || '').toLowerCase();
+    const createdAtMs = (monitor: MonitorWithStatus) =>
       monitor.createdAt ? new Date(monitor.createdAt).getTime() : Number.NEGATIVE_INFINITY;
-    const sslDays = (monitor: MonitorView) =>
+    const sslDays = (monitor: MonitorWithStatus) =>
       presentSslStatus({ status: monitor.tls?.status, daysLeft: monitor.tls?.tlsDaysLeft ?? null }).category ===
       'unknown'
         ? Number.POSITIVE_INFINITY
@@ -138,10 +132,16 @@ export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProp
 
     return [...filteredMonitors].sort((a, b) => {
       switch (sortKey) {
-        case 'downFirst':
-          return statusRankDown(a) - statusRankDown(b) || nameValue(a).localeCompare(nameValue(b));
-        case 'upFirst':
-          return statusRankUp(a) - statusRankUp(b) || nameValue(a).localeCompare(nameValue(b));
+        case 'downFirst': {
+          const priorityDiff =
+            OPERATIONAL_STATE_PRIORITY[a.operationalState] - OPERATIONAL_STATE_PRIORITY[b.operationalState];
+          return priorityDiff !== 0 ? priorityDiff : nameValue(a).localeCompare(nameValue(b));
+        }
+        case 'upFirst': {
+          const priorityDiff =
+            OPERATIONAL_STATE_PRIORITY[b.operationalState] - OPERATIONAL_STATE_PRIORITY[a.operationalState];
+          return priorityDiff !== 0 ? priorityDiff : nameValue(a).localeCompare(nameValue(b));
+        }
         case 'newest':
           return createdAtMs(b) - createdAtMs(a) || nameValue(a).localeCompare(nameValue(b));
         case 'oldest':
@@ -182,7 +182,7 @@ export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProp
                 <SelectItem value='down'>{filtersCopy.statusDown}</SelectItem>
                 <SelectItem value='ssl'>{filtersCopy.statusSslExpiring}</SelectItem>
                 <SelectItem value='paused'>{filtersCopy.statusPaused}</SelectItem>
-                <SelectItem value='notStarted'>{filtersCopy.statusNotStarted}</SelectItem>
+                <SelectItem value='preparing'>{filtersCopy.statusPreparing}</SelectItem>
               </SelectContent>
             </Select>
 
