@@ -16,7 +16,7 @@ use url::Url;
 use x509_parser::prelude::FromDer;
 
 use crate::monitor::guard::{GuardError, MAX_REDIRECTS, MAX_RESPONSE_BYTES, validate_target};
-use crate::monitor::models::{HttpMethod, MonitorStatus};
+use crate::monitor::models::{HttpMethod, MonitorStatus, StatusCodeValue, is_status_code_accepted};
 use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
 
 #[derive(Debug, Clone)]
@@ -160,14 +160,13 @@ impl MonitorProbe {
         resolved_ip: std::net::Ipv6Addr,
         final_url: String,
         redirect_hops: usize,
-        accepted_status_codes: &[i32],
+        accepted_status_codes: &[StatusCodeValue],
     ) -> ProbeOutcome {
         let status = resp.status;
         let status_code = status.as_u16();
         
-        // Check if status is successful (2xx) or in the accepted status codes list
-        let is_accepted = status.is_success() 
-            || accepted_status_codes.contains(&(status_code as i32));
+        // Check if status code is accepted (uses configured codes, defaults to 2xx if empty)
+        let is_accepted = is_status_code_accepted(status_code, accepted_status_codes);
         
         if is_accepted {
             let mut outcome = ProbeOutcome::success(latency, Some(status_code), resolved_ip);

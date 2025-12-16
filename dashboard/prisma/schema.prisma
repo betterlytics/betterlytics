@@ -250,7 +250,7 @@ model MonitorCheck {
   sslExpiryReminders    Boolean   @default(true)
   httpMethod            String    @default("HEAD")
   requestHeaders        Json?
-  acceptedStatusCodes   Int[]     @default([])
+  acceptedStatusCodes   Json      @default("[\"2xx\"]")
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 

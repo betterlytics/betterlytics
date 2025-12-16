@@ -10,7 +10,7 @@ use thiserror::Error;
 use tokio_postgres::{Config as PgConfig, NoTls, Row};
 use url::Url;
 
-use crate::monitor::{AlertConfig, HttpMethod, MonitorCheck, RequestHeader};
+use crate::monitor::{AlertConfig, HttpMethod, MonitorCheck, RequestHeader, StatusCodeValue};
 
 const BASE_SELECT: &str = r#"
 SELECT
@@ -67,7 +67,7 @@ pub struct MonitorCheckRecord {
     pub updated_at: DateTime<Utc>,
     pub http_method: String,
     pub request_headers: Vec<RequestHeader>,
-    pub accepted_status_codes: Vec<i32>,
+    pub accepted_status_codes: Vec<StatusCodeValue>,
     pub check_ssl_errors: bool,
     // Alert configuration
     pub alerts_enabled: bool,
@@ -98,6 +98,12 @@ impl TryFrom<Row> for MonitorCheckRecord {
             .try_get::<_, Option<Vec<String>>>("alert_recipients")?
             .unwrap_or_default();
 
+        // Parse accepted status codes from JSON (can be integers or strings like "2xx")
+        let accepted_status_codes = row
+            .try_get::<_, Option<Json<Vec<StatusCodeValue>>>>("accepted_status_codes")?
+            .map(|json| json.0)
+            .unwrap_or_default();
+
         Ok(Self {
             id: row.try_get("id")?,
             dashboard_id: row.try_get("dashboard_id")?,
@@ -109,7 +115,7 @@ impl TryFrom<Row> for MonitorCheckRecord {
             updated_at: DateTime::<Utc>::from_naive_utc_and_offset(updated_at, Utc),
             http_method: row.try_get("http_method")?,
             request_headers,
-            accepted_status_codes: row.try_get("accepted_status_codes")?,
+            accepted_status_codes,
             check_ssl_errors: row.try_get("check_ssl_errors")?,
             // Alert configuration
             alerts_enabled: row.try_get("alerts_enabled")?,

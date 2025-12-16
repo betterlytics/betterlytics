@@ -40,6 +40,14 @@ export async function createMonitorCheck(input: MonitorCheckCreate): Promise<Mon
       httpMethod: data.httpMethod,
       requestHeaders: data.requestHeaders ?? undefined,
       acceptedStatusCodes: data.acceptedStatusCodes,
+      // Alert configuration
+      alertsEnabled: data.alertsEnabled,
+      alertEmails: data.alertEmails,
+      alertOnDown: data.alertOnDown,
+      alertOnRecovery: data.alertOnRecovery,
+      alertOnSslExpiry: data.alertOnSslExpiry,
+      sslExpiryAlertDays: data.sslExpiryAlertDays,
+      failureThreshold: data.failureThreshold,
     },
   });
 
@@ -70,6 +78,14 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
       httpMethod: data.httpMethod,
       requestHeaders: data.requestHeaders ?? undefined,
       acceptedStatusCodes: data.acceptedStatusCodes,
+      // Alert configuration
+      alertsEnabled: data.alertsEnabled,
+      alertEmails: data.alertEmails,
+      alertOnDown: data.alertOnDown,
+      alertOnRecovery: data.alertOnRecovery,
+      alertOnSslExpiry: data.alertOnSslExpiry,
+      sslExpiryAlertDays: data.sslExpiryAlertDays,
+      failureThreshold: data.failureThreshold,
     },
   });
 

@@ -69,6 +69,14 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       httpMethod: HttpMethod;
       requestHeaders: RequestHeader[] | null;
       acceptedStatusCodes: StatusCodeValue[];
+      // Alert configuration
+      alertsEnabled: boolean;
+      alertEmails: string[];
+      alertOnDown: boolean;
+      alertOnRecovery: boolean;
+      alertOnSslExpiry: boolean;
+      sslExpiryAlertDays: number;
+      failureThreshold: number;
     },
   ) => {
     const payload = MonitorCheckUpdateSchema.parse({

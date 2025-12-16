@@ -7,14 +7,7 @@ import { updateMonitorCheckAction } from '@/app/actions/analytics/monitoring.act
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import {
   type MonitorCheck,
@@ -22,12 +15,14 @@ import {
   type RequestHeader,
   type StatusCodeValue,
 } from '@/entities/analytics/monitoring.entities';
-import { ChevronRight, Info, Plus, Trash2, X } from 'lucide-react';
+import { Bell, ChevronRight, Info, Mail, Plus, Trash2, X } from 'lucide-react';
 import { getStatusCodeColorClasses } from '@/utils/monitoringStyles';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
+import { useTranslations } from 'next-intl';
 
 type EditMonitorDialogProps = {
   dashboardId: string;
@@ -39,6 +34,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('monitoringEditDialog');
 
   const [intervalIdx, setIntervalIdx] = useState(() =>
     nearestIndex(MONITOR_INTERVAL_MARKS, monitor.intervalSeconds),
@@ -53,6 +49,16 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   );
   const [statusCodeInput, setStatusCodeInput] = useState('');
 
+  // Alert configuration state
+  const [alertsEnabled, setAlertsEnabled] = useState(monitor.alertsEnabled);
+  const [alertEmails, setAlertEmails] = useState<string[]>(monitor.alertEmails ?? []);
+  const [alertEmailInput, setAlertEmailInput] = useState('');
+  const [alertOnDown, setAlertOnDown] = useState(monitor.alertOnDown);
+  const [alertOnRecovery, setAlertOnRecovery] = useState(monitor.alertOnRecovery);
+  const [alertOnSslExpiry, setAlertOnSslExpiry] = useState(monitor.alertOnSslExpiry);
+  const [sslExpiryAlertDays, setSslExpiryAlertDays] = useState(monitor.sslExpiryAlertDays);
+  const [failureThreshold, setFailureThreshold] = useState(monitor.failureThreshold);
+
   useEffect(() => {
     if (!open) return;
     setIntervalIdx(nearestIndex(MONITOR_INTERVAL_MARKS, monitor.intervalSeconds));
@@ -65,6 +71,15 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     setRequestHeaders(hasEmptyRow ? existingHeaders : [...existingHeaders, { key: '', value: '' }]);
     setAcceptedStatusCodes(monitor.acceptedStatusCodes?.length ? monitor.acceptedStatusCodes : ['2xx']);
     setStatusCodeInput('');
+    // Reset alert state
+    setAlertsEnabled(monitor.alertsEnabled);
+    setAlertEmails(monitor.alertEmails ?? []);
+    setAlertEmailInput('');
+    setAlertOnDown(monitor.alertOnDown);
+    setAlertOnRecovery(monitor.alertOnRecovery);
+    setAlertOnSslExpiry(monitor.alertOnSslExpiry);
+    setSslExpiryAlertDays(monitor.sslExpiryAlertDays);
+    setFailureThreshold(monitor.failureThreshold);
   }, [monitor, open]);
 
   const removeHeader = (index: number) => {
@@ -154,6 +169,32 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     setStatusCodeInput('');
   };
 
+  // Alert email management
+  const handleAddAlertEmail = () => {
+    const email = alertEmailInput.trim().toLowerCase();
+    if (!email) return;
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error(t('alerts.invalidEmail'));
+      return;
+    }
+
+    if (alertEmails.includes(email)) {
+      toast.error(t('alerts.emailExists'));
+      setAlertEmailInput('');
+      return;
+    }
+
+    setAlertEmails([...alertEmails, email]);
+    setAlertEmailInput('');
+  };
+
+  const removeAlertEmail = (email: string) => {
+    setAlertEmails(alertEmails.filter((e) => e !== email));
+  };
+
   const intervalSeconds = MONITOR_INTERVAL_MARKS[intervalIdx];
   const timeoutMs = REQUEST_TIMEOUT_MARKS[timeoutIdx];
 
@@ -173,13 +214,21 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
           httpMethod,
           requestHeaders: validHeaders.length > 0 ? validHeaders : null,
           acceptedStatusCodes,
+          // Alert configuration
+          alertsEnabled,
+          alertEmails,
+          alertOnDown,
+          alertOnRecovery,
+          alertOnSslExpiry,
+          sslExpiryAlertDays,
+          failureThreshold,
         });
-        toast.success('Monitor updated');
+        toast.success(t('success'));
         setOpen(false);
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error('Unable to update monitor, please try again.');
+        toast.error(t('error'));
       }
     });
   };
@@ -286,6 +335,196 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                   />
                 </div>
               </CardContent>
+            </Card>
+
+            <Separator />
+
+            {/* Alerts Section */}
+            <Card className='bg-card gap-3 py-4'>
+              <CardHeader className='gap-1 px-4 py-0'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <Bell className='h-4 w-4 text-amber-500' />
+                    <CardTitle className='text-card-foreground text-sm font-medium'>{t('alerts.title')}</CardTitle>
+                  </div>
+                  <Switch
+                    id='alerts-enabled'
+                    checked={alertsEnabled}
+                    onCheckedChange={setAlertsEnabled}
+                    disabled={isPending}
+                  />
+                </div>
+                <CardDescription className='text-muted-foreground text-xs'>
+                  {t('alerts.description')}
+                </CardDescription>
+              </CardHeader>
+
+              {alertsEnabled && (
+                <CardContent className='space-y-5 px-4 pt-4'>
+                  {/* Email Recipients */}
+                  <div className='space-y-3'>
+                    <div className='space-y-0.5'>
+                      <Label className='text-sm font-medium'>{t('alerts.recipients')}</Label>
+                      <p className='text-muted-foreground text-xs'>{t('alerts.recipientsDescription')}</p>
+                    </div>
+                    <div className='space-y-2'>
+                      {alertEmails.length > 0 && (
+                        <div className='flex flex-wrap gap-2'>
+                          {alertEmails.map((email) => (
+                            <Badge
+                              key={email}
+                              variant='secondary'
+                              className='inline-flex items-center gap-1.5 py-1 pr-1.5 pl-2.5'
+                            >
+                              <Mail className='h-3 w-3' />
+                              <span className='max-w-[200px] truncate text-xs'>{email}</span>
+                              <button
+                                type='button'
+                                onClick={() => removeAlertEmail(email)}
+                                disabled={isPending}
+                                className='hover:bg-muted ml-0.5 cursor-pointer rounded p-0.5 transition-colors'
+                              >
+                                <X className='h-3 w-3' />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <div className='flex items-center gap-2'>
+                        <Input
+                          type='email'
+                          placeholder={t('alerts.emailPlaceholder')}
+                          value={alertEmailInput}
+                          onChange={(e) => setAlertEmailInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddAlertEmail();
+                            }
+                          }}
+                          disabled={isPending}
+                          className='flex-1'
+                        />
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='sm'
+                          onClick={handleAddAlertEmail}
+                          disabled={isPending || !alertEmailInput.trim()}
+                          className='cursor-pointer'
+                        >
+                          <Plus className='mr-1 h-4 w-4' />
+                          {t('alerts.addEmail')}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Alert Triggers */}
+                  <div className='space-y-4'>
+                    <Label className='text-sm font-medium'>{t('alerts.triggers')}</Label>
+
+                    <div className='flex items-center justify-between'>
+                      <div className='space-y-0.5'>
+                        <Label htmlFor='alert-on-down' className='text-sm font-medium'>
+                          {t('alerts.onDown')}
+                        </Label>
+                        <p className='text-muted-foreground text-xs'>{t('alerts.onDownDescription')}</p>
+                      </div>
+                      <Switch
+                        id='alert-on-down'
+                        checked={alertOnDown}
+                        onCheckedChange={setAlertOnDown}
+                        disabled={isPending}
+                      />
+                    </div>
+
+                    {alertOnDown && (
+                      <div className='bg-muted/50 ml-4 space-y-2 rounded-md border p-3'>
+                        <Label htmlFor='failure-threshold' className='text-xs font-medium'>
+                          {t('alerts.failureThreshold')}
+                        </Label>
+                        <p className='text-muted-foreground text-xs'>{t('alerts.failureThresholdDescription')}</p>
+                        <div className='flex items-center gap-3'>
+                          <Slider
+                            id='failure-threshold'
+                            value={[failureThreshold]}
+                            min={1}
+                            max={10}
+                            step={1}
+                            onValueChange={([val]) => setFailureThreshold(val)}
+                            disabled={isPending}
+                            className='[&>span:first-child]:bg-muted [&_[role=slider]]:border-primary [&_[role=slider]]:bg-card flex-1 [&_[role=slider]]:shadow-md'
+                          />
+                          <span className='text-muted-foreground w-16 text-right text-sm font-medium'>
+                            {t('alerts.failureCount', { count: failureThreshold })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <Separator />
+
+                    <div className='flex items-center justify-between'>
+                      <div className='space-y-0.5'>
+                        <Label htmlFor='alert-on-recovery' className='text-sm font-medium'>
+                          {t('alerts.onRecovery')}
+                        </Label>
+                        <p className='text-muted-foreground text-xs'>{t('alerts.onRecoveryDescription')}</p>
+                      </div>
+                      <Switch
+                        id='alert-on-recovery'
+                        checked={alertOnRecovery}
+                        onCheckedChange={setAlertOnRecovery}
+                        disabled={isPending}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <div className='flex items-center justify-between'>
+                      <div className='space-y-0.5'>
+                        <Label htmlFor='alert-on-ssl-expiry' className='text-sm font-medium'>
+                          {t('alerts.onSslExpiry')}
+                        </Label>
+                        <p className='text-muted-foreground text-xs'>{t('alerts.onSslExpiryDescription')}</p>
+                      </div>
+                      <Switch
+                        id='alert-on-ssl-expiry'
+                        checked={alertOnSslExpiry}
+                        onCheckedChange={setAlertOnSslExpiry}
+                        disabled={isPending}
+                      />
+                    </div>
+
+                    {alertOnSslExpiry && (
+                      <div className='bg-muted/50 ml-4 space-y-2 rounded-md border p-3'>
+                        <Label htmlFor='ssl-expiry-days' className='text-xs font-medium'>
+                          {t('alerts.sslExpiryDays')}
+                        </Label>
+                        <p className='text-muted-foreground text-xs'>{t('alerts.sslExpiryDaysDescription')}</p>
+                        <div className='flex items-center gap-3'>
+                          <Slider
+                            id='ssl-expiry-days'
+                            value={[sslExpiryAlertDays]}
+                            min={1}
+                            max={90}
+                            step={1}
+                            onValueChange={([val]) => setSslExpiryAlertDays(val)}
+                            disabled={isPending}
+                            className='[&>span:first-child]:bg-muted [&_[role=slider]]:border-primary [&_[role=slider]]:bg-card flex-1 [&_[role=slider]]:shadow-md'
+                          />
+                          <span className='text-muted-foreground w-20 text-right text-sm font-medium'>
+                            {t('alerts.daysCount', { count: sslExpiryAlertDays })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              )}
             </Card>
 
             <Collapsible defaultOpen={false} className='group/advanced'>

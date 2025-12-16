@@ -13,7 +13,7 @@ pub use backoff::{BackoffController, BackoffPolicy};
 pub use cache::{MonitorCache, RefreshConfig as MonitorCacheConfig};
 pub use models::{
     AlertConfig, BackoffReason, BackoffSnapshot, HttpMethod, MonitorCheck, MonitorResultRow,
-    MonitorStatus, ProbeOutcome, ReasonCode, RequestHeader,
+    MonitorStatus, ProbeOutcome, ReasonCode, RequestHeader, StatusCodeValue,
 };
 pub use probe::MonitorProbe;
 pub use repository::{MonitorCheckDataSource, MonitorRepository};

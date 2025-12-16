@@ -1352,6 +1352,33 @@
       }
     }
   },
+  "monitoringEditDialog": {
+    "success": "Monitor updated",
+    "error": "Unable to update monitor, please try again.",
+    "alerts": {
+      "title": "Alerts",
+      "description": "Get notified when your monitor goes down, recovers, or when SSL certificates are expiring.",
+      "recipients": "Email recipients",
+      "recipientsDescription": "Add email addresses to receive alert notifications.",
+      "emailPlaceholder": "email@example.com",
+      "addEmail": "Add",
+      "invalidEmail": "Please enter a valid email address",
+      "emailExists": "This email is already added",
+      "triggers": "Alert triggers",
+      "onDown": "Alert on down",
+      "onDownDescription": "Send an alert when the monitor goes down",
+      "onRecovery": "Alert on recovery",
+      "onRecoveryDescription": "Send an alert when the monitor recovers from being down",
+      "onSslExpiry": "Alert on SSL expiry",
+      "onSslExpiryDescription": "Send an alert when the SSL certificate is about to expire",
+      "failureThreshold": "Failure threshold",
+      "failureThresholdDescription": "Number of consecutive failures before sending an alert",
+      "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
+      "sslExpiryDays": "Days before expiry",
+      "sslExpiryDaysDescription": "Send an alert this many days before the SSL certificate expires",
+      "daysCount": "{count, plural, one {{count} day} other {{count} days}}"
+    }
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",

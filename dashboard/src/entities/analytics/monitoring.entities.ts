@@ -74,6 +74,14 @@ export const MonitorCheckSchema = z.object({
   acceptedStatusCodes: z.array(StatusCodeValueSchema),
   createdAt: z.date(),
   updatedAt: z.date(),
+  // Alert configuration
+  alertsEnabled: z.boolean(),
+  alertEmails: z.array(z.string().email()),
+  alertOnDown: z.boolean(),
+  alertOnRecovery: z.boolean(),
+  alertOnSslExpiry: z.boolean(),
+  sslExpiryAlertDays: z.number().int().min(1).max(90),
+  failureThreshold: z.number().int().min(1).max(10),
 });
 
 export const MonitorCheckCreateSchema = z.object({
@@ -88,6 +96,14 @@ export const MonitorCheckCreateSchema = z.object({
   httpMethod: HttpMethodSchema.default('HEAD'),
   requestHeaders: z.array(RequestHeaderSchema).nullable().default(null),
   acceptedStatusCodes: z.array(StatusCodeValueSchema).default(['2xx']),
+  // Alert configuration with defaults
+  alertsEnabled: z.boolean().default(true),
+  alertEmails: z.array(z.string().email()).default([]),
+  alertOnDown: z.boolean().default(true),
+  alertOnRecovery: z.boolean().default(true),
+  alertOnSslExpiry: z.boolean().default(true),
+  sslExpiryAlertDays: z.number().int().min(1).max(90).default(14),
+  failureThreshold: z.number().int().min(1).max(10).default(3),
 });
 
 export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({
@@ -104,6 +120,13 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.extend({
   httpMethod: true,
   requestHeaders: true,
   acceptedStatusCodes: true,
+  alertsEnabled: true,
+  alertEmails: true,
+  alertOnDown: true,
+  alertOnRecovery: true,
+  alertOnSslExpiry: true,
+  sslExpiryAlertDays: true,
+  failureThreshold: true,
 });
 
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;

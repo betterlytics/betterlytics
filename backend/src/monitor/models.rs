@@ -1,9 +1,46 @@
 use chrono::{DateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::net::Ipv6Addr;
 use std::time::Duration;
 use url::Url;
+
+/// Represents an accepted status code - either a specific code (200) or a range ("2xx")
+#[derive(Clone, Debug, Deserialize)]
+#[serde(untagged)]
+pub enum StatusCodeValue {
+    Specific(i32),
+    Range(String),
+}
+
+impl StatusCodeValue {
+    /// Check if a given status code matches this value
+    pub fn matches(&self, code: u16) -> bool {
+        match self {
+            StatusCodeValue::Specific(specific) => *specific == code as i32,
+            StatusCodeValue::Range(range) => {
+                // Parse ranges like "2xx", "3xx", "4xx", "5xx"
+                if range.len() == 3 && range.ends_with("xx") {
+                    if let Some(prefix) = range.chars().next().and_then(|c| c.to_digit(10)) {
+                        let range_start = (prefix * 100) as u16;
+                        let range_end = range_start + 99;
+                        return code >= range_start && code <= range_end;
+                    }
+                }
+                false
+            }
+        }
+    }
+}
+
+/// Check if a status code is accepted by any of the configured values
+pub fn is_status_code_accepted(code: u16, accepted: &[StatusCodeValue]) -> bool {
+    // If no codes configured, default to accepting 2xx
+    if accepted.is_empty() {
+        return (200..300).contains(&code);
+    }
+    accepted.iter().any(|v| v.matches(code))
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ReasonCode {
@@ -113,7 +150,7 @@ pub struct MonitorCheck {
     pub updated_at: DateTime<Utc>,
     pub http_method: HttpMethod,
     pub request_headers: Vec<RequestHeader>,
-    pub accepted_status_codes: Vec<i32>,
+    pub accepted_status_codes: Vec<StatusCodeValue>,
     pub check_ssl_errors: bool,
     /// Alert configuration for this monitor
     pub alert: AlertConfig,
