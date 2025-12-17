@@ -179,6 +179,8 @@ impl MonitorCache {
     async fn partial_refresh_loop(this: Arc<Self>) {
         let mut ticker = interval(this.refresh_config.partial_refresh_interval);
         ticker.set_missed_tick_behavior(MissedTickBehavior::Skip);
+        // Wait one full interval before the first partial refresh; initial data load is handled during initialization.
+        ticker.tick().await;
         loop {
             ticker.tick().await;
             if let Err(err) = this.perform_partial_refresh().await {
@@ -190,6 +192,8 @@ impl MonitorCache {
     async fn full_refresh_loop(this: Arc<Self>) {
         let mut ticker = interval(this.refresh_config.full_refresh_interval);
         ticker.set_missed_tick_behavior(MissedTickBehavior::Skip);
+        // Wait one full interval before the first partial refresh; initial data load is handled during initialization.
+        ticker.tick().await;
         loop {
             ticker.tick().await;
             if let Err(err) = this.perform_full_refresh().await {
