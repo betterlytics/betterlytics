@@ -276,7 +276,7 @@ enum MonitorAlertType {
 }
 
 model MonitorAlertHistory {
-  id              String            @id @default(cuid())
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   monitorCheck    MonitorCheck      @relation(fields: [monitorCheckId], references: [id], onDelete: Cascade)
   monitorCheckId  String
   

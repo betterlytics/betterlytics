@@ -12,6 +12,7 @@ use std::sync::Arc;
 use chrono::{DateTime, Duration, Utc};
 use dashmap::DashMap;
 use tracing::{debug, error, info, warn};
+use uuid::Uuid;
 
 use super::email::{EmailService, EmailServiceConfig};
 use super::history::{AlertHistoryRecord, AlertHistoryWriter};
@@ -19,7 +20,7 @@ use super::tracker::{AlertTracker, AlertTrackerConfig, AlertType, IncidentEvent,
 use crate::monitor::{
     IncidentStore, MonitorCheck, MonitorIncidentRow, MonitorStatus, ProbeOutcome,
 };
-use crate::monitor::incident_store::NotificationSnapshot;
+use crate::monitor::incident_store::{IncidentSeed, NotificationSnapshot};
 use serde_json::json;
 
 /// Context for processing an alert
@@ -67,7 +68,7 @@ pub struct AlertServiceConfig {
     pub enabled: bool,
     pub tracker_config: AlertTrackerConfig,
     pub email_config: Option<EmailServiceConfig>,
-    pub notification_cooldowns: NotificationCooldowns,
+    pub ssl_cooldown: Duration,
 }
 
 impl Default for AlertServiceConfig {
@@ -76,24 +77,7 @@ impl Default for AlertServiceConfig {
             enabled: true,
             tracker_config: AlertTrackerConfig::default(),
             email_config: EmailServiceConfig::from_env(),
-            notification_cooldowns: NotificationCooldowns::default(),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct NotificationCooldowns {
-    pub down: Duration,
-    pub flap: Duration,
-    pub ssl: Duration,
-}
-
-impl Default for NotificationCooldowns {
-    fn default() -> Self {
-        Self {
-            down: Duration::hours(1),
-            flap: Duration::hours(1),
-            ssl: Duration::hours(24),
+            ssl_cooldown: Duration::hours(24),
         }
     }
 }
@@ -101,8 +85,13 @@ impl Default for NotificationCooldowns {
 #[derive(Clone, Debug, Default)]
 struct NotificationTimestamps {
     last_down: Option<DateTime<Utc>>,
+    last_down_incident: Option<Uuid>,
+    last_down_seeded: bool,
     last_recovery: Option<DateTime<Utc>>,
+    last_recovery_incident: Option<Uuid>,
     last_flap: Option<DateTime<Utc>>,
+    last_flap_incident: Option<Uuid>,
+    last_flap_seeded: bool,
     last_ssl: Option<DateTime<Utc>>,
 }
 
@@ -113,7 +102,7 @@ pub struct AlertService {
     history_writer: Option<AlertHistoryWriter>,
     enabled: bool,
     notification_state: DashMap<String, NotificationTimestamps>,
-    notification_cooldowns: NotificationCooldowns,
+    ssl_cooldown: Duration,
     incident_store: Option<Arc<IncidentStore>>,
 }
 
@@ -137,15 +126,18 @@ impl AlertService {
 
         let tracker = AlertTracker::new(config.tracker_config);
 
-        // Warm the tracker from alert history to prevent re-alerting on restart
-        if let Some(ref writer) = history_writer {
-            match writer.fetch_latest_alert_states().await {
-                Ok(states) => {
-                    tracker.warm_from_history(states).await;
+        let notification_state = DashMap::new();
+        if let Some(store_ref) = incident_store.as_ref() {
+            match store_ref.load_active_incidents().await {
+                Ok(seeds) => {
+                    tracker.warm_from_incidents(&seeds).await;
+                    Self::hydrate_notification_state(&notification_state, &seeds);
                 }
-                Err(e) => {
-                    error!(error = ?e, "Failed to warm alert tracker from history");
-                    warn!("Alert tracker starting cold - may re-send alerts for monitors that were already down");
+                Err(err) => {
+                    error!(error = ?err, "Failed to warm alert tracker from incidents");
+                    warn!(
+                        "Alert tracker starting cold - may re-send alerts for monitors that were already down"
+                    );
                 }
             }
         }
@@ -155,8 +147,8 @@ impl AlertService {
             email_service,
             history_writer,
             enabled: config.enabled,
-            notification_state: DashMap::new(),
-            notification_cooldowns: config.notification_cooldowns,
+            notification_state,
+            ssl_cooldown: config.ssl_cooldown,
             incident_store,
         }
     }
@@ -225,10 +217,10 @@ impl AlertService {
         let (incident_id, is_flapping) = match event {
             Some(IncidentEvent::Opened { incident_id, is_flapping })
             | Some(IncidentEvent::Updated { incident_id, is_flapping }) => (incident_id, is_flapping),
-            Some(IncidentEvent::Flapping { incident_id: _ }) => {
+            Some(IncidentEvent::Flapping { incident_id }) => {
                 // Optional place to send a "flapping" notification; currently suppressed.
-                if self.should_notify_flap(&ctx.check.id).await {
-                    self.mark_notified_flap(&ctx.check.id).await;
+                if self.should_notify_flap(&ctx.check.id, incident_id).await {
+                    self.mark_notified_flap(&ctx.check.id, incident_id).await;
                 }
                 self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
                     .await;
@@ -241,13 +233,13 @@ impl AlertService {
             None => return,
         };
 
-        if is_flapping && !self.should_notify_flap(&ctx.check.id).await {
+        if is_flapping && !self.should_notify_flap(&ctx.check.id, incident_id).await {
             self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
                 .await;
             return;
         }
 
-        if !is_flapping && !self.should_notify_down(&ctx.check.id).await {
+        if !is_flapping && !self.should_notify_down(&ctx.check.id, incident_id).await {
             self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
                 .await;
             return;
@@ -260,7 +252,7 @@ impl AlertService {
                 check_id = %ctx.check.id,
                 "No recipients configured for down alert"
             );
-            self.mark_notified_down(&ctx.check.id).await;
+            self.mark_notified_down(&ctx.check.id, incident_id).await;
             self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
                 .await;
             return;
@@ -269,7 +261,7 @@ impl AlertService {
         let result = self.send_down_alert(ctx, recipients).await;
 
         if result {
-            self.mark_notified_down(&ctx.check.id).await;
+            self.mark_notified_down(&ctx.check.id, incident_id).await;
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
@@ -309,14 +301,14 @@ impl AlertService {
         };
 
         if !alert_config.on_recovery {
-            self.mark_notified_recovery(&ctx.check.id).await;
+            self.mark_notified_recovery(&ctx.check.id, incident_id).await;
             return;
         }
 
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
-            self.mark_notified_recovery(&ctx.check.id).await;
+            self.mark_notified_recovery(&ctx.check.id, incident_id).await;
             self.persist_incident_snapshot(ctx, None, Some("recovered".to_string()))
                 .await;
             return;
@@ -327,7 +319,7 @@ impl AlertService {
             .await;
 
         if result {
-            self.mark_notified_recovery(&ctx.check.id).await;
+            self.mark_notified_recovery(&ctx.check.id, incident_id).await;
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
@@ -537,44 +529,46 @@ impl AlertService {
         }
     }
 
-    async fn should_notify_down(&self, check_id: &str) -> bool {
+    async fn should_notify_down(&self, check_id: &str, incident_id: Uuid) -> bool {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
             .or_default();
-        let now = Utc::now();
-        let allow = entry
-            .last_down
-            .map(|t| now.signed_duration_since(t) > self.notification_cooldowns.down)
-            .unwrap_or(true);
-        if allow {
-            entry.last_down = Some(now);
+        if entry.last_down_incident == Some(incident_id) {
+            return false;
         }
-        allow
+        if entry.last_down_seeded {
+            entry.last_down_seeded = false;
+            entry.last_down_incident = Some(incident_id);
+            return false;
+        }
+        true
     }
 
-    async fn should_notify_flap(&self, check_id: &str) -> bool {
+    async fn should_notify_flap(&self, check_id: &str, incident_id: Uuid) -> bool {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
             .or_default();
-        let now = Utc::now();
-        let allow = entry
-            .last_flap
-            .map(|t| now.signed_duration_since(t) > self.notification_cooldowns.flap)
-            .unwrap_or(true);
-        if allow {
-            entry.last_flap = Some(now);
+        if entry.last_flap_incident == Some(incident_id) {
+            return false;
         }
-        allow
+        if entry.last_flap_seeded {
+            entry.last_flap_seeded = false;
+            entry.last_flap_incident = Some(incident_id);
+            return false;
+        }
+        true
     }
 
-    async fn mark_notified_flap(&self, check_id: &str) {
+    async fn mark_notified_flap(&self, check_id: &str, incident_id: Uuid) {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
             .or_default();
         entry.last_flap = Some(Utc::now());
+        entry.last_flap_incident = Some(incident_id);
+        entry.last_flap_seeded = false;
     }
 
     async fn should_notify_ssl(&self, check_id: &str) -> bool {
@@ -585,7 +579,7 @@ impl AlertService {
         let now = Utc::now();
         let allow = entry
             .last_ssl
-            .map(|t| now.signed_duration_since(t) > self.notification_cooldowns.ssl)
+            .map(|t| now.signed_duration_since(t) > self.ssl_cooldown)
             .unwrap_or(true);
         if allow {
             entry.last_ssl = Some(now);
@@ -593,20 +587,23 @@ impl AlertService {
         allow
     }
 
-    async fn mark_notified_down(&self, check_id: &str) {
+    async fn mark_notified_down(&self, check_id: &str, incident_id: Uuid) {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
             .or_default();
         entry.last_down = Some(Utc::now());
+        entry.last_down_incident = Some(incident_id);
+        entry.last_down_seeded = false;
     }
 
-    async fn mark_notified_recovery(&self, check_id: &str) {
+    async fn mark_notified_recovery(&self, check_id: &str, incident_id: Uuid) {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
             .or_default();
         entry.last_recovery = Some(Utc::now());
+        entry.last_recovery_incident = Some(incident_id);
     }
 
     async fn mark_notified_ssl(&self, check_id: &str) {
@@ -673,5 +670,31 @@ impl AlertService {
             return err.clone();
         }
         ctx.status.as_str().to_string()
+    }
+
+    fn hydrate_notification_state(
+        state: &DashMap<String, NotificationTimestamps>,
+        seeds: &[IncidentSeed],
+    ) {
+        for seed in seeds {
+            let mut entry = state.entry(seed.check_id.clone()).or_default();
+
+            if let Some(ts) = seed.notified_down_at {
+                entry.last_down = Some(ts);
+                entry.last_down_incident = Some(seed.incident_id);
+                entry.last_down_seeded = true;
+            }
+
+            if let Some(ts) = seed.notified_flap_at {
+                entry.last_flap = Some(ts);
+                entry.last_flap_incident = Some(seed.incident_id);
+                entry.last_flap_seeded = true;
+            }
+
+            if let Some(ts) = seed.notified_resolve_at {
+                entry.last_recovery = Some(ts);
+                entry.last_recovery_incident = Some(seed.incident_id);
+            }
+        }
     }
 }

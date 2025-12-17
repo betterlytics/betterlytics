@@ -3,10 +3,11 @@ use std::collections::{HashMap, VecDeque};
 use tokio::sync::RwLock;
 use tracing::{error, info};
 use uuid::Uuid;
+use serde_repr::{Serialize_repr, Deserialize_repr};
 
 use crate::monitor::MonitorStatus;
 
-use super::history::LatestAlertState;
+use crate::monitor::incident_store::IncidentSeed;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AlertType {
@@ -27,20 +28,22 @@ impl AlertType {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
+#[repr(i8)]
 pub enum IncidentState {
-    Open,
-    Resolved,
-    Flapping,
-    Muted,
+    Open = 1,
+    Resolved = 2,
+    Flapping = 3,
+    Muted = 4,
 }
 
 #[allow(dead_code)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
+#[repr(i8)]
 pub enum IncidentSeverity {
-    Info,
-    Warning,
-    Critical,
+    Info = 1,
+    Warning = 2,
+    Critical = 3,
 }
 
 #[derive(Clone, Debug)]
@@ -355,46 +358,36 @@ impl AlertTracker {
         states.retain(|id, _| active_ids.contains(id));
     }
 
-    /// Warm the tracker from historical alert data
-    ///
-    /// This should be called on startup to restore state from the database,
-    /// preventing re-alerting for monitors that were already down before restart.
-    pub async fn warm_from_history(&self, latest_states: HashMap<String, LatestAlertState>) {
-        let mut states = self.states.write().await;
-        let mut down_count = 0;
-        let mut ssl_count = 0;
+    /// Warm the tracker from active incident snapshots
+    pub async fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
+        if seeds.is_empty() {
+            return;
+        }
 
-        for (monitor_id, latest) in latest_states {
-            match latest.last_alert_type {
-                AlertType::Down => {
-                    // Monitor was last alerted as down - mark it as down
-                    // so we don't re-alert until it recovers
-                    // TODO: when incidents are persisted, load the real incident_id to maintain continuity.
-                    let state = states.entry(monitor_id).or_default();
-                    state.is_down = true;
-                    state.state = IncidentState::Open;
-                    state.down_since = Some(latest.last_alert_at);
-                    state.last_event_at = Some(latest.last_alert_at);
-                    state.incident_id = Some(Uuid::new_v4());
-                    down_count += 1;
-                }
-                AlertType::Recovery => {
-                    // Monitor recovered - no special state needed
-                    // (default state is "not down")
-                }
-                AlertType::SslExpiring | AlertType::SslExpired => {
-                    // Restore SSL alert state to respect cooldowns
-                    let state = states.entry(monitor_id).or_default();
-                    state.last_ssl_days_left = latest.ssl_days_left;
-                    ssl_count += 1;
-                }
-            }
+        let mut states = self.states.write().await;
+        let mut warm_count = 0;
+
+        for seed in seeds {
+            let state = states.entry(seed.check_id.clone()).or_default();
+            state.incident_id = Some(seed.incident_id);
+            state.state = seed.state;
+            state.severity = seed.severity;
+            state.started_at = Some(seed.started_at);
+            state.last_event_at = Some(seed.last_event_at);
+            state.resolved_at = seed.resolved_at;
+            state.failure_count = seed.failure_count;
+            state.flap_count = seed.flap_count;
+            state.last_status = seed.last_status;
+            state.is_down = matches!(seed.state, IncidentState::Open | IncidentState::Flapping);
+            state.down_since = Some(seed.started_at);
+            state.consecutive_failures = seed.failure_count;
+            state.consecutive_successes = 0;
+            warm_count += 1;
         }
 
         info!(
-            down_monitors = down_count,
-            ssl_alerted = ssl_count,
-            "Alert tracker warmed from history"
+            down_monitors = warm_count,
+            "Alert tracker warmed from incident snapshots"
         );
     }
 
