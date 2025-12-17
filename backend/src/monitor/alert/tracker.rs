@@ -222,11 +222,18 @@ impl AlertTracker {
 
         let was_flapping = matches!(state.state, IncidentState::Flapping);
         let was_open = matches!(state.state, IncidentState::Open | IncidentState::Flapping);
+        let was_resolved = matches!(state.state, IncidentState::Resolved);
         let is_flapping = Self::is_flapping(state, now, self.config);
 
-        // Start or continue an incident
-        if state.incident_id.is_none() {
+        // Start a new incident if there was no previous one OR the prior one
+        // has been fully resolved. This guarantees that once an incident is
+        // resolved, a future outage creates a new incident_id.
+        if was_resolved || state.incident_id.is_none() {
             state.incident_id = Some(Uuid::new_v4());
+            state.started_at = None;
+            state.resolved_at = None;
+            state.failure_count = 0;
+            state.flap_count = 0;
         }
 
         state.state = if is_flapping {
