@@ -1,11 +1,12 @@
-//! Alert service - orchestrates alert detection and delivery
+//! Alert service - orchestrates incident evaluation, notifications, and history
 //!
 //! This is the main entry point for the alerting system. It coordinates:
-//! - State tracking to prevent duplicate alerts
-//! - Email delivery
-//! - Alert history recording
+//! - Using `AlertTracker` to maintain per-monitor incident state and derive events
+//! - Per-recipient notification deduping and cooldowns
+//! - Email delivery (when configured)
+//! - Alert history recording and persistence of incident snapshots
 //!
-//! Alert configuration is embedded in MonitorCheck, so no separate config cache is needed.
+//! Alert configuration is embedded in `MonitorCheck`, so no separate config cache is needed.
 
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -158,14 +159,32 @@ impl AlertService {
     /// This is the main entry point called after each probe completes.
     pub async fn process_probe_outcome(&self, ctx: &AlertContext) {
         if !self.enabled {
+            debug!(
+                check_id = %ctx.check.id,
+                status = ?ctx.status,
+                "alert service globally disabled; skipping probe outcome"
+            );
             return;
         }
 
         let alert_config = &ctx.check.alert;
 
         if !alert_config.enabled {
+            debug!(
+                check_id = %ctx.check.id,
+                status = ?ctx.status,
+                "alerts disabled for this monitor; skipping probe outcome"
+            );
             return;
         }
+
+        debug!(
+            check_id = %ctx.check.id,
+            monitor = %ctx.monitor_name(),
+            status = ?ctx.status,
+            consecutive_failures = ctx.consecutive_failures,
+            "processing probe outcome for alerting"
+        );
 
         // Check for different alert conditions
         match ctx.status {
@@ -184,6 +203,11 @@ impl AlertService {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.enabled || !alert_config.on_ssl_expiry {
+            debug!(
+                check_id = %ctx.check.id,
+                tls_days_left = ctx.tls_days_left,
+                "SSL alerts disabled for this monitor; skipping TLS probe outcome"
+            );
             return;
         }
 
@@ -196,6 +220,12 @@ impl AlertService {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_down {
+            debug!(
+                check_id = %ctx.check.id,
+                consecutive_failures = ctx.consecutive_failures,
+                failure_threshold = alert_config.failure_threshold,
+                "down alerts disabled for this monitor; skipping"
+            );
             return;
         }
 
@@ -209,20 +239,47 @@ impl AlertService {
             )
             .await;
 
+        if event.is_none() {
+            debug!(
+                check_id = %ctx.check.id,
+                consecutive_failures = ctx.consecutive_failures,
+                failure_threshold = alert_config.failure_threshold,
+                "no incident event from tracker (likely below failure threshold or stable state)"
+            );
+        }
+
         let (incident_id, is_flapping) = match event {
             Some(IncidentEvent::Opened { incident_id, is_flapping })
-            | Some(IncidentEvent::Updated { incident_id, is_flapping }) => (incident_id, is_flapping),
+            | Some(IncidentEvent::Updated { incident_id, is_flapping }) => {
+                debug!(
+                    check_id = %ctx.check.id,
+                    incident_id = %incident_id,
+                    is_flapping,
+                    consecutive_failures = ctx.consecutive_failures,
+                    "incident is open/updated after failure evaluation"
+                );
+                (incident_id, is_flapping)
+            }
             Some(IncidentEvent::Flapping { incident_id }) => {
                 // Optional place to send a "flapping" notification; currently suppressed.
                 if self.should_notify_flap(&ctx.check.id, incident_id).await {
                     self.mark_notified_flap(&ctx.check.id, incident_id).await;
                 }
+                debug!(
+                    check_id = %ctx.check.id,
+                    incident_id = %incident_id,
+                    "monitor marked flapping; persisting snapshot without user notification"
+                );
                 self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
                     .await;
                 return;
             }
             Some(IncidentEvent::Resolved { .. }) => {
                 // Should not happen on failure path; ignore defensively.
+                debug!(
+                    check_id = %ctx.check.id,
+                    "received unexpected Resolved incident event on failure path; ignoring"
+                );
                 return;
             }
             None => return,
@@ -290,12 +347,25 @@ impl AlertService {
             .evaluate_recovery(&ctx.check.id, ctx.status)
             .await;
 
+        if !matches!(event, Some(IncidentEvent::Resolved { .. })) {
+            debug!(
+                check_id = %ctx.check.id,
+                status = ?ctx.status,
+                "no recovery event from tracker yet; incident remains open"
+            );
+        }
+
         let (incident_id, downtime_duration) = match event {
             Some(IncidentEvent::Resolved { incident_id, downtime_duration }) => (incident_id, downtime_duration),
             _ => return,
         };
 
         if !alert_config.on_recovery {
+            debug!(
+                check_id = %ctx.check.id,
+                incident_id = %incident_id,
+                "recovery alerts disabled for this monitor; marking as notified without email"
+            );
             self.mark_notified_recovery(&ctx.check.id, incident_id).await;
             return;
         }
@@ -303,6 +373,11 @@ impl AlertService {
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
+            debug!(
+                check_id = %ctx.check.id,
+                incident_id = %incident_id,
+                "no recipients configured for recovery alert; marking as notified only"
+            );
             self.mark_notified_recovery(&ctx.check.id, incident_id).await;
             self.persist_incident_snapshot(ctx, None, Some("recovered".to_string()))
                 .await;
@@ -344,6 +419,11 @@ impl AlertService {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_ssl_expiry {
+            debug!(
+                check_id = %ctx.check.id,
+                days_left = days_left,
+                "SSL expiry alerts disabled for this monitor; skipping"
+            );
             return;
         }
 
@@ -352,6 +432,15 @@ impl AlertService {
             .should_alert_ssl_expiry(&ctx.check.id, days_left, alert_config.ssl_expiry_days)
             .await;
 
+        if event.is_none() {
+            debug!(
+                check_id = %ctx.check.id,
+                days_left = days_left,
+                threshold_days = alert_config.ssl_expiry_days,
+                "tracker decided not to emit SSL incident event (likely above threshold or insignificant change)"
+            );
+        }
+
         let (alert_type, incident_id) = match event {
             Some(SslEvent::Expired { incident_id }) => (AlertType::SslExpired, incident_id),
             Some(SslEvent::Expiring { incident_id }) => (AlertType::SslExpiring, incident_id),
@@ -359,12 +448,22 @@ impl AlertService {
         };
 
         if !self.should_notify_ssl(&ctx.check.id).await {
+            debug!(
+                check_id = %ctx.check.id,
+                days_left = days_left,
+                "SSL cooldown active; not sending SSL alert"
+            );
             return;
         }
 
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
+            debug!(
+                check_id = %ctx.check.id,
+                incident_id = %incident_id,
+                "no recipients configured for SSL alert; marking as notified only"
+            );
             self.mark_notified_ssl(&ctx.check.id).await;
             return;
         }
@@ -530,13 +629,28 @@ impl AlertService {
             .entry(check_id.to_string())
             .or_default();
         if entry.last_down_incident == Some(incident_id) {
+            debug!(
+                check_id = check_id,
+                incident_id = %incident_id,
+                "not sending down alert: already notified for this incident"
+            );
             return false;
         }
         if entry.last_down_seeded {
             entry.last_down_seeded = false;
             entry.last_down_incident = Some(incident_id);
+            debug!(
+                check_id = check_id,
+                incident_id = %incident_id,
+                "not sending down alert: seeded from existing incident history"
+            );
             return false;
         }
+        debug!(
+            check_id = check_id,
+            incident_id = %incident_id,
+            "allowing down alert notification"
+        );
         true
     }
 
@@ -546,13 +660,28 @@ impl AlertService {
             .entry(check_id.to_string())
             .or_default();
         if entry.last_flap_incident == Some(incident_id) {
+            debug!(
+                check_id = check_id,
+                incident_id = %incident_id,
+                "not sending flap alert: already notified for this incident"
+            );
             return false;
         }
         if entry.last_flap_seeded {
             entry.last_flap_seeded = false;
             entry.last_flap_incident = Some(incident_id);
+            debug!(
+                check_id = check_id,
+                incident_id = %incident_id,
+                "not sending flap alert: seeded from existing incident history"
+            );
             return false;
         }
+        debug!(
+            check_id = check_id,
+            incident_id = %incident_id,
+            "allowing flap alert notification"
+        );
         true
     }
 
@@ -577,7 +706,20 @@ impl AlertService {
             .map(|t| now.signed_duration_since(t) > self.ssl_cooldown)
             .unwrap_or(true);
         if allow {
+            debug!(
+                check_id = check_id,
+                last_ssl_at = ?entry.last_ssl,
+                ssl_cooldown = ?self.ssl_cooldown,
+                "allowing SSL alert notification"
+            );
             entry.last_ssl = Some(now);
+        } else {
+            debug!(
+                check_id = check_id,
+                last_ssl_at = ?entry.last_ssl,
+                ssl_cooldown = ?self.ssl_cooldown,
+                "not sending SSL alert: cooldown not yet elapsed"
+            );
         }
         allow
     }

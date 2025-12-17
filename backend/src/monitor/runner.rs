@@ -7,7 +7,7 @@ use rand::Rng;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 use tokio::time::{Instant, MissedTickBehavior, interval};
-use tracing::{info, warn};
+use tracing::{debug, info, warn};
 
 use crate::metrics::MetricsCollector;
 use crate::monitor::alert::{AlertContext, AlertService};
@@ -440,10 +440,25 @@ async fn run_loop<S, FProbe, FRow>(
 
         let mut collected: Vec<MonitorResultRow> = Vec::new();
         while let Some(res) = set.join_next().await {
-            if let Ok(Some((check, outcome, finished_at, _pre_snapshot))) = res {
+            if let Ok(Some((check, outcome, finished_at, pre_snapshot))) = res {
                 last_run.insert(check.id.clone(), finished_at);
                 let post_snapshot = scheduler.apply_outcome(&check, &outcome, finished_at);
-                
+
+                debug!(
+                    runner = runner_name,
+                    check = %check.id,
+                    status = ?outcome.status,
+                    success = outcome.success,
+                    reason = %outcome.reason_code.as_str(),
+                    latency_ms = outcome.latency.as_millis() as u64,
+                    pre_failures = pre_snapshot.consecutive_failures,
+                    pre_successes = pre_snapshot.consecutive_successes,
+                    post_failures = post_snapshot.consecutive_failures,
+                    post_successes = post_snapshot.consecutive_successes,
+                    backoff_level = post_snapshot.backoff_level,
+                    "probe completed"
+                );
+
                 // Process alerts if alert service is configured
                 if let Some(ref alert_svc) = alert_service {
                     let alert_ctx = AlertContext::from_probe(
@@ -451,7 +466,7 @@ async fn run_loop<S, FProbe, FRow>(
                         &outcome,
                         post_snapshot.consecutive_failures,
                     );
-                    
+
                     if is_tls_runner {
                         // TLS runner only processes SSL alerts
                         alert_svc.process_tls_probe_outcome(&alert_ctx).await;
@@ -460,7 +475,7 @@ async fn run_loop<S, FProbe, FRow>(
                         alert_svc.process_probe_outcome(&alert_ctx).await;
                     }
                 }
-                
+
                 collected.push(build_row(&check, &outcome, &post_snapshot));
             }
         }

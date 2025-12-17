@@ -1,7 +1,11 @@
+//! Alert tracker - maintains per-monitor incident state and evaluates probe results
+//! into incident and SSL events. It does not send notifications directly; callers
+//! decide when and how to notify based on the emitted events.
+
 use chrono::{DateTime, Duration, Utc};
 use std::collections::{HashMap, VecDeque};
 use tokio::sync::RwLock;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 use uuid::Uuid;
 use serde_repr::{Serialize_repr, Deserialize_repr};
 
@@ -125,8 +129,8 @@ impl Default for AlertTrackerConfig {
             // Flapping: 4 transitions in 10 minutes
             flap_transition_threshold: 4,
             flap_window: Duration::minutes(10),
-            // One healthy check is enough to call it recovered (existing behavior)
-            recovery_success_threshold: 1,
+            // One healthy check is enough to call it recovered
+            recovery_success_threshold: 1, // TODO: Allow users to configure this as an advanced setting?
         }
     }
 }
@@ -196,9 +200,23 @@ impl AlertTracker {
         Self::track_transition(state, status, now, self.config);
         state.last_status = Some(status);
 
+        debug!(
+            check_id = check_id,
+            ?status,
+            consecutive_failures,
+            failure_threshold,
+            "evaluating failure for monitor"
+        );
+
         // Not past the alerting threshold yet
         if consecutive_failures < failure_threshold as u16 {
             state.consecutive_failures = consecutive_failures;
+            debug!(
+                check_id = check_id,
+                consecutive_failures,
+                failure_threshold,
+                "not opening/updating incident yet: below failure threshold"
+            );
             return None;
         }
 
@@ -267,12 +285,23 @@ impl AlertTracker {
 
         if !has_open_incident {
             state.consecutive_successes = state.consecutive_successes.saturating_add(1);
+            debug!(
+                check_id = check_id,
+                consecutive_successes = state.consecutive_successes,
+                "no open incident; counting success toward recovery threshold"
+            );
             return None;
         }
 
         // Require a configurable number of successes before recovery
         state.consecutive_successes = state.consecutive_successes.saturating_add(1);
         if state.consecutive_successes < self.config.recovery_success_threshold {
+            debug!(
+                check_id = check_id,
+                consecutive_successes = state.consecutive_successes,
+                recovery_success_threshold = self.config.recovery_success_threshold,
+                "keeping incident open: below recovery success threshold"
+            );
             return None;
         }
 
@@ -293,6 +322,13 @@ impl AlertTracker {
         state.failure_count = 0;
         state.consecutive_failures = 0;
 
+        debug!(
+            check_id = check_id,
+            incident_id = %incident_id,
+            ?downtime_duration,
+            "incident resolved after sufficient consecutive successes"
+        );
+
         Some(IncidentEvent::Resolved {
             incident_id,
             downtime_duration,
@@ -307,6 +343,12 @@ impl AlertTracker {
         alert_threshold_days: i32,
     ) -> Option<SslEvent> {
         if days_left > alert_threshold_days {
+            debug!(
+                check_id = check_id,
+                days_left,
+                alert_threshold_days,
+                "not emitting SSL event: above alert threshold"
+            );
             return None;
         }
 
@@ -315,10 +357,21 @@ impl AlertTracker {
         let should_alert = match states.get(check_id) {
             Some(state) => {
                 // Alert if days_left decreased significantly (crossed threshold)
-                state
+                let decision = state
                     .last_ssl_days_left
                     .map(|last| days_left < last && (last - days_left) >= 7)
-                    .unwrap_or(true)
+                    .unwrap_or(true);
+
+                if !decision {
+                    debug!(
+                        check_id = check_id,
+                        days_left,
+                        last_ssl_days_left = state.last_ssl_days_left,
+                        "not emitting SSL event: change in days_left below 7-day delta"
+                    );
+                }
+
+                decision
             }
             None => true,
         };
@@ -330,8 +383,20 @@ impl AlertTracker {
 
             let incident_id = Uuid::new_v4();
             if days_left <= 0 {
+                debug!(
+                    check_id = check_id,
+                    days_left,
+                    incident_id = %incident_id,
+                    "emitting SSL Expired event"
+                );
                 Some(SslEvent::Expired { incident_id })
             } else {
+                debug!(
+                    check_id = check_id,
+                    days_left,
+                    incident_id = %incident_id,
+                    "emitting SSL Expiring event"
+                );
                 Some(SslEvent::Expiring { incident_id })
             }
         } else {

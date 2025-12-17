@@ -54,8 +54,13 @@ use validation::{EventValidator, ValidationConfig};
 async fn main() {
     let config = Arc::new(config::Config::new());
 
+    let log_filter_spec = format!(
+        "{},tokio_postgres=info,hyper_util=info,rustls=info",
+        config.log_level
+    );
+
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(&config.log_level))
+        .with(tracing_subscriber::EnvFilter::new(log_filter_spec))
         .with(tracing_subscriber::fmt::layer())
         .init();
 

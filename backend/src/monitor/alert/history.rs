@@ -39,7 +39,6 @@ impl AlertHistoryWriter {
     pub async fn new(database_url: &str) -> Result<Self, AlertHistoryError> {
         let mut config = PgConfig::new();
         
-        // Parse the database URL
         let url = url::Url::parse(database_url)
             .map_err(|e| AlertHistoryError::InvalidDatabaseUrl(e.to_string()))?;
         
@@ -81,8 +80,6 @@ impl AlertHistoryWriter {
 
         let sent_at = Utc::now().naive_utc();
 
-        // Use query_typed to explicitly specify TEXT type for the enum string,
-        // allowing PostgreSQL to cast it to the enum type
         let stmt = conn
             .prepare_typed(
                 r#"
