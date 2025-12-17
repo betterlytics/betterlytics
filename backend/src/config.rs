@@ -27,6 +27,7 @@ pub struct Config {
     pub enable_uptime_monitoring: bool,
     pub monitor_database_url: Option<String>,
     pub monitor_clickhouse_table: String,
+    pub monitor_incidents_table: String,
     // Session replay configuration
     pub enable_session_replay: bool,
     // S3 session replay storage configuration
@@ -103,6 +104,8 @@ impl Config {
             monitor_database_url: env::var("MONITORING_DATABASE_URL").ok(),
             monitor_clickhouse_table: env::var("CLICKHOUSE_MONITOR_TABLE")
                 .unwrap_or_else(|_| "analytics.monitor_results".to_string()),
+            monitor_incidents_table: env::var("CLICKHOUSE_INCIDENT_TABLE")
+                .unwrap_or_else(|_| "analytics.monitor_incidents".to_string()),
             // Session replay configuration
             enable_session_replay: env::var("SESSION_REPLAYS_ENABLED")
                 .map(|val| val.to_lowercase() == "true")

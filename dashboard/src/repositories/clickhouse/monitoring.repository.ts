@@ -35,6 +35,20 @@ type LatestStatusRow = {
   backoff_level: number | null;
 };
 
+type LatestIncidentRow = {
+  check_id: string;
+  state: string;
+  severity: string;
+  last_status: string | null;
+  started_at: string | null;
+  last_event_at: string | null;
+  resolved_at: string | null;
+  failure_count: number | null;
+  flap_count: number | null;
+  open_reason_code: string | null;
+  close_reason_code: string | null;
+};
+
 export async function getMonitorMetrics(checkId: string, siteId: string): Promise<MonitorMetrics> {
   const [uptimeRow, lastRow, latencyRow, buckets, latencySeries] = await Promise.all([
     fetchUptime(checkId, siteId),
@@ -296,6 +310,86 @@ export async function getMonitorIncidentSegments(
       durationMs: computeDurationMs(row.start_ts, row.end_ts),
     }),
   );
+}
+
+export async function getLatestIncidentsForMonitors(
+  checkIds: string[],
+  siteId: string,
+): Promise<
+  Record<
+    string,
+    {
+      state: string;
+      severity: string;
+      lastStatus: string | null;
+      startedAt: string | null;
+      lastEventAt: string | null;
+      resolvedAt: string | null;
+      failureCount: number | null;
+      flapCount: number | null;
+      openReasonCode: string | null;
+      closeReasonCode: string | null;
+    }
+  >
+> {
+  if (!checkIds.length) return {};
+
+  const query = safeSql`
+    SELECT
+      check_id,
+      argMax(state, last_event_at) AS state,
+      argMax(severity, last_event_at) AS severity,
+      argMax(last_status, last_event_at) AS last_status,
+      argMax(started_at, last_event_at) AS started_at,
+      argMax(last_event_at, last_event_at) AS last_event_at,
+      argMax(resolved_at, last_event_at) AS resolved_at,
+      argMax(failure_count, last_event_at) AS failure_count,
+      argMax(flap_count, last_event_at) AS flap_count,
+      argMax(open_reason_code, last_event_at) AS open_reason_code,
+      argMax(close_reason_code, last_event_at) AS close_reason_code
+    FROM analytics.monitor_incidents
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+    GROUP BY check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
+    })
+    .toPromise()) as LatestIncidentRow[];
+
+  return rows.reduce<
+    Record<
+      string,
+      {
+        state: string;
+        severity: string;
+        lastStatus: string | null;
+        startedAt: string | null;
+        lastEventAt: string | null;
+        resolvedAt: string | null;
+        failureCount: number | null;
+        flapCount: number | null;
+        openReasonCode: string | null;
+        closeReasonCode: string | null;
+      }
+    >
+  >((acc, row) => {
+    acc[row.check_id] = {
+      state: row.state,
+      severity: row.severity,
+      lastStatus: row.last_status,
+      startedAt: toIsoUtc(row.started_at) ?? row.started_at,
+      lastEventAt: toIsoUtc(row.last_event_at) ?? row.last_event_at,
+      resolvedAt: toIsoUtc(row.resolved_at) ?? row.resolved_at,
+      failureCount: row.failure_count,
+      flapCount: row.flap_count,
+      openReasonCode: row.open_reason_code,
+      closeReasonCode: row.close_reason_code,
+    };
+    return acc;
+  }, {});
 }
 
 export async function getLatestStatusesForMonitors(

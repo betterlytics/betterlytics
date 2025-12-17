@@ -1,7 +1,10 @@
 use chrono::{DateTime, Duration, Utc};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use tokio::sync::RwLock;
-use tracing::info;
+use tracing::{error, info};
+use uuid::Uuid;
+
+use crate::monitor::MonitorStatus;
 
 use super::history::LatestAlertState;
 
@@ -24,67 +27,156 @@ impl AlertType {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IncidentState {
+    Open,
+    Resolved,
+    Flapping,
+    Muted,
+}
+
+#[allow(dead_code)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IncidentSeverity {
+    Info,
+    Warning,
+    Critical,
+}
+
 #[derive(Clone, Debug)]
 struct MonitorAlertState {
-    /// Whether the monitor is currently considered down
+    /// Lifecycle and identity for the current incident (if any)
+    incident_id: Option<Uuid>,
+    state: IncidentState,
+    severity: IncidentSeverity,
+    started_at: Option<DateTime<Utc>>,
+    last_event_at: Option<DateTime<Utc>>,
+    resolved_at: Option<DateTime<Utc>>,
+
+    /// Probe-derived state
     is_down: bool,
-    /// Timestamp when the monitor went down
     down_since: Option<DateTime<Utc>>,
-    /// Last time a down alert was sent
-    last_down_alert: Option<DateTime<Utc>>,
-    /// Last time a recovery alert was sent
-    last_recovery_alert: Option<DateTime<Utc>>,
-    /// Last time an SSL expiry alert was sent
+    last_status: Option<MonitorStatus>,
+
+    /// Notification timestamps
+    notified_down_at: Option<DateTime<Utc>>,
+    notified_recovery_at: Option<DateTime<Utc>>,
+    notified_flap_at: Option<DateTime<Utc>>,
+
+    /// SSL alert tracking
     last_ssl_alert: Option<DateTime<Utc>>,
-    /// Last known SSL days left (to avoid repeated alerts)
     last_ssl_days_left: Option<i32>,
-    /// Count of consecutive failures
+
+    /// Counters
     consecutive_failures: u16,
+    consecutive_successes: u16,
+    failure_count: u16,
+    flap_count: u16,
+
+    /// Rolling transition timestamps for flapping detection
+    transitions: VecDeque<DateTime<Utc>>,
+}
+
+#[derive(Clone, Debug)]
+pub struct IncidentSnapshot {
+    pub incident_id: Option<Uuid>,
+    pub state: IncidentState,
+    pub severity: IncidentSeverity,
+    pub started_at: Option<DateTime<Utc>>,
+    pub last_event_at: Option<DateTime<Utc>>,
+    pub resolved_at: Option<DateTime<Utc>>,
+    pub failure_count: u16,
+    pub flap_count: u16,
+    pub last_status: Option<MonitorStatus>,
 }
 
 impl Default for MonitorAlertState {
     fn default() -> Self {
         Self {
+            incident_id: None,
+            state: IncidentState::Resolved,
+            severity: IncidentSeverity::Warning,
+            started_at: None,
+            last_event_at: None,
+            resolved_at: None,
             is_down: false,
             down_since: None,
-            last_down_alert: None,
-            last_recovery_alert: None,
+            last_status: None,
+            notified_down_at: None,
+            notified_recovery_at: None,
+            notified_flap_at: None,
             last_ssl_alert: None,
             last_ssl_days_left: None,
             consecutive_failures: 0,
+            consecutive_successes: 0,
+            failure_count: 0,
+            flap_count: 0,
+            transitions: VecDeque::new(),
         }
     }
 }
 
-/// Configuration for the alert tracker
+/// Configuration for the alert tracker / incident evaluator
 #[derive(Clone, Copy, Debug)]
 pub struct AlertTrackerConfig {
-    /// Minimum time between repeated down alerts for the same monitor
-    pub down_alert_cooldown: Duration,
-    /// Minimum time between SSL expiry alerts
-    pub ssl_alert_cooldown: Duration,
+    /// How many state transitions within the window mark the monitor as flapping
+    pub flap_transition_threshold: usize,
+    /// Time window for flapping detection
+    pub flap_window: Duration,
+    /// Consecutive successes required to consider an incident recovered
+    pub recovery_success_threshold: u16,
 }
 
 impl Default for AlertTrackerConfig {
     fn default() -> Self {
         Self {
-            // Don't send repeated down alerts more than once per hour
-            down_alert_cooldown: Duration::hours(1),
-            // Don't send SSL alerts more than once per day
-            ssl_alert_cooldown: Duration::hours(24),
+            // Flapping: 4 transitions in 10 minutes
+            flap_transition_threshold: 4,
+            flap_window: Duration::minutes(10),
+            // One healthy check is enough to call it recovered (existing behavior)
+            recovery_success_threshold: 1,
         }
     }
 }
 
-/// Decision about whether to send an alert
+/// Incident lifecycle events emitted by the evaluator
 #[derive(Clone, Debug)]
-pub struct AlertDecision {
-    pub should_alert: bool,
-    pub alert_type: AlertType,
-    pub downtime_duration: Option<Duration>,
+pub enum IncidentEvent {
+    /// A new incident opened (possibly immediately marked flapping)
+    Opened {
+        incident_id: Uuid,
+        is_flapping: bool,
+    },
+    /// Ongoing incident got another failing signal (maybe flapping)
+    Updated {
+        incident_id: Uuid,
+        is_flapping: bool,
+    },
+    /// First transition into flapping mode for this incident
+    Flapping {
+        incident_id: Uuid,
+    },
+    /// Incident resolved
+    Resolved {
+        incident_id: Uuid,
+        downtime_duration: Option<Duration>,
+    },
 }
 
-/// Tracks alert state for all monitors
+/// SSL-specific events emitted by the evaluator
+#[derive(Clone, Debug)]
+pub enum SslEvent {
+    Expiring {
+        incident_id: Uuid,
+        days_left: i32,
+    },
+    Expired {
+        incident_id: Uuid,
+        days_left: i32,
+    },
+}
+
+/// Tracks incident state for all monitors and decides when to notify
 pub struct AlertTracker {
     states: RwLock<HashMap<String, MonitorAlertState>>,
     config: AlertTrackerConfig,
@@ -98,71 +190,123 @@ impl AlertTracker {
         }
     }
 
-    /// Check if a down alert should be sent
-    ///
-    /// Returns true if:
-    /// - The monitor wasn't already marked as down, OR
-    /// - The cooldown period has passed since the last down alert
-    pub async fn should_alert_down(
+    /// Evaluate a failing probe. Opens/updates an incident and returns
+    /// whether we should notify about the down state.
+    pub async fn evaluate_failure(
         &self,
         check_id: &str,
+        status: MonitorStatus,
         consecutive_failures: u16,
         failure_threshold: i32,
-    ) -> AlertDecision {
-        if consecutive_failures < failure_threshold as u16 {
-            return AlertDecision {
-                should_alert: false,
-                alert_type: AlertType::Down,
-                downtime_duration: None,
-            };
-        }
-
-        let states = self.states.read().await;
+    ) -> Option<IncidentEvent> {
+        let mut states = self.states.write().await;
+        let state = states.entry(check_id.to_string()).or_default();
         let now = Utc::now();
 
-        let should_alert = match states.get(check_id) {
-            Some(state) => {
-                if !state.is_down {
-                    // First time going down
-                    true
-                } else {
-                    // Already down - check cooldown
-                    state
-                        .last_down_alert
-                        .map(|t| now.signed_duration_since(t) > self.config.down_alert_cooldown)
-                        .unwrap_or(true)
-                }
-            }
-            None => true, // No state yet, first failure
-        };
+        Self::track_transition(state, status, now, self.config);
+        state.last_status = Some(status);
 
-        AlertDecision {
-            should_alert,
-            alert_type: AlertType::Down,
-            downtime_duration: None,
+        // Not past the alerting threshold yet
+        if consecutive_failures < failure_threshold as u16 {
+            state.consecutive_failures = consecutive_failures;
+            return None;
+        }
+
+        let was_flapping = matches!(state.state, IncidentState::Flapping);
+        let was_open = matches!(state.state, IncidentState::Open | IncidentState::Flapping);
+        let is_flapping = Self::is_flapping(state, now, self.config);
+
+        // Start or continue an incident
+        if state.incident_id.is_none() {
+            state.incident_id = Some(Uuid::new_v4());
+        }
+
+        state.state = if is_flapping {
+            IncidentState::Flapping
+        } else {
+            IncidentState::Open
+        };
+        state.is_down = true;
+        state.down_since.get_or_insert(now);
+        state.started_at.get_or_insert(now);
+        state.last_event_at = Some(now);
+        state.failure_count = state.failure_count.saturating_add(1);
+        state.consecutive_failures = consecutive_failures;
+        state.consecutive_successes = 0;
+
+        let incident_id = state
+            .incident_id
+            .expect("incident_id must be set when opening/updating incident");
+
+        // Emit a dedicated flapping event on the first transition into flapping
+        if is_flapping && !was_flapping {
+            return Some(IncidentEvent::Flapping { incident_id });
+        }
+
+        if was_open {
+            Some(IncidentEvent::Updated {
+                incident_id,
+                is_flapping,
+            })
+        } else {
+            Some(IncidentEvent::Opened {
+                incident_id,
+                is_flapping,
+            })
         }
     }
 
-    /// Check if a recovery alert should be sent
-    ///
-    /// Returns true if the monitor was previously marked as down
-    pub async fn should_alert_recovery(&self, check_id: &str) -> AlertDecision {
-        let states = self.states.read().await;
+    /// Evaluate a healthy probe. If the monitor had an open/flapping incident,
+    /// it will be marked resolved and may generate a recovery notification.
+    pub async fn evaluate_recovery(
+        &self,
+        check_id: &str,
+        status: MonitorStatus,
+    ) -> Option<IncidentEvent> {
+        let mut states = self.states.write().await;
+        let state = states.entry(check_id.to_string()).or_default();
         let now = Utc::now();
 
-        let (should_alert, downtime_duration) = match states.get(check_id) {
-            Some(state) if state.is_down => {
-                let duration = state.down_since.map(|t| now.signed_duration_since(t));
-                (true, duration)
-            }
-            _ => (false, None),
-        };
+        Self::track_transition(state, status, now, self.config);
+        state.last_status = Some(status);
 
-        AlertDecision {
-            should_alert,
-            alert_type: AlertType::Recovery,
-            downtime_duration,
+        let has_open_incident = matches!(
+            state.state,
+            IncidentState::Open | IncidentState::Flapping
+        ) && state.is_down;
+
+        if !has_open_incident {
+            state.consecutive_successes = state.consecutive_successes.saturating_add(1);
+            return None;
         }
+
+        // Require a configurable number of successes before recovery
+        state.consecutive_successes = state.consecutive_successes.saturating_add(1);
+        if state.consecutive_successes < self.config.recovery_success_threshold {
+            return None;
+        }
+
+        let incident_id = match state.incident_id {
+            Some(id) => id,
+            None => {
+                error!(check_id = check_id, "Recovery attempted with no active incident");
+                return None;
+            }
+        };
+        let downtime_duration = state.down_since.map(|t| now.signed_duration_since(t));
+
+        state.state = IncidentState::Resolved;
+        state.is_down = false;
+        state.down_since = None;
+        state.resolved_at = Some(now);
+        state.last_event_at = Some(now);
+        state.failure_count = 0;
+        state.consecutive_failures = 0;
+
+        Some(IncidentEvent::Resolved {
+            incident_id,
+            downtime_duration,
+        })
     }
 
     /// Check if an SSL expiry alert should be sent
@@ -171,99 +315,37 @@ impl AlertTracker {
         check_id: &str,
         days_left: i32,
         alert_threshold_days: i32,
-    ) -> AlertDecision {
+    ) -> Option<SslEvent> {
         if days_left > alert_threshold_days {
-            return AlertDecision {
-                should_alert: false,
-                alert_type: AlertType::SslExpiring,
-                downtime_duration: None,
-            };
+            return None;
         }
 
-        let alert_type = if days_left <= 0 {
-            AlertType::SslExpired
-        } else {
-            AlertType::SslExpiring
-        };
-
-        let states = self.states.read().await;
-        let now = Utc::now();
+        let mut states = self.states.write().await;
 
         let should_alert = match states.get(check_id) {
             Some(state) => {
-                // Check cooldown
-                let cooldown_passed = state
-                    .last_ssl_alert
-                    .map(|t| now.signed_duration_since(t) > self.config.ssl_alert_cooldown)
-                    .unwrap_or(true);
-
-                // Also alert if days_left decreased significantly (e.g., crossed a threshold)
-                let days_decreased = state
+                // Alert if days_left decreased significantly (crossed threshold)
+                state
                     .last_ssl_days_left
                     .map(|last| days_left < last && (last - days_left) >= 7)
-                    .unwrap_or(true);
-
-                cooldown_passed || days_decreased
+                    .unwrap_or(true)
             }
             None => true,
         };
 
-        AlertDecision {
-            should_alert,
-            alert_type,
-            downtime_duration: None,
-        }
-    }
-
-    /// Record that a down alert was sent
-    pub async fn record_down_alert(&self, check_id: &str) {
-        let mut states = self.states.write().await;
-        let state = states.entry(check_id.to_string()).or_default();
-        let now = Utc::now();
-
-        state.is_down = true;
-        state.last_down_alert = Some(now);
-        if state.down_since.is_none() {
-            state.down_since = Some(now);
-        }
-    }
-
-    /// Record that a recovery alert was sent
-    pub async fn record_recovery_alert(&self, check_id: &str) {
-        let mut states = self.states.write().await;
-        let state = states.entry(check_id.to_string()).or_default();
-
-        state.is_down = false;
-        state.down_since = None;
-        state.last_recovery_alert = Some(Utc::now());
-        state.consecutive_failures = 0;
-    }
-
-    /// Record that an SSL alert was sent
-    pub async fn record_ssl_alert(&self, check_id: &str, days_left: i32) {
-        let mut states = self.states.write().await;
-        let state = states.entry(check_id.to_string()).or_default();
-
-        state.last_ssl_alert = Some(Utc::now());
-        state.last_ssl_days_left = Some(days_left);
-    }
-
-    /// Update the failure count for a monitor (call after each probe)
-    pub async fn update_failure_count(&self, check_id: &str, consecutive_failures: u16) {
-        let mut states = self.states.write().await;
-        let state = states.entry(check_id.to_string()).or_default();
-        state.consecutive_failures = consecutive_failures;
-    }
-
-    /// Mark a monitor as recovered without sending an alert
-    /// (used when the monitor recovers before threshold was reached)
-    pub async fn mark_recovered(&self, check_id: &str) {
-        let mut states = self.states.write().await;
-        if let Some(state) = states.get_mut(check_id) {
-            if !state.is_down {
-                // Reset failure count if not marked as down
-                state.consecutive_failures = 0;
+        if should_alert {
+            if let Some(state) = states.get_mut(check_id) {
+                state.last_ssl_days_left = Some(days_left);
             }
+
+            let incident_id = Uuid::new_v4();
+            if days_left <= 0 {
+                Some(SslEvent::Expired { incident_id, days_left })
+            } else {
+                Some(SslEvent::Expiring { incident_id, days_left })
+            }
+        } else {
+            None
         }
     }
 
@@ -274,7 +356,7 @@ impl AlertTracker {
     }
 
     /// Warm the tracker from historical alert data
-    /// 
+    ///
     /// This should be called on startup to restore state from the database,
     /// preventing re-alerting for monitors that were already down before restart.
     pub async fn warm_from_history(&self, latest_states: HashMap<String, LatestAlertState>) {
@@ -287,10 +369,13 @@ impl AlertTracker {
                 AlertType::Down => {
                     // Monitor was last alerted as down - mark it as down
                     // so we don't re-alert until it recovers
+                    // TODO: when incidents are persisted, load the real incident_id to maintain continuity.
                     let state = states.entry(monitor_id).or_default();
                     state.is_down = true;
+                    state.state = IncidentState::Open;
                     state.down_since = Some(latest.last_alert_at);
-                    state.last_down_alert = Some(latest.last_alert_at);
+                    state.last_event_at = Some(latest.last_alert_at);
+                    state.incident_id = Some(Uuid::new_v4());
                     down_count += 1;
                 }
                 AlertType::Recovery => {
@@ -300,7 +385,6 @@ impl AlertTracker {
                 AlertType::SslExpiring | AlertType::SslExpired => {
                     // Restore SSL alert state to respect cooldowns
                     let state = states.entry(monitor_id).or_default();
-                    state.last_ssl_alert = Some(latest.last_alert_at);
                     state.last_ssl_days_left = latest.ssl_days_left;
                     ssl_count += 1;
                 }
@@ -312,5 +396,69 @@ impl AlertTracker {
             ssl_alerted = ssl_count,
             "Alert tracker warmed from history"
         );
+    }
+
+    fn track_transition(
+        state: &mut MonitorAlertState,
+        status: MonitorStatus,
+        now: DateTime<Utc>,
+        config: AlertTrackerConfig,
+    ) {
+        if let Some(last_status) = state.last_status {
+            if last_status == status {
+                return;
+            }
+        }
+
+        state.transitions.push_back(now);
+
+        while let Some(front) = state.transitions.front() {
+            if now.signed_duration_since(*front) > config.flap_window {
+                state.transitions.pop_front();
+            } else {
+                break;
+            }
+        }
+    }
+
+    fn is_flapping(
+        state: &mut MonitorAlertState,
+        now: DateTime<Utc>,
+        config: AlertTrackerConfig,
+    ) -> bool {
+        // Trim old transitions first (defensive)
+        while let Some(front) = state.transitions.front() {
+            if now.signed_duration_since(*front) > config.flap_window {
+                state.transitions.pop_front();
+            } else {
+                break;
+            }
+        }
+
+        let was_flapping = matches!(state.state, IncidentState::Flapping);
+        let is_flapping = state.transitions.len() >= config.flap_transition_threshold;
+
+        if is_flapping && !was_flapping {
+            state.flap_count = state.flap_count.saturating_add(1);
+        }
+
+        is_flapping
+    }
+
+    pub async fn snapshot(&self, check_id: &str) -> Option<IncidentSnapshot> {
+        let states = self.states.read().await;
+        let state = states.get(check_id)?;
+
+        Some(IncidentSnapshot {
+            incident_id: state.incident_id,
+            state: state.state,
+            severity: state.severity,
+            started_at: state.started_at.or(state.down_since),
+            last_event_at: state.last_event_at,
+            resolved_at: state.resolved_at,
+            failure_count: state.failure_count,
+            flap_count: state.flap_count,
+            last_status: state.last_status,
+        })
     }
 }

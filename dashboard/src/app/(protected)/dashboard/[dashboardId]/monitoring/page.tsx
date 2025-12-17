@@ -17,8 +17,8 @@ export default async function MonitoringPage({ params }: MonitoringPageParams) {
         monitors={monitors.map((m) => ({
           ...m,
           intervalSeconds: m.intervalSeconds,
-          createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : m.createdAt,
-          updatedAt: m.updatedAt instanceof Date ? m.updatedAt.toISOString() : m.updatedAt,
+          createdAt: m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt),
+          updatedAt: m.updatedAt instanceof Date ? m.updatedAt : new Date(m.updatedAt),
         }))}
       />
     </div>

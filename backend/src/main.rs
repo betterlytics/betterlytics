@@ -40,8 +40,8 @@ use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
 use monitor::{
     AlertService, AlertServiceConfig,
-    MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe, MonitorRepository,
-    MonitorRunner, MonitorRuntimeConfig, MonitorWriter, TlsMonitorRunner,
+    IncidentStore, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe,
+    MonitorRepository, MonitorRunner, MonitorRuntimeConfig, MonitorWriter, TlsMonitorRunner,
     TlsMonitorRuntimeConfig,
 };
 use monitor::alert::AlertHistoryWriter;
@@ -205,7 +205,19 @@ async fn main() {
                 };
 
                 // Initialize alert service (email config from env, alert config from MonitorCheck)
-                let alert_service = Arc::new(AlertService::new(AlertServiceConfig::default(), history_writer).await);
+                let incident_store = match IncidentStore::new(config_for_monitor.clone()) {
+                    Ok(store) => Some(store),
+                    Err(err) => {
+                        warn!(error = ?err, "Failed to create incident store; incident snapshots will not be recorded");
+                        None
+                    }
+                };
+
+                let alert_service = Arc::new(AlertService::new(
+                    AlertServiceConfig::default(),
+                    history_writer,
+                    incident_store,
+                ).await);
                 info!("Alert service initialized");
 
                 let mut monitor_runner = MonitorRunner::new(

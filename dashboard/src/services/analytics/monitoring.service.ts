@@ -3,6 +3,8 @@
 import {
   MonitorCheckCreate,
   MonitorCheckUpdate,
+  MonitorOperationalState,
+  MonitorStatus,
   deriveOperationalState,
 } from '@/entities/analytics/monitoring.entities';
 import {
@@ -13,7 +15,7 @@ import {
 } from '@/repositories/postgres/monitoring.repository';
 
 import {
-  getLatestStatusesForMonitors,
+  getLatestIncidentsForMonitors,
   getMonitorUptimeBucketsForMonitors,
   getMonitorIncidentSegments,
   getLatestTlsResult,
@@ -43,27 +45,60 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
   const now = new Date();
-  const [latestStatuses, uptimeBuckets, tlsResults] = await Promise.all([
-    getLatestStatusesForMonitors(checkIds, siteId),
+  const [latestIncidents, uptimeBuckets, tlsResults] = await Promise.all([
+    getLatestIncidentsForMonitors(checkIds, siteId),
     getMonitorUptimeBucketsForMonitors(checkIds, siteId),
     getLatestTlsResultsForMonitors(checkIds, siteId),
   ]);
 
   return checks.map((check) => {
-    const lastStatus = latestStatuses[check.id]?.status ?? null;
+    const incident = latestIncidents[check.id];
+    const lastStatus = (incident?.lastStatus as MonitorStatus | null | undefined) ?? null;
+    const incidentState = incident?.state ?? null;
     const buckets = normalizeUptimeBuckets(uptimeBuckets[check.id] ?? [], 24, now);
     const hasData = buckets.length > 0;
+    const effectiveIntervalSeconds = incident?.lastEventAt ? check.intervalSeconds : null;
+
+    const operationalState: MonitorOperationalState = incidentState
+      ? mapIncidentToOperationalState(check.isEnabled, incidentState, lastStatus, hasData)
+      : deriveOperationalState(check.isEnabled, lastStatus, hasData);
 
     return {
       ...check,
       lastStatus,
-      effectiveIntervalSeconds: latestStatuses[check.id]?.effectiveIntervalSeconds ?? null,
-      backoffLevel: latestStatuses[check.id]?.backoffLevel ?? null,
+      incidentState,
+      effectiveIntervalSeconds,
+      backoffLevel: null,
       uptimeBuckets: buckets,
       tls: tlsResults[check.id] ?? null,
-      operationalState: deriveOperationalState(check.isEnabled, lastStatus, hasData),
+      operationalState,
     };
   });
+}
+
+function mapIncidentToOperationalState(
+  isEnabled: boolean,
+  incidentState: string | null,
+  lastStatus: MonitorStatus | null,
+  hasData: boolean,
+): MonitorOperationalState {
+  if (!isEnabled) return 'paused';
+  if (!incidentState) return deriveOperationalState(isEnabled, lastStatus, hasData);
+
+  switch (incidentState) {
+    case 'muted':
+      return 'paused';
+    case 'flapping':
+      return 'degraded';
+    case 'open':
+      if (lastStatus === 'error') return 'error';
+      if (lastStatus === 'warn') return 'degraded';
+      return 'down';
+    case 'resolved':
+      return 'up';
+    default:
+      return deriveOperationalState(isEnabled, lastStatus, hasData);
+  }
 }
 
 export async function addMonitorCheck(input: MonitorCheckCreate) {
