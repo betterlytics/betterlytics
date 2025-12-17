@@ -83,8 +83,9 @@ impl AlertHistoryWriter {
 
         // Use query_typed to explicitly specify TEXT type for the enum string,
         // allowing PostgreSQL to cast it to the enum type
-        let stmt = conn.prepare_typed(
-            r#"
+        let stmt = conn
+            .prepare_typed(
+                r#"
             INSERT INTO "MonitorAlertHistory" (
                 "monitorCheckId",
                 "alertType",
@@ -94,19 +95,20 @@ impl AlertHistoryWriter {
                 "errorMessage",
                 "latencyMs",
                 "sslDaysLeft"
-            ) VALUES ($1, $2, $3::"MonitorAlertType", $4, $5, $6, $7, $8, $9)
+            ) VALUES ($1, $2::"MonitorAlertType", $3, $4, $5, $6, $7, $8)
             "#,
-            &[
-                Type::TEXT,  // monitorCheckId
-                Type::TEXT,  // alertType - will be cast to enum
-                Type::TEXT_ARRAY,  // sentTo
-                Type::TIMESTAMP,  // sentAt
-                Type::INT4,  // statusCode
-                Type::TEXT,  // errorMessage
-                Type::INT4,  // latencyMs
-                Type::INT4,  // sslDaysLeft
-            ],
-        ).await?;
+                &[
+                    Type::TEXT,        // $1 monitorCheckId
+                    Type::TEXT,        // $2 alertType - cast to enum
+                    Type::TEXT_ARRAY,  // $3 sentTo
+                    Type::TIMESTAMP,   // $4 sentAt
+                    Type::INT4,        // $5 statusCode
+                    Type::TEXT,        // $6 errorMessage
+                    Type::INT4,        // $7 latencyMs
+                    Type::INT4,        // $8 sslDaysLeft
+                ],
+            )
+            .await?;
 
         conn.execute(
             &stmt,

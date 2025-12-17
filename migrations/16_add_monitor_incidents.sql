@@ -36,4 +36,4 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
     extra String
 )
 ENGINE = ReplacingMergeTree(last_event_at)
-ORDER BY (check_id, incident_id, last_event_at);
+ORDER BY (check_id, incident_id);
