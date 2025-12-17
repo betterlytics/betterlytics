@@ -37,7 +37,6 @@ pub enum IncidentState {
     Muted = 4,
 }
 
-#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
 #[repr(i8)]
 pub enum IncidentSeverity {
@@ -61,13 +60,7 @@ struct MonitorAlertState {
     down_since: Option<DateTime<Utc>>,
     last_status: Option<MonitorStatus>,
 
-    /// Notification timestamps
-    notified_down_at: Option<DateTime<Utc>>,
-    notified_recovery_at: Option<DateTime<Utc>>,
-    notified_flap_at: Option<DateTime<Utc>>,
-
     /// SSL alert tracking
-    last_ssl_alert: Option<DateTime<Utc>>,
     last_ssl_days_left: Option<i32>,
 
     /// Counters
@@ -105,10 +98,6 @@ impl Default for MonitorAlertState {
             is_down: false,
             down_since: None,
             last_status: None,
-            notified_down_at: None,
-            notified_recovery_at: None,
-            notified_flap_at: None,
-            last_ssl_alert: None,
             last_ssl_days_left: None,
             consecutive_failures: 0,
             consecutive_successes: 0,
@@ -171,11 +160,9 @@ pub enum IncidentEvent {
 pub enum SslEvent {
     Expiring {
         incident_id: Uuid,
-        days_left: i32,
     },
     Expired {
         incident_id: Uuid,
-        days_left: i32,
     },
 }
 
@@ -343,9 +330,9 @@ impl AlertTracker {
 
             let incident_id = Uuid::new_v4();
             if days_left <= 0 {
-                Some(SslEvent::Expired { incident_id, days_left })
+                Some(SslEvent::Expired { incident_id })
             } else {
-                Some(SslEvent::Expiring { incident_id, days_left })
+                Some(SslEvent::Expiring { incident_id })
             }
         } else {
             None

@@ -171,12 +171,7 @@ impl AlertService {
         match ctx.status {
             MonitorStatus::Down | MonitorStatus::Error => self.handle_failure_alert(ctx).await,
             MonitorStatus::Ok => self.handle_success(ctx).await,
-            MonitorStatus::Warn => {
-                // Check for SSL warnings
-                if let Some(days_left) = ctx.tls_days_left {
-                    self.handle_ssl_alert(ctx, days_left).await;
-                }
-            }
+            MonitorStatus::Warn => {} // TODO: Handle Warn for slow responses etc?
         }
     }
 
@@ -358,8 +353,8 @@ impl AlertService {
             .await;
 
         let (alert_type, incident_id) = match event {
-            Some(SslEvent::Expired { incident_id, .. }) => (AlertType::SslExpired, incident_id),
-            Some(SslEvent::Expiring { incident_id, .. }) => (AlertType::SslExpiring, incident_id),
+            Some(SslEvent::Expired { incident_id }) => (AlertType::SslExpired, incident_id),
+            Some(SslEvent::Expiring { incident_id }) => (AlertType::SslExpiring, incident_id),
             None => return,
         };
 
