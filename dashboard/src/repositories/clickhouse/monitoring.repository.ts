@@ -337,20 +337,21 @@ export async function getLatestIncidentsForMonitors(
   const query = safeSql`
     SELECT
       check_id,
-      argMax(state, last_event_at) AS state,
-      argMax(severity, last_event_at) AS severity,
-      argMax(last_status, last_event_at) AS last_status,
-      argMax(started_at, last_event_at) AS started_at,
-      argMax(last_event_at, last_event_at) AS last_event_at,
-      argMax(resolved_at, last_event_at) AS resolved_at,
-      argMax(failure_count, last_event_at) AS failure_count,
-      argMax(flap_count, last_event_at) AS flap_count,
-      argMax(open_reason_code, last_event_at) AS open_reason_code,
-      argMax(close_reason_code, last_event_at) AS close_reason_code
-    FROM analytics.monitor_incidents
+      state,
+      severity,
+      last_status,
+      started_at,
+      last_event_at,
+      resolved_at,
+      failure_count,
+      flap_count,
+      open_reason_code,
+      close_reason_code
+    FROM analytics.monitor_incidents FINAL
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
-    GROUP BY check_id
+    ORDER BY check_id, last_event_at DESC
+    LIMIT 1 BY check_id
   `;
 
   const rows = (await clickhouse
