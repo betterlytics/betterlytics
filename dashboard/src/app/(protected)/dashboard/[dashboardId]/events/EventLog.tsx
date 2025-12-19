@@ -113,7 +113,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Reset the ref when fetching state changes
   useEffect(() => {
     if (!isFetchingNextPage) {
       isFetchingRef.current = false;
