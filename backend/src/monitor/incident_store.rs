@@ -212,7 +212,7 @@ impl IncidentStore {
                 notified_resolve_at
             FROM {table}
             FINAL
-            WHERE state IN (1, 3)
+            WHERE state = 1
             ORDER BY check_id, incident_id, last_event_at DESC
             LIMIT 1 BY check_id, incident_id
             "#,

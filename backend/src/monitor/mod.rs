@@ -12,6 +12,7 @@ pub mod writer;
 pub use alert::{AlertService, AlertServiceConfig};
 pub use backoff::{BackoffController, BackoffPolicy};
 pub use cache::{MonitorCache, RefreshConfig as MonitorCacheConfig};
+pub use guard::init_dev_mode;
 pub use incident_store::{IncidentStore, MonitorIncidentRow};
 pub use models::{
     AlertConfig, BackoffReason, BackoffSnapshot, HttpMethod, MonitorCheck, MonitorResultRow,

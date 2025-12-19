@@ -41,6 +41,8 @@ pub struct Config {
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
+    // Development mode - allows localhost monitoring targets
+    pub is_development: bool,
 }
 
 impl Config {
@@ -121,6 +123,10 @@ impl Config {
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
+            // Development mode (defaults to false for production safety)
+            is_development: env::var("IS_DEVELOPMENT")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
         }
     }
 }

@@ -42,7 +42,7 @@ use monitor::{
     AlertService, AlertServiceConfig,
     IncidentStore, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe,
     MonitorRepository, MonitorRunner, MonitorRuntimeConfig, MonitorWriter, TlsMonitorRunner,
-    TlsMonitorRuntimeConfig,
+    TlsMonitorRuntimeConfig, init_dev_mode,
 };
 use monitor::alert::AlertHistoryWriter;
 use processing::EventProcessor;
@@ -128,6 +128,8 @@ async fn main() {
             .expect("Failed to init SiteConfigCache");
 
     if config.enable_uptime_monitoring {
+        init_dev_mode(config.is_development);
+        
         let config_for_monitor = config.clone();
         let metrics_for_monitor = metrics_collector.clone();
         tokio::spawn(async move {

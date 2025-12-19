@@ -1,8 +1,24 @@
 use std::net::{IpAddr, Ipv6Addr};
+use std::sync::OnceLock;
 use tokio::net::lookup_host;
 use url::Url;
 
 use crate::monitor::ReasonCode;
+
+/// Global development mode flag - when true, allows localhost/private IPs for monitoring
+static DEV_MODE: OnceLock<bool> = OnceLock::new();
+
+/// In dev mode, localhost and private IPs are allowed as monitoring targets.
+pub fn init_dev_mode(is_dev: bool) {
+    let _ = DEV_MODE.set(is_dev);
+    if is_dev {
+        tracing::info!("Monitor guard: development mode enabled - localhost targets allowed");
+    }
+}
+
+fn is_dev_mode() -> bool {
+    *DEV_MODE.get().unwrap_or(&false)
+}
 
 #[derive(Debug, Clone)]
 pub struct GuardedTarget {
@@ -87,6 +103,10 @@ async fn resolve_ip(url: &Url) -> Result<Ipv6Addr, GuardError> {
 }
 
 fn is_blocked_ip(ip: &IpAddr) -> bool {
+    if is_dev_mode() {
+        return false;
+    }
+
     match ip {
         IpAddr::V4(v4) => {
             v4.is_private()
