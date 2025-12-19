@@ -14,7 +14,6 @@ pub struct AlertHistoryRecord {
     pub alert_type: AlertType,
     pub sent_to: Vec<String>,
     pub status_code: Option<i32>,
-    pub error_message: Option<String>,
     pub latency_ms: Option<i32>,
     pub ssl_days_left: Option<i32>,
 }
@@ -46,10 +45,9 @@ impl AlertHistoryRepository {
                 "sentTo",
                 "sentAt",
                 "statusCode",
-                "errorMessage",
                 "latencyMs",
                 "sslDaysLeft"
-            ) VALUES ($1, $2::"MonitorAlertType", $3, $4, $5, $6, $7, $8)
+            ) VALUES ($1, $2::"MonitorAlertType", $3, $4, $5, $6, $7)
             "#,
                 &[
                     Type::TEXT,        // $1 monitorCheckId
@@ -57,9 +55,8 @@ impl AlertHistoryRepository {
                     Type::TEXT_ARRAY,  // $3 sentTo
                     Type::TIMESTAMP,   // $4 sentAt
                     Type::INT4,        // $5 statusCode
-                    Type::TEXT,        // $6 errorMessage
-                    Type::INT4,        // $7 latencyMs
-                    Type::INT4,        // $8 sslDaysLeft
+                    Type::INT4,        // $6 latencyMs
+                    Type::INT4,        // $7 sslDaysLeft
                 ],
             )
             .await?;
@@ -72,7 +69,6 @@ impl AlertHistoryRepository {
                 &record.sent_to,
                 &sent_at,
                 &record.status_code,
-                &record.error_message,
                 &record.latency_ms,
                 &record.ssl_days_left,
             ],

@@ -108,13 +108,13 @@ impl MonitorProbe {
 
         if check.url.scheme() != "https" {
             return self
-                .tls_error_outcome(start.elapsed(), ReasonCode::SchemeBlocked, "TLS checks require https scheme");
+                .tls_error_outcome(start.elapsed(), ReasonCode::SchemeBlocked);
         }
 
         let guard = match validate_target(&check.url).await {
             Ok(guard) => guard,
             Err(err) => {
-                return self.tls_error_outcome(start.elapsed(), err.reason_code, err.message);
+                return self.tls_error_outcome(start.elapsed(), err.reason_code);
             }
         };
 
@@ -187,7 +187,7 @@ impl MonitorProbe {
         } else {
             ReasonCode::HttpOther
         };
-        ProbeOutcome::failure(latency, Some(status_code), reason_code, None)
+        ProbeOutcome::failure(latency, Some(status_code), reason_code)
     }
 
     fn http_failure(
@@ -206,7 +206,6 @@ impl MonitorProbe {
             latency,
             None,
             error.reason_code,
-            Some(error.message),
         )
     }
 
@@ -214,10 +213,9 @@ impl MonitorProbe {
         &self,
         latency: Duration,
         reason_code: ReasonCode,
-        message: impl Into<String>,
     ) -> ProbeOutcome {
         let mut outcome =
-            ProbeOutcome::failure(latency, None, reason_code, Some(message.into()));
+            ProbeOutcome::failure(latency, None, reason_code);
         outcome.status = MonitorStatus::Error;
         outcome
     }
@@ -234,7 +232,7 @@ impl MonitorProbe {
             error = %err.message,
             "tls probe handshake failed"
         );
-        self.tls_error_outcome(latency, err.reason_code, err.message)
+        self.tls_error_outcome(latency, err.reason_code)
     }
 
     async fn follow_with_guards(

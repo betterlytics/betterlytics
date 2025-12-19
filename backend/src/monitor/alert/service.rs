@@ -20,7 +20,7 @@ use crate::email::{EmailService, EmailServiceConfig};
 use super::repository::{AlertHistoryRecord, AlertHistoryRepository};
 use super::tracker::{AlertTracker, AlertTrackerConfig, AlertType, IncidentEvent, SslEvent};
 use crate::monitor::{
-    IncidentStore, MonitorCheck, MonitorIncidentRow, MonitorStatus, ProbeOutcome,
+    IncidentStore, MonitorCheck, MonitorIncidentRow, MonitorStatus, ProbeOutcome, ReasonCode,
 };
 use crate::monitor::incident_store::{IncidentSeed, NotificationSnapshot};
 
@@ -31,7 +31,7 @@ pub struct AlertContext {
     pub consecutive_failures: u16,
     pub status: MonitorStatus,
     pub status_code: Option<u16>,
-    pub error_message: Option<String>,
+    pub reason_code: ReasonCode,
     pub tls_days_left: Option<i32>,
     pub tls_not_after: Option<chrono::DateTime<chrono::Utc>>,
 }
@@ -47,7 +47,7 @@ impl AlertContext {
             consecutive_failures,
             status: outcome.status,
             status_code: outcome.status_code,
-            error_message: outcome.error.clone(),
+            reason_code: outcome.reason_code,
             tls_days_left: outcome.tls_days_left,
             tls_not_after: outcome.tls_not_after,
         }
@@ -229,12 +229,8 @@ impl AlertService {
         // can retain a stable view of the failing reason even after recovery.
         self.tracker.update_error_metadata(
             &ctx.check.id,
-            // reason_code is derived from monitor_results; reuse the low-cardinality
-            // reason encoded there by using the error message when present or the
-            // string form of the status as a fallback.
-            ctx.error_message.clone(),
+            ctx.reason_code,
             ctx.status_code,
-            ctx.error_message.clone(),
         );
 
         let event = self.tracker.evaluate_failure(
@@ -304,7 +300,6 @@ impl AlertService {
                 alert_type: AlertType::Down,
                 sent_to: recipients.clone(),
                 status_code: ctx.status_code.map(|c| c as i32),
-                error_message: ctx.error_message.clone(),
                 latency_ms: None,
                 ssl_days_left: None,
             }).await;
@@ -377,7 +372,6 @@ impl AlertService {
                 alert_type: AlertType::Recovery,
                 sent_to: recipients.clone(),
                 status_code: None,
-                error_message: None,
                 latency_ms: None,
                 ssl_days_left: None,
             }).await;
@@ -459,7 +453,6 @@ impl AlertService {
                 alert_type,
                 sent_to: recipients.clone(),
                 status_code: None,
-                error_message: None,
                 latency_ms: None,
                 ssl_days_left: Some(days_left),
             }).await;
@@ -489,7 +482,7 @@ impl AlertService {
             recipients,
             &ctx.monitor_name(),
             ctx.check.url.as_str(),
-            ctx.error_message.as_deref(),
+            ctx.reason_code,
             ctx.status_code,
             email_service.dashboard_base_url(),
             &ctx.check.dashboard_id,

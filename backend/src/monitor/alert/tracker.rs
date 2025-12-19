@@ -8,7 +8,7 @@ use tracing::{debug, error, info};
 use uuid::Uuid;
 use serde_repr::{Serialize_repr, Deserialize_repr};
 
-use crate::monitor::MonitorStatus;
+use crate::monitor::{MonitorStatus, ReasonCode};
 
 use crate::monitor::incident_store::IncidentSeed;
 
@@ -62,9 +62,8 @@ struct MonitorAlertState {
     last_status: Option<MonitorStatus>,
 
     /// Last observed error details for this incident (for persistence)
-    last_error_reason_code: Option<String>,
+    last_error_reason_code: Option<ReasonCode>,
     last_error_status_code: Option<u16>,
-    last_error_message: Option<String>,
 
     /// Counters
     consecutive_failures: u16,
@@ -82,9 +81,8 @@ pub struct IncidentSnapshot {
     pub resolved_at: Option<DateTime<Utc>>,
     pub failure_count: u16,
     pub last_status: Option<MonitorStatus>,
-    pub last_error_reason_code: Option<String>,
+    pub last_error_reason_code: Option<ReasonCode>,
     pub last_error_status_code: Option<u16>,
-    pub last_error_message: Option<String>,
 }
 
 impl Default for MonitorAlertState {
@@ -101,7 +99,6 @@ impl Default for MonitorAlertState {
             last_status: None,
             last_error_reason_code: None,
             last_error_status_code: None,
-            last_error_message: None,
             consecutive_failures: 0,
             consecutive_successes: 0,
             failure_count: 0,
@@ -315,17 +312,12 @@ impl AlertTracker {
     pub fn update_error_metadata(
         &self,
         check_id: &str,
-        reason_code: Option<String>,
+        reason_code: ReasonCode,
         status_code: Option<u16>,
-        error_message: Option<String>,
     ) {
         let mut state = self.states.entry(check_id.to_string()).or_default();
-
-        if let Some(code) = reason_code {
-            state.last_error_reason_code = Some(code);
-        }
+        state.last_error_reason_code = Some(reason_code);
         state.last_error_status_code = status_code;
-        state.last_error_message = error_message;
     }
 
     /// Check if an SSL expiry alert should be sent based on threshold.
@@ -390,9 +382,8 @@ impl AlertTracker {
             state.down_since = Some(seed.started_at);
             state.consecutive_failures = seed.failure_count;
             state.consecutive_successes = 0;
-            state.last_error_reason_code = Some(seed.reason_code.clone());
+            state.last_error_reason_code = Some(seed.reason_code);
             state.last_error_status_code = seed.status_code;
-            state.last_error_message = Some(seed.error_message.clone());
             warm_count += 1;
         }
 
@@ -414,9 +405,8 @@ impl AlertTracker {
             resolved_at: state.resolved_at,
             failure_count: state.failure_count,
             last_status: state.last_status,
-            last_error_reason_code: state.last_error_reason_code.clone(),
+            last_error_reason_code: state.last_error_reason_code,
             last_error_status_code: state.last_error_status_code,
-            last_error_message: state.last_error_message.clone(),
         })
     }
 }

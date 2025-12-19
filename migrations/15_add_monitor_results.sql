@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_results
         'rate_limited'  = 3
     ) DEFAULT 'none',
 
-    error         String,
     extra         String,                    -- JSON for optional details (issuer/SAN/etc.)
 )
 ENGINE = MergeTree

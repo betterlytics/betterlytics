@@ -8,6 +8,7 @@ use chrono::{DateTime, Duration, Utc};
 
 use crate::email::templates::{email_signature, html_escape, wrap_html, wrap_text};
 use crate::email::EmailRequest;
+use crate::monitor::ReasonCode;
 
 use super::tracker::AlertType;
 
@@ -16,7 +17,7 @@ pub fn build_down_alert(
     recipients: &[String],
     monitor_name: &str,
     url: &str,
-    error_message: Option<&str>,
+    reason_code: ReasonCode,
     status_code: Option<u16>,
     dashboard_base_url: &str,
     dashboard_id: &str,
@@ -28,8 +29,9 @@ pub fn build_down_alert(
         dashboard_base_url, dashboard_id, monitor_id
     );
 
-    let html = build_down_alert_html(monitor_name, url, error_message, status_code, &monitor_url);
-    let text = build_down_alert_text(monitor_name, url, error_message, status_code, &monitor_url);
+    let reason_message = reason_code.to_message();
+    let html = build_down_alert_html(monitor_name, url, reason_message, status_code, &monitor_url);
+    let text = build_down_alert_text(monitor_name, url, reason_message, status_code, &monitor_url);
 
     EmailRequest {
         to: recipients.to_vec(),
@@ -110,18 +112,14 @@ pub fn build_ssl_alert(
 fn build_down_alert_html(
     monitor_name: &str,
     url: &str,
-    error_message: Option<&str>,
+    reason_message: &str,
     status_code: Option<u16>,
     monitor_url: &str,
 ) -> String {
-    let error_section = if let Some(err) = error_message {
-        format!(
-            r#"<p style="margin: 8px 0;"><strong>Error:</strong> {}</p>"#,
-            html_escape(err)
-        )
-    } else {
-        String::new()
-    };
+    let reason_section = format!(
+        r#"<p style="margin: 8px 0;"><strong>Reason:</strong> {}</p>"#,
+        html_escape(reason_message)
+    );
 
     let status_section = if let Some(code) = status_code {
         format!(
@@ -143,7 +141,7 @@ fn build_down_alert_html(
                 <p style="margin: 8px 0;"><strong>URL:</strong> <a href="{url}" style="color: #2563eb;">{url}</a></p>
                 <p style="margin: 8px 0;"><strong>Time:</strong> {time}</p>
                 {status_section}
-                {error_section}
+                {reason_section}
             </div>
 
             <div class="center">
@@ -159,7 +157,7 @@ fn build_down_alert_html(
         url = html_escape(url),
         time = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
         status_section = status_section,
-        error_section = error_section,
+        reason_section = reason_section,
         monitor_url = monitor_url,
         signature = email_signature(),
     );
@@ -170,7 +168,7 @@ fn build_down_alert_html(
 fn build_down_alert_text(
     monitor_name: &str,
     url: &str,
-    error_message: Option<&str>,
+    reason_message: &str,
     status_code: Option<u16>,
     monitor_url: &str,
 ) -> String {
@@ -178,18 +176,16 @@ fn build_down_alert_text(
         "MONITOR ALERT - DOWN\n\n\
         Monitor: {}\n\
         URL: {}\n\
-        Time: {}\n",
+        Time: {}\n\
+        Reason: {}\n",
         monitor_name,
         url,
         chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
+        reason_message,
     );
 
     if let Some(code) = status_code {
         text.push_str(&format!("Status Code: {}\n", code));
-    }
-
-    if let Some(err) = error_message {
-        text.push_str(&format!("Error: {}\n", err));
     }
 
     text.push_str(&format!(

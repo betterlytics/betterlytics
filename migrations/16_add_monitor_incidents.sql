@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
 
     last_status   Enum8('ok' = 1, 'warn' = 2, 'down' = 3, 'error' = 4),
     status_code   Nullable(UInt16),
-    error_message String,
 
     notified_down_at     Nullable(DateTime64(3)),
     notified_resolve_at  Nullable(DateTime64(3)),

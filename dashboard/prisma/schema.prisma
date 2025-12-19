@@ -286,7 +286,6 @@ model MonitorAlertHistory {
   
   // Context at time of alert
   statusCode      Int?
-  errorMessage    String?
   latencyMs       Int?
   sslDaysLeft     Int?
   

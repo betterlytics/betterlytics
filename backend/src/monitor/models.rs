@@ -42,7 +42,8 @@ pub fn is_status_code_accepted(code: u16, accepted: &[StatusCodeValue]) -> bool 
     accepted.iter().any(|v| v.matches(code))
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ReasonCode {
     Ok,
     TlsHandshakeFailed,
@@ -93,6 +94,62 @@ impl ReasonCode {
             ReasonCode::BlockedIpLiteral => "blocked_ip_literal",
             ReasonCode::DnsBlocked => "dns_blocked",
             ReasonCode::DnsError => "dns_error",
+        }
+    }
+
+    /// Returns a human-readable message for this reason code.
+    pub const fn to_message(&self) -> &'static str {
+        match self {
+            ReasonCode::Ok => "Site is healthy",
+            ReasonCode::TlsHandshakeFailed => "SSL/TLS handshake failed",
+            ReasonCode::TlsMissingCertificate => "SSL certificate not found",
+            ReasonCode::TlsExpired => "SSL certificate has expired",
+            ReasonCode::TlsExpiringSoon => "SSL certificate expiring soon",
+            ReasonCode::TlsParseError => "Failed to parse SSL certificate",
+            ReasonCode::Http4xx => "Server returned a client error",
+            ReasonCode::Http5xx => "Server returned a server error",
+            ReasonCode::HttpOther => "Unexpected HTTP status code",
+            ReasonCode::HttpTimeout => "Request timed out",
+            ReasonCode::HttpConnectError => "Could not connect to server",
+            ReasonCode::HttpBodyError => "Error reading response body",
+            ReasonCode::HttpRequestError => "Error sending request",
+            ReasonCode::HttpError => "HTTP request failed",
+            ReasonCode::TooManyRedirects => "Too many redirects",
+            ReasonCode::RedirectJoinFailed => "Invalid redirect location",
+            ReasonCode::SchemeBlocked => "URL scheme not allowed",
+            ReasonCode::PortBlocked => "Port not allowed",
+            ReasonCode::InvalidHost => "Invalid hostname",
+            ReasonCode::BlockedIpLiteral => "IP address not allowed",
+            ReasonCode::DnsBlocked => "DNS resolved to blocked address",
+            ReasonCode::DnsError => "DNS resolution failed",
+        }
+    }
+
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "ok" => Some(ReasonCode::Ok),
+            "tls_handshake_failed" => Some(ReasonCode::TlsHandshakeFailed),
+            "tls_missing_certificate" => Some(ReasonCode::TlsMissingCertificate),
+            "tls_expired" => Some(ReasonCode::TlsExpired),
+            "tls_expiring_soon" => Some(ReasonCode::TlsExpiringSoon),
+            "tls_parse_error" => Some(ReasonCode::TlsParseError),
+            "http_4xx" => Some(ReasonCode::Http4xx),
+            "http_5xx" => Some(ReasonCode::Http5xx),
+            "http_other" => Some(ReasonCode::HttpOther),
+            "http_timeout" => Some(ReasonCode::HttpTimeout),
+            "http_connect_error" => Some(ReasonCode::HttpConnectError),
+            "http_body_error" => Some(ReasonCode::HttpBodyError),
+            "http_request_error" => Some(ReasonCode::HttpRequestError),
+            "http_error" => Some(ReasonCode::HttpError),
+            "too_many_redirects" => Some(ReasonCode::TooManyRedirects),
+            "redirect_join_failed" => Some(ReasonCode::RedirectJoinFailed),
+            "scheme_blocked" => Some(ReasonCode::SchemeBlocked),
+            "port_blocked" => Some(ReasonCode::PortBlocked),
+            "invalid_host" => Some(ReasonCode::InvalidHost),
+            "blocked_ip_literal" => Some(ReasonCode::BlockedIpLiteral),
+            "dns_blocked" => Some(ReasonCode::DnsBlocked),
+            "dns_error" => Some(ReasonCode::DnsError),
+            _ => None,
         }
     }
 }
@@ -210,7 +267,6 @@ pub struct ProbeOutcome {
     pub status: MonitorStatus,
     pub status_code: Option<u16>,
     pub latency: Duration,
-    pub error: Option<String>,
     pub reason_code: ReasonCode,
     pub resolved_ip: Option<Ipv6Addr>,
     pub tls_not_after: Option<DateTime<Utc>>,
@@ -227,7 +283,6 @@ impl ProbeOutcome {
             status: MonitorStatus::Ok,
             status_code,
             latency,
-            error: None,
             reason_code: ReasonCode::Ok,
             resolved_ip: Some(resolved_ip),
             tls_not_after: None,
@@ -242,14 +297,12 @@ impl ProbeOutcome {
         latency: Duration,
         status_code: Option<u16>,
         reason_code: ReasonCode,
-        error: Option<String>,
     ) -> Self {
         Self {
             success: false,
             status: MonitorStatus::Down,
             status_code,
             latency,
-            error,
             reason_code,
             resolved_ip: None,
             tls_not_after: None,
@@ -283,7 +336,6 @@ pub struct MonitorResultRow {
     pub consecutive_failures: u16,
     pub consecutive_successes: u16,
     pub backoff_reason: BackoffReason,
-    pub error: String,
     pub extra: String,
 }
 
@@ -315,7 +367,6 @@ impl MonitorResultRow {
             consecutive_failures: backoff.consecutive_failures,
             consecutive_successes: backoff.consecutive_successes,
             backoff_reason: backoff.backoff_reason,
-            error: outcome.error.clone().unwrap_or_default(),
             extra: serde_json::json!({
                 "redirect_hops": outcome.redirect_hops,
                 "final_url": outcome.final_url,
@@ -346,7 +397,6 @@ impl MonitorResultRow {
             consecutive_failures: backoff.consecutive_failures,
             consecutive_successes: backoff.consecutive_successes,
             backoff_reason: backoff.backoff_reason,
-            error: outcome.error.clone().unwrap_or_default(),
             extra: String::new(),
         }
     }
