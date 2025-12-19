@@ -44,7 +44,6 @@ type LatestIncidentRow = {
   last_event_at: string | null;
   resolved_at: string | null;
   failure_count: number | null;
-  flap_count: number | null;
   open_reason_code: string | null;
   close_reason_code: string | null;
 };
@@ -326,7 +325,6 @@ export async function getLatestIncidentsForMonitors(
       lastEventAt: string | null;
       resolvedAt: string | null;
       failureCount: number | null;
-      flapCount: number | null;
       openReasonCode: string | null;
       closeReasonCode: string | null;
     }
@@ -344,7 +342,6 @@ export async function getLatestIncidentsForMonitors(
       last_event_at,
       resolved_at,
       failure_count,
-      flap_count,
       reason_code AS open_reason_code,
       NULL AS close_reason_code
     FROM analytics.monitor_incidents FINAL
@@ -371,7 +368,6 @@ export async function getLatestIncidentsForMonitors(
         lastEventAt: string | null;
         resolvedAt: string | null;
         failureCount: number | null;
-        flapCount: number | null;
         openReasonCode: string | null;
         closeReasonCode: string | null;
       }
@@ -385,7 +381,6 @@ export async function getLatestIncidentsForMonitors(
       lastEventAt: toIsoUtc(row.last_event_at) ?? row.last_event_at,
       resolvedAt: toIsoUtc(row.resolved_at) ?? row.resolved_at,
       failureCount: row.failure_count,
-      flapCount: row.flap_count,
       openReasonCode: row.open_reason_code,
       closeReasonCode: row.close_reason_code,
     };

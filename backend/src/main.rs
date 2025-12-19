@@ -18,6 +18,7 @@ mod bot_detection;
 mod campaign;
 mod config;
 mod db;
+mod email;
 mod geoip;
 mod geoip_updater;
 mod metrics;

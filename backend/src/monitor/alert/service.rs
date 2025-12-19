@@ -15,7 +15,8 @@ use dashmap::DashMap;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
-use super::email::{EmailService, EmailServiceConfig};
+use super::email as email_templates;
+use crate::email::{EmailService, EmailServiceConfig};
 use super::history::{AlertHistoryRecord, AlertHistoryWriter};
 use super::tracker::{AlertTracker, AlertTrackerConfig, AlertType, IncidentEvent, SslEvent};
 use crate::monitor::{
@@ -484,18 +485,18 @@ impl AlertService {
             return false;
         };
 
-        match email_service
-            .send_down_alert(
-                recipients,
-                &ctx.monitor_name(),
-                ctx.check.url.as_str(),
-                ctx.error_message.as_deref(),
-                ctx.status_code,
-                &ctx.check.dashboard_id,
-                &ctx.check.id,
-            )
-            .await
-        {
+        let request = email_templates::build_down_alert(
+            recipients,
+            &ctx.monitor_name(),
+            ctx.check.url.as_str(),
+            ctx.error_message.as_deref(),
+            ctx.status_code,
+            email_service.dashboard_base_url(),
+            &ctx.check.dashboard_id,
+            &ctx.check.id,
+        );
+
+        match email_service.send(request).await {
             Ok(()) => true,
             Err(e) => {
                 error!(
@@ -524,17 +525,17 @@ impl AlertService {
             return false;
         };
 
-        match email_service
-            .send_recovery_alert(
-                recipients,
-                &ctx.monitor_name(),
-                ctx.check.url.as_str(),
-                downtime,
-                &ctx.check.dashboard_id,
-                &ctx.check.id,
-            )
-            .await
-        {
+        let request = email_templates::build_recovery_alert(
+            recipients,
+            &ctx.monitor_name(),
+            ctx.check.url.as_str(),
+            downtime,
+            email_service.dashboard_base_url(),
+            &ctx.check.dashboard_id,
+            &ctx.check.id,
+        );
+
+        match email_service.send(request).await {
             Ok(()) => true,
             Err(e) => {
                 error!(
@@ -559,18 +560,18 @@ impl AlertService {
             return false;
         };
 
-        match email_service
-            .send_ssl_alert(
-                recipients,
-                &ctx.monitor_name(),
-                ctx.check.url.as_str(),
-                days_left,
-                ctx.tls_not_after,
-                &ctx.check.dashboard_id,
-                &ctx.check.id,
-            )
-            .await
-        {
+        let request = email_templates::build_ssl_alert(
+            recipients,
+            &ctx.monitor_name(),
+            ctx.check.url.as_str(),
+            days_left,
+            ctx.tls_not_after,
+            email_service.dashboard_base_url(),
+            &ctx.check.dashboard_id,
+            &ctx.check.id,
+        );
+
+        match email_service.send(request).await {
             Ok(()) => true,
             Err(e) => {
                 error!(

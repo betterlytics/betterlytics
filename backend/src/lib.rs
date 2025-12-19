@@ -3,6 +3,7 @@ pub mod bot_detection;
 pub mod campaign;
 pub mod config;
 pub mod db;
+pub mod email;
 pub mod geoip;
 pub mod geoip_updater;
 pub mod metrics;
