@@ -17,7 +17,7 @@ use uuid::Uuid;
 
 use super::email as email_templates;
 use crate::email::{EmailService, EmailServiceConfig};
-use super::history::{AlertHistoryRecord, AlertHistoryWriter};
+use super::repository::{AlertHistoryRecord, AlertHistoryRepository};
 use super::tracker::{AlertTracker, AlertTrackerConfig, AlertType, IncidentEvent, SslEvent};
 use crate::monitor::{
     IncidentStore, MonitorCheck, MonitorIncidentRow, MonitorStatus, ProbeOutcome,
@@ -96,7 +96,7 @@ struct NotificationTimestamps {
 pub struct AlertService {
     tracker: AlertTracker,
     email_service: Option<EmailService>,
-    history_writer: Option<AlertHistoryWriter>,
+    history_writer: Option<AlertHistoryRepository>,
     enabled: bool,
     notification_state: DashMap<String, NotificationTimestamps>,
     ssl_cooldown: Duration,
@@ -106,7 +106,7 @@ pub struct AlertService {
 impl AlertService {
     pub async fn new(
         config: AlertServiceConfig,
-        history_writer: Option<AlertHistoryWriter>,
+        history_writer: Option<AlertHistoryRepository>,
         incident_store: Option<Arc<IncidentStore>>,
     ) -> Self {
         let email_service = config.email_config.map(EmailService::new);

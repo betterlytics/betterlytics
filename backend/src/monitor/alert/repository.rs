@@ -1,23 +1,11 @@
-use bb8::{Pool, RunError};
-use bb8_postgres::PostgresConnectionManager;
+use std::sync::Arc;
+
 use chrono::Utc;
-use std::str::FromStr;
-use std::time::Duration;
-use thiserror::Error;
-use tokio_postgres::{types::Type, NoTls, Config as PgConfig};
+use tokio_postgres::types::Type;
 use tracing::info;
 
+use crate::postgres::{PostgresError, PostgresPool};
 use super::tracker::AlertType;
-
-#[derive(Debug, Error)]
-pub enum AlertHistoryError {
-    #[error("Invalid Postgres URL: {0}")]
-    InvalidDatabaseUrl(String),
-    #[error("Failed to get Postgres connection from pool: {0}")]
-    Pool(#[from] RunError<tokio_postgres::Error>),
-    #[error("Postgres query failed: {0}")]
-    Query(#[from] tokio_postgres::Error),
-}
 
 /// Record of an alert that was sent
 #[derive(Clone, Debug)]
@@ -31,31 +19,19 @@ pub struct AlertHistoryRecord {
     pub ssl_days_left: Option<i32>,
 }
 
-/// Writer for recording alert history to PostgreSQL
-pub struct AlertHistoryWriter {
-    pool: Pool<PostgresConnectionManager<NoTls>>,
+/// Repository for recording alert history to PostgreSQL
+pub struct AlertHistoryRepository {
+    pool: Arc<PostgresPool>,
 }
 
-impl AlertHistoryWriter {
-    pub async fn new(database_url: &str) -> Result<Self, AlertHistoryError> {
-        let mut config = PgConfig::from_str(database_url)
-            .map_err(|e| AlertHistoryError::InvalidDatabaseUrl(e.to_string()))?;
-        config.connect_timeout(Duration::from_secs(5));
-        config.application_name("betterlytics_alert_history");
-
-        let manager = PostgresConnectionManager::new(config, NoTls);
-        let pool = Pool::builder()
-            .max_size(2)
-            .connection_timeout(Duration::from_secs(5))
-            .build(manager)
-            .await?;
-
-        Ok(Self { pool })
+impl AlertHistoryRepository {
+    pub fn new(pool: Arc<PostgresPool>) -> Self {
+        Self { pool }
     }
 
     /// Record an alert that was sent
-    pub async fn record_alert(&self, record: &AlertHistoryRecord) -> Result<(), AlertHistoryError> {
-        let conn = self.pool.get().await?;
+    pub async fn record_alert(&self, record: &AlertHistoryRecord) -> Result<(), PostgresError> {
+        let conn = self.pool.connection().await?;
         
         let alert_type_str = record.alert_type.as_str().to_string();
 

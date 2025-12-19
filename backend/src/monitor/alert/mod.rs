@@ -8,9 +8,10 @@
 //! - Alert orchestration service
 
 pub mod email;
-pub mod history;
+pub mod repository;
 pub mod service;
 pub mod tracker;
 
-pub use history::{AlertHistoryWriter};
+pub use repository::AlertHistoryRepository;
 pub use service::{AlertContext, AlertService, AlertServiceConfig};
+

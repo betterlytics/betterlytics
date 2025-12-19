@@ -68,6 +68,10 @@ fn is_allowed_scheme(url: &Url) -> bool {
 }
 
 fn is_allowed_port(url: &Url) -> bool {
+    if is_dev_mode() {
+        return true;
+    }
+
     matches!(url.port_or_known_default().unwrap_or(80), 80 | 443)
 }
 

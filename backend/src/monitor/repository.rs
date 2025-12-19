@@ -1,16 +1,15 @@
-use std::str::FromStr;
+use std::sync::Arc;
 use std::time::Duration;
 
 use async_trait::async_trait;
-use bb8::{Pool, PooledConnection, RunError};
-use bb8_postgres::PostgresConnectionManager;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use tokio_postgres::types::Json;
 use thiserror::Error;
-use tokio_postgres::{Config as PgConfig, NoTls, Row};
+use tokio_postgres::Row;
 use url::Url;
 
 use crate::monitor::{AlertConfig, HttpMethod, MonitorCheck, RequestHeader, StatusCodeValue};
+use crate::postgres::{PostgresError, PostgresPool};
 
 const BASE_SELECT: &str = r#"
 SELECT
@@ -45,12 +44,8 @@ const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY mc."updatedAt" ASC"#;
 
 #[derive(Debug, Error)]
 pub enum MonitorRepositoryError {
-    #[error("Invalid Postgres URL: {0}")]
-    InvalidDatabaseUrl(String),
-    #[error("Failed to get Postgres connection from pool: {0}")]
-    Pool(#[from] RunError<tokio_postgres::Error>),
-    #[error("Postgres query failed: {0}")]
-    Query(#[from] tokio_postgres::Error),
+    #[error(transparent)]
+    Postgres(#[from] PostgresError),
     #[error("Invalid URL in monitor check: {0}")]
     InvalidUrl(String),
 }
@@ -190,38 +185,19 @@ pub trait MonitorCheckDataSource: Send + Sync + 'static {
 }
 
 pub struct MonitorRepository {
-    pool: Pool<PostgresConnectionManager<NoTls>>,
+    pool: Arc<PostgresPool>,
 }
 
 impl MonitorRepository {
-    pub async fn new(database_url: &str) -> Result<Self, MonitorRepositoryError> {
-        let mut config = PgConfig::from_str(database_url)
-            .map_err(|e| MonitorRepositoryError::InvalidDatabaseUrl(e.to_string()))?;
-        config.connect_timeout(Duration::from_secs(5));
-        config.application_name("betterlytics_monitor_cache");
-
-        let manager = PostgresConnectionManager::new(config, NoTls);
-        let pool = Pool::builder()
-            .max_size(2)
-            .connection_timeout(Duration::from_secs(5))
-            .build(manager)
-            .await?;
-
-        Ok(Self { pool })
-    }
-
-    async fn connection(
-        &self,
-    ) -> Result<PooledConnection<'_, PostgresConnectionManager<NoTls>>, MonitorRepositoryError>
-    {
-        Ok(self.pool.get().await?)
+    pub fn new(pool: Arc<PostgresPool>) -> Self {
+        Self { pool }
     }
 
     fn rows_to_checks(rows: Vec<Row>) -> Result<Vec<MonitorCheck>, MonitorRepositoryError> {
         rows.into_iter()
             .map(|row| {
-                let record =
-                    MonitorCheckRecord::try_from(row).map_err(MonitorRepositoryError::Query)?;
+                let record = MonitorCheckRecord::try_from(row)
+                    .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))?;
                 MonitorCheck::try_from(record)
             })
             .collect()
@@ -231,9 +207,10 @@ impl MonitorRepository {
 #[async_trait]
 impl MonitorCheckDataSource for MonitorRepository {
     async fn fetch_all_checks(&self) -> Result<Vec<MonitorCheck>, MonitorRepositoryError> {
-        let conn = self.connection().await?;
+        let conn = self.pool.connection().await?;
         let query = format!("{BASE_SELECT}{ORDER_BY_UPDATED_AT}");
-        let rows = conn.query(&query, &[]).await?;
+        let rows = conn.query(&query, &[]).await
+            .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))?;
         Self::rows_to_checks(rows)
     }
 
@@ -241,9 +218,10 @@ impl MonitorCheckDataSource for MonitorRepository {
         &self,
         since: DateTime<Utc>,
     ) -> Result<Vec<MonitorCheck>, MonitorRepositoryError> {
-        let conn = self.connection().await?;
+        let conn = self.pool.connection().await?;
         let query = format!(r#"{BASE_SELECT} AND mc."updatedAt" >= $1{ORDER_BY_UPDATED_AT}"#);
-        let rows = conn.query(&query, &[&since.naive_utc()]).await?;
+        let rows = conn.query(&query, &[&since.naive_utc()]).await
+            .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))?;
         Self::rows_to_checks(rows)
     }
 }

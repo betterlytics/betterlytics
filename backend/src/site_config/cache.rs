@@ -9,7 +9,8 @@ use tokio::time::{interval, MissedTickBehavior};
 use tracing::{info, warn};
 
 use crate::metrics::MetricsCollector;
-use super::repository::{SiteConfigDataSource, SiteConfigRecord, SiteConfigRepositoryError};
+use crate::postgres::PostgresError;
+use super::repository::{SiteConfigDataSource, SiteConfigRecord};
 
 const CACHE_NAME: &str = "site_config";
 const HEALTH_CHECK_INTERVAL: StdDuration = StdDuration::from_secs(30);
@@ -51,7 +52,7 @@ impl From<SiteConfigRecord> for SiteConfig {
 #[derive(Debug, thiserror::Error)]
 pub enum SiteConfigError {
     #[error(transparent)]
-    Repository(#[from] SiteConfigRepositoryError),
+    Postgres(#[from] PostgresError),
 }
 
 pub struct SiteConfigCache {

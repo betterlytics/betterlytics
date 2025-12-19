@@ -24,6 +24,7 @@ mod geoip_updater;
 mod metrics;
 mod monitor;
 mod outbound_link;
+mod postgres;
 mod processing;
 mod referrer;
 mod session;
@@ -45,7 +46,8 @@ use monitor::{
     MonitorRepository, HttpRunner, HttpRuntimeConfig, MonitorWriter, TlsRunner,
     TlsRuntimeConfig, init_dev_mode,
 };
-use monitor::alert::AlertHistoryWriter;
+use monitor::alert::AlertHistoryRepository;
+use postgres::PostgresPool;
 use processing::EventProcessor;
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
@@ -115,10 +117,17 @@ async fn main() {
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
+    let site_config_pool = Arc::new(
+        PostgresPool::new(
+            &config.site_config_database_url,
+            "betterlytics_site_config",
+            5,
+        )
+        .await
+        .expect("Failed to create site-config PostgreSQL pool"),
+    );
     let site_config_repo: Arc<dyn SiteConfigDataSource> = Arc::new(
-        SiteConfigRepository::new(&config.site_config_database_url)
-            .await
-            .expect("Failed to initialize site-config repository"),
+        SiteConfigRepository::new(Arc::clone(&site_config_pool)),
     );
 
     let refresh_config = RefreshConfig::default();
@@ -145,18 +154,28 @@ async fn main() {
                     }
                 };
 
-                let monitor_repo = match MonitorRepository::new(&monitor_db_url).await {
-                    Ok(repo) => Arc::new(repo) as Arc<dyn MonitorCheckDataSource>,
+                let monitor_pool = match PostgresPool::new(
+                    &monitor_db_url,
+                    "betterlytics_monitor",
+                    4,
+                )
+                .await
+                {
+                    Ok(pool) => Arc::new(pool),
                     Err(err) => {
                         warn!(
                             error = ?err,
                             dsn_info = %monitor_db_url_safe(&monitor_db_url),
-                            "Failed to initialize monitor repository; retrying"
+                            "Failed to create monitor PostgreSQL pool; retrying"
                         );
                         sleep(retry_delay).await;
                         continue;
                     }
                 };
+
+                let monitor_repo: Arc<dyn MonitorCheckDataSource> = Arc::new(
+                    MonitorRepository::new(Arc::clone(&monitor_pool)),
+                );
 
                 let monitor_cache = match MonitorCache::initialize(
                     monitor_repo,
@@ -201,16 +220,8 @@ async fn main() {
                 let tls_writer = Arc::clone(&writer);
                 let tls_cache = Arc::clone(&monitor_cache);
 
-                let history_writer = match AlertHistoryWriter::new(&monitor_db_url).await {
-                    Ok(writer) => {
-                        info!("Alert history writer initialized");
-                        Some(writer)
-                    }
-                    Err(err) => {
-                        warn!(error = ?err, "Failed to initialize alert history writer; alerts will not be recorded");
-                        None
-                    }
-                };
+                let history_writer = AlertHistoryRepository::new(Arc::clone(&monitor_pool));
+                info!("Alert history repository initialized");
 
                 // Initialize alert service (email config from env, alert config from MonitorCheck)
                 let incident_store = match IncidentStore::new(config_for_monitor.clone()) {
@@ -223,7 +234,7 @@ async fn main() {
 
                 let alert_service = Arc::new(AlertService::new(
                     AlertServiceConfig::default(),
-                    history_writer,
+                    Some(history_writer),
                     incident_store,
                 ).await);
                 info!("Alert service initialized");
