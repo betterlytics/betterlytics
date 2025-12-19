@@ -2,13 +2,12 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use clickhouse::Client as ChClient;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 use tracing::warn;
 use uuid::Uuid;
 
-use crate::config::Config;
+use crate::clickhouse::ClickHouseClient;
 use crate::monitor::alert::tracker::{IncidentState, IncidentSeverity, IncidentSnapshot};
 use crate::monitor::models::{MonitorCheck, MonitorStatus};
 
@@ -155,22 +154,17 @@ impl From<IncidentSeedRow> for IncidentSeed {
 }
 
 pub struct IncidentStore {
-    client: ChClient,
+    clickhouse: Arc<ClickHouseClient>,
     table: String,
     sender: mpsc::Sender<Vec<MonitorIncidentRow>>,
 }
 
 impl IncidentStore {
-    pub fn new(config: Arc<Config>) -> Result<Arc<Self>> {
-        let client = ChClient::default()
-            .with_url(&config.clickhouse_url)
-            .with_user(&config.clickhouse_user)
-            .with_password(&config.clickhouse_password);
-
+    pub fn new(clickhouse: Arc<ClickHouseClient>, table: &str) -> Result<Arc<Self>> {
         let (sender, receiver) = mpsc::channel(INCIDENT_CHANNEL_CAPACITY);
         let store = Arc::new(Self {
-            client,
-            table: config.monitor_incidents_table.clone(),
+            clickhouse,
+            table: table.to_string(),
             sender,
         });
         store.spawn_worker(receiver);
@@ -204,7 +198,7 @@ impl IncidentStore {
             table = self.table
         );
 
-        let rows: Vec<IncidentSeedRow> = self.client.query(&query).fetch_all().await?;
+        let rows: Vec<IncidentSeedRow> = self.clickhouse.inner().query(&query).fetch_all().await?;
         Ok(rows
             .into_iter()
             .map(IncidentSeed::from)
@@ -219,7 +213,7 @@ impl IncidentStore {
 
     async fn insert_rows(&self, rows: Vec<MonitorIncidentRow>) -> Result<()> {
         for chunk in rows.chunks(INCIDENT_BATCH_SIZE) {
-            let mut inserter = self.client.inserter(&self.table)?;
+            let mut inserter = self.clickhouse.inner().inserter(&self.table)?;
             for row in chunk {
                 inserter.write(row)?;
             }

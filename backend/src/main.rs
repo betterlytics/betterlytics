@@ -16,6 +16,7 @@ use url::Url;
 mod analytics;
 mod bot_detection;
 mod campaign;
+mod clickhouse;
 mod config;
 mod db;
 mod email;
@@ -36,6 +37,7 @@ mod url_utils;
 mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
+use clickhouse::ClickHouseClient;
 use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
@@ -97,7 +99,10 @@ async fn main() {
     let validation_config = ValidationConfig::default();
     let validator = Arc::new(EventValidator::new(validation_config));
 
-    let db = Database::new(config.clone())
+    let clickhouse = Arc::new(ClickHouseClient::new(&config));
+    info!("ClickHouse client initialized");
+
+    let db = Database::new(Arc::clone(&clickhouse), config.clone())
         .await
         .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
@@ -142,6 +147,7 @@ async fn main() {
         
         let config_for_monitor = config.clone();
         let metrics_for_monitor = metrics_collector.clone();
+        let clickhouse_for_monitor = Arc::clone(&clickhouse);
         tokio::spawn(async move {
             let retry_delay = std::time::Duration::from_secs(30);
             loop {
@@ -207,7 +213,10 @@ async fn main() {
                     }
                 };
 
-                let writer = match MonitorWriter::new(config_for_monitor.clone()) {
+                let writer = match MonitorWriter::new(
+                    Arc::clone(&clickhouse_for_monitor),
+                    &config_for_monitor.monitor_clickhouse_table,
+                ) {
                     Ok(w) => w,
                     Err(err) => {
                         warn!(error = ?err, "Failed to create monitor writer; retrying");
@@ -224,7 +233,10 @@ async fn main() {
                 info!("Alert history repository initialized");
 
                 // Initialize alert service (email config from env, alert config from MonitorCheck)
-                let incident_store = match IncidentStore::new(config_for_monitor.clone()) {
+                let incident_store = match IncidentStore::new(
+                    Arc::clone(&clickhouse_for_monitor),
+                    &config_for_monitor.monitor_incidents_table,
+                ) {
                     Ok(store) => Some(store),
                     Err(err) => {
                         warn!(error = ?err, "Failed to create incident store; incident snapshots will not be recorded");

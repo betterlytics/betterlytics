@@ -1,11 +1,12 @@
 use anyhow::Result;
-use clickhouse::{error::Error as ClickHouseError, Client};
+use clickhouse::error::Error as ClickHouseError;
 use std::sync::Arc;
 use std::time::Duration;
 
 use tokio::sync::mpsc::{self, error::TryRecvError, Receiver};
 use tokio::time::timeout;
 
+use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::processing::ProcessedEvent;
 
@@ -21,7 +22,7 @@ const INSERTER_MAX_ROWS: u64 = 100_000;
 const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
 
 pub struct Database {
-    client: Client,
+    clickhouse: Arc<ClickHouseClient>,
     event_tx: mpsc::Sender<ProcessedEvent>,
     config: Arc<Config>,
 }
@@ -29,27 +30,19 @@ pub struct Database {
 pub type SharedDatabase = Arc<Database>;
 
 impl Database {
-    pub async fn new(config: Arc<Config>) -> Result<Self> {
-        let client = Self::create_client(config.clone()).await?;
+    pub async fn new(clickhouse: Arc<ClickHouseClient>, config: Arc<Config>) -> Result<Self> {
         let (event_tx, event_rx) = Self::create_channels();
-        let worker_senders = Self::spawn_inserter_workers(client.clone());
+        let worker_senders = Self::spawn_inserter_workers(clickhouse.inner().clone());
         Self::spawn_dispatcher(event_rx, worker_senders);
 
-        Ok(Self { client, event_tx, config })
-    }
-
-    async fn create_client(config: Arc<Config>) -> Result<Client> {
-        println!("Creating ClickHouse client with URL: {}", &config.clickhouse_url);
-        let client = Client::default().with_user(&config.clickhouse_user).with_password(&config.clickhouse_password).with_url(&config.clickhouse_url);
-        println!("ClickHouse client created successfully");
-        Ok(client)
+        Ok(Self { clickhouse, event_tx, config })
     }
 
     fn create_channels() -> (mpsc::Sender<ProcessedEvent>, mpsc::Receiver<ProcessedEvent>) {
         mpsc::channel(EVENT_CHANNEL_CAPACITY)
     }
 
-    fn spawn_inserter_workers(client: Client) -> Vec<mpsc::Sender<ProcessedEvent>> {
+    fn spawn_inserter_workers(client: clickhouse::Client) -> Vec<mpsc::Sender<ProcessedEvent>> {
         let mut worker_senders = Vec::with_capacity(NUM_INSERT_WORKERS);
 
         for i in 0..NUM_INSERT_WORKERS {
@@ -89,7 +82,7 @@ impl Database {
         self.check_connection().await?;
         
         println!("Validating database schema");
-        let db_exists: u8 = self.client
+        let db_exists: u8 = self.clickhouse.inner()
             .query("SELECT count() FROM system.databases WHERE name = 'analytics'")
             .fetch_one()
             .await?;
@@ -99,7 +92,7 @@ impl Database {
             return Ok(());
         }
 
-        let table_exists: u8 = self.client
+        let table_exists: u8 = self.clickhouse.inner()
             .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'events'")
             .fetch_one()
             .await?;
@@ -111,12 +104,12 @@ impl Database {
 
         if self.config.data_retention_days == -1 {
             println!("[INFO] Data retention explicitly disabled (data_retention_days = -1). Removing TTL if present.");
-            if let Err(e) = Self::remove_data_retention_policy(&self.client).await {
+            if let Err(e) = Self::remove_data_retention_policy(self.clickhouse.inner()).await {
                 eprintln!("[ERROR] Could not remove data retention policy: {}", e);
                 return Err(e);
             }
         } else if self.config.data_retention_days > 0 {
-            if let Err(e) = Self::apply_data_retention_policy(&self.client, self.config.data_retention_days).await {
+            if let Err(e) = Self::apply_data_retention_policy(self.clickhouse.inner(), self.config.data_retention_days).await {
                 eprintln!("[ERROR] Could not apply data retention policy: {}", e);
                 return Err(e);
             }
@@ -140,7 +133,7 @@ impl Database {
         Ok(())
     }
 
-    async fn apply_data_retention_policy(client: &Client, data_retention_days: i32) -> Result<()> {
+    async fn apply_data_retention_policy(client: &clickhouse::Client, data_retention_days: i32) -> Result<()> {
         let alter_query = format!(
             "ALTER TABLE analytics.events MODIFY TTL timestamp + INTERVAL {} DAY",
             data_retention_days
@@ -151,7 +144,7 @@ impl Database {
         Ok(())
     }
 
-    async fn remove_data_retention_policy(client: &Client) -> Result<()> {
+    async fn remove_data_retention_policy(client: &clickhouse::Client) -> Result<()> {
         let create_table_query: String = client
             .query("SELECT create_table_query FROM system.tables WHERE database = 'analytics' AND name = 'events'")
             .fetch_one()
@@ -176,7 +169,7 @@ impl Database {
     async fn ensure_billing_materialized_view(&self) -> Result<()> {
         println!("[INFO] Checking billing materialized view...");
         
-        let mv_exists: u8 = self.client
+        let mv_exists: u8 = self.clickhouse.inner()
             .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'usage_by_site_daily' AND engine LIKE '%MaterializedView%'")
             .fetch_one()
             .await?;
@@ -196,7 +189,7 @@ impl Database {
                 GROUP BY site_id, date
             "#;
 
-            self.client
+            self.clickhouse.inner()
                 .query(create_mv_query)
                 .execute()
                 .await
@@ -217,13 +210,13 @@ impl Database {
 
     pub async fn check_connection(&self) -> Result<()> {
         println!("Checking database connection");
-        self.client.query("SELECT 1").execute().await?;
+        self.clickhouse.inner().query("SELECT 1").execute().await?;
         println!("Database connection check successful");
         Ok(())
     }
 
     pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
-        let mut inserter = self.client.inserter("analytics.session_replays")?;
+        let mut inserter = self.clickhouse.inner().inserter("analytics.session_replays")?;
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())
@@ -232,7 +225,7 @@ impl Database {
 
 async fn run_inserter_worker(
     worker_id: usize,
-    client: Client,
+    client: clickhouse::Client,
     mut rx: Receiver<ProcessedEvent>,
 ) -> Result<(), ClickHouseError> {
     println!(
@@ -321,4 +314,4 @@ async fn run_inserter_worker(
         worker_id, stats
     );
     Ok(())
-} 
+}

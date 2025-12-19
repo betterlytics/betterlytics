@@ -1,30 +1,24 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use clickhouse::Client as ChClient;
 use tokio::sync::mpsc;
 use tracing::warn;
 
-use crate::config::Config;
+use crate::clickhouse::ClickHouseClient;
 use crate::monitor::MonitorResultRow;
 
 pub struct MonitorWriter {
-    client: ChClient,
+    clickhouse: Arc<ClickHouseClient>,
     table: String,
     sender: mpsc::Sender<Vec<MonitorResultRow>>,
 }
 
 impl MonitorWriter {
-    pub fn new(config: Arc<Config>) -> Result<Arc<Self>> {
-        let client = ChClient::default()
-            .with_url(&config.clickhouse_url)
-            .with_user(&config.clickhouse_user)
-            .with_password(&config.clickhouse_password);
-
+    pub fn new(clickhouse: Arc<ClickHouseClient>, table: &str) -> Result<Arc<Self>> {
         let (sender, receiver) = mpsc::channel(MONITOR_CHANNEL_CAPACITY);
         let writer = Arc::new(Self {
-            client,
-            table: config.monitor_clickhouse_table.clone(),
+            clickhouse,
+            table: table.to_string(),
             sender,
         });
         writer.spawn_worker(receiver);
@@ -41,7 +35,7 @@ impl MonitorWriter {
 
     async fn insert_rows(&self, rows: Vec<MonitorResultRow>) -> Result<()> {
         for chunk in rows.chunks(MONITOR_BATCH_SIZE) {
-            let mut inserter = self.client.inserter(&self.table)?;
+            let mut inserter = self.clickhouse.inner().inserter(&self.table)?;
             for row in chunk {
                 inserter.write(row)?;
             }

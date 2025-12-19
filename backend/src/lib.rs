@@ -1,6 +1,7 @@
 pub mod analytics;
 pub mod bot_detection;
 pub mod campaign;
+pub mod clickhouse;
 pub mod config;
 pub mod db;
 pub mod email;
