@@ -3,7 +3,7 @@
 //! decide when and how to notify based on the emitted events.
 
 use chrono::{DateTime, Duration, Utc};
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info};
 use uuid::Uuid;
@@ -37,8 +37,6 @@ impl AlertType {
 pub enum IncidentState {
     Open = 1,
     Resolved = 2,
-    Flapping = 3,
-    Muted = 4,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
@@ -63,6 +61,13 @@ struct MonitorAlertState {
     is_down: bool,
     down_since: Option<DateTime<Utc>>,
     last_status: Option<MonitorStatus>,
+    /// Whether the monitor is currently considered flapping
+    is_flapping: bool,
+
+    /// Last observed error details for this incident (for persistence)
+    last_error_reason_code: Option<String>,
+    last_error_status_code: Option<u16>,
+    last_error_message: Option<String>,
 
     /// SSL alert tracking
     last_ssl_days_left: Option<i32>,
@@ -72,9 +77,6 @@ struct MonitorAlertState {
     consecutive_successes: u16,
     failure_count: u16,
     flap_count: u16,
-
-    /// Rolling transition timestamps for flapping detection
-    transitions: VecDeque<DateTime<Utc>>,
 }
 
 #[derive(Clone, Debug)]
@@ -88,6 +90,9 @@ pub struct IncidentSnapshot {
     pub failure_count: u16,
     pub flap_count: u16,
     pub last_status: Option<MonitorStatus>,
+    pub last_error_reason_code: Option<String>,
+    pub last_error_status_code: Option<u16>,
+    pub last_error_message: Option<String>,
 }
 
 impl Default for MonitorAlertState {
@@ -95,19 +100,22 @@ impl Default for MonitorAlertState {
         Self {
             incident_id: None,
             state: IncidentState::Resolved,
-            severity: IncidentSeverity::Warning,
+            severity: IncidentSeverity::Critical,
             started_at: None,
             last_event_at: None,
             resolved_at: None,
             is_down: false,
             down_since: None,
             last_status: None,
+            is_flapping: false,
+            last_error_reason_code: None,
+            last_error_status_code: None,
+            last_error_message: None,
             last_ssl_days_left: None,
             consecutive_failures: 0,
             consecutive_successes: 0,
             failure_count: 0,
             flap_count: 0,
-            transitions: VecDeque::new(),
         }
     }
 }
@@ -115,10 +123,6 @@ impl Default for MonitorAlertState {
 /// Configuration for the alert tracker / incident evaluator
 #[derive(Clone, Copy, Debug)]
 pub struct AlertTrackerConfig {
-    /// How many state transitions within the window mark the monitor as flapping
-    pub flap_transition_threshold: usize,
-    /// Time window for flapping detection
-    pub flap_window: Duration,
     /// Consecutive successes required to consider an incident recovered
     pub recovery_success_threshold: u16,
 }
@@ -126,9 +130,6 @@ pub struct AlertTrackerConfig {
 impl Default for AlertTrackerConfig {
     fn default() -> Self {
         Self {
-            // Flapping: 4 transitions in 10 minutes
-            flap_transition_threshold: 4,
-            flap_window: Duration::minutes(10),
             // One healthy check is enough to call it recovered
             recovery_success_threshold: 1, // TODO: Allow users to configure this as an advanced setting?
         }
@@ -138,18 +139,12 @@ impl Default for AlertTrackerConfig {
 /// Incident lifecycle events emitted by the evaluator
 #[derive(Clone, Debug)]
 pub enum IncidentEvent {
-    /// A new incident opened (possibly immediately marked flapping)
+    /// A new incident opened
     Opened {
         incident_id: Uuid,
-        is_flapping: bool,
     },
-    /// Ongoing incident got another failing signal (maybe flapping)
+    /// Ongoing incident got another failing signal
     Updated {
-        incident_id: Uuid,
-        is_flapping: bool,
-    },
-    /// First transition into flapping mode for this incident
-    Flapping {
         incident_id: Uuid,
     },
     /// Incident resolved
@@ -197,7 +192,6 @@ impl AlertTracker {
         let state = states.entry(check_id.to_string()).or_default();
         let now = Utc::now();
 
-        Self::track_transition(state, status, now, self.config);
         state.last_status = Some(status);
 
         debug!(
@@ -220,10 +214,8 @@ impl AlertTracker {
             return None;
         }
 
-        let was_flapping = matches!(state.state, IncidentState::Flapping);
-        let was_open = matches!(state.state, IncidentState::Open | IncidentState::Flapping);
+        let was_open = matches!(state.state, IncidentState::Open);
         let was_resolved = matches!(state.state, IncidentState::Resolved);
-        let is_flapping = Self::is_flapping(state, now, self.config);
 
         // Start a new incident if there was no previous one OR the prior one
         // has been fully resolved. This guarantees that once an incident is
@@ -236,11 +228,7 @@ impl AlertTracker {
             state.flap_count = 0;
         }
 
-        state.state = if is_flapping {
-            IncidentState::Flapping
-        } else {
-            IncidentState::Open
-        };
+        state.state = IncidentState::Open;
         state.is_down = true;
         state.down_since.get_or_insert(now);
         state.started_at.get_or_insert(now);
@@ -253,20 +241,13 @@ impl AlertTracker {
             .incident_id
             .expect("incident_id must be set when opening/updating incident");
 
-        // Emit a dedicated flapping event on the first transition into flapping
-        if is_flapping && !was_flapping {
-            return Some(IncidentEvent::Flapping { incident_id });
-        }
-
         if was_open {
             Some(IncidentEvent::Updated {
                 incident_id,
-                is_flapping,
             })
         } else {
             Some(IncidentEvent::Opened {
                 incident_id,
-                is_flapping,
             })
         }
     }
@@ -282,13 +263,9 @@ impl AlertTracker {
         let state = states.entry(check_id.to_string()).or_default();
         let now = Utc::now();
 
-        Self::track_transition(state, status, now, self.config);
         state.last_status = Some(status);
 
-        let has_open_incident = matches!(
-            state.state,
-            IncidentState::Open | IncidentState::Flapping
-        ) && state.is_down;
+        let has_open_incident = matches!(state.state, IncidentState::Open) && state.is_down;
 
         if !has_open_incident {
             state.consecutive_successes = state.consecutive_successes.saturating_add(1);
@@ -340,6 +317,28 @@ impl AlertTracker {
             incident_id,
             downtime_duration,
         })
+    }
+
+    /// Update the last observed error details for a monitor.
+    ///
+    /// This is called from the alert service on failing probes so that
+    /// incident snapshots can persist a stable view of the most recent
+    /// error, even after the monitor has recovered.
+    pub async fn update_error_metadata(
+        &self,
+        check_id: &str,
+        reason_code: Option<String>,
+        status_code: Option<u16>,
+        error_message: Option<String>,
+    ) {
+        let mut states = self.states.write().await;
+        let state = states.entry(check_id.to_string()).or_default();
+
+        if let Some(code) = reason_code {
+            state.last_error_reason_code = Some(code);
+        }
+        state.last_error_status_code = status_code;
+        state.last_error_message = error_message;
     }
 
     /// Check if an SSL expiry alert should be sent
@@ -437,10 +436,13 @@ impl AlertTracker {
             state.failure_count = seed.failure_count;
             state.flap_count = seed.flap_count;
             state.last_status = seed.last_status;
-            state.is_down = matches!(seed.state, IncidentState::Open | IncidentState::Flapping);
+            state.is_down = matches!(seed.state, IncidentState::Open);
             state.down_since = Some(seed.started_at);
             state.consecutive_failures = seed.failure_count;
             state.consecutive_successes = 0;
+            state.last_error_reason_code = Some(seed.reason_code.clone());
+            state.last_error_status_code = seed.status_code;
+            state.last_error_message = Some(seed.error_message.clone());
             warm_count += 1;
         }
 
@@ -448,53 +450,6 @@ impl AlertTracker {
             down_monitors = warm_count,
             "Alert tracker warmed from incident snapshots"
         );
-    }
-
-    fn track_transition(
-        state: &mut MonitorAlertState,
-        status: MonitorStatus,
-        now: DateTime<Utc>,
-        config: AlertTrackerConfig,
-    ) {
-        if let Some(last_status) = state.last_status {
-            if last_status == status {
-                return;
-            }
-        }
-
-        state.transitions.push_back(now);
-
-        while let Some(front) = state.transitions.front() {
-            if now.signed_duration_since(*front) > config.flap_window {
-                state.transitions.pop_front();
-            } else {
-                break;
-            }
-        }
-    }
-
-    fn is_flapping(
-        state: &mut MonitorAlertState,
-        now: DateTime<Utc>,
-        config: AlertTrackerConfig,
-    ) -> bool {
-        // Trim old transitions first (defensive)
-        while let Some(front) = state.transitions.front() {
-            if now.signed_duration_since(*front) > config.flap_window {
-                state.transitions.pop_front();
-            } else {
-                break;
-            }
-        }
-
-        let was_flapping = matches!(state.state, IncidentState::Flapping);
-        let is_flapping = state.transitions.len() >= config.flap_transition_threshold;
-
-        if is_flapping && !was_flapping {
-            state.flap_count = state.flap_count.saturating_add(1);
-        }
-
-        is_flapping
     }
 
     pub async fn snapshot(&self, check_id: &str) -> Option<IncidentSnapshot> {
@@ -511,6 +466,9 @@ impl AlertTracker {
             failure_count: state.failure_count,
             flap_count: state.flap_count,
             last_status: state.last_status,
+            last_error_reason_code: state.last_error_reason_code.clone(),
+            last_error_status_code: state.last_error_status_code,
+            last_error_message: state.last_error_message.clone(),
         })
     }
 }

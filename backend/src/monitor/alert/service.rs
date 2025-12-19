@@ -22,7 +22,6 @@ use crate::monitor::{
     IncidentStore, MonitorCheck, MonitorIncidentRow, MonitorStatus, ProbeOutcome,
 };
 use crate::monitor::incident_store::{IncidentSeed, NotificationSnapshot};
-use serde_json::json;
 
 /// Context for processing an alert
 #[derive(Clone, Debug)]
@@ -229,6 +228,20 @@ impl AlertService {
             return;
         }
 
+        // Update tracker with latest error details so incident snapshots
+        // can retain a stable view of the failing reason even after recovery.
+        self.tracker
+            .update_error_metadata(
+                &ctx.check.id,
+                // reason_code is derived from monitor_results; reuse the low-cardinality
+                // reason encoded there by using the error message when present or the
+                // string form of the status as a fallback.
+                ctx.error_message.clone(),
+                ctx.status_code,
+                ctx.error_message.clone(),
+            )
+            .await;
+
         let event = self
             .tracker
             .evaluate_failure(
@@ -248,31 +261,16 @@ impl AlertService {
             );
         }
 
-        let (incident_id, is_flapping) = match event {
-            Some(IncidentEvent::Opened { incident_id, is_flapping })
-            | Some(IncidentEvent::Updated { incident_id, is_flapping }) => {
+        let incident_id = match event {
+            Some(IncidentEvent::Opened { incident_id })
+            | Some(IncidentEvent::Updated { incident_id }) => {
                 debug!(
                     check_id = %ctx.check.id,
                     incident_id = %incident_id,
-                    is_flapping,
                     consecutive_failures = ctx.consecutive_failures,
                     "incident is open/updated after failure evaluation"
                 );
-                (incident_id, is_flapping)
-            }
-            Some(IncidentEvent::Flapping { incident_id }) => {
-                // Optional place to send a "flapping" notification; currently suppressed.
-                if self.should_notify_flap(&ctx.check.id, incident_id).await {
-                    self.mark_notified_flap(&ctx.check.id, incident_id).await;
-                }
-                debug!(
-                    check_id = %ctx.check.id,
-                    incident_id = %incident_id,
-                    "monitor marked flapping; persisting snapshot without user notification"
-                );
-                self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
-                    .await;
-                return;
+                incident_id
             }
             Some(IncidentEvent::Resolved { .. }) => {
                 // Should not happen on failure path; ignore defensively.
@@ -285,14 +283,8 @@ impl AlertService {
             None => return,
         };
 
-        if is_flapping && !self.should_notify_flap(&ctx.check.id, incident_id).await {
-            self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
-                .await;
-            return;
-        }
-
-        if !is_flapping && !self.should_notify_down(&ctx.check.id, incident_id).await {
-            self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
+        if !self.should_notify_down(&ctx.check.id, incident_id).await {
+            self.persist_incident_snapshot(ctx)
                 .await;
             return;
         }
@@ -305,7 +297,7 @@ impl AlertService {
                 "No recipients configured for down alert"
             );
             self.mark_notified_down(&ctx.check.id, incident_id).await;
-            self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
+            self.persist_incident_snapshot(ctx)
                 .await;
             return;
         }
@@ -334,7 +326,7 @@ impl AlertService {
             );
         }
 
-        self.persist_incident_snapshot(ctx, Some(self.open_reason_code(ctx)), None)
+        self.persist_incident_snapshot(ctx)
             .await;
     }
 
@@ -379,7 +371,7 @@ impl AlertService {
                 "no recipients configured for recovery alert; marking as notified only"
             );
             self.mark_notified_recovery(&ctx.check.id, incident_id).await;
-            self.persist_incident_snapshot(ctx, None, Some("recovered".to_string()))
+            self.persist_incident_snapshot(ctx)
                 .await;
             return;
         }
@@ -411,7 +403,7 @@ impl AlertService {
             );
         }
 
-        self.persist_incident_snapshot(ctx, None, Some("recovered".to_string()))
+        self.persist_incident_snapshot(ctx)
             .await;
     }
 
@@ -654,47 +646,6 @@ impl AlertService {
         true
     }
 
-    async fn should_notify_flap(&self, check_id: &str, incident_id: Uuid) -> bool {
-        let mut entry = self
-            .notification_state
-            .entry(check_id.to_string())
-            .or_default();
-        if entry.last_flap_incident == Some(incident_id) {
-            debug!(
-                check_id = check_id,
-                incident_id = %incident_id,
-                "not sending flap alert: already notified for this incident"
-            );
-            return false;
-        }
-        if entry.last_flap_seeded {
-            entry.last_flap_seeded = false;
-            entry.last_flap_incident = Some(incident_id);
-            debug!(
-                check_id = check_id,
-                incident_id = %incident_id,
-                "not sending flap alert: seeded from existing incident history"
-            );
-            return false;
-        }
-        debug!(
-            check_id = check_id,
-            incident_id = %incident_id,
-            "allowing flap alert notification"
-        );
-        true
-    }
-
-    async fn mark_notified_flap(&self, check_id: &str, incident_id: Uuid) {
-        let mut entry = self
-            .notification_state
-            .entry(check_id.to_string())
-            .or_default();
-        entry.last_flap = Some(Utc::now());
-        entry.last_flap_incident = Some(incident_id);
-        entry.last_flap_seeded = false;
-    }
-
     async fn should_notify_ssl(&self, check_id: &str) -> bool {
         let mut entry = self
             .notification_state
@@ -762,12 +713,7 @@ impl AlertService {
             .unwrap_or_default()
     }
 
-    async fn persist_incident_snapshot(
-        &self,
-        ctx: &AlertContext,
-        open_reason_code: Option<String>,
-        close_reason_code: Option<String>,
-    ) {
+    async fn persist_incident_snapshot(&self, ctx: &AlertContext) {
         let Some(store) = &self.incident_store else {
             return;
         };
@@ -777,36 +723,16 @@ impl AlertService {
         };
 
         let notified = self.notification_snapshot(&ctx.check.id).await;
-        let extra = json!({
-            "status": ctx.status.as_str(),
-            "status_code": ctx.status_code,
-            "error": ctx.error_message,
-            "tls_days_left": ctx.tls_days_left,
-            "is_flapping": matches!(snapshot.state, super::tracker::IncidentState::Flapping),
-        });
 
         let row = MonitorIncidentRow::from_snapshot(
             &snapshot,
             &ctx.check,
             notified,
-            open_reason_code,
-            close_reason_code,
-            extra,
         );
 
         if let Err(err) = store.enqueue_rows(vec![row]) {
             warn!(error = ?err, "Failed to enqueue incident snapshot");
         }
-    }
-
-    fn open_reason_code(&self, ctx: &AlertContext) -> String {
-        if let Some(code) = ctx.status_code {
-            return format!("status_code_{code}");
-        }
-        if let Some(err) = &ctx.error_message {
-            return err.clone();
-        }
-        ctx.status.as_str().to_string()
     }
 
     fn hydrate_notification_state(

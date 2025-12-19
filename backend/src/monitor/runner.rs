@@ -401,9 +401,9 @@ async fn run_loop<S, FProbe, FRow>(
         let mut set = JoinSet::new();
 
         for check in snapshot {
-            let Some(pre_snapshot) = scheduler.check_due(&check, now, &last_run) else {
+            if scheduler.check_due(&check, now, &last_run).is_none() {
                 continue;
-            };
+            }
 
             let probe = probe.clone();
             let metrics = metrics.clone();
@@ -434,13 +434,13 @@ async fn run_loop<S, FProbe, FRow>(
                     );
                 }
 
-                Some((check_for_probe, outcome, finished_at, pre_snapshot))
+                Some((check_for_probe, outcome, finished_at))
             });
         }
 
         let mut collected: Vec<MonitorResultRow> = Vec::new();
         while let Some(res) = set.join_next().await {
-            if let Ok(Some((check, outcome, finished_at, pre_snapshot))) = res {
+            if let Ok(Some((check, outcome, finished_at))) = res {
                 last_run.insert(check.id.clone(), finished_at);
                 let post_snapshot = scheduler.apply_outcome(&check, &outcome, finished_at);
 
@@ -451,8 +451,6 @@ async fn run_loop<S, FProbe, FRow>(
                     success = outcome.success,
                     reason = %outcome.reason_code.as_str(),
                     latency_ms = outcome.latency.as_millis() as u64,
-                    pre_failures = pre_snapshot.consecutive_failures,
-                    pre_successes = pre_snapshot.consecutive_successes,
                     post_failures = post_snapshot.consecutive_failures,
                     post_successes = post_snapshot.consecutive_successes,
                     backoff_level = post_snapshot.backoff_level,

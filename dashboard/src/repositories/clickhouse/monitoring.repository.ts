@@ -345,8 +345,8 @@ export async function getLatestIncidentsForMonitors(
       resolved_at,
       failure_count,
       flap_count,
-      open_reason_code,
-      close_reason_code
+      reason_code AS open_reason_code,
+      NULL AS close_reason_code
     FROM analytics.monitor_incidents FINAL
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}

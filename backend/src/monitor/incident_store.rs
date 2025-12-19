@@ -26,18 +26,19 @@ pub struct MonitorIncidentRow {
     pub last_event_at: DateTime<Utc>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub resolved_at: Option<DateTime<Utc>>,
-    pub open_reason_code: String,
-    pub close_reason_code: String,
+    pub reason_code: String,
     pub failure_count: u16,
     pub flap_count: u16,
     pub last_status: MonitorStatus,
+    pub status_code: Option<u16>,
+    pub error_message: String,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub notified_down_at: Option<DateTime<Utc>>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub notified_flap_at: Option<DateTime<Utc>>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub notified_resolve_at: Option<DateTime<Utc>>,
-    pub extra: String,
+    pub kind: String,
 }
 
 impl MonitorIncidentRow {
@@ -45,10 +46,9 @@ impl MonitorIncidentRow {
         snapshot: &IncidentSnapshot,
         check: &MonitorCheck,
         notified: NotificationSnapshot,
-        open_reason_code: Option<String>,
-        close_reason_code: Option<String>,
-        extra: serde_json::Value,
     ) -> Self {
+        let kind = if check.url.scheme() == "https" { "https" } else { "http" };
+
         Self {
             incident_id: snapshot
                 .incident_id
@@ -60,17 +60,24 @@ impl MonitorIncidentRow {
             started_at: snapshot.started_at.unwrap_or_else(Utc::now),
             last_event_at: snapshot.last_event_at.unwrap_or_else(Utc::now),
             resolved_at: snapshot.resolved_at,
-            open_reason_code: open_reason_code.unwrap_or_default(),
-            close_reason_code: close_reason_code.unwrap_or_default(),
+            reason_code: snapshot
+                .last_error_reason_code
+                .clone()
+                .unwrap_or_else(|| String::from("unknown")),
             failure_count: snapshot.failure_count,
             flap_count: snapshot.flap_count,
             last_status: snapshot
                 .last_status
                 .unwrap_or(MonitorStatus::Ok),
+            status_code: snapshot.last_error_status_code,
+            error_message: snapshot
+                .last_error_message
+                .clone()
+                .unwrap_or_default(),
             notified_down_at: notified.last_down,
             notified_flap_at: notified.last_flap,
             notified_resolve_at: notified.last_recovery,
-            extra: extra.to_string(),
+            kind: kind.to_string(),
         }
     }
 }
@@ -94,6 +101,9 @@ pub struct IncidentSeed {
     pub failure_count: u16,
     pub flap_count: u16,
     pub last_status: Option<MonitorStatus>,
+    pub reason_code: String,
+    pub status_code: Option<u16>,
+    pub error_message: String,
     pub notified_down_at: Option<DateTime<Utc>>,
     pub notified_flap_at: Option<DateTime<Utc>>,
     pub notified_resolve_at: Option<DateTime<Utc>>,
@@ -115,6 +125,9 @@ struct IncidentSeedRow {
     failure_count: u16,
     flap_count: u16,
     last_status: Option<i8>,
+    reason_code: String,
+    status_code: Option<u16>,
+    error_message: String,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     notified_down_at: Option<DateTime<Utc>>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
@@ -144,6 +157,9 @@ impl From<IncidentSeedRow> for IncidentSeed {
             failure_count: row.failure_count,
             flap_count: row.flap_count,
             last_status,
+            reason_code: row.reason_code,
+            status_code: row.status_code,
+            error_message: row.error_message,
             notified_down_at: row.notified_down_at,
             notified_flap_at: row.notified_flap_at,
             notified_resolve_at: row.notified_resolve_at,
@@ -188,6 +204,9 @@ impl IncidentStore {
                 failure_count,
                 flap_count,
                 if(toInt8(last_status) BETWEEN 1 AND 4, toInt8(last_status), NULL) as last_status,
+                reason_code,
+                status_code,
+                error_message,
                 notified_down_at,
                 notified_flap_at,
                 notified_resolve_at

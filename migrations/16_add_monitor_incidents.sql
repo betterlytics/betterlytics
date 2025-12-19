@@ -6,9 +6,7 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
 
     state Enum8(
         'open'      = 1,
-        'resolved'  = 2,
-        'flapping'  = 3,
-        'muted'     = 4
+        'resolved'  = 2
     ),
 
     severity Enum8(
@@ -21,19 +19,20 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
     last_event_at DateTime64(3),
     resolved_at   Nullable(DateTime64(3)),
 
-    open_reason_code   LowCardinality(String),
-    close_reason_code  LowCardinality(String),
+    reason_code   LowCardinality(String),
 
     failure_count UInt16,
     flap_count    UInt16,
 
     last_status   Enum8('ok' = 1, 'warn' = 2, 'down' = 3, 'error' = 4),
+    status_code   Nullable(UInt16),
+    error_message String,
 
     notified_down_at     Nullable(DateTime64(3)),
     notified_flap_at     Nullable(DateTime64(3)),
     notified_resolve_at  Nullable(DateTime64(3)),
 
-    extra String
+    kind LowCardinality(String)
 )
 ENGINE = ReplacingMergeTree(last_event_at)
 ORDER BY (check_id, incident_id);
