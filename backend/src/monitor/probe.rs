@@ -131,7 +131,7 @@ impl MonitorProbe {
 
                 let (status, reason_code) = if days_left < 0 {
                     (MonitorStatus::Down, ReasonCode::TlsExpired)
-                } else if days_left <= TLS_WARN_DAYS {
+                } else if days_left <= check.alert.ssl_expiry_days {
                     (MonitorStatus::Warn, ReasonCode::TlsExpiringSoon)
                 } else {
                     (MonitorStatus::Ok, ReasonCode::Ok)
@@ -433,7 +433,6 @@ impl MonitorProbe {
     }
 }
 
-const TLS_WARN_DAYS: i32 = 14;
 
 fn extract_not_after_from_der(der: &[u8]) -> Result<DateTime<Utc>, ProbeError> {
     let (_rem, parsed) = x509_parser::certificate::X509Certificate::from_der(der)

@@ -3,8 +3,7 @@
 //! decide when and how to notify based on the emitted events.
 
 use chrono::{DateTime, Duration, Utc};
-use std::collections::HashMap;
-use tokio::sync::RwLock;
+use dashmap::DashMap;
 use tracing::{debug, error, info};
 use uuid::Uuid;
 use serde_repr::{Serialize_repr, Deserialize_repr};
@@ -67,9 +66,6 @@ struct MonitorAlertState {
     last_error_status_code: Option<u16>,
     last_error_message: Option<String>,
 
-    /// SSL alert tracking
-    last_ssl_days_left: Option<i32>,
-
     /// Counters
     consecutive_failures: u16,
     consecutive_successes: u16,
@@ -106,7 +102,6 @@ impl Default for MonitorAlertState {
             last_error_reason_code: None,
             last_error_status_code: None,
             last_error_message: None,
-            last_ssl_days_left: None,
             consecutive_failures: 0,
             consecutive_successes: 0,
             failure_count: 0,
@@ -148,42 +143,39 @@ pub enum IncidentEvent {
     },
 }
 
-/// SSL-specific events emitted by the evaluator
-#[derive(Clone, Debug)]
+/// SSL-specific events emitted by the evaluator.
+/// Note: Unlike down/recovery incidents, SSL events don't create persistent incidents.
+/// They're used to trigger one-time alerts when certificates are expiring.
+#[derive(Clone, Copy, Debug)]
 pub enum SslEvent {
-    Expiring {
-        incident_id: Uuid,
-    },
-    Expired {
-        incident_id: Uuid,
-    },
+    Expiring,
+    Expired,
 }
 
 /// Tracks incident state for all monitors and decides when to notify
 pub struct AlertTracker {
-    states: RwLock<HashMap<String, MonitorAlertState>>,
+    states: DashMap<String, MonitorAlertState>,
     config: AlertTrackerConfig,
 }
 
 impl AlertTracker {
     pub fn new(config: AlertTrackerConfig) -> Self {
         Self {
-            states: RwLock::new(HashMap::new()),
+            states: DashMap::new(),
             config,
         }
     }
 
     /// Evaluate a failing probe. Opens/updates an incident and returns
     /// whether we should notify about the down state.
-    pub async fn evaluate_failure(
+    pub fn evaluate_failure(
         &self,
         check_id: &str,
         status: MonitorStatus,
         consecutive_failures: u16,
         failure_threshold: i32,
     ) -> Option<IncidentEvent> {
-        let mut states = self.states.write().await;
-        let state = states.entry(check_id.to_string()).or_default();
+        let mut state = self.states.entry(check_id.to_string()).or_default();
         let now = Utc::now();
 
         state.last_status = Some(status);
@@ -247,13 +239,12 @@ impl AlertTracker {
 
     /// Evaluate a healthy probe. If the monitor had an open incident,
     /// it will be marked resolved and may generate a recovery notification.
-    pub async fn evaluate_recovery(
+    pub fn evaluate_recovery(
         &self,
         check_id: &str,
         status: MonitorStatus,
     ) -> Option<IncidentEvent> {
-        let mut states = self.states.write().await;
-        let state = states.entry(check_id.to_string()).or_default();
+        let mut state = self.states.entry(check_id.to_string()).or_default();
         let now = Utc::now();
 
         state.last_status = Some(status);
@@ -261,11 +252,11 @@ impl AlertTracker {
         let has_open_incident = matches!(state.state, IncidentState::Open) && state.is_down;
 
         if !has_open_incident {
-            state.consecutive_successes = state.consecutive_successes.saturating_add(1);
+            // Only track consecutive successes when we have an open incident
+            // to avoid unnecessary state accumulation
             debug!(
                 check_id = check_id,
-                consecutive_successes = state.consecutive_successes,
-                "no open incident; counting success toward recovery threshold"
+                "no open incident; skipping recovery evaluation"
             );
             return None;
         }
@@ -317,15 +308,14 @@ impl AlertTracker {
     /// This is called from the alert service on failing probes so that
     /// incident snapshots can persist a stable view of the most recent
     /// error, even after the monitor has recovered.
-    pub async fn update_error_metadata(
+    pub fn update_error_metadata(
         &self,
         check_id: &str,
         reason_code: Option<String>,
         status_code: Option<u16>,
         error_message: Option<String>,
     ) {
-        let mut states = self.states.write().await;
-        let state = states.entry(check_id.to_string()).or_default();
+        let mut state = self.states.entry(check_id.to_string()).or_default();
 
         if let Some(code) = reason_code {
             state.last_error_reason_code = Some(code);
@@ -334,8 +324,9 @@ impl AlertTracker {
         state.last_error_message = error_message;
     }
 
-    /// Check if an SSL expiry alert should be sent
-    pub async fn should_alert_ssl_expiry(
+    /// Check if an SSL expiry alert should be sent based on threshold.
+    /// The service layer handles notification cooldowns separately.
+    pub fn should_alert_ssl_expiry(
         &self,
         check_id: &str,
         days_left: i32,
@@ -351,75 +342,38 @@ impl AlertTracker {
             return None;
         }
 
-        let mut states = self.states.write().await;
-
-        let should_alert = match states.get(check_id) {
-            Some(state) => {
-                // Alert if days_left decreased significantly (crossed threshold)
-                let decision = state
-                    .last_ssl_days_left
-                    .map(|last| days_left < last && (last - days_left) >= 7)
-                    .unwrap_or(true);
-
-                if !decision {
-                    debug!(
-                        check_id = check_id,
-                        days_left,
-                        last_ssl_days_left = state.last_ssl_days_left,
-                        "not emitting SSL event: change in days_left below 7-day delta"
-                    );
-                }
-
-                decision
-            }
-            None => true,
-        };
-
-        if should_alert {
-            if let Some(state) = states.get_mut(check_id) {
-                state.last_ssl_days_left = Some(days_left);
-            }
-
-            let incident_id = Uuid::new_v4();
-            if days_left <= 0 {
-                debug!(
-                    check_id = check_id,
-                    days_left,
-                    incident_id = %incident_id,
-                    "emitting SSL Expired event"
-                );
-                Some(SslEvent::Expired { incident_id })
-            } else {
-                debug!(
-                    check_id = check_id,
-                    days_left,
-                    incident_id = %incident_id,
-                    "emitting SSL Expiring event"
-                );
-                Some(SslEvent::Expiring { incident_id })
-            }
+        if days_left <= 0 {
+            debug!(
+                check_id = check_id,
+                days_left,
+                "emitting SSL Expired event"
+            );
+            Some(SslEvent::Expired)
         } else {
-            None
+            debug!(
+                check_id = check_id,
+                days_left,
+                "emitting SSL Expiring event"
+            );
+            Some(SslEvent::Expiring)
         }
     }
 
     /// Remove state for monitors that no longer exist
-    pub async fn prune_inactive(&self, active_ids: &std::collections::HashSet<String>) {
-        let mut states = self.states.write().await;
-        states.retain(|id, _| active_ids.contains(id));
+    pub fn prune_inactive(&self, active_ids: &std::collections::HashSet<String>) {
+        self.states.retain(|id, _| active_ids.contains(id));
     }
 
     /// Warm the tracker from active incident snapshots
-    pub async fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
+    pub fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
         if seeds.is_empty() {
             return;
         }
 
-        let mut states = self.states.write().await;
         let mut warm_count = 0;
 
         for seed in seeds {
-            let state = states.entry(seed.check_id.clone()).or_default();
+            let mut state = self.states.entry(seed.check_id.clone()).or_default();
             state.incident_id = Some(seed.incident_id);
             state.state = seed.state;
             state.severity = seed.severity;
@@ -444,9 +398,8 @@ impl AlertTracker {
         );
     }
 
-    pub async fn snapshot(&self, check_id: &str) -> Option<IncidentSnapshot> {
-        let states = self.states.read().await;
-        let state = states.get(check_id)?;
+    pub fn snapshot(&self, check_id: &str) -> Option<IncidentSnapshot> {
+        let state = self.states.get(check_id)?;
 
         Some(IncidentSnapshot {
             incident_id: state.incident_id,

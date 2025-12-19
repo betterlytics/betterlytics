@@ -163,12 +163,17 @@ pub enum MonitorStatus {
     Error = 4,
 }
 
+/// Reason for monitor backoff state.
+/// Note: `Manual` and `RateLimited` variants exist in the database schema
+/// and are reserved for future use.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum BackoffReason {
     None = 0,
     Failure = 1,
+    /// Reserved for future use - exists in DB schema
     Manual = 2,
+    /// Reserved for future use - exists in DB schema
     RateLimited = 3,
 }
 

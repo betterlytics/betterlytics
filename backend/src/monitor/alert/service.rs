@@ -86,7 +86,6 @@ impl Default for AlertServiceConfig {
 struct NotificationTimestamps {
     last_down: Option<DateTime<Utc>>,
     last_down_incident: Option<Uuid>,
-    last_down_seeded: bool,
     last_recovery: Option<DateTime<Utc>>,
     last_recovery_incident: Option<Uuid>,
     last_ssl: Option<DateTime<Utc>>,
@@ -127,7 +126,7 @@ impl AlertService {
         if let Some(store_ref) = incident_store.as_ref() {
             match store_ref.load_active_incidents().await {
                 Ok(seeds) => {
-                    tracker.warm_from_incidents(&seeds).await;
+                    tracker.warm_from_incidents(&seeds);
                     Self::hydrate_notification_state(&notification_state, &seeds);
                 }
                 Err(err) => {
@@ -227,27 +226,22 @@ impl AlertService {
 
         // Update tracker with latest error details so incident snapshots
         // can retain a stable view of the failing reason even after recovery.
-        self.tracker
-            .update_error_metadata(
-                &ctx.check.id,
-                // reason_code is derived from monitor_results; reuse the low-cardinality
-                // reason encoded there by using the error message when present or the
-                // string form of the status as a fallback.
-                ctx.error_message.clone(),
-                ctx.status_code,
-                ctx.error_message.clone(),
-            )
-            .await;
+        self.tracker.update_error_metadata(
+            &ctx.check.id,
+            // reason_code is derived from monitor_results; reuse the low-cardinality
+            // reason encoded there by using the error message when present or the
+            // string form of the status as a fallback.
+            ctx.error_message.clone(),
+            ctx.status_code,
+            ctx.error_message.clone(),
+        );
 
-        let event = self
-            .tracker
-            .evaluate_failure(
-                &ctx.check.id,
-                ctx.status,
-                ctx.consecutive_failures,
-                alert_config.failure_threshold,
-            )
-            .await;
+        let event = self.tracker.evaluate_failure(
+            &ctx.check.id,
+            ctx.status,
+            ctx.consecutive_failures,
+            alert_config.failure_threshold,
+        );
 
         if event.is_none() {
             debug!(
@@ -280,7 +274,7 @@ impl AlertService {
             None => return,
         };
 
-        if !self.should_notify_down(&ctx.check.id, incident_id).await {
+        if !self.should_notify_down(&ctx.check.id, incident_id) {
             self.persist_incident_snapshot(ctx)
                 .await;
             return;
@@ -293,7 +287,7 @@ impl AlertService {
                 check_id = %ctx.check.id,
                 "No recipients configured for down alert"
             );
-            self.mark_notified_down(&ctx.check.id, incident_id).await;
+            self.mark_notified_down(&ctx.check.id, incident_id);
             self.persist_incident_snapshot(ctx)
                 .await;
             return;
@@ -302,7 +296,7 @@ impl AlertService {
         let result = self.send_down_alert(ctx, recipients).await;
 
         if result {
-            self.mark_notified_down(&ctx.check.id, incident_id).await;
+            self.mark_notified_down(&ctx.check.id, incident_id);
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
@@ -331,10 +325,7 @@ impl AlertService {
         let alert_config = &ctx.check.alert;
 
         // Check if we need to send a recovery alert
-        let event = self
-            .tracker
-            .evaluate_recovery(&ctx.check.id, ctx.status)
-            .await;
+        let event = self.tracker.evaluate_recovery(&ctx.check.id, ctx.status);
 
         if !matches!(event, Some(IncidentEvent::Resolved { .. })) {
             debug!(
@@ -355,7 +346,7 @@ impl AlertService {
                 incident_id = %incident_id,
                 "recovery alerts disabled for this monitor; marking as notified without email"
             );
-            self.mark_notified_recovery(&ctx.check.id, incident_id).await;
+            self.mark_notified_recovery(&ctx.check.id, incident_id);
             return;
         }
 
@@ -367,7 +358,7 @@ impl AlertService {
                 incident_id = %incident_id,
                 "no recipients configured for recovery alert; marking as notified only"
             );
-            self.mark_notified_recovery(&ctx.check.id, incident_id).await;
+            self.mark_notified_recovery(&ctx.check.id, incident_id);
             self.persist_incident_snapshot(ctx)
                 .await;
             return;
@@ -378,7 +369,7 @@ impl AlertService {
             .await;
 
         if result {
-            self.mark_notified_recovery(&ctx.check.id, incident_id).await;
+            self.mark_notified_recovery(&ctx.check.id, incident_id);
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
@@ -416,27 +407,28 @@ impl AlertService {
             return;
         }
 
-        let event = self
-            .tracker
-            .should_alert_ssl_expiry(&ctx.check.id, days_left, alert_config.ssl_expiry_days)
-            .await;
+        let event = self.tracker.should_alert_ssl_expiry(
+            &ctx.check.id,
+            days_left,
+            alert_config.ssl_expiry_days,
+        );
 
         if event.is_none() {
             debug!(
                 check_id = %ctx.check.id,
                 days_left = days_left,
                 threshold_days = alert_config.ssl_expiry_days,
-                "tracker decided not to emit SSL incident event (likely above threshold or insignificant change)"
+                "SSL event not emitted: days remaining above configured threshold"
             );
         }
 
-        let (alert_type, incident_id) = match event {
-            Some(SslEvent::Expired { incident_id }) => (AlertType::SslExpired, incident_id),
-            Some(SslEvent::Expiring { incident_id }) => (AlertType::SslExpiring, incident_id),
+        let alert_type = match event {
+            Some(SslEvent::Expired) => AlertType::SslExpired,
+            Some(SslEvent::Expiring) => AlertType::SslExpiring,
             None => return,
         };
 
-        if !self.should_notify_ssl(&ctx.check.id).await {
+        if !self.should_notify_ssl(&ctx.check.id) {
             debug!(
                 check_id = %ctx.check.id,
                 days_left = days_left,
@@ -450,17 +442,16 @@ impl AlertService {
         if recipients.is_empty() {
             debug!(
                 check_id = %ctx.check.id,
-                incident_id = %incident_id,
                 "no recipients configured for SSL alert; marking as notified only"
             );
-            self.mark_notified_ssl(&ctx.check.id).await;
+            self.mark_notified_ssl(&ctx.check.id);
             return;
         }
 
         let result = self.send_ssl_alert(ctx, recipients, days_left).await;
 
         if result {
-            self.mark_notified_ssl(&ctx.check.id).await;
+            self.mark_notified_ssl(&ctx.check.id);
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
@@ -477,7 +468,6 @@ impl AlertService {
                 monitor = %ctx.monitor_name(),
                 days_left = days_left,
                 recipients = recipients.len(),
-                incident_id = %incident_id,
                 "SSL alert sent"
             );
         }
@@ -593,9 +583,10 @@ impl AlertService {
         }
     }
 
-    /// Prune inactive monitors from the tracker
+    /// Prune inactive monitors from the tracker and notification state
     pub async fn prune_inactive(&self, active_ids: &HashSet<String>) {
-        self.tracker.prune_inactive(active_ids).await;
+        self.tracker.prune_inactive(active_ids);
+        self.notification_state.retain(|id, _| active_ids.contains(id));
     }
 
     /// Record an alert to the history table
@@ -612,11 +603,13 @@ impl AlertService {
         }
     }
 
-    async fn should_notify_down(&self, check_id: &str, incident_id: Uuid) -> bool {
-        let mut entry = self
+    fn should_notify_down(&self, check_id: &str, incident_id: Uuid) -> bool {
+        let entry = self
             .notification_state
             .entry(check_id.to_string())
             .or_default();
+        
+        // If we've already notified for this exact incident
         if entry.last_down_incident == Some(incident_id) {
             debug!(
                 check_id = check_id,
@@ -625,16 +618,7 @@ impl AlertService {
             );
             return false;
         }
-        if entry.last_down_seeded {
-            entry.last_down_seeded = false;
-            entry.last_down_incident = Some(incident_id);
-            debug!(
-                check_id = check_id,
-                incident_id = %incident_id,
-                "not sending down alert: seeded from existing incident history"
-            );
-            return false;
-        }
+        
         debug!(
             check_id = check_id,
             incident_id = %incident_id,
@@ -643,7 +627,7 @@ impl AlertService {
         true
     }
 
-    async fn should_notify_ssl(&self, check_id: &str) -> bool {
+    fn should_notify_ssl(&self, check_id: &str) -> bool {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
@@ -672,17 +656,16 @@ impl AlertService {
         allow
     }
 
-    async fn mark_notified_down(&self, check_id: &str, incident_id: Uuid) {
+    fn mark_notified_down(&self, check_id: &str, incident_id: Uuid) {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
             .or_default();
         entry.last_down = Some(Utc::now());
         entry.last_down_incident = Some(incident_id);
-        entry.last_down_seeded = false;
     }
 
-    async fn mark_notified_recovery(&self, check_id: &str, incident_id: Uuid) {
+    fn mark_notified_recovery(&self, check_id: &str, incident_id: Uuid) {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
@@ -691,7 +674,7 @@ impl AlertService {
         entry.last_recovery_incident = Some(incident_id);
     }
 
-    async fn mark_notified_ssl(&self, check_id: &str) {
+    fn mark_notified_ssl(&self, check_id: &str) {
         let mut entry = self
             .notification_state
             .entry(check_id.to_string())
@@ -699,7 +682,7 @@ impl AlertService {
         entry.last_ssl = Some(Utc::now());
     }
 
-    async fn notification_snapshot(&self, check_id: &str) -> NotificationSnapshot {
+    fn notification_snapshot(&self, check_id: &str) -> NotificationSnapshot {
         self.notification_state
             .get(check_id)
             .map(|t| NotificationSnapshot {
@@ -714,11 +697,11 @@ impl AlertService {
             return;
         };
 
-        let Some(snapshot) = self.tracker.snapshot(&ctx.check.id).await else {
+        let Some(snapshot) = self.tracker.snapshot(&ctx.check.id) else {
             return;
         };
 
-        let notified = self.notification_snapshot(&ctx.check.id).await;
+        let notified = self.notification_snapshot(&ctx.check.id);
 
         let row = MonitorIncidentRow::from_snapshot(
             &snapshot,
@@ -741,9 +724,7 @@ impl AlertService {
             if let Some(ts) = seed.notified_down_at {
                 entry.last_down = Some(ts);
                 entry.last_down_incident = Some(seed.incident_id);
-                entry.last_down_seeded = true;
             }
-
 
             if let Some(ts) = seed.notified_resolve_at {
                 entry.last_recovery = Some(ts);
