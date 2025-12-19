@@ -101,7 +101,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     threshold: 0.1,
   });
 
-  // Use a ref to prevent duplicate fetches
   const isFetchingRef = useRef(false);
 
   useEffect(() => {
@@ -111,12 +110,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     }
 
     isFetchingRef.current = true;
-    fetchNextPage().finally(() => {
-      // Reset the ref after a short delay to allow state updates
-      setTimeout(() => {
-        isFetchingRef.current = false;
-      }, 100);
-    });
+    fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Reset the ref when fetching state changes
@@ -127,6 +121,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   }, [isFetchingNextPage]);
 
   const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t), [allEvents, totalCount, t]);
+  const LoadMoreSentinel = () => <div ref={loadMoreRef} className='h-1' aria-hidden='true' />;
 
   return (
     <Card className='border-border/50 relative overflow-hidden shadow-sm'>
@@ -161,17 +156,12 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
             <>
               <div className='divide-border/60 divide-y'>
                 {allEvents.map((event: EventLogEntry, index: number) => (
-                  <EventLogItem
-                    key={`${event.timestamp}-${index}`}
-                    event={event}
-                  />
+                  <EventLogItem key={`${event.timestamp}-${index}`} event={event} />
                 ))}
               </div>
 
               {/* Sentinel element for infinite scroll - only attach ref to this single element */}
-              {hasNextPage && (
-                <div ref={loadMoreRef} className='h-1' aria-hidden='true' />
-              )}
+              {hasNextPage && <LoadMoreSentinel />}
 
               {isFetchingNextPage && <LoadingMoreIndicator t={t} />}
             </>
