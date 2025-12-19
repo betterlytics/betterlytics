@@ -61,8 +61,6 @@ struct MonitorAlertState {
     is_down: bool,
     down_since: Option<DateTime<Utc>>,
     last_status: Option<MonitorStatus>,
-    /// Whether the monitor is currently considered flapping
-    is_flapping: bool,
 
     /// Last observed error details for this incident (for persistence)
     last_error_reason_code: Option<String>,
@@ -107,7 +105,6 @@ impl Default for MonitorAlertState {
             is_down: false,
             down_since: None,
             last_status: None,
-            is_flapping: false,
             last_error_reason_code: None,
             last_error_status_code: None,
             last_error_message: None,
@@ -252,7 +249,7 @@ impl AlertTracker {
         }
     }
 
-    /// Evaluate a healthy probe. If the monitor had an open/flapping incident,
+    /// Evaluate a healthy probe. If the monitor had an open incident,
     /// it will be marked resolved and may generate a recovery notification.
     pub async fn evaluate_recovery(
         &self,

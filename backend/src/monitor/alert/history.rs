@@ -1,6 +1,7 @@
 use bb8::{Pool, RunError};
 use bb8_postgres::PostgresConnectionManager;
 use chrono::Utc;
+use std::str::FromStr;
 use std::time::Duration;
 use thiserror::Error;
 use tokio_postgres::{types::Type, NoTls, Config as PgConfig};
@@ -37,28 +38,8 @@ pub struct AlertHistoryWriter {
 
 impl AlertHistoryWriter {
     pub async fn new(database_url: &str) -> Result<Self, AlertHistoryError> {
-        let mut config = PgConfig::new();
-        
-        let url = url::Url::parse(database_url)
+        let mut config = PgConfig::from_str(database_url)
             .map_err(|e| AlertHistoryError::InvalidDatabaseUrl(e.to_string()))?;
-        
-        if let Some(host) = url.host_str() {
-            config.host(host);
-        }
-        if let Some(port) = url.port() {
-            config.port(port);
-        }
-        if !url.username().is_empty() {
-            config.user(url.username());
-        }
-        if let Some(password) = url.password() {
-            config.password(password);
-        }
-        let dbname = url.path().trim_start_matches('/');
-        if !dbname.is_empty() {
-            config.dbname(dbname);
-        }
-        
         config.connect_timeout(Duration::from_secs(5));
         config.application_name("betterlytics_alert_history");
 
