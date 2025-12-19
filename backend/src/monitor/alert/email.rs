@@ -22,7 +22,7 @@ pub fn build_down_alert(
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
-    let subject = format!("🔴 Monitor Down: {}", monitor_name);
+    let subject = format!("🚨 Uptime Alert: Site Is Down: {}", monitor_name);
     let monitor_url = format!(
         "{}/dashboard/{}/monitoring/{}",
         dashboard_base_url, dashboard_id, monitor_id
@@ -49,7 +49,7 @@ pub fn build_recovery_alert(
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
-    let subject = format!("✅ Monitor Recovered: {}", monitor_name);
+    let subject = format!("✅ Resolved: Site Is Back Online: {}", monitor_name);
     let monitor_url = format!(
         "{}/dashboard/{}/monitoring/{}",
         dashboard_base_url, dashboard_id, monitor_id
