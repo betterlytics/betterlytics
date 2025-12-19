@@ -23,16 +23,10 @@ import {
   fetchRecentMonitorResults,
 } from '@/services/analytics/monitoring.service';
 import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
-import { normalizeUptimeBuckets } from '@/presenters/toMonitorMetrics';
 import { revalidatePath } from 'next/cache';
 
 export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  const now = new Date();
-  const checks = await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId);
-  return checks.map((check) => ({
-    ...check,
-    uptimeBuckets: normalizeUptimeBuckets(check.uptimeBuckets ?? [], 24, now),
-  }));
+  return await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId);
 });
 
 export const fetchMonitorCheckAction = withDashboardAuthContext(
@@ -42,7 +36,14 @@ export const fetchMonitorCheckAction = withDashboardAuthContext(
 export const createMonitorCheckAction = withDashboardMutationAuthContext(
   async (
     ctx: AuthContext,
-    input: { name?: string | null; url: string; intervalSeconds: number; timeoutMs: number; isEnabled?: boolean },
+    input: {
+      name?: string | null;
+      url: string;
+      intervalSeconds: number;
+      timeoutMs: number;
+      isEnabled?: boolean;
+      failureThreshold?: number;
+    },
   ) => {
     const payload = MonitorCheckCreateSchema.parse({
       dashboardId: ctx.dashboardId,
@@ -91,7 +92,7 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
 );
 
 export const fetchMonitorMetricsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, monitorId: string) => await fetchMonitorMetrics(monitorId, ctx.siteId),
+  async (ctx: AuthContext, monitorId: string) => await fetchMonitorMetrics(ctx.dashboardId, monitorId, ctx.siteId),
 );
 
 export const fetchRecentMonitorResultsAction = withDashboardAuthContext(

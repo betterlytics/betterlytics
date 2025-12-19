@@ -31,6 +31,18 @@ export function useMonitorMutations(dashboardId: string, monitorId: string) {
         intervalSeconds: monitor.intervalSeconds,
         timeoutMs: monitor.timeoutMs,
         isEnabled,
+        checkSslErrors: monitor.checkSslErrors,
+        sslExpiryReminders: monitor.sslExpiryReminders,
+        httpMethod: monitor.httpMethod,
+        requestHeaders: monitor.requestHeaders ?? null,
+        acceptedStatusCodes: monitor.acceptedStatusCodes ?? ['2xx'],
+        alertsEnabled: monitor.alertsEnabled,
+        alertEmails: monitor.alertEmails ?? [],
+        alertOnDown: monitor.alertOnDown,
+        alertOnRecovery: monitor.alertOnRecovery,
+        alertOnSslExpiry: monitor.alertOnSslExpiry,
+        sslExpiryAlertDays: monitor.sslExpiryAlertDays,
+        failureThreshold: monitor.failureThreshold,
       }),
     onSuccess: (updated) => {
       queryClient.setQueryData(['monitor', dashboardId, monitorId], updated);

@@ -1177,6 +1177,33 @@
       "resuming": "Ripristino..."
     }
   },
+  "monitor": {
+    "reason": {
+      "ok": "Il sito è operativo",
+      "tls_handshake_failed": "Handshake SSL/TLS fallito",
+      "tls_missing_certificate": "Certificato SSL non trovato",
+      "tls_expired": "Il certificato SSL è scaduto",
+      "tls_expiring_soon": "Certificato SSL in scadenza",
+      "tls_parse_error": "Impossibile analizzare il certificato SSL",
+      "http_4xx": "Il server ha restituito un errore client",
+      "http_5xx": "Il server ha restituito un errore server",
+      "http_other": "Codice di stato HTTP inatteso",
+      "http_timeout": "Timeout della richiesta",
+      "http_connect_error": "Impossibile connettersi al server",
+      "http_body_error": "Errore nella lettura della risposta",
+      "http_request_error": "Errore nell'invio della richiesta",
+      "http_error": "Richiesta HTTP fallita",
+      "too_many_redirects": "Troppi reindirizzamenti",
+      "redirect_join_failed": "Posizione di reindirizzamento non valida",
+      "scheme_blocked": "Schema URL non consentito",
+      "port_blocked": "Porta non consentita",
+      "invalid_host": "Nome host non valido",
+      "blocked_ip_literal": "Indirizzo IP non consentito",
+      "dns_blocked": "DNS risolto a indirizzo bloccato",
+      "dns_error": "Risoluzione DNS fallita",
+      "unknown": "Errore sconosciuto"
+    }
+  },
   "monitoringPage": {
     "title": "Monitoraggio",
     "table": {
@@ -1195,6 +1222,7 @@
       "sortLabel": "Ordina",
       "statusAll": "Tutti",
       "statusUp": "Online",
+      "statusDegraded": "Degradato",
       "statusDown": "Offline",
       "statusSslExpiring": "Certificato SSL in scadenza",
       "statusPaused": "In pausa",
@@ -1223,22 +1251,36 @@
       "description": "Monitora un endpoint per uptime, latenza e stato SSL.",
       "fields": {
         "name": "Nome",
-        "url": "URL",
-        "interval": "Intervallo di controllo (secondi)",
-        "timeout": "Timeout richiesta (ms)",
-        "enabled": "Monitoraggio attivo"
+        "url": "URL"
       },
       "placeholders": {
-        "name": "Etichetta opzionale",
-        "url": "https://example.com/health"
+        "name": "Etichetta opzionale"
+      },
+      "helper": {
+        "nameOptional": "(facoltativo)",
+        "nameDescription": "Dai un nome descrittivo al tuo monitor, oppure lascia vuoto per usare l'URL"
       },
       "errors": {
         "url": "Inserisci un URL valido.",
-        "interval": "L’intervallo deve essere almeno 5 secondi.",
-        "timeout": "Il timeout deve essere almeno 500ms."
+        "urlDomain": "L'URL deve essere su {domain} o un sottodominio (es. api.{domain})"
       },
-      "helper": {
-        "enabled": "Attiva/disattiva per creare il monitor in pausa."
+      "timing": {
+        "title": "Timing e Sensibilit\u00e0",
+        "interval": {
+          "label": "Intervallo di monitoraggio",
+          "badge": "Consigliamo 1 minuto per la maggior parte degli endpoint",
+          "description": "Il tuo sito verr\u00e0 controllato ogni {value}"
+        },
+        "timeout": {
+          "label": "Timeout richiesta",
+          "description": "Troppo breve pu\u00f2 causare falsi positivi"
+        },
+        "sensitivity": {
+          "label": "Sensibilit\u00e0 incidenti",
+          "description": "Numero di errori consecutivi prima che venga attivato un incidente",
+          "valueOne": "1 errore",
+          "valueOther": "{count} errori"
+        }
       },
       "actions": {
         "cancel": "Annulla",
@@ -1246,6 +1288,7 @@
         "creating": "Creazione..."
       },
       "success": "Monitor creato",
+      "successDescription": "Il tuo monitor inizier\u00e0 a controllare immediatamente.",
       "error": "Impossibile creare il monitor"
     }
   },

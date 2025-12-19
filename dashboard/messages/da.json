@@ -1177,6 +1177,33 @@
       "resuming": "Genoptager..."
     }
   },
+  "monitor": {
+    "reason": {
+      "ok": "Webstedet er sundt",
+      "tls_handshake_failed": "SSL/TLS-håndtryk mislykkedes",
+      "tls_missing_certificate": "SSL-certifikat ikke fundet",
+      "tls_expired": "SSL-certifikat er udløbet",
+      "tls_expiring_soon": "SSL-certifikat udløber snart",
+      "tls_parse_error": "Kunne ikke parse SSL-certifikat",
+      "http_4xx": "Server returnerede en klientfejl",
+      "http_5xx": "Server returnerede en serverfejl",
+      "http_other": "Uventet HTTP-statuskode",
+      "http_timeout": "Anmodningen fik timeout",
+      "http_connect_error": "Kunne ikke oprette forbindelse til server",
+      "http_body_error": "Fejl ved læsning af svar",
+      "http_request_error": "Fejl ved afsendelse af anmodning",
+      "http_error": "HTTP-anmodning mislykkedes",
+      "too_many_redirects": "For mange omdirigeringer",
+      "redirect_join_failed": "Ugyldig omdirigerings-placering",
+      "scheme_blocked": "URL-skema ikke tilladt",
+      "port_blocked": "Port ikke tilladt",
+      "invalid_host": "Ugyldigt værtsnavn",
+      "blocked_ip_literal": "IP-adresse ikke tilladt",
+      "dns_blocked": "DNS opløst til blokeret adresse",
+      "dns_error": "DNS-opløsning mislykkedes",
+      "unknown": "Ukendt fejl"
+    }
+  },
   "monitoringPage": {
     "title": "Overvågning",
     "table": {
@@ -1195,6 +1222,7 @@
       "sortLabel": "Sortér",
       "statusAll": "Alle",
       "statusUp": "Oppe",
+      "statusDegraded": "Nedsat",
       "statusDown": "Nede",
       "statusSslExpiring": "SSL-certifikat udløber",
       "statusPaused": "Sat på pause",
@@ -1223,22 +1251,36 @@
       "description": "Overvåg et endpoint for oppetid, latenstid og SSL-status.",
       "fields": {
         "name": "Navn",
-        "url": "URL",
-        "interval": "Tjek-interval (sekunder)",
-        "timeout": "Timeout for forespørgsel (ms)",
-        "enabled": "Overvågning aktiveret"
+        "url": "URL"
       },
       "placeholders": {
-        "name": "Valgfrit label",
-        "url": "https://example.com/health"
+        "name": "Valgfrit label"
+      },
+      "helper": {
+        "nameOptional": "(valgfrit)",
+        "nameDescription": "Giv din overvågning et venligt navn, eller lad være for at bruge URL'en"
       },
       "errors": {
         "url": "Indtast venligst en gyldig URL.",
-        "interval": "Intervallet skal være mindst 5 sekunder.",
-        "timeout": "Timeout skal være mindst 500ms."
+        "urlDomain": "URL skal være på {domain} eller et subdomæne (f.eks. api.{domain})"
       },
-      "helper": {
-        "enabled": "Skift for at sætte overvågning på pause ved oprettelse."
+      "timing": {
+        "title": "Timing & Følsomhed",
+        "interval": {
+          "label": "Overvågningsinterval",
+          "badge": "Vi anbefaler 1 minut for de fleste endpoints",
+          "description": "Dit websted tjekkes hver {value}"
+        },
+        "timeout": {
+          "label": "Timeout for anmodning",
+          "description": "For kort kan give falske positiver"
+        },
+        "sensitivity": {
+          "label": "Hændelsesfølsomhed",
+          "description": "Antal på hinanden følgende fejl før en hændelse udløses",
+          "valueOne": "1 fejl",
+          "valueOther": "{count} fejl"
+        }
       },
       "actions": {
         "cancel": "Annullér",
@@ -1246,6 +1288,7 @@
         "creating": "Opretter..."
       },
       "success": "Overvågning oprettet",
+      "successDescription": "Din overvågning begynder at tjekke med det samme.",
       "error": "Kunne ikke oprette overvågning"
     }
   },

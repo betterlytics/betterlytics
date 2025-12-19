@@ -5,7 +5,11 @@ import {
   MonitorCheckUpdate,
   MonitorOperationalState,
   MonitorStatus,
-  deriveOperationalState,
+  type MonitorDailyUptime,
+  type MonitorIncidentSegment,
+  type MonitorMetrics,
+  type MonitorResult,
+  type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
 import {
   createMonitorCheck,
@@ -24,21 +28,18 @@ import {
   getMonitorMetrics,
   getRecentMonitorResults,
 } from '@/repositories/clickhouse/monitoring.repository';
-import {
-  type MonitorDailyUptime,
-  type MonitorIncidentSegment,
-  type MonitorMetrics,
-  type MonitorResult,
-  type MonitorTlsResult,
-} from '@/entities/analytics/monitoring.entities';
 import { normalizeUptimeBuckets, toMonitorMetricsPresentation } from '@/presenters/toMonitorMetrics';
-
-export async function getMonitorChecks(dashboardId: string) {
-  return listMonitorChecks(dashboardId);
-}
 
 export async function getMonitorCheck(dashboardId: string, monitorId: string) {
   return getMonitorCheckById(dashboardId, monitorId);
+}
+
+export async function addMonitorCheck(input: MonitorCheckCreate) {
+  return createMonitorCheck(input);
+}
+
+export async function updateMonitorCheck(input: MonitorCheckUpdate) {
+  return updateMonitorCheckRepo(input);
 }
 
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string) {
@@ -53,21 +54,17 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
 
   return checks.map((check) => {
     const incident = latestIncidents[check.id];
-    const lastStatus = (incident?.lastStatus as MonitorStatus | null | undefined) ?? null;
+    const rawBuckets = uptimeBuckets[check.id] ?? [];
+    const buckets = normalizeUptimeBuckets(rawBuckets, 24, now);
+    const hasResults = rawBuckets.length > 0;
+    const operationalState = deriveOperationalState(check.isEnabled, hasResults, { incident });
     const incidentState = incident?.state ?? null;
-    const buckets = normalizeUptimeBuckets(uptimeBuckets[check.id] ?? [], 24, now);
-    const hasData = buckets.length > 0;
-    const effectiveIntervalSeconds = incident?.lastEventAt ? check.intervalSeconds : null;
-
-    const operationalState: MonitorOperationalState = incidentState
-      ? mapIncidentToOperationalState(check.isEnabled, incidentState, lastStatus, hasData)
-      : deriveOperationalState(check.isEnabled, lastStatus, hasData);
 
     return {
       ...check,
-      lastStatus,
+      lastStatus: (incident?.lastStatus as MonitorStatus) ?? null,
       incidentState,
-      effectiveIntervalSeconds,
+      effectiveIntervalSeconds: null, // TODO: fetch from results if needed
       backoffLevel: null,
       uptimeBuckets: buckets,
       tls: tlsResults[check.id] ?? null,
@@ -76,42 +73,26 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   });
 }
 
-function mapIncidentToOperationalState(
-  isEnabled: boolean,
-  incidentState: string | null,
-  lastStatus: MonitorStatus | null,
-  hasData: boolean,
-): MonitorOperationalState {
-  if (!isEnabled) return 'paused';
-  if (!incidentState) return deriveOperationalState(isEnabled, lastStatus, hasData);
+export async function fetchMonitorMetrics(
+  dashboardId: string,
+  monitorId: string,
+  siteId: string,
+): Promise<MonitorMetrics> {
+  const [monitor, rawMetrics] = await Promise.all([
+    getMonitorCheckById(dashboardId, monitorId),
+    getMonitorMetrics(monitorId, siteId),
+  ]);
 
-  switch (incidentState) {
-    case 'muted':
-      return 'paused';
-    case 'flapping':
-      return 'degraded';
-    case 'open':
-      if (lastStatus === 'error') return 'error';
-      if (lastStatus === 'warn') return 'degraded';
-      return 'down';
-    case 'resolved':
-      return 'up';
-    default:
-      return deriveOperationalState(isEnabled, lastStatus, hasData);
-  }
-}
+  const metrics = toMonitorMetricsPresentation(rawMetrics);
+  const hasData = (metrics.uptimeBuckets?.length ?? 0) > 0;
+  const operationalState = deriveOperationalState(monitor?.isEnabled ?? false, hasData, {
+    lastStatus: metrics.lastStatus,
+  });
 
-export async function addMonitorCheck(input: MonitorCheckCreate) {
-  return createMonitorCheck(input);
-}
-
-export async function updateMonitorCheck(input: MonitorCheckUpdate) {
-  return updateMonitorCheckRepo(input);
-}
-
-export async function fetchMonitorMetrics(monitorId: string, siteId: string): Promise<MonitorMetrics> {
-  const metrics = await getMonitorMetrics(monitorId, siteId);
-  return toMonitorMetricsPresentation(metrics);
+  return {
+    ...metrics,
+    operationalState,
+  };
 }
 
 export async function fetchMonitorDailyUptime(
@@ -144,4 +125,50 @@ export async function fetchMonitorIncidentSegments(
   limit = 5,
 ): Promise<MonitorIncidentSegment[]> {
   return getMonitorIncidentSegments(monitorId, siteId, days, limit);
+}
+
+/**
+ * Derives the operational state from monitor data.
+ *
+ * Logic priority:
+ * 1. Disabled -> paused
+ * 2. No data/results -> preparing
+ * 3. Open incident -> down or degraded (based on incident.lastStatus)
+ * 4. Resolved/no incident with lastStatus -> derive from lastStatus
+ * 5. No incident and has data -> up
+ */
+function deriveOperationalState(
+  isEnabled: boolean,
+  hasData: boolean,
+  options?: {
+    incident?: { state: string; lastStatus: string | null };
+    lastStatus?: MonitorStatus | null;
+  },
+): MonitorOperationalState {
+  if (!isEnabled) return 'paused';
+  if (!hasData) return 'preparing';
+
+  const incident = options?.incident;
+
+  // If there's an open incident, use its severity
+  if (incident?.state === 'open') {
+    return incident.lastStatus === 'warn' ? 'degraded' : 'down';
+  }
+
+  // If we have a lastStatus (from metrics in detail view), use it
+  const lastStatus = options?.lastStatus;
+  if (lastStatus) {
+    switch (lastStatus) {
+      case 'ok':
+        return 'up';
+      case 'warn':
+        return 'degraded';
+      case 'down':
+      case 'error':
+        return 'down';
+    }
+  }
+
+  // No open incident and have data -> healthy
+  return 'up';
 }

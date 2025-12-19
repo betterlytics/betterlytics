@@ -2,14 +2,14 @@ import { clickhouse } from '@/lib/clickhouse';
 import { safeSql } from '@/lib/safe-sql';
 import {
   MonitorDailyUptimeSchema,
-  MonitorMetricsSchema,
+  RawMonitorMetricsSchema,
   MonitorResultSchema,
   MonitorStatusSchema,
   MonitorTlsResultSchema,
   MonitorUptimeBucketSchema,
   type MonitorUptimeBucket,
   type MonitorDailyUptime,
-  type MonitorMetrics,
+  type RawMonitorMetrics,
   type MonitorResult,
   type MonitorStatus,
   type MonitorTlsResult,
@@ -18,7 +18,6 @@ import {
 } from '@/entities/analytics/monitoring.entities';
 import { toIsoUtc } from '@/utils/dateHelpers';
 
-type UpCountRow = { up_count: number; total_count: number; incident_count: number };
 type LastCheckRow = {
   ts: string;
   status: MonitorStatus;
@@ -28,12 +27,6 @@ type LastCheckRow = {
 type LatencyRow = { avg_ms: number | null; min_ms: number | null; max_ms: number | null };
 type UptimeBucketRow = { bucket: string; up_ratio: number | null };
 type LatencySeriesRow = { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null };
-type LatestStatusRow = {
-  check_id: string;
-  status: MonitorStatus;
-  effective_interval_seconds: number | null;
-  backoff_level: number | null;
-};
 
 type LatestIncidentRow = {
   check_id: string;
@@ -44,26 +37,26 @@ type LatestIncidentRow = {
   last_event_at: string | null;
   resolved_at: string | null;
   failure_count: number | null;
-  open_reason_code: string | null;
-  close_reason_code: string | null;
+  reason_code: string | null;
 };
 
-export async function getMonitorMetrics(checkId: string, siteId: string): Promise<MonitorMetrics> {
-  const [uptimeRow, lastRow, latencyRow, buckets, latencySeries] = await Promise.all([
+export async function getMonitorMetrics(checkId: string, siteId: string): Promise<RawMonitorMetrics> {
+  const [uptimeRow, lastRow, latencyRow, buckets, latencySeries, incidentCount] = await Promise.all([
     fetchUptime(checkId, siteId),
     fetchLastCheck(checkId, siteId),
     fetchLatency(checkId, siteId),
     fetchUptimeBuckets(checkId, siteId),
     fetchLatencySeries(checkId, siteId),
+    fetchIncidentCount(checkId, siteId),
   ]);
 
   const uptimePercent = uptimeRow.total_count > 0 ? (uptimeRow.up_count / uptimeRow.total_count) * 100 : null;
 
-  return MonitorMetricsSchema.parse({
+  return RawMonitorMetricsSchema.parse({
     lastCheckAt: lastRow?.ts ? toIsoUtc(lastRow.ts) : null,
     lastStatus: lastRow?.status ?? null,
     uptime24hPercent: uptimePercent,
-    incidents24h: uptimeRow.incident_count,
+    incidents24h: incidentCount,
     uptimeBuckets: buckets.map((b) => ({
       bucket: toIsoUtc(b.bucket) ?? b.bucket,
       upRatio: b.up_ratio,
@@ -234,63 +227,17 @@ export async function getMonitorIncidentSegments(
   limit = 5,
 ): Promise<MonitorIncidentSegment[]> {
   const query = safeSql`
-    WITH sorted AS (
-      SELECT
-        ts,
-        status,
-        reason_code,
-        lag(status) OVER (ORDER BY ts) AS prev_status,
-        lag(reason_code) OVER (ORDER BY ts) AS prev_reason
-      FROM analytics.monitor_results
-      WHERE check_id = {check_id:String}
-        AND kind != 'tls'
-        AND site_id = {site_id:String}
-        AND ts >= now() - INTERVAL {days:Int32} DAY
-    ),
-    breaks AS (
-      SELECT
-        *,
-                (
-                  prev_status IS NULL
-                  OR ((status NOT IN ('ok','warn')) != (prev_status NOT IN ('ok','warn')))
-                  OR (status NOT IN ('ok','warn') AND reason_code != prev_reason)
-                ) AS is_break
-      FROM sorted
-    ),
-    segmented AS (
-      SELECT
-        *,
-        sum(is_break) OVER (ORDER BY ts) AS segment_id
-      FROM breaks
-    ),
-    failing AS (
-      SELECT
-        segment_id,
-        ts,
-        status,
-        reason_code
-      FROM segmented
-      WHERE status NOT IN ('ok','warn')
-    ),
-    aggregated_fail AS (
-      SELECT
-        segment_id,
-        min(ts) AS start_ts,
-        max(ts) AS end_ts,
-        argMax(status, ts) AS status,
-        argMax(reason_code, ts) AS reason_code,
-        count() AS fail_count
-      FROM failing
-      GROUP BY segment_id
-    )
     SELECT
-      aggregated_fail.start_ts,
-      aggregated_fail.end_ts,
-      aggregated_fail.status,
-      aggregated_fail.reason_code
-    FROM aggregated_fail
-    WHERE aggregated_fail.fail_count > 0
-    ORDER BY start_ts DESC
+      last_status,
+      reason_code,
+      started_at,
+      resolved_at,
+      last_event_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id = {check_id:String}
+      AND site_id = {site_id:String}
+      AND started_at >= now() - INTERVAL {days:Int32} DAY
+    ORDER BY started_at DESC
     LIMIT {limit:UInt32}
   `;
 
@@ -302,11 +249,11 @@ export async function getMonitorIncidentSegments(
 
   return rows.map((row) =>
     MonitorIncidentSegmentSchema.parse({
-      status: row.status,
+      status: row.last_status,
       reason: row.reason_code,
-      start: toIsoUtc(row.start_ts) ?? row.start_ts,
-      end: row.end_ts ? (toIsoUtc(row.end_ts) ?? row.end_ts) : null,
-      durationMs: computeDurationMs(row.start_ts, row.end_ts),
+      start: toIsoUtc(row.started_at) ?? row.started_at,
+      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+      durationMs: computeDurationMs(row.started_at, row.resolved_at ?? row.last_event_at),
     }),
   );
 }
@@ -325,8 +272,7 @@ export async function getLatestIncidentsForMonitors(
       lastEventAt: string | null;
       resolvedAt: string | null;
       failureCount: number | null;
-      openReasonCode: string | null;
-      closeReasonCode: string | null;
+      reasonCode: string | null;
     }
   >
 > {
@@ -342,8 +288,7 @@ export async function getLatestIncidentsForMonitors(
       last_event_at,
       resolved_at,
       failure_count,
-      reason_code AS open_reason_code,
-      NULL AS close_reason_code
+      reason_code
     FROM analytics.monitor_incidents FINAL
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
@@ -368,8 +313,7 @@ export async function getLatestIncidentsForMonitors(
         lastEventAt: string | null;
         resolvedAt: string | null;
         failureCount: number | null;
-        openReasonCode: string | null;
-        closeReasonCode: string | null;
+        reasonCode: string | null;
       }
     >
   >((acc, row) => {
@@ -381,47 +325,7 @@ export async function getLatestIncidentsForMonitors(
       lastEventAt: toIsoUtc(row.last_event_at) ?? row.last_event_at,
       resolvedAt: toIsoUtc(row.resolved_at) ?? row.resolved_at,
       failureCount: row.failure_count,
-      openReasonCode: row.open_reason_code,
-      closeReasonCode: row.close_reason_code,
-    };
-    return acc;
-  }, {});
-}
-
-export async function getLatestStatusesForMonitors(
-  checkIds: string[],
-  siteId: string,
-): Promise<
-  Record<string, { status: MonitorStatus; effectiveIntervalSeconds: number | null; backoffLevel: number | null }>
-> {
-  if (!checkIds.length) return {};
-
-  const query = safeSql`
-    SELECT
-      check_id,
-      argMax(status, ts) AS status,
-      argMax(effective_interval_seconds, ts) AS effective_interval_seconds,
-      argMax(backoff_level, ts) AS backoff_level
-    FROM analytics.monitor_results
-    WHERE check_id IN ({check_ids:Array(String)})
-      AND site_id = {site_id:String}
-      AND kind != 'tls'
-    GROUP BY check_id
-  `;
-
-  const rows = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
-    })
-    .toPromise()) as LatestStatusRow[];
-
-  return rows.reduce<
-    Record<string, { status: MonitorStatus; effectiveIntervalSeconds: number | null; backoffLevel: number | null }>
-  >((acc, row) => {
-    acc[row.check_id] = {
-      status: MonitorStatusSchema.parse(row.status),
-      effectiveIntervalSeconds: row.effective_interval_seconds ?? null,
-      backoffLevel: row.backoff_level ?? null,
+      reasonCode: row.reason_code,
     };
     return acc;
   }, {});
@@ -474,12 +378,11 @@ function computeDurationMs(start?: string | null, end?: string | null): number |
   return Number.isFinite(diff) && diff >= 0 ? diff : null;
 }
 
-async function fetchUptime(checkId: string, siteId: string): Promise<UpCountRow> {
+async function fetchUptime(checkId: string, siteId: string): Promise<{ up_count: number; total_count: number }> {
   const query = safeSql`
     SELECT
       sum(status IN ('ok', 'warn')) AS up_count,
-      count() AS total_count,
-      sum(status IN ('down', 'error')) AS incident_count
+      count() AS total_count
     FROM analytics.monitor_results
     WHERE check_id = {check_id:String}
       AND kind != 'tls'
@@ -493,7 +396,7 @@ async function fetchUptime(checkId: string, siteId: string): Promise<UpCountRow>
     })
     .toPromise()) as any[];
 
-  return row ?? { up_count: 0, total_count: 0, incident_count: 0 };
+  return row ?? { up_count: 0, total_count: 0 };
 }
 
 async function fetchLastCheck(checkId: string, siteId: string): Promise<LastCheckRow | null> {
@@ -586,4 +489,22 @@ async function fetchLatencySeries(checkId: string, siteId: string): Promise<Late
     .toPromise()) as any[];
 
   return rows;
+}
+
+async function fetchIncidentCount(checkId: string, siteId: string): Promise<number> {
+  const query = safeSql`
+    SELECT count() AS count
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id = {check_id:String}
+      AND site_id = {site_id:String}
+      AND started_at >= now() - INTERVAL 24 HOUR
+  `;
+
+  const [row] = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
+    })
+    .toPromise()) as any[];
+
+  return row?.count ?? 0;
 }

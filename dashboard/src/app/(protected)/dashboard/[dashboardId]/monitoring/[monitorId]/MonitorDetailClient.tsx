@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, PauseCircle, Pencil, PlayCircle } from 'lucide-react';
-import { presentMonitorStatus } from '@/utils/monitoringStyles';
+import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
 import {
   fetchLatestMonitorTlsResultAction,
   fetchMonitorCheckAction,
@@ -14,7 +14,6 @@ import {
 } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
 import {
-  deriveOperationalState,
   type MonitorCheck,
   type MonitorIncidentSegment,
   type MonitorMetrics,
@@ -23,8 +22,8 @@ import {
   type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
 import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
-import { useMonitorMutations } from './useMonitorMutations';
-import { EditMonitorDialog } from './EditMonitorDialog';
+import { useMonitorMutations } from './(EditMonitorSheet)/useMonitorMutations';
+import { EditMonitorDialog } from './(EditMonitorSheet)/EditMonitorSheet';
 import { IncidentsCard, RecentChecksCard, ResponseTimeCard, Uptime180DayCard } from './MonitoringSections';
 import { MonitorSummaryTiles } from './MonitorSummaryTiles';
 import { useTranslations } from 'next-intl';
@@ -98,17 +97,15 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
     refetchInterval: NON_CRITICAL_POLLING_INTERVAL_MS,
   });
 
+  const operationalState = metricsQuery.data?.operationalState ?? 'preparing';
+
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <MonitorHeader
         dashboardId={dashboardId}
         hostname={hostname}
         url={monitorData.url}
-        operationalState={deriveOperationalState(
-          monitorData.isEnabled,
-          metricsQuery.data?.lastStatus,
-          (metricsQuery.data?.uptimeBuckets?.length ?? 0) > 0,
-        )}
+        operationalState={operationalState}
         actionSlot={
           <div className='flex items-center gap-2 self-start sm:self-auto'>
             <Button
@@ -160,6 +157,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
         }}
         metrics={metricsQuery.data}
         tls={tlsQuery.data}
+        operationalState={operationalState}
       />
 
       <ResponseTimeCard metrics={metricsQuery.data} />

@@ -11,37 +11,10 @@ export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
  * - `preparing`: Monitor is enabled but no checks have run yet (waiting for first probe)
  * - `up`: Monitor is healthy (lastStatus === 'ok')
  * - `degraded`: Monitor is experiencing issues but not down (lastStatus === 'warn')
- * - `down`: Monitor is down (lastStatus === 'down')
- * - `error`: Monitor check failed with an error (lastStatus === 'error')
+ * - `down`: Monitor is down or errored (lastStatus === 'down' or 'error')
  */
-export const MonitorOperationalStateSchema = z.enum(['paused', 'preparing', 'up', 'degraded', 'down', 'error']);
+export const MonitorOperationalStateSchema = z.enum(['paused', 'preparing', 'up', 'degraded', 'down']);
 export type MonitorOperationalState = z.infer<typeof MonitorOperationalStateSchema>;
-
-/**
- * Derives the operational state from monitor data.
- * This is the single source of truth for determining a monitor's state.
- */
-export function deriveOperationalState(
-  isEnabled: boolean,
-  lastStatus: MonitorStatus | null | undefined,
-  hasData: boolean,
-): MonitorOperationalState {
-  if (!isEnabled) return 'paused';
-  if (!lastStatus && !hasData) return 'preparing';
-
-  switch (lastStatus) {
-    case 'ok':
-      return 'up';
-    case 'warn':
-      return 'degraded';
-    case 'down':
-      return 'down';
-    case 'error':
-      return 'error';
-    default:
-      return 'preparing';
-  }
-}
 
 export const HttpMethodSchema = z.enum(['HEAD', 'GET']);
 export type HttpMethod = z.infer<typeof HttpMethodSchema>;
@@ -166,7 +139,7 @@ export const MonitorLatencyPointSchema = z.object({
   avgMs: z.number().nullable(),
 });
 
-export const MonitorMetricsSchema = z.object({
+export const RawMonitorMetricsSchema = z.object({
   lastCheckAt: z.string().nullable(),
   lastStatus: MonitorStatusSchema.nullable(),
   uptime24hPercent: z.number().nullable(),
@@ -176,6 +149,12 @@ export const MonitorMetricsSchema = z.object({
   latencySeries: z.array(MonitorLatencyPointSchema),
   effectiveIntervalSeconds: z.number().int().nullable().optional(),
   backoffLevel: z.number().int().nullable().optional(),
+});
+
+export type RawMonitorMetrics = z.infer<typeof RawMonitorMetricsSchema>;
+
+export const MonitorMetricsSchema = RawMonitorMetricsSchema.extend({
+  operationalState: MonitorOperationalStateSchema,
 });
 
 export type MonitorMetrics = z.infer<typeof MonitorMetricsSchema>;
@@ -199,16 +178,6 @@ export const MonitorTlsResultSchema = z.object({
 });
 
 export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;
-
-export const MonitorIncidentSchema = z.object({
-  ts: z.string(),
-  status: MonitorStatusSchema,
-  latencyMs: z.number().nullable(),
-  statusCode: z.number().int().nullable(),
-  reasonCode: z.string().nullable(),
-});
-
-export type MonitorIncident = z.infer<typeof MonitorIncidentSchema>;
 
 export const MonitorIncidentSegmentSchema = z.object({
   status: MonitorStatusSchema,

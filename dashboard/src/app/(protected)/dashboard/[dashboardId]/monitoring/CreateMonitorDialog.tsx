@@ -16,30 +16,61 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { Clock, Loader2, CheckCircle2 } from 'lucide-react';
+import {
+  MONITOR_INTERVAL_MARKS,
+  REQUEST_TIMEOUT_MARKS,
+  INTERVAL_DISPLAY_MARKS,
+  TIMEOUT_DISPLAY_MARKS,
+  SENSITIVITY_DISPLAY_MARKS,
+  RECOMMENDED_INTERVAL_SECONDS,
+  RECOMMENDED_TIMEOUT_MS,
+  RECOMMENDED_FAILURE_THRESHOLD,
+  nearestIndex,
+} from './[monitorId]/(EditMonitorSheet)/sliderConstants';
+import { LabeledSlider } from './[monitorId]/(EditMonitorSheet)/MonitorSliders';
+import { formatCompactDuration } from '@/utils/dateFormatters';
 
 type CreateMonitorDialogProps = {
   dashboardId: string;
+  domain: string;
 };
 
-export function CreateMonitorDialog({ dashboardId }: CreateMonitorDialogProps) {
+function isValidDomainUrl(url: string, domain: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
+    const baseDomain = domain.toLowerCase().replace(/^www\./, '');
+    return hostname === baseDomain || hostname === `www.${baseDomain}` || hostname.endsWith(`.${baseDomain}`);
+  } catch {
+    return false;
+  }
+}
+
+export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [url, setUrl] = useState('');
-  const [intervalSeconds, setIntervalSeconds] = useState(30);
-  const [timeoutMs, setTimeoutMs] = useState(3000);
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [url, setUrl] = useState(`https://${domain}`);
+  const [intervalIdx, setIntervalIdx] = useState(
+    nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS),
+  );
+  const [timeoutIdx, setTimeoutIdx] = useState(nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS));
+  const [failureThreshold, setFailureThreshold] = useState(RECOMMENDED_FAILURE_THRESHOLD);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const t = useTranslations('monitoringPage.form');
 
+  const intervalSeconds = MONITOR_INTERVAL_MARKS[intervalIdx];
+  const timeoutMs = REQUEST_TIMEOUT_MARKS[timeoutIdx];
+
   const resetForm = () => {
     setName('');
-    setUrl('');
-    setIntervalSeconds(30);
-    setTimeoutMs(3000);
-    setIsEnabled(true);
+    setUrl(`https://${domain}`);
+    setIntervalIdx(nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS));
+    setTimeoutIdx(nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS));
+    setFailureThreshold(RECOMMENDED_FAILURE_THRESHOLD);
   };
 
   const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
@@ -49,11 +80,15 @@ export function CreateMonitorDialog({ dashboardId }: CreateMonitorDialogProps) {
         await createMonitorCheckAction(dashboardId, {
           name: name.trim() || undefined,
           url: url.trim(),
-          intervalSeconds: Number(intervalSeconds),
-          timeoutMs: Number(timeoutMs),
-          isEnabled,
+          intervalSeconds,
+          timeoutMs,
+          isEnabled: true,
+          failureThreshold,
         });
-        toast.success(t('success'));
+        toast.success(t('success'), {
+          icon: <CheckCircle2 className='h-4 w-4 text-emerald-500' />,
+          description: t('successDescription'),
+        });
         resetForm();
         setOpen(false);
         router.refresh();
@@ -64,9 +99,9 @@ export function CreateMonitorDialog({ dashboardId }: CreateMonitorDialogProps) {
     });
   };
 
-  const intervalError = intervalSeconds < 5;
-  const timeoutError = timeoutMs < 500;
-  const urlError = !url;
+  const urlEmpty = !url.trim();
+  const urlInvalid = !urlEmpty && !isValidDomainUrl(url, domain);
+  const hasError = urlEmpty || urlInvalid;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -75,15 +110,18 @@ export function CreateMonitorDialog({ dashboardId }: CreateMonitorDialogProps) {
           {t('create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-lg'>
+      <DialogContent className='sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className='space-y-4'>
+        <form onSubmit={onSubmit} className='space-y-6'>
           <div className='space-y-2'>
-            <Label htmlFor='monitor-name'>{t('fields.name')}</Label>
+            <div className='flex items-baseline gap-2'>
+              <Label htmlFor='monitor-name'>{t('fields.name')}</Label>
+              <span className='text-muted-foreground text-xs'>{t('helper.nameOptional')}</span>
+            </div>
             <Input
               id='monitor-name'
               value={name}
@@ -91,6 +129,7 @@ export function CreateMonitorDialog({ dashboardId }: CreateMonitorDialogProps) {
               placeholder={t('placeholders.name')}
               disabled={isPending}
             />
+            <p className='text-muted-foreground text-xs'>{t('helper.nameDescription')}</p>
           </div>
 
           <div className='space-y-2'>
@@ -99,63 +138,86 @@ export function CreateMonitorDialog({ dashboardId }: CreateMonitorDialogProps) {
               id='monitor-url'
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder='https://example.com/health'
-              className={cn(urlError && 'border-destructive')}
+              placeholder={`https://${domain}/health`}
+              className={cn((urlEmpty || urlInvalid) && 'border-destructive')}
               disabled={isPending}
               required
               type='url'
             />
-            {urlError && <p className='text-destructive text-xs'>{t('errors.url')}</p>}
+            {urlEmpty && <p className='text-destructive text-xs'>{t('errors.url')}</p>}
+            {urlInvalid && <p className='text-destructive text-xs'>{t('errors.urlDomain', { domain })}</p>}
           </div>
 
-          <div className='grid gap-4 sm:grid-cols-2'>
-            <div className='space-y-2'>
-              <Label htmlFor='monitor-interval'>{t('fields.interval')}</Label>
-              <Input
-                id='monitor-interval'
-                type='number'
-                min={5}
-                value={intervalSeconds}
-                onChange={(e) => setIntervalSeconds(Number(e.target.value))}
-                className={cn(intervalError && 'border-destructive')}
-                disabled={isPending}
-              />
-              {intervalError && <p className='text-destructive text-xs'>{t('errors.interval')}</p>}
+          <Separator />
+
+          <div className='bg-muted/30 rounded-lg border p-5'>
+            <div className='mb-5 flex items-center gap-2'>
+              <Clock className='text-muted-foreground h-4 w-4' />
+              <h3 className='text-sm font-semibold tracking-tight'>{t('timing.title')}</h3>
             </div>
 
-            <div className='space-y-2'>
-              <Label htmlFor='monitor-timeout'>{t('fields.timeout')}</Label>
-              <Input
-                id='monitor-timeout'
-                type='number'
-                min={500}
-                value={timeoutMs}
-                onChange={(e) => setTimeoutMs(Number(e.target.value))}
-                className={cn(timeoutError && 'border-destructive')}
+            <div className='space-y-5'>
+              <LabeledSlider
+                label={t('timing.interval.label')}
+                badge={t('timing.interval.badge')}
+                description={t('timing.interval.description', { value: formatCompactDuration(intervalSeconds) })}
+                value={intervalIdx}
+                min={0}
+                max={MONITOR_INTERVAL_MARKS.length - 1}
+                marks={INTERVAL_DISPLAY_MARKS}
+                onValueChange={setIntervalIdx}
+                formatValue={() => formatCompactDuration(intervalSeconds)}
+                recommendedValue={nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS)}
                 disabled={isPending}
               />
-              {timeoutError && <p className='text-destructive text-xs'>{t('errors.timeout')}</p>}
-            </div>
-          </div>
 
-          <div className='flex items-center justify-between rounded-lg border p-3'>
-            <div>
-              <p className='text-sm font-medium'>{t('fields.enabled')}</p>
-              <p className='text-muted-foreground text-xs'>{t('helper.enabled')}</p>
+              <Separator />
+
+              <LabeledSlider
+                label={t('timing.timeout.label')}
+                description={t('timing.timeout.description')}
+                value={timeoutIdx}
+                min={0}
+                max={REQUEST_TIMEOUT_MARKS.length - 1}
+                marks={TIMEOUT_DISPLAY_MARKS}
+                onValueChange={setTimeoutIdx}
+                formatValue={() => formatCompactDuration(timeoutMs / 1000)}
+                recommendedValue={nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS)}
+                disabled={isPending}
+              />
+
+              <Separator />
+
+              <LabeledSlider
+                label={t('timing.sensitivity.label')}
+                description={t('timing.sensitivity.description')}
+                value={failureThreshold}
+                min={1}
+                max={10}
+                marks={SENSITIVITY_DISPLAY_MARKS}
+                onValueChange={setFailureThreshold}
+                formatValue={(v) =>
+                  v === 1 ? t('timing.sensitivity.valueOne') : t('timing.sensitivity.valueOther', { count: v })
+                }
+                recommendedValue={RECOMMENDED_FAILURE_THRESHOLD}
+                disabled={isPending}
+              />
             </div>
-            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} disabled={isPending} />
           </div>
 
           <div className='flex justify-end gap-2 pt-2'>
             <Button type='button' variant='outline' onClick={() => setOpen(false)} disabled={isPending}>
               {t('actions.cancel')}
             </Button>
-            <Button
-              type='submit'
-              disabled={isPending || intervalError || timeoutError || urlError}
-              className='min-w-[120px]'
-            >
-              {isPending ? t('actions.creating') : t('actions.create')}
+            <Button type='submit' disabled={isPending || hasError} className='min-w-[140px]'>
+              {isPending ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  {t('actions.creating')}
+                </>
+              ) : (
+                t('actions.create')
+              )}
             </Button>
           </div>
         </form>

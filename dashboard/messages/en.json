@@ -1174,6 +1174,33 @@
       "resuming": "Resuming..."
     }
   },
+  "monitor": {
+    "reason": {
+      "ok": "Site is healthy",
+      "tls_handshake_failed": "SSL/TLS handshake failed",
+      "tls_missing_certificate": "SSL certificate not found",
+      "tls_expired": "SSL certificate has expired",
+      "tls_expiring_soon": "SSL certificate expiring soon",
+      "tls_parse_error": "Failed to parse SSL certificate",
+      "http_4xx": "Server returned a client error",
+      "http_5xx": "Server returned a server error",
+      "http_other": "Unexpected HTTP status code",
+      "http_timeout": "Request timed out",
+      "http_connect_error": "Could not connect to server",
+      "http_body_error": "Error reading response body",
+      "http_request_error": "Error sending request",
+      "http_error": "HTTP request failed",
+      "too_many_redirects": "Too many redirects",
+      "redirect_join_failed": "Invalid redirect location",
+      "scheme_blocked": "URL scheme not allowed",
+      "port_blocked": "Port not allowed",
+      "invalid_host": "Invalid hostname",
+      "blocked_ip_literal": "IP address not allowed",
+      "dns_blocked": "DNS resolved to blocked address",
+      "dns_error": "DNS resolution failed",
+      "unknown": "Unknown error"
+    }
+  },
   "monitoringPage": {
     "title": "Monitoring",
     "table": {
@@ -1192,6 +1219,7 @@
       "sortLabel": "Sort",
       "statusAll": "All",
       "statusUp": "Up",
+      "statusDegraded": "Degraded",
       "statusDown": "Down",
       "statusSslExpiring": "Expiring SSL certificate",
       "statusPaused": "Paused",
@@ -1220,22 +1248,36 @@
       "description": "Track an endpoint for uptime, latency, and SSL health.",
       "fields": {
         "name": "Name",
-        "url": "URL",
-        "interval": "Check interval (seconds)",
-        "timeout": "Request timeout (ms)",
-        "enabled": "Monitoring enabled"
+        "url": "URL"
       },
       "placeholders": {
-        "name": "Optional label",
-        "url": "https://example.com/health"
+        "name": "Optional label"
+      },
+      "helper": {
+        "nameOptional": "(optional)",
+        "nameDescription": "Give your monitor a friendly name, or leave blank to use the URL"
       },
       "errors": {
         "url": "Please enter a valid URL.",
-        "interval": "Interval must be at least 5 seconds.",
-        "timeout": "Timeout must be at least 500ms."
+        "urlDomain": "URL must be on {domain} or a subdomain (e.g., api.{domain})"
       },
-      "helper": {
-        "enabled": "Toggle to pause monitoring at creation."
+      "timing": {
+        "title": "Timing & Sensitivity",
+        "interval": {
+          "label": "Monitor interval",
+          "badge": "We recommend 1 minute for most endpoints",
+          "description": "Your site will be checked every {value}"
+        },
+        "timeout": {
+          "label": "Request timeout",
+          "description": "Too short may cause false positives"
+        },
+        "sensitivity": {
+          "label": "Incident sensitivity",
+          "description": "Number of consecutive failures before an incident is triggered",
+          "valueOne": "1 failure",
+          "valueOther": "{count} failures"
+        }
       },
       "actions": {
         "cancel": "Cancel",
@@ -1243,6 +1285,7 @@
         "creating": "Creating..."
       },
       "success": "Monitor created",
+      "successDescription": "Your monitor will start checking immediately.",
       "error": "Failed to create monitor"
     }
   },

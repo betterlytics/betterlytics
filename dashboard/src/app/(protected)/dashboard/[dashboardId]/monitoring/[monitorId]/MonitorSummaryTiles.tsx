@@ -10,9 +10,8 @@ import {
   presentMonitorStatus,
   presentUptimeTone,
   presentSslStatus,
-} from '@/utils/monitoringStyles';
+} from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
 import {
-  deriveOperationalState,
   type MonitorCheck,
   type MonitorMetrics,
   type MonitorOperationalState,
@@ -42,16 +41,12 @@ type MonitorSummaryTilesProps = {
   monitor: Pick<MonitorCheck, 'isEnabled' | 'intervalSeconds' | 'timeoutMs' | 'createdAt' | 'updatedAt'>;
   metrics?: MonitorSummaryMetrics;
   tls?: MonitorTlsResult | null;
+  operationalState: MonitorOperationalState;
 };
 
-export function MonitorSummaryTiles({ monitor, metrics, tls }: MonitorSummaryTilesProps) {
+export function MonitorSummaryTiles({ monitor, metrics, tls, operationalState }: MonitorSummaryTilesProps) {
   const t = useTranslations('monitoringDetailPage.summary');
   const latencyAvg = metrics?.latency?.avgMs ?? null;
-  const operationalState = deriveOperationalState(
-    monitor.isEnabled,
-    metrics?.lastStatus,
-    (metrics?.uptimeBuckets?.length ?? 0) > 0,
-  );
 
   return (
     <div className='grid gap-4 lg:grid-cols-2 xl:grid-cols-4'>

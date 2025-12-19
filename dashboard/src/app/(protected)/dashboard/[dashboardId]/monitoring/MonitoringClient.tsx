@@ -8,13 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/u
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
-import { presentSslStatus } from '@/utils/monitoringStyles';
+import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
 
 type FiltersCopy = {
   statusLabel: string;
   sortLabel: string;
   statusAll: string;
   statusUp: string;
+  statusDegraded: string;
   statusDown: string;
   statusSslExpiring: string;
   statusPaused: string;
@@ -28,12 +29,13 @@ type FiltersCopy = {
   sortSslExpires: string;
 };
 
-type StatusFilter = 'all' | 'up' | 'down' | 'ssl' | 'paused' | 'preparing';
+type StatusFilter = MonitorOperationalState | 'all' | 'ssl';
 type SortKey = 'downFirst' | 'upFirst' | 'newest' | 'oldest' | 'nameAsc' | 'nameDesc' | 'ssl';
 
 const STATUS_LABEL_KEY: Record<StatusFilter, keyof FiltersCopy> = {
   all: 'statusAll',
   up: 'statusUp',
+  degraded: 'statusDegraded',
   down: 'statusDown',
   ssl: 'statusSslExpiring',
   paused: 'statusPaused',
@@ -54,7 +56,8 @@ const SORT_LABEL_KEY: Record<SortKey, keyof FiltersCopy> = {
 const STATUS_FILTER_STATES: Record<StatusFilter, MonitorOperationalState[] | null> = {
   all: null, // null means match all
   up: ['up'],
-  down: ['down', 'error'],
+  degraded: ['degraded'],
+  down: ['down'],
   paused: ['paused'],
   preparing: ['preparing'],
   ssl: null, // SSL filter uses different logic
@@ -63,7 +66,6 @@ const STATUS_FILTER_STATES: Record<StatusFilter, MonitorOperationalState[] | nul
 /** Sort priority for operational states (lower = more urgent) */
 const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
   down: 0,
-  error: 0,
   degraded: 1,
   up: 2,
   preparing: 3,
@@ -73,9 +75,10 @@ const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
 type MonitoringClientProps = {
   dashboardId: string;
   monitors: MonitorWithStatus[];
+  domain: string;
 };
 
-export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProps) {
+export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringClientProps) {
   const t = useTranslations('monitoringPage');
   const filtersCopy = useMemo<FiltersCopy>(
     () => ({
@@ -83,6 +86,7 @@ export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProp
       sortLabel: t('filters.sortLabel'),
       statusAll: t('filters.statusAll'),
       statusUp: t('filters.statusUp'),
+      statusDegraded: t('filters.statusDegraded'),
       statusDown: t('filters.statusDown'),
       statusSslExpiring: t('filters.statusSslExpiring'),
       statusPaused: t('filters.statusPaused'),
@@ -179,6 +183,7 @@ export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProp
               <SelectContent>
                 <SelectItem value='all'>{filtersCopy.statusAll}</SelectItem>
                 <SelectItem value='up'>{filtersCopy.statusUp}</SelectItem>
+                <SelectItem value='degraded'>{filtersCopy.statusDegraded}</SelectItem>
                 <SelectItem value='down'>{filtersCopy.statusDown}</SelectItem>
                 <SelectItem value='ssl'>{filtersCopy.statusSslExpiring}</SelectItem>
                 <SelectItem value='paused'>{filtersCopy.statusPaused}</SelectItem>
@@ -202,7 +207,7 @@ export function MonitoringClient({ dashboardId, monitors }: MonitoringClientProp
             </Select>
           </div>
           <div className='bg-border h-6 w-px' aria-hidden />
-          <CreateMonitorDialog dashboardId={dashboardId} />
+          <CreateMonitorDialog dashboardId={dashboardId} domain={domain} />
         </div>
       </DashboardHeader>
 

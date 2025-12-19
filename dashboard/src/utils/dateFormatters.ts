@@ -42,6 +42,21 @@ export function formatDuration(seconds: number): string {
   return parts.join(' ');
 }
 
+/**
+ * Formats seconds as a compact single-unit duration string.
+ * Uses only the largest applicable unit without breakdown.
+ * Examples: 30 → "30s", 120 → "2m", 3600 → "1h", 86400 → "1d"
+ */
+export function formatCompactDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = seconds / 60;
+  if (minutes < 60) return `${minutes}m`;
+  const hours = minutes / 60;
+  if (hours < 24) return `${hours}h`;
+  const days = hours / 24;
+  return `${days}d`;
+}
+
 // Helper function to format time ago in a user-friendly way.
 // When `precise` is true, include seconds (e.g., "1m 23s ago", "11s ago").
 export function formatTimeAgo(date: Date, precise?: boolean): string {

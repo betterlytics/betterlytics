@@ -16,13 +16,14 @@ import {
   presentUptimeTone,
   type CheckStatusPresentation,
   type MonitorTone,
-} from '@/utils/monitoringStyles';
+} from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
 import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
 import { ResponseTimeChart } from './ResponseTimeChart';
 import { useLocale, useTranslations } from 'next-intl';
 import { MonitoringTooltip } from './MonitoringTooltip';
 import { formatPercentage } from '@/utils/formatters';
+import { getReasonMessage } from '@/lib/monitorReasonCodes';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return <ResponseTimeChart data={metrics?.latencySeries ?? []} />;
@@ -179,7 +180,6 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
 }
 
 function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
-  const misc = useTranslations('misc');
   const tCheckStatus = useTranslations('monitoring.checkStatus');
   const start = new Date(segment.start);
   const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000)) : '—';
@@ -194,7 +194,7 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
         </div>
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
-        {segment.reason ?? misc('unknown')}
+        {getReasonMessage(segment.reason)}
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
         {formatDistanceToNow(start, { addSuffix: true })}
@@ -205,7 +205,6 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
 }
 
 function CheckRow({ check }: { check: MonitorResult }) {
-  const misc = useTranslations('misc');
   const tCheckStatus = useTranslations('monitoring.checkStatus');
   const timestamp = new Date(check.ts);
   const presentation = presentCheckStatus(check.status);
@@ -228,7 +227,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{check.statusCode ?? '—'}</TableCell>
       <TableCell className='text-muted-foreground hidden text-xs sm:table-cell sm:text-sm'>
-        {check.reasonCode ?? misc('unknown')}
+        {getReasonMessage(check.reasonCode)}
       </TableCell>
     </TableRow>
   );
