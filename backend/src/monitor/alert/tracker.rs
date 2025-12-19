@@ -180,22 +180,26 @@ impl AlertTracker {
 
         state.last_status = Some(status);
 
+        // Check if we already have an open incident (e.g., warmed from database after restart)
+        let already_open = matches!(state.state, IncidentState::Open) && state.incident_id.is_some();
+
         debug!(
             check_id = check_id,
             ?status,
             consecutive_failures,
             failure_threshold,
+            already_open,
             "evaluating failure for monitor"
         );
 
-        // Not past the alerting threshold yet
-        if consecutive_failures < failure_threshold as u16 {
+        // Skip threshold check if incident is already open - threshold only gates opening NEW incidents
+        if !already_open && consecutive_failures < failure_threshold as u16 {
             state.consecutive_failures = consecutive_failures;
             debug!(
                 check_id = check_id,
                 consecutive_failures,
                 failure_threshold,
-                "not opening/updating incident yet: below failure threshold"
+                "not opening incident yet: below failure threshold"
             );
             return None;
         }
