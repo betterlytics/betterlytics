@@ -74,7 +74,6 @@ struct MonitorAlertState {
     consecutive_failures: u16,
     consecutive_successes: u16,
     failure_count: u16,
-    flap_count: u16,
 }
 
 #[derive(Clone, Debug)]
@@ -86,7 +85,6 @@ pub struct IncidentSnapshot {
     pub last_event_at: Option<DateTime<Utc>>,
     pub resolved_at: Option<DateTime<Utc>>,
     pub failure_count: u16,
-    pub flap_count: u16,
     pub last_status: Option<MonitorStatus>,
     pub last_error_reason_code: Option<String>,
     pub last_error_status_code: Option<u16>,
@@ -112,7 +110,6 @@ impl Default for MonitorAlertState {
             consecutive_failures: 0,
             consecutive_successes: 0,
             failure_count: 0,
-            flap_count: 0,
         }
     }
 }
@@ -222,7 +219,6 @@ impl AlertTracker {
             state.started_at = None;
             state.resolved_at = None;
             state.failure_count = 0;
-            state.flap_count = 0;
         }
 
         state.state = IncidentState::Open;
@@ -431,7 +427,6 @@ impl AlertTracker {
             state.last_event_at = Some(seed.last_event_at);
             state.resolved_at = seed.resolved_at;
             state.failure_count = seed.failure_count;
-            state.flap_count = seed.flap_count;
             state.last_status = seed.last_status;
             state.is_down = matches!(seed.state, IncidentState::Open);
             state.down_since = Some(seed.started_at);
@@ -461,7 +456,6 @@ impl AlertTracker {
             last_event_at: state.last_event_at,
             resolved_at: state.resolved_at,
             failure_count: state.failure_count,
-            flap_count: state.flap_count,
             last_status: state.last_status,
             last_error_reason_code: state.last_error_reason_code.clone(),
             last_error_status_code: state.last_error_status_code,

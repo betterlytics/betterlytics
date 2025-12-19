@@ -89,9 +89,6 @@ struct NotificationTimestamps {
     last_down_seeded: bool,
     last_recovery: Option<DateTime<Utc>>,
     last_recovery_incident: Option<Uuid>,
-    last_flap: Option<DateTime<Utc>>,
-    last_flap_incident: Option<Uuid>,
-    last_flap_seeded: bool,
     last_ssl: Option<DateTime<Utc>>,
 }
 
@@ -708,7 +705,6 @@ impl AlertService {
             .map(|t| NotificationSnapshot {
                 last_down: t.last_down,
                 last_recovery: t.last_recovery,
-                last_flap: t.last_flap,
             })
             .unwrap_or_default()
     }
@@ -748,11 +744,6 @@ impl AlertService {
                 entry.last_down_seeded = true;
             }
 
-            if let Some(ts) = seed.notified_flap_at {
-                entry.last_flap = Some(ts);
-                entry.last_flap_incident = Some(seed.incident_id);
-                entry.last_flap_seeded = true;
-            }
 
             if let Some(ts) = seed.notified_resolve_at {
                 entry.last_recovery = Some(ts);

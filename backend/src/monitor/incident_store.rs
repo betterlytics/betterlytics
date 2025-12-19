@@ -28,14 +28,11 @@ pub struct MonitorIncidentRow {
     pub resolved_at: Option<DateTime<Utc>>,
     pub reason_code: String,
     pub failure_count: u16,
-    pub flap_count: u16,
     pub last_status: MonitorStatus,
     pub status_code: Option<u16>,
     pub error_message: String,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub notified_down_at: Option<DateTime<Utc>>,
-    #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
-    pub notified_flap_at: Option<DateTime<Utc>>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub notified_resolve_at: Option<DateTime<Utc>>,
     pub kind: String,
@@ -65,7 +62,6 @@ impl MonitorIncidentRow {
                 .clone()
                 .unwrap_or_else(|| String::from("unknown")),
             failure_count: snapshot.failure_count,
-            flap_count: snapshot.flap_count,
             last_status: snapshot
                 .last_status
                 .unwrap_or(MonitorStatus::Ok),
@@ -75,7 +71,6 @@ impl MonitorIncidentRow {
                 .clone()
                 .unwrap_or_default(),
             notified_down_at: notified.last_down,
-            notified_flap_at: notified.last_flap,
             notified_resolve_at: notified.last_recovery,
             kind: kind.to_string(),
         }
@@ -86,7 +81,6 @@ impl MonitorIncidentRow {
 pub struct NotificationSnapshot {
     pub last_down: Option<DateTime<Utc>>,
     pub last_recovery: Option<DateTime<Utc>>,
-    pub last_flap: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]
@@ -99,13 +93,11 @@ pub struct IncidentSeed {
     pub last_event_at: DateTime<Utc>,
     pub resolved_at: Option<DateTime<Utc>>,
     pub failure_count: u16,
-    pub flap_count: u16,
     pub last_status: Option<MonitorStatus>,
     pub reason_code: String,
     pub status_code: Option<u16>,
     pub error_message: String,
     pub notified_down_at: Option<DateTime<Utc>>,
-    pub notified_flap_at: Option<DateTime<Utc>>,
     pub notified_resolve_at: Option<DateTime<Utc>>,
 }
 
@@ -123,15 +115,12 @@ struct IncidentSeedRow {
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     resolved_at: Option<DateTime<Utc>>,
     failure_count: u16,
-    flap_count: u16,
     last_status: Option<i8>,
     reason_code: String,
     status_code: Option<u16>,
     error_message: String,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     notified_down_at: Option<DateTime<Utc>>,
-    #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
-    notified_flap_at: Option<DateTime<Utc>>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     notified_resolve_at: Option<DateTime<Utc>>,
 }
@@ -155,13 +144,11 @@ impl From<IncidentSeedRow> for IncidentSeed {
             last_event_at: row.last_event_at,
             resolved_at: row.resolved_at,
             failure_count: row.failure_count,
-            flap_count: row.flap_count,
             last_status,
             reason_code: row.reason_code,
             status_code: row.status_code,
             error_message: row.error_message,
             notified_down_at: row.notified_down_at,
-            notified_flap_at: row.notified_flap_at,
             notified_resolve_at: row.notified_resolve_at,
         }
     }
@@ -202,13 +189,11 @@ impl IncidentStore {
                 last_event_at,
                 resolved_at,
                 failure_count,
-                flap_count,
                 if(toInt8(last_status) BETWEEN 1 AND 4, toInt8(last_status), NULL) as last_status,
                 reason_code,
                 status_code,
                 error_message,
                 notified_down_at,
-                notified_flap_at,
                 notified_resolve_at
             FROM {table}
             FINAL

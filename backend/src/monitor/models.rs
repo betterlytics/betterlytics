@@ -163,17 +163,6 @@ pub enum MonitorStatus {
     Error = 4,
 }
 
-impl MonitorStatus {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            MonitorStatus::Ok => "ok",
-            MonitorStatus::Warn => "warn",
-            MonitorStatus::Down => "down",
-            MonitorStatus::Error => "error",
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum BackoffReason {
