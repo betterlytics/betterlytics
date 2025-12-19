@@ -41,8 +41,8 @@ use metrics::MetricsCollector;
 use monitor::{
     AlertService, AlertServiceConfig,
     IncidentStore, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe,
-    MonitorRepository, MonitorRunner, MonitorRuntimeConfig, MonitorWriter, TlsMonitorRunner,
-    TlsMonitorRuntimeConfig, init_dev_mode,
+    MonitorRepository, HttpRunner, HttpRuntimeConfig, MonitorWriter, TlsRunner,
+    TlsRuntimeConfig, init_dev_mode,
 };
 use monitor::alert::AlertHistoryWriter;
 use processing::EventProcessor;
@@ -227,27 +227,27 @@ async fn main() {
                 ).await);
                 info!("Alert service initialized");
 
-                let mut monitor_runner = MonitorRunner::new(
+                let mut http_runner = HttpRunner::new(
                     Arc::clone(&monitor_cache),
                     probe,
                     Arc::clone(&writer),
                     metrics_for_monitor.clone(),
-                    MonitorRuntimeConfig::default(),
+                    HttpRuntimeConfig::default(),
                 );
                 
-                let mut tls_runner = TlsMonitorRunner::new(
+                let mut tls_runner = TlsRunner::new(
                     tls_cache,
                     tls_probe,
                     tls_writer,
                     metrics_for_monitor.clone(),
-                    TlsMonitorRuntimeConfig::default(),
+                    TlsRuntimeConfig::default(),
                 );
 
                 // Wire up alert service
-                monitor_runner = monitor_runner.with_alert_service(Arc::clone(&alert_service));
+                http_runner = http_runner.with_alert_service(Arc::clone(&alert_service));
                 tls_runner = tls_runner.with_alert_service(Arc::clone(&alert_service));
 
-                monitor_runner.spawn();
+                http_runner.spawn();
                 tls_runner.spawn();
 
                 info!("uptime monitoring started");

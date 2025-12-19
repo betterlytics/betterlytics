@@ -20,5 +20,5 @@ pub use models::{
 };
 pub use probe::MonitorProbe;
 pub use repository::{MonitorCheckDataSource, MonitorRepository};
-pub use runner::{MonitorRunner, MonitorRuntimeConfig, TlsMonitorRunner, TlsMonitorRuntimeConfig};
+pub use runner::{HttpRunner, HttpRuntimeConfig, TlsRunner, TlsRuntimeConfig};
 pub use writer::MonitorWriter;

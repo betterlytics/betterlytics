@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::marker::PhantomData;
 use std::sync::Arc;
 use std::time::Duration as StdDuration;
 use std::{future::Future, pin::Pin};
@@ -16,65 +17,148 @@ use crate::monitor::{
     MonitorResultRow, MonitorWriter, ProbeOutcome,
 };
 
-const MONITOR_SCHEDULER_TICK_MS: u64 = 1_000;
-const MONITOR_MAX_CONCURRENCY: usize = 200;
-const TLS_MONITOR_SCHEDULER_TICK_MS: u64 = 60_000;
-const TLS_MONITOR_MAX_CONCURRENCY: usize = 20;
-const TLS_PROBE_INTERVAL: StdDuration = StdDuration::from_secs(6 * 60 * 60);
 const BACKOFF_JITTER_PCT: f64 = 0.10;
-const PRUNE_EVERY_TICKS: u64 = 3_600; // ~60 minutes at 1s scheduler tick
-const TLS_PRUNE_EVERY_TICKS: u64 = 60; // ~60 minutes at 60s scheduler tick
 
+// Runtime Configurations
 #[derive(Clone, Copy, Debug)]
-pub struct MonitorRuntimeConfig {
+pub struct HttpRuntimeConfig {
     pub scheduler_tick: StdDuration,
     pub max_concurrency: usize,
 }
 
-impl Default for MonitorRuntimeConfig {
+impl Default for HttpRuntimeConfig {
     fn default() -> Self {
         Self {
-            scheduler_tick: StdDuration::from_millis(MONITOR_SCHEDULER_TICK_MS),
-            max_concurrency: MONITOR_MAX_CONCURRENCY,
+            scheduler_tick: StdDuration::from_millis(1_000),
+            max_concurrency: 200,
         }
     }
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct TlsMonitorRuntimeConfig {
+pub struct TlsRuntimeConfig {
     pub scheduler_tick: StdDuration,
     pub max_concurrency: usize,
     pub probe_interval: StdDuration,
 }
 
-impl Default for TlsMonitorRuntimeConfig {
+impl Default for TlsRuntimeConfig {
     fn default() -> Self {
         Self {
-            scheduler_tick: StdDuration::from_millis(TLS_MONITOR_SCHEDULER_TICK_MS),
-            max_concurrency: TLS_MONITOR_MAX_CONCURRENCY,
-            probe_interval: TLS_PROBE_INTERVAL,
+            scheduler_tick: StdDuration::from_millis(60_000),
+            max_concurrency: 20,
+            probe_interval: StdDuration::from_secs(6 * 60 * 60),
         }
     }
 }
 
 type ProbeFuture = Pin<Box<dyn Future<Output = ProbeOutcome> + Send + 'static>>;
 
-pub struct MonitorRunner {
+/// Strategy trait that defines variant-specific runner behavior.
+pub trait RunnerStrategy: Send + Sync + 'static {
+    type Scheduler: ProbeScheduler;
+    type RuntimeConfig: Clone + Copy + Send + Sync + 'static;
+
+    fn name() -> &'static str;
+    fn metrics_kind() -> &'static str;
+    fn prune_every_ticks() -> u64;
+    fn is_tls_runner() -> bool;
+
+    fn scheduler_tick(runtime: &Self::RuntimeConfig) -> StdDuration;
+    fn max_concurrency(runtime: &Self::RuntimeConfig) -> usize;
+    fn create_scheduler(runtime: &Self::RuntimeConfig) -> Self::Scheduler;
+    fn probe_fn(probe: MonitorProbe, check: Arc<MonitorCheck>) -> ProbeFuture;
+    fn build_row(check: &MonitorCheck, outcome: &ProbeOutcome, backoff: &BackoffSnapshot) -> MonitorResultRow;
+}
+
+pub struct HttpRunnerStrategy;
+
+impl RunnerStrategy for HttpRunnerStrategy {
+    type Scheduler = BackoffScheduler;
+    type RuntimeConfig = HttpRuntimeConfig;
+
+    fn name() -> &'static str { "monitor" }
+    fn metrics_kind() -> &'static str { "http" }
+    fn prune_every_ticks() -> u64 { 3_600 } // ~60 minutes at 1s scheduler tick
+    fn is_tls_runner() -> bool { false }
+
+    fn scheduler_tick(runtime: &Self::RuntimeConfig) -> StdDuration {
+        runtime.scheduler_tick
+    }
+
+    fn max_concurrency(runtime: &Self::RuntimeConfig) -> usize {
+        runtime.max_concurrency
+    }
+
+    fn create_scheduler(_runtime: &Self::RuntimeConfig) -> Self::Scheduler {
+        BackoffScheduler::new()
+    }
+
+    fn probe_fn(probe: MonitorProbe, check: Arc<MonitorCheck>) -> ProbeFuture {
+        Box::pin(async move { probe.run(&check).await })
+    }
+
+    fn build_row(check: &MonitorCheck, outcome: &ProbeOutcome, backoff: &BackoffSnapshot) -> MonitorResultRow {
+        MonitorResultRow::from_probe(check, outcome, backoff)
+    }
+}
+
+pub struct TlsRunnerStrategy;
+
+impl RunnerStrategy for TlsRunnerStrategy {
+    type Scheduler = FixedIntervalScheduler;
+    type RuntimeConfig = TlsRuntimeConfig;
+
+    fn name() -> &'static str { "tls" }
+    fn metrics_kind() -> &'static str { "tls" }
+    fn prune_every_ticks() -> u64 { 60 } // ~60 minutes at 60s scheduler tick
+    fn is_tls_runner() -> bool { true }
+
+    fn scheduler_tick(runtime: &Self::RuntimeConfig) -> StdDuration {
+        runtime.scheduler_tick
+    }
+
+    fn max_concurrency(runtime: &Self::RuntimeConfig) -> usize {
+        runtime.max_concurrency
+    }
+
+    fn create_scheduler(runtime: &Self::RuntimeConfig) -> Self::Scheduler {
+        FixedIntervalScheduler::new(runtime.probe_interval)
+    }
+
+    fn probe_fn(probe: MonitorProbe, check: Arc<MonitorCheck>) -> ProbeFuture {
+        Box::pin(async move { probe.run_tls(&check).await })
+    }
+
+    fn build_row(check: &MonitorCheck, outcome: &ProbeOutcome, _backoff: &BackoffSnapshot) -> MonitorResultRow {
+        info!(
+            check = %check.id,
+            status = ?outcome.status,
+            reason = %outcome.reason_code.as_str(),
+            days_left = ?outcome.tls_days_left,
+            "tls probe completed"
+        );
+        MonitorResultRow::from_tls_probe(check, outcome)
+    }
+}
+
+pub struct Runner<S: RunnerStrategy> {
     cache: Arc<MonitorCache>,
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
     alert_service: Option<Arc<AlertService>>,
-    runtime: MonitorRuntimeConfig,
+    runtime: S::RuntimeConfig,
+    _marker: PhantomData<S>,
 }
 
-impl MonitorRunner {
+impl<S: RunnerStrategy> Runner<S> {
     pub fn new(
         cache: Arc<MonitorCache>,
         probe: MonitorProbe,
         writer: Arc<MonitorWriter>,
         metrics: Option<Arc<MetricsCollector>>,
-        runtime: MonitorRuntimeConfig,
+        runtime: S::RuntimeConfig,
     ) -> Self {
         Self {
             cache,
@@ -83,6 +167,7 @@ impl MonitorRunner {
             metrics,
             alert_service: None,
             runtime,
+            _marker: PhantomData,
         }
     }
 
@@ -100,15 +185,15 @@ impl MonitorRunner {
 
     async fn run(self) {
         let config = RunLoopConfig {
-            name: "monitor",
-            scheduler_tick: self.runtime.scheduler_tick,
-            max_concurrency: self.runtime.max_concurrency,
-            prune_every_ticks: PRUNE_EVERY_TICKS,
-            metrics_kind: "http",
+            name: S::name(),
+            scheduler_tick: S::scheduler_tick(&self.runtime),
+            max_concurrency: S::max_concurrency(&self.runtime),
+            prune_every_ticks: S::prune_every_ticks(),
+            metrics_kind: S::metrics_kind(),
         };
-        let scheduler = BackoffScheduler::new();
+        let scheduler = S::create_scheduler(&self.runtime);
 
-        run_loop(
+        run_loop::<S>(
             self.cache,
             self.probe,
             self.writer,
@@ -116,89 +201,13 @@ impl MonitorRunner {
             self.alert_service,
             config,
             scheduler,
-            |probe, check| Box::pin(async move { probe.run(&check).await }),
-            |check, outcome, backoff| MonitorResultRow::from_probe(check, outcome, backoff),
-            false, // is_tls_runner
         )
         .await
     }
 }
 
-pub struct TlsMonitorRunner {
-    cache: Arc<MonitorCache>,
-    probe: MonitorProbe,
-    writer: Arc<MonitorWriter>,
-    metrics: Option<Arc<MetricsCollector>>,
-    alert_service: Option<Arc<AlertService>>,
-    runtime: TlsMonitorRuntimeConfig,
-}
-
-impl TlsMonitorRunner {
-    pub fn new(
-        cache: Arc<MonitorCache>,
-        probe: MonitorProbe,
-        writer: Arc<MonitorWriter>,
-        metrics: Option<Arc<MetricsCollector>>,
-        runtime: TlsMonitorRuntimeConfig,
-    ) -> Self {
-        Self {
-            cache,
-            probe,
-            writer,
-            metrics,
-            alert_service: None,
-            runtime,
-        }
-    }
-
-    /// Set the alert service for this runner
-    pub fn with_alert_service(mut self, alert_service: Arc<AlertService>) -> Self {
-        self.alert_service = Some(alert_service);
-        self
-    }
-
-    pub fn spawn(self) {
-        tokio::spawn(async move {
-            self.run().await;
-        });
-    }
-
-    async fn run(self) {
-        let config = RunLoopConfig {
-            name: "tls",
-            scheduler_tick: self.runtime.scheduler_tick,
-            max_concurrency: self.runtime.max_concurrency,
-            prune_every_ticks: TLS_PRUNE_EVERY_TICKS,
-            metrics_kind: "tls",
-        };
-        let scheduler = FixedIntervalScheduler::new(self.runtime.probe_interval);
-
-        run_loop(
-            self.cache,
-            self.probe,
-            self.writer,
-            self.metrics,
-            self.alert_service,
-            config,
-            scheduler,
-            |probe, check| Box::pin(async move { probe.run_tls(&check).await }),
-            |check, outcome, backoff| {
-                info!(
-                    check = %check.id,
-                    status = ?outcome.status,
-                    reason = %outcome.reason_code.as_str(),
-                    days_left = ?outcome.tls_days_left,
-                    "tls probe completed"
-                );
-                // TLS probes use a fixed backoff snapshot from the check's interval
-                let _ = backoff;
-                MonitorResultRow::from_tls_probe(check, outcome)
-            },
-            true, // is_tls_runner
-        )
-        .await
-    }
-}
+pub type HttpRunner = Runner<HttpRunnerStrategy>;
+pub type TlsRunner = Runner<TlsRunnerStrategy>;
 
 #[derive(Clone, Copy, Debug)]
 struct RunLoopConfig {
@@ -210,7 +219,7 @@ struct RunLoopConfig {
 }
 
 /// Trait for scheduling when monitors should be probed.
-trait ProbeScheduler: Send + Sync + 'static {
+pub trait ProbeScheduler: Send + Sync + 'static {
     /// Check if a monitor is eligible for probing and return the backoff snapshot if so.
     fn check_due(
         &mut self,
@@ -232,13 +241,13 @@ trait ProbeScheduler: Send + Sync + 'static {
 }
 
 /// Scheduler with exponential backoff for failing monitors.
-struct BackoffScheduler {
+pub struct BackoffScheduler {
     backoff: BackoffController,
     next_wait: HashMap<String, StdDuration>,
 }
 
 impl BackoffScheduler {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             backoff: BackoffController::new(BackoffPolicy::default()),
             next_wait: HashMap::new(),
@@ -292,12 +301,12 @@ impl ProbeScheduler for BackoffScheduler {
 }
 
 /// Scheduler with a fixed interval (used for TLS probes).
-struct FixedIntervalScheduler {
+pub struct FixedIntervalScheduler {
     probe_interval: StdDuration,
 }
 
 impl FixedIntervalScheduler {
-    fn new(probe_interval: StdDuration) -> Self {
+    pub fn new(probe_interval: StdDuration) -> Self {
         Self { probe_interval }
     }
 }
@@ -340,26 +349,15 @@ impl ProbeScheduler for FixedIntervalScheduler {
     }
 }
 
-async fn run_loop<S, FProbe, FRow>(
+async fn run_loop<S: RunnerStrategy>(
     cache: Arc<MonitorCache>,
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
     alert_service: Option<Arc<AlertService>>,
     config: RunLoopConfig,
-    mut scheduler: S,
-    probe_fn: FProbe,
-    build_row: FRow,
-    is_tls_runner: bool,
-) where
-    S: ProbeScheduler,
-    FProbe: Fn(MonitorProbe, Arc<MonitorCheck>) -> ProbeFuture + Copy + Send + Sync + 'static,
-    FRow: Fn(&MonitorCheck, &ProbeOutcome, &BackoffSnapshot) -> MonitorResultRow
-        + Copy
-        + Send
-        + Sync
-        + 'static,
-{
+    mut scheduler: S::Scheduler,
+) {
     let mut ticker = interval(config.scheduler_tick);
     ticker.set_missed_tick_behavior(MissedTickBehavior::Skip);
     let semaphore = Arc::new(Semaphore::new(config.max_concurrency));
@@ -367,6 +365,7 @@ async fn run_loop<S, FProbe, FRow>(
     let mut prune_counter: u64 = 0;
     let runner_name = config.name;
     let metrics_kind = config.metrics_kind;
+    let is_tls_runner = S::is_tls_runner();
 
     info!(
         runner = config.name,
@@ -421,7 +420,7 @@ async fn run_loop<S, FProbe, FRow>(
                     return None;
                 }
                 let _permit = permit.unwrap();
-                let outcome = probe_fn(probe.clone(), check_for_probe.clone()).await;
+                let outcome = S::probe_fn(probe.clone(), check_for_probe.clone()).await;
                 let finished_at = Instant::now();
 
                 if let Some(metrics) = &metrics {
@@ -474,7 +473,7 @@ async fn run_loop<S, FProbe, FRow>(
                     }
                 }
 
-                collected.push(build_row(&check, &outcome, &post_snapshot));
+                collected.push(S::build_row(&check, &outcome, &post_snapshot));
             }
         }
 
@@ -490,6 +489,8 @@ async fn run_loop<S, FProbe, FRow>(
         }
     }
 }
+
+// Helpers
 
 fn jitter_duration(base: StdDuration, jitter_pct: f64) -> StdDuration {
     let mut rng = rand::thread_rng();
