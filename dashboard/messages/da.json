@@ -1134,7 +1134,6 @@
       "up": "Oppe",
       "degraded": "Nedsat",
       "down": "Nede",
-      "error": "Fejl",
       "monitoringActive": "Overvågning aktiv",
       "monitoringPaused": "Overvågning sat på pause"
     },
@@ -1165,10 +1164,9 @@
     },
     "labels": {
       "noData": "Ingen data",
-      "noDataYet": "Ingen data endnu",
       "uptimeSuffix": "oppetid",
-      "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}",
-      "ssl": "SSL"
+      "recommended": "anbefalet",
+      "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}"
     },
     "actions": {
       "pause": "Sæt overvågning på pause",
@@ -1179,12 +1177,12 @@
   },
   "monitor": {
     "reason": {
-      "ok": "Webstedet er sundt",
+      "ok": "Siden fungerer",
       "tls_handshake_failed": "SSL/TLS-håndtryk mislykkedes",
       "tls_missing_certificate": "SSL-certifikat ikke fundet",
       "tls_expired": "SSL-certifikat er udløbet",
       "tls_expiring_soon": "SSL-certifikat udløber snart",
-      "tls_parse_error": "Kunne ikke parse SSL-certifikat",
+      "tls_parse_error": "Kunne ikke læse SSL-certifikat",
       "http_4xx": "Server returnerede en klientfejl",
       "http_5xx": "Server returnerede en serverfejl",
       "http_other": "Uventet HTTP-statuskode",
@@ -1199,24 +1197,13 @@
       "port_blocked": "Port ikke tilladt",
       "invalid_host": "Ugyldigt værtsnavn",
       "blocked_ip_literal": "IP-adresse ikke tilladt",
-      "dns_blocked": "DNS opløst til blokeret adresse",
+      "dns_blocked": "DNS peger på blokeret adresse",
       "dns_error": "DNS-opløsning mislykkedes",
       "unknown": "Ukendt fejl"
     }
   },
   "monitoringPage": {
     "title": "Overvågning",
-    "table": {
-      "emptyTitle": "Ingen overvågninger endnu",
-      "emptyDescription": "Opret din første overvågning for at begynde at spore oppetid.",
-      "headers": {
-        "name": "Navn",
-        "url": "URL",
-        "uptime": "Oppetid (24t)"
-      },
-      "enabled": "Aktiveret",
-      "disabled": "Sat på pause"
-    },
     "filters": {
       "statusLabel": "Status",
       "sortLabel": "Sortér",
@@ -1240,21 +1227,19 @@
       "intervalMinutes": "{value} min",
       "intervalSeconds": "{value}s",
       "backoffTooltip": "Overvågning midlertidigt reduceret til {value}, fordi denne monitor har været nede gentagne gange. Normal frekvens genoptages automatisk, når tjenesten er oppe igen.",
-      "state": {
-        "on": "Tændt",
-        "paused": "Sat på pause"
-      }
+      "emptyTitle": "Ingen overvågninger endnu",
+      "emptyDescription": "Opret din første overvågning for at begynde at spore oppetid."
     },
     "form": {
       "create": "Ny overvågning",
       "title": "Opret overvågning",
-      "description": "Overvåg et endpoint for oppetid, latenstid og SSL-status.",
+      "description": "Overvåg et endpoint for oppetid, responstid og SSL-status.",
       "fields": {
         "name": "Navn",
         "url": "URL"
       },
       "placeholders": {
-        "name": "Valgfrit label"
+        "name": "Valgfri betegnelse"
       },
       "helper": {
         "nameOptional": "(valgfrit)",
@@ -1265,19 +1250,19 @@
         "urlDomain": "URL skal være på {domain} eller et subdomæne (f.eks. api.{domain})"
       },
       "timing": {
-        "title": "Timing & Følsomhed",
+        "title": "Tid og følsomhed",
         "interval": {
           "label": "Overvågningsinterval",
           "badge": "Vi anbefaler 1 minut for de fleste endpoints",
           "description": "Dit websted tjekkes hver {value}"
         },
         "timeout": {
-          "label": "Timeout for anmodning",
+          "label": "Anmodningstimeout",
           "description": "For kort kan give falske positiver"
         },
         "sensitivity": {
           "label": "Hændelsesfølsomhed",
-          "description": "Antal på hinanden følgende fejl før en hændelse udløses",
+          "description": "Antal fejl i træk før der oprettes en hændelse",
           "valueOne": "1 fejl",
           "valueOther": "{count} fejl"
         }
@@ -1298,12 +1283,12 @@
     },
     "header": {
       "back": "Tilbage til overvågninger",
-      "monitoring": "Overvåger"
+      "monitoring": "Overvågning"
     },
     "responseTime": {
       "title": "Responstid",
       "badge": "Seneste 24 timer",
-      "empty": "Ingen latenstidsdata endnu"
+      "empty": "Ingen data om responstid endnu"
     },
     "downtime": {
       "days": "{value}d nede",
@@ -1315,7 +1300,7 @@
       "title": "Hændelser",
       "badge": "Seneste 7 dage",
       "emptyTitle": "Ingen hændelser registreret",
-      "emptyDescription": "Vi viser årsager, tidspunkter og nedetidsperioder, når der opstår hændelser.",
+      "emptyDescription": "Vi viser årsager, tidspunkter og nedetid, når der opstår hændelser.",
       "headers": {
         "status": "Status",
         "root": "Årsag",
@@ -1373,29 +1358,75 @@
         "paused": "Overvågning sat på pause",
         "resumed": "Overvågning genoptaget"
       },
-      "statusError": "Kunne ikke opdatere overvågning-status. Prøv igen.",
-      "updateSuccess": "Overvågning opdateret",
-      "updateError": "Kunne ikke opdatere overvågning. Prøv igen."
-    },
-    "editDialog": {
-      "trigger": "Redigér overvågning",
+      "statusError": "Kunne ikke opdatere overvågning-status. Prøv igen."
+    }
+  },
+  "monitoringEditDialog": {
+    "success": "Overvågning opdateret",
+    "error": "Kunne ikke opdatere overvågning. Prøv igen.",
+    "trigger": "Redigér",
+    "sheet": {
       "title": "Redigér overvågning",
-      "description": "Juster tjekfrekvens og timeout-grænser.",
-      "interval": {
-        "title": "Overvågnings-interval",
-        "description": "Din side tjekkes hver {value}.",
-        "helper": "Brug kortere intervaller for kritiske endpoints; længere for mindre følsomme tjek."
+      "description": "Konfigurér overvågningsindstillinger for {url}"
+    },
+    "unsavedChanges": "Ikke-gemte ændringer",
+    "actions": {
+      "cancel": "Annullér",
+      "save": "Gem",
+      "saving": "Gemmer..."
+    },
+    "confirmDiscard": {
+      "title": "Vil du kassere ændringerne?",
+      "description": "Du har ændringer, der ikke er gemt. De går tabt, hvis du lukker.",
+      "keep": "Fortsæt redigering",
+      "discard": "Kasser"
+    },
+    "sections": {
+      "timing": "Tidsindstillinger",
+      "advanced": "Avancerede indstillinger"
+    },
+    "advanced": {
+      "httpMethod": {
+        "label": "HTTP-metode",
+        "description": "HEAD er hurtigere, men nogle servere understøtter det ikke"
       },
-      "timeout": {
-        "title": "Forespørgsels-timeout",
-        "description": "Timeout er {value}. Jo kortere timeout, desto hurtigere markeres sitet som nede.",
-        "helper": "Vælg en værdi, der matcher normale svartider; for kort kan give falske alarmer."
+      "sslMonitoring": {
+        "label": "Overvåg SSL-fejl",
+        "description": "Opret hændelser, når certifikatfejl opdages"
       },
-      "actions": {
-        "cancel": "Annullér",
-        "save": "Gem ændringer",
-        "saving": "Gemmer..."
+      "requestHeaders": {
+        "label": "Forespørgselsheadere",
+        "description": "Tilføj headers til hver forespørgsel",
+        "namePlaceholder": "Headernavn",
+        "valuePlaceholder": "Værdi"
+      },
+      "acceptedStatusCodes": {
+        "label": "Accepterede statuskoder",
+        "description": "Andre koder udløser hændelser"
       }
+    },
+    "alerts": {
+      "title": "Alarmer",
+      "description": "Få besked, når din overvågning går ned, kommer op igen, eller når SSL-certifikater er ved at udløbe.",
+      "recipients": "E-mail-modtagere",
+      "recipientsDescription": "Tilføj e-mailadresser, der skal modtage alarmer.",
+      "emailPlaceholder": "email@example.com",
+      "addEmail": "Tilføj",
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "emailExists": "Denne e-mail er allerede tilføjet",
+      "triggers": "Alarmudløsere",
+      "onDown": "Advarsel ved nedetid",
+      "onDownDescription": "Send en alarm, når overvågningen går ned",
+      "onRecovery": "Advarsel ved genoprettelse",
+      "onRecoveryDescription": "Send en alarm, når overvågningen kommer op igen efter nedetid",
+      "onSslExpiry": "Advarsel ved SSL-udløb",
+      "onSslExpiryDescription": "Send en alarm, når SSL-certifikatet er ved at udløbe",
+      "failureThreshold": "Fejlgrænse",
+      "failureThresholdDescription": "Antal fejl i træk før der sendes en alarm",
+      "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
+      "sslExpiryDays": "Dage før udløb",
+      "sslExpiryDaysDescription": "Send alarm så mange dage før SSL-certifikatet udløber",
+      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}"
     }
   },
   "charts": {

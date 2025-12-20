@@ -1134,7 +1134,6 @@
       "up": "Online",
       "degraded": "Degradato",
       "down": "Offline",
-      "error": "Errore",
       "monitoringActive": "Monitoraggio attivo",
       "monitoringPaused": "Monitoraggio in pausa"
     },
@@ -1165,21 +1164,20 @@
     },
     "labels": {
       "noData": "Nessun dato",
-      "noDataYet": "Nessun dato ancora",
       "uptimeSuffix": "uptime",
-      "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}",
-      "ssl": "SSL"
+      "recommended": "consigliato",
+      "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}"
     },
     "actions": {
       "pause": "Metti in pausa monitor",
       "resume": "Riprendi monitor",
-      "pausing": "Messa in pausa...",
-      "resuming": "Ripristino..."
+      "pausing": "Pausa in corso...",
+      "resuming": "Ripresa in corso..."
     }
   },
   "monitor": {
     "reason": {
-      "ok": "Il sito è operativo",
+      "ok": "Sito operativo",
       "tls_handshake_failed": "Handshake SSL/TLS fallito",
       "tls_missing_certificate": "Certificato SSL non trovato",
       "tls_expired": "Il certificato SSL è scaduto",
@@ -1206,17 +1204,6 @@
   },
   "monitoringPage": {
     "title": "Monitoraggio",
-    "table": {
-      "emptyTitle": "Nessun monitor ancora",
-      "emptyDescription": "Crea il tuo primo monitor per iniziare a tracciare l’uptime.",
-      "headers": {
-        "name": "Nome",
-        "url": "URL",
-        "uptime": "Uptime (24h)"
-      },
-      "enabled": "Attivo",
-      "disabled": "In pausa"
-    },
     "filters": {
       "statusLabel": "Stato",
       "sortLabel": "Ordina",
@@ -1240,10 +1227,8 @@
       "intervalMinutes": "{value} min",
       "intervalSeconds": "{value}s",
       "backoffTooltip": "Monitoraggio temporaneamente ridotto a {value} perché questo monitor è stato offline ripetutamente. La frequenza normale riprenderà automaticamente quando il servizio torna online.",
-      "state": {
-        "on": "Attivo",
-        "paused": "In pausa"
-      }
+      "emptyTitle": "Nessun monitor ancora",
+      "emptyDescription": "Crea il tuo primo monitor per iniziare a tracciare l'uptime."
     },
     "form": {
       "create": "Nuovo monitor",
@@ -1265,7 +1250,7 @@
         "urlDomain": "L'URL deve essere su {domain} o un sottodominio (es. api.{domain})"
       },
       "timing": {
-        "title": "Timing e Sensibilit\u00e0",
+        "title": "Tempi e Sensibilità",
         "interval": {
           "label": "Intervallo di monitoraggio",
           "badge": "Consigliamo 1 minuto per la maggior parte degli endpoint",
@@ -1351,7 +1336,7 @@
       "lastCheck": {
         "title": "Ultimo controllo",
         "paused": "In pausa",
-        "preparing": "Preparazione del primo controllo",
+        "preparing": "Primo controllo in preparazione",
         "helperPaused": "Riprendi il monitor per riattivare i controlli.",
         "helperPreparing": "Stiamo programmando il primo controllo. I risultati appariranno presto.",
         "helperScheduled": "Programmato ogni {seconds}s"
@@ -1373,29 +1358,75 @@
         "paused": "Monitoraggio in pausa",
         "resumed": "Monitoraggio ripreso"
       },
-      "statusError": "Impossibile aggiornare lo stato del monitor. Riprova.",
-      "updateSuccess": "Monitor aggiornato",
-      "updateError": "Impossibile aggiornare il monitor. Riprova."
-    },
-    "editDialog": {
-      "trigger": "Modifica monitor",
+      "statusError": "Impossibile aggiornare lo stato del monitor. Riprova."
+    }
+  },
+  "monitoringEditDialog": {
+    "success": "Monitor aggiornato",
+    "error": "Impossibile aggiornare il monitor. Riprova.",
+    "trigger": "Modifica",
+    "sheet": {
       "title": "Modifica monitor",
-      "description": "Regola la frequenza dei controlli e le soglie di timeout.",
-      "interval": {
-        "title": "Intervallo monitor",
-        "description": "Il monitor verrà controllato ogni {value}.",
-        "helper": "Intervalli più brevi per endpoint critici; più lunghi per controlli meno sensibili."
+      "description": "Configura le impostazioni di monitoraggio per {url}"
+    },
+    "unsavedChanges": "Modifiche non salvate",
+    "actions": {
+      "cancel": "Annulla",
+      "save": "Salva",
+      "saving": "Salvataggio..."
+    },
+    "confirmDiscard": {
+      "title": "Vuoi annullare le modifiche?",
+      "description": "Hai modifiche non salvate che andranno perse se chiudi questo pannello.",
+      "keep": "Continua a modificare",
+      "discard": "Annulla modifiche"
+    },
+    "sections": {
+      "timing": "Tempistiche",
+      "advanced": "Impostazioni avanzate"
+    },
+    "advanced": {
+      "httpMethod": {
+        "label": "Metodo HTTP",
+        "description": "HEAD è più veloce ma alcuni server non lo supportano"
       },
-      "timeout": {
-        "title": "Timeout richiesta",
-        "description": "Il timeout è {value}. Un timeout più breve segna il sito come offline più velocemente.",
-        "helper": "Scegli un valore adatto ai tempi di risposta tipici; valori troppo brevi possono causare falsi allarmi."
+      "sslMonitoring": {
+        "label": "Monitora errori SSL",
+        "description": "Crea incidenti quando vengono rilevati errori del certificato"
       },
-      "actions": {
-        "cancel": "Annulla",
-        "save": "Salva modifiche",
-        "saving": "Salvataggio..."
+      "requestHeaders": {
+        "label": "Header della richiesta",
+        "description": "Aggiungi header a ogni richiesta",
+        "namePlaceholder": "Nome header",
+        "valuePlaceholder": "Valore"
+      },
+      "acceptedStatusCodes": {
+        "label": "Codici di stato accettati",
+        "description": "Altri codici attiveranno incidenti"
       }
+    },
+    "alerts": {
+      "title": "Avvisi",
+      "description": "Ricevi notifiche quando il monitor va offline, torna online o quando i certificati SSL stanno per scadere.",
+      "recipients": "Destinatari email",
+      "recipientsDescription": "Aggiungi indirizzi email per ricevere notifiche di avviso.",
+      "emailPlaceholder": "email@example.com",
+      "addEmail": "Aggiungi",
+      "invalidEmail": "Inserisci un indirizzo email valido",
+      "emailExists": "Questa email è già stata aggiunta",
+      "triggers": "Attivazione avvisi",
+      "onDown": "Avviso quando offline",
+      "onDownDescription": "Invia un avviso quando il monitor va offline",
+      "onRecovery": "Avviso al ripristino",
+      "onRecoveryDescription": "Invia un avviso quando il monitor torna online dopo un'interruzione",
+      "onSslExpiry": "Avviso scadenza SSL",
+      "onSslExpiryDescription": "Invia un avviso quando il certificato SSL sta per scadere",
+      "failureThreshold": "Soglia di errore",
+      "failureThresholdDescription": "Numero di errori consecutivi prima dell'invio di un avviso",
+      "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",
+      "sslExpiryDays": "Giorni prima della scadenza",
+      "sslExpiryDaysDescription": "Invia un avviso con questo anticipo rispetto alla scadenza del certificato SSL",
+      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}"
     }
   },
   "charts": {
