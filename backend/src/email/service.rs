@@ -57,9 +57,7 @@ impl EmailService {
         }
     }
 
-
     /// Send an email
-    ///
     /// In development mode, only emails to @betterlytics.io addresses are sent.
     pub async fn send(&self, request: EmailRequest) -> Result<(), EmailError> {
         if request.to.is_empty() {

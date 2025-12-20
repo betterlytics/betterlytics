@@ -7,11 +7,9 @@ use axum::{
 };
 use std::sync::Arc;
 use std::{net::IpAddr, net::SocketAddr, str::FromStr};
-use tokio::time::sleep;
 use tower_http::cors::CorsLayer;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use url::Url;
 
 mod analytics;
 mod bot_detection;
@@ -43,13 +41,6 @@ use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
-use monitor::{
-    AlertService, AlertServiceConfig,
-    IncidentStore, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe,
-    MonitorRepository, HttpRunner, HttpRuntimeConfig, TlsRunner,
-    TlsRuntimeConfig, init_dev_mode, new_monitor_writer,
-};
-use monitor::alert::AlertHistoryRepository;
 use postgres::PostgresPool;
 use processing::EventProcessor;
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
@@ -144,141 +135,11 @@ async fn main() {
             .expect("Failed to init SiteConfigCache");
 
     if config.enable_uptime_monitoring {
-        init_dev_mode(config.is_development);
-        
-        let config_for_monitor = config.clone();
-        let metrics_for_monitor = metrics_collector.clone();
-        let clickhouse_for_monitor = Arc::clone(&clickhouse);
-        tokio::spawn(async move {
-            let retry_delay = std::time::Duration::from_secs(30);
-            loop {
-                info!("uptime monitoring enabled; initializing monitor components");
-                let monitor_db_url = match config_for_monitor.monitor_database_url.as_ref() {
-                    Some(url) => url.clone(),
-                    None => {
-                        warn!("MONITORING_DATABASE_URL not set; cannot start uptime monitoring");
-                        return;
-                    }
-                };
-
-                let monitor_pool = match PostgresPool::new(
-                    &monitor_db_url,
-                    "betterlytics_monitor",
-                    4,
-                )
-                .await
-                {
-                    Ok(pool) => Arc::new(pool),
-                    Err(err) => {
-                        warn!(
-                            error = ?err,
-                            dsn_info = %monitor_db_url_safe(&monitor_db_url),
-                            "Failed to create monitor PostgreSQL pool; retrying"
-                        );
-                        sleep(retry_delay).await;
-                        continue;
-                    }
-                };
-
-                let monitor_repo: Arc<dyn MonitorCheckDataSource> = Arc::new(
-                    MonitorRepository::new(Arc::clone(&monitor_pool)),
-                );
-
-                let monitor_cache = match MonitorCache::initialize(
-                    monitor_repo,
-                    MonitorCacheConfig::default(),
-                    metrics_for_monitor.clone(),
-                )
-                .await
-                {
-                    Ok(cache) => cache,
-                    Err(err) => {
-                        warn!(
-                            error = ?err,
-                            dsn_info = %monitor_db_url_safe(&monitor_db_url),
-                            "Failed to init MonitorCache; retrying"
-                        );
-                        sleep(retry_delay).await;
-                        continue;
-                    }
-                };
-
-                let probe = match MonitorProbe::new(std::time::Duration::from_millis(
-                    monitor::probe::DEFAULT_PROBE_TIMEOUT_MS,
-                )) {
-                    Ok(p) => p,
-                    Err(err) => {
-                        warn!(error = ?err, "Failed to init monitor probe; retrying");
-                        sleep(retry_delay).await;
-                        continue;
-                    }
-                };
-
-                let writer = match new_monitor_writer(
-                    Arc::clone(&clickhouse_for_monitor),
-                    &config_for_monitor.monitor_clickhouse_table,
-                ) {
-                    Ok(w) => w,
-                    Err(err) => {
-                        warn!(error = ?err, "Failed to create monitor writer; retrying");
-                        sleep(retry_delay).await;
-                        continue;
-                    }
-                };
-
-                let tls_probe = probe.clone();
-                let tls_writer = Arc::clone(&writer);
-                let tls_cache = Arc::clone(&monitor_cache);
-
-                let history_writer = AlertHistoryRepository::new(Arc::clone(&monitor_pool));
-                info!("Alert history repository initialized");
-
-                // Initialize alert service (email config from env, alert config from MonitorCheck)
-                let incident_store = match IncidentStore::new(
-                    Arc::clone(&clickhouse_for_monitor),
-                    &config_for_monitor.monitor_incidents_table,
-                ) {
-                    Ok(store) => Some(store),
-                    Err(err) => {
-                        warn!(error = ?err, "Failed to create incident store; incident snapshots will not be recorded");
-                        None
-                    }
-                };
-
-                let alert_service = Arc::new(AlertService::new(
-                    AlertServiceConfig::from_config(&config_for_monitor),
-                    Some(history_writer),
-                    incident_store,
-                ).await);
-                info!("Alert service initialized");
-
-                let mut http_runner = HttpRunner::new(
-                    Arc::clone(&monitor_cache),
-                    probe,
-                    Arc::clone(&writer),
-                    metrics_for_monitor.clone(),
-                    HttpRuntimeConfig::default(),
-                );
-                
-                let mut tls_runner = TlsRunner::new(
-                    tls_cache,
-                    tls_probe,
-                    tls_writer,
-                    metrics_for_monitor.clone(),
-                    TlsRuntimeConfig::default(),
-                );
-
-                // Wire up alert service
-                http_runner = http_runner.with_alert_service(Arc::clone(&alert_service));
-                tls_runner = tls_runner.with_alert_service(Arc::clone(&alert_service));
-
-                http_runner.spawn();
-                tls_runner.spawn();
-
-                info!("uptime monitoring started");
-                break;
-            }
-        });
+        monitor::spawn_monitoring(
+            config.clone(),
+            Arc::clone(&clickhouse),
+            metrics_collector.clone(),
+        );
     } else {
         info!("uptime monitoring disabled by configuration");
     }
@@ -351,32 +212,7 @@ async fn main() {
     .unwrap();
 }
 
-fn monitor_db_url_safe(raw: &str) -> String {
-    if let Ok(url) = Url::parse(raw) {
-        let user = url.username();
-        let host = url.host_str().unwrap_or("<host?>");
-        let port = url.port().map(|p| p.to_string()).unwrap_or_default();
-        let db = url.path().trim_start_matches('/').to_string();
-        let masked = format!(
-            "{}@{}{}{}",
-            if user.is_empty() { "<user?>" } else { user },
-            host,
-            if port.is_empty() {
-                "".to_string()
-            } else {
-                format!(":{}", port)
-            },
-            if db.is_empty() {
-                "".to_string()
-            } else {
-                format!("/{}", db)
-            }
-        );
-        masked
-    } else {
-        "<invalid-url>".to_string()
-    }
-}
+
 
 async fn health_check(
     State((db, _, _, _, _, _)): State<(

@@ -4,10 +4,13 @@ pub mod cache;
 pub mod clickhouse_writer;
 pub mod guard;
 pub mod incident_store;
+mod init;
 pub mod models;
 pub mod probe;
 pub mod repository;
 pub mod runner;
+
+pub use init::spawn_monitoring;
 
 pub use alert::{AlertService, AlertServiceConfig};
 pub use backoff::{BackoffController, BackoffPolicy};
