@@ -1,16 +1,34 @@
+//! Alert history storage using ClickHouse.
+//!
+//! Provides a channel-based writer for recording alert notifications to ClickHouse.
+
 use std::sync::Arc;
 
-use chrono::Utc;
-use tokio_postgres::types::Type;
-use tracing::info;
+use anyhow::Result;
+use chrono::{DateTime, Utc};
+use serde::Serialize;
 
-use crate::postgres::{PostgresError, PostgresPool};
+use crate::clickhouse::ClickHouseClient;
+use crate::monitor::clickhouse_writer::ClickhouseChannelWriter;
 use super::tracker::AlertType;
 
-/// Record of an alert that was sent
+#[derive(clickhouse::Row, Serialize, Debug, Clone)]
+pub struct AlertHistoryRow {
+    #[serde(with = "clickhouse::serde::chrono::datetime64::millis")]
+    pub ts: DateTime<Utc>,
+    pub check_id: String,
+    pub site_id: String,
+    pub alert_type: String,
+    pub sent_to: Vec<String>,
+    pub status_code: Option<i32>,
+    pub latency_ms: Option<i32>,
+    pub ssl_days_left: Option<i32>,
+}
+
 #[derive(Clone, Debug)]
 pub struct AlertHistoryRecord {
     pub monitor_check_id: String,
+    pub site_id: String,
     pub alert_type: AlertType,
     pub sent_to: Vec<String>,
     pub status_code: Option<i32>,
@@ -18,70 +36,34 @@ pub struct AlertHistoryRecord {
     pub ssl_days_left: Option<i32>,
 }
 
-/// Repository for recording alert history to PostgreSQL
-pub struct AlertHistoryRepository {
-    pool: Arc<PostgresPool>,
+impl AlertHistoryRecord {
+    pub fn to_row(&self) -> AlertHistoryRow {
+        AlertHistoryRow {
+            ts: Utc::now(),
+            check_id: self.monitor_check_id.clone(),
+            site_id: self.site_id.clone(),
+            alert_type: self.alert_type.as_str().to_string(),
+            sent_to: self.sent_to.clone(),
+            status_code: self.status_code,
+            latency_ms: self.latency_ms,
+            ssl_days_left: self.ssl_days_left,
+        }
+    }
 }
 
-impl AlertHistoryRepository {
-    pub fn new(pool: Arc<PostgresPool>) -> Self {
-        Self { pool }
-    }
+const ALERT_HISTORY_CHANNEL_CAPACITY: usize = 100;
+const ALERT_HISTORY_BATCH_SIZE: usize = 50;
 
-    /// Record an alert that was sent
-    pub async fn record_alert(&self, record: &AlertHistoryRecord) -> Result<(), PostgresError> {
-        let conn = self.pool.connection().await?;
-        
-        let alert_type_str = record.alert_type.as_str().to_string();
+pub type AlertHistoryWriter = ClickhouseChannelWriter<AlertHistoryRow>;
 
-        let sent_at = Utc::now().naive_utc();
-
-        let stmt = conn
-            .prepare_typed(
-                r#"
-            INSERT INTO "MonitorAlertHistory" (
-                "monitorCheckId",
-                "alertType",
-                "sentTo",
-                "sentAt",
-                "statusCode",
-                "latencyMs",
-                "sslDaysLeft"
-            ) VALUES ($1, $2::"MonitorAlertType", $3, $4, $5, $6, $7)
-            "#,
-                &[
-                    Type::TEXT,        // $1 monitorCheckId
-                    Type::TEXT,        // $2 alertType - cast to enum
-                    Type::TEXT_ARRAY,  // $3 sentTo
-                    Type::TIMESTAMP,   // $4 sentAt
-                    Type::INT4,        // $5 statusCode
-                    Type::INT4,        // $6 latencyMs
-                    Type::INT4,        // $7 sslDaysLeft
-                ],
-            )
-            .await?;
-
-        conn.execute(
-            &stmt,
-            &[
-                &record.monitor_check_id,
-                &alert_type_str,
-                &record.sent_to,
-                &sent_at,
-                &record.status_code,
-                &record.latency_ms,
-                &record.ssl_days_left,
-            ],
-        )
-        .await?;
-
-        info!(
-            monitor_check_id = %record.monitor_check_id,
-            alert_type = %alert_type_str,
-            recipients = record.sent_to.len(),
-            "Alert history recorded"
-        );
-
-        Ok(())
-    }
+pub fn new_alert_history_writer(
+    clickhouse: Arc<ClickHouseClient>,
+    table: &str,
+) -> Result<Arc<AlertHistoryWriter>> {
+    ClickhouseChannelWriter::new(
+        clickhouse,
+        table,
+        ALERT_HISTORY_CHANNEL_CAPACITY,
+        ALERT_HISTORY_BATCH_SIZE,
+    )
 }

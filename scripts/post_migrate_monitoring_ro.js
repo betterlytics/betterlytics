@@ -75,11 +75,6 @@ async function main() {
     );
     await client.query(`GRANT SELECT ON TABLE "Dashboard" TO monitoring_ro;`);
 
-    // Alert history: allow INSERT for recording sent alerts, SELECT for warming tracker on startup
-    await client.query(
-      `GRANT SELECT, INSERT ON TABLE "MonitorAlertHistory" TO monitoring_ro;`
-    );
-
     console.log(
       "Post-migration (monitoring_ro): role and privileges ensured successfully."
     );

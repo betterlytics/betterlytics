@@ -67,3 +67,19 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
 )
 ENGINE = ReplacingMergeTree(last_event_at)
 ORDER BY (check_id, incident_id);
+
+CREATE TABLE IF NOT EXISTS analytics.monitor_alert_history
+(
+    ts            DateTime64(3) DEFAULT now(),
+    check_id      String,
+    site_id       String,
+    alert_type    LowCardinality(String),  -- down, recovery, ssl_expiring, ssl_expired
+    sent_to       Array(String),
+    status_code   Nullable(Int32),
+    latency_ms    Nullable(Int32),
+    ssl_days_left Nullable(Int32)
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(ts)
+ORDER BY (site_id, check_id, ts)
+TTL ts + INTERVAL 365 DAY;

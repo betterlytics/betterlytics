@@ -16,7 +16,7 @@ use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use super::email as email_templates;
-use super::repository::{AlertHistoryRecord, AlertHistoryRepository};
+use super::repository::{AlertHistoryRecord, AlertHistoryWriter};
 use crate::config::EmailConfig;
 use crate::email::EmailService;
 use super::tracker::{AlertTracker, AlertTrackerConfig, AlertType, IncidentEvent, SslEvent};
@@ -99,7 +99,7 @@ struct NotificationTimestamps {
 pub struct AlertService {
     tracker: AlertTracker,
     email_service: Option<EmailService>,
-    history_writer: Option<AlertHistoryRepository>,
+    history_writer: Option<Arc<AlertHistoryWriter>>,
     enabled: bool,
     notification_state: DashMap<String, NotificationTimestamps>,
     ssl_cooldown: Duration,
@@ -110,7 +110,7 @@ pub struct AlertService {
 impl AlertService {
     pub async fn new(
         config: AlertServiceConfig,
-        history_writer: Option<AlertHistoryRepository>,
+        history_writer: Option<Arc<AlertHistoryWriter>>,
         incident_store: Option<Arc<IncidentStore>>,
     ) -> Self {
         let email_service = config.email_config.map(EmailService::new);
@@ -302,12 +302,13 @@ impl AlertService {
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
+                site_id: ctx.check.site_id.clone(),
                 alert_type: AlertType::Down,
                 sent_to: recipients.clone(),
                 status_code: ctx.status_code.map(|c| c as i32),
                 latency_ms: None,
                 ssl_days_left: None,
-            }).await;
+            });
 
             info!(
                 check_id = %ctx.check.id,
@@ -374,12 +375,13 @@ impl AlertService {
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
+                site_id: ctx.check.site_id.clone(),
                 alert_type: AlertType::Recovery,
                 sent_to: recipients.clone(),
                 status_code: None,
                 latency_ms: None,
                 ssl_days_left: None,
-            }).await;
+            });
 
             info!(
                 check_id = %ctx.check.id,
@@ -455,12 +457,13 @@ impl AlertService {
             
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
+                site_id: ctx.check.site_id.clone(),
                 alert_type,
                 sent_to: recipients.clone(),
                 status_code: None,
                 latency_ms: None,
                 ssl_days_left: Some(days_left),
-            }).await;
+            });
 
             info!(
                 check_id = %ctx.check.id,
@@ -589,9 +592,10 @@ impl AlertService {
     }
 
     /// Record an alert to the history table
-    async fn record_alert_history(&self, record: AlertHistoryRecord) {
+    fn record_alert_history(&self, record: AlertHistoryRecord) {
         if let Some(ref writer) = self.history_writer {
-            if let Err(e) = writer.record_alert(&record).await {
+            let row = record.to_row();
+            if let Err(e) = writer.enqueue_rows(vec![row]) {
                 error!(
                     monitor_check_id = %record.monitor_check_id,
                     alert_type = ?record.alert_type,

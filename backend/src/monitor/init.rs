@@ -6,14 +6,13 @@
 use std::sync::Arc;
 use tokio::time::sleep;
 use tracing::{info, warn};
-use url::Url;
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::metrics::MetricsCollector;
 use crate::postgres::PostgresPool;
 
-use super::alert::AlertHistoryRepository;
+use super::alert::new_alert_history_writer;
 use super::{
     AlertService, AlertServiceConfig, HttpRunner, HttpRuntimeConfig, IncidentStore, MonitorCache,
     MonitorCacheConfig, MonitorProbe, MonitorRepository, MonitorCheckDataSource, TlsRunner,
@@ -113,8 +112,16 @@ async fn run_monitoring_init_loop(
         let tls_writer = Arc::clone(&writer);
         let tls_cache = Arc::clone(&monitor_cache);
 
-        let history_writer = AlertHistoryRepository::new(Arc::clone(&monitor_pool));
-        info!("Alert history repository initialized");
+        let history_writer = match new_alert_history_writer(
+            Arc::clone(&clickhouse),
+            "analytics.monitor_alert_history",
+        ) {
+            Ok(w) => Some(w),
+            Err(err) => {
+                warn!(error = ?err, "Failed to create alert history writer; alerts will not be recorded");
+                None
+            }
+        };
 
         let incident_store = match IncidentStore::new(
             Arc::clone(&clickhouse),
@@ -130,7 +137,7 @@ async fn run_monitoring_init_loop(
         let alert_service = Arc::new(
             AlertService::new(
                 AlertServiceConfig::from_config(&config),
-                Some(history_writer),
+                history_writer,
                 incident_store,
             )
             .await,

@@ -263,34 +263,7 @@ model MonitorCheck {
   sslExpiryAlertDays    Int       @default(14)  // Days before expiry to alert
   failureThreshold      Int       @default(3)   // Consecutive failures before alerting
 
-  alertHistory          MonitorAlertHistory[]
-
   @@index([dashboardId])
-}
-
-enum MonitorAlertType {
-  down
-  recovery
-  ssl_expiring
-  ssl_expired
-}
-
-model MonitorAlertHistory {
-  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  monitorCheck    MonitorCheck      @relation(fields: [monitorCheckId], references: [id], onDelete: Cascade)
-  monitorCheckId  String
-  
-  alertType       MonitorAlertType
-  sentTo          String[]          // Email addresses notified
-  sentAt          DateTime          @default(now())
-  
-  // Context at time of alert
-  statusCode      Int?
-  latencyMs       Int?
-  sslDaysLeft     Int?
-  
-  @@index([monitorCheckId])
-  @@index([sentAt])
 }
 
 model Subscription {

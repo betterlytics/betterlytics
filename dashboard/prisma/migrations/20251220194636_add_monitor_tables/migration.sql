@@ -1,6 +1,3 @@
--- CreateEnum
-CREATE TYPE "MonitorAlertType" AS ENUM ('down', 'recovery', 'ssl_expiring', 'ssl_expired');
-
 -- CreateTable
 CREATE TABLE "MonitorCheck" (
     "id" TEXT NOT NULL,
@@ -28,31 +25,8 @@ CREATE TABLE "MonitorCheck" (
     CONSTRAINT "MonitorCheck_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "MonitorAlertHistory" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "monitorCheckId" TEXT NOT NULL,
-    "alertType" "MonitorAlertType" NOT NULL,
-    "sentTo" TEXT[],
-    "sentAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "statusCode" INTEGER,
-    "latencyMs" INTEGER,
-    "sslDaysLeft" INTEGER,
-
-    CONSTRAINT "MonitorAlertHistory_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE INDEX "MonitorCheck_dashboardId_idx" ON "MonitorCheck"("dashboardId");
 
--- CreateIndex
-CREATE INDEX "MonitorAlertHistory_monitorCheckId_idx" ON "MonitorAlertHistory"("monitorCheckId");
-
--- CreateIndex
-CREATE INDEX "MonitorAlertHistory_sentAt_idx" ON "MonitorAlertHistory"("sentAt");
-
 -- AddForeignKey
 ALTER TABLE "MonitorCheck" ADD CONSTRAINT "MonitorCheck_dashboardId_fkey" FOREIGN KEY ("dashboardId") REFERENCES "Dashboard"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "MonitorAlertHistory" ADD CONSTRAINT "MonitorAlertHistory_monitorCheckId_fkey" FOREIGN KEY ("monitorCheckId") REFERENCES "MonitorCheck"("id") ON DELETE CASCADE ON UPDATE CASCADE;
