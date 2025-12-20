@@ -42,8 +42,9 @@ pub fn is_status_code_accepted(code: u16, accepted: &[StatusCodeValue]) -> bool 
     accepted.iter().any(|v| v.matches(code))
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize, strum_macros::EnumString)]
 #[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
 pub enum ReasonCode {
     Ok,
     TlsHandshakeFailed,
@@ -125,33 +126,6 @@ impl ReasonCode {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
-        match s {
-            "ok" => Some(ReasonCode::Ok),
-            "tls_handshake_failed" => Some(ReasonCode::TlsHandshakeFailed),
-            "tls_missing_certificate" => Some(ReasonCode::TlsMissingCertificate),
-            "tls_expired" => Some(ReasonCode::TlsExpired),
-            "tls_expiring_soon" => Some(ReasonCode::TlsExpiringSoon),
-            "tls_parse_error" => Some(ReasonCode::TlsParseError),
-            "http_4xx" => Some(ReasonCode::Http4xx),
-            "http_5xx" => Some(ReasonCode::Http5xx),
-            "http_other" => Some(ReasonCode::HttpOther),
-            "http_timeout" => Some(ReasonCode::HttpTimeout),
-            "http_connect_error" => Some(ReasonCode::HttpConnectError),
-            "http_body_error" => Some(ReasonCode::HttpBodyError),
-            "http_request_error" => Some(ReasonCode::HttpRequestError),
-            "http_error" => Some(ReasonCode::HttpError),
-            "too_many_redirects" => Some(ReasonCode::TooManyRedirects),
-            "redirect_join_failed" => Some(ReasonCode::RedirectJoinFailed),
-            "scheme_blocked" => Some(ReasonCode::SchemeBlocked),
-            "port_blocked" => Some(ReasonCode::PortBlocked),
-            "invalid_host" => Some(ReasonCode::InvalidHost),
-            "blocked_ip_literal" => Some(ReasonCode::BlockedIpLiteral),
-            "dns_blocked" => Some(ReasonCode::DnsBlocked),
-            "dns_error" => Some(ReasonCode::DnsError),
-            _ => None,
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -340,65 +314,66 @@ pub struct MonitorResultRow {
 }
 
 impl MonitorResultRow {
+    /// Shared base fields for both HTTP and TLS probe rows.
+    fn base_fields(check: &MonitorCheck, outcome: &ProbeOutcome, kind: &str) -> Self {
+        Self {
+            ts: Utc::now(),
+            check_id: check.id.clone(),
+            site_id: check.site_id.clone(),
+            kind: kind.to_string(),
+            status: outcome.status,
+            reason_code: outcome.reason_code.as_str().to_string(),
+            latency_ms: Some(outcome.latency.as_secs_f64() * 1000.0),
+            status_code: outcome.status_code,
+            http_method: String::new(),
+            resolved_ip: outcome.resolved_ip,
+            port: check.url.port_or_known_default(),
+            tls_not_after: outcome.tls_not_after,
+            tls_days_left: outcome.tls_days_left,
+            effective_interval_seconds: 0,
+            backoff_level: 0,
+            consecutive_failures: 0,
+            consecutive_successes: 0,
+            backoff_reason: BackoffReason::None,
+            extra: String::new(),
+        }
+    }
+
     pub fn from_probe(
         check: &MonitorCheck,
         outcome: &ProbeOutcome,
         backoff: &BackoffSnapshot,
     ) -> Self {
         let kind = if check.url.scheme() == "https" { "https" } else { "http" };
-        let status = outcome.status;
+        let mut row = Self::base_fields(check, outcome, kind);
 
-        Self {
-            ts: Utc::now(),
-            check_id: check.id.clone(),
-            site_id: check.site_id.clone(),
-            kind: kind.to_string(),
-            status,
-            reason_code: outcome.reason_code.as_str().to_string(),
-            latency_ms: Some(outcome.latency.as_secs_f64() * 1000.0),
-            status_code: outcome.status_code,
-            http_method: check.http_method.as_str().to_string(),
-            resolved_ip: outcome.resolved_ip,
-            port: check.url.port_or_known_default(),
-            tls_not_after: outcome.tls_not_after,
-            tls_days_left: outcome.tls_days_left,
-            effective_interval_seconds: backoff.effective_interval_seconds(),
-            backoff_level: backoff.backoff_level,
-            consecutive_failures: backoff.consecutive_failures,
-            consecutive_successes: backoff.consecutive_successes,
-            backoff_reason: backoff.backoff_reason,
-            extra: serde_json::json!({
-                "redirect_hops": outcome.redirect_hops,
-                "final_url": outcome.final_url,
-                "body_truncated": outcome.body_truncated,
-            })
-            .to_string(),
-        }
+        row.http_method = check.http_method.as_str().to_string();
+        row.effective_interval_seconds = backoff.effective_interval_seconds();
+        row.backoff_level = backoff.backoff_level;
+        row.consecutive_failures = backoff.consecutive_failures;
+        row.consecutive_successes = backoff.consecutive_successes;
+        row.backoff_reason = backoff.backoff_reason;
+        row.extra = serde_json::json!({
+            "redirect_hops": outcome.redirect_hops,
+            "final_url": outcome.final_url,
+            "body_truncated": outcome.body_truncated,
+        })
+        .to_string();
+
+        row
     }
 
     pub fn from_tls_probe(check: &MonitorCheck, outcome: &ProbeOutcome) -> Self {
         let backoff = BackoffSnapshot::from_base_interval(check.interval);
-        Self {
-            ts: Utc::now(),
-            check_id: check.id.clone(),
-            site_id: check.site_id.clone(),
-            kind: "tls".to_string(),
-            status: outcome.status,
-            reason_code: outcome.reason_code.as_str().to_string(),
-            latency_ms: Some(outcome.latency.as_secs_f64() * 1000.0),
-            status_code: None,
-            http_method: String::new(), // TLS probes don't use HTTP methods
-            resolved_ip: outcome.resolved_ip,
-            port: check.url.port_or_known_default(),
-            tls_not_after: outcome.tls_not_after,
-            tls_days_left: outcome.tls_days_left,
-            effective_interval_seconds: backoff.effective_interval_seconds(),
-            backoff_level: backoff.backoff_level,
-            consecutive_failures: backoff.consecutive_failures,
-            consecutive_successes: backoff.consecutive_successes,
-            backoff_reason: backoff.backoff_reason,
-            extra: String::new(),
-        }
-    }
+        let mut row = Self::base_fields(check, outcome, "tls");
 
+        row.status_code = None; // TLS probes don't have status codes
+        row.effective_interval_seconds = backoff.effective_interval_seconds();
+        row.backoff_level = backoff.backoff_level;
+        row.consecutive_failures = backoff.consecutive_failures;
+        row.consecutive_successes = backoff.consecutive_successes;
+        row.backoff_reason = backoff.backoff_reason;
+
+        row
+    }
 }

@@ -3,12 +3,11 @@ use std::sync::Arc;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use tokio::sync::mpsc;
-use tracing::warn;
 use uuid::Uuid;
 
 use crate::clickhouse::ClickHouseClient;
-use crate::monitor::alert::tracker::{IncidentState, IncidentSeverity, IncidentSnapshot};
+use crate::monitor::alert::tracker::{IncidentSeverity, IncidentState, IncidentSnapshot};
+use crate::monitor::clickhouse_writer::ClickhouseChannelWriter;
 use crate::monitor::models::{MonitorCheck, MonitorStatus, ReasonCode};
 
 #[derive(clickhouse::Row, Serialize, Debug, Clone)]
@@ -43,7 +42,11 @@ impl MonitorIncidentRow {
         notified: NotificationSnapshot,
     ) -> Option<Self> {
         let incident_id = snapshot.incident_id?;
-        let kind = if check.url.scheme() == "https" { "https" } else { "http" };
+        let kind = if check.url.scheme() == "https" {
+            "https"
+        } else {
+            "http"
+        };
 
         Some(Self {
             incident_id,
@@ -59,9 +62,7 @@ impl MonitorIncidentRow {
                 .map(|code| code.as_str().to_string())
                 .unwrap_or_else(|| "unknown".to_string()),
             failure_count: snapshot.failure_count,
-            last_status: snapshot
-                .last_status
-                .unwrap_or(MonitorStatus::Ok),
+            last_status: snapshot.last_status.unwrap_or(MonitorStatus::Ok),
             status_code: snapshot.last_error_status_code,
             notified_down_at: notified.last_down,
             notified_resolve_at: notified.last_recovery,
@@ -144,22 +145,29 @@ impl From<IncidentSeedRow> for IncidentSeed {
     }
 }
 
+const INCIDENT_BATCH_SIZE: usize = 200;
+const INCIDENT_CHANNEL_CAPACITY: usize = 2_000;
+
 pub struct IncidentStore {
     clickhouse: Arc<ClickHouseClient>,
     table: String,
-    sender: mpsc::Sender<Vec<MonitorIncidentRow>>,
+    writer: Arc<ClickhouseChannelWriter<MonitorIncidentRow>>,
 }
 
 impl IncidentStore {
     pub fn new(clickhouse: Arc<ClickHouseClient>, table: &str) -> Result<Arc<Self>> {
-        let (sender, receiver) = mpsc::channel(INCIDENT_CHANNEL_CAPACITY);
-        let store = Arc::new(Self {
+        let writer = ClickhouseChannelWriter::new(
+            Arc::clone(&clickhouse),
+            table,
+            INCIDENT_CHANNEL_CAPACITY,
+            INCIDENT_BATCH_SIZE,
+        )?;
+
+        Ok(Arc::new(Self {
             clickhouse,
             table: table.to_string(),
-            sender,
-        });
-        store.spawn_worker(receiver);
-        Ok(store)
+            writer,
+        }))
     }
 
     pub async fn load_active_incidents(&self) -> Result<Vec<IncidentSeed>> {
@@ -189,40 +197,10 @@ impl IncidentStore {
         );
 
         let rows: Vec<IncidentSeedRow> = self.clickhouse.inner().query(&query).fetch_all().await?;
-        Ok(rows
-            .into_iter()
-            .map(IncidentSeed::from)
-            .collect())
+        Ok(rows.into_iter().map(IncidentSeed::from).collect())
     }
 
     pub fn enqueue_rows(&self, rows: Vec<MonitorIncidentRow>) -> Result<()> {
-        self.sender
-            .try_send(rows)
-            .map_err(|e| anyhow::anyhow!("enqueue_incident_failed: {e}"))
-    }
-
-    async fn insert_rows(&self, rows: Vec<MonitorIncidentRow>) -> Result<()> {
-        for chunk in rows.chunks(INCIDENT_BATCH_SIZE) {
-            let mut inserter = self.clickhouse.inner().inserter(&self.table)?;
-            for row in chunk {
-                inserter.write(row)?;
-            }
-            inserter.end().await?;
-        }
-        Ok(())
-    }
-
-    fn spawn_worker(self: &Arc<Self>, mut receiver: mpsc::Receiver<Vec<MonitorIncidentRow>>) {
-        let this = Arc::clone(self);
-        tokio::spawn(async move {
-            while let Some(batch) = receiver.recv().await {
-                if let Err(err) = this.insert_rows(batch).await {
-                    warn!(error = ?err, "Failed to insert incident rows");
-                }
-            }
-        });
+        self.writer.enqueue_rows(rows)
     }
 }
-
-const INCIDENT_BATCH_SIZE: usize = 200;
-const INCIDENT_CHANNEL_CAPACITY: usize = 2_000;

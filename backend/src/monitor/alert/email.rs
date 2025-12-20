@@ -12,6 +12,7 @@ use crate::monitor::ReasonCode;
 
 use super::tracker::AlertType;
 
+
 /// Build a down alert email request
 pub fn build_down_alert(
     recipients: &[String],
@@ -24,10 +25,7 @@ pub fn build_down_alert(
     monitor_id: &str,
 ) -> EmailRequest {
     let subject = format!("🚨 Uptime Alert: Site Is Down: {}", monitor_name);
-    let monitor_url = format!(
-        "{}/dashboard/{}/monitoring/{}",
-        public_base_url, dashboard_id, monitor_id
-    );
+    let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
 
     let reason_message = reason_code.to_message();
     let html = build_down_alert_html(monitor_name, url, reason_message, status_code, &monitor_url);
@@ -52,10 +50,7 @@ pub fn build_recovery_alert(
     monitor_id: &str,
 ) -> EmailRequest {
     let subject = format!("✅ Resolved: Site Is Back Online: {}", monitor_name);
-    let monitor_url = format!(
-        "{}/dashboard/{}/monitoring/{}",
-        public_base_url, dashboard_id, monitor_id
-    );
+    let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
 
     let html = build_recovery_alert_html(monitor_name, url, downtime_duration, &monitor_url);
     let text = build_recovery_alert_text(monitor_name, url, downtime_duration, &monitor_url);
@@ -91,10 +86,7 @@ pub fn build_ssl_alert(
         )
     };
 
-    let monitor_url = format!(
-        "{}/dashboard/{}/monitoring/{}",
-        public_base_url, dashboard_id, monitor_id
-    );
+    let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
 
     let html = build_ssl_alert_html(monitor_name, url, days_left, expiry_date, &monitor_url, alert_type);
     let text = build_ssl_alert_text(monitor_name, url, days_left, expiry_date, &monitor_url, alert_type);
@@ -302,13 +294,7 @@ fn build_ssl_alert_html(
         String::new()
     };
 
-    let days_text = if days_left <= 0 {
-        "Certificate has expired!".to_string()
-    } else if days_left == 1 {
-        "1 day remaining".to_string()
-    } else {
-        format!("{} days remaining", days_left)
-    };
+    let days_text = format_ssl_days_left(days_left);
 
     let content = format!(
         r#"<h1>SSL Certificate Alert</h1>
@@ -360,13 +346,7 @@ fn build_ssl_alert_text(
         "SSL CERTIFICATE EXPIRING SOON"
     };
 
-    let days_text = if days_left <= 0 {
-        "Certificate has expired!".to_string()
-    } else if days_left == 1 {
-        "1 day remaining".to_string()
-    } else {
-        format!("{} days remaining", days_left)
-    };
+    let days_text = format_ssl_days_left(days_left);
 
     let mut text = format!(
         "{}\n\n\
@@ -428,5 +408,21 @@ fn format_duration(duration: Duration) -> String {
                 hours
             )
         }
+    }
+}
+
+/// Build the monitor dashboard URL.
+fn build_monitor_url(public_base_url: &str, dashboard_id: &str, monitor_id: &str) -> String {
+    format!("{}/dashboard/{}/monitoring/{}", public_base_url, dashboard_id, monitor_id)
+}
+
+/// Format SSL certificate days remaining for display.
+fn format_ssl_days_left(days: i32) -> String {
+    if days <= 0 {
+        "Certificate has expired!".to_string()
+    } else if days == 1 {
+        "1 day remaining".to_string()
+    } else {
+        format!("{} days remaining", days)
     }
 }

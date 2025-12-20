@@ -46,8 +46,8 @@ use metrics::MetricsCollector;
 use monitor::{
     AlertService, AlertServiceConfig,
     IncidentStore, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe,
-    MonitorRepository, HttpRunner, HttpRuntimeConfig, MonitorWriter, TlsRunner,
-    TlsRuntimeConfig, init_dev_mode,
+    MonitorRepository, HttpRunner, HttpRuntimeConfig, TlsRunner,
+    TlsRuntimeConfig, init_dev_mode, new_monitor_writer,
 };
 use monitor::alert::AlertHistoryRepository;
 use postgres::PostgresPool;
@@ -214,7 +214,7 @@ async fn main() {
                     }
                 };
 
-                let writer = match MonitorWriter::new(
+                let writer = match new_monitor_writer(
                     Arc::clone(&clickhouse_for_monitor),
                     &config_for_monitor.monitor_clickhouse_table,
                 ) {
