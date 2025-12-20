@@ -24,6 +24,9 @@ import {
 } from '@/services/analytics/monitoring.service';
 import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
 import { revalidatePath } from 'next/cache';
+import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
+import { isUrlOnDomain } from '@/utils/domainValidation';
+import { UserException } from '@/lib/exceptions';
 
 export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext) => {
   return await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId);
@@ -45,6 +48,11 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       failureThreshold?: number;
     },
   ) => {
+    const dashboard = await findDashboardById(ctx.dashboardId);
+    if (!isUrlOnDomain(input.url, dashboard.domain)) {
+      throw new UserException(`URL must be on ${dashboard.domain} or a subdomain`);
+    }
+
     const payload = MonitorCheckCreateSchema.parse({
       dashboardId: ctx.dashboardId,
       ...input,
@@ -80,6 +88,12 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       failureThreshold: number;
     },
   ) => {
+    // Validate URL belongs to dashboard's domain
+    const dashboard = await findDashboardById(ctx.dashboardId);
+    if (!isUrlOnDomain(input.url, dashboard.domain)) {
+      throw new UserException(`URL must be on ${dashboard.domain} or a subdomain`);
+    }
+
     const payload = MonitorCheckUpdateSchema.parse({
       dashboardId: ctx.dashboardId,
       ...input,

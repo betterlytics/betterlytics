@@ -32,22 +32,12 @@ import {
 } from './[monitorId]/(EditMonitorSheet)/sliderConstants';
 import { LabeledSlider } from './[monitorId]/(EditMonitorSheet)/LabeledSlider';
 import { formatCompactDuration } from '@/utils/dateFormatters';
+import { isUrlOnDomain } from '@/utils/domainValidation';
 
 type CreateMonitorDialogProps = {
   dashboardId: string;
   domain: string;
 };
-
-function isValidDomainUrl(url: string, domain: string): boolean {
-  try {
-    const parsed = new URL(url);
-    const hostname = parsed.hostname.toLowerCase();
-    const baseDomain = domain.toLowerCase().replace(/^www\./, '');
-    return hostname === baseDomain || hostname === `www.${baseDomain}` || hostname.endsWith(`.${baseDomain}`);
-  } catch {
-    return false;
-  }
-}
 
 export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
@@ -100,7 +90,7 @@ export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialog
   };
 
   const urlEmpty = !url.trim();
-  const urlInvalid = !urlEmpty && !isValidDomainUrl(url, domain);
+  const urlInvalid = !urlEmpty && !isUrlOnDomain(url, domain);
   const hasError = urlEmpty || urlInvalid;
 
   return (
