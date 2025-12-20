@@ -143,7 +143,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     asChild
                     variant='ghost'
                     size='icon'
-                    className='text-muted-foreground group-hover:text-primary bg-muted/40 ring-border/50 h-8 w-8 rounded-full border border-transparent ring-1 transition-colors'
+                    className='text-muted-foreground group-hover:text-primary bg-muted/40 ring-border/50 h-8 w-8 cursor-pointer rounded-full border border-transparent ring-1 transition-colors'
                     aria-hidden
                   >
                     <Label className='flex h-full w-full items-center justify-center'>
@@ -214,7 +214,7 @@ function BackoffBadge({ label, message }: { label: string; message: string }) {
           className='inline-flex items-center gap-1 border-amber-500/60 bg-amber-500/10 px-2 py-[3px] text-[10px] font-semibold text-amber-700'
         >
           <AlertTriangle size={12} aria-hidden />
-          <span>{label}</span>
+          <Label>{label}</Label>
         </Badge>
       </TooltipTrigger>
       <TooltipContent side='top' className='max-w-[260px] break-words'>

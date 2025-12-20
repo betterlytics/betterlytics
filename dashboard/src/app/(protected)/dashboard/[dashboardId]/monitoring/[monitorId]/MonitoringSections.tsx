@@ -33,7 +33,7 @@ export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
 export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment[] }) {
   const t = useTranslations('monitoringDetailPage');
   return (
-    <Card className='border-border/70 bg-card/80 gap-4 p-5 shadow-lg shadow-black/10 lg:col-span-2 xl:col-span-2'>
+    <Card className='border-border/70 bg-card/80 flex flex-col gap-4 p-5 shadow-lg shadow-black/10 lg:col-span-2 xl:col-span-2'>
       <div className='flex items-center justify-between'>
         <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{t('incidents.title')}</p>
         <Badge variant='secondary' className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'>
@@ -42,7 +42,7 @@ export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment
       </div>
 
       {incidents.length === 0 ? (
-        <div className='border-border/60 bg-background/30 mt-4 rounded-md border border-dashed p-6 text-center'>
+        <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
           <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
           <p className='text-muted-foreground mt-1 text-sm'>{t('incidents.emptyDescription')}</p>
         </div>

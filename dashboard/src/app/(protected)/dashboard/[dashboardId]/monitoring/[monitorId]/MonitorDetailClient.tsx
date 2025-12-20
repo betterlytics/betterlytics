@@ -194,10 +194,10 @@ function MonitorHeader({
     <div className='space-y-3 px-1 sm:px-0'>
       <Link
         href={`/dashboard/${dashboardId}/monitoring`}
-        className='text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium transition sm:text-sm'
+        className='text-muted-foreground hover:text-foreground inline-flex cursor-pointer items-center gap-1 text-xs font-medium transition sm:text-sm'
       >
         <ChevronLeft className='h-4 w-4' />
-        <Label>{tHeader('back')}</Label>
+        <Label className='cursor-pointer'>{tHeader('back')}</Label>
       </Link>
 
       <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>

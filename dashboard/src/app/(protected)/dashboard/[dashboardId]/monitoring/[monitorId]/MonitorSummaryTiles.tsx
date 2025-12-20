@@ -118,8 +118,8 @@ function LastCheckCard({
 
   const lastCheckLabel = (() => {
     if (isPaused) return t('paused');
-    if (isPreparing) return t('preparing');
-    return formatTimeAgo(lastCheckAt ? new Date(lastCheckAt) : new Date(), true);
+    if (isPreparing || !lastCheckAt) return t('preparing');
+    return formatTimeAgo(new Date(lastCheckAt), true);
   })();
 
   const helper = (() => {

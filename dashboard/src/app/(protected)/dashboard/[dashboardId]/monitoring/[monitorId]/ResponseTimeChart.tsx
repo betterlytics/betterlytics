@@ -16,7 +16,7 @@ const AVG_COLOR = 'var(--muted-foreground)';
 const SERIES: ReadonlyArray<MultiSeriesConfig> = [
   { dataKey: 'value.0', stroke: P50_COLOR, name: 'p50' },
   { dataKey: 'value.1', stroke: P95_COLOR, name: 'p95' },
-  { dataKey: 'value.2', stroke: AVG_COLOR, name: 'avg', strokeDasharray: '6 6' },
+  { dataKey: 'value.2', stroke: AVG_COLOR, name: 'avg' },
 ] as const;
 
 const RESPONSE_TIME_GRANULARITY: GranularityRangeValues = 'hour';

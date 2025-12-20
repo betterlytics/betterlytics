@@ -51,7 +51,7 @@ export function LabeledSlider({
           </div>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
-        <Label className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm font-semibold dark:text-blue-500'>
+        <Label className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm dark:text-blue-300'>
           {formatValue(value)}
           {isRecommended && (
             <Label className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>(recommended)</Label>

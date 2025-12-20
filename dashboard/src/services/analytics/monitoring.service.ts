@@ -64,7 +64,7 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
       ...check,
       lastStatus: (incident?.lastStatus as MonitorStatus) ?? null,
       incidentState,
-      effectiveIntervalSeconds: null, // TODO: fetch from results if needed
+      effectiveIntervalSeconds: null, // fetch from results if needed
       backoffLevel: null,
       uptimeBuckets: buckets,
       tls: tlsResults[check.id] ?? null,
@@ -84,7 +84,7 @@ export async function fetchMonitorMetrics(
   ]);
 
   const metrics = toMonitorMetricsPresentation(rawMetrics);
-  const hasData = (metrics.uptimeBuckets?.length ?? 0) > 0;
+  const hasData = metrics.lastCheckAt != null;
   const operationalState = deriveOperationalState(monitor?.isEnabled ?? false, hasData, {
     lastStatus: metrics.lastStatus,
   });
