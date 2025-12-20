@@ -223,9 +223,13 @@ impl AlertTracker {
         state.consecutive_failures = consecutive_failures;
         state.consecutive_successes = 0;
 
-        let incident_id = state
-            .incident_id
-            .expect("incident_id must be set when opening/updating incident");
+        let Some(incident_id) = state.incident_id else {
+            error!(
+                check_id = check_id,
+                "BUG: incident_id unexpectedly None after state update"
+            );
+            return None;
+        };
 
         if was_open {
             Some(IncidentEvent::Updated {

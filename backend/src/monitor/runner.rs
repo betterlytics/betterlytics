@@ -178,8 +178,14 @@ impl<S: RunnerStrategy> Runner<S> {
     }
 
     pub fn spawn(self) {
+        let runner_name = S::name();
         tokio::spawn(async move {
             self.run().await;
+            // If we reach here, the run loop exited (which shouldn't happen)
+            tracing::error!(
+                runner = runner_name,
+                "Monitor runner exited unexpectedly - monitoring has stopped"
+            );
         });
     }
 

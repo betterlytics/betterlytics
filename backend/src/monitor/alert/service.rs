@@ -697,11 +697,16 @@ impl AlertService {
 
         let notified = self.notification_snapshot(&ctx.check.id);
 
-        let row = MonitorIncidentRow::from_snapshot(
+        let Some(row) = MonitorIncidentRow::from_snapshot(
             &snapshot,
             &ctx.check,
             notified,
-        );
+        ) else {
+            // This can only happen if snapshot has no incident_id, which shouldn't occur
+            // for snapshots we're trying to persist. Log and skip.
+            debug!(check_id = %ctx.check.id, "Skipping incident persist: no incident_id");
+            return;
+        };
 
         if let Err(err) = store.enqueue_rows(vec![row]) {
             warn!(error = ?err, "Failed to enqueue incident snapshot");

@@ -41,13 +41,12 @@ impl MonitorIncidentRow {
         snapshot: &IncidentSnapshot,
         check: &MonitorCheck,
         notified: NotificationSnapshot,
-    ) -> Self {
+    ) -> Option<Self> {
+        let incident_id = snapshot.incident_id?;
         let kind = if check.url.scheme() == "https" { "https" } else { "http" };
 
-        Self {
-            incident_id: snapshot
-                .incident_id
-                .expect("snapshot must have incident_id when stored"),
+        Some(Self {
+            incident_id,
             check_id: check.id.clone(),
             site_id: check.site_id.clone(),
             state: snapshot.state,
@@ -67,7 +66,7 @@ impl MonitorIncidentRow {
             notified_down_at: notified.last_down,
             notified_resolve_at: notified.last_recovery,
             kind: kind.to_string(),
-        }
+        })
     }
 }
 
