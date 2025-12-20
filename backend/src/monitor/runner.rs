@@ -171,44 +171,69 @@ impl<S: RunnerStrategy> Runner<S> {
         }
     }
 
-    /// Set the alert service for this runner
     pub fn with_alert_service(mut self, alert_service: Arc<AlertService>) -> Self {
         self.alert_service = Some(alert_service);
         self
     }
 
+    /// Spawn the runner with automatic restart supervision.
+    /// If the run loop exits unexpectedly, it will restart with exponential backoff.
     pub fn spawn(self) {
         let runner_name = S::name();
+        let cache = self.cache;
+        let probe = self.probe;
+        let writer = self.writer;
+        let metrics = self.metrics;
+        let alert_service = self.alert_service;
+        let runtime = self.runtime;
+
         tokio::spawn(async move {
-            self.run().await;
-            // If we reach here, the run loop exited (which shouldn't happen)
-            tracing::error!(
-                runner = runner_name,
-                "Monitor runner exited unexpectedly - monitoring has stopped"
-            );
+            let mut restart_count: u32 = 0;
+            const MAX_BACKOFF_SECS: u64 = 60;
+            const BASE_BACKOFF_SECS: u64 = 1;
+
+            loop {
+                let config = RunLoopConfig {
+                    name: S::name(),
+                    scheduler_tick: S::scheduler_tick(&runtime),
+                    max_concurrency: S::max_concurrency(&runtime),
+                    prune_every_ticks: S::prune_every_ticks(),
+                    metrics_kind: S::metrics_kind(),
+                };
+                let scheduler = S::create_scheduler(&runtime);
+
+                info!(
+                    runner = runner_name,
+                    restart_count = restart_count,
+                    "Starting monitor runner"
+                );
+
+                // /his should run forever unless something goes wrong
+                run_loop::<S>(
+                    Arc::clone(&cache),
+                    probe.clone(),
+                    Arc::clone(&writer),
+                    metrics.clone(),
+                    alert_service.clone(),
+                    config,
+                    scheduler,
+                )
+                .await;
+
+                // If we get here, the run loop exited unexpectedly
+                restart_count = restart_count.saturating_add(1);
+                let backoff_secs = (BASE_BACKOFF_SECS << restart_count.min(6)).min(MAX_BACKOFF_SECS);
+
+                tracing::error!(
+                    runner = runner_name,
+                    restart_count = restart_count,
+                    backoff_secs = backoff_secs,
+                    "Monitor runner exited unexpectedly - restarting after backoff"
+                );
+
+                tokio::time::sleep(StdDuration::from_secs(backoff_secs)).await;
+            }
         });
-    }
-
-    async fn run(self) {
-        let config = RunLoopConfig {
-            name: S::name(),
-            scheduler_tick: S::scheduler_tick(&self.runtime),
-            max_concurrency: S::max_concurrency(&self.runtime),
-            prune_every_ticks: S::prune_every_ticks(),
-            metrics_kind: S::metrics_kind(),
-        };
-        let scheduler = S::create_scheduler(&self.runtime);
-
-        run_loop::<S>(
-            self.cache,
-            self.probe,
-            self.writer,
-            self.metrics,
-            self.alert_service,
-            config,
-            scheduler,
-        )
-        .await
     }
 }
 
