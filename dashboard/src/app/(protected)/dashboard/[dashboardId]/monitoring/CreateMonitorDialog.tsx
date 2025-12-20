@@ -139,7 +139,7 @@ export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialog
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={`https://${domain}/health`}
-              className={cn((urlEmpty || urlInvalid) && 'border-destructive')}
+              className={cn(hasError && 'border-destructive')}
               disabled={isPending}
               required
               type='url'

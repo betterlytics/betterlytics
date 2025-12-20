@@ -9,7 +9,6 @@ import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
-import { Label } from '@/components/ui/label';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -220,7 +219,7 @@ function FilterSelectValue({ label, Icon = Filter }: { label: string; Icon?: Luc
   return (
     <div className='flex items-center gap-1'>
       <Icon className='h-3.5 w-3.5 opacity-60' />
-      <Label className='truncate'>{label}</Label>
+      <span className='truncate'>{label}</span>
     </div>
   );
 }

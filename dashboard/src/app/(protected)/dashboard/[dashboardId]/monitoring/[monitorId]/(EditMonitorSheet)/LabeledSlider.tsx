@@ -46,21 +46,21 @@ export function LabeledSlider({
           <div className='flex items-center gap-2'>
             <Label className='text-sm font-medium'>{label}</Label>
             {badge && (
-              <Label className='rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400'>
+              <span className='rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400'>
                 {badge}
-              </Label>
+              </span>
             )}
           </div>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
-        <Label className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm dark:text-blue-300'>
+        <span className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm dark:text-blue-300'>
           {formatValue(value)}
           {isRecommended && (
-            <Label className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>
+            <span className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>
               ({t('recommended')})
-            </Label>
+            </span>
           )}
-        </Label>
+        </span>
       </div>
 
       <div className='space-y-3'>
@@ -76,7 +76,7 @@ export function LabeledSlider({
           {marks.map(({ idx, label: markLabel }) => {
             const percent = ((idx - min) / totalSteps) * 100;
             return (
-              <Label
+              <span
                 key={idx}
                 className='text-muted-foreground absolute text-[10px]'
                 style={{
@@ -85,7 +85,7 @@ export function LabeledSlider({
                 }}
               >
                 {markLabel}
-              </Label>
+              </span>
             );
           })}
         </div>

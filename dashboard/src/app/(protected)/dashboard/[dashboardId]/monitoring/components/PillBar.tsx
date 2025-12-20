@@ -9,7 +9,6 @@ import {
 } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
 import { MonitoringTooltip } from '../[monitorId]/MonitoringTooltip';
 import { type MonitorUptimeBucket } from '@/entities/analytics/monitoring.entities';
-import { Label } from '@/components/ui/label';
 
 type PillBarProps = {
   data?: MonitorUptimeBucket[];
@@ -40,7 +39,7 @@ export function PillBar({ data }: PillBarProps) {
         })();
         return (
           <MonitoringTooltip key={point.bucket} title={bucketLabel} description={label}>
-            <Label className={`h-5 min-w-0 flex-1 rounded-sm ${toneClass}`} aria-label={label} />
+            <span className={`h-5 min-w-0 flex-1 rounded-sm ${toneClass}`} aria-label={label} />
           </MonitoringTooltip>
         );
       })}

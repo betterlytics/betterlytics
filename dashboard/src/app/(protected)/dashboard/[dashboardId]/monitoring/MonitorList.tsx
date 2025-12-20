@@ -92,12 +92,12 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs md:hidden'>
                       <RefreshCcw size={14} aria-hidden />
                       <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
-                      {isBackedOff ? (
+                      {isBackedOff && (
                         <BackoffBadge
                           label={effectiveLabel}
                           message={t('list.backoffTooltip', { value: effectiveLabel })}
                         />
-                      ) : null}
+                      )}
                     </div>
                   </div>
                 </div>
@@ -108,12 +108,12 @@ export function MonitorList({ monitors }: MonitorListProps) {
                       <RefreshCcw size={14} aria-hidden />
                       <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
                     </span>
-                    {isBackedOff ? (
+                    {isBackedOff && (
                       <BackoffBadge
                         label={effectiveLabel}
                         message={t('list.backoffTooltip', { value: effectiveLabel })}
                       />
-                    ) : null}
+                    )}
                   </div>
                   <div className='min-w-[200px]'>
                     <SslStatusPill
@@ -175,9 +175,7 @@ function SslStatusPill({
     >
       <presentation.icon size={14} aria-hidden />
       <span className='text-left leading-tight break-words'>{label}</span>
-      {daysLeftLabel ? (
-        <span className='text-muted-foreground/80 text-[10px] font-medium'>{daysLeftLabel}</span>
-      ) : null}
+      {daysLeftLabel && <span className='text-muted-foreground/80 text-[10px] font-medium'>{daysLeftLabel}</span>}
     </Badge>
   );
 }
@@ -189,19 +187,18 @@ function calculateUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
   return avg * 100;
 }
 
-function sslBadgeKey(category: SslPresentation['category']) {
-  switch (category) {
-    case 'ok':
-      return 'badgeValid';
-    case 'warn':
-      return 'badgeExpiringSoon';
-    case 'down':
-      return 'badgeExpired';
-    case 'error':
-      return 'badgeError';
-    default:
-      return 'badgeNotChecked';
-  }
+const SSL_BADGE_KEYS = {
+  ok: 'badgeValid',
+  warn: 'badgeExpiringSoon',
+  down: 'badgeExpired',
+  error: 'badgeError',
+  unknown: 'badgeNotChecked',
+} as const;
+
+type SslBadgeKey = (typeof SSL_BADGE_KEYS)[keyof typeof SSL_BADGE_KEYS];
+
+function sslBadgeKey(category: SslPresentation['category']): SslBadgeKey {
+  return SSL_BADGE_KEYS[category] ?? SSL_BADGE_KEYS.unknown;
 }
 
 function BackoffBadge({ label, message }: { label: string; message: string }) {

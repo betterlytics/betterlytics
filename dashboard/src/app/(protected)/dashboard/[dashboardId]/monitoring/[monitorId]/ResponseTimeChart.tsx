@@ -9,6 +9,8 @@ import { type MonitorMetrics } from '@/entities/analytics/monitoring.entities';
 import { formatCompactFromMilliseconds } from '@/utils/dateFormatters';
 import { useTranslations } from 'next-intl';
 
+const SECONDARY_BADGE_CLASS = 'border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs';
+
 const P50_COLOR = 'var(--cwv-p50)';
 const P95_COLOR = 'var(--cwv-p90)';
 const AVG_COLOR = 'var(--muted-foreground)';
@@ -43,10 +45,7 @@ export function ResponseTimeChart({ data }: ResponseTimeChartProps) {
       <Card className='border-border/70 bg-card/80 p-5 shadow-lg shadow-black/10'>
         <div className='flex items-center justify-between'>
           <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{t('title')}</p>
-          <Badge
-            variant='secondary'
-            className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'
-          >
+          <Badge variant='secondary' className={SECONDARY_BADGE_CLASS}>
             {t('badge')}
           </Badge>
         </div>
@@ -63,7 +62,7 @@ export function ResponseTimeChart({ data }: ResponseTimeChartProps) {
         <p className='text-muted-foreground text-sm leading-tight font-semibold tracking-wide'>{t('title')}</p>
       }
       headerRight={
-        <Badge variant='secondary' className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'>
+        <Badge variant='secondary' className={SECONDARY_BADGE_CLASS}>
           {t('badge')}
         </Badge>
       }

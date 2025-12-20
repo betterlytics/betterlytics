@@ -88,7 +88,7 @@ function SummaryTile({
         {headerRight}
       </div>
       <div className={bodyClassName}>{children}</div>
-      {helper ? <div className='text-muted-foreground mt-1 text-xs sm:text-sm'>{helper}</div> : null}
+      {helper && <div className='text-muted-foreground mt-1 text-xs sm:text-sm'>{helper}</div>}
     </Card>
   );
 }
@@ -142,7 +142,7 @@ function LastCheckCard({
     >
       <StatusDot operationalState={operationalState} />
       <span className='text-foreground tabular-nums'>{lastCheckLabel}</span>
-      {isBackedOff && backoffTooltipMessage ? (
+      {isBackedOff && backoffTooltipMessage && (
         <Tooltip>
           <TooltipTrigger asChild>
             <AlertCircle
@@ -154,7 +154,7 @@ function LastCheckCard({
             {backoffTooltipMessage}
           </TooltipContent>
         </Tooltip>
-      ) : null}
+      )}
     </SummaryTile>
   );
 }

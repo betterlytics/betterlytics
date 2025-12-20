@@ -25,6 +25,8 @@ import { MonitoringTooltip } from './MonitoringTooltip';
 import { formatPercentage } from '@/utils/formatters';
 import { getReasonMessage } from '@/lib/monitorReasonCodes';
 
+const SECONDARY_BADGE_CLASS = 'border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs';
+
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return <ResponseTimeChart data={metrics?.latencySeries ?? []} />;
 }
