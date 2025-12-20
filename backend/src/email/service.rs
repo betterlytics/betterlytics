@@ -10,37 +10,14 @@ use serde::Serialize;
 use thiserror::Error;
 use tracing::{info, warn};
 
+use crate::config::EmailConfig;
+
 #[derive(Debug, Error)]
 pub enum EmailError {
     #[error("HTTP request failed: {0}")]
     Request(#[from] reqwest::Error),
     #[error("API error: {status} - {message}")]
     ApiError { status: u16, message: String },
-}
-
-/// Configuration for the email service
-#[derive(Clone, Debug)]
-pub struct EmailServiceConfig {
-    pub api_key: String,
-    pub from_email: String,
-    pub from_name: String,
-    pub dashboard_base_url: String,
-}
-
-impl EmailServiceConfig {
-    pub fn from_env() -> Option<Self> {
-        let api_key = std::env::var("MAILER_SEND_API_TOKEN").ok()?;
-
-        Some(Self {
-            api_key,
-            from_email: std::env::var("ALERT_FROM_EMAIL")
-                .unwrap_or_else(|_| "alerts@betterlytics.io".to_string()),
-            from_name: std::env::var("ALERT_FROM_NAME")
-                .unwrap_or_else(|_| "Betterlytics Alerts".to_string()),
-            dashboard_base_url: std::env::var("DASHBOARD_BASE_URL")
-                .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
-        })
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -53,7 +30,7 @@ pub struct EmailRequest {
 
 pub struct EmailService {
     client: Client,
-    config: EmailServiceConfig,
+    config: EmailConfig,
 }
 
 #[derive(Serialize)]
@@ -73,32 +50,61 @@ struct EmailAddress {
 }
 
 impl EmailService {
-    pub fn new(config: EmailServiceConfig) -> Self {
+    pub fn new(config: EmailConfig) -> Self {
         Self {
             client: Client::new(),
             config,
         }
     }
 
-    /// Get the configured dashboard base URL
-    pub fn dashboard_base_url(&self) -> &str {
-        &self.config.dashboard_base_url
-    }
 
     /// Send an email
+    ///
+    /// In development mode, only emails to @betterlytics.io addresses are sent.
     pub async fn send(&self, request: EmailRequest) -> Result<(), EmailError> {
         if request.to.is_empty() {
             return Ok(());
         }
 
-        let to: Vec<EmailAddress> = request
-            .to
+        // In development mode, filter to only allow @betterlytics.io addresses
+        let recipients: Vec<String> = if self.config.is_development {
+            let allowed: Vec<String> = request
+                .to
+                .iter()
+                .filter(|email| email.ends_with("@betterlytics.io"))
+                .cloned()
+                .collect();
+
+            let blocked_count = request.to.len() - allowed.len();
+            if blocked_count > 0 {
+                warn!(
+                    blocked = blocked_count,
+                    allowed = allowed.len(),
+                    "Development mode: blocked emails to non-@betterlytics.io addresses"
+                );
+            }
+
+            if allowed.is_empty() {
+                info!(
+                    subject = %request.subject,
+                    "Development mode: no @betterlytics.io recipients, skipping email"
+                );
+                return Ok(());
+            }
+
+            allowed
+        } else {
+            request.to.clone()
+        };
+
+        let to: Vec<EmailAddress> = recipients
             .iter()
             .map(|email| EmailAddress {
                 email: email.clone(),
                 name: None,
             })
             .collect();
+
 
         let mailer_request = SendRequest {
             from: EmailAddress {

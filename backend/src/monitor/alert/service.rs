@@ -16,8 +16,9 @@ use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use super::email as email_templates;
-use crate::email::{EmailService, EmailServiceConfig};
 use super::repository::{AlertHistoryRecord, AlertHistoryRepository};
+use crate::config::EmailConfig;
+use crate::email::EmailService;
 use super::tracker::{AlertTracker, AlertTrackerConfig, AlertType, IncidentEvent, SslEvent};
 use crate::monitor::{
     IncidentStore, MonitorCheck, MonitorIncidentRow, MonitorStatus, ProbeOutcome, ReasonCode,
@@ -68,16 +69,18 @@ impl AlertContext {
 pub struct AlertServiceConfig {
     pub enabled: bool,
     pub tracker_config: AlertTrackerConfig,
-    pub email_config: Option<EmailServiceConfig>,
+    pub email_config: Option<EmailConfig>,
+    pub public_base_url: String,
     pub ssl_cooldown: Duration,
 }
 
-impl Default for AlertServiceConfig {
-    fn default() -> Self {
+impl AlertServiceConfig {
+    pub fn from_config(config: &crate::config::Config) -> Self {
         Self {
             enabled: true,
             tracker_config: AlertTrackerConfig::default(),
-            email_config: EmailServiceConfig::from_env(),
+            email_config: config.email.clone(),
+            public_base_url: config.public_base_url.clone(),
             ssl_cooldown: Duration::hours(24),
         }
     }
@@ -101,6 +104,7 @@ pub struct AlertService {
     notification_state: DashMap<String, NotificationTimestamps>,
     ssl_cooldown: Duration,
     incident_store: Option<Arc<IncidentStore>>,
+    public_base_url: String,
 }
 
 impl AlertService {
@@ -147,6 +151,7 @@ impl AlertService {
             notification_state,
             ssl_cooldown: config.ssl_cooldown,
             incident_store,
+            public_base_url: config.public_base_url,
         }
     }
 
@@ -484,7 +489,7 @@ impl AlertService {
             ctx.check.url.as_str(),
             ctx.reason_code,
             ctx.status_code,
-            email_service.dashboard_base_url(),
+            &self.public_base_url,
             &ctx.check.dashboard_id,
             &ctx.check.id,
         );
@@ -523,7 +528,7 @@ impl AlertService {
             &ctx.monitor_name(),
             ctx.check.url.as_str(),
             downtime,
-            email_service.dashboard_base_url(),
+            &self.public_base_url,
             &ctx.check.dashboard_id,
             &ctx.check.id,
         );
@@ -559,7 +564,7 @@ impl AlertService {
             ctx.check.url.as_str(),
             days_left,
             ctx.tls_not_after,
-            email_service.dashboard_base_url(),
+            &self.public_base_url,
             &ctx.check.dashboard_id,
             &ctx.check.id,
         );

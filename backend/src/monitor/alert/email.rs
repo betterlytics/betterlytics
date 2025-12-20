@@ -19,14 +19,14 @@ pub fn build_down_alert(
     url: &str,
     reason_code: ReasonCode,
     status_code: Option<u16>,
-    dashboard_base_url: &str,
+    public_base_url: &str,
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
     let subject = format!("🚨 Uptime Alert: Site Is Down: {}", monitor_name);
     let monitor_url = format!(
         "{}/dashboard/{}/monitoring/{}",
-        dashboard_base_url, dashboard_id, monitor_id
+        public_base_url, dashboard_id, monitor_id
     );
 
     let reason_message = reason_code.to_message();
@@ -47,14 +47,14 @@ pub fn build_recovery_alert(
     monitor_name: &str,
     url: &str,
     downtime_duration: Option<Duration>,
-    dashboard_base_url: &str,
+    public_base_url: &str,
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
     let subject = format!("✅ Resolved: Site Is Back Online: {}", monitor_name);
     let monitor_url = format!(
         "{}/dashboard/{}/monitoring/{}",
-        dashboard_base_url, dashboard_id, monitor_id
+        public_base_url, dashboard_id, monitor_id
     );
 
     let html = build_recovery_alert_html(monitor_name, url, downtime_duration, &monitor_url);
@@ -75,13 +75,13 @@ pub fn build_ssl_alert(
     url: &str,
     days_left: i32,
     expiry_date: Option<DateTime<Utc>>,
-    dashboard_base_url: &str,
+    public_base_url: &str,
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
     let (subject, alert_type) = if days_left <= 0 {
         (
-            format!("🔴 SSL Certificate Expired: {}", monitor_name),
+            format!("🚨 SSL Certificate Expired: {}", monitor_name),
             AlertType::SslExpired,
         )
     } else {
@@ -93,7 +93,7 @@ pub fn build_ssl_alert(
 
     let monitor_url = format!(
         "{}/dashboard/{}/monitoring/{}",
-        dashboard_base_url, dashboard_id, monitor_id
+        public_base_url, dashboard_id, monitor_id
     );
 
     let html = build_ssl_alert_html(monitor_name, url, days_left, expiry_date, &monitor_url, alert_type);
@@ -133,7 +133,7 @@ fn build_down_alert_html(
     let content = format!(
         r#"<h1>Monitor Alert</h1>
             <div class="alert-box">
-                <h3 style="{error_heading}">🔴 Monitor Down</h3>
+                <h3 style="{error_heading}">🚨 Monitor Down</h3>
                 <p style="margin: 0;"><strong>{monitor_name}</strong> is currently unreachable.</p>
             </div>
             
@@ -281,7 +281,7 @@ fn build_ssl_alert_html(
         (
             "alert-box",
             "margin: 0 0 10px 0; color: #dc2626; font-size: 18px;",
-            "🔴",
+            "🚨",
             "SSL Certificate Expired",
         )
     } else {

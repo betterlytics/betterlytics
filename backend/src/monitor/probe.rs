@@ -11,7 +11,7 @@ use tokio_rustls::client::TlsStream;
 use tokio_rustls::TlsConnector;
 use tokio_rustls::rustls::{ClientConfig, RootCertStore};
 use tokio_rustls::rustls::pki_types::ServerName;
-use tracing::warn;
+use tracing::{debug, warn};
 use url::Url;
 use x509_parser::prelude::FromDer;
 
@@ -196,7 +196,7 @@ impl MonitorProbe {
         check: &MonitorCheck,
         error: ProbeError,
     ) -> ProbeOutcome {
-        warn!(
+        debug!(
             check = %check.id,
             reason = %error.reason_code.as_str(),
             error = %error.message,
@@ -226,7 +226,7 @@ impl MonitorProbe {
         check: &MonitorCheck,
         err: ProbeError,
     ) -> ProbeOutcome {
-        warn!(
+        debug!(
             check = %check.id,
             reason = %err.reason_code.as_str(),
             error = %err.message,

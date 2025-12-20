@@ -6,4 +6,4 @@
 mod service;
 pub mod templates;
 
-pub use service::{EmailError, EmailRequest, EmailService, EmailServiceConfig};
+pub use service::{EmailRequest, EmailService};

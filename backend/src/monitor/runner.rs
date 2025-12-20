@@ -514,7 +514,7 @@ async fn run_loop<S: RunnerStrategy>(
         }
 
         if !collected.is_empty() {
-            info!(
+            debug!(
                 runner = config.name,
                 rows = collected.len(),
                 "monitor batch ready for insert"

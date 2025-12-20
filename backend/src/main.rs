@@ -246,7 +246,7 @@ async fn main() {
                 };
 
                 let alert_service = Arc::new(AlertService::new(
-                    AlertServiceConfig::default(),
+                    AlertServiceConfig::from_config(&config_for_monitor),
                     Some(history_writer),
                     incident_store,
                 ).await);
