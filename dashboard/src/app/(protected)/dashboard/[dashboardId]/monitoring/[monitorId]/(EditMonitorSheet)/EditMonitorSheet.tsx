@@ -29,6 +29,7 @@ import { getStatusCodeColorClasses } from './httpStatusColors';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslations } from 'next-intl';
 import { SettingToggle } from './SettingToggle';
 import { EmailTokenInput } from '../../../../../../../components/inputs/EmailTokenInput';
@@ -388,23 +389,20 @@ function AdvancedSettingsSection({
               <Label className='text-sm font-medium'>{t('advanced.httpMethod.label')}</Label>
               <p className='text-muted-foreground mt-0.5 text-xs'>{t('advanced.httpMethod.description')}</p>
             </div>
-            <div className='bg-muted inline-flex rounded-md p-0.5'>
-              {(['HEAD', 'GET'] as const).map((method) => (
-                <button
-                  key={method}
-                  type='button'
-                  onClick={() => form.setHttpMethod(method)}
-                  disabled={isPending}
-                  className={`cursor-pointer rounded px-3 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed ${
-                    form.state.httpMethod === method
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {method}
-                </button>
-              ))}
-            </div>
+            <Tabs value={form.state.httpMethod} onValueChange={(v) => form.setHttpMethod(v as 'HEAD' | 'GET')}>
+              <TabsList className='h-8'>
+                {(['HEAD', 'GET'] as const).map((method) => (
+                  <TabsTrigger
+                    key={method}
+                    value={method}
+                    disabled={isPending}
+                    className='px-3 py-1 text-xs font-medium'
+                  >
+                    {method}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
           </div>
 
           <Separator />

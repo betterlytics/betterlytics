@@ -18,7 +18,6 @@ import {
 import { formatPercentage } from '@/utils/formatters';
 import { PillBar } from './components/PillBar';
 import { MonitorStatusBadge } from './components/MonitorStatusBadge';
-import { Label } from '@/components/ui/label';
 
 type MonitorListProps = {
   monitors: MonitorWithStatus[];
@@ -80,19 +79,19 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   <div className='space-y-1.5'>
                     <div className='flex items-center justify-between gap-2'>
                       <div className='flex items-center gap-2 text-sm leading-tight font-semibold'>
-                        <Label className='truncate'>{monitor.name || monitor.url}</Label>
+                        <span className='truncate'>{monitor.name || monitor.url}</span>
                       </div>
                       <MonitorStatusBadge presentation={statusPresentation} />
                     </div>
                     <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs'>
-                      <Label className='inline-flex items-center gap-1'>
+                      <span className='inline-flex items-center gap-1'>
                         <Link2 size={14} />
-                        <Label className='max-w-[240px] truncate'>{monitor.url}</Label>
-                      </Label>
+                        <span className='max-w-[240px] truncate'>{monitor.url}</span>
+                      </span>
                     </div>
                     <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs md:hidden'>
                       <RefreshCcw size={14} aria-hidden />
-                      <Label>{formatIntervalLabel(t, monitor.intervalSeconds)}</Label>
+                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
                       {isBackedOff ? (
                         <BackoffBadge
                           label={effectiveLabel}
@@ -105,10 +104,10 @@ export function MonitorList({ monitors }: MonitorListProps) {
 
                 <div className='hidden md:grid md:w-full md:grid-cols-[120px_minmax(220px,280px)_minmax(220px,1fr)_max-content] md:items-center md:gap-4'>
                   <div className='text-muted-foreground flex items-center gap-2 text-[11px] font-semibold whitespace-nowrap'>
-                    <Label className='flex items-center gap-1'>
+                    <span className='flex items-center gap-1'>
                       <RefreshCcw size={14} aria-hidden />
-                      <Label>{formatIntervalLabel(t, monitor.intervalSeconds)}</Label>
-                    </Label>
+                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
+                    </span>
                     {isBackedOff ? (
                       <BackoffBadge
                         label={effectiveLabel}
@@ -134,9 +133,9 @@ export function MonitorList({ monitors }: MonitorListProps) {
                       <p className='text-muted-foreground text-xs font-medium'>{t('list.noData')}</p>
                     )}
                   </div>
-                  <Label className={`pt-1 text-[11px] font-semibold whitespace-nowrap ${theme.text}`}>
+                  <span className={`pt-1 text-[11px] font-semibold whitespace-nowrap ${theme.text}`}>
                     {percentLabel}
-                  </Label>
+                  </span>
                 </div>
                 <div className='flex items-center justify-end gap-2 md:justify-center md:pl-8'>
                   <Button
@@ -146,9 +145,9 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     className='text-muted-foreground group-hover:text-primary bg-muted/40 ring-border/50 h-8 w-8 cursor-pointer rounded-full border border-transparent ring-1 transition-colors'
                     aria-hidden
                   >
-                    <Label className='flex h-full w-full items-center justify-center'>
+                    <span className='flex h-full w-full items-center justify-center'>
                       <ChevronRight className='h-4 w-4' />
-                    </Label>
+                    </span>
                   </Button>
                 </div>
               </div>
@@ -175,9 +174,9 @@ function SslStatusPill({
       className={`inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide ${presentation.badgeClass}`}
     >
       <presentation.icon size={14} aria-hidden />
-      <Label className='text-left leading-tight break-words'>{label}</Label>
+      <span className='text-left leading-tight break-words'>{label}</span>
       {daysLeftLabel ? (
-        <Label className='text-muted-foreground/80 text-[10px] font-medium'>{daysLeftLabel}</Label>
+        <span className='text-muted-foreground/80 text-[10px] font-medium'>{daysLeftLabel}</span>
       ) : null}
     </Badge>
   );
@@ -214,7 +213,7 @@ function BackoffBadge({ label, message }: { label: string; message: string }) {
           className='inline-flex items-center gap-1 border-amber-500/60 bg-amber-500/10 px-2 py-[3px] text-[10px] font-semibold text-amber-700'
         >
           <AlertTriangle size={12} aria-hidden />
-          <Label>{label}</Label>
+          <span>{label}</span>
         </Badge>
       </TooltipTrigger>
       <TooltipContent side='top' className='max-w-[260px] break-words'>
