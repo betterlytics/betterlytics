@@ -1131,7 +1131,6 @@
       "up": "Up",
       "degraded": "Degraded",
       "down": "Down",
-      "error": "Error",
       "monitoringActive": "Monitoring active",
       "monitoringPaused": "Monitoring paused"
     },
@@ -1162,10 +1161,9 @@
     },
     "labels": {
       "noData": "No data",
-      "noDataYet": "No data yet",
       "uptimeSuffix": "uptime",
-      "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}",
-      "ssl": "SSL"
+      "recommended": "recommended",
+      "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}"
     },
     "actions": {
       "pause": "Pause monitor",
@@ -1203,17 +1201,7 @@
   },
   "monitoringPage": {
     "title": "Monitoring",
-    "table": {
-      "emptyTitle": "No monitors yet",
-      "emptyDescription": "Create your first monitor to start tracking uptime.",
-      "headers": {
-        "name": "Name",
-        "url": "URL",
-        "uptime": "Uptime (24h)"
-      },
-      "enabled": "Enabled",
-      "disabled": "Paused"
-    },
+    "table": {},
     "filters": {
       "statusLabel": "Status",
       "sortLabel": "Sort",
@@ -1237,10 +1225,8 @@
       "intervalMinutes": "{value} min",
       "intervalSeconds": "{value}s",
       "backoffTooltip": "Monitoring temporarily reduced to {value} because this monitor has been down repeatedly. Normal frequency resumes automatically once the service is healthy.",
-      "state": {
-        "on": "On",
-        "paused": "Paused"
-      }
+      "emptyTitle": "No monitors yet",
+      "emptyDescription": "Create your first monitor to start tracking uptime."
     },
     "form": {
       "create": "New monitor",
@@ -1370,34 +1356,53 @@
         "paused": "Monitoring paused",
         "resumed": "Monitoring resumed"
       },
-      "statusError": "Unable to update monitor status. Try again.",
-      "updateSuccess": "Monitor updated",
-      "updateError": "Unable to update monitor, please try again."
-    },
-    "editDialog": {
-      "trigger": "Edit monitor",
-      "title": "Edit monitor",
-      "description": "Adjust the monitor cadence and timeout thresholds.",
-      "interval": {
-        "title": "Monitor interval",
-        "description": "Your monitor will be checked every {value}.",
-        "helper": "Use shorter intervals for critical endpoints; longer for low-sensitivity checks."
-      },
-      "timeout": {
-        "title": "Request timeout",
-        "description": "The request timeout is {value}. The shorter the timeout, the earlier we mark the site as down.",
-        "helper": "Choose a value that matches typical response times; too short can cause false alarms."
-      },
-      "actions": {
-        "cancel": "Cancel",
-        "save": "Save changes",
-        "saving": "Saving..."
-      }
+      "statusError": "Unable to update monitor status. Try again."
     }
   },
   "monitoringEditDialog": {
     "success": "Monitor updated",
     "error": "Unable to update monitor, please try again.",
+    "trigger": "Edit",
+    "sheet": {
+      "title": "Edit monitor",
+      "description": "Configure monitoring settings for {url}"
+    },
+    "unsavedChanges": "Unsaved changes",
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "confirmDiscard": {
+      "title": "Discard unsaved changes?",
+      "description": "You have unsaved changes that will be lost if you close this sheet.",
+      "keep": "Keep editing",
+      "discard": "Discard"
+    },
+    "sections": {
+      "timing": "Timing",
+      "advanced": "Advanced settings"
+    },
+    "advanced": {
+      "httpMethod": {
+        "label": "HTTP method",
+        "description": "HEAD is faster but some servers don't support it"
+      },
+      "sslMonitoring": {
+        "label": "Monitor SSL errors",
+        "description": "Create incidents when certificate errors are detected"
+      },
+      "requestHeaders": {
+        "label": "Request headers",
+        "description": "Custom headers included with each request",
+        "namePlaceholder": "Header name",
+        "valuePlaceholder": "Value"
+      },
+      "acceptedStatusCodes": {
+        "label": "Accepted status codes",
+        "description": "Other codes will trigger incidents"
+      }
+    },
     "alerts": {
       "title": "Alerts",
       "description": "Get notified when your monitor goes down, recovers, or when SSL certificates are expiring.",

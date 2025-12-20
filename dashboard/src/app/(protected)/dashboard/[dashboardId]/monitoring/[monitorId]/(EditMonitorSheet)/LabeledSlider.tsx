@@ -2,6 +2,7 @@
 
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { useTranslations } from 'next-intl';
 
 export type SliderMark = { idx: number; label: string };
 
@@ -34,6 +35,7 @@ export function LabeledSlider({
   recommendedValue,
   disabled,
 }: LabeledSliderProps) {
+  const t = useTranslations('monitoring.labels');
   const isRecommended = recommendedValue !== undefined && value === recommendedValue;
   const totalSteps = max - min;
 
@@ -54,7 +56,9 @@ export function LabeledSlider({
         <Label className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm dark:text-blue-300'>
           {formatValue(value)}
           {isRecommended && (
-            <Label className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>(recommended)</Label>
+            <Label className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>
+              ({t('recommended')})
+            </Label>
           )}
         </Label>
       </div>

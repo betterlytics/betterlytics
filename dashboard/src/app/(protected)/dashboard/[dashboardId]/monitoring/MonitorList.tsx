@@ -36,8 +36,8 @@ export function MonitorList({ monitors }: MonitorListProps) {
           <div className='bg-muted mx-auto flex h-12 w-12 items-center justify-center rounded-full'>
             <Activity className='text-muted-foreground h-6 w-6' />
           </div>
-          <h3 className='text-lg font-semibold'>{t('table.emptyTitle')}</h3>
-          <p className='text-muted-foreground text-sm'>{t('table.emptyDescription')}</p>
+          <h3 className='text-lg font-semibold'>{t('list.emptyTitle')}</h3>
+          <p className='text-muted-foreground text-sm'>{t('list.emptyDescription')}</p>
         </div>
       </Card>
     );

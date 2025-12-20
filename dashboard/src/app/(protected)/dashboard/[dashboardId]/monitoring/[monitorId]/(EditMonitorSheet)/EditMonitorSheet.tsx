@@ -121,14 +121,14 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   return (
     <>
       <Sheet open={open} onOpenChange={handleOpenChange}>
-        <SheetTrigger asChild>{trigger ?? <Button size='sm'>Edit</Button>}</SheetTrigger>
+        <SheetTrigger asChild>{trigger ?? <Button size='sm'>{t('trigger')}</Button>}</SheetTrigger>
         <SheetContent side='right' className='w-full max-w-2xl overflow-y-auto p-0 sm:max-w-4xl'>
           <div className='flex h-full flex-col'>
             {/* Header */}
             <SheetHeader className='border-border space-y-1 border-b px-6 py-5'>
-              <SheetTitle className='text-lg font-semibold'>Edit monitor</SheetTitle>
+              <SheetTitle className='text-lg font-semibold'>{t('sheet.title')}</SheetTitle>
               <SheetDescription className='text-muted-foreground text-sm'>
-                Configure monitoring settings for{' '}
+                {t('sheet.description', { url: '' })}{' '}
                 <span className='text-foreground font-medium'>{monitor.url}</span>
               </SheetDescription>
             </SheetHeader>
@@ -137,7 +137,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
             <div className='flex-grow space-y-8 overflow-y-auto px-6 py-6'>
               {/* Timing Section */}
               <section className='space-y-6'>
-                <SectionHeader icon={Clock} title='Timing' />
+                <SectionHeader icon={Clock} title={t('sections.timing')} />
 
                 <LabeledSlider
                   label={tTiming('interval.label')}
@@ -196,7 +196,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
               <Separator />
 
               {/* Advanced Settings */}
-              <AdvancedSettingsSection form={form} isPending={isPending} />
+              <AdvancedSettingsSection form={form} isPending={isPending} t={t} />
             </div>
 
             <div className='border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 flex items-center justify-between gap-3 border-t px-6 py-4 backdrop-blur'>
@@ -204,7 +204,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                 {form.isDirty && (
                   <>
                     <div className='h-2 w-2 animate-pulse rounded-full bg-amber-500' />
-                    <span className='text-muted-foreground text-xs'>Unsaved changes</span>
+                    <span className='text-muted-foreground text-xs'>{t('unsavedChanges')}</span>
                   </>
                 )}
               </div>
@@ -216,7 +216,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                   disabled={isPending}
                   className='cursor-pointer'
                 >
-                  Cancel
+                  {t('actions.cancel')}
                 </Button>
                 <Button
                   type='button'
@@ -224,7 +224,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
                   disabled={isPending || !form.isDirty}
                   className='min-w-[100px] cursor-pointer'
                 >
-                  {isPending ? 'Saving...' : 'Save'}
+                  {isPending ? t('actions.saving') : t('actions.save')}
                 </Button>
               </div>
             </div>
@@ -235,14 +235,12 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have unsaved changes that will be lost if you close this sheet.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('confirmDiscard.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('confirmDiscard.description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep editing</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDiscard}>Discard</AlertDialogAction>
+            <AlertDialogCancel>{t('confirmDiscard.keep')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDiscard}>{t('confirmDiscard.discard')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -363,13 +361,21 @@ function AlertsSection({
   );
 }
 
-function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPending: boolean }) {
+function AdvancedSettingsSection({
+  form,
+  isPending,
+  t,
+}: {
+  form: FormType;
+  isPending: boolean;
+  t: ReturnType<typeof useTranslations<'monitoringEditDialog'>>;
+}) {
   return (
     <Collapsible defaultOpen={false} className='group/advanced'>
       <CollapsibleTrigger className='hover:bg-muted/50 -mx-2 flex w-[calc(100%+1rem)] cursor-pointer items-center justify-between rounded-lg px-2 py-2 transition-colors'>
         <div className='flex items-center gap-2'>
           <Settings className='text-muted-foreground h-4 w-4' />
-          <span className='text-sm font-semibold tracking-tight'>Advanced settings</span>
+          <span className='text-sm font-semibold tracking-tight'>{t('sections.advanced')}</span>
         </div>
         <ChevronDown className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/advanced:rotate-180' />
       </CollapsibleTrigger>
@@ -379,10 +385,8 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
           {/* HTTP Method */}
           <div className='space-y-3'>
             <div>
-              <Label className='text-sm font-medium'>HTTP method</Label>
-              <p className='text-muted-foreground mt-0.5 text-xs'>
-                HEAD is faster but some servers don't support it
-              </p>
+              <Label className='text-sm font-medium'>{t('advanced.httpMethod.label')}</Label>
+              <p className='text-muted-foreground mt-0.5 text-xs'>{t('advanced.httpMethod.description')}</p>
             </div>
             <div className='bg-muted inline-flex rounded-md p-0.5'>
               {(['HEAD', 'GET'] as const).map((method) => (
@@ -408,8 +412,8 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
           {/* SSL Monitoring */}
           <SettingToggle
             id='check-ssl-errors'
-            label='Monitor SSL errors'
-            description='Create incidents when certificate errors are detected'
+            label={t('advanced.sslMonitoring.label')}
+            description={t('advanced.sslMonitoring.description')}
             checked={form.state.checkSslErrors}
             onCheckedChange={form.setCheckSslErrors}
             disabled={isPending}
@@ -420,8 +424,8 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
           {/* Request Headers */}
           <div className='space-y-3'>
             <div>
-              <Label className='text-sm font-medium'>Request headers</Label>
-              <p className='text-muted-foreground mt-0.5 text-xs'>Custom headers included with each request</p>
+              <Label className='text-sm font-medium'>{t('advanced.requestHeaders.label')}</Label>
+              <p className='text-muted-foreground mt-0.5 text-xs'>{t('advanced.requestHeaders.description')}</p>
             </div>
             <div className='space-y-2'>
               {form.state.requestHeaders.map((header, index) => {
@@ -433,7 +437,7 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
                   <div key={index} className='flex items-center gap-2'>
                     <div className='border-input flex flex-1 overflow-hidden rounded-md border'>
                       <Input
-                        placeholder='Header name'
+                        placeholder={t('advanced.requestHeaders.namePlaceholder')}
                         value={header.key}
                         onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
                         disabled={isPending}
@@ -441,7 +445,7 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
                       />
                       <div className='bg-border w-px' />
                       <Input
-                        placeholder='Value'
+                        placeholder={t('advanced.requestHeaders.valuePlaceholder')}
                         value={header.value}
                         onChange={(e) => form.updateRequestHeader(index, 'value', e.target.value)}
                         disabled={isPending}
@@ -473,8 +477,10 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
           {/* Accepted Status Codes */}
           <div className='space-y-3'>
             <div>
-              <Label className='text-sm font-medium'>Accepted status codes</Label>
-              <p className='text-muted-foreground mt-0.5 text-xs'>Other codes will trigger incidents</p>
+              <Label className='text-sm font-medium'>{t('advanced.acceptedStatusCodes.label')}</Label>
+              <p className='text-muted-foreground mt-0.5 text-xs'>
+                {t('advanced.acceptedStatusCodes.description')}
+              </p>
             </div>
             <div className='flex flex-wrap items-center gap-1.5'>
               {form.state.acceptedStatusCodes.map((code) => (

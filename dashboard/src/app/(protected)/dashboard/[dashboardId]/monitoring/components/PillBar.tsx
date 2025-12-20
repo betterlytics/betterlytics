@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatPercentage } from '@/utils/formatters';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
 import {
@@ -17,6 +17,7 @@ type PillBarProps = {
 
 export function PillBar({ data }: PillBarProps) {
   const locale = useLocale();
+  const t = useTranslations('monitoring.labels');
   const normalized = data ?? [];
 
   if (normalized.length === 0) {
@@ -30,8 +31,8 @@ export function PillBar({ data }: PillBarProps) {
         const isPlaceholder = upRatio == null;
         const bucketLabel = defaultDateLabelFormatter(point.bucket, 'hour', locale);
         const label = isPlaceholder
-          ? 'No data'
-          : `${formatPercentage(upRatio * 100, 2, { trimHundred: true })} uptime`;
+          ? t('noData')
+          : `${formatPercentage(upRatio * 100, 2, { trimHundred: true })} ${t('uptimeSuffix')}`;
         const toneClass = (() => {
           if (isPlaceholder) return `${MONITOR_TONE.neutral.solid} border border-border/40`;
           const { theme } = presentUptimeTone(upRatio * 100);
