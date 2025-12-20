@@ -10,6 +10,7 @@ use tracing::{info, warn};
 
 use crate::metrics::MetricsCollector;
 use crate::postgres::PostgresError;
+use crate::utils::spawn_supervised;
 use super::repository::{SiteConfigDataSource, SiteConfigRecord};
 
 const CACHE_NAME: &str = "site_config";
@@ -191,9 +192,23 @@ impl SiteConfigCache {
     }
 
     fn spawn_refresh_tasks(self: &Arc<Self>) {
-        tokio::spawn(Self::partial_refresh_loop(Arc::clone(self)));
-        tokio::spawn(Self::full_refresh_loop(Arc::clone(self)));
-        tokio::spawn(Self::health_monitor_loop(Arc::clone(self)));
+        let this = Arc::clone(self);
+        spawn_supervised("site_config_cache_partial_refresh", move || {
+            let this = Arc::clone(&this);
+            async move { Self::partial_refresh_loop(this).await }
+        });
+
+        let this = Arc::clone(self);
+        spawn_supervised("site_config_cache_full_refresh", move || {
+            let this = Arc::clone(&this);
+            async move { Self::full_refresh_loop(this).await }
+        });
+
+        let this = Arc::clone(self);
+        spawn_supervised("site_config_cache_health", move || {
+            let this = Arc::clone(&this);
+            async move { Self::health_monitor_loop(this).await }
+        });
     }
 
     async fn partial_refresh_loop(this: Arc<Self>) {

@@ -34,6 +34,7 @@ mod site_config;
 mod storage;
 mod ua_parser;
 mod url_utils;
+mod utils;
 mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};

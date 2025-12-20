@@ -17,6 +17,7 @@ pub mod session;
 pub mod site_config;
 pub mod ua_parser;
 pub mod url_utils;
+pub mod utils;
 pub mod validation;
 
 // Re-export commonly used types

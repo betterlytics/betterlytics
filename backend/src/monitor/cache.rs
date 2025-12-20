@@ -10,6 +10,7 @@ use tracing::{info, warn};
 
 use crate::metrics::MetricsCollector;
 use crate::monitor::{MonitorCheck, MonitorCheckDataSource};
+use crate::utils::spawn_supervised;
 
 const HEALTH_CHECK_INTERVAL: StdDuration = StdDuration::from_secs(30);
 
@@ -171,40 +172,22 @@ impl MonitorCache {
     }
 
     fn spawn_refresh_tasks(self: &Arc<Self>) {
-        Self::spawn_supervised("partial_refresh", Arc::clone(self), Self::partial_refresh_loop);
-        Self::spawn_supervised("full_refresh", Arc::clone(self), Self::full_refresh_loop);
-        Self::spawn_supervised("health_monitor", Arc::clone(self), Self::health_monitor_loop);
-    }
+        let this = Arc::clone(self);
+        spawn_supervised("monitor_cache_partial_refresh", move || {
+            let this = Arc::clone(&this);
+            async move { Self::partial_refresh_loop(this).await }
+        });
 
-    /// Spawn a task with automatic restart supervision.
-    fn spawn_supervised<F, Fut>(name: &'static str, this: Arc<Self>, task_fn: F)
-    where
-        F: Fn(Arc<Self>) -> Fut + Send + 'static,
-        Fut: std::future::Future<Output = ()> + Send + 'static,
-    {
-        tokio::spawn(async move {
-            let mut restart_count: u32 = 0;
-            const MAX_BACKOFF_SECS: u64 = 60;
-            const BASE_BACKOFF_SECS: u64 = 1;
+        let this = Arc::clone(self);
+        spawn_supervised("monitor_cache_full_refresh", move || {
+            let this = Arc::clone(&this);
+            async move { Self::full_refresh_loop(this).await }
+        });
 
-            loop {
-                info!(task = name, restart_count, "Starting monitor cache task");
-                
-                task_fn(Arc::clone(&this)).await;
-
-                // If we get here, the loop exited unexpectedly
-                restart_count = restart_count.saturating_add(1);
-                let backoff_secs = (BASE_BACKOFF_SECS << restart_count.min(6)).min(MAX_BACKOFF_SECS);
-
-                tracing::error!(
-                    task = name,
-                    restart_count,
-                    backoff_secs,
-                    "Monitor cache task exited unexpectedly - restarting after backoff"
-                );
-
-                tokio::time::sleep(StdDuration::from_secs(backoff_secs)).await;
-            }
+        let this = Arc::clone(self);
+        spawn_supervised("monitor_cache_health", move || {
+            let this = Arc::clone(&this);
+            async move { Self::health_monitor_loop(this).await }
         });
     }
 
