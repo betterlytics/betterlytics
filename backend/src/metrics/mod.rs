@@ -45,6 +45,8 @@ pub struct MetricsCollector {
     monitor_probe_reason_total: IntCounterVec,
     monitor_probe_total: IntCounter,
     monitor_probe_latency_seconds: HistogramVec,
+    monitor_active_probes: Gauge,
+    monitor_writer_queue_depth: Gauge,
 
     // System info
     system: Arc<RwLock<System>>,
@@ -170,6 +172,16 @@ impl MetricsCollector {
             &["kind"],
         )?;
 
+        let monitor_active_probes = Gauge::with_opts(Opts::new(
+            "monitor_active_probes",
+            "Current number of concurrent monitor probes in flight",
+        ))?;
+
+        let monitor_writer_queue_depth = Gauge::with_opts(Opts::new(
+            "monitor_writer_queue_depth",
+            "Current depth of the monitor writer channel queue",
+        ))?;
+
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
         registry.register(Box::new(system_memory_total.clone()))?;
@@ -192,6 +204,8 @@ impl MetricsCollector {
         registry.register(Box::new(monitor_probe_reason_total.clone()))?;
         registry.register(Box::new(monitor_probe_total.clone()))?;
         registry.register(Box::new(monitor_probe_latency_seconds.clone()))?;
+        registry.register(Box::new(monitor_active_probes.clone()))?;
+        registry.register(Box::new(monitor_writer_queue_depth.clone()))?;
 
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -221,6 +235,8 @@ impl MetricsCollector {
             monitor_probe_reason_total,
             monitor_probe_total,
             monitor_probe_latency_seconds,
+            monitor_active_probes,
+            monitor_writer_queue_depth,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -349,6 +365,14 @@ impl MetricsCollector {
         self.monitor_probe_latency_seconds
             .with_label_values(&[kind])
             .observe(latency.as_secs_f64());
+    }
+
+    pub fn set_monitor_active_probes(&self, count: usize) {
+        self.monitor_active_probes.set(count as f64);
+    }
+
+    pub fn set_monitor_writer_queue_depth(&self, depth: usize) {
+        self.monitor_writer_queue_depth.set(depth as f64);
     }
 
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {

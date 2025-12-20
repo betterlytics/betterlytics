@@ -468,6 +468,11 @@ async fn run_loop<S: RunnerStrategy>(
             });
         }
 
+        // Report active probe count for this tick
+        if let Some(ref m) = metrics {
+            m.set_monitor_active_probes(set.len());
+        }
+
         let mut collected: Vec<MonitorResultRow> = Vec::new();
         while let Some(res) = set.join_next().await {
             if let Ok(Some((check, outcome, finished_at))) = res {
@@ -516,6 +521,11 @@ async fn run_loop<S: RunnerStrategy>(
             );
             if let Err(err) = writer.enqueue_rows(collected) {
                 warn!(runner = config.name, error = ?err, "Failed to enqueue monitor rows");
+            }
+
+            // Report writer queue depth
+            if let Some(ref m) = metrics {
+                m.set_monitor_writer_queue_depth(writer.queue_depth());
             }
         }
     }

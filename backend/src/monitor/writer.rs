@@ -54,6 +54,10 @@ impl MonitorWriter {
             }
         });
     }
+
+    pub fn queue_depth(&self) -> usize {
+        MONITOR_CHANNEL_CAPACITY - self.sender.capacity()
+    }
 }
 
 const MONITOR_BATCH_SIZE: usize = 500;
