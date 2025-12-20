@@ -69,14 +69,9 @@ export function ResponseTimeChart({ data }: ResponseTimeChartProps) {
       }
       data={chartData}
       granularity={RESPONSE_TIME_GRANULARITY}
-      formatValue={formatLatency}
+      formatValue={formatCompactFromMilliseconds}
       series={SERIES}
       className='border-border/70 bg-card/80 shadow-lg shadow-black/10'
     />
   );
-}
-
-function formatLatency(value: number) {
-  if (value == null || Number.isNaN(value)) return '—';
-  return formatCompactFromMilliseconds(value);
 }

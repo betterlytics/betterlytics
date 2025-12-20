@@ -15,12 +15,14 @@ type MonitorDetailParams = {
 
 export default async function MonitorDetailPage({ params }: MonitorDetailParams) {
   const { dashboardId, monitorId } = await params;
+
   const monitorPromise = fetchMonitorCheckAction(dashboardId, monitorId);
   const metricsPromise = fetchMonitorMetricsAction(dashboardId, monitorId);
   const recentChecksPromise = fetchRecentMonitorResultsAction(dashboardId, monitorId);
   const incidentsPromise = fetchMonitorIncidentsAction(dashboardId, monitorId);
   const tlsPromise = fetchLatestMonitorTlsResultAction(dashboardId, monitorId);
   const uptimePromise = fetchMonitorUptimeAction(dashboardId, monitorId, 180);
+
   const [monitor, metrics, recentChecks, incidents, tls, uptime] = await Promise.all([
     monitorPromise,
     metricsPromise,

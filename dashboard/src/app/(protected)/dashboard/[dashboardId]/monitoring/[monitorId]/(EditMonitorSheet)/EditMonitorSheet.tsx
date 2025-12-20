@@ -31,9 +31,9 @@ import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useTranslations } from 'next-intl';
 import { SettingToggle } from './SettingToggle';
-import { EmailTokenInput } from './EmailTokenInput';
+import { EmailTokenInput } from '../../../../../../../components/inputs/EmailTokenInput';
 import { useMonitorForm } from './useMonitorForm';
-import { LabeledSlider } from './MonitorSliders';
+import { LabeledSlider } from './LabeledSlider';
 import {
   MONITOR_INTERVAL_MARKS,
   REQUEST_TIMEOUT_MARKS,
@@ -199,7 +199,6 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
               <AdvancedSettingsSection form={form} isPending={isPending} />
             </div>
 
-            {/* Footer */}
             <div className='border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 flex items-center justify-between gap-3 border-t px-6 py-4 backdrop-blur'>
               <div className='flex items-center gap-2'>
                 {form.isDirty && (
@@ -436,7 +435,7 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
                       <Input
                         placeholder='Header name'
                         value={header.key}
-                        onChange={(e) => form.updateHeader(index, 'key', e.target.value)}
+                        onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
                         disabled={isPending}
                         className='h-9 flex-1 rounded-none border-0 text-sm focus-visible:z-10 focus-visible:ring-1'
                       />
@@ -444,7 +443,7 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
                       <Input
                         placeholder='Value'
                         value={header.value}
-                        onChange={(e) => form.updateHeader(index, 'value', e.target.value)}
+                        onChange={(e) => form.updateRequestHeader(index, 'value', e.target.value)}
                         disabled={isPending}
                         className='h-9 flex-1 rounded-none border-0 text-sm focus-visible:ring-1'
                       />
@@ -453,7 +452,7 @@ function AdvancedSettingsSection({ form, isPending }: { form: FormType; isPendin
                       type='button'
                       variant='ghost'
                       size='icon'
-                      onClick={() => form.removeHeader(index)}
+                      onClick={() => form.removeRequestHeader(index)}
                       disabled={isPending || !showDeleteButton}
                       className={`h-9 w-9 flex-shrink-0 cursor-pointer ${
                         showDeleteButton

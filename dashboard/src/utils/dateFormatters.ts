@@ -120,7 +120,7 @@ export function formatShortFromMilliseconds(milliseconds: number): string {
 
 // Compact duration formatters (short units: s/ms)
 export function formatCompactSeconds(seconds: number): string {
-  if (!Number.isFinite(seconds)) return '-';
+  if (!Number.isFinite(seconds)) return '—';
   if (Math.abs(seconds) < 1) {
     return `${Math.round(seconds * 1000)} ms`;
   }
@@ -130,7 +130,10 @@ export function formatCompactSeconds(seconds: number): string {
   }).format(seconds)} s`;
 }
 
-export function formatCompactFromMilliseconds(milliseconds: number): string {
+export function formatCompactFromMilliseconds(milliseconds: number | null | undefined): string {
+  if (milliseconds == null || typeof milliseconds !== 'number' || !Number.isFinite(milliseconds)) {
+    return '—';
+  }
   return formatCompactSeconds(milliseconds / 1000);
 }
 

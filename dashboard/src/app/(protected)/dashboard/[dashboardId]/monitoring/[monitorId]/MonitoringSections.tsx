@@ -24,6 +24,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { MonitoringTooltip } from './MonitoringTooltip';
 import { formatPercentage } from '@/utils/formatters';
 import { getReasonMessage } from '@/lib/monitorReasonCodes';
+import { Label } from '@/components/ui/label';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return <ResponseTimeChart data={metrics?.latencySeries ?? []} />;
@@ -144,7 +145,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                   : labels('noData');
               return (
                 <MonitoringTooltip key={cell.key} title={displayDate} description={label}>
-                  <span
+                  <Label
                     className={`hover:ring-primary/60 h-[14px] w-[14px] rounded-[3px] ${toneClass} transition ring-inset hover:ring-1`}
                     aria-label={`${displayDate} · ${label}`}
                   />
@@ -160,9 +161,9 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
               key={stat.label}
               className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
             >
-              <span className='text-muted-foreground font-semibold tracking-wide'>
+              <Label className='text-muted-foreground font-semibold tracking-wide'>
                 {stat.label ?? t('uptime.stats.label', { days: totalDays })}
-              </span>
+              </Label>
               <div className='text-right'>
                 <div className={uptimeToneClass(stat.percent)}>
                   {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
@@ -190,7 +191,7 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
       <TableCell>
         <div className='flex items-center gap-2'>
           <CheckStatusDot presentation={presentation} label={label} />
-          <span className='text-foreground font-semibold capitalize'>{label}</span>
+          <Label className='text-foreground font-semibold capitalize'>{label}</Label>
         </div>
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
@@ -214,16 +215,14 @@ function CheckRow({ check }: { check: MonitorResult }) {
       <TableCell>
         <div className='flex items-center gap-2'>
           <CheckStatusDot presentation={presentation} label={label} />
-          <span className='text-foreground font-semibold capitalize'>{label}</span>
+          <Label className='text-foreground font-semibold capitalize'>{label}</Label>
         </div>
       </TableCell>
       <TableCell className='text-muted-foreground w-[150px] text-xs whitespace-nowrap sm:text-sm'>
         {formatDistanceToNow(timestamp, { addSuffix: true })}
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
-        <span className='text-foreground font-semibold'>
-          {check.latencyMs == null ? '—' : formatCompactFromMilliseconds(check.latencyMs)}
-        </span>
+        <Label className='text-foreground font-semibold'>{formatCompactFromMilliseconds(check.latencyMs)}</Label>
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{check.statusCode ?? '—'}</TableCell>
       <TableCell className='text-muted-foreground hidden text-xs sm:table-cell sm:text-sm'>
@@ -234,7 +233,9 @@ function CheckRow({ check }: { check: MonitorResult }) {
 }
 
 function CheckStatusDot({ presentation, label }: { presentation: CheckStatusPresentation; label: string }) {
-  return <span className={`inline-block h-2.5 w-2.5 rounded-full ${presentation.theme.dot}`} aria-label={label} />;
+  return (
+    <Label className={`inline-block h-2.5 w-2.5 rounded-full ${presentation.theme.dot}`} aria-label={label} />
+  );
 }
 
 function uptimeToneClass(percent: number | null) {

@@ -28,6 +28,7 @@ import { IncidentsCard, RecentChecksCard, ResponseTimeCard, Uptime180DayCard } f
 import { MonitorSummaryTiles } from './MonitorSummaryTiles';
 import { useTranslations } from 'next-intl';
 import { MonitorStatusBadge } from '../components/MonitorStatusBadge';
+import { Label } from '@/components/ui/label';
 
 type MonitorDetailClientProps = {
   dashboardId: string;
@@ -123,14 +124,14 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
                   tActions('resuming')
                 )
               ) : (
-                <span className='inline-flex items-center gap-1.5'>
+                <Label className='inline-flex items-center gap-1.5'>
                   {monitorData.isEnabled ? (
                     <PauseCircle className='h-4 w-4' aria-hidden />
                   ) : (
                     <PlayCircle className='h-4 w-4' aria-hidden />
                   )}
-                  <span>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</span>
-                </span>
+                  <Label>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</Label>
+                </Label>
               )}
             </Button>
             <EditMonitorDialog
@@ -139,7 +140,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
               trigger={
                 <Button size='sm' variant='outline' className='inline-flex cursor-pointer items-center gap-1.5'>
                   <Pencil className='h-4 w-4' aria-hidden />
-                  <span>{tDetail('actions.edit')}</span>
+                  <Label>{tDetail('actions.edit')}</Label>
                 </Button>
               }
             />
@@ -196,7 +197,7 @@ function MonitorHeader({
         className='text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium transition sm:text-sm'
       >
         <ChevronLeft className='h-4 w-4' />
-        <span>{tHeader('back')}</span>
+        <Label>{tHeader('back')}</Label>
       </Link>
 
       <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
@@ -206,7 +207,7 @@ function MonitorHeader({
             <h1 className='text-xl leading-tight font-semibold sm:text-2xl'>{hostname}</h1>
           </div>
           <div className='text-muted-foreground flex flex-wrap items-center gap-2 pl-1 text-xs sm:text-sm'>
-            <span>{tHeader('monitoring')}</span>
+            <Label>{tHeader('monitoring')}</Label>
             <a href={url} target='_blank' rel='noreferrer' className='text-foreground hover:underline' title={url}>
               {url}
             </a>

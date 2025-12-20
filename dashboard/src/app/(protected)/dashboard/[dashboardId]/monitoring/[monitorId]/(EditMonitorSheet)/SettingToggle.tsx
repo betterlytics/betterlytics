@@ -2,7 +2,6 @@
 
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import type { ReactNode } from 'react';
 
 type SettingToggleProps = {
@@ -15,9 +14,6 @@ type SettingToggleProps = {
   children?: ReactNode;
 };
 
-/**
- * Reusable toggle setting row with label, description, and optional nested content.
- */
 export function SettingToggle({
   id,
   label,
@@ -39,22 +35,6 @@ export function SettingToggle({
         {description && <p className='text-muted-foreground text-xs'>{description}</p>}
       </div>
       {children}
-    </>
-  );
-}
-
-type SettingToggleWithSeparatorProps = SettingToggleProps & {
-  showSeparator?: boolean;
-};
-
-/**
- * SettingToggle with optional separator before it.
- */
-export function SettingToggleWithSeparator({ showSeparator = true, ...props }: SettingToggleWithSeparatorProps) {
-  return (
-    <>
-      {showSeparator && <Separator />}
-      <SettingToggle {...props} />
     </>
   );
 }

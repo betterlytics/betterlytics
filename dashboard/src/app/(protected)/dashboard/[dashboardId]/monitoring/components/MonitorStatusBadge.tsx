@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { type MonitorPresentation } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
 import { useTranslations } from 'next-intl';
+import { Label } from '@/components/ui/label';
 
 type MonitorStatusBadgeProps = {
   presentation: MonitorPresentation;
@@ -18,8 +19,8 @@ export function MonitorStatusBadge({ presentation, className }: MonitorStatusBad
       variant='secondary'
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${theme.badgeBorder} ${theme.badgeBg} ${theme.text} ${className ?? ''}`}
     >
-      <span className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} aria-hidden />
-      <span>{label}</span>
+      <Label className={`h-2.5 w-2.5 rounded-full ${theme.dot}`} aria-hidden />
+      <Label>{label}</Label>
     </Badge>
   );
 }

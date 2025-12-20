@@ -30,7 +30,7 @@ import {
   RECOMMENDED_FAILURE_THRESHOLD,
   nearestIndex,
 } from './[monitorId]/(EditMonitorSheet)/sliderConstants';
-import { LabeledSlider } from './[monitorId]/(EditMonitorSheet)/MonitorSliders';
+import { LabeledSlider } from './[monitorId]/(EditMonitorSheet)/LabeledSlider';
 import { formatCompactDuration } from '@/utils/dateFormatters';
 
 type CreateMonitorDialogProps = {

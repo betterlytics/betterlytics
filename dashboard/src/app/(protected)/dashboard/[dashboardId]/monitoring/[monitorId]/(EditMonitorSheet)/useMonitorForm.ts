@@ -59,7 +59,6 @@ function createInitialState(monitor: MonitorCheck): FormState {
   };
 }
 
-/** Compare two states for equality (ignoring transient input fields) */
 function areStatesEqual(a: FormState, b: FormState): boolean {
   if (
     a.intervalIdx !== b.intervalIdx ||
@@ -97,9 +96,7 @@ function areStatesEqual(a: FormState, b: FormState): boolean {
 export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
   const [state, setState] = useState<FormState>(() => createInitialState(monitor));
   const initialStateRef = useRef<FormState>(createInitialState(monitor));
-  // Track saved state to handle reopening before router.refresh() completes
   const lastSavedStateRef = useRef<FormState | null>(null);
-  // Track monitor.id to detect when the monitor prop actually updates
   const lastMonitorIdRef = useRef<string>(monitor.id);
 
   // Reset state when dialog opens or monitor prop updates
@@ -108,14 +105,10 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
       const monitorChanged = lastMonitorIdRef.current !== monitor.id;
       lastMonitorIdRef.current = monitor.id;
 
-      // Prefer lastSavedState if we have one and monitor hasn't changed (stale prop scenario)
-      // Otherwise use the monitor prop (fresh data from router.refresh or new monitor)
       let initial: FormState;
       if (lastSavedStateRef.current && !monitorChanged) {
-        // We saved recently and monitor prop hasn't updated yet - use saved state
         initial = lastSavedStateRef.current;
       } else {
-        // Fresh monitor prop or first open - use monitor data and clear saved state
         initial = createInitialState(monitor);
         lastSavedStateRef.current = null;
       }
@@ -125,14 +118,11 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
     }
   }, [monitor, isOpen]);
 
-  // Computed values
   const intervalSeconds = MONITOR_INTERVAL_MARKS[state.intervalIdx];
   const timeoutMs = REQUEST_TIMEOUT_MARKS[state.timeoutIdx];
 
-  // Dirty state tracking
   const isDirty = useMemo(() => !areStatesEqual(state, initialStateRef.current), [state]);
 
-  // State updaters
   const setIntervalIdx = (idx: number) => setState((s) => ({ ...s, intervalIdx: idx }));
   const setTimeoutIdx = (idx: number) => setState((s) => ({ ...s, timeoutIdx: idx }));
   const setCheckSslErrors = (v: boolean) => setState((s) => ({ ...s, checkSslErrors: v }));
@@ -140,12 +130,10 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
   const setHttpMethod = (v: HttpMethod) => setState((s) => ({ ...s, httpMethod: v }));
   const setStatusCodeInput = (v: string) => setState((s) => ({ ...s, statusCodeInput: v }));
 
-  // Alert updaters
   const updateAlert = <K extends keyof AlertConfig>(key: K, value: AlertConfig[K]) =>
     setState((s) => ({ ...s, alerts: { ...s.alerts, [key]: value } }));
 
-  // Header management
-  const updateHeader = (index: number, field: 'key' | 'value', value: string) => {
+  const updateRequestHeader = (index: number, field: 'key' | 'value', value: string) => {
     setState((s) => {
       const newHeaders = s.requestHeaders.map((h, i) => (i === index ? { ...h, [field]: value } : h));
       const isLastRow = index === s.requestHeaders.length - 1;
@@ -157,7 +145,7 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
     });
   };
 
-  const removeHeader = (index: number) => {
+  const removeRequestHeader = (index: number) => {
     setState((s) => {
       const newHeaders = s.requestHeaders.filter((_, i) => i !== index);
       const hasEmptyRow = newHeaders.some((h) => h.key === '' && h.value === '');
@@ -233,7 +221,6 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
     }));
   };
 
-  // Get data for save
   const getFormData = () => ({
     intervalSeconds,
     timeoutMs,
@@ -251,7 +238,6 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
     failureThreshold: state.alerts.failureThreshold,
   });
 
-  // Alternative email add that returns success boolean (for EmailTokenInput)
   const tryAddAlertEmail = (email: string): boolean => {
     const normalized = email.trim().toLowerCase();
     if (!normalized) return false;
@@ -292,8 +278,8 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
     handleStatusCodeInputChange,
     addStatusCode,
     removeStatusCode,
-    updateHeader,
-    removeHeader,
+    updateRequestHeader,
+    removeRequestHeader,
     updateAlert,
     tryAddAlertEmail,
     removeAlertEmail,

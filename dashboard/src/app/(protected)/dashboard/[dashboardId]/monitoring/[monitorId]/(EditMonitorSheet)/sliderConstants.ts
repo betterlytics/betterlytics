@@ -1,4 +1,4 @@
-import { type SliderMark } from './MonitorSliders';
+import { type SliderMark } from './LabeledSlider';
 
 // 30s through 59s (1-second ticks), then 1m through 59m (1-minute ticks), then 1h through 24h (1-hour ticks)
 export const MONITOR_INTERVAL_MARKS = [

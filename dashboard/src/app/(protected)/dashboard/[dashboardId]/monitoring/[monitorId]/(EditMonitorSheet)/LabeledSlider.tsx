@@ -39,28 +39,26 @@ export function LabeledSlider({
 
   return (
     <div className='space-y-4'>
-      {/* Header with label, badge, and value pill */}
       <div className='flex items-baseline justify-between'>
         <div className='space-y-0.5'>
           <div className='flex items-center gap-2'>
             <Label className='text-sm font-medium'>{label}</Label>
             {badge && (
-              <span className='rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400'>
+              <Label className='rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400'>
                 {badge}
-              </span>
+              </Label>
             )}
           </div>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
-        <span className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm font-semibold dark:text-blue-500'>
+        <Label className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm font-semibold dark:text-blue-500'>
           {formatValue(value)}
           {isRecommended && (
-            <span className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>(recommended)</span>
+            <Label className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>(recommended)</Label>
           )}
-        </span>
+        </Label>
       </div>
 
-      {/* Slider with marks */}
       <div className='space-y-3'>
         <Slider
           value={[value]}
@@ -74,7 +72,7 @@ export function LabeledSlider({
           {marks.map(({ idx, label: markLabel }) => {
             const percent = ((idx - min) / totalSteps) * 100;
             return (
-              <span
+              <Label
                 key={idx}
                 className='text-muted-foreground absolute text-[10px]'
                 style={{
@@ -83,7 +81,7 @@ export function LabeledSlider({
                 }}
               >
                 {markLabel}
-              </span>
+              </Label>
             );
           })}
         </div>

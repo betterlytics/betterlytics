@@ -9,6 +9,7 @@ import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+import { Label } from '@/components/ui/label';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -63,7 +64,6 @@ const STATUS_FILTER_STATES: Record<StatusFilter, MonitorOperationalState[] | nul
   ssl: null, // SSL filter uses different logic
 };
 
-/** Sort priority for operational states (lower = more urgent) */
 const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
   down: 0,
   degraded: 1,
@@ -220,7 +220,7 @@ function FilterSelectValue({ label, Icon = Filter }: { label: string; Icon?: Luc
   return (
     <div className='flex items-center gap-1'>
       <Icon className='h-3.5 w-3.5 opacity-60' />
-      <span className='truncate'>{label}</span>
+      <Label className='truncate'>{label}</Label>
     </div>
   );
 }
