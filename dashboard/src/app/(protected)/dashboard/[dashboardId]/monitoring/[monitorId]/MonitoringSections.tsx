@@ -23,9 +23,7 @@ import { ResponseTimeChart } from './ResponseTimeChart';
 import { useLocale, useTranslations } from 'next-intl';
 import { MonitoringTooltip } from './MonitoringTooltip';
 import { formatPercentage } from '@/utils/formatters';
-import { getReasonMessage } from '@/lib/monitorReasonCodes';
-
-const SECONDARY_BADGE_CLASS = 'border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs';
+import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return <ResponseTimeChart data={metrics?.latencySeries ?? []} />;
@@ -183,10 +181,12 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
 
 function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
   const tCheckStatus = useTranslations('monitoring.checkStatus');
+  const tReason = useTranslations('monitor.reason');
   const start = new Date(segment.start);
   const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000)) : '—';
   const presentation = presentCheckStatus(segment.status);
   const label = tCheckStatus(presentation.labelKey);
+  const reasonKey = getReasonTranslationKey(segment.reason);
   return (
     <TableRow className='text-sm'>
       <TableCell>
@@ -195,9 +195,7 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </div>
       </TableCell>
-      <TableCell className='text-muted-foreground text-xs sm:text-sm'>
-        {getReasonMessage(segment.reason)}
-      </TableCell>
+      <TableCell className='text-muted-foreground text-xs sm:text-sm'>{tReason(reasonKey)}</TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
         {formatDistanceToNow(start, { addSuffix: true })}
       </TableCell>
@@ -208,9 +206,11 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
 
 function CheckRow({ check }: { check: MonitorResult }) {
   const tCheckStatus = useTranslations('monitoring.checkStatus');
+  const tReason = useTranslations('monitor.reason');
   const timestamp = new Date(check.ts);
   const presentation = presentCheckStatus(check.status);
   const label = tCheckStatus(presentation.labelKey);
+  const reasonKey = getReasonTranslationKey(check.reasonCode);
   return (
     <TableRow className='text-sm'>
       <TableCell>
@@ -227,7 +227,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{check.statusCode ?? '—'}</TableCell>
       <TableCell className='text-muted-foreground hidden text-xs sm:table-cell sm:text-sm'>
-        {getReasonMessage(check.reasonCode)}
+        {tReason(reasonKey)}
       </TableCell>
     </TableRow>
   );

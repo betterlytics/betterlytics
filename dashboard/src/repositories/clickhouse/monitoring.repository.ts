@@ -4,26 +4,22 @@ import {
   MonitorDailyUptimeSchema,
   RawMonitorMetricsSchema,
   MonitorResultSchema,
-  MonitorStatusSchema,
   MonitorTlsResultSchema,
   MonitorUptimeBucketSchema,
+  LatestCheckInfoSchema,
+  LatestIncidentInfoSchema,
   type MonitorUptimeBucket,
   type MonitorDailyUptime,
   type RawMonitorMetrics,
   type MonitorResult,
-  type MonitorStatus,
   type MonitorTlsResult,
+  type LatestCheckInfo,
+  type LatestIncidentInfo,
   MonitorIncidentSegmentSchema,
   type MonitorIncidentSegment,
 } from '@/entities/analytics/monitoring.entities';
 import { toIsoUtc } from '@/utils/dateHelpers';
 
-type LastCheckRow = {
-  ts: string;
-  status: MonitorStatus;
-  effective_interval_seconds: number | null;
-  backoff_level: number | null;
-};
 type LatencyRow = { avg_ms: number | null; min_ms: number | null; max_ms: number | null };
 type UptimeBucketRow = { bucket: string; up_ratio: number | null };
 type LatencySeriesRow = { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null };
@@ -41,9 +37,9 @@ type LatestIncidentRow = {
 };
 
 export async function getMonitorMetrics(checkId: string, siteId: string): Promise<RawMonitorMetrics> {
-  const [uptimeRow, lastRow, latencyRow, buckets, latencySeries, incidentCount] = await Promise.all([
+  const [uptimeRow, lastCheckInfo, latencyRow, buckets, latencySeries, incidentCount] = await Promise.all([
     fetchUptime(checkId, siteId),
-    fetchLastCheck(checkId, siteId),
+    getLatestCheckInfoForMonitors([checkId], siteId).then((r) => r[checkId] ?? null),
     fetchLatency(checkId, siteId),
     fetchUptimeBuckets(checkId, siteId),
     fetchLatencySeries(checkId, siteId),
@@ -53,8 +49,8 @@ export async function getMonitorMetrics(checkId: string, siteId: string): Promis
   const uptimePercent = uptimeRow.total_count > 0 ? (uptimeRow.up_count / uptimeRow.total_count) * 100 : null;
 
   return RawMonitorMetricsSchema.parse({
-    lastCheckAt: lastRow?.ts ? toIsoUtc(lastRow.ts) : null,
-    lastStatus: lastRow?.status ?? null,
+    lastCheckAt: lastCheckInfo?.ts ? toIsoUtc(lastCheckInfo.ts) : null,
+    lastStatus: lastCheckInfo?.status ?? null,
     uptime24hPercent: uptimePercent,
     incidents24h: incidentCount,
     uptimeBuckets: buckets.map((b) => ({
@@ -72,8 +68,8 @@ export async function getMonitorMetrics(checkId: string, siteId: string): Promis
       p95Ms: point.p95_ms,
       avgMs: point.avg_ms,
     })),
-    effectiveIntervalSeconds: lastRow?.effective_interval_seconds ?? null,
-    backoffLevel: lastRow?.backoff_level ?? null,
+    effectiveIntervalSeconds: lastCheckInfo?.effectiveIntervalSeconds ?? null,
+    backoffLevel: lastCheckInfo?.backoffLevel ?? null,
   });
 }
 
@@ -261,21 +257,7 @@ export async function getMonitorIncidentSegments(
 export async function getLatestIncidentsForMonitors(
   checkIds: string[],
   siteId: string,
-): Promise<
-  Record<
-    string,
-    {
-      state: string;
-      severity: string;
-      lastStatus: string | null;
-      startedAt: string | null;
-      lastEventAt: string | null;
-      resolvedAt: string | null;
-      failureCount: number | null;
-      reasonCode: string | null;
-    }
-  >
-> {
+): Promise<Record<string, LatestIncidentInfo>> {
   if (!checkIds.length) return {};
 
   const query = safeSql`
@@ -302,22 +284,8 @@ export async function getLatestIncidentsForMonitors(
     })
     .toPromise()) as LatestIncidentRow[];
 
-  return rows.reduce<
-    Record<
-      string,
-      {
-        state: string;
-        severity: string;
-        lastStatus: string | null;
-        startedAt: string | null;
-        lastEventAt: string | null;
-        resolvedAt: string | null;
-        failureCount: number | null;
-        reasonCode: string | null;
-      }
-    >
-  >((acc, row) => {
-    acc[row.check_id] = {
+  return rows.reduce<Record<string, LatestIncidentInfo>>((acc, row) => {
+    acc[row.check_id] = LatestIncidentInfoSchema.parse({
       state: row.state,
       severity: row.severity,
       lastStatus: row.last_status,
@@ -326,7 +294,7 @@ export async function getLatestIncidentsForMonitors(
       resolvedAt: toIsoUtc(row.resolved_at) ?? row.resolved_at,
       failureCount: row.failure_count,
       reasonCode: row.reason_code,
-    };
+    });
     return acc;
   }, {});
 }
@@ -370,6 +338,44 @@ export async function getMonitorUptimeBucketsForMonitors(
   }, {});
 }
 
+export async function getLatestCheckInfoForMonitors(
+  checkIds: string[],
+  siteId: string,
+): Promise<Record<string, LatestCheckInfo>> {
+  if (!checkIds.length) return {};
+
+  const query = safeSql`
+    SELECT
+      check_id,
+      toString(ts) AS ts,
+      status,
+      effective_interval_seconds,
+      backoff_level
+    FROM analytics.monitor_results
+    WHERE check_id IN {check_ids:Array(String)}
+      AND kind != 'tls'
+      AND site_id = {site_id:String}
+    ORDER BY check_id, ts DESC
+    LIMIT 1 BY check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
+    })
+    .toPromise()) as any[];
+
+  return rows.reduce<Record<string, LatestCheckInfo>>((acc, row) => {
+    acc[row.check_id] = LatestCheckInfoSchema.parse({
+      ts: toIsoUtc(row.ts) ?? null,
+      status: row.status ?? null,
+      effectiveIntervalSeconds: row.effective_interval_seconds ?? null,
+      backoffLevel: row.backoff_level ?? null,
+    });
+    return acc;
+  }, {});
+}
+
 function computeDurationMs(start?: string | null, end?: string | null): number | null {
   if (!start || !end) return null;
   const startIso = toIsoUtc(start) ?? start;
@@ -397,26 +403,6 @@ async function fetchUptime(checkId: string, siteId: string): Promise<{ up_count:
     .toPromise()) as any[];
 
   return row ?? { up_count: 0, total_count: 0 };
-}
-
-async function fetchLastCheck(checkId: string, siteId: string): Promise<LastCheckRow | null> {
-  const query = safeSql`
-    SELECT ts, status, effective_interval_seconds, backoff_level
-    FROM analytics.monitor_results
-    WHERE check_id = {check_id:String}
-      AND kind != 'tls'
-      AND site_id = {site_id:String}
-    ORDER BY ts DESC
-    LIMIT 1
-  `;
-
-  const [row] = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
-    })
-    .toPromise()) as any[];
-
-  return row ?? null;
 }
 
 async function fetchLatency(checkId: string, siteId: string): Promise<LatencyRow> {

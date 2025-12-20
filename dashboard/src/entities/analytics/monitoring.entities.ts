@@ -159,6 +159,28 @@ export const MonitorMetricsSchema = RawMonitorMetricsSchema.extend({
 
 export type MonitorMetrics = z.infer<typeof MonitorMetricsSchema>;
 
+export const LatestCheckInfoSchema = z.object({
+  ts: z.string().nullable(),
+  status: MonitorStatusSchema.nullable(),
+  effectiveIntervalSeconds: z.number().int().nullable(),
+  backoffLevel: z.number().int().nullable(),
+});
+
+export type LatestCheckInfo = z.infer<typeof LatestCheckInfoSchema>;
+
+export const LatestIncidentInfoSchema = z.object({
+  state: z.string(),
+  severity: z.string(),
+  lastStatus: z.string().nullable(),
+  startedAt: z.string().nullable(),
+  lastEventAt: z.string().nullable(),
+  resolvedAt: z.string().nullable(),
+  failureCount: z.number().int().nullable(),
+  reasonCode: z.string().nullable(),
+});
+
+export type LatestIncidentInfo = z.infer<typeof LatestIncidentInfoSchema>;
+
 export const MonitorResultSchema = z.object({
   ts: z.string(),
   status: MonitorStatusSchema,

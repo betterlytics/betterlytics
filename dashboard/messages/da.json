@@ -1198,7 +1198,7 @@
       "invalid_host": "Ugyldigt værtsnavn",
       "blocked_ip_literal": "IP-adresse ikke tilladt",
       "dns_blocked": "DNS peger på blokeret adresse",
-      "dns_error": "DNS-opløsning mislykkedes",
+      "dns_error": "DNS-opslag mislykkedes",
       "unknown": "Ukendt fejl"
     }
   },

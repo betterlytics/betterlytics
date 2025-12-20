@@ -68,7 +68,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
             href={`/dashboard/${monitor.dashboardId}/monitoring/${monitor.id}`}
             className='group focus-visible:ring-primary/40 focus-visible:ring-offset-background block rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none'
           >
-            <Card className='border-border/70 bg-card/80 hover:border-border/90 hover:bg-card/90 relative overflow-hidden transition'>
+            <Card className='border-border/70 bg-card/80 hover:border-border hover:bg-card relative overflow-hidden transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'>
               <div
                 className={`absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b ${statusPresentation.gradient}`}
                 aria-hidden

@@ -1,29 +1,32 @@
-export const reasonCodeToTranslationKey: Record<string, string> = {
-  ok: 'monitor.reason.ok',
-  tls_handshake_failed: 'monitor.reason.tls_handshake_failed',
-  tls_missing_certificate: 'monitor.reason.tls_missing_certificate',
-  tls_expired: 'monitor.reason.tls_expired',
-  tls_expiring_soon: 'monitor.reason.tls_expiring_soon',
-  tls_parse_error: 'monitor.reason.tls_parse_error',
-  http_4xx: 'monitor.reason.http_4xx',
-  http_5xx: 'monitor.reason.http_5xx',
-  http_other: 'monitor.reason.http_other',
-  http_timeout: 'monitor.reason.http_timeout',
-  http_connect_error: 'monitor.reason.http_connect_error',
-  http_body_error: 'monitor.reason.http_body_error',
-  http_request_error: 'monitor.reason.http_request_error',
-  http_error: 'monitor.reason.http_error',
-  too_many_redirects: 'monitor.reason.too_many_redirects',
-  redirect_join_failed: 'monitor.reason.redirect_join_failed',
-  scheme_blocked: 'monitor.reason.scheme_blocked',
-  port_blocked: 'monitor.reason.port_blocked',
-  invalid_host: 'monitor.reason.invalid_host',
-  blocked_ip_literal: 'monitor.reason.blocked_ip_literal',
-  dns_blocked: 'monitor.reason.dns_blocked',
-  dns_error: 'monitor.reason.dns_error',
-};
+export const REASON_CODE_KEYS = [
+  'ok',
+  'tls_handshake_failed',
+  'tls_missing_certificate',
+  'tls_expired',
+  'tls_expiring_soon',
+  'tls_parse_error',
+  'http_4xx',
+  'http_5xx',
+  'http_other',
+  'http_timeout',
+  'http_connect_error',
+  'http_body_error',
+  'http_request_error',
+  'http_error',
+  'too_many_redirects',
+  'redirect_join_failed',
+  'scheme_blocked',
+  'port_blocked',
+  'invalid_host',
+  'blocked_ip_literal',
+  'dns_blocked',
+  'dns_error',
+  'unknown',
+] as const;
 
-export const reasonCodeFallbackMessages: Record<string, string> = {
+export type ReasonCodeKey = (typeof REASON_CODE_KEYS)[number];
+
+export const reasonCodeFallbackMessages: Record<ReasonCodeKey, string> = {
   ok: 'Site is healthy',
   tls_handshake_failed: 'SSL/TLS handshake failed',
   tls_missing_certificate: 'SSL certificate not found',
@@ -46,23 +49,23 @@ export const reasonCodeFallbackMessages: Record<string, string> = {
   blocked_ip_literal: 'IP address not allowed',
   dns_blocked: 'DNS resolved to blocked address',
   dns_error: 'DNS resolution failed',
+  unknown: 'Unknown error',
 };
 
 /**
- * Returns a human-readable message for a given reason code.
- * Falls back to a default message if the code is unknown, and logs a warning.
+ * Returns the translation key suffix for a given reason code.
+ * Use with `useTranslations('monitor.reason')` to get the translated message.
+ * Falls back to 'unknown' if the code is unknown, and logs a warning.
  */
-export function getReasonMessage(reasonCode: string | null | undefined): string {
+export function getReasonTranslationKey(reasonCode: string | null | undefined): ReasonCodeKey {
   if (!reasonCode) {
-    return 'Unknown reason';
+    return 'unknown';
   }
 
-  const message = reasonCodeFallbackMessages[reasonCode];
-
-  if (!message) {
-    console.warn(`[Monitor] Missing mapping for reason code: ${reasonCode}`);
-    return `Unknown error (${reasonCode})`;
+  if (reasonCode in reasonCodeFallbackMessages) {
+    return reasonCode as ReasonCodeKey;
   }
 
-  return message;
+  console.warn(`[Monitor] Missing translation key for reason code: ${reasonCode}`);
+  return 'unknown';
 }

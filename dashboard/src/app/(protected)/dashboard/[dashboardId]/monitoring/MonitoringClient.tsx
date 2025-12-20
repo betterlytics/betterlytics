@@ -176,32 +176,60 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
         <div className='flex flex-wrap items-center gap-2'>
           <div className='flex items-center gap-2'>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger size='sm' className='w-auto'>
+              <SelectTrigger className='w-auto cursor-pointer'>
                 <FilterSelectValue label={statusLabel} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>{filtersCopy.statusAll}</SelectItem>
-                <SelectItem value='up'>{filtersCopy.statusUp}</SelectItem>
-                <SelectItem value='degraded'>{filtersCopy.statusDegraded}</SelectItem>
-                <SelectItem value='down'>{filtersCopy.statusDown}</SelectItem>
-                <SelectItem value='ssl'>{filtersCopy.statusSslExpiring}</SelectItem>
-                <SelectItem value='paused'>{filtersCopy.statusPaused}</SelectItem>
-                <SelectItem value='preparing'>{filtersCopy.statusPreparing}</SelectItem>
+                <SelectItem value='all' className='cursor-pointer'>
+                  {filtersCopy.statusAll}
+                </SelectItem>
+                <SelectItem value='up' className='cursor-pointer'>
+                  {filtersCopy.statusUp}
+                </SelectItem>
+                <SelectItem value='degraded' className='cursor-pointer'>
+                  {filtersCopy.statusDegraded}
+                </SelectItem>
+                <SelectItem value='down' className='cursor-pointer'>
+                  {filtersCopy.statusDown}
+                </SelectItem>
+                <SelectItem value='ssl' className='cursor-pointer'>
+                  {filtersCopy.statusSslExpiring}
+                </SelectItem>
+                <SelectItem value='paused' className='cursor-pointer'>
+                  {filtersCopy.statusPaused}
+                </SelectItem>
+                <SelectItem value='preparing' className='cursor-pointer'>
+                  {filtersCopy.statusPreparing}
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-              <SelectTrigger size='sm' className='w-auto'>
+              <SelectTrigger className='w-auto cursor-pointer'>
                 <FilterSelectValue label={sortLabel} Icon={ArrowUpDown} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='downFirst'>{filtersCopy.sortDownFirst}</SelectItem>
-                <SelectItem value='upFirst'>{filtersCopy.sortUpFirst}</SelectItem>
-                <SelectItem value='newest'>{filtersCopy.sortNewest}</SelectItem>
-                <SelectItem value='oldest'>{filtersCopy.sortOldest}</SelectItem>
-                <SelectItem value='nameAsc'>{filtersCopy.sortNameAsc}</SelectItem>
-                <SelectItem value='nameDesc'>{filtersCopy.sortNameDesc}</SelectItem>
-                <SelectItem value='ssl'>{filtersCopy.sortSslExpires}</SelectItem>
+                <SelectItem value='downFirst' className='cursor-pointer'>
+                  {filtersCopy.sortDownFirst}
+                </SelectItem>
+                <SelectItem value='upFirst' className='cursor-pointer'>
+                  {filtersCopy.sortUpFirst}
+                </SelectItem>
+                <SelectItem value='newest' className='cursor-pointer'>
+                  {filtersCopy.sortNewest}
+                </SelectItem>
+                <SelectItem value='oldest' className='cursor-pointer'>
+                  {filtersCopy.sortOldest}
+                </SelectItem>
+                <SelectItem value='nameAsc' className='cursor-pointer'>
+                  {filtersCopy.sortNameAsc}
+                </SelectItem>
+                <SelectItem value='nameDesc' className='cursor-pointer'>
+                  {filtersCopy.sortNameDesc}
+                </SelectItem>
+                <SelectItem value='ssl' className='cursor-pointer'>
+                  {filtersCopy.sortSslExpires}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

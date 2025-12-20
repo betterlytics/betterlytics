@@ -106,7 +106,7 @@ export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialog
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='default' className='w-full sm:w-auto'>
+        <Button variant='default' className='w-full cursor-pointer sm:w-auto'>
           {t('create')}
         </Button>
       </DialogTrigger>
@@ -206,10 +206,16 @@ export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialog
           </div>
 
           <div className='flex justify-end gap-2 pt-2'>
-            <Button type='button' variant='outline' onClick={() => setOpen(false)} disabled={isPending}>
+            <Button
+              type='button'
+              variant='outline'
+              className='cursor-pointer'
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+            >
               {t('actions.cancel')}
             </Button>
-            <Button type='submit' disabled={isPending || hasError} className='min-w-[140px]'>
+            <Button type='submit' disabled={isPending || hasError} className='min-w-[140px] cursor-pointer'>
               {isPending ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />

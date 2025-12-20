@@ -27,6 +27,7 @@ import {
   getMonitorDailyUptime,
   getMonitorMetrics,
   getRecentMonitorResults,
+  getLatestCheckInfoForMonitors,
 } from '@/repositories/clickhouse/monitoring.repository';
 import { normalizeUptimeBuckets, toMonitorMetricsPresentation } from '@/presenters/toMonitorMetrics';
 
@@ -46,10 +47,11 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
   const now = new Date();
-  const [latestIncidents, uptimeBuckets, tlsResults] = await Promise.all([
+  const [latestIncidents, uptimeBuckets, tlsResults, latestCheckInfo] = await Promise.all([
     getLatestIncidentsForMonitors(checkIds, siteId),
     getMonitorUptimeBucketsForMonitors(checkIds, siteId),
     getLatestTlsResultsForMonitors(checkIds, siteId),
+    getLatestCheckInfoForMonitors(checkIds, siteId),
   ]);
 
   return checks.map((check) => {
@@ -59,13 +61,14 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
     const hasResults = rawBuckets.length > 0;
     const operationalState = deriveOperationalState(check.isEnabled, hasResults, { incident });
     const incidentState = incident?.state ?? null;
+    const checkInfo = latestCheckInfo[check.id];
 
     return {
       ...check,
       lastStatus: (incident?.lastStatus as MonitorStatus) ?? null,
       incidentState,
-      effectiveIntervalSeconds: null, // fetch from results if needed
-      backoffLevel: null,
+      effectiveIntervalSeconds: checkInfo?.effectiveIntervalSeconds ?? null,
+      backoffLevel: checkInfo?.backoffLevel ?? null,
       uptimeBuckets: buckets,
       tls: tlsResults[check.id] ?? null,
       operationalState,
