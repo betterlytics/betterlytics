@@ -44,8 +44,7 @@ export const LAYOUT = {
   padding: { top: 20, right: 20, bottom: 24, left: 20 },
   nodeWidth: 16,
   nodeRadius: 2,
-  minNodeHeight: 8,
-  nodeHeightRatio: 0.5,
+  minNodeHeight: 6,
   compressionThreshold: 60,
   maxNodeHeight: 100,
 };
