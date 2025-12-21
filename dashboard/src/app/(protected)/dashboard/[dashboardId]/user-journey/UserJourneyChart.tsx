@@ -170,7 +170,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
               isHighlighted={isHighlighting && highlightState.nodeIds.has(node.id)}
               isMuted={isHighlighting && !highlightState.nodeIds.has(node.id)}
               onHover={handleNodeHover}
-              maxTraffic={graph.maxTraffic}
+              totalEntrySessions={graph.totalEntrySessions}
             />
           ))}
         </g>

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const FILTER_COLUMNS = [
   'url',
+  'domain',
   'device_type',
   'country_code',
   'browser',
