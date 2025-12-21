@@ -12,10 +12,10 @@ export interface SankeyNodeProps {
   isHighlighted: boolean;
   isMuted: boolean;
   onHover: (nodeId: string | null) => void;
-  maxTraffic: number;
+  totalEntrySessions: number;
 }
 
-export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }: SankeyNodeProps) {
+export function SankeyNode({ node, isHighlighted, isMuted, onHover, totalEntrySessions }: SankeyNodeProps) {
   const cardPadding = { x: 7, y: 5 };
   const cardGap = 5;
   const cardHeight = 30;
@@ -28,7 +28,8 @@ export function SankeyNode({ node, isHighlighted, isMuted, onHover, maxTraffic }
   const cardX = node.x + node.width + cardGap;
   const cardY = node.y + node.height / 2 - cardHeight / 2;
 
-  const percentageRaw = maxTraffic > 0 ? (node.totalTraffic / maxTraffic) * 100 : 0;
+  // Percentage of total sessions that reached this node
+  const percentageRaw = totalEntrySessions > 0 ? (node.totalTraffic / totalEntrySessions) * 100 : 0;
   const percentageValue = Math.max(0, Math.min(100, percentageRaw));
   const percentageLabel = formatPercentage(percentageValue, 1);
 
