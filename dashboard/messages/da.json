@@ -1183,6 +1183,12 @@
       "tls_expired": "SSL-certifikat er udløbet",
       "tls_expiring_soon": "SSL-certifikat udløber snart",
       "tls_parse_error": "Kunne ikke læse SSL-certifikat",
+      "tls_hostname_mismatch": "SSL-certifikat matcher ikke værtsnavnet",
+      "tls_untrusted_ca": "SSL-certifikat udstedt af ukendt CA",
+      "tls_not_yet_valid": "SSL-certifikat er endnu ikke gyldigt",
+      "tls_revoked": "SSL-certifikat er blevet tilbagekaldt",
+      "tls_self_signed": "SSL-certifikat er selvsigneret",
+      "tls_connection_failed": "SSL-forbindelse mislykkedes",
       "http_4xx": "Server returnerede en klientfejl",
       "http_5xx": "Server returnerede en serverfejl",
       "http_other": "Uventet HTTP-statuskode",
@@ -1380,6 +1386,15 @@
       "description": "Du har ændringer, der ikke er gemt. De går tabt, hvis du lukker.",
       "keep": "Fortsæt redigering",
       "discard": "Kasser"
+    },
+    "delete": {
+      "trigger": "Slet",
+      "title": "Slet denne overvågning?",
+      "description": "Denne handling kan ikke fortrydes. Alle overvågningsdata og hændelseshistorik slettes permanent.",
+      "cancel": "Annullér",
+      "confirm": "Slet overvågning",
+      "deleting": "Sletter...",
+      "error": "Kunne ikke slette overvågning"
     },
     "sections": {
       "timing": "Tidsindstillinger",

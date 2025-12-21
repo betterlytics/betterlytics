@@ -9,7 +9,7 @@ use std::sync::{Arc, OnceLock};
 use tokio::time::Instant;
 use tokio_rustls::client::TlsStream;
 use tokio_rustls::TlsConnector;
-use tokio_rustls::rustls::{ClientConfig, RootCertStore};
+use tokio_rustls::rustls::{ClientConfig, RootCertStore, CertificateError, Error as RustlsError};
 use tokio_rustls::rustls::pki_types::ServerName;
 use tracing::{debug, warn};
 use url::Url;
@@ -403,7 +403,10 @@ impl MonitorProbe {
         )
         .await
         .map_err(|_| ProbeError::new(ReasonCode::TlsHandshakeFailed, "tls connect timeout"))?
-        .map_err(|e| ProbeError::new(ReasonCode::TlsHandshakeFailed, format!("tls connect: {e}")))?;
+        .map_err(|e| {
+            let reason = classify_tls_error(&e);
+            ProbeError::new(reason, format!("tls connect: {e}"))
+        })?;
 
         let (_, session) = tls_stream.get_ref();
         let peer_certs = session
@@ -497,4 +500,40 @@ fn classify_reqwest_error(err: &reqwest::Error) -> ReasonCode {
 
 fn map_reqwest_error(err: reqwest::Error) -> ProbeError {
     ProbeError::new(classify_reqwest_error(&err), err.to_string())
+}
+
+/// Classify TLS/rustls errors into specific reason codes.
+/// Falls back to string matching if downcast fails.
+/// See: https://docs.rs/rustls/latest/rustls/enum.CertificateError.html
+fn classify_tls_error(err: &std::io::Error) -> ReasonCode {
+    // Try to downcast to rustls::Error
+    if let Some(rustls_err) = err.get_ref().and_then(|e| e.downcast_ref::<RustlsError>()) {
+        if let RustlsError::InvalidCertificate(cert_err) = rustls_err {
+            return match cert_err {
+                CertificateError::NotValidForName => ReasonCode::TlsHostnameMismatch,
+                CertificateError::Expired | CertificateError::ExpiredContext { .. } => ReasonCode::TlsExpired,
+                CertificateError::NotValidYet | CertificateError::NotValidYetContext { .. } => ReasonCode::TlsNotYetValid,
+                CertificateError::Revoked => ReasonCode::TlsRevoked,
+                CertificateError::UnknownIssuer => ReasonCode::TlsUntrustedCa,
+                CertificateError::BadEncoding | CertificateError::BadSignature => ReasonCode::TlsHandshakeFailed,
+                _ => ReasonCode::TlsHandshakeFailed,
+            };
+        }
+    }
+    
+    // Fallback to string matching for wrapped errors
+    let msg = err.to_string().to_lowercase();
+    if msg.contains("notvalidforname") {
+        ReasonCode::TlsHostnameMismatch
+    } else if msg.contains("expired") && !msg.contains("revocation") {
+        ReasonCode::TlsExpired
+    } else if msg.contains("notvalidyet") {
+        ReasonCode::TlsNotYetValid
+    } else if msg.contains("revoked") {
+        ReasonCode::TlsRevoked
+    } else if msg.contains("unknownissuer") {
+        ReasonCode::TlsUntrustedCa
+    } else {
+        ReasonCode::TlsHandshakeFailed
+    }
 }

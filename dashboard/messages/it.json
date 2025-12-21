@@ -1183,6 +1183,12 @@
       "tls_expired": "Il certificato SSL è scaduto",
       "tls_expiring_soon": "Certificato SSL in scadenza",
       "tls_parse_error": "Impossibile analizzare il certificato SSL",
+      "tls_hostname_mismatch": "Il certificato SSL non corrisponde al nome host",
+      "tls_untrusted_ca": "Certificato SSL emesso da CA non attendibile",
+      "tls_not_yet_valid": "Il certificato SSL non è ancora valido",
+      "tls_revoked": "Il certificato SSL è stato revocato",
+      "tls_self_signed": "Il certificato SSL è autofirmato",
+      "tls_connection_failed": "Connessione SSL fallita",
       "http_4xx": "Il server ha restituito un errore client",
       "http_5xx": "Il server ha restituito un errore server",
       "http_other": "Codice di stato HTTP inatteso",
@@ -1380,6 +1386,15 @@
       "description": "Hai modifiche non salvate che andranno perse se chiudi questo pannello.",
       "keep": "Continua a modificare",
       "discard": "Annulla modifiche"
+    },
+    "delete": {
+      "trigger": "Elimina",
+      "title": "Eliminare questo monitor?",
+      "description": "Questa azione non può essere annullata. Tutti i dati di monitoraggio e la cronologia degli incidenti verranno eliminati definitivamente.",
+      "cancel": "Annulla",
+      "confirm": "Elimina monitor",
+      "deleting": "Eliminazione...",
+      "error": "Impossibile eliminare il monitor"
     },
     "sections": {
       "timing": "Tempistiche",

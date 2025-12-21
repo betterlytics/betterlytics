@@ -1180,6 +1180,12 @@
       "tls_expired": "SSL certificate has expired",
       "tls_expiring_soon": "SSL certificate expiring soon",
       "tls_parse_error": "Failed to parse SSL certificate",
+      "tls_hostname_mismatch": "SSL certificate hostname mismatch",
+      "tls_untrusted_ca": "SSL certificate issued by untrusted CA",
+      "tls_not_yet_valid": "SSL certificate not yet valid",
+      "tls_revoked": "SSL certificate has been revoked",
+      "tls_self_signed": "SSL certificate is self-signed",
+      "tls_connection_failed": "SSL connection failed",
       "http_4xx": "Server returned a client error",
       "http_5xx": "Server returned a server error",
       "http_other": "Unexpected HTTP status code",
@@ -1378,6 +1384,15 @@
       "description": "You have unsaved changes that will be lost if you close this sheet.",
       "keep": "Keep editing",
       "discard": "Discard"
+    },
+    "delete": {
+      "trigger": "Delete",
+      "title": "Delete this monitor?",
+      "description": "This action cannot be undone. All monitoring data and incident history will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete monitor",
+      "deleting": "Deleting...",
+      "error": "Failed to delete monitor"
     },
     "sections": {
       "timing": "Timing",
