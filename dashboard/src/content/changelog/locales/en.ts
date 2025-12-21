@@ -2,36 +2,33 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.8',
-    releasedAt: '2025-12-14',
+    version: 'v1.2.9',
+    releasedAt: '2025-12-21',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v128-new-features',
+      id: 'v129-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'User Journey visualization has been redesigned with a modern interface that makes it easier to understand how visitors navigate your site.',
-            'You can now clone existing funnels to quickly create variations or test different configurations.',
+            'You can now save filter combinations and quickly apply them later—perfect for frequently used views.',
+            'Hostname filtering is here! Filter your analytics by hostname to see data for specific subdomains.',
           ],
         },
       ],
     },
     {
-      id: 'v128-improvements-and-fixes',
-      title: 'Improvements & Fixes',
+      id: 'v129-improvements',
+      title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Geography map and weekly heatmap colors have been updated to better highlight differences in visitor numbers.',
-            'Introduced a new /event tracking endpoint with clearer semantics and a privacy-friendly name. Existing /track integrations continue to work without changes.',
-            'Fixed a bug where comparison range tooltips displayed incorrect dates; the underlying data was always correct.',
-            'Fixed an issue where password changes were not working for accounts that signed in with email and password instead of social login.',
+            'User Journey received some finishing touches. Large diagrams now flow more smoothly and are easier to follow.',
           ],
         },
       ],
@@ -40,6 +37,42 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.9',
+      releasedAt: '2025-12-21',
+      title: 'Saved Filters, Hostname Filtering & User Journey Improvements',
+      summary:
+        'Save your favorite filter combinations for quick access, filter analytics by hostname for multi-subdomain setups, and User Journey gets some finishing touches for smoother large diagrams.',
+    },
+    sections: [
+      {
+        id: 'v129-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'You can now save filter combinations and quickly apply them later. Perfect for frequently used views or complex filtering setups you want to revisit.',
+              'Hostname filtering is here! If you have multiple subdomains pointing to the same dashboard, you can now filter your analytics by hostname to see data for specific subdomains.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v129-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'User Journey received some finishing touches. Large diagrams now flow more smoothly and are easier to follow at a glance.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.8',
