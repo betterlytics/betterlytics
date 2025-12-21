@@ -98,7 +98,7 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
   });
 
   const nodeYCenter = new Map<string, number>();
-  const ITERATIONS = 4;
+  const ITERATIONS = 6;
 
   // Initial Y positions
   for (let depth = 0; depth <= graph.maxDepth; depth++) {
@@ -110,7 +110,7 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
     // Forward pass: order by incoming connections
     for (let depth = 1; depth <= graph.maxDepth; depth++) {
       const nodes = orderedGroups.get(depth) || [];
-      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.incoming);
+      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.incoming, graph.maxTraffic);
       orderedGroups.set(depth, sorted);
       updateColumnYCenters(sorted, nodeYCenter, config);
     }
@@ -118,7 +118,7 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
     // Backward pass: order by outgoing connections
     for (let depth = graph.maxDepth - 1; depth >= 0; depth--) {
       const nodes = orderedGroups.get(depth) || [];
-      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.outgoing);
+      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.outgoing, graph.maxTraffic);
       orderedGroups.set(depth, sorted);
       updateColumnYCenters(sorted, nodeYCenter, config);
     }
@@ -129,28 +129,38 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
 
 /**
  * Sort nodes by their barycenter (weighted average Y of connected nodes)
+ * with a size bias heuristic that pushes larger nodes toward the top
  */
 function sortByBarycenter(
   nodes: GraphNode[],
   nodeYCenter: Map<string, number>,
   getConnections: (node: GraphNode) => NodeConnection[],
+  maxTraffic: number,
 ): GraphNode[] {
+  const SIZE_BIAS_WEIGHT = 100;
+
   const withBarycenters = nodes.map((node) => {
     const connections = getConnections(node);
+    let rawBarycenter: number;
+
     if (connections.length === 0) {
-      return { node, barycenter: nodeYCenter.get(node.id) || 0 };
+      rawBarycenter = nodeYCenter.get(node.id) || 0;
+    } else {
+      let weightedSum = 0;
+      let totalWeight = 0;
+      connections.forEach(({ nodeId, value }) => {
+        weightedSum += (nodeYCenter.get(nodeId) || 0) * value;
+        totalWeight += value;
+      });
+      rawBarycenter = totalWeight > 0 ? weightedSum / totalWeight : nodeYCenter.get(node.id) || 0;
     }
 
-    let weightedSum = 0;
-    let totalWeight = 0;
-    connections.forEach(({ nodeId, value }) => {
-      weightedSum += (nodeYCenter.get(nodeId) || 0) * value;
-      totalWeight += value;
-    });
+    const sizeRatio = maxTraffic > 0 ? node.totalTraffic / maxTraffic : 0;
+    const sizeBias = (1 - sizeRatio) * SIZE_BIAS_WEIGHT;
 
     return {
       node,
-      barycenter: totalWeight > 0 ? weightedSum / totalWeight : nodeYCenter.get(node.id) || 0,
+      barycenter: rawBarycenter + sizeBias,
     };
   });
 
