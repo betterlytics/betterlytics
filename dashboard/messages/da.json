@@ -1499,7 +1499,8 @@
         "toastFilterSavedSuccess": "Filter gemt",
         "toastFilterSavedError": "Kunne ikke gemme filter",
         "toastFilterDeletedSuccess": "Filter slettet",
-        "toastFilterDeletedError": "Kunne ikke slette filter"
+        "toastFilterDeletedError": "Kunne ikke slette filter",
+        "toastUndo": "Fortryd"
       },
       "filterBy": "Filtrer efter {label}"
     },

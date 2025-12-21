@@ -1499,7 +1499,8 @@
         "toastFilterSavedSuccess": "Filtro salvato",
         "toastFilterSavedError": "Impossibile salvare il filtro",
         "toastFilterDeletedSuccess": "Filtro eliminato",
-        "toastFilterDeletedError": "Impossibile eliminare il filtro"
+        "toastFilterDeletedError": "Impossibile eliminare il filtro",
+        "toastUndo": "Annulla"
       },
       "filterBy": "Filtra per {label}"
     },

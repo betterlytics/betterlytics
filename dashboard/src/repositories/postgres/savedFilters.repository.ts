@@ -41,3 +41,12 @@ export async function deleteSavedFilterById(dashboardId: string, filterId: strin
     },
   });
 }
+
+export async function restoreSavedFilterById(dashboardId: string, filterId: string): Promise<void> {
+  await prisma.savedFilter.update({
+    where: { id: filterId, dashboardId },
+    data: {
+      deletedAt: null,
+    },
+  });
+}

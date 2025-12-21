@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { useSavedFilters, useDeleteSavedFilter } from '@/hooks/use-saved-filters';
+import { useSavedFilters, useDeleteSavedFilter, useRestoreSavedFilter } from '@/hooks/use-saved-filters';
 import { type SavedFilter } from '@/entities/analytics/savedFilters.entities';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
@@ -28,6 +28,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
 
   const { data: savedFilters = [], isLoading } = useSavedFilters();
   const deleteMutation = useDeleteSavedFilter();
+  const restoreMutation = useRestoreSavedFilter();
 
   const handleLoad = useCallback(
     (savedFilter: SavedFilter) => {
@@ -48,14 +49,19 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
       setDeletingFilterId(filterId);
       try {
         await deleteMutation.mutateAsync(filterId);
-        toast.success(t('selector.toastFilterDeletedSuccess'));
+        toast.success(t('selector.toastFilterDeletedSuccess'), {
+          action: {
+            label: t('selector.toastUndo'),
+            onClick: () => restoreMutation.mutate(filterId),
+          },
+        });
       } catch {
         toast.error(t('selector.toastFilterDeletedError'));
       } finally {
         setDeletingFilterId(null);
       }
     },
-    [deleteMutation, t],
+    [deleteMutation, restoreMutation, t],
   );
 
   if (isLoading || savedFilters.length === 0) {

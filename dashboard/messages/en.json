@@ -1499,7 +1499,8 @@
         "toastFilterSavedSuccess": "Filter saved",
         "toastFilterSavedError": "Failed to save filter",
         "toastFilterDeletedSuccess": "Filter deleted",
-        "toastFilterDeletedError": "Failed to delete filter"
+        "toastFilterDeletedError": "Failed to delete filter",
+        "toastUndo": "Undo"
       },
       "filterBy": "Filter by {label}"
     },

@@ -6,6 +6,7 @@ import {
   fetchSavedFiltersAction,
   createSavedFilterAction,
   deleteSavedFilterAction,
+  restoreSavedFilterAction,
 } from '@/app/actions/analytics/savedFilters.actions';
 import { type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
 import { type SavedFilter } from '@/entities/analytics/savedFilters.entities';
@@ -43,6 +44,17 @@ export function useDeleteSavedFilter() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (filterId: string) => deleteSavedFilterAction(dashboardId, filterId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-filters', dashboardId] });
+    },
+  });
+}
+
+export function useRestoreSavedFilter() {
+  const dashboardId = useDashboardId();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (filterId: string) => restoreSavedFilterAction(dashboardId, filterId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-filters', dashboardId] });
     },

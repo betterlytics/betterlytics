@@ -14,3 +14,7 @@ export async function createSavedFilterForDashboard(filterData: CreateSavedFilte
 export async function deleteSavedFilterFromDashboard(dashboardId: string, filterId: string): Promise<void> {
   return SavedFiltersRepository.deleteSavedFilterById(dashboardId, filterId);
 }
+
+export async function restoreSavedFilterFromDashboard(dashboardId: string, filterId: string): Promise<void> {
+  return SavedFiltersRepository.restoreSavedFilterById(dashboardId, filterId);
+}

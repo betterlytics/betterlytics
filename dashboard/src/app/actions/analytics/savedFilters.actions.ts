@@ -5,6 +5,7 @@ import {
   getSavedFiltersForDashboard,
   createSavedFilterForDashboard,
   deleteSavedFilterFromDashboard,
+  restoreSavedFilterFromDashboard,
 } from '@/services/analytics/savedFilters.service';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
@@ -34,5 +35,11 @@ export const createSavedFilterAction = withDashboardMutationAuthContext(
 export const deleteSavedFilterAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, filterId: string) => {
     return deleteSavedFilterFromDashboard(ctx.dashboardId, filterId);
+  },
+);
+
+export const restoreSavedFilterAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, filterId: string) => {
+    return restoreSavedFilterFromDashboard(ctx.dashboardId, filterId);
   },
 );
