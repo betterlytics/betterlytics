@@ -20,19 +20,6 @@ export async function getSavedFiltersByDashboardId(dashboardId: string): Promise
   return savedFilters.map((filter) => SavedFilterSchema.parse(filter));
 }
 
-export async function getSavedFilterById(id: string): Promise<SavedFilter | null> {
-  const savedFilter = await prisma.savedFilter.findUnique({
-    where: { id, deletedAt: null },
-    include: {
-      entries: true,
-    },
-  });
-  if (savedFilter === null) {
-    return null;
-  }
-  return SavedFilterSchema.parse(savedFilter);
-}
-
 export async function createSavedFilter(filterData: CreateSavedFilter) {
   const { entries, ...filterDataWithoutEntries } = CreateSavedFilterSchema.parse(filterData);
 
