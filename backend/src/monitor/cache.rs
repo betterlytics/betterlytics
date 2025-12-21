@@ -268,13 +268,8 @@ fn epoch_timestamp() -> DateTime<Utc> {
 }
 
 fn log_cache_state(map: &HashMap<String, Arc<MonitorCheck>>) {
-    const MAX_IDS: usize = 10;
-    let mut ids: Vec<&String> = map.keys().collect();
-    ids.sort();
-    let preview: Vec<&String> = ids.into_iter().take(MAX_IDS).collect();
     info!(
         total_entries = map.len(),
-        preview = ?preview,
         "monitor cache state after refresh"
     );
 }
