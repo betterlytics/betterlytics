@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
-use std::net::Ipv6Addr;
+use std::net::IpAddr;
 use std::time::Duration;
 use url::Url;
 
@@ -242,7 +242,7 @@ pub struct ProbeOutcome {
     pub status_code: Option<u16>,
     pub latency: Duration,
     pub reason_code: ReasonCode,
-    pub resolved_ip: Option<Ipv6Addr>,
+    pub resolved_ip: Option<IpAddr>,
     pub tls_not_after: Option<DateTime<Utc>>,
     pub tls_days_left: Option<i32>,
     pub final_url: Option<String>,
@@ -251,7 +251,7 @@ pub struct ProbeOutcome {
 }
 
 impl ProbeOutcome {
-    pub fn success(latency: Duration, status_code: Option<u16>, resolved_ip: Ipv6Addr) -> Self {
+    pub fn success(latency: Duration, status_code: Option<u16>, resolved_ip: IpAddr) -> Self {
         Self {
             success: true,
             status: MonitorStatus::Ok,
@@ -300,7 +300,7 @@ pub struct MonitorResultRow {
     pub latency_ms: Option<f64>,
     pub status_code: Option<u16>,
     pub http_method: String,
-    pub resolved_ip: Option<Ipv6Addr>,
+    pub resolved_ip: Option<IpAddr>,
     pub port: Option<u16>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub tls_not_after: Option<DateTime<Utc>>,

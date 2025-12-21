@@ -13,8 +13,8 @@ use tracing::{debug, info, warn};
 use crate::metrics::MetricsCollector;
 use crate::monitor::alert::{AlertContext, AlertService};
 use crate::monitor::{
-    BackoffController, BackoffPolicy, BackoffSnapshot, MonitorCache, MonitorCheck, MonitorProbe,
-    MonitorResultRow, MonitorWriter, ProbeOutcome,
+    BackoffController, BackoffPolicy, BackoffSnapshot, DomainRateLimiter, MonitorCache,
+    MonitorCheck, MonitorProbe, MonitorResultRow, MonitorWriter, ProbeOutcome,
 };
 
 const BACKOFF_JITTER_PCT: f64 = 0.10;
@@ -148,6 +148,7 @@ pub struct Runner<S: RunnerStrategy> {
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
     alert_service: Option<Arc<AlertService>>,
+    rate_limiter: Option<Arc<DomainRateLimiter>>,
     runtime: S::RuntimeConfig,
     _marker: PhantomData<S>,
 }
@@ -166,6 +167,7 @@ impl<S: RunnerStrategy> Runner<S> {
             writer,
             metrics,
             alert_service: None,
+            rate_limiter: None,
             runtime,
             _marker: PhantomData,
         }
@@ -173,6 +175,11 @@ impl<S: RunnerStrategy> Runner<S> {
 
     pub fn with_alert_service(mut self, alert_service: Arc<AlertService>) -> Self {
         self.alert_service = Some(alert_service);
+        self
+    }
+
+    pub fn with_rate_limiter(mut self, rate_limiter: Arc<DomainRateLimiter>) -> Self {
+        self.rate_limiter = Some(rate_limiter);
         self
     }
 
@@ -185,6 +192,7 @@ impl<S: RunnerStrategy> Runner<S> {
         let writer = self.writer;
         let metrics = self.metrics;
         let alert_service = self.alert_service;
+        let rate_limiter = self.rate_limiter;
         let runtime = self.runtime;
 
         tokio::spawn(async move {
@@ -208,13 +216,14 @@ impl<S: RunnerStrategy> Runner<S> {
                     "Starting monitor runner"
                 );
 
-                // /his should run forever unless something goes wrong
+                // This should run forever unless something goes wrong
                 run_loop::<S>(
                     Arc::clone(&cache),
                     probe.clone(),
                     Arc::clone(&writer),
                     metrics.clone(),
                     alert_service.clone(),
+                    rate_limiter.clone(),
                     config,
                     scheduler,
                 )
@@ -386,6 +395,7 @@ async fn run_loop<S: RunnerStrategy>(
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
     alert_service: Option<Arc<AlertService>>,
+    rate_limiter: Option<Arc<DomainRateLimiter>>,
     config: RunLoopConfig,
     mut scheduler: S::Scheduler,
 ) {
@@ -403,6 +413,7 @@ async fn run_loop<S: RunnerStrategy>(
         tick_ms = config.scheduler_tick.as_millis(),
         max_concurrency = config.max_concurrency,
         alerts_enabled = alert_service.is_some(),
+        rate_limiting_enabled = rate_limiter.is_some(),
         "monitor runner started"
     );
 
@@ -425,6 +436,11 @@ async fn run_loop<S: RunnerStrategy>(
             if let Some(ref alert_svc) = alert_service {
                 alert_svc.prune_inactive(&active_ids).await;
             }
+
+            // Prune stale rate limiter entries
+            if let Some(ref rl) = rate_limiter {
+                rl.prune_stale();
+            }
         }
 
         let now = Instant::now();
@@ -433,6 +449,20 @@ async fn run_loop<S: RunnerStrategy>(
         for check in snapshot {
             if scheduler.check_due(&check, now, &last_run).is_none() {
                 continue;
+            }
+
+            // Check domain rate limit before spawning probe
+            if let Some(ref rl) = rate_limiter {
+                let domain = check.url.host_str().unwrap_or_default();
+                if !rl.check(domain) {
+                    debug!(
+                        runner = runner_name,
+                        check = %check.id,
+                        domain = domain,
+                        "probe skipped due to domain rate limit"
+                    );
+                    continue;
+                }
             }
 
             let probe = probe.clone();

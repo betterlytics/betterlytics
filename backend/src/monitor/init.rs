@@ -14,9 +14,9 @@ use crate::postgres::PostgresPool;
 
 use super::alert::new_alert_history_writer;
 use super::{
-    AlertService, AlertServiceConfig, HttpRunner, HttpRuntimeConfig, IncidentStore, MonitorCache,
-    MonitorCacheConfig, MonitorProbe, MonitorRepository, MonitorCheckDataSource, TlsRunner,
-    TlsRuntimeConfig, new_monitor_writer,
+    AlertService, AlertServiceConfig, DomainRateLimiter, HttpRunner, HttpRuntimeConfig,
+    IncidentStore, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe,
+    MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
 };
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 
@@ -144,6 +144,9 @@ async fn run_monitoring_init_loop(
         );
         info!("Alert service initialized");
 
+        let rate_limiter = Arc::new(DomainRateLimiter::default());
+        info!("Domain rate limiter initialized");
+
         let mut http_runner = HttpRunner::new(
             Arc::clone(&monitor_cache),
             probe,
@@ -160,9 +163,12 @@ async fn run_monitoring_init_loop(
             TlsRuntimeConfig::default(),
         );
 
-        // Wire up alert service
-        http_runner = http_runner.with_alert_service(Arc::clone(&alert_service));
-        tls_runner = tls_runner.with_alert_service(Arc::clone(&alert_service));
+        http_runner = http_runner
+            .with_alert_service(Arc::clone(&alert_service))
+            .with_rate_limiter(Arc::clone(&rate_limiter));
+        tls_runner = tls_runner
+            .with_alert_service(Arc::clone(&alert_service))
+            .with_rate_limiter(Arc::clone(&rate_limiter));
 
         http_runner.spawn();
         tls_runner.spawn();

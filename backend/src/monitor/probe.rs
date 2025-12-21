@@ -1,4 +1,4 @@
-use std::net::{IpAddr, SocketAddr};
+use std::net::SocketAddr;
 use std::time::Duration;
 
 use chrono::{DateTime, TimeZone, Utc};
@@ -157,7 +157,7 @@ impl MonitorProbe {
         &self,
         latency: Duration,
         resp: CappedResponse,
-        resolved_ip: std::net::Ipv6Addr,
+        resolved_ip: std::net::IpAddr,
         final_url: String,
         redirect_hops: usize,
         accepted_status_codes: &[StatusCodeValue],
@@ -238,7 +238,7 @@ impl MonitorProbe {
     async fn follow_with_guards(
         &self,
         check: &MonitorCheck,
-    ) -> Result<(CappedResponse, std::net::Ipv6Addr, String, usize), ProbeError> {
+    ) -> Result<(CappedResponse, std::net::IpAddr, String, usize), ProbeError> {
         let mut current_url = check.url.clone();
         let mut resolved_ip = validate_target(&current_url).await.map_err(ProbeError::from)?.resolved_ip;
         let mut hops = 0usize;
@@ -379,29 +379,16 @@ impl MonitorProbe {
         &self,
         url: &Url,
         timeout: Duration,
-        resolved_ip: std::net::Ipv6Addr,
+        resolved_ip: std::net::IpAddr,
     ) -> Result<DateTime<Utc>, ProbeError> {
         let host = url
             .host_str()
             .ok_or_else(|| ProbeError::new(ReasonCode::InvalidHost, "missing host for tls"))?;
         let port = url.port_or_known_default().unwrap_or(443);
 
-        ensure_crypto_provider();
+        let connector = get_tls_connector()?;
 
-        let roots = load_root_store()?;
-
-        let config = ClientConfig::builder()
-            .with_root_certificates((*roots).clone())
-            .with_no_client_auth();
-
-        let connector = TlsConnector::from(Arc::new(config));
-
-        let ip = if let Some(v4) = resolved_ip.to_ipv4() {
-            IpAddr::V4(v4)
-        } else {
-            IpAddr::V6(resolved_ip)
-        };
-        let addr = SocketAddr::new(ip, port);
+        let addr = SocketAddr::new(resolved_ip, port);
         let stream = tokio::time::timeout(timeout, tokio::net::TcpStream::connect(addr))
             .await
             .map_err(|_| ProbeError::new(ReasonCode::TlsHandshakeFailed, "tcp connect timeout"))?
@@ -445,10 +432,12 @@ fn extract_not_after_from_der(der: &[u8]) -> Result<DateTime<Utc>, ProbeError> {
     Ok(not_after)
 }
 
-fn load_root_store() -> Result<Arc<RootCertStore>, ProbeError> {
-    static ROOT_STORE: OnceLock<Result<Arc<RootCertStore>, ProbeError>> = OnceLock::new();
+fn get_tls_connector() -> Result<Arc<TlsConnector>, ProbeError> {
+    static TLS_CONNECTOR: OnceLock<Result<Arc<TlsConnector>, ProbeError>> = OnceLock::new();
 
-    match ROOT_STORE.get_or_init(|| {
+    match TLS_CONNECTOR.get_or_init(|| {
+        ensure_crypto_provider();
+
         let mut roots = RootCertStore::empty();
         for cert in load_native_certs().map_err(|e| {
             ProbeError::new(ReasonCode::TlsParseError, format!("load roots: {e}"))
@@ -458,9 +447,13 @@ fn load_root_store() -> Result<Arc<RootCertStore>, ProbeError> {
                 .map_err(|e| ProbeError::new(ReasonCode::TlsParseError, format!("add root: {e}")))?;
         }
 
-        Ok(Arc::new(roots))
+        let config = ClientConfig::builder()
+            .with_root_certificates(roots)
+            .with_no_client_auth();
+
+        Ok(Arc::new(TlsConnector::from(Arc::new(config))))
     }) {
-        Ok(store) => Ok(Arc::clone(store)),
+        Ok(connector) => Ok(Arc::clone(connector)),
         Err(err) => Err(err.clone()),
     }
 }

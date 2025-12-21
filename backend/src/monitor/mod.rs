@@ -7,10 +7,12 @@ pub mod incident_store;
 mod init;
 pub mod models;
 pub mod probe;
+pub mod rate_limiter;
 pub mod repository;
 pub mod runner;
 
 pub use init::spawn_monitoring;
+pub use rate_limiter::DomainRateLimiter;
 
 pub use alert::{AlertService, AlertServiceConfig};
 pub use backoff::{BackoffController, BackoffPolicy};

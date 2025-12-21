@@ -1,4 +1,4 @@
-use std::net::{IpAddr, Ipv6Addr};
+use std::net::IpAddr;
 use std::sync::OnceLock;
 use tokio::net::lookup_host;
 use url::Url;
@@ -22,7 +22,7 @@ fn is_dev_mode() -> bool {
 
 #[derive(Debug, Clone)]
 pub struct GuardedTarget {
-    pub resolved_ip: Ipv6Addr,
+    pub resolved_ip: IpAddr,
 }
 
 #[derive(Debug)]
@@ -75,7 +75,7 @@ fn is_allowed_port(url: &Url) -> bool {
     matches!(url.port_or_known_default().unwrap_or(80), 80 | 443)
 }
 
-async fn resolve_ip(url: &Url) -> Result<Ipv6Addr, GuardError> {
+async fn resolve_ip(url: &Url) -> Result<IpAddr, GuardError> {
     let host = url
         .host_str()
         .ok_or_else(|| GuardError::new(ReasonCode::InvalidHost, "missing host"))?;
@@ -87,7 +87,7 @@ async fn resolve_ip(url: &Url) -> Result<Ipv6Addr, GuardError> {
                 "target IP is not allowed",
             ));
         }
-        return Ok(ip_to_v6(ip));
+        return Ok(ip);
     }
 
     let port = url.port_or_known_default().unwrap_or(80);
@@ -103,7 +103,7 @@ async fn resolve_ip(url: &Url) -> Result<Ipv6Addr, GuardError> {
         ))?
         .ip();
 
-    Ok(ip_to_v6(ip))
+    Ok(ip)
 }
 
 fn is_blocked_ip(ip: &IpAddr) -> bool {
@@ -127,12 +127,5 @@ fn is_blocked_ip(ip: &IpAddr) -> bool {
                 || v6.is_multicast()
                 || v6.is_unicast_link_local()
         }
-    }
-}
-
-fn ip_to_v6(ip: IpAddr) -> Ipv6Addr {
-    match ip {
-        IpAddr::V4(v4) => v4.to_ipv6_mapped(),
-        IpAddr::V6(v6) => v6,
     }
 }
