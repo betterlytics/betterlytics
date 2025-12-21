@@ -74,11 +74,6 @@ export default function QueryFiltersSelector() {
 
   const content = (
     <>
-      <SavedFiltersSection
-        onLoadFilter={handleLoadSavedFilter}
-        isOpen={isSavedFiltersOpen}
-        onOpenChange={setIsSavedFiltersOpen}
-      />
       {queryFilters.length > 0 || isFiltersModified ? (
         <div className='space-y-2'>
           <div className='space-y-1'>
@@ -183,6 +178,12 @@ export default function QueryFiltersSelector() {
           </div>
         </div>
       )}
+
+      <SavedFiltersSection
+        onLoadFilter={handleLoadSavedFilter}
+        isOpen={isSavedFiltersOpen}
+        onOpenChange={setIsSavedFiltersOpen}
+      />
 
       <SaveQueryFilterDialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen} filters={queryFilters} />
     </>

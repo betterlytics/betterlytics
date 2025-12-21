@@ -3,6 +3,7 @@
 import { useCallback, useState, Dispatch } from 'react';
 import { ChevronDownIcon, Trash2Icon, Loader2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useTranslations } from 'next-intl';
@@ -57,33 +58,28 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
     [deleteMutation, t],
   );
 
-  if (isLoading) {
-    return (
-      <div className={cn(isMobile ? 'pb-1' : 'pb-2')}>
-        <div className='bg-muted/50 flex h-8 w-full animate-pulse items-center justify-between rounded px-2' />
-        <Separator className='mt-1' />
-      </div>
-    );
-  }
-
-  if (savedFilters.length === 0) {
+  if (isLoading || savedFilters.length === 0) {
     return null;
   }
 
   return (
     <DisabledDemoTooltip>
       {(isDemo) => (
-        <div className={cn(isMobile ? 'pb-1' : 'pb-2')}>
+        <div className={cn(isMobile ? 'pt-1' : 'pt-2')}>
+          <Separator />
           <Collapsible
-            className={cn('group', isMobile ? 'pb-1' : 'pb-2')}
+            className={cn('group', isMobile ? 'pt-1' : 'pt-1')}
             disabled={isDemo}
             open={isOpen}
             onOpenChange={onOpenChange}
           >
             <CollapsibleTrigger asChild>
               <Button variant='ghost' className='h-8 w-full cursor-pointer justify-between px-2'>
-                <span className='text-muted-foreground text-sm'>
-                  {t('selector.savedFilters')} · {savedFilters.length}
+                <span className='text-muted-foreground flex items-center gap-2 text-sm'>
+                  {t('selector.savedFilters')}
+                  <Badge variant='outline' className='h-5 w-5 rounded-full p-0 text-xs'>
+                    {savedFilters.length}
+                  </Badge>
                 </span>
                 <ChevronDownIcon className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]:rotate-180' />
               </Button>
@@ -113,7 +109,6 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
               ))}
             </CollapsibleContent>
           </Collapsible>
-          <Separator />
         </div>
       )}
     </DisabledDemoTooltip>
