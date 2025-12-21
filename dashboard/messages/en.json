@@ -1500,7 +1500,8 @@
         "toastFilterSavedError": "Failed to save filter",
         "toastFilterDeletedSuccess": "Filter deleted",
         "toastFilterDeletedError": "Failed to delete filter",
-        "toastUndo": "Undo"
+        "toastUndo": "Undo",
+        "savedFiltersLimitReached": "Maximum saved filters reached"
       },
       "filterBy": "Filter by {label}"
     },

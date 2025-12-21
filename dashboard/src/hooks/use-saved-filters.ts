@@ -7,6 +7,7 @@ import {
   createSavedFilterAction,
   deleteSavedFilterAction,
   restoreSavedFilterAction,
+  isSavedFiltersLimitReachedAction,
 } from '@/app/actions/analytics/savedFilters.actions';
 import { type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
 import { type SavedFilter } from '@/entities/analytics/savedFilters.entities';
@@ -27,6 +28,16 @@ export function useSavedFilters() {
   });
 }
 
+export function useSavedFiltersLimitReached() {
+  const dashboardId = useDashboardId();
+  return useQuery<boolean>({
+    queryKey: ['saved-filters-limit', dashboardId],
+    queryFn: () => isSavedFiltersLimitReachedAction(dashboardId),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+  });
+}
+
 export function useCreateSavedFilter() {
   const dashboardId = useDashboardId();
   const queryClient = useQueryClient();
@@ -35,6 +46,7 @@ export function useCreateSavedFilter() {
       createSavedFilterAction(dashboardId, data.name, data.entries),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-filters', dashboardId] });
+      queryClient.invalidateQueries({ queryKey: ['saved-filters-limit', dashboardId] });
     },
   });
 }
@@ -46,6 +58,7 @@ export function useDeleteSavedFilter() {
     mutationFn: (filterId: string) => deleteSavedFilterAction(dashboardId, filterId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-filters', dashboardId] });
+      queryClient.invalidateQueries({ queryKey: ['saved-filters-limit', dashboardId] });
     },
   });
 }
@@ -57,6 +70,7 @@ export function useRestoreSavedFilter() {
     mutationFn: (filterId: string) => restoreSavedFilterAction(dashboardId, filterId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-filters', dashboardId] });
+      queryClient.invalidateQueries({ queryKey: ['saved-filters-limit', dashboardId] });
     },
   });
 }

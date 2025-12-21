@@ -6,6 +6,7 @@ import {
   createSavedFilterForDashboard,
   deleteSavedFilterFromDashboard,
   restoreSavedFilterFromDashboard,
+  isSavedFiltersLimitReached,
 } from '@/services/analytics/savedFilters.service';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
@@ -43,3 +44,7 @@ export const restoreSavedFilterAction = withDashboardMutationAuthContext(
     return restoreSavedFilterFromDashboard(ctx.dashboardId, filterId);
   },
 );
+
+export const isSavedFiltersLimitReachedAction = withDashboardAuthContext(async (ctx: AuthContext) => {
+  return isSavedFiltersLimitReached(ctx.dashboardId);
+});

@@ -1500,7 +1500,8 @@
         "toastFilterSavedError": "Kunne ikke gemme filter",
         "toastFilterDeletedSuccess": "Filter slettet",
         "toastFilterDeletedError": "Kunne ikke slette filter",
-        "toastUndo": "Fortryd"
+        "toastUndo": "Fortryd",
+        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
       },
       "filterBy": "Filtrer efter {label}"
     },

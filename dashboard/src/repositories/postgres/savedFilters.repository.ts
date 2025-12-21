@@ -20,6 +20,12 @@ export async function getSavedFiltersByDashboardId(dashboardId: string): Promise
   return savedFilters.map((filter) => SavedFilterSchema.parse(filter));
 }
 
+export async function getSavedFiltersCountByDashboardId(dashboardId: string): Promise<number> {
+  return prisma.savedFilter.count({
+    where: { dashboardId, deletedAt: null },
+  });
+}
+
 export async function createSavedFilter(filterData: CreateSavedFilter) {
   const { entries, ...filterDataWithoutEntries } = CreateSavedFilterSchema.parse(filterData);
 

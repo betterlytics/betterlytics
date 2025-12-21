@@ -13,9 +13,11 @@ import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilte
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { SaveQueryFilterDialog } from './SaveQueryFilterDialog';
 import { SavedFiltersSection } from './SavedFiltersSection';
+import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -72,6 +74,8 @@ export default function QueryFiltersSelector() {
     return filterEmptyQueryFilters(queryFilters).length > 0;
   }, [queryFilters]);
 
+  const { data: isSavedFiltersLimitReached } = useSavedFiltersLimitReached();
+
   const content = (
     <>
       {queryFilters.length > 0 || isFiltersModified ? (
@@ -111,14 +115,21 @@ export default function QueryFiltersSelector() {
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-2'>
               <DisabledDemoTooltip>
                 {(isDemo) => (
-                  <Button
-                    className='h-8 cursor-pointer'
-                    variant='ghost'
-                    onClick={() => setIsSaveDialogOpen(true)}
-                    disabled={isDemo || !hasValidFilters}
+                  <DisabledTooltip
+                    disabled={Boolean(!isDemo && isSavedFiltersLimitReached)}
+                    message={t('selector.savedFiltersLimitReached')}
                   >
-                    <SaveIcon className='h-4 w-4' />
-                  </Button>
+                    {(isLimitDisabled) => (
+                      <Button
+                        className='h-8 cursor-pointer'
+                        variant='ghost'
+                        onClick={() => setIsSaveDialogOpen(true)}
+                        disabled={isDemo || !hasValidFilters || isLimitDisabled}
+                      >
+                        <SaveIcon className='h-4 w-4' />
+                      </Button>
+                    )}
+                  </DisabledTooltip>
                 )}
               </DisabledDemoTooltip>
               <Button
