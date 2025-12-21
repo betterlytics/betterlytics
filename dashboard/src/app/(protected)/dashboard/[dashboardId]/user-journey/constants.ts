@@ -46,4 +46,6 @@ export const LAYOUT = {
   nodeRadius: 2,
   minNodeHeight: 8,
   nodeHeightRatio: 0.5,
+  compressionThreshold: 60,
+  maxNodeHeight: 100,
 };

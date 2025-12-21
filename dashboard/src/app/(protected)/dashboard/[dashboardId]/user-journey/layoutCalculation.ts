@@ -16,6 +16,8 @@ interface LayoutConfig {
   paddingLeft: number;
   nodeWidth: number;
   minNodeHeight: number;
+  compressionThreshold: number;
+  maxNodeHeight: number;
 }
 
 /**
@@ -38,7 +40,7 @@ export function calculateLayout(graph: SankeyGraph, width: number, height: numbe
  * Create layout configuration from graph metrics and dimensions
  */
 function createLayoutConfig(graph: SankeyGraph, width: number, height: number): LayoutConfig {
-  const { padding, nodeWidth, minNodeHeight, nodeHeightRatio } = LAYOUT;
+  const { padding, nodeWidth, minNodeHeight, nodeHeightRatio, compressionThreshold, maxNodeHeight } = LAYOUT;
   const labelMargin = 110;
 
   const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
@@ -57,7 +59,34 @@ function createLayoutConfig(graph: SankeyGraph, width: number, height: number): 
     paddingLeft: padding.left,
     nodeWidth,
     minNodeHeight,
+    compressionThreshold,
+    maxNodeHeight,
   };
+}
+
+/**
+ * Apply soft compression to node height.
+ * Linear scaling up to threshold, then sqrt compression up to max.
+ * This prevents huge nodes while keeping large values visually distinct.
+ */
+function compressHeight(rawHeight: number, config: LayoutConfig): number {
+  const { minNodeHeight, compressionThreshold, maxNodeHeight } = config;
+
+  if (rawHeight <= compressionThreshold) {
+    // Below threshold: linear scaling (unchanged)
+    return Math.max(minNodeHeight, rawHeight);
+  }
+
+  // The excess above threshold gets compressed via sqrt
+  const excess = rawHeight - compressionThreshold;
+  const compressionRange = maxNodeHeight - compressionThreshold;
+
+  // Normalize excess to [0, 1] range (assuming excess won't exceed 4x the threshold typically)
+  // Then apply sqrt and scale to remaining range
+  const normalizedExcess = Math.min(excess / (compressionThreshold * 4), 1);
+  const compressedExcess = Math.sqrt(normalizedExcess) * compressionRange;
+
+  return Math.min(compressionThreshold + compressedExcess, maxNodeHeight);
 }
 
 /**
@@ -134,14 +163,14 @@ function sortByBarycenter(
  * Update Y center positions for a column of nodes
  */
 function updateColumnYCenters(nodes: GraphNode[], nodeYCenter: Map<string, number>, config: LayoutConfig): void {
-  const columnTraffic = nodes.reduce((sum, n) => sum + n.totalTraffic, 0);
-  const totalHeight = columnTraffic * config.heightScale;
+  const heights = nodes.map((node) => compressHeight(node.totalTraffic * config.heightScale, config));
+  const totalHeight = heights.reduce((sum, h) => sum + h, 0);
   const remainingSpace = config.availableHeight - totalHeight;
-  const padding = nodes.length > 1 ? remainingSpace / (nodes.length - 1) : 0;
+  const padding = nodes.length > 1 ? Math.max(0, remainingSpace / (nodes.length - 1)) : 0;
 
   let y = config.paddingTop;
-  nodes.forEach((node) => {
-    const height = Math.max(node.totalTraffic * config.heightScale, config.minNodeHeight);
+  nodes.forEach((node, i) => {
+    const height = heights[i];
     nodeYCenter.set(node.id, y + height / 2);
     y += height + padding;
   });
@@ -159,15 +188,16 @@ function calculateNodePositions(
 
   orderedGroups.forEach((nodes, depth) => {
     const x = config.paddingLeft + depth * config.depthSpacing;
-    const columnTraffic = nodes.reduce((sum, n) => sum + n.totalTraffic, 0);
-    const totalHeight = columnTraffic * config.heightScale;
+
+    const heights = nodes.map((node) => compressHeight(node.totalTraffic * config.heightScale, config));
+    const totalHeight = heights.reduce((sum, h) => sum + h, 0);
     const remainingSpace = config.availableHeight - totalHeight;
-    const padding = nodes.length > 1 ? remainingSpace / (nodes.length - 1) : 0;
+    const padding = nodes.length > 1 ? Math.max(0, remainingSpace / (nodes.length - 1)) : 0;
 
     let y = config.paddingTop;
 
-    nodes.forEach((node) => {
-      const height = Math.max(node.totalTraffic * config.heightScale, config.minNodeHeight);
+    nodes.forEach((node, i) => {
+      const height = heights[i];
 
       const position: NodePosition = {
         id: node.id,
