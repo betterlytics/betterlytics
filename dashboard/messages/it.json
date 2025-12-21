@@ -1354,6 +1354,7 @@
       },
       "ssl": {
         "title": "Certificato SSL",
+        "disabled": "Disabilitato",
         "timeLeft": "Tempo rimanente",
         "timeLeftWithUnit": "{unit} rimanenti",
         "expires": "Scad. {date}"

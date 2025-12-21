@@ -154,6 +154,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
           timeoutMs: monitorData.timeoutMs,
           createdAt: monitorData.createdAt,
           updatedAt: monitorData.updatedAt,
+          checkSslErrors: monitorData.checkSslErrors,
         }}
         metrics={metricsQuery.data}
         tls={tlsQuery.data}

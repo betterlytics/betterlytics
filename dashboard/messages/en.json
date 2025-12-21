@@ -1352,6 +1352,7 @@
       },
       "ssl": {
         "title": "SSL Certificate",
+        "disabled": "Disabled",
         "timeLeft": "Time left",
         "timeLeftWithUnit": "{unit} left",
         "expires": "Exp. {date}"

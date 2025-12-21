@@ -1354,6 +1354,7 @@
       },
       "ssl": {
         "title": "SSL-certifikat",
+        "disabled": "Deaktiveret",
         "timeLeft": "Tid tilbage",
         "timeLeftWithUnit": "{unit} tilbage",
         "expires": "Udløber {date}"

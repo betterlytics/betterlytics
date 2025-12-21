@@ -38,7 +38,10 @@ type MonitorSummaryMetrics = Pick<
 >;
 
 type MonitorSummaryTilesProps = {
-  monitor: Pick<MonitorCheck, 'isEnabled' | 'intervalSeconds' | 'timeoutMs' | 'createdAt' | 'updatedAt'>;
+  monitor: Pick<
+    MonitorCheck,
+    'isEnabled' | 'intervalSeconds' | 'timeoutMs' | 'createdAt' | 'updatedAt' | 'checkSslErrors'
+  >;
   metrics?: MonitorSummaryMetrics;
   tls?: MonitorTlsResult | null;
   operationalState: MonitorOperationalState;
@@ -57,7 +60,7 @@ export function MonitorSummaryTiles({ monitor, metrics, tls, operationalState }:
         buckets={metrics?.uptimeBuckets}
       />
       <ResponseSummaryTile title={t('avgResponseTime')} avg={latencyAvg} operationalState={operationalState} />
-      <SslSummaryCard tls={tls} />
+      <SslSummaryCard tls={tls} isDisabled={!monitor.checkSslErrors} />
     </div>
   );
 }
@@ -236,7 +239,7 @@ function StatusDot({ operationalState }: { operationalState: MonitorOperationalS
   );
 }
 
-function SslSummaryCard({ tls }: { tls: MonitorTlsResult | null | undefined }) {
+function SslSummaryCard({ tls, isDisabled }: { tls: MonitorTlsResult | null | undefined; isDisabled?: boolean }) {
   const t = useTranslations('monitoringDetailPage.summary.ssl');
   const tSsl = useTranslations('monitoring.ssl');
   const expiry = tls?.tlsNotAfter ? new Date(tls.tlsNotAfter) : null;
@@ -250,11 +253,18 @@ function SslSummaryCard({ tls }: { tls: MonitorTlsResult | null | undefined }) {
     <SummaryTile
       title={t('title')}
       headerRight={
-        <Badge variant='outline' className={`text-xs ${presentation.badgeClass}`}>
-          {badgeLabel}
-        </Badge>
+        isDisabled ? (
+          <Badge variant='outline' className='border-muted-foreground/30 text-muted-foreground text-xs'>
+            {t('disabled')}
+          </Badge>
+        ) : (
+          <Badge variant='outline' className={`text-xs ${presentation.badgeClass}`}>
+            {badgeLabel}
+          </Badge>
+        )
       }
       bodyClassName='mt-3 flex flex-row items-start gap-2 sm:gap-2'
+      className={isDisabled ? 'opacity-50 grayscale' : ''}
     >
       <presentation.icon className={`mt-0.5 h-6 w-6 sm:h-8 sm:w-8 ${presentation.theme.text}`} aria-hidden />
       <div className='flex flex-row items-start gap-2 sm:gap-3'>
