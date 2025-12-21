@@ -91,3 +91,17 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
 
   return MonitorCheckSchema.parse(updated);
 }
+
+export async function deleteMonitorCheck(dashboardId: string, monitorId: string): Promise<void> {
+  const existing = await prisma.monitorCheck.findFirst({
+    where: { id: monitorId, dashboardId },
+  });
+
+  if (!existing) {
+    throw new Error('Monitor not found');
+  }
+
+  await prisma.monitorCheck.delete({
+    where: { id: monitorId },
+  });
+}

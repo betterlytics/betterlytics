@@ -1388,7 +1388,7 @@
       "discard": "Kasser"
     },
     "delete": {
-      "trigger": "Slet",
+      "trigger": "Slet overvågning",
       "title": "Slet denne overvågning?",
       "description": "Denne handling kan ikke fortrydes. Alle overvågningsdata og hændelseshistorik slettes permanent.",
       "cancel": "Annullér",

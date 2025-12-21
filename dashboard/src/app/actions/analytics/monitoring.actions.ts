@@ -14,6 +14,7 @@ import {
   getMonitorCheck,
   getMonitorChecksWithStatus,
   updateMonitorCheck,
+  deleteMonitorCheck,
 } from '@/services/analytics/monitoring.service';
 import {
   fetchLatestMonitorTlsResult,
@@ -102,6 +103,13 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring/${input.id}`);
     return updated;
+  },
+);
+
+export const deleteMonitorCheckAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, monitorId: string) => {
+    await deleteMonitorCheck(ctx.dashboardId, monitorId);
+    revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
   },
 );
 

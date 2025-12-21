@@ -1388,7 +1388,7 @@
       "discard": "Annulla modifiche"
     },
     "delete": {
-      "trigger": "Elimina",
+      "trigger": "Elimina monitor",
       "title": "Eliminare questo monitor?",
       "description": "Questa azione non può essere annullata. Tutti i dati di monitoraggio e la cronologia degli incidenti verranno eliminati definitivamente.",
       "cancel": "Annulla",

@@ -2,7 +2,7 @@ import { useState, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import { updateMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
+import { updateMonitorCheckAction, deleteMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -59,6 +59,8 @@ type EditMonitorDialogProps = {
 export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitorDialogProps) {
   const [open, setOpen] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('monitoringEditDialog');
@@ -117,6 +119,22 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
         toast.error(t('error'));
       }
     });
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteMonitorCheckAction(dashboardId, monitor.id);
+      setShowDeleteDialog(false);
+      setOpen(false);
+      router.push(`/dashboard/${dashboardId}/monitoring`);
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast.error(t('delete.error'));
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -202,6 +220,17 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
             <div className='border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 flex items-center justify-between gap-3 border-t px-6 py-4 backdrop-blur'>
               <div className='flex items-center gap-2'>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='sm'
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isPending || isDeleting}
+                  className='text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer gap-1.5'
+                >
+                  <Trash2 className='h-4 w-4' aria-hidden />
+                  <span>{t('delete.trigger')}</span>
+                </Button>
                 {form.isDirty && (
                   <>
                     <div className='h-2 w-2 animate-pulse rounded-full bg-amber-500' />
@@ -242,6 +271,25 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
           <AlertDialogFooter>
             <AlertDialogCancel>{t('confirmDiscard.keep')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDiscard}>{t('confirmDiscard.discard')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('delete.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('delete.description')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>{t('delete.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className='bg-destructive hover:bg-destructive/90 text-white'
+            >
+              {isDeleting ? t('delete.deleting') : t('delete.confirm')}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

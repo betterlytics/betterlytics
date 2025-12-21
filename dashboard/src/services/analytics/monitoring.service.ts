@@ -16,6 +16,7 @@ import {
   getMonitorCheckById,
   listMonitorChecks,
   updateMonitorCheck as updateMonitorCheckRepo,
+  deleteMonitorCheck as deleteMonitorCheckRepo,
 } from '@/repositories/postgres/monitoring.repository';
 
 import {
@@ -41,6 +42,10 @@ export async function addMonitorCheck(input: MonitorCheckCreate) {
 
 export async function updateMonitorCheck(input: MonitorCheckUpdate) {
   return updateMonitorCheckRepo(input);
+}
+
+export async function deleteMonitorCheck(dashboardId: string, monitorId: string) {
+  return deleteMonitorCheckRepo(dashboardId, monitorId);
 }
 
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string) {

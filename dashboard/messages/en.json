@@ -1386,7 +1386,7 @@
       "discard": "Discard"
     },
     "delete": {
-      "trigger": "Delete",
+      "trigger": "Delete monitor",
       "title": "Delete this monitor?",
       "description": "This action cannot be undone. All monitoring data and incident history will be permanently deleted.",
       "cancel": "Cancel",
