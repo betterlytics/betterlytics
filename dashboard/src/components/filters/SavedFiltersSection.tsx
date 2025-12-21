@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, Dispatch } from 'react';
+import { useCallback, useState, Dispatch } from 'react';
 import { ChevronDownIcon, Trash2Icon, Loader2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -23,6 +23,7 @@ type SavedFiltersSectionProps = {
 export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: SavedFiltersSectionProps) {
   const t = useTranslations('components.filters');
   const isMobile = useIsMobile();
+  const [deletingFilterId, setDeletingFilterId] = useState<string | null>(null);
 
   const { data: savedFilters = [], isLoading } = useSavedFilters();
   const deleteMutation = useDeleteSavedFilter();
@@ -43,11 +44,14 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
   const handleDelete = useCallback(
     async (filterId: string, e: React.MouseEvent) => {
       e.stopPropagation();
+      setDeletingFilterId(filterId);
       try {
         await deleteMutation.mutateAsync(filterId);
         toast.success(t('selector.toastFilterDeletedSuccess'));
       } catch {
         toast.error(t('selector.toastFilterDeletedError'));
+      } finally {
+        setDeletingFilterId(null);
       }
     },
     [deleteMutation, t],
@@ -97,9 +101,9 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                     size='icon'
                     className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4'
                     onClick={(e) => handleDelete(savedFilter.id, e)}
-                    disabled={deleteMutation.isPending}
+                    disabled={deletingFilterId === savedFilter.id}
                   >
-                    {deleteMutation.isPending ? (
+                    {deletingFilterId === savedFilter.id ? (
                       <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
                     ) : (
                       <Trash2Icon className='h-3.5 w-3.5' />
