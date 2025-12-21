@@ -74,7 +74,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
         <div className={cn(isMobile ? 'pt-1' : 'pt-2')}>
           <Separator />
           <Collapsible
-            className={cn('group', isMobile ? 'pt-1' : 'pt-1')}
+            className={cn('group', isMobile ? 'pt-1' : 'pt-2')}
             disabled={isDemo}
             open={isOpen}
             onOpenChange={onOpenChange}
