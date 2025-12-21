@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useSavedFilters, useDeleteSavedFilter } from '@/hooks/use-saved-filters';
 import { type SavedFilter } from '@/entities/analytics/savedFilters.entities';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
@@ -42,9 +43,14 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
   const handleDelete = useCallback(
     async (filterId: string, e: React.MouseEvent) => {
       e.stopPropagation();
-      await deleteMutation.mutateAsync(filterId);
+      try {
+        await deleteMutation.mutateAsync(filterId);
+        toast.success(t('selector.toastFilterDeletedSuccess'));
+      } catch {
+        toast.error(t('selector.toastFilterDeletedError'));
+      }
     },
-    [deleteMutation],
+    [deleteMutation, t],
   );
 
   if (isLoading) {

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useCreateSavedFilter } from '@/hooks/use-saved-filters';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
@@ -26,17 +27,22 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
     const validFilters = filterEmptyQueryFilters(filters);
     if (validFilters.length === 0) return;
 
-    await createSavedFilterMutation.mutateAsync({
-      name: filterName.trim(),
-      entries: validFilters.map((f) => ({
-        column: f.column,
-        operator: f.operator,
-        value: f.value,
-      })),
-    });
-    setFilterName('');
-    onOpenChange(false);
-  }, [filterName, filters, createSavedFilterMutation, onOpenChange]);
+    try {
+      await createSavedFilterMutation.mutateAsync({
+        name: filterName.trim(),
+        entries: validFilters.map((f) => ({
+          column: f.column,
+          operator: f.operator,
+          value: f.value,
+        })),
+      });
+      toast.success(t('selector.toastFilterSavedSuccess'));
+      setFilterName('');
+      onOpenChange(false);
+    } catch {
+      toast.error(t('selector.toastFilterSavedError'));
+    }
+  }, [filterName, filters, createSavedFilterMutation, onOpenChange, t]);
 
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {

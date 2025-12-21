@@ -1495,7 +1495,11 @@
         "noSavedFilters": "No saved filters yet",
         "saveFilters": "Save",
         "saveFiltersTitle": "Save Filter Set",
-        "filterNamePlaceholder": "Enter filter name"
+        "filterNamePlaceholder": "Enter filter name",
+        "toastFilterSavedSuccess": "Filter saved",
+        "toastFilterSavedError": "Failed to save filter",
+        "toastFilterDeletedSuccess": "Filter deleted",
+        "toastFilterDeletedError": "Failed to delete filter"
       },
       "filterBy": "Filter by {label}"
     },

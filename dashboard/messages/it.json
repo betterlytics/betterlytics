@@ -1495,7 +1495,11 @@
         "noSavedFilters": "Nessun filtro salvato",
         "saveFilters": "Salva",
         "saveFiltersTitle": "Salva set di filtri",
-        "filterNamePlaceholder": "Inserisci nome filtro"
+        "filterNamePlaceholder": "Inserisci nome filtro",
+        "toastFilterSavedSuccess": "Filtro salvato",
+        "toastFilterSavedError": "Impossibile salvare il filtro",
+        "toastFilterDeletedSuccess": "Filtro eliminato",
+        "toastFilterDeletedError": "Impossibile eliminare il filtro"
       },
       "filterBy": "Filtra per {label}"
     },

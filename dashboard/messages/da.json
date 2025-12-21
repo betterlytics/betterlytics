@@ -1495,7 +1495,11 @@
         "noSavedFilters": "Ingen gemte filtre endnu",
         "saveFilters": "Gem",
         "saveFiltersTitle": "Gem filtersæt",
-        "filterNamePlaceholder": "Angiv filternavn"
+        "filterNamePlaceholder": "Angiv filternavn",
+        "toastFilterSavedSuccess": "Filter gemt",
+        "toastFilterSavedError": "Kunne ikke gemme filter",
+        "toastFilterDeletedSuccess": "Filter slettet",
+        "toastFilterDeletedError": "Kunne ikke slette filter"
       },
       "filterBy": "Filtrer efter {label}"
     },
