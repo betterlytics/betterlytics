@@ -15,7 +15,7 @@ export const latestChangelogModalEn: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'You can now save filter combinations and quickly apply them later—perfect for frequently used views.',
+            'You can now save filter combinations and quickly apply them later. Perfect for frequently used views.',
             'Hostname filtering is here! Filter your analytics by hostname to see data for specific subdomains.',
           ],
         },
