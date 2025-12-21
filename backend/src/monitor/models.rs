@@ -318,7 +318,7 @@ pub struct MonitorResultRow {
     pub latency_ms: Option<f64>,
     pub status_code: Option<u16>,
     pub http_method: String,
-    pub resolved_ip: Option<IpAddr>,
+    pub resolved_ip: Option<String>,
     pub port: Option<u16>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub tls_not_after: Option<DateTime<Utc>>,
@@ -344,7 +344,7 @@ impl MonitorResultRow {
             latency_ms: Some(outcome.latency.as_secs_f64() * 1000.0),
             status_code: outcome.status_code,
             http_method: String::new(),
-            resolved_ip: outcome.resolved_ip,
+            resolved_ip: outcome.resolved_ip.map(|ip| ip.to_string()),
             port: check.url.port_or_known_default(),
             tls_not_after: outcome.tls_not_after,
             tls_days_left: outcome.tls_days_left,

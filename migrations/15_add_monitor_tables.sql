@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_results
     latency_ms    Nullable(Float64),
     status_code   Nullable(UInt16),          -- HTTP/HTTPS only
     http_method   LowCardinality(String) DEFAULT 'HEAD', -- HEAD or GET
-    resolved_ip   Nullable(IPv6),
+    resolved_ip   Nullable(String),
     port          Nullable(UInt16),          -- for TCP/HTTP checks
     tls_not_after Nullable(DateTime64(3)),   -- SSL expiry; null if not applicable
     tls_days_left Nullable(Int32),
