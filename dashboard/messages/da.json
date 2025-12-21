@@ -1459,6 +1459,7 @@
       "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
+        "domain": "Hostname",
         "device_type": "Enhedstype",
         "country_code": "Landekode",
         "browser": "Browser",
