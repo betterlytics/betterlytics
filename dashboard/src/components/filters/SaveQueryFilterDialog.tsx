@@ -72,10 +72,14 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
             }}
           />
           <div className='flex justify-end gap-2'>
-            <Button variant='ghost' onClick={() => onOpenChange(false)}>
+            <Button variant='ghost' onClick={() => onOpenChange(false)} className='cursor-pointer'>
               {t('selector.cancel')}
             </Button>
-            <Button onClick={handleSave} disabled={!filterName.trim() || createSavedFilterMutation.isPending}>
+            <Button
+              onClick={handleSave}
+              disabled={!filterName.trim() || createSavedFilterMutation.isPending}
+              className='cursor-pointer'
+            >
               {createSavedFilterMutation.isPending ? (
                 <Loader2Icon className='mr-2 h-4 w-4 animate-spin' />
               ) : (
