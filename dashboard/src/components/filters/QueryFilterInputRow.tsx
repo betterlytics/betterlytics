@@ -18,6 +18,7 @@ import {
   EarthIcon,
   ExternalLinkIcon,
   FileTextIcon,
+  GlobeIcon,
   MonitorSmartphoneIcon,
   ShellIcon,
   SquareMousePointerIcon,
@@ -136,6 +137,7 @@ type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: 
 
 export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },
+  { value: 'domain', icon: <GlobeIcon />, label: 'Hostname' },
   { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },
   { value: 'country_code', icon: <EarthIcon />, label: 'Country code' },
   { value: 'browser', icon: <CompassIcon />, label: 'Browser' },

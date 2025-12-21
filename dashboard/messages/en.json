@@ -1456,6 +1456,7 @@
       "namePlaceholder": "Enter step name",
       "columns": {
         "url": "URL",
+        "domain": "Hostname",
         "device_type": "Device type",
         "country_code": "Country",
         "browser": "Browser",
