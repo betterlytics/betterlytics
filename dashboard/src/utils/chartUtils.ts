@@ -58,7 +58,7 @@ export function defaultDateLabelFormatter(
   granularity?: GranularityRangeValues,
   locale?: string,
 ) {
-  const d = new Date(date);
+  const d = typeof date === 'string' ? new Date(date) : date;
   if (granularity === undefined || granularity === 'day') {
     return new Intl.DateTimeFormat(locale, {
       weekday: 'short',

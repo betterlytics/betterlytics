@@ -1069,7 +1069,8 @@
       "events": "Events",
       "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}",
       "webVitals": "Web Vitals",
-      "sessionReplay": "Session Replay"
+      "sessionReplay": "Session Replay",
+      "monitoring": "Monitoring"
     },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
@@ -1121,6 +1122,326 @@
     "createCard": {
       "title": "Create Dashboard",
       "description": "Add a new dashboard"
+    }
+  },
+  "monitoring": {
+    "status": {
+      "paused": "Paused",
+      "preparing": "Preparing",
+      "up": "Up",
+      "degraded": "Degraded",
+      "down": "Down",
+      "monitoringActive": "Monitoring active",
+      "monitoringPaused": "Monitoring paused"
+    },
+    "checkStatus": {
+      "ok": "OK",
+      "warn": "Warning",
+      "down": "Down",
+      "error": "Error"
+    },
+    "latency": {
+      "paused": "Paused",
+      "fast": "Fast",
+      "elevated": "Elevated",
+      "slow": "Slow",
+      "noData": "No data yet"
+    },
+    "ssl": {
+      "valid": "Valid",
+      "expiringSoon": "Expiring soon",
+      "expired": "Expired",
+      "error": "Error",
+      "notChecked": "Not checked",
+      "badgeValid": "Certificate valid",
+      "badgeExpiringSoon": "Certificate expiring soon",
+      "badgeExpired": "Certificate expired",
+      "badgeError": "Certificate error",
+      "badgeNotChecked": "Certificate not checked"
+    },
+    "labels": {
+      "noData": "No data",
+      "uptimeSuffix": "uptime",
+      "recommended": "recommended",
+      "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}"
+    },
+    "actions": {
+      "pause": "Pause monitor",
+      "resume": "Resume monitor",
+      "pausing": "Pausing...",
+      "resuming": "Resuming..."
+    }
+  },
+  "monitor": {
+    "reason": {
+      "ok": "Site is healthy",
+      "tls_handshake_failed": "SSL/TLS handshake failed",
+      "tls_missing_certificate": "SSL certificate not found",
+      "tls_expired": "SSL certificate has expired",
+      "tls_expiring_soon": "SSL certificate expiring soon",
+      "tls_parse_error": "Failed to parse SSL certificate",
+      "tls_hostname_mismatch": "SSL certificate hostname mismatch",
+      "tls_untrusted_ca": "SSL certificate issued by untrusted CA",
+      "tls_not_yet_valid": "SSL certificate not yet valid",
+      "tls_revoked": "SSL certificate has been revoked",
+      "tls_self_signed": "SSL certificate is self-signed",
+      "tls_connection_failed": "SSL connection failed",
+      "http_4xx": "Server returned a client error",
+      "http_5xx": "Server returned a server error",
+      "http_other": "Unexpected HTTP status code",
+      "http_timeout": "Request timed out",
+      "http_connect_error": "Could not connect to server",
+      "http_body_error": "Error reading response body",
+      "http_request_error": "Error sending request",
+      "http_error": "HTTP request failed",
+      "too_many_redirects": "Too many redirects",
+      "redirect_join_failed": "Invalid redirect location",
+      "scheme_blocked": "URL scheme not allowed",
+      "port_blocked": "Port not allowed",
+      "invalid_host": "Invalid hostname",
+      "blocked_ip_literal": "IP address not allowed",
+      "dns_blocked": "DNS resolved to blocked address",
+      "dns_error": "DNS resolution failed",
+      "unknown": "Unknown error"
+    }
+  },
+  "monitoringPage": {
+    "title": "Monitoring",
+    "table": {},
+    "filters": {
+      "statusLabel": "Status",
+      "sortLabel": "Sort",
+      "statusAll": "All",
+      "statusUp": "Up",
+      "statusDegraded": "Degraded",
+      "statusDown": "Down",
+      "statusSslExpiring": "Expiring SSL certificate",
+      "statusPaused": "Paused",
+      "statusPreparing": "Preparing",
+      "sortDownFirst": "Down first",
+      "sortUpFirst": "Up first",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "sortNameAsc": "Name (A-Z)",
+      "sortNameDesc": "Name (Z-A)",
+      "sortSslExpires": "SSL expires"
+    },
+    "list": {
+      "noData": "No data yet",
+      "intervalMinutes": "{value} min",
+      "intervalSeconds": "{value}s",
+      "backoffTooltip": "Monitoring temporarily reduced to {value} because this monitor has been down repeatedly. Normal frequency resumes automatically once the service is healthy.",
+      "emptyTitle": "No monitors yet",
+      "emptyDescription": "Create your first monitor to start tracking uptime."
+    },
+    "form": {
+      "create": "New monitor",
+      "title": "Create monitor",
+      "description": "Track an endpoint for uptime, latency, and SSL health.",
+      "fields": {
+        "name": "Name",
+        "url": "URL"
+      },
+      "placeholders": {
+        "name": "Optional label"
+      },
+      "helper": {
+        "nameOptional": "(optional)",
+        "nameDescription": "Give your monitor a friendly name, or leave blank to use the URL"
+      },
+      "errors": {
+        "url": "Please enter a valid URL.",
+        "urlDomain": "URL must be on {domain} or a subdomain (e.g., api.{domain})",
+        "duplicate": "A monitor for this hostname already exists."
+      },
+      "timing": {
+        "title": "Timing & Sensitivity",
+        "interval": {
+          "label": "Monitor interval",
+          "badge": "We recommend 1 minute for most endpoints",
+          "description": "Your site will be checked every {value}"
+        },
+        "timeout": {
+          "label": "Request timeout",
+          "description": "Too short may cause false positives"
+        },
+        "sensitivity": {
+          "label": "Incident sensitivity",
+          "description": "Number of consecutive failures before an incident is triggered",
+          "valueOne": "1 failure",
+          "valueOther": "{count} failures"
+        }
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "create": "Create monitor",
+        "creating": "Creating..."
+      },
+      "success": "Monitor created",
+      "successDescription": "Your monitor will start checking immediately.",
+      "error": "Failed to create monitor"
+    }
+  },
+  "monitoringDetailPage": {
+    "actions": {
+      "edit": "Edit monitor"
+    },
+    "header": {
+      "back": "Back to Monitors",
+      "monitoring": "Monitoring"
+    },
+    "responseTime": {
+      "title": "Response time",
+      "badge": "Last 24 hours",
+      "empty": "No latency data yet"
+    },
+    "downtime": {
+      "days": "{value}d down",
+      "hours": "{value}h down",
+      "minutes": "{value}m down",
+      "unknown": "— down"
+    },
+    "incidents": {
+      "title": "Incidents",
+      "badge": "Last 7 days",
+      "emptyTitle": "No incidents recorded",
+      "emptyDescription": "We'll list root causes, timelines, and downtime windows once incidents occur.",
+      "headers": {
+        "status": "Status",
+        "root": "Root cause",
+        "started": "Started",
+        "duration": "Duration"
+      }
+    },
+    "recent": {
+      "title": "Recent monitoring results",
+      "badge": "Last 10",
+      "empty": "No checks recorded yet",
+      "headers": {
+        "status": "Status",
+        "ran": "Ran",
+        "latency": "Latency",
+        "statusCode": "Status code",
+        "reason": "Reason"
+      }
+    },
+    "uptime": {
+      "title": "Uptime",
+      "badge": "Last {days} days",
+      "grid": {
+        "uptimeLabel": "{value} uptime"
+      },
+      "stats": {
+        "label": "Last {days} days",
+        "downFallback": "— down"
+      }
+    },
+    "summary": {
+      "avgResponseTime": "Avg response time",
+      "lastCheck": {
+        "title": "Last check",
+        "paused": "Paused",
+        "preparing": "Preparing first check",
+        "helperPaused": "Resume monitor to restart checks.",
+        "helperPreparing": "We're scheduling your first check. Results will appear soon.",
+        "helperScheduled": "Scheduled every {seconds}s"
+      },
+      "last24h": {
+        "title": "Last 24 hours",
+        "helperNone": "No incidents",
+        "helperWithIncidents": "{count, plural, one {{count} incident} other {{count} incidents}}, {downtime}"
+      },
+      "ssl": {
+        "title": "SSL Certificate",
+        "disabled": "Disabled",
+        "timeLeft": "Time left",
+        "timeLeftWithUnit": "{unit} left",
+        "expires": "Exp. {date}"
+      }
+    },
+    "toast": {
+      "status": {
+        "paused": "Monitoring paused",
+        "resumed": "Monitoring resumed"
+      },
+      "statusError": "Unable to update monitor status. Try again."
+    }
+  },
+  "monitoringEditDialog": {
+    "success": "Monitor updated",
+    "error": "Unable to update monitor, please try again.",
+    "trigger": "Edit",
+    "sheet": {
+      "title": "Edit monitor",
+      "description": "Configure monitoring settings for {url}"
+    },
+    "unsavedChanges": "Unsaved changes",
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "confirmDiscard": {
+      "title": "Discard unsaved changes?",
+      "description": "You have unsaved changes that will be lost if you close this sheet.",
+      "keep": "Keep editing",
+      "discard": "Discard"
+    },
+    "delete": {
+      "trigger": "Delete monitor",
+      "title": "Delete this monitor?",
+      "description": "This action cannot be undone. All monitoring data and incident history will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete monitor",
+      "deleting": "Deleting...",
+      "error": "Failed to delete monitor"
+    },
+    "sections": {
+      "timing": "Timing",
+      "advanced": "Advanced settings"
+    },
+    "advanced": {
+      "httpMethod": {
+        "label": "HTTP method",
+        "description": "HEAD is faster but some servers don't support it"
+      },
+      "sslMonitoring": {
+        "label": "Monitor SSL errors",
+        "description": "Create incidents when certificate errors are detected"
+      },
+      "requestHeaders": {
+        "label": "Request headers",
+        "description": "Custom headers included with each request",
+        "namePlaceholder": "Header name",
+        "valuePlaceholder": "Value"
+      },
+      "acceptedStatusCodes": {
+        "label": "Accepted status codes",
+        "description": "Other codes will trigger incidents"
+      }
+    },
+    "alerts": {
+      "title": "Alerts",
+      "description": "Get notified when your monitor goes down, recovers, or when SSL certificates are expiring.",
+      "recipients": "Email recipients",
+      "recipientsDescription": "Add email addresses to receive alert notifications.",
+      "emailPlaceholder": "email@example.com",
+      "addEmail": "Add",
+      "invalidEmail": "Please enter a valid email address",
+      "emailExists": "This email is already added",
+      "triggers": "Alert triggers",
+      "onDown": "Alert on down",
+      "onDownDescription": "Send an alert when the monitor goes down",
+      "onRecovery": "Alert on recovery",
+      "onRecoveryDescription": "Send an alert when the monitor recovers from being down",
+      "onSslExpiry": "Alert on SSL expiry",
+      "onSslExpiryDescription": "Send an alert when the SSL certificate is about to expire",
+      "failureThreshold": "Failure threshold",
+      "failureThresholdDescription": "Number of consecutive failures before sending an alert",
+      "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
+      "sslExpiryDays": "Days before expiry",
+      "sslExpiryDaysDescription": "Send an alert this many days before the SSL certificate expires",
+      "daysCount": "{count, plural, one {{count} day} other {{count} days}}"
     }
   },
   "charts": {

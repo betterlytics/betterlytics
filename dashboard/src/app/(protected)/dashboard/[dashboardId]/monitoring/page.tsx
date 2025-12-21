@@ -1,0 +1,21 @@
+import { fetchMonitorChecksAction } from '@/app/actions/analytics/monitoring.actions';
+import { getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
+import { MonitoringClient } from './MonitoringClient';
+
+type MonitoringPageParams = {
+  params: Promise<{ dashboardId: string }>;
+};
+
+export default async function MonitoringPage({ params }: MonitoringPageParams) {
+  const { dashboardId } = await params;
+  const [monitors, dashboard] = await Promise.all([
+    fetchMonitorChecksAction(dashboardId),
+    getCurrentDashboardAction(dashboardId),
+  ]);
+
+  return (
+    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+      <MonitoringClient dashboardId={dashboardId} monitors={monitors} domain={dashboard.domain} />
+    </div>
+  );
+}

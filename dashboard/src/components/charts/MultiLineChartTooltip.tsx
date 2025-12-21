@@ -31,15 +31,18 @@ export function MultiLineChartTooltip({
 
   const name = label || payload[0].payload.name || payload[0].payload.label;
 
-  const percentileLabelByIndex = ['p50', 'p75', 'p90', 'p99'] as const;
-
-  const extractIndex = (key?: string) => {
-    const match = key?.match(/value\.(\d+)/);
-    return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
+  // Extract percentile number from name (e.g., "P99" -> 99, "p50" -> 50)
+  const extractPercentile = (name?: string) => {
+    const match = name?.match(/p(\d+)/i);
+    return match ? Number(match[1]) : 0;
   };
 
-  // Sort descending so higher percentiles appear first
-  const sorted = [...payload].sort((a, b) => extractIndex(b.dataKey) - extractIndex(a.dataKey));
+  // Sort by value descending, with percentile as tiebreaker (higher percentile first)
+  const sorted = [...payload].sort((a, b) => {
+    const valueDiff = (b.value ?? 0) - (a.value ?? 0);
+    if (valueDiff !== 0) return valueDiff;
+    return extractPercentile(b.name) - extractPercentile(a.name);
+  });
 
   return (
     <div
@@ -59,8 +62,7 @@ export function MultiLineChartTooltip({
 
       <div className='space-y-2'>
         {sorted.map((item) => {
-          const idx = extractIndex(item.dataKey);
-          const labelText = percentileLabelByIndex[idx];
+          const labelText = item.name ?? item.dataKey;
           const valueContent = formatter ? formatter(item.value) : item.value;
           return (
             <div key={String(item.dataKey)} className='flex items-center justify-between text-sm'>

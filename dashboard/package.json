@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "unit-tests": "vitest run",
-    "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js",
+    "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js && node scripts/post_migrate_monitoring_ro.js",
     "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma"
   },
   "prisma": {

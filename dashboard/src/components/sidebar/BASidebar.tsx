@@ -11,6 +11,7 @@ import {
   ExternalLink as ExternalLinkIcon,
   Gauge,
   Video,
+  Activity,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -83,6 +84,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
     { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={18} /> },
     { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} />, hidden: isDemo },
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
+    { name: t('monitoring'), key: 'monitoring', href: '/monitoring', icon: <Activity size={18} /> },
   ];
 
   const behaviorItems: SidebarItem[] = [

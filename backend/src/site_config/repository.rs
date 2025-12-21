@@ -1,12 +1,10 @@
-use std::str::FromStr;
-use std::time::Duration;
+use std::sync::Arc;
 
 use async_trait::async_trait;
-use bb8::{Pool, PooledConnection, RunError};
-use bb8_postgres::PostgresConnectionManager;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use thiserror::Error;
-use tokio_postgres::{Config as PgConfig, NoTls, Row};
+use tokio_postgres::Row;
+
+use crate::postgres::{PostgresError, PostgresPool};
 
 const BASE_SELECT: &str = r#"
 SELECT
@@ -20,16 +18,6 @@ INNER JOIN "Dashboard" d ON d."id" = sc."dashboardId"
 "#;
 
 const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY sc."updatedAt" ASC"#;
-
-#[derive(Debug, Error)]
-pub enum SiteConfigRepositoryError {
-    #[error("Invalid Postgres URL: {0}")]
-    InvalidDatabaseUrl(String),
-    #[error("Failed to get Postgres connection from pool: {0}")]
-    Pool(#[from] RunError<tokio_postgres::Error>),
-    #[error("Postgres query failed: {0}")]
-    Query(#[from] tokio_postgres::Error),
-}
 
 #[derive(Clone, Debug)]
 pub struct SiteConfigRecord {
@@ -57,49 +45,35 @@ impl TryFrom<Row> for SiteConfigRecord {
 
 #[async_trait]
 pub trait SiteConfigDataSource: Send + Sync + 'static {
-    async fn fetch_all_configs(&self) -> Result<Vec<SiteConfigRecord>, SiteConfigRepositoryError>;
+    async fn fetch_all_configs(&self) -> Result<Vec<SiteConfigRecord>, PostgresError>;
     async fn fetch_configs_updated_since(
         &self,
         since: DateTime<Utc>,
-    ) -> Result<Vec<SiteConfigRecord>, SiteConfigRepositoryError>;
+    ) -> Result<Vec<SiteConfigRecord>, PostgresError>;
 }
 
 pub struct SiteConfigRepository {
-    pool: Pool<PostgresConnectionManager<NoTls>>,
+    pool: Arc<PostgresPool>,
 }
 
 impl SiteConfigRepository {
-    pub async fn new(database_url: &str) -> Result<Self, SiteConfigRepositoryError> {
-        let mut config =
-            PgConfig::from_str(database_url).map_err(|e| SiteConfigRepositoryError::InvalidDatabaseUrl(e.to_string()))?;
-        config.connect_timeout(Duration::from_secs(5));
-        config.application_name("betterlytics_site_config_cache");
-
-        let manager = PostgresConnectionManager::new(config, NoTls);
-        let pool = Pool::builder().max_size(5).build(manager).await?;
-
-        Ok(Self { pool })
-    }
-
-    async fn connection(
-        &self,
-    ) -> Result<PooledConnection<'_, PostgresConnectionManager<NoTls>>, SiteConfigRepositoryError> {
-        Ok(self.pool.get().await?)
+    pub fn new(pool: Arc<PostgresPool>) -> Self {
+        Self { pool }
     }
 
     fn rowset_to_records(
         rows: Vec<Row>,
-    ) -> Result<Vec<SiteConfigRecord>, SiteConfigRepositoryError> {
+    ) -> Result<Vec<SiteConfigRecord>, PostgresError> {
         rows.into_iter()
-            .map(|row| SiteConfigRecord::try_from(row).map_err(SiteConfigRepositoryError::Query))
+            .map(|row| SiteConfigRecord::try_from(row).map_err(PostgresError::Query))
             .collect()
     }
 }
 
 #[async_trait]
 impl SiteConfigDataSource for SiteConfigRepository {
-    async fn fetch_all_configs(&self) -> Result<Vec<SiteConfigRecord>, SiteConfigRepositoryError> {
-        let conn = self.connection().await?;
+    async fn fetch_all_configs(&self) -> Result<Vec<SiteConfigRecord>, PostgresError> {
+        let conn = self.pool.connection().await?;
         let query = format!("{BASE_SELECT}{ORDER_BY_UPDATED_AT}");
         let rows = conn.query(&query, &[]).await?;
         Self::rowset_to_records(rows)
@@ -108,8 +82,8 @@ impl SiteConfigDataSource for SiteConfigRepository {
     async fn fetch_configs_updated_since(
         &self,
         since: DateTime<Utc>,
-    ) -> Result<Vec<SiteConfigRecord>, SiteConfigRepositoryError> {
-        let conn = self.connection().await?;
+    ) -> Result<Vec<SiteConfigRecord>, PostgresError> {
+        let conn = self.pool.connection().await?;
         let query = format!(
             r#"{BASE_SELECT} WHERE sc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#
         );
@@ -119,5 +93,3 @@ impl SiteConfigDataSource for SiteConfigRepository {
         Self::rowset_to_records(rows)
     }
 }
-
-
