@@ -47,6 +47,19 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
     [deleteMutation],
   );
 
+  if (isLoading) {
+    return (
+      <div className={cn(isMobile ? 'pb-1' : 'pb-2')}>
+        <div className='bg-muted/50 flex h-8 w-full animate-pulse items-center justify-between rounded px-2' />
+        <Separator className='mt-1' />
+      </div>
+    );
+  }
+
+  if (savedFilters.length === 0) {
+    return null;
+  }
+
   return (
     <DisabledDemoTooltip>
       {(isDemo) => (
@@ -58,49 +71,36 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
             onOpenChange={onOpenChange}
           >
             <CollapsibleTrigger asChild>
-              <Button
-                variant='ghost'
-                className='h-8 w-full cursor-pointer justify-between px-2'
-                disabled={isLoading}
-              >
+              <Button variant='ghost' className='h-8 w-full cursor-pointer justify-between px-2'>
                 <span className='text-muted-foreground text-sm'>
-                  {t('selector.savedFilters')}
-                  {!isLoading && savedFilters.length > 0 && ` · ${savedFilters.length}`}
+                  {t('selector.savedFilters')} · {savedFilters.length}
                 </span>
-                {isLoading ? (
-                  <Loader2Icon className='text-muted-foreground h-4 w-4 animate-spin' />
-                ) : (
-                  <ChevronDownIcon className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]:rotate-180' />
-                )}
+                <ChevronDownIcon className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]:rotate-180' />
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className='border-border/50 ml-2 space-y-1 border-l pt-1 pl-2'>
-              {savedFilters.length === 0 ? (
-                <div className='text-muted-foreground py-2 text-sm'>{t('selector.noSavedFilters')}</div>
-              ) : (
-                savedFilters.map((savedFilter) => (
-                  <div
-                    key={savedFilter.id}
-                    className={`hover:bg-accent flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5 transition-colors`}
-                    onClick={() => handleLoad(savedFilter)}
+              {savedFilters.map((savedFilter) => (
+                <div
+                  key={savedFilter.id}
+                  className={`hover:bg-accent flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5 transition-colors`}
+                  onClick={() => handleLoad(savedFilter)}
+                >
+                  <span className='truncate text-sm'>{savedFilter.name}</span>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4'
+                    onClick={(e) => handleDelete(savedFilter.id, e)}
+                    disabled={deleteMutation.isPending}
                   >
-                    <span className='truncate text-sm'>{savedFilter.name}</span>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4'
-                      onClick={(e) => handleDelete(savedFilter.id, e)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      {deleteMutation.isPending ? (
-                        <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
-                      ) : (
-                        <Trash2Icon className='h-3.5 w-3.5' />
-                      )}
-                    </Button>
-                  </div>
-                ))
-              )}
+                    {deleteMutation.isPending ? (
+                      <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
+                    ) : (
+                      <Trash2Icon className='h-3.5 w-3.5' />
+                    )}
+                  </Button>
+                </div>
+              ))}
             </CollapsibleContent>
           </Collapsible>
           <Separator />
