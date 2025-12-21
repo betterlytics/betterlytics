@@ -234,7 +234,11 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
             </Select>
           </div>
           <div className='bg-border h-6 w-px' aria-hidden />
-          <CreateMonitorDialog dashboardId={dashboardId} domain={domain} />
+          <CreateMonitorDialog
+            dashboardId={dashboardId}
+            domain={domain}
+            existingUrls={monitors.map((m) => m.url)}
+          />
         </div>
       </DashboardHeader>
 

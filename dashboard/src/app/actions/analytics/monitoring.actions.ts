@@ -15,6 +15,7 @@ import {
   getMonitorChecksWithStatus,
   updateMonitorCheck,
   deleteMonitorCheck,
+  checkMonitorHostnameExists,
 } from '@/services/analytics/monitoring.service';
 import {
   fetchLatestMonitorTlsResult,
@@ -54,6 +55,11 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       throw new UserException(`URL must be on ${dashboard.domain} or a subdomain`);
     }
 
+    const alreadyExists = await checkMonitorHostnameExists(ctx.dashboardId, input.url);
+    if (alreadyExists) {
+      throw new UserException('A monitor for this hostname already exists');
+    }
+
     const payload = MonitorCheckCreateSchema.parse({
       dashboardId: ctx.dashboardId,
       ...input,
@@ -70,7 +76,6 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
     input: {
       id: string;
       name?: string | null;
-      url: string;
       intervalSeconds: number;
       timeoutMs: number;
       isEnabled: boolean;
@@ -89,12 +94,6 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       failureThreshold: number;
     },
   ) => {
-    // Validate URL belongs to dashboard's domain
-    const dashboard = await findDashboardById(ctx.dashboardId);
-    if (!isUrlOnDomain(input.url, dashboard.domain)) {
-      throw new UserException(`URL must be on ${dashboard.domain} or a subdomain`);
-    }
-
     const payload = MonitorCheckUpdateSchema.parse({
       dashboardId: ctx.dashboardId,
       ...input,

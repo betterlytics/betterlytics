@@ -93,7 +93,6 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
         await updateMonitorCheckAction(dashboardId, {
           id: monitor.id,
           name: monitor.name ?? null,
-          url: monitor.url,
           intervalSeconds: data.intervalSeconds,
           timeoutMs: data.timeoutMs,
           isEnabled: monitor.isEnabled,

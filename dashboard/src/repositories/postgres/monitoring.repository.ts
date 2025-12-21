@@ -8,12 +8,43 @@ import {
   type MonitorCheckUpdate,
 } from '@/entities/analytics/monitoring.entities';
 
+function getHostnameFromUrl(url: string): string | null {
+  try {
+    return new URL(url.trim()).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
 export async function listMonitorChecks(dashboardId: string): Promise<MonitorCheck[]> {
   const results = await prisma.monitorCheck.findMany({
     where: { dashboardId },
     orderBy: { createdAt: 'desc' },
   });
   return results.map((row) => MonitorCheckSchema.parse(row));
+}
+
+/**
+ * Checks if a monitor already exists for the given hostname within a dashboard.
+ */
+export async function monitorExistsForHostname(
+  dashboardId: string,
+  url: string,
+  excludeMonitorId?: string,
+): Promise<boolean> {
+  const hostname = getHostnameFromUrl(url);
+  if (!hostname) return false;
+
+  const existingMonitors = await prisma.monitorCheck.findMany({
+    where: { dashboardId },
+    select: { id: true, url: true },
+  });
+
+  return existingMonitors.some((monitor) => {
+    if (excludeMonitorId && monitor.id === excludeMonitorId) return false;
+    const existingHostname = getHostnameFromUrl(monitor.url);
+    return existingHostname === hostname;
+  });
 }
 
 export async function getMonitorCheckById(dashboardId: string, monitorId: string): Promise<MonitorCheck | null> {

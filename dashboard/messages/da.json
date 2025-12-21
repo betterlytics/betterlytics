@@ -1253,7 +1253,8 @@
       },
       "errors": {
         "url": "Indtast venligst en gyldig URL.",
-        "urlDomain": "URL skal være på {domain} eller et subdomæne (f.eks. api.{domain})"
+        "urlDomain": "URL skal være på {domain} eller et subdomæne (f.eks. api.{domain})",
+        "duplicate": "Der findes allerede en overvågning for dette hostname."
       },
       "timing": {
         "title": "Tid og følsomhed",

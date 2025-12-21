@@ -37,9 +37,18 @@ import { isUrlOnDomain } from '@/utils/domainValidation';
 type CreateMonitorDialogProps = {
   dashboardId: string;
   domain: string;
+  existingUrls: string[];
 };
 
-export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialogProps) {
+function getHostname(url: string): string | null {
+  try {
+    return new URL(url.trim()).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [url, setUrl] = useState(`https://${domain}`);
@@ -91,7 +100,13 @@ export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialog
 
   const urlEmpty = !url.trim();
   const urlInvalid = !urlEmpty && !isUrlOnDomain(url, domain);
-  const hasError = urlEmpty || urlInvalid;
+
+  // Check if this hostname is already monitored
+  const newHostname = getHostname(url);
+  const existingHostnames = new Set(existingUrls.map(getHostname).filter((h): h is string => h !== null));
+  const isDuplicate = newHostname !== null && existingHostnames.has(newHostname);
+
+  const hasError = urlEmpty || urlInvalid || isDuplicate;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -136,6 +151,7 @@ export function CreateMonitorDialog({ dashboardId, domain }: CreateMonitorDialog
             />
             {urlEmpty && <p className='text-destructive text-xs'>{t('errors.url')}</p>}
             {urlInvalid && <p className='text-destructive text-xs'>{t('errors.urlDomain', { domain })}</p>}
+            {isDuplicate && <p className='text-destructive text-xs'>{t('errors.duplicate')}</p>}
           </div>
 
           <Separator />

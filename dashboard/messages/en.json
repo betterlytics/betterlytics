@@ -1251,7 +1251,8 @@
       },
       "errors": {
         "url": "Please enter a valid URL.",
-        "urlDomain": "URL must be on {domain} or a subdomain (e.g., api.{domain})"
+        "urlDomain": "URL must be on {domain} or a subdomain (e.g., api.{domain})",
+        "duplicate": "A monitor for this hostname already exists."
       },
       "timing": {
         "title": "Timing & Sensitivity",
