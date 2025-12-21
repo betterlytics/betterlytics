@@ -21,6 +21,7 @@ CREATE TABLE "MonitorCheck" (
     "alertOnSslExpiry" BOOLEAN NOT NULL DEFAULT true,
     "sslExpiryAlertDays" INTEGER NOT NULL DEFAULT 14,
     "failureThreshold" INTEGER NOT NULL DEFAULT 3,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "MonitorCheck_pkey" PRIMARY KEY ("id")
 );

@@ -263,6 +263,8 @@ model MonitorCheck {
   sslExpiryAlertDays    Int       @default(14)  // Days before expiry to alert
   failureThreshold      Int       @default(3)   // Consecutive failures before alerting
 
+  deletedAt             DateTime?
+
   @@index([dashboardId])
 }
 

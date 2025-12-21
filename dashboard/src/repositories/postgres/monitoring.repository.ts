@@ -18,7 +18,7 @@ function getHostnameFromUrl(url: string): string | null {
 
 export async function listMonitorChecks(dashboardId: string): Promise<MonitorCheck[]> {
   const results = await prisma.monitorCheck.findMany({
-    where: { dashboardId },
+    where: { dashboardId, deletedAt: null },
     orderBy: { createdAt: 'desc' },
   });
   return results.map((row) => MonitorCheckSchema.parse(row));
@@ -36,7 +36,7 @@ export async function monitorExistsForHostname(
   if (!hostname) return false;
 
   const existingMonitors = await prisma.monitorCheck.findMany({
-    where: { dashboardId },
+    where: { dashboardId, deletedAt: null },
     select: { id: true, url: true },
   });
 
@@ -49,7 +49,7 @@ export async function monitorExistsForHostname(
 
 export async function getMonitorCheckById(dashboardId: string, monitorId: string): Promise<MonitorCheck | null> {
   const row = await prisma.monitorCheck.findFirst({
-    where: { id: monitorId, dashboardId },
+    where: { id: monitorId, dashboardId, deletedAt: null },
   });
   if (!row) return null;
   return MonitorCheckSchema.parse(row);
@@ -89,7 +89,7 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
   const data = MonitorCheckUpdateSchema.parse(input);
 
   const existing = await prisma.monitorCheck.findFirst({
-    where: { id: data.id, dashboardId: data.dashboardId },
+    where: { id: data.id, dashboardId: data.dashboardId, deletedAt: null },
   });
 
   if (!existing) {
@@ -125,14 +125,15 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
 
 export async function deleteMonitorCheck(dashboardId: string, monitorId: string): Promise<void> {
   const existing = await prisma.monitorCheck.findFirst({
-    where: { id: monitorId, dashboardId },
+    where: { id: monitorId, dashboardId, deletedAt: null },
   });
 
   if (!existing) {
     throw new Error('Monitor not found');
   }
 
-  await prisma.monitorCheck.delete({
+  await prisma.monitorCheck.update({
     where: { id: monitorId },
+    data: { deletedAt: new Date() },
   });
 }
