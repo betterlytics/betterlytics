@@ -121,10 +121,10 @@ impl IncidentOrchestrator {
             match store_ref.load_active_incidents().await {
                 Ok(seeds) => {
                     evaluator.warm_from_incidents(&seeds);
-                    notification_tracker.hydrate_from_incidents(&seeds);
+                    notification_tracker.warm_from_incidents(&seeds);
                 }
                 Err(err) => {
-                    error!(error = ?err, "Failed to warm incident evaluator from incidents");
+                    error!(error = ?err, "Failed to warm incident state from persisted incidents");
                     warn!(
                         "Incident orchestrator starting cold - may re-send alerts for monitors that were already down"
                     );

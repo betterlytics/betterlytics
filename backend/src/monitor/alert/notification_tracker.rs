@@ -38,8 +38,8 @@ impl NotificationTracker {
         })
     }
 
-    /// Hydrate notification state from persisted incident data
-    pub fn hydrate_from_incidents(&self, seeds: &[IncidentSeed]) {
+    /// Warm notification state from warmed incident data
+    pub fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
         let mut count = 0;
         for seed in seeds {
             let mut entry = self.state.entry(seed.check_id.clone()).or_default();
@@ -58,8 +58,8 @@ impl NotificationTracker {
 
         if count > 0 {
             info!(
-                hydrated = count,
-                "NotificationTracker hydrated from incident seeds"
+                warmed = count,
+                "NotificationTracker warmed from incident seeds"
             );
         }
     }
