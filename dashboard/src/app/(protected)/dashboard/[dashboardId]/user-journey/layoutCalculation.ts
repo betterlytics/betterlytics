@@ -16,6 +16,8 @@ interface LayoutConfig {
   paddingLeft: number;
   nodeWidth: number;
   minNodeHeight: number;
+  compressionThreshold: number;
+  maxNodeHeight: number;
 }
 
 /**
@@ -38,15 +40,14 @@ export function calculateLayout(graph: SankeyGraph, width: number, height: numbe
  * Create layout configuration from graph metrics and dimensions
  */
 function createLayoutConfig(graph: SankeyGraph, width: number, height: number): LayoutConfig {
-  const { padding, nodeWidth, minNodeHeight, nodeHeightRatio } = LAYOUT;
+  const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight } = LAYOUT;
   const labelMargin = 110;
 
   const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
   const availableHeight = height - padding.top - padding.bottom;
   const depthSpacing = graph.maxDepth > 0 ? availableWidth / graph.maxDepth : 0;
 
-  const minTotalPadding = (graph.maxColumnCount - 1) * 8;
-  const heightScale = ((availableHeight - minTotalPadding) / graph.maxColumnTraffic) * nodeHeightRatio;
+  const heightScale = maxNodeHeight / graph.maxTraffic;
 
   return {
     availableWidth,
@@ -57,7 +58,34 @@ function createLayoutConfig(graph: SankeyGraph, width: number, height: number): 
     paddingLeft: padding.left,
     nodeWidth,
     minNodeHeight,
+    compressionThreshold,
+    maxNodeHeight,
   };
+}
+
+/**
+ * Apply soft compression to node height.
+ * Linear scaling up to threshold, then sqrt compression up to max.
+ * This prevents huge nodes while keeping large values visually distinct.
+ */
+function compressHeight(rawHeight: number, config: LayoutConfig): number {
+  const { minNodeHeight, compressionThreshold, maxNodeHeight } = config;
+
+  if (rawHeight <= compressionThreshold) {
+    // Below threshold: linear scaling (unchanged)
+    return Math.max(minNodeHeight, rawHeight);
+  }
+
+  // The excess above threshold gets compressed via sqrt
+  const excess = rawHeight - compressionThreshold;
+  const compressionRange = maxNodeHeight - compressionThreshold;
+
+  // Normalize excess to [0, 1] range (assuming excess won't exceed 4x the threshold typically)
+  // Then apply sqrt and scale to remaining range
+  const normalizedExcess = Math.min(excess / (compressionThreshold * 4), 1);
+  const compressedExcess = Math.sqrt(normalizedExcess) * compressionRange;
+
+  return Math.min(compressionThreshold + compressedExcess, maxNodeHeight);
 }
 
 /**
@@ -70,7 +98,7 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
   });
 
   const nodeYCenter = new Map<string, number>();
-  const ITERATIONS = 4;
+  const ITERATIONS = 6;
 
   // Initial Y positions
   for (let depth = 0; depth <= graph.maxDepth; depth++) {
@@ -82,7 +110,7 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
     // Forward pass: order by incoming connections
     for (let depth = 1; depth <= graph.maxDepth; depth++) {
       const nodes = orderedGroups.get(depth) || [];
-      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.incoming);
+      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.incoming, graph.maxTraffic);
       orderedGroups.set(depth, sorted);
       updateColumnYCenters(sorted, nodeYCenter, config);
     }
@@ -90,7 +118,7 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
     // Backward pass: order by outgoing connections
     for (let depth = graph.maxDepth - 1; depth >= 0; depth--) {
       const nodes = orderedGroups.get(depth) || [];
-      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.outgoing);
+      const sorted = sortByBarycenter(nodes, nodeYCenter, (n) => n.outgoing, graph.maxTraffic);
       orderedGroups.set(depth, sorted);
       updateColumnYCenters(sorted, nodeYCenter, config);
     }
@@ -101,28 +129,38 @@ function applyBarycenterOrdering(graph: SankeyGraph, config: LayoutConfig): Map<
 
 /**
  * Sort nodes by their barycenter (weighted average Y of connected nodes)
+ * with a size bias heuristic that pushes larger nodes toward the top
  */
 function sortByBarycenter(
   nodes: GraphNode[],
   nodeYCenter: Map<string, number>,
   getConnections: (node: GraphNode) => NodeConnection[],
+  maxTraffic: number,
 ): GraphNode[] {
+  const SIZE_BIAS_WEIGHT = 100;
+
   const withBarycenters = nodes.map((node) => {
     const connections = getConnections(node);
+    let rawBarycenter: number;
+
     if (connections.length === 0) {
-      return { node, barycenter: nodeYCenter.get(node.id) || 0 };
+      rawBarycenter = nodeYCenter.get(node.id) || 0;
+    } else {
+      let weightedSum = 0;
+      let totalWeight = 0;
+      connections.forEach(({ nodeId, value }) => {
+        weightedSum += (nodeYCenter.get(nodeId) || 0) * value;
+        totalWeight += value;
+      });
+      rawBarycenter = totalWeight > 0 ? weightedSum / totalWeight : nodeYCenter.get(node.id) || 0;
     }
 
-    let weightedSum = 0;
-    let totalWeight = 0;
-    connections.forEach(({ nodeId, value }) => {
-      weightedSum += (nodeYCenter.get(nodeId) || 0) * value;
-      totalWeight += value;
-    });
+    const sizeRatio = maxTraffic > 0 ? node.totalTraffic / maxTraffic : 0;
+    const sizeBias = (1 - sizeRatio) * SIZE_BIAS_WEIGHT;
 
     return {
       node,
-      barycenter: totalWeight > 0 ? weightedSum / totalWeight : nodeYCenter.get(node.id) || 0,
+      barycenter: rawBarycenter + sizeBias,
     };
   });
 
@@ -134,14 +172,14 @@ function sortByBarycenter(
  * Update Y center positions for a column of nodes
  */
 function updateColumnYCenters(nodes: GraphNode[], nodeYCenter: Map<string, number>, config: LayoutConfig): void {
-  const columnTraffic = nodes.reduce((sum, n) => sum + n.totalTraffic, 0);
-  const totalHeight = columnTraffic * config.heightScale;
+  const heights = nodes.map((node) => compressHeight(node.totalTraffic * config.heightScale, config));
+  const totalHeight = heights.reduce((sum, h) => sum + h, 0);
   const remainingSpace = config.availableHeight - totalHeight;
-  const padding = nodes.length > 1 ? remainingSpace / (nodes.length - 1) : 0;
+  const padding = nodes.length > 1 ? Math.max(0, remainingSpace / (nodes.length - 1)) : 0;
 
   let y = config.paddingTop;
-  nodes.forEach((node) => {
-    const height = Math.max(node.totalTraffic * config.heightScale, config.minNodeHeight);
+  nodes.forEach((node, i) => {
+    const height = heights[i];
     nodeYCenter.set(node.id, y + height / 2);
     y += height + padding;
   });
@@ -159,15 +197,16 @@ function calculateNodePositions(
 
   orderedGroups.forEach((nodes, depth) => {
     const x = config.paddingLeft + depth * config.depthSpacing;
-    const columnTraffic = nodes.reduce((sum, n) => sum + n.totalTraffic, 0);
-    const totalHeight = columnTraffic * config.heightScale;
+
+    const heights = nodes.map((node) => compressHeight(node.totalTraffic * config.heightScale, config));
+    const totalHeight = heights.reduce((sum, h) => sum + h, 0);
     const remainingSpace = config.availableHeight - totalHeight;
-    const padding = nodes.length > 1 ? remainingSpace / (nodes.length - 1) : 0;
+    const padding = nodes.length > 1 ? Math.max(0, remainingSpace / (nodes.length - 1)) : 0;
 
     let y = config.paddingTop;
 
-    nodes.forEach((node) => {
-      const height = Math.max(node.totalTraffic * config.heightScale, config.minNodeHeight);
+    nodes.forEach((node, i) => {
+      const height = heights[i];
 
       const position: NodePosition = {
         id: node.id,

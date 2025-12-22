@@ -55,6 +55,7 @@ export class SankeyGraph {
   private readonly _maxColumnCount: number;
   private readonly _maxTraffic: number;
   private readonly _maxColumnTraffic: number;
+  private readonly _totalEntrySessions: number;
   private readonly _linksBySourceTarget: Map<string, number>;
 
   constructor(data: SankeyData) {
@@ -141,6 +142,10 @@ export class SankeyGraph {
       maxColTraffic = Math.max(maxColTraffic, total);
     });
     this._maxColumnTraffic = maxColTraffic;
+
+    // Compute total entry sessions (sum of all traffic at depth 0)
+    const entryNodes = this._depthGroups.get(0) || [];
+    this._totalEntrySessions = entryNodes.reduce((sum, n) => sum + n.totalTraffic, 0);
   }
 
   // ============================================
@@ -177,6 +182,10 @@ export class SankeyGraph {
 
   get maxColumnTraffic(): number {
     return this._maxColumnTraffic;
+  }
+
+  get totalEntrySessions(): number {
+    return this._totalEntrySessions;
   }
 
   get nodeCount(): number {
