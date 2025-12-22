@@ -10,7 +10,7 @@ use serde::Serialize;
 
 use crate::clickhouse::ClickHouseClient;
 use crate::monitor::clickhouse_writer::ClickhouseChannelWriter;
-use super::tracker::AlertType;
+use crate::monitor::IncidentType;
 
 #[derive(clickhouse::Row, Serialize, Debug, Clone)]
 pub struct AlertHistoryRow {
@@ -29,7 +29,7 @@ pub struct AlertHistoryRow {
 pub struct AlertHistoryRecord {
     pub monitor_check_id: String,
     pub site_id: String,
-    pub alert_type: AlertType,
+    pub alert_type: IncidentType,
     pub sent_to: Vec<String>,
     pub status_code: Option<i32>,
     pub latency_ms: Option<i32>,

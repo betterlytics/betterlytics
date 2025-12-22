@@ -11,10 +11,10 @@ use tokio::time::{Instant, MissedTickBehavior, interval};
 use tracing::{debug, info, warn};
 
 use crate::metrics::MetricsCollector;
-use crate::monitor::alert::{AlertContext, AlertService};
 use crate::monitor::{
-    BackoffController, BackoffPolicy, BackoffSnapshot, DomainRateLimiter, MonitorCache,
-    MonitorCheck, MonitorProbe, MonitorResultRow, MonitorWriter, ProbeOutcome,
+    BackoffController, BackoffPolicy, BackoffSnapshot, DomainRateLimiter, IncidentContext,
+    IncidentOrchestrator, MonitorCache, MonitorCheck, MonitorProbe, MonitorResultRow,
+    MonitorWriter, ProbeOutcome,
 };
 
 const BACKOFF_JITTER_PCT: f64 = 0.10;
@@ -147,7 +147,7 @@ pub struct Runner<S: RunnerStrategy> {
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
-    alert_service: Option<Arc<AlertService>>,
+    incident_orchestrator: Option<Arc<IncidentOrchestrator>>,
     rate_limiter: Option<Arc<DomainRateLimiter>>,
     runtime: S::RuntimeConfig,
     _marker: PhantomData<S>,
@@ -166,15 +166,15 @@ impl<S: RunnerStrategy> Runner<S> {
             probe,
             writer,
             metrics,
-            alert_service: None,
+            incident_orchestrator: None,
             rate_limiter: None,
             runtime,
             _marker: PhantomData,
         }
     }
 
-    pub fn with_alert_service(mut self, alert_service: Arc<AlertService>) -> Self {
-        self.alert_service = Some(alert_service);
+    pub fn with_incident_orchestrator(mut self, orchestrator: Arc<IncidentOrchestrator>) -> Self {
+        self.incident_orchestrator = Some(orchestrator);
         self
     }
 
@@ -191,7 +191,7 @@ impl<S: RunnerStrategy> Runner<S> {
         let probe = self.probe;
         let writer = self.writer;
         let metrics = self.metrics;
-        let alert_service = self.alert_service;
+        let incident_orchestrator = self.incident_orchestrator;
         let rate_limiter = self.rate_limiter;
         let runtime = self.runtime;
 
@@ -222,7 +222,7 @@ impl<S: RunnerStrategy> Runner<S> {
                     probe.clone(),
                     Arc::clone(&writer),
                     metrics.clone(),
-                    alert_service.clone(),
+                    incident_orchestrator.clone(),
                     rate_limiter.clone(),
                     config,
                     scheduler,
@@ -394,7 +394,7 @@ async fn run_loop<S: RunnerStrategy>(
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
-    alert_service: Option<Arc<AlertService>>,
+    incident_orchestrator: Option<Arc<IncidentOrchestrator>>,
     rate_limiter: Option<Arc<DomainRateLimiter>>,
     config: RunLoopConfig,
     mut scheduler: S::Scheduler,
@@ -412,7 +412,7 @@ async fn run_loop<S: RunnerStrategy>(
         runner = config.name,
         tick_ms = config.scheduler_tick.as_millis(),
         max_concurrency = config.max_concurrency,
-        alerts_enabled = alert_service.is_some(),
+        alerts_enabled = incident_orchestrator.is_some(),
         rate_limiting_enabled = rate_limiter.is_some(),
         "monitor runner started"
     );
@@ -432,9 +432,9 @@ async fn run_loop<S: RunnerStrategy>(
             scheduler.prune_inactive(&active_ids);
             last_run.retain(|id, _| active_ids.contains(id));
             
-            // Also prune alert service state
-            if let Some(ref alert_svc) = alert_service {
-                alert_svc.prune_inactive(&active_ids).await;
+            // Also prune incident orchestrator state
+            if let Some(ref orchestrator) = incident_orchestrator {
+                orchestrator.prune_inactive(&active_ids).await;
             }
 
             // Prune stale rate limiter entries
@@ -522,9 +522,9 @@ async fn run_loop<S: RunnerStrategy>(
                     "probe completed"
                 );
 
-                // Process alerts if alert service is configured
-                if let Some(ref alert_svc) = alert_service {
-                    let alert_ctx = AlertContext::from_probe(
+                // Process incidents if orchestrator is configured
+                if let Some(ref orchestrator) = incident_orchestrator {
+                    let incident_ctx = IncidentContext::from_probe(
                         &check,
                         &outcome,
                         post_snapshot.consecutive_failures,
@@ -532,10 +532,10 @@ async fn run_loop<S: RunnerStrategy>(
 
                     if is_tls_runner {
                         // TLS runner only processes SSL alerts
-                        alert_svc.process_tls_probe_outcome(&alert_ctx).await;
+                        orchestrator.process_tls_probe_outcome(&incident_ctx).await;
                     } else {
                         // HTTP runner processes down/recovery alerts
-                        alert_svc.process_probe_outcome(&alert_ctx).await;
+                        orchestrator.process_probe_outcome(&incident_ctx).await;
                     }
                 }
 

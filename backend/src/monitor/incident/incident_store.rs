@@ -6,9 +6,9 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::clickhouse::ClickHouseClient;
-use crate::monitor::alert::tracker::{IncidentSeverity, IncidentState, IncidentSnapshot};
 use crate::monitor::clickhouse_writer::ClickhouseChannelWriter;
 use crate::monitor::models::{MonitorCheck, MonitorStatus, ReasonCode};
+use super::{IncidentSnapshot, IncidentState, IncidentSeverity};
 
 #[derive(clickhouse::Row, Serialize, Debug, Clone)]
 pub struct MonitorIncidentRow {
@@ -94,6 +94,14 @@ pub struct IncidentSeed {
     pub notified_resolve_at: Option<DateTime<Utc>>,
 }
 
+fn deserialize_reason_code<'de, D>(deserializer: D) -> Result<ReasonCode, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    Ok(s.parse().unwrap_or(ReasonCode::Ok))
+}
+
 #[derive(clickhouse::Row, Deserialize)]
 struct IncidentSeedRow {
     #[serde(with = "clickhouse::serde::uuid")]
@@ -109,6 +117,7 @@ struct IncidentSeedRow {
     resolved_at: Option<DateTime<Utc>>,
     failure_count: u16,
     last_status: Option<i8>,
+    #[serde(deserialize_with = "deserialize_reason_code")]  
     reason_code: ReasonCode,
     status_code: Option<u16>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]

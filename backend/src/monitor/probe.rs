@@ -241,14 +241,13 @@ impl MonitorProbe {
     ) -> Result<(CappedResponse, std::net::IpAddr, String, usize), ProbeError> {
         let mut current_url = check.url.clone();
         let mut resolved_ip = validate_target(&current_url).await.map_err(ProbeError::from)?.resolved_ip;
-        let mut hops = 0usize;
 
         for hop in 0..=MAX_REDIRECTS {
             let response = self.request_with_method(check, &current_url).await?;
             let status = response.status;
 
             if !status.is_redirection() {
-                return Ok((response, resolved_ip, current_url.to_string(), hops));
+                return Ok((response, resolved_ip, current_url.to_string(), hop));
             }
 
             let location = response
@@ -257,7 +256,7 @@ impl MonitorProbe {
                 .and_then(|v| v.to_str().ok());
 
             let Some(location) = location else {
-                return Ok((response, resolved_ip, current_url.to_string(), hops));
+                return Ok((response, resolved_ip, current_url.to_string(), hop));
             };
 
             if hop >= MAX_REDIRECTS {
@@ -280,7 +279,6 @@ impl MonitorProbe {
             resolved_ip = validate_target(&next_url).await.map_err(ProbeError::from)?.resolved_ip;
 
             current_url = next_url;
-            hops += 1;
         }
 
         Err(ProbeError::new(

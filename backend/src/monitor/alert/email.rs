@@ -8,10 +8,7 @@ use chrono::{DateTime, Duration, Utc};
 
 use crate::email::templates::{email_signature, html_escape, wrap_html, wrap_text};
 use crate::email::EmailRequest;
-use crate::monitor::ReasonCode;
-
-use super::tracker::AlertType;
-
+use crate::monitor::{ReasonCode, IncidentType};
 
 /// Build a down alert email request
 pub fn build_down_alert(
@@ -77,12 +74,12 @@ pub fn build_ssl_alert(
     let (subject, alert_type) = if days_left <= 0 {
         (
             format!("🚨 SSL Certificate Expired: {}", monitor_name),
-            AlertType::SslExpired,
+            IncidentType::SslExpired,
         )
     } else {
         (
             format!("⚠️ SSL Certificate Expiring Soon: {}", monitor_name),
-            AlertType::SslExpiring,
+            IncidentType::SslExpiring,
         )
     };
 
@@ -267,9 +264,9 @@ fn build_ssl_alert_html(
     days_left: i32,
     expiry_date: Option<DateTime<Utc>>,
     monitor_url: &str,
-    alert_type: AlertType,
+    alert_type: IncidentType,
 ) -> String {
-    let (box_class, heading_style, icon, title) = if alert_type == AlertType::SslExpired {
+    let (box_class, heading_style, icon, title) = if alert_type == IncidentType::SslExpired {
         (
             "alert-box",
             "margin: 0 0 10px 0; color: #dc2626; font-size: 18px;",
@@ -338,9 +335,9 @@ fn build_ssl_alert_text(
     days_left: i32,
     expiry_date: Option<DateTime<Utc>>,
     monitor_url: &str,
-    alert_type: AlertType,
+    alert_type: IncidentType,
 ) -> String {
-    let title = if alert_type == AlertType::SslExpired {
+    let title = if alert_type == IncidentType::SslExpired {
         "SSL CERTIFICATE EXPIRED"
     } else {
         "SSL CERTIFICATE EXPIRING SOON"

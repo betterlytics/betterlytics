@@ -1,8 +1,8 @@
-//! Alert service - orchestrates incident evaluation, notifications, and history
+//! Incident orchestrator - coordinates incident evaluation, notifications, and history
 //!
-//! This is the main entry point for the alerting system. It coordinates:
-//! - Using `AlertTracker` to maintain per-monitor incident state and derive events
-//! - Per-recipient notification deduping and cooldowns
+//! This is the main entry point for the monitoring incident system. It coordinates:
+//! - Using `IncidentEvaluator` to maintain per-monitor incident state and derive events
+//! - Using `NotificationTracker` for notification deduping and cooldowns
 //! - Email delivery (when configured)
 //! - Alert history recording and persistence of incident snapshots
 //!
@@ -10,24 +10,24 @@
 
 use std::collections::HashSet;
 use std::sync::Arc;
-use chrono::{DateTime, Duration, Utc};
-use dashmap::DashMap;
-use tracing::{debug, error, info, warn};
-use uuid::Uuid;
 
-use super::email as email_templates;
-use super::repository::{AlertHistoryRecord, AlertHistoryWriter};
+use chrono::Duration;
+use tracing::{debug, error, info, warn};
+
+use super::alert::email as email_templates;
+use super::alert::repository::{AlertHistoryRecord, AlertHistoryWriter};
+use super::alert::NotificationTracker;
 use crate::config::EmailConfig;
 use crate::email::EmailService;
-use super::tracker::{AlertTracker, AlertTrackerConfig, AlertType, IncidentEvent, SslEvent};
-use crate::monitor::{
-    IncidentStore, MonitorCheck, MonitorIncidentRow, MonitorStatus, ProbeOutcome, ReasonCode,
+use crate::monitor::incident::{
+    IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentStore,
+    MonitorIncidentRow,
 };
-use crate::monitor::incident_store::{IncidentSeed, NotificationSnapshot};
+use crate::monitor::{IncidentType, MonitorCheck, MonitorStatus, ProbeOutcome, ReasonCode};
 
-/// Context for processing an alert
+/// Context for processing an incident
 #[derive(Clone, Debug)]
-pub struct AlertContext {
+pub struct IncidentContext {
     pub check: Arc<MonitorCheck>,
     pub consecutive_failures: u16,
     pub status: MonitorStatus,
@@ -37,7 +37,7 @@ pub struct AlertContext {
     pub tls_not_after: Option<chrono::DateTime<chrono::Utc>>,
 }
 
-impl AlertContext {
+impl IncidentContext {
     pub fn from_probe(
         check: &Arc<MonitorCheck>,
         outcome: &ProbeOutcome,
@@ -63,22 +63,21 @@ impl AlertContext {
     }
 }
 
-
-/// Configuration for the alert service
+/// Configuration for the incident orchestrator
 #[derive(Clone, Debug)]
-pub struct AlertServiceConfig {
+pub struct IncidentOrchestratorConfig {
     pub enabled: bool,
-    pub tracker_config: AlertTrackerConfig,
+    pub evaluator_config: IncidentEvaluatorConfig,
     pub email_config: Option<EmailConfig>,
     pub public_base_url: String,
     pub ssl_cooldown: Duration,
 }
 
-impl AlertServiceConfig {
+impl IncidentOrchestratorConfig {
     pub fn from_config(config: &crate::config::Config) -> Self {
         Self {
             enabled: true,
-            tracker_config: AlertTrackerConfig::default(),
+            evaluator_config: IncidentEvaluatorConfig::default(),
             email_config: config.email.clone(),
             public_base_url: config.public_base_url.clone(),
             ssl_cooldown: Duration::hours(24),
@@ -86,30 +85,20 @@ impl AlertServiceConfig {
     }
 }
 
-#[derive(Clone, Debug, Default)]
-struct NotificationTimestamps {
-    last_down: Option<DateTime<Utc>>,
-    last_down_incident: Option<Uuid>,
-    last_recovery: Option<DateTime<Utc>>,
-    last_recovery_incident: Option<Uuid>,
-    last_ssl: Option<DateTime<Utc>>,
-}
-
-/// The main alert service that coordinates all alerting functionality
-pub struct AlertService {
-    tracker: AlertTracker,
+/// The main orchestrator that coordinates incident evaluation, notifications, and persistence
+pub struct IncidentOrchestrator {
+    evaluator: IncidentEvaluator,
+    notification_tracker: Arc<NotificationTracker>,
     email_service: Option<EmailService>,
     history_writer: Option<Arc<AlertHistoryWriter>>,
     enabled: bool,
-    notification_state: DashMap<String, NotificationTimestamps>,
-    ssl_cooldown: Duration,
     incident_store: Option<Arc<IncidentStore>>,
     public_base_url: String,
 }
 
-impl AlertService {
+impl IncidentOrchestrator {
     pub async fn new(
-        config: AlertServiceConfig,
+        config: IncidentOrchestratorConfig,
         history_writer: Option<Arc<AlertHistoryWriter>>,
         incident_store: Option<Arc<IncidentStore>>,
     ) -> Self {
@@ -118,38 +107,37 @@ impl AlertService {
         if email_service.is_none() {
             warn!("Email service not configured - alerts will be logged but not sent");
         } else {
-            info!("Alert service initialized with email delivery");
+            info!("Incident orchestrator initialized with email delivery");
         }
 
         if history_writer.is_none() {
             warn!("Alert history writer not configured - alerts will not be recorded");
         }
 
-        let tracker = AlertTracker::new(config.tracker_config);
+        let evaluator = IncidentEvaluator::new(config.evaluator_config);
+        let notification_tracker = NotificationTracker::new(config.ssl_cooldown);
 
-        let notification_state = DashMap::new();
         if let Some(store_ref) = incident_store.as_ref() {
             match store_ref.load_active_incidents().await {
                 Ok(seeds) => {
-                    tracker.warm_from_incidents(&seeds);
-                    Self::hydrate_notification_state(&notification_state, &seeds);
+                    evaluator.warm_from_incidents(&seeds);
+                    notification_tracker.hydrate_from_incidents(&seeds);
                 }
                 Err(err) => {
-                    error!(error = ?err, "Failed to warm alert tracker from incidents");
+                    error!(error = ?err, "Failed to warm incident evaluator from incidents");
                     warn!(
-                        "Alert tracker starting cold - may re-send alerts for monitors that were already down"
+                        "Incident orchestrator starting cold - may re-send alerts for monitors that were already down"
                     );
                 }
             }
         }
 
         Self {
-            tracker,
+            evaluator,
+            notification_tracker,
             email_service,
             history_writer,
             enabled: config.enabled,
-            notification_state,
-            ssl_cooldown: config.ssl_cooldown,
             incident_store,
             public_base_url: config.public_base_url,
         }
@@ -163,9 +151,9 @@ impl AlertService {
         skip(self, ctx),
         fields(check_id = %ctx.check.id, status = ?ctx.status)
     )]
-    pub async fn process_probe_outcome(&self, ctx: &AlertContext) {
+    pub async fn process_probe_outcome(&self, ctx: &IncidentContext) {
         if !self.enabled {
-            debug!("alert service globally disabled; skipping probe outcome");
+            debug!("incident orchestrator globally disabled; skipping probe outcome");
             return;
         }
 
@@ -176,9 +164,8 @@ impl AlertService {
             return;
         }
 
-        // Check for different alert conditions
         match ctx.status {
-            MonitorStatus::Down | MonitorStatus::Error => self.handle_failure_alert(ctx).await,
+            MonitorStatus::Down | MonitorStatus::Error => self.handle_failure(ctx).await,
             MonitorStatus::Ok => self.handle_success(ctx).await,
             MonitorStatus::Warn => {} // TODO: Handle Warn for slow responses etc?
         }
@@ -190,7 +177,7 @@ impl AlertService {
         skip(self, ctx),
         fields(check_id = %ctx.check.id, tls_days_left = ?ctx.tls_days_left)
     )]
-    pub async fn process_tls_probe_outcome(&self, ctx: &AlertContext) {
+    pub async fn process_tls_probe_outcome(&self, ctx: &IncidentContext) {
         if !self.enabled {
             return;
         }
@@ -212,7 +199,7 @@ impl AlertService {
         skip(self, ctx),
         fields(check_id = %ctx.check.id, site_id = %ctx.check.site_id)
     )]
-    async fn handle_failure_alert(&self, ctx: &AlertContext) {
+    async fn handle_failure(&self, ctx: &IncidentContext) {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_down {
@@ -220,15 +207,11 @@ impl AlertService {
             return;
         }
 
-        // Update tracker with latest error details so incident snapshots
-        // can retain a stable view of the failing reason even after recovery.
-        self.tracker.update_error_metadata(
-            &ctx.check.id,
-            ctx.reason_code,
-            ctx.status_code,
-        );
+        // Update evaluator with latest error details
+        self.evaluator
+            .update_error_metadata(&ctx.check.id, ctx.reason_code, ctx.status_code);
 
-        let event = self.tracker.evaluate_failure(
+        let event = self.evaluator.evaluate_failure(
             &ctx.check.id,
             ctx.status,
             ctx.consecutive_failures,
@@ -250,16 +233,17 @@ impl AlertService {
                 incident_id
             }
             Some(IncidentEvent::Resolved { .. }) => {
-                // Should not happen on failure path; ignore defensively.
                 warn!("unexpected Resolved event on failure path");
                 return;
             }
             None => return,
         };
 
-        if !self.should_notify_down(&ctx.check.id, incident_id) {
-            self.persist_incident_snapshot(ctx)
-                .await;
+        if !self
+            .notification_tracker
+            .should_notify_down(&ctx.check.id, incident_id)
+        {
+            self.persist_incident_snapshot(ctx).await;
             return;
         }
 
@@ -267,21 +251,22 @@ impl AlertService {
 
         if recipients.is_empty() {
             debug!("no recipients configured");
-            self.mark_notified_down(&ctx.check.id, incident_id);
-            self.persist_incident_snapshot(ctx)
-                .await;
+            self.notification_tracker
+                .mark_notified_down(&ctx.check.id, incident_id);
+            self.persist_incident_snapshot(ctx).await;
             return;
         }
 
         let result = self.send_down_alert(ctx, recipients).await;
 
         if result {
-            self.mark_notified_down(&ctx.check.id, incident_id);
-            
+            self.notification_tracker
+                .mark_notified_down(&ctx.check.id, incident_id);
+
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
                 site_id: ctx.check.site_id.clone(),
-                alert_type: AlertType::Down,
+                alert_type: IncidentType::Down,
                 sent_to: recipients.clone(),
                 status_code: ctx.status_code.map(|c| c as i32),
                 latency_ms: None,
@@ -297,8 +282,7 @@ impl AlertService {
             );
         }
 
-        self.persist_incident_snapshot(ctx)
-            .await;
+        self.persist_incident_snapshot(ctx).await;
     }
 
     #[tracing::instrument(
@@ -306,24 +290,27 @@ impl AlertService {
         skip(self, ctx),
         fields(check_id = %ctx.check.id, site_id = %ctx.check.site_id)
     )]
-    async fn handle_success(&self, ctx: &AlertContext) {
+    async fn handle_success(&self, ctx: &IncidentContext) {
         let alert_config = &ctx.check.alert;
 
-        // Check if we need to send a recovery alert
-        let event = self.tracker.evaluate_recovery(&ctx.check.id, ctx.status);
+        let event = self.evaluator.evaluate_recovery(&ctx.check.id, ctx.status);
 
         if !matches!(event, Some(IncidentEvent::Resolved { .. })) {
             debug!("incident still open");
         }
 
         let (incident_id, downtime_duration) = match event {
-            Some(IncidentEvent::Resolved { incident_id, downtime_duration }) => (incident_id, downtime_duration),
+            Some(IncidentEvent::Resolved {
+                incident_id,
+                downtime_duration,
+            }) => (incident_id, downtime_duration),
             _ => return,
         };
 
         if !alert_config.on_recovery {
             debug!("recovery alerts disabled for monitor");
-            self.mark_notified_recovery(&ctx.check.id, incident_id);
+            self.notification_tracker
+                .mark_notified_recovery(&ctx.check.id, incident_id);
             return;
         }
 
@@ -331,9 +318,9 @@ impl AlertService {
 
         if recipients.is_empty() {
             debug!("no recipients configured");
-            self.mark_notified_recovery(&ctx.check.id, incident_id);
-            self.persist_incident_snapshot(ctx)
-                .await;
+            self.notification_tracker
+                .mark_notified_recovery(&ctx.check.id, incident_id);
+            self.persist_incident_snapshot(ctx).await;
             return;
         }
 
@@ -342,12 +329,13 @@ impl AlertService {
             .await;
 
         if result {
-            self.mark_notified_recovery(&ctx.check.id, incident_id);
-            
+            self.notification_tracker
+                .mark_notified_recovery(&ctx.check.id, incident_id);
+
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
                 site_id: ctx.check.site_id.clone(),
-                alert_type: AlertType::Recovery,
+                alert_type: IncidentType::Recovery,
                 sent_to: recipients.clone(),
                 status_code: None,
                 latency_ms: None,
@@ -364,8 +352,7 @@ impl AlertService {
             );
         }
 
-        self.persist_incident_snapshot(ctx)
-            .await;
+        self.persist_incident_snapshot(ctx).await;
     }
 
     #[tracing::instrument(
@@ -373,7 +360,7 @@ impl AlertService {
         skip(self, ctx),
         fields(check_id = %ctx.check.id, days_left = days_left)
     )]
-    async fn handle_ssl_alert(&self, ctx: &AlertContext, days_left: i32) {
+    async fn handle_ssl_alert(&self, ctx: &IncidentContext, days_left: i32) {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_ssl_expiry {
@@ -381,40 +368,39 @@ impl AlertService {
             return;
         }
 
-        let event = self.tracker.should_alert_ssl_expiry(
+        // Check both threshold and cooldown via NotificationTracker
+        if !self.notification_tracker.should_notify_ssl(
             &ctx.check.id,
             days_left,
             alert_config.ssl_expiry_days,
-        );
-
-        if event.is_none() {
-            debug!(threshold = alert_config.ssl_expiry_days, "SSL days above threshold");
-        }
-
-        let alert_type = match event {
-            Some(SslEvent::Expired) => AlertType::SslExpired,
-            Some(SslEvent::Expiring) => AlertType::SslExpiring,
-            None => return,
-        };
-
-        if !self.should_notify_ssl(&ctx.check.id) {
-            debug!("SSL cooldown active");
+        ) {
+            debug!(
+                threshold = alert_config.ssl_expiry_days,
+                "SSL notification not needed (above threshold or cooldown active)"
+            );
             return;
         }
+
+        // Map days_left to incident type
+        let alert_type = if days_left <= 0 {
+            IncidentType::SslExpired
+        } else {
+            IncidentType::SslExpiring
+        };
 
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
             debug!("no recipients configured");
-            self.mark_notified_ssl(&ctx.check.id);
+            self.notification_tracker.mark_notified_ssl(&ctx.check.id);
             return;
         }
 
         let result = self.send_ssl_alert(ctx, recipients, days_left).await;
 
         if result {
-            self.mark_notified_ssl(&ctx.check.id);
-            
+            self.notification_tracker.mark_notified_ssl(&ctx.check.id);
+
             self.record_alert_history(AlertHistoryRecord {
                 monitor_check_id: ctx.check.id.clone(),
                 site_id: ctx.check.site_id.clone(),
@@ -436,9 +422,12 @@ impl AlertService {
     }
 
     #[tracing::instrument(level = "debug", skip(self, ctx, recipients), fields(check_id = %ctx.check.id))]
-    async fn send_down_alert(&self, ctx: &AlertContext, recipients: &[String]) -> bool {
+    async fn send_down_alert(&self, ctx: &IncidentContext, recipients: &[String]) -> bool {
         let Some(email_service) = &self.email_service else {
-            info!(recipients = recipients.len(), "Would send down alert (email service not configured)");
+            info!(
+                recipients = recipients.len(),
+                "Would send down alert (email service not configured)"
+            );
             return false;
         };
 
@@ -469,12 +458,15 @@ impl AlertService {
     #[tracing::instrument(level = "debug", skip(self, ctx, recipients), fields(check_id = %ctx.check.id))]
     async fn send_recovery_alert(
         &self,
-        ctx: &AlertContext,
+        ctx: &IncidentContext,
         recipients: &[String],
         downtime: Option<chrono::Duration>,
     ) -> bool {
         let Some(email_service) = &self.email_service else {
-            info!(recipients = recipients.len(), "Would send recovery alert (email service not configured)");
+            info!(
+                recipients = recipients.len(),
+                "Would send recovery alert (email service not configured)"
+            );
             return false;
         };
 
@@ -502,9 +494,17 @@ impl AlertService {
     }
 
     #[tracing::instrument(level = "debug", skip(self, ctx, recipients), fields(check_id = %ctx.check.id, days_left = days_left))]
-    async fn send_ssl_alert(&self, ctx: &AlertContext, recipients: &[String], days_left: i32) -> bool {
+    async fn send_ssl_alert(
+        &self,
+        ctx: &IncidentContext,
+        recipients: &[String],
+        days_left: i32,
+    ) -> bool {
         let Some(email_service) = &self.email_service else {
-            info!(recipients = recipients.len(), "Would send SSL alert (email service not configured)");
+            info!(
+                recipients = recipients.len(),
+                "Would send SSL alert (email service not configured)"
+            );
             return false;
         };
 
@@ -532,10 +532,10 @@ impl AlertService {
         }
     }
 
-    /// Prune inactive monitors from the tracker and notification state
+    /// Prune inactive monitors from the evaluator and notification state
     pub async fn prune_inactive(&self, active_ids: &HashSet<String>) {
-        self.tracker.prune_inactive(active_ids);
-        self.notification_state.retain(|id, _| active_ids.contains(id));
+        self.evaluator.prune_inactive(active_ids);
+        self.notification_tracker.prune_inactive(active_ids);
     }
 
     /// Record an alert to the history table
@@ -553,111 +553,24 @@ impl AlertService {
         }
     }
 
-    fn should_notify_down(&self, check_id: &str, incident_id: Uuid) -> bool {
-        let entry = self
-            .notification_state
-            .entry(check_id.to_string())
-            .or_default();
-        
-        // If we've already notified for this exact incident
-        entry.last_down_incident != Some(incident_id)
-    }
-
-    fn should_notify_ssl(&self, check_id: &str) -> bool {
-        let mut entry = self
-            .notification_state
-            .entry(check_id.to_string())
-            .or_default();
-        let now = Utc::now();
-        let allow = entry
-            .last_ssl
-            .map(|t| now.signed_duration_since(t) > self.ssl_cooldown)
-            .unwrap_or(true);
-        if allow {
-            entry.last_ssl = Some(now);
-        }
-        allow
-    }
-
-    fn mark_notified_down(&self, check_id: &str, incident_id: Uuid) {
-        let mut entry = self
-            .notification_state
-            .entry(check_id.to_string())
-            .or_default();
-        entry.last_down = Some(Utc::now());
-        entry.last_down_incident = Some(incident_id);
-    }
-
-    fn mark_notified_recovery(&self, check_id: &str, incident_id: Uuid) {
-        let mut entry = self
-            .notification_state
-            .entry(check_id.to_string())
-            .or_default();
-        entry.last_recovery = Some(Utc::now());
-        entry.last_recovery_incident = Some(incident_id);
-    }
-
-    fn mark_notified_ssl(&self, check_id: &str) {
-        let mut entry = self
-            .notification_state
-            .entry(check_id.to_string())
-            .or_default();
-        entry.last_ssl = Some(Utc::now());
-    }
-
-    fn notification_snapshot(&self, check_id: &str) -> NotificationSnapshot {
-        self.notification_state
-            .get(check_id)
-            .map(|t| NotificationSnapshot {
-                last_down: t.last_down,
-                last_recovery: t.last_recovery,
-            })
-            .unwrap_or_default()
-    }
-
-    async fn persist_incident_snapshot(&self, ctx: &AlertContext) {
+    async fn persist_incident_snapshot(&self, ctx: &IncidentContext) {
         let Some(store) = &self.incident_store else {
             return;
         };
 
-        let Some(snapshot) = self.tracker.snapshot(&ctx.check.id) else {
+        let Some(snapshot) = self.evaluator.snapshot(&ctx.check.id) else {
             return;
         };
 
-        let notified = self.notification_snapshot(&ctx.check.id);
+        let notified = self.notification_tracker.snapshot(&ctx.check.id);
 
-        let Some(row) = MonitorIncidentRow::from_snapshot(
-            &snapshot,
-            &ctx.check,
-            notified,
-        ) else {
-            // This can only happen if snapshot has no incident_id, which shouldn't occur
-            // for snapshots we're trying to persist. Log and skip.
-            debug!("no incident_id — skipping persist");
+        let Some(row) = MonitorIncidentRow::from_snapshot(&snapshot, &ctx.check, notified) else {
+            debug!("no incident_id - skipping persist");
             return;
         };
 
         if let Err(err) = store.enqueue_rows(vec![row]) {
             warn!(error = ?err, "Failed to enqueue incident snapshot");
-        }
-    }
-
-    fn hydrate_notification_state(
-        state: &DashMap<String, NotificationTimestamps>,
-        seeds: &[IncidentSeed],
-    ) {
-        for seed in seeds {
-            let mut entry = state.entry(seed.check_id.clone()).or_default();
-
-            if let Some(ts) = seed.notified_down_at {
-                entry.last_down = Some(ts);
-                entry.last_down_incident = Some(seed.incident_id);
-            }
-
-            if let Some(ts) = seed.notified_resolve_at {
-                entry.last_recovery = Some(ts);
-                entry.last_recovery_incident = Some(seed.incident_id);
-            }
         }
     }
 }

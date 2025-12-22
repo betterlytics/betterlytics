@@ -1,4 +1,4 @@
-//! Alert tracker - maintains per-monitor incident state and evaluates probe results
+//! Incident evaluator - maintains per-monitor incident state and evaluates probe results
 //! into incident and SSL events. It does not send notifications directly; callers
 //! decide when and how to notify based on the emitted events.
 
@@ -6,48 +6,14 @@ use chrono::{DateTime, Duration, Utc};
 use dashmap::DashMap;
 use tracing::{debug, error, info};
 use uuid::Uuid;
-use serde_repr::{Serialize_repr, Deserialize_repr};
 
 use crate::monitor::{MonitorStatus, ReasonCode};
 
-use crate::monitor::incident_store::IncidentSeed;
+use super::{IncidentState, IncidentSeverity, IncidentSeed, IncidentSnapshot};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum AlertType {
-    Down,
-    Recovery,
-    SslExpiring,
-    SslExpired,
-}
-
-impl AlertType {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            AlertType::Down => "down",
-            AlertType::Recovery => "recovery",
-            AlertType::SslExpiring => "ssl_expiring",
-            AlertType::SslExpired => "ssl_expired",
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
-#[repr(i8)]
-pub enum IncidentState {
-    Open = 1,
-    Resolved = 2,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
-#[repr(i8)]
-pub enum IncidentSeverity {
-    Info = 1,
-    Warning = 2,
-    Critical = 3,
-}
 
 #[derive(Clone, Debug)]
-struct MonitorAlertState {
+struct MonitorIncidentState {
     /// Lifecycle and identity for the current incident (if any)
     incident_id: Option<Uuid>,
     state: IncidentState,
@@ -71,21 +37,8 @@ struct MonitorAlertState {
     failure_count: u16,
 }
 
-#[derive(Clone, Debug)]
-pub struct IncidentSnapshot {
-    pub incident_id: Option<Uuid>,
-    pub state: IncidentState,
-    pub severity: IncidentSeverity,
-    pub started_at: Option<DateTime<Utc>>,
-    pub last_event_at: Option<DateTime<Utc>>,
-    pub resolved_at: Option<DateTime<Utc>>,
-    pub failure_count: u16,
-    pub last_status: Option<MonitorStatus>,
-    pub last_error_reason_code: Option<ReasonCode>,
-    pub last_error_status_code: Option<u16>,
-}
 
-impl Default for MonitorAlertState {
+impl Default for MonitorIncidentState {
     fn default() -> Self {
         Self {
             incident_id: None,
@@ -106,14 +59,14 @@ impl Default for MonitorAlertState {
     }
 }
 
-/// Configuration for the alert tracker / incident evaluator
+/// Configuration for the incident evaluator
 #[derive(Clone, Copy, Debug)]
-pub struct AlertTrackerConfig {
+pub struct IncidentEvaluatorConfig {
     /// Consecutive successes required to consider an incident recovered
     pub recovery_success_threshold: u16,
 }
 
-impl Default for AlertTrackerConfig {
+impl Default for IncidentEvaluatorConfig {
     fn default() -> Self {
         Self {
             // One healthy check is enough to call it recovered
@@ -140,23 +93,14 @@ pub enum IncidentEvent {
     },
 }
 
-/// SSL-specific events emitted by the evaluator.
-/// Note: Unlike down/recovery incidents, SSL events don't create persistent incidents.
-/// They're used to trigger one-time alerts when certificates are expiring.
-#[derive(Clone, Copy, Debug)]
-pub enum SslEvent {
-    Expiring,
-    Expired,
-}
-
 /// Tracks incident state for all monitors and decides when to notify
-pub struct AlertTracker {
-    states: DashMap<String, MonitorAlertState>,
-    config: AlertTrackerConfig,
+pub struct IncidentEvaluator {
+    states: DashMap<String, MonitorIncidentState>,
+    config: IncidentEvaluatorConfig,
 }
 
-impl AlertTracker {
-    pub fn new(config: AlertTrackerConfig) -> Self {
+impl IncidentEvaluator {
+    pub fn new(config: IncidentEvaluatorConfig) -> Self {
         Self {
             states: DashMap::new(),
             config,
@@ -310,7 +254,7 @@ impl AlertTracker {
 
     /// Update the last observed error details for a monitor.
     ///
-    /// This is called from the alert service on failing probes so that
+    /// This is called from the incident service on failing probes so that
     /// incident snapshots can persist a stable view of the most recent
     /// error, even after the monitor has recovered.
     pub fn update_error_metadata(
@@ -324,47 +268,13 @@ impl AlertTracker {
         state.last_error_status_code = status_code;
     }
 
-    /// Check if an SSL expiry alert should be sent based on threshold.
-    /// The service layer handles notification cooldowns separately.
-    pub fn should_alert_ssl_expiry(
-        &self,
-        check_id: &str,
-        days_left: i32,
-        alert_threshold_days: i32,
-    ) -> Option<SslEvent> {
-        if days_left > alert_threshold_days {
-            debug!(
-                check_id = check_id,
-                days_left,
-                alert_threshold_days,
-                "not emitting SSL event: above alert threshold"
-            );
-            return None;
-        }
-
-        if days_left <= 0 {
-            debug!(
-                check_id = check_id,
-                days_left,
-                "emitting SSL Expired event"
-            );
-            Some(SslEvent::Expired)
-        } else {
-            debug!(
-                check_id = check_id,
-                days_left,
-                "emitting SSL Expiring event"
-            );
-            Some(SslEvent::Expiring)
-        }
-    }
 
     /// Remove state for monitors that no longer exist
     pub fn prune_inactive(&self, active_ids: &std::collections::HashSet<String>) {
         self.states.retain(|id, _| active_ids.contains(id));
     }
 
-    /// Warm the tracker from active incident snapshots
+    /// Warm the evaluator from active incident snapshots
     pub fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
         if seeds.is_empty() {
             return;
@@ -393,7 +303,7 @@ impl AlertTracker {
 
         info!(
             down_monitors = warm_count,
-            "Alert tracker warmed from incident snapshots"
+            "Incident evaluator warmed from incident snapshots"
         );
     }
 

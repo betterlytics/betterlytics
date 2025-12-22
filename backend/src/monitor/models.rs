@@ -395,3 +395,23 @@ impl MonitorResultRow {
         row
     }
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IncidentType {
+    Down,
+    Recovery,
+    SslExpiring,
+    SslExpired,
+}
+
+impl IncidentType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            IncidentType::Down => "down",
+            IncidentType::Recovery => "recovery",
+            IncidentType::SslExpiring => "ssl_expiring",
+            IncidentType::SslExpired => "ssl_expired",
+        }
+    }
+}
+

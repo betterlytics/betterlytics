@@ -11,12 +11,13 @@ use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::metrics::MetricsCollector;
 use crate::postgres::PostgresPool;
+use crate::monitor::incident::IncidentStore;
 
 use super::alert::new_alert_history_writer;
 use super::{
-    AlertService, AlertServiceConfig, DomainRateLimiter, HttpRunner, HttpRuntimeConfig,
-    IncidentStore, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe,
-    MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
+    DomainRateLimiter, HttpRunner, HttpRuntimeConfig, IncidentOrchestrator,
+    IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource,
+    MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
 };
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 
@@ -134,15 +135,15 @@ async fn run_monitoring_init_loop(
             }
         };
 
-        let alert_service = Arc::new(
-            AlertService::new(
-                AlertServiceConfig::from_config(&config),
+        let incident_orchestrator = Arc::new(
+            IncidentOrchestrator::new(
+                IncidentOrchestratorConfig::from_config(&config),
                 history_writer,
                 incident_store,
             )
             .await,
         );
-        info!("Alert service initialized");
+        info!("Incident orchestrator initialized");
 
         let rate_limiter = Arc::new(DomainRateLimiter::default());
         info!("Domain rate limiter initialized");
@@ -164,10 +165,10 @@ async fn run_monitoring_init_loop(
         );
 
         http_runner = http_runner
-            .with_alert_service(Arc::clone(&alert_service))
+            .with_incident_orchestrator(Arc::clone(&incident_orchestrator))
             .with_rate_limiter(Arc::clone(&rate_limiter));
         tls_runner = tls_runner
-            .with_alert_service(Arc::clone(&alert_service))
+            .with_incident_orchestrator(Arc::clone(&incident_orchestrator))
             .with_rate_limiter(Arc::clone(&rate_limiter));
 
         http_runner.spawn();
