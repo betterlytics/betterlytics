@@ -7,10 +7,12 @@ export interface SankeyLinkProps {
   link: LinkPosition;
   isHighlighted: boolean;
   isMuted: boolean;
+  isLocked: boolean;
   onHover: (link: LinkPosition | null) => void;
+  onClick: (link: LinkPosition) => void;
 }
 
-export function SankeyLink({ link, isHighlighted, isMuted, onHover }: SankeyLinkProps) {
+export function SankeyLink({ link, isHighlighted, isMuted, isLocked, onHover, onClick }: SankeyLinkProps) {
   // Start and end points
   const x0 = link.source.x + link.source.width;
   const y0 = link.sourceY;
@@ -57,8 +59,10 @@ export function SankeyLink({ link, isHighlighted, isMuted, onHover }: SankeyLink
         strokeWidth={link.width}
         strokeLinecap='butt'
         className='cursor-pointer transition-[stroke-opacity] duration-150'
+        style={{ opacity: isLocked ? 1 : undefined }}
         onMouseEnter={() => onHover(link)}
         onMouseLeave={() => onHover(null)}
+        onClick={() => onClick(link)}
       />
     </>
   );

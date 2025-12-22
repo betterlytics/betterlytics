@@ -29,7 +29,8 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
     [graph, width, height],
   );
 
-  const [highlightState, setHighlightState] = useState<HighlightState | null>(null);
+  const [lockedState, setLockedState] = useState<HighlightState | null>(null);
+  const [hoverState, setHoverState] = useState<HighlightState | null>(null);
 
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
@@ -39,17 +40,16 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
   });
 
   const containerRef = useRef<SVGSVGElement>(null);
-  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateTooltip = useCallback((newTooltip: Partial<TooltipState>) => {
     setTooltip((prev) => ({ ...prev, ...newTooltip }));
   }, []);
 
   useEffect(() => {
-    if (highlightState === null) {
+    if (hoverState === null) {
       updateTooltip({ visible: false });
     }
-  }, [highlightState, updateTooltip]);
+  }, [hoverState, updateTooltip]);
 
   // Global mouse move handler to ensure tooltip disappears.
   // This is to ensure the tooltip disappears when the mouse leaves the container
@@ -62,22 +62,17 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       if (!rect) return;
 
       if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
-        setHighlightState(null);
+        setHoverState(null);
       }
     };
-
-    const currentTimeoutRef = tooltipTimeoutRef.current;
 
     if (tooltip.visible) {
       window.addEventListener('mousemove', handleGlobalMouseMove);
     }
     return () => {
       window.removeEventListener('mousemove', handleGlobalMouseMove);
-      if (currentTimeoutRef) {
-        clearTimeout(currentTimeoutRef);
-      }
     };
-  }, [tooltip.visible, updateTooltip]);
+  }, [tooltip.visible]);
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -93,12 +88,10 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
   const handleNodeHover = useCallback(
     (nodeId: string | null) => {
       if (nodeId === null) {
-        setHighlightState(null);
+        setHoverState(null);
       } else {
-        updateTooltip({
-          visible: false,
-        });
-        setHighlightState(graph.findConnectedFromNode(nodeId));
+        updateTooltip({ visible: false });
+        setHoverState(graph.findConnectedFromNode(nodeId));
       }
     },
     [graph, updateTooltip],
@@ -106,11 +99,10 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
   const handleLinkHover = useCallback(
     (linkIndex: number | null) => {
-      console.log('handleLinkHover', linkIndex);
       if (linkIndex === null) {
-        setHighlightState(null);
+        setHoverState(null);
       } else {
-        setHighlightState(graph.findConnectedFromLink(linkIndex));
+        setHoverState(graph.findConnectedFromLink(linkIndex));
 
         const link = graph.links[linkIndex];
         const sourceNode = graph.getNode(link.sourceId);
@@ -124,7 +116,41 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
     [graph, updateTooltip],
   );
 
-  const isHighlighting = highlightState !== null;
+  const handleNodeClick = useCallback(
+    (nodeId: string) => {
+      if (lockedState?.nodeIds.has(nodeId)) {
+        setLockedState(null);
+      } else {
+        setLockedState(graph.findConnectedFromNode(nodeId));
+      }
+    },
+    [graph, lockedState],
+  );
+
+  const handleLinkClick = useCallback(
+    (linkIndex: number) => {
+      if (lockedState?.linkIndices.has(linkIndex)) {
+        setLockedState(null);
+      } else {
+        setLockedState(graph.findConnectedFromLink(linkIndex));
+      }
+    },
+    [graph, lockedState],
+  );
+
+  const handleBackgroundClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (e.target === e.currentTarget) {
+      setLockedState(null);
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setHoverState(null);
+  }, []);
+
+  const isLocked = lockedState !== null;
+  const isHovering = hoverState !== null;
+  const isHighlighting = isLocked || isHovering;
 
   return (
     <div className='relative z-10'>
@@ -132,8 +158,9 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
         ref={containerRef}
         className='relative z-10'
         viewBox={`0 0 ${width} ${1.25 * height}`}
-        onMouseLeave={() => setHighlightState(null)}
+        onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
+        onClick={handleBackgroundClick}
       >
         {/* Definitions for filters */}
         <defs>
@@ -150,29 +177,44 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
         {/* Links layer (rendered behind nodes) */}
         <g className='links'>
-          {linkPositions.map((link) => (
-            <SankeyLink
-              key={`link-${link.index}`}
-              link={link}
-              isHighlighted={isHighlighting && highlightState.linkIndices.has(link.index)}
-              isMuted={isHighlighting && !highlightState.linkIndices.has(link.index)}
-              onHover={(hoveredLink) => handleLinkHover(hoveredLink?.index ?? null)}
-            />
-          ))}
+          {linkPositions.map((link) => {
+            const isLinkLocked = isLocked && lockedState.linkIndices.has(link.index);
+            const isLinkHovered = isHovering && hoverState.linkIndices.has(link.index);
+            const isLinkHighlighted = isLinkLocked || isLinkHovered;
+            const isLinkMuted = isHighlighting && !isLinkLocked && !isLinkHovered;
+            return (
+              <SankeyLink
+                key={`link-${link.index}`}
+                link={link}
+                isHighlighted={isLinkHighlighted}
+                isMuted={isLinkMuted}
+                isLocked={isLinkLocked}
+                onHover={(hoveredLink) => handleLinkHover(hoveredLink?.index ?? null)}
+                onClick={(clickedLink) => handleLinkClick(clickedLink.index)}
+              />
+            );
+          })}
         </g>
 
         {/* Nodes layer */}
         <g className='nodes'>
-          {nodePositions.map((node) => (
-            <SankeyNode
-              key={node.id}
-              node={node}
-              isHighlighted={isHighlighting && highlightState.nodeIds.has(node.id)}
-              isMuted={isHighlighting && !highlightState.nodeIds.has(node.id)}
-              onHover={handleNodeHover}
-              totalEntrySessions={graph.totalEntrySessions}
-            />
-          ))}
+          {nodePositions.map((node) => {
+            const isNodeLocked = isLocked && lockedState.nodeIds.has(node.id);
+            const isNodeHovered = isHovering && hoverState.nodeIds.has(node.id);
+            const isNodeHighlighted = isNodeLocked || isNodeHovered;
+            const isNodeMuted = isHighlighting && !isNodeLocked && !isNodeHovered;
+            return (
+              <SankeyNode
+                key={node.id}
+                node={node}
+                isHighlighted={isNodeHighlighted}
+                isMuted={isNodeMuted}
+                onHover={handleNodeHover}
+                onClick={handleNodeClick}
+                totalEntrySessions={graph.totalEntrySessions}
+              />
+            );
+          })}
         </g>
       </svg>
       <TooltipComponent tooltip={tooltip} />
