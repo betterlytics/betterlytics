@@ -38,6 +38,7 @@ SELECT
 FROM "MonitorCheck" mc
 JOIN "Dashboard" d ON mc."dashboardId" = d.id
 WHERE mc."isEnabled" = TRUE
+AND mc."deletedAt" IS NULL
 "#;
 
 const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY mc."updatedAt" ASC"#;
