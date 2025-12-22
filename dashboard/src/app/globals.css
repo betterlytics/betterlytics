@@ -64,6 +64,14 @@
   --sankey-node-fill-muted: rgba(107, 142, 245, 0.2);
   --sankey-node-stroke-muted: rgba(59, 130, 246, 0.2);
 
+  /* Sankey link colors */
+  --sankey-link-stroke: rgba(100, 116, 139, 0.45);
+  --sankey-link-stroke-middle: rgba(100, 116, 139, 0.32);
+  --sankey-link-highlight: rgba(59, 130, 246, 0.85);
+  --sankey-link-highlight-middle: rgba(59, 130, 246, 0.6);
+  --sankey-link-muted: rgba(100, 116, 139, 0.2);
+  --sankey-link-muted-middle: rgba(100, 116, 139, 0.12);
+
   /* Sankey node cards */
   --sankey-card-bg: rgba(255, 255, 255, 0.92);
   --sankey-card-bg-muted: rgba(241, 245, 249, 0.4);
@@ -154,6 +162,14 @@
   --sankey-node-stroke: #1d4ed8;
   --sankey-node-fill-muted: rgba(71, 102, 229, 0.2);
   --sankey-node-stroke-muted: rgba(29, 78, 216, 0.2);
+
+  /* Sankey link colors */
+  --sankey-link-stroke: rgba(148, 163, 184, 0.38);
+  --sankey-link-stroke-middle: rgba(148, 163, 184, 0.27);
+  --sankey-link-highlight: rgba(96, 165, 250, 0.87);
+  --sankey-link-highlight-middle: rgba(96, 165, 250, 0.67);
+  --sankey-link-muted: rgba(148, 163, 184, 0.19);
+  --sankey-link-muted-middle: rgba(148, 163, 184, 0.12);
 
   /* Sankey node cards */
   --sankey-card-bg: rgba(30, 41, 59, 0.85);

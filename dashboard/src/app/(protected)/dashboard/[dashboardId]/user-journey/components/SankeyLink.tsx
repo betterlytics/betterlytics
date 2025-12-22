@@ -18,7 +18,7 @@ export function SankeyLink({ link, isHighlighted, isMuted, onHover }: SankeyLink
   const y1 = link.targetY;
 
   // Curvature
-  const curvature = 0.5;
+  const curvature = 0.4;
   const cx0 = x0 + (x1 - x0) * curvature;
   const cx1 = x1 - (x1 - x0) * curvature;
 
