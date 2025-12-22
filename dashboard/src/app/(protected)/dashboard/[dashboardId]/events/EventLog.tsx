@@ -120,7 +120,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   }, [isFetchingNextPage]);
 
   const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t), [allEvents, totalCount, t]);
-  const LoadMoreSentinel = () => <div ref={loadMoreRef} className='h-1' aria-hidden='true' />;
 
   return (
     <Card className='border-border/50 relative overflow-hidden shadow-sm'>
@@ -160,7 +159,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               </div>
 
               {/* Sentinel element for infinite scroll - only attach ref to this single element */}
-              {hasNextPage && <LoadMoreSentinel />}
+              {hasNextPage && <div ref={loadMoreRef} className='h-1' aria-hidden='true' />}
 
               {isFetchingNextPage && <LoadingMoreIndicator t={t} />}
             </>
