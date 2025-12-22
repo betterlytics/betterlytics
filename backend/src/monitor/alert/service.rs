@@ -158,34 +158,23 @@ impl AlertService {
     /// Process a probe outcome and send alerts if needed
     ///
     /// This is the main entry point called after each probe completes.
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, ctx),
+        fields(check_id = %ctx.check.id, status = ?ctx.status)
+    )]
     pub async fn process_probe_outcome(&self, ctx: &AlertContext) {
         if !self.enabled {
-            debug!(
-                check_id = %ctx.check.id,
-                status = ?ctx.status,
-                "alert service globally disabled; skipping probe outcome"
-            );
+            debug!("alert service globally disabled; skipping probe outcome");
             return;
         }
 
         let alert_config = &ctx.check.alert;
 
         if !alert_config.enabled {
-            debug!(
-                check_id = %ctx.check.id,
-                status = ?ctx.status,
-                "alerts disabled for this monitor; skipping probe outcome"
-            );
+            debug!("alerts disabled for this monitor; skipping probe outcome");
             return;
         }
-
-        debug!(
-            check_id = %ctx.check.id,
-            monitor = %ctx.monitor_name(),
-            status = ?ctx.status,
-            consecutive_failures = ctx.consecutive_failures,
-            "processing probe outcome for alerting"
-        );
 
         // Check for different alert conditions
         match ctx.status {
@@ -196,6 +185,11 @@ impl AlertService {
     }
 
     /// Process a TLS probe outcome specifically for SSL alerts
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, ctx),
+        fields(check_id = %ctx.check.id, tls_days_left = ?ctx.tls_days_left)
+    )]
     pub async fn process_tls_probe_outcome(&self, ctx: &AlertContext) {
         if !self.enabled {
             return;
@@ -204,11 +198,7 @@ impl AlertService {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.enabled || !alert_config.on_ssl_expiry {
-            debug!(
-                check_id = %ctx.check.id,
-                tls_days_left = ctx.tls_days_left,
-                "SSL alerts disabled for this monitor; skipping TLS probe outcome"
-            );
+            debug!("SSL alerts disabled for monitor");
             return;
         }
 
@@ -217,16 +207,16 @@ impl AlertService {
         }
     }
 
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, ctx),
+        fields(check_id = %ctx.check.id, site_id = %ctx.check.site_id)
+    )]
     async fn handle_failure_alert(&self, ctx: &AlertContext) {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_down {
-            debug!(
-                check_id = %ctx.check.id,
-                consecutive_failures = ctx.consecutive_failures,
-                failure_threshold = alert_config.failure_threshold,
-                "down alerts disabled for this monitor; skipping"
-            );
+            debug!("down alerts disabled for monitor");
             return;
         }
 
@@ -247,30 +237,21 @@ impl AlertService {
 
         if event.is_none() {
             debug!(
-                check_id = %ctx.check.id,
                 consecutive_failures = ctx.consecutive_failures,
-                failure_threshold = alert_config.failure_threshold,
-                "no incident event from tracker (likely below failure threshold or stable state)"
+                threshold = alert_config.failure_threshold,
+                "likely below failure threshold"
             );
         }
 
         let incident_id = match event {
             Some(IncidentEvent::Opened { incident_id })
             | Some(IncidentEvent::Updated { incident_id }) => {
-                debug!(
-                    check_id = %ctx.check.id,
-                    incident_id = %incident_id,
-                    consecutive_failures = ctx.consecutive_failures,
-                    "incident is open/updated after failure evaluation"
-                );
+                debug!(incident_id = %incident_id, "incident opened/updated");
                 incident_id
             }
             Some(IncidentEvent::Resolved { .. }) => {
                 // Should not happen on failure path; ignore defensively.
-                debug!(
-                    check_id = %ctx.check.id,
-                    "received unexpected Resolved incident event on failure path; ignoring"
-                );
+                warn!("unexpected Resolved event on failure path");
                 return;
             }
             None => return,
@@ -285,10 +266,7 @@ impl AlertService {
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
-            debug!(
-                check_id = %ctx.check.id,
-                "No recipients configured for down alert"
-            );
+            debug!("no recipients configured");
             self.mark_notified_down(&ctx.check.id, incident_id);
             self.persist_incident_snapshot(ctx)
                 .await;
@@ -323,6 +301,11 @@ impl AlertService {
             .await;
     }
 
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, ctx),
+        fields(check_id = %ctx.check.id, site_id = %ctx.check.site_id)
+    )]
     async fn handle_success(&self, ctx: &AlertContext) {
         let alert_config = &ctx.check.alert;
 
@@ -330,11 +313,7 @@ impl AlertService {
         let event = self.tracker.evaluate_recovery(&ctx.check.id, ctx.status);
 
         if !matches!(event, Some(IncidentEvent::Resolved { .. })) {
-            debug!(
-                check_id = %ctx.check.id,
-                status = ?ctx.status,
-                "no recovery event from tracker yet; incident remains open"
-            );
+            debug!("incident still open");
         }
 
         let (incident_id, downtime_duration) = match event {
@@ -343,11 +322,7 @@ impl AlertService {
         };
 
         if !alert_config.on_recovery {
-            debug!(
-                check_id = %ctx.check.id,
-                incident_id = %incident_id,
-                "recovery alerts disabled for this monitor; marking as notified without email"
-            );
+            debug!("recovery alerts disabled for monitor");
             self.mark_notified_recovery(&ctx.check.id, incident_id);
             return;
         }
@@ -355,11 +330,7 @@ impl AlertService {
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
-            debug!(
-                check_id = %ctx.check.id,
-                incident_id = %incident_id,
-                "no recipients configured for recovery alert; marking as notified only"
-            );
+            debug!("no recipients configured");
             self.mark_notified_recovery(&ctx.check.id, incident_id);
             self.persist_incident_snapshot(ctx)
                 .await;
@@ -397,15 +368,16 @@ impl AlertService {
             .await;
     }
 
+    #[tracing::instrument(
+        level = "debug",
+        skip(self, ctx),
+        fields(check_id = %ctx.check.id, days_left = days_left)
+    )]
     async fn handle_ssl_alert(&self, ctx: &AlertContext, days_left: i32) {
         let alert_config = &ctx.check.alert;
 
         if !alert_config.on_ssl_expiry {
-            debug!(
-                check_id = %ctx.check.id,
-                days_left = days_left,
-                "SSL expiry alerts disabled for this monitor; skipping"
-            );
+            debug!("SSL alerts disabled for monitor");
             return;
         }
 
@@ -416,12 +388,7 @@ impl AlertService {
         );
 
         if event.is_none() {
-            debug!(
-                check_id = %ctx.check.id,
-                days_left = days_left,
-                threshold_days = alert_config.ssl_expiry_days,
-                "SSL event not emitted: days remaining above configured threshold"
-            );
+            debug!(threshold = alert_config.ssl_expiry_days, "SSL days above threshold");
         }
 
         let alert_type = match event {
@@ -431,21 +398,14 @@ impl AlertService {
         };
 
         if !self.should_notify_ssl(&ctx.check.id) {
-            debug!(
-                check_id = %ctx.check.id,
-                days_left = days_left,
-                "SSL cooldown active; not sending SSL alert"
-            );
+            debug!("SSL cooldown active");
             return;
         }
 
         let recipients = &alert_config.recipients;
 
         if recipients.is_empty() {
-            debug!(
-                check_id = %ctx.check.id,
-                "no recipients configured for SSL alert; marking as notified only"
-            );
+            debug!("no recipients configured");
             self.mark_notified_ssl(&ctx.check.id);
             return;
         }
@@ -475,14 +435,10 @@ impl AlertService {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, ctx, recipients), fields(check_id = %ctx.check.id))]
     async fn send_down_alert(&self, ctx: &AlertContext, recipients: &[String]) -> bool {
         let Some(email_service) = &self.email_service else {
-            info!(
-                check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
-                recipients = ?recipients,
-                "Would send down alert (email service not configured)"
-            );
+            info!(recipients = recipients.len(), "Would send down alert (email service not configured)");
             return false;
         };
 
@@ -510,6 +466,7 @@ impl AlertService {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, ctx, recipients), fields(check_id = %ctx.check.id))]
     async fn send_recovery_alert(
         &self,
         ctx: &AlertContext,
@@ -517,12 +474,7 @@ impl AlertService {
         downtime: Option<chrono::Duration>,
     ) -> bool {
         let Some(email_service) = &self.email_service else {
-            info!(
-                check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
-                recipients = ?recipients,
-                "Would send recovery alert (email service not configured)"
-            );
+            info!(recipients = recipients.len(), "Would send recovery alert (email service not configured)");
             return false;
         };
 
@@ -549,15 +501,10 @@ impl AlertService {
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, ctx, recipients), fields(check_id = %ctx.check.id, days_left = days_left))]
     async fn send_ssl_alert(&self, ctx: &AlertContext, recipients: &[String], days_left: i32) -> bool {
         let Some(email_service) = &self.email_service else {
-            info!(
-                check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
-                days_left = days_left,
-                recipients = ?recipients,
-                "Would send SSL alert (email service not configured)"
-            );
+            info!(recipients = recipients.len(), "Would send SSL alert (email service not configured)");
             return false;
         };
 
@@ -613,21 +560,7 @@ impl AlertService {
             .or_default();
         
         // If we've already notified for this exact incident
-        if entry.last_down_incident == Some(incident_id) {
-            debug!(
-                check_id = check_id,
-                incident_id = %incident_id,
-                "not sending down alert: already notified for this incident"
-            );
-            return false;
-        }
-        
-        debug!(
-            check_id = check_id,
-            incident_id = %incident_id,
-            "allowing down alert notification"
-        );
-        true
+        entry.last_down_incident != Some(incident_id)
     }
 
     fn should_notify_ssl(&self, check_id: &str) -> bool {
@@ -641,20 +574,7 @@ impl AlertService {
             .map(|t| now.signed_duration_since(t) > self.ssl_cooldown)
             .unwrap_or(true);
         if allow {
-            debug!(
-                check_id = check_id,
-                last_ssl_at = ?entry.last_ssl,
-                ssl_cooldown = ?self.ssl_cooldown,
-                "allowing SSL alert notification"
-            );
             entry.last_ssl = Some(now);
-        } else {
-            debug!(
-                check_id = check_id,
-                last_ssl_at = ?entry.last_ssl,
-                ssl_cooldown = ?self.ssl_cooldown,
-                "not sending SSL alert: cooldown not yet elapsed"
-            );
         }
         allow
     }
@@ -713,7 +633,7 @@ impl AlertService {
         ) else {
             // This can only happen if snapshot has no incident_id, which shouldn't occur
             // for snapshots we're trying to persist. Log and skip.
-            debug!(check_id = %ctx.check.id, "Skipping incident persist: no incident_id");
+            debug!("no incident_id — skipping persist");
             return;
         };
 
