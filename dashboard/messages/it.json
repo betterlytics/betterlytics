@@ -1356,9 +1356,14 @@
       "ssl": {
         "title": "Certificato SSL",
         "disabled": "Disabilitato",
+        "notApplicable": "N/A",
         "timeLeft": "Tempo rimanente",
         "timeLeftWithUnit": "{unit} rimanenti",
-        "expires": "Scad. {date}"
+        "expires": "Scad. {date}",
+        "httpSite": "Non applicabile",
+        "httpSiteDescription": "Questo sito utilizza HTTP",
+        "disabledDescription": "Monitoraggio SSL disabilitato",
+        "enableInSettings": "Abilita nelle impostazioni"
       }
     },
     "toast": {
@@ -1409,7 +1414,8 @@
       },
       "sslMonitoring": {
         "label": "Monitora errori SSL",
-        "description": "Crea incidenti quando vengono rilevati errori del certificato"
+        "description": "Crea incidenti quando vengono rilevati errori del certificato",
+        "httpDisabled": "Non disponibile per siti HTTP (nessun certificato)"
       },
       "requestHeaders": {
         "label": "Header della richiesta",
@@ -1438,6 +1444,7 @@
       "onRecoveryDescription": "Invia un avviso quando il monitor torna online dopo un'interruzione",
       "onSslExpiry": "Avviso scadenza SSL",
       "onSslExpiryDescription": "Invia un avviso quando il certificato SSL sta per scadere",
+      "sslExpiryDisabledTooltip": "Abilita il monitoraggio SSL nelle Impostazioni avanzate",
       "failureThreshold": "Soglia di errore",
       "failureThresholdDescription": "Numero di errori consecutivi prima dell'invio di un avviso",
       "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",

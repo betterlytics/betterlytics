@@ -49,6 +49,7 @@ import {
   nearestIndex,
 } from './sliderConstants';
 import { formatCompactDuration } from '@/utils/dateFormatters';
+import { isHttpUrl } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/utils';
 
 type EditMonitorDialogProps = {
   dashboardId: string;
@@ -209,12 +210,23 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
               <Separator />
 
               {/* Alerts Section */}
-              <AlertsSection form={form} isPending={isPending} t={t} userEmail={userEmail} />
+              <AlertsSection
+                form={form}
+                isPending={isPending}
+                t={t}
+                userEmail={userEmail}
+                sslMonitoringEnabled={!isHttpUrl(monitor.url) && form.state.checkSslErrors}
+              />
 
               <Separator />
 
               {/* Advanced Settings */}
-              <AdvancedSettingsSection form={form} isPending={isPending} t={t} />
+              <AdvancedSettingsSection
+                form={form}
+                isPending={isPending}
+                t={t}
+                isHttpSite={!monitor.url.startsWith('https://')}
+              />
             </div>
 
             <div className='border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 flex items-center justify-between gap-3 border-t px-6 py-4 backdrop-blur'>
@@ -320,11 +332,13 @@ function AlertsSection({
   isPending,
   t,
   userEmail,
+  sslMonitoringEnabled,
 }: {
   form: FormType;
   isPending: boolean;
   t: ReturnType<typeof useTranslations<'monitoringEditDialog'>>;
   userEmail?: string | null;
+  sslMonitoringEnabled: boolean;
 }) {
   const { alerts } = form.state;
 
@@ -382,12 +396,13 @@ function AlertsSection({
             <SettingToggle
               id='alert-on-ssl-expiry'
               label={t('alerts.onSslExpiry')}
-              checked={alerts.onSslExpiry}
+              checked={sslMonitoringEnabled && alerts.onSslExpiry}
               onCheckedChange={(v) => form.updateAlert('onSslExpiry', v)}
-              disabled={isPending}
+              disabled={isPending || !sslMonitoringEnabled}
+              disabledTooltip={!sslMonitoringEnabled ? t('alerts.sslExpiryDisabledTooltip') : undefined}
             />
 
-            {alerts.onSslExpiry && (
+            {sslMonitoringEnabled && alerts.onSslExpiry && (
               <div className='pt-2'>
                 <LabeledSlider
                   label={t('alerts.sslExpiryDays')}
@@ -414,10 +429,12 @@ function AdvancedSettingsSection({
   form,
   isPending,
   t,
+  isHttpSite,
 }: {
   form: FormType;
   isPending: boolean;
   t: ReturnType<typeof useTranslations<'monitoringEditDialog'>>;
+  isHttpSite: boolean;
 }) {
   return (
     <Collapsible defaultOpen={false} className='group/advanced'>
@@ -431,6 +448,19 @@ function AdvancedSettingsSection({
 
       <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
         <div className='space-y-6 pt-4'>
+          {/* SSL Monitoring */}
+          <SettingToggle
+            id='check-ssl-errors'
+            label={t('advanced.sslMonitoring.label')}
+            description={t('advanced.sslMonitoring.description')}
+            checked={isHttpSite ? false : form.state.checkSslErrors}
+            onCheckedChange={form.setCheckSslErrors}
+            disabled={isPending || isHttpSite}
+            disabledTooltip={isHttpSite ? t('advanced.sslMonitoring.httpDisabled') : undefined}
+          />
+
+          <Separator />
+
           {/* HTTP Method */}
           <div className='space-y-3'>
             <div>
@@ -452,18 +482,6 @@ function AdvancedSettingsSection({
               </TabsList>
             </Tabs>
           </div>
-
-          <Separator />
-
-          {/* SSL Monitoring */}
-          <SettingToggle
-            id='check-ssl-errors'
-            label={t('advanced.sslMonitoring.label')}
-            description={t('advanced.sslMonitoring.description')}
-            checked={form.state.checkSslErrors}
-            onCheckedChange={form.setCheckSslErrors}
-            disabled={isPending}
-          />
 
           <Separator />
 

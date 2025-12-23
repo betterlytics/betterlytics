@@ -10,3 +10,7 @@ export function formatIntervalLabel(t: MonitoringPageTranslation, intervalSecond
   }
   return t('list.intervalSeconds', { value: intervalSeconds });
 }
+
+export function isHttpUrl(url: string): boolean {
+  return !url.startsWith('https://');
+}

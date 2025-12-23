@@ -1356,9 +1356,14 @@
       "ssl": {
         "title": "SSL-certifikat",
         "disabled": "Deaktiveret",
+        "notApplicable": "N/A",
         "timeLeft": "Tid tilbage",
         "timeLeftWithUnit": "{unit} tilbage",
-        "expires": "Udløber {date}"
+        "expires": "Udløber {date}",
+        "httpSite": "Ikke relevant",
+        "httpSiteDescription": "Denne side bruger HTTP",
+        "disabledDescription": "SSL-overvågning er deaktiveret",
+        "enableInSettings": "Aktivér i indstillinger"
       }
     },
     "toast": {
@@ -1409,7 +1414,8 @@
       },
       "sslMonitoring": {
         "label": "Overvåg SSL-fejl",
-        "description": "Opret hændelser, når certifikatfejl opdages"
+        "description": "Opret hændelser, når certifikatfejl opdages",
+        "httpDisabled": "Ikke tilgængelig for HTTP-sider (intet certifikat)"
       },
       "requestHeaders": {
         "label": "Forespørgselsheadere",
@@ -1438,6 +1444,7 @@
       "onRecoveryDescription": "Send en alarm, når overvågningen kommer op igen efter nedetid",
       "onSslExpiry": "Advarsel ved SSL-udløb",
       "onSslExpiryDescription": "Send en alarm, når SSL-certifikatet er ved at udløbe",
+      "sslExpiryDisabledTooltip": "Aktivér SSL-overvågning i Avancerede indstillinger først",
       "failureThreshold": "Fejlgrænse",
       "failureThresholdDescription": "Antal fejl i træk før der sendes en alarm",
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",

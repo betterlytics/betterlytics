@@ -22,9 +22,10 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from '../components/PillBar';
 import { useTranslations } from 'next-intl';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, LockOpen, ShieldOff } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatIntervalLabel } from '../utils';
+import { isHttpUrl } from '../utils';
 
 type MonitorSummaryMetrics = Pick<
   MonitorMetrics,
@@ -41,7 +42,7 @@ type MonitorSummaryMetrics = Pick<
 type MonitorSummaryTilesProps = {
   monitor: Pick<
     MonitorCheck,
-    'isEnabled' | 'intervalSeconds' | 'timeoutMs' | 'createdAt' | 'updatedAt' | 'checkSslErrors'
+    'isEnabled' | 'intervalSeconds' | 'timeoutMs' | 'createdAt' | 'updatedAt' | 'checkSslErrors' | 'url'
   >;
   metrics?: MonitorSummaryMetrics;
   tls?: MonitorTlsResult | null;
@@ -61,7 +62,7 @@ export function MonitorSummaryTiles({ monitor, metrics, tls, operationalState }:
         buckets={metrics?.uptimeBuckets}
       />
       <ResponseSummaryTile title={t('avgResponseTime')} avg={latencyAvg} operationalState={operationalState} />
-      <SslSummaryCard tls={tls} isDisabled={!monitor.checkSslErrors} />
+      <SslSummaryCard tls={tls} isDisabled={!monitor.checkSslErrors} isHttpSite={isHttpUrl(monitor.url)} />
     </div>
   );
 }
@@ -240,9 +241,64 @@ function StatusDot({ operationalState }: { operationalState: MonitorOperationalS
   );
 }
 
-function SslSummaryCard({ tls, isDisabled }: { tls: MonitorTlsResult | null | undefined; isDisabled?: boolean }) {
+type SslSummaryCardProps = {
+  tls: MonitorTlsResult | null | undefined;
+  isDisabled: boolean;
+  isHttpSite: boolean;
+  onEnableClick?: () => void;
+};
+
+function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSummaryCardProps) {
   const t = useTranslations('monitoringDetailPage.summary.ssl');
   const tSsl = useTranslations('monitoring.ssl');
+
+  if (isHttpSite) {
+    return (
+      <SummaryTile
+        title={t('title')}
+        headerRight={
+          <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
+            {t('notApplicable')}
+          </Badge>
+        }
+        bodyClassName='mt-3 flex flex-1 items-center justify-center'
+      >
+        <div className='flex flex-col items-center gap-1.5 py-2 text-center'>
+          <LockOpen className='text-muted-foreground h-7 w-7 opacity-50' aria-hidden />
+          <p className='text-muted-foreground text-sm font-medium'>{t('httpSiteDescription')}</p>
+        </div>
+      </SummaryTile>
+    );
+  }
+
+  if (isDisabled) {
+    return (
+      <SummaryTile
+        title={t('title')}
+        headerRight={
+          <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
+            {t('disabled')}
+          </Badge>
+        }
+        bodyClassName='relative mt-3 flex flex-1 items-center justify-center'
+      >
+        <div className='flex flex-col items-center gap-2 py-2 text-center'>
+          <ShieldOff className='text-muted-foreground h-8 w-8 opacity-60' aria-hidden />
+          <p className='text-foreground text-sm font-medium'>{t('disabledDescription')}</p>
+          {onEnableClick && (
+            <button
+              type='button'
+              onClick={onEnableClick}
+              className='text-primary hover:text-primary/80 text-sm font-medium underline underline-offset-2 transition-colors'
+            >
+              {t('enableInSettings')}
+            </button>
+          )}
+        </div>
+      </SummaryTile>
+    );
+  }
+
   const expiry = tls?.tlsNotAfter ? new Date(tls.tlsNotAfter) : null;
   const daysLeft = computeDaysUntil(tls?.tlsNotAfter);
   const presentation = presentSslStatus({ status: tls?.status, daysLeft });
@@ -254,18 +310,11 @@ function SslSummaryCard({ tls, isDisabled }: { tls: MonitorTlsResult | null | un
     <SummaryTile
       title={t('title')}
       headerRight={
-        isDisabled ? (
-          <Badge variant='outline' className='border-muted-foreground/30 text-muted-foreground text-xs'>
-            {t('disabled')}
-          </Badge>
-        ) : (
-          <Badge variant='outline' className={`text-xs ${presentation.badgeClass}`}>
-            {badgeLabel}
-          </Badge>
-        )
+        <Badge variant='outline' className={`text-xs ${presentation.badgeClass}`}>
+          {badgeLabel}
+        </Badge>
       }
       bodyClassName='mt-3 flex flex-row items-start gap-2 sm:gap-2'
-      className={isDisabled ? 'opacity-50 grayscale' : ''}
     >
       <presentation.icon className={`mt-0.5 h-6 w-6 sm:h-8 sm:w-8 ${presentation.theme.text}`} aria-hidden />
       <div className='flex flex-row items-start gap-2 sm:gap-3'>

@@ -1354,9 +1354,14 @@
       "ssl": {
         "title": "SSL Certificate",
         "disabled": "Disabled",
+        "notApplicable": "N/A",
         "timeLeft": "Time left",
         "timeLeftWithUnit": "{unit} left",
-        "expires": "Exp. {date}"
+        "expires": "Exp. {date}",
+        "httpSite": "Not Applicable",
+        "httpSiteDescription": "This site uses HTTP",
+        "disabledDescription": "SSL monitoring is disabled",
+        "enableInSettings": "Enable in settings"
       }
     },
     "toast": {
@@ -1407,7 +1412,8 @@
       },
       "sslMonitoring": {
         "label": "Monitor SSL errors",
-        "description": "Create incidents when certificate errors are detected"
+        "description": "Create incidents when certificate errors are detected",
+        "httpDisabled": "Not available for HTTP sites (no certificate)"
       },
       "requestHeaders": {
         "label": "Request headers",
@@ -1436,6 +1442,7 @@
       "onRecoveryDescription": "Send an alert when the monitor recovers from being down",
       "onSslExpiry": "Alert on SSL expiry",
       "onSslExpiryDescription": "Send an alert when the SSL certificate is about to expire",
+      "sslExpiryDisabledTooltip": "Enable SSL monitoring in Advanced Settings first",
       "failureThreshold": "Failure threshold",
       "failureThresholdDescription": "Number of consecutive failures before sending an alert",
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
