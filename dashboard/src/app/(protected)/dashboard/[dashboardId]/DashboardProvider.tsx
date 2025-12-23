@@ -11,6 +11,7 @@ import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextPr
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
+import { useSavedFilters } from '@/hooks/use-saved-filters';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
           <UserJourneyFilterProvider>
             <SyncURLFilters />
             <RealtimeRefresh />
+            <PrefetchSavedFilters />
             {children}
           </UserJourneyFilterProvider>
         </QueryFiltersContextProvider>
@@ -59,5 +61,10 @@ function RealtimeRefresh() {
     }
   }, [interval]);
 
+  return undefined;
+}
+
+function PrefetchSavedFilters() {
+  useSavedFilters();
   return undefined;
 }

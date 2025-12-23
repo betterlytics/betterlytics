@@ -5,8 +5,6 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { toClickHouseGridStartString } from '@/utils/dateFormatters';
-import { TimeRangeValue } from '@/utils/timeRanges';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {

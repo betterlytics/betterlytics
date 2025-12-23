@@ -2,36 +2,33 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.8',
-    releasedAt: '2025-12-14',
+    version: 'v1.2.9',
+    releasedAt: '2025-12-21',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v128-new-features',
+      id: 'v129-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'La visualizzazione di User Journey è stata ridisegnata con un’interfaccia moderna che rende più semplice comprendere come i visitatori navigano sul tuo sito.',
-            'Ora puoi clonare i funnel esistenti per creare rapidamente varianti o testare diverse configurazioni.',
+            'Ora puoi salvare combinazioni di filtri e applicarle rapidamente in seguito, perfetto per le visualizzazioni più utilizzate.',
+            'Il filtro per hostname è disponibile! Filtra le tue analisi per hostname per vedere i dati di sottodomini specifici.',
           ],
         },
       ],
     },
     {
-      id: 'v128-improvements-and-fixes',
-      title: 'Miglioramenti e correzioni',
+      id: 'v129-improvements',
+      title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'I colori della mappa geografica e della heatmap settimanale sono stati aggiornati per evidenziare meglio le differenze nel numero di visitatori.',
-            'Introdotto un nuovo endpoint di tracciamento /event con semantica più chiara e un nome privacy-friendly. Le integrazioni esistenti basate su /track continuano a funzionare senza modifiche.',
-            'Corretto un bug per cui i tooltip dell’intervallo di confronto mostravano date errate; i dati sottostanti erano sempre corretti.',
-            'Risolto un problema che impediva il cambio della password per gli account che accedono tramite email e password invece che con login social.',
+            'User Journey ha ricevuto gli ultimi ritocchi. I diagrammi di grandi dimensioni ora scorrono più fluidamente e sono più facili da seguire.',
           ],
         },
       ],
@@ -40,6 +37,42 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.9',
+      releasedAt: '2025-12-21',
+      title: 'Filtri salvati, filtro per hostname e miglioramenti a User Journey',
+      summary:
+        'Salva le tue combinazioni di filtri preferite per un accesso rapido, filtra le analisi per hostname per configurazioni multi-sottodominio, e User Journey riceve gli ultimi ritocchi per diagrammi più fluidi.',
+    },
+    sections: [
+      {
+        id: 'v129-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Ora puoi salvare combinazioni di filtri e applicarle rapidamente in seguito, perfetto per le visualizzazioni più utilizzate o configurazioni complesse.',
+              'Il filtro per hostname è disponibile! Se hai più sottodomini che puntano alla stessa dashboard, puoi filtrare le analisi per hostname per vedere i dati di sottodomini specifici.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v129-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'User Journey ha ricevuto gli ultimi ritocchi. I diagrammi di grandi dimensioni ora scorrono più fluidamente e sono più facili da seguire.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.8',

@@ -2,36 +2,33 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.8',
-    releasedAt: '2025-12-14',
+    version: 'v1.2.9',
+    releasedAt: '2025-12-21',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v128-new-features',
+      id: 'v129-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Visualiseringen af User Journey er blevet redesignet med en moderne brugerflade, der gør det nemmere at forstå, hvordan besøgende navigerer på dit website.',
-            'Du kan nu klone eksisterende funnels for hurtigt at oprette variationer eller teste forskellige konfigurationer.',
+            'Du kan nu gemme filterkombinationer og hurtigt anvende dem senere – perfekt til ofte brugte visninger.',
+            'Hostname-filtrering er her! Filtrer dine analyser efter hostname for at se data for specifikke subdomæner.',
           ],
         },
       ],
     },
     {
-      id: 'v128-improvements-and-fixes',
-      title: 'Forbedringer & rettelser',
+      id: 'v129-improvements',
+      title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Farverne på verdenskortet og det ugentlige heatmap er opdateret for tydeligere at fremhæve forskelle i besøgsantal.',
-            'Introduceret et nyt /event tracking-endpoint med tydeligere semantik og et privacy-venligt navn. Eksisterende /track-integrationer fungerer fortsat uden ændringer.',
-            'Rettet en fejl, hvor tooltips for sammenligningsperioder viste forkerte datoer; de underliggende data var altid korrekte.',
-            'Rettet et problem, hvor ændring af adgangskode ikke virkede for konti, der logger ind med e-mail og adgangskode i stedet for social login.',
+            'User Journey har fået de sidste finpudsninger. Store diagrammer flyder nu mere jævnt og er nemmere at følge.',
           ],
         },
       ],
@@ -40,6 +37,42 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.2.9',
+      releasedAt: '2025-12-21',
+      title: 'Gemte filtre, hostname-filtrering og forbedringer af User Journey',
+      summary:
+        'Gem dine foretrukne filterkombinationer for hurtig adgang, filtrer analyser efter hostname til multi-subdomæne-opsætninger, og User Journey får de sidste finpudsninger for mere flydende store diagrammer.',
+    },
+    sections: [
+      {
+        id: 'v129-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Du kan nu gemme filterkombinationer og hurtigt anvende dem senere – perfekt til ofte brugte visninger eller komplekse filteropsætninger.',
+              'Hostname-filtrering er her! Hvis du har flere subdomæner, der peger på samme dashboard, kan du nu filtrere dine analyser efter hostname for at se data for specifikke subdomæner.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v129-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'User Journey har fået de sidste finpudsninger. Store diagrammer er nu mere jævne og nemmere at følge.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.8',
