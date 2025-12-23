@@ -1378,7 +1378,7 @@
       },
       "loading": "Indlæser kampagner...",
       "campaignRow": {
-        "sessions": "{count, plural, one {# session} other {# sessioner}}",
+        "visitors": "{count, plural, one {# besøgende} other {# besøgende}}",
         "bounceRate": "Afvisningsprocent",
         "avgSessionDuration": "Gns. varighed",
         "pagesPerSession": "Sider pr. session",

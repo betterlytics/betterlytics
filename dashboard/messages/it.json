@@ -1378,7 +1378,7 @@
       },
       "loading": "Caricamento delle campagne...",
       "campaignRow": {
-        "sessions": "{count, plural, one {# sessione} other {# sessioni}}",
+        "visitors": "{count, plural, one {# visitatore} other {# visitatori}}",
         "bounceRate": "Frequenza di rimbalzo",
         "avgSessionDuration": "Durata media",
         "pagesPerSession": "Pagine per sessione",

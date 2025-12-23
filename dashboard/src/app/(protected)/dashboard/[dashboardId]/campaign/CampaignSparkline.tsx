@@ -42,7 +42,7 @@ const CampaignSparkline = memo(({ data }: CampaignSparklineProps) => {
                     {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </div>
                   <div className='text-foreground text-xs font-semibold'>
-                    {t('sessions', { count: point.visitors })}
+                    {t('visitors', { count: point.visitors })}
                   </div>
                 </div>
               );
