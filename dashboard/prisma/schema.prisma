@@ -266,6 +266,7 @@ model MonitorCheck {
   deletedAt             DateTime?
 
   @@index([dashboardId])
+  @@unique([id, dashboardId])
 }
 
 model Subscription {

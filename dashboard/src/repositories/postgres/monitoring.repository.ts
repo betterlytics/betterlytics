@@ -1,8 +1,6 @@
 import prisma from '@/lib/postgres';
 import {
   MonitorCheckSchema,
-  MonitorCheckCreateSchema,
-  MonitorCheckUpdateSchema,
   type MonitorCheck,
   type MonitorCheckCreate,
   type MonitorCheckUpdate,
@@ -39,6 +37,7 @@ export async function monitorExistsForHostname(
 
   return existingMonitors.some((monitor) => {
     if (excludeMonitorId && monitor.id === excludeMonitorId) return false;
+
     const existingHostname = getHostnameFromUrl(monitor.url);
     return existingHostname === hostname;
   });
@@ -48,37 +47,35 @@ export async function getMonitorCheckById(dashboardId: string, monitorId: string
   const row = await prisma.monitorCheck.findFirst({
     where: { id: monitorId, dashboardId, deletedAt: null },
   });
+
   if (!row) return null;
+
   return MonitorCheckSchema.parse(row);
 }
 
-export async function createMonitorCheck(input: MonitorCheckCreate): Promise<MonitorCheck> {
-  const data = MonitorCheckCreateSchema.parse(input);
-
+export async function createMonitorCheck(dashboardId: string, data: MonitorCheckCreate): Promise<MonitorCheck> {
   const created = await prisma.monitorCheck.create({
     data: {
+      dashboardId,
       ...data,
+      requestHeaders: data.requestHeaders ?? undefined,
     },
   });
 
   return MonitorCheckSchema.parse(created);
 }
 
-export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<MonitorCheck> {
-  const data = MonitorCheckUpdateSchema.parse(input);
-
-  const existing = await prisma.monitorCheck.findFirst({
-    where: { id: data.id, dashboardId: data.dashboardId, deletedAt: null },
-  });
-
-  if (!existing) {
-    throw new Error('Monitor not found');
-  }
-
+export async function updateMonitorCheck(dashboardId: string, data: MonitorCheckUpdate): Promise<MonitorCheck> {
   const updated = await prisma.monitorCheck.update({
-    where: { id: data.id },
+    where: {
+      id_dashboardId: {
+        id: data.id,
+        dashboardId,
+      },
+    },
     data: {
       ...data,
+      requestHeaders: data.requestHeaders ?? undefined,
     },
   });
 
@@ -86,16 +83,13 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
 }
 
 export async function deleteMonitorCheck(dashboardId: string, monitorId: string): Promise<void> {
-  const existing = await prisma.monitorCheck.findFirst({
-    where: { id: monitorId, dashboardId, deletedAt: null },
-  });
-
-  if (!existing) {
-    throw new Error('Monitor not found');
-  }
-
   await prisma.monitorCheck.update({
-    where: { id: monitorId },
+    where: {
+      id_dashboardId: {
+        id: monitorId,
+        dashboardId,
+      },
+    },
     data: { deletedAt: new Date() },
   });
 }

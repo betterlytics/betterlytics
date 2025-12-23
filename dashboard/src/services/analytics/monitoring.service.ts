@@ -37,12 +37,12 @@ export async function getMonitorCheck(dashboardId: string, monitorId: string) {
   return getMonitorCheckById(dashboardId, monitorId);
 }
 
-export async function addMonitorCheck(input: MonitorCheckCreate) {
-  return createMonitorCheck(input);
+export async function addMonitorCheck(dashboardId: string, input: MonitorCheckCreate) {
+  return createMonitorCheck(dashboardId, input);
 }
 
-export async function updateMonitorCheck(input: MonitorCheckUpdate) {
-  return updateMonitorCheckRepo(input);
+export async function updateMonitorCheck(dashboardId: string, input: MonitorCheckUpdate) {
+  return updateMonitorCheckRepo(dashboardId, input);
 }
 
 export async function deleteMonitorCheck(dashboardId: string, monitorId: string) {

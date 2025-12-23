@@ -42,47 +42,20 @@ export const StatusCodeValueSchema = z.union([
 ]);
 export type StatusCodeValue = z.infer<typeof StatusCodeValueSchema>;
 
-export const MonitorCheckSchema = z.object({
-  id: z.string(),
-  dashboardId: z.string(),
-  name: z.string().nullable().optional(),
-  url: z.string().url(),
-  intervalSeconds: z.number().int().min(5),
-  timeoutMs: z.number().int().min(500),
-  isEnabled: z.boolean(),
-  checkSslErrors: z.boolean(),
-  sslExpiryReminders: z.boolean(),
-  httpMethod: HttpMethodSchema,
-  requestHeaders: z.array(RequestHeaderSchema).nullable(),
-  acceptedStatusCodes: z.array(StatusCodeValueSchema),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  // Alert configuration
-  alertsEnabled: z.boolean(),
-  alertEmails: z.array(z.string().email()),
-  alertOnDown: z.boolean(),
-  alertOnRecovery: z.boolean(),
-  alertOnSslExpiry: z.boolean(),
-  sslExpiryAlertDays: z.number().int().min(1).max(90),
-  failureThreshold: z.number().int().min(1).max(10),
-});
-
-export const MonitorCheckCreateSchema = z.object({
-  dashboardId: z.string(),
+export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
-  url: z.string().url().max(MONITOR_LIMITS.URL_MAX),
   intervalSeconds: z.number().int().min(5).max(3600).default(30),
   timeoutMs: z.number().int().min(500).max(120_000).default(3000),
   isEnabled: z.boolean().default(true),
   checkSslErrors: z.boolean().default(true),
   sslExpiryReminders: z.boolean().default(true),
   httpMethod: HttpMethodSchema.default('HEAD'),
-  requestHeaders: z.array(RequestHeaderSchema).max(MONITOR_LIMITS.REQUEST_HEADERS_MAX).optional(),
+  requestHeaders: z.array(RequestHeaderSchema).max(MONITOR_LIMITS.REQUEST_HEADERS_MAX).optional().nullable(),
   acceptedStatusCodes: z
     .array(StatusCodeValueSchema)
     .max(MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX)
     .default(['2xx']),
-  // Alert configuration with defaults
+  // Alert configuration
   alertsEnabled: z.boolean().default(true),
   alertEmails: z.array(z.string().email()).max(MONITOR_LIMITS.ALERT_EMAILS_MAX).default([]),
   alertOnDown: z.boolean().default(true),
@@ -90,6 +63,18 @@ export const MonitorCheckCreateSchema = z.object({
   alertOnSslExpiry: z.boolean().default(true),
   sslExpiryAlertDays: z.number().int().min(1).max(90).default(14),
   failureThreshold: z.number().int().min(1).max(10).default(3),
+});
+
+export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({
+  url: z.string().url().max(MONITOR_LIMITS.URL_MAX),
+});
+
+export const MonitorCheckSchema = MonitorCheckBaseSchema.extend({
+  id: z.string(),
+  dashboardId: z.string(),
+  url: z.string().url(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: true }).partial().extend({

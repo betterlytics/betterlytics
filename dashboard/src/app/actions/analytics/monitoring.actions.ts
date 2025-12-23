@@ -40,18 +40,13 @@ export const fetchMonitorCheckAction = withDashboardAuthContext(
 );
 
 export const createMonitorCheckAction = withDashboardMutationAuthContext(
-  async (
-    ctx: AuthContext,
-    input: {
-      name?: string | null;
-      url: string;
-      intervalSeconds: number;
-      timeoutMs: number;
-      isEnabled?: boolean;
-      failureThreshold?: number;
-    },
-  ) => {
+  async (ctx: AuthContext, input: z.input<typeof MonitorCheckCreateSchema>) => {
+    const payload = MonitorCheckCreateSchema.parse({
+      ...input,
+    });
+
     const dashboard = await findDashboardById(ctx.dashboardId);
+
     if (!isUrlOnDomain(input.url, dashboard.domain)) {
       throw new UserException(`URL must be on ${dashboard.domain} or a subdomain`);
     }
@@ -61,11 +56,8 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       throw new UserException('A monitor for this hostname already exists');
     }
 
-    const payload = MonitorCheckCreateSchema.parse({
-      dashboardId: ctx.dashboardId,
-      ...input,
-    });
-    const created = await addMonitorCheck(payload);
+    const created = await addMonitorCheck(ctx.dashboardId, payload);
+
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
     return created;
   },
@@ -74,11 +66,10 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
 export const updateMonitorCheckAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof MonitorCheckUpdateSchema>) => {
     const payload = MonitorCheckUpdateSchema.parse({
-      dashboardId: ctx.dashboardId,
       ...input,
     });
 
-    const updated = await updateMonitorCheck(payload);
+    const updated = await updateMonitorCheck(ctx.dashboardId, payload);
 
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring/${input.id}`);
