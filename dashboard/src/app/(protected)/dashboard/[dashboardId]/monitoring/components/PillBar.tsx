@@ -39,7 +39,10 @@ export function PillBar({ data }: PillBarProps) {
         })();
         return (
           <MonitoringTooltip key={point.bucket} title={bucketLabel} description={label}>
-            <span className={`h-5 min-w-0 flex-1 rounded-sm ${toneClass}`} aria-label={label} />
+            <span
+              className={`hover:ring-foreground/30 h-5 min-w-0 flex-1 rounded-sm transition-shadow hover:ring-1 ${toneClass}`}
+              aria-label={label}
+            />
           </MonitoringTooltip>
         );
       })}

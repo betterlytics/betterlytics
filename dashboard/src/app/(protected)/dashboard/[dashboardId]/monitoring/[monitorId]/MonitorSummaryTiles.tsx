@@ -2,9 +2,13 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { format } from 'date-fns';
 import { formatDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
-import { formatCompactFromMilliseconds, formatTimeAgo, formatTimeLeft } from '@/utils/dateFormatters';
+import {
+  formatCompactFromMilliseconds,
+  formatLocalDateTime,
+  formatTimeAgo,
+  formatTimeLeft,
+} from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import {
   presentLatencyStatus,
@@ -21,7 +25,7 @@ import {
 import { type ReactNode, useEffect, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from '../components/PillBar';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { AlertCircle, LockOpen, ShieldOff } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatIntervalLabel } from '../utils';
@@ -111,13 +115,13 @@ function LastCheckCard({
   const tMonitoringPage = useTranslations('monitoringPage');
   const tList = useTranslations('monitoringPage.list');
   const lastCheckAt = metrics?.lastCheckAt ? new Date(metrics.lastCheckAt).getTime() : null;
-  const [now, setNow] = useState(() => Date.now());
+  const [, tick] = useState(0);
   const isPaused = operationalState === 'paused';
   const isPreparing = operationalState === 'preparing';
 
   useEffect(() => {
     if (!lastCheckAt || isPaused) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    const id = window.setInterval(() => tick((n) => n + 1), 1000);
     return () => window.clearInterval(id);
   }, [isPaused, lastCheckAt]);
 
@@ -251,6 +255,7 @@ type SslSummaryCardProps = {
 function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSummaryCardProps) {
   const t = useTranslations('monitoringDetailPage.summary.ssl');
   const tSsl = useTranslations('monitoring.ssl');
+  const locale = useLocale();
 
   if (isHttpSite) {
     return (
@@ -303,7 +308,7 @@ function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSumma
   const daysLeft = computeDaysUntil(tls?.tlsNotAfter);
   const presentation = presentSslStatus({ status: tls?.status, daysLeft });
   const timeLeftLabel = formatTimeLeft(daysLeft);
-  const expiresLabel = expiry ? format(expiry, 'MM/dd/yyyy') : '—';
+  const expiresLabel = (expiry ? formatLocalDateTime(expiry, locale, { dateStyle: 'medium' }) : undefined) ?? '—';
   const badgeLabel = tSsl(presentation.labelKey);
 
   return (
