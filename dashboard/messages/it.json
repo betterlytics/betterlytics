@@ -1339,7 +1339,10 @@
       }
     },
     "summary": {
-      "avgResponseTime": "Tempo di risposta medio",
+      "responseTime": {
+        "avgResponseTime": "Tempo di risposta medio",
+        "helper": "Ultime 24 ore"
+      },
       "lastCheck": {
         "title": "Ultimo controllo",
         "paused": "In pausa",

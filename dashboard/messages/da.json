@@ -1339,7 +1339,10 @@
       }
     },
     "summary": {
-      "avgResponseTime": "Gns. responstid",
+      "responseTime": {
+        "avgResponseTime": "Gns. responstid",
+        "helper": "Seneste 24 timer"
+      },
       "lastCheck": {
         "title": "Seneste tjek",
         "paused": "Sat på pause",

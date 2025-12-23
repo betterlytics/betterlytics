@@ -1337,7 +1337,10 @@
       }
     },
     "summary": {
-      "avgResponseTime": "Avg response time",
+      "responseTime": {
+        "avgResponseTime": "Avg response time",
+        "helper": "Last 24 hours"
+      },
       "lastCheck": {
         "title": "Last check",
         "paused": "Paused",

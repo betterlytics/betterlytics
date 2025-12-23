@@ -65,7 +65,7 @@ export function MonitorSummaryTiles({ monitor, metrics, tls, operationalState }:
         incidents={metrics?.incidents24h ?? 0}
         buckets={metrics?.uptimeBuckets}
       />
-      <ResponseSummaryTile title={t('avgResponseTime')} avg={latencyAvg} operationalState={operationalState} />
+      <ResponseSummaryTile avg={latencyAvg} operationalState={operationalState} />
       <SslSummaryCard tls={tls} isDisabled={!monitor.checkSslErrors} isHttpSite={isHttpUrl(monitor.url)} />
     </div>
   );
@@ -169,14 +169,13 @@ function LastCheckCard({
 }
 
 function ResponseSummaryTile({
-  title,
   avg,
   operationalState,
 }: {
-  title: string;
   avg: number | null;
   operationalState: MonitorOperationalState;
 }) {
+  const t = useTranslations('monitoringDetailPage.summary.responseTime');
   const tLatency = useTranslations('monitoring.latency');
   const presentation = presentLatencyStatus({ avgMs: avg, operationalState });
   const theme = presentation.theme;
@@ -185,13 +184,14 @@ function ResponseSummaryTile({
 
   return (
     <SummaryTile
-      title={title}
+      title={t('avgResponseTime')}
       headerRight={
         <Badge variant='outline' className={`text-xs ${badgeClass}`}>
           {badgeLabel}
         </Badge>
       }
-      bodyClassName='flex flex-wrap items-baseline gap-2'
+      helper={t('helper')}
+      bodyClassName='flex flex-1 flex-wrap items-baseline gap-2'
     >
       <span className={`${theme.text} mt-2 text-3xl font-semibold tracking-tight`}>
         {avg == null ? '—' : formatCompactFromMilliseconds(avg)}
