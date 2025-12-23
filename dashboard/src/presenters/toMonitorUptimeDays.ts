@@ -72,13 +72,14 @@ function buildUptimeGrid(days: PresentedMonitorUptimeDay[], totalDays: number): 
 function computeUptimeStats(days: PresentedMonitorUptimeDay[], windows: number[]): PresentedMonitorUptimeStat[] {
   return windows.map((w) => {
     const slice = sliceLastDays(days, w);
+    const actualDays = slice.length;
     const percent =
-      slice.length > 0 ? (slice.reduce((acc, d) => acc + (d.upRatio ?? 0), 0) / slice.length) * 100 : null;
+      actualDays > 0 ? (slice.reduce((acc, d) => acc + (d.upRatio ?? 0), 0) / actualDays) * 100 : null;
     return {
       label: `Last ${w} days`,
       windowDays: w,
       percent,
-      downtime: percent != null ? formatDowntimeFromUptimeDays(percent, w) : null,
+      downtime: percent != null ? formatDowntimeFromUptimeDays(percent, actualDays) : null,
     };
   });
 }
