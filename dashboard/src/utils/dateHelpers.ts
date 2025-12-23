@@ -21,3 +21,10 @@ export function sortByDate<T extends { date: string }>(data: T[]): T[] {
     return dateA.getTime() - dateB.getTime();
   });
 }
+
+export function computeDaysUntil(isoDate: string | null | undefined): number | null {
+  if (!isoDate) return null;
+  const targetMs = new Date(isoDate).getTime();
+  if (Number.isNaN(targetMs)) return null;
+  return Math.ceil((targetMs - Date.now()) / (1000 * 60 * 60 * 24));
+}

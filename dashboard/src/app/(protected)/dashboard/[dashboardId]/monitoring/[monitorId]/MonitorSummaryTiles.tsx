@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { formatDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
 import { formatCompactFromMilliseconds, formatTimeAgo, formatTimeLeft } from '@/utils/dateFormatters';
+import { computeDaysUntil } from '@/utils/dateHelpers';
 import {
   presentLatencyStatus,
   presentMonitorStatus,
@@ -243,7 +244,7 @@ function SslSummaryCard({ tls, isDisabled }: { tls: MonitorTlsResult | null | un
   const t = useTranslations('monitoringDetailPage.summary.ssl');
   const tSsl = useTranslations('monitoring.ssl');
   const expiry = tls?.tlsNotAfter ? new Date(tls.tlsNotAfter) : null;
-  const daysLeft = tls?.tlsDaysLeft ?? null;
+  const daysLeft = computeDaysUntil(tls?.tlsNotAfter);
   const presentation = presentSslStatus({ status: tls?.status, daysLeft });
   const timeLeftLabel = formatTimeLeft(daysLeft);
   const expiresLabel = expiry ? format(expiry, 'MM/dd/yyyy') : '—';

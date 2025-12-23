@@ -116,8 +116,7 @@ export async function getLatestTlsResult(checkId: string, siteId: string): Promi
       toString(ts) AS ts,
       status,
       reason_code,
-      tls_not_after,
-      tls_days_left
+      tls_not_after
     FROM analytics.monitor_results
     WHERE check_id = {check_id:String}
       AND kind = 'tls'
@@ -139,7 +138,6 @@ export async function getLatestTlsResult(checkId: string, siteId: string): Promi
     status: row.status,
     reasonCode: row.reason_code,
     tlsNotAfter: toIsoUtc(row.tls_not_after),
-    tlsDaysLeft: row.tls_days_left,
   });
 }
 
@@ -155,8 +153,7 @@ export async function getLatestTlsResultsForMonitors(
       toString(ts) AS ts,
       status,
       reason_code,
-      tls_not_after,
-      tls_days_left
+      tls_not_after
     FROM analytics.monitor_results
     WHERE check_id IN {check_ids:Array(String)}
       AND kind = 'tls'
@@ -177,7 +174,6 @@ export async function getLatestTlsResultsForMonitors(
       status: row.status,
       reasonCode: row.reason_code,
       tlsNotAfter: toIsoUtc(row.tls_not_after),
-      tlsDaysLeft: row.tls_days_left,
     });
     return acc;
   }, {});

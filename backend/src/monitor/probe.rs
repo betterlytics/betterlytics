@@ -115,7 +115,6 @@ impl MonitorProbe {
                 let days_left = (not_after - Utc::now()).num_days() as i32;
                 let mut outcome = ProbeOutcome::success(latency, None, guard.resolved_ip);
                 outcome.tls_not_after = Some(not_after);
-                outcome.tls_days_left = Some(days_left);
 
                 let (status, reason_code) = if days_left < 0 {
                     (MonitorStatus::Down, ReasonCode::TlsExpired)

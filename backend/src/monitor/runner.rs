@@ -135,7 +135,7 @@ impl RunnerStrategy for TlsRunnerStrategy {
             check = %check.id,
             status = ?outcome.status,
             reason = %outcome.reason_code.as_str(),
-            days_left = ?outcome.tls_days_left,
+            tls_not_after = ?outcome.tls_not_after,
             "tls probe completed"
         );
         MonitorResultRow::from_tls_probe(check, outcome)

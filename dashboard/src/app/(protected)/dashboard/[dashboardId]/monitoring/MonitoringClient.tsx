@@ -9,6 +9,7 @@ import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+import { computeDaysUntil } from '@/utils/dateHelpers';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -110,7 +111,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
         if (statusFilter === 'ssl') {
           const sslStatus = presentSslStatus({
             status: monitor.tls?.status,
-            daysLeft: monitor.tls?.tlsDaysLeft ?? null,
+            daysLeft: computeDaysUntil(monitor.tls?.tlsNotAfter),
           });
           return sslStatus.category === 'warn' || sslStatus.category === 'down' || sslStatus.category === 'error';
         }
@@ -127,11 +128,12 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
     const nameValue = (monitor: MonitorWithStatus) => (monitor.name || monitor.url || '').toLowerCase();
     const createdAtMs = (monitor: MonitorWithStatus) =>
       monitor.createdAt ? new Date(monitor.createdAt).getTime() : Number.NEGATIVE_INFINITY;
-    const sslDays = (monitor: MonitorWithStatus) =>
-      presentSslStatus({ status: monitor.tls?.status, daysLeft: monitor.tls?.tlsDaysLeft ?? null }).category ===
-      'unknown'
+    const sslDays = (monitor: MonitorWithStatus) => {
+      const daysLeft = computeDaysUntil(monitor.tls?.tlsNotAfter);
+      return presentSslStatus({ status: monitor.tls?.status, daysLeft }).category === 'unknown'
         ? Number.POSITIVE_INFINITY
-        : (monitor.tls?.tlsDaysLeft ?? Number.POSITIVE_INFINITY);
+        : (daysLeft ?? Number.POSITIVE_INFINITY);
+    };
 
     return [...filteredMonitors].sort((a, b) => {
       switch (sortKey) {

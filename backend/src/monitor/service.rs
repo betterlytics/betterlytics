@@ -33,7 +33,6 @@ pub struct IncidentContext {
     pub status: MonitorStatus,
     pub status_code: Option<u16>,
     pub reason_code: ReasonCode,
-    pub tls_days_left: Option<i32>,
     pub tls_not_after: Option<chrono::DateTime<chrono::Utc>>,
 }
 
@@ -49,7 +48,6 @@ impl IncidentContext {
             status: outcome.status,
             status_code: outcome.status_code,
             reason_code: outcome.reason_code,
-            tls_days_left: outcome.tls_days_left,
             tls_not_after: outcome.tls_not_after,
         }
     }
@@ -150,10 +148,11 @@ impl IncidentOrchestrator {
     #[tracing::instrument(
         level = "debug",
         skip(self, ctx),
-        fields(check_id = %ctx.check.id, tls_days_left = ?ctx.tls_days_left)
+        fields(check_id = %ctx.check.id, tls_not_after = ?ctx.tls_not_after)
     )]
     pub async fn process_tls_probe_outcome(&self, ctx: &IncidentContext) {
-        if let Some(days_left) = ctx.tls_days_left {
+        if let Some(not_after) = ctx.tls_not_after {
+            let days_left = (not_after - chrono::Utc::now()).num_days() as i32;
             self.send_ssl_alert(ctx, days_left).await;
         }
     }

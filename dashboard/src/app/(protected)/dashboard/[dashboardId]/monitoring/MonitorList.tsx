@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
 import { formatIntervalLabel } from './utils';
+import { computeDaysUntil } from '@/utils/dateHelpers';
 import { type MonitorUptimeBucket, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import {
   presentMonitorStatus,
@@ -47,9 +48,10 @@ export function MonitorList({ monitors }: MonitorListProps) {
       {monitors.map((monitor) => {
         const statusPresentation = presentMonitorStatus(monitor.operationalState);
 
+        const daysLeft = computeDaysUntil(monitor.tls?.tlsNotAfter);
         const sslPresentation = presentSslStatusPresentation({
           status: monitor.tls?.status,
-          daysLeft: monitor.tls?.tlsDaysLeft,
+          daysLeft,
         });
         const sslBadgeLabel = tSsl(sslBadgeKey(sslPresentation.category));
 
@@ -119,11 +121,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     <SslStatusPill
                       presentation={sslPresentation}
                       label={sslBadgeLabel}
-                      daysLeftLabel={
-                        monitor.tls?.tlsDaysLeft != null
-                          ? tMonitoringLabels('daysLeft', { count: monitor.tls.tlsDaysLeft })
-                          : null
-                      }
+                      daysLeftLabel={daysLeft != null ? tMonitoringLabels('daysLeft', { count: daysLeft }) : null}
                     />
                   </div>
                   <div className='min-w-0'>

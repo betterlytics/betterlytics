@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_results
     resolved_ip   Nullable(String),
     port          Nullable(UInt16),          -- for TCP/HTTP checks
     tls_not_after Nullable(DateTime64(3)),   -- SSL expiry; null if not applicable
-    tls_days_left Nullable(Int32),
 
     effective_interval_seconds UInt16 DEFAULT 30,
     backoff_level              UInt8  DEFAULT 0,

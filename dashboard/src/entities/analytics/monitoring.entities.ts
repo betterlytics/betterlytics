@@ -208,7 +208,6 @@ export const MonitorTlsResultSchema = z.object({
   status: MonitorStatusSchema,
   reasonCode: z.string().nullable(),
   tlsNotAfter: z.string().nullable(),
-  tlsDaysLeft: z.number().int().nullable(),
 });
 
 export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;

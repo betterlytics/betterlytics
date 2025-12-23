@@ -262,7 +262,6 @@ pub struct ProbeOutcome {
     pub reason_code: ReasonCode,
     pub resolved_ip: Option<IpAddr>,
     pub tls_not_after: Option<DateTime<Utc>>,
-    pub tls_days_left: Option<i32>,
     pub final_url: Option<String>,
     pub redirect_hops: usize,
 }
@@ -277,7 +276,6 @@ impl ProbeOutcome {
             reason_code: ReasonCode::Ok,
             resolved_ip: Some(resolved_ip),
             tls_not_after: None,
-            tls_days_left: None,
             final_url: None,
             redirect_hops: 0,
         }
@@ -296,7 +294,6 @@ impl ProbeOutcome {
             reason_code,
             resolved_ip: None,
             tls_not_after: None,
-            tls_days_left: None,
             final_url: None,
             redirect_hops: 0,
         }
@@ -319,7 +316,6 @@ pub struct MonitorResultRow {
     pub port: Option<u16>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub tls_not_after: Option<DateTime<Utc>>,
-    pub tls_days_left: Option<i32>,
     pub effective_interval_seconds: u16,
     pub backoff_level: u8,
     pub consecutive_failures: u16,
@@ -344,7 +340,6 @@ impl MonitorResultRow {
             resolved_ip: outcome.resolved_ip.map(|ip| ip.to_string()),
             port: check.url.port_or_known_default(),
             tls_not_after: outcome.tls_not_after,
-            tls_days_left: outcome.tls_days_left,
             effective_interval_seconds: 0,
             backoff_level: 0,
             consecutive_failures: 0,
