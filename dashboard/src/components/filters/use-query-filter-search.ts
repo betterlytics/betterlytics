@@ -6,16 +6,39 @@ import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
+import { subDays } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SEARCH_LIMIT = 5000;
+const EXTENDED_RANGE_DAYS = 30;
 
 type SearchMetadataResult = {
   shouldUseServerSearch: boolean;
 };
 
-export function useQueryFilterSearch(filter: QueryFilter) {
-  const { startDate, endDate } = useTimeRangeContext();
+type UseQueryFilterSearchOptions = {
+  useExtendedRange?: boolean;
+};
+
+export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilterSearchOptions) {
+  const { startDate: dashboardStartDate, endDate: dashboardEndDate } = useTimeRangeContext();
+
+  // When useExtendedRange is true, it uses a range of minimum 30 days
+  const { startDate, endDate } = useMemo(() => {
+    if (!options?.useExtendedRange) {
+      return { startDate: dashboardStartDate, endDate: dashboardEndDate };
+    }
+
+    const now = new Date();
+    const extendedStartDate = subDays(now, EXTENDED_RANGE_DAYS);
+
+    const effectiveStartDate =
+      dashboardStartDate && dashboardStartDate < extendedStartDate ? dashboardStartDate : extendedStartDate;
+    const effectiveEndDate = dashboardEndDate && dashboardEndDate > now ? dashboardEndDate : now;
+
+    return { startDate: effectiveStartDate, endDate: effectiveEndDate };
+  }, [options?.useExtendedRange, dashboardStartDate, dashboardEndDate]);
+
   const dashboardId = useDashboardId();
 
   const [isDirty, setIsDirty] = useState(false);
@@ -71,7 +94,7 @@ export function useQueryFilterSearch(filter: QueryFilter) {
     }
   }, [fetchedOptions.length, searchMetadataResult, isLoading]);
 
-  const options = useMemo(() => {
+  const filteredOptions = useMemo(() => {
     if (shouldSearchServer) {
       return serverOptions;
     } else {
@@ -83,8 +106,8 @@ export function useQueryFilterSearch(filter: QueryFilter) {
   }, [shouldSearchServer, serverOptions, search]);
 
   const slicedOptions = useMemo(() => {
-    return options.slice(0, 10);
-  }, [options]);
+    return filteredOptions.slice(0, 10);
+  }, [filteredOptions]);
 
   return { search, setSearch, isDirty, options: slicedOptions, isLoading };
 }
