@@ -4,22 +4,23 @@
 //! feature, keeping `main.rs` clean.
 
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::time::sleep;
 use tracing::{info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::metrics::MetricsCollector;
-use crate::postgres::PostgresPool;
 use crate::monitor::incident::IncidentStore;
+use crate::postgres::PostgresPool;
 
 use super::alert::new_alert_history_writer;
+use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 use super::{
     DomainRateLimiter, HttpRunner, HttpRuntimeConfig, IncidentOrchestrator,
     IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource,
     MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
 };
-use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 
 /// Spawns the uptime monitoring subsystem in a background task.
 ///
@@ -100,14 +101,15 @@ async fn run_monitoring_init_loop(
                 }
             };
 
-        let writer = match new_monitor_writer(Arc::clone(&clickhouse), &config.monitor_clickhouse_table) {
-            Ok(w) => w,
-            Err(err) => {
-                warn!(error = ?err, "Failed to create monitor writer; retrying");
-                sleep(retry_delay).await;
-                continue;
-            }
-        };
+        let writer =
+            match new_monitor_writer(Arc::clone(&clickhouse), &config.monitor_clickhouse_table) {
+                Ok(w) => w,
+                Err(err) => {
+                    warn!(error = ?err, "Failed to create monitor writer; retrying");
+                    sleep(retry_delay).await;
+                    continue;
+                }
+            };
 
         let tls_probe = probe.clone();
         let tls_writer = Arc::clone(&writer);
@@ -145,7 +147,8 @@ async fn run_monitoring_init_loop(
         );
         info!("Incident orchestrator initialized");
 
-        let rate_limiter = Arc::new(DomainRateLimiter::default());
+        let http_rate_limiter = Arc::new(DomainRateLimiter::default()); // 10 reqs per min
+        let tls_rate_limiter = Arc::new(DomainRateLimiter::new(20, Duration::from_hours(1)));
         info!("Domain rate limiter initialized");
 
         let mut http_runner = HttpRunner::new(
@@ -166,10 +169,10 @@ async fn run_monitoring_init_loop(
 
         http_runner = http_runner
             .with_incident_orchestrator(Arc::clone(&incident_orchestrator))
-            .with_rate_limiter(Arc::clone(&rate_limiter));
+            .with_rate_limiter(Arc::clone(&http_rate_limiter));
         tls_runner = tls_runner
             .with_incident_orchestrator(Arc::clone(&incident_orchestrator))
-            .with_rate_limiter(Arc::clone(&rate_limiter));
+            .with_rate_limiter(Arc::clone(&tls_rate_limiter));
 
         http_runner.spawn();
         tls_runner.spawn();
