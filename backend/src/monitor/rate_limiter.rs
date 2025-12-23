@@ -43,7 +43,8 @@ impl DomainRateLimiter {
     pub fn check(&self, domain: &str) -> bool {
         let now = Instant::now();
 
-        let mut entry = self.limiters
+        let mut entry = self
+            .limiters
             .entry(domain.to_lowercase())
             .or_insert_with(|| LimiterEntry {
                 limiter: RateLimiter::direct(self.quota),
@@ -63,6 +64,6 @@ impl DomainRateLimiter {
 
 impl Default for DomainRateLimiter {
     fn default() -> Self {
-        Self::new(1, Duration::from_secs(5))
+        Self::new(10, Duration::from_mins(1))
     }
 }
