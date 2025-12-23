@@ -20,7 +20,7 @@ export const HttpMethodSchema = z.enum(['HEAD', 'GET']);
 export type HttpMethod = z.infer<typeof HttpMethodSchema>;
 
 export const MONITOR_LIMITS = {
-  NAME_MAX: 120,
+  NAME_MAX: 30,
   URL_MAX: 256,
   REQUEST_HEADERS_MAX: 10,
   REQUEST_HEADER_KEY_MAX: 128,
@@ -77,7 +77,7 @@ export const MonitorCheckCreateSchema = z.object({
   checkSslErrors: z.boolean().default(true),
   sslExpiryReminders: z.boolean().default(true),
   httpMethod: HttpMethodSchema.default('HEAD'),
-  requestHeaders: z.array(RequestHeaderSchema).max(MONITOR_LIMITS.REQUEST_HEADERS_MAX).nullable().default(null),
+  requestHeaders: z.array(RequestHeaderSchema).max(MONITOR_LIMITS.REQUEST_HEADERS_MAX).optional(),
   acceptedStatusCodes: z
     .array(StatusCodeValueSchema)
     .max(MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX)
@@ -92,29 +92,9 @@ export const MonitorCheckCreateSchema = z.object({
   failureThreshold: z.number().int().min(1).max(10).default(3),
 });
 
-export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: true })
-  .extend({
-    id: z.string(),
-  })
-  .required({
-    id: true,
-    dashboardId: true,
-    intervalSeconds: true,
-    timeoutMs: true,
-    isEnabled: true,
-    checkSslErrors: true,
-    sslExpiryReminders: true,
-    httpMethod: true,
-    requestHeaders: true,
-    acceptedStatusCodes: true,
-    alertsEnabled: true,
-    alertEmails: true,
-    alertOnDown: true,
-    alertOnRecovery: true,
-    alertOnSslExpiry: true,
-    sslExpiryAlertDays: true,
-    failureThreshold: true,
-  });
+export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: true }).partial().extend({
+  id: z.string(),
+});
 
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;
 export type MonitorCheckCreate = z.infer<typeof MonitorCheckCreateSchema>;

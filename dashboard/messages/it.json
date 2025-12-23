@@ -1280,8 +1280,18 @@
         "creating": "Creazione..."
       },
       "success": "Monitor creato",
-      "successDescription": "Il tuo monitor inizier\u00e0 a controllare immediatamente.",
+      "successDescription": "Il tuo monitor inizierà a controllare immediatamente.",
       "error": "Impossibile creare il monitor"
+    },
+    "actions": {
+      "renameTitle": "Rinomina monitor",
+      "renamePlaceholder": "Nome del monitor",
+      "renameSuccess": "Monitor rinominato",
+      "renameError": "Impossibile rinominare il monitor",
+      "settings": "Impostazioni",
+      "deleteConfirmTitle": "Eliminare il monitor?",
+      "deleteConfirmDescription": "Questa azione eliminerà permanentemente il monitor e tutti i suoi dati.",
+      "deleteError": "Impossibile eliminare il monitor"
     }
   },
   "monitoringDetailPage": {
@@ -1470,7 +1480,12 @@
     "noChange": "nessuna variazione",
     "good": "Buono",
     "fair": "Discreto",
-    "poor": "Scarso"
+    "poor": "Scarso",
+    "rename": "Rinomina",
+    "renaming": "Rinominando",
+    "delete": "Elimina",
+    "deleting": "Eliminazione in corso",
+    "cancel": "Anulla"
   },
   "languages": {
     "da": "Danish",

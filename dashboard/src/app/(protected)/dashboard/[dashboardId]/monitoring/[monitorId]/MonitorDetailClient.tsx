@@ -13,7 +13,9 @@ import {
   fetchRecentMonitorResultsAction,
 } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
+import { EditableLabel } from '@/components/inputs/EditableLabel';
 import {
+  MONITOR_LIMITS,
   type MonitorCheck,
   type MonitorIncidentSegment,
   type MonitorMetrics,
@@ -61,7 +63,6 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
 
   const monitorData = monitorQuery.data ?? initialData.monitor;
   const pollingEnabled = monitorData.isEnabled;
-  const { statusMutation } = useMonitorMutations(dashboardId, monitorId);
 
   const metricsQuery = useQuery({
     queryKey: ['monitor-metrics', dashboardId, monitorId],
@@ -99,6 +100,12 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
 
   const operationalState = metricsQuery.data?.operationalState ?? 'preparing';
 
+  const { statusMutation, renameMutation } = useMonitorMutations(dashboardId, monitorId);
+
+  const handleRename = (name: string | null) => {
+    renameMutation.mutate({ monitorId, name });
+  };
+
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <MonitorHeader
@@ -106,6 +113,8 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
         monitorName={monitorData.name || hostname}
         url={monitorData.url}
         operationalState={operationalState}
+        onRename={handleRename}
+        isRenaming={renameMutation.isPending}
         actionSlot={
           <div className='flex items-center gap-2 self-start sm:self-auto'>
             <Button
@@ -113,7 +122,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
               size='sm'
               type='button'
               disabled={statusMutation.isPending}
-              onClick={() => statusMutation.mutate({ monitor: monitorData, isEnabled: !monitorData.isEnabled })}
+              onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
               className='inline-flex cursor-pointer items-center gap-1.5'
             >
               {statusMutation.isPending ? (
@@ -181,12 +190,16 @@ function MonitorHeader({
   url,
   operationalState,
   actionSlot,
+  onRename,
+  isRenaming,
 }: {
   dashboardId: string;
   monitorName: string;
   url: string;
   operationalState: MonitorOperationalState;
   actionSlot?: ReactNode;
+  onRename?: (name: string | null) => void;
+  isRenaming?: boolean;
 }) {
   const tHeader = useTranslations('monitoringDetailPage.header');
   const presentation = presentMonitorStatus(operationalState);
@@ -205,7 +218,15 @@ function MonitorHeader({
         <div className='space-y-1'>
           <div className='flex flex-wrap items-center gap-2'>
             <MonitorStatusBadge presentation={presentation} />
-            <h1 className='text-xl leading-tight font-semibold sm:text-2xl'>{monitorName}</h1>
+            <EditableLabel
+              value={monitorName}
+              onSubmit={onRename}
+              disabled={isRenaming}
+              placeholder='Monitor name'
+              maxLength={MONITOR_LIMITS.NAME_MAX}
+              textClassName='text-xl font-semibold leading-tight sm:text-2xl'
+              inputClassName='min-w-[150px]'
+            />
           </div>
           <div className='text-muted-foreground flex flex-wrap items-center gap-2 pl-1 text-xs sm:text-sm'>
             <span>{tHeader('monitoring')}</span>

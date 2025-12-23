@@ -1280,6 +1280,16 @@
       "success": "Monitor created",
       "successDescription": "Your monitor will start checking immediately.",
       "error": "Failed to create monitor"
+    },
+    "actions": {
+      "renameTitle": "Rename monitor",
+      "renamePlaceholder": "Monitor name",
+      "renameSuccess": "Monitor renamed",
+      "renameError": "Failed to rename monitor",
+      "settings": "Settings",
+      "deleteConfirmTitle": "Delete monitor?",
+      "deleteConfirmDescription": "This will permanently delete the monitor and all its data.",
+      "deleteError": "Failed to delete monitor"
     }
   },
   "monitoringDetailPage": {
@@ -1468,7 +1478,12 @@
     "noChange": "no change",
     "good": "Good",
     "fair": "Fair",
-    "poor": "Poor"
+    "poor": "Poor",
+    "rename": "Rename",
+    "renaming": "Renaming",
+    "delete": "Delete",
+    "deleting": "Deleting",
+    "cancel": "Cancel"
   },
   "languages": {
     "da": "Danish",

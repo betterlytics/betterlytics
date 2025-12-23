@@ -29,6 +29,7 @@ import { revalidatePath } from 'next/cache';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { UserException } from '@/lib/exceptions';
+import z from 'zod';
 
 export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext) => {
   return await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId);
@@ -71,36 +72,17 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
 );
 
 export const updateMonitorCheckAction = withDashboardMutationAuthContext(
-  async (
-    ctx: AuthContext,
-    input: {
-      id: string;
-      name?: string | null;
-      intervalSeconds: number;
-      timeoutMs: number;
-      isEnabled: boolean;
-      checkSslErrors: boolean;
-      sslExpiryReminders: boolean;
-      httpMethod: HttpMethod;
-      requestHeaders: RequestHeader[] | null;
-      acceptedStatusCodes: StatusCodeValue[];
-      // Alert configuration
-      alertsEnabled: boolean;
-      alertEmails: string[];
-      alertOnDown: boolean;
-      alertOnRecovery: boolean;
-      alertOnSslExpiry: boolean;
-      sslExpiryAlertDays: number;
-      failureThreshold: number;
-    },
-  ) => {
+  async (ctx: AuthContext, input: z.input<typeof MonitorCheckUpdateSchema>) => {
     const payload = MonitorCheckUpdateSchema.parse({
       dashboardId: ctx.dashboardId,
       ...input,
     });
+
     const updated = await updateMonitorCheck(payload);
+
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring/${input.id}`);
+
     return updated;
   },
 );

@@ -2,7 +2,7 @@ import { useState, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import { updateMonitorCheckAction, deleteMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
+import { updateMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -50,6 +50,7 @@ import {
 } from './sliderConstants';
 import { formatCompactDuration } from '@/utils/dateFormatters';
 import { isHttpUrl } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/utils';
+import { useMonitorMutations } from './useMonitorMutations';
 
 type EditMonitorDialogProps = {
   dashboardId: string;
@@ -69,6 +70,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const { data: session } = useSession();
   const userEmail = session?.user?.email;
 
+  const { deleteMutation } = useMonitorMutations(dashboardId, monitor.id);
   const form = useMonitorForm(monitor, open);
 
   const handleOpenChange = useCallback(
@@ -100,7 +102,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
           checkSslErrors: data.checkSslErrors,
           sslExpiryReminders: data.sslExpiryReminders,
           httpMethod: data.httpMethod,
-          requestHeaders: data.requestHeaders.length > 0 ? data.requestHeaders : null,
+          requestHeaders: data.requestHeaders,
           acceptedStatusCodes: data.acceptedStatusCodes,
           alertsEnabled: data.alertsEnabled,
           alertEmails: data.alertEmails,
@@ -121,20 +123,13 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
     });
   };
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      await deleteMonitorCheckAction(dashboardId, monitor.id);
-      setShowDeleteDialog(false);
-      setOpen(false);
-      router.push(`/dashboard/${dashboardId}/monitoring`);
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-      toast.error(t('delete.error'));
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDelete = () => {
+    deleteMutation.mutate(undefined, {
+      onSuccess: () => {
+        setShowDeleteDialog(false);
+        setOpen(false);
+      },
+    });
   };
 
   return (
