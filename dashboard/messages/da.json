@@ -633,6 +633,7 @@
         "subtitle": "Få adgang til dit analyse-dashboard",
         "errors": {
           "CredentialsSignin": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
+          "OAuthAccountNotLinked": "Der findes allerede en konto med denne e-mail. Log venligst ind med din e-mail og adgangskode i stedet.",
           "default": "Der opstod en fejl under login. Prøv venligst igen."
         },
         "cta": {

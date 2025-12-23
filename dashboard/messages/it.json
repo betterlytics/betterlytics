@@ -633,6 +633,7 @@
         "subtitle": "Accedi alla tua dashboard analitiche",
         "errors": {
           "CredentialsSignin": "Email o password non validi. Controlla le tue credenziali e riprova.",
+          "OAuthAccountNotLinked": "Esiste già un account con questa email. Accedi con la tua email e password.",
           "default": "Si è verificato un errore durante l'accesso. Riprova."
         },
         "cta": {
