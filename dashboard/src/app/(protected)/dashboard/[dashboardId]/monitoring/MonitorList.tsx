@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Activity, AlertTriangle, ChevronRight, Link2, RefreshCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Activity, AlertTriangle, Link2, RefreshCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -19,6 +18,7 @@ import {
 import { formatPercentage } from '@/utils/formatters';
 import { PillBar } from './components/PillBar';
 import { MonitorStatusBadge } from './components/MonitorStatusBadge';
+import { MonitorActionMenu } from './components/MonitorActionMenu';
 
 type MonitorListProps = {
   monitors: MonitorWithStatus[];
@@ -135,18 +135,8 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     {percentLabel}
                   </span>
                 </div>
-                <div className='flex items-center justify-end gap-2 md:justify-center md:pl-8'>
-                  <Button
-                    asChild
-                    variant='ghost'
-                    size='icon'
-                    className='text-muted-foreground group-hover:text-primary bg-muted/40 ring-border/50 h-8 w-8 cursor-pointer rounded-full border border-transparent ring-1 transition-colors'
-                    aria-hidden
-                  >
-                    <span className='flex h-full w-full items-center justify-center'>
-                      <ChevronRight className='h-4 w-4' />
-                    </span>
-                  </Button>
+                <div className='flex items-center justify-end gap-2 md:justify-center md:pl-12'>
+                  <MonitorActionMenu monitor={monitor} dashboardId={monitor.dashboardId} />
                 </div>
               </div>
             </Card>

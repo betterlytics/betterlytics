@@ -1282,6 +1282,16 @@
       "success": "Overvågning oprettet",
       "successDescription": "Din overvågning begynder at tjekke med det samme.",
       "error": "Kunne ikke oprette overvågning"
+    },
+    "actions": {
+      "renameTitle": "Omdøb overvågning",
+      "renamePlaceholder": "Overvågningens navn",
+      "renameSuccess": "Overvågning omdøbt",
+      "renameError": "Kunne ikke omdøbe overvågning",
+      "settings": "Indstillinger",
+      "deleteConfirmTitle": "Slet overvågning?",
+      "deleteConfirmDescription": "Dette sletter overvågningen og alle dens data permanent.",
+      "deleteError": "Kunne ikke slette overvågning"
     }
   },
   "monitoringDetailPage": {
@@ -1470,7 +1480,12 @@
     "noChange": "ingen ændring",
     "good": "God",
     "fair": "Middel",
-    "poor": "Dårlig"
+    "poor": "Dårlig",
+    "rename": "Omdøb",
+    "renaming": "Omdøber",
+    "delete": "Slet",
+    "deleting": "Sletter",
+    "cancel": "Annuller"
   },
   "languages": {
     "da": "Dansk",

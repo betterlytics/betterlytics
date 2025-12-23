@@ -24,9 +24,6 @@ export async function listMonitorChecks(dashboardId: string): Promise<MonitorChe
   return results.map((row) => MonitorCheckSchema.parse(row));
 }
 
-/**
- * Checks if a monitor already exists for the given hostname within a dashboard.
- */
 export async function monitorExistsForHostname(
   dashboardId: string,
   url: string,
@@ -60,25 +57,7 @@ export async function createMonitorCheck(input: MonitorCheckCreate): Promise<Mon
 
   const created = await prisma.monitorCheck.create({
     data: {
-      dashboardId: data.dashboardId,
-      name: data.name,
-      url: data.url,
-      intervalSeconds: data.intervalSeconds,
-      timeoutMs: data.timeoutMs,
-      isEnabled: data.isEnabled,
-      checkSslErrors: data.checkSslErrors,
-      sslExpiryReminders: data.sslExpiryReminders,
-      httpMethod: data.httpMethod,
-      requestHeaders: data.requestHeaders ?? undefined,
-      acceptedStatusCodes: data.acceptedStatusCodes,
-      // Alert configuration
-      alertsEnabled: data.alertsEnabled,
-      alertEmails: data.alertEmails,
-      alertOnDown: data.alertOnDown,
-      alertOnRecovery: data.alertOnRecovery,
-      alertOnSslExpiry: data.alertOnSslExpiry,
-      sslExpiryAlertDays: data.sslExpiryAlertDays,
-      failureThreshold: data.failureThreshold,
+      ...data,
     },
   });
 
@@ -99,23 +78,7 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
   const updated = await prisma.monitorCheck.update({
     where: { id: data.id },
     data: {
-      name: data.name,
-      intervalSeconds: data.intervalSeconds,
-      timeoutMs: data.timeoutMs,
-      isEnabled: data.isEnabled,
-      checkSslErrors: data.checkSslErrors,
-      sslExpiryReminders: data.sslExpiryReminders,
-      httpMethod: data.httpMethod,
-      requestHeaders: data.requestHeaders ?? undefined,
-      acceptedStatusCodes: data.acceptedStatusCodes,
-      // Alert configuration
-      alertsEnabled: data.alertsEnabled,
-      alertEmails: data.alertEmails,
-      alertOnDown: data.alertOnDown,
-      alertOnRecovery: data.alertOnRecovery,
-      alertOnSslExpiry: data.alertOnSslExpiry,
-      sslExpiryAlertDays: data.sslExpiryAlertDays,
-      failureThreshold: data.failureThreshold,
+      ...data,
     },
   });
 
