@@ -56,10 +56,6 @@ impl Config {
         let root_env_path = PathBuf::from("../.env");
         dotenv::from_path(&root_env_path).ok();
 
-        let is_development = env::var("IS_DEVELOPMENT")
-            .map(|val| val.to_lowercase() == "true")
-            .unwrap_or(false);
-
         Config {
             server_port: env::var("SERVER_PORT")
                 .unwrap_or_else(|_| "3000".to_string())
@@ -132,31 +128,30 @@ impl Config {
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
-            // Development mode (defaults to false for production safety)
-            is_development,
+            // Development mode
+            is_development: env::var("IS_DEVELOPMENT")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
             // Public-facing base URL for dashboard links in emails, etc.
             public_base_url: env::var("PUBLIC_BASE_URL")
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
             // Email configuration (None = email disabled)
-            email: EmailConfig::from_env(is_development),
+            email: EmailConfig::from_env(),
         }
     }
 }
 
-/// Email service configuration (optional - email disabled if api_key is None)
 #[derive(Clone, Debug)]
 pub struct EmailConfig {
     pub api_key: String,
     pub from_email: String,
     pub from_name: String,
-    /// When true, only allows sending to @betterlytics.io addresses
     pub is_development: bool,
 }
 
 impl EmailConfig {
-    /// Attempt to load email config from environment.
     /// Returns None if MAILER_SEND_API_TOKEN is not set (email disabled).
-    pub fn from_env(is_development: bool) -> Option<Self> {
+    pub fn from_env() -> Option<Self> {
         let api_key = env::var("MAILER_SEND_API_TOKEN").ok()?;
 
         Some(Self {
@@ -165,7 +160,9 @@ impl EmailConfig {
                 .unwrap_or_else(|_| "alerts@betterlytics.io".to_string()),
             from_name: env::var("ALERT_FROM_NAME")
                 .unwrap_or_else(|_| "Betterlytics Alerts".to_string()),
-            is_development,
+            is_development: env::var("IS_DEVELOPMENT")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
         })
     }
 }

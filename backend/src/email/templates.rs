@@ -172,11 +172,6 @@ pub fn text_footer() -> String {
     )
 }
 
-/// HTML-escape a string for safe inclusion in HTML content
 pub fn html_escape(s: &str) -> String {
-    s.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#39;")
+    html_escape::encode_safe(s).to_string()
 }

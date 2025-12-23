@@ -100,7 +100,6 @@ export async function updateMonitorCheck(input: MonitorCheckUpdate): Promise<Mon
     where: { id: data.id },
     data: {
       name: data.name,
-      url: data.url,
       intervalSeconds: data.intervalSeconds,
       timeoutMs: data.timeoutMs,
       isEnabled: data.isEnabled,

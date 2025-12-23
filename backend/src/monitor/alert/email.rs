@@ -10,6 +10,16 @@ use crate::email::templates::{email_signature, html_escape, wrap_html, wrap_text
 use crate::email::EmailRequest;
 use crate::monitor::ReasonCode;
 
+/// Maximum length for monitor name in email subjects
+const SUBJECT_NAME_MAX_LEN: usize = 60;
+
+fn sanitize_for_email(s: &str, max_len: usize) -> String {
+    s.chars()
+        .filter(|c| !c.is_control())
+        .take(max_len)
+        .collect()
+}
+
 /// Build a down alert email request
 pub fn build_down_alert(
     recipients: &[String],
@@ -21,7 +31,8 @@ pub fn build_down_alert(
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
-    let subject = format!("🚨 Uptime Alert: Site Is Down: {}", monitor_name);
+    let safe_name = sanitize_for_email(monitor_name, SUBJECT_NAME_MAX_LEN);
+    let subject = format!("🚨 Uptime Alert: Site Is Down: {}", safe_name);
     let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
 
     let reason_message = reason_code.to_message();
@@ -46,7 +57,8 @@ pub fn build_recovery_alert(
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
-    let subject = format!("✅ Resolved: Site Is Back Online: {}", monitor_name);
+    let safe_name = sanitize_for_email(monitor_name, SUBJECT_NAME_MAX_LEN);
+    let subject = format!("✅ Resolved: Site Is Back Online: {}", safe_name);
     let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
 
     let html = build_recovery_alert_html(monitor_name, url, downtime_duration, &monitor_url);
@@ -72,10 +84,11 @@ pub fn build_ssl_alert(
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
+    let safe_name = sanitize_for_email(monitor_name, SUBJECT_NAME_MAX_LEN);
     let subject = if is_expired {
-        format!("🚨 SSL Certificate Expired: {}", monitor_name)
+        format!("🚨 SSL Certificate Expired: {}", safe_name)
     } else {
-        format!("⚠️ SSL Certificate Expiring Soon: {}", monitor_name)
+        format!("⚠️ SSL Certificate Expiring Soon: {}", safe_name)
     };
 
     let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
@@ -156,14 +169,16 @@ fn build_down_alert_text(
     status_code: Option<u16>,
     monitor_url: &str,
 ) -> String {
+    let safe_name = sanitize_for_email(monitor_name, 120);
+    let safe_url = sanitize_for_email(url, 200);
     let mut text = format!(
         "MONITOR ALERT - DOWN\n\n\
         Monitor: {}\n\
         URL: {}\n\
         Time: {}\n\
         Reason: {}\n",
-        monitor_name,
-        url,
+        safe_name,
+        safe_url,
         chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
         reason_message,
     );
@@ -231,13 +246,15 @@ fn build_recovery_alert_text(
     downtime_duration: Option<Duration>,
     monitor_url: &str,
 ) -> String {
+    let safe_name = sanitize_for_email(monitor_name, 120);
+    let safe_url = sanitize_for_email(url, 200);
     let mut text = format!(
         "MONITOR RECOVERED\n\n\
         Monitor: {}\n\
         URL: {}\n\
         Recovered At: {}\n",
-        monitor_name,
-        url,
+        safe_name,
+        safe_url,
         chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
     );
 
@@ -340,12 +357,14 @@ fn build_ssl_alert_text(
 
     let days_text = format_ssl_days_left(days_left);
 
+    let safe_name = sanitize_for_email(monitor_name, 120);
+    let safe_url = sanitize_for_email(url, 200);
     let mut text = format!(
         "{}\n\n\
         Monitor: {}\n\
         URL: {}\n\
         Status: {}\n",
-        title, monitor_name, url, days_text,
+        title, safe_name, safe_url, days_text,
     );
 
     if let Some(date) = expiry_date {

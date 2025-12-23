@@ -265,7 +265,6 @@ pub struct ProbeOutcome {
     pub tls_days_left: Option<i32>,
     pub final_url: Option<String>,
     pub redirect_hops: usize,
-    pub body_truncated: bool,
 }
 
 impl ProbeOutcome {
@@ -281,7 +280,6 @@ impl ProbeOutcome {
             tls_days_left: None,
             final_url: None,
             redirect_hops: 0,
-            body_truncated: false,
         }
     }
 
@@ -301,7 +299,6 @@ impl ProbeOutcome {
             tls_days_left: None,
             final_url: None,
             redirect_hops: 0,
-            body_truncated: false,
         }
     }
 }
@@ -374,7 +371,6 @@ impl MonitorResultRow {
         row.extra = serde_json::json!({
             "redirect_hops": outcome.redirect_hops,
             "final_url": outcome.final_url,
-            "body_truncated": outcome.body_truncated,
         })
         .to_string();
 

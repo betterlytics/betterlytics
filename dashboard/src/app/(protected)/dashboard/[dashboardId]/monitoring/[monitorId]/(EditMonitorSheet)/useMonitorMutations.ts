@@ -27,7 +27,6 @@ export function useMonitorMutations(dashboardId: string, monitorId: string) {
       await updateMonitorCheckAction(dashboardId, {
         id: monitorId,
         name: monitor.name ?? null,
-        url: monitor.url,
         intervalSeconds: monitor.intervalSeconds,
         timeoutMs: monitor.timeoutMs,
         isEnabled,

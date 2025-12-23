@@ -8,6 +8,7 @@ import type {
   RequestHeader,
   StatusCodeValue,
 } from '@/entities/analytics/monitoring.entities';
+import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { MONITOR_INTERVAL_MARKS, REQUEST_TIMEOUT_MARKS, nearestIndex } from './sliderConstants';
 
 type AlertConfig = {
@@ -138,9 +139,11 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
       const newHeaders = s.requestHeaders.map((h, i) => (i === index ? { ...h, [field]: value } : h));
       const isLastRow = index === s.requestHeaders.length - 1;
       const rowHasContent = newHeaders[index].key !== '' || newHeaders[index].value !== '';
-      if (isLastRow && rowHasContent) {
+
+      if (isLastRow && rowHasContent && newHeaders.length < MONITOR_LIMITS.REQUEST_HEADERS_MAX) {
         newHeaders.push({ key: '', value: '' });
       }
+
       return { ...s, requestHeaders: newHeaders };
     });
   };
@@ -174,6 +177,11 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
     const input = state.statusCodeInput.trim().toLowerCase();
     if (!input) return;
 
+    if (state.acceptedStatusCodes.length >= MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX) {
+      toast.error(`Maximum of ${MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX} status codes allowed`);
+      return;
+    }
+
     if (/^[2-5]xx$/.test(input)) {
       if (state.acceptedStatusCodes.includes(input)) {
         toast.error(`${input} is already added`);
@@ -197,6 +205,11 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
 
     if (code < 100 || code > 599) {
       toast.error('Status code must be between 100 and 599');
+      return;
+    }
+
+    if (state.acceptedStatusCodes.length >= MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX) {
+      toast.error(`Maximum of ${MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX} status codes allowed`);
       return;
     }
 
@@ -248,6 +261,11 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
     }
 
     if (state.alerts.emails.includes(normalized)) {
+      return false;
+    }
+
+    if (state.alerts.emails.length >= MONITOR_LIMITS.ALERT_EMAILS_MAX) {
+      toast.error(`Maximum of ${MONITOR_LIMITS.ALERT_EMAILS_MAX} email recipients allowed`);
       return false;
     }
 

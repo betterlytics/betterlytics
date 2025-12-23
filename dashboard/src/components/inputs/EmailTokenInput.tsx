@@ -12,6 +12,7 @@ type EmailTokenInputProps = {
   disabled?: boolean;
   placeholder?: string;
   suggestedEmail?: string;
+  maxEmails?: number;
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,6 +24,7 @@ export function EmailTokenInput({
   disabled,
   placeholder = 'Enter email address...',
   suggestedEmail,
+  maxEmails,
 }: EmailTokenInputProps) {
   const [inputValue, setInputValue] = useState('');
   const [hasError, setHasError] = useState(false);
@@ -90,10 +92,9 @@ export function EmailTokenInput({
     }
   };
 
-  // Show suggestion only when list is empty and suggested email exists and isn't already added
-  const showSuggestion = suggestedEmail && emails.length === 0 && !disabled;
+  const isAtLimit = maxEmails !== undefined && emails.length >= maxEmails;
+  const showSuggestion = suggestedEmail && emails.length === 0 && !disabled && !isAtLimit;
 
-  // Show add button when there's input
   const showAddButton = inputValue.trim().length > 0 && !disabled;
 
   return (
@@ -134,8 +135,8 @@ export function EmailTokenInput({
           value={inputValue}
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={emails.length === 0 ? placeholder : ''}
-          disabled={disabled}
+          placeholder={isAtLimit ? `Maximum ${maxEmails} emails` : emails.length === 0 ? placeholder : ''}
+          disabled={disabled || isAtLimit}
           className='placeholder:text-muted-foreground min-w-[120px] flex-1 bg-transparent text-sm outline-none disabled:cursor-not-allowed'
         />
         {showAddButton && (

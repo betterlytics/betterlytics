@@ -98,7 +98,7 @@ impl BackoffController {
             if state.backoff_level < max_level
                 && state.consecutive_failures >= policy.failure_threshold
             {
-                state.backoff_level = (state.backoff_level + 1).min(max_level);
+                state.backoff_level = state.backoff_level.saturating_add(1).min(max_level);
                 state.consecutive_failures = 0;
                 state.reason = BackoffReason::Failure;
             }
@@ -145,39 +145,30 @@ impl BackoffController {
 }
 
 impl BackoffPolicy {
+    /// Get the effective interval for a given backoff level.
     pub fn interval_for_level(&self, base: StdDuration, level: u8) -> StdDuration {
-        if self.allowed_intervals_secs.is_empty() {
-            return base;
-        }
-
-        let base_secs = base.as_secs();
-        let maybe_base_idx = self
-            .allowed_intervals_secs
-            .iter()
-            .position(|&v| v >= base_secs);
-
-        let base_idx = match maybe_base_idx {
-            Some(idx) => idx,
-            None => return base,
-        };
-
-        let target_idx =
-            (base_idx + level as usize).min(self.allowed_intervals_secs.len() - 1);
+        let base_idx = self.base_index(base);
+        let target_idx = (base_idx + level as usize).min(self.allowed_intervals_secs.len() - 1);
         StdDuration::from_secs(self.allowed_intervals_secs[target_idx])
     }
 
+    /// Maximum backoff level
     pub fn max_level(&self, base: StdDuration) -> u8 {
-        if self.allowed_intervals_secs.is_empty() {
-            return 0;
-        }
+        let base_idx = self.base_index(base);
+        (self.allowed_intervals_secs.len() - 1 - base_idx) as u8
+    }
+
+    /// Find the index of the first allowed interval >= base duration
+    fn base_index(&self, base: StdDuration) -> usize {
+        assert!(
+            !self.allowed_intervals_secs.is_empty(),
+            "BackoffPolicy.allowed_intervals_secs must not be empty"
+        );
 
         let base_secs = base.as_secs();
-        let base_idx = self
-            .allowed_intervals_secs
+        self.allowed_intervals_secs
             .iter()
             .position(|&v| v >= base_secs)
-            .unwrap_or(self.allowed_intervals_secs.len() - 1);
-        let max_steps = (self.allowed_intervals_secs.len() - 1) - base_idx;
-        max_steps as u8
+            .unwrap_or(self.allowed_intervals_secs.len() - 1)
     }
 }

@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
+import { type MonitorCheck, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { Bell, ChevronDown, Clock, Plus, Settings, Trash2, X } from 'lucide-react';
 import { getStatusCodeColorClasses } from './httpStatusColors';
 import { Label } from '@/components/ui/label';
@@ -357,6 +357,7 @@ function AlertsSection({
               disabled={isPending}
               placeholder={t('alerts.emailPlaceholder')}
               suggestedEmail={userEmail ?? undefined}
+              maxEmails={MONITOR_LIMITS.ALERT_EMAILS_MAX}
             />
           </div>
 
@@ -486,6 +487,7 @@ function AdvancedSettingsSection({
                         value={header.key}
                         onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
                         disabled={isPending}
+                        maxLength={MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX}
                         className='h-9 flex-1 rounded-none border-0 text-sm focus-visible:z-10 focus-visible:ring-1'
                       />
                       <div className='bg-border w-px' />
@@ -494,6 +496,7 @@ function AdvancedSettingsSection({
                         value={header.value}
                         onChange={(e) => form.updateRequestHeader(index, 'value', e.target.value)}
                         disabled={isPending}
+                        maxLength={MONITOR_LIMITS.REQUEST_HEADER_VALUE_MAX}
                         className='h-9 flex-1 rounded-none border-0 text-sm focus-visible:ring-1'
                       />
                     </div>

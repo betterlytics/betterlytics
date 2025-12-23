@@ -15,7 +15,7 @@ use tracing::{debug, warn};
 use url::Url;
 use x509_parser::prelude::FromDer;
 
-use crate::monitor::guard::{GuardError, MAX_REDIRECTS, MAX_RESPONSE_BYTES, validate_target};
+use crate::monitor::guard::{GuardError, MAX_REDIRECTS, BODY_STREAM_LIMIT, get_port, validate_target};
 use crate::monitor::models::{HttpMethod, MonitorStatus, StatusCodeValue, is_status_code_accepted};
 use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
 
@@ -44,23 +44,11 @@ impl From<GuardError> for ProbeError {
 struct CappedResponse {
     status: StatusCode,
     headers: reqwest::header::HeaderMap,
-    content_length: Option<u64>,
-    body_truncated: bool,
 }
 
 impl CappedResponse {
-    fn new(
-        status: StatusCode,
-        headers: reqwest::header::HeaderMap,
-        content_length: Option<u64>,
-        body_truncated: bool,
-    ) -> Self {
-        Self {
-            status,
-            headers,
-            content_length,
-            body_truncated,
-        }
+    fn new(status: StatusCode, headers: reqwest::header::HeaderMap) -> Self {
+        Self { status, headers }
     }
 }
 
@@ -172,11 +160,6 @@ impl MonitorProbe {
             let mut outcome = ProbeOutcome::success(latency, Some(status_code), resolved_ip);
             outcome.final_url = Some(final_url);
             outcome.redirect_hops = redirect_hops;
-            outcome.body_truncated = resp.body_truncated
-                || resp
-                    .content_length
-                    .map(|len| len > MAX_RESPONSE_BYTES as u64)
-                    .unwrap_or(false);
             return outcome;
         }
 
@@ -314,17 +297,7 @@ impl MonitorProbe {
         let request = apply_custom_headers(request, request_headers);
         let resp = request.send().await.map_err(map_reqwest_error)?;
 
-        let status = resp.status();
-        let headers = resp.headers().clone();
-        let content_length = resp.content_length();
-        let body_truncated = matches!(content_length, Some(len) if len > MAX_RESPONSE_BYTES as u64);
-
-        Ok(CappedResponse::new(
-            status,
-            headers,
-            content_length,
-            body_truncated,
-        ))
+        Ok(CappedResponse::new(resp.status(), resp.headers().clone()))
     }
 
     async fn request_get_capped(
@@ -340,37 +313,23 @@ impl MonitorProbe {
         let status = resp.status();
         let headers = resp.headers().clone();
 
-        if let Some(len) = resp.content_length() {
-            let body_truncated = len > MAX_RESPONSE_BYTES as u64;
-            return Ok(CappedResponse::new(status, headers, Some(len), body_truncated));
-        }
-
+        // For redirects, headers are all we need
         if status.is_redirection() {
-            // Don't bother streaming redirect bodies; headers are all we need.
-            return Ok(CappedResponse::new(status, headers, None, false));
+            return Ok(CappedResponse::new(status, headers));
         }
 
+        // Stream body to verify response completes (catches timeouts)
         let mut read_bytes: usize = 0;
         let mut stream = resp.bytes_stream();
         while let Some(chunk) = stream.next().await {
             let chunk = chunk.map_err(map_reqwest_error)?;
             read_bytes += chunk.len();
-            if read_bytes > MAX_RESPONSE_BYTES {
-                return Ok(CappedResponse::new(
-                    status,
-                    headers,
-                    Some(read_bytes as u64),
-                    true,
-                ));
+            if read_bytes > BODY_STREAM_LIMIT {
+                break;
             }
         }
 
-        Ok(CappedResponse::new(
-            status,
-            headers,
-            Some(read_bytes as u64),
-            false,
-        ))
+        Ok(CappedResponse::new(status, headers))
     }
 
     async fn direct_rustls_not_after(
@@ -382,7 +341,7 @@ impl MonitorProbe {
         let host = url
             .host_str()
             .ok_or_else(|| ProbeError::new(ReasonCode::InvalidHost, "missing host for tls"))?;
-        let port = url.port_or_known_default().unwrap_or(443);
+        let port = get_port(url);
 
         let connector = get_tls_connector()?;
 

@@ -41,8 +41,18 @@ impl GuardError {
 }
 
 pub const MAX_REDIRECTS: usize = 3;
-pub const MAX_RESPONSE_BYTES: usize = 32 * 1024; // 32KB cap on bodies
+pub const BODY_STREAM_LIMIT: usize = 32 * 1024; // Stop streaming body after 32KB
 pub const DEFAULT_PROBE_TIMEOUT_MS: u64 = 3_000;
+
+/// Returns 443 for https, 80 for http/other
+pub fn get_port(url: &Url) -> u16 {
+    url.port_or_known_default().unwrap_or_else(|| {
+        match url.scheme() {
+            "https" => 443,
+            _ => 80,
+        }
+    })
+}
 
 pub async fn validate_target(url: &Url) -> Result<GuardedTarget, GuardError> {
     if !is_allowed_scheme(url) {
@@ -72,7 +82,7 @@ fn is_allowed_port(url: &Url) -> bool {
         return true;
     }
 
-    matches!(url.port_or_known_default().unwrap_or(80), 80 | 443)
+    matches!(get_port(url), 80 | 443)
 }
 
 async fn resolve_ip(url: &Url) -> Result<IpAddr, GuardError> {
@@ -90,7 +100,7 @@ async fn resolve_ip(url: &Url) -> Result<IpAddr, GuardError> {
         return Ok(ip);
     }
 
-    let port = url.port_or_known_default().unwrap_or(80);
+    let port = get_port(url);
     let mut addrs = lookup_host((host, port))
         .await
         .map_err(|e| GuardError::new(ReasonCode::DnsError, e.to_string()))?;

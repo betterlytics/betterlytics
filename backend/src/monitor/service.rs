@@ -12,7 +12,7 @@ use std::collections::HashSet;
 use std::sync::Arc;
 
 use chrono::Duration;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 use super::alert::{
     Alert, AlertContext, AlertDispatcher, AlertDispatcherConfig, AlertHistoryWriter,
@@ -113,18 +113,13 @@ impl IncidentOrchestrator {
         let notification_tracker = NotificationTracker::new(config.ssl_cooldown);
 
         if let Some(store_ref) = incident_store.as_ref() {
-            match store_ref.load_active_incidents().await {
-                Ok(seeds) => {
-                    evaluator.warm_from_incidents(&seeds);
-                    notification_tracker.warm_from_incidents(&seeds);
-                }
-                Err(err) => {
-                    error!(error = ?err, "Failed to warm incident state from persisted incidents");
-                    warn!(
-                        "Incident orchestrator starting cold - may re-send alerts for monitors that were already down"
-                    );
-                }
-            }
+            let seeds = store_ref
+                .load_active_incidents()
+                .await
+                .expect("Failed to load incident state from database - cannot start without incident history");
+
+            evaluator.warm_from_incidents(&seeds);
+            notification_tracker.warm_from_incidents(&seeds);
         }
 
         Self {

@@ -17,7 +17,7 @@ use crate::monitor::{
     MonitorWriter, ProbeOutcome,
 };
 
-const BACKOFF_JITTER_PCT: f64 = 0.10;
+const BACKOFF_JITTER_RATIO: f64 = 0.10;
 
 // Runtime Configurations
 #[derive(Clone, Copy, Debug)]
@@ -306,7 +306,7 @@ impl ProbeScheduler for BackoffScheduler {
         let wait = self
             .next_wait
             .entry(check.id.clone())
-            .or_insert_with(|| jitter_duration(snapshot.effective_interval, BACKOFF_JITTER_PCT));
+            .or_insert_with(|| jitter_duration(snapshot.effective_interval, BACKOFF_JITTER_RATIO));
 
         let is_due = match last_run.get(&check.id) {
             Some(ts) => now.duration_since(*ts) >= *wait,
@@ -329,7 +329,7 @@ impl ProbeScheduler for BackoffScheduler {
         let snapshot = self.backoff.apply_outcome(check, outcome);
         self.next_wait.insert(
             check.id.clone(),
-            jitter_duration(snapshot.effective_interval, BACKOFF_JITTER_PCT),
+            jitter_duration(snapshot.effective_interval, BACKOFF_JITTER_RATIO),
         );
         snapshot
     }
@@ -563,23 +563,23 @@ async fn run_loop<S: RunnerStrategy>(
 
 // Helpers
 
-fn jitter_duration(base: StdDuration, jitter_pct: f64) -> StdDuration {
+fn jitter_duration(base: StdDuration, jitter_ratio: f64) -> StdDuration {
     let mut rng = rand::thread_rng();
-    jitter_duration_with_rng(base, jitter_pct, &mut rng)
+    jitter_duration_with_rng(base, jitter_ratio, &mut rng)
 }
 
 fn jitter_duration_with_rng<R: Rng + ?Sized>(
     base: StdDuration,
-    jitter_pct: f64,
+    jitter_ratio: f64,
     rng: &mut R,
 ) -> StdDuration {
-    if jitter_pct <= 0.0 {
+    if jitter_ratio <= 0.0 {
         return base;
     }
 
-    let pct = jitter_pct.clamp(0.0, 1.0);
+    let ratio = jitter_ratio.clamp(0.0, 1.0);
     let base_ms: i128 = base.as_millis().max(1) as i128;
-    let jitter_span: i128 = ((base_ms as f64) * pct).round() as i128;
+    let jitter_span: i128 = ((base_ms as f64) * ratio).round() as i128;
 
     if jitter_span == 0 {
         return base;
