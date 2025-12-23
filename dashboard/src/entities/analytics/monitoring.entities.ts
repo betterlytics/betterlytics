@@ -20,6 +20,8 @@ export const HttpMethodSchema = z.enum(['HEAD', 'GET']);
 export type HttpMethod = z.infer<typeof HttpMethodSchema>;
 
 export const MONITOR_LIMITS = {
+  NAME_MAX: 120,
+  URL_MAX: 256,
   REQUEST_HEADERS_MAX: 10,
   REQUEST_HEADER_KEY_MAX: 128,
   REQUEST_HEADER_VALUE_MAX: 2048,
@@ -67,8 +69,8 @@ export const MonitorCheckSchema = z.object({
 
 export const MonitorCheckCreateSchema = z.object({
   dashboardId: z.string(),
-  name: z.string().trim().max(120).optional().nullable(),
-  url: z.string().url(),
+  name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
+  url: z.string().url().max(MONITOR_LIMITS.URL_MAX),
   intervalSeconds: z.number().int().min(5).max(3600).default(30),
   timeoutMs: z.number().int().min(500).max(120_000).default(3000),
   isEnabled: z.boolean().default(true),

@@ -33,6 +33,7 @@ import {
 import { LabeledSlider } from './[monitorId]/(EditMonitorSheet)/LabeledSlider';
 import { formatCompactDuration } from '@/utils/dateFormatters';
 import { isUrlOnDomain } from '@/utils/domainValidation';
+import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 
 type CreateMonitorDialogProps = {
   dashboardId: string;
@@ -98,6 +99,9 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
     });
   };
 
+  const nameAtLimit = name.length >= MONITOR_LIMITS.NAME_MAX;
+  const urlAtLimit = url.length >= MONITOR_LIMITS.URL_MAX;
+
   const urlEmpty = !url.trim();
   const urlInvalid = !urlEmpty && !isUrlOnDomain(url, domain);
 
@@ -133,6 +137,8 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
               onChange={(e) => setName(e.target.value)}
               placeholder={t('placeholders.name')}
               disabled={isPending}
+              maxLength={MONITOR_LIMITS.NAME_MAX}
+              className={cn(nameAtLimit && 'border-destructive')}
             />
             <p className='text-muted-foreground text-xs'>{t('helper.nameDescription')}</p>
           </div>
@@ -144,10 +150,11 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={`https://${domain}/health`}
-              className={cn(hasError && 'border-destructive')}
+              className={cn((hasError || urlAtLimit) && 'border-destructive')}
               disabled={isPending}
               required
               type='url'
+              maxLength={MONITOR_LIMITS.URL_MAX}
             />
             {urlEmpty && <p className='text-destructive text-xs'>{t('errors.url')}</p>}
             {urlInvalid && <p className='text-destructive text-xs'>{t('errors.urlDomain', { domain })}</p>}

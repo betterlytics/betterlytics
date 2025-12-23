@@ -103,7 +103,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <MonitorHeader
         dashboardId={dashboardId}
-        hostname={hostname}
+        monitorName={monitorData.name || hostname}
         url={monitorData.url}
         operationalState={operationalState}
         actionSlot={
@@ -177,13 +177,13 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
 
 function MonitorHeader({
   dashboardId,
-  hostname,
+  monitorName,
   url,
   operationalState,
   actionSlot,
 }: {
   dashboardId: string;
-  hostname: string;
+  monitorName: string;
   url: string;
   operationalState: MonitorOperationalState;
   actionSlot?: ReactNode;
@@ -205,7 +205,7 @@ function MonitorHeader({
         <div className='space-y-1'>
           <div className='flex flex-wrap items-center gap-2'>
             <MonitorStatusBadge presentation={presentation} />
-            <h1 className='text-xl leading-tight font-semibold sm:text-2xl'>{hostname}</h1>
+            <h1 className='text-xl leading-tight font-semibold sm:text-2xl'>{monitorName}</h1>
           </div>
           <div className='text-muted-foreground flex flex-wrap items-center gap-2 pl-1 text-xs sm:text-sm'>
             <span>{tHeader('monitoring')}</span>
