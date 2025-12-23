@@ -10,7 +10,7 @@ use serde::Serialize;
 
 use crate::clickhouse::ClickHouseClient;
 use crate::monitor::clickhouse_writer::ClickhouseChannelWriter;
-use crate::monitor::IncidentType;
+
 
 #[derive(clickhouse::Row, Serialize, Debug, Clone)]
 pub struct AlertHistoryRow {
@@ -26,27 +26,59 @@ pub struct AlertHistoryRow {
 }
 
 #[derive(Clone, Debug)]
+pub enum AlertDetails {
+    Down { status_code: Option<i32> },
+    Recovery,
+    SslExpiring { days_left: i32 },
+    SslExpired { days_left: i32 },
+}
+
+impl AlertDetails {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            AlertDetails::Down { .. } => "down",
+            AlertDetails::Recovery => "recovery",
+            AlertDetails::SslExpiring { .. } => "ssl_expiring",
+            AlertDetails::SslExpired { .. } => "ssl_expired",
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct AlertHistoryRecord {
     pub monitor_check_id: String,
     pub site_id: String,
-    pub alert_type: IncidentType,
     pub sent_to: Vec<String>,
-    pub status_code: Option<i32>,
-    pub latency_ms: Option<i32>,
-    pub ssl_days_left: Option<i32>,
+    pub details: AlertDetails,
 }
 
 impl AlertHistoryRecord {
+    pub fn from_context(ctx: &super::dispatcher::AlertContext, details: AlertDetails) -> Self {
+        Self {
+            monitor_check_id: ctx.check_id.to_string(),
+            site_id: ctx.site_id.to_string(),
+            sent_to: ctx.recipients.to_vec(),
+            details,
+        }
+    }
+
     pub fn to_row(&self) -> AlertHistoryRow {
+        let (status_code, ssl_days_left) = match &self.details {
+            AlertDetails::Down { status_code } => (*status_code, None),
+            AlertDetails::Recovery => (None, None),
+            AlertDetails::SslExpiring { days_left }
+            | AlertDetails::SslExpired { days_left } => (None, Some(*days_left)),
+        };
+
         AlertHistoryRow {
             ts: Utc::now(),
             check_id: self.monitor_check_id.clone(),
             site_id: self.site_id.clone(),
-            alert_type: self.alert_type.as_str().to_string(),
+            alert_type: self.details.as_str().to_string(),
             sent_to: self.sent_to.clone(),
-            status_code: self.status_code,
-            latency_ms: self.latency_ms,
-            ssl_days_left: self.ssl_days_left,
+            status_code,
+            latency_ms: None,
+            ssl_days_left,
         }
     }
 }

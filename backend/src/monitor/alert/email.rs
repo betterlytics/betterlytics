@@ -8,7 +8,7 @@ use chrono::{DateTime, Duration, Utc};
 
 use crate::email::templates::{email_signature, html_escape, wrap_html, wrap_text};
 use crate::email::EmailRequest;
-use crate::monitor::{ReasonCode, IncidentType};
+use crate::monitor::ReasonCode;
 
 /// Build a down alert email request
 pub fn build_down_alert(
@@ -67,26 +67,21 @@ pub fn build_ssl_alert(
     url: &str,
     days_left: i32,
     expiry_date: Option<DateTime<Utc>>,
+    is_expired: bool,
     public_base_url: &str,
     dashboard_id: &str,
     monitor_id: &str,
 ) -> EmailRequest {
-    let (subject, alert_type) = if days_left <= 0 {
-        (
-            format!("🚨 SSL Certificate Expired: {}", monitor_name),
-            IncidentType::SslExpired,
-        )
+    let subject = if is_expired {
+        format!("🚨 SSL Certificate Expired: {}", monitor_name)
     } else {
-        (
-            format!("⚠️ SSL Certificate Expiring Soon: {}", monitor_name),
-            IncidentType::SslExpiring,
-        )
+        format!("⚠️ SSL Certificate Expiring Soon: {}", monitor_name)
     };
 
     let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
 
-    let html = build_ssl_alert_html(monitor_name, url, days_left, expiry_date, &monitor_url, alert_type);
-    let text = build_ssl_alert_text(monitor_name, url, days_left, expiry_date, &monitor_url, alert_type);
+    let html = build_ssl_alert_html(monitor_name, url, days_left, expiry_date, &monitor_url, is_expired);
+    let text = build_ssl_alert_text(monitor_name, url, days_left, expiry_date, &monitor_url, is_expired);
 
     EmailRequest {
         to: recipients.to_vec(),
@@ -264,9 +259,9 @@ fn build_ssl_alert_html(
     days_left: i32,
     expiry_date: Option<DateTime<Utc>>,
     monitor_url: &str,
-    alert_type: IncidentType,
+    is_expired: bool,
 ) -> String {
-    let (box_class, heading_style, icon, title) = if alert_type == IncidentType::SslExpired {
+    let (box_class, heading_style, icon, title) = if is_expired {
         (
             "alert-box",
             "margin: 0 0 10px 0; color: #dc2626; font-size: 18px;",
@@ -335,9 +330,9 @@ fn build_ssl_alert_text(
     days_left: i32,
     expiry_date: Option<DateTime<Utc>>,
     monitor_url: &str,
-    alert_type: IncidentType,
+    is_expired: bool,
 ) -> String {
-    let title = if alert_type == IncidentType::SslExpired {
+    let title = if is_expired {
         "SSL CERTIFICATE EXPIRED"
     } else {
         "SSL CERTIFICATE EXPIRING SOON"

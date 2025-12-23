@@ -23,7 +23,6 @@ pub use guard::init_dev_mode;
 pub use models::{
     AlertConfig, BackoffReason, BackoffSnapshot, HttpMethod, MonitorCheck, MonitorResultRow,
     MonitorStatus, ProbeOutcome, ReasonCode, RequestHeader, StatusCodeValue,
-    IncidentType, 
 };
 pub use probe::MonitorProbe;
 pub use repository::{MonitorCheckDataSource, MonitorRepository};
