@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
@@ -96,19 +96,28 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     [data],
   );
 
-  const intersectionThreshold = Math.floor(pageSize / 2);
   const { ref: loadMoreRef, inView } = useInView<HTMLDivElement>({
     rootMargin: '100px',
     threshold: 0.1,
   });
 
+  const isFetchingRef = useRef(false);
+
   useEffect(() => {
-    if (!inView || !hasNextPage || isFetchingNextPage) {
+    // Prevent duplicate fetches
+    if (!inView || !hasNextPage || isFetchingNextPage || isFetchingRef.current) {
       return;
     }
 
+    isFetchingRef.current = true;
     fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    if (!isFetchingNextPage) {
+      isFetchingRef.current = false;
+    }
+  }, [isFetchingNextPage]);
 
   const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t), [allEvents, totalCount, t]);
 
@@ -144,19 +153,13 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           ) : (
             <>
               <div className='divide-border/60 divide-y'>
-                {allEvents.map((event: EventLogEntry, index: number) => {
-                  const isNearEnd = index >= allEvents.length - intersectionThreshold;
-
-                  return (
-                    <EventLogItem
-                      key={`${event.timestamp}-${index}`}
-                      event={event}
-                      isNearEnd={isNearEnd}
-                      onRef={loadMoreRef}
-                    />
-                  );
-                })}
+                {allEvents.map((event: EventLogEntry, index: number) => (
+                  <EventLogItem key={`${event.timestamp}-${index}`} event={event} />
+                ))}
               </div>
+
+              {/* Sentinel element for infinite scroll - only attach ref to this single element */}
+              {hasNextPage && <div ref={loadMoreRef} className='h-1' aria-hidden='true' />}
 
               {isFetchingNextPage && <LoadingMoreIndicator t={t} />}
             </>
