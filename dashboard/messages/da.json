@@ -1146,8 +1146,8 @@
     "incidentStatus": {
       "ok": "Løst",
       "warn": "Advarsel",
-      "down": "Nede",
-      "error": "Fejl"
+      "down": "Igangværende",
+      "error": "Igangværende"
     },
     "latency": {
       "paused": "Sat på pause",

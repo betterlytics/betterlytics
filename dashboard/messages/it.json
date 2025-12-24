@@ -1146,8 +1146,8 @@
     "incidentStatus": {
       "ok": "Risolto",
       "warn": "Avviso",
-      "down": "Offline",
-      "error": "Errore"
+      "down": "In corso",
+      "error": "In corso"
     },
     "latency": {
       "paused": "In pausa",

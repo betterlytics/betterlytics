@@ -1143,8 +1143,8 @@
     "incidentStatus": {
       "ok": "Resolved",
       "warn": "Warning",
-      "down": "Down",
-      "error": "Error"
+      "down": "Ongoing",
+      "error": "Ongoing"
     },
     "latency": {
       "paused": "Paused",
