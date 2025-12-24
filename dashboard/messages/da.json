@@ -1499,7 +1499,8 @@
     "renaming": "Omdøber",
     "delete": "Slet",
     "deleting": "Sletter",
-    "cancel": "Annuller"
+    "cancel": "Annuller",
+    "confirm": "Bekræft"
   },
   "languages": {
     "da": "Dansk",

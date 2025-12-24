@@ -1497,7 +1497,8 @@
     "renaming": "Renaming",
     "delete": "Delete",
     "deleting": "Deleting",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "languages": {
     "da": "Danish",

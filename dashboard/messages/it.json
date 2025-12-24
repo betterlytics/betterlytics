@@ -1499,7 +1499,8 @@
     "renaming": "Rinominando",
     "delete": "Elimina",
     "deleting": "Eliminazione in corso",
-    "cancel": "Anulla"
+    "cancel": "Anulla",
+    "confirm": "Conferma"
   },
   "languages": {
     "da": "Danish",

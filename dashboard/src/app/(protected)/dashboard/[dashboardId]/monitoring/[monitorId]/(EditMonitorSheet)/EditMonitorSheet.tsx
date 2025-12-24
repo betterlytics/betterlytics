@@ -17,16 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
 import { isHttpUrl } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/utils';
 import { useMonitorForm } from './hooks/useMonitorForm';
@@ -172,37 +163,27 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
         </SheetContent>
       </Sheet>
 
-      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('confirmDiscard.title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('confirmDiscard.description')}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('confirmDiscard.keep')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDiscard}>{t('confirmDiscard.discard')}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+        title={t('confirmDiscard.title')}
+        description={t('confirmDiscard.description')}
+        cancelLabel={t('confirmDiscard.keep')}
+        confirmLabel={t('confirmDiscard.discard')}
+        onConfirm={handleConfirmDiscard}
+      />
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('delete.title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('delete.description')}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>{t('delete.cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className='bg-destructive hover:bg-destructive/90 text-white'
-            >
-              {deleteMutation.isPending ? t('delete.deleting') : t('delete.confirm')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DestructiveActionDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title={t('delete.title')}
+        description={t('delete.description')}
+        cancelLabel={t('delete.cancel')}
+        confirmLabel={t('delete.confirm')}
+        pendingLabel={t('delete.deleting')}
+        onConfirm={handleDelete}
+        isPending={deleteMutation.isPending}
+      />
     </>
   );
 }

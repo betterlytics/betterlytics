@@ -1,18 +1,10 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { DestructiveActionDialog } from '@/components/dialogs';
 import { PresentedFunnel } from '@/presenters/toFunnel';
-import { useCallback, useState } from 'react';
 import { deleteFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useTranslations } from 'next-intl';
@@ -27,7 +19,10 @@ export function DeleteFunnelDialog({ funnel, disabled }: DeleteFunnelDialogProps
   const t = useTranslations('components.funnels.delete');
   const dashboardId = useDashboardId();
   const [isOpen, setIsOpen] = useState(false);
-  const deleteFunnel = useCallback(() => {
+  const [isPending, setIsPending] = useState(false);
+
+  const handleDelete = useCallback(() => {
+    setIsPending(true);
     deleteFunnelAction(dashboardId, funnel.id)
       .then(() => {
         setIsOpen(false);
@@ -35,29 +30,28 @@ export function DeleteFunnelDialog({ funnel, disabled }: DeleteFunnelDialogProps
       })
       .catch(() => {
         toast.error(t('errorMessage'));
+      })
+      .finally(() => {
+        setIsPending(false);
       });
   }, [dashboardId, funnel.id, t]);
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant='ghost' className='cursor-pointer' disabled={disabled}>
-          <Trash2 className='h-4 w-4' />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className='bg-background flex flex-col'>
-        <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter className='flex flex-1 items-end justify-end gap-2'>
-          <Button variant='secondary' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
-            {t('cancel')}
-          </Button>
-          <Button variant='destructive' className='w-30 cursor-pointer' onClick={() => deleteFunnel()}>
-            {t('delete')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Button variant='ghost' className='cursor-pointer' disabled={disabled} onClick={() => setIsOpen(true)}>
+        <Trash2 className='h-4 w-4' />
+      </Button>
+
+      <DestructiveActionDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title={t('title')}
+        description={t('description')}
+        cancelLabel={t('cancel')}
+        confirmLabel={t('delete')}
+        onConfirm={handleDelete}
+        isPending={isPending}
+      />
+    </>
   );
 }

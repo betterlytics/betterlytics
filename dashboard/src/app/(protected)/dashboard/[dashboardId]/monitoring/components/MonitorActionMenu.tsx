@@ -11,16 +11,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -30,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DestructiveActionDialog } from '@/components/dialogs';
 import { type MonitorWithStatus, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { useMonitorMutations } from '../[monitorId]/(EditMonitorSheet)/hooks/useMonitorMutations';
 import { EditMonitorDialog } from '../[monitorId]/(EditMonitorSheet)/EditMonitorSheet';
@@ -194,27 +185,18 @@ export function MonitorActionMenu({ monitor, dashboardId }: MonitorActionMenuPro
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('deleteConfirmTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('deleteConfirmDescription')}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending} className='cursor-pointer'>
-              {tMisc('cancel')}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className='bg-destructive hover:bg-destructive/90 cursor-pointer text-white'
-            >
-              {deleteMutation.isPending ? tMisc('deleting') : tMisc('delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DestructiveActionDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title={t('deleteConfirmTitle')}
+        description={t('deleteConfirmDescription')}
+        cancelLabel={tMisc('cancel')}
+        confirmLabel={tMisc('delete')}
+        pendingLabel={tMisc('deleting')}
+        onConfirm={handleDelete}
+        isPending={deleteMutation.isPending}
+        onClick={(e) => e.stopPropagation()}
+      />
     </>
   );
 }
