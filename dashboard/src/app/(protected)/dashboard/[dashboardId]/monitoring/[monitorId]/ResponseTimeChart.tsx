@@ -71,6 +71,7 @@ export function ResponseTimeChart({ data }: ResponseTimeChartProps) {
       formatValue={formatCompactFromMilliseconds}
       series={SERIES}
       className='border-border/70 bg-card/80 shadow-lg shadow-black/10'
+      showSinglePoints
     />
   );
 }

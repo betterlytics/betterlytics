@@ -28,7 +28,7 @@ export interface MultiSeriesConfig {
   dataKey: string; // e.g. 'value.0'
   stroke: string;
   strokeWidth?: number;
-  dot?: boolean;
+  dot?: boolean | object;
   name?: string;
   strokeDasharray?: string;
 }
@@ -51,6 +51,7 @@ interface MultiSeriesChartProps {
   yDomain?: [number | 'dataMin' | 'auto', number | 'dataMax' | 'auto' | ((dataMax: number) => number)];
   className?: string;
   contentClassName?: string;
+  showSinglePoints?: boolean;
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
@@ -66,6 +67,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     yDomain,
     className,
     contentClassName,
+    showSinglePoints,
   }) => {
     const locale = useLocale();
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
@@ -134,7 +136,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     dataKey={s.dataKey}
                     stroke={s.stroke}
                     strokeWidth={s.strokeWidth ?? 2}
-                    dot={s.dot ?? false}
+                    dot={s.dot ?? (showSinglePoints ? LineDot : false)}
                     name={s.name}
                     strokeDasharray={s.strokeDasharray}
                   />
@@ -160,6 +162,20 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     );
   },
 );
+
+
+type LineDotProps = {
+  index: number;
+  value: number | null;
+  points: { value: number | null, x: number, y: number }[];
+  stroke: string;
+}
+function LineDot({ index, value, points, stroke }: LineDotProps) {
+  if (value !== null && typeof (points[index-1]?.value) !== 'number' && typeof (points[index+1]?.value) !== 'number') {
+    return <circle cx={points[index].x} cy={points[index].y} r={2} stroke={stroke} strokeWidth={2} />; 
+  }
+  return null;
+}
 
 type ReferenceLineLabelProps = {
   text: string;
