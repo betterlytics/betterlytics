@@ -470,7 +470,6 @@ async function fetchLatencySeries(checkId: string, siteId: string): Promise<Late
     })
     .toPromise()) as any[];
   
-    console.log(rows);
   return rows;
 }
 
