@@ -1140,6 +1140,12 @@
       "down": "Down",
       "error": "Error"
     },
+    "incidentStatus": {
+      "ok": "Resolved",
+      "warn": "Warning",
+      "down": "Down",
+      "error": "Error"
+    },
     "latency": {
       "paused": "Paused",
       "fast": "Fast",

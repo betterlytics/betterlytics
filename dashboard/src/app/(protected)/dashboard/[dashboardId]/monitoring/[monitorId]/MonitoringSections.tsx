@@ -180,7 +180,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
 }
 
 function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
-  const tCheckStatus = useTranslations('monitoring.checkStatus');
+  const tCheckStatus = useTranslations('monitoring.incidentStatus');
   const tReason = useTranslations('monitor.reason');
   const start = new Date(segment.start);
   const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000)) : '—';

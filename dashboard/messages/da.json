@@ -1143,6 +1143,12 @@
       "down": "Nede",
       "error": "Fejl"
     },
+    "incidentStatus": {
+      "ok": "Løst",
+      "warn": "Advarsel",
+      "down": "Nede",
+      "error": "Fejl"
+    },
     "latency": {
       "paused": "Sat på pause",
       "fast": "Hurtig",

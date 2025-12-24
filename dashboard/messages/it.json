@@ -1143,6 +1143,12 @@
       "down": "Offline",
       "error": "Errore"
     },
+    "incidentStatus": {
+      "ok": "Risolto",
+      "warn": "Avviso",
+      "down": "Offline",
+      "error": "Errore"
+    },
     "latency": {
       "paused": "In pausa",
       "fast": "Veloce",
