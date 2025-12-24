@@ -27,7 +27,7 @@ import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
 import { useMonitorMutations } from './(EditMonitorSheet)/hooks/useMonitorMutations';
 import { EditMonitorDialog } from './(EditMonitorSheet)/EditMonitorSheet';
 import { IncidentsCard, RecentChecksCard, ResponseTimeCard, Uptime180DayCard } from './MonitoringSections';
-import { MonitorSummaryTiles } from './MonitorSummaryTiles';
+import { MonitorSummarySection } from './MonitorSummarySection';
 import { useTranslations } from 'next-intl';
 import { MonitorStatusBadge } from '../components/MonitorStatusBadge';
 
@@ -156,7 +156,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
         }
       />
 
-      <MonitorSummaryTiles
+      <MonitorSummarySection
         monitor={{
           isEnabled: monitorData.isEnabled,
           intervalSeconds: monitorData.intervalSeconds,

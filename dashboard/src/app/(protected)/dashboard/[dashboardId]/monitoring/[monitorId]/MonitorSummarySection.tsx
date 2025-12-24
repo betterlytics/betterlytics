@@ -22,7 +22,7 @@ import {
   type MonitorOperationalState,
   type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from '../components/PillBar';
 import { useLocale, useTranslations } from 'next-intl';
@@ -30,53 +30,56 @@ import { AlertCircle, LockOpen, ShieldOff } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatIntervalLabel } from '../utils';
 import { isHttpUrl } from '../utils';
+import { cn } from '@/lib/utils';
 
-type MonitorSummaryMetrics = Pick<
-  MonitorMetrics,
-  | 'lastCheckAt'
-  | 'lastStatus'
-  | 'uptime24hPercent'
-  | 'incidents24h'
-  | 'uptimeBuckets'
-  | 'latency'
-  | 'effectiveIntervalSeconds'
-  | 'backoffLevel'
->;
-
-type MonitorSummaryTilesProps = {
+type MonitorSummarySectionProps = {
   monitor: Pick<
     MonitorCheck,
     'isEnabled' | 'intervalSeconds' | 'timeoutMs' | 'createdAt' | 'updatedAt' | 'checkSslErrors' | 'url'
   >;
-  metrics?: MonitorSummaryMetrics;
+  metrics?: Pick<
+    MonitorMetrics,
+    | 'lastCheckAt'
+    | 'backoffLevel'
+    | 'effectiveIntervalSeconds'
+    | 'uptime24hPercent'
+    | 'incidents24h'
+    | 'uptimeBuckets'
+    | 'latency'
+  >;
   tls?: MonitorTlsResult | null;
   operationalState: MonitorOperationalState;
 };
 
-export function MonitorSummaryTiles({ monitor, metrics, tls, operationalState }: MonitorSummaryTilesProps) {
-  const t = useTranslations('monitoringDetailPage.summary');
+export function MonitorSummarySection({ monitor, metrics, tls, operationalState }: MonitorSummarySectionProps) {
   const latencyAvg = metrics?.latency?.avgMs ?? null;
 
   return (
     <div className='grid gap-4 lg:grid-cols-2 xl:grid-cols-4'>
-      <LastCheckCard monitor={monitor} metrics={metrics} operationalState={operationalState} />
+      <LastCheckCard
+        intervalSeconds={monitor.intervalSeconds}
+        lastCheckAt={metrics?.lastCheckAt ?? undefined}
+        backoffLevel={metrics?.backoffLevel ?? undefined}
+        effectiveIntervalSeconds={metrics?.effectiveIntervalSeconds ?? undefined}
+        operationalState={operationalState}
+      />
       <Last24hCard
         uptimePercent={metrics?.uptime24hPercent}
         incidents={metrics?.incidents24h ?? 0}
         buckets={metrics?.uptimeBuckets}
       />
-      <ResponseSummaryTile avg={latencyAvg} operationalState={operationalState} />
-      <SslSummaryCard tls={tls} isDisabled={!monitor.checkSslErrors} isHttpSite={isHttpUrl(monitor.url)} />
+      <ResponseTimeCard avg={latencyAvg} operationalState={operationalState} />
+      <SslCard tls={tls} isDisabled={!monitor.checkSslErrors} isHttpSite={isHttpUrl(monitor.url)} />
     </div>
   );
 }
 
-function SummaryTile({
+function SummaryCard({
   title,
   headerRight,
   helper,
   children,
-  className = '',
+  className,
   gap = 'gap-2',
   bodyClassName = 'flex flex-1 items-center',
 }: {
@@ -90,7 +93,11 @@ function SummaryTile({
 }) {
   return (
     <Card
-      className={`border-border/70 bg-card/80 flex h-full flex-col ${gap} p-4 shadow-lg shadow-black/10 ${className}`}
+      className={cn(
+        'border-border/70 bg-card/80 flex h-full flex-col p-4 shadow-lg shadow-black/10',
+        gap,
+        className,
+      )}
     >
       <div className='flex items-center justify-between gap-2'>
         <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{title}</p>
@@ -103,18 +110,23 @@ function SummaryTile({
 }
 
 function LastCheckCard({
-  monitor,
-  metrics,
+  intervalSeconds,
+  lastCheckAt: lastCheckAtRaw,
+  backoffLevel,
+  effectiveIntervalSeconds,
   operationalState,
 }: {
-  monitor: MonitorSummaryTilesProps['monitor'];
-  metrics?: MonitorSummaryMetrics;
+  intervalSeconds: number;
+  lastCheckAt?: string;
+  backoffLevel?: number;
+  effectiveIntervalSeconds?: number;
   operationalState: MonitorOperationalState;
 }) {
   const t = useTranslations('monitoringDetailPage.summary.lastCheck');
   const tMonitoringPage = useTranslations('monitoringPage');
   const tList = useTranslations('monitoringPage.list');
-  const lastCheckAt = metrics?.lastCheckAt ? new Date(metrics.lastCheckAt).getTime() : null;
+  const tStatus = useTranslations('monitoring.status');
+  const lastCheckAt = lastCheckAtRaw ? new Date(lastCheckAtRaw).getTime() : null;
   const [, tick] = useState(0);
   const isPaused = operationalState === 'paused';
   const isPreparing = operationalState === 'preparing';
@@ -125,31 +137,43 @@ function LastCheckCard({
     return () => window.clearInterval(id);
   }, [isPaused, lastCheckAt]);
 
-  const lastCheckLabel = (() => {
+  const lastCheckLabel = useMemo(() => {
     if (isPaused) return t('paused');
     if (isPreparing || !lastCheckAt) return t('preparing');
     return formatTimeAgo(new Date(lastCheckAt), true);
-  })();
+  }, [isPaused, isPreparing, lastCheckAt]);
 
-  const helper = (() => {
+  const helper = useMemo(() => {
     if (isPaused) return t('helperPaused');
     if (isPreparing) return t('helperPreparing');
-    return t('helperScheduled', { seconds: monitor.intervalSeconds ?? 0 });
-  })();
+    return t('helperScheduled', { seconds: intervalSeconds ?? 0 });
+  }, [isPaused, isPreparing, intervalSeconds]);
 
-  const isBackedOff = (metrics?.backoffLevel ?? 0) > 0 && (metrics?.effectiveIntervalSeconds ?? 0) > 0;
-  const effectiveLabel = isBackedOff
-    ? formatIntervalLabel(tMonitoringPage, metrics?.effectiveIntervalSeconds ?? monitor.intervalSeconds)
+  const isBackedOff = (backoffLevel ?? 0) > 0 && (effectiveIntervalSeconds ?? 0) > 0;
+
+  const effectiveLabelText = isBackedOff
+    ? formatIntervalLabel(tMonitoringPage, effectiveIntervalSeconds ?? intervalSeconds)
     : null;
-  const backoffTooltipMessage = effectiveLabel ? tList('backoffTooltip', { value: effectiveLabel }) : null;
+
+  const backoffTooltipMessage = effectiveLabelText ? tList('backoffTooltip', { value: effectiveLabelText }) : null;
+
+  const { indicator: color } = presentMonitorStatus(operationalState);
+  const isActive = operationalState !== 'paused' && operationalState !== 'preparing';
+  const statusAriaLabel = isPaused ? tStatus('monitoringPaused') : tStatus('monitoringActive');
 
   return (
-    <SummaryTile
+    <SummaryCard
       title={t('title')}
       helper={helper}
       bodyClassName='flex flex-1 items-center gap-2 text-lg font-semibold sm:text-xl'
     >
-      <StatusDot operationalState={operationalState} />
+      <LiveIndicator
+        color={color}
+        positionClassName='static'
+        sizeClassName='h-3 w-3'
+        pulse={isActive}
+        aria-label={statusAriaLabel}
+      />
       <span className='text-foreground tabular-nums'>{lastCheckLabel}</span>
       {isBackedOff && backoffTooltipMessage && (
         <Tooltip>
@@ -164,11 +188,11 @@ function LastCheckCard({
           </TooltipContent>
         </Tooltip>
       )}
-    </SummaryTile>
+    </SummaryCard>
   );
 }
 
-function ResponseSummaryTile({
+function ResponseTimeCard({
   avg,
   operationalState,
 }: {
@@ -179,24 +203,23 @@ function ResponseSummaryTile({
   const tLatency = useTranslations('monitoring.latency');
   const presentation = presentLatencyStatus({ avgMs: avg, operationalState });
   const theme = presentation.theme;
-  const badgeClass = presentation.badgeClass;
   const badgeLabel = tLatency(presentation.labelKey);
 
   return (
-    <SummaryTile
+    <SummaryCard
       title={t('avgResponseTime')}
       headerRight={
-        <Badge variant='outline' className={`text-xs ${badgeClass}`}>
+        <Badge variant='outline' className={cn('text-xs', presentation.badgeClass)}>
           {badgeLabel}
         </Badge>
       }
       helper={t('helper')}
       bodyClassName='flex flex-1 flex-wrap items-baseline gap-2'
     >
-      <span className={`${theme.text} mt-2 text-3xl font-semibold tracking-tight`}>
+      <span className={cn(theme.text, 'mt-2 text-3xl font-semibold tracking-tight')}>
         {avg == null ? '—' : formatCompactFromMilliseconds(avg)}
       </span>
-    </SummaryTile>
+    </SummaryCard>
   );
 }
 
@@ -217,9 +240,9 @@ function Last24hCard({
     uptimePercent != null ? formatDowntimeFromUptimeHours(uptimePercent, 24) : tDowntime('unknown');
   const { theme } = presentUptimeTone(uptimePercent);
   return (
-    <SummaryTile
+    <SummaryCard
       title={t('title')}
-      headerRight={<p className={`${theme.text} text-xs font-semibold`}>{formattedPercent}</p>}
+      headerRight={<p className={cn(theme.text, 'text-xs font-semibold')}>{formattedPercent}</p>}
       helper={
         incidents === 0 ? t('helperNone') : t('helperWithIncidents', { count: incidents, downtime: downtimeLabel })
       }
@@ -227,39 +250,24 @@ function Last24hCard({
       bodyClassName='flex flex-1 items-center justify-center'
     >
       <PillBar data={buckets} />
-    </SummaryTile>
+    </SummaryCard>
   );
 }
 
-function StatusDot({ operationalState }: { operationalState: MonitorOperationalState }) {
-  const tStatus = useTranslations('monitoring.status');
-  const { indicator: color } = presentMonitorStatus(operationalState);
-  const isActive = operationalState !== 'paused' && operationalState !== 'preparing';
-  return (
-    <span
-      className='relative inline-flex h-3 w-3 align-middle'
-      aria-label={operationalState === 'paused' ? tStatus('monitoringPaused') : tStatus('monitoringActive')}
-    >
-      <LiveIndicator color={color} positionClassName='static' sizeClassName='h-3 w-3' pulse={isActive} />
-    </span>
-  );
-}
-
-type SslSummaryCardProps = {
+type SslCardProps = {
   tls: MonitorTlsResult | null | undefined;
   isDisabled: boolean;
   isHttpSite: boolean;
-  onEnableClick?: () => void;
 };
 
-function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSummaryCardProps) {
+function SslCard({ tls, isDisabled, isHttpSite }: SslCardProps) {
   const t = useTranslations('monitoringDetailPage.summary.ssl');
   const tSsl = useTranslations('monitoring.ssl');
   const locale = useLocale();
 
   if (isHttpSite) {
     return (
-      <SummaryTile
+      <SummaryCard
         title={t('title')}
         headerRight={
           <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
@@ -272,13 +280,13 @@ function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSumma
           <LockOpen className='text-muted-foreground h-7 w-7 opacity-50' aria-hidden />
           <p className='text-muted-foreground text-sm font-medium'>{t('httpSiteDescription')}</p>
         </div>
-      </SummaryTile>
+      </SummaryCard>
     );
   }
 
   if (isDisabled) {
     return (
-      <SummaryTile
+      <SummaryCard
         title={t('title')}
         headerRight={
           <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
@@ -290,17 +298,8 @@ function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSumma
         <div className='flex flex-col items-center gap-2 py-2 text-center'>
           <ShieldOff className='text-muted-foreground h-8 w-8 opacity-60' aria-hidden />
           <p className='text-foreground text-sm font-medium'>{t('disabledDescription')}</p>
-          {onEnableClick && (
-            <button
-              type='button'
-              onClick={onEnableClick}
-              className='text-primary hover:text-primary/80 text-sm font-medium underline underline-offset-2 transition-colors'
-            >
-              {t('enableInSettings')}
-            </button>
-          )}
         </div>
-      </SummaryTile>
+      </SummaryCard>
     );
   }
 
@@ -312,16 +311,16 @@ function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSumma
   const badgeLabel = tSsl(presentation.labelKey);
 
   return (
-    <SummaryTile
+    <SummaryCard
       title={t('title')}
       headerRight={
-        <Badge variant='outline' className={`text-xs ${presentation.badgeClass}`}>
+        <Badge variant='outline' className={cn('text-xs', presentation.badgeClass)}>
           {badgeLabel}
         </Badge>
       }
       bodyClassName='mt-3 flex flex-row items-start gap-2 sm:gap-2'
     >
-      <presentation.icon className={`mt-0.5 h-6 w-6 sm:h-8 sm:w-8 ${presentation.theme.text}`} aria-hidden />
+      <presentation.icon className={cn('mt-0.5 h-6 w-6 sm:h-8 sm:w-8', presentation.theme.text)} aria-hidden />
       <div className='flex flex-row items-start gap-2 sm:gap-3'>
         <p className='text-foreground text-3xl leading-tight font-semibold tracking-tight'>
           {timeLeftLabel.value}
@@ -335,6 +334,6 @@ function SslSummaryCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslSumma
           <p className='text-muted-foreground font-medium'>{t('expires', { date: expiresLabel })}</p>
         </div>
       </div>
-    </SummaryTile>
+    </SummaryCard>
   );
 }
