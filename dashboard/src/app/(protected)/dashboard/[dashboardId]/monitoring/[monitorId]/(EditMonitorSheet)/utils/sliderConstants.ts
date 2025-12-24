@@ -1,4 +1,4 @@
-import { type SliderMark } from './LabeledSlider';
+import { type SliderMark } from '@/components/inputs/LabeledSlider';
 
 // 30s through 59s (1-second ticks), then 1m through 59m (1-minute ticks), then 1h through 24h (1-hour ticks)
 export const MONITOR_INTERVAL_MARKS = [
@@ -10,7 +10,7 @@ export const MONITOR_INTERVAL_MARKS = [
   ...Array.from({ length: 24 }, (_, i) => (i + 1) * 3600),
 ];
 
-// 1s through 30s in 1s increments (stored as milliseconds)
+// 1s through 30s in 1s increments
 export const REQUEST_TIMEOUT_MARKS = Array.from({ length: 30 }, (_, i) => (i + 1) * 1000);
 
 export const INTERVAL_DISPLAY_MARKS: SliderMark[] = [

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const MonitorStatusSchema = z.enum(['ok', 'warn', 'down', 'error']);
-export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
 
 /**
  * Operational state represents the current state of a monitor from a user's perspective.
@@ -14,10 +13,8 @@ export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
  * - `down`: Monitor is down or errored (lastStatus === 'down' or 'error')
  */
 export const MonitorOperationalStateSchema = z.enum(['paused', 'preparing', 'up', 'degraded', 'down']);
-export type MonitorOperationalState = z.infer<typeof MonitorOperationalStateSchema>;
 
 export const HttpMethodSchema = z.enum(['HEAD', 'GET']);
-export type HttpMethod = z.infer<typeof HttpMethodSchema>;
 
 export const MONITOR_LIMITS = {
   NAME_MAX: 30,
@@ -33,14 +30,11 @@ export const RequestHeaderSchema = z.object({
   key: z.string().min(1).max(MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX),
   value: z.string().max(MONITOR_LIMITS.REQUEST_HEADER_VALUE_MAX),
 });
-export type RequestHeader = z.infer<typeof RequestHeaderSchema>;
 
-// Status code can be a specific number (200, 301) or a range string ('2xx', '3xx')
 export const StatusCodeValueSchema = z.union([
   z.number().int().min(100).max(599),
   z.string().regex(/^[2-5]xx$/, 'Must be a valid range like 2xx, 3xx, 4xx, or 5xx'),
 ]);
-export type StatusCodeValue = z.infer<typeof StatusCodeValueSchema>;
 
 export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
@@ -81,29 +75,10 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: tru
   id: z.string(),
 });
 
-export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;
-export type MonitorCheckCreate = z.infer<typeof MonitorCheckCreateSchema>;
-export type MonitorCheckUpdate = z.infer<typeof MonitorCheckUpdateSchema>;
-
-/**
- * Monitor with computed status fields, as returned by getMonitorChecksWithStatus.
- * This is the primary type used in list views.
- */
-export type MonitorWithStatus = MonitorCheck & {
-  lastStatus: MonitorStatus | null;
-  effectiveIntervalSeconds: number | null;
-  backoffLevel: number | null;
-  uptimeBuckets: MonitorUptimeBucket[];
-  tls: MonitorTlsResult | null;
-  operationalState: MonitorOperationalState;
-};
-
 export const MonitorUptimeBucketSchema = z.object({
   bucket: z.string(), // ISO timestamp string
   upRatio: z.number().min(0).max(1).nullable(),
 });
-
-export type MonitorUptimeBucket = z.infer<typeof MonitorUptimeBucketSchema>;
 
 export const MonitorLatencyStatsSchema = z.object({
   avgMs: z.number().nullable(),
@@ -130,13 +105,9 @@ export const RawMonitorMetricsSchema = z.object({
   backoffLevel: z.number().int().nullable().optional(),
 });
 
-export type RawMonitorMetrics = z.infer<typeof RawMonitorMetricsSchema>;
-
 export const MonitorMetricsSchema = RawMonitorMetricsSchema.extend({
   operationalState: MonitorOperationalStateSchema,
 });
-
-export type MonitorMetrics = z.infer<typeof MonitorMetricsSchema>;
 
 export const LatestCheckInfoSchema = z.object({
   ts: z.string().nullable(),
@@ -144,8 +115,6 @@ export const LatestCheckInfoSchema = z.object({
   effectiveIntervalSeconds: z.number().int().nullable(),
   backoffLevel: z.number().int().nullable(),
 });
-
-export type LatestCheckInfo = z.infer<typeof LatestCheckInfoSchema>;
 
 export const LatestIncidentInfoSchema = z.object({
   state: z.string(),
@@ -158,8 +127,6 @@ export const LatestIncidentInfoSchema = z.object({
   reasonCode: z.string().nullable(),
 });
 
-export type LatestIncidentInfo = z.infer<typeof LatestIncidentInfoSchema>;
-
 export const MonitorResultSchema = z.object({
   ts: z.string(),
   status: MonitorStatusSchema,
@@ -168,16 +135,12 @@ export const MonitorResultSchema = z.object({
   reasonCode: z.string().nullable(),
 });
 
-export type MonitorResult = z.infer<typeof MonitorResultSchema>;
-
 export const MonitorTlsResultSchema = z.object({
   ts: z.string(),
   status: MonitorStatusSchema,
   reasonCode: z.string().nullable(),
   tlsNotAfter: z.string().nullable(),
 });
-
-export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;
 
 export const MonitorIncidentSegmentSchema = z.object({
   status: MonitorStatusSchema,
@@ -187,11 +150,39 @@ export const MonitorIncidentSegmentSchema = z.object({
   durationMs: z.number().nullable(),
 });
 
-export type MonitorIncidentSegment = z.infer<typeof MonitorIncidentSegmentSchema>;
-
 export const MonitorDailyUptimeSchema = z.object({
   date: z.string(), // ISO date string at start of day UTC
   upRatio: z.number().min(0).max(1).nullable(),
 });
 
+export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
+export type MonitorOperationalState = z.infer<typeof MonitorOperationalStateSchema>;
+
+export type HttpMethod = z.infer<typeof HttpMethodSchema>;
+export type StatusCodeValue = z.infer<typeof StatusCodeValueSchema>;
+export type RequestHeader = z.infer<typeof RequestHeaderSchema>;
+
+export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;
+export type MonitorCheckCreate = z.infer<typeof MonitorCheckCreateSchema>;
+export type MonitorCheckUpdate = z.infer<typeof MonitorCheckUpdateSchema>;
+
+// This is the primary type used in list views
+export type MonitorWithStatus = MonitorCheck & {
+  lastStatus: MonitorStatus | null;
+  effectiveIntervalSeconds: number | null;
+  backoffLevel: number | null;
+  uptimeBuckets: MonitorUptimeBucket[];
+  tls: MonitorTlsResult | null;
+  operationalState: MonitorOperationalState;
+};
+
+export type MonitorUptimeBucket = z.infer<typeof MonitorUptimeBucketSchema>;
+export type RawMonitorMetrics = z.infer<typeof RawMonitorMetricsSchema>;
+export type MonitorMetrics = z.infer<typeof MonitorMetricsSchema>;
+export type LatestCheckInfo = z.infer<typeof LatestCheckInfoSchema>;
+export type LatestIncidentInfo = z.infer<typeof LatestIncidentInfoSchema>;
+
+export type MonitorResult = z.infer<typeof MonitorResultSchema>;
+export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;
+export type MonitorIncidentSegment = z.infer<typeof MonitorIncidentSegmentSchema>;
 export type MonitorDailyUptime = z.infer<typeof MonitorDailyUptimeSchema>;
