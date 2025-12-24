@@ -450,7 +450,7 @@ async function fetchUptimeBuckets(checkId: string, siteId: string): Promise<Upti
 async function fetchLatencySeries(checkId: string, siteId: string): Promise<LatencySeriesRow[]> {
   const query = safeSql`
     SELECT
-      toString(toStartOfInterval(ts, INTERVAL 15 MINUTE)) AS bucket,
+      toStartOfFifteenMinutes(ts) AS bucket,
       quantile(0.5)(latency_ms) AS p50_ms,
       quantile(0.95)(latency_ms) AS p95_ms,
       avg(latency_ms) AS avg_ms
@@ -458,10 +458,10 @@ async function fetchLatencySeries(checkId: string, siteId: string): Promise<Late
     WHERE check_id = {check_id:String}
       AND kind != 'tls'
       AND site_id = {site_id:String}
-      AND ts >= now() - INTERVAL 24 HOUR
+      AND ts >= toStartOfFifteenMinutes(now() - INTERVAL 24 HOUR)
       AND latency_ms IS NOT NULL
     GROUP BY bucket
-    ORDER BY bucket ASC
+    ORDER BY bucket ASC WITH FILL FROM toStartOfFifteenMinutes(addSeconds(now(), 1) - INTERVAL 24 HOUR) TO now() STEP INTERVAL 15 MINUTE
   `;
 
   const rows = (await clickhouse
@@ -469,7 +469,8 @@ async function fetchLatencySeries(checkId: string, siteId: string): Promise<Late
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
     .toPromise()) as any[];
-
+  
+    console.log(rows);
   return rows;
 }
 
