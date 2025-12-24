@@ -1438,7 +1438,14 @@
       },
       "acceptedStatusCodes": {
         "label": "Codici di stato accettati",
-        "description": "Altri codici attiveranno incidenti"
+        "description": "Altri codici attiveranno incidenti",
+        "validation": {
+          "maxCodes": "Massimo {max} codici di stato consentiti",
+          "alreadyAdded": "{code} è già stato aggiunto",
+          "invalidRange": "Solo gli intervalli 2xx-5xx sono codici di stato HTTP validi",
+          "invalidFormat": "Inserisci un codice di stato valido (es. 200) o un intervallo (es. 2xx)",
+          "outOfRange": "Il codice di stato deve essere compreso tra 100 e 599"
+        }
       }
     },
     "alerts": {
@@ -1450,6 +1457,7 @@
       "addEmail": "Aggiungi",
       "invalidEmail": "Inserisci un indirizzo email valido",
       "emailExists": "Questa email è già stata aggiunta",
+      "maxEmails": "Massimo {max} destinatari email consentiti",
       "triggers": "Attivazione avvisi",
       "onDown": "Avviso quando offline",
       "onDownDescription": "Invia un avviso quando il monitor va offline",
@@ -1493,6 +1501,11 @@
     "it": "Italiano"
   },
   "components": {
+    "emailTokenInput": {
+      "placeholder": "Inserisci indirizzo email...",
+      "maxEmails": "Massimo {max} email",
+      "addYourEmail": "Aggiungi la tua email ({email})"
+    },
     "weeklyHeatmap": {
       "days": {
         "monShort": "Lun.",

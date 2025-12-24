@@ -31,7 +31,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { type MonitorWithStatus, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
-import { useMonitorMutations } from '../[monitorId]/(EditMonitorSheet)/useMonitorMutations';
+import { useMonitorMutations } from '../[monitorId]/(EditMonitorSheet)/hooks/useMonitorMutations';
 import { EditMonitorDialog } from '../[monitorId]/(EditMonitorSheet)/EditMonitorSheet';
 import { useTranslations } from 'next-intl';
 

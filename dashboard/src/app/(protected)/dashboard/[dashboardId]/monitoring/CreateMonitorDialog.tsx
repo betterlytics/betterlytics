@@ -29,8 +29,8 @@ import {
   RECOMMENDED_TIMEOUT_MS,
   RECOMMENDED_FAILURE_THRESHOLD,
   nearestIndex,
-} from './[monitorId]/(EditMonitorSheet)/sliderConstants';
-import { LabeledSlider } from './[monitorId]/(EditMonitorSheet)/LabeledSlider';
+} from './[monitorId]/(EditMonitorSheet)/utils/sliderConstants';
+import { LabeledSlider } from '@/components/inputs/LabeledSlider';
 import { formatCompactDuration } from '@/utils/dateFormatters';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';

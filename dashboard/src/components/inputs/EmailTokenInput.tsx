@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, KeyboardEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Mail, X, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ export function EmailTokenInput({
   suggestedEmail,
   maxEmails,
 }: EmailTokenInputProps) {
+  const t = useTranslations('components.emailTokenInput');
   const [inputValue, setInputValue] = useState('');
   const [hasError, setHasError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -135,7 +137,7 @@ export function EmailTokenInput({
           value={inputValue}
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={isAtLimit ? `Maximum ${maxEmails} emails` : emails.length === 0 ? placeholder : ''}
+          placeholder={isAtLimit ? t('maxEmails', { max: maxEmails }) : emails.length === 0 ? placeholder : ''}
           disabled={disabled || isAtLimit}
           className='placeholder:text-muted-foreground min-w-[120px] flex-1 bg-transparent text-sm outline-none disabled:cursor-not-allowed'
         />
@@ -157,7 +159,7 @@ export function EmailTokenInput({
           className='inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1.5 text-xs text-blue-600 transition-colors hover:bg-blue-500/20 dark:text-blue-400'
         >
           <Plus className='h-3 w-3' />
-          <span>Add your email ({suggestedEmail})</span>
+          <span>{t('addYourEmail', { email: suggestedEmail })}</span>
         </button>
       )}
     </div>

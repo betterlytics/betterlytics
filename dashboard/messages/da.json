@@ -1438,7 +1438,14 @@
       },
       "acceptedStatusCodes": {
         "label": "Accepterede statuskoder",
-        "description": "Andre koder udløser hændelser"
+        "description": "Andre koder udløser hændelser",
+        "validation": {
+          "maxCodes": "Maksimalt {max} statuskoder tilladt",
+          "alreadyAdded": "{code} er allerede tilføjet",
+          "invalidRange": "Kun intervaller 2xx-5xx er gyldige HTTP-statuskoder",
+          "invalidFormat": "Indtast venligst en gyldig statuskode (f.eks. 200) eller interval (f.eks. 2xx)",
+          "outOfRange": "Statuskode skal være mellem 100 og 599"
+        }
       }
     },
     "alerts": {
@@ -1450,6 +1457,7 @@
       "addEmail": "Tilføj",
       "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
       "emailExists": "Denne e-mail er allerede tilføjet",
+      "maxEmails": "Maksimalt {max} e-mail-modtagere tilladt",
       "triggers": "Alarmudløsere",
       "onDown": "Advarsel ved nedetid",
       "onDownDescription": "Send en alarm, når overvågningen går ned",
@@ -1493,6 +1501,11 @@
     "it": "Italiano"
   },
   "components": {
+    "emailTokenInput": {
+      "placeholder": "Indtast e-mailadresse...",
+      "maxEmails": "Maksimalt {max} e-mails",
+      "addYourEmail": "Tilføj din e-mail ({email})"
+    },
     "weeklyHeatmap": {
       "days": {
         "monShort": "Man.",
