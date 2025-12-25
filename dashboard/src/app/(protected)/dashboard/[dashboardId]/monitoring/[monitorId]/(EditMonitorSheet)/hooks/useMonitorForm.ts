@@ -66,21 +66,6 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
 
   const [state, setState] = useState<FormState>(() => createInitialState(monitor));
   const initialStateRef = useRef<FormState>(createInitialState(monitor));
-  const lastSavedStateRef = useRef<FormState | null>(null);
-  const lastMonitorIdRef = useRef<string>(monitor.id);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const monitorChanged = lastMonitorIdRef.current !== monitor.id;
-    lastMonitorIdRef.current = monitor.id;
-
-    const initial =
-      lastSavedStateRef.current && !monitorChanged ? lastSavedStateRef.current : createInitialState(monitor);
-    if (monitorChanged) lastSavedStateRef.current = null;
-
-    setState(initial);
-    initialStateRef.current = initial;
-  }, [monitor, isOpen]);
 
   const intervalSeconds = MONITOR_INTERVAL_MARKS[state.intervalIdx];
   const timeoutMs = REQUEST_TIMEOUT_MARKS[state.timeoutIdx];
@@ -197,7 +182,6 @@ export function useMonitorForm(monitor: MonitorCheck, isOpen: boolean) {
 
   const resetToCurrentState = useCallback(() => {
     initialStateRef.current = { ...state };
-    lastSavedStateRef.current = { ...state };
   }, [state]);
 
   return {
