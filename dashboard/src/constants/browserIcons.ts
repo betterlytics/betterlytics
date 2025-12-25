@@ -86,6 +86,26 @@ export const BROWSERS: Record<string, BrowserDef> = {
     localFile: 'ecosia.svg',
     match: [/ecosia/],
   },
+  google: {
+    label: 'Google',
+    localFile: 'google.svg',
+    match: [/google\s+search/],
+  },
+  twitter: {
+    label: 'Twitter',
+    localFile: 'twitter.svg',
+    match: [/twitter/],
+  },
+  facebook: {
+    label: 'Facebook',
+    localFile: 'facebook.svg',
+    match: [/\bfbios\b/],
+  },
+  appleMail: {
+    label: 'Apple Mail',
+    localFile: 'apple-mail.svg',
+    match: [/apple\s+mail/],
+  },
 } as const;
 
 export function resolveBrowser(input: string) {
