@@ -9,7 +9,6 @@ import {
   Line,
   ComposedChart,
   ReferenceLine,
-  Label,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
@@ -172,7 +171,7 @@ type LineDotProps = {
 }
 function LineDot({ index, value, points, stroke }: LineDotProps) {
   if (value !== null && typeof (points[index-1]?.value) !== 'number' && typeof (points[index+1]?.value) !== 'number') {
-    return <circle cx={points[index].x} cy={points[index].y} r={2} stroke={stroke} strokeWidth={2} />; 
+    return <circle key={index} cx={points[index].x} cy={points[index].y} r={2} stroke={stroke} strokeWidth={2} />; 
   }
   return null;
 }
