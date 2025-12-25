@@ -133,11 +133,11 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
             {grid.map((cell) => {
               const date = new Date(cell.date);
               const tone: MonitorTone | null =
-                cell.upRatio == null ? null : cell.upRatio >= 0.99 ? 'ok' : cell.upRatio >= 0.95 ? 'warn' : 'down';
+                cell.upRatio === null ? null : cell.upRatio >= 0.99 ? 'ok' : cell.upRatio >= 0.95 ? 'warn' : 'down';
               const toneClass = tone ? MONITOR_TONE[tone].solid : 'bg-border/40';
               const displayDate = defaultDateLabelFormatter(date.getTime(), 'day', locale);
               const label =
-                cell.upRatio != null
+                cell.upRatio !== null
                   ? t('uptime.grid.uptimeLabel', {
                       value: formatPercentage(cell.upRatio * 100, 2, { trimHundred: true }),
                     })

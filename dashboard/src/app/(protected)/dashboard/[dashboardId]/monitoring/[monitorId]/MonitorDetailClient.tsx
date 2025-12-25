@@ -157,15 +157,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
       />
 
       <MonitorSummarySection
-        monitor={{
-          isEnabled: monitorData.isEnabled,
-          intervalSeconds: monitorData.intervalSeconds,
-          timeoutMs: monitorData.timeoutMs,
-          createdAt: monitorData.createdAt,
-          updatedAt: monitorData.updatedAt,
-          checkSslErrors: monitorData.checkSslErrors,
-          url: monitorData.url,
-        }}
+        monitor={monitorData}
         metrics={metricsQuery.data}
         tls={tlsQuery.data}
         operationalState={operationalState}
