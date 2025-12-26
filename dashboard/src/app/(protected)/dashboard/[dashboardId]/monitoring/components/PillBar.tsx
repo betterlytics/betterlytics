@@ -17,26 +17,28 @@ type PillBarProps = {
 export function PillBar({ data }: PillBarProps) {
   const locale = useLocale();
   const t = useTranslations('monitoring.labels');
-  const normalized = data ?? [];
 
-  if (normalized.length === 0) {
-    return null;
-  }
+  const normalized = data ?? [];
+  if (normalized.length === 0) return null;
+
+  const getLabel = (upRatio: number | null) => {
+    if (upRatio == null) return t('noData');
+    return `${formatPercentage(upRatio * 100, 2, { trimHundred: true })} ${t('uptimeSuffix')}`;
+  };
+
+  const getToneClass = (upRatio: number | null) => {
+    if (upRatio == null) return `${MONITOR_TONE.neutral.solid} border border-border/40`;
+    return presentUptimeTone(upRatio * 100).theme.solid;
+  };
 
   return (
     <div className='border-border/60 bg-background/30 mt-2 flex w-full flex-nowrap gap-[4px] overflow-hidden rounded-md border p-2'>
       {normalized.map((point) => {
         const upRatio = point.upRatio ?? null;
-        const isPlaceholder = upRatio == null;
         const bucketLabel = defaultDateLabelFormatter(point.bucket, 'hour', locale);
-        const label = isPlaceholder
-          ? t('noData')
-          : `${formatPercentage(upRatio * 100, 2, { trimHundred: true })} ${t('uptimeSuffix')}`;
-        const toneClass = (() => {
-          if (isPlaceholder) return `${MONITOR_TONE.neutral.solid} border border-border/40`;
-          const { theme } = presentUptimeTone(upRatio * 100);
-          return theme.solid;
-        })();
+        const label = getLabel(upRatio);
+        const toneClass = getToneClass(upRatio);
+
         return (
           <MonitoringTooltip key={point.bucket} title={bucketLabel} description={label}>
             <span

@@ -26,11 +26,12 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from '../components/PillBar';
 import { useLocale, useTranslations } from 'next-intl';
-import { AlertCircle, LockOpen, ShieldOff } from 'lucide-react';
+import { AlertCircle, LockOpen, LucideIcon, ShieldOff } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatIntervalLabel } from '../utils';
 import { isHttpUrl } from '../utils';
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 type MonitorSummarySectionProps = {
   monitor: Pick<
@@ -126,10 +127,13 @@ function LastCheckCard({
   const tMonitoringPage = useTranslations('monitoringPage');
   const tList = useTranslations('monitoringPage.list');
   const tStatus = useTranslations('monitoring.status');
+
   const lastCheckAt = lastCheckAtRaw ? new Date(lastCheckAtRaw).getTime() : null;
   const [, tick] = useState(0);
+
   const isPaused = operationalState === 'paused';
   const isPreparing = operationalState === 'preparing';
+  const isActive = !isPaused && !isPreparing;
 
   useEffect(() => {
     if (!lastCheckAt || isPaused) return;
@@ -146,19 +150,21 @@ function LastCheckCard({
   const helper = useMemo(() => {
     if (isPaused) return t('helperPaused');
     if (isPreparing) return t('helperPreparing');
-    return t('helperScheduled', { seconds: intervalSeconds ?? 0 });
+    return t('helperScheduled', { seconds: intervalSeconds });
   }, [isPaused, isPreparing, intervalSeconds]);
 
   const isBackedOff = (backoffLevel ?? 0) > 0 && (effectiveIntervalSeconds ?? 0) > 0;
 
   const effectiveLabelText = isBackedOff
     ? formatIntervalLabel(tMonitoringPage, effectiveIntervalSeconds ?? intervalSeconds)
-    : null;
+    : undefined;
 
-  const backoffTooltipMessage = effectiveLabelText ? tList('backoffTooltip', { value: effectiveLabelText }) : null;
+  const backoffTooltipMessage = effectiveLabelText
+    ? tList('backoffTooltip', { value: effectiveLabelText })
+    : undefined;
 
   const { indicator: color } = presentMonitorStatus(operationalState);
-  const isActive = operationalState !== 'paused' && operationalState !== 'preparing';
+
   const statusAriaLabel = isPaused ? tStatus('monitoringPaused') : tStatus('monitoringActive');
 
   return (
@@ -175,7 +181,7 @@ function LastCheckCard({
         aria-label={statusAriaLabel}
       />
       <span className='text-foreground tabular-nums'>{lastCheckLabel}</span>
-      {isBackedOff && backoffTooltipMessage && (
+      {backoffTooltipMessage && (
         <Tooltip>
           <TooltipTrigger asChild>
             <AlertCircle
@@ -265,42 +271,29 @@ function SslCard({ tls, isDisabled, isHttpSite }: SslCardProps) {
   const tSsl = useTranslations('monitoring.ssl');
   const locale = useLocale();
 
+  const renderStatusCard = (badgeText: string, Icon: LucideIcon, description: string, iconClass = '') => (
+    <SummaryCard
+      title={t('title')}
+      headerRight={
+        <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
+          {badgeText}
+        </Badge>
+      }
+      bodyClassName='mt-3 flex flex-1 items-center justify-center'
+    >
+      <div className='flex flex-col items-center gap-2 py-2 text-center'>
+        <Icon className={`text-muted-foreground ${iconClass}`} aria-hidden />
+        <p className='text-foreground text-sm font-medium'>{description}</p>
+      </div>
+    </SummaryCard>
+  );
+
   if (isHttpSite) {
-    return (
-      <SummaryCard
-        title={t('title')}
-        headerRight={
-          <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
-            {t('notApplicable')}
-          </Badge>
-        }
-        bodyClassName='mt-3 flex flex-1 items-center justify-center'
-      >
-        <div className='flex flex-col items-center gap-1.5 py-2 text-center'>
-          <LockOpen className='text-muted-foreground h-7 w-7 opacity-50' aria-hidden />
-          <p className='text-muted-foreground text-sm font-medium'>{t('httpSiteDescription')}</p>
-        </div>
-      </SummaryCard>
-    );
+    return renderStatusCard(t('notApplicable'), LockOpen, t('httpSiteDescription'), 'h-7 w-7 opacity-50');
   }
 
   if (isDisabled) {
-    return (
-      <SummaryCard
-        title={t('title')}
-        headerRight={
-          <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
-            {t('disabled')}
-          </Badge>
-        }
-        bodyClassName='relative mt-3 flex flex-1 items-center justify-center'
-      >
-        <div className='flex flex-col items-center gap-2 py-2 text-center'>
-          <ShieldOff className='text-muted-foreground h-8 w-8 opacity-60' aria-hidden />
-          <p className='text-foreground text-sm font-medium'>{t('disabledDescription')}</p>
-        </div>
-      </SummaryCard>
-    );
+    return renderStatusCard(t('disabled'), ShieldOff, t('disabledDescription'));
   }
 
   const expiry = tls?.tlsNotAfter ? new Date(tls.tlsNotAfter) : null;

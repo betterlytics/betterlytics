@@ -143,10 +143,27 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
   const t = useTranslations('monitoringDetailPage');
   const labels = useTranslations('monitoring.labels');
   const locale = useLocale();
+
   const totalDays = uptime?.totalDays ?? 180;
   const grid = uptime?.grid ?? [];
   const stats = uptime?.stats ?? [];
   const resolvedTitle = title ?? t('uptime.title');
+
+  const getTone = (upRatio: number | null): MonitorTone | null => {
+    if (upRatio === null) return null;
+    if (upRatio >= 0.99) return 'ok';
+    if (upRatio >= 0.95) return 'warn';
+    return 'down';
+  };
+
+  const getLabel = (upRatio: number | null) => {
+    if (upRatio !== null) {
+      return t('uptime.grid.uptimeLabel', {
+        value: formatPercentage(upRatio * 100, 2, { trimHundred: true }),
+      });
+    }
+    return labels('noData');
+  };
 
   return (
     <Card className='border-border/70 bg-card/80 p-5 shadow-lg shadow-black/10'>
@@ -161,16 +178,10 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
           <div className='grid auto-cols-[14px] grid-flow-col auto-rows-[14px] grid-rows-7 justify-start gap-[3px]'>
             {grid.map((cell) => {
               const date = new Date(cell.date);
-              const tone: MonitorTone | null =
-                cell.upRatio === null ? null : cell.upRatio >= 0.99 ? 'ok' : cell.upRatio >= 0.95 ? 'warn' : 'down';
+              const tone = getTone(cell.upRatio);
               const toneClass = tone ? MONITOR_TONE[tone].solid : 'bg-border/40';
               const displayDate = defaultDateLabelFormatter(date.getTime(), 'day', locale);
-              const label =
-                cell.upRatio !== null
-                  ? t('uptime.grid.uptimeLabel', {
-                      value: formatPercentage(cell.upRatio * 100, 2, { trimHundred: true }),
-                    })
-                  : labels('noData');
+              const label = getLabel(cell.upRatio);
               return (
                 <MonitoringTooltip key={cell.key} title={displayDate} description={label}>
                   <span
@@ -193,7 +204,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 {stat.label ?? t('uptime.stats.label', { days: totalDays })}
               </span>
               <div className='text-right'>
-                <div className={uptimeToneClass(stat.percent)}>
+                <div className={presentUptimeTone(stat.percent).theme.text}>
                   {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
                 </div>
                 <div className='text-muted-foreground text-xs'>
@@ -264,10 +275,4 @@ function CheckRow({ check }: { check: MonitorResult }) {
 
 function CheckStatusDot({ presentation, label }: { presentation: CheckStatusPresentation; label: string }) {
   return <span className={`inline-block h-2.5 w-2.5 rounded-full ${presentation.theme.dot}`} aria-label={label} />;
-}
-
-function uptimeToneClass(percent: number | null) {
-  if (percent == null) return 'text-foreground text-sm font-semibold';
-  const presentation = presentUptimeTone(percent);
-  return `${presentation.theme.text} text-sm font-semibold`;
 }
