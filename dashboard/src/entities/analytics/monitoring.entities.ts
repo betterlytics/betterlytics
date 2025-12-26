@@ -75,6 +75,11 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: tru
   id: z.string(),
 });
 
+export const UptimeStatsSchema = z.object({
+  upCount: z.number().int(),
+  totalCount: z.number().int(),
+});
+
 export const MonitorUptimeBucketSchema = z.object({
   bucket: z.string(), // ISO timestamp string
   upRatio: z.number().min(0).max(1).nullable(),
@@ -165,7 +170,10 @@ export type MonitorWithStatus = MonitorCheck & {
   operationalState: MonitorOperationalState;
 };
 
+export type UptimeStats = z.infer<typeof UptimeStatsSchema>;
 export type MonitorUptimeBucket = z.infer<typeof MonitorUptimeBucketSchema>;
+export type MonitorLatencyStats = z.infer<typeof MonitorLatencyStatsSchema>;
+export type MonitorLatencyPoint = z.infer<typeof MonitorLatencyPointSchema>;
 export type RawMonitorMetrics = z.infer<typeof RawMonitorMetricsSchema>;
 export type MonitorMetrics = z.infer<typeof MonitorMetricsSchema>;
 export type LatestCheckInfo = z.infer<typeof LatestCheckInfoSchema>;

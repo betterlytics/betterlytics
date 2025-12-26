@@ -3,10 +3,10 @@
 import {
   MonitorCheckCreate,
   MonitorCheckUpdate,
-  MonitorOperationalState,
   type MonitorDailyUptime,
   type MonitorIncidentSegment,
   type MonitorMetrics,
+  type MonitorOperationalState,
   type MonitorResult,
   type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
@@ -24,14 +24,17 @@ import {
   getMonitorsWithResults,
   getMonitorUptimeBucketsForMonitors,
   getMonitorIncidentSegments,
-  getLatestTlsResult,
   getLatestTlsResultsForMonitors,
   getMonitorDailyUptime,
-  getMonitorMetrics,
   getRecentMonitorResults,
   getLatestCheckInfoForMonitors,
+  getUptime24h,
+  getLatency24h,
+  getUptimeBuckets24h,
+  getLatencySeries24h,
+  getIncidentCount24h,
 } from '@/repositories/clickhouse/monitoring.repository';
-import { normalizeUptimeBuckets, toMonitorMetricsPresentation } from '@/presenters/toMonitorMetrics';
+import { normalizeUptimeBuckets } from '@/presenters/toMonitorMetrics';
 
 export async function getMonitorCheck(dashboardId: string, monitorId: string) {
   return getMonitorCheckById(dashboardId, monitorId);
@@ -60,7 +63,6 @@ export async function checkMonitorHostnameExists(
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string) {
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
-  const now = new Date();
   const [openIncidents, monitorsWithResults, uptimeBuckets, tlsResults, latestCheckInfo] = await Promise.all([
     getOpenIncidentsForMonitors(checkIds, siteId),
     getMonitorsWithResults(checkIds, siteId),
@@ -71,7 +73,7 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
 
   return checks.map((check) => {
     const rawBuckets = uptimeBuckets[check.id] ?? [];
-    const buckets = normalizeUptimeBuckets(rawBuckets, 24, now);
+    const buckets = normalizeUptimeBuckets(rawBuckets, 24);
     const hasResults = monitorsWithResults.has(check.id);
     const hasOpenIncident = openIncidents.has(check.id);
     const operationalState = deriveOperationalState(check.isEnabled, hasResults, hasOpenIncident);
@@ -94,19 +96,43 @@ export async function fetchMonitorMetrics(
   monitorId: string,
   siteId: string,
 ): Promise<MonitorMetrics> {
-  const [monitor, rawMetrics, openIncidents] = await Promise.all([
+  const [
+    monitor,
+    openIncidents,
+    uptimeStats,
+    latencyStats,
+    uptimeBuckets,
+    latencySeries,
+    incidentCount,
+    latestCheckInfo,
+  ] = await Promise.all([
     getMonitorCheckById(dashboardId, monitorId),
-    getMonitorMetrics(monitorId, siteId),
     getOpenIncidentsForMonitors([monitorId], siteId),
+    getUptime24h(monitorId, siteId),
+    getLatency24h(monitorId, siteId),
+    getUptimeBuckets24h(monitorId, siteId),
+    getLatencySeries24h(monitorId, siteId),
+    getIncidentCount24h(monitorId, siteId),
+    getLatestCheckInfoForMonitors([monitorId], siteId).then((r) => r[monitorId] ?? null),
   ]);
 
-  const metrics = toMonitorMetricsPresentation(rawMetrics);
-  const hasData = metrics.lastCheckAt != null;
+  const uptime24hPercent =
+    uptimeStats.totalCount > 0 ? (uptimeStats.upCount / uptimeStats.totalCount) * 100 : null;
+
+  const hasData = latestCheckInfo?.ts != null;
   const hasOpenIncident = openIncidents.has(monitorId);
   const operationalState = deriveOperationalState(monitor?.isEnabled ?? false, hasData, hasOpenIncident);
 
   return {
-    ...metrics,
+    lastCheckAt: latestCheckInfo?.ts ?? null,
+    lastStatus: latestCheckInfo?.status ?? null,
+    uptime24hPercent,
+    incidents24h: incidentCount,
+    uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets, 24),
+    latency: latencyStats,
+    latencySeries,
+    effectiveIntervalSeconds: latestCheckInfo?.effectiveIntervalSeconds ?? null,
+    backoffLevel: latestCheckInfo?.backoffLevel ?? null,
     operationalState,
   };
 }
@@ -132,7 +158,8 @@ export async function fetchLatestMonitorTlsResult(
   monitorId: string,
   siteId: string,
 ): Promise<MonitorTlsResult | null> {
-  return getLatestTlsResult(monitorId, siteId);
+  const results = await getLatestTlsResultsForMonitors([monitorId], siteId);
+  return results[monitorId] ?? null;
 }
 
 export async function fetchMonitorIncidentSegments(

@@ -1,29 +1,13 @@
 import { type RawMonitorMetrics } from '@/entities/analytics/monitoring.entities';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 
-export function toMonitorMetricsPresentation(
-  metrics: RawMonitorMetrics,
-  options?: { placeholderCount?: number; now?: Date },
-): RawMonitorMetrics {
-  const placeholderCount = options?.placeholderCount ?? 24;
-  const now = options?.now ?? new Date();
-
-  return {
-    ...metrics,
-    uptimeBuckets: normalizeUptimeBuckets(metrics.uptimeBuckets, placeholderCount, now),
-  };
-}
-
-export function normalizeUptimeBuckets(
-  data: RawMonitorMetrics['uptimeBuckets'],
-  placeholderCount: number,
-  now: Date,
-): RawMonitorMetrics['uptimeBuckets'] {
+export function normalizeUptimeBuckets(data: RawMonitorMetrics['uptimeBuckets'], placeholderCount: number) {
+  const now = new Date();
   const bucketMap = new Map<number, number | null>(
     (data ?? []).map((point) => [parseClickHouseDateSafe(point.bucket).getTime(), point.upRatio]),
   );
   const end = floorToHour(now);
-  const buckets: RawMonitorMetrics['uptimeBuckets'] = [];
+  const buckets = [];
 
   for (let i = placeholderCount - 1; i >= 0; i -= 1) {
     const d = new Date(end);

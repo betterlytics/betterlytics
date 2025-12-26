@@ -2,62 +2,25 @@ import { clickhouse } from '@/lib/clickhouse';
 import { safeSql } from '@/lib/safe-sql';
 import {
   MonitorDailyUptimeSchema,
-  RawMonitorMetricsSchema,
   MonitorResultSchema,
   MonitorTlsResultSchema,
   MonitorUptimeBucketSchema,
+  MonitorLatencyStatsSchema,
+  MonitorLatencyPointSchema,
+  UptimeStatsSchema,
   LatestCheckInfoSchema,
+  type UptimeStats,
   type MonitorUptimeBucket,
   type MonitorDailyUptime,
-  type RawMonitorMetrics,
   type MonitorResult,
   type MonitorTlsResult,
   type LatestCheckInfo,
+  type MonitorLatencyStats,
+  type MonitorLatencyPoint,
   MonitorIncidentSegmentSchema,
   type MonitorIncidentSegment,
 } from '@/entities/analytics/monitoring.entities';
 import { toIsoUtc } from '@/utils/dateHelpers';
-
-type LatencyRow = { avg_ms: number | null; min_ms: number | null; max_ms: number | null };
-type UptimeBucketRow = { bucket: string; up_ratio: number | null };
-type LatencySeriesRow = { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null };
-
-export async function getMonitorMetrics(checkId: string, siteId: string): Promise<RawMonitorMetrics> {
-  const [uptimeRow, lastCheckInfo, latencyRow, buckets, latencySeries, incidentCount] = await Promise.all([
-    fetchUptime(checkId, siteId),
-    getLatestCheckInfoForMonitors([checkId], siteId).then((r) => r[checkId] ?? null),
-    fetchLatency(checkId, siteId),
-    fetchUptimeBuckets(checkId, siteId),
-    fetchLatencySeries(checkId, siteId),
-    fetchIncidentCount(checkId, siteId),
-  ]);
-
-  const uptimePercent = uptimeRow.total_count > 0 ? (uptimeRow.up_count / uptimeRow.total_count) * 100 : null;
-
-  return RawMonitorMetricsSchema.parse({
-    lastCheckAt: lastCheckInfo?.ts ? toIsoUtc(lastCheckInfo.ts) : null,
-    lastStatus: lastCheckInfo?.status ?? null,
-    uptime24hPercent: uptimePercent,
-    incidents24h: incidentCount,
-    uptimeBuckets: buckets.map((b) => ({
-      bucket: toIsoUtc(b.bucket) ?? b.bucket,
-      upRatio: b.up_ratio,
-    })),
-    latency: {
-      avgMs: latencyRow.avg_ms,
-      minMs: latencyRow.min_ms,
-      maxMs: latencyRow.max_ms,
-    },
-    latencySeries: latencySeries.map((point) => ({
-      bucket: toIsoUtc(point.bucket) ?? point.bucket,
-      p50Ms: point.p50_ms,
-      p95Ms: point.p95_ms,
-      avgMs: point.avg_ms,
-    })),
-    effectiveIntervalSeconds: lastCheckInfo?.effectiveIntervalSeconds ?? null,
-    backoffLevel: lastCheckInfo?.backoffLevel ?? null,
-  });
-}
 
 export async function getRecentMonitorResults(
   checkId: string,
@@ -97,37 +60,6 @@ export async function getRecentMonitorResults(
       reasonCode: row.reason_code,
     }),
   );
-}
-
-export async function getLatestTlsResult(checkId: string, siteId: string): Promise<MonitorTlsResult | null> {
-  const query = safeSql`
-    SELECT
-      toString(ts) AS ts,
-      status,
-      reason_code,
-      tls_not_after
-    FROM analytics.monitor_results
-    WHERE check_id = {check_id:String}
-      AND kind = 'tls'
-      AND site_id = {site_id:String}
-    ORDER BY ts DESC
-    LIMIT 1
-  `;
-
-  const [row] = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
-    })
-    .toPromise()) as any[];
-
-  if (!row) return null;
-
-  return MonitorTlsResultSchema.parse({
-    ts: toIsoUtc(row.ts) ?? row.ts,
-    status: row.status,
-    reasonCode: row.reason_code,
-    tlsNotAfter: toIsoUtc(row.tls_not_after),
-  });
 }
 
 export async function getLatestTlsResultsForMonitors(
@@ -234,7 +166,10 @@ export async function getMonitorIncidentSegments(
       reason: row.reason_code,
       start: toIsoUtc(row.started_at) ?? row.started_at,
       end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-      durationMs: computeDurationMs(row.started_at, row.resolved_at ?? row.last_event_at),
+      durationMs:
+        row.started_at && (row.resolved_at || row.last_event_at)
+          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
+          : null,
     }),
   );
 }
@@ -359,15 +294,7 @@ export async function getLatestCheckInfoForMonitors(
   }, {});
 }
 
-function computeDurationMs(start?: string | null, end?: string | null): number | null {
-  if (!start || !end) return null;
-  const startIso = toIsoUtc(start) ?? start;
-  const endIso = toIsoUtc(end) ?? end;
-  const diff = new Date(endIso).getTime() - new Date(startIso).getTime();
-  return Number.isFinite(diff) && diff >= 0 ? diff : null;
-}
-
-async function fetchUptime(checkId: string, siteId: string): Promise<{ up_count: number; total_count: number }> {
+export async function getUptime24h(checkId: string, siteId: string): Promise<UptimeStats> {
   const query = safeSql`
     SELECT
       sum(status IN ('ok', 'warn')) AS up_count,
@@ -385,10 +312,10 @@ async function fetchUptime(checkId: string, siteId: string): Promise<{ up_count:
     })
     .toPromise()) as any[];
 
-  return row ?? { up_count: 0, total_count: 0 };
+  return UptimeStatsSchema.parse({ upCount: row?.up_count ?? 0, totalCount: row?.total_count ?? 0 });
 }
 
-async function fetchLatency(checkId: string, siteId: string): Promise<LatencyRow> {
+export async function getLatency24h(checkId: string, siteId: string): Promise<MonitorLatencyStats> {
   const query = safeSql`
     SELECT
       avg(latency_ms) AS avg_ms,
@@ -408,10 +335,14 @@ async function fetchLatency(checkId: string, siteId: string): Promise<LatencyRow
     })
     .toPromise()) as any[];
 
-  return row ?? { avg_ms: null, min_ms: null, max_ms: null };
+  return MonitorLatencyStatsSchema.parse({
+    avgMs: row?.avg_ms ?? null,
+    minMs: row?.min_ms ?? null,
+    maxMs: row?.max_ms ?? null,
+  });
 }
 
-async function fetchUptimeBuckets(checkId: string, siteId: string): Promise<UptimeBucketRow[]> {
+export async function getUptimeBuckets24h(checkId: string, siteId: string): Promise<MonitorUptimeBucket[]> {
   const query = safeSql`
     SELECT
       toString(toStartOfInterval(ts, INTERVAL 1 HOUR)) AS bucket,
@@ -431,10 +362,15 @@ async function fetchUptimeBuckets(checkId: string, siteId: string): Promise<Upti
     })
     .toPromise()) as any[];
 
-  return rows;
+  return rows.map((row) =>
+    MonitorUptimeBucketSchema.parse({
+      bucket: toIsoUtc(row.bucket) ?? row.bucket,
+      upRatio: row.up_ratio,
+    }),
+  );
 }
 
-async function fetchLatencySeries(checkId: string, siteId: string): Promise<LatencySeriesRow[]> {
+export async function getLatencySeries24h(checkId: string, siteId: string): Promise<MonitorLatencyPoint[]> {
   const query = safeSql`
     SELECT
       toStartOfFifteenMinutes(ts) AS bucket,
@@ -457,10 +393,17 @@ async function fetchLatencySeries(checkId: string, siteId: string): Promise<Late
     })
     .toPromise()) as any[];
 
-  return rows;
+  return rows.map((row) =>
+    MonitorLatencyPointSchema.parse({
+      bucket: toIsoUtc(row.bucket) ?? row.bucket,
+      p50Ms: row.p50_ms,
+      p95Ms: row.p95_ms,
+      avgMs: row.avg_ms,
+    }),
+  );
 }
 
-async function fetchIncidentCount(checkId: string, siteId: string): Promise<number> {
+export async function getIncidentCount24h(checkId: string, siteId: string): Promise<number> {
   const query = safeSql`
     SELECT count() AS count
     FROM analytics.monitor_incidents FINAL
