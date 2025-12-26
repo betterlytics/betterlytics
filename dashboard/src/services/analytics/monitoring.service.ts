@@ -4,7 +4,6 @@ import {
   MonitorCheckCreate,
   MonitorCheckUpdate,
   MonitorOperationalState,
-  MonitorStatus,
   type MonitorDailyUptime,
   type MonitorIncidentSegment,
   type MonitorMetrics,
@@ -21,7 +20,7 @@ import {
 } from '@/repositories/postgres/monitoring.repository';
 
 import {
-  getLatestIncidentsForMonitors,
+  getOpenIncidentsForMonitors,
   getMonitorUptimeBucketsForMonitors,
   getMonitorIncidentSegments,
   getLatestTlsResult,
@@ -61,26 +60,24 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
   const now = new Date();
-  const [latestIncidents, uptimeBuckets, tlsResults, latestCheckInfo] = await Promise.all([
-    getLatestIncidentsForMonitors(checkIds, siteId),
+  const [openIncidents, uptimeBuckets, tlsResults, latestCheckInfo] = await Promise.all([
+    getOpenIncidentsForMonitors(checkIds, siteId),
     getMonitorUptimeBucketsForMonitors(checkIds, siteId),
     getLatestTlsResultsForMonitors(checkIds, siteId),
     getLatestCheckInfoForMonitors(checkIds, siteId),
   ]);
 
   return checks.map((check) => {
-    const incident = latestIncidents[check.id];
     const rawBuckets = uptimeBuckets[check.id] ?? [];
     const buckets = normalizeUptimeBuckets(rawBuckets, 24, now);
     const hasResults = rawBuckets.length > 0;
-    const operationalState = deriveOperationalState(check.isEnabled, hasResults, { incident });
-    const incidentState = incident?.state ?? null;
+    const hasOpenIncident = openIncidents.has(check.id);
+    const operationalState = deriveOperationalState(check.isEnabled, hasResults, hasOpenIncident);
     const checkInfo = latestCheckInfo[check.id];
 
     return {
       ...check,
-      lastStatus: (incident?.lastStatus as MonitorStatus) ?? null,
-      incidentState,
+      hasOpenIncident,
       effectiveIntervalSeconds: checkInfo?.effectiveIntervalSeconds ?? null,
       backoffLevel: checkInfo?.backoffLevel ?? null,
       uptimeBuckets: buckets,
@@ -95,16 +92,16 @@ export async function fetchMonitorMetrics(
   monitorId: string,
   siteId: string,
 ): Promise<MonitorMetrics> {
-  const [monitor, rawMetrics] = await Promise.all([
+  const [monitor, rawMetrics, openIncidents] = await Promise.all([
     getMonitorCheckById(dashboardId, monitorId),
     getMonitorMetrics(monitorId, siteId),
+    getOpenIncidentsForMonitors([monitorId], siteId),
   ]);
 
   const metrics = toMonitorMetricsPresentation(rawMetrics);
   const hasData = metrics.lastCheckAt != null;
-  const operationalState = deriveOperationalState(monitor?.isEnabled ?? false, hasData, {
-    lastStatus: metrics.lastStatus,
-  });
+  const hasOpenIncident = openIncidents.has(monitorId);
+  const operationalState = deriveOperationalState(monitor?.isEnabled ?? false, hasData, hasOpenIncident);
 
   return {
     ...metrics,
@@ -149,43 +146,17 @@ export async function fetchMonitorIncidentSegments(
  *
  * Logic priority:
  * 1. Disabled -> paused
- * 2. No data/results -> preparing
- * 3. Open incident -> down or degraded (based on incident.lastStatus)
- * 4. Resolved/no incident with lastStatus -> derive from lastStatus
- * 5. No incident and has data -> up
+ * 2. Open incident -> down
+ * 3. No data/results -> preparing
+ * 4. Otherwise -> up
  */
 function deriveOperationalState(
   isEnabled: boolean,
   hasData: boolean,
-  options?: {
-    incident?: { state: string; lastStatus: string | null };
-    lastStatus?: MonitorStatus | null;
-  },
+  hasOpenIncident: boolean,
 ): MonitorOperationalState {
   if (!isEnabled) return 'paused';
+  if (hasOpenIncident) return 'down';
   if (!hasData) return 'preparing';
-
-  const incident = options?.incident;
-
-  // If there's an open incident, use its severity
-  if (incident?.state === 'open') {
-    return incident.lastStatus === 'warn' ? 'degraded' : 'down';
-  }
-
-  // If we have a lastStatus (from metrics in detail view), use it
-  const lastStatus = options?.lastStatus;
-  if (lastStatus) {
-    switch (lastStatus) {
-      case 'ok':
-        return 'up';
-      case 'warn':
-        return 'degraded';
-      case 'down':
-      case 'error':
-        return 'down';
-    }
-  }
-
-  // No open incident and have data -> healthy
   return 'up';
 }

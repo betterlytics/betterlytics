@@ -116,17 +116,6 @@ export const LatestCheckInfoSchema = z.object({
   backoffLevel: z.number().int().nullable(),
 });
 
-export const LatestIncidentInfoSchema = z.object({
-  state: z.string(),
-  severity: z.string(),
-  lastStatus: z.string().nullable(),
-  startedAt: z.string().nullable(),
-  lastEventAt: z.string().nullable(),
-  resolvedAt: z.string().nullable(),
-  failureCount: z.number().int().nullable(),
-  reasonCode: z.string().nullable(),
-});
-
 export const MonitorResultSchema = z.object({
   ts: z.string(),
   status: MonitorStatusSchema,
@@ -168,7 +157,7 @@ export type MonitorCheckUpdate = z.infer<typeof MonitorCheckUpdateSchema>;
 
 // This is the primary type used in list views
 export type MonitorWithStatus = MonitorCheck & {
-  lastStatus: MonitorStatus | null;
+  hasOpenIncident: boolean;
   effectiveIntervalSeconds: number | null;
   backoffLevel: number | null;
   uptimeBuckets: MonitorUptimeBucket[];
@@ -180,7 +169,6 @@ export type MonitorUptimeBucket = z.infer<typeof MonitorUptimeBucketSchema>;
 export type RawMonitorMetrics = z.infer<typeof RawMonitorMetricsSchema>;
 export type MonitorMetrics = z.infer<typeof MonitorMetricsSchema>;
 export type LatestCheckInfo = z.infer<typeof LatestCheckInfoSchema>;
-export type LatestIncidentInfo = z.infer<typeof LatestIncidentInfoSchema>;
 
 export type MonitorResult = z.infer<typeof MonitorResultSchema>;
 export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;

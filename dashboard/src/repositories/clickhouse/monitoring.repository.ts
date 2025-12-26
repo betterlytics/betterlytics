@@ -7,14 +7,12 @@ import {
   MonitorTlsResultSchema,
   MonitorUptimeBucketSchema,
   LatestCheckInfoSchema,
-  LatestIncidentInfoSchema,
   type MonitorUptimeBucket,
   type MonitorDailyUptime,
   type RawMonitorMetrics,
   type MonitorResult,
   type MonitorTlsResult,
   type LatestCheckInfo,
-  type LatestIncidentInfo,
   MonitorIncidentSegmentSchema,
   type MonitorIncidentSegment,
 } from '@/entities/analytics/monitoring.entities';
@@ -23,18 +21,6 @@ import { toIsoUtc } from '@/utils/dateHelpers';
 type LatencyRow = { avg_ms: number | null; min_ms: number | null; max_ms: number | null };
 type UptimeBucketRow = { bucket: string; up_ratio: number | null };
 type LatencySeriesRow = { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null };
-
-type LatestIncidentRow = {
-  check_id: string;
-  state: string;
-  severity: string;
-  last_status: string | null;
-  started_at: string | null;
-  last_event_at: string | null;
-  resolved_at: string | null;
-  failure_count: number | null;
-  reason_code: string | null;
-};
 
 export async function getMonitorMetrics(checkId: string, siteId: string): Promise<RawMonitorMetrics> {
   const [uptimeRow, lastCheckInfo, latencyRow, buckets, latencySeries, incidentCount] = await Promise.all([
@@ -250,49 +236,24 @@ export async function getMonitorIncidentSegments(
   );
 }
 
-export async function getLatestIncidentsForMonitors(
-  checkIds: string[],
-  siteId: string,
-): Promise<Record<string, LatestIncidentInfo>> {
-  if (!checkIds.length) return {};
+export async function getOpenIncidentsForMonitors(checkIds: string[], siteId: string): Promise<Set<string>> {
+  if (!checkIds.length) return new Set();
 
   const query = safeSql`
-    SELECT
-      check_id,
-      state,
-      severity,
-      last_status,
-      started_at,
-      last_event_at,
-      resolved_at,
-      failure_count,
-      reason_code
+    SELECT DISTINCT check_id
     FROM analytics.monitor_incidents FINAL
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
-    ORDER BY check_id, last_event_at DESC
-    LIMIT 1 BY check_id
+      AND state = 'open'
   `;
 
   const rows = (await clickhouse
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
     })
-    .toPromise()) as LatestIncidentRow[];
+    .toPromise()) as { check_id: string }[];
 
-  return rows.reduce<Record<string, LatestIncidentInfo>>((acc, row) => {
-    acc[row.check_id] = LatestIncidentInfoSchema.parse({
-      state: row.state,
-      severity: row.severity,
-      lastStatus: row.last_status,
-      startedAt: toIsoUtc(row.started_at) ?? row.started_at,
-      lastEventAt: toIsoUtc(row.last_event_at) ?? row.last_event_at,
-      resolvedAt: toIsoUtc(row.resolved_at) ?? row.resolved_at,
-      failureCount: row.failure_count,
-      reasonCode: row.reason_code,
-    });
-    return acc;
-  }, {});
+  return new Set(rows.map((row) => row.check_id));
 }
 
 export async function getMonitorUptimeBucketsForMonitors(
@@ -469,7 +430,7 @@ async function fetchLatencySeries(checkId: string, siteId: string): Promise<Late
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
     .toPromise()) as any[];
-  
+
   return rows;
 }
 
