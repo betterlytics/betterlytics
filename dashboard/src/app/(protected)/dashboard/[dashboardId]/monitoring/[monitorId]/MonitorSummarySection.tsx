@@ -169,7 +169,7 @@ function LastCheckCard({
     >
       <LiveIndicator
         color={color}
-        positionClassName='static'
+        positionClassName=''
         sizeClassName='h-3 w-3'
         pulse={isActive}
         aria-label={statusAriaLabel}
