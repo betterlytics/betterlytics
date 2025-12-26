@@ -1335,6 +1335,7 @@
       "title": "Seneste overvågningsresultater",
       "badge": "Seneste 10",
       "empty": "Ingen tjek registreret endnu",
+      "errorsOnly": "Kun vis fejl",
       "headers": {
         "status": "Status",
         "ran": "Kørt",

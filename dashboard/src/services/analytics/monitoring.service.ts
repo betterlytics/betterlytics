@@ -124,8 +124,9 @@ export async function fetchRecentMonitorResults(
   monitorId: string,
   siteId: string,
   limit = 20,
+  errorsOnly = false,
 ): Promise<MonitorResult[]> {
-  return getRecentMonitorResults(monitorId, siteId, limit);
+  return getRecentMonitorResults(monitorId, siteId, limit, errorsOnly);
 }
 
 export async function fetchLatestMonitorTlsResult(

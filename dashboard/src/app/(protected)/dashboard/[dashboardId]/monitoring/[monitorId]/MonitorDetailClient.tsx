@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, PauseCircle, Pencil, PlayCircle } from 'lucide-react';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
@@ -81,9 +81,10 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
     refetchInterval: 60_000,
   });
 
+  const [checksErrorsOnly, setChecksErrorsOnly] = useState(false);
   const checksQuery = useQuery({
-    queryKey: ['monitor-checks', dashboardId, monitorId],
-    queryFn: async () => (await fetchRecentMonitorResultsAction(dashboardId, monitorId)) ?? [],
+    queryKey: ['monitor-checks', dashboardId, monitorId, checksErrorsOnly],
+    queryFn: async () => (await fetchRecentMonitorResultsAction(dashboardId, monitorId, checksErrorsOnly)) ?? [],
     initialData: initialData.recentChecks,
     refetchInterval: pollingEnabled ? CRITICAL_POLLING_INTERVAL_MS : false,
     enabled: pollingEnabled,
@@ -171,7 +172,11 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
         <Uptime180DayCard uptime={initialData.uptime} />
       </div>
 
-      <RecentChecksCard checks={checksQuery.data ?? []} />
+      <RecentChecksCard
+        checks={checksQuery.data ?? []}
+        errorsOnly={checksErrorsOnly}
+        setErrorsOnly={setChecksErrorsOnly}
+      />
     </div>
   );
 }
