@@ -21,6 +21,7 @@ import {
 
 import {
   getOpenIncidentsForMonitors,
+  getMonitorsWithResults,
   getMonitorUptimeBucketsForMonitors,
   getMonitorIncidentSegments,
   getLatestTlsResult,
@@ -60,8 +61,9 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
   const now = new Date();
-  const [openIncidents, uptimeBuckets, tlsResults, latestCheckInfo] = await Promise.all([
+  const [openIncidents, monitorsWithResults, uptimeBuckets, tlsResults, latestCheckInfo] = await Promise.all([
     getOpenIncidentsForMonitors(checkIds, siteId),
+    getMonitorsWithResults(checkIds, siteId),
     getMonitorUptimeBucketsForMonitors(checkIds, siteId),
     getLatestTlsResultsForMonitors(checkIds, siteId),
     getLatestCheckInfoForMonitors(checkIds, siteId),
@@ -70,7 +72,7 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   return checks.map((check) => {
     const rawBuckets = uptimeBuckets[check.id] ?? [];
     const buckets = normalizeUptimeBuckets(rawBuckets, 24, now);
-    const hasResults = rawBuckets.length > 0;
+    const hasResults = monitorsWithResults.has(check.id);
     const hasOpenIncident = openIncidents.has(check.id);
     const operationalState = deriveOperationalState(check.isEnabled, hasResults, hasOpenIncident);
     const checkInfo = latestCheckInfo[check.id];

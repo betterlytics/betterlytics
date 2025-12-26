@@ -259,6 +259,29 @@ export async function getOpenIncidentsForMonitors(checkIds: string[], siteId: st
   return new Set(rows.map((row) => row.check_id));
 }
 
+/**
+ * Returns the set of monitor IDs that have at least one result recorded
+ */
+export async function getMonitorsWithResults(checkIds: string[], siteId: string): Promise<Set<string>> {
+  if (!checkIds.length) return new Set();
+
+  const query = safeSql`
+    SELECT check_id
+    FROM analytics.monitor_results
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+    LIMIT 1 BY check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
+    })
+    .toPromise()) as { check_id: string }[];
+
+  return new Set(rows.map((row) => row.check_id));
+}
+
 export async function getMonitorUptimeBucketsForMonitors(
   checkIds: string[],
   siteId: string,
