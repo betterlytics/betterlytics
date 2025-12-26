@@ -1333,6 +1333,7 @@
       "title": "Recent monitoring results",
       "badge": "Last 10",
       "empty": "No checks recorded yet",
+      "errorsOnly": "Only show errors",
       "headers": {
         "status": "Status",
         "ran": "Ran",

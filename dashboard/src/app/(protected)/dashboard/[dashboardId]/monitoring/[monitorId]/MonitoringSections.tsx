@@ -1,5 +1,6 @@
 'use client';
 
+import { type Dispatch, type SetStateAction } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -24,6 +25,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { MonitoringTooltip } from './MonitoringTooltip';
 import { formatPercentage } from '@/utils/formatters';
 import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
+import { cn } from '@/lib/utils';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return <ResponseTimeChart data={metrics?.latencySeries ?? []} />;
@@ -71,15 +73,42 @@ export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment
   );
 }
 
-export function RecentChecksCard({ checks }: { checks: MonitorResult[] }) {
+export function RecentChecksCard({
+  checks,
+  errorsOnly,
+  setErrorsOnly,
+}: {
+  checks: MonitorResult[];
+  errorsOnly: boolean;
+  setErrorsOnly: Dispatch<SetStateAction<boolean>>;
+}) {
   const t = useTranslations('monitoringDetailPage');
   return (
     <Card className='border-border/70 bg-card/80 p-5 shadow-lg shadow-black/10 lg:col-span-2'>
       <div className='flex items-center justify-between'>
         <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{t('recent.title')}</p>
-        <Badge variant='secondary' className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'>
-          {t('recent.badge')}
-        </Badge>
+        <div className='flex items-center gap-2'>
+          <button
+            type='button'
+            onClick={() => setErrorsOnly(!errorsOnly)}
+            aria-pressed={errorsOnly}
+            className={cn(
+              'hover:bg-primary/5 inline-flex w-full cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium sm:w-auto',
+              errorsOnly
+                ? 'bg-primary/10 border-primary/20 text-popover-foreground disabled:opacity-50'
+                : 'bg-muted/30 border-border text-muted-foreground',
+            )}
+          >
+            <div className={cn('h-3 w-3 rounded-full border', errorsOnly && MONITOR_TONE.down.dot)} />
+            <span>{t('recent.errorsOnly')}</span>
+          </button>
+          <Badge
+            variant='secondary'
+            className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'
+          >
+            {t('recent.badge')}
+          </Badge>
+        </div>
       </div>
 
       {checks.length === 0 ? (
@@ -133,11 +162,11 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
             {grid.map((cell) => {
               const date = new Date(cell.date);
               const tone: MonitorTone | null =
-                cell.upRatio == null ? null : cell.upRatio >= 0.99 ? 'ok' : cell.upRatio >= 0.95 ? 'warn' : 'down';
+                cell.upRatio === null ? null : cell.upRatio >= 0.99 ? 'ok' : cell.upRatio >= 0.95 ? 'warn' : 'down';
               const toneClass = tone ? MONITOR_TONE[tone].solid : 'bg-border/40';
               const displayDate = defaultDateLabelFormatter(date.getTime(), 'day', locale);
               const label =
-                cell.upRatio != null
+                cell.upRatio !== null
                   ? t('uptime.grid.uptimeLabel', {
                       value: formatPercentage(cell.upRatio * 100, 2, { trimHundred: true }),
                     })

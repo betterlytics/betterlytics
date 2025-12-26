@@ -160,6 +160,7 @@ export function AdvancedSettingsSection({ form, isPending, isHttpSite }: Advance
                       form.addStatusCode();
                     }
                   }}
+                  maxLength={3}
                   disabled={isPending}
                   className='h-7 w-16 font-mono text-xs'
                 />

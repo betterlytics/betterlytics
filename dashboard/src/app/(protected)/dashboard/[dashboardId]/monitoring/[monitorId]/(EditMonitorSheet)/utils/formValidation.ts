@@ -1,5 +1,6 @@
 import type { StatusCodeValue } from '@/entities/analytics/monitoring.entities';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
+import { stableStringify } from '@/utils/stableStringify';
 
 export type StatusCodeValidationResult =
   | { ok: true; code: StatusCodeValue }
@@ -16,11 +17,12 @@ export function validateStatusCode(input: string, existingCodes: StatusCodeValue
     return { ok: false, error: 'maxReached' };
   }
 
+  if (existingCodes.includes(normalized as StatusCodeValue)) {
+    return { ok: false, error: 'duplicate' };
+  }
+
   // Handle range patterns (2xx, 3xx, etc.)
   if (/^[2-5]xx$/.test(normalized)) {
-    if (existingCodes.includes(normalized as StatusCodeValue)) {
-      return { ok: false, error: 'duplicate' };
-    }
     return { ok: true, code: normalized as StatusCodeValue };
   }
 
@@ -37,10 +39,6 @@ export function validateStatusCode(input: string, existingCodes: StatusCodeValue
 
   if (code < 100 || code > 599) {
     return { ok: false, error: 'outOfRange' };
-  }
-
-  if (existingCodes.includes(code)) {
-    return { ok: false, error: 'duplicate' };
   }
 
   return { ok: true, code };
@@ -87,5 +85,5 @@ export function validateAlertEmail(input: string, existingEmails: string[]): Ema
 }
 
 export function deepEqual<T>(a: T, b: T): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
+  return stableStringify(a) === stableStringify(b);
 }

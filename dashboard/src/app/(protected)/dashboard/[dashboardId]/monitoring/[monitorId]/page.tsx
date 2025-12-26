@@ -18,7 +18,7 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
 
   const monitorPromise = fetchMonitorCheckAction(dashboardId, monitorId);
   const metricsPromise = fetchMonitorMetricsAction(dashboardId, monitorId);
-  const recentChecksPromise = fetchRecentMonitorResultsAction(dashboardId, monitorId);
+  const recentChecksPromise = fetchRecentMonitorResultsAction(dashboardId, monitorId, false);
   const incidentsPromise = fetchMonitorIncidentsAction(dashboardId, monitorId);
   const tlsPromise = fetchLatestMonitorTlsResultAction(dashboardId, monitorId);
   const uptimePromise = fetchMonitorUptimeAction(dashboardId, monitorId, 180);

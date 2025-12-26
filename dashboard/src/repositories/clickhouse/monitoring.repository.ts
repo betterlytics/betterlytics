@@ -63,7 +63,9 @@ export async function getRecentMonitorResults(
   checkId: string,
   siteId: string,
   limit = 20,
+  nonOkOnly = false,
 ): Promise<MonitorResult[]> {
+  const statusCondition = nonOkOnly ? safeSql`status != 'ok'` : safeSql`1=1`;
   const query = safeSql`
     SELECT
       toString(ts) AS ts,
@@ -75,6 +77,7 @@ export async function getRecentMonitorResults(
     WHERE check_id = {check_id:String}
       AND kind != 'tls'
       AND site_id = {site_id:String}
+      AND ${statusCondition}
     ORDER BY ts DESC
     LIMIT {limit:UInt32}
   `;

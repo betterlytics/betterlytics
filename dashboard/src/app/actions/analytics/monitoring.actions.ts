@@ -90,7 +90,8 @@ export const fetchMonitorMetricsAction = withDashboardAuthContext(
 );
 
 export const fetchRecentMonitorResultsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, monitorId: string) => await fetchRecentMonitorResults(monitorId, ctx.siteId, 10),
+  async (ctx: AuthContext, monitorId: string, errorsOnly: boolean) =>
+    await fetchRecentMonitorResults(monitorId, ctx.siteId, 10, errorsOnly),
 );
 
 export const fetchMonitorIncidentsAction = withDashboardAuthContext(
