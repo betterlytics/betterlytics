@@ -1454,6 +1454,8 @@
     },
     "alerts": {
       "title": "Avvisi",
+      "enabled": "Attivo",
+      "enableAlerts": "Attiva avvisi",
       "description": "Ricevi notifiche quando il monitor va offline, torna online o quando i certificati SSL stanno per scadere.",
       "recipients": "Destinatari email",
       "recipientsDescription": "Aggiungi indirizzi email per ricevere notifiche di avviso.",

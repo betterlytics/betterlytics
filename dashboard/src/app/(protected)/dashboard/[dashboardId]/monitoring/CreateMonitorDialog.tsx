@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { createMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
@@ -18,28 +19,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Clock, Loader2, CheckCircle2 } from 'lucide-react';
-import {
-  MONITOR_INTERVAL_MARKS,
-  REQUEST_TIMEOUT_MARKS,
-  INTERVAL_DISPLAY_MARKS,
-  TIMEOUT_DISPLAY_MARKS,
-  SENSITIVITY_DISPLAY_MARKS,
-  RECOMMENDED_INTERVAL_SECONDS,
-  RECOMMENDED_TIMEOUT_MS,
-  RECOMMENDED_FAILURE_THRESHOLD,
-  nearestIndex,
-} from './[monitorId]/(EditMonitorSheet)/utils/sliderConstants';
-import { LabeledSlider } from '@/components/inputs/LabeledSlider';
-import { formatCompactDuration } from '@/utils/dateFormatters';
-import { isUrlOnDomain } from '@/utils/domainValidation';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
+import { isUrlOnDomain } from '@/utils/domainValidation';
+import { useMonitorForm } from './shared/hooks/useMonitorForm';
+import { TimingSection, AlertsSection, AdvancedSettingsSection } from './shared/components';
 
 type CreateMonitorDialogProps = {
   dashboardId: string;
   domain: string;
   existingUrls: string[];
 };
+
+type Section = 'timing' | 'alerts' | 'advanced' | null;
 
 function getHostname(url: string): string | null {
   try {
@@ -53,38 +45,30 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [url, setUrl] = useState(`https://${domain}`);
-  const [intervalIdx, setIntervalIdx] = useState(
-    nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS),
-  );
-  const [timeoutIdx, setTimeoutIdx] = useState(nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS));
-  const [failureThreshold, setFailureThreshold] = useState(RECOMMENDED_FAILURE_THRESHOLD);
+  const [expandedSection, setExpandedSection] = useState<Section>('timing');
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const t = useTranslations('monitoringPage.form');
+  const { data: session } = useSession();
 
-  const intervalSeconds = MONITOR_INTERVAL_MARKS[intervalIdx];
-  const timeoutMs = REQUEST_TIMEOUT_MARKS[timeoutIdx];
+  const form = useMonitorForm({
+    mode: 'create',
+    ownerEmail: session?.user?.email,
+  });
 
   const resetForm = () => {
     setName('');
     setUrl(`https://${domain}`);
-    setIntervalIdx(nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS));
-    setTimeoutIdx(nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS));
-    setFailureThreshold(RECOMMENDED_FAILURE_THRESHOLD);
+    setExpandedSection('timing');
+    form.reset();
   };
 
   const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
     startTransition(async () => {
       try {
-        await createMonitorCheckAction(dashboardId, {
-          name: name.trim() || undefined,
-          url: url.trim(),
-          intervalSeconds,
-          timeoutMs,
-          isEnabled: true,
-          failureThreshold,
-        });
+        const payload = form.buildCreatePayload(name.trim() || undefined, url.trim());
+        await createMonitorCheckAction(dashboardId, payload);
         toast.success(t('success'), {
           icon: <CheckCircle2 className='h-4 w-4 text-emerald-500' />,
           description: t('successDescription'),
@@ -112,6 +96,10 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
 
   const hasError = urlEmpty || urlInvalid || isDuplicate;
 
+  // SSL monitoring is enabled if URL is https
+  const isHttps = url.trim().startsWith('https://');
+  const sslMonitoringEnabled = isHttps && form.state.checkSslErrors;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -119,7 +107,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
           {t('create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-2xl'>
+      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
@@ -163,59 +151,34 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
 
           <Separator />
 
-          <div className='bg-muted/30 rounded-lg border p-5'>
-            <div className='mb-5 flex items-center gap-2'>
-              <Clock className='text-muted-foreground h-4 w-4' />
-              <h3 className='text-sm font-semibold tracking-tight'>{t('timing.title')}</h3>
-            </div>
+          <div className='space-y-2'>
+            <TimingSection
+              form={form}
+              isPending={isPending}
+              open={expandedSection === 'timing'}
+              onOpenChange={(isOpen) => setExpandedSection(isOpen ? 'timing' : null)}
+            />
 
-            <div className='space-y-5'>
-              <LabeledSlider
-                label={t('timing.interval.label')}
-                badge={t('timing.interval.badge')}
-                description={t('timing.interval.description', { value: formatCompactDuration(intervalSeconds) })}
-                value={intervalIdx}
-                min={0}
-                max={MONITOR_INTERVAL_MARKS.length - 1}
-                marks={INTERVAL_DISPLAY_MARKS}
-                onValueChange={setIntervalIdx}
-                formatValue={() => formatCompactDuration(intervalSeconds)}
-                recommendedValue={nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS)}
-                disabled={isPending}
-              />
+            <Separator />
 
-              <Separator />
+            <AlertsSection
+              form={form}
+              isPending={isPending}
+              userEmail={session?.user?.email}
+              sslMonitoringEnabled={sslMonitoringEnabled}
+              open={expandedSection === 'alerts'}
+              onOpenChange={(isOpen) => setExpandedSection(isOpen ? 'alerts' : null)}
+            />
 
-              <LabeledSlider
-                label={t('timing.timeout.label')}
-                description={t('timing.timeout.description')}
-                value={timeoutIdx}
-                min={0}
-                max={REQUEST_TIMEOUT_MARKS.length - 1}
-                marks={TIMEOUT_DISPLAY_MARKS}
-                onValueChange={setTimeoutIdx}
-                formatValue={() => formatCompactDuration(timeoutMs / 1000)}
-                recommendedValue={nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS)}
-                disabled={isPending}
-              />
+            <Separator />
 
-              <Separator />
-
-              <LabeledSlider
-                label={t('timing.sensitivity.label')}
-                description={t('timing.sensitivity.description')}
-                value={failureThreshold}
-                min={1}
-                max={10}
-                marks={SENSITIVITY_DISPLAY_MARKS}
-                onValueChange={setFailureThreshold}
-                formatValue={(v) =>
-                  v === 1 ? t('timing.sensitivity.valueOne') : t('timing.sensitivity.valueOther', { count: v })
-                }
-                recommendedValue={RECOMMENDED_FAILURE_THRESHOLD}
-                disabled={isPending}
-              />
-            </div>
+            <AdvancedSettingsSection
+              form={form}
+              isPending={isPending}
+              isHttpSite={!isHttps}
+              open={expandedSection === 'advanced'}
+              onOpenChange={(isOpen) => setExpandedSection(isOpen ? 'advanced' : null)}
+            />
           </div>
 
           <div className='flex justify-end gap-2 pt-2'>

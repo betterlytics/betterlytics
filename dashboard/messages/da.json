@@ -1454,6 +1454,8 @@
     },
     "alerts": {
       "title": "Alarmer",
+      "enabled": "Til",
+      "enableAlerts": "Aktivér alarmer",
       "description": "Få besked, når din overvågning går ned, kommer op igen, eller når SSL-certifikater er ved at udløbe.",
       "recipients": "E-mail-modtagere",
       "recipientsDescription": "Tilføj e-mailadresser, der skal modtage alarmer.",

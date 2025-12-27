@@ -1452,6 +1452,8 @@
     },
     "alerts": {
       "title": "Alerts",
+      "enabled": "On",
+      "enableAlerts": "Enable alerts",
       "description": "Get notified when your monitor goes down, recovers, or when SSL certificates are expiring.",
       "recipients": "Email recipients",
       "recipientsDescription": "Add email addresses to receive alert notifications.",

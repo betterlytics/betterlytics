@@ -11,20 +11,35 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SettingToggle } from '@/components/inputs/SettingToggle';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { getStatusCodeColorClasses } from '../utils/httpStatusColors';
-import { useMonitorForm } from '../hooks/useMonitorForm';
 import { SectionHeader } from './SectionHeader';
+import type { MonitorFormInterface } from '../types';
 
-type AdvancedSettingsSectionProps = {
-  form: ReturnType<typeof useMonitorForm>;
+export type AdvancedSettingsSectionProps = {
+  form: MonitorFormInterface;
   isPending: boolean;
   isHttpSite: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  defaultOpen?: boolean;
 };
 
-export function AdvancedSettingsSection({ form, isPending, isHttpSite }: AdvancedSettingsSectionProps) {
+export function AdvancedSettingsSection({
+  form,
+  isPending,
+  isHttpSite,
+  open,
+  onOpenChange,
+  defaultOpen = false,
+}: AdvancedSettingsSectionProps) {
   const t = useTranslations('monitoringEditDialog');
 
   return (
-    <Collapsible defaultOpen={false} className='group/advanced'>
+    <Collapsible
+      open={open}
+      onOpenChange={onOpenChange}
+      defaultOpen={open === undefined ? defaultOpen : undefined}
+      className='group/advanced'
+    >
       <CollapsibleTrigger className='hover:bg-muted/50 -mx-2 flex w-[calc(100%+1rem)] cursor-pointer items-center justify-between rounded-lg px-2 py-2 transition-colors'>
         <SectionHeader icon={Settings} title={t('sections.advanced')} />
         <ChevronDown className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/advanced:rotate-180' />

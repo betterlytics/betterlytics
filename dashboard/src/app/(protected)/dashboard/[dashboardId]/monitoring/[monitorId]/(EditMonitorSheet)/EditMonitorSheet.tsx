@@ -20,11 +20,9 @@ import {
 import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
 import { isHttpUrl } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/utils';
-import { useMonitorForm } from './hooks/useMonitorForm';
+import { useMonitorForm } from '../../shared/hooks/useMonitorForm';
 import { useMonitorMutations } from './hooks/useMonitorMutations';
-import { TimingSection } from './components/TimingSection';
-import { AlertsSection } from './components/AlertsSection';
-import { AdvancedSettingsSection } from './components/AdvancedSettingsSection';
+import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../../shared/components';
 
 type EditMonitorDialogProps = {
   dashboardId: string;
@@ -43,7 +41,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   const { data: session } = useSession();
 
   const { deleteMutation } = useMonitorMutations(dashboardId, monitor.id);
-  const form = useMonitorForm(monitor, open);
+  const form = useMonitorForm({ mode: 'edit', monitor });
 
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
@@ -69,7 +67,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
           form.buildUpdatePayload(monitor.id, monitor.name ?? null, monitor.isEnabled),
         );
         toast.success(t('success'));
-        form.resetToCurrentState();
+        form.markClean();
         setOpen(false);
         router.refresh();
       } catch (error) {
@@ -106,17 +104,23 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
               </SheetDescription>
             </SheetHeader>
 
-            <div className='flex-grow space-y-8 overflow-y-auto px-6 py-6'>
-              <TimingSection form={form} isPending={isPending} />
+            <div className='flex-grow space-y-2 overflow-y-auto px-6 py-6'>
+              <TimingSection form={form} isPending={isPending} defaultOpen={true} />
               <Separator />
               <AlertsSection
                 form={form}
                 isPending={isPending}
                 userEmail={userEmail}
                 sslMonitoringEnabled={sslMonitoringEnabled}
+                defaultOpen={false}
               />
               <Separator />
-              <AdvancedSettingsSection form={form} isPending={isPending} isHttpSite={isHttpSite} />
+              <AdvancedSettingsSection
+                form={form}
+                isPending={isPending}
+                isHttpSite={isHttpSite}
+                defaultOpen={false}
+              />
             </div>
 
             <div className='border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 flex items-center justify-between gap-3 border-t px-6 py-4 backdrop-blur'>
