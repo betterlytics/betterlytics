@@ -18,7 +18,7 @@ import {
   presentUptimeTone,
   type CheckStatusPresentation,
   type MonitorTone,
-} from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+} from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
 import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
 import { ResponseTimeChart } from './ResponseTimeChart';

@@ -3,10 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { formatPercentage } from '@/utils/formatters';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
-import {
-  MONITOR_TONE,
-  presentUptimeTone,
-} from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+import { MONITOR_TONE, presentUptimeTone } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { MonitoringTooltip } from '../[monitorId]/MonitoringTooltip';
 import { type MonitorUptimeBucket } from '@/entities/analytics/monitoring.entities';
 

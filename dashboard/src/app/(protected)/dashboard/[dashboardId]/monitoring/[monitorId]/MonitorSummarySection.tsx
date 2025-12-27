@@ -15,7 +15,7 @@ import {
   presentMonitorStatus,
   presentUptimeTone,
   presentSslStatus,
-} from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+} from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import {
   type MonitorCheck,
   type MonitorMetrics,

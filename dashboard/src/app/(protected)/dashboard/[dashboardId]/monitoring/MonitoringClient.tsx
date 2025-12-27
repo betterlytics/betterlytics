@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/u
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
-import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 
 type FiltersCopy = {

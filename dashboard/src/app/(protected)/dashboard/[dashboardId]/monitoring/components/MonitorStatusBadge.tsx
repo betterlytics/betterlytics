@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { type MonitorPresentation } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+import { type MonitorPresentation } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { useTranslations } from 'next-intl';
 
 type MonitorStatusBadgeProps = {

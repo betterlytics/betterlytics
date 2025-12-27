@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, PauseCircle, Pencil, PlayCircle } from 'lucide-react';
-import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/monitoringStyles';
+import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import {
   fetchLatestMonitorTlsResultAction,
   fetchMonitorCheckAction,
