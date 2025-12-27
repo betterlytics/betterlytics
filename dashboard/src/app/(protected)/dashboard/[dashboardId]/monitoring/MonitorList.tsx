@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Activity, AlertTriangle, Link2, RefreshCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -25,6 +25,7 @@ type MonitorListProps = {
 };
 
 export function MonitorList({ monitors }: MonitorListProps) {
+  const router = useRouter();
   const t = useTranslations('monitoringPage');
   const tMonitoringLabels = useTranslations('monitoring.labels');
   const tSsl = useTranslations('monitoring.ssl');
@@ -64,52 +65,44 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;
         const effectiveLabel = formatIntervalLabel(t, monitor.effectiveIntervalSeconds ?? monitor.intervalSeconds);
 
+        const monitorHref = `/dashboard/${monitor.dashboardId}/monitoring/${monitor.id}`;
+
         return (
-          <Link
+          <Card
             key={monitor.id}
-            href={`/dashboard/${monitor.dashboardId}/monitoring/${monitor.id}`}
-            className='group focus-visible:ring-primary/40 focus-visible:ring-offset-background block rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none'
+            className='border-border/70 bg-card/80 hover:border-border hover:bg-card group focus-visible:ring-primary/40 focus-visible:ring-offset-background relative cursor-pointer overflow-hidden transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none'
+            tabIndex={0}
+            onClick={() => router.push(monitorHref)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                router.push(monitorHref);
+              }
+            }}
           >
-            <Card className='border-border/70 bg-card/80 hover:border-border hover:bg-card relative overflow-hidden transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'>
-              <div
-                className={`absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b ${statusPresentation.gradient}`}
-                aria-hidden
-              />
+            <div
+              className={`absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b ${statusPresentation.gradient}`}
+              aria-hidden
+            />
 
-              <div className='flex w-full flex-col gap-1 px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_minmax(280px,1.2fr)_auto] md:items-center md:gap-1.5'>
-                <div className='flex items-start gap-2'>
-                  <div className='space-y-1.5'>
-                    <div className='flex items-center justify-between gap-2'>
-                      <div className='flex items-center gap-2 text-sm leading-tight font-semibold'>
-                        <span className='truncate'>{monitor.name || monitor.url}</span>
-                      </div>
-                      <MonitorStatusBadge presentation={statusPresentation} />
+            <div className='flex w-full flex-col gap-1 px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_minmax(280px,1.2fr)_auto] md:items-center md:gap-1.5'>
+              <div className='flex items-start gap-2'>
+                <div className='space-y-1.5'>
+                  <div className='flex items-center justify-between gap-2'>
+                    <div className='flex items-center gap-2 text-sm leading-tight font-semibold'>
+                      <span className='truncate'>{monitor.name || monitor.url}</span>
                     </div>
-                    <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs'>
-                      <span className='inline-flex items-center gap-1'>
-                        <Link2 size={14} />
-                        <span className='max-w-[240px] truncate'>{monitor.url}</span>
-                      </span>
-                    </div>
-                    <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs md:hidden'>
-                      <RefreshCcw size={14} aria-hidden />
-                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
-                      {isBackedOff && (
-                        <BackoffBadge
-                          label={effectiveLabel}
-                          message={t('list.backoffTooltip', { value: effectiveLabel })}
-                        />
-                      )}
-                    </div>
+                    <MonitorStatusBadge presentation={statusPresentation} />
                   </div>
-                </div>
-
-                <div className='hidden md:grid md:w-full md:grid-cols-[120px_minmax(220px,280px)_minmax(220px,1fr)_max-content] md:items-center md:gap-4'>
-                  <div className='text-muted-foreground flex items-center gap-2 text-[11px] font-semibold whitespace-nowrap'>
-                    <span className='flex items-center gap-1'>
-                      <RefreshCcw size={14} aria-hidden />
-                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
+                  <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs'>
+                    <span className='inline-flex items-center gap-1'>
+                      <Link2 size={14} />
+                      <span className='max-w-[240px] truncate'>{monitor.url}</span>
                     </span>
+                  </div>
+                  <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs md:hidden'>
+                    <RefreshCcw size={14} aria-hidden />
+                    <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
                     {isBackedOff && (
                       <BackoffBadge
                         label={effectiveLabel}
@@ -117,30 +110,48 @@ export function MonitorList({ monitors }: MonitorListProps) {
                       />
                     )}
                   </div>
-                  <div className='min-w-[200px]'>
-                    <SslStatusPill
-                      presentation={sslPresentation}
-                      label={sslBadgeLabel}
-                      daysLeftLabel={daysLeft != null ? tMonitoringLabels('daysLeft', { count: daysLeft }) : null}
-                    />
-                  </div>
-                  <div className='min-w-0'>
-                    {hasData ? (
-                      <PillBar data={monitor.uptimeBuckets} />
-                    ) : (
-                      <p className='text-muted-foreground text-xs font-medium'>{t('list.noData')}</p>
-                    )}
-                  </div>
-                  <span className={`pt-1 text-[11px] font-semibold whitespace-nowrap ${theme.text}`}>
-                    {percentLabel}
-                  </span>
-                </div>
-                <div className='flex items-center justify-end gap-2 md:justify-center md:pl-12'>
-                  <MonitorActionMenu monitor={monitor} dashboardId={monitor.dashboardId} />
                 </div>
               </div>
-            </Card>
-          </Link>
+
+              <div className='hidden md:grid md:w-full md:grid-cols-[120px_minmax(220px,280px)_minmax(220px,1fr)_max-content] md:items-center md:gap-4'>
+                <div className='text-muted-foreground flex items-center gap-2 text-[11px] font-semibold whitespace-nowrap'>
+                  <span className='flex items-center gap-1'>
+                    <RefreshCcw size={14} aria-hidden />
+                    <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
+                  </span>
+                  {isBackedOff && (
+                    <BackoffBadge
+                      label={effectiveLabel}
+                      message={t('list.backoffTooltip', { value: effectiveLabel })}
+                    />
+                  )}
+                </div>
+                <div className='min-w-[200px]'>
+                  <SslStatusPill
+                    presentation={sslPresentation}
+                    label={sslBadgeLabel}
+                    daysLeftLabel={daysLeft != null ? tMonitoringLabels('daysLeft', { count: daysLeft }) : null}
+                  />
+                </div>
+                <div className='min-w-0'>
+                  {hasData ? (
+                    <PillBar data={monitor.uptimeBuckets} />
+                  ) : (
+                    <p className='text-muted-foreground text-xs font-medium'>{t('list.noData')}</p>
+                  )}
+                </div>
+                <span className={`pt-1 text-[11px] font-semibold whitespace-nowrap ${theme.text}`}>
+                  {percentLabel}
+                </span>
+              </div>
+              <div
+                className='flex items-center justify-end gap-2 md:justify-center md:pl-12'
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MonitorActionMenu monitor={monitor} dashboardId={monitor.dashboardId} />
+              </div>
+            </div>
+          </Card>
         );
       })}
     </div>
