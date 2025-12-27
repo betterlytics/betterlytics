@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -24,18 +24,18 @@ import { useMonitorForm } from '../../shared/hooks/useMonitorForm';
 import { useMonitorMutations } from './hooks/useMonitorMutations';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../../shared/components';
 
-type EditMonitorDialogProps = {
+type EditMonitorSheetProps = {
   dashboardId: string;
   monitor: MonitorCheck;
   trigger?: React.ReactNode;
 };
 
-export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitorDialogProps) {
+export function EditMonitorSheet({ dashboardId, monitor, trigger }: EditMonitorSheetProps) {
   const [open, setOpen] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('monitoringEditDialog');
   const { data: session } = useSession();
@@ -45,13 +45,18 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
 
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
-      if (!newOpen && form.isDirty) {
+      if (newOpen) {
+        form.reset();
+        setOpen(true);
+        return;
+      }
+      if (form.isDirty) {
         setShowConfirmDialog(true);
       } else {
-        setOpen(newOpen);
+        setOpen(false);
       }
     },
-    [form.isDirty],
+    [form],
   );
 
   const handleConfirmDiscard = useCallback(() => {
@@ -70,13 +75,13 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
         toast.success(t('success'));
         form.markClean();
         setOpen(false);
-        router.refresh();
+        await queryClient.invalidateQueries({ queryKey: ['monitor', dashboardId, monitor.id] });
       } catch (error) {
         console.error(error);
         toast.error(t('error'));
       }
     });
-  }, [dashboardId, monitor.id, monitor.name, monitor.isEnabled, form, t, router]);
+  }, [dashboardId, monitor.id, monitor.name, monitor.isEnabled, form, t, queryClient]);
 
   const handleDelete = useCallback(() => {
     deleteMutation.mutate(undefined, {

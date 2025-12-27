@@ -23,7 +23,7 @@ import { Label } from '@/components/ui/label';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { type MonitorWithStatus, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { useMonitorMutations } from '../[monitorId]/(EditMonitorSheet)/hooks/useMonitorMutations';
-import { EditMonitorDialog } from '../[monitorId]/(EditMonitorSheet)/EditMonitorSheet';
+import { EditMonitorSheet } from '../[monitorId]/(EditMonitorSheet)/EditMonitorSheet';
 import { useTranslations } from 'next-intl';
 
 type MonitorActionMenuProps = {
@@ -121,7 +121,7 @@ export function MonitorActionMenu({ monitor, dashboardId }: MonitorActionMenuPro
             {tMisc('rename')}
           </DropdownMenuItem>
 
-          <EditMonitorDialog
+          <EditMonitorSheet
             dashboardId={dashboardId}
             monitor={monitor as any}
             trigger={

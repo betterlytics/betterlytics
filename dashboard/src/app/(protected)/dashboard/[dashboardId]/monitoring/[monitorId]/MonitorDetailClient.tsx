@@ -25,7 +25,7 @@ import {
 } from '@/entities/analytics/monitoring.entities';
 import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
 import { useMonitorMutations } from './(EditMonitorSheet)/hooks/useMonitorMutations';
-import { EditMonitorDialog } from './(EditMonitorSheet)/EditMonitorSheet';
+import { EditMonitorSheet } from './(EditMonitorSheet)/EditMonitorSheet';
 import { IncidentsCard, RecentChecksCard, ResponseTimeCard, Uptime180DayCard } from './MonitoringSections';
 import { MonitorSummarySection } from './MonitorSummarySection';
 import { useTranslations } from 'next-intl';
@@ -143,7 +143,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
                 </span>
               )}
             </Button>
-            <EditMonitorDialog
+            <EditMonitorSheet
               dashboardId={dashboardId}
               monitor={monitorData}
               trigger={
