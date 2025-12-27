@@ -194,7 +194,7 @@ function LastCheckCard({
         aria-label={statusAriaLabel}
       />
       <span className='text-foreground tabular-nums'>{lastCheckLabel}</span>
-      {backoffTooltipMessage && (
+      {backoffTooltipMessage && !isPaused && (
         <Tooltip>
           <TooltipTrigger asChild>
             <AlertCircle
