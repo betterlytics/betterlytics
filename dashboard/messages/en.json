@@ -1353,10 +1353,12 @@
         "avgResponseTime": "Avg response time",
         "helper": "Last 24 hours"
       },
-      "lastCheck": {
-        "title": "Last check",
+      "nextCheck": {
+        "title": "Next check",
         "paused": "Paused",
         "preparing": "Preparing first check",
+        "awaiting": "Awaiting check...",
+        "inSeconds": "In {seconds}s",
         "helperPaused": "Resume monitor to restart checks.",
         "helperPreparing": "We're scheduling your first check. Results will appear soon.",
         "helperScheduled": "Scheduled every {seconds}s"

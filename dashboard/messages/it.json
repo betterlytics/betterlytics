@@ -1356,10 +1356,12 @@
         "avgResponseTime": "Tempo di risposta medio",
         "helper": "Ultime 24 ore"
       },
-      "lastCheck": {
-        "title": "Ultimo controllo",
+      "nextCheck": {
+        "title": "Prossimo controllo",
         "paused": "In pausa",
         "preparing": "Primo controllo in preparazione",
+        "awaiting": "In attesa del controllo...",
+        "inSeconds": "Tra {seconds}s",
         "helperPaused": "Riprendi il monitor per riattivare i controlli.",
         "helperPreparing": "Stiamo programmando il primo controllo. I risultati appariranno presto.",
         "helperScheduled": "Programmato ogni {seconds}s"

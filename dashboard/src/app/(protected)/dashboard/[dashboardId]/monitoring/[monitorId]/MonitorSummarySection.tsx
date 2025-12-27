@@ -4,12 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { formatDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
-import {
-  formatCompactFromMilliseconds,
-  formatLocalDateTime,
-  formatTimeAgo,
-  formatTimeLeft,
-} from '@/utils/dateFormatters';
+import { formatCompactFromMilliseconds, formatLocalDateTime, formatTimeLeft } from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import {
   presentLatencyStatus,
@@ -52,6 +47,7 @@ type MonitorSummarySectionProps = {
   tls?: MonitorTlsResult | null;
   operationalState: MonitorOperationalState;
   onEnableSslClick?: () => void;
+  onCountdownExpired?: () => void;
 };
 
 export function MonitorSummarySection({
@@ -60,17 +56,19 @@ export function MonitorSummarySection({
   tls,
   operationalState,
   onEnableSslClick,
+  onCountdownExpired,
 }: MonitorSummarySectionProps) {
   const latencyAvg = metrics?.latency?.avgMs ?? null;
 
   return (
     <div className='grid gap-4 lg:grid-cols-2 xl:grid-cols-4'>
-      <LastCheckCard
+      <NextCheckCard
         intervalSeconds={monitor.intervalSeconds}
         lastCheckAt={metrics?.lastCheckAt ?? undefined}
         backoffLevel={metrics?.backoffLevel ?? undefined}
         effectiveIntervalSeconds={metrics?.effectiveIntervalSeconds ?? undefined}
         operationalState={operationalState}
+        onCountdownExpired={onCountdownExpired}
       />
       <Last24hCard
         uptimePercent={metrics?.uptime24hPercent}
@@ -123,48 +121,70 @@ function SummaryCard({
   );
 }
 
-function LastCheckCard({
+function NextCheckCard({
   intervalSeconds,
   lastCheckAt: lastCheckAtRaw,
   backoffLevel,
   effectiveIntervalSeconds,
   operationalState,
+  onCountdownExpired,
 }: {
   intervalSeconds: number;
   lastCheckAt?: string;
   backoffLevel?: number;
   effectiveIntervalSeconds?: number;
   operationalState: MonitorOperationalState;
+  onCountdownExpired?: () => void;
 }) {
-  const t = useTranslations('monitoringDetailPage.summary.lastCheck');
+  const t = useTranslations('monitoringDetailPage.summary.nextCheck');
   const tMonitoringPage = useTranslations('monitoringPage');
   const tList = useTranslations('monitoringPage.list');
   const tStatus = useTranslations('monitoring.status');
 
   const lastCheckAt = lastCheckAtRaw ? new Date(lastCheckAtRaw).getTime() : null;
-  const [, tick] = useState(0);
+  const [now, setNow] = useState(Date.now);
 
   const isPaused = operationalState === 'paused';
   const isPreparing = operationalState === 'preparing';
   const isActive = !isPaused && !isPreparing;
 
+  const activeInterval = effectiveIntervalSeconds ?? intervalSeconds;
+
+  const firedForCheckRef = React.useRef<number | null>(null);
+
   useEffect(() => {
     if (!lastCheckAt || isPaused) return;
-    const id = window.setInterval(() => tick((n) => n + 1), 1000);
+    setNow(Date.now());
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, [isPaused, lastCheckAt]);
 
-  const lastCheckLabel = useMemo(() => {
-    if (isPaused) return t('paused');
-    if (isPreparing || !lastCheckAt) return t('preparing');
-    return formatTimeAgo(new Date(lastCheckAt), true);
-  }, [isPaused, isPreparing, lastCheckAt]);
+  const { label: countdownLabel, isAwaiting } = useMemo(() => {
+    if (isPaused) return { label: t('paused'), isAwaiting: false };
+    if (isPreparing || !lastCheckAt) return { label: t('preparing'), isAwaiting: false };
+
+    const secondsSinceLastCheck = Math.floor((now - lastCheckAt) / 1000);
+    const countdown = activeInterval - secondsSinceLastCheck;
+
+    if (countdown <= 0) {
+      return { label: t('awaiting'), isAwaiting: true };
+    }
+
+    return { label: t('inSeconds', { seconds: countdown }), isAwaiting: false };
+  }, [isPaused, isPreparing, lastCheckAt, now, activeInterval, t]);
+
+  useEffect(() => {
+    if (isAwaiting && lastCheckAt && firedForCheckRef.current !== lastCheckAt) {
+      firedForCheckRef.current = lastCheckAt;
+      onCountdownExpired?.();
+    }
+  }, [isAwaiting, lastCheckAt, onCountdownExpired]);
 
   const helper = useMemo(() => {
     if (isPaused) return t('helperPaused');
     if (isPreparing) return t('helperPreparing');
     return t('helperScheduled', { seconds: intervalSeconds });
-  }, [isPaused, isPreparing, intervalSeconds]);
+  }, [isPaused, isPreparing, intervalSeconds, t]);
 
   const isBackedOff = (backoffLevel ?? 0) > 0 && (effectiveIntervalSeconds ?? 0) > 0;
 
@@ -190,10 +210,10 @@ function LastCheckCard({
         color={color}
         positionClassName=''
         sizeClassName='h-3 w-3'
-        pulse={isActive}
+        pulse={isActive || isAwaiting}
         aria-label={statusAriaLabel}
       />
-      <span className='text-foreground tabular-nums'>{lastCheckLabel}</span>
+      <span className='text-foreground tabular-nums'>{countdownLabel}</span>
       {backoffTooltipMessage && !isPaused && (
         <Tooltip>
           <TooltipTrigger asChild>

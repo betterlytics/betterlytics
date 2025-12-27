@@ -1356,10 +1356,12 @@
         "avgResponseTime": "Gns. responstid",
         "helper": "Seneste 24 timer"
       },
-      "lastCheck": {
-        "title": "Seneste tjek",
+      "nextCheck": {
+        "title": "Næste tjek",
         "paused": "Sat på pause",
         "preparing": "Forbereder første tjek",
+        "awaiting": "Afventer tjek...",
+        "inSeconds": "Om {seconds}s",
         "helperPaused": "Genoptag overvågning for at starte tjek igen.",
         "helperPreparing": "Vi planlægger dit første tjek. Resultater vises snart.",
         "helperScheduled": "Planlagt hvert {seconds}s"
