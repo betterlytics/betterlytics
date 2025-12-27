@@ -1235,7 +1235,10 @@
       "intervalSeconds": "{value}s",
       "backoffTooltip": "Monitoring temporarily reduced to {value} because this monitor has been down repeatedly. Normal frequency resumes automatically once the service is healthy.",
       "emptyTitle": "No monitors yet",
-      "emptyDescription": "Create your first monitor to start tracking uptime."
+      "emptyDescription": "Create your first monitor to start tracking uptime.",
+      "upPrefix": "Up",
+      "downPrefix": "Down",
+      "uptimeSuffix": "uptime"
     },
     "form": {
       "create": "New monitor",
@@ -1361,7 +1364,9 @@
         "inSeconds": "In {seconds}s",
         "helperPaused": "Resume monitor to restart checks.",
         "helperPreparing": "We're scheduling your first check. Results will appear soon.",
-        "helperScheduled": "Scheduled every {seconds}s"
+        "helperScheduled": "Scheduled every {seconds}s",
+        "helperUpFor": "Up for {duration}",
+        "helperDownFor": "Down for {duration}"
       },
       "last24h": {
         "title": "Last 24 hours",

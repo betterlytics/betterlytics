@@ -40,12 +40,12 @@ export function LabeledSlider({
 
   return (
     <div className='space-y-4'>
-      <div className='flex items-baseline justify-between'>
+      <div className='flex items-baseline items-end justify-between'>
         <div className='space-y-0.5'>
           <Label className='text-sm font-medium'>{label}</Label>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
-        <Badge variant='secondary' className='ring-border text-xs font-medium ring-1'>
+        <Badge variant='secondary' className='ring-border mb-1 text-xs font-medium ring-1'>
           {formatValue(value)}
           {isRecommended && <span className='text-muted-foreground font-normal'>({t('recommended')})</span>}
         </Badge>

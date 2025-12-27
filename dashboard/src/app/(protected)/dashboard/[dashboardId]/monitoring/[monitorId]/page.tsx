@@ -8,6 +8,7 @@ import {
 } from '@/app/actions/analytics/monitoring.actions';
 import { MonitorDetailClient } from './MonitorDetailClient';
 import { notFound } from 'next/navigation';
+import { safeHostname } from '../utils';
 
 type MonitorDetailParams = {
   params: Promise<{ dashboardId: string; monitorId: string }>;
@@ -53,12 +54,4 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
       }}
     />
   );
-}
-
-function safeHostname(url: string) {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url;
-  }
 }

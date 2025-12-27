@@ -113,6 +113,7 @@ export const RawMonitorMetricsSchema = z.object({
 
 export const MonitorMetricsSchema = RawMonitorMetricsSchema.extend({
   operationalState: MonitorOperationalStateSchema,
+  currentStateSince: z.string().nullable(),
 });
 
 export const LatestCheckInfoSchema = z.object({
@@ -170,6 +171,7 @@ export type MonitorWithStatus = MonitorCheck & {
   uptimeBuckets: MonitorUptimeBucket[];
   tls: MonitorTlsResult | null;
   operationalState: MonitorOperationalState;
+  currentStateSince: string | null;
 };
 
 export type UptimeStats = z.infer<typeof UptimeStatsSchema>;

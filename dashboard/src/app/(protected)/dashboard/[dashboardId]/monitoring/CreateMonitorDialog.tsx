@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, CheckCircle2, Plus } from 'lucide-react';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { useMonitorForm } from './shared/hooks/useMonitorForm';
@@ -101,7 +101,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='default' className='w-full cursor-pointer sm:w-auto'>
+        <Button variant='default' className='cursor-pointer whitespace-nowrap'>
           {t('create')}
         </Button>
       </DialogTrigger>

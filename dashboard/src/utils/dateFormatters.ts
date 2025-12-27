@@ -43,6 +43,30 @@ export function formatDuration(seconds: number): string {
 }
 
 /**
+ * Formats elapsed time from a start date to now in a compact two-unit format.
+ * Examples: "2d 14h", "5h 32m", "45m", "< 1m"
+ */
+export function formatElapsedTime(startDate: Date): string {
+  const diffMs = Date.now() - startDate.getTime();
+  const totalMinutes = Math.max(0, Math.floor(diffMs / 60000));
+  const totalHours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalHours / 24);
+
+  if (days > 0) {
+    const hoursRemainder = totalHours % 24;
+    return hoursRemainder > 0 ? `${days}d ${hoursRemainder}h` : `${days}d`;
+  }
+  if (totalHours > 0) {
+    const minutesRemainder = totalMinutes % 60;
+    return minutesRemainder > 0 ? `${totalHours}h ${minutesRemainder}m` : `${totalHours}h`;
+  }
+  if (totalMinutes > 0) {
+    return `${totalMinutes}m`;
+  }
+  return '< 1m';
+}
+
+/**
  * Formats seconds as a compact single-unit duration string.
  * Uses only the largest applicable unit without breakdown.
  * Examples: 30 → "30s", 120 → "2m", 3600 → "1h", 86400 → "1d"
@@ -57,68 +81,10 @@ export function formatCompactDuration(seconds: number): string {
   return `${days}d`;
 }
 
-// Helper function to format time ago in a user-friendly way.
-// When `precise` is true, include seconds (e.g., "1m 23s ago", "11s ago").
-export function formatTimeAgo(date: Date, precise?: boolean): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
-  const totalMinutes = Math.floor(totalSeconds / 60);
-  const totalHours = Math.floor(totalMinutes / 60);
-  const days = Math.floor(totalHours / 24);
-
-  if (precise) {
-    if (days > 0) {
-      const hoursRemainder = totalHours % 24;
-      return `${days}d${hoursRemainder ? ` ${hoursRemainder}h` : ''} ago`;
-    }
-    if (totalHours > 0) {
-      const minutesRemainder = totalMinutes % 60;
-      return `${totalHours}h${minutesRemainder ? ` ${minutesRemainder}m` : ''} ago`;
-    }
-    if (totalMinutes > 0) {
-      const secondsRemainder = totalSeconds % 60;
-      return `${totalMinutes}m${secondsRemainder ? ` ${secondsRemainder}s` : ''} ago`;
-    }
-    return `${totalSeconds}s ago`;
-  }
-
-  if (days > 0) {
-    return `${days}d ago`;
-  }
-  if (totalHours > 0) {
-    return `${totalHours}h ago`;
-  }
-  if (totalMinutes > 0) {
-    return `${totalMinutes}m ago`;
-  }
-  return 'Recently';
-}
-
 /**
  * Formats seconds as either full seconds (two decimals) or milliseconds when < 1 second.
  * Examples: 1.02 seconds, 1.20 seconds, 800 ms, 340 ms
  */
-export function formatShortSeconds(seconds: number): string {
-  if (!Number.isFinite(seconds)) return '-';
-  if (Math.abs(seconds) < 1) {
-    const ms = Math.round(seconds * 1000);
-    return `${ms} ms`;
-  }
-  return `${new Intl.NumberFormat(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(seconds)} seconds`;
-}
-
-/**
- * Formats milliseconds as a short human string, using seconds or ms as appropriate.
- */
-export function formatShortFromMilliseconds(milliseconds: number): string {
-  return formatShortSeconds(milliseconds / 1000);
-}
-
-// Compact duration formatters (short units: s/ms)
 export function formatCompactSeconds(seconds: number): string {
   if (!Number.isFinite(seconds)) return '—';
   if (Math.abs(seconds) < 1) {

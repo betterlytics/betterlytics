@@ -175,10 +175,10 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
   return (
     <div className='space-y-4'>
       <DashboardHeader title={t('title')}>
-        <div className='flex flex-wrap items-center gap-2'>
+        <div className='flex items-center gap-2'>
           <div className='flex items-center gap-2'>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className='w-auto cursor-pointer'>
+              <SelectTrigger className='max-w-[120px] cursor-pointer'>
                 <FilterSelectValue label={statusLabel} />
               </SelectTrigger>
               <SelectContent>
@@ -207,7 +207,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
             </Select>
 
             <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-              <SelectTrigger className='w-auto cursor-pointer'>
+              <SelectTrigger className='max-w-[140px] cursor-pointer'>
                 <FilterSelectValue label={sortLabel} Icon={ArrowUpDown} />
               </SelectTrigger>
               <SelectContent>
@@ -235,7 +235,6 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
               </SelectContent>
             </Select>
           </div>
-          <div className='bg-border h-6 w-px' aria-hidden />
           <CreateMonitorDialog
             dashboardId={dashboardId}
             domain={domain}
@@ -251,9 +250,9 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
 
 function FilterSelectValue({ label, Icon = Filter }: { label: string; Icon?: LucideIcon }) {
   return (
-    <div className='flex items-center gap-1'>
-      <Icon className='h-3.5 w-3.5 opacity-60' />
-      <span className='truncate'>{label}</span>
+    <div className='flex items-center gap-1 overflow-hidden'>
+      <Icon className='h-3.5 w-3.5 shrink-0 opacity-60' />
+      <span className='truncate text-xs'>{label}</span>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import MultiSeriesChart from '@/components/MultiSeriesChart';
 import type { MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
-import { formatShortFromMilliseconds, formatCompactFromMilliseconds } from '@/utils/dateFormatters';
+import { formatCompactFromMilliseconds } from '@/utils/dateFormatters';
 import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from '@/app/(protected)/dashboard/[dashboardId]/web-vitals/MetricInfo';
@@ -47,7 +47,7 @@ const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = [
 
 function formatThreshold(metric: CoreWebVitalName, value: number): string {
   if (metric === 'CLS') return value.toString();
-  return formatShortFromMilliseconds(value);
+  return formatCompactFromMilliseconds(value);
 }
 
 type Props = {

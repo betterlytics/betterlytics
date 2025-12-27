@@ -1237,7 +1237,10 @@
       "intervalSeconds": "{value}s",
       "backoffTooltip": "Monitoraggio temporaneamente ridotto a {value} perché questo monitor è stato offline ripetutamente. La frequenza normale riprenderà automaticamente quando il servizio torna online.",
       "emptyTitle": "Nessun monitor ancora",
-      "emptyDescription": "Crea il tuo primo monitor per iniziare a tracciare l'uptime."
+      "emptyDescription": "Crea il tuo primo monitor per iniziare a tracciare l'uptime.",
+      "upPrefix": "Online",
+      "downPrefix": "Offline",
+      "uptimeSuffix": "uptime"
     },
     "form": {
       "create": "Nuovo monitor",
@@ -1364,7 +1367,9 @@
         "inSeconds": "Tra {seconds}s",
         "helperPaused": "Riprendi il monitor per riattivare i controlli.",
         "helperPreparing": "Stiamo programmando il primo controllo. I risultati appariranno presto.",
-        "helperScheduled": "Programmato ogni {seconds}s"
+        "helperScheduled": "Programmato ogni {seconds}s",
+        "helperUpFor": "Online da {duration}",
+        "helperDownFor": "Offline da {duration}"
       },
       "last24h": {
         "title": "Ultime 24 ore",

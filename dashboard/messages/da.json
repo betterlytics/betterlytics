@@ -1129,7 +1129,7 @@
   },
   "monitoring": {
     "status": {
-      "paused": "Sat på pause",
+      "paused": "Paused",
       "preparing": "Forbereder",
       "up": "Oppe",
       "degraded": "Nedsat",
@@ -1237,7 +1237,10 @@
       "intervalSeconds": "{value}s",
       "backoffTooltip": "Overvågning midlertidigt reduceret til {value}, fordi denne monitor har været nede gentagne gange. Normal frekvens genoptages automatisk, når tjenesten er oppe igen.",
       "emptyTitle": "Ingen overvågninger endnu",
-      "emptyDescription": "Opret din første overvågning for at begynde at spore oppetid."
+      "emptyDescription": "Opret din første overvågning for at begynde at spore oppetid.",
+      "upPrefix": "Oppe",
+      "downPrefix": "Nede",
+      "uptimeSuffix": "oppetid"
     },
     "form": {
       "create": "Ny overvågning",
@@ -1364,7 +1367,9 @@
         "inSeconds": "Om {seconds}s",
         "helperPaused": "Genoptag overvågning for at starte tjek igen.",
         "helperPreparing": "Vi planlægger dit første tjek. Resultater vises snart.",
-        "helperScheduled": "Planlagt hvert {seconds}s"
+        "helperScheduled": "Planlagt hvert {seconds}s",
+        "helperUpFor": "Oppe i {duration}",
+        "helperDownFor": "Nede i {duration}"
       },
       "last24h": {
         "title": "Seneste 24 timer",

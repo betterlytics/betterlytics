@@ -4,7 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { formatDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
-import { formatCompactFromMilliseconds, formatLocalDateTime, formatTimeLeft } from '@/utils/dateFormatters';
+import {
+  formatCompactFromMilliseconds,
+  formatLocalDateTime,
+  formatTimeLeft,
+  formatElapsedTime,
+} from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import {
   presentLatencyStatus,
@@ -22,7 +27,7 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from '../components/PillBar';
 import { useLocale, useTranslations } from 'next-intl';
-import { AlertCircle, ArrowRight, LockOpen, Shield } from 'lucide-react';
+import { AlertCircle, ArrowRight, LockOpen, RefreshCcw, Shield } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatIntervalLabel } from '../utils';
 import { isHttpUrl } from '../utils';
@@ -43,6 +48,7 @@ type MonitorSummarySectionProps = {
     | 'incidents24h'
     | 'uptimeBuckets'
     | 'latency'
+    | 'currentStateSince'
   >;
   tls?: MonitorTlsResult | null;
   operationalState: MonitorOperationalState;
@@ -69,6 +75,7 @@ export function MonitorSummarySection({
         effectiveIntervalSeconds={metrics?.effectiveIntervalSeconds ?? undefined}
         operationalState={operationalState}
         onCountdownExpired={onCountdownExpired}
+        currentStateSince={metrics?.currentStateSince ?? undefined}
       />
       <Last24hCard
         uptimePercent={metrics?.uptime24hPercent}
@@ -128,6 +135,7 @@ function NextCheckCard({
   effectiveIntervalSeconds,
   operationalState,
   onCountdownExpired,
+  currentStateSince,
 }: {
   intervalSeconds: number;
   lastCheckAt?: string;
@@ -135,6 +143,7 @@ function NextCheckCard({
   effectiveIntervalSeconds?: number;
   operationalState: MonitorOperationalState;
   onCountdownExpired?: () => void;
+  currentStateSince?: string;
 }) {
   const t = useTranslations('monitoringDetailPage.summary.nextCheck');
   const tMonitoringPage = useTranslations('monitoringPage');
@@ -183,8 +192,12 @@ function NextCheckCard({
   const helper = useMemo(() => {
     if (isPaused) return t('helperPaused');
     if (isPreparing) return t('helperPreparing');
-    return t('helperScheduled', { seconds: intervalSeconds });
-  }, [isPaused, isPreparing, intervalSeconds, t]);
+    if (currentStateSince) {
+      const duration = formatElapsedTime(new Date(currentStateSince));
+      return operationalState === 'down' ? t('helperDownFor', { duration }) : t('helperUpFor', { duration });
+    }
+    return null;
+  }, [isPaused, isPreparing, currentStateSince, operationalState, t]);
 
   const isBackedOff = (backoffLevel ?? 0) > 0 && (effectiveIntervalSeconds ?? 0) > 0;
 
@@ -200,9 +213,27 @@ function NextCheckCard({
 
   const statusAriaLabel = isPaused ? tStatus('monitoringPaused') : tStatus('monitoringActive');
 
+  const intervalLabel = formatIntervalLabel(tMonitoringPage, intervalSeconds);
+
   return (
     <SummaryCard
       title={t('title')}
+      headerRight={
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge
+              variant='outline'
+              className='text-muted-foreground border-muted-foreground/40 inline-flex items-center gap-1 text-xs'
+            >
+              <RefreshCcw size={12} aria-hidden />
+              {intervalLabel}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent side='top' className='max-w-[260px] break-words'>
+            {t('helperScheduled', { seconds: intervalSeconds })}
+          </TooltipContent>
+        </Tooltip>
+      }
       helper={helper}
       bodyClassName='flex flex-1 items-center gap-2 text-lg font-semibold sm:text-xl'
     >

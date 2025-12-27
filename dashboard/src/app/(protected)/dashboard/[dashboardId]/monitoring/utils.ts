@@ -14,3 +14,11 @@ export function formatIntervalLabel(t: MonitoringPageTranslation, intervalSecond
 export function isHttpUrl(url: string): boolean {
   return !url.startsWith('https://');
 }
+
+export function safeHostname(url: string) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}

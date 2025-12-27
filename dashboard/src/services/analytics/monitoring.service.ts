@@ -33,6 +33,7 @@ import {
   getUptimeBuckets24h,
   getLatencySeries24h,
   getIncidentCount24h,
+  getLastResolvedIncidentForMonitors,
 } from '@/repositories/clickhouse/monitoring.repository';
 import { normalizeUptimeBuckets } from '@/presenters/toMonitorMetrics';
 
@@ -63,21 +64,30 @@ export async function checkMonitorHostnameExists(
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string) {
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
-  const [openIncidents, monitorsWithResults, uptimeBuckets, tlsResults, latestCheckInfo] = await Promise.all([
-    getOpenIncidentsForMonitors(checkIds, siteId),
-    getMonitorsWithResults(checkIds, siteId),
-    getMonitorUptimeBucketsForMonitors(checkIds, siteId),
-    getLatestTlsResultsForMonitors(checkIds, siteId),
-    getLatestCheckInfoForMonitors(checkIds, siteId),
-  ]);
+  const [openIncidents, lastResolvedIncidents, monitorsWithResults, uptimeBuckets, tlsResults, latestCheckInfo] =
+    await Promise.all([
+      getOpenIncidentsForMonitors(checkIds, siteId),
+      getLastResolvedIncidentForMonitors(checkIds, siteId),
+      getMonitorsWithResults(checkIds, siteId),
+      getMonitorUptimeBucketsForMonitors(checkIds, siteId),
+      getLatestTlsResultsForMonitors(checkIds, siteId),
+      getLatestCheckInfoForMonitors(checkIds, siteId),
+    ]);
 
   return checks.map((check) => {
     const rawBuckets = uptimeBuckets[check.id] ?? [];
     const buckets = normalizeUptimeBuckets(rawBuckets, 24);
     const hasResults = monitorsWithResults.has(check.id);
-    const hasOpenIncident = openIncidents.has(check.id);
+    const openIncident = openIncidents.get(check.id);
+    const hasOpenIncident = openIncident != null;
     const operationalState = deriveOperationalState(check.isEnabled, hasResults, hasOpenIncident);
     const checkInfo = latestCheckInfo[check.id];
+
+    const currentStateSince = deriveCurrentStateSince(operationalState, {
+      openIncident,
+      lastResolvedIncident: lastResolvedIncidents.get(check.id),
+      createdAt: check.createdAt,
+    });
 
     return {
       ...check,
@@ -87,6 +97,7 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
       uptimeBuckets: buckets,
       tls: tlsResults[check.id] ?? null,
       operationalState,
+      currentStateSince,
     };
   });
 }
@@ -99,6 +110,7 @@ export async function fetchMonitorMetrics(
   const [
     monitor,
     openIncidents,
+    lastResolvedIncidents,
     uptimeStats,
     latencyStats,
     uptimeBuckets,
@@ -108,6 +120,7 @@ export async function fetchMonitorMetrics(
   ] = await Promise.all([
     getMonitorCheckById(dashboardId, monitorId),
     getOpenIncidentsForMonitors([monitorId], siteId),
+    getLastResolvedIncidentForMonitors([monitorId], siteId),
     getUptime24h(monitorId, siteId),
     getLatency24h(monitorId, siteId),
     getUptimeBuckets24h(monitorId, siteId),
@@ -120,8 +133,15 @@ export async function fetchMonitorMetrics(
     uptimeStats.totalCount > 0 ? (uptimeStats.upCount / uptimeStats.totalCount) * 100 : null;
 
   const hasData = latestCheckInfo?.ts != null;
-  const hasOpenIncident = openIncidents.has(monitorId);
+  const openIncident = openIncidents.get(monitorId);
+  const hasOpenIncident = openIncident != null;
   const operationalState = deriveOperationalState(monitor?.isEnabled ?? false, hasData, hasOpenIncident);
+
+  const currentStateSince = deriveCurrentStateSince(operationalState, {
+    openIncident,
+    lastResolvedIncident: lastResolvedIncidents.get(monitorId),
+    createdAt: monitor?.createdAt ?? null,
+  });
 
   return {
     lastCheckAt: latestCheckInfo?.ts ?? null,
@@ -134,6 +154,7 @@ export async function fetchMonitorMetrics(
     effectiveIntervalSeconds: latestCheckInfo?.effectiveIntervalSeconds ?? null,
     backoffLevel: latestCheckInfo?.backoffLevel ?? null,
     operationalState,
+    currentStateSince,
   };
 }
 
@@ -169,6 +190,29 @@ export async function fetchMonitorIncidentSegments(
   limit = 5,
 ): Promise<MonitorIncidentSegment[]> {
   return getMonitorIncidentSegments(monitorId, siteId, days, limit);
+}
+
+function deriveCurrentStateSince(
+  operationalState: MonitorOperationalState,
+  {
+    openIncident,
+    lastResolvedIncident,
+    createdAt,
+  }: {
+    openIncident?: { startedAt: string } | null;
+    lastResolvedIncident?: { resolvedAt: string } | null;
+    createdAt?: Date | null;
+  },
+): string | null {
+  if (operationalState === 'down' && openIncident) {
+    return openIncident.startedAt;
+  }
+
+  if (operationalState === 'up') {
+    return lastResolvedIncident?.resolvedAt ?? createdAt?.toISOString() ?? null;
+  }
+
+  return null;
 }
 
 /**

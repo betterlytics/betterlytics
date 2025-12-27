@@ -84,7 +84,7 @@ export function MonitorActionMenu({ monitor, dashboardId }: MonitorActionMenuPro
               e.preventDefault();
               e.stopPropagation();
             }}
-            className='text-muted-foreground hover:text-foreground bg-muted/40 ring-border/50 h-8 w-8 cursor-pointer rounded-full border border-transparent ring-1 transition-colors'
+            className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer transition-colors'
           >
             <MoreHorizontal className='h-4 w-4' />
             <span className='sr-only'>Open menu</span>

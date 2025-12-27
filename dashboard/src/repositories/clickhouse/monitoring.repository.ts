@@ -174,11 +174,14 @@ export async function getMonitorIncidentSegments(
   );
 }
 
-export async function getOpenIncidentsForMonitors(checkIds: string[], siteId: string): Promise<Set<string>> {
-  if (!checkIds.length) return new Set();
+export async function getOpenIncidentsForMonitors(
+  checkIds: string[],
+  siteId: string,
+): Promise<Map<string, { startedAt: string }>> {
+  if (!checkIds.length) return new Map();
 
   const query = safeSql`
-    SELECT DISTINCT check_id
+    SELECT check_id, toString(started_at) AS started_at
     FROM analytics.monitor_incidents FINAL
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
@@ -189,9 +192,34 @@ export async function getOpenIncidentsForMonitors(checkIds: string[], siteId: st
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
     })
-    .toPromise()) as { check_id: string }[];
+    .toPromise()) as { check_id: string; started_at: string }[];
 
-  return new Set(rows.map((row) => row.check_id));
+  return new Map(rows.map((row) => [row.check_id, { startedAt: toIsoUtc(row.started_at) ?? row.started_at }]));
+}
+
+export async function getLastResolvedIncidentForMonitors(
+  checkIds: string[],
+  siteId: string,
+): Promise<Map<string, { resolvedAt: string }>> {
+  if (!checkIds.length) return new Map();
+
+  const query = safeSql`
+    SELECT check_id, toString(resolved_at) AS resolved_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND state = 'resolved'
+    ORDER BY check_id, resolved_at DESC
+    LIMIT 1 BY check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
+    })
+    .toPromise()) as { check_id: string; resolved_at: string }[];
+
+  return new Map(rows.map((row) => [row.check_id, { resolvedAt: toIsoUtc(row.resolved_at) ?? row.resolved_at }]));
 }
 
 /**
