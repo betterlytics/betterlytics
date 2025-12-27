@@ -117,7 +117,7 @@ impl MonitorProbe {
                 outcome.tls_not_after = Some(not_after);
 
                 let (status, reason_code) = if days_left < 0 {
-                    (MonitorStatus::Down, ReasonCode::TlsExpired)
+                    (MonitorStatus::Failed, ReasonCode::TlsExpired)
                 } else if days_left <= check.alert.ssl_expiry_days {
                     (MonitorStatus::Warn, ReasonCode::TlsExpiringSoon)
                 } else {
@@ -126,7 +126,7 @@ impl MonitorProbe {
 
                 outcome.status = status;
                 outcome.reason_code = reason_code;
-                outcome.success = !matches!(status, MonitorStatus::Down | MonitorStatus::Error);
+                outcome.success = !matches!(status, MonitorStatus::Failed);
                 outcome
             }
             Err(err) => {
@@ -198,7 +198,7 @@ impl MonitorProbe {
     ) -> ProbeOutcome {
         let mut outcome =
             ProbeOutcome::failure(latency, None, reason_code);
-        outcome.status = MonitorStatus::Error;
+        outcome.status = MonitorStatus::Failed;
         outcome
     }
 

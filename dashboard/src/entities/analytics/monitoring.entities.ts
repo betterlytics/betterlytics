@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const MonitorStatusSchema = z.enum(['ok', 'warn', 'down', 'error']);
+export const MonitorStatusSchema = z.enum(['ok', 'warn', 'failed']);
+export const IncidentStateSchema = z.enum(['ongoing', 'resolved']);
 
 /**
  * Operational state represents the current state of a monitor from a user's perspective.
@@ -137,7 +138,7 @@ export const MonitorTlsResultSchema = z.object({
 });
 
 export const MonitorIncidentSegmentSchema = z.object({
-  status: MonitorStatusSchema,
+  state: IncidentStateSchema,
   reason: z.string().nullable(),
   start: z.string(),
   end: z.string().nullable(),
@@ -150,6 +151,7 @@ export const MonitorDailyUptimeSchema = z.object({
 });
 
 export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
+export type IncidentState = z.infer<typeof IncidentStateSchema>;
 export type MonitorOperationalState = z.infer<typeof MonitorOperationalStateSchema>;
 
 export type HttpMethod = z.infer<typeof HttpMethodSchema>;

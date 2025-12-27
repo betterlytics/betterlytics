@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_results
     check_id      String,
     site_id       String,
     kind          LowCardinality(String),
-    status        Enum8('ok' = 1, 'warn' = 2, 'down' = 3, 'error' = 4),
+    status        Enum8('ok' = 1, 'warn' = 2, 'failed' = 3),
     reason_code   LowCardinality(String),      -- e.g. ok, http_4xx, http_5xx, timeout, network_error, tls_error
     latency_ms    Nullable(Float64),
     status_code   Nullable(UInt16),          -- HTTP/HTTPS only
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
     site_id       String,
 
     state Enum8(
-        'open'      = 1,
+        'ongoing'   = 1,
         'resolved'  = 2
     ),
 
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
 
     failure_count UInt16,
 
-    last_status   Enum8('ok' = 1, 'warn' = 2, 'down' = 3, 'error' = 4),
+    last_status   Enum8('ok' = 1, 'warn' = 2, 'failed' = 3),
     status_code   Nullable(UInt16),
 
     notified_down_at     Nullable(DateTime64(3)),

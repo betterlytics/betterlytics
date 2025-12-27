@@ -141,7 +141,7 @@ export async function getMonitorIncidentSegments(
 ): Promise<MonitorIncidentSegment[]> {
   const query = safeSql`
     SELECT
-      last_status,
+      state,
       reason_code,
       started_at,
       resolved_at,
@@ -162,7 +162,7 @@ export async function getMonitorIncidentSegments(
 
   return rows.map((row) =>
     MonitorIncidentSegmentSchema.parse({
-      status: row.last_status,
+      state: row.state,
       reason: row.reason_code,
       start: toIsoUtc(row.started_at) ?? row.started_at,
       end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
@@ -182,7 +182,7 @@ export async function getOpenIncidentsForMonitors(checkIds: string[], siteId: st
     FROM analytics.monitor_incidents FINAL
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
-      AND state = 'open'
+      AND state = 'ongoing'
   `;
 
   const rows = (await clickhouse

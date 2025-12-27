@@ -122,7 +122,7 @@ impl IncidentEvaluator {
         state.last_status = Some(status);
 
         // Check if we already have an open incident (e.g., warmed from database after restart)
-        let already_open = matches!(state.state, IncidentState::Open) && state.incident_id.is_some();
+        let already_open = matches!(state.state, IncidentState::Ongoing) && state.incident_id.is_some();
 
         debug!(
             check_id = check_id,
@@ -145,7 +145,7 @@ impl IncidentEvaluator {
             return None;
         }
 
-        let was_open = matches!(state.state, IncidentState::Open);
+        let was_open = matches!(state.state, IncidentState::Ongoing);
         let was_resolved = matches!(state.state, IncidentState::Resolved);
 
         // Start a new incident if there was no previous one OR the prior one
@@ -158,7 +158,7 @@ impl IncidentEvaluator {
             state.failure_count = 0;
         }
 
-        state.state = IncidentState::Open;
+        state.state = IncidentState::Ongoing;
         state.is_down = true;
         state.down_since.get_or_insert(now);
         state.started_at.get_or_insert(now);
@@ -198,7 +198,7 @@ impl IncidentEvaluator {
 
         state.last_status = Some(status);
 
-        let has_open_incident = matches!(state.state, IncidentState::Open) && state.is_down;
+        let has_open_incident = matches!(state.state, IncidentState::Ongoing) && state.is_down;
 
         if !has_open_incident {
             // Only track consecutive successes when we have an open incident
@@ -292,7 +292,7 @@ impl IncidentEvaluator {
             state.resolved_at = seed.resolved_at;
             state.failure_count = seed.failure_count;
             state.last_status = seed.last_status;
-            state.is_down = matches!(seed.state, IncidentState::Open);
+            state.is_down = matches!(seed.state, IncidentState::Ongoing);
             state.down_since = Some(seed.started_at);
             state.consecutive_failures = seed.failure_count;
             state.consecutive_successes = 0;

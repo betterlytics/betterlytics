@@ -1140,14 +1140,11 @@
     "checkStatus": {
       "ok": "OK",
       "warn": "Advarsel",
-      "down": "Nede",
-      "error": "Fejl"
+      "failed": "Mislykket"
     },
     "incidentStatus": {
-      "ok": "Løst",
-      "warn": "Advarsel",
-      "down": "Igangværende",
-      "error": "Igangværende"
+      "ongoing": "Igangværende",
+      "resolved": "Løst"
     },
     "latency": {
       "paused": "Sat på pause",

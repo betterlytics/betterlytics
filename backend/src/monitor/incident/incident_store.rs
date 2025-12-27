@@ -131,8 +131,7 @@ impl From<IncidentSeedRow> for IncidentSeed {
         let last_status = row.last_status.and_then(|v| match v {
             1 => Some(MonitorStatus::Ok),
             2 => Some(MonitorStatus::Warn),
-            3 => Some(MonitorStatus::Down),
-            4 => Some(MonitorStatus::Error),
+            3 => Some(MonitorStatus::Failed),
             _ => None,
         });
 

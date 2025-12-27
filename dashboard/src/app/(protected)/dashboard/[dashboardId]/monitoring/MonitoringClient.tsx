@@ -113,7 +113,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
             status: monitor.tls?.status,
             daysLeft: computeDaysUntil(monitor.tls?.tlsNotAfter),
           });
-          return sslStatus.category === 'warn' || sslStatus.category === 'down' || sslStatus.category === 'error';
+          return sslStatus.category === 'warn' || sslStatus.category === 'failed';
         }
 
         // All other filters use operationalState directly

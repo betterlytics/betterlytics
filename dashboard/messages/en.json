@@ -1137,14 +1137,11 @@
     "checkStatus": {
       "ok": "OK",
       "warn": "Warning",
-      "down": "Down",
-      "error": "Error"
+      "failed": "Failed"
     },
     "incidentStatus": {
-      "ok": "Resolved",
-      "warn": "Warning",
-      "down": "Ongoing",
-      "error": "Ongoing"
+      "ongoing": "Ongoing",
+      "resolved": "Resolved"
     },
     "latency": {
       "paused": "Paused",

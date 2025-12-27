@@ -178,8 +178,7 @@ function calculateUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
 const SSL_BADGE_KEYS = {
   ok: 'badgeValid',
   warn: 'badgeExpiringSoon',
-  down: 'badgeExpired',
-  error: 'badgeError',
+  failed: 'badgeError',
   unknown: 'badgeNotChecked',
 } as const;
 

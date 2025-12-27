@@ -208,8 +208,7 @@ pub struct MonitorCheck {
 pub enum MonitorStatus {
     Ok = 1,
     Warn = 2,
-    Down = 3,
-    Error = 4,
+    Failed = 3,
 }
 
 /// Reason for monitor backoff state.
@@ -288,7 +287,7 @@ impl ProbeOutcome {
     ) -> Self {
         Self {
             success: false,
-            status: MonitorStatus::Down,
+            status: MonitorStatus::Failed,
             status_code,
             latency,
             reason_code,

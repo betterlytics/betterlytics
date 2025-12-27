@@ -138,7 +138,7 @@ impl IncidentOrchestrator {
     )]
     pub async fn process_probe_outcome(&self, ctx: &IncidentContext) {
         match ctx.status {
-            MonitorStatus::Down | MonitorStatus::Error => self.handle_failure(ctx).await,
+            MonitorStatus::Failed => self.handle_failure(ctx).await,
             MonitorStatus::Ok => self.handle_success(ctx).await,
             MonitorStatus::Warn => {} // TODO: Handle Warn for slow responses or other warnings
         }

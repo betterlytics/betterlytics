@@ -7,7 +7,7 @@ use crate::monitor::{MonitorStatus, ReasonCode};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
 #[repr(i8)]
 pub enum IncidentState {
-    Open = 1,
+    Ongoing = 1,
     Resolved = 2,
 }
 

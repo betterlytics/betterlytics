@@ -14,6 +14,7 @@ import { formatCompactFromMilliseconds, formatDuration } from '@/utils/dateForma
 import {
   MONITOR_TONE,
   presentCheckStatus,
+  presentIncidentState,
   presentUptimeTone,
   type CheckStatusPresentation,
   type MonitorTone,
@@ -60,10 +61,7 @@ export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment
             </TableHeader>
             <TableBody>
               {incidents.map((segment) => (
-                <IncidentRow
-                  key={`${segment.start}-${segment.status}-${segment.reason ?? ''}`}
-                  segment={segment}
-                />
+                <IncidentRow key={`${segment.start}-${segment.state}-${segment.reason ?? ''}`} segment={segment} />
               ))}
             </TableBody>
           </Table>
@@ -141,7 +139,7 @@ export function RecentChecksCard({
 
 export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: PresentedMonitorUptime }) {
   const t = useTranslations('monitoringDetailPage');
-  const labels = useTranslations('monitoring.labels');
+  const tLabels = useTranslations('monitoring.labels');
   const locale = useLocale();
 
   const totalDays = uptime?.totalDays ?? 180;
@@ -162,7 +160,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
         value: formatPercentage(upRatio * 100, 2, { trimHundred: true }),
       });
     }
-    return labels('noData');
+    return tLabels('noData');
   };
 
   return (
@@ -220,18 +218,18 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
 }
 
 function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
-  const tCheckStatus = useTranslations('monitoring.incidentStatus');
+  const t = useTranslations('monitoring.incidentStatus');
   const tReason = useTranslations('monitor.reason');
   const start = new Date(segment.start);
   const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000)) : '—';
-  const presentation = presentCheckStatus(segment.status);
-  const label = tCheckStatus(presentation.labelKey);
+  const presentation = presentIncidentState(segment.state);
+  const label = t(presentation.labelKey);
   const reasonKey = getReasonTranslationKey(segment.reason);
   return (
     <TableRow className='text-sm'>
       <TableCell>
         <div className='flex items-center gap-2'>
-          <CheckStatusDot presentation={presentation} label={label} />
+          <span className={`inline-block h-2.5 w-2.5 rounded-full ${presentation.theme.dot}`} aria-label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </div>
       </TableCell>
@@ -245,11 +243,11 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
 }
 
 function CheckRow({ check }: { check: MonitorResult }) {
-  const tCheckStatus = useTranslations('monitoring.checkStatus');
+  const t = useTranslations('monitoring.checkStatus');
   const tReason = useTranslations('monitor.reason');
   const timestamp = new Date(check.ts);
   const presentation = presentCheckStatus(check.status);
-  const label = tCheckStatus(presentation.labelKey);
+  const label = t(presentation.labelKey);
   const reasonKey = getReasonTranslationKey(check.reasonCode);
   return (
     <TableRow className='text-sm'>

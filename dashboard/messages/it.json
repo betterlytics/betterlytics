@@ -1140,14 +1140,11 @@
     "checkStatus": {
       "ok": "OK",
       "warn": "Avviso",
-      "down": "Offline",
-      "error": "Errore"
+      "failed": "Fallito"
     },
     "incidentStatus": {
-      "ok": "Risolto",
-      "warn": "Avviso",
-      "down": "In corso",
-      "error": "In corso"
+      "ongoing": "In corso",
+      "resolved": "Risolto"
     },
     "latency": {
       "paused": "In pausa",

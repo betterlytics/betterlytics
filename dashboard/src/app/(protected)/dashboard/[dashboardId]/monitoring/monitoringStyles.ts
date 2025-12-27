@@ -1,5 +1,9 @@
 import { LiveIndicatorColor } from '@/components/live-indicator';
-import { type MonitorOperationalState, type MonitorStatus } from '@/entities/analytics/monitoring.entities';
+import {
+  type IncidentState,
+  type MonitorOperationalState,
+  type MonitorStatus,
+} from '@/entities/analytics/monitoring.entities';
 import { LucideIcon, ShieldAlert, ShieldX, ShieldCheck, Shield } from 'lucide-react';
 
 export type MonitorTone = 'ok' | 'warn' | 'down' | 'neutral';
@@ -76,17 +80,12 @@ const OPERATIONAL_STATE_TO_TONE: Record<MonitorOperationalState, MonitorTone> = 
 const STATUS_TO_TONE: Record<MonitorStatusCategory, MonitorTone> = {
   ok: 'ok',
   warn: 'warn',
-  down: 'down',
-  error: 'down',
+  failed: 'down',
   unknown: 'neutral',
 };
 
 export function operationalStateToTone(state: MonitorOperationalState): MonitorTone {
   return OPERATIONAL_STATE_TO_TONE[state];
-}
-
-export function statusCategoryToTone(category: MonitorStatusCategory): MonitorTone {
-  return STATUS_TO_TONE[category];
 }
 
 // Monitor Status Presentation
@@ -124,7 +123,7 @@ export function presentMonitorStatus(operationalState: MonitorOperationalState):
   };
 }
 
-// Check Status Presentation (for historical data)
+// Check Status Presentation
 export type CheckStatusPresentation = {
   tone: MonitorTone;
   theme: MonitorToneTheme;
@@ -134,6 +133,18 @@ export type CheckStatusPresentation = {
 export function presentCheckStatus(status: MonitorStatus): CheckStatusPresentation {
   const tone = STATUS_TO_TONE[status];
   return { tone, theme: MONITOR_TONE[tone], labelKey: status };
+}
+
+// Incident State Presentation
+export type IncidentStatePresentation = {
+  tone: MonitorTone;
+  theme: MonitorToneTheme;
+  labelKey: IncidentState;
+};
+
+export function presentIncidentState(state: IncidentState): IncidentStatePresentation {
+  const tone = state === 'ongoing' ? 'down' : 'ok';
+  return { tone, theme: MONITOR_TONE[tone], labelKey: state };
 }
 
 // Latency Presentation
@@ -150,12 +161,24 @@ export type LatencyPresentation = {
   badgeClass: string;
 };
 
-const LATENCY_LABELS: Record<MonitorTone, { label: string; key: LatencyLabelKey }> = {
-  neutral: { label: 'No data yet', key: 'noData' },
-  ok: { label: 'Fast', key: 'fast' },
-  warn: { label: 'Elevated', key: 'elevated' },
-  down: { label: 'Slow', key: 'slow' },
+const LATENCY_CLASSIFICATION: Record<LatencyLabelKey, { tone: MonitorTone; label: string }> = {
+  paused: { tone: 'neutral', label: 'Paused' },
+  noData: { tone: 'neutral', label: 'No data yet' },
+  fast: { tone: 'ok', label: 'Fast' },
+  elevated: { tone: 'warn', label: 'Elevated' },
+  slow: { tone: 'down', label: 'Slow' },
 };
+
+function resolveLatencyKey(
+  avgMs: number | null | undefined,
+  operationalState: MonitorOperationalState,
+): LatencyLabelKey {
+  if (operationalState === 'paused') return 'paused';
+  if (operationalState === 'preparing' || avgMs == null) return 'noData';
+  if (avgMs <= LATENCY_THRESHOLDS_MS.fast) return 'fast';
+  if (avgMs <= LATENCY_THRESHOLDS_MS.elevated) return 'elevated';
+  return 'slow';
+}
 
 export function presentLatencyStatus({
   avgMs,
@@ -164,27 +187,10 @@ export function presentLatencyStatus({
   avgMs: number | null | undefined;
   operationalState: MonitorOperationalState;
 }): LatencyPresentation {
-  if (operationalState === 'paused' || operationalState === 'preparing') {
-    const theme = MONITOR_TONE.neutral;
-    const isPaused = operationalState === 'paused';
-    return {
-      tone: 'neutral',
-      theme,
-      label: isPaused ? 'Paused' : 'No data yet',
-      labelKey: isPaused ? 'paused' : 'noData',
-      indicator: theme.indicator,
-      badgeClass: badgeClass(theme),
-    };
-  }
-
-  let tone: MonitorTone = 'neutral';
-  if (avgMs != null) {
-    tone = avgMs <= LATENCY_THRESHOLDS_MS.fast ? 'ok' : avgMs <= LATENCY_THRESHOLDS_MS.elevated ? 'warn' : 'down';
-  }
-
+  const labelKey = resolveLatencyKey(avgMs, operationalState);
+  const { tone, label } = LATENCY_CLASSIFICATION[labelKey];
   const theme = MONITOR_TONE[tone];
-  const { label, key } = LATENCY_LABELS[tone];
-  return { tone, theme, label, labelKey: key, indicator: theme.indicator, badgeClass: badgeClass(theme) };
+  return { tone, theme, label, labelKey, indicator: theme.indicator, badgeClass: badgeClass(theme) };
 }
 
 // Uptime Presentation
@@ -207,12 +213,9 @@ export type SslPresentation = {
   category: MonitorStatusCategory;
   tone: MonitorTone;
   theme: MonitorToneTheme;
-  label: string;
   labelKey: SslLabelKey;
   badgeClass: string;
-  badgeLabelFull: string;
   badgeLabelKey: SslBadgeLabelKey;
-  badgeLabelShort: string;
   badgeLabelShortKey: SslLabelKey;
   icon: LucideIcon;
 };
@@ -220,60 +223,37 @@ export type SslPresentation = {
 const SSL_PRESENTATION: Record<
   MonitorStatusCategory,
   {
-    label: string;
     labelKey: SslLabelKey;
-    badgeLabelFull: string;
     badgeLabelKey: SslBadgeLabelKey;
-    badgeLabelShort: string;
     icon: LucideIcon;
   }
 > = {
   ok: {
-    label: 'Valid',
     labelKey: 'valid',
-    badgeLabelFull: 'Certificate valid',
     badgeLabelKey: 'badgeValid',
-    badgeLabelShort: 'Valid',
     icon: ShieldCheck,
   },
   warn: {
-    label: 'Expiring soon',
     labelKey: 'expiringSoon',
-    badgeLabelFull: 'Certificate expiring soon',
     badgeLabelKey: 'badgeExpiringSoon',
-    badgeLabelShort: 'Expiring soon',
     icon: ShieldAlert,
   },
-  down: {
-    label: 'Expired',
-    labelKey: 'expired',
-    badgeLabelFull: 'Certificate expired',
-    badgeLabelKey: 'badgeExpired',
-    badgeLabelShort: 'Expired',
+  failed: {
+    labelKey: 'error',
+    badgeLabelKey: 'badgeError',
     icon: ShieldX,
   },
-  error: {
-    label: 'Error',
-    labelKey: 'error',
-    badgeLabelFull: 'Certificate error',
-    badgeLabelKey: 'badgeError',
-    badgeLabelShort: 'Error',
-    icon: Shield,
-  },
   unknown: {
-    label: 'Not checked',
     labelKey: 'notChecked',
-    badgeLabelFull: 'Certificate not checked',
     badgeLabelKey: 'badgeNotChecked',
-    badgeLabelShort: 'Not checked',
     icon: Shield,
   },
 };
 
 function resolveSslCategory(status?: MonitorStatus | null, daysLeft?: number | null): MonitorStatusCategory {
-  if (status === 'error') return 'error';
-  if (daysLeft != null) return daysLeft <= 0 ? 'down' : daysLeft <= 30 ? 'warn' : 'ok';
-  if (status === 'ok' || status === 'warn' || status === 'down') return status;
+  if (status === 'failed') return 'failed';
+  if (daysLeft != null) return daysLeft <= 0 ? 'failed' : daysLeft <= 30 ? 'warn' : 'ok';
+  if (status === 'ok' || status === 'warn') return status;
   return 'unknown';
 }
 
@@ -293,12 +273,9 @@ export function presentSslStatus({
     category,
     tone,
     theme,
-    label: data.label,
     labelKey: data.labelKey,
     badgeClass: badgeClass(theme),
-    badgeLabelFull: data.badgeLabelFull,
     badgeLabelKey: data.badgeLabelKey,
-    badgeLabelShort: data.badgeLabelShort,
     badgeLabelShortKey: data.labelKey,
     icon: data.icon,
   };
