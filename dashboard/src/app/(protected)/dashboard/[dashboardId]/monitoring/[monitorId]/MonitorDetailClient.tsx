@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type ReactNode } from 'react';
+import { useState, useCallback, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, PauseCircle, Pencil, PlayCircle } from 'lucide-react';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
@@ -101,11 +101,16 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
 
   const operationalState = metricsQuery.data?.operationalState ?? 'preparing';
 
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
   const { statusMutation, renameMutation } = useMonitorMutations(dashboardId, monitorId);
 
   const handleRename = (name: string | null) => {
     renameMutation.mutate({ monitorId, name });
   };
+
+  const handleEnableSslClick = useCallback(() => {
+    setEditSheetOpen(true);
+  }, []);
 
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
@@ -146,6 +151,8 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
             <EditMonitorSheet
               dashboardId={dashboardId}
               monitor={monitorData}
+              open={editSheetOpen}
+              onOpenChange={setEditSheetOpen}
               trigger={
                 <Button size='sm' variant='outline' className='inline-flex cursor-pointer items-center gap-1.5'>
                   <Pencil className='h-4 w-4' aria-hidden />
@@ -162,6 +169,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
         metrics={metricsQuery.data}
         tls={tlsQuery.data}
         operationalState={operationalState}
+        onEnableSslClick={handleEnableSslClick}
       />
 
       <ResponseTimeCard metrics={metricsQuery.data} />

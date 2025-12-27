@@ -1375,7 +1375,7 @@
         "expires": "Exp. {date}",
         "httpSite": "Not Applicable",
         "httpSiteDescription": "This site uses HTTP",
-        "disabledDescription": "SSL monitoring is disabled",
+        "disabledDescription": "SSL monitoring disabled",
         "enableInSettings": "Enable in settings"
       }
     },

@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { formatDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
 import {
@@ -26,7 +27,7 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from '../components/PillBar';
 import { useLocale, useTranslations } from 'next-intl';
-import { AlertCircle, LockOpen, LucideIcon, ShieldOff } from 'lucide-react';
+import { AlertCircle, ArrowRight, LockOpen, Shield } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatIntervalLabel } from '../utils';
 import { isHttpUrl } from '../utils';
@@ -50,9 +51,16 @@ type MonitorSummarySectionProps = {
   >;
   tls?: MonitorTlsResult | null;
   operationalState: MonitorOperationalState;
+  onEnableSslClick?: () => void;
 };
 
-export function MonitorSummarySection({ monitor, metrics, tls, operationalState }: MonitorSummarySectionProps) {
+export function MonitorSummarySection({
+  monitor,
+  metrics,
+  tls,
+  operationalState,
+  onEnableSslClick,
+}: MonitorSummarySectionProps) {
   const latencyAvg = metrics?.latency?.avgMs ?? null;
 
   return (
@@ -70,7 +78,12 @@ export function MonitorSummarySection({ monitor, metrics, tls, operationalState 
         buckets={metrics?.uptimeBuckets}
       />
       <ResponseTimeCard avg={latencyAvg} operationalState={operationalState} />
-      <SslCard tls={tls} isDisabled={!monitor.checkSslErrors} isHttpSite={isHttpUrl(monitor.url)} />
+      <SslCard
+        tls={tls}
+        isDisabled={!monitor.checkSslErrors}
+        isHttpSite={isHttpUrl(monitor.url)}
+        onEnableClick={onEnableSslClick}
+      />
     </div>
   );
 }
@@ -264,36 +277,31 @@ type SslCardProps = {
   tls: MonitorTlsResult | null | undefined;
   isDisabled: boolean;
   isHttpSite: boolean;
+  onEnableClick?: () => void;
 };
 
-function SslCard({ tls, isDisabled, isHttpSite }: SslCardProps) {
+function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
   const t = useTranslations('monitoringDetailPage.summary.ssl');
   const tSsl = useTranslations('monitoring.ssl');
   const locale = useLocale();
 
-  const renderStatusCard = (badgeText: string, Icon: LucideIcon, description: string, iconClass = '') => (
-    <SummaryCard
-      title={t('title')}
-      headerRight={
-        <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
-          {badgeText}
-        </Badge>
-      }
-      bodyClassName='mt-3 flex flex-1 items-center justify-center'
-    >
-      <div className='flex flex-col items-center gap-2 py-2 text-center'>
-        <Icon className={`text-muted-foreground ${iconClass}`} aria-hidden />
-        <p className='text-foreground text-sm font-medium'>{description}</p>
-      </div>
-    </SummaryCard>
-  );
-
   if (isHttpSite) {
-    return renderStatusCard(t('notApplicable'), LockOpen, t('httpSiteDescription'), 'h-7 w-7 opacity-50');
-  }
-
-  if (isDisabled) {
-    return renderStatusCard(t('disabled'), ShieldOff, t('disabledDescription'));
+    return (
+      <SummaryCard
+        title={t('title')}
+        headerRight={
+          <Badge variant='outline' className='border-muted-foreground/40 text-muted-foreground text-xs'>
+            {t('notApplicable')}
+          </Badge>
+        }
+        bodyClassName='mt-3 flex flex-1 items-center justify-center'
+      >
+        <div className='flex flex-col items-center gap-2 py-2 text-center'>
+          <LockOpen className='text-muted-foreground h-7 w-7 opacity-50' aria-hidden />
+          <p className='text-foreground text-sm font-medium'>{t('httpSiteDescription')}</p>
+        </div>
+      </SummaryCard>
+    );
   }
 
   const expiry = tls?.tlsNotAfter ? new Date(tls.tlsNotAfter) : null;
@@ -307,26 +315,50 @@ function SslCard({ tls, isDisabled, isHttpSite }: SslCardProps) {
     <SummaryCard
       title={t('title')}
       headerRight={
-        <Badge variant='outline' className={cn('text-xs', presentation.badgeClass)}>
-          {badgeLabel}
+        <Badge
+          variant='outline'
+          className={cn(
+            'text-xs',
+            isDisabled ? 'border-muted-foreground/40 text-muted-foreground' : presentation.badgeClass,
+          )}
+        >
+          {isDisabled ? t('disabled') : badgeLabel}
         </Badge>
       }
-      bodyClassName='mt-3 flex flex-row items-start gap-2 sm:gap-2'
+      className='relative overflow-hidden'
+      bodyClassName='mt-3 flex flex-1 flex-row items-start gap-2 sm:gap-2'
     >
       <presentation.icon className={cn('mt-0.5 h-6 w-6 sm:h-8 sm:w-8', presentation.theme.text)} aria-hidden />
       <div className='flex flex-row items-start gap-2 sm:gap-3'>
         <p className='text-foreground text-3xl leading-tight font-semibold tracking-tight'>
           {timeLeftLabel.value}
         </p>
-        <div className='flex flex-col gap-0.5 text-xs leading-tight sm:text-sm'>
-          <p className='text-foreground font-semibold capitalize'>
-            {timeLeftLabel.unit
-              ? t('timeLeftWithUnit', { unit: timeLeftLabel.unit.toLowerCase() })
-              : t('timeLeft')}
-          </p>
-          <p className='text-muted-foreground font-medium'>{t('expires', { date: expiresLabel })}</p>
-        </div>
+        {!isDisabled && (
+          <div className='flex flex-col gap-0.5 text-xs leading-tight sm:text-sm'>
+            <p className='text-foreground font-semibold capitalize'>
+              {timeLeftLabel.unit
+                ? t('timeLeftWithUnit', { unit: timeLeftLabel.unit.toLowerCase() })
+                : t('timeLeft')}
+            </p>
+            <p className='text-muted-foreground font-medium'>{t('expires', { date: expiresLabel })}</p>
+          </div>
+        )}
       </div>
+
+      {isDisabled && (
+        <div className='bg-card/60 absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 backdrop-blur-[2px]'>
+          <div className='bg-muted rounded-full p-0'>
+            <Shield className='text-muted-foreground h-5 w-5' aria-hidden />
+          </div>
+          <p className='text-foreground text-sm font-medium'>{t('disabledDescription')}</p>
+          {onEnableClick && (
+            <Button variant='link' size='sm' onClick={onEnableClick} className='h-auto p-0 text-xs'>
+              {t('enableInSettings')}
+              <ArrowRight className='h-3 w-3' aria-hidden />
+            </Button>
+          )}
+        </div>
+      )}
     </SummaryCard>
   );
 }

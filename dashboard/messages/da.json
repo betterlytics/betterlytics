@@ -1378,7 +1378,7 @@
         "expires": "Udløber {date}",
         "httpSite": "Ikke relevant",
         "httpSiteDescription": "Denne side bruger HTTP",
-        "disabledDescription": "SSL-overvågning er deaktiveret",
+        "disabledDescription": "SSL-overvågning deaktiveret",
         "enableInSettings": "Aktivér i indstillinger"
       }
     },

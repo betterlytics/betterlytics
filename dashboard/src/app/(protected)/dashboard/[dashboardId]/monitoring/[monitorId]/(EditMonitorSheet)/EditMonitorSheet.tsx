@@ -28,10 +28,21 @@ type EditMonitorSheetProps = {
   dashboardId: string;
   monitor: MonitorCheck;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export function EditMonitorSheet({ dashboardId, monitor, trigger }: EditMonitorSheetProps) {
-  const [open, setOpen] = useState(false);
+export function EditMonitorSheet({
+  dashboardId,
+  monitor,
+  trigger,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: EditMonitorSheetProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? (controlledOnOpenChange ?? (() => {})) : setInternalOpen;
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
