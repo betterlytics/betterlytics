@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import { Clock, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Separator } from '@/components/ui/separator';
@@ -30,6 +31,19 @@ export type TimingSectionProps = {
 
 export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen = true }: TimingSectionProps) {
   const tTiming = useTranslations('monitoringPage.form.timing');
+  const { state, setField } = form;
+
+  const intervalIdx = nearestIndex(MONITOR_INTERVAL_MARKS, state.intervalSeconds);
+  const timeoutIdx = nearestIndex(REQUEST_TIMEOUT_MARKS, state.timeoutMs);
+
+  const handleIntervalChange = useCallback(
+    (idx: number) => setField('intervalSeconds')(MONITOR_INTERVAL_MARKS[idx]),
+    [setField],
+  );
+  const handleTimeoutChange = useCallback(
+    (idx: number) => setField('timeoutMs')(REQUEST_TIMEOUT_MARKS[idx]),
+    [setField],
+  );
 
   return (
     <Collapsible
@@ -48,14 +62,14 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
           <LabeledSlider
             label={tTiming('interval.label')}
             description={tTiming('interval.description', {
-              value: formatCompactDuration(form.intervalSeconds),
+              value: formatCompactDuration(state.intervalSeconds),
             })}
-            value={form.state.intervalIdx}
+            value={intervalIdx}
             min={0}
             max={MONITOR_INTERVAL_MARKS.length - 1}
             marks={INTERVAL_DISPLAY_MARKS}
-            onValueChange={form.setField('intervalIdx')}
-            formatValue={() => formatCompactDuration(form.intervalSeconds)}
+            onValueChange={handleIntervalChange}
+            formatValue={() => formatCompactDuration(state.intervalSeconds)}
             recommendedValue={nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS)}
             disabled={isPending}
           />
@@ -65,12 +79,12 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
           <LabeledSlider
             label={tTiming('timeout.label')}
             description={tTiming('timeout.description')}
-            value={form.state.timeoutIdx}
+            value={timeoutIdx}
             min={0}
             max={REQUEST_TIMEOUT_MARKS.length - 1}
             marks={TIMEOUT_DISPLAY_MARKS}
-            onValueChange={form.setField('timeoutIdx')}
-            formatValue={() => formatCompactDuration(form.timeoutMs / 1000)}
+            onValueChange={handleTimeoutChange}
+            formatValue={() => formatCompactDuration(state.timeoutMs / 1000)}
             recommendedValue={nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS)}
             disabled={isPending}
           />
@@ -80,11 +94,11 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
           <LabeledSlider
             label={tTiming('sensitivity.label')}
             description={tTiming('sensitivity.description')}
-            value={form.state.alerts.failureThreshold}
+            value={state.failureThreshold}
             min={1}
             max={10}
             marks={SENSITIVITY_DISPLAY_MARKS}
-            onValueChange={(val) => form.updateAlert('failureThreshold', val)}
+            onValueChange={setField('failureThreshold')}
             formatValue={(v) =>
               v === 1 ? tTiming('sensitivity.valueOne') : tTiming('sensitivity.valueOther', { count: v })
             }

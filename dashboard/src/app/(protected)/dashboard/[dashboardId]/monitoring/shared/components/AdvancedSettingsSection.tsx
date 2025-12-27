@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { ChevronDown, Plus, Settings, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,17 @@ export function AdvancedSettingsSection({
   defaultOpen = false,
 }: AdvancedSettingsSectionProps) {
   const t = useTranslations('monitoringEditDialog');
+  const [statusCodeInput, setStatusCodeInput] = useState('');
+
+  const handleStatusCodeInputChange = useCallback((value: string) => {
+    setStatusCodeInput(value.replace(/[^0-9xX]/g, '').toLowerCase());
+  }, []);
+
+  const handleAddStatusCode = useCallback(() => {
+    if (form.handleStatusCodeAdd(statusCodeInput)) {
+      setStatusCodeInput('');
+    }
+  }, [form, statusCodeInput]);
 
   return (
     <Collapsible
@@ -91,32 +103,31 @@ export function AdvancedSettingsSection({
               <p className='text-muted-foreground mt-0.5 text-xs'>{t('advanced.requestHeaders.description')}</p>
             </div>
             <div className='space-y-2'>
-              {form.state.requestHeaders.map((header, index) => {
+              {(form.state.requestHeaders ?? []).map((header, index) => {
                 const isEmptyRow = header.key === '' && header.value === '';
-                const isLastRow = index === form.state.requestHeaders.length - 1;
+                const isLastRow = index === (form.state.requestHeaders ?? []).length - 1;
                 const showDeleteButton = !isEmptyRow || !isLastRow;
 
                 return (
                   <div key={index} className='flex items-center gap-2'>
-                    <div className='border-input flex flex-1 overflow-hidden rounded-md border'>
-                      <Input
-                        placeholder={t('advanced.requestHeaders.namePlaceholder')}
-                        value={header.key}
-                        onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
-                        disabled={isPending}
-                        maxLength={MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX}
-                        className='h-9 flex-1 rounded-none border-0 text-sm focus-visible:z-10 focus-visible:ring-1'
-                      />
-                      <div className='bg-border w-px' />
-                      <Input
-                        placeholder={t('advanced.requestHeaders.valuePlaceholder')}
-                        value={header.value}
-                        onChange={(e) => form.updateRequestHeader(index, 'value', e.target.value)}
-                        disabled={isPending}
-                        maxLength={MONITOR_LIMITS.REQUEST_HEADER_VALUE_MAX}
-                        className='h-9 flex-1 rounded-none border-0 text-sm focus-visible:ring-1'
-                      />
-                    </div>
+                    <Input
+                      type='text'
+                      placeholder={t('advanced.requestHeaders.namePlaceholder')}
+                      value={header.key}
+                      onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
+                      maxLength={MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX}
+                      disabled={isPending}
+                      className='h-9 flex-1 text-sm'
+                    />
+                    <Input
+                      type='text'
+                      placeholder={t('advanced.requestHeaders.valuePlaceholder')}
+                      value={header.value}
+                      onChange={(e) => form.updateRequestHeader(index, 'value', e.target.value)}
+                      maxLength={MONITOR_LIMITS.REQUEST_HEADER_VALUE_MAX}
+                      disabled={isPending}
+                      className='h-9 flex-1 text-sm'
+                    />
                     <Button
                       type='button'
                       variant='ghost'
@@ -167,12 +178,12 @@ export function AdvancedSettingsSection({
                 <Input
                   type='text'
                   placeholder='2xx'
-                  value={form.state.statusCodeInput}
-                  onChange={(e) => form.handleStatusCodeInputChange(e.target.value)}
+                  value={statusCodeInput}
+                  onChange={(e) => handleStatusCodeInputChange(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      form.addStatusCode();
+                      handleAddStatusCode();
                     }
                   }}
                   maxLength={3}
@@ -183,8 +194,8 @@ export function AdvancedSettingsSection({
                   type='button'
                   variant='ghost'
                   size='icon'
-                  onClick={form.addStatusCode}
-                  disabled={isPending || !form.state.statusCodeInput.trim()}
+                  onClick={handleAddStatusCode}
+                  disabled={isPending || !statusCodeInput.trim()}
                   className='h-7 w-7 cursor-pointer'
                 >
                   <Plus className='h-3.5 w-3.5' />

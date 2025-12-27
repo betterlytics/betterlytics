@@ -32,7 +32,7 @@ export function AlertsSection({
   defaultOpen = false,
 }: AlertsSectionProps) {
   const t = useTranslations('monitoringEditDialog.alerts');
-  const { alerts } = form.state;
+  const { state, setField } = form;
 
   return (
     <Collapsible
@@ -44,7 +44,7 @@ export function AlertsSection({
       <CollapsibleTrigger className='hover:bg-muted/50 -mx-2 flex w-[calc(100%+1rem)] cursor-pointer items-center justify-between rounded-lg px-2 py-2 transition-colors'>
         <SectionHeader icon={Bell} title={t('title')} />
         <div className='flex items-center gap-2'>
-          {alerts.enabled && (
+          {state.alertsEnabled && (
             <span className='rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400'>
               {t('enabled')}
             </span>
@@ -58,14 +58,13 @@ export function AlertsSection({
           <SettingToggle
             id='alerts-enabled'
             label={t('enableAlerts')}
-            checked={alerts.enabled}
-            onCheckedChange={(v) => form.updateAlert('enabled', v)}
+            checked={state.alertsEnabled}
+            onCheckedChange={setField('alertsEnabled')}
             disabled={isPending}
           />
 
-          {alerts.enabled && (
+          {state.alertsEnabled && (
             <div className='space-y-5 pl-1'>
-              {/* Email Recipients */}
               <div className='space-y-3'>
                 <div>
                   <Label className='text-sm font-medium'>{t('recipients')}</Label>
@@ -73,7 +72,7 @@ export function AlertsSection({
                 </div>
 
                 <EmailTokenInput
-                  emails={alerts.emails}
+                  emails={state.alertEmails}
                   onAddEmail={form.tryAddAlertEmail}
                   onRemoveEmail={form.removeAlertEmail}
                   disabled={isPending}
@@ -87,38 +86,38 @@ export function AlertsSection({
                 <SettingToggle
                   id='alert-on-down'
                   label={t('onDown')}
-                  checked={alerts.onDown}
-                  onCheckedChange={(v) => form.updateAlert('onDown', v)}
+                  checked={state.alertOnDown}
+                  onCheckedChange={setField('alertOnDown')}
                   disabled={isPending}
                 />
 
                 <SettingToggle
                   id='alert-on-recovery'
                   label={t('onRecovery')}
-                  checked={alerts.onRecovery}
-                  onCheckedChange={(v) => form.updateAlert('onRecovery', v)}
+                  checked={state.alertOnRecovery}
+                  onCheckedChange={setField('alertOnRecovery')}
                   disabled={isPending}
                 />
 
                 <SettingToggle
                   id='alert-on-ssl-expiry'
                   label={t('onSslExpiry')}
-                  checked={sslMonitoringEnabled && alerts.onSslExpiry}
-                  onCheckedChange={(v) => form.updateAlert('onSslExpiry', v)}
+                  checked={sslMonitoringEnabled && state.alertOnSslExpiry}
+                  onCheckedChange={setField('alertOnSslExpiry')}
                   disabled={isPending || !sslMonitoringEnabled}
                   disabledTooltip={!sslMonitoringEnabled ? t('sslExpiryDisabledTooltip') : undefined}
                 />
 
-                {sslMonitoringEnabled && alerts.onSslExpiry && (
+                {sslMonitoringEnabled && state.alertOnSslExpiry && (
                   <div className='pt-2'>
                     <LabeledSlider
                       label={t('sslExpiryDays')}
                       description={t('sslExpiryDaysDescription')}
-                      value={alerts.sslExpiryDays}
+                      value={state.sslExpiryAlertDays}
                       min={1}
                       max={90}
                       marks={SSL_EXPIRY_DISPLAY_MARKS}
-                      onValueChange={(val) => form.updateAlert('sslExpiryDays', val)}
+                      onValueChange={setField('sslExpiryAlertDays')}
                       formatValue={(v) => t('daysCount', { count: v })}
                       recommendedValue={RECOMMENDED_SSL_EXPIRY_DAYS}
                       disabled={isPending}

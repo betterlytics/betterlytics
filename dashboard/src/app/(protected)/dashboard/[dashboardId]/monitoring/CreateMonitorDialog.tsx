@@ -43,7 +43,6 @@ function getHostname(url: string): string | null {
 
 export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
   const [url, setUrl] = useState(`https://${domain}`);
   const [expandedSection, setExpandedSection] = useState<Section>('timing');
   const [isPending, startTransition] = useTransition();
@@ -57,7 +56,6 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
   });
 
   const resetForm = () => {
-    setName('');
     setUrl(`https://${domain}`);
     setExpandedSection('timing');
     form.reset();
@@ -67,7 +65,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
     evt.preventDefault();
     startTransition(async () => {
       try {
-        const payload = form.buildCreatePayload(name.trim() || undefined, url.trim());
+        const payload = form.buildCreatePayload(url.trim());
         await createMonitorCheckAction(dashboardId, payload);
         toast.success(t('success'), {
           icon: <CheckCircle2 className='h-4 w-4 text-emerald-500' />,
@@ -83,7 +81,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
     });
   };
 
-  const nameAtLimit = name.length >= MONITOR_LIMITS.NAME_MAX;
+  const nameAtLimit = (form.state.name?.length ?? 0) >= MONITOR_LIMITS.NAME_MAX;
   const urlAtLimit = url.length >= MONITOR_LIMITS.URL_MAX;
 
   const urlEmpty = !url.trim();
@@ -120,8 +118,8 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
             </div>
             <Input
               id='monitor-name'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={form.state.name ?? ''}
+              onChange={(e) => form.setField('name')(e.target.value || undefined)}
               placeholder={t('placeholders.name')}
               disabled={isPending}
               maxLength={MONITOR_LIMITS.NAME_MAX}

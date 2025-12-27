@@ -79,10 +79,7 @@ export function EditMonitorSheet({
   const handleSave = useCallback(() => {
     startTransition(async () => {
       try {
-        await updateMonitorCheckAction(
-          dashboardId,
-          form.buildUpdatePayload(monitor.id, monitor.name ?? null, monitor.isEnabled),
-        );
+        await updateMonitorCheckAction(dashboardId, form.buildUpdatePayload(monitor.id));
         toast.success(t('success'));
         form.markClean();
         setOpen(false);
@@ -92,7 +89,7 @@ export function EditMonitorSheet({
         toast.error(t('error'));
       }
     });
-  }, [dashboardId, monitor.id, monitor.name, monitor.isEnabled, form, t, queryClient]);
+  }, [dashboardId, monitor.id, form, t, queryClient]);
 
   const handleDelete = useCallback(() => {
     deleteMutation.mutate(undefined, {

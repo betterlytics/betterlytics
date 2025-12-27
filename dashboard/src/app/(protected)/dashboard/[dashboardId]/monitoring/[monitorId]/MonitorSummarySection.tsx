@@ -352,7 +352,7 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
           </div>
           <p className='text-foreground text-sm font-medium'>{t('disabledDescription')}</p>
           {onEnableClick && (
-            <Button variant='link' size='sm' onClick={onEnableClick} className='h-auto p-0 text-xs'>
+            <Button variant='link' size='sm' onClick={onEnableClick} className='h-auto cursor-pointer p-0 text-xs'>
               {t('enableInSettings')}
               <ArrowRight className='h-3 w-3' aria-hidden />
             </Button>
