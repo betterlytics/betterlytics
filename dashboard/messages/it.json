@@ -1263,7 +1263,6 @@
         "title": "Tempi e Sensibilità",
         "interval": {
           "label": "Intervallo di monitoraggio",
-          "badge": "Consigliamo 1 minuto per la maggior parte degli endpoint",
           "description": "Il tuo sito verr\u00e0 controllato ogni {value}"
         },
         "timeout": {

@@ -47,7 +47,6 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
         <div className='space-y-6 pt-4'>
           <LabeledSlider
             label={tTiming('interval.label')}
-            badge={tTiming('interval.badge')}
             description={tTiming('interval.description', {
               value: formatCompactDuration(form.intervalSeconds),
             })}

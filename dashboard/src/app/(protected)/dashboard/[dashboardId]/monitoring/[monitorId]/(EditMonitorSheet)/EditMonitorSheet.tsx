@@ -55,9 +55,10 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
   );
 
   const handleConfirmDiscard = useCallback(() => {
+    form.reset();
     setShowConfirmDialog(false);
     setOpen(false);
-  }, []);
+  }, [form]);
 
   const handleSave = useCallback(() => {
     startTransition(async () => {

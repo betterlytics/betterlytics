@@ -2,6 +2,7 @@
 
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
 
 export type SliderMark = { idx: number; label: string };
@@ -9,7 +10,6 @@ export type SliderMark = { idx: number; label: string };
 export type LabeledSliderProps = {
   label: string;
   description?: string;
-  badge?: string;
   value: number;
   min: number;
   max: number;
@@ -24,7 +24,6 @@ export type LabeledSliderProps = {
 export function LabeledSlider({
   label,
   description,
-  badge,
   value,
   min,
   max,
@@ -43,24 +42,13 @@ export function LabeledSlider({
     <div className='space-y-4'>
       <div className='flex items-baseline justify-between'>
         <div className='space-y-0.5'>
-          <div className='flex items-center gap-2'>
-            <Label className='text-sm font-medium'>{label}</Label>
-            {badge && (
-              <span className='rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400'>
-                {badge}
-              </span>
-            )}
-          </div>
+          <Label className='text-sm font-medium'>{label}</Label>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
-        <span className='text-primary rounded bg-blue-500/10 px-2 py-0.5 text-sm dark:text-blue-300'>
+        <Badge variant='secondary' className='ring-border text-xs font-medium ring-1'>
           {formatValue(value)}
-          {isRecommended && (
-            <span className='ml-1.5 text-xs font-medium text-blue-500 dark:text-blue-300'>
-              ({t('recommended')})
-            </span>
-          )}
-        </span>
+          {isRecommended && <span className='text-muted-foreground font-normal'>({t('recommended')})</span>}
+        </Badge>
       </div>
 
       <div className='space-y-3'>

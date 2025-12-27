@@ -1260,7 +1260,6 @@
         "title": "Timing & Sensitivity",
         "interval": {
           "label": "Monitor interval",
-          "badge": "We recommend 1 minute for most endpoints",
           "description": "Your site will be checked every {value}"
         },
         "timeout": {

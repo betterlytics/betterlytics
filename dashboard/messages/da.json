@@ -1263,7 +1263,6 @@
         "title": "Tid og følsomhed",
         "interval": {
           "label": "Overvågningsinterval",
-          "badge": "Vi anbefaler 1 minut for de fleste endpoints",
           "description": "Dit websted tjekkes hver {value}"
         },
         "timeout": {
