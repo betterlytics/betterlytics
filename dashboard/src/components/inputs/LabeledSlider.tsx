@@ -71,6 +71,7 @@ export function LabeledSlider({
           step={step}
           onValueChange={([val]) => onValueChange(val)}
           disabled={disabled}
+          className='cursor-pointer dark:[&_[role=slider]]:bg-white'
         />
         <div className='relative h-4 w-full'>
           {marks.map(({ idx, label: markLabel }) => {

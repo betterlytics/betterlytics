@@ -110,10 +110,9 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
       <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className='space-y-6'>
+        <form onSubmit={onSubmit} className='space-y-6 pt-2'>
           <div className='space-y-2'>
             <div className='flex items-baseline gap-2'>
               <Label htmlFor='monitor-name'>{t('fields.name')}</Label>

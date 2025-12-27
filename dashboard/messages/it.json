@@ -1397,7 +1397,7 @@
     "trigger": "Modifica",
     "sheet": {
       "title": "Modifica monitor",
-      "description": "Configura le impostazioni di monitoraggio per {url}"
+      "description": "Configura le impostazioni di monitoraggio per {name}"
     },
     "unsavedChanges": "Modifiche non salvate",
     "actions": {

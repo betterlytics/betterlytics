@@ -1240,7 +1240,6 @@
     "form": {
       "create": "New monitor",
       "title": "Create monitor",
-      "description": "Track an endpoint for uptime, latency, and SSL health.",
       "fields": {
         "name": "Name",
         "url": "URL"
@@ -1395,7 +1394,7 @@
     "trigger": "Edit",
     "sheet": {
       "title": "Edit monitor",
-      "description": "Configure monitoring settings for {url}"
+      "description": "Configure monitoring settings for {name}"
     },
     "unsavedChanges": "Unsaved changes",
     "actions": {

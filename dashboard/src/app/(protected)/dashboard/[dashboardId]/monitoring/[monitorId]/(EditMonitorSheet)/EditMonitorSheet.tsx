@@ -99,8 +99,7 @@ export function EditMonitorDialog({ dashboardId, monitor, trigger }: EditMonitor
             <SheetHeader className='border-border space-y-1 border-b px-6 py-5'>
               <SheetTitle className='text-lg font-semibold'>{t('sheet.title')}</SheetTitle>
               <SheetDescription className='text-muted-foreground text-sm'>
-                {t('sheet.description', { url: '' })}{' '}
-                <span className='text-foreground font-medium'>{monitor.url}</span>
+                {t('sheet.description', { name: monitor.name || monitor.url })}
               </SheetDescription>
             </SheetHeader>
 

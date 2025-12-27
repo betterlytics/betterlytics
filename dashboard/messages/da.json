@@ -1397,7 +1397,7 @@
     "trigger": "Redigér",
     "sheet": {
       "title": "Redigér overvågning",
-      "description": "Konfigurér overvågningsindstillinger for {url}"
+      "description": "Konfigurér overvågningsindstillinger for {name}"
     },
     "unsavedChanges": "Ikke-gemte ændringer",
     "actions": {
