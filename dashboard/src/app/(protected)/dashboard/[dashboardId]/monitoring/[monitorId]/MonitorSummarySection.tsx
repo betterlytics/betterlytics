@@ -62,7 +62,7 @@ export function MonitorSummarySection({
   const latencyAvg = metrics?.latency?.avgMs ?? null;
 
   return (
-    <div className='grid gap-4 lg:grid-cols-2 xl:grid-cols-4'>
+    <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-2 xl:grid-cols-4'>
       <NextCheckCard
         intervalSeconds={monitor.intervalSeconds}
         lastCheckAt={metrics?.lastCheckAt ?? undefined}
@@ -108,7 +108,7 @@ function SummaryCard({
   return (
     <Card
       className={cn(
-        'border-border/70 bg-card/80 flex h-full flex-col p-4 shadow-lg shadow-black/10',
+        'border-border/70 bg-card/80 flex h-full flex-col p-3 shadow-lg shadow-black/10 sm:p-4',
         gap,
         className,
       )}
@@ -314,7 +314,14 @@ function Last24hCard({
       gap='gap-1.5'
       bodyClassName='flex flex-1 items-center justify-center'
     >
-      <PillBar data={buckets} />
+      {/* Desktop */}
+      <div className='hidden w-full sm:block'>
+        <PillBar data={buckets} />
+      </div>
+      {/* Mobile */}
+      <div className='block w-full sm:hidden'>
+        <PillBar data={buckets} variant='compact' />
+      </div>
     </SummaryCard>
   );
 }
