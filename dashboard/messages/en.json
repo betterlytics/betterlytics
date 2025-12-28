@@ -1167,7 +1167,9 @@
       "uptimeSuffix": "uptime",
       "recommended": "recommended",
       "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}",
-      "hoursLeft": "{count, plural, one {{count}h left} other {{count}h left}}"
+      "hoursLeft": "{count, plural, one {{count}h left} other {{count}h left}}",
+      "daysLeftFull": "{count, plural, one {Expires in {count} day} other {Expires in {count} days}}",
+      "hoursLeftFull": "{count, plural, one {Expires in {count} hour} other {Expires in {count} hours}}"
     },
     "actions": {
       "pause": "Pause monitor",

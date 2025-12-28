@@ -1170,7 +1170,9 @@
       "uptimeSuffix": "oppetid",
       "recommended": "anbefalet",
       "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}",
-      "hoursLeft": "{count, plural, one {{count}t tilbage} other {{count}t tilbage}}"
+      "hoursLeft": "{count, plural, one {{count}t tilbage} other {{count}t tilbage}}",
+      "daysLeftFull": "{count, plural, one {Udløber om {count} dag} other {Udløber om {count} dage}}",
+      "hoursLeftFull": "{count, plural, one {Udløber om {count} time} other {Udløber om {count} timer}}"
     },
     "actions": {
       "pause": "Sæt overvågning på pause",

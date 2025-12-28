@@ -59,9 +59,9 @@ export function MonitorList({ monitors }: MonitorListProps) {
         });
         const sslBadgeLabel = tSsl(sslBadgeKey(sslPresentation.category));
         const sslTimeRemaining = formatSslTimeRemaining(monitor.tls?.tlsNotAfter);
-        const sslTimeRemainingLabel =
+        const sslTooltipLabel =
           sslTimeRemaining != null
-            ? tMonitoringLabels(sslTimeRemaining.unit === 'hours' ? 'hoursLeft' : 'daysLeft', {
+            ? tMonitoringLabels(sslTimeRemaining.unit === 'hours' ? 'hoursLeftFull' : 'daysLeftFull', {
                 count: sslTimeRemaining.value,
               })
             : null;
@@ -165,7 +165,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   <SslStatusPill
                     presentation={sslPresentation}
                     label={sslBadgeLabel}
-                    timeRemainingLabel={sslTimeRemainingLabel}
+                    tooltipLabel={sslTooltipLabel}
                   />
                 </div>
                 <div className='hidden min-w-0 xl:block'>
@@ -193,23 +193,29 @@ export function MonitorList({ monitors }: MonitorListProps) {
 function SslStatusPill({
   presentation,
   label,
-  timeRemainingLabel,
+  tooltipLabel,
 }: {
   presentation: SslPresentation;
   label: string;
-  timeRemainingLabel: string | null;
+  tooltipLabel: string | null;
 }) {
-  return (
+  const badge = (
     <Badge
       variant='outline'
-      className={`inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide ${presentation.badgeClass}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide whitespace-nowrap ${presentation.badgeClass}`}
     >
       <presentation.icon size={14} aria-hidden />
-      <span className='text-left leading-tight break-words'>{label}</span>
-      {timeRemainingLabel && (
-        <span className='text-muted-foreground/80 text-xs font-medium'>{timeRemainingLabel}</span>
-      )}
+      <span>{label}</span>
     </Badge>
+  );
+
+  if (!tooltipLabel) return badge;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{badge}</TooltipTrigger>
+      <TooltipContent side='top'>{tooltipLabel}</TooltipContent>
+    </Tooltip>
   );
 }
 

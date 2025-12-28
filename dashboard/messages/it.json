@@ -1170,7 +1170,9 @@
       "uptimeSuffix": "uptime",
       "recommended": "consigliato",
       "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}",
-      "hoursLeft": "{count, plural, one {{count}h rimanente} other {{count}h rimanenti}}"
+      "hoursLeft": "{count, plural, one {{count}h rimanente} other {{count}h rimanenti}}",
+      "daysLeftFull": "{count, plural, one {Scade tra {count} giorno} other {Scade tra {count} giorni}}",
+      "hoursLeftFull": "{count, plural, one {Scade tra {count} ora} other {Scade tra {count} ore}}"
     },
     "actions": {
       "pause": "Metti in pausa monitor",
