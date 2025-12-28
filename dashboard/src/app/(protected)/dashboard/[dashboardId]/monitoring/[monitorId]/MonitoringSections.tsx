@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   type MonitorIncidentSegment,
@@ -37,38 +37,42 @@ export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
 export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment[] }) {
   const t = useTranslations('monitoringDetailPage');
   return (
-    <Card className='border-border/70 bg-card/80 flex flex-col gap-4 p-5 shadow-lg shadow-black/10 lg:col-span-2 xl:col-span-2'>
+    <Card className='border-border/70 bg-card/80 flex flex-col gap-4 p-5 shadow-lg shadow-black/10 xl:col-span-2'>
       <div className='flex items-center justify-between'>
         <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{t('incidents.title')}</p>
         <Badge variant='secondary' className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'>
           {t('incidents.badge')}
         </Badge>
       </div>
-
-      {incidents.length === 0 ? (
-        <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
-          <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
-          <p className='text-muted-foreground mt-1 text-sm'>{t('incidents.emptyDescription')}</p>
-        </div>
-      ) : (
-        <div className='border-border/70 overflow-hidden rounded-md border'>
-          <Table>
-            <TableHeader className='bg-muted/10'>
-              <TableRow className='text-muted-foreground text-xs font-semibold tracking-wide'>
-                <TableHead className='w-[140px]'>{t('incidents.headers.status')}</TableHead>
-                <TableHead>{t('incidents.headers.root')}</TableHead>
-                <TableHead>{t('incidents.headers.started')}</TableHead>
-                <TableHead className='text-right'>{t('incidents.headers.duration')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {incidents.map((segment) => (
-                <IncidentRow key={`${segment.start}-${segment.state}-${segment.reason ?? ''}`} segment={segment} />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      <CardContent className='px-0'>
+        {incidents.length === 0 ? (
+          <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
+            <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
+            <p className='text-muted-foreground mt-1 text-sm'>{t('incidents.emptyDescription')}</p>
+          </div>
+        ) : (
+          <div className='border-border/70 overflow-x-auto rounded-md border'>
+            <Table className='overflow-x-auto'>
+              <TableHeader className='bg-muted/10'>
+                <TableRow className='text-muted-foreground text-xs font-semibold tracking-wide'>
+                  <TableHead className='w-[140px]'>{t('incidents.headers.status')}</TableHead>
+                  <TableHead>{t('incidents.headers.root')}</TableHead>
+                  <TableHead>{t('incidents.headers.started')}</TableHead>
+                  <TableHead className='text-right'>{t('incidents.headers.duration')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {incidents.map((segment) => (
+                  <IncidentRow
+                    key={`${segment.start}-${segment.state}-${segment.reason ?? ''}`}
+                    segment={segment}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }
@@ -194,7 +198,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
           </div>
         </div>
 
-        <div className='grid gap-2 text-xs sm:grid-cols-2 sm:text-sm'>
+        <div className='grid grid-cols-1 gap-2 text-xs sm:text-sm 2xl:grid-cols-2'>
           {stats.map((stat) => (
             <div
               key={stat.label}
