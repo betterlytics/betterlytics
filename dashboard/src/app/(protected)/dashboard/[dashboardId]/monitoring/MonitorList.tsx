@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
-import { formatIntervalLabel, safeHostname } from './utils';
+import { formatIntervalLabel, formatSslTimeRemaining, safeHostname } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import { type MonitorUptimeBucket, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
@@ -58,6 +58,13 @@ export function MonitorList({ monitors }: MonitorListProps) {
           daysLeft,
         });
         const sslBadgeLabel = tSsl(sslBadgeKey(sslPresentation.category));
+        const sslTimeRemaining = formatSslTimeRemaining(monitor.tls?.tlsNotAfter);
+        const sslTooltipLabel =
+          sslTimeRemaining != null
+            ? tMonitoringLabels(sslTimeRemaining.unit === 'hours' ? 'hoursLeftFull' : 'daysLeftFull', {
+                count: sslTimeRemaining.value,
+              })
+            : null;
 
         const hasData = Boolean(monitor.uptimeBuckets && monitor.uptimeBuckets.length > 0);
         const uptimePercent = hasData ? calculateUptimePercent(monitor.uptimeBuckets ?? []) : null;
@@ -158,7 +165,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   <SslStatusPill
                     presentation={sslPresentation}
                     label={sslBadgeLabel}
-                    daysLeftLabel={daysLeft != null ? tMonitoringLabels('daysLeft', { count: daysLeft }) : null}
+                    tooltipLabel={sslTooltipLabel}
                   />
                 </div>
                 <div className='hidden min-w-0 xl:block'>
@@ -186,21 +193,29 @@ export function MonitorList({ monitors }: MonitorListProps) {
 function SslStatusPill({
   presentation,
   label,
-  daysLeftLabel,
+  tooltipLabel,
 }: {
   presentation: SslPresentation;
   label: string;
-  daysLeftLabel: string | null;
+  tooltipLabel: string | null;
 }) {
-  return (
+  const badge = (
     <Badge
       variant='outline'
-      className={`inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide ${presentation.badgeClass}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide whitespace-nowrap ${presentation.badgeClass}`}
     >
       <presentation.icon size={14} aria-hidden />
-      <span className='text-left leading-tight break-words'>{label}</span>
-      {daysLeftLabel && <span className='text-muted-foreground/80 text-xs font-medium'>{daysLeftLabel}</span>}
+      <span>{label}</span>
     </Badge>
+  );
+
+  if (!tooltipLabel) return badge;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{badge}</TooltipTrigger>
+      <TooltipContent side='top'>{tooltipLabel}</TooltipContent>
+    </Tooltip>
   );
 }
 

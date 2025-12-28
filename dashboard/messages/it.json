@@ -1169,7 +1169,10 @@
       "noData": "Nessun dato",
       "uptimeSuffix": "uptime",
       "recommended": "consigliato",
-      "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}"
+      "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}",
+      "hoursLeft": "{count, plural, one {{count}h rimanente} other {{count}h rimanenti}}",
+      "daysLeftFull": "{count, plural, one {Scade tra {count} giorno} other {Scade tra {count} giorni}}",
+      "hoursLeftFull": "{count, plural, one {Scade tra {count} ora} other {Scade tra {count} ore}}"
     },
     "actions": {
       "pause": "Metti in pausa monitor",
@@ -1381,7 +1384,8 @@
         "disabled": "Disabilitato",
         "notApplicable": "N/A",
         "timeLeft": "Tempo rimanente",
-        "timeLeftWithUnit": "{unit} rimanenti",
+        "hoursLeft": "{count, plural, one {ora rimanente} other {ore rimanenti}}",
+        "daysLeft": "{count, plural, one {giorno rimanente} other {giorni rimanenti}}",
         "expires": "Scad. {date}",
         "httpSite": "Non applicabile",
         "httpSiteDescription": "Questo sito utilizza HTTP",

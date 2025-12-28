@@ -175,10 +175,10 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
   return (
     <div className='space-y-4'>
       <DashboardHeader title={t('title')}>
-        <div className='flex items-center gap-2'>
-          <div className='flex items-center gap-2'>
+        <div className='flex flex-col-reverse gap-2 sm:flex-row sm:items-center'>
+          <div className='flex w-full items-center gap-2 sm:w-auto'>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className='max-w-[120px] cursor-pointer'>
+              <SelectTrigger className='flex-1 cursor-pointer sm:max-w-[120px]'>
                 <FilterSelectValue label={statusLabel} />
               </SelectTrigger>
               <SelectContent>
@@ -207,7 +207,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
             </Select>
 
             <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-              <SelectTrigger className='max-w-[140px] cursor-pointer'>
+              <SelectTrigger className='flex-1 cursor-pointer sm:max-w-[140px]'>
                 <FilterSelectValue label={sortLabel} Icon={ArrowUpDown} />
               </SelectTrigger>
               <SelectContent>

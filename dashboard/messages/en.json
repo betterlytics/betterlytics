@@ -1166,7 +1166,10 @@
       "noData": "No data",
       "uptimeSuffix": "uptime",
       "recommended": "recommended",
-      "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}"
+      "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}",
+      "hoursLeft": "{count, plural, one {{count}h left} other {{count}h left}}",
+      "daysLeftFull": "{count, plural, one {Expires in {count} day} other {Expires in {count} days}}",
+      "hoursLeftFull": "{count, plural, one {Expires in {count} hour} other {Expires in {count} hours}}"
     },
     "actions": {
       "pause": "Pause monitor",
@@ -1378,7 +1381,8 @@
         "disabled": "Disabled",
         "notApplicable": "N/A",
         "timeLeft": "Time left",
-        "timeLeftWithUnit": "{unit} left",
+        "hoursLeft": "{count, plural, one {hour left} other {hours left}}",
+        "daysLeft": "{count, plural, one {day left} other {days left}}",
         "expires": "Exp. {date}",
         "httpSite": "Not Applicable",
         "httpSiteDescription": "This site uses HTTP",
