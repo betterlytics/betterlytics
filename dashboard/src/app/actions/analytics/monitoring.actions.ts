@@ -31,8 +31,8 @@ import { isUrlOnDomain } from '@/utils/domainValidation';
 import { UserException } from '@/lib/exceptions';
 import z from 'zod';
 
-export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  return await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId);
+export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext, timezone: string) => {
+  return await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId, timezone);
 });
 
 export const fetchMonitorCheckAction = withDashboardAuthContext(
@@ -86,7 +86,8 @@ export const deleteMonitorCheckAction = withDashboardMutationAuthContext(
 );
 
 export const fetchMonitorMetricsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, monitorId: string) => await fetchMonitorMetrics(ctx.dashboardId, monitorId, ctx.siteId),
+  async (ctx: AuthContext, monitorId: string, timezone: string) =>
+    await fetchMonitorMetrics(ctx.dashboardId, monitorId, ctx.siteId, timezone),
 );
 
 export const fetchRecentMonitorResultsAction = withDashboardAuthContext(
@@ -105,9 +106,9 @@ export const fetchLatestMonitorTlsResultAction = withDashboardAuthContext(
 );
 
 export const fetchMonitorUptimeAction = withDashboardAuthContext(
-  async (ctx: AuthContext, monitorId: string, days?: number) => {
+  async (ctx: AuthContext, monitorId: string, timezone: string, days?: number) => {
     const totalDays = typeof days === 'number' ? days : 180;
-    const rows = await fetchMonitorDailyUptime(monitorId, ctx.siteId, totalDays);
+    const rows = await fetchMonitorDailyUptime(monitorId, ctx.dashboardId, ctx.siteId, timezone, totalDays);
     return toMonitorUptimePresentation(rows, totalDays);
   },
 );

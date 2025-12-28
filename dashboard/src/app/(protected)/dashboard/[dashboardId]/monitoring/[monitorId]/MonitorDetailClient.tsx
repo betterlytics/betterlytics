@@ -35,6 +35,7 @@ type MonitorDetailClientProps = {
   dashboardId: string;
   monitorId: string;
   hostname: string;
+  timezone: string;
   initialData: {
     monitor: MonitorCheck;
     metrics?: MonitorMetrics;
@@ -50,7 +51,13 @@ const NON_CRITICAL_POLLING_INTERVAL_MS = 10 * 60_000;
 const MIN_POLLING_INTERVAL_MS = 30_000;
 const POLLING_BUFFER_MS = 5_000;
 
-export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialData }: MonitorDetailClientProps) {
+export function MonitorDetailClient({
+  dashboardId,
+  monitorId,
+  hostname,
+  timezone,
+  initialData,
+}: MonitorDetailClientProps) {
   const tDetail = useTranslations('monitoringDetailPage');
   const tActions = useTranslations('monitoring.actions');
   const monitorQuery = useQuery({
@@ -73,7 +80,7 @@ export function MonitorDetailClient({ dashboardId, monitorId, hostname, initialD
 
   const metricsQuery = useQuery({
     queryKey: ['monitor-metrics', dashboardId, monitorId],
-    queryFn: () => fetchMonitorMetricsAction(dashboardId, monitorId),
+    queryFn: () => fetchMonitorMetricsAction(dashboardId, monitorId, timezone),
     initialData: initialData.metrics,
     refetchInterval: dynamicPollingInterval,
     enabled: pollingEnabled,

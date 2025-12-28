@@ -1,5 +1,7 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { safeSql } from '@/lib/safe-sql';
+import { safeSql, SQL } from '@/lib/safe-sql';
+import { BAQuery } from '@/lib/ba-query';
+import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   MonitorDailyUptimeSchema,
   MonitorResultSchema,
@@ -21,6 +23,191 @@ import {
   type MonitorIncidentSegment,
 } from '@/entities/analytics/monitoring.entities';
 import { toIsoUtc } from '@/utils/dateHelpers';
+
+// Unified uptime bucket calculation supporting hour or day granularity
+export async function getMonitorUptimeBuckets(
+  checkId: string,
+  siteId: string,
+  createdAt: Date,
+  timezone: string,
+  rangeStart: string,
+  rangeEnd: string,
+  buckets: number,
+  granularity: 'day' | 'hour',
+): Promise<MonitorUptimeBucket[]> {
+  const createdAtStr = toDateTimeString(createdAt);
+
+  // Granularity-specific SQL fragments
+  const interval = granularity === 'day' ? safeSql`DAY` : safeSql`HOUR`;
+  const granularityStr = granularity === 'day' ? safeSql`'day'` : safeSql`'hour'`;
+  const totalSeconds = granularity === 'day' ? safeSql`86400` : safeSql`3600`;
+  // For day granularity, use timezone; for hour, no timezone needed
+  const toStartOf =
+    granularity === 'day'
+      ? safeSql`toStartOfDay(started_at, {timezone:String})`
+      : safeSql`toStartOfHour(started_at)`;
+  const toStartOfRange =
+    granularity === 'day'
+      ? safeSql`toStartOfDay(${SQL.DateTime({ rangeStart })}, {timezone:String})`
+      : safeSql`${SQL.DateTime({ rangeStart })}`;
+
+  const query = safeSql`
+    WITH incident_buckets AS (
+      SELECT
+        started_at,
+        coalesce(resolved_at, now()) AS effective_resolved_at,
+        arrayJoin(
+          arrayMap(
+            i -> ${toStartOf} + INTERVAL i ${interval},
+            range(
+              0,
+              toUInt32(dateDiff(${granularityStr}, ${toStartOf}, coalesce(resolved_at, now()))) + 1
+            )
+          )
+        ) AS bucket_key
+      FROM analytics.monitor_incidents FINAL
+      WHERE check_id = {check_id:String}
+        AND site_id = {site_id:String}
+        AND kind != 'tls'
+        AND started_at < ${SQL.DateTime({ rangeEnd })}
+        AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
+    )
+    SELECT
+      bucket_start AS date,
+      if(
+        ${SQL.DateTime({ createdAt: createdAtStr })} >= bucket_start + INTERVAL 1 ${interval},
+        NULL,
+        ${totalSeconds} - sum(
+          greatest(
+            0,
+            dateDiff(
+              'second',
+              greatest(ib.started_at, bucket_start),
+              least(ib.effective_resolved_at, bucket_start + INTERVAL 1 ${interval})
+            )
+          )
+        )
+      ) AS uptime_seconds,
+      ${totalSeconds} AS total_seconds
+    FROM (
+      SELECT arrayJoin(
+        arrayMap(
+          i -> ${toStartOfRange} + INTERVAL i ${interval},
+          range(0, {buckets:UInt32})
+        )
+      ) AS bucket_start
+    ) AS buckets
+    LEFT JOIN incident_buckets ib ON ib.bucket_key = buckets.bucket_start
+    GROUP BY bucket_start
+    ORDER BY bucket_start
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_id: checkId, site_id: siteId, timezone, buckets },
+    })
+    .toPromise()) as any[];
+
+  return rows.map((row) =>
+    MonitorUptimeBucketSchema.parse({
+      bucket: toIsoUtc(row.date) ?? row.date,
+      upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
+    }),
+  );
+}
+
+// Convenience wrapper for 24h hourly buckets
+export async function getUptimeBuckets24h(
+  checkId: string,
+  siteId: string,
+  createdAt: Date,
+  rangeStart: string,
+  rangeEnd: string,
+): Promise<MonitorUptimeBucket[]> {
+  return getMonitorUptimeBuckets(checkId, siteId, createdAt, 'UTC', rangeStart, rangeEnd, 24, 'hour');
+}
+
+// Convenience wrapper for daily uptime buckets
+export async function getMonitorDailyUptime(
+  checkId: string,
+  siteId: string,
+  createdAt: Date,
+  timezone: string,
+  rangeStart: string,
+  rangeEnd: string,
+  days: number,
+): Promise<MonitorDailyUptime[]> {
+  const buckets = await getMonitorUptimeBuckets(
+    checkId,
+    siteId,
+    createdAt,
+    timezone,
+    rangeStart,
+    rangeEnd,
+    days,
+    'day',
+  );
+
+  return buckets
+    .filter((b) => b.upRatio != null)
+    .map((b) =>
+      MonitorDailyUptimeSchema.parse({
+        date: b.bucket,
+        upRatio: b.upRatio,
+      }),
+    );
+}
+
+// Get uptime stats for 24h period using array expansion
+export async function getUptime24h(
+  checkId: string,
+  siteId: string,
+  createdAt: Date,
+  rangeStart: string,
+  rangeEnd: string,
+): Promise<UptimeStats> {
+  const createdAtStr = toDateTimeString(createdAt);
+
+  const query = safeSql`
+    SELECT
+      greatest(0, dateDiff(
+        'second',
+        greatest(${SQL.DateTime({ createdAt: createdAtStr })}, ${SQL.DateTime({ rangeStart })}),
+        least(now(), ${SQL.DateTime({ rangeEnd })})
+      )) AS total_seconds,
+      sum(
+        greatest(
+          0,
+          dateDiff(
+            'second',
+            greatest(started_at, ${SQL.DateTime({ rangeStart })}),
+            least(coalesce(resolved_at, now()), ${SQL.DateTime({ rangeEnd })})
+          )
+        )
+      ) AS downtime_seconds
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id = {check_id:String}
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND started_at < ${SQL.DateTime({ rangeEnd })}
+      AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
+  `;
+
+  const [row] = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
+    })
+    .toPromise()) as any[];
+
+  const totalSeconds = row?.total_seconds ?? 0;
+  const downtimeSeconds = row?.downtime_seconds ?? 0;
+  const uptimeSeconds = Math.max(0, totalSeconds - downtimeSeconds);
+
+  return UptimeStatsSchema.parse({
+    uptimeSeconds,
+    totalSeconds,
+  });
+}
 
 export async function getRecentMonitorResults(
   checkId: string,
@@ -98,39 +285,6 @@ export async function getLatestTlsResultsForMonitors(
     });
     return acc;
   }, {});
-}
-
-export async function getMonitorDailyUptime(
-  checkId: string,
-  siteId: string,
-  days = 180,
-): Promise<MonitorDailyUptime[]> {
-  const safeDays = Math.max(1, Math.min(days, 366));
-  const query = safeSql`
-    SELECT
-      toString(toStartOfDay(ts)) AS day,
-      avg(status IN ('ok', 'warn')) AS up_ratio
-    FROM analytics.monitor_results
-    WHERE check_id = {check_id:String}
-      AND kind != 'tls'
-      AND site_id = {site_id:String}
-      AND ts >= now() - INTERVAL {days:Int32} DAY
-    GROUP BY day
-    ORDER BY day ASC
-  `;
-
-  const rows = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_id: checkId, site_id: siteId, days: safeDays },
-    })
-    .toPromise()) as any[];
-
-  return rows.map((row) =>
-    MonitorDailyUptimeSchema.parse({
-      date: toIsoUtc(row.day) ?? row.day,
-      upRatio: row.up_ratio,
-    }),
-  );
 }
 
 export async function getMonitorIncidentSegments(
@@ -245,45 +399,6 @@ export async function getMonitorsWithResults(checkIds: string[], siteId: string)
   return new Set(rows.map((row) => row.check_id));
 }
 
-export async function getMonitorUptimeBucketsForMonitors(
-  checkIds: string[],
-  siteId: string,
-): Promise<Record<string, MonitorUptimeBucket[]>> {
-  if (!checkIds.length) return {};
-
-  const query = safeSql`
-    SELECT
-      check_id,
-      toString(toStartOfInterval(ts, INTERVAL 1 HOUR)) AS bucket,
-      avg(status IN ('ok', 'warn')) AS up_ratio
-    FROM analytics.monitor_results
-    WHERE check_id IN ({check_ids:Array(String)})
-      AND kind != 'tls'
-      AND site_id = {site_id:String}
-      AND ts >= now() - INTERVAL 24 HOUR
-    GROUP BY check_id, bucket
-    ORDER BY check_id ASC, bucket ASC
-  `;
-
-  const rows = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
-    })
-    .toPromise()) as any[];
-
-  return rows.reduce<Record<string, MonitorUptimeBucket[]>>((acc, row) => {
-    const bucketsForCheck = acc[row.check_id] ?? [];
-    bucketsForCheck.push(
-      MonitorUptimeBucketSchema.parse({
-        bucket: toIsoUtc(row.bucket),
-        upRatio: row.up_ratio,
-      }),
-    );
-    acc[row.check_id] = bucketsForCheck;
-    return acc;
-  }, {});
-}
-
 export async function getLatestCheckInfoForMonitors(
   checkIds: string[],
   siteId: string,
@@ -322,27 +437,6 @@ export async function getLatestCheckInfoForMonitors(
   }, {});
 }
 
-export async function getUptime24h(checkId: string, siteId: string): Promise<UptimeStats> {
-  const query = safeSql`
-    SELECT
-      sum(status IN ('ok', 'warn')) AS up_count,
-      count() AS total_count
-    FROM analytics.monitor_results
-    WHERE check_id = {check_id:String}
-      AND kind != 'tls'
-      AND site_id = {site_id:String}
-      AND ts >= now() - INTERVAL 24 HOUR
-  `;
-
-  const [row] = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
-    })
-    .toPromise()) as any[];
-
-  return UptimeStatsSchema.parse({ upCount: row?.up_count ?? 0, totalCount: row?.total_count ?? 0 });
-}
-
 export async function getLatency24h(checkId: string, siteId: string): Promise<MonitorLatencyStats> {
   const query = safeSql`
     SELECT
@@ -368,34 +462,6 @@ export async function getLatency24h(checkId: string, siteId: string): Promise<Mo
     minMs: row?.min_ms ?? null,
     maxMs: row?.max_ms ?? null,
   });
-}
-
-export async function getUptimeBuckets24h(checkId: string, siteId: string): Promise<MonitorUptimeBucket[]> {
-  const query = safeSql`
-    SELECT
-      toString(toStartOfInterval(ts, INTERVAL 1 HOUR)) AS bucket,
-      avg(status IN ('ok', 'warn')) AS up_ratio
-    FROM analytics.monitor_results
-    WHERE check_id = {check_id:String}
-      AND kind != 'tls'
-      AND site_id = {site_id:String}
-      AND ts >= now() - INTERVAL 24 HOUR
-    GROUP BY bucket
-    ORDER BY bucket ASC
-  `;
-
-  const rows = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
-    })
-    .toPromise()) as any[];
-
-  return rows.map((row) =>
-    MonitorUptimeBucketSchema.parse({
-      bucket: toIsoUtc(row.bucket) ?? row.bucket,
-      upRatio: row.up_ratio,
-    }),
-  );
 }
 
 export async function getLatencySeries24h(checkId: string, siteId: string): Promise<MonitorLatencyPoint[]> {

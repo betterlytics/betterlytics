@@ -77,8 +77,8 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: tru
 });
 
 export const UptimeStatsSchema = z.object({
-  upCount: z.number().int(),
-  totalCount: z.number().int(),
+  uptimeSeconds: z.number(),
+  totalSeconds: z.number(),
 });
 
 export const MonitorUptimeBucketSchema = z.object({
