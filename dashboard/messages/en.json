@@ -1130,9 +1130,7 @@
       "preparing": "Preparing",
       "up": "Up",
       "degraded": "Degraded",
-      "down": "Down",
-      "monitoringActive": "Monitoring active",
-      "monitoringPaused": "Monitoring paused"
+      "down": "Down"
     },
     "checkStatus": {
       "ok": "OK",

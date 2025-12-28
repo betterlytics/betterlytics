@@ -8,7 +8,6 @@ interface LiveIndicatorProps {
   sizeClassName?: string;
   pulse?: boolean;
   className?: string;
-  'aria-label'?: string;
 }
 
 export function LiveIndicator({
@@ -17,7 +16,6 @@ export function LiveIndicator({
   sizeClassName = 'h-3 w-3',
   pulse = true,
   className,
-  'aria-label': ariaLabel,
 }: LiveIndicatorProps) {
   const colorClasses = {
     green: {
@@ -50,7 +48,7 @@ export function LiveIndicator({
   const colors = colorClasses[color];
 
   return (
-    <div className={cn('relative', positionClassName, sizeClassName, className)} aria-label={ariaLabel}>
+    <div className={cn('relative', positionClassName, sizeClassName, className)} aria-hidden='true'>
       <div
         className={cn(
           'absolute inset-0 rounded-full shadow-lg',

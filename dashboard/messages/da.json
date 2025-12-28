@@ -1133,9 +1133,7 @@
       "preparing": "Forbereder",
       "up": "Oppe",
       "degraded": "Nedsat",
-      "down": "Nede",
-      "monitoringActive": "Overvågning aktiv",
-      "monitoringPaused": "Overvågning sat på pause"
+      "down": "Nede"
     },
     "checkStatus": {
       "ok": "OK",
@@ -1147,7 +1145,7 @@
       "resolved": "Løst"
     },
     "latency": {
-      "paused": "Sat på pause",
+      "paused": "Pause",
       "fast": "Hurtig",
       "elevated": "Forhøjet",
       "slow": "Langsom",
@@ -1224,7 +1222,7 @@
       "statusDegraded": "Nedsat",
       "statusDown": "Nede",
       "statusSslExpiring": "SSL-certifikat udløber",
-      "statusPaused": "Sat på pause",
+      "statusPaused": "Pause",
       "statusPreparing": "Forbereder",
       "sortDownFirst": "Nede først",
       "sortUpFirst": "Oppe først",
@@ -1364,7 +1362,7 @@
       },
       "nextCheck": {
         "title": "Næste tjek",
-        "paused": "Sat på pause",
+        "paused": "Pause",
         "preparing": "Forbereder første tjek",
         "awaiting": "Afventer tjek...",
         "inSeconds": "Om {seconds}s",

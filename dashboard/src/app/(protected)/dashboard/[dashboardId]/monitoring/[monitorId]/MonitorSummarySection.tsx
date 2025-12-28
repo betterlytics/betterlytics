@@ -108,7 +108,7 @@ function SummaryCard({
   return (
     <Card
       className={cn(
-        'border-border/70 bg-card/80 flex h-full flex-col p-3 shadow-lg shadow-black/10 sm:p-4',
+        'border-border/70 bg-card/80 flex h-full flex-col p-2.5 shadow-lg shadow-black/10 sm:p-4',
         gap,
         className,
       )}
@@ -143,7 +143,6 @@ function NextCheckCard({
   const t = useTranslations('monitoringDetailPage.summary.nextCheck');
   const tMonitoringPage = useTranslations('monitoringPage');
   const tList = useTranslations('monitoringPage.list');
-  const tStatus = useTranslations('monitoring.status');
 
   const lastCheckAt = lastCheckAtRaw ? new Date(lastCheckAtRaw).getTime() : null;
   const [now, setNow] = useState(Date.now);
@@ -206,8 +205,6 @@ function NextCheckCard({
 
   const { indicator: color } = presentMonitorStatus(operationalState);
 
-  const statusAriaLabel = isPaused ? tStatus('monitoringPaused') : tStatus('monitoringActive');
-
   const intervalLabel = formatIntervalLabel(tMonitoringPage, intervalSeconds);
 
   return (
@@ -232,13 +229,7 @@ function NextCheckCard({
       helper={helper}
       bodyClassName='flex flex-1 items-center gap-2 text-lg font-semibold sm:text-xl'
     >
-      <LiveIndicator
-        color={color}
-        positionClassName=''
-        sizeClassName='h-3 w-3'
-        pulse={isActive || isAwaiting}
-        aria-label={statusAriaLabel}
-      />
+      <LiveIndicator color={color} positionClassName='' sizeClassName='h-3 w-3' pulse={isActive || isAwaiting} />
       <span className='text-foreground tabular-nums'>{countdownLabel}</span>
       {backoffTooltipMessage && !isPaused && (
         <Tooltip>
@@ -281,7 +272,7 @@ function ResponseTimeCard({
       helper={t('helper')}
       bodyClassName='flex flex-1 flex-wrap items-baseline gap-2'
     >
-      <span className={cn(theme.text, 'mt-2 text-3xl font-semibold tracking-tight')}>
+      <span className={cn(theme.text, 'mt-2 text-2xl font-semibold tracking-tight')}>
         {avg == null ? '—' : formatCompactFromMilliseconds(avg)}
       </span>
     </SummaryCard>
@@ -391,11 +382,12 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
       className='relative overflow-hidden'
       bodyClassName='mt-3 flex flex-1 flex-row items-start gap-2 sm:gap-2'
     >
-      <presentation.icon className={cn('mt-0.5 h-6 w-6 sm:h-8 sm:w-8', presentation.theme.text)} aria-hidden />
+      <presentation.icon className={cn('h-7 w-7 sm:mt-0.5 sm:h-8 sm:w-8', presentation.theme.text)} aria-hidden />
       <div className='flex flex-row items-start gap-2 sm:gap-3'>
         <p
           className={cn(
-            'text-foreground -mt-0.5 text-3xl font-semibold tracking-tight sm:mt-0',
+            'text-foreground -mt-0.5 font-semibold tracking-tight sm:mt-0',
+            isExpired ? 'text-2xl' : 'text-2xl sm:text-3xl',
             isExpired && presentation.theme.text,
           )}
         >

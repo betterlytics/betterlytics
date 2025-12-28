@@ -1133,9 +1133,7 @@
       "preparing": "In preparazione",
       "up": "Online",
       "degraded": "Degradato",
-      "down": "Offline",
-      "monitoringActive": "Monitoraggio attivo",
-      "monitoringPaused": "Monitoraggio in pausa"
+      "down": "Offline"
     },
     "checkStatus": {
       "ok": "OK",

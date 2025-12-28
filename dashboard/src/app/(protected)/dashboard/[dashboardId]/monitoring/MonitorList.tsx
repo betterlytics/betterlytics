@@ -103,7 +103,6 @@ export function MonitorList({ monitors }: MonitorListProps) {
                 positionClassName='relative'
                 sizeClassName='h-2.5 w-2.5'
                 pulse={monitor.operationalState !== 'paused'}
-                aria-label={statusPresentation.label}
               />
               <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
                 <span className='truncate text-sm font-semibold'>{displayName}</span>
