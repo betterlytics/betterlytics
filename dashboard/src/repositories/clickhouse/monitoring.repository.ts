@@ -1,6 +1,5 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { BAQuery } from '@/lib/ba-query';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   MonitorDailyUptimeSchema,
@@ -446,6 +445,7 @@ export async function getLatency24h(checkId: string, siteId: string): Promise<Mo
     FROM analytics.monitor_results
     WHERE check_id = {check_id:String}
       AND kind != 'tls'
+      AND status = 'ok'
       AND site_id = {site_id:String}
       AND ts >= now() - INTERVAL 24 HOUR
       AND latency_ms IS NOT NULL
@@ -474,6 +474,7 @@ export async function getLatencySeries24h(checkId: string, siteId: string): Prom
     FROM analytics.monitor_results
     WHERE check_id = {check_id:String}
       AND kind != 'tls'
+      AND status = 'ok'
       AND site_id = {site_id:String}
       AND ts >= toStartOfFifteenMinutes(now() - INTERVAL 24 HOUR)
       AND latency_ms IS NOT NULL
@@ -513,4 +514,40 @@ export async function getIncidentCount24h(checkId: string, siteId: string): Prom
     .toPromise()) as any[];
 
   return row?.count ?? 0;
+}
+
+export async function getIncidentSegments24h(checkId: string, siteId: string): Promise<MonitorIncidentSegment[]> {
+  const query = safeSql`
+    SELECT
+      state,
+      reason_code,
+      toStartOfFifteenMinutes(started_at) AS started_at,
+      toStartOfFifteenMinutes(ifNull(resolved_at, now() - INTERVAL 15 MINUTE) + INTERVAL 15 MINUTE) AS resolved_at,
+      last_event_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id = {check_id:String}
+      AND site_id = {site_id:String}
+      AND started_at >= now() - INTERVAL 24 HOUR
+    ORDER BY started_at DESC
+    LIMIT 100
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
+    })
+    .toPromise()) as any[];
+
+  return rows.map((row) =>
+    MonitorIncidentSegmentSchema.parse({
+      state: row.state,
+      reason: row.reason_code,
+      start: toIsoUtc(row.started_at) ?? row.started_at,
+      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+      durationMs:
+        row.started_at && (row.resolved_at || row.last_event_at)
+          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
+          : null,
+    }),
+  );
 }

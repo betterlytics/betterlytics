@@ -9,6 +9,7 @@ import {
   Line,
   ComposedChart,
   ReferenceLine,
+  ReferenceArea,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
@@ -32,12 +33,22 @@ export interface MultiSeriesConfig {
   strokeDasharray?: string;
 }
 
+export interface ReferenceAreaConfig {
+  x1: string | number;
+  x2: string | number;
+  fill?: string;
+  fillOpacity?: number;
+  stroke?: string;
+  strokeDasharray?: string;
+}
+
 interface MultiSeriesChartProps {
   title: React.ReactNode;
   data: ChartDataPoint[];
   granularity?: GranularityRangeValues;
   formatValue?: (value: number) => string;
   series: ReadonlyArray<MultiSeriesConfig>;
+  referenceAreas?: Array<ReferenceAreaConfig>;
   referenceLines?: Array<{
     y: number;
     label?: string;
@@ -60,6 +71,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     granularity,
     formatValue,
     series,
+    referenceAreas,
     referenceLines,
     headerRight,
     headerContent,
@@ -153,6 +165,20 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     }
                   />
                 ))}
+                {referenceAreas?.map((referenceArea, i) => (
+                  <ReferenceArea
+                    key={`ref-area-${referenceArea.x1}-${referenceArea.x2}-${i}`}
+                    x1={referenceArea.x1}
+                    x2={referenceArea.x2}
+                    y1={0}
+                    y2={10000}
+                    fill={referenceArea.fill ?? 'var(--chart-comparison)'}
+                    fillOpacity={referenceArea.fillOpacity ?? 0.15}
+                    stroke={referenceArea.stroke}
+                    strokeDasharray={referenceArea.strokeDasharray}
+                    ifOverflow='hidden'
+                  />
+                ))}
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -162,16 +188,19 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
   },
 );
 
-
 type LineDotProps = {
   index: number;
   value: number | null;
-  points: { value: number | null, x: number, y: number }[];
+  points: { value: number | null; x: number; y: number }[];
   stroke: string;
-}
+};
 function LineDot({ index, value, points, stroke }: LineDotProps) {
-  if (value !== null && typeof (points[index-1]?.value) !== 'number' && typeof (points[index+1]?.value) !== 'number') {
-    return <circle key={index} cx={points[index].x} cy={points[index].y} r={2} stroke={stroke} strokeWidth={2} />; 
+  if (
+    value !== null &&
+    typeof points[index - 1]?.value !== 'number' &&
+    typeof points[index + 1]?.value !== 'number'
+  ) {
+    return <circle key={index} cx={points[index].x} cy={points[index].y} r={2} stroke={stroke} strokeWidth={2} />;
   }
   return null;
 }

@@ -36,6 +36,7 @@ import {
   getUptime24h,
   getUptimeBuckets24h,
   getMonitorDailyUptime,
+  getIncidentSegments24h,
 } from '@/repositories/clickhouse/monitoring.repository';
 import { normalizeUptimeBuckets } from '@/presenters/toMonitorMetrics';
 
@@ -145,6 +146,7 @@ export async function fetchMonitorMetrics(
 
   const [
     openIncidents,
+    incidentSegments,
     lastResolvedIncidents,
     uptimeStats,
     latencyStats,
@@ -154,6 +156,7 @@ export async function fetchMonitorMetrics(
     latestCheckInfo,
   ] = await Promise.all([
     getOpenIncidentsForMonitors([monitorId], siteId),
+    getIncidentSegments24h(monitorId, siteId),
     getLastResolvedIncidentForMonitors([monitorId], siteId),
     getUptime24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd),
     getLatency24h(monitorId, siteId),
@@ -182,6 +185,7 @@ export async function fetchMonitorMetrics(
     lastStatus: latestCheckInfo?.status ?? null,
     uptime24hPercent,
     incidents24h: incidentCount,
+    incidentSegments24h: incidentSegments,
     uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets, 24),
     latency: latencyStats,
     latencySeries,

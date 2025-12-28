@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import MultiSeriesChart, { type MultiSeriesConfig } from '@/components/MultiSeriesChart';
+import MultiSeriesChart, { type ReferenceAreaConfig, type MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
@@ -25,9 +25,10 @@ const RESPONSE_TIME_GRANULARITY: GranularityRangeValues = 'hour';
 
 type ResponseTimeChartProps = {
   data?: MonitorMetrics['latencySeries'];
+  incidentSegments?: MonitorMetrics['incidentSegments24h'];
 };
 
-export function ResponseTimeChart({ data }: ResponseTimeChartProps) {
+export function ResponseTimeChart({ data, incidentSegments }: ResponseTimeChartProps) {
   const t = useTranslations('monitoringDetailPage.responseTime');
   const chartData = useMemo(
     () =>
@@ -40,7 +41,18 @@ export function ResponseTimeChart({ data }: ResponseTimeChartProps) {
     [data],
   );
 
-  if (!chartData.length) {
+  const referenceAreas = useMemo(() => {
+    return incidentSegments
+      ?.filter((segment) => segment.end !== null)
+      .map((segment) => ({
+        x1: segment.start,
+        x2: segment.end,
+        fill: 'var(--destructive)',
+        fillOpacity: 0.2,
+      })) as ReferenceAreaConfig[] | undefined;
+  }, [incidentSegments]);
+
+  if (!chartData.length && !referenceAreas?.length) {
     return (
       <Card className='border-border/70 bg-card/80 p-5 shadow-lg shadow-black/10'>
         <div className='flex items-center justify-between'>
@@ -72,6 +84,7 @@ export function ResponseTimeChart({ data }: ResponseTimeChartProps) {
       series={SERIES}
       className='border-border/70 bg-card/80 shadow-lg shadow-black/10'
       showSinglePoints
+      referenceAreas={referenceAreas}
     />
   );
 }

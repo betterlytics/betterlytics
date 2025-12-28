@@ -29,7 +29,9 @@ import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
-  return <ResponseTimeChart data={metrics?.latencySeries ?? []} />;
+  return (
+    <ResponseTimeChart data={metrics?.latencySeries ?? []} incidentSegments={metrics?.incidentSegments24h ?? []} />
+  );
 }
 
 export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment[] }) {

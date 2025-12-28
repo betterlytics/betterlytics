@@ -76,6 +76,14 @@ export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: tru
   id: z.string(),
 });
 
+export const MonitorIncidentSegmentSchema = z.object({
+  state: IncidentStateSchema,
+  reason: z.string().nullable(),
+  start: z.string(),
+  end: z.string().nullable(),
+  durationMs: z.number().nullable(),
+});
+
 export const UptimeStatsSchema = z.object({
   uptimeSeconds: z.number(),
   totalSeconds: z.number(),
@@ -114,6 +122,7 @@ export const RawMonitorMetricsSchema = z.object({
 export const MonitorMetricsSchema = RawMonitorMetricsSchema.extend({
   operationalState: MonitorOperationalStateSchema,
   currentStateSince: z.string().nullable(),
+  incidentSegments24h: z.array(MonitorIncidentSegmentSchema),
 });
 
 export const LatestCheckInfoSchema = z.object({
@@ -136,14 +145,6 @@ export const MonitorTlsResultSchema = z.object({
   status: MonitorStatusSchema,
   reasonCode: z.string().nullable(),
   tlsNotAfter: z.string().nullable(),
-});
-
-export const MonitorIncidentSegmentSchema = z.object({
-  state: IncidentStateSchema,
-  reason: z.string().nullable(),
-  start: z.string(),
-  end: z.string().nullable(),
-  durationMs: z.number().nullable(),
 });
 
 export const MonitorDailyUptimeSchema = z.object({
