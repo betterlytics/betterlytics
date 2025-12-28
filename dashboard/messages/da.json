@@ -1169,7 +1169,8 @@
       "noData": "Ingen data",
       "uptimeSuffix": "oppetid",
       "recommended": "anbefalet",
-      "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}"
+      "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}",
+      "hoursLeft": "{count, plural, one {{count}t tilbage} other {{count}t tilbage}}"
     },
     "actions": {
       "pause": "Sæt overvågning på pause",
@@ -1381,7 +1382,8 @@
         "disabled": "Deaktiveret",
         "notApplicable": "N/A",
         "timeLeft": "Tid tilbage",
-        "timeLeftWithUnit": "{unit} tilbage",
+        "hoursLeft": "{count, plural, one {time tilbage} other {timer tilbage}}",
+        "daysLeft": "{count, plural, one {dag tilbage} other {dage tilbage}}",
         "expires": "Udløber {date}",
         "httpSite": "Ikke relevant",
         "httpSiteDescription": "Denne side bruger HTTP",

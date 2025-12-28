@@ -22,3 +22,23 @@ export function safeHostname(url: string) {
     return url;
   }
 }
+
+export function formatSslTimeRemaining(
+  expiryDate: string | Date | null | undefined,
+): { value: number; unit: 'days' | 'hours' } | null {
+  if (expiryDate == null) return null;
+
+  const expiry = typeof expiryDate === 'string' ? new Date(expiryDate) : expiryDate;
+  if (Number.isNaN(expiry.getTime())) return null;
+
+  const nowMs = Date.now();
+  const diffMs = expiry.getTime() - nowMs;
+  const diffHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays >= 1) {
+    return { value: diffDays, unit: 'days' };
+  }
+
+  return { value: diffHours, unit: 'hours' };
+}

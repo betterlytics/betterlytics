@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslations } from 'next-intl';
-import { formatIntervalLabel, safeHostname } from './utils';
+import { formatIntervalLabel, formatSslTimeRemaining, safeHostname } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import { type MonitorUptimeBucket, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
@@ -58,6 +58,13 @@ export function MonitorList({ monitors }: MonitorListProps) {
           daysLeft,
         });
         const sslBadgeLabel = tSsl(sslBadgeKey(sslPresentation.category));
+        const sslTimeRemaining = formatSslTimeRemaining(monitor.tls?.tlsNotAfter);
+        const sslTimeRemainingLabel =
+          sslTimeRemaining != null
+            ? tMonitoringLabels(sslTimeRemaining.unit === 'hours' ? 'hoursLeft' : 'daysLeft', {
+                count: sslTimeRemaining.value,
+              })
+            : null;
 
         const hasData = Boolean(monitor.uptimeBuckets && monitor.uptimeBuckets.length > 0);
         const uptimePercent = hasData ? calculateUptimePercent(monitor.uptimeBuckets ?? []) : null;
@@ -158,7 +165,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   <SslStatusPill
                     presentation={sslPresentation}
                     label={sslBadgeLabel}
-                    daysLeftLabel={daysLeft != null ? tMonitoringLabels('daysLeft', { count: daysLeft }) : null}
+                    timeRemainingLabel={sslTimeRemainingLabel}
                   />
                 </div>
                 <div className='hidden min-w-0 xl:block'>
@@ -186,11 +193,11 @@ export function MonitorList({ monitors }: MonitorListProps) {
 function SslStatusPill({
   presentation,
   label,
-  daysLeftLabel,
+  timeRemainingLabel,
 }: {
   presentation: SslPresentation;
   label: string;
-  daysLeftLabel: string | null;
+  timeRemainingLabel: string | null;
 }) {
   return (
     <Badge
@@ -199,7 +206,9 @@ function SslStatusPill({
     >
       <presentation.icon size={14} aria-hidden />
       <span className='text-left leading-tight break-words'>{label}</span>
-      {daysLeftLabel && <span className='text-muted-foreground/80 text-xs font-medium'>{daysLeftLabel}</span>}
+      {timeRemainingLabel && (
+        <span className='text-muted-foreground/80 text-xs font-medium'>{timeRemainingLabel}</span>
+      )}
     </Badge>
   );
 }
