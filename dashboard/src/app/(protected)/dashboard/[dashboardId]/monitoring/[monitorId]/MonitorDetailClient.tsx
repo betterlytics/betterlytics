@@ -30,6 +30,7 @@ import { IncidentsCard, RecentChecksCard, ResponseTimeCard, Uptime180DayCard } f
 import { MonitorSummarySection } from './MonitorSummarySection';
 import { useTranslations } from 'next-intl';
 import { MonitorStatusBadge } from '../components/MonitorStatusBadge';
+import { MonitorActionMenu } from '../components/MonitorActionMenu';
 
 type MonitorDetailClientProps = {
   dashboardId: string;
@@ -148,45 +149,53 @@ export function MonitorDetailClient({
         onRename={handleRename}
         isRenaming={renameMutation.isPending}
         actionSlot={
-          <div className='flex items-center gap-2 self-start sm:self-auto'>
-            <Button
-              variant='outline'
-              size='sm'
-              type='button'
-              disabled={statusMutation.isPending}
-              onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
-              className='inline-flex cursor-pointer items-center gap-1.5'
-            >
-              {statusMutation.isPending ? (
-                monitorData.isEnabled ? (
-                  tActions('pausing')
-                ) : (
-                  tActions('resuming')
-                )
-              ) : (
-                <span className='inline-flex items-center gap-1.5'>
-                  {monitorData.isEnabled ? (
-                    <PauseCircle className='h-4 w-4' aria-hidden />
+          <>
+            {/* Mobile */}
+            <div className='sm:hidden'>
+              <MonitorActionMenu monitor={monitorData} dashboardId={dashboardId} vertical />
+            </div>
+
+            {/* Desktop */}
+            <div className='hidden items-center gap-2 sm:flex'>
+              <Button
+                variant='outline'
+                size='sm'
+                type='button'
+                disabled={statusMutation.isPending}
+                onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
+                className='inline-flex cursor-pointer items-center gap-1.5'
+              >
+                {statusMutation.isPending ? (
+                  monitorData.isEnabled ? (
+                    tActions('pausing')
                   ) : (
-                    <PlayCircle className='h-4 w-4' aria-hidden />
-                  )}
-                  <span>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</span>
-                </span>
-              )}
-            </Button>
-            <EditMonitorSheet
-              dashboardId={dashboardId}
-              monitor={monitorData}
-              open={editSheetOpen}
-              onOpenChange={setEditSheetOpen}
-              trigger={
-                <Button size='sm' variant='outline' className='inline-flex cursor-pointer items-center gap-1.5'>
-                  <Pencil className='h-4 w-4' aria-hidden />
-                  <span>{tDetail('actions.edit')}</span>
-                </Button>
-              }
-            />
-          </div>
+                    tActions('resuming')
+                  )
+                ) : (
+                  <span className='inline-flex items-center gap-1.5'>
+                    {monitorData.isEnabled ? (
+                      <PauseCircle className='h-4 w-4' aria-hidden />
+                    ) : (
+                      <PlayCircle className='h-4 w-4' aria-hidden />
+                    )}
+                    <span>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</span>
+                  </span>
+                )}
+              </Button>
+              <EditMonitorSheet
+                dashboardId={dashboardId}
+                monitor={monitorData}
+                open={editSheetOpen}
+                onOpenChange={setEditSheetOpen}
+                trigger={
+                  <Button size='sm' variant='outline' className='inline-flex cursor-pointer items-center gap-1.5'>
+                    <Pencil className='h-4 w-4' aria-hidden />
+                    <span>{tDetail('actions.edit')}</span>
+                  </Button>
+                }
+              />
+            </div>
+          </>
         }
       />
 
@@ -237,7 +246,7 @@ function MonitorHeader({
   const presentation = presentMonitorStatus(operationalState);
 
   return (
-    <div className='space-y-3 px-1 sm:px-0'>
+    <div className='space-y-2 px-1 pt-1 sm:space-y-3 sm:px-0'>
       <Link
         href={`/dashboard/${dashboardId}/monitoring`}
         className='text-muted-foreground hover:text-foreground inline-flex cursor-pointer items-center gap-1 text-xs font-medium transition sm:text-sm'
@@ -246,28 +255,38 @@ function MonitorHeader({
         <span className='cursor-pointer'>{tHeader('back')}</span>
       </Link>
 
-      <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-        <div className='space-y-1'>
-          <div className='flex flex-wrap items-center gap-2'>
-            <MonitorStatusBadge presentation={presentation} />
-            <EditableLabel
-              value={monitorName}
-              onSubmit={onRename}
-              disabled={isRenaming}
-              placeholder='Monitor name'
-              maxLength={MONITOR_LIMITS.NAME_MAX}
-              textClassName='text-xl font-semibold leading-tight sm:text-2xl'
-              inputClassName='min-w-[150px]'
-            />
-          </div>
-          <div className='text-muted-foreground flex flex-wrap items-center gap-2 pl-1 text-xs sm:text-sm'>
-            <span>{tHeader('monitoring')}</span>
-            <a href={url} target='_blank' rel='noreferrer' className='text-foreground hover:underline' title={url}>
-              {url}
-            </a>
+      <div className='flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between'>
+        <div className='min-w-0 flex-1'>
+          <div className='flex items-start justify-between gap-2'>
+            <div className='flex shrink-0 items-center pt-1'>
+              <MonitorStatusBadge presentation={presentation} compact className='sm:hidden' />
+              <MonitorStatusBadge presentation={presentation} className='hidden sm:inline-flex' />
+            </div>
+            <div className='min-w-0 flex-1 space-y-0.5'>
+              <EditableLabel
+                value={monitorName}
+                onSubmit={onRename}
+                disabled={isRenaming}
+                placeholder='Monitor name'
+                maxLength={MONITOR_LIMITS.NAME_MAX}
+                textClassName='text-xl font-semibold leading-tight sm:text-2xl truncate'
+                inputClassName='min-w-[150px]'
+              />
+              <a
+                href={url}
+                target='_blank'
+                rel='noreferrer'
+                className='text-muted-foreground hover:text-foreground block max-w-[250px] truncate pl-0.5 text-xs transition hover:underline sm:max-w-none sm:text-sm'
+                title={url}
+              >
+                {url}
+              </a>
+            </div>
+            {/* Mobile action slot */}
+            <div className='shrink-0 sm:hidden'>{actionSlot}</div>
           </div>
         </div>
-        {actionSlot}
+        <div className='hidden sm:block'>{actionSlot}</div>
       </div>
     </div>
   );

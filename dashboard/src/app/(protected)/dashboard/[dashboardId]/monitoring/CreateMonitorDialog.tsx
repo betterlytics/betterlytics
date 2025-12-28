@@ -123,7 +123,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
               placeholder={t('placeholders.name')}
               disabled={isPending}
               maxLength={MONITOR_LIMITS.NAME_MAX}
-              className={cn(nameAtLimit && 'border-destructive')}
+              className={cn(nameAtLimit && 'border-destructive', 'text-sm')}
             />
             <p className='text-muted-foreground text-xs'>{t('helper.nameDescription')}</p>
           </div>
@@ -135,7 +135,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={`https://${domain}/health`}
-              className={cn((hasError || urlAtLimit) && 'border-destructive')}
+              className={cn((hasError || urlAtLimit) && 'border-destructive', 'text-sm')}
               disabled={isPending}
               required
               type='url'
