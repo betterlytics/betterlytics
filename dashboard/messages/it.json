@@ -1405,10 +1405,7 @@
     "success": "Monitor aggiornato",
     "error": "Impossibile aggiornare il monitor. Riprova.",
     "trigger": "Modifica",
-    "sheet": {
-      "title": "Modifica monitor",
-      "description": "Configura le impostazioni di monitoraggio per {name}"
-    },
+    "title": "Modifica monitor",
     "unsavedChanges": "Modifiche non salvate",
     "actions": {
       "cancel": "Annulla",

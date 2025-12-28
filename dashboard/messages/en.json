@@ -1402,10 +1402,7 @@
     "success": "Monitor updated",
     "error": "Unable to update monitor, please try again.",
     "trigger": "Edit",
-    "sheet": {
-      "title": "Edit monitor",
-      "description": "Configure monitoring settings for {name}"
-    },
+    "title": "Edit monitor",
     "unsavedChanges": "Unsaved changes",
     "actions": {
       "cancel": "Cancel",
