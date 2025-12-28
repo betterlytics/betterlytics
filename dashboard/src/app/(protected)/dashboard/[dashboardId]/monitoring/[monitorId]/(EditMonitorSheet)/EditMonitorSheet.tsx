@@ -110,11 +110,9 @@ export function EditMonitorSheet({
         <SheetTrigger asChild>{trigger ?? <Button size='sm'>{t('trigger')}</Button>}</SheetTrigger>
         <SheetContent side='right' className='w-full max-w-2xl overflow-y-auto p-0 sm:max-w-4xl'>
           <div className='flex h-full flex-col'>
-            <SheetHeader className='border-border space-y-1 border-b px-6 py-5'>
-              <SheetTitle className='text-lg font-semibold'>{t('sheet.title')}</SheetTitle>
-              <SheetDescription className='text-muted-foreground text-sm'>
-                {t('sheet.description', { name: monitor.name || monitor.url })}
-              </SheetDescription>
+            <SheetHeader className='border-border space-y-0 border-b px-6 py-5'>
+              <SheetTitle className='text-lg font-semibold'>{t('title')}</SheetTitle>
+              <SheetDescription className='text-muted-foreground text-sm'>{monitor.url}</SheetDescription>
             </SheetHeader>
 
             <div className='flex-grow space-y-2 overflow-y-auto px-6 py-6'>

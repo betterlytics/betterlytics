@@ -1405,10 +1405,7 @@
     "success": "Overvågning opdateret",
     "error": "Kunne ikke opdatere overvågning. Prøv igen.",
     "trigger": "Redigér",
-    "sheet": {
-      "title": "Redigér overvågning",
-      "description": "Konfigurér overvågningsindstillinger for {name}"
-    },
+    "title": "Redigér overvågning",
     "unsavedChanges": "Ikke-gemte ændringer",
     "actions": {
       "cancel": "Annullér",

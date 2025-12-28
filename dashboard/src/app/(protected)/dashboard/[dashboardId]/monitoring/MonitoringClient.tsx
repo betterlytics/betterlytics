@@ -112,6 +112,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
           const sslStatus = presentSslStatus({
             status: monitor.tls?.status,
             daysLeft: computeDaysUntil(monitor.tls?.tlsNotAfter),
+            reasonCode: monitor.tls?.reasonCode,
           });
           return sslStatus.category === 'warn' || sslStatus.category === 'failed';
         }
@@ -130,7 +131,8 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
       monitor.createdAt ? new Date(monitor.createdAt).getTime() : Number.NEGATIVE_INFINITY;
     const sslDays = (monitor: MonitorWithStatus) => {
       const daysLeft = computeDaysUntil(monitor.tls?.tlsNotAfter);
-      return presentSslStatus({ status: monitor.tls?.status, daysLeft }).category === 'unknown'
+      return presentSslStatus({ status: monitor.tls?.status, daysLeft, reasonCode: monitor.tls?.reasonCode })
+        .category === 'unknown'
         ? Number.POSITIVE_INFINITY
         : (daysLeft ?? Number.POSITIVE_INFINITY);
     };

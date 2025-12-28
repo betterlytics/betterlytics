@@ -54,26 +54,36 @@ function resolveSslCategory(status?: MonitorStatus | null, daysLeft?: number | n
   return 'unknown';
 }
 
+export function isExpiredReason(reasonCode?: string | null, daysLeft?: number | null): boolean {
+  return reasonCode === 'tls_expired' || (daysLeft != null && daysLeft <= 0);
+}
+
 export function presentSslStatus({
   status,
   daysLeft,
+  reasonCode,
 }: {
   status?: MonitorStatus | null;
   daysLeft?: number | null;
+  reasonCode?: string | null;
 }): SslPresentation {
   const category = resolveSslCategory(status, daysLeft);
   const tone = statusToTone(category);
   const theme = MONITOR_TONE[tone];
-  const data = SSL_PRESENTATION[category];
+  const baseData = SSL_PRESENTATION[category];
+
+  const isExpired = isExpiredReason(reasonCode, daysLeft);
+  const labelKey: SslLabelKey = isExpired ? 'expired' : baseData.labelKey;
+  const badgeLabelKey: SslBadgeLabelKey = isExpired ? 'badgeExpired' : baseData.badgeLabelKey;
 
   return {
     category,
     tone,
     theme,
-    labelKey: data.labelKey,
+    labelKey,
     badgeClass: badgeClass(theme),
-    badgeLabelKey: data.badgeLabelKey,
-    badgeLabelShortKey: data.labelKey,
-    icon: data.icon,
+    badgeLabelKey,
+    badgeLabelShortKey: labelKey,
+    icon: baseData.icon,
   };
 }
