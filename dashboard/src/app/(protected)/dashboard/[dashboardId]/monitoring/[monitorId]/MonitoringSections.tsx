@@ -1,6 +1,6 @@
 'use client';
 
-import { type Dispatch, type SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -147,11 +147,19 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
   const t = useTranslations('monitoringDetailPage');
   const tLabels = useTranslations('monitoring.labels');
   const locale = useLocale();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const totalDays = uptime?.totalDays ?? 180;
   const grid = uptime?.grid ?? [];
   const stats = uptime?.stats ?? [];
   const resolvedTitle = title ?? t('uptime.title');
+
+  // Scroll to the right on mount so the latest days are visible
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+    }
+  }, [grid.length]);
 
   const getTone = (upRatio: number | null): MonitorTone | null => {
     if (upRatio === null) return null;
@@ -178,7 +186,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
         </Badge>
       </div>
       <div className='space-y-4'>
-        <div className='overflow-x-auto'>
+        <div ref={scrollContainerRef} className='overflow-x-auto'>
           <div className='grid auto-cols-[14px] grid-flow-col auto-rows-[14px] grid-rows-7 justify-start gap-[3px]'>
             {grid.map((cell) => {
               const date = new Date(cell.date);
