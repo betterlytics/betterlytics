@@ -445,7 +445,6 @@ export async function getLatency24h(checkId: string, siteId: string): Promise<Mo
     FROM analytics.monitor_results
     WHERE check_id = {check_id:String}
       AND kind != 'tls'
-      AND status = 'ok'
       AND site_id = {site_id:String}
       AND ts >= now() - INTERVAL 24 HOUR
       AND latency_ms IS NOT NULL
@@ -474,7 +473,6 @@ export async function getLatencySeries24h(checkId: string, siteId: string): Prom
     FROM analytics.monitor_results
     WHERE check_id = {check_id:String}
       AND kind != 'tls'
-      AND status = 'ok'
       AND site_id = {site_id:String}
       AND ts >= toStartOfFifteenMinutes(now() - INTERVAL 24 HOUR)
       AND latency_ms IS NOT NULL

@@ -145,6 +145,7 @@ export function RecentChecksCard({
 export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: PresentedMonitorUptime }) {
   const t = useTranslations('monitoringDetailPage');
   const tLabels = useTranslations('monitoring.labels');
+  const tDowntime = useTranslations('monitoringDetailPage.downtime');
   const locale = useLocale();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -206,24 +207,27 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
         </div>
 
         <div className='grid grid-cols-1 gap-2 text-xs sm:text-sm 2xl:grid-cols-2'>
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
-            >
-              <span className='text-muted-foreground font-semibold tracking-wide'>
-                {t('uptime.stats.label', { days: stat.windowDays })}
-              </span>
-              <div className='text-right'>
-                <div className={presentUptimeTone(stat.percent).theme.text}>
-                  {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
-                </div>
-                <div className='text-muted-foreground text-xs'>
-                  {stat.downtime ?? t('uptime.stats.downFallback')}
+          {stats.map((stat) => {
+            const downtimeLabel = stat.downtime
+              ? tDowntime(stat.downtime.unit, { value: stat.downtime.value })
+              : t('uptime.stats.downFallback');
+            return (
+              <div
+                key={stat.label}
+                className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
+              >
+                <span className='text-muted-foreground font-semibold tracking-wide'>
+                  {t('uptime.stats.label', { days: stat.windowDays })}
+                </span>
+                <div className='text-right'>
+                  <div className={presentUptimeTone(stat.percent).theme.text}>
+                    {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
+                  </div>
+                  <div className='text-muted-foreground text-xs'>{downtimeLabel}</div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </Card>

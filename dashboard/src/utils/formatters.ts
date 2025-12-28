@@ -78,21 +78,26 @@ export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null
   return 'var(--cwv-threshold-good)';
 }
 
-export function formatDowntimeFromUptimeHours(uptimePercent: number, hours: number): string {
+export type DowntimeMetadata = {
+  unit: 'days' | 'hours' | 'minutes';
+  value: string;
+};
+
+export function computeDowntimeFromUptimeHours(uptimePercent: number, hours: number): DowntimeMetadata {
   const downtimeHours = ((100 - uptimePercent) / 100) * hours;
   if (downtimeHours >= 24) {
     const days = downtimeHours / 24;
-    return `${days.toFixed(1)}d down`;
+    return { unit: 'days', value: days.toFixed(1) };
   }
   if (downtimeHours >= 1) {
-    return `${downtimeHours.toFixed(1)}h down`;
+    return { unit: 'hours', value: downtimeHours.toFixed(1) };
   }
   const minutes = downtimeHours * 60;
-  return `${minutes.toFixed(0)}m down`;
+  return { unit: 'minutes', value: minutes.toFixed(0) };
 }
 
-export function formatDowntimeFromUptimeDays(uptimePercent: number, days: number): string {
-  return formatDowntimeFromUptimeHours(uptimePercent, days * 24);
+export function computeDowntimeFromUptimeDays(uptimePercent: number, days: number): DowntimeMetadata {
+  return computeDowntimeFromUptimeHours(uptimePercent, days * 24);
 }
 
 export function formatTimeFromNow(date: Date, locale: string): string {
