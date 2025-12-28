@@ -54,13 +54,13 @@ export async function getMonitorUptimeBuckets(
     WITH incident_buckets AS (
       SELECT
         started_at,
-        coalesce(resolved_at, now()) AS effective_resolved_at,
+        coalesce(resolved_at, now() + INTERVAL 1 ${interval}) AS effective_resolved_at,
         arrayJoin(
           arrayMap(
             i -> ${toStartOf} + INTERVAL i ${interval},
             range(
               0,
-              toUInt32(dateDiff(${granularityStr}, ${toStartOf}, coalesce(resolved_at, now()))) + 1
+              toUInt32(dateDiff(${granularityStr}, ${toStartOf}, coalesce(resolved_at, now() + INTERVAL 1 ${interval}))) + 1
             )
           )
         ) AS bucket_key
