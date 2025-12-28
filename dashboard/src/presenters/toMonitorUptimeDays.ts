@@ -1,5 +1,5 @@
 import { type MonitorDailyUptime } from '@/entities/analytics/monitoring.entities';
-import { formatDowntimeFromUptimeDays } from '@/utils/formatters';
+import { computeDowntimeFromUptimeDays, type DowntimeMetadata } from '@/utils/formatters';
 
 export type PresentedMonitorUptimeDay = {
   date: string;
@@ -25,7 +25,7 @@ export type PresentedMonitorUptimeStat = {
   label: string;
   windowDays: number;
   percent: number | null;
-  downtime: string | null;
+  downtime: DowntimeMetadata | null;
 };
 
 export type PresentedMonitorUptime = {
@@ -76,10 +76,10 @@ function computeUptimeStats(days: PresentedMonitorUptimeDay[], windows: number[]
     const percent =
       actualDays > 0 ? (slice.reduce((acc, d) => acc + (d.upRatio ?? 0), 0) / actualDays) * 100 : null;
     return {
-      label: `Last ${w} days`,
+      label: `last-${w}-days`,
       windowDays: w,
       percent,
-      downtime: percent != null ? formatDowntimeFromUptimeDays(percent, actualDays) : null,
+      downtime: percent != null ? computeDowntimeFromUptimeDays(percent, actualDays) : null,
     };
   });
 }

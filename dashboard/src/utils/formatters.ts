@@ -78,19 +78,49 @@ export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null
   return 'var(--cwv-threshold-good)';
 }
 
-export function formatDowntimeFromUptimeHours(uptimePercent: number, hours: number): string {
+export type DowntimeMetadata = {
+  unit: 'days' | 'hours' | 'minutes';
+  value: string;
+};
+
+export function computeDowntimeFromUptimeHours(uptimePercent: number, hours: number): DowntimeMetadata {
   const downtimeHours = ((100 - uptimePercent) / 100) * hours;
   if (downtimeHours >= 24) {
     const days = downtimeHours / 24;
-    return `${days.toFixed(1)}d down`;
+    return { unit: 'days', value: days.toFixed(1) };
   }
   if (downtimeHours >= 1) {
-    return `${downtimeHours.toFixed(1)}h down`;
+    return { unit: 'hours', value: downtimeHours.toFixed(1) };
   }
   const minutes = downtimeHours * 60;
-  return `${minutes.toFixed(0)}m down`;
+  return { unit: 'minutes', value: minutes.toFixed(0) };
 }
 
-export function formatDowntimeFromUptimeDays(uptimePercent: number, days: number): string {
-  return formatDowntimeFromUptimeHours(uptimePercent, days * 24);
+export function computeDowntimeFromUptimeDays(uptimePercent: number, days: number): DowntimeMetadata {
+  return computeDowntimeFromUptimeHours(uptimePercent, days * 24);
+}
+
+export function formatTimeFromNow(date: Date, locale: string): string {
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+  const diffMs = date.getTime() - Date.now();
+  const diffSec = Math.round(diffMs / 1000);
+
+  const divisions: [Intl.RelativeTimeFormatUnit, number][] = [
+    ['year', 60 * 60 * 24 * 365],
+    ['month', 60 * 60 * 24 * 30],
+    ['day', 60 * 60 * 24],
+    ['hour', 60 * 60],
+    ['minute', 60],
+    ['second', 1],
+  ];
+
+  for (const [unit, secondsInUnit] of divisions) {
+    const value = diffSec / secondsInUnit;
+    if (Math.abs(value) >= 1) {
+      return rtf.format(Math.round(value), unit);
+    }
+  }
+
+  return rtf.format(0, 'second');
 }

@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { formatDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
+import { computeDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
 import { formatCompactFromMilliseconds, formatLocalDateTime, formatElapsedTime } from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import {
@@ -292,8 +292,10 @@ function Last24hCard({
   const tDowntime = useTranslations('monitoringDetailPage.downtime');
   const formattedPercent =
     uptimePercent != null ? formatPercentage(uptimePercent, 2, { trimHundred: true }) : '— %';
-  const downtimeLabel =
-    uptimePercent != null ? formatDowntimeFromUptimeHours(uptimePercent, 24) : tDowntime('unknown');
+  const downtimeMeta = uptimePercent != null ? computeDowntimeFromUptimeHours(uptimePercent, 24) : null;
+  const downtimeLabel = downtimeMeta
+    ? tDowntime(downtimeMeta.unit, { value: downtimeMeta.value })
+    : tDowntime('unknown');
   const { theme } = presentUptimeTone(uptimePercent);
   return (
     <SummaryCard
