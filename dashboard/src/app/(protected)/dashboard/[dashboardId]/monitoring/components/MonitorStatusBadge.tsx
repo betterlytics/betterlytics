@@ -7,12 +7,24 @@ import { useTranslations } from 'next-intl';
 type MonitorStatusBadgeProps = {
   presentation: MonitorPresentation;
   className?: string;
+  compact?: boolean;
 };
 
-export function MonitorStatusBadge({ presentation, className }: MonitorStatusBadgeProps) {
+export function MonitorStatusBadge({ presentation, className, compact = false }: MonitorStatusBadgeProps) {
   const tStatus = useTranslations('monitoring.status');
   const label = presentation.labelKey ? tStatus(presentation.labelKey) : presentation.label;
   const theme = presentation.theme;
+
+  if (compact) {
+    return (
+      <span
+        className={`h-3 w-3 shrink-0 rounded-full ${theme.dot} ${className ?? ''}`}
+        aria-label={label}
+        title={label}
+      />
+    );
+  }
+
   return (
     <Badge
       variant='secondary'

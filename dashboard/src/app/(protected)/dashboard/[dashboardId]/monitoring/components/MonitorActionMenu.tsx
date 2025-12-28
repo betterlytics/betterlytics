@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreHorizontal, Pencil, Settings, Trash2, PauseCircle, PlayCircle } from 'lucide-react';
+import { MoreHorizontal, MoreVertical, Pencil, Settings, Trash2, PauseCircle, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,17 +21,18 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DestructiveActionDialog } from '@/components/dialogs';
-import { type MonitorWithStatus, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
+import { type MonitorCheck, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { useMonitorMutations } from '../[monitorId]/(EditMonitorSheet)/hooks/useMonitorMutations';
 import { EditMonitorSheet } from '../[monitorId]/(EditMonitorSheet)/EditMonitorSheet';
 import { useTranslations } from 'next-intl';
 
 type MonitorActionMenuProps = {
-  monitor: MonitorWithStatus;
+  monitor: MonitorCheck;
   dashboardId: string;
+  vertical?: boolean;
 };
 
-export function MonitorActionMenu({ monitor, dashboardId }: MonitorActionMenuProps) {
+export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: MonitorActionMenuProps) {
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [newName, setNewName] = useState(monitor.name ?? '');
@@ -86,7 +87,7 @@ export function MonitorActionMenu({ monitor, dashboardId }: MonitorActionMenuPro
             }}
             className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer transition-colors'
           >
-            <MoreHorizontal className='h-4 w-4' />
+            {vertical ? <MoreVertical className='h-4 w-4' /> : <MoreHorizontal className='h-4 w-4' />}
             <span className='sr-only'>Open menu</span>
           </Button>
         </DropdownMenuTrigger>
