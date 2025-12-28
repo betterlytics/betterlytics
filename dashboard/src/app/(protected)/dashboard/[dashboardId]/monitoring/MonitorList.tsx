@@ -56,8 +56,9 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const sslPresentation = presentSslStatusPresentation({
           status: monitor.tls?.status,
           daysLeft,
+          reasonCode: monitor.tls?.reasonCode,
         });
-        const sslBadgeLabel = tSsl(sslBadgeKey(sslPresentation.category));
+        const sslBadgeLabel = tSsl(sslPresentation.badgeLabelKey);
         const sslTimeRemaining = formatSslTimeRemaining(monitor.tls?.tlsNotAfter);
         const sslTooltipLabel =
           sslTimeRemaining != null
@@ -224,19 +225,6 @@ function calculateUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
   if (valid.length === 0) return null;
   const avg = valid.reduce((sum, b) => sum + (b.upRatio ?? 0), 0) / valid.length;
   return avg * 100;
-}
-
-const SSL_BADGE_KEYS = {
-  ok: 'badgeValid',
-  warn: 'badgeExpiringSoon',
-  failed: 'badgeError',
-  unknown: 'badgeNotChecked',
-} as const;
-
-type SslBadgeKey = (typeof SSL_BADGE_KEYS)[keyof typeof SSL_BADGE_KEYS];
-
-function sslBadgeKey(category: SslPresentation['category']): SslBadgeKey {
-  return SSL_BADGE_KEYS[category] ?? SSL_BADGE_KEYS.unknown;
 }
 
 function BackoffBadge({ label, message }: { label: string; message: string }) {

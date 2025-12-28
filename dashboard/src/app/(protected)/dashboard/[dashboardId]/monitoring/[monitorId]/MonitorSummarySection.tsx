@@ -27,6 +27,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { formatIntervalLabel, formatSslTimeRemaining, isHttpUrl } from '../utils';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { isExpiredReason } from '../styles/ssl';
 
 type MonitorSummarySectionProps = {
   monitor: Pick<
@@ -351,18 +352,20 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
 
   const expiry = tls?.tlsNotAfter ? new Date(tls.tlsNotAfter) : null;
   const daysLeft = computeDaysUntil(tls?.tlsNotAfter);
-  const presentation = presentSslStatus({ status: tls?.status, daysLeft });
-  const expiresLabel = (expiry ? formatLocalDateTime(expiry, locale, { dateStyle: 'medium' }) : undefined) ?? '—';
+  const isExpired = isExpiredReason(tls?.reasonCode, daysLeft);
+  const presentation = presentSslStatus({ status: tls?.status, daysLeft, reasonCode: tls?.reasonCode });
+  const expiresLabel = expiry ? formatLocalDateTime(expiry, locale, { dateStyle: 'medium' }) : null;
   const badgeLabel = tSsl(presentation.labelKey);
 
   const sslTimeRemaining = formatSslTimeRemaining(tls?.tlsNotAfter);
-  const timeValue = sslTimeRemaining?.value ?? '—';
 
-  const getTimeUnitLabel = () => {
-    if (!sslTimeRemaining) return t('timeLeft');
-    if (sslTimeRemaining.unit === 'hours') return t('hoursLeft', { count: sslTimeRemaining.value });
-    return t('daysLeft', { count: sslTimeRemaining.value });
-  };
+  const displayValue = isExpired ? tSsl('expired') : sslTimeRemaining ? String(sslTimeRemaining.value) : '—';
+
+  const unitLabel = sslTimeRemaining
+    ? sslTimeRemaining.unit === 'hours'
+      ? t('hoursLeft', { count: sslTimeRemaining.value })
+      : t('daysLeft', { count: sslTimeRemaining.value })
+    : null;
 
   return (
     <SummaryCard
@@ -383,11 +386,20 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
     >
       <presentation.icon className={cn('mt-0.5 h-6 w-6 sm:h-8 sm:w-8', presentation.theme.text)} aria-hidden />
       <div className='flex flex-row items-start gap-2 sm:gap-3'>
-        <p className='text-foreground -mt-0.5 text-3xl font-semibold tracking-tight sm:mt-0'>{timeValue}</p>
-        {!isDisabled && (
+        <p
+          className={cn(
+            'text-foreground -mt-0.5 text-3xl font-semibold tracking-tight sm:mt-0',
+            isExpired && presentation.theme.text,
+          )}
+        >
+          {displayValue}
+        </p>
+        {!isDisabled && unitLabel && (
           <div className='flex flex-col gap-0.5 text-xs leading-tight sm:text-sm'>
-            <p className='text-foreground font-semibold capitalize'>{getTimeUnitLabel()}</p>
-            <p className='text-muted-foreground font-medium'>{t('expires', { date: expiresLabel })}</p>
+            <p className='text-foreground font-semibold capitalize'>{unitLabel}</p>
+            {expiresLabel && (
+              <p className='text-muted-foreground font-medium'>{t('expires', { date: expiresLabel })}</p>
+            )}
           </div>
         )}
       </div>
