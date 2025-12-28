@@ -383,7 +383,7 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
     >
       <presentation.icon className={cn('mt-0.5 h-6 w-6 sm:h-8 sm:w-8', presentation.theme.text)} aria-hidden />
       <div className='flex flex-row items-start gap-2 sm:gap-3'>
-        <p className='text-foreground text-3xl leading-tight font-semibold tracking-tight'>{timeValue}</p>
+        <p className='text-foreground -mt-0.5 text-3xl font-semibold tracking-tight sm:mt-0'>{timeValue}</p>
         {!isDisabled && (
           <div className='flex flex-col gap-0.5 text-xs leading-tight sm:text-sm'>
             <p className='text-foreground font-semibold capitalize'>{getTimeUnitLabel()}</p>

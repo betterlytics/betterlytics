@@ -63,9 +63,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
     });
   };
 
-  const handleToggleStatus = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleToggleStatus = () => {
     statusMutation.mutate({ monitorId: monitor.id, isEnabled: !monitor.isEnabled });
   };
 
@@ -81,10 +79,6 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
           <Button
             variant='ghost'
             size='icon'
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
             className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer transition-colors'
           >
             {vertical ? <MoreVertical className='h-4 w-4' /> : <MoreHorizontal className='h-4 w-4' />}
@@ -110,21 +104,14 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
             )}
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              openRenameDialog();
-            }}
-            className='cursor-pointer'
-          >
+          <DropdownMenuItem onClick={openRenameDialog} className='cursor-pointer'>
             <Pencil className='mr-2 h-4 w-4' />
             {tMisc('rename')}
           </DropdownMenuItem>
 
           <EditMonitorSheet
             dashboardId={dashboardId}
-            monitor={monitor as any}
+            monitor={monitor}
             trigger={
               <DropdownMenuItem onSelect={(e) => e.preventDefault()} className='cursor-pointer'>
                 <Settings className='mr-2 h-4 w-4' />
@@ -136,11 +123,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowDeleteDialog(true);
-            }}
+            onClick={() => setShowDeleteDialog(true)}
             variant='destructive'
             className='cursor-pointer'
           >
@@ -152,7 +135,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
 
       {/* Rename Dialog */}
       <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
-        <DialogContent className='sm:max-w-md' onClick={(e) => e.stopPropagation()}>
+        <DialogContent className='sm:max-w-md'>
           <DialogHeader>
             <DialogTitle>{t('renameTitle')}</DialogTitle>
             <DialogDescription className='sr-only'>{t('renameTitle')}</DialogDescription>
@@ -168,7 +151,6 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
                 maxLength={MONITOR_LIMITS.NAME_MAX}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    e.preventDefault();
                     handleRename();
                   }
                 }}
@@ -196,7 +178,6 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
         pendingLabel={tMisc('deleting')}
         onConfirm={handleDelete}
         isPending={deleteMutation.isPending}
-        onClick={(e) => e.stopPropagation()}
       />
     </>
   );

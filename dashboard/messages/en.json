@@ -1334,7 +1334,7 @@
       "title": "Recent monitoring results",
       "badge": "Last 10",
       "empty": "No checks recorded yet",
-      "errorsOnly": "Only show errors",
+      "errorsOnly": "Errors",
       "headers": {
         "status": "Status",
         "ran": "Ran",

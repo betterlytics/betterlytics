@@ -1337,7 +1337,7 @@
       "title": "Risultati di monitoraggio recenti",
       "badge": "Ultimi 10",
       "empty": "Nessun controllo registrato ancora",
-      "errorsOnly": "Solo errori",
+      "errorsOnly": "Errori",
       "headers": {
         "status": "Stato",
         "ran": "Eseguito",
