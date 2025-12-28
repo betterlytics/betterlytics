@@ -455,6 +455,8 @@ async fn run_loop<S: RunnerStrategy>(
             if let Some(ref rl) = rate_limiter {
                 let domain = check.url.host_str().unwrap_or_default();
                 if !rl.check(domain) {
+                    // Mark as run so scheduler waits for normal interval before retrying
+                    last_run.insert(check.id.clone(), now);
                     debug!(
                         runner = runner_name,
                         check = %check.id,

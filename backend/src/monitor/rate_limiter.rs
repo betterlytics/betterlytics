@@ -64,6 +64,6 @@ impl DomainRateLimiter {
 
 impl Default for DomainRateLimiter {
     fn default() -> Self {
-        Self::new(10, Duration::from_mins(1))
+        Self::new(10, Duration::from_secs(10))
     }
 }
