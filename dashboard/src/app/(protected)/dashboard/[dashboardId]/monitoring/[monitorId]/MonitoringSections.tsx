@@ -9,7 +9,6 @@ import {
   type MonitorMetrics,
   type MonitorResult,
 } from '@/entities/analytics/monitoring.entities';
-import { formatDistanceToNow } from 'date-fns';
 import { formatCompactFromMilliseconds, formatDuration } from '@/utils/dateFormatters';
 import {
   MONITOR_TONE,
@@ -24,7 +23,7 @@ import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
 import { ResponseTimeChart } from './ResponseTimeChart';
 import { useLocale, useTranslations } from 'next-intl';
 import { MonitoringTooltip } from './MonitoringTooltip';
-import { formatPercentage } from '@/utils/formatters';
+import { formatPercentage, formatTimeFromNow } from '@/utils/formatters';
 import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
 
@@ -205,7 +204,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
               className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
             >
               <span className='text-muted-foreground font-semibold tracking-wide'>
-                {stat.label ?? t('uptime.stats.label', { days: totalDays })}
+                {t('uptime.stats.label', { days: stat.windowDays })}
               </span>
               <div className='text-right'>
                 <div className={presentUptimeTone(stat.percent).theme.text}>
@@ -231,6 +230,7 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
   const presentation = presentIncidentState(segment.state);
   const label = t(presentation.labelKey);
   const reasonKey = getReasonTranslationKey(segment.reason);
+  const locale = useLocale();
   return (
     <TableRow className='text-sm'>
       <TableCell>
@@ -241,7 +241,7 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{tReason(reasonKey)}</TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
-        {formatDistanceToNow(start, { addSuffix: true })}
+        {formatTimeFromNow(start, locale)}
       </TableCell>
       <TableCell className='text-muted-foreground text-right text-xs sm:text-sm'>{duration}</TableCell>
     </TableRow>
@@ -255,6 +255,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
   const presentation = presentCheckStatus(check.status);
   const label = t(presentation.labelKey);
   const reasonKey = getReasonTranslationKey(check.reasonCode);
+  const locale = useLocale();
   return (
     <TableRow className='text-sm'>
       <TableCell>
@@ -264,7 +265,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
         </div>
       </TableCell>
       <TableCell className='text-muted-foreground w-[150px] text-xs whitespace-nowrap sm:text-sm'>
-        {formatDistanceToNow(timestamp, { addSuffix: true })}
+        {formatTimeFromNow(timestamp, locale)}
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
         <span className='text-foreground font-semibold'>{formatCompactFromMilliseconds(check.latencyMs)}</span>

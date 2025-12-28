@@ -94,3 +94,28 @@ export function formatDowntimeFromUptimeHours(uptimePercent: number, hours: numb
 export function formatDowntimeFromUptimeDays(uptimePercent: number, days: number): string {
   return formatDowntimeFromUptimeHours(uptimePercent, days * 24);
 }
+
+export function formatTimeFromNow(date: Date, locale: string): string {
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+  const diffMs = date.getTime() - Date.now();
+  const diffSec = Math.round(diffMs / 1000);
+
+  const divisions: [Intl.RelativeTimeFormatUnit, number][] = [
+    ['year', 60 * 60 * 24 * 365],
+    ['month', 60 * 60 * 24 * 30],
+    ['day', 60 * 60 * 24],
+    ['hour', 60 * 60],
+    ['minute', 60],
+    ['second', 1],
+  ];
+
+  for (const [unit, secondsInUnit] of divisions) {
+    const value = diffSec / secondsInUnit;
+    if (Math.abs(value) >= 1) {
+      return rtf.format(Math.round(value), unit);
+    }
+  }
+
+  return rtf.format(0, 'second');
+}
