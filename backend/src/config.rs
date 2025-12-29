@@ -152,6 +152,14 @@ pub struct EmailConfig {
 impl EmailConfig {
     /// Returns None if MAILER_SEND_API_TOKEN is not set (email disabled).
     pub fn from_env() -> Option<Self> {
+        let email_enabled = env::var("ENABLE_EMAILS")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+
+        if !email_enabled {
+            return None;
+        }
+
         let api_key = env::var("MAILER_SEND_API_TOKEN").ok()?;
 
         Some(Self {

@@ -1,8 +1,7 @@
 'use client';
 
 import { type Dispatch, type SetStateAction, useEffect, useRef } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   type MonitorIncidentSegment,
@@ -15,7 +14,6 @@ import {
   presentCheckStatus,
   presentIncidentState,
   presentUptimeTone,
-  type CheckStatusPresentation,
   type MonitorTone,
 } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
@@ -26,6 +24,7 @@ import { MonitoringTooltip } from './MonitoringTooltip';
 import { formatPercentage, formatTimeFromNow } from '@/utils/formatters';
 import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
+import { CardHeader, SectionCard, StatusDot, TimePeriodBadge } from '../components';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return (
@@ -36,13 +35,8 @@ export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
 export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment[] }) {
   const t = useTranslations('monitoringDetailPage');
   return (
-    <Card className='border-border/70 bg-card/80 flex flex-col gap-4 p-5 shadow-lg shadow-black/10 xl:col-span-2'>
-      <div className='flex items-center justify-between'>
-        <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{t('incidents.title')}</p>
-        <Badge variant='secondary' className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'>
-          {t('incidents.badge')}
-        </Badge>
-      </div>
+    <SectionCard className='flex flex-col gap-4 xl:col-span-2'>
+      <CardHeader title={t('incidents.title')} badge={<TimePeriodBadge>{t('incidents.badge')}</TimePeriodBadge>} />
       <CardContent className='px-0'>
         {incidents.length === 0 ? (
           <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
@@ -72,7 +66,7 @@ export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment
           </div>
         )}
       </CardContent>
-    </Card>
+    </SectionCard>
   );
 }
 
@@ -87,10 +81,10 @@ export function RecentChecksCard({
 }) {
   const t = useTranslations('monitoringDetailPage');
   return (
-    <Card className='border-border/70 bg-card/80 p-5 shadow-lg shadow-black/10 lg:col-span-2'>
-      <div className='flex items-center justify-between'>
-        <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{t('recent.title')}</p>
-        <div className='flex items-center gap-2'>
+    <SectionCard className='lg:col-span-2'>
+      <CardHeader
+        title={t('recent.title')}
+        actions={
           <button
             type='button'
             onClick={() => setErrorsOnly(!errorsOnly)}
@@ -105,14 +99,9 @@ export function RecentChecksCard({
             <div className={cn('h-3 w-3 rounded-full border', errorsOnly && MONITOR_TONE.down.dot)} />
             <span>{t('recent.errorsOnly')}</span>
           </button>
-          <Badge
-            variant='secondary'
-            className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'
-          >
-            {t('recent.badge')}
-          </Badge>
-        </div>
-      </div>
+        }
+        badge={<TimePeriodBadge>{t('recent.badge')}</TimePeriodBadge>}
+      />
 
       {checks.length === 0 ? (
         <div className='border-border/60 bg-background/30 text-muted-foreground flex items-center justify-center rounded-md border p-3 text-xs'>
@@ -138,7 +127,7 @@ export function RecentChecksCard({
           </Table>
         </div>
       )}
-    </Card>
+    </SectionCard>
   );
 }
 
@@ -178,13 +167,11 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
   };
 
   return (
-    <Card className='border-border/70 bg-card/80 p-5 shadow-lg shadow-black/10'>
-      <div className='flex items-center justify-between gap-2'>
-        <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{resolvedTitle}</p>
-        <Badge variant='secondary' className='border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs'>
-          {t('uptime.badge', { days: totalDays })}
-        </Badge>
-      </div>
+    <SectionCard>
+      <CardHeader
+        title={resolvedTitle}
+        badge={<TimePeriodBadge>{t('uptime.badge', { days: totalDays })}</TimePeriodBadge>}
+      />
       <div className='space-y-4'>
         <div ref={scrollContainerRef} className='overflow-x-auto'>
           <div className='grid auto-cols-[14px] grid-flow-col auto-rows-[14px] grid-rows-7 justify-start gap-[3px]'>
@@ -230,7 +217,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
           })}
         </div>
       </div>
-    </Card>
+    </SectionCard>
   );
 }
 
@@ -247,7 +234,7 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
     <TableRow className='text-sm'>
       <TableCell>
         <div className='flex items-center gap-2'>
-          <span className={`inline-block h-2.5 w-2.5 rounded-full ${presentation.theme.dot}`} aria-label={label} />
+          <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </div>
       </TableCell>
@@ -272,7 +259,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
     <TableRow className='text-sm'>
       <TableCell>
         <div className='flex items-center gap-2'>
-          <CheckStatusDot presentation={presentation} label={label} />
+          <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </div>
       </TableCell>
@@ -288,8 +275,4 @@ function CheckRow({ check }: { check: MonitorResult }) {
       </TableCell>
     </TableRow>
   );
-}
-
-function CheckStatusDot({ presentation, label }: { presentation: CheckStatusPresentation; label: string }) {
-  return <span className={`inline-block h-2.5 w-2.5 rounded-full ${presentation.theme.dot}`} aria-label={label} />;
 }
