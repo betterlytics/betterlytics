@@ -134,27 +134,25 @@ export function EditMonitorSheet({
               />
             </div>
 
-            <div className='border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 flex items-center justify-between gap-3 border-t px-6 py-4 backdrop-blur'>
-              <div className='flex items-center gap-2'>
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => setShowDeleteDialog(true)}
-                  disabled={isPending || deleteMutation.isPending}
-                  className='text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer gap-1.5'
-                >
-                  <Trash2 className='h-4 w-4' aria-hidden />
-                  <span>{t('delete.trigger')}</span>
-                </Button>
+            <div className='border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 flex items-center justify-end gap-3 border-t px-6 py-4 backdrop-blur sm:justify-between'>
+              <Button
+                type='button'
+                variant='ghost'
+                size='sm'
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isPending || deleteMutation.isPending}
+                className='text-destructive hover:text-destructive hover:bg-destructive/10 hidden cursor-pointer gap-1.5 sm:flex'
+              >
+                <Trash2 className='h-4 w-4' aria-hidden />
+                <span>{t('delete.trigger')}</span>
+              </Button>
+              <div className='flex items-center gap-3'>
                 {form.isDirty && (
-                  <>
+                  <div className='flex items-center gap-2'>
                     <div className='h-2 w-2 animate-pulse rounded-full bg-amber-500' />
-                    <span className='text-muted-foreground text-xs'>{t('unsavedChanges')}</span>
-                  </>
+                    <span className='text-muted-foreground text-xs whitespace-nowrap'>{t('unsavedChanges')}</span>
+                  </div>
                 )}
-              </div>
-              <div className='flex gap-3'>
                 <Button
                   type='button'
                   variant='ghost'
