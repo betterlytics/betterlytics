@@ -32,6 +32,7 @@ pub struct MonitorIncidentRow {
     pub notified_down_at: Option<DateTime<Utc>>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub notified_resolve_at: Option<DateTime<Utc>>,
+    pub last_ssl_milestone_notified: Option<i32>,
     pub kind: String,
 }
 
@@ -66,6 +67,7 @@ impl MonitorIncidentRow {
             status_code: snapshot.last_error_status_code,
             notified_down_at: notified.last_down,
             notified_resolve_at: notified.last_recovery,
+            last_ssl_milestone_notified: notified.last_ssl_milestone,
             kind: kind.to_string(),
         })
     }
@@ -75,6 +77,7 @@ impl MonitorIncidentRow {
 pub struct NotificationSnapshot {
     pub last_down: Option<DateTime<Utc>>,
     pub last_recovery: Option<DateTime<Utc>>,
+    pub last_ssl_milestone: Option<i32>,
 }
 
 #[derive(Debug, Clone)]
@@ -92,6 +95,7 @@ pub struct IncidentSeed {
     pub status_code: Option<u16>,
     pub notified_down_at: Option<DateTime<Utc>>,
     pub notified_resolve_at: Option<DateTime<Utc>>,
+    pub last_ssl_milestone_notified: Option<i32>,
 }
 
 fn deserialize_reason_code<'de, D>(deserializer: D) -> Result<ReasonCode, D::Error>
@@ -124,6 +128,7 @@ struct IncidentSeedRow {
     pub notified_down_at: Option<DateTime<Utc>>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub notified_resolve_at: Option<DateTime<Utc>>,
+    pub last_ssl_milestone_notified: Option<i32>,
 }
 
 impl From<IncidentSeedRow> for IncidentSeed {
@@ -149,6 +154,7 @@ impl From<IncidentSeedRow> for IncidentSeed {
             status_code: row.status_code,
             notified_down_at: row.notified_down_at,
             notified_resolve_at: row.notified_resolve_at,
+            last_ssl_milestone_notified: row.last_ssl_milestone_notified,
         }
     }
 }
@@ -194,7 +200,8 @@ impl IncidentStore {
                 reason_code,
                 status_code,
                 notified_down_at,
-                notified_resolve_at
+                notified_resolve_at,
+                last_ssl_milestone_notified
             FROM {table}
             FINAL
             WHERE state = 1

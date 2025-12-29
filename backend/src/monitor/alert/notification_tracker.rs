@@ -7,12 +7,15 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use tracing::info;
 use uuid::Uuid;
 
 use crate::monitor::incident::{IncidentSeed, NotificationSnapshot};
+
+/// Milestone days for SSL expiry notifications
+pub const SSL_MILESTONES: [i32; 5] = [30, 14, 7, 3, 1];
 
 /// Per-monitor notification timestamps
 #[derive(Clone, Debug, Default)]
@@ -23,19 +26,18 @@ struct NotificationTimestamps {
     last_recovery_incident: Option<Uuid>,
     last_ssl: Option<DateTime<Utc>>,
     last_ssl_expired_for: Option<DateTime<Utc>>,
+    last_ssl_milestone_notified: Option<i32>,
 }
 
 /// Tracks notification state to prevent duplicates and enforce cooldowns
 pub struct NotificationTracker {
     state: DashMap<String, NotificationTimestamps>,
-    ssl_cooldown: Duration,
 }
 
 impl NotificationTracker {
-    pub fn new(ssl_cooldown: Duration) -> Arc<Self> {
+    pub fn new() -> Arc<Self> {
         Arc::new(Self {
             state: DashMap::new(),
-            ssl_cooldown,
         })
     }
 
@@ -54,6 +56,10 @@ impl NotificationTracker {
             if let Some(ts) = seed.notified_resolve_at {
                 entry.last_recovery = Some(ts);
                 entry.last_recovery_incident = Some(seed.incident_id);
+            }
+
+            if let Some(milestone) = seed.last_ssl_milestone_notified {
+                entry.last_ssl_milestone_notified = Some(milestone);
             }
         }
 
@@ -88,7 +94,7 @@ impl NotificationTracker {
 
     /// Check if we should notify for an SSL expiry
     /// - For expired certs we only notify ONCE per unique expiry date
-    /// - For expiring certs we notify if cooldown period has passed
+    /// - For expiring certs we notify at milestone days
     pub fn should_notify_ssl(
         &self,
         check_id: &str,
@@ -111,20 +117,27 @@ impl NotificationTracker {
             };
         }
 
-        let now = Utc::now();
-        entry
-            .last_ssl
-            .map(|t| now.signed_duration_since(t) > self.ssl_cooldown)
-            .unwrap_or(true)
+        let is_milestone = SSL_MILESTONES.iter().any(|&m| days_left == m && m <= threshold);
+        if !is_milestone {
+            return false;
+        }
+
+        if entry.last_ssl_milestone_notified == Some(days_left) {
+            return false;
+        }
+
+        true
     }
 
     /// Mark that we've sent an SSL notification
-    pub fn mark_notified_ssl(&self, check_id: &str, expired: bool, expiry_date: Option<DateTime<Utc>>) {
+    pub fn mark_notified_ssl(&self, check_id: &str, expired: bool, expiry_date: Option<DateTime<Utc>>, days_left: i32) {
         let mut entry = self.state.entry(check_id.to_string()).or_default();
         entry.last_ssl = Some(Utc::now());
         
         if expired {
             entry.last_ssl_expired_for = expiry_date;
+        } else {
+            entry.last_ssl_milestone_notified = Some(days_left);
         }
     }
 
@@ -135,6 +148,7 @@ impl NotificationTracker {
             .map(|t| NotificationSnapshot {
                 last_down: t.last_down,
                 last_recovery: t.last_recovery,
+                last_ssl_milestone: t.last_ssl_milestone_notified,
             })
             .unwrap_or_default()
     }

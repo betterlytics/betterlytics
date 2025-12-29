@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS analytics.monitor_incidents
 
     notified_down_at     Nullable(DateTime64(3)),
     notified_resolve_at  Nullable(DateTime64(3)),
+    last_ssl_milestone_notified Nullable(Int32),
 
     kind LowCardinality(String)
 )

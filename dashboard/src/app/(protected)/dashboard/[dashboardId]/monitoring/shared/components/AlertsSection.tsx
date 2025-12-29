@@ -9,7 +9,7 @@ import { SettingToggle } from '@/components/inputs/SettingToggle';
 import { EmailTokenInput } from '@/components/inputs/EmailTokenInput';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { SectionHeader } from './SectionHeader';
-import { SSL_EXPIRY_DISPLAY_MARKS, RECOMMENDED_SSL_EXPIRY_DAYS } from '../utils/sliderConstants';
+import { SSL_EXPIRY_MARKS, SSL_EXPIRY_DISPLAY_MARKS, RECOMMENDED_SSL_EXPIRY_DAYS } from '../utils/sliderConstants';
 import type { MonitorFormInterface } from '../types';
 
 export type AlertsSectionProps = {
@@ -113,13 +113,13 @@ export function AlertsSection({
                     <LabeledSlider
                       label={t('sslExpiryDays')}
                       description={t('sslExpiryDaysDescription')}
-                      value={state.sslExpiryAlertDays}
-                      min={1}
-                      max={90}
+                      value={SSL_EXPIRY_MARKS.indexOf(state.sslExpiryAlertDays)}
+                      min={0}
+                      max={SSL_EXPIRY_MARKS.length - 1}
                       marks={SSL_EXPIRY_DISPLAY_MARKS}
-                      onValueChange={setField('sslExpiryAlertDays')}
-                      formatValue={(v) => t('daysCount', { count: v })}
-                      recommendedValue={RECOMMENDED_SSL_EXPIRY_DAYS}
+                      onValueChange={(idx) => setField('sslExpiryAlertDays')(SSL_EXPIRY_MARKS[idx])}
+                      formatValue={(idx) => t('daysCount', { count: SSL_EXPIRY_MARKS[idx] })}
+                      recommendedValue={SSL_EXPIRY_MARKS.indexOf(RECOMMENDED_SSL_EXPIRY_DAYS)}
                       disabled={isPending}
                     />
                   </div>

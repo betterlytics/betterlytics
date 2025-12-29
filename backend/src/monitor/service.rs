@@ -66,7 +66,6 @@ pub struct IncidentOrchestratorConfig {
     pub evaluator_config: IncidentEvaluatorConfig,
     pub email_config: Option<EmailConfig>,
     pub public_base_url: String,
-    pub ssl_cooldown: Duration,
 }
 
 impl IncidentOrchestratorConfig {
@@ -75,7 +74,6 @@ impl IncidentOrchestratorConfig {
             evaluator_config: IncidentEvaluatorConfig::default(),
             email_config: config.email.clone(),
             public_base_url: config.public_base_url.clone(),
-            ssl_cooldown: Duration::hours(24),
         }
     }
 }
@@ -108,7 +106,7 @@ impl IncidentOrchestrator {
         }
 
         let evaluator = IncidentEvaluator::new(config.evaluator_config);
-        let notification_tracker = NotificationTracker::new(config.ssl_cooldown);
+        let notification_tracker = NotificationTracker::new();
 
         if let Some(store_ref) = incident_store.as_ref() {
             let seeds = store_ref
@@ -386,7 +384,7 @@ impl IncidentOrchestrator {
             .await;
 
         if result {
-            self.notification_tracker.mark_notified_ssl(&ctx.check.id, expired, ctx.tls_not_after);
+            self.notification_tracker.mark_notified_ssl(&ctx.check.id, expired, ctx.tls_not_after, days_left);
 
             info!(
                 check_id = %ctx.check.id,

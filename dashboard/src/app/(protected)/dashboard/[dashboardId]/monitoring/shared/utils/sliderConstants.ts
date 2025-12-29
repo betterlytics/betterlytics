@@ -40,11 +40,15 @@ export const SENSITIVITY_DISPLAY_MARKS: SliderMark[] = [
   { idx: 10, label: '10' },
 ];
 
+// SSL expiry milestone days - these match the backend notification milestones
+export const SSL_EXPIRY_MARKS = [1, 3, 7, 14, 30];
+
 export const SSL_EXPIRY_DISPLAY_MARKS: SliderMark[] = [
-  { idx: 1, label: '1d' },
-  { idx: 30, label: '30d' },
-  { idx: 60, label: '60d' },
-  { idx: 90, label: '90d' },
+  { idx: 0, label: '1d' },
+  { idx: 1, label: '3d' },
+  { idx: 2, label: '7d' },
+  { idx: 3, label: '14d' },
+  { idx: 4, label: '30d' },
 ];
 
 export const RECOMMENDED_INTERVAL_SECONDS = 60;
