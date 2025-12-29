@@ -50,6 +50,9 @@ export async function getMonitorUptimeBuckets(
       ? safeSql`toStartOfDay(${SQL.DateTime({ rangeStart })}, {timezone:String})`
       : safeSql`${SQL.DateTime({ rangeStart })}`;
 
+  // Used for calculating bucket end in seconds
+  const bucketSizeSeconds = safeSql`least(${totalSeconds}, abs(dateDiff('second', bucket_start, now())))`;
+
   const query = safeSql`
     WITH incident_buckets AS (
       SELECT
@@ -76,18 +79,18 @@ export async function getMonitorUptimeBuckets(
       if(
         ${SQL.DateTime({ createdAt: createdAtStr })} >= bucket_start + INTERVAL 1 ${interval},
         NULL,
-        ${totalSeconds} - sum(
+        ${bucketSizeSeconds} - sum(
           greatest(
             0,
             dateDiff(
               'second',
               greatest(ib.started_at, bucket_start),
-              least(ib.effective_resolved_at, bucket_start + INTERVAL 1 ${interval})
+              least(ib.effective_resolved_at, bucket_start + INTERVAL 1 ${interval}, now())
             )
           )
         )
       ) AS uptime_seconds,
-      ${totalSeconds} AS total_seconds
+      ${bucketSizeSeconds} AS total_seconds
     FROM (
       SELECT arrayJoin(
         arrayMap(
