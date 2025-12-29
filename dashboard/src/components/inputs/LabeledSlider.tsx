@@ -40,7 +40,7 @@ export function LabeledSlider({
 
   return (
     <div className='space-y-4'>
-      <div className='flex items-baseline items-end justify-between'>
+      <div className='flex items-end justify-between'>
         <div className='space-y-0.5'>
           <Label className='text-sm font-medium'>{label}</Label>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
