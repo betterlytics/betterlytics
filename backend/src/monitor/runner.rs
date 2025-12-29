@@ -47,7 +47,7 @@ impl Default for TlsRuntimeConfig {
         Self {
             scheduler_tick: StdDuration::from_millis(60_000),
             max_concurrency: 20,
-            probe_interval: StdDuration::from_secs(6 * 60 * 60),
+            probe_interval: StdDuration::from_secs(60 * 60),
         }
     }
 }
