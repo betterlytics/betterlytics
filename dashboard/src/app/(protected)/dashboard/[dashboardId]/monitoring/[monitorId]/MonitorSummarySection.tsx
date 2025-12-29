@@ -28,6 +28,7 @@ import { formatIntervalLabel, formatSslTimeRemaining, isHttpUrl } from '../utils
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { isExpiredReason } from '../styles/ssl';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 
 type MonitorSummarySectionProps = {
   monitor: Pick<
@@ -412,10 +413,20 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
           </div>
           <p className='text-foreground text-sm font-medium'>{t('disabledDescription')}</p>
           {onEnableClick && (
-            <Button variant='link' size='sm' onClick={onEnableClick} className='h-auto cursor-pointer p-0 text-xs'>
-              {t('enableInSettings')}
-              <ArrowRight className='h-3 w-3' aria-hidden />
-            </Button>
+            <DisabledDemoTooltip>
+              {(disabled) => (
+                <Button
+                  disabled={disabled}
+                  variant='link'
+                  size='sm'
+                  onClick={onEnableClick}
+                  className='h-auto cursor-pointer p-0 text-xs'
+                >
+                  {t('enableInSettings')}
+                  <ArrowRight className='h-3 w-3' aria-hidden />
+                </Button>
+              )}
+            </DisabledDemoTooltip>
           )}
         </div>
       )}

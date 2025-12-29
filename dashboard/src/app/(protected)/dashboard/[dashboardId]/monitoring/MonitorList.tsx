@@ -1,10 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Activity, AlertTriangle, Link2, RefreshCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useTranslations } from 'next-intl';
 import { formatIntervalLabel, formatSslTimeRemaining, safeHostname } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
@@ -27,7 +27,6 @@ type MonitorListProps = {
 };
 
 export function MonitorList({ monitors }: MonitorListProps) {
-  const router = useRouter();
   const t = useTranslations('monitoringPage');
   const tMonitoringLabels = useTranslations('monitoring.labels');
   const tSsl = useTranslations('monitoring.ssl');
@@ -76,114 +75,103 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;
         const effectiveLabel = formatIntervalLabel(t, monitor.effectiveIntervalSeconds ?? monitor.intervalSeconds);
 
-        const monitorHref = `/dashboard/${monitor.dashboardId}/monitoring/${monitor.id}`;
-
         return (
-          <Card
-            key={monitor.id}
-            className='border-border/70 bg-card/80 hover:border-border hover:bg-card group focus-visible:ring-primary/40 focus-visible:ring-offset-background relative cursor-pointer overflow-hidden py-1 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sm:py-3'
-            tabIndex={0}
-            onClick={() => router.push(monitorHref)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                router.push(monitorHref);
-              }
-            }}
-          >
-            <div
-              className={`absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b ${statusPresentation.gradient}`}
-              aria-hidden
-            />
-
-            {/* Mobile layout */}
-            <div className='flex items-center gap-3 px-4 py-2 md:hidden'>
-              <LiveIndicator
-                color={statusPresentation.indicator}
-                positionClassName='relative'
-                sizeClassName='h-2.5 w-2.5'
-                pulse={monitor.operationalState !== 'paused'}
+          <FilterPreservingLink key={monitor.id} href={`monitoring/${monitor.id}`} className='block'>
+            <Card className='border-border/70 bg-card/80 hover:border-border hover:bg-card group focus-visible:ring-primary/40 focus-visible:ring-offset-background relative cursor-pointer overflow-hidden py-1 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sm:py-3'>
+              <div
+                className={`absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b ${statusPresentation.gradient}`}
+                aria-hidden
               />
-              <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-                <span className='truncate text-sm font-semibold'>{displayName}</span>
-                <span className='text-muted-foreground text-xs'>
-                  {getStatusDurationText({
-                    currentStateSince: monitor.currentStateSince,
-                    isUp: statusPresentation.label === 'Up',
-                    t,
-                  }) || (!hasData ? t('list.noData') : '')}
-                </span>
-              </div>
-              <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
-                <MonitorActionMenu monitor={monitor} dashboardId={monitor.dashboardId} />
-              </div>
-            </div>
 
-            {/* Desktop layout */}
-            <div className='hidden w-full px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_1fr] md:items-center md:gap-4'>
-              <div className='flex items-start gap-2'>
-                <div className='space-y-1.5'>
-                  <div className='flex items-center justify-between gap-2'>
-                    <div className='flex items-center gap-2 text-sm leading-tight font-semibold'>
-                      <MonitorStatusBadge presentation={statusPresentation} />
-                      <span className='truncate'>{displayName}</span>
-                    </div>
-                  </div>
-                  <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs'>
-                    <span className='inline-flex items-center gap-1'>
-                      <Link2 size={14} />
-                      <span className='max-w-[240px] truncate'>{monitor.url}</span>
-                    </span>
-                    {monitor.currentStateSince && (
-                      <span className='text-muted-foreground/70'>
-                        |{' '}
-                        {getStatusDurationText({
-                          currentStateSince: monitor.currentStateSince,
-                          isUp: statusPresentation.label === 'Up',
-                          t,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[120px_minmax(180px,240px)_minmax(250px,1fr)_max-content_48px]'>
-                <div className='text-muted-foreground flex items-center gap-2 text-xs font-semibold whitespace-nowrap'>
-                  <span className='flex items-center gap-1'>
-                    <RefreshCcw size={14} aria-hidden />
-                    <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
+              {/* Mobile layout */}
+              <div className='flex items-center gap-3 px-4 py-2 md:hidden'>
+                <LiveIndicator
+                  color={statusPresentation.indicator}
+                  positionClassName='relative'
+                  sizeClassName='h-2.5 w-2.5'
+                  pulse={monitor.operationalState !== 'paused'}
+                />
+                <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
+                  <span className='truncate text-sm font-semibold'>{displayName}</span>
+                  <span className='text-muted-foreground text-xs'>
+                    {getStatusDurationText({
+                      currentStateSince: monitor.currentStateSince,
+                      isUp: statusPresentation.label === 'Up',
+                      t,
+                    }) || (!hasData ? t('list.noData') : '')}
                   </span>
-                  {isBackedOff && (
-                    <BackoffBadge
-                      label={effectiveLabel}
-                      message={t('list.backoffTooltip', { value: effectiveLabel })}
-                    />
-                  )}
                 </div>
-                <div className='min-w-[180px]'>
-                  <SslStatusPill
-                    presentation={sslPresentation}
-                    label={sslBadgeLabel}
-                    tooltipLabel={sslTooltipLabel}
-                  />
-                </div>
-                <div className='hidden min-w-0 xl:block'>
-                  {hasData ? (
-                    <PillBar data={monitor.uptimeBuckets} />
-                  ) : (
-                    <p className='text-muted-foreground text-xs font-medium'>{t('list.noData')}</p>
-                  )}
-                </div>
-                <span className={`hidden text-xs font-semibold whitespace-nowrap xl:inline ${theme.text}`}>
-                  {percentLabel}
-                </span>
-                <div className='flex items-center justify-center' onClick={(e) => e.stopPropagation()}>
+                <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
                   <MonitorActionMenu monitor={monitor} dashboardId={monitor.dashboardId} />
                 </div>
               </div>
-            </div>
-          </Card>
+
+              {/* Desktop layout */}
+              <div className='hidden w-full px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_1fr] md:items-center md:gap-4'>
+                <div className='flex items-start gap-2'>
+                  <div className='space-y-1.5'>
+                    <div className='flex items-center justify-between gap-2'>
+                      <div className='flex items-center gap-2 text-sm leading-tight font-semibold'>
+                        <MonitorStatusBadge presentation={statusPresentation} />
+                        <span className='truncate'>{displayName}</span>
+                      </div>
+                    </div>
+                    <div className='text-muted-foreground flex flex-wrap items-center gap-2 text-xs'>
+                      <span className='inline-flex items-center gap-1'>
+                        <Link2 size={14} />
+                        <span className='max-w-[240px] truncate'>{monitor.url}</span>
+                      </span>
+                      {monitor.currentStateSince && (
+                        <span className='text-muted-foreground/70'>
+                          |{' '}
+                          {getStatusDurationText({
+                            currentStateSince: monitor.currentStateSince,
+                            isUp: statusPresentation.label === 'Up',
+                            t,
+                          })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[120px_minmax(180px,240px)_minmax(250px,1fr)_max-content_48px]'>
+                  <div className='text-muted-foreground flex items-center gap-2 text-xs font-semibold whitespace-nowrap'>
+                    <span className='flex items-center gap-1'>
+                      <RefreshCcw size={14} aria-hidden />
+                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
+                    </span>
+                    {isBackedOff && (
+                      <BackoffBadge
+                        label={effectiveLabel}
+                        message={t('list.backoffTooltip', { value: effectiveLabel })}
+                      />
+                    )}
+                  </div>
+                  <div className='min-w-[180px]'>
+                    <SslStatusPill
+                      presentation={sslPresentation}
+                      label={sslBadgeLabel}
+                      tooltipLabel={sslTooltipLabel}
+                    />
+                  </div>
+                  <div className='hidden min-w-0 xl:block'>
+                    {hasData ? (
+                      <PillBar data={monitor.uptimeBuckets} />
+                    ) : (
+                      <p className='text-muted-foreground text-xs font-medium'>{t('list.noData')}</p>
+                    )}
+                  </div>
+                  <span className={`hidden text-xs font-semibold whitespace-nowrap xl:inline ${theme.text}`}>
+                    {percentLabel}
+                  </span>
+                  <div className='flex items-center justify-center' onClick={(e) => e.stopPropagation()}>
+                    <MonitorActionMenu monitor={monitor} dashboardId={monitor.dashboardId} />
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </FilterPreservingLink>
         );
       })}
     </div>

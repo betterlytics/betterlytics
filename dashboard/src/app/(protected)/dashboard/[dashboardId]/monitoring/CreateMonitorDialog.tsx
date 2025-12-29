@@ -29,6 +29,7 @@ type CreateMonitorDialogProps = {
   dashboardId: string;
   domain: string;
   existingUrls: string[];
+  disabled?: boolean;
 };
 
 type Section = 'timing' | 'alerts' | 'advanced' | null;
@@ -41,7 +42,7 @@ function getHostname(url: string): string | null {
   }
 }
 
-export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: CreateMonitorDialogProps) {
+export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disabled }: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState(`https://${domain}`);
   const [expandedSection, setExpandedSection] = useState<Section>('timing');
@@ -101,7 +102,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls }: Creat
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='default' className='cursor-pointer whitespace-nowrap'>
+        <Button variant='default' className='cursor-pointer whitespace-nowrap' disabled={disabled}>
           {t('create')}
         </Button>
       </DialogTrigger>

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useState, useCallback, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, PauseCircle, Pencil, PlayCircle } from 'lucide-react';
@@ -14,6 +14,7 @@ import {
 } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
 import { EditableLabel } from '@/components/inputs/EditableLabel';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import {
   MONITOR_LIMITS,
   type MonitorCheck,
@@ -142,7 +143,6 @@ export function MonitorDetailClient({
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <MonitorHeader
-        dashboardId={dashboardId}
         monitorName={monitorData.name || hostname}
         url={monitorData.url}
         operationalState={operationalState}
@@ -157,43 +157,56 @@ export function MonitorDetailClient({
 
             {/* Desktop */}
             <div className='hidden items-center gap-2 sm:flex'>
-              <Button
-                variant='outline'
-                size='sm'
-                type='button'
-                disabled={statusMutation.isPending}
-                onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
-                className='inline-flex cursor-pointer items-center gap-1.5'
-              >
-                {statusMutation.isPending ? (
-                  monitorData.isEnabled ? (
-                    tActions('pausing')
-                  ) : (
-                    tActions('resuming')
-                  )
-                ) : (
-                  <span className='inline-flex items-center gap-1.5'>
-                    {monitorData.isEnabled ? (
-                      <PauseCircle className='h-4 w-4' aria-hidden />
+              <DisabledDemoTooltip>
+                {(disabled) => (
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    type='button'
+                    disabled={disabled || statusMutation.isPending}
+                    onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
+                    className='inline-flex cursor-pointer items-center gap-1.5'
+                  >
+                    {statusMutation.isPending ? (
+                      monitorData.isEnabled ? (
+                        tActions('pausing')
+                      ) : (
+                        tActions('resuming')
+                      )
                     ) : (
-                      <PlayCircle className='h-4 w-4' aria-hidden />
+                      <span className='inline-flex items-center gap-1.5'>
+                        {monitorData.isEnabled ? (
+                          <PauseCircle className='h-4 w-4' aria-hidden />
+                        ) : (
+                          <PlayCircle className='h-4 w-4' aria-hidden />
+                        )}
+                        <span>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</span>
+                      </span>
                     )}
-                    <span>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</span>
-                  </span>
-                )}
-              </Button>
-              <EditMonitorSheet
-                dashboardId={dashboardId}
-                monitor={monitorData}
-                open={editSheetOpen}
-                onOpenChange={setEditSheetOpen}
-                trigger={
-                  <Button size='sm' variant='outline' className='inline-flex cursor-pointer items-center gap-1.5'>
-                    <Pencil className='h-4 w-4' aria-hidden />
-                    <span>{tDetail('actions.edit')}</span>
                   </Button>
-                }
-              />
+                )}
+              </DisabledDemoTooltip>
+              <DisabledDemoTooltip>
+                {(disabled) => (
+                  <EditMonitorSheet
+                    dashboardId={dashboardId}
+                    monitor={monitorData}
+                    open={editSheetOpen}
+                    onOpenChange={setEditSheetOpen}
+                    trigger={
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        className='inline-flex cursor-pointer items-center gap-1.5'
+                        disabled={disabled}
+                      >
+                        <Pencil className='h-4 w-4' aria-hidden />
+                        <span>{tDetail('actions.edit')}</span>
+                      </Button>
+                    }
+                  />
+                )}
+              </DisabledDemoTooltip>
             </div>
           </>
         }
@@ -226,7 +239,6 @@ export function MonitorDetailClient({
 }
 
 function MonitorHeader({
-  dashboardId,
   monitorName,
   url,
   operationalState,
@@ -234,7 +246,6 @@ function MonitorHeader({
   onRename,
   isRenaming,
 }: {
-  dashboardId: string;
   monitorName: string;
   url: string;
   operationalState: MonitorOperationalState;
@@ -247,13 +258,13 @@ function MonitorHeader({
 
   return (
     <div className='space-y-2 px-1 pt-1 sm:space-y-3 sm:px-0'>
-      <Link
-        href={`/dashboard/${dashboardId}/monitoring`}
+      <FilterPreservingLink
+        href='monitoring'
         className='text-muted-foreground hover:text-foreground inline-flex cursor-pointer items-center gap-1 text-xs font-medium transition sm:text-sm'
       >
         <ChevronLeft className='h-4 w-4' />
         <span className='cursor-pointer'>{tHeader('back')}</span>
-      </Link>
+      </FilterPreservingLink>
 
       <div className='flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between'>
         <div className='min-w-0 flex-1'>

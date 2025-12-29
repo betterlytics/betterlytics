@@ -141,7 +141,7 @@ export function EditableLabel({
           variant='ghost'
           size='icon'
           onClick={startEditing}
-          className='text-muted-foreground hover:text-foreground h-5 w-5 opacity-0 transition-opacity group-hover:opacity-100'
+          className='text-muted-foreground hover:text-foreground h-5 w-5 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'
         >
           <Pencil className='h-3 w-3' />
         </Button>

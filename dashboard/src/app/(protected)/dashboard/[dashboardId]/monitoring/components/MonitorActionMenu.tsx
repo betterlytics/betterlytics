@@ -21,6 +21,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DestructiveActionDialog } from '@/components/dialogs';
+import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import { type MonitorCheck, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { EditMonitorSheet } from '../[monitorId]/EditMonitorSheet';
@@ -74,64 +75,69 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer transition-colors'
-          >
-            {vertical ? <MoreVertical className='h-4 w-4' /> : <MoreHorizontal className='h-4 w-4' />}
-            <span className='sr-only'>Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end' className='w-48'>
-          <DropdownMenuItem
-            onClick={handleToggleStatus}
-            disabled={statusMutation.isPending}
-            className='cursor-pointer'
-          >
-            {monitor.isEnabled ? (
-              <>
-                <PauseCircle className='mr-2 h-4 w-4' />
-                {statusMutation.isPending ? tMonitorActions('pausing') : tMonitorActions('pause')}
-              </>
-            ) : (
-              <>
-                <PlayCircle className='mr-2 h-4 w-4' />
-                {statusMutation.isPending ? tMonitorActions('resuming') : tMonitorActions('resume')}
-              </>
-            )}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onClick={openRenameDialog} className='cursor-pointer'>
-            <Pencil className='mr-2 h-4 w-4' />
-            {tMisc('rename')}
-          </DropdownMenuItem>
-
-          <EditMonitorSheet
-            dashboardId={dashboardId}
-            monitor={monitor}
-            trigger={
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className='cursor-pointer'>
-                <Settings className='mr-2 h-4 w-4' />
-                {t('settings')}
+      <DisabledDemoTooltip>
+        {(disabled) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant='ghost'
+                size='icon'
+                disabled={disabled}
+                className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer transition-colors'
+              >
+                {vertical ? <MoreVertical className='h-4 w-4' /> : <MoreHorizontal className='h-4 w-4' />}
+                <span className='sr-only'>Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end' className='w-48'>
+              <DropdownMenuItem
+                onClick={handleToggleStatus}
+                disabled={statusMutation.isPending}
+                className='cursor-pointer'
+              >
+                {monitor.isEnabled ? (
+                  <>
+                    <PauseCircle className='mr-2 h-4 w-4' />
+                    {statusMutation.isPending ? tMonitorActions('pausing') : tMonitorActions('pause')}
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle className='mr-2 h-4 w-4' />
+                    {statusMutation.isPending ? tMonitorActions('resuming') : tMonitorActions('resume')}
+                  </>
+                )}
               </DropdownMenuItem>
-            }
-          />
 
-          <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={openRenameDialog} className='cursor-pointer'>
+                <Pencil className='mr-2 h-4 w-4' />
+                {tMisc('rename')}
+              </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => setShowDeleteDialog(true)}
-            variant='destructive'
-            className='cursor-pointer'
-          >
-            <Trash2 className='mr-2 h-4 w-4' />
-            {tMisc('delete')}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+              <EditMonitorSheet
+                dashboardId={dashboardId}
+                monitor={monitor}
+                trigger={
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className='cursor-pointer'>
+                    <Settings className='mr-2 h-4 w-4' />
+                    {t('settings')}
+                  </DropdownMenuItem>
+                }
+              />
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => setShowDeleteDialog(true)}
+                variant='destructive'
+                className='cursor-pointer'
+              >
+                <Trash2 className='mr-2 h-4 w-4' />
+                {tMisc('delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </DisabledDemoTooltip>
 
       {/* Rename Dialog */}
       <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
