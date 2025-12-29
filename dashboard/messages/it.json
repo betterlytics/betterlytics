@@ -1073,7 +1073,12 @@
       "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Replay sessioni",
-      "monitoring": "Monitoraggio"
+      "monitoring": "Monitoraggio",
+      "categories": {
+        "analytics": "Analisi",
+        "behavior": "Comportamento",
+        "observability": "Osservabilità"
+      }
     },
     "metrics": {
       "uniqueVisitors": "Visitatori unici",

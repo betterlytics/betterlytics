@@ -1073,7 +1073,12 @@
       "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Sessionsafspilninger",
-      "monitoring": "Overvågning"
+      "monitoring": "Overvågning",
+      "categories": {
+        "analytics": "Analyse",
+        "behavior": "Adfærd",
+        "observability": "Overvågning"
+      }
     },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",

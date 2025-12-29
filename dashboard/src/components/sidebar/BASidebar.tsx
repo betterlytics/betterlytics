@@ -134,7 +134,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Analytics</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('categories.analytics')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {analyticsItems
@@ -154,7 +154,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Behavior</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('categories.behavior')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {behaviorItems
@@ -185,7 +185,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Observability</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('categories.observability')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {observabilityItems
