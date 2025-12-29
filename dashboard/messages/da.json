@@ -1237,6 +1237,10 @@
       "sortNameDesc": "Navn (Z–A)",
       "sortSslExpires": "SSL udløber"
     },
+    "emptyState": {
+      "title": "Begynd at overvåge dine endpoints",
+      "description": "Få besked, når dit website går ned, og følg oppetiden ved siden af din hjemmesidedata."
+    },
     "list": {
       "noData": "Ingen data endnu",
       "intervalMinutes": "{value} min",

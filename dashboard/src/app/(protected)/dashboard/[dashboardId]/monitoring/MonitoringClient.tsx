@@ -9,6 +9,7 @@ import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
+import { MonitoringEmptyState } from './MonitoringEmptyState';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 
@@ -175,6 +176,10 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
     () => filtersCopy[SORT_LABEL_KEY[sortKey]] ?? filtersCopy.sortLabel,
     [filtersCopy, sortKey],
   );
+
+  if (monitors.length === 0) {
+    return <MonitoringEmptyState dashboardId={dashboardId} domain={domain} />;
+  }
 
   return (
     <div className='space-y-4'>

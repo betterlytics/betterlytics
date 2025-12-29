@@ -1235,6 +1235,10 @@
       "sortNameDesc": "Name (Z-A)",
       "sortSslExpires": "SSL expires"
     },
+    "emptyState": {
+      "title": "Start monitoring your endpoints",
+      "description": "Get notified when your site goes down and track uptime alongside your analytics."
+    },
     "list": {
       "noData": "No data yet",
       "intervalMinutes": "{value} min",

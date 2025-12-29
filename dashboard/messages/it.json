@@ -1237,6 +1237,10 @@
       "sortNameDesc": "Nome (Z–A)",
       "sortSslExpires": "Scadenza SSL"
     },
+    "emptyState": {
+      "title": "Inizia a monitorare i tuoi endpoint",
+      "description": "Ricevi una notifica quando il tuo sito va offline e monitora l'uptime insieme agli altri dati."
+    },
     "list": {
       "noData": "Nessun dato ancora",
       "intervalMinutes": "{value} min",
