@@ -31,3 +31,12 @@ CREATE INDEX "MonitorCheck_dashboardId_idx" ON "MonitorCheck"("dashboardId");
 
 -- AddForeignKey
 ALTER TABLE "MonitorCheck" ADD CONSTRAINT "MonitorCheck_dashboardId_fkey" FOREIGN KEY ("dashboardId") REFERENCES "Dashboard"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+/*
+  Warnings:
+
+  - A unique constraint covering the columns `[id,dashboardId]` on the table `MonitorCheck` will be added. If there are existing duplicate values, this will fail.
+
+*/
+-- CreateIndex
+CREATE UNIQUE INDEX "MonitorCheck_id_dashboardId_key" ON "MonitorCheck"("id", "dashboardId");
