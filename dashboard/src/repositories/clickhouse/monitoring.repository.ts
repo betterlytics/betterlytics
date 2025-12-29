@@ -73,19 +73,35 @@ export async function getMonitorUptimeBuckets(
         AND kind != 'tls'
         AND started_at < ${SQL.DateTime({ rangeEnd })}
         AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
+    ),
+    monitor_presence AS (
+      SELECT
+        toStartOfInterval(ts, INTERVAL 1 ${interval}) AS mp_bucket_start,
+        1 AS has_data
+      FROM analytics.monitor_results
+      WHERE check_id = {check_id:String}
+        AND site_id = {site_id:String}
+        AND kind != 'tls'
+        AND ts >= ${SQL.DateTime({ rangeStart })}
+        AND ts < ${SQL.DateTime({ rangeEnd })}
+      GROUP BY mp_bucket_start
     )
     SELECT
       bucket_start AS date,
-      if(
-        ${SQL.DateTime({ createdAt: createdAtStr })} >= bucket_start + INTERVAL 1 ${interval},
+      IF(
+        mp.has_data = 0,
         NULL,
-        ${bucketSizeSeconds} - sum(
-          greatest(
-            0,
-            dateDiff(
-              'second',
-              greatest(ib.started_at, bucket_start),
-              least(ib.effective_resolved_at, bucket_start + INTERVAL 1 ${interval}, now())
+        IF(
+          ${SQL.DateTime({ createdAt: createdAtStr })} >= bucket_start + INTERVAL 1 ${interval},
+          NULL,
+          ${bucketSizeSeconds} - sum(
+            greatest(
+              0,
+              dateDiff(
+                'second',
+                greatest(ib.started_at, bucket_start),
+                least(ib.effective_resolved_at, bucket_start + INTERVAL 1 ${interval}, now())
+              )
             )
           )
         )
@@ -100,7 +116,8 @@ export async function getMonitorUptimeBuckets(
       ) AS bucket_start
     ) AS buckets
     LEFT JOIN incident_buckets ib ON ib.bucket_key = buckets.bucket_start
-    GROUP BY bucket_start
+    LEFT JOIN monitor_presence mp ON mp.mp_bucket_start = buckets.bucket_start
+    GROUP BY bucket_start, mp.has_data
     ORDER BY bucket_start
   `;
 
