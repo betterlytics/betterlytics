@@ -1949,17 +1949,9 @@
         }
       },
       "emptyState": {
-        "title": "Nessun funnel creato ancora",
-        "description": "Traccia i percorsi degli utenti attraverso il tuo sito e identifica dove i visitatori abbandonano. Crea il tuo primo funnel per iniziare ad analizzare i percorsi di conversione e ottimizzare l'esperienza utente.",
-        "createButton": "Crea il tuo primo Funnel",
-        "features": {
-          "trackSteps": "Traccia i passaggi di conversione",
-          "trackStepsDesc": "Monitora il progresso degli utenti attraverso filtri personalizzati",
-          "identifyDropoffs": "Identifica i punti di abbandono",
-          "identifyDropoffsDesc": "Trova dove gli utenti abbandonano il loro percorso",
-          "optimizeConversions": "Ottimizza le conversioni",
-          "optimizeConversionsDesc": "Migliora il tuo prodotto basandoti sui dati"
-        }
+        "title": "Visualizza il tuo funnel di conversione",
+        "description": "Scopri dove gli utenti abbandonano e ottimizza i tuoi percorsi di conversione passo dopo passo.",
+        "createButton": "Crea funnel"
       }
     },
     "pages": {

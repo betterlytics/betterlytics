@@ -1946,17 +1946,9 @@
         }
       },
       "emptyState": {
-        "title": "No funnels created yet",
-        "description": "Track user journeys through your site and identify where visitors drop off. Create your first funnel to start analyzing conversion paths and optimize your user experience.",
-        "createButton": "Create your first Funnel",
-        "features": {
-          "trackSteps": "Track conversion steps",
-          "trackStepsDesc": "Monitor user progress through custom filters",
-          "identifyDropoffs": "Identify drop-off points",
-          "identifyDropoffsDesc": "Find where users abandon their journey",
-          "optimizeConversions": "Optimize conversions",
-          "optimizeConversionsDesc": "Improve your product based on data insights"
-        }
+        "title": "Visualize your conversion funnel",
+        "description": "See where users drop off and optimize your conversion paths step by step.",
+        "createButton": "Create funnel"
       }
     },
     "pages": {

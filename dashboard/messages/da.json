@@ -1949,17 +1949,9 @@
         }
       },
       "emptyState": {
-        "title": "Ingen tragter oprettet endnu",
-        "description": "Spor brugerrejser gennem dit site og identificér hvor besøgende falder fra. Opret din første tragt for at begynde at analysere konverteringsstier og optimere din brugeroplevelse.",
-        "createButton": "Opret din første tragt",
-        "features": {
-          "trackSteps": "Spor konverteringstrin",
-          "trackStepsDesc": "Overvåg brugernes fremgang gennem brugerdefinerede filtre",
-          "identifyDropoffs": "Identificér frafaldspoints",
-          "identifyDropoffsDesc": "Find hvor brugerne forlader deres rejse",
-          "optimizeConversions": "Optimér konverteringer",
-          "optimizeConversionsDesc": "Forbedre dit produkt baseret på dataindsigter"
-        }
+        "title": "Visualisér din konverteringstragt",
+        "description": "Se hvor brugerne falder fra, og optimér dine konverteringsstier trin for trin.",
+        "createButton": "Opret tragt"
       }
     },
     "pages": {
