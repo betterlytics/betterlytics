@@ -18,9 +18,9 @@ import {
   type MonitorOperationalState,
   type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
-import { PillBar } from '../components/PillBar';
+import { PillBar, SummaryCard } from '../components';
 import { useLocale, useTranslations } from 'next-intl';
 import { AlertCircle, ArrowRight, LockOpen, RefreshCcw, Shield } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -86,41 +86,6 @@ export function MonitorSummarySection({
         onEnableClick={onEnableSslClick}
       />
     </div>
-  );
-}
-
-function SummaryCard({
-  title,
-  headerRight,
-  helper,
-  children,
-  className,
-  gap = 'gap-2',
-  bodyClassName = 'flex flex-1 items-center',
-}: {
-  title: string;
-  headerRight?: ReactNode;
-  helper?: ReactNode;
-  children: ReactNode;
-  className?: string;
-  gap?: string;
-  bodyClassName?: string;
-}) {
-  return (
-    <Card
-      className={cn(
-        'border-border/70 bg-card/80 flex h-full flex-col p-2.5 shadow-lg shadow-black/10 sm:p-4',
-        gap,
-        className,
-      )}
-    >
-      <div className='flex items-center justify-between gap-2'>
-        <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{title}</p>
-        {headerRight}
-      </div>
-      <div className={bodyClassName}>{children}</div>
-      {helper && <div className='text-muted-foreground mt-1 text-xs sm:text-sm'>{helper}</div>}
-    </Card>
   );
 }
 

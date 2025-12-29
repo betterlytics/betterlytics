@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowUpDown, Filter, type LucideIcon } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
@@ -9,6 +9,7 @@ import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
+import { FilterSelectValue } from './components';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 
@@ -253,15 +254,6 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
       </DashboardHeader>
 
       <MonitorList monitors={sortedMonitors} />
-    </div>
-  );
-}
-
-function FilterSelectValue({ label, Icon = Filter }: { label: string; Icon?: LucideIcon }) {
-  return (
-    <div className='flex items-center gap-1 overflow-hidden'>
-      <Icon className='h-3.5 w-3.5 shrink-0 opacity-60' />
-      <span className='truncate text-xs'>{label}</span>
     </div>
   );
 }
