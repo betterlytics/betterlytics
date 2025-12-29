@@ -22,6 +22,7 @@ struct NotificationTimestamps {
     last_recovery: Option<DateTime<Utc>>,
     last_recovery_incident: Option<Uuid>,
     last_ssl: Option<DateTime<Utc>>,
+    last_ssl_expired_for: Option<DateTime<Utc>>,
 }
 
 /// Tracks notification state to prevent duplicates and enforce cooldowns
@@ -86,15 +87,31 @@ impl NotificationTracker {
     }
 
     /// Check if we should notify for an SSL expiry
-    /// Returns true if: days_left <= threshold AND cooldown period has passed
-    pub fn should_notify_ssl(&self, check_id: &str, days_left: i32, threshold: i32) -> bool {
+    /// - For expired certs we only notify ONCE per unique expiry date
+    /// - For expiring certs we notify if cooldown period has passed
+    pub fn should_notify_ssl(
+        &self,
+        check_id: &str,
+        days_left: i32,
+        threshold: i32,
+        expired: bool,
+        expiry_date: Option<DateTime<Utc>>,
+    ) -> bool {
         if days_left > threshold {
             return false;
         }
 
         let entry = self.state.entry(check_id.to_string()).or_default();
-        let now = Utc::now();
 
+        if expired {
+            return match (entry.last_ssl_expired_for, expiry_date) {
+                (Some(last), Some(current)) => last != current,
+                (None, Some(_)) => true,
+                _ => false,
+            };
+        }
+
+        let now = Utc::now();
         entry
             .last_ssl
             .map(|t| now.signed_duration_since(t) > self.ssl_cooldown)
@@ -102,9 +119,13 @@ impl NotificationTracker {
     }
 
     /// Mark that we've sent an SSL notification
-    pub fn mark_notified_ssl(&self, check_id: &str) {
+    pub fn mark_notified_ssl(&self, check_id: &str, expired: bool, expiry_date: Option<DateTime<Utc>>) {
         let mut entry = self.state.entry(check_id.to_string()).or_default();
         entry.last_ssl = Some(Utc::now());
+        
+        if expired {
+            entry.last_ssl_expired_for = expiry_date;
+        }
     }
 
     /// Get a snapshot for persistence

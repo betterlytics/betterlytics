@@ -336,11 +336,15 @@ impl IncidentOrchestrator {
             return;
         }
 
+        let expired = ctx.tls_not_after.map(|t| t <= chrono::Utc::now()).unwrap_or(false);
+
         // Check both threshold and cooldown via NotificationTracker
         if !self.notification_tracker.should_notify_ssl(
             &ctx.check.id,
             days_left,
             alert_config.ssl_expiry_days,
+            expired,
+            ctx.tls_not_after,
         ) {
             debug!(
                 threshold = alert_config.ssl_expiry_days,
@@ -367,7 +371,7 @@ impl IncidentOrchestrator {
                     url: ctx.check.url.as_str(),
                     recipients,
                 },
-                if days_left <= 0 {
+                if expired {
                     Alert::SslExpired {
                         days_left,
                         expiry_date: ctx.tls_not_after,
@@ -382,7 +386,7 @@ impl IncidentOrchestrator {
             .await;
 
         if result {
-            self.notification_tracker.mark_notified_ssl(&ctx.check.id);
+            self.notification_tracker.mark_notified_ssl(&ctx.check.id, expired, ctx.tls_not_after);
 
             info!(
                 check_id = %ctx.check.id,
