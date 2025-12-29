@@ -130,7 +130,8 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
     const createdAtMs = (monitor: MonitorWithStatus) =>
       monitor.createdAt ? new Date(monitor.createdAt).getTime() : Number.NEGATIVE_INFINITY;
     const sslDays = (monitor: MonitorWithStatus) => {
-      const daysLeft = computeDaysUntil(monitor.tls?.tlsNotAfter);
+      const daysLeft =
+        computeDaysUntil(monitor.tls?.tlsNotAfter) ?? (monitor.tls?.reasonCode === 'tls_expired' ? -1 : null);
       return presentSslStatus({ status: monitor.tls?.status, daysLeft, reasonCode: monitor.tls?.reasonCode })
         .category === 'unknown'
         ? Number.POSITIVE_INFINITY
