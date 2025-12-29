@@ -22,8 +22,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { type MonitorCheck, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
-import { useMonitorMutations } from '../[monitorId]/(EditMonitorSheet)/hooks/useMonitorMutations';
-import { EditMonitorSheet } from '../[monitorId]/(EditMonitorSheet)/EditMonitorSheet';
+import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
+import { EditMonitorSheet } from '../[monitorId]/EditMonitorSheet';
 import { useTranslations } from 'next-intl';
 
 type MonitorActionMenuProps = {

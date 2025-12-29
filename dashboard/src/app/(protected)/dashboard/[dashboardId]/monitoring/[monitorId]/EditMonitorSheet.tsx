@@ -20,9 +20,9 @@ import {
 import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
 import { isHttpUrl } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/utils';
-import { useMonitorForm } from '../../shared/hooks/useMonitorForm';
-import { useMonitorMutations } from './hooks/useMonitorMutations';
-import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../../shared/components';
+import { useMonitorForm } from '../shared/hooks/useMonitorForm';
+import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
+import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../shared/components';
 
 type EditMonitorSheetProps = {
   dashboardId: string;

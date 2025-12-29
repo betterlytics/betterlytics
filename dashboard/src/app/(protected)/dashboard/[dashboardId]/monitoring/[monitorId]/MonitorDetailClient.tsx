@@ -24,8 +24,8 @@ import {
   type MonitorTlsResult,
 } from '@/entities/analytics/monitoring.entities';
 import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
-import { useMonitorMutations } from './(EditMonitorSheet)/hooks/useMonitorMutations';
-import { EditMonitorSheet } from './(EditMonitorSheet)/EditMonitorSheet';
+import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
+import { EditMonitorSheet } from './EditMonitorSheet';
 import { IncidentsCard, RecentChecksCard, ResponseTimeCard, Uptime180DayCard } from './MonitoringSections';
 import { MonitorSummarySection } from './MonitorSummarySection';
 import { useTranslations } from 'next-intl';
