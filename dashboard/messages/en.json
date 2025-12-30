@@ -1505,7 +1505,8 @@
     "delete": "Delete",
     "deleting": "Deleting",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "openMenu": "Open menu"
   },
   "languages": {
     "da": "Danish",

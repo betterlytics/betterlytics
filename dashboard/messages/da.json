@@ -1508,7 +1508,8 @@
     "delete": "Slet",
     "deleting": "Sletter",
     "cancel": "Annuller",
-    "confirm": "Bekræft"
+    "confirm": "Bekræft",
+    "openMenu": "Åbn menu"
   },
   "languages": {
     "da": "Dansk",

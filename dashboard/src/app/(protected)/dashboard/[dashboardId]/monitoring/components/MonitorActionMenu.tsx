@@ -84,9 +84,9 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
                 size='icon'
                 disabled={disabled}
                 className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer transition-colors'
+                aria-label={tMisc('openMenu')}
               >
                 {vertical ? <MoreVertical className='h-4 w-4' /> : <MoreHorizontal className='h-4 w-4' />}
-                <span className='sr-only'>Open menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='w-48'>

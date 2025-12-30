@@ -1508,7 +1508,8 @@
     "delete": "Elimina",
     "deleting": "Eliminazione in corso",
     "cancel": "Anulla",
-    "confirm": "Conferma"
+    "confirm": "Conferma",
+    "openMenu": "Apri menu"
   },
   "languages": {
     "da": "Danish",
