@@ -1239,7 +1239,8 @@
     },
     "emptyState": {
       "title": "Begynd at overvåge dine endpoints",
-      "description": "Få besked, når dit website går ned, og følg oppetiden ved siden af din hjemmesidedata."
+      "description": "Få besked, når dit website går ned, og følg oppetiden ved siden af din hjemmesidedata.",
+      "durationDays": "{value}d"
     },
     "list": {
       "noData": "Ingen data endnu",
@@ -1857,6 +1858,16 @@
       "filterBy": "Filtrer efter {label}"
     },
     "funnels": {
+      "skeleton": {
+        "steps": {
+          "homepage": "Forside",
+          "pricing": "Priser",
+          "signup": "Tilmeld",
+          "purchase": "Køb"
+        },
+        "step": "Trin",
+        "visitors": "Besøgende"
+      },
       "list": {
         "steps": "trin",
         "conversionRate": "Konverteringsrate",

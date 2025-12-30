@@ -1239,7 +1239,8 @@
     },
     "emptyState": {
       "title": "Inizia a monitorare i tuoi endpoint",
-      "description": "Ricevi una notifica quando il tuo sito va offline e monitora l'uptime insieme agli altri dati."
+      "description": "Ricevi una notifica quando il tuo sito va offline e monitora l'uptime insieme agli altri dati.",
+      "durationDays": "{value}g"
     },
     "list": {
       "noData": "Nessun dato ancora",
@@ -1857,6 +1858,16 @@
       "filterBy": "Filtra per {label}"
     },
     "funnels": {
+      "skeleton": {
+        "steps": {
+          "homepage": "Homepage",
+          "pricing": "Prezzi",
+          "signup": "Iscriviti",
+          "purchase": "Acquisto"
+        },
+        "step": "Passaggio",
+        "visitors": "Visitatori"
+      },
       "list": {
         "steps": "passaggi",
         "conversionRate": "Tasso di conversione",

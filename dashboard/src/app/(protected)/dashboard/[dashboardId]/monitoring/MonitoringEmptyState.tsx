@@ -19,9 +19,9 @@ const PILL_PATTERNS = [
 ];
 
 const MOCK_MONITOR_TEMPLATES = [
-  { prefix: 'api.', uptime: '99.98%', duration: '14d', interval: '1 min', pattern: 0 },
-  { prefix: 'app.', uptime: '99.94%', duration: '7d', interval: '5 min', pattern: 1 },
-  { prefix: '', uptime: '100%', duration: '30d', interval: '1 min', pattern: 2 },
+  { prefix: 'api.', uptime: '99.98%', duration: 14, interval: 1, pattern: 0 },
+  { prefix: 'app.', uptime: '99.94%', duration: 7, interval: 5, pattern: 1 },
+  { prefix: '', uptime: '100%', duration: 30, interval: 1, pattern: 2 },
 ];
 
 type MockMonitor = {
@@ -34,6 +34,7 @@ type MockMonitor = {
 
 function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
   const pillData = PILL_PATTERNS[monitor.pattern];
+  const tStatus = useTranslations('monitoring.status');
 
   return (
     <Card className='border-border/40 bg-card/50 relative overflow-hidden px-4 py-3'>
@@ -47,7 +48,9 @@ function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
           <LiveIndicator color='green' positionClassName='relative' sizeClassName='h-2.5 w-2.5' />
           <div className='min-w-0'>
             <div className='text-foreground/80 truncate text-sm font-medium'>{monitor.name}</div>
-            <div className='text-muted-foreground/60 text-xs'>Up {monitor.duration}</div>
+            <div className='text-muted-foreground/60 text-xs'>
+              {tStatus('up')} {monitor.duration}
+            </div>
           </div>
         </div>
 
@@ -81,6 +84,7 @@ function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
 
 export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptyStateProps) {
   const t = useTranslations('monitoringPage.emptyState');
+  const tList = useTranslations('monitoringPage.list');
 
   return (
     <div className='relative mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center px-4 pt-14 pb-4 sm:justify-center sm:py-4'>
@@ -104,8 +108,8 @@ export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptySta
           const monitor: MockMonitor = {
             name: `${template.prefix}${domain}`,
             uptime: template.uptime,
-            duration: template.duration,
-            interval: template.interval,
+            duration: t('durationDays', { value: template.duration }),
+            interval: tList('intervalMinutes', { value: template.interval }),
             pattern: template.pattern,
           };
           return <SkeletonMonitorRow key={monitor.name} monitor={monitor} />;

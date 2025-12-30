@@ -1237,7 +1237,8 @@
     },
     "emptyState": {
       "title": "Start monitoring your endpoints",
-      "description": "Get notified when your site goes down and track uptime alongside your analytics."
+      "description": "Get notified when your site goes down and track uptime alongside your analytics.",
+      "durationDays": "{value}d"
     },
     "list": {
       "noData": "No data yet",
@@ -1854,6 +1855,16 @@
       "filterBy": "Filter by {label}"
     },
     "funnels": {
+      "skeleton": {
+        "steps": {
+          "homepage": "Homepage",
+          "pricing": "Pricing",
+          "signup": "Sign up",
+          "purchase": "Purchase"
+        },
+        "step": "Step",
+        "visitors": "Visitors"
+      },
       "list": {
         "steps": "steps",
         "conversionRate": "Conversion rate",
