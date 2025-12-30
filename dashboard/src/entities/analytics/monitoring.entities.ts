@@ -60,7 +60,13 @@ export const MonitorCheckBaseSchema = z.object({
 });
 
 export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({
-  url: z.string().url().max(MONITOR_LIMITS.URL_MAX),
+  url: z
+    .string()
+    .url()
+    .max(MONITOR_LIMITS.URL_MAX)
+    .refine((url) => url.startsWith('https://') || url.startsWith('http://'), {
+      message: 'URL must start with https:// or http://',
+    }),
 });
 
 export const MonitorCheckSchema = MonitorCheckBaseSchema.extend({

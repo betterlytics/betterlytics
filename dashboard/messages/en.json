@@ -1269,7 +1269,8 @@
         "url": "Please enter a valid URL.",
         "urlDomain": "URL must be on {domain} or a subdomain (e.g., api.{domain})",
         "duplicate": "A monitor for this URL already exists.",
-        "customPort": "Custom ports are not supported"
+        "customPort": "Custom ports are not supported",
+        "invalidProtocol": "URL must start with https:// or http://"
       },
       "timing": {
         "title": "Timing & Sensitivity",

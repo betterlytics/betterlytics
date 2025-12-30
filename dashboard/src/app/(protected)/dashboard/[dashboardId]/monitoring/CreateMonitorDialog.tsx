@@ -84,7 +84,10 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disable
   const existingNormalizedUrls = new Set(existingUrls.map(normalizeUrl).filter((u): u is string => u !== null));
   const isDuplicate = normalizedNewUrl !== null && existingNormalizedUrls.has(normalizedNewUrl);
 
-  const hasError = urlEmpty || urlInvalid || hasCustomPort || isDuplicate;
+  const hasValidProtocol = url.trim().startsWith('https://') || url.trim().startsWith('http://');
+  const invalidProtocol = !urlEmpty && !hasValidProtocol;
+
+  const hasError = urlEmpty || urlInvalid || hasCustomPort || isDuplicate || invalidProtocol;
 
   // SSL monitoring is enabled if URL is https
   const isHttps = url.trim().startsWith('https://');
@@ -134,6 +137,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disable
               maxLength={MONITOR_LIMITS.URL_MAX}
             />
             {urlEmpty && <p className='text-destructive text-xs'>{t('errors.url')}</p>}
+            {invalidProtocol && <p className='text-destructive text-xs'>{t('errors.invalidProtocol')}</p>}
             {urlInvalid && <p className='text-destructive text-xs'>{t('errors.urlDomain', { domain })}</p>}
             {hasCustomPort && <p className='text-destructive text-xs'>{t('errors.customPort')}</p>}
             {isDuplicate && <p className='text-destructive text-xs'>{t('errors.duplicate')}</p>}

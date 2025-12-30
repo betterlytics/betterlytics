@@ -1272,7 +1272,8 @@
         "url": "Indtast venligst en gyldig URL.",
         "urlDomain": "URL skal være på {domain} eller et subdomæne (f.eks. api.{domain})",
         "duplicate": "Der findes allerede en overvågning for denne URL.",
-        "customPort": "Brugerdefinerede porte understøttes ikke"
+        "customPort": "Brugerdefinerede porte understøttes ikke",
+        "invalidProtocol": "URL skal starte med https:// eller http://"
       },
       "timing": {
         "title": "Tid og følsomhed",
