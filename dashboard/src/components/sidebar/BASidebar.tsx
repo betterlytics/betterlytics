@@ -101,7 +101,13 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
 
   const observabilityItems: SidebarItem[] = [
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
-    { name: t('monitoring'), key: 'monitoring', href: '/monitoring', icon: <Activity size={18} /> },
+    {
+      name: t('monitoring'),
+      key: 'monitoring',
+      href: '/monitoring',
+      icon: <Activity size={18} />,
+      hidden: !isFeatureEnabled('enableUptimeMonitoring'),
+    },
   ];
 
   return (

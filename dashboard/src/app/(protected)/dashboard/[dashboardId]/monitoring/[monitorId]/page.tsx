@@ -10,12 +10,17 @@ import { MonitorDetailClient } from './MonitorDetailClient';
 import { notFound } from 'next/navigation';
 import { safeHostname } from '../utils';
 import { getUserTimezone } from '@/lib/cookies';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 type MonitorDetailParams = {
   params: Promise<{ dashboardId: string; monitorId: string }>;
 };
 
 export default async function MonitorDetailPage({ params }: MonitorDetailParams) {
+  if (!isFeatureEnabled('enableUptimeMonitoring')) {
+    notFound();
+  }
+
   const { dashboardId, monitorId } = await params;
   const timezone = await getUserTimezone();
 
