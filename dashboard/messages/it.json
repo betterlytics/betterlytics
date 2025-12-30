@@ -1270,7 +1270,8 @@
       "errors": {
         "url": "Inserisci un URL valido.",
         "urlDomain": "L'URL deve essere su {domain} o un sottodominio (es. api.{domain})",
-        "duplicate": "Esiste già un monitor per questo hostname."
+        "duplicate": "Esiste già un monitor per questo URL.",
+        "customPort": "Le porte personalizzate non sono supportate"
       },
       "timing": {
         "title": "Tempi e Sensibilità",

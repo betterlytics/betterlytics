@@ -7,23 +7,17 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { createMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, CheckCircle2, Plus } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { useMonitorForm } from './shared/hooks/useMonitorForm';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from './shared/components';
+import { normalizeUrl } from '@/utils/domainValidation';
 
 type CreateMonitorDialogProps = {
   dashboardId: string;
@@ -33,14 +27,6 @@ type CreateMonitorDialogProps = {
 };
 
 type Section = 'timing' | 'alerts' | 'advanced' | null;
-
-function getHostname(url: string): string | null {
-  try {
-    return new URL(url.trim()).hostname.toLowerCase();
-  } catch {
-    return null;
-  }
-}
 
 export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disabled }: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
@@ -88,12 +74,20 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disable
   const urlEmpty = !url.trim();
   const urlInvalid = !urlEmpty && !isUrlOnDomain(url, domain);
 
-  // Check if this hostname is already monitored
-  const newHostname = getHostname(url);
-  const existingHostnames = new Set(existingUrls.map(getHostname).filter((h): h is string => h !== null));
-  const isDuplicate = newHostname !== null && existingHostnames.has(newHostname);
+  const hasCustomPort = (() => {
+    try {
+      const parsed = new URL(url.trim());
+      return parsed.port !== '';
+    } catch {
+      return false;
+    }
+  })();
 
-  const hasError = urlEmpty || urlInvalid || isDuplicate;
+  const normalizedNewUrl = normalizeUrl(url);
+  const existingNormalizedUrls = new Set(existingUrls.map(normalizeUrl).filter((u): u is string => u !== null));
+  const isDuplicate = normalizedNewUrl !== null && existingNormalizedUrls.has(normalizedNewUrl);
+
+  const hasError = urlEmpty || urlInvalid || hasCustomPort || isDuplicate;
 
   // SSL monitoring is enabled if URL is https
   const isHttps = url.trim().startsWith('https://');
@@ -144,6 +138,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disable
             />
             {urlEmpty && <p className='text-destructive text-xs'>{t('errors.url')}</p>}
             {urlInvalid && <p className='text-destructive text-xs'>{t('errors.urlDomain', { domain })}</p>}
+            {hasCustomPort && <p className='text-destructive text-xs'>{t('errors.customPort')}</p>}
             {isDuplicate && <p className='text-destructive text-xs'>{t('errors.duplicate')}</p>}
           </div>
 

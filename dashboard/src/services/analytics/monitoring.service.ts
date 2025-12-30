@@ -19,7 +19,7 @@ import {
   listMonitorChecks,
   updateMonitorCheck as updateMonitorCheckRepo,
   deleteMonitorCheck as deleteMonitorCheckRepo,
-  monitorExistsForHostname as monitorExistsForHostnameRepo,
+  monitorExistsForUrl as monitorExistsForUrlRepo,
 } from '@/repositories/postgres/monitoring.repository';
 
 import {
@@ -56,12 +56,12 @@ export async function deleteMonitorCheck(dashboardId: string, monitorId: string)
   return deleteMonitorCheckRepo(dashboardId, monitorId);
 }
 
-export async function checkMonitorHostnameExists(
+export async function checkMonitorUrlExists(
   dashboardId: string,
   url: string,
   excludeMonitorId?: string,
 ): Promise<boolean> {
-  return monitorExistsForHostnameRepo(dashboardId, url, excludeMonitorId);
+  return monitorExistsForUrlRepo(dashboardId, url, excludeMonitorId);
 }
 
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string, timezone: string) {

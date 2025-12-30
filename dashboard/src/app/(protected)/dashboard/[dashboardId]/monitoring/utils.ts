@@ -1,4 +1,5 @@
 import type { useTranslations } from 'next-intl';
+import { normalizeUrl } from '@/utils/domainValidation';
 
 type MonitoringPageTranslation = ReturnType<typeof useTranslations<'monitoringPage'>>;
 
@@ -15,12 +16,10 @@ export function isHttpUrl(url: string): boolean {
   return !url.startsWith('https://');
 }
 
-export function safeHostname(url: string) {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url;
-  }
+export function safeHostname(url: string): string {
+  const normalized = normalizeUrl(url);
+  if (!normalized) return url;
+  return normalized.replace(/^https?:\/\//, '');
 }
 
 export function formatSslTimeRemaining(

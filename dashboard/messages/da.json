@@ -1270,7 +1270,8 @@
       "errors": {
         "url": "Indtast venligst en gyldig URL.",
         "urlDomain": "URL skal være på {domain} eller et subdomæne (f.eks. api.{domain})",
-        "duplicate": "Der findes allerede en overvågning for dette hostname."
+        "duplicate": "Der findes allerede en overvågning for denne URL.",
+        "customPort": "Brugerdefinerede porte understøttes ikke"
       },
       "timing": {
         "title": "Tid og følsomhed",

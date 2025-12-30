@@ -1,12 +1,6 @@
 'use server';
 
-import {
-  MonitorCheckCreateSchema,
-  MonitorCheckUpdateSchema,
-  StatusCodeValue,
-  type HttpMethod,
-  type RequestHeader,
-} from '@/entities/analytics/monitoring.entities';
+import { MonitorCheckCreateSchema, MonitorCheckUpdateSchema } from '@/entities/analytics/monitoring.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import {
@@ -15,7 +9,7 @@ import {
   getMonitorChecksWithStatus,
   updateMonitorCheck,
   deleteMonitorCheck,
-  checkMonitorHostnameExists,
+  checkMonitorUrlExists,
 } from '@/services/analytics/monitoring.service';
 import {
   fetchLatestMonitorTlsResult,
@@ -51,9 +45,9 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       throw new UserException(`URL must be on ${dashboard.domain} or a subdomain`);
     }
 
-    const alreadyExists = await checkMonitorHostnameExists(ctx.dashboardId, input.url);
+    const alreadyExists = await checkMonitorUrlExists(ctx.dashboardId, input.url);
     if (alreadyExists) {
-      throw new UserException('A monitor for this hostname already exists');
+      throw new UserException('A monitor for this URL already exists');
     }
 
     const created = await addMonitorCheck(ctx.dashboardId, payload);

@@ -5,14 +5,7 @@ import {
   type MonitorCheckCreate,
   type MonitorCheckUpdate,
 } from '@/entities/analytics/monitoring.entities';
-
-function getHostnameFromUrl(url: string): string | null {
-  try {
-    return new URL(url.trim()).hostname.toLowerCase();
-  } catch {
-    return null;
-  }
-}
+import { normalizeUrl } from '@/utils/domainValidation';
 
 export async function listMonitorChecks(dashboardId: string): Promise<MonitorCheck[]> {
   const results = await prisma.monitorCheck.findMany({
@@ -22,13 +15,13 @@ export async function listMonitorChecks(dashboardId: string): Promise<MonitorChe
   return results.map((row) => MonitorCheckSchema.parse(row));
 }
 
-export async function monitorExistsForHostname(
+export async function monitorExistsForUrl(
   dashboardId: string,
   url: string,
   excludeMonitorId?: string,
 ): Promise<boolean> {
-  const hostname = getHostnameFromUrl(url);
-  if (!hostname) return false;
+  const normalizedNewUrl = normalizeUrl(url);
+  if (!normalizedNewUrl) return false;
 
   const existingMonitors = await prisma.monitorCheck.findMany({
     where: { dashboardId, deletedAt: null },
@@ -38,8 +31,8 @@ export async function monitorExistsForHostname(
   return existingMonitors.some((monitor) => {
     if (excludeMonitorId && monitor.id === excludeMonitorId) return false;
 
-    const existingHostname = getHostnameFromUrl(monitor.url);
-    return existingHostname === hostname;
+    const existingNormalizedUrl = normalizeUrl(monitor.url);
+    return existingNormalizedUrl === normalizedNewUrl;
   });
 }
 

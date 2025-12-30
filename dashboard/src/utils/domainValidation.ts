@@ -20,3 +20,25 @@ export function isUrlOnDomain(url: string, domain: string): boolean {
     return false;
   }
 }
+
+/**
+ * Normalizes a URL for comparison/deduplication:
+ * - Lowercases the hostname
+ * - Removes trailing slashes from the path
+ * - Ignores query parameters and fragments
+ *
+ * @param url - The URL to normalize
+ * @returns Normalized URL with protocol (e.g. "https://betterlytics.io/track") or null if invalid
+ */
+export function normalizeUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url.trim());
+    let path = parsed.pathname;
+    if (path.length > 1 && path.endsWith('/')) {
+      path = path.slice(0, -1);
+    }
+    return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${path}`;
+  } catch {
+    return null;
+  }
+}
