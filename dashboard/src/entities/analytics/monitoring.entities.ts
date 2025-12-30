@@ -91,6 +91,7 @@ export const UptimeStatsSchema = z.object({
 export const MonitorUptimeBucketSchema = z.object({
   bucket: z.string(), // ISO timestamp string
   upRatio: z.number().min(0).max(1).nullable(),
+  totalSeconds: z.number().nullable(),
 });
 
 export const MonitorLatencyStatsSchema = z.object({
@@ -110,6 +111,7 @@ export const RawMonitorMetricsSchema = z.object({
   lastCheckAt: z.string().nullable(),
   lastStatus: MonitorStatusSchema.nullable(),
   uptime24hPercent: z.number().nullable(),
+  uptime24hHours: z.number().nullable(),
   incidents24h: z.number().int(),
   uptimeBuckets: z.array(MonitorUptimeBucketSchema),
   latency: MonitorLatencyStatsSchema,
@@ -149,6 +151,7 @@ export const MonitorTlsResultSchema = z.object({
 export const MonitorDailyUptimeSchema = z.object({
   date: z.string(), // ISO date string at start of day UTC
   upRatio: z.number().min(0).max(1).nullable(),
+  totalSeconds: z.number().nullable(),
 });
 
 export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;

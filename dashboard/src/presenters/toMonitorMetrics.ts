@@ -14,7 +14,7 @@ export function normalizeUptimeBuckets(data: RawMonitorMetrics['uptimeBuckets'],
     d.setHours(end.getHours() - i);
     const key = d.getTime();
     const fallback = null;
-    buckets.push({ bucket: formatBucket(d), upRatio: bucketMap.get(key) ?? fallback });
+    buckets.push({ bucket: formatBucket(d), upRatio: bucketMap.get(key) ?? fallback, totalSeconds: 60 * 60 });
   }
 
   return buckets;

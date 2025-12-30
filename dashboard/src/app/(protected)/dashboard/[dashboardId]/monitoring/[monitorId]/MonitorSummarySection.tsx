@@ -41,6 +41,7 @@ type MonitorSummarySectionProps = {
     | 'backoffLevel'
     | 'effectiveIntervalSeconds'
     | 'uptime24hPercent'
+    | 'uptime24hHours'
     | 'incidents24h'
     | 'uptimeBuckets'
     | 'latency'
@@ -75,6 +76,7 @@ export function MonitorSummarySection({
       />
       <Last24hCard
         uptimePercent={metrics?.uptime24hPercent}
+        uptimeHours={metrics?.uptime24hHours}
         incidents={metrics?.incidents24h ?? 0}
         buckets={metrics?.uptimeBuckets}
       />
@@ -247,10 +249,12 @@ function ResponseTimeCard({
 
 function Last24hCard({
   uptimePercent,
+  uptimeHours,
   incidents,
   buckets,
 }: {
   uptimePercent: number | null | undefined;
+  uptimeHours: number | null | undefined;
   incidents: number;
   buckets?: MonitorMetrics['uptimeBuckets'];
 }) {
@@ -258,7 +262,10 @@ function Last24hCard({
   const tDowntime = useTranslations('monitoringDetailPage.downtime');
   const formattedPercent =
     uptimePercent != null ? formatPercentage(uptimePercent, 2, { trimHundred: true }) : '— %';
-  const downtimeMeta = uptimePercent != null ? computeDowntimeFromUptimeHours(uptimePercent, 24) : null;
+  const downtimeMeta =
+    uptimePercent != null && uptimeHours != null
+      ? computeDowntimeFromUptimeHours(uptimePercent, uptimeHours)
+      : null;
   const downtimeLabel = downtimeMeta
     ? tDowntime(downtimeMeta.unit, { value: downtimeMeta.value })
     : tDowntime('unknown');

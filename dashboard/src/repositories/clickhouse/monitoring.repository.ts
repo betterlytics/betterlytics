@@ -142,6 +142,7 @@ export async function getMonitorUptimeBuckets(
     MonitorUptimeBucketSchema.parse({
       bucket: toIsoUtc(row.date) ?? row.date,
       upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
+      totalSeconds: row.total_seconds,
     }),
   );
 }
@@ -184,6 +185,7 @@ export async function getMonitorDailyUptime(
       MonitorDailyUptimeSchema.parse({
         date: b.bucket,
         upRatio: b.upRatio,
+        totalSeconds: b.totalSeconds,
       }),
     );
 }
