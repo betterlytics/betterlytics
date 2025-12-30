@@ -1,8 +1,9 @@
 'use client';
 
 import { PricingComponent } from '@/components/pricing/PricingComponent';
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, ArrowRight } from 'lucide-react';
 
 export function PricingSection() {
   const t = useTranslations('public.landing.pricing');
@@ -21,6 +22,16 @@ export function PricingSection() {
         <div className='mt-4 ml-2 flex justify-center text-center sm:mt-10 sm:gap-2'>
           <CheckCircle className='text-muted-foreground h-5 w-4' />
           <p className='text-muted-foreground max-w-2xl text-sm'>{t('footer')}</p>
+        </div>
+
+        <div className='mt-6 flex justify-center'>
+          <Link
+            href='/pricing#comparison'
+            className='text-muted-foreground hover:text-foreground group inline-flex items-center gap-1.5 text-sm transition-colors'
+          >
+            {t('compareLink')}
+            <ArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-0.5' />
+          </Link>
         </div>
       </div>
     </section>

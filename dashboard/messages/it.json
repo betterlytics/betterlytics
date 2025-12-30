@@ -929,7 +929,8 @@
         "titleEmphasis": "Prezzi semplici,",
         "titleRest": "scalabili",
         "subtitle": "Piani basati sul traffico che si adattano alla tua crescita. Inizia gratis, scala mentre cresci.",
-        "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
+        "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
+        "compareLink": "Confronta tutte le funzionalità"
       },
       "cards": {
         "advancedFilters": {
@@ -1021,6 +1022,26 @@
       "webPage": {
         "breadcrumbHome": "Home"
       }
+    },
+    "pricing": {
+      "seo": {
+        "title": "Prezzi | Betterlytics Analytics Privacy-First",
+        "description": "Prezzi semplici e trasparenti per Betterlytics. Inizia gratis, scala quando cresci. Analytics privacy-first, conformi al GDPR per ogni dimensione aziendale.",
+        "keywords": [
+          "Prezzi Analytics",
+          "Piani Web Analytics",
+          "Prezzi Privacy Analytics",
+          "Costo Analytics GDPR",
+          "Piani Betterlytics",
+          "Analytics Convenienti",
+          "Piano Analytics Gratuito"
+        ]
+      },
+      "titleEmphasis": "Prezzi semplici e",
+      "titleRest": "trasparenti",
+      "subtitle": "Inizia gratis, aggiorna quando ne hai bisogno. Nessun costo nascosto, nessuna sorpresa.",
+      "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
+      "comparisonTitle": "Confronta tutte le funzionalità"
     }
   },
   "pricingSlider": {
@@ -1063,7 +1084,122 @@
     },
     "labels": {
       "free": "Gratuito",
-      "custom": "Personalizzato"
+      "custom": "Contattaci"
+    }
+  },
+  "pricingComparison": {
+    "headers": {
+      "features": "Funzionalità",
+      "growth": "Growth",
+      "professional": "Professional",
+      "enterprise": "Enterprise"
+    },
+    "categories": {
+      "usageLimits": "Utilizzo e limiti",
+      "analytics": "Analytics",
+      "observability": "Osservabilità",
+      "support": "Supporto"
+    },
+    "features": {
+      "monthlyEvents": {
+        "name": "Eventi mensili",
+        "values": {
+          "range": "10K – 10M+",
+          "custom": "Personalizzato"
+        }
+      },
+      "sites": {
+        "name": "Siti",
+        "values": {
+          "1": "1",
+          "upTo50": "Fino a 50",
+          "unlimited": "Illimitati"
+        }
+      },
+      "dataRetention": {
+        "name": "Conservazione dati",
+        "values": {
+          "1year": "1+ anno",
+          "3years": "3+ anni",
+          "5years": "5+ anni"
+        }
+      },
+      "teamMembers": {
+        "name": "Membri del team",
+        "values": {
+          "1": "1",
+          "upTo5": "Fino a 5",
+          "unlimited": "Illimitati"
+        }
+      },
+      "dashboardFeatures": {
+        "name": "Tutte le funzionalità dashboard"
+      },
+      "sessionReplay": {
+        "name": "Replay sessioni"
+      },
+      "funnels": {
+        "name": "Funnel e conversioni"
+      },
+      "userJourneys": {
+        "name": "Tracciamento percorsi utente"
+      },
+      "customEvents": {
+        "name": "Eventi personalizzati"
+      },
+      "webVitals": {
+        "name": "Monitoraggio Web Vitals"
+      },
+      "campaignTracking": {
+        "name": "Tracciamento campagne e UTM"
+      },
+      "uptimeMonitoring": {
+        "name": "Monitoraggio uptime"
+      },
+      "sslMonitoring": {
+        "name": "Monitoraggio certificati SSL"
+      },
+      "advancedIntervals": {
+        "name": "Intervalli uptime da 30s"
+      },
+      "customHttpMethods": {
+        "name": "Metodi HTTP GET/POST"
+      },
+      "customStatusCodes": {
+        "name": "Codici di stato accettati personalizzati"
+      },
+      "emailSupport": {
+        "name": "Supporto email"
+      },
+      "prioritySupport": {
+        "name": "Supporto prioritario"
+      },
+      "dedicatedSupport": {
+        "name": "Supporto dedicato"
+      },
+      "slaGuarantee": {
+        "name": "Garanzia SLA"
+      }
+    },
+    "coreFeatures": {
+      "title": "Incluso in tutti i piani",
+      "subtitle": "Ogni piano include la nostra suite completa di analytics",
+      "items": {
+        "realtimeAnalytics": "Analytics in tempo reale",
+        "sessionReplay": "Replay sessioni",
+        "geographicInsights": "Insights geografici",
+        "trafficSources": "Fonti di traffico",
+        "utmCampaigns": "Tracciamento campagne UTM",
+        "customEvents": "Eventi personalizzati",
+        "funnels": "Funnel e conversioni",
+        "userJourneys": "Percorsi utente",
+        "webVitals": "Web Vitals",
+        "botFiltering": "Filtraggio bot",
+        "outboundLinks": "Tracciamento link in uscita",
+        "advancedFiltering": "Filtri avanzati",
+        "cookieFree": "Senza cookie",
+        "gdprCcpa": "Pronto per GDPR e CCPA"
+      }
     }
   },
   "dashboard": {
