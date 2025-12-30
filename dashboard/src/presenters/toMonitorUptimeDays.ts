@@ -4,6 +4,7 @@ import { computeDowntimeFromUptimeDays, type DowntimeMetadata } from '@/utils/fo
 export type PresentedMonitorUptimeDay = {
   date: string;
   upRatio: number | null;
+  totalSeconds: number | null;
 };
 
 export function toMonitorUptimeDays(rows: MonitorDailyUptime[]): PresentedMonitorUptimeDay[] {
@@ -12,6 +13,7 @@ export function toMonitorUptimeDays(rows: MonitorDailyUptime[]): PresentedMonito
     .map((row) => ({
       date: row.date,
       upRatio: row.upRatio,
+      totalSeconds: row.totalSeconds,
     }));
 }
 
@@ -72,14 +74,15 @@ function buildUptimeGrid(days: PresentedMonitorUptimeDay[], totalDays: number): 
 function computeUptimeStats(days: PresentedMonitorUptimeDay[], windows: number[]): PresentedMonitorUptimeStat[] {
   return windows.map((w) => {
     const slice = sliceLastDays(days, w);
-    const actualDays = slice.length;
-    const percent =
-      actualDays > 0 ? (slice.reduce((acc, d) => acc + (d.upRatio ?? 0), 0) / actualDays) * 100 : null;
+    const totalSeconds = slice.reduce((acc, d) => acc + (d.totalSeconds ?? 0), 0);
+    const uptimeSeconds = slice.reduce((acc, d) => acc + (d.upRatio ?? 0) * (d.totalSeconds ?? 0), 0);
+
+    const percent = totalSeconds > 0 ? (uptimeSeconds / totalSeconds) * 100 : null;
     return {
       label: `last-${w}-days`,
       windowDays: w,
       percent,
-      downtime: percent != null ? computeDowntimeFromUptimeDays(percent, actualDays) : null,
+      downtime: percent != null ? computeDowntimeFromUptimeDays(percent, totalSeconds / 86400) : null,
     };
   });
 }

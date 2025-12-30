@@ -75,45 +75,43 @@ export function MonitorDetailClient({
     monitorData.intervalSeconds * 1000 + POLLING_BUFFER_MS,
   );
 
+  const DEFAULT_QUERY_PARAMS = {
+    refetchInterval: dynamicPollingInterval,
+    staleTime: dynamicPollingInterval / 2,
+    enabled: pollingEnabled,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  };
+
   const metricsQuery = useQuery({
     queryKey: ['monitor-metrics', dashboardId, monitorId],
     queryFn: () => fetchMonitorMetricsAction(dashboardId, monitorId, timezone),
     initialData: initialData.metrics,
-    refetchInterval: dynamicPollingInterval,
-    enabled: pollingEnabled,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    ...DEFAULT_QUERY_PARAMS,
   });
 
   const incidentsQuery = useQuery({
     queryKey: ['monitor-incidents', dashboardId, monitorId],
     queryFn: () => fetchMonitorIncidentsAction(dashboardId, monitorId),
     initialData: initialData.incidents,
-    refetchInterval: dynamicPollingInterval,
-    enabled: pollingEnabled,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    ...DEFAULT_QUERY_PARAMS,
   });
 
   const [checksErrorsOnly, setChecksErrorsOnly] = useState(false);
   const checksQuery = useQuery({
     queryKey: ['monitor-checks', dashboardId, monitorId, checksErrorsOnly],
     queryFn: async () => (await fetchRecentMonitorResultsAction(dashboardId, monitorId, checksErrorsOnly)) ?? [],
-    initialData: initialData.recentChecks,
-    refetchInterval: dynamicPollingInterval,
-    enabled: pollingEnabled,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    placeholderData: initialData.recentChecks,
+    ...DEFAULT_QUERY_PARAMS,
   });
 
   const tlsQuery = useQuery({
     queryKey: ['monitor-tls', dashboardId, monitorId],
     queryFn: () => fetchLatestMonitorTlsResultAction(dashboardId, monitorId),
     initialData: initialData.tls,
+    ...DEFAULT_QUERY_PARAMS,
     refetchInterval: NON_CRITICAL_POLLING_INTERVAL_MS,
-    enabled: pollingEnabled,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    staleTime: NON_CRITICAL_POLLING_INTERVAL_MS / 2,
   });
 
   const operationalState = metricsQuery.data?.operationalState ?? 'preparing';

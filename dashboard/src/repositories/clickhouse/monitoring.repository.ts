@@ -50,7 +50,19 @@ export async function getMonitorUptimeBuckets(
   const toStartOfTS = toStartOfInterval(safeSql`ts`);
 
   // Used for calculating bucket end in seconds
-  const bucketSizeSeconds = safeSql`least(dateDiff('second', bucket_start, bucket_start + INTERVAL 1 ${interval}), abs(dateDiff('second', bucket_start, now())))`;
+  const bucketSizeSeconds = safeSql`
+    least(
+      abs(
+        dateDiff(
+          'second',
+          bucket_start,
+          bucket_start + INTERVAL 1 ${interval}
+        )
+      ),
+      abs(dateDiff('second', bucket_start, now())),
+      abs(dateDiff('second', ${SQL.DateTime({ createdAt: createdAtStr })}, now()))
+    )
+  `;
 
   const query = safeSql`
     WITH incident_buckets AS (
@@ -130,6 +142,7 @@ export async function getMonitorUptimeBuckets(
     MonitorUptimeBucketSchema.parse({
       bucket: toIsoUtc(row.date) ?? row.date,
       upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
+      totalSeconds: row.total_seconds,
     }),
   );
 }
@@ -172,6 +185,7 @@ export async function getMonitorDailyUptime(
       MonitorDailyUptimeSchema.parse({
         date: b.bucket,
         upRatio: b.upRatio,
+        totalSeconds: b.totalSeconds,
       }),
     );
 }
