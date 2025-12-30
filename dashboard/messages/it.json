@@ -2534,7 +2534,9 @@
     }
   },
   "validation": {
-    "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare."
+    "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
+    "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
+    "monitorAlreadyExists": "Esiste già un monitor per questo URL"
   },
   "banners": {
     "verifyEmail": {

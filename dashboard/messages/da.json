@@ -2534,7 +2534,9 @@
     }
   },
   "validation": {
-    "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte."
+    "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
+    "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
+    "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede"
   },
   "banners": {
     "verifyEmail": {

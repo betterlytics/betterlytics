@@ -2532,7 +2532,9 @@
     }
   },
   "validation": {
-    "termsOfServiceRequired": "You must accept the terms of service to continue."
+    "termsOfServiceRequired": "You must accept the terms of service to continue.",
+    "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
+    "monitorAlreadyExists": "A monitor for this URL already exists"
   },
   "banners": {
     "verifyEmail": {

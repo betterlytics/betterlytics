@@ -3,6 +3,7 @@
 import { MonitorCheckCreateSchema, MonitorCheckUpdateSchema } from '@/entities/analytics/monitoring.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
+import { getTranslations } from 'next-intl/server';
 import {
   addMonitorCheck,
   getMonitorCheck,
@@ -35,6 +36,7 @@ export const fetchMonitorCheckAction = withDashboardAuthContext(
 
 export const createMonitorCheckAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof MonitorCheckCreateSchema>) => {
+    const t = await getTranslations('validation');
     const payload = MonitorCheckCreateSchema.parse({
       ...input,
     });
@@ -42,12 +44,12 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
     const dashboard = await findDashboardById(ctx.dashboardId);
 
     if (!isUrlOnDomain(input.url, dashboard.domain)) {
-      throw new UserException(`URL must be on ${dashboard.domain} or a subdomain`);
+      throw new UserException(t('urlMustBeOnDomain', { domain: dashboard.domain }));
     }
 
     const alreadyExists = await checkMonitorUrlExists(ctx.dashboardId, input.url);
     if (alreadyExists) {
-      throw new UserException('A monitor for this URL already exists');
+      throw new UserException(t('monitorAlreadyExists'));
     }
 
     const created = await addMonitorCheck(ctx.dashboardId, payload);
