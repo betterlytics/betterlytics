@@ -6,7 +6,7 @@ use arc_swap::ArcSwap;
 use chrono::{DateTime, TimeZone, Utc};
 use tokio::sync::RwLock;
 use tokio::time::{MissedTickBehavior, interval};
-use tracing::{info, warn};
+use tracing::{debug, info, warn};
 
 use crate::metrics::MetricsCollector;
 use crate::monitor::{MonitorCheck, MonitorCheckDataSource};
@@ -111,7 +111,7 @@ impl MonitorCache {
         if count == 0 {
             warn!("monitor cache full refresh loaded zero checks");
         }
-        info!(count = count, "monitor cache fully refreshed");
+        debug!(count = count, "monitor cache fully refreshed");
         Ok(())
     }
 
@@ -146,7 +146,7 @@ impl MonitorCache {
         self.update_last_seen(max_updated).await;
         self.mark_refresh_success(total).await;
         log_cache_state(&self.checks.load());
-        info!(
+        debug!(
             updated = updated,
             total = total,
             "monitor cache partially refreshed"
@@ -271,7 +271,7 @@ fn epoch_timestamp() -> DateTime<Utc> {
 }
 
 fn log_cache_state(map: &HashMap<String, Arc<MonitorCheck>>) {
-    info!(
+    debug!(
         total_entries = map.len(),
         "monitor cache state after refresh"
     );

@@ -6,7 +6,7 @@ use arc_swap::ArcSwap;
 use chrono::{DateTime, TimeZone, Utc};
 use tokio::sync::RwLock;
 use tokio::time::{interval, MissedTickBehavior};
-use tracing::{info, warn};
+use tracing::{debug, warn};
 
 use crate::metrics::MetricsCollector;
 use crate::postgres::PostgresError;
@@ -126,7 +126,7 @@ impl SiteConfigCache {
         *self.last_full_refresh_at.write().await = Some(Utc::now());
         self.update_last_seen(max_updated).await;
         self.mark_refresh_success().await;
-        info!(count = count, "site-config cache fully refreshed");
+        debug!(count = count, "site-config cache fully refreshed");
         Ok(())
     }
 
@@ -165,7 +165,7 @@ impl SiteConfigCache {
         let updated = updates.len();
         self.update_last_seen(max_updated).await;
         self.mark_refresh_success().await;
-        info!(updated = updated, "site-config cache partially refreshed");
+        debug!(updated = updated, "site-config cache partially refreshed");
         Ok(())
     }
 
