@@ -39,19 +39,18 @@ export async function getMonitorUptimeBuckets(
   // Granularity-specific SQL fragments
   const interval = granularity === 'day' ? safeSql`DAY` : safeSql`HOUR`;
   const granularityStr = granularity === 'day' ? safeSql`'day'` : safeSql`'hour'`;
-  const totalSeconds = granularity === 'day' ? safeSql`86400` : safeSql`3600`;
+  const toStartOfInterval = (name: ReturnType<typeof safeSql>) =>
+    granularity === 'day'
+      ? safeSql`toStartOfDay(${name}, {timezone:String})`
+      : safeSql`toStartOfHour(${name}, {timezone:String})`;
+
   // For day granularity, use timezone; for hour, no timezone needed
-  const toStartOf =
-    granularity === 'day'
-      ? safeSql`toStartOfDay(started_at, {timezone:String})`
-      : safeSql`toStartOfHour(started_at)`;
-  const toStartOfRange =
-    granularity === 'day'
-      ? safeSql`toStartOfDay(${SQL.DateTime({ rangeStart })}, {timezone:String})`
-      : safeSql`${SQL.DateTime({ rangeStart })}`;
+  const toStartOfStartedAt = toStartOfInterval(safeSql`started_at`);
+  const toStartOfRange = toStartOfInterval(SQL.DateTime({ rangeStart }));
+  const toStartOfTS = toStartOfInterval(safeSql`ts`);
 
   // Used for calculating bucket end in seconds
-  const bucketSizeSeconds = safeSql`least(${totalSeconds}, abs(dateDiff('second', bucket_start, now())))`;
+  const bucketSizeSeconds = safeSql`least(dateDiff('second', bucket_start, bucket_start + INTERVAL 1 ${interval}), abs(dateDiff('second', bucket_start, now())))`;
 
   const query = safeSql`
     WITH incident_buckets AS (
@@ -60,10 +59,10 @@ export async function getMonitorUptimeBuckets(
         coalesce(resolved_at, now() + INTERVAL 1 ${interval}) AS effective_resolved_at,
         arrayJoin(
           arrayMap(
-            i -> ${toStartOf} + INTERVAL i ${interval},
+            i -> ${toStartOfStartedAt} + INTERVAL i ${interval},
             range(
               0,
-              toUInt32(dateDiff(${granularityStr}, ${toStartOf}, coalesce(resolved_at, now() + INTERVAL 1 ${interval}))) + 1
+              toUInt32(dateDiff(${granularityStr}, ${toStartOfStartedAt}, coalesce(resolved_at, now() + INTERVAL 1 ${interval}))) + 1
             )
           )
         ) AS bucket_key
@@ -76,7 +75,7 @@ export async function getMonitorUptimeBuckets(
     ),
     monitor_presence AS (
       SELECT
-        toStartOfInterval(ts, INTERVAL 1 ${interval}) AS mp_bucket_start,
+        ${toStartOfTS} AS mp_bucket_start,
         1 AS has_data
       FROM analytics.monitor_results
       WHERE check_id = {check_id:String}
