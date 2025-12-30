@@ -51,30 +51,40 @@ export function AnimatedDigit({
       }
       if (container) {
         container.style.transition = 'none';
-        container.style.width = 'var(--digit-width, 0.65em)';
+        container.style.position = 'relative';
+        container.style.left = 'auto';
         container.style.transform = 'none';
       }
     }
   }, [isExiting, exitState]);
 
-  // Handle exit animation - roll toward edge and collapse width
+  // Handle exit animation - become absolute and slide out toward left edge
   useEffect(() => {
     if (isExiting && exitState === 'idle') {
       const reel = reelRef.current;
       const container = containerRef.current;
       
-      if (reel) {
-        // Roll DOWN to show the digit above (toward mask edge)
-        reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        reel.style.transform = 'translateY(100%)';
+      if (container) {
+        // Get current position before becoming absolute
+        const rect = container.getBoundingClientRect();
+        const parentRect = container.parentElement?.getBoundingClientRect();
+        const leftOffset = parentRect ? rect.left - parentRect.left : 0;
+        
+        // Become absolute positioned - this removes it from layout flow
+        // The container width will shrink and push other digits to fill the gap
+        container.style.position = 'absolute';
+        container.style.left = `${leftOffset}px`;
+        container.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+        
+        // Slide out toward left edge (negative X) and fade
+        container.style.transform = 'translate3d(calc(-0.5 * var(--digit-width, 0.65em)), 0, 0) scale(1.02, 1)';
+        container.style.opacity = '0';
       }
       
-      if (container) {
-        // Collapse width with subtle X translation and scale
-        container.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        container.style.width = '0';
-        // Subtle 3D effect: translate right and scale down slightly
-        container.style.transform = 'translate3d(calc(0.33 * var(--digit-width, 0.65em)), 0, 0) scale(0.98, 1)';
+      if (reel) {
+        // Roll the reel
+        reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+        reel.style.transform = 'translateY(100%)';
       }
       
       setExitState('exiting');
@@ -95,19 +105,19 @@ export function AnimatedDigit({
       const container = containerRef.current;
       
       if (container) {
-        // Start collapsed with offset
+        // Start with offset and scale
         container.style.transition = 'none';
-        container.style.width = '0';
         container.style.transform = 'translate3d(calc(-0.33 * var(--digit-width, 0.65em)), 0, 0) scale(1.02, 1)';
+        container.style.opacity = '0';
         container.offsetHeight; // Force reflow
-        // Animate to full width
-        container.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        container.style.width = 'var(--digit-width, 0.65em)';
+        // Animate to normal
+        container.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`;
         container.style.transform = 'none';
+        container.style.opacity = '1';
       }
       
       if (reel) {
-        // Start showing digit below (0 for most digits) and roll UP into view
+        // Start showing digit below and roll UP into view
         reel.style.transition = 'none';
         reel.style.transform = 'translateY(100%)';
         reel.offsetHeight; // Force reflow
@@ -151,18 +161,19 @@ export function AnimatedDigit({
     padding: 'calc(var(--mask-height, 0.15em) / 2) 0',
   };
 
-  // Container handles width animation - motion.dev style
+  // Container handles positioning - motion.dev style
   const containerStyle: React.CSSProperties = {
     display: 'inline-flex',
     justifyContent: 'center',
-    alignItems: 'center', // Vertically center the digit
+    alignItems: 'center',
     width: 'var(--digit-width, 0.65em)',
     // Vertical headroom for roll animation
     padding: 'var(--mask-height, 0.3em) 0',
     margin: 'calc(-1 * var(--mask-height, 0.3em)) 0',
     overflow: 'hidden',
-    willChange: 'transform, width',
+    willChange: 'transform, opacity',
     transformOrigin: '50% 50% 0px',
+    // Opacity handled by JS animations, not React state
   };
 
   // Reel structure matching motion.dev
