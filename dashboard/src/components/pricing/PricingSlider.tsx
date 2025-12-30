@@ -82,7 +82,7 @@ export function PricingSlider({
       {/* ORIGINAL PRICING SLIDER */}
       <div className='mb-4 text-center'>
         <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
-        <div className='text-3xl font-bold'>
+        <div className='text-3xl font-bold inline-flex items-center gap-0.5'>
           <span className='text-muted-foreground'>LABEL: </span>
           <AnimatedNumber value={displayNumber} />
           {suffix}
