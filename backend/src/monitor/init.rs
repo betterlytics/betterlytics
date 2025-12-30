@@ -138,28 +138,25 @@ async fn run_monitoring_init_loop(
         let tls_rate_limiter = Arc::new(DomainRateLimiter::new(20, Duration::from_hours(1)));
         info!("Domain rate limiter initialized");
 
-        let mut http_runner = HttpRunner::new(
+        let http_runner = HttpRunner::new(
             Arc::clone(&monitor_cache),
             probe,
             Arc::clone(&writer),
             metrics.clone(),
+            Arc::clone(&incident_orchestrator),
+            http_rate_limiter,
             HttpRuntimeConfig::default(),
         );
 
-        let mut tls_runner = TlsRunner::new(
+        let tls_runner = TlsRunner::new(
             tls_cache,
             tls_probe,
             tls_writer,
             metrics.clone(),
+            Arc::clone(&incident_orchestrator),
+            tls_rate_limiter,
             TlsRuntimeConfig::default(),
         );
-
-        http_runner = http_runner
-            .with_incident_orchestrator(Arc::clone(&incident_orchestrator))
-            .with_rate_limiter(Arc::clone(&http_rate_limiter));
-        tls_runner = tls_runner
-            .with_incident_orchestrator(Arc::clone(&incident_orchestrator))
-            .with_rate_limiter(Arc::clone(&tls_rate_limiter));
 
         http_runner.spawn();
         tls_runner.spawn();

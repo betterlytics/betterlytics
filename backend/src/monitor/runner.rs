@@ -146,8 +146,8 @@ pub struct Runner<S: RunnerStrategy> {
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
-    incident_orchestrator: Option<Arc<IncidentOrchestrator>>,
-    rate_limiter: Option<Arc<DomainRateLimiter>>,
+    incident_orchestrator: Arc<IncidentOrchestrator>,
+    rate_limiter: Arc<DomainRateLimiter>,
     runtime: S::RuntimeConfig,
     _marker: PhantomData<S>,
 }
@@ -158,6 +158,8 @@ impl<S: RunnerStrategy> Runner<S> {
         probe: MonitorProbe,
         writer: Arc<MonitorWriter>,
         metrics: Option<Arc<MetricsCollector>>,
+        incident_orchestrator: Arc<IncidentOrchestrator>,
+        rate_limiter: Arc<DomainRateLimiter>,
         runtime: S::RuntimeConfig,
     ) -> Self {
         Self {
@@ -165,21 +167,11 @@ impl<S: RunnerStrategy> Runner<S> {
             probe,
             writer,
             metrics,
-            incident_orchestrator: None,
-            rate_limiter: None,
+            incident_orchestrator,
+            rate_limiter,
             runtime,
             _marker: PhantomData,
         }
-    }
-
-    pub fn with_incident_orchestrator(mut self, orchestrator: Arc<IncidentOrchestrator>) -> Self {
-        self.incident_orchestrator = Some(orchestrator);
-        self
-    }
-
-    pub fn with_rate_limiter(mut self, rate_limiter: Arc<DomainRateLimiter>) -> Self {
-        self.rate_limiter = Some(rate_limiter);
-        self
     }
 
     pub fn spawn(self) {
@@ -385,8 +377,8 @@ async fn run_loop<S: RunnerStrategy>(
     probe: MonitorProbe,
     writer: Arc<MonitorWriter>,
     metrics: Option<Arc<MetricsCollector>>,
-    incident_orchestrator: Option<Arc<IncidentOrchestrator>>,
-    rate_limiter: Option<Arc<DomainRateLimiter>>,
+    incident_orchestrator: Arc<IncidentOrchestrator>,
+    rate_limiter: Arc<DomainRateLimiter>,
     config: RunLoopConfig,
     mut scheduler: S::Scheduler,
 ) {
@@ -403,8 +395,6 @@ async fn run_loop<S: RunnerStrategy>(
         runner = config.name,
         tick_ms = config.scheduler_tick.as_millis(),
         max_concurrency = config.max_concurrency,
-        alerts_enabled = incident_orchestrator.is_some(),
-        rate_limiting_enabled = rate_limiter.is_some(),
         "monitor runner started"
     );
 
@@ -422,14 +412,8 @@ async fn run_loop<S: RunnerStrategy>(
             let active_ids: HashSet<String> = snapshot.iter().map(|c| c.id.clone()).collect();
             scheduler.prune_inactive(&active_ids);
             last_run.retain(|id, _| active_ids.contains(id));
-            
-            if let Some(ref orchestrator) = incident_orchestrator {
-                orchestrator.prune_inactive(&active_ids).await;
-            }
-
-            if let Some(ref rl) = rate_limiter {
-                rl.prune_stale();
-            }
+            incident_orchestrator.prune_inactive(&active_ids).await;
+            rate_limiter.prune_stale();
         }
 
         let now = Instant::now();
@@ -440,18 +424,16 @@ async fn run_loop<S: RunnerStrategy>(
                 continue;
             }
 
-            if let Some(ref rl) = rate_limiter {
-                let domain = check.url.host_str().unwrap_or_default();
-                if !rl.check(domain) {
-                    last_run.insert(check.id.clone(), now);
-                    debug!(
-                        runner = runner_name,
-                        check = %check.id,
-                        domain = domain,
-                        "probe skipped due to domain rate limit"
-                    );
-                    continue;
-                }
+            let domain = check.url.host_str().unwrap_or_default();
+            if !rate_limiter.check(domain) {
+                last_run.insert(check.id.clone(), now);
+                debug!(
+                    runner = runner_name,
+                    check = %check.id,
+                    domain = domain,
+                    "probe skipped due to domain rate limit"
+                );
+                continue;
             }
 
             let probe = probe.clone();
@@ -510,18 +492,16 @@ async fn run_loop<S: RunnerStrategy>(
                     "probe completed"
                 );
 
-                if let Some(ref orchestrator) = incident_orchestrator {
-                    let incident_ctx = IncidentContext::from_probe(
-                        &check,
-                        &outcome,
-                        post_snapshot.consecutive_failures,
-                    );
+                let incident_ctx = IncidentContext::from_probe(
+                    &check,
+                    &outcome,
+                    post_snapshot.consecutive_failures,
+                );
 
-                    if is_tls_runner {
-                        orchestrator.process_tls_probe_outcome(&incident_ctx).await;
-                    } else {
-                        orchestrator.process_probe_outcome(&incident_ctx).await;
-                    }
+                if is_tls_runner {
+                    incident_orchestrator.process_tls_probe_outcome(&incident_ctx).await;
+                } else {
+                    incident_orchestrator.process_probe_outcome(&incident_ctx).await;
                 }
 
                 collected.push(S::build_row(&check, &outcome, &post_snapshot));
