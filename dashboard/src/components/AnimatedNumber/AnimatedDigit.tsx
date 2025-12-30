@@ -12,7 +12,7 @@ interface AnimatedDigitProps {
 }
 
 const EASING_MAP = {
-  spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  spring: 'cubic-bezier(0.17, 1.15, 0.3, 1)',
   'ease-out': 'ease-out',
   linear: 'linear',
 } as const;
@@ -22,7 +22,7 @@ const ENTER_EXIT_EASING = 'ease-out';
 export function AnimatedDigit({
   digit,
   prevDigit,
-  duration = 1800,
+  duration = 1000,
   easing = 'spring',
   isExiting = false,
   onExitComplete,
@@ -183,13 +183,15 @@ export function AnimatedDigit({
       {/* Reel with above/current/below structure - only current is in normal flow */}
       <span ref={reelRef} style={reelStyle}>
         {/* Digits above current (position: absolute at bottom: 100%) */}
-        <span style={aboveStyle}>
-          {digitsAbove.map((d) => (
-            <span key={`above-${d}`} style={digitStyle}>
-              {d}
-            </span>
-          ))}
-        </span>
+        {!isExiting && prevDigit !== null && (
+          <span style={aboveStyle}>
+            {digitsAbove.map((d) => (
+              <span key={`above-${d}`} style={digitStyle}>
+                {d}
+              </span>
+            ))}
+          </span>
+        )}
 
         {/* Current digit - in normal flow, sets the reel height */}
         <span style={digitStyle}>
@@ -197,13 +199,15 @@ export function AnimatedDigit({
         </span>
 
         {/* Digits below current (position: absolute at top: 100%) */}
-        <span style={belowStyle}>
-          {digitsBelow.map((d) => (
-            <span key={`below-${d}`} style={digitStyle}>
-              {d}
-            </span>
-          ))}
-        </span>
+        {!isExiting && prevDigit !== null && (
+          <span style={belowStyle}>
+            {digitsBelow.map((d) => (
+              <span key={`below-${d}`} style={digitStyle}>
+                {d}
+              </span>
+            ))}
+          </span>
+        )}
       </span>
     </span>
   );

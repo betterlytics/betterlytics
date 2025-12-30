@@ -27,7 +27,7 @@ function generateId() {
 export function AnimatedNumber({
   value,
   className,
-  duration = 1800,
+  duration = 1000,
   easing = 'spring',
 }: AnimatedNumberProps) {
   const prevValueRef = useRef<number | null>(null);
