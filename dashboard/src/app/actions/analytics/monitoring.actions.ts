@@ -1,7 +1,7 @@
 'use server';
 
 import { MonitorCheckCreateSchema, MonitorCheckUpdateSchema } from '@/entities/analytics/monitoring.entities';
-import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
+import { withDashboardAuthContext, withDashboardMutationAuthContext, getCachedSession } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { getTranslations } from 'next-intl/server';
 import {
@@ -52,7 +52,10 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       throw new UserException(t('monitorAlreadyExists'));
     }
 
-    const created = await addMonitorCheck(ctx.dashboardId, payload);
+    const created = await addMonitorCheck(ctx.dashboardId, {
+      ...payload,
+      alertEmails: [(await getCachedSession())!.user.email],
+    });
 
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
     return created;

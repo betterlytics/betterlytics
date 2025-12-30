@@ -1469,14 +1469,6 @@
       "enabled": "On",
       "enableAlerts": "Enable alerts",
       "description": "Get notified when your monitor goes down, recovers, or when SSL certificates are expiring.",
-      "recipients": "Email recipients",
-      "recipientsDescription": "Add email addresses to receive alert notifications.",
-      "emailPlaceholder": "email@example.com",
-      "addEmail": "Add",
-      "invalidEmail": "Please enter a valid email address",
-      "emailExists": "This email is already added",
-      "maxEmails": "Maximum of {max} email recipients allowed",
-      "triggers": "Alert triggers",
       "onDown": "Alert on down",
       "onDownDescription": "Send an alert when the monitor goes down",
       "onRecovery": "Alert on recovery",
@@ -1520,11 +1512,6 @@
     "it": "Italiano"
   },
   "components": {
-    "emailTokenInput": {
-      "placeholder": "Enter email address...",
-      "maxEmails": "Maximum {max} emails",
-      "addYourEmail": "Add your email ({email})"
-    },
     "weeklyHeatmap": {
       "days": {
         "monShort": "Mon.",

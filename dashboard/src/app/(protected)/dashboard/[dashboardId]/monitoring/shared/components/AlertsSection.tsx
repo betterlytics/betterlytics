@@ -2,12 +2,9 @@
 
 import { Bell, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
 import { SettingToggle } from '@/components/inputs/SettingToggle';
-import { EmailTokenInput } from '@/components/inputs/EmailTokenInput';
-import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { SectionHeader } from './SectionHeader';
 import { SSL_EXPIRY_MARKS, SSL_EXPIRY_DISPLAY_MARKS, RECOMMENDED_SSL_EXPIRY_DAYS } from '../utils/sliderConstants';
 import type { MonitorFormInterface } from '../types';
@@ -15,7 +12,7 @@ import type { MonitorFormInterface } from '../types';
 export type AlertsSectionProps = {
   form: MonitorFormInterface;
   isPending: boolean;
-  userEmail?: string | null;
+  userEmail: string;
   sslMonitoringEnabled: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -57,7 +54,11 @@ export function AlertsSection({
         <div className='space-y-5 pt-4'>
           <SettingToggle
             id='alerts-enabled'
-            label={t('enableAlerts')}
+            label={
+              <>
+                {t('enableAlerts')} <span className='text-muted-foreground font-normal'>({userEmail})</span>
+              </>
+            }
             checked={state.alertsEnabled}
             onCheckedChange={setField('alertsEnabled')}
             disabled={isPending}
@@ -65,66 +66,47 @@ export function AlertsSection({
 
           {state.alertsEnabled && (
             <div className='space-y-5 pl-1'>
-              <div className='space-y-3'>
-                <div>
-                  <Label className='text-sm font-medium'>{t('recipients')}</Label>
-                  <p className='text-muted-foreground mt-0.5 text-xs'>{t('recipientsDescription')}</p>
+              <SettingToggle
+                id='alert-on-down'
+                label={t('onDown')}
+                checked={state.alertOnDown}
+                onCheckedChange={setField('alertOnDown')}
+                disabled={isPending}
+              />
+
+              <SettingToggle
+                id='alert-on-recovery'
+                label={t('onRecovery')}
+                checked={state.alertOnRecovery}
+                onCheckedChange={setField('alertOnRecovery')}
+                disabled={isPending}
+              />
+
+              <SettingToggle
+                id='alert-on-ssl-expiry'
+                label={t('onSslExpiry')}
+                checked={sslMonitoringEnabled && state.alertOnSslExpiry}
+                onCheckedChange={setField('alertOnSslExpiry')}
+                disabled={isPending || !sslMonitoringEnabled}
+                disabledTooltip={!sslMonitoringEnabled ? t('sslExpiryDisabledTooltip') : undefined}
+              />
+
+              {sslMonitoringEnabled && state.alertOnSslExpiry && (
+                <div className='pt-2'>
+                  <LabeledSlider
+                    label={t('sslExpiryDays')}
+                    description={t('sslExpiryDaysDescription')}
+                    value={SSL_EXPIRY_MARKS.indexOf(state.sslExpiryAlertDays)}
+                    min={0}
+                    max={SSL_EXPIRY_MARKS.length - 1}
+                    marks={SSL_EXPIRY_DISPLAY_MARKS}
+                    onValueChange={(idx) => setField('sslExpiryAlertDays')(SSL_EXPIRY_MARKS[idx])}
+                    formatValue={(idx) => t('daysCount', { count: SSL_EXPIRY_MARKS[idx] })}
+                    recommendedValue={SSL_EXPIRY_MARKS.indexOf(RECOMMENDED_SSL_EXPIRY_DAYS)}
+                    disabled={isPending}
+                  />
                 </div>
-
-                <EmailTokenInput
-                  emails={state.alertEmails}
-                  onAddEmail={form.tryAddAlertEmail}
-                  onRemoveEmail={form.removeAlertEmail}
-                  disabled={isPending}
-                  placeholder={t('emailPlaceholder')}
-                  suggestedEmail={userEmail ?? undefined}
-                  maxEmails={MONITOR_LIMITS.ALERT_EMAILS_MAX}
-                />
-              </div>
-
-              <div className='space-y-4'>
-                <SettingToggle
-                  id='alert-on-down'
-                  label={t('onDown')}
-                  checked={state.alertOnDown}
-                  onCheckedChange={setField('alertOnDown')}
-                  disabled={isPending}
-                />
-
-                <SettingToggle
-                  id='alert-on-recovery'
-                  label={t('onRecovery')}
-                  checked={state.alertOnRecovery}
-                  onCheckedChange={setField('alertOnRecovery')}
-                  disabled={isPending}
-                />
-
-                <SettingToggle
-                  id='alert-on-ssl-expiry'
-                  label={t('onSslExpiry')}
-                  checked={sslMonitoringEnabled && state.alertOnSslExpiry}
-                  onCheckedChange={setField('alertOnSslExpiry')}
-                  disabled={isPending || !sslMonitoringEnabled}
-                  disabledTooltip={!sslMonitoringEnabled ? t('sslExpiryDisabledTooltip') : undefined}
-                />
-
-                {sslMonitoringEnabled && state.alertOnSslExpiry && (
-                  <div className='pt-2'>
-                    <LabeledSlider
-                      label={t('sslExpiryDays')}
-                      description={t('sslExpiryDaysDescription')}
-                      value={SSL_EXPIRY_MARKS.indexOf(state.sslExpiryAlertDays)}
-                      min={0}
-                      max={SSL_EXPIRY_MARKS.length - 1}
-                      marks={SSL_EXPIRY_DISPLAY_MARKS}
-                      onValueChange={(idx) => setField('sslExpiryAlertDays')(SSL_EXPIRY_MARKS[idx])}
-                      formatValue={(idx) => t('daysCount', { count: SSL_EXPIRY_MARKS[idx] })}
-                      recommendedValue={SSL_EXPIRY_MARKS.indexOf(RECOMMENDED_SSL_EXPIRY_DAYS)}
-                      disabled={isPending}
-                    />
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           )}
         </div>

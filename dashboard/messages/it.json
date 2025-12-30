@@ -1472,14 +1472,6 @@
       "enabled": "Attivo",
       "enableAlerts": "Attiva avvisi",
       "description": "Ricevi notifiche quando il monitor va offline, torna online o quando i certificati SSL stanno per scadere.",
-      "recipients": "Destinatari email",
-      "recipientsDescription": "Aggiungi indirizzi email per ricevere notifiche di avviso.",
-      "emailPlaceholder": "email@example.com",
-      "addEmail": "Aggiungi",
-      "invalidEmail": "Inserisci un indirizzo email valido",
-      "emailExists": "Questa email è già stata aggiunta",
-      "maxEmails": "Massimo {max} destinatari email consentiti",
-      "triggers": "Attivazione avvisi",
       "onDown": "Avviso quando offline",
       "onDownDescription": "Invia un avviso quando il monitor va offline",
       "onRecovery": "Avviso al ripristino",
@@ -1523,11 +1515,6 @@
     "it": "Italiano"
   },
   "components": {
-    "emailTokenInput": {
-      "placeholder": "Inserisci indirizzo email...",
-      "maxEmails": "Massimo {max} email",
-      "addYourEmail": "Aggiungi la tua email ({email})"
-    },
     "weeklyHeatmap": {
       "days": {
         "monShort": "Lun.",

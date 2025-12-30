@@ -10,7 +10,7 @@ import {
   MonitorCheckCreate,
   MonitorCheckUpdate,
 } from '@/entities/analytics/monitoring.entities';
-import { validateStatusCode, validateAlertEmail, sortStatusCodes, deepEqual } from '../utils/formValidation';
+import { validateStatusCode, sortStatusCodes, deepEqual } from '../utils/formValidation';
 import type { MonitorFormState, MonitorFormInterface } from '../types';
 
 const SCHEMA_DEFAULTS = MonitorCheckBaseSchema.parse({});
@@ -19,10 +19,9 @@ function ensureEmptyHeaderRow(headers: { key: string; value: string }[]): { key:
   return headers.some((h) => !h.key && !h.value) ? headers : [...headers, { key: '', value: '' }];
 }
 
-const createDefaultState = (ownerEmail?: string | null): MonitorFormState => ({
+const createDefaultState = (): MonitorFormState => ({
   ...SCHEMA_DEFAULTS,
   requestHeaders: ensureEmptyHeaderRow(SCHEMA_DEFAULTS.requestHeaders ?? []),
-  alertEmails: ownerEmail ? [ownerEmail] : [],
 });
 
 const createStateFromMonitor = (m: MonitorCheck): MonitorFormState => ({
@@ -32,7 +31,7 @@ const createStateFromMonitor = (m: MonitorCheck): MonitorFormState => ({
   alertEmails: m.alertEmails ?? [],
 });
 
-type CreateOptions = { mode: 'create'; ownerEmail?: string | null };
+type CreateOptions = { mode: 'create' };
 type EditOptions = { mode: 'edit'; monitor: MonitorCheck };
 
 export type MonitorFormResult = MonitorFormInterface & {
@@ -45,12 +44,10 @@ export type MonitorFormResult = MonitorFormInterface & {
 
 export function useMonitorForm(options: CreateOptions | EditOptions): MonitorFormResult {
   const tStatusCodes = useTranslations('monitoringEditDialog.advanced.acceptedStatusCodes.validation');
-  const tAlerts = useTranslations('monitoringEditDialog.alerts');
 
   const getInitialState = useCallback(
-    () =>
-      options.mode === 'edit' ? createStateFromMonitor(options.monitor) : createDefaultState(options.ownerEmail),
-    [options.mode, options.mode === 'edit' ? options.monitor : options.ownerEmail],
+    () => (options.mode === 'edit' ? createStateFromMonitor(options.monitor) : createDefaultState()),
+    [options.mode, options.mode === 'edit' ? options.monitor : undefined],
   );
 
   const [state, setState] = useState<MonitorFormState>(getInitialState);
@@ -114,24 +111,6 @@ export function useMonitorForm(options: CreateOptions | EditOptions): MonitorFor
     setState((prev) => ({ ...prev, acceptedStatusCodes: prev.acceptedStatusCodes.filter((c) => c !== code) }));
   }, []);
 
-  const tryAddAlertEmail = useCallback(
-    (email: string): boolean => {
-      const result = validateAlertEmail(email, state.alertEmails);
-      if (!result.ok) {
-        if (result.error === 'maxReached')
-          toast.error(tAlerts('maxEmails', { max: MONITOR_LIMITS.ALERT_EMAILS_MAX }));
-        return false;
-      }
-      setState((prev) => ({ ...prev, alertEmails: [...prev.alertEmails, result.email] }));
-      return true;
-    },
-    [state.alertEmails, tAlerts],
-  );
-
-  const removeAlertEmail = useCallback((email: string) => {
-    setState((prev) => ({ ...prev, alertEmails: prev.alertEmails.filter((e) => e !== email) }));
-  }, []);
-
   const buildCreatePayload = useCallback(
     (url: string): MonitorCheckCreate => ({
       ...state,
@@ -168,8 +147,6 @@ export function useMonitorForm(options: CreateOptions | EditOptions): MonitorFor
     removeStatusCode,
     updateRequestHeader,
     removeRequestHeader,
-    tryAddAlertEmail,
-    removeAlertEmail,
     buildCreatePayload,
     buildUpdatePayload,
     reset,

@@ -37,10 +37,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disable
   const t = useTranslations('monitoringPage.form');
   const { data: session } = useSession();
 
-  const form = useMonitorForm({
-    mode: 'create',
-    ownerEmail: session?.user?.email,
-  });
+  const form = useMonitorForm({ mode: 'create' });
 
   const resetForm = () => {
     setUrl(`https://${domain}`);
@@ -157,7 +154,7 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disable
             <AlertsSection
               form={form}
               isPending={isPending}
-              userEmail={session?.user?.email}
+              userEmail={session!.user.email}
               sslMonitoringEnabled={sslMonitoringEnabled}
               open={expandedSection === 'alerts'}
               onOpenChange={(isOpen) => setExpandedSection(isOpen ? 'alerts' : null)}

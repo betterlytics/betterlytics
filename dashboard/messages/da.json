@@ -1472,14 +1472,6 @@
       "enabled": "Til",
       "enableAlerts": "Aktivér alarmer",
       "description": "Få besked, når din overvågning går ned, kommer op igen, eller når SSL-certifikater er ved at udløbe.",
-      "recipients": "E-mail-modtagere",
-      "recipientsDescription": "Tilføj e-mailadresser, der skal modtage alarmer.",
-      "emailPlaceholder": "email@example.com",
-      "addEmail": "Tilføj",
-      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
-      "emailExists": "Denne e-mail er allerede tilføjet",
-      "maxEmails": "Maksimalt {max} e-mail-modtagere tilladt",
-      "triggers": "Alarmudløsere",
       "onDown": "Advarsel ved nedetid",
       "onDownDescription": "Send en alarm, når overvågningen går ned",
       "onRecovery": "Advarsel ved genoprettelse",
@@ -1523,11 +1515,6 @@
     "it": "Italiano"
   },
   "components": {
-    "emailTokenInput": {
-      "placeholder": "Indtast e-mailadresse...",
-      "maxEmails": "Maksimalt {max} e-mails",
-      "addYourEmail": "Tilføj din e-mail ({email})"
-    },
     "weeklyHeatmap": {
       "days": {
         "monShort": "Man.",

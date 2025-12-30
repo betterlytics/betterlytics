@@ -100,7 +100,7 @@ export function EditMonitorSheet({
     });
   }, [deleteMutation]);
 
-  const userEmail = session?.user?.email;
+  const userEmail = session!.user.email;
   const sslMonitoringEnabled = !isHttpUrl(monitor.url) && form.state.checkSslErrors;
   const isHttpSite = !monitor.url.startsWith('https://');
 

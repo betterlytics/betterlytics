@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 
 type SettingToggleProps = {
   id: string;
-  label: string;
+  label: ReactNode;
   description?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;

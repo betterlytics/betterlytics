@@ -71,9 +71,11 @@ export const MonitorCheckSchema = MonitorCheckBaseSchema.extend({
   updatedAt: z.date(),
 });
 
-export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: true }).partial().extend({
-  id: z.string(),
-});
+export const MonitorCheckUpdateSchema = MonitorCheckCreateSchema.omit({ url: true, alertEmails: true })
+  .partial()
+  .extend({
+    id: z.string(),
+  });
 
 export const MonitorIncidentSegmentSchema = z.object({
   state: IncidentStateSchema,

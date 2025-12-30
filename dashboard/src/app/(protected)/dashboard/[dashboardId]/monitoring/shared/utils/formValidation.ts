@@ -56,34 +56,6 @@ export function sortStatusCodes(codes: StatusCodeValue[]): StatusCodeValue[] {
   });
 }
 
-export type EmailValidationResult =
-  | { ok: true; email: string }
-  | { ok: false; error: 'empty' | 'invalid' | 'duplicate' | 'maxReached' };
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export function validateAlertEmail(input: string, existingEmails: string[]): EmailValidationResult {
-  const normalized = input.trim().toLowerCase();
-
-  if (!normalized) {
-    return { ok: false, error: 'empty' };
-  }
-
-  if (!EMAIL_REGEX.test(normalized)) {
-    return { ok: false, error: 'invalid' };
-  }
-
-  if (existingEmails.includes(normalized)) {
-    return { ok: false, error: 'duplicate' };
-  }
-
-  if (existingEmails.length >= MONITOR_LIMITS.ALERT_EMAILS_MAX) {
-    return { ok: false, error: 'maxReached' };
-  }
-
-  return { ok: true, email: normalized };
-}
-
 export function deepEqual<T>(a: T, b: T): boolean {
   return stableStringify(a) === stableStringify(b);
 }

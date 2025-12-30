@@ -13,6 +13,4 @@ export type MonitorFormInterface = {
   removeStatusCode: (code: StatusCodeValue) => void;
   updateRequestHeader: (index: number, field: 'key' | 'value', value: string) => void;
   removeRequestHeader: (index: number) => void;
-  tryAddAlertEmail: (email: string) => boolean;
-  removeAlertEmail: (email: string) => void;
 };
