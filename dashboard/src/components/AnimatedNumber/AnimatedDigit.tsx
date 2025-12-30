@@ -17,40 +17,49 @@ const EASING_MAP = {
   linear: 'linear',
 } as const;
 
-// Use ease-out for enter/exit (no spring overshoot for width)
 const ENTER_EXIT_EASING = 'ease-out';
 
 export function AnimatedDigit({
   digit,
   prevDigit,
-  duration = 600,
+  duration = 1800,
   easing = 'spring',
   isExiting = false,
   onExitComplete,
 }: AnimatedDigitProps) {
   const reelRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLSpanElement>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [enterState, setEnterState] = useState<'idle' | 'entering' | 'done'>('idle');
   const [exitState, setExitState] = useState<'idle' | 'exiting' | 'done'>('idle');
 
-  // Slide duration is 1/3 of roll duration for snappy enter/exit
   const slideDuration = Math.round(duration / 3);
 
-  // Generate digits above and below current
+  // Generate digits above and below current (motion.dev structure)
   const digitsAbove = Array.from({ length: digit }, (_, i) => i);
   const digitsBelow = Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i);
 
-  // Reset exit state when component is reused (isExiting goes from true to false)
+  // Reset states when component is reused
   useEffect(() => {
     if (!isExiting && exitState !== 'idle') {
       setExitState('idle');
+      setEnterState('idle');
+      const reel = reelRef.current;
+      if (reel) {
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateY(0%)';
+      }
     }
-  }, [isExiting, exitState]);
+  }, [isExiting]);
 
   // Handle exit animation
   useEffect(() => {
     if (isExiting && exitState === 'idle') {
+      const reel = reelRef.current;
+      if (reel) {
+        reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+        reel.style.transform = 'translateY(-100%)';
+      }
+      
       setExitState('exiting');
       const timer = setTimeout(() => {
         setExitState('done');
@@ -58,156 +67,139 @@ export function AnimatedDigit({
       }, slideDuration);
       return () => clearTimeout(timer);
     }
-  }, [isExiting, exitState, duration, onExitComplete]);
+  }, [isExiting, exitState, slideDuration, onExitComplete]);
 
-  // Handle enter animation (slide in from 0 width)
+  // Handle enter animation
   useEffect(() => {
     if (isExiting) return;
 
-    // New digit appearing - animate width and opacity
     if (prevDigit === null && enterState === 'idle') {
+      const reel = reelRef.current;
+      if (reel) {
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateY(100%)';
+        reel.offsetHeight;
+        reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+        reel.style.transform = 'translateY(0%)';
+      }
+      
       setEnterState('entering');
       const timer = setTimeout(() => setEnterState('done'), slideDuration);
       return () => clearTimeout(timer);
     }
-  }, [prevDigit, enterState, duration, isExiting]);
+  }, [prevDigit, enterState, slideDuration, isExiting]);
 
-  // Handle roll animation
+  // Handle roll animation (digit changes)
   useEffect(() => {
     if (isExiting) return;
-    if (prevDigit === null) return; // New digit, no roll
-    if (prevDigit === digit) return; // Same digit, no animation
+    if (prevDigit === null) return;
+    if (prevDigit === digit) return;
 
     const reel = reelRef.current;
     if (!reel) return;
 
-    setIsAnimating(true);
-
-    // Calculate offset: how many positions to move
-    let offset: number;
-
-    if (digit > prevDigit) {
-      // Rolling UP: e.g., 1→2 or 0→9 (wrap)
-      if (prevDigit === 0 && digit === 9) {
-        offset = 9;
-      } else {
-        offset = digit - prevDigit;
-      }
-    } else {
-      // Rolling DOWN: e.g., 2→1 or 9→0 (wrap)
-      if (prevDigit === 9 && digit === 0) {
-        offset = -9;
-      } else {
-        offset = digit - prevDigit;
-      }
-    }
-
-    // Start position: offset from center
-    const startY = -offset * 100;
+    // Calculate offset: digit - prevDigit
+    // 4→5: offset = 1, translateY(-100%) starts with above section (4) visible
+    // 5→4: offset = -1, translateY(100%) starts with below section (5) visible  
+    const offset = digit - prevDigit;
+    
+    // Start at position showing prevDigit, animate to 0 (showing current digit)
     reel.style.transition = 'none';
-    reel.style.transform = `translateY(${startY}%)`;
-
-    // Force reflow
+    reel.style.transform = `translateY(${offset * 100}%)`;
     reel.offsetHeight;
-
-    // Animate to center (0%)
     reel.style.transition = `transform ${duration}ms ${EASING_MAP[easing]}`;
     reel.style.transform = 'translateY(0%)';
-
-    const handleTransitionEnd = () => {
-      setIsAnimating(false);
-    };
-
-    reel.addEventListener('transitionend', handleTransitionEnd, { once: true });
-
-    return () => {
-      reel.removeEventListener('transitionend', handleTransitionEnd);
-    };
   }, [digit, prevDigit, duration, easing, isExiting]);
 
   if (exitState === 'done') {
     return null;
   }
 
-  // Calculate styles based on state
   const isEntering = enterState === 'entering';
   const isExitingNow = exitState === 'exiting';
 
+  const digitStyle: React.CSSProperties = {
+    display: 'inline-block',
+    padding: 'calc(var(--mask-height, 0.15em) / 2) 0',
+  };
+
+  // Container handles width animation - NO overflow, parent mask clips
   const containerStyle: React.CSSProperties = {
-    height: '1em',
-    // Width animation: 0 → full for enter, full → 0 for exit
-    width: isEntering ? '0.65em' : (isExitingNow ? 0 : '0.65em'),
-    opacity: isEntering ? 1 : (isExitingNow ? 0 : 1),
+    display: 'inline-flex',
+    justifyContent: 'center',
+    width: isExitingNow ? 0 : '0.65em',
     transition: (isEntering || isExitingNow) 
-      ? `width ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`
+      ? `width ${slideDuration}ms ${ENTER_EXIT_EASING}`
       : undefined,
   };
 
-  // For entering, start at width 0
-  if (isEntering && containerRef.current) {
-    // We need to set initial width to 0 before the transition kicks in
-    // This is handled by the CSS animation below
-  }
+  // Reel contains: above (absolute), current (normal flow), below (absolute)
+  // Only current digit contributes to height
+  const reelStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'relative',
+    width: '0.65em',
+  };
+
+  const aboveStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'absolute',
+    width: '100%',
+    bottom: '100%',
+    left: 0,
+  };
+
+  const belowStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'absolute',
+    width: '100%',
+    top: '100%',
+    left: 0,
+  };
 
   return (
     <span
       ref={containerRef}
-      className="relative inline-block overflow-clip"
       style={containerStyle}
-      // Use CSS animation for enter to get the "from 0" effect
-      {...(enterState === 'entering' && {
-        'data-entering': 'true',
-      })}
+      data-entering={isEntering ? 'true' : undefined}
+      aria-hidden="true"
     >
       <style>{`
         [data-entering="true"] {
-          animation: slideIn ${slideDuration}ms ${ENTER_EXIT_EASING} forwards;
+          animation: slideInWidth ${slideDuration}ms ${ENTER_EXIT_EASING} forwards;
         }
-        @keyframes slideIn {
-          from { width: 0; opacity: 0; }
-          to { width: 0.65em; opacity: 1; }
+        @keyframes slideInWidth {
+          from { width: 0; }
+          to { width: 0.65em; }
         }
       `}</style>
-      <span
-        ref={reelRef}
-        className="relative flex flex-col items-center"
-        style={{ width: '100%' }}
-      >
-        {/* Digits above current (for rolling DOWN) */}
-        <span
-          className="absolute flex flex-col items-center w-full"
-          style={{ bottom: '100%' }}
-        >
+      {/* Reel with above/current/below structure - only current is in normal flow */}
+      <span ref={reelRef} style={reelStyle}>
+        {/* Digits above current (position: absolute at bottom: 100%) */}
+        <span style={aboveStyle}>
           {digitsAbove.map((d) => (
-            <span
-              key={`above-${d}`}
-              className="flex items-center justify-center"
-              style={{ height: '1em' }}
-            >
+            <span key={`above-${d}`} style={digitStyle}>
               {d}
             </span>
           ))}
         </span>
 
-        {/* Current digit */}
-        <span
-          className="flex items-center justify-center"
-          style={{ height: '1em' }}
-        >
+        {/* Current digit - in normal flow, sets the reel height */}
+        <span style={digitStyle}>
           {digit}
         </span>
 
-        {/* Digits below current (for rolling UP) */}
-        <span
-          className="absolute flex flex-col items-center w-full"
-          style={{ top: '100%' }}
-        >
+        {/* Digits below current (position: absolute at top: 100%) */}
+        <span style={belowStyle}>
           {digitsBelow.map((d) => (
-            <span
-              key={`below-${d}`}
-              className="flex items-center justify-center"
-              style={{ height: '1em' }}
-            >
+            <span key={`below-${d}`} style={digitStyle}>
               {d}
             </span>
           ))}
@@ -216,6 +208,3 @@ export function AnimatedDigit({
     </span>
   );
 }
-
-
-
