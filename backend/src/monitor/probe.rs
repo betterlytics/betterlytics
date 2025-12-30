@@ -17,6 +17,7 @@ use x509_parser::prelude::FromDer;
 
 use crate::monitor::guard::{GuardError, MAX_REDIRECTS, BODY_STREAM_LIMIT, get_port, validate_target};
 use crate::monitor::models::{HttpMethod, MonitorStatus, StatusCodeValue, is_status_code_accepted};
+use crate::monitor::sanitize::apply_custom_headers;
 use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
 
 #[derive(Debug, Clone)]
@@ -425,19 +426,6 @@ fn ensure_crypto_provider() {
     });
 }
 
-fn apply_custom_headers(
-    mut builder: reqwest::RequestBuilder,
-    headers: &[crate::monitor::RequestHeader],
-) -> reqwest::RequestBuilder {
-    for header in headers {
-        if let Ok(name) = reqwest::header::HeaderName::from_bytes(header.key.as_bytes()) {
-            if let Ok(value) = reqwest::header::HeaderValue::from_str(&header.value) {
-                builder = builder.header(name, value);
-            }
-        }
-    }
-    builder
-}
 
 fn classify_reqwest_error(err: &reqwest::Error) -> ReasonCode {
     if err.is_timeout() {

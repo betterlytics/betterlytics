@@ -10,6 +10,7 @@ pub mod rate_limiter;
 pub mod repository;
 pub mod runner;
 pub mod incident;
+pub mod sanitize;
 pub mod service;
 
 pub use init::spawn_monitoring;

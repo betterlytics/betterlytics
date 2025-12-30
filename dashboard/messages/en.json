@@ -1450,7 +1450,8 @@
         "label": "Request headers",
         "description": "Custom headers included with each request",
         "namePlaceholder": "Header name",
-        "valuePlaceholder": "Value"
+        "valuePlaceholder": "Value",
+        "blockedHeader": "This header is blocked for security reasons"
       },
       "acceptedStatusCodes": {
         "label": "Accepted status codes",

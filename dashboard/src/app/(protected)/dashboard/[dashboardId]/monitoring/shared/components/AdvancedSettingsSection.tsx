@@ -11,7 +11,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SettingToggle } from '@/components/inputs/SettingToggle';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getStatusCodeColorClasses } from '../utils/httpStatusColors';
+import { isHeaderBlocked } from '../utils/formValidation';
 import { SectionHeader } from './SectionHeader';
 import type { MonitorFormInterface } from '../types';
 
@@ -107,18 +109,28 @@ export function AdvancedSettingsSection({
                 const isEmptyRow = header.key === '' && header.value === '';
                 const isLastRow = index === (form.state.requestHeaders ?? []).length - 1;
                 const showDeleteButton = !isEmptyRow || !isLastRow;
+                const headerBlocked = header.key.trim() !== '' && isHeaderBlocked(header.key);
 
                 return (
                   <div key={index} className='flex items-center gap-2'>
-                    <Input
-                      type='text'
-                      placeholder={t('advanced.requestHeaders.namePlaceholder')}
-                      value={header.key}
-                      onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
-                      maxLength={MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX}
-                      disabled={isPending}
-                      className='h-9 flex-1 text-sm'
-                    />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Input
+                          type='text'
+                          placeholder={t('advanced.requestHeaders.namePlaceholder')}
+                          value={header.key}
+                          onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
+                          maxLength={MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX}
+                          disabled={isPending}
+                          className={`h-9 flex-1 text-sm ${headerBlocked ? 'border-destructive text-destructive focus-visible:ring-destructive' : ''}`}
+                        />
+                      </TooltipTrigger>
+                      {headerBlocked && (
+                        <TooltipContent side='top'>
+                          <p>{t('advanced.requestHeaders.blockedHeader')}</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
                     <Input
                       type='text'
                       placeholder={t('advanced.requestHeaders.valuePlaceholder')}

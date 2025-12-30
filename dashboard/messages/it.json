@@ -1453,7 +1453,8 @@
         "label": "Header della richiesta",
         "description": "Aggiungi header a ogni richiesta",
         "namePlaceholder": "Nome header",
-        "valuePlaceholder": "Valore"
+        "valuePlaceholder": "Valore",
+        "blockedHeader": "Questo header è bloccato per motivi di sicurezza"
       },
       "acceptedStatusCodes": {
         "label": "Codici di stato accettati",

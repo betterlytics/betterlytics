@@ -59,3 +59,46 @@ export function sortStatusCodes(codes: StatusCodeValue[]): StatusCodeValue[] {
 export function deepEqual<T>(a: T, b: T): boolean {
   return stableStringify(a) === stableStringify(b);
 }
+
+const BLOCKED_HEADERS = new Set([
+  'host',
+  'transfer-encoding',
+  'content-length',
+  'content-encoding',
+  'accept-encoding',
+  'connection',
+  'upgrade',
+  'keep-alive',
+  'te',
+  'trailer',
+  'proxy-connection',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'forwarded',
+  'x-forwarded-for',
+  'x-forwarded-host',
+  'x-forwarded-proto',
+  'x-forwarded-port',
+  'x-real-ip',
+  'via',
+  ':authority',
+  ':method',
+  ':path',
+  ':scheme',
+  'expect',
+  'range',
+]);
+
+export function isHeaderBlocked(name: string): boolean {
+  const lower = name.toLowerCase().trim();
+
+  if (BLOCKED_HEADERS.has(lower)) {
+    return true;
+  }
+
+  if (lower.startsWith('proxy-')) {
+    return true;
+  }
+
+  return false;
+}

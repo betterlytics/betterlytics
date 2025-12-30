@@ -1453,7 +1453,8 @@
         "label": "Forespørgselsheadere",
         "description": "Tilføj headers til hver forespørgsel",
         "namePlaceholder": "Headernavn",
-        "valuePlaceholder": "Værdi"
+        "valuePlaceholder": "Værdi",
+        "blockedHeader": "Denne header er blokeret af sikkerhedsmæssige årsager"
       },
       "acceptedStatusCodes": {
         "label": "Accepterede statuskoder",
