@@ -1,5 +1,7 @@
 'use client';
 
+import { Card } from '@/components/ui/card';
+import { Lock } from 'lucide-react';
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { HighlightState, TooltipState } from './types';
@@ -220,27 +222,15 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
       <TooltipComponent tooltip={tooltip} />
 
       {isLocked && (
-        <div className='border-border bg-card/95 fixed right-4 bottom-4 z-50 flex items-center gap-2 rounded-md border px-3 py-2 text-sm shadow-lg backdrop-blur-sm'>
+        <Card className='fixed right-4 bottom-4 z-50 flex flex-row items-center gap-2 border px-3 py-2 shadow-lg backdrop-blur-sm'>
           <div className='bg-primary/10 flex h-5 w-5 items-center justify-center rounded'>
-            <svg
-              className='text-primary h-3 w-3'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
-              />
-            </svg>
+            <Lock className='h-3 w-3' />
           </div>
           <div>
-            <p className='text-card-foreground font-medium'>Path locked</p>
+            <p className='text-card-foreground text-sm font-medium'>Path locked</p>
             <p className='text-muted-foreground text-xs'>Click to deselect</p>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );
