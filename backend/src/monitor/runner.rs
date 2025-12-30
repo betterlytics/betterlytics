@@ -19,7 +19,6 @@ use crate::monitor::{
 
 const BACKOFF_JITTER_RATIO: f64 = 0.10;
 
-// Runtime Configurations
 #[derive(Clone, Copy, Debug)]
 pub struct HttpRuntimeConfig {
     pub scheduler_tick: StdDuration,
@@ -54,7 +53,7 @@ impl Default for TlsRuntimeConfig {
 
 type ProbeFuture = Pin<Box<dyn Future<Output = ProbeOutcome> + Send + 'static>>;
 
-/// Strategy trait that defines variant-specific runner behavior.
+/// Strategy trait that defines variant-specific runner behavior
 pub trait RunnerStrategy: Send + Sync + 'static {
     type Scheduler: ProbeScheduler;
     type RuntimeConfig: Clone + Copy + Send + Sync + 'static;
@@ -183,8 +182,6 @@ impl<S: RunnerStrategy> Runner<S> {
         self
     }
 
-    /// Spawn the runner with automatic restart supervision.
-    /// If the run loop exits unexpectedly, it will restart with exponential backoff.
     pub fn spawn(self) {
         let runner_name = S::name();
         let cache = self.cache;
@@ -229,7 +226,6 @@ impl<S: RunnerStrategy> Runner<S> {
                 )
                 .await;
 
-                // If we get here, the run loop exited unexpectedly
                 restart_count = restart_count.saturating_add(1);
                 let backoff_secs = (BASE_BACKOFF_SECS << restart_count.min(6)).min(MAX_BACKOFF_SECS);
 
@@ -258,9 +254,8 @@ struct RunLoopConfig {
     metrics_kind: &'static str,
 }
 
-/// Trait for scheduling when monitors should be probed.
+/// Trait for scheduling when monitors should be probed
 pub trait ProbeScheduler: Send + Sync + 'static {
-    /// Check if a monitor is eligible for probing and return the backoff snapshot if so.
     fn check_due(
         &mut self,
         check: &MonitorCheck,
@@ -268,7 +263,6 @@ pub trait ProbeScheduler: Send + Sync + 'static {
         last_run: &HashMap<String, Instant>,
     ) -> Option<BackoffSnapshot>;
 
-    /// Called after a probe completes to update internal state.
     fn apply_outcome(
         &mut self,
         check: &MonitorCheck,
@@ -276,11 +270,9 @@ pub trait ProbeScheduler: Send + Sync + 'static {
         finished_at: Instant,
     ) -> BackoffSnapshot;
 
-    /// Prune stale state for monitors that no longer exist.
     fn prune_inactive(&mut self, active_ids: &HashSet<String>);
 }
 
-/// Scheduler with exponential backoff for failing monitors.
 pub struct BackoffScheduler {
     backoff: BackoffController,
     next_wait: HashMap<String, StdDuration>,
@@ -340,7 +332,7 @@ impl ProbeScheduler for BackoffScheduler {
     }
 }
 
-/// Scheduler with a fixed interval (used for TLS probes).
+/// Scheduler with a fixed interval (used for TLS probes)
 pub struct FixedIntervalScheduler {
     probe_interval: StdDuration,
 }
@@ -358,7 +350,6 @@ impl ProbeScheduler for FixedIntervalScheduler {
         now: Instant,
         last_run: &HashMap<String, Instant>,
     ) -> Option<BackoffSnapshot> {
-        // Skip if not HTTPS or if SSL checks are disabled
         if check.url.scheme() != "https" || !check.check_ssl_errors {
             return None;
         }
@@ -432,12 +423,10 @@ async fn run_loop<S: RunnerStrategy>(
             scheduler.prune_inactive(&active_ids);
             last_run.retain(|id, _| active_ids.contains(id));
             
-            // Also prune incident orchestrator state
             if let Some(ref orchestrator) = incident_orchestrator {
                 orchestrator.prune_inactive(&active_ids).await;
             }
 
-            // Prune stale rate limiter entries
             if let Some(ref rl) = rate_limiter {
                 rl.prune_stale();
             }
@@ -451,11 +440,9 @@ async fn run_loop<S: RunnerStrategy>(
                 continue;
             }
 
-            // Check domain rate limit before spawning probe
             if let Some(ref rl) = rate_limiter {
                 let domain = check.url.host_str().unwrap_or_default();
                 if !rl.check(domain) {
-                    // Mark as run so scheduler waits for normal interval before retrying
                     last_run.insert(check.id.clone(), now);
                     debug!(
                         runner = runner_name,
@@ -500,7 +487,6 @@ async fn run_loop<S: RunnerStrategy>(
             });
         }
 
-        // Report active probe count for this tick
         if let Some(ref m) = metrics {
             m.set_monitor_active_probes(set.len());
         }
@@ -524,7 +510,6 @@ async fn run_loop<S: RunnerStrategy>(
                     "probe completed"
                 );
 
-                // Process incidents if orchestrator is configured
                 if let Some(ref orchestrator) = incident_orchestrator {
                     let incident_ctx = IncidentContext::from_probe(
                         &check,
@@ -533,10 +518,8 @@ async fn run_loop<S: RunnerStrategy>(
                     );
 
                     if is_tls_runner {
-                        // TLS runner only processes SSL alerts
                         orchestrator.process_tls_probe_outcome(&incident_ctx).await;
                     } else {
-                        // HTTP runner processes down/recovery alerts
                         orchestrator.process_probe_outcome(&incident_ctx).await;
                     }
                 }
@@ -555,7 +538,6 @@ async fn run_loop<S: RunnerStrategy>(
                 warn!(runner = config.name, error = ?err, "Failed to enqueue monitor rows");
             }
 
-            // Report writer queue depth
             if let Some(ref m) = metrics {
                 m.set_monitor_writer_queue_depth(writer.queue_depth());
             }

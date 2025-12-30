@@ -1,6 +1,6 @@
-//! Shared PostgreSQL connection pool infrastructure.
+//! Shared PostgreSQL connection pool infrastructure
 //!
-//! Provides a unified `PostgresPool` type used by all PostgreSQL-backed repositories.
+//! Provides a unified `PostgresPool` type used by all PostgreSQL-backed repositories
 
 use std::str::FromStr;
 use std::time::Duration;
@@ -11,7 +11,6 @@ use thiserror::Error;
 use tokio_postgres::{Config as PgConfig, NoTls};
 use tracing::info;
 
-/// Errors that can occur when working with PostgreSQL.
 #[derive(Debug, Error)]
 pub enum PostgresError {
     #[error("Invalid Postgres URL: {0}")]
@@ -22,21 +21,11 @@ pub enum PostgresError {
     Query(#[from] tokio_postgres::Error),
 }
 
-/// Shared PostgreSQL connection pool.
-///
-/// Used by repositories that need to query PostgreSQL. Each pool can be
-/// configured with different credentials and max connections.
 pub struct PostgresPool {
     pool: Pool<PostgresConnectionManager<NoTls>>,
 }
 
 impl PostgresPool {
-    /// Create a new connection pool.
-    ///
-    /// # Arguments
-    /// * `database_url` - PostgreSQL connection URL
-    /// * `application_name` - Name for connection tracking in pg_stat_activity
-    /// * `max_connections` - Maximum connections in the pool
     pub async fn new(
         database_url: &str,
         application_name: &str,
@@ -63,7 +52,6 @@ impl PostgresPool {
         Ok(Self { pool })
     }
 
-    /// Get a connection from the pool.
     pub async fn connection(
         &self,
     ) -> Result<PooledConnection<'_, PostgresConnectionManager<NoTls>>, PostgresError> {

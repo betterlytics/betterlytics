@@ -1,13 +1,6 @@
-//! Base email template components.
-//!
-//! Provides reusable HTML/text components for building consistent emails:
-//! - Header with logo and branding
-//! - Footer with copyright
-//! - Common CSS styles
-
 use chrono::Utc;
 
-/// Wrap content in the full email HTML template
+/// HTML-version of emails should be wrapped by this
 pub fn wrap_html(content: &str) -> String {
     format!(
         "{header}{content}{footer}",
@@ -17,7 +10,7 @@ pub fn wrap_html(content: &str) -> String {
     )
 }
 
-/// Wrap content in the text email template
+/// Text-version of emails should be wrapped by this
 pub fn wrap_text(content: &str) -> String {
     format!("{}\n\n{}", content, text_footer())
 }

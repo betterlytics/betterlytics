@@ -26,14 +26,12 @@ SELECT
     mc."acceptedStatusCodes" AS accepted_status_codes,
     mc."checkSslErrors" AS check_ssl_errors,
     d."siteId" AS site_id,
-    -- Alert configuration
     mc."alertsEnabled" AS alerts_enabled,
     mc."alertOnDown" AS alert_on_down,
     mc."alertOnRecovery" AS alert_on_recovery,
     mc."alertOnSslExpiry" AS alert_on_ssl_expiry,
     mc."sslExpiryAlertDays" AS ssl_expiry_alert_days,
     mc."failureThreshold" AS failure_threshold,
-    -- Alert recipients (user-configured emails)
     COALESCE(mc."alertEmails", ARRAY[]::text[]) AS alert_recipients
 FROM "MonitorCheck" mc
 JOIN "Dashboard" d ON mc."dashboardId" = d.id
@@ -65,7 +63,6 @@ pub struct MonitorCheckRecord {
     pub request_headers: Vec<RequestHeader>,
     pub accepted_status_codes: Vec<StatusCodeValue>,
     pub check_ssl_errors: bool,
-    // Alert configuration
     pub alerts_enabled: bool,
     pub alert_on_down: bool,
     pub alert_on_recovery: bool,
@@ -89,12 +86,10 @@ impl TryFrom<Row> for MonitorCheckRecord {
             .map(Into::into)
             .collect();
         
-        // Parse alert recipients (may be NULL or empty array)
         let alert_recipients: Vec<String> = row
             .try_get::<_, Option<Vec<String>>>("alert_recipients")?
             .unwrap_or_default();
 
-        // Parse accepted status codes from JSON (can be integers or strings like "2xx")
         let accepted_status_codes = row
             .try_get::<_, Option<Json<Vec<StatusCodeValue>>>>("accepted_status_codes")?
             .map(|json| json.0)
@@ -113,7 +108,6 @@ impl TryFrom<Row> for MonitorCheckRecord {
             request_headers,
             accepted_status_codes,
             check_ssl_errors: row.try_get("check_ssl_errors")?,
-            // Alert configuration
             alerts_enabled: row.try_get("alerts_enabled")?,
             alert_on_down: row.try_get("alert_on_down")?,
             alert_on_recovery: row.try_get("alert_on_recovery")?,
@@ -220,7 +214,7 @@ impl MonitorCheckDataSource for MonitorRepository {
         since: DateTime<Utc>,
     ) -> Result<Vec<MonitorCheck>, MonitorRepositoryError> {
         let conn = self.pool.connection().await?;
-        let query = format!(r#"{BASE_SELECT} AND mc."updatedAt" >= $1{ORDER_BY_UPDATED_AT}"#);
+        let query = format!(r#"{BASE_SELECT} AND mc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#);
         let rows = conn.query(&query, &[&since.naive_utc()]).await
             .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))?;
         Self::rows_to_checks(rows)

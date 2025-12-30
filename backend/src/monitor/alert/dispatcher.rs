@@ -1,7 +1,3 @@
-//! Alert dispatcher for delivering notifications.
-//!
-//! Handles the mechanics of sending alerts via email and recording to history.
-
 use std::sync::Arc;
 
 use chrono::{DateTime, Duration, Utc};
@@ -28,7 +24,6 @@ pub struct AlertContext<'a> {
     pub recipients: &'a [String],
 }
 
-/// Alert types for monitor notifications
 #[derive(Debug, Clone)]
 pub enum Alert {
     Down {
@@ -121,7 +116,6 @@ impl Alert {
     }
 }
 
-/// Handles alert delivery: email sending and history recording
 pub struct AlertDispatcher {
     email_service: Option<EmailService>,
     history_writer: Option<Arc<AlertHistoryWriter>>,

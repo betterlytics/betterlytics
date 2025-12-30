@@ -1,17 +1,12 @@
-//! Monitor alert email templates.
-//!
-//! This module provides template builders for monitor alert emails.
-//! Templates produce `EmailRequest` structs that are sent via the
-//! core email service.
-
 use chrono::{DateTime, Duration, Utc};
 
 use crate::email::templates::{email_signature, html_escape, wrap_html, wrap_text};
 use crate::email::EmailRequest;
 use crate::monitor::ReasonCode;
 
-/// Maximum length for monitor name in email subjects
 const SUBJECT_NAME_MAX_LEN: usize = 60;
+const TEXT_NAME_MAX_LEN: usize = 120;
+const TEXT_URL_MAX_LEN: usize = 200;
 
 fn sanitize_for_email(s: &str, max_len: usize) -> String {
     s.chars()
@@ -20,7 +15,6 @@ fn sanitize_for_email(s: &str, max_len: usize) -> String {
         .collect()
 }
 
-/// Build a down alert email request
 pub fn build_down_alert(
     recipients: &[String],
     monitor_name: &str,
@@ -47,7 +41,6 @@ pub fn build_down_alert(
     }
 }
 
-/// Build a recovery alert email request
 pub fn build_recovery_alert(
     recipients: &[String],
     monitor_name: &str,
@@ -72,7 +65,6 @@ pub fn build_recovery_alert(
     }
 }
 
-/// Build an SSL expiry alert email request
 pub fn build_ssl_alert(
     recipients: &[String],
     monitor_name: &str,
@@ -103,8 +95,6 @@ pub fn build_ssl_alert(
         text,
     }
 }
-
-// --- HTML template builders ---
 
 fn build_down_alert_html(
     monitor_name: &str,
@@ -169,8 +159,8 @@ fn build_down_alert_text(
     status_code: Option<u16>,
     monitor_url: &str,
 ) -> String {
-    let safe_name = sanitize_for_email(monitor_name, 120);
-    let safe_url = sanitize_for_email(url, 200);
+    let safe_name = sanitize_for_email(monitor_name, TEXT_NAME_MAX_LEN);
+    let safe_url = sanitize_for_email(url, TEXT_URL_MAX_LEN);
     let mut text = format!(
         "MONITOR ALERT - DOWN\n\n\
         Monitor: {}\n\
@@ -246,8 +236,8 @@ fn build_recovery_alert_text(
     downtime_duration: Option<Duration>,
     monitor_url: &str,
 ) -> String {
-    let safe_name = sanitize_for_email(monitor_name, 120);
-    let safe_url = sanitize_for_email(url, 200);
+    let safe_name = sanitize_for_email(monitor_name, TEXT_NAME_MAX_LEN);
+    let safe_url = sanitize_for_email(url, TEXT_URL_MAX_LEN);
     let mut text = format!(
         "MONITOR RECOVERED\n\n\
         Monitor: {}\n\
@@ -357,8 +347,8 @@ fn build_ssl_alert_text(
 
     let days_text = format_ssl_days_left(days_left);
 
-    let safe_name = sanitize_for_email(monitor_name, 120);
-    let safe_url = sanitize_for_email(url, 200);
+    let safe_name = sanitize_for_email(monitor_name, TEXT_NAME_MAX_LEN);
+    let safe_url = sanitize_for_email(url, TEXT_URL_MAX_LEN);
     let mut text = format!(
         "{}\n\n\
         Monitor: {}\n\
@@ -382,8 +372,6 @@ fn build_ssl_alert_text(
 
     wrap_text(&text)
 }
-
-// --- Helper functions ---
 
 fn format_duration(duration: Duration) -> String {
     let total_seconds = duration.num_seconds();
@@ -422,12 +410,10 @@ fn format_duration(duration: Duration) -> String {
     }
 }
 
-/// Build the monitor dashboard URL.
 fn build_monitor_url(public_base_url: &str, dashboard_id: &str, monitor_id: &str) -> String {
     format!("{}/dashboard/{}/monitoring/{}", public_base_url, dashboard_id, monitor_id)
 }
 
-/// Format SSL certificate days remaining for display.
 fn format_ssl_days_left(days: i32) -> String {
     if days <= 0 {
         "Certificate has expired!".to_string()

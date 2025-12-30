@@ -128,11 +128,10 @@ impl Config {
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
-            // Development mode
             is_development: env::var("IS_DEVELOPMENT")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
-            // Public-facing base URL for dashboard links in emails, etc.
+            // Public-facing base URL for dashboard links in emails, etc
             public_base_url: env::var("PUBLIC_BASE_URL")
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
             // Email configuration (None = email disabled)
@@ -150,7 +149,6 @@ pub struct EmailConfig {
 }
 
 impl EmailConfig {
-    /// Returns None if MAILER_SEND_API_TOKEN is not set (email disabled).
     pub fn from_env() -> Option<Self> {
         let email_enabled = env::var("ENABLE_EMAILS")
             .map(|val| val.to_lowercase() == "true")

@@ -6,10 +6,6 @@ use clickhouse::Client;
 
 use crate::config::Config;
 
-/// Shared ClickHouse client.
-///
-/// Used by components that need to query or insert into ClickHouse.
-/// The underlying client is HTTP-based and handles connections on-demand.
 #[derive(Clone)]
 pub struct ClickHouseClient {
     client: Client,
@@ -25,7 +21,6 @@ impl ClickHouseClient {
         Self { client }
     }
 
-    /// Get the underlying clickhouse client for direct operations.
     pub fn inner(&self) -> &Client {
         &self.client
     }

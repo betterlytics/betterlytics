@@ -1,13 +1,3 @@
-//! Incident orchestrator - coordinates incident evaluation, notifications, and history
-//!
-//! This is the main entry point for the monitoring incident system. It coordinates:
-//! - Using `IncidentEvaluator` to maintain per-monitor incident state and derive events
-//! - Using `NotificationTracker` for notification deduping and cooldowns
-//! - Using `AlertDispatcher` for email delivery and history recording
-//! - Persistence of incident snapshots
-//!
-//! Alert configuration is embedded in `MonitorCheck`, so no separate config cache is needed.
-
 use std::collections::HashSet;
 use std::sync::Arc;
 
@@ -25,7 +15,6 @@ use crate::monitor::incident::{
 };
 use crate::monitor::{MonitorCheck, MonitorStatus, ProbeOutcome, ReasonCode};
 
-/// Context for processing an incident
 #[derive(Clone, Debug)]
 pub struct IncidentContext {
     pub check: Arc<MonitorCheck>,
@@ -52,7 +41,6 @@ impl IncidentContext {
         }
     }
 
-    /// Get display name for the monitor
     pub fn monitor_name(&self) -> String {
         self.check
             .name
@@ -126,9 +114,6 @@ impl IncidentOrchestrator {
         }
     }
 
-    /// Process a probe outcome and send alerts if needed
-    ///
-    /// This is the main entry point called after each probe completes.
     #[tracing::instrument(
         level = "debug",
         skip(self, ctx),
@@ -142,7 +127,6 @@ impl IncidentOrchestrator {
         }
     }
 
-    /// Process a TLS probe outcome specifically for SSL alerts
     #[tracing::instrument(
         level = "debug",
         skip(self, ctx),
@@ -163,14 +147,13 @@ impl IncidentOrchestrator {
     async fn handle_failure(&self, ctx: &IncidentContext) {
         let alert_config = &ctx.check.alert;
 
-        self.evaluator
-            .update_error_metadata(&ctx.check.id, ctx.reason_code, ctx.status_code);
-
         let event = self.evaluator.evaluate_failure(
             &ctx.check.id,
             ctx.status,
             ctx.consecutive_failures,
             alert_config.failure_threshold,
+            ctx.reason_code,
+            ctx.status_code,
         );
 
         let incident_id = match event {
@@ -336,7 +319,6 @@ impl IncidentOrchestrator {
 
         let expired = ctx.tls_not_after.map(|t| t <= chrono::Utc::now()).unwrap_or(false);
 
-        // Check both threshold and cooldown via NotificationTracker
         if !self.notification_tracker.should_notify_ssl(
             &ctx.check.id,
             days_left,
@@ -396,7 +378,6 @@ impl IncidentOrchestrator {
         }
     }
 
-    /// Prune inactive monitors from the evaluator and notification state
     pub async fn prune_inactive(&self, active_ids: &HashSet<String>) {
         self.evaluator.prune_inactive(active_ids);
         self.notification_tracker.prune_inactive(active_ids);

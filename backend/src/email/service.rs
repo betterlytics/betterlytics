@@ -1,10 +1,3 @@
-//! Core email service for sending emails via API.
-//!
-//! This module provides a generic email service that can be used across
-//! the application for any email-sending needs. Callers construct
-//! `EmailRequest` structs with subject, html, text content and pass
-//! them to the service for delivery.
-
 use reqwest::Client;
 use serde::Serialize;
 use thiserror::Error;
@@ -57,15 +50,13 @@ impl EmailService {
         }
     }
 
-    /// Send an email
-    /// In development mode, only emails to @betterlytics.io addresses are sent.
+    /// In development mode, only emails to @betterlytics.io addresses are permitted
     pub async fn send(&self, request: EmailRequest) -> Result<(), EmailError> {
         if request.to.is_empty() {
             return Ok(());
         }
 
-        // In development mode, filter to only allow @betterlytics.io addresses
-        let recipients: Vec<String> = if self.config.is_development {
+        let recipients = if self.config.is_development {
             let allowed: Vec<String> = request
                 .to
                 .iter()
@@ -95,7 +86,7 @@ impl EmailService {
             request.to.clone()
         };
 
-        let to: Vec<EmailAddress> = recipients
+        let to = recipients
             .iter()
             .map(|email| EmailAddress {
                 email: email.clone(),

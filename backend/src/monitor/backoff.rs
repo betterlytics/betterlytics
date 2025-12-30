@@ -119,7 +119,7 @@ impl BackoffController {
             .entry(check.id.clone())
             .or_insert_with(|| BackoffState::new(check.interval, &policy));
 
-        // If the monitor's base interval changed, update and clamp the level.
+        // If the monitor's base interval changed, update and clamp the level
         if entry.base_interval != check.interval {
             entry.base_interval = check.interval;
             let max_level = policy.max_level(entry.base_interval);
@@ -145,26 +145,18 @@ impl BackoffController {
 }
 
 impl BackoffPolicy {
-    /// Get the effective interval for a given backoff level.
     pub fn interval_for_level(&self, base: StdDuration, level: u8) -> StdDuration {
         let base_idx = self.base_index(base);
         let target_idx = (base_idx + level as usize).min(self.allowed_intervals_secs.len() - 1);
         StdDuration::from_secs(self.allowed_intervals_secs[target_idx])
     }
 
-    /// Maximum backoff level
     pub fn max_level(&self, base: StdDuration) -> u8 {
         let base_idx = self.base_index(base);
         (self.allowed_intervals_secs.len() - 1 - base_idx) as u8
     }
 
-    /// Find the index of the first allowed interval >= base duration
     fn base_index(&self, base: StdDuration) -> usize {
-        assert!(
-            !self.allowed_intervals_secs.is_empty(),
-            "BackoffPolicy.allowed_intervals_secs must not be empty"
-        );
-
         let base_secs = base.as_secs();
         self.allowed_intervals_secs
             .iter()

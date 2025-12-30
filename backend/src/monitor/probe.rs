@@ -65,7 +65,7 @@ impl MonitorProbe {
             .tcp_keepalive(Some(Duration::from_secs(30)))
             .timeout(default_timeout)
             .min_tls_version(Version::TLS_1_2)
-            // We handle redirects manually to validate each hop and DNS result.
+            // We handle redirects manually to validate each hop and DNS result
             .redirect(Policy::none())
             .build()?;
 
@@ -152,7 +152,6 @@ impl MonitorProbe {
         let status = resp.status;
         let status_code = status.as_u16();
         
-        // Check if status code is accepted (uses configured codes, defaults to 2xx if empty)
         let is_accepted = is_status_code_accepted(status_code, accepted_status_codes);
         
         if is_accepted {
@@ -317,7 +316,7 @@ impl MonitorProbe {
             return Ok(CappedResponse::new(status, headers));
         }
 
-        // Stream body to verify response completes (catches timeouts)
+        // Stream body to verify response completes (this is primarily to catch timeouts)
         let mut read_bytes: usize = 0;
         let mut stream = resp.bytes_stream();
         while let Some(chunk) = stream.next().await {
@@ -462,7 +461,6 @@ fn map_reqwest_error(err: reqwest::Error) -> ProbeError {
 /// Falls back to string matching if downcast fails.
 /// See: https://docs.rs/rustls/latest/rustls/enum.CertificateError.html
 fn classify_tls_error(err: &std::io::Error) -> ReasonCode {
-    // Try to downcast to rustls::Error
     if let Some(rustls_err) = err.get_ref().and_then(|e| e.downcast_ref::<RustlsError>()) {
         if let RustlsError::InvalidCertificate(cert_err) = rustls_err {
             return match cert_err {
@@ -477,7 +475,6 @@ fn classify_tls_error(err: &std::io::Error) -> ReasonCode {
         }
     }
     
-    // Fallback to string matching for wrapped errors
     let msg = err.to_string().to_lowercase();
     if msg.contains("notvalidforname") {
         ReasonCode::TlsHostnameMismatch

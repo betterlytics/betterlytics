@@ -5,7 +5,6 @@ use std::net::IpAddr;
 use std::time::Duration;
 use url::Url;
 
-/// Represents an accepted status code - either a specific code (200) or a range ("2xx")
 #[derive(Clone, Debug, Deserialize)]
 #[serde(untagged)]
 pub enum StatusCodeValue {
@@ -14,12 +13,10 @@ pub enum StatusCodeValue {
 }
 
 impl StatusCodeValue {
-    /// Check if a given status code matches this value
     pub fn matches(&self, code: u16) -> bool {
         match self {
             StatusCodeValue::Specific(specific) => *specific == code as i32,
             StatusCodeValue::Range(range) => {
-                // Parse ranges like "2xx", "3xx", "4xx", "5xx"
                 if range.len() == 3 && range.ends_with("xx") {
                     if let Some(prefix) = range.chars().next().and_then(|c| c.to_digit(10)) {
                         let range_start = (prefix * 100) as u16;
@@ -33,9 +30,8 @@ impl StatusCodeValue {
     }
 }
 
-/// Check if a status code is accepted by any of the configured values
+/// Defaults to accepting 2xx if no codes are configured
 pub fn is_status_code_accepted(code: u16, accepted: &[StatusCodeValue]) -> bool {
-    // If no codes configured, default to accepting 2xx
     if accepted.is_empty() {
         return (200..300).contains(&code);
     }
@@ -173,7 +169,6 @@ pub struct RequestHeader {
     pub value: String,
 }
 
-/// Alert configuration embedded in MonitorCheck
 #[derive(Clone, Debug, Default)]
 pub struct AlertConfig {
     pub enabled: bool,
@@ -199,7 +194,6 @@ pub struct MonitorCheck {
     pub request_headers: Vec<RequestHeader>,
     pub accepted_status_codes: Vec<StatusCodeValue>,
     pub check_ssl_errors: bool,
-    /// Alert configuration for this monitor
     pub alert: AlertConfig,
 }
 
@@ -211,18 +205,13 @@ pub enum MonitorStatus {
     Failed = 3,
 }
 
-/// Reason for monitor backoff state.
-/// Note: `Manual` and `RateLimited` variants exist in the database schema
-/// and are reserved for future use.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum BackoffReason {
     None = 0,
     Failure = 1,
-    /// Reserved for future use - exists in DB schema
-    Manual = 2,
-    /// Reserved for future use - exists in DB schema
-    RateLimited = 3,
+    Manual = 2, // Unused but expected to be used in the near future - already part of DB schema
+    RateLimited = 3, // Unused but expected to be used in the near future - already part of DB schema
 }
 
 #[derive(Debug, Clone)]
@@ -324,7 +313,6 @@ pub struct MonitorResultRow {
 }
 
 impl MonitorResultRow {
-    /// Shared base fields for both HTTP and TLS probe rows.
     fn base_fields(check: &MonitorCheck, outcome: &ProbeOutcome, kind: &str) -> Self {
         Self {
             ts: Utc::now(),
@@ -375,7 +363,7 @@ impl MonitorResultRow {
         let backoff = BackoffSnapshot::from_base_interval(check.interval);
         let mut row = Self::base_fields(check, outcome, "tls");
 
-        row.status_code = None; // TLS probes don't have status codes
+        row.status_code = None;
         row.effective_interval_seconds = backoff.effective_interval_seconds();
         row.backoff_level = backoff.backoff_level;
         row.consecutive_failures = backoff.consecutive_failures;

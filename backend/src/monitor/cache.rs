@@ -13,6 +13,9 @@ use crate::monitor::{MonitorCheck, MonitorCheckDataSource};
 use crate::utils::spawn_supervised;
 
 const HEALTH_CHECK_INTERVAL: StdDuration = StdDuration::from_secs(30);
+const PARTIAL_REFRESH_INTERVAL: StdDuration = StdDuration::from_secs(30);
+const FULL_REFRESH_INTERVAL: StdDuration = StdDuration::from_secs(180);
+const STALE_AFTER: StdDuration = StdDuration::from_secs(300);
 
 #[derive(Clone, Copy, Debug)]
 pub struct RefreshConfig {
@@ -194,7 +197,7 @@ impl MonitorCache {
     async fn partial_refresh_loop(this: Arc<Self>) {
         let mut ticker = interval(this.refresh_config.partial_refresh_interval);
         ticker.set_missed_tick_behavior(MissedTickBehavior::Skip);
-        // Wait one full interval before the first partial refresh; initial data load is handled during initialization.
+        // Wait one full interval before the first partial refresh because initial data load is handled during initialization.
         ticker.tick().await;
         loop {
             ticker.tick().await;
@@ -207,7 +210,7 @@ impl MonitorCache {
     async fn full_refresh_loop(this: Arc<Self>) {
         let mut ticker = interval(this.refresh_config.full_refresh_interval);
         ticker.set_missed_tick_behavior(MissedTickBehavior::Skip);
-        // Wait one full interval before the first partial refresh; initial data load is handled during initialization.
+        // Wait one full interval before the first full refresh because initial data load is handled during initialization.
         ticker.tick().await;
         loop {
             ticker.tick().await;
@@ -273,7 +276,3 @@ fn log_cache_state(map: &HashMap<String, Arc<MonitorCheck>>) {
         "monitor cache state after refresh"
     );
 }
-
-const PARTIAL_REFRESH_INTERVAL: StdDuration = StdDuration::from_secs(30);
-const FULL_REFRESH_INTERVAL: StdDuration = StdDuration::from_secs(180);
-const STALE_AFTER: StdDuration = StdDuration::from_secs(300);

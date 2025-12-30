@@ -5,10 +5,9 @@ use url::Url;
 
 use crate::monitor::ReasonCode;
 
-/// Global development mode flag - when true, allows localhost/private IPs for monitoring
 static DEV_MODE: OnceLock<bool> = OnceLock::new();
 
-/// In dev mode, localhost and private IPs are allowed as monitoring targets.
+/// In dev mode, localhost and private IPs are allowed as monitoring targets
 pub fn init_dev_mode(is_dev: bool) {
     let _ = DEV_MODE.set(is_dev);
     if is_dev {
@@ -41,10 +40,9 @@ impl GuardError {
 }
 
 pub const MAX_REDIRECTS: usize = 3;
-pub const BODY_STREAM_LIMIT: usize = 32 * 1024; // Stop streaming body after 32KB
+pub const BODY_STREAM_LIMIT: usize = 32 * 1024;
 pub const DEFAULT_PROBE_TIMEOUT_MS: u64 = 3_000;
 
-/// Returns 443 for https, 80 for http/other
 pub fn get_port(url: &Url) -> u16 {
     url.port_or_known_default().unwrap_or_else(|| {
         match url.scheme() {

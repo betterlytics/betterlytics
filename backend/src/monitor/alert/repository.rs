@@ -1,7 +1,3 @@
-//! Alert history storage using ClickHouse.
-//!
-//! Provides a channel-based writer for recording alert notifications to ClickHouse.
-
 use std::sync::Arc;
 
 use anyhow::Result;

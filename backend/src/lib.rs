@@ -20,7 +20,6 @@ pub mod url_utils;
 pub mod utils;
 pub mod validation;
 
-// Re-export commonly used types
 pub use analytics::{AnalyticsEvent, generate_site_id};
 pub use campaign::{CampaignInfo, parse_campaign_params};
 pub use config::Config;

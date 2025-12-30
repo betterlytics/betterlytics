@@ -1,8 +1,3 @@
-//! Monitoring subsystem initialization.
-//!
-//! This module encapsulates all the setup logic for the uptime monitoring
-//! feature, keeping `main.rs` clean.
-
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -22,16 +17,6 @@ use super::{
     MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
 };
 
-/// Spawns the uptime monitoring subsystem in a background task.
-///
-/// This handles all initialization with retry logic, including:
-/// - PostgreSQL pool for monitor metadata
-/// - Monitor cache for in-memory check schedules
-/// - HTTP and TLS runners for performing checks
-/// - Alert service for notifications
-///
-/// The function returns immediately after spawning; initialization happens
-/// asynchronously with automatic retries on failure.
 pub fn spawn_monitoring(
     config: Arc<Config>,
     clickhouse: Arc<ClickHouseClient>,
@@ -121,8 +106,9 @@ async fn run_monitoring_init_loop(
         ) {
             Ok(w) => Some(w),
             Err(err) => {
-                warn!(error = ?err, "Failed to create alert history writer; alerts will not be recorded");
-                None
+                warn!(error = ?err, "Failed to create alert history writer; retrying");
+                sleep(retry_delay).await;
+                continue;
             }
         };
 
@@ -132,8 +118,9 @@ async fn run_monitoring_init_loop(
         ) {
             Ok(store) => Some(store),
             Err(err) => {
-                warn!(error = ?err, "Failed to create incident store; incident snapshots will not be recorded");
-                None
+                warn!(error = ?err, "Failed to create incident store; retrying");
+                sleep(retry_delay).await;
+                continue;
             }
         };
 
@@ -147,7 +134,7 @@ async fn run_monitoring_init_loop(
         );
         info!("Incident orchestrator initialized");
 
-        let http_rate_limiter = Arc::new(DomainRateLimiter::default()); // 10 reqs per min
+        let http_rate_limiter = Arc::new(DomainRateLimiter::default());
         let tls_rate_limiter = Arc::new(DomainRateLimiter::new(20, Duration::from_hours(1)));
         info!("Domain rate limiter initialized");
 

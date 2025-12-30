@@ -1,9 +1,3 @@
-//! Per-domain rate limiter to prevent abuse.
-//!
-//! Limits how frequently probes can target any single domain, protecting
-//! external servers from being overwhelmed if users add many monitors
-//! for the same domain.
-
 use dashmap::DashMap;
 use governor::{
     Quota, RateLimiter,
@@ -18,9 +12,6 @@ struct LimiterEntry {
     last_used: Instant,
 }
 
-/// Global rate limiter keyed by domain.
-/// Uses GCRA (Generic Cell Rate Algorithm) via the `governor` crate,
-/// which is functionally equivalent to a leaky bucket.
 pub struct DomainRateLimiter {
     limiters: DashMap<String, LimiterEntry>,
     quota: Quota,
@@ -36,7 +27,7 @@ impl DomainRateLimiter {
         Self {
             limiters: DashMap::new(),
             quota,
-            stale_threshold: Duration::from_secs(3600), // 1 hour
+            stale_threshold: Duration::from_secs(3600),
         }
     }
 

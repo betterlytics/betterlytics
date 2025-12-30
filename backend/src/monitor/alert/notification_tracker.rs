@@ -1,9 +1,3 @@
-//! Notification tracking - manages per-monitor notification state and cooldowns
-//!
-//! Prevents duplicate alerts by tracking:
-//! - Last notified incident ID (for down/recovery)
-//! - Last notification timestamp (for SSL cooldowns)
-
 use std::collections::HashSet;
 use std::sync::Arc;
 
@@ -41,7 +35,6 @@ impl NotificationTracker {
         })
     }
 
-    /// Warm notification state from warmed incident data
     pub fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
         let mut count = 0;
         for seed in seeds {
@@ -71,21 +64,17 @@ impl NotificationTracker {
         }
     }
 
-    /// Check if we should notify for a down incident
-    /// Returns false if we've already notified for this exact incident
     pub fn should_notify_down(&self, check_id: &str, incident_id: Uuid) -> bool {
         let entry = self.state.entry(check_id.to_string()).or_default();
         entry.last_down_incident != Some(incident_id)
     }
 
-    /// Mark that we've sent a down notification for this incident
     pub fn mark_notified_down(&self, check_id: &str, incident_id: Uuid) {
         let mut entry = self.state.entry(check_id.to_string()).or_default();
         entry.last_down = Some(Utc::now());
         entry.last_down_incident = Some(incident_id);
     }
 
-    /// Mark that we've sent a recovery notification for this incident
     pub fn mark_notified_recovery(&self, check_id: &str, incident_id: Uuid) {
         let mut entry = self.state.entry(check_id.to_string()).or_default();
         entry.last_recovery = Some(Utc::now());
@@ -129,7 +118,6 @@ impl NotificationTracker {
         true
     }
 
-    /// Mark that we've sent an SSL notification
     pub fn mark_notified_ssl(&self, check_id: &str, expired: bool, expiry_date: Option<DateTime<Utc>>, days_left: i32) {
         let mut entry = self.state.entry(check_id.to_string()).or_default();
         entry.last_ssl = Some(Utc::now());
@@ -141,7 +129,6 @@ impl NotificationTracker {
         }
     }
 
-    /// Get a snapshot for persistence
     pub fn snapshot(&self, check_id: &str) -> NotificationSnapshot {
         self.state
             .get(check_id)
@@ -153,7 +140,6 @@ impl NotificationTracker {
             .unwrap_or_default()
     }
 
-    /// Remove state for monitors that no longer exist
     pub fn prune_inactive(&self, active_ids: &HashSet<String>) {
         self.state.retain(|id, _| active_ids.contains(id));
     }

@@ -10,7 +10,7 @@ use crate::monitor::MonitorResultRow;
 
 /// Generic channel-based writer for ClickHouse rows.
 /// This provides a non-blocking `enqueue_rows` method that sends batches
-/// to a background worker for insertion.
+/// to a background worker for insertion
 pub struct ClickhouseChannelWriter<R: clickhouse::Row + Serialize + Send + Sync + 'static> {
     sender: mpsc::Sender<Vec<R>>,
     capacity: usize,
@@ -75,8 +75,6 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
         Ok(())
     }
 }
-
-// --- Monitor-specific writer ---
 
 const MONITOR_BATCH_SIZE: usize = 500;
 const MONITOR_CHANNEL_CAPACITY: usize = 2_000;

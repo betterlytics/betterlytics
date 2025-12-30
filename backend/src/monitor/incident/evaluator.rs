@@ -1,7 +1,3 @@
-//! Incident evaluator - maintains per-monitor incident state and evaluates probe results
-//! into incident and SSL events. It does not send notifications directly; callers
-//! decide when and how to notify based on the emitted events.
-
 use chrono::{DateTime, Duration, Utc};
 use dashmap::DashMap;
 use tracing::{debug, error, info};
@@ -31,7 +27,6 @@ struct MonitorIncidentState {
     last_error_reason_code: Option<ReasonCode>,
     last_error_status_code: Option<u16>,
 
-    /// Counters
     consecutive_failures: u16,
     consecutive_successes: u16,
     failure_count: u16,
@@ -59,41 +54,92 @@ impl Default for MonitorIncidentState {
     }
 }
 
-/// Configuration for the incident evaluator
+impl MonitorIncidentState {
+    fn mark_ongoing(&mut self, now: DateTime<Utc>, consecutive_failures: u16) {
+        self.state = IncidentState::Ongoing;
+        self.is_down = true;
+        self.down_since.get_or_insert(now);
+        self.started_at.get_or_insert(now);
+        self.last_event_at = Some(now);
+        self.failure_count = self.failure_count.saturating_add(1);
+        self.consecutive_failures = consecutive_failures;
+        self.consecutive_successes = 0;
+    }
+
+    fn resolve(&mut self, now: DateTime<Utc>) {
+        self.state = IncidentState::Resolved;
+        self.is_down = false;
+        self.down_since = None;
+        self.resolved_at = Some(now);
+        self.last_event_at = Some(now);
+        self.failure_count = 0;
+        self.consecutive_failures = 0;
+    }
+
+    fn from_seed(seed: &IncidentSeed) -> Self {
+        Self {
+            incident_id: Some(seed.incident_id),
+            state: seed.state,
+            severity: seed.severity,
+            started_at: Some(seed.started_at),
+            last_event_at: Some(seed.last_event_at),
+            resolved_at: seed.resolved_at,
+            failure_count: seed.failure_count,
+            last_status: seed.last_status,
+            is_down: matches!(seed.state, IncidentState::Ongoing),
+            down_since: Some(seed.started_at),
+            last_error_reason_code: Some(seed.reason_code),
+            last_error_status_code: seed.status_code,
+            consecutive_failures: seed.failure_count,
+            consecutive_successes: 0,
+            ..Default::default()
+        }
+    }
+
+    fn to_snapshot(&self) -> Option<IncidentSnapshot> {
+        Some(IncidentSnapshot {
+            incident_id: self.incident_id,
+            state: self.state,
+            severity: self.severity,
+            started_at: self.started_at.or(self.down_since),
+            last_event_at: self.last_event_at,
+            resolved_at: self.resolved_at,
+            failure_count: self.failure_count,
+            last_status: self.last_status,
+            last_error_reason_code: self.last_error_reason_code,
+            last_error_status_code: self.last_error_status_code,
+        })
+    }
+}
+
+
 #[derive(Clone, Copy, Debug)]
 pub struct IncidentEvaluatorConfig {
-    /// Consecutive successes required to consider an incident recovered
     pub recovery_success_threshold: u16,
 }
 
 impl Default for IncidentEvaluatorConfig {
     fn default() -> Self {
         Self {
-            // One healthy check is enough to call it recovered
-            recovery_success_threshold: 1, // TODO: Allow users to configure this as an advanced setting?
+            recovery_success_threshold: 2, // TODO: Allow users to configure this as an advanced setting
         }
     }
 }
 
-/// Incident lifecycle events emitted by the evaluator
 #[derive(Clone, Debug)]
 pub enum IncidentEvent {
-    /// A new incident opened
     Opened {
         incident_id: Uuid,
     },
-    /// Ongoing incident got another failing signal
     Updated {
         incident_id: Uuid,
     },
-    /// Incident resolved
     Resolved {
         incident_id: Uuid,
         downtime_duration: Option<Duration>,
     },
 }
 
-/// Tracks incident state for all monitors and decides when to notify
 pub struct IncidentEvaluator {
     states: DashMap<String, MonitorIncidentState>,
     config: IncidentEvaluatorConfig,
@@ -107,31 +153,23 @@ impl IncidentEvaluator {
         }
     }
 
-    /// Evaluate a failing probe. Opens/updates an incident and returns
-    /// whether we should notify about the down state.
     pub fn evaluate_failure(
         &self,
         check_id: &str,
         status: MonitorStatus,
         consecutive_failures: u16,
         failure_threshold: i32,
+        reason_code: ReasonCode,
+        status_code: Option<u16>,
     ) -> Option<IncidentEvent> {
         let mut state = self.states.entry(check_id.to_string()).or_default();
         let now = Utc::now();
 
         state.last_status = Some(status);
+        state.last_error_reason_code = Some(reason_code);
+        state.last_error_status_code = status_code;
 
-        // Check if we already have an open incident (e.g., warmed from database after restart)
         let already_open = matches!(state.state, IncidentState::Ongoing) && state.incident_id.is_some();
-
-        debug!(
-            check_id = check_id,
-            ?status,
-            consecutive_failures,
-            failure_threshold,
-            already_open,
-            "evaluating failure for monitor"
-        );
 
         // Skip threshold check if incident is already open - threshold only gates opening NEW incidents
         if !already_open && consecutive_failures < failure_threshold as u16 {
@@ -158,14 +196,7 @@ impl IncidentEvaluator {
             state.failure_count = 0;
         }
 
-        state.state = IncidentState::Ongoing;
-        state.is_down = true;
-        state.down_since.get_or_insert(now);
-        state.started_at.get_or_insert(now);
-        state.last_event_at = Some(now);
-        state.failure_count = state.failure_count.saturating_add(1);
-        state.consecutive_failures = consecutive_failures;
-        state.consecutive_successes = 0;
+        state.mark_ongoing(now, consecutive_failures);
 
         let Some(incident_id) = state.incident_id else {
             error!(
@@ -186,8 +217,6 @@ impl IncidentEvaluator {
         }
     }
 
-    /// Evaluate a healthy probe. If the monitor had an open incident,
-    /// it will be marked resolved and may generate a recovery notification.
     pub fn evaluate_recovery(
         &self,
         check_id: &str,
@@ -201,8 +230,6 @@ impl IncidentEvaluator {
         let has_open_incident = matches!(state.state, IncidentState::Ongoing) && state.is_down;
 
         if !has_open_incident {
-            // Only track consecutive successes when we have an open incident
-            // to avoid unnecessary state accumulation
             debug!(
                 check_id = check_id,
                 "no open incident; skipping recovery evaluation"
@@ -210,7 +237,6 @@ impl IncidentEvaluator {
             return None;
         }
 
-        // Require a configurable number of successes before recovery
         state.consecutive_successes = state.consecutive_successes.saturating_add(1);
         if state.consecutive_successes < self.config.recovery_success_threshold {
             debug!(
@@ -231,13 +257,7 @@ impl IncidentEvaluator {
         };
         let downtime_duration = state.down_since.map(|t| now.signed_duration_since(t));
 
-        state.state = IncidentState::Resolved;
-        state.is_down = false;
-        state.down_since = None;
-        state.resolved_at = Some(now);
-        state.last_event_at = Some(now);
-        state.failure_count = 0;
-        state.consecutive_failures = 0;
+        state.resolve(now);
 
         debug!(
             check_id = check_id,
@@ -252,29 +272,10 @@ impl IncidentEvaluator {
         })
     }
 
-    /// Update the last observed error details for a monitor.
-    ///
-    /// This is called from the incident service on failing probes so that
-    /// incident snapshots can persist a stable view of the most recent
-    /// error, even after the monitor has recovered.
-    pub fn update_error_metadata(
-        &self,
-        check_id: &str,
-        reason_code: ReasonCode,
-        status_code: Option<u16>,
-    ) {
-        let mut state = self.states.entry(check_id.to_string()).or_default();
-        state.last_error_reason_code = Some(reason_code);
-        state.last_error_status_code = status_code;
-    }
-
-
-    /// Remove state for monitors that no longer exist
     pub fn prune_inactive(&self, active_ids: &std::collections::HashSet<String>) {
         self.states.retain(|id, _| active_ids.contains(id));
     }
 
-    /// Warm the evaluator from active incident snapshots
     pub fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
         if seeds.is_empty() {
             return;
@@ -283,21 +284,7 @@ impl IncidentEvaluator {
         let mut warm_count = 0;
 
         for seed in seeds {
-            let mut state = self.states.entry(seed.check_id.clone()).or_default();
-            state.incident_id = Some(seed.incident_id);
-            state.state = seed.state;
-            state.severity = seed.severity;
-            state.started_at = Some(seed.started_at);
-            state.last_event_at = Some(seed.last_event_at);
-            state.resolved_at = seed.resolved_at;
-            state.failure_count = seed.failure_count;
-            state.last_status = seed.last_status;
-            state.is_down = matches!(seed.state, IncidentState::Ongoing);
-            state.down_since = Some(seed.started_at);
-            state.consecutive_failures = seed.failure_count;
-            state.consecutive_successes = 0;
-            state.last_error_reason_code = Some(seed.reason_code);
-            state.last_error_status_code = seed.status_code;
+            self.states.insert(seed.check_id.clone(), MonitorIncidentState::from_seed(seed));
             warm_count += 1;
         }
 
@@ -308,19 +295,6 @@ impl IncidentEvaluator {
     }
 
     pub fn snapshot(&self, check_id: &str) -> Option<IncidentSnapshot> {
-        let state = self.states.get(check_id)?;
-
-        Some(IncidentSnapshot {
-            incident_id: state.incident_id,
-            state: state.state,
-            severity: state.severity,
-            started_at: state.started_at.or(state.down_since),
-            last_event_at: state.last_event_at,
-            resolved_at: state.resolved_at,
-            failure_count: state.failure_count,
-            last_status: state.last_status,
-            last_error_reason_code: state.last_error_reason_code,
-            last_error_status_code: state.last_error_status_code,
-        })
+        self.states.get(check_id)?.to_snapshot()
     }
 }
