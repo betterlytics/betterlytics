@@ -28,7 +28,7 @@ export function isUrlOnDomain(url: string, domain: string): boolean {
  * - Ignores query parameters and fragments
  *
  * @param url - The URL to normalize
- * @returns Normalized URL with protocol (e.g. "https://betterlytics.io/track") or null if invalid
+ * @returns Normalized URL with protocol (e.g. "https://betterlytics.io/event") or null if invalid
  */
 export function normalizeUrl(url: string): string | null {
   try {
