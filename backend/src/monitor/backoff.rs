@@ -4,8 +4,8 @@ use std::time::Duration as StdDuration;
 use crate::monitor::{BackoffReason, BackoffSnapshot, MonitorCheck, ProbeOutcome};
 
 const DEFAULT_ALLOWED_INTERVALS_SECS: &[u64] =
-    &[30, 60, 120, 180, 240, 300, 600, 900, 1800, 3600, 7200, 10_800, 21_600];
-// Require consecutive failures before increasing backoff to avoid premature slowdown on short intervals.
+    &[60, 120, 180, 240, 300, 600, 900, 1800, 3600, 7200, 10_800, 21_600];
+
 const DEFAULT_FAILURE_THRESHOLD: u16 = 25;
 const DEFAULT_SUCCESS_THRESHOLD: u16 = 2;
 

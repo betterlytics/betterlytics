@@ -39,7 +39,7 @@ export const StatusCodeValueSchema = z.union([
 
 export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
-  intervalSeconds: z.number().int().min(5).max(3600).default(60),
+  intervalSeconds: z.number().int().min(60).max(3600).default(60),
   timeoutMs: z.number().int().min(500).max(120_000).default(3000),
   isEnabled: z.boolean().default(true),
   checkSslErrors: z.boolean().default(true),
@@ -50,7 +50,6 @@ export const MonitorCheckBaseSchema = z.object({
     .array(StatusCodeValueSchema)
     .max(MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX)
     .default(['2xx']),
-  // Alert configuration
   alertsEnabled: z.boolean().default(true),
   alertEmails: z.array(z.string().email()).max(MONITOR_LIMITS.ALERT_EMAILS_MAX).default([]),
   alertOnDown: z.boolean().default(true),
