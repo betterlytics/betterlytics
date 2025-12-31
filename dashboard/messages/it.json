@@ -897,12 +897,20 @@
           "framework": {
             "title": "Pronto per i framework",
             "description": "Supporto nativo per React, Next.js, Vue e altri framework moderni con TypeScript.",
-            "features": { "f1": "Supporto TypeScript", "f2": "Componenti framework", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "Supporto TypeScript",
+              "f2": "Componenti framework",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Opzione auto-ospitata",
             "description": "Distribuisci sulla tua infrastruttura con Docker per completa proprietà e controllo dei dati.",
-            "features": { "f1": "Distribuzione Docker", "f2": "Controllo completo", "f3": "Conforme GDPR" }
+            "features": {
+              "f1": "Distribuzione Docker",
+              "f2": "Controllo completo",
+              "f3": "Conforme GDPR"
+            }
           }
         },
         "guideButton": "Vedi guida integrazione",
@@ -1706,7 +1714,6 @@
         "loadingSettings": "Caricamento impostazioni della dashboard..."
       }
     },
-
     "devices": {
       "tables": {
         "columns": {
@@ -1742,7 +1749,7 @@
       },
       "loading": "Caricamento delle campagne...",
       "campaignRow": {
-        "sessions": "{count, plural, one {# sessione} other {# sessioni}}",
+        "visitors": "{count, plural, one {# visitatore} other {# visitatori}}",
         "bounceRate": "Frequenza di rimbalzo",
         "avgSessionDuration": "Durata media",
         "pagesPerSession": "Pagine per sessione",
@@ -1830,6 +1837,7 @@
       "namePlaceholder": "Inserisci nome passaggio",
       "columns": {
         "url": "URL",
+        "domain": "Hostname",
         "device_type": "Tipo di dispositivo",
         "country_code": "Prefisso internazionale",
         "browser": "Browser",
@@ -1854,7 +1862,18 @@
         "cancel": "Annulla",
         "apply": "Applica",
         "selectValue": "Seleziona un valore",
-        "noValuesForCurrentPeriod": "Nessun valore trovato per il periodo corrente"
+        "noValuesForCurrentPeriod": "Nessun valore trovato per il periodo corrente",
+        "savedFilters": "Filtri salvati",
+        "noSavedFilters": "Nessun filtro salvato",
+        "saveFilters": "Salva",
+        "saveFiltersTitle": "Salva set di filtri",
+        "filterNamePlaceholder": "Inserisci nome filtro",
+        "toastFilterSavedSuccess": "Filtro salvato",
+        "toastFilterSavedError": "Impossibile salvare il filtro",
+        "toastFilterDeletedSuccess": "Filtro eliminato",
+        "toastFilterDeletedError": "Impossibile eliminare il filtro",
+        "toastUndo": "Annulla",
+        "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto"
       },
       "filterBy": "Filtra per {label}"
     },

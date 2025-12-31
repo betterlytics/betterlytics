@@ -897,12 +897,20 @@
           "framework": {
             "title": "Klar til frameworks",
             "description": "Native support til React, Next.js, Vue og andre moderne frameworks med TypeScript.",
-            "features": { "f1": "TypeScript support", "f2": "Framework-komponenter", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "TypeScript support",
+              "f2": "Framework-komponenter",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Self-hosted mulighed",
             "description": "Udrul på din egen infrastruktur med Docker for fuldt dataejerskab og kontrol.",
-            "features": { "f1": "Docker-udrulning", "f2": "Fuld kontrol", "f3": "GDPR-kompatibel" }
+            "features": {
+              "f1": "Docker-udrulning",
+              "f2": "Fuld kontrol",
+              "f3": "GDPR-kompatibel"
+            }
           }
         },
         "guideButton": "Se integrationsguide",
@@ -1706,7 +1714,6 @@
         "loadingSettings": "Indlæser dine dashboard-indstillinger..."
       }
     },
-
     "devices": {
       "tables": {
         "columns": {
@@ -1742,7 +1749,7 @@
       },
       "loading": "Indlæser kampagner...",
       "campaignRow": {
-        "sessions": "{count, plural, one {# session} other {# sessioner}}",
+        "visitors": "{count, plural, one {# besøgende} other {# besøgende}}",
         "bounceRate": "Afvisningsprocent",
         "avgSessionDuration": "Gns. varighed",
         "pagesPerSession": "Sider pr. session",
@@ -1830,6 +1837,7 @@
       "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
+        "domain": "Hostname",
         "device_type": "Enhedstype",
         "country_code": "Landekode",
         "browser": "Browser",
@@ -1854,7 +1862,18 @@
         "cancel": "Annuller",
         "apply": "Anvend",
         "selectValue": "Vælg en værdi",
-        "noValuesForCurrentPeriod": "Ingen værdier fundet for den aktuelle periode"
+        "noValuesForCurrentPeriod": "Ingen værdier fundet for den aktuelle periode",
+        "savedFilters": "Gemte filtre",
+        "noSavedFilters": "Ingen gemte filtre endnu",
+        "saveFilters": "Gem",
+        "saveFiltersTitle": "Gem filtersæt",
+        "filterNamePlaceholder": "Angiv filternavn",
+        "toastFilterSavedSuccess": "Filter gemt",
+        "toastFilterSavedError": "Kunne ikke gemme filter",
+        "toastFilterDeletedSuccess": "Filter slettet",
+        "toastFilterDeletedError": "Kunne ikke slette filter",
+        "toastUndo": "Fortryd",
+        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
       },
       "filterBy": "Filtrer efter {label}"
     },

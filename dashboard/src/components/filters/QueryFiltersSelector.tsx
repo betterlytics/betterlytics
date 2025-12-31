@@ -1,20 +1,28 @@
 'use client';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronDownIcon, FilterIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { ChevronDownIcon, FilterIcon, SaveIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { QueryFilterInputRow } from './QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
-import { Separator } from '../ui/separator';
+import { Separator } from '@/components/ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { SaveQueryFilterDialog } from './SaveQueryFilterDialog';
+import { SavedFiltersSection } from './SavedFiltersSection';
+import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
 
@@ -31,15 +39,24 @@ export default function QueryFiltersSelector() {
     setLocalQueryFilters(contextQueryFilters);
   }, [contextQueryFilters]);
 
-  const saveFilters = useCallback(() => {
+  const applyFilters = useCallback(() => {
     setQueryFilters(filterEmptyQueryFilters(queryFilters));
     setIsPopoverOpen(false);
-  }, [queryFilters]);
+  }, [queryFilters, setQueryFilters]);
 
   const cancelFilters = useCallback(() => {
     setLocalQueryFilters(contextQueryFilters);
     setIsPopoverOpen(false);
-  }, [contextQueryFilters]);
+  }, [contextQueryFilters, setLocalQueryFilters]);
+
+  const handleLoadSavedFilter = useCallback(
+    (filters: QueryFilter[]) => {
+      setQueryFilters(filters);
+      setLocalQueryFilters(filters);
+      setIsPopoverOpen(false);
+    },
+    [setQueryFilters, setLocalQueryFilters],
+  );
 
   const isFiltersModified = useMemo(() => {
     const filteredQueryFilters = filterEmptyQueryFilters(queryFilters);
@@ -52,6 +69,12 @@ export default function QueryFiltersSelector() {
       })
     );
   }, [contextQueryFilters, queryFilters]);
+
+  const hasValidFilters = useMemo(() => {
+    return filterEmptyQueryFilters(queryFilters).length > 0;
+  }, [queryFilters]);
+
+  const { data: isSavedFiltersLimitReached } = useSavedFiltersLimitReached();
 
   const content = (
     <>
@@ -89,9 +112,28 @@ export default function QueryFiltersSelector() {
                 </Button>
               )}
             </DisabledDemoTooltip>
-            <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
+            <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-2'>
+              <DisabledDemoTooltip>
+                {(isDemo) => (
+                  <DisabledTooltip
+                    disabled={Boolean(!isDemo && isSavedFiltersLimitReached)}
+                    message={t('selector.savedFiltersLimitReached')}
+                  >
+                    {(isLimitDisabled) => (
+                      <Button
+                        className='h-8 cursor-pointer'
+                        variant='ghost'
+                        onClick={() => setIsSaveDialogOpen(true)}
+                        disabled={isDemo || !hasValidFilters || isLimitDisabled}
+                      >
+                        <SaveIcon className='h-4 w-4' />
+                      </Button>
+                    )}
+                  </DisabledTooltip>
+                )}
+              </DisabledDemoTooltip>
               <Button
-                className='h-8 w-[48%] max-w-[110px] cursor-pointer'
+                className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
                 disabled={!isFiltersModified}
                 onClick={cancelFilters}
                 variant={'ghost'}
@@ -99,9 +141,9 @@ export default function QueryFiltersSelector() {
                 {t('selector.cancel')}
               </Button>
               <Button
-                className='h-8 w-[48%] max-w-[110px] cursor-pointer'
+                className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
                 disabled={isFiltersModified === false}
-                onClick={saveFilters}
+                onClick={applyFilters}
                 variant={isFiltersModified ? 'default' : 'ghost'}
               >
                 {t('selector.apply')}
@@ -140,13 +182,21 @@ export default function QueryFiltersSelector() {
               <Button className='h-8 w-[48%] max-w-[110px] cursor-pointer' onClick={cancelFilters} variant='ghost'>
                 {t('selector.cancel')}
               </Button>
-              <Button className='h-8 w-[48%] max-w-[110px] cursor-pointer' onClick={saveFilters}>
+              <Button className='h-8 w-[48%] max-w-[110px] cursor-pointer' onClick={applyFilters}>
                 {t('selector.apply')}
               </Button>
             </div>
           </div>
         </div>
       )}
+
+      <SavedFiltersSection
+        onLoadFilter={handleLoadSavedFilter}
+        isOpen={isSavedFiltersOpen}
+        onOpenChange={setIsSavedFiltersOpen}
+      />
+
+      <SaveQueryFilterDialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen} filters={queryFilters} />
     </>
   );
 
@@ -172,7 +222,7 @@ export default function QueryFiltersSelector() {
           <DialogHeader>
             <DialogTitle>{t('selector.title')}</DialogTitle>
           </DialogHeader>
-          {content}
+          <div className='space-y-1'>{content}</div>
         </DialogContent>
       </Dialog>
     );

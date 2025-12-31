@@ -18,6 +18,7 @@ import {
   EarthIcon,
   ExternalLinkIcon,
   FileTextIcon,
+  GlobeIcon,
   MonitorSmartphoneIcon,
   ShellIcon,
   SquareMousePointerIcon,
@@ -136,10 +137,12 @@ type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: 
 
 export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },
+  { value: 'domain', icon: <GlobeIcon />, label: 'Hostname' },
   { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },
   { value: 'country_code', icon: <EarthIcon />, label: 'Country code' },
   { value: 'browser', icon: <CompassIcon />, label: 'Browser' },
   { value: 'os', icon: <MonitorSmartphoneIcon />, label: 'Operating system' },
+  { value: 'custom_event_name', icon: <SunsetIcon />, label: 'Event' },
   { value: 'referrer_source', icon: <StepBackIcon />, label: 'Referrer source' },
   { value: 'referrer_source_name', icon: <BatteryIcon />, label: 'Referrer name' },
   { value: 'referrer_search_term', icon: <ShellIcon />, label: 'Referrer term' },
@@ -149,5 +152,4 @@ export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'utm_campaign', icon: <FileTextIcon />, label: 'UTM campaign' },
   { value: 'utm_term', icon: <TextSearchIcon />, label: 'UTM term' },
   { value: 'utm_content', icon: <SquareMousePointerIcon />, label: 'UTM content' },
-  { value: 'custom_event_name', icon: <SunsetIcon />, label: 'Event' },
 ];

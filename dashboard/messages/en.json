@@ -818,7 +818,6 @@
           "Betterlytics"
         ]
       },
-
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
         "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
@@ -889,17 +888,29 @@
           "script": {
             "title": "Simple Script Tag",
             "description": "Add one line to your HTML and start tracking immediately. Works with any website or CMS.",
-            "features": { "f1": "One-line installation", "f2": "Works anywhere", "f3": "No build process needed" }
+            "features": {
+              "f1": "One-line installation",
+              "f2": "Works anywhere",
+              "f3": "No build process needed"
+            }
           },
           "framework": {
             "title": "Framework Ready",
             "description": "Native support for React, Next.js, Vue, and other modern frameworks with TypeScript.",
-            "features": { "f1": "TypeScript support", "f2": "Framework components", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "TypeScript support",
+              "f2": "Framework components",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Self-Hosted Option",
             "description": "Deploy on your own infrastructure with Docker for complete data ownership and control.",
-            "features": { "f1": "Docker deployment", "f2": "Complete control", "f3": "GDPR compliant" }
+            "features": {
+              "f1": "Docker deployment",
+              "f2": "Complete control",
+              "f3": "GDPR compliant"
+            }
           }
         },
         "guideButton": "View Integration Guide",
@@ -1703,7 +1714,6 @@
         "loadingSettings": "Loading your dashboard settings..."
       }
     },
-
     "devices": {
       "tables": {
         "columns": {
@@ -1739,7 +1749,7 @@
       },
       "loading": "Loading campaigns...",
       "campaignRow": {
-        "sessions": "{count, plural, one {# session} other {# sessions}}",
+        "visitors": "{count, plural, one {# visitor} other {# visitors}}",
         "bounceRate": "Bounce Rate",
         "avgSessionDuration": "Avg. Duration",
         "pagesPerSession": "Pages / Session",
@@ -1827,6 +1837,7 @@
       "namePlaceholder": "Enter step name",
       "columns": {
         "url": "URL",
+        "domain": "Hostname",
         "device_type": "Device type",
         "country_code": "Country",
         "browser": "Browser",
@@ -1851,7 +1862,18 @@
         "cancel": "Cancel",
         "apply": "Apply",
         "selectValue": "Select a value",
-        "noValuesForCurrentPeriod": "No values found for current time period"
+        "noValuesForCurrentPeriod": "No values found for current time period",
+        "savedFilters": "Saved Filters",
+        "noSavedFilters": "No saved filters yet",
+        "saveFilters": "Save",
+        "saveFiltersTitle": "Save Filter Set",
+        "filterNamePlaceholder": "Enter filter name",
+        "toastFilterSavedSuccess": "Filter saved",
+        "toastFilterSavedError": "Failed to save filter",
+        "toastFilterDeletedSuccess": "Filter deleted",
+        "toastFilterDeletedError": "Failed to delete filter",
+        "toastUndo": "Undo",
+        "savedFiltersLimitReached": "Maximum saved filters reached"
       },
       "filterBy": "Filter by {label}"
     },
@@ -2428,7 +2450,6 @@
       "notAvailable": "Not available on demo dashboard",
       "interactionDisabled": "Filtering from this interaction is disabled in the demo."
     },
-
     "bugReport": {
       "trigger": "Report bug",
       "title": "Report a bug",

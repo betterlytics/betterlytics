@@ -115,19 +115,19 @@ model VerificationToken {
 
 model UserSettings {
   id String @id @default(cuid())
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
-  
+
   // Theme preferences
   theme Theme @default(system) // "light", "dark", "system"
   language String @default("en") // ISO language codes
   avatar AvatarMode @default(default) // "default", "gravatar"
-  
+
   // Email preferences
   emailNotifications Boolean @default(true) // Sign up, login, password reset, reminders, alerts etc.
   marketingEmails Boolean @default(false) // Product updates, features, tips
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -141,6 +141,7 @@ model Dashboard {
 
   userAccess UserDashboard[]
   funnels Funnel[]
+  savedFilters SavedFilter[]
   settings DashboardSettings?
   config SiteConfig?
   bugReports BugReport[]
@@ -150,20 +151,20 @@ model Dashboard {
 
 model UserDashboard {
   id String @id @default(cuid())
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  
+
   dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
   dashboardId String
-  
+
   role DashboardRole @default(viewer)
-  
+
   isDefault Boolean @default(false)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([userId, dashboardId])
 }
 
@@ -186,7 +187,7 @@ model Funnel {
 
 model FunnelStep {
   id String @id @default(cuid())
-  
+
   name String
   column String
   operator String
@@ -198,28 +199,58 @@ model FunnelStep {
   @@index([funnelId])
 }
 
+model SavedFilter {
+  id String @id @default(cuid())
+
+  name String @db.VarChar(64)
+
+  entries SavedFilterEntry[]
+
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([dashboardId])
+}
+
+model SavedFilterEntry {
+  id String @id @default(cuid())
+
+  column   String
+  operator String
+  value    String
+
+  savedFilter   SavedFilter @relation(fields: [savedFilterId], references: [id], onDelete: Cascade)
+  savedFilterId String
+
+  @@index([savedFilterId])
+}
+
 model DashboardSettings {
   id String @id @default(cuid())
-  
+
   dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
   dashboardId String @unique
-  
+
   // Display Settings
   showGridLines Boolean @default(true)
   defaultDateRange String @default("7d") // 24h, 7d, 28d, 3mo
-  
+
   // Data Settings
   dataRetentionDays Int @default(365) // Number of days to retain data
-  
+
   // Report Settings
   weeklyReports Boolean @default(true)
   monthlyReports Boolean @default(false)
   reportRecipients String[] @default([]) // Array of email addresses
-  
+
   // Alert Settings
   alertsEnabled Boolean @default(false)
   alertsThreshold Int @default(1000) // Threshold for traffic alerts
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -271,7 +302,7 @@ model MonitorCheck {
 
 model Subscription {
   id String @id @default(cuid())
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
   
@@ -280,26 +311,26 @@ model Subscription {
   eventLimit Int // Selected event limit: 10_000, 50_000, 100_000, etc.
   pricePerMonth Int // Price in cents
   currency Currency @default(USD)
-  
+
   // Billing cycle
   currentPeriodStart DateTime
   currentPeriodEnd DateTime
-  
+
   // Quota tracking
   quotaExceededDate DateTime?
-  
+
   // Subscription status
   status String @default("active") // "active", "canceled"
   cancelAtPeriodEnd Boolean @default(false)
-  
+
   // Payment provider integration
   paymentCustomerId String?
   paymentSubscriptionId String?
   paymentPriceId String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([userId, status])
   @@index([currentPeriodStart, currentPeriodEnd])
 }
@@ -356,7 +387,7 @@ model PasswordResetToken {
   userId    String
   expires   DateTime
   createdAt DateTime @default(now())
-  
+
   @@index([token])
   @@index([userId])
 }

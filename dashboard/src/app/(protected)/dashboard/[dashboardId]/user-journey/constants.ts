@@ -10,20 +10,14 @@ export const COLORS = {
     mutedStroke: 'var(--sankey-node-stroke-muted)',
   },
   link: {
-    stroke: '#6fa8ff88', // blue-ish
-    strokeMiddle: '#6fa8ff55', // gray-blue-ish
+    stroke: 'var(--sankey-link-stroke)',
+    strokeMiddle: 'var(--sankey-link-stroke-middle)',
 
-    highlightStroke: '#3f8cff',
-    highlightStrokeMiddle: '#3f8cffaa',
+    highlightStroke: 'var(--sankey-link-highlight)',
+    highlightStrokeMiddle: 'var(--sankey-link-highlight-middle)',
 
-    mutedStroke: '#6fa8ff66',
-    mutedStrokeMiddle: '#6fa8ff44',
-  },
-  label: {
-    text: '#334155', // Slate-700
-    subtext: '#64748b', // Slate-500
-    mutedText: '#94a3b8', // Slate-400
-    mutedSubtext: '#cbd5e1', // Slate-300
+    mutedStroke: 'var(--sankey-link-muted)',
+    mutedStrokeMiddle: 'var(--sankey-link-muted-middle)',
   },
   card: {
     bg: 'var(--sankey-card-bg)',
@@ -42,8 +36,9 @@ export const COLORS = {
 // ============================================
 export const LAYOUT = {
   padding: { top: 20, right: 20, bottom: 24, left: 20 },
-  nodeWidth: 16,
+  nodeWidth: 14,
   nodeRadius: 2,
-  minNodeHeight: 8,
-  nodeHeightRatio: 0.5,
+  minNodeHeight: 6,
+  compressionThreshold: 60,
+  maxNodeHeight: 100,
 };
