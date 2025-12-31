@@ -1080,7 +1080,13 @@
       "funnels": "Tragter",
       "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
       "webVitals": "Web Vitals",
-      "sessionReplay": "Sessionsafspilninger"
+      "sessionReplay": "Sessionsafspilninger",
+      "monitoring": "Overvågning",
+      "categories": {
+        "analytics": "Analyse",
+        "behavior": "Adfærd",
+        "observability": "Overvågning"
+      }
     },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
@@ -1134,6 +1140,364 @@
       "description": "Tilføj et nyt dashboard"
     }
   },
+  "monitoring": {
+    "status": {
+      "paused": "Paused",
+      "preparing": "Forbereder",
+      "up": "Oppe",
+      "degraded": "Nedsat",
+      "down": "Nede"
+    },
+    "checkStatus": {
+      "ok": "OK",
+      "warn": "Advarsel",
+      "failed": "Mislykket"
+    },
+    "incidentStatus": {
+      "ongoing": "Igangværende",
+      "resolved": "Løst"
+    },
+    "latency": {
+      "paused": "Pause",
+      "fast": "Hurtig",
+      "elevated": "Forhøjet",
+      "slow": "Langsom",
+      "noData": "Ingen data endnu"
+    },
+    "ssl": {
+      "valid": "Gyldigt",
+      "expiringSoon": "Udløber snart",
+      "expired": "Udløbet",
+      "error": "Fejl",
+      "notChecked": "Ikke tjekket",
+      "badgeValid": "Certifikat gyldigt",
+      "badgeExpiringSoon": "Certifikat udløber snart",
+      "badgeExpired": "Certifikat udløbet",
+      "badgeError": "Certifikatfejl",
+      "badgeNotChecked": "Certifikat ikke tjekket"
+    },
+    "labels": {
+      "noData": "Ingen data",
+      "uptimeSuffix": "oppetid",
+      "recommended": "anbefalet",
+      "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}",
+      "hoursLeft": "{count, plural, one {{count}t tilbage} other {{count}t tilbage}}",
+      "daysLeftFull": "{count, plural, one {Udløber om {count} dag} other {Udløber om {count} dage}}",
+      "hoursLeftFull": "{count, plural, one {Udløber om {count} time} other {Udløber om {count} timer}}"
+    },
+    "actions": {
+      "pause": "Sæt overvågning på pause",
+      "resume": "Genoptag overvågning",
+      "pausing": "Sætter på pause...",
+      "resuming": "Genoptager..."
+    }
+  },
+  "monitor": {
+    "reason": {
+      "ok": "Siden fungerer",
+      "tls_handshake_failed": "SSL/TLS-håndtryk mislykkedes",
+      "tls_missing_certificate": "SSL-certifikat ikke fundet",
+      "tls_expired": "SSL-certifikat er udløbet",
+      "tls_expiring_soon": "SSL-certifikat udløber snart",
+      "tls_parse_error": "Kunne ikke læse SSL-certifikat",
+      "tls_hostname_mismatch": "SSL-certifikat matcher ikke værtsnavnet",
+      "tls_untrusted_ca": "SSL-certifikat udstedt af ukendt CA",
+      "tls_not_yet_valid": "SSL-certifikat er endnu ikke gyldigt",
+      "tls_revoked": "SSL-certifikat er blevet tilbagekaldt",
+      "tls_self_signed": "SSL-certifikat er selvsigneret",
+      "tls_connection_failed": "SSL-forbindelse mislykkedes",
+      "http_4xx": "Server returnerede en klientfejl",
+      "http_5xx": "Server returnerede en serverfejl",
+      "http_other": "Uventet HTTP-statuskode",
+      "http_timeout": "Anmodningen fik timeout",
+      "http_connect_error": "Kunne ikke oprette forbindelse til server",
+      "http_body_error": "Fejl ved læsning af svar",
+      "http_request_error": "Fejl ved afsendelse af anmodning",
+      "http_error": "HTTP-anmodning mislykkedes",
+      "too_many_redirects": "For mange omdirigeringer",
+      "redirect_join_failed": "Ugyldig omdirigerings-placering",
+      "scheme_blocked": "URL-skema ikke tilladt",
+      "port_blocked": "Port ikke tilladt",
+      "invalid_host": "Ugyldigt værtsnavn",
+      "blocked_ip_literal": "IP-adresse ikke tilladt",
+      "dns_blocked": "DNS peger på blokeret adresse",
+      "dns_error": "DNS-opslag mislykkedes",
+      "unknown": "Ukendt fejl"
+    }
+  },
+  "monitoringPage": {
+    "title": "Overvågning",
+    "filters": {
+      "statusLabel": "Status",
+      "sortLabel": "Sortér",
+      "statusAll": "Alle",
+      "statusUp": "Oppe",
+      "statusDegraded": "Nedsat",
+      "statusDown": "Nede",
+      "statusSslExpiring": "SSL-certifikat udløber",
+      "statusPaused": "Pause",
+      "statusPreparing": "Forbereder",
+      "sortDownFirst": "Nede først",
+      "sortUpFirst": "Oppe først",
+      "sortNewest": "Nyeste først",
+      "sortOldest": "Ældste først",
+      "sortNameAsc": "Navn (A–Z)",
+      "sortNameDesc": "Navn (Z–A)",
+      "sortSslExpires": "SSL udløber"
+    },
+    "emptyState": {
+      "title": "Begynd at overvåge dine endpoints",
+      "description": "Få besked, når dit website går ned, og følg oppetiden ved siden af din hjemmesidedata.",
+      "durationDays": "{value}d"
+    },
+    "list": {
+      "noData": "Ingen data endnu",
+      "intervalMinutes": "{value} min",
+      "intervalSeconds": "{value}s",
+      "backoffTooltip": "Overvågning midlertidigt reduceret til {value}, fordi denne monitor har været nede gentagne gange. Normal frekvens genoptages automatisk, når tjenesten er oppe igen.",
+      "emptyTitle": "Ingen overvågninger endnu",
+      "emptyDescription": "Opret din første overvågning for at begynde at spore oppetid.",
+      "upPrefix": "Oppe",
+      "downPrefix": "Nede",
+      "uptimeSuffix": "oppetid"
+    },
+    "form": {
+      "create": "Ny overvågning",
+      "title": "Opret overvågning",
+      "description": "Overvåg et endpoint for oppetid, responstid og SSL-status.",
+      "fields": {
+        "name": "Navn",
+        "url": "URL"
+      },
+      "placeholders": {
+        "name": "Valgfri betegnelse"
+      },
+      "helper": {
+        "nameOptional": "(valgfrit)",
+        "nameDescription": "Giv din overvågning et venligt navn, eller lad være for at bruge URL'en"
+      },
+      "errors": {
+        "url": "Indtast venligst en gyldig URL.",
+        "urlDomain": "URL skal være på {domain} eller et subdomæne (f.eks. api.{domain})",
+        "duplicate": "Der findes allerede en overvågning for denne URL.",
+        "customPort": "Brugerdefinerede porte understøttes ikke",
+        "invalidProtocol": "URL skal starte med https:// eller http://"
+      },
+      "timing": {
+        "title": "Tid og følsomhed",
+        "interval": {
+          "label": "Overvågningsinterval",
+          "description": "Dit websted tjekkes hver {value}"
+        },
+        "timeout": {
+          "label": "Anmodningstimeout",
+          "description": "For kort kan give falske positiver"
+        },
+        "sensitivity": {
+          "label": "Hændelsesfølsomhed",
+          "description": "Antal fejl i træk før der oprettes en hændelse",
+          "valueOne": "1 fejl",
+          "valueOther": "{count} fejl"
+        }
+      },
+      "actions": {
+        "cancel": "Annullér",
+        "create": "Opret overvågning",
+        "creating": "Opretter..."
+      },
+      "success": "Overvågning oprettet",
+      "successDescription": "Din overvågning begynder at tjekke med det samme.",
+      "error": "Kunne ikke oprette overvågning"
+    },
+    "actions": {
+      "renameTitle": "Omdøb overvågning",
+      "renamePlaceholder": "Overvågningens navn",
+      "renameSuccess": "Overvågning omdøbt",
+      "renameError": "Kunne ikke omdøbe overvågning",
+      "settings": "Indstillinger",
+      "deleteConfirmTitle": "Slet overvågning?",
+      "deleteConfirmDescription": "Dette sletter overvågningen og alle dens data permanent.",
+      "deleteError": "Kunne ikke slette overvågning"
+    }
+  },
+  "monitoringDetailPage": {
+    "actions": {
+      "edit": "Redigér overvågning"
+    },
+    "header": {
+      "back": "Tilbage til overvågninger",
+      "monitoring": "Overvågning"
+    },
+    "responseTime": {
+      "title": "Responstid",
+      "badge": "Seneste 24 timer",
+      "empty": "Ingen data om responstid endnu"
+    },
+    "downtime": {
+      "days": "{value}d nede",
+      "hours": "{value}t nede",
+      "minutes": "{value}m nede",
+      "unknown": "— nede"
+    },
+    "incidents": {
+      "title": "Hændelser",
+      "badge": "Seneste 7 dage",
+      "emptyTitle": "Ingen hændelser registreret",
+      "emptyDescription": "Vi viser årsager, tidspunkter og nedetid, når der opstår hændelser.",
+      "headers": {
+        "status": "Status",
+        "root": "Årsag",
+        "started": "Startet",
+        "duration": "Varighed"
+      }
+    },
+    "recent": {
+      "title": "Seneste overvågningsresultater",
+      "badge": "Seneste 10",
+      "empty": "Ingen tjek registreret endnu",
+      "errorsOnly": "Fejl",
+      "headers": {
+        "status": "Status",
+        "ran": "Kørt",
+        "latency": "Latenstid",
+        "statusCode": "Statuskode",
+        "reason": "Årsag"
+      }
+    },
+    "uptime": {
+      "title": "Oppetid",
+      "badge": "Seneste {days} dage",
+      "grid": {
+        "uptimeLabel": "{value} oppetid"
+      },
+      "stats": {
+        "label": "Seneste {days} dage",
+        "downFallback": "— nede"
+      }
+    },
+    "summary": {
+      "responseTime": {
+        "avgResponseTime": "Gns. responstid",
+        "helper": "Seneste 24 timer"
+      },
+      "nextCheck": {
+        "title": "Næste tjek",
+        "paused": "Pause",
+        "preparing": "Forbereder første tjek",
+        "awaiting": "Afventer tjek...",
+        "inSeconds": "Om {seconds}s",
+        "helperPaused": "Genoptag overvågning for at starte tjek igen.",
+        "helperPreparing": "Vi planlægger dit første tjek. Resultater vises snart.",
+        "helperScheduled": "Planlagt hvert {seconds}s",
+        "helperUpFor": "Oppe i {duration}",
+        "helperDownFor": "Nede i {duration}"
+      },
+      "last24h": {
+        "title": "Seneste 24 timer",
+        "helperNone": "Ingen hændelser",
+        "helperWithIncidents": "{count, plural, one {{count} hændelse} other {{count} hændelser}}, {downtime}"
+      },
+      "ssl": {
+        "title": "SSL-certifikat",
+        "disabled": "Deaktiveret",
+        "notApplicable": "N/A",
+        "timeLeft": "Tid tilbage",
+        "hoursLeft": "{count, plural, one {time tilbage} other {timer tilbage}}",
+        "daysLeft": "{count, plural, one {dag tilbage} other {dage tilbage}}",
+        "expires": "Udløber {date}",
+        "httpSite": "Ikke relevant",
+        "httpSiteDescription": "Denne side bruger HTTP",
+        "disabledDescription": "SSL-overvågning deaktiveret",
+        "enableInSettings": "Aktivér i indstillinger"
+      }
+    },
+    "toast": {
+      "status": {
+        "paused": "Overvågning sat på pause",
+        "resumed": "Overvågning genoptaget"
+      },
+      "statusError": "Kunne ikke opdatere overvågning-status. Prøv igen."
+    }
+  },
+  "monitoringEditDialog": {
+    "success": "Overvågning opdateret",
+    "error": "Kunne ikke opdatere overvågning. Prøv igen.",
+    "trigger": "Redigér",
+    "title": "Redigér overvågning",
+    "unsavedChanges": "Ikke-gemte ændringer",
+    "actions": {
+      "cancel": "Annullér",
+      "save": "Gem",
+      "saving": "Gemmer..."
+    },
+    "confirmDiscard": {
+      "title": "Vil du kassere ændringerne?",
+      "description": "Du har ændringer, der ikke er gemt. De går tabt, hvis du lukker.",
+      "keep": "Fortsæt redigering",
+      "discard": "Kasser"
+    },
+    "delete": {
+      "trigger": "Slet overvågning",
+      "title": "Slet denne overvågning?",
+      "description": "Denne handling kan ikke fortrydes. Alle overvågningsdata og hændelseshistorik slettes permanent.",
+      "cancel": "Annullér",
+      "confirm": "Slet overvågning",
+      "deleting": "Sletter...",
+      "error": "Kunne ikke slette overvågning"
+    },
+    "sections": {
+      "timing": "Tidsindstillinger",
+      "advanced": "Avancerede indstillinger"
+    },
+    "advanced": {
+      "httpMethod": {
+        "label": "HTTP-metode",
+        "description": "HEAD er hurtigere, men nogle servere understøtter det ikke"
+      },
+      "sslMonitoring": {
+        "label": "Overvåg SSL-fejl",
+        "description": "Opret hændelser, når certifikatfejl opdages",
+        "httpDisabled": "Ikke tilgængelig for HTTP-sider (intet certifikat)"
+      },
+      "requestHeaders": {
+        "label": "Forespørgselsheadere",
+        "description": "Tilføj headers til hver forespørgsel",
+        "namePlaceholder": "Headernavn",
+        "valuePlaceholder": "Værdi",
+        "blockedHeader": "Denne header er blokeret af sikkerhedsmæssige årsager"
+      },
+      "acceptedStatusCodes": {
+        "label": "Accepterede statuskoder",
+        "description": "Andre koder udløser hændelser",
+        "validation": {
+          "maxCodes": "Maksimalt {max} statuskoder tilladt",
+          "alreadyAdded": "{code} er allerede tilføjet",
+          "invalidRange": "Kun intervaller 2xx-5xx er gyldige HTTP-statuskoder",
+          "invalidFormat": "Indtast venligst en gyldig statuskode (f.eks. 200) eller interval (f.eks. 2xx)",
+          "outOfRange": "Statuskode skal være mellem 100 og 599"
+        }
+      }
+    },
+    "alerts": {
+      "title": "Alarmer",
+      "enabled": "Til",
+      "enableAlerts": "Aktivér alarmer",
+      "description": "Få besked, når din overvågning går ned, kommer op igen, eller når SSL-certifikater er ved at udløbe.",
+      "onDown": "Advarsel ved nedetid",
+      "onDownDescription": "Send en alarm, når overvågningen går ned",
+      "onRecovery": "Advarsel ved genoprettelse",
+      "onRecoveryDescription": "Send en alarm, når overvågningen kommer op igen efter nedetid",
+      "onSslExpiry": "Advarsel ved SSL-udløb",
+      "onSslExpiryDescription": "Send en alarm, når SSL-certifikatet er ved at udløbe",
+      "sslExpiryDisabledTooltip": "Aktivér SSL-overvågning i Avancerede indstillinger først",
+      "failureThreshold": "Fejlgrænse",
+      "failureThresholdDescription": "Antal fejl i træk før der sendes en alarm",
+      "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
+      "sslExpiryDays": "Dage før udløb",
+      "sslExpiryDaysDescription": "Send alarm så mange dage før SSL-certifikatet udløber",
+      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}"
+    }
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -1148,7 +1512,14 @@
     "noChange": "ingen ændring",
     "good": "God",
     "fair": "Middel",
-    "poor": "Dårlig"
+    "poor": "Dårlig",
+    "rename": "Omdøb",
+    "renaming": "Omdøber",
+    "delete": "Slet",
+    "deleting": "Sletter",
+    "cancel": "Annuller",
+    "confirm": "Bekræft",
+    "openMenu": "Åbn menu"
   },
   "languages": {
     "da": "Dansk",
@@ -1507,6 +1878,16 @@
       "filterBy": "Filtrer efter {label}"
     },
     "funnels": {
+      "skeleton": {
+        "steps": {
+          "homepage": "Forside",
+          "pricing": "Priser",
+          "signup": "Tilmeld",
+          "purchase": "Køb"
+        },
+        "step": "Trin",
+        "visitors": "Besøgende"
+      },
       "list": {
         "steps": "trin",
         "conversionRate": "Konverteringsrate",
@@ -1589,17 +1970,9 @@
         }
       },
       "emptyState": {
-        "title": "Ingen tragter oprettet endnu",
-        "description": "Spor brugerrejser gennem dit site og identificér hvor besøgende falder fra. Opret din første tragt for at begynde at analysere konverteringsstier og optimere din brugeroplevelse.",
-        "createButton": "Opret din første tragt",
-        "features": {
-          "trackSteps": "Spor konverteringstrin",
-          "trackStepsDesc": "Overvåg brugernes fremgang gennem brugerdefinerede filtre",
-          "identifyDropoffs": "Identificér frafaldspoints",
-          "identifyDropoffsDesc": "Find hvor brugerne forlader deres rejse",
-          "optimizeConversions": "Optimér konverteringer",
-          "optimizeConversionsDesc": "Forbedre dit produkt baseret på dataindsigter"
-        }
+        "title": "Visualisér din konverteringstragt",
+        "description": "Se hvor brugerne falder fra, og optimér dine konverteringsstier trin for trin.",
+        "createButton": "Opret tragt"
       }
     },
     "pages": {
@@ -2181,7 +2554,9 @@
     }
   },
   "validation": {
-    "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte."
+    "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
+    "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
+    "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede"
   },
   "banners": {
     "verifyEmail": {

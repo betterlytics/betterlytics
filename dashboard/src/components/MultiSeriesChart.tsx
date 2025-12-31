@@ -9,7 +9,7 @@ import {
   Line,
   ComposedChart,
   ReferenceLine,
-  Label,
+  ReferenceArea,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
@@ -17,18 +17,29 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 interface ChartDataPoint {
   date: string | number;
-  value: number[];
+  value: Array<number | null>;
 }
 
 export interface MultiSeriesConfig {
   dataKey: string; // e.g. 'value.0'
   stroke: string;
   strokeWidth?: number;
-  dot?: boolean;
+  dot?: boolean | object;
   name?: string;
+  strokeDasharray?: string;
+}
+
+export interface ReferenceAreaConfig {
+  x1: string | number;
+  x2: string | number;
+  fill?: string;
+  fillOpacity?: number;
+  stroke?: string;
+  strokeDasharray?: string;
 }
 
 interface MultiSeriesChartProps {
@@ -36,7 +47,8 @@ interface MultiSeriesChartProps {
   data: ChartDataPoint[];
   granularity?: GranularityRangeValues;
   formatValue?: (value: number) => string;
-  series: MultiSeriesConfig[];
+  series: ReadonlyArray<MultiSeriesConfig>;
+  referenceAreas?: Array<ReferenceAreaConfig>;
   referenceLines?: Array<{
     y: number;
     label?: string;
@@ -47,10 +59,27 @@ interface MultiSeriesChartProps {
   headerRight?: React.ReactNode;
   headerContent?: React.ReactNode;
   yDomain?: [number | 'dataMin' | 'auto', number | 'dataMax' | 'auto' | ((dataMax: number) => number)];
+  className?: string;
+  contentClassName?: string;
+  showSinglePoints?: boolean;
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
-  ({ title, data, granularity, formatValue, series, referenceLines, headerRight, headerContent, yDomain }) => {
+  ({
+    title,
+    data,
+    granularity,
+    formatValue,
+    series,
+    referenceAreas,
+    referenceLines,
+    headerRight,
+    headerContent,
+    yDomain,
+    className,
+    contentClassName,
+    showSinglePoints,
+  }) => {
     const locale = useLocale();
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
@@ -62,7 +91,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     const isMobile = useIsMobile();
 
     return (
-      <Card className='px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5'>
+      <Card className={cn('px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5', className)}>
         {(title || headerRight) && (
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
             <CardTitle className='text-base font-medium'>
@@ -72,7 +101,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
           </CardHeader>
         )}
 
-        <CardContent className='p-0'>
+        <CardContent className={cn('p-0', contentClassName)}>
           {headerContent && <div className='mb-2 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 py-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
@@ -118,8 +147,9 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     dataKey={s.dataKey}
                     stroke={s.stroke}
                     strokeWidth={s.strokeWidth ?? 2}
-                    dot={s.dot ?? false}
+                    dot={s.dot ?? (showSinglePoints ? LineDot : false)}
                     name={s.name}
+                    strokeDasharray={s.strokeDasharray}
                   />
                 ))}
                 {referenceLines?.map((r, i) => (
@@ -135,6 +165,20 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     }
                   />
                 ))}
+                {referenceAreas?.map((referenceArea, i) => (
+                  <ReferenceArea
+                    key={`ref-area-${referenceArea.x1}-${referenceArea.x2}-${i}`}
+                    x1={referenceArea.x1}
+                    x2={referenceArea.x2}
+                    y1={0}
+                    y2={10000}
+                    fill={referenceArea.fill ?? 'var(--chart-comparison)'}
+                    fillOpacity={referenceArea.fillOpacity ?? 0.15}
+                    stroke={referenceArea.stroke}
+                    strokeDasharray={referenceArea.strokeDasharray}
+                    ifOverflow='hidden'
+                  />
+                ))}
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -143,6 +187,23 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     );
   },
 );
+
+type LineDotProps = {
+  index: number;
+  value: number | null;
+  points: { value: number | null; x: number; y: number }[];
+  stroke: string;
+};
+function LineDot({ index, value, points, stroke }: LineDotProps) {
+  if (
+    value !== null &&
+    typeof points[index - 1]?.value !== 'number' &&
+    typeof points[index + 1]?.value !== 'number'
+  ) {
+    return <circle key={index} cx={points[index].x} cy={points[index].y} r={2} stroke={stroke} strokeWidth={2} />;
+  }
+  return null;
+}
 
 type ReferenceLineLabelProps = {
   text: string;

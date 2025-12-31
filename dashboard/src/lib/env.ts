@@ -32,6 +32,7 @@ const envSchema = z.object({
   ENABLE_ACCOUNT_VERIFICATION: zStringBoolean,
   TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
   ENABLE_MONITORING: zStringBoolean,
+  ENABLE_UPTIME_MONITORING: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
   ALLOW_CRAWLING: zStringBoolean,

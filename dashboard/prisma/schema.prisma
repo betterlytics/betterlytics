@@ -146,6 +146,7 @@ model Dashboard {
   config SiteConfig?
   bugReports BugReport[]
   annotations Annotation[]
+  monitorChecks MonitorCheck[]
 }
 
 model UserDashboard {
@@ -264,6 +265,39 @@ model SiteConfig {
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+}
+
+
+model MonitorCheck {
+  id                    String    @id @default(cuid())
+  dashboard             Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId           String
+  name                  String?
+  url                   String
+  intervalSeconds       Int       @default(30)
+  timeoutMs             Int       @default(3000)
+  isEnabled             Boolean   @default(true)
+  checkSslErrors        Boolean   @default(true)
+  sslExpiryReminders    Boolean   @default(true)
+  httpMethod            String    @default("HEAD")
+  requestHeaders        Json?
+  acceptedStatusCodes   Json      @default("[\"2xx\"]")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Alert configuration
+  alertsEnabled         Boolean   @default(true)
+  alertEmails           String[]  @default([])  // Email addresses to notify for alerts
+  alertOnDown           Boolean   @default(true)
+  alertOnRecovery       Boolean   @default(true)
+  alertOnSslExpiry      Boolean   @default(true)
+  sslExpiryAlertDays    Int       @default(14)  // Days before expiry to alert
+  failureThreshold      Int       @default(3)   // Consecutive failures before alerting
+
+  deletedAt             DateTime?
+
+  @@index([dashboardId])
+  @@unique([id, dashboardId])
 }
 
 model Subscription {

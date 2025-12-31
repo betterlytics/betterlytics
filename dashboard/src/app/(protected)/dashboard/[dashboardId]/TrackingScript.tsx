@@ -19,7 +19,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.setAttribute('data-scripts-base-url', PUBLIC_ANALYTICS_BASE_URL);
     script.setAttribute(
       'data-dynamic-urls',
-      '/dashboard/*/funnels/*,/dashboard/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*,/*/share/*',
+      '/dashboard/*/funnels/*,/dashboard/*/monitoring/*,/dashboard/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*,/*/share/*',
     );
     script.setAttribute('data-outbound-links', 'full');
     script.setAttribute('data-web-vitals', 'true');

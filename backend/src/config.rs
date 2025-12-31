@@ -2,6 +2,7 @@ use std::env;
 use std::path::PathBuf;
 use std::time::Duration;
 
+
 #[derive(Debug)]
 pub struct Config {
     pub server_port: u16,
@@ -24,6 +25,10 @@ pub struct Config {
     pub enable_billing: bool,
     // Monitoring configuration
     pub enable_monitoring: bool,
+    pub enable_uptime_monitoring: bool,
+    pub monitor_database_url: Option<String>,
+    pub monitor_clickhouse_table: String,
+    pub monitor_incidents_table: String,
     // Session replay configuration
     pub enable_session_replay: bool,
     // S3 session replay storage configuration
@@ -37,6 +42,12 @@ pub struct Config {
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
+    // Development mode - allows localhost monitoring targets
+    pub is_development: bool,
+    // Public-facing base URL (used for dashboard links in emails, etc.)
+    pub public_base_url: String,
+    // Email configuration (None = email disabled)
+    pub email: Option<EmailConfig>,
 }
 
 impl Config {
@@ -94,6 +105,14 @@ impl Config {
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
+            enable_uptime_monitoring: env::var("ENABLE_UPTIME_MONITORING")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
+            monitor_database_url: env::var("MONITORING_DATABASE_URL").ok(),
+            monitor_clickhouse_table: env::var("CLICKHOUSE_MONITOR_TABLE")
+                .unwrap_or_else(|_| "analytics.monitor_results".to_string()),
+            monitor_incidents_table: env::var("CLICKHOUSE_INCIDENT_TABLE")
+                .unwrap_or_else(|_| "analytics.monitor_incidents".to_string()),
             // Session replay configuration
             enable_session_replay: env::var("SESSION_REPLAYS_ENABLED")
                 .map(|val| val.to_lowercase() == "true")
@@ -109,6 +128,47 @@ impl Config {
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
+            is_development: env::var("IS_DEVELOPMENT")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
+            // Public-facing base URL for dashboard links in emails, etc
+            public_base_url: env::var("PUBLIC_BASE_URL")
+                .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
+            // Email configuration (None = email disabled)
+            email: EmailConfig::from_env(),
         }
     }
-} 
+}
+
+#[derive(Clone, Debug)]
+pub struct EmailConfig {
+    pub api_key: String,
+    pub from_email: String,
+    pub from_name: String,
+    pub is_development: bool,
+}
+
+impl EmailConfig {
+    pub fn from_env() -> Option<Self> {
+        let email_enabled = env::var("ENABLE_EMAILS")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+
+        if !email_enabled {
+            return None;
+        }
+
+        let api_key = env::var("MAILER_SEND_API_TOKEN").ok()?;
+
+        Some(Self {
+            api_key,
+            from_email: env::var("ALERT_FROM_EMAIL")
+                .unwrap_or_else(|_| "alerts@betterlytics.io".to_string()),
+            from_name: env::var("ALERT_FROM_NAME")
+                .unwrap_or_else(|_| "Betterlytics Alerts".to_string()),
+            is_development: env::var("IS_DEVELOPMENT")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
+        })
+    }
+}

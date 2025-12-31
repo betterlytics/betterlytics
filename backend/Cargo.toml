@@ -32,18 +32,22 @@ once_cell = "1.19.0"
 refparser = "0.1.0"
 
 # Database
-clickhouse = { version = "0.13.2", features = ["inserter", "chrono"] }
+clickhouse = { version = "0.13.2", features = ["inserter", "chrono", "uuid"] }
 chrono = { version = "0.4.40", features = ["serde"] }
-uuid = { version = "1.16.0", features = ["v4"] }
+uuid = { version = "1.16.0", features = ["v4", "serde"] }
 lazy_static = "1.5.0"
 
-# GeoIP dependencies
+# GeoIP / HTTP client
 maxminddb = "0.26.0"
-reqwest = { version = "0.12.15", features = ["json", "stream"] }
+reqwest = { version = "0.12.15", default-features = false, features = ["json", "stream", "rustls-tls", "rustls-tls-native-roots"] }
 flate2 = "1.1.1"
 tar = "0.4.44"
 httpdate = "1.0.3"
 bytes = "1.10.1"
+x509-parser = "0.16.0"
+tokio-rustls = { version = "0.26.4", default-features = true }
+rustls = { version = "0.23.32", features = ["ring", "tls12"] }
+rustls-native-certs = "0.7"
 
 # Regex
 regex = "1.10"
@@ -60,6 +64,8 @@ moka = { version = "0.12.10", features = ["sync", "future"] }
 serde_repr = "0.1.20"
 strum_macros = "0.27.1"
 strum = "0.27.1"
+rand = "0.8"
+governor = "0.10"
 
 # Prometheus metrics  
 prometheus = "0.14.0"
@@ -70,8 +76,10 @@ aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
 aws-sdk-s3 = "1.106.0"
 futures = "0.3"
 ipnet = "2.9"
-tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
+tokio-postgres = { version = "0.7", features = ["with-chrono-0_4", "with-serde_json-1"] }
 bb8 = "0.7"
 bb8-postgres = "0.7"
 async-trait = "0.1"
 arc-swap = "1.7"
+dashmap = "5.5"
+html-escape = "0.2"
