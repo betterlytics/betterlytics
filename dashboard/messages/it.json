@@ -1112,6 +1112,7 @@
         "name": "Siti",
         "values": {
           "1": "1",
+          "2": "2",
           "upTo50": "Fino a 50",
           "unlimited": "Illimitati"
         }
@@ -1154,7 +1155,12 @@
         "name": "Tracciamento campagne e UTM"
       },
       "uptimeMonitoring": {
-        "name": "Monitoraggio uptime"
+        "name": "Monitoraggio uptime",
+        "values": {
+          "5": "5 monitor",
+          "50": "50 monitor",
+          "unlimited": "Monitor illimitati"
+        }
       },
       "sslMonitoring": {
         "name": "Monitoraggio certificati SSL"
@@ -1164,6 +1170,9 @@
       },
       "customHttpMethods": {
         "name": "Metodi HTTP GET/POST"
+      },
+      "customRequestHeaders": {
+        "name": "Header di richiesta personalizzati"
       },
       "customStatusCodes": {
         "name": "Codici di stato accettati personalizzati"

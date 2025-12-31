@@ -1104,6 +1104,7 @@
         "name": "Hjemmesider",
         "values": {
           "1": "1",
+          "2": "2",
           "upTo50": "Op til 50",
           "unlimited": "Ubegrænsede"
         }
@@ -1146,7 +1147,12 @@
         "name": "Kampagne- og UTM-sporing"
       },
       "uptimeMonitoring": {
-        "name": "Oppetidsovervågning"
+        "name": "Oppetidsovervågning",
+        "values": {
+          "5": "5 overvågninger",
+          "50": "50 overvågninger",
+          "unlimited": "Ubegrænset overvågning"
+        }
       },
       "sslMonitoring": {
         "name": "SSL-certifikatovervågning"
@@ -1156,6 +1162,9 @@
       },
       "customHttpMethods": {
         "name": "GET/POST HTTP-metoder"
+      },
+      "customRequestHeaders": {
+        "name": "Brugerdefinerede request headers"
       },
       "customStatusCodes": {
         "name": "Brugerdefinerede statuskoder"
