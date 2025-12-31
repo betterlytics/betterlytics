@@ -1,8 +1,9 @@
+// Internal component - use AnimatedNumber instead
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 
-interface AnimatedDigitProps {
+interface DigitReelProps {
   digit: number;
   prevDigit: number | null;
   duration?: number;
@@ -19,14 +20,14 @@ const EASING_MAP = {
 
 const ENTER_EXIT_EASING = 'ease-out';
 
-export function AnimatedDigit({
+export function DigitReel({
   digit,
   prevDigit,
   duration = 1000,
   easing = 'spring',
   isExiting = false,
   onExitComplete,
-}: AnimatedDigitProps) {
+}: DigitReelProps) {
   const reelRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLSpanElement>(null);
   const [enterState, setEnterState] = useState<'idle' | 'entering' | 'done'>('idle');
@@ -34,7 +35,7 @@ export function AnimatedDigit({
 
   const slideDuration = Math.round(duration / 3);
 
-  // Generate digits above and below current (motion.dev structure)
+  // Generate digits above and below current
   const digitsAbove = Array.from({ length: digit }, (_, i) => i);
   const digitsBelow = Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i);
 
@@ -150,13 +151,11 @@ export function AnimatedDigit({
     padding: 'calc(var(--mask-height, 0.15em) / 2) 0',
   };
 
-  // Container style
   const containerStyle: React.CSSProperties = {
     display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
     width: 'var(--digit-width, 0.65em)',
-    // Vertical headroom for roll animation
     padding: 'var(--mask-height, 0.3em) 0',
     margin: 'calc(-1 * var(--mask-height, 0.3em)) 0',
     overflow: 'hidden',
@@ -164,7 +163,6 @@ export function AnimatedDigit({
     transformOrigin: 'left center',
   };
 
-  // Reel structure matching motion.dev
   const reelStyle: React.CSSProperties = {
     display: 'inline-flex',
     justifyContent: 'center',
@@ -195,35 +193,22 @@ export function AnimatedDigit({
   };
 
   return (
-    <span
-      ref={containerRef}
-      style={containerStyle}
-    >
-      {/* Reel with above/current/below structure */}
+    <span ref={containerRef} style={containerStyle}>
       <span ref={reelRef} style={reelStyle} aria-hidden="true">
-        {/* Digits above current */}
         {(isExitingNow || isEntering || prevDigit !== null) && (
           <span style={aboveStyle}>
             {digitsAbove.map((d) => (
-              <span key={`above-${d}`} style={digitStyle}>
-                {d}
-              </span>
+              <span key={`above-${d}`} style={digitStyle}>{d}</span>
             ))}
           </span>
         )}
 
-        {/* Current digit */}
-        <span style={digitStyle}>
-          {digit}
-        </span>
+        <span style={digitStyle}>{digit}</span>
 
-        {/* Digits below current */}
         {(isExitingNow || isEntering || prevDigit !== null) && (
           <span style={belowStyle}>
             {digitsBelow.map((d) => (
-              <span key={`below-${d}`} style={digitStyle}>
-                {d}
-              </span>
+              <span key={`below-${d}`} style={digitStyle}>{d}</span>
             ))}
           </span>
         )}

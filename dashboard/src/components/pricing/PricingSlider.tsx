@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
 import { useTranslations } from 'next-intl';
-import { AnimatedNumber } from '@/components/AnimatedNumber';
+import { AnimatedNumber } from '@/components/animations';
 
 interface PricingSliderProps {
   currentRange: EventRange;

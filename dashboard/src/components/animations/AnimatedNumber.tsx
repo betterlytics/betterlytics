@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { AnimatedDigit } from './AnimatedDigit';
+import { DigitReel } from './DigitReel';
 
 interface AnimatedNumberProps {
   value: number;
@@ -25,6 +25,7 @@ function generateId() {
   return `digit-${++instanceCounter}`;
 }
 
+// Zero-width space for maintaining proper inline-flex sizing
 const ZWSP = '\u200B';
 const ENTER_EXIT_EASING = 'ease-out';
 
@@ -42,22 +43,12 @@ export function AnimatedNumber({
 
   const slideDuration = Math.round(duration / 3);
 
-  // Count of active (non-exiting) digits for container width
   const activeDigitCount = digitStates.filter(d => !d.isExiting).length;
-  
-  // Detect if we have entering or exiting digits
   const hasExitingDigits = digitStates.some(d => d.isExiting);
   const hasEnteringDigits = digitStates.some(d => d.isEntering);
 
   const removeExitingDigit = useCallback((id: string) => {
     setDigitStates((prev) => prev.filter((d) => d.id !== id));
-  }, []);
-
-  // Mark entering digits as done entering after animation
-  const markEnterComplete = useCallback((id: string) => {
-    setDigitStates((prev) => prev.map((d) => 
-      d.id === id ? { ...d, isEntering: false } : d
-    ));
   }, []);
 
   useEffect(() => {
@@ -88,11 +79,7 @@ export function AnimatedNumber({
       const existingState = digitMapRef.current.get(posFromRight);
 
       if (hasNewDigit) {
-        // Always reuse existing component ID if one exists at this position
-        // This ensures exiting digits can cancel their exit when value changes back
         const id = existingState ? existingState.id : generateId();
-        
-        // Only mark as entering if this is a truly new digit (no existing state at all)
         const isNewlyEntering = !existingState && !hasOldDigit;
         
         const state: DigitState = {
@@ -132,25 +119,19 @@ export function AnimatedNumber({
     const isDigitCountChanging = hasEnteringDigits || hasExitingDigits;
     
     if (isDigitCountChanging) {
-      // Apply X transform to the entire container
-      // On enter: start offset left, animate to center
-      // On exit: start at center, animate offset left (toward mask edge)
       if (hasEnteringDigits) {
-        // Enter: start offset, animate to normal
         section.style.transition = 'none';
         section.style.transform = 'translate3d(calc(-0.33 * var(--digit-width, 0.65em)), 0, 0) scale(1.02, 1)';
-        section.offsetHeight; // Force reflow
+        section.offsetHeight;
         section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
         section.style.width = `calc(${activeDigitCount} * var(--digit-width, 0.65em))`;
         section.style.transform = 'none';
       } else if (hasExitingDigits) {
-        // Exit: start normal, animate with offset
         section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
         section.style.width = `calc(${activeDigitCount} * var(--digit-width, 0.65em))`;
         section.style.transform = 'translate3d(calc(-0.33 * var(--digit-width, 0.65em)), 0, 0) scale(0.98, 1)';
       }
       
-      // Reset transform after animation
       const timer = setTimeout(() => {
         if (section) {
           section.style.transition = 'none';
@@ -160,13 +141,11 @@ export function AnimatedNumber({
       
       return () => clearTimeout(timer);
     } else {
-      // No entering/exiting - just update width without transform
       section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}`;
       section.style.width = `calc(${activeDigitCount} * var(--digit-width, 0.65em))`;
     }
   }, [activeDigitCount, hasEnteringDigits, hasExitingDigits, slideDuration]);
 
-  // Mask styles exactly matching motion.dev structure
   const maskStyle: React.CSSProperties = {
     display: 'inline-flex',
     position: 'relative',
@@ -194,12 +173,11 @@ export function AnimatedNumber({
     maskRepeat: 'no-repeat',
   } as React.CSSProperties;
 
-  // Integer section with animated width and X transform
   const integerSectionStyle: React.CSSProperties = {
     display: 'inline-flex',
     justifyContent: 'right',
     width: `calc(${activeDigitCount} * var(--digit-width, 0.65em))`,
-    transformOrigin: 'left center', // Transform from left edge (mask edge)
+    transformOrigin: 'left center',
   };
 
   return (
@@ -249,7 +227,7 @@ export function AnimatedNumber({
             <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
               {ZWSP}
               {digitStates.map((state) => (
-                <AnimatedDigit
+                <DigitReel
                   key={state.id}
                   digit={state.digit}
                   prevDigit={state.prevDigit}
