@@ -89,7 +89,7 @@ export const BROWSERS: Record<string, BrowserDef> = {
   google: {
     label: 'Google',
     localFile: 'google.svg',
-    match: [/google\s+search/],
+    match: [/google\s+search/, /google/],
   },
   twitter: {
     label: 'Twitter',
@@ -99,7 +99,7 @@ export const BROWSERS: Record<string, BrowserDef> = {
   facebook: {
     label: 'Facebook',
     localFile: 'facebook.svg',
-    match: [/\bfbios\b/],
+    match: [/\bfbios\b/, /facebook/],
   },
   appleMail: {
     label: 'Apple Mail',
