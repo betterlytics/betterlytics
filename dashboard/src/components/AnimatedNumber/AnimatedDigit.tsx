@@ -38,7 +38,7 @@ export function AnimatedDigit({
   const digitsAbove = Array.from({ length: digit }, (_, i) => i);
   const digitsBelow = Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i);
 
-  // Reset states when component is reused
+  // Reset states when component is reused (e.g., exit cancelled)
   useEffect(() => {
     if (!isExiting && exitState !== 'idle') {
       setExitState('idle');
@@ -53,36 +53,38 @@ export function AnimatedDigit({
         container.style.transition = 'none';
         container.style.position = 'relative';
         container.style.left = 'auto';
+        container.style.opacity = '1';
         container.style.transform = 'none';
       }
     }
   }, [isExiting, exitState]);
 
-  // Handle exit animation - become absolute and slide out toward left edge
+  // Handle exit animation
+  // Digit becomes absolute and slides LEFT into the mask fade zone while rolling
   useEffect(() => {
     if (isExiting && exitState === 'idle') {
       const reel = reelRef.current;
       const container = containerRef.current;
       
       if (container) {
-        // Get current position before becoming absolute
+        // Record current position before going absolute
         const rect = container.getBoundingClientRect();
-        const parentRect = container.parentElement?.getBoundingClientRect();
-        const leftOffset = parentRect ? rect.left - parentRect.left : 0;
+        const parentRect = container.offsetParent?.getBoundingClientRect();
+        const leftPos = parentRect ? rect.left - parentRect.left : 0;
         
-        // Become absolute positioned - this removes it from layout flow
-        // The container width will shrink and push other digits to fill the gap
+        // Become absolute - removes from layout flow
         container.style.position = 'absolute';
-        container.style.left = `${leftOffset}px`;
-        container.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+        container.style.left = `${leftPos}px`;
+        container.offsetHeight; // Force reflow
         
-        // Slide out toward left edge (negative X) and fade
-        container.style.transform = 'translate3d(calc(-0.5 * var(--digit-width, 0.65em)), 0, 0) scale(1.02, 1)';
+        // Slide LEFT toward the mask edge (into the fade gradient zone)
+        container.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+        container.style.transform = 'translateX(calc(-1 * var(--mask-width, 0.5em)))';
         container.style.opacity = '0';
       }
       
       if (reel) {
-        // Roll the reel
+        // Roll the reel (Y transform)
         reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
         reel.style.transform = 'translateY(100%)';
       }
@@ -96,28 +98,15 @@ export function AnimatedDigit({
     }
   }, [isExiting, exitState, slideDuration, onExitComplete]);
 
-  // Handle enter animation - start collapsed, roll UP into view
+  // Handle enter animation - roll UP into view
   useEffect(() => {
     if (isExiting) return;
 
     if (prevDigit === null && enterState === 'idle') {
       const reel = reelRef.current;
-      const container = containerRef.current;
-      
-      if (container) {
-        // Start with offset and scale
-        container.style.transition = 'none';
-        container.style.transform = 'translate3d(calc(-0.33 * var(--digit-width, 0.65em)), 0, 0) scale(1.02, 1)';
-        container.style.opacity = '0';
-        container.offsetHeight; // Force reflow
-        // Animate to normal
-        container.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        container.style.transform = 'none';
-        container.style.opacity = '1';
-      }
       
       if (reel) {
-        // Start showing digit below and roll UP into view
+        // Start below and roll UP into view
         reel.style.transition = 'none';
         reel.style.transform = 'translateY(100%)';
         reel.offsetHeight; // Force reflow
@@ -131,7 +120,7 @@ export function AnimatedDigit({
     }
   }, [prevDigit, enterState, slideDuration, isExiting]);
 
-  // Handle roll animation (digit changes)
+  // Handle roll animation (digit changes without enter/exit)
   useEffect(() => {
     if (isExiting) return;
     if (prevDigit === null) return;
@@ -161,7 +150,7 @@ export function AnimatedDigit({
     padding: 'calc(var(--mask-height, 0.15em) / 2) 0',
   };
 
-  // Container handles positioning - motion.dev style
+  // Container style
   const containerStyle: React.CSSProperties = {
     display: 'inline-flex',
     justifyContent: 'center',
@@ -172,8 +161,7 @@ export function AnimatedDigit({
     margin: 'calc(-1 * var(--mask-height, 0.3em)) 0',
     overflow: 'hidden',
     willChange: 'transform, opacity',
-    transformOrigin: '50% 50% 0px',
-    // Opacity handled by JS animations, not React state
+    transformOrigin: 'left center',
   };
 
   // Reel structure matching motion.dev
@@ -211,9 +199,9 @@ export function AnimatedDigit({
       ref={containerRef}
       style={containerStyle}
     >
-      {/* Reel with above/current/below structure - matches motion.dev */}
+      {/* Reel with above/current/below structure */}
       <span ref={reelRef} style={reelStyle} aria-hidden="true">
-        {/* Digits above current (position: absolute at bottom: 100%) */}
+        {/* Digits above current */}
         {(isExitingNow || isEntering || prevDigit !== null) && (
           <span style={aboveStyle}>
             {digitsAbove.map((d) => (
@@ -224,12 +212,12 @@ export function AnimatedDigit({
           </span>
         )}
 
-        {/* Current digit - in normal flow, sets the reel height */}
+        {/* Current digit */}
         <span style={digitStyle}>
           {digit}
         </span>
 
-        {/* Digits below current (position: absolute at top: 100%) */}
+        {/* Digits below current */}
         {(isExitingNow || isEntering || prevDigit !== null) && (
           <span style={belowStyle}>
             {digitsBelow.map((d) => (
