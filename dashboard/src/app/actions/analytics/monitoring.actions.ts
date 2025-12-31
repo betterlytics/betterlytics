@@ -11,8 +11,7 @@ import {
   updateMonitorCheck,
   deleteMonitorCheck,
   checkMonitorUrlExists,
-} from '@/services/analytics/monitoring.service';
-import {
+  countMonitorChecks,
   fetchLatestMonitorTlsResult,
   fetchMonitorDailyUptime,
   fetchMonitorIncidentSegments,
@@ -24,6 +23,7 @@ import { revalidatePath } from 'next/cache';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { UserException } from '@/lib/exceptions';
+import { getCapabilities, requireCapability } from '@/lib/billing/capabilityAccess';
 import z from 'zod';
 
 export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext, timezone: string) => {
@@ -50,6 +50,32 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       throw new UserException(t('monitorAlreadyExists'));
     }
 
+    const caps = await getCapabilities();
+
+    const currentMonitorCount = await countMonitorChecks(ctx.dashboardId);
+    requireCapability(currentMonitorCount < caps.monitoring.maxMonitors, t('capabilities.monitorLimit'));
+
+    requireCapability(
+      payload.intervalSeconds >= caps.monitoring.minIntervalSeconds,
+      t('capabilities.minInterval'),
+    );
+
+    if (payload.httpMethod !== undefined && payload.httpMethod !== 'HEAD') {
+      requireCapability(caps.monitoring.httpMethodConfigurable, t('capabilities.httpMethod'));
+    }
+
+    if (payload.acceptedStatusCodes !== undefined) {
+      const isDefault = payload.acceptedStatusCodes.length === 1 && payload.acceptedStatusCodes[0] === '2xx';
+      if (!isDefault) {
+        requireCapability(caps.monitoring.customStatusCodes, t('capabilities.statusCodes'));
+      }
+    }
+
+    const hasCustomHeaders = payload.requestHeaders?.some((h) => h.key.trim() !== '' || h.value.trim() !== '');
+    if (hasCustomHeaders) {
+      requireCapability(caps.monitoring.customHeaders, t('capabilities.customHeaders'));
+    }
+
     const created = await addMonitorCheck(ctx.dashboardId, {
       ...payload,
       alertEmails: [(await getCachedSession())!.user.email],
@@ -62,7 +88,34 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
 
 export const updateMonitorCheckAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof MonitorCheckUpdateSchema>) => {
+    const t = await getTranslations('validation');
     const payload = MonitorCheckUpdateSchema.parse(input);
+    const caps = await getCapabilities();
+
+    if (payload.intervalSeconds !== undefined) {
+      requireCapability(
+        payload.intervalSeconds >= caps.monitoring.minIntervalSeconds,
+        t('capabilities.minInterval'),
+      );
+    }
+
+    if (payload.httpMethod !== undefined && payload.httpMethod !== 'HEAD') {
+      requireCapability(caps.monitoring.httpMethodConfigurable, t('capabilities.httpMethod'));
+    }
+
+    if (payload.acceptedStatusCodes !== undefined) {
+      const isDefault = payload.acceptedStatusCodes.length === 1 && payload.acceptedStatusCodes[0] === '2xx';
+      if (!isDefault) {
+        requireCapability(caps.monitoring.customStatusCodes, t('capabilities.statusCodes'));
+      }
+    }
+
+    if (payload.requestHeaders != null) {
+      const hasCustomHeaders = payload.requestHeaders.some((h) => h.key.trim() !== '' || h.value.trim() !== '');
+      if (hasCustomHeaders) {
+        requireCapability(caps.monitoring.customHeaders, t('capabilities.customHeaders'));
+      }
+    }
 
     const updated = await updateMonitorCheck(ctx.dashboardId, payload);
 

@@ -13,6 +13,7 @@ import { FilterSelectValue } from './components';
 import { MonitoringEmptyState } from './MonitoringEmptyState';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { computeDaysUntil } from '@/utils/dateHelpers';
+import { useCapabilities } from '@/hooks/useCapabilities';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -83,6 +84,12 @@ type MonitoringClientProps = {
 
 export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringClientProps) {
   const t = useTranslations('monitoringPage');
+  const { caps } = useCapabilities();
+
+  const monitorCount = monitors.length;
+  const maxMonitors = caps.monitoring.maxMonitors;
+  const atMonitorLimit = monitorCount >= maxMonitors;
+
   const filtersCopy = useMemo<FiltersCopy>(
     () => ({
       statusLabel: t('filters.statusLabel'),
@@ -252,6 +259,9 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
                 domain={domain}
                 existingUrls={monitors.map((m) => m.url)}
                 disabled={disabled}
+                monitorCount={monitorCount}
+                maxMonitors={maxMonitors}
+                atLimit={atMonitorLimit}
               />
             )}
           </DisabledDemoTooltip>

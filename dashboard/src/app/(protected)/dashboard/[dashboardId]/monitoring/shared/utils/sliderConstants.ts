@@ -1,4 +1,5 @@
 import { type SliderMark } from '@/components/inputs/LabeledSlider';
+import { MONITOR_DEFAULTS } from '@/entities/analytics/monitoring.entities';
 
 export const MONITOR_INTERVAL_MARKS = [
   ...Array.from({ length: 59 }, (_, i) => (i + 1) * 60),
@@ -9,6 +10,7 @@ export const REQUEST_TIMEOUT_MARKS = Array.from({ length: 30 }, (_, i) => (i + 1
 
 export const INTERVAL_DISPLAY_MARKS: SliderMark[] = [
   { idx: 0, label: '1m' },
+  { idx: 4, label: '5m' },
   { idx: 14, label: '15m' },
   { idx: 29, label: '30m' },
   { idx: 59, label: '1h' },
@@ -43,10 +45,10 @@ export const SSL_EXPIRY_DISPLAY_MARKS: SliderMark[] = [
   { idx: 4, label: '30d' },
 ];
 
-export const RECOMMENDED_INTERVAL_SECONDS = 60;
-export const RECOMMENDED_TIMEOUT_MS = 3000;
-export const RECOMMENDED_FAILURE_THRESHOLD = 3;
-export const RECOMMENDED_SSL_EXPIRY_DAYS = 14;
+export const RECOMMENDED_INTERVAL_SECONDS = MONITOR_DEFAULTS.intervalSeconds;
+export const RECOMMENDED_TIMEOUT_MS = MONITOR_DEFAULTS.timeoutMs;
+export const RECOMMENDED_FAILURE_THRESHOLD = MONITOR_DEFAULTS.failureThreshold;
+export const RECOMMENDED_SSL_EXPIRY_DAYS = MONITOR_DEFAULTS.sslExpiryAlertDays;
 
 export function nearestIndex(values: number[], target: number): number {
   let bestIdx = 0;

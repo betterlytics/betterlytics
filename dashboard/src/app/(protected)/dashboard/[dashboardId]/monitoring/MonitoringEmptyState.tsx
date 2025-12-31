@@ -5,6 +5,7 @@ import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { Card } from '@/components/ui/card';
 import { LiveIndicator } from '@/components/live-indicator';
 import { RefreshCcw } from 'lucide-react';
+import { useCapabilities } from '@/hooks/useCapabilities';
 
 type MonitoringEmptyStateProps = {
   dashboardId: string;
@@ -85,6 +86,8 @@ function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
 export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptyStateProps) {
   const t = useTranslations('monitoringPage.emptyState');
   const tList = useTranslations('monitoringPage.list');
+  const { caps } = useCapabilities();
+  const maxMonitors = caps.monitoring.maxMonitors;
 
   return (
     <div className='relative mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center px-4 pt-14 pb-4 sm:justify-center sm:py-4'>
@@ -99,7 +102,14 @@ export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptySta
           <p className='text-muted-foreground mx-auto max-w-md text-sm leading-relaxed'>{t('description')}</p>
         </div>
         <div className='flex justify-center'>
-          <CreateMonitorDialog dashboardId={dashboardId} domain={domain} existingUrls={[]} />
+          <CreateMonitorDialog
+            dashboardId={dashboardId}
+            domain={domain}
+            existingUrls={[]}
+            monitorCount={0}
+            maxMonitors={maxMonitors}
+            atLimit={false}
+          />
         </div>
       </div>
 

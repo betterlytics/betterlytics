@@ -39,7 +39,7 @@ export const StatusCodeValueSchema = z.union([
 
 export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
-  intervalSeconds: z.number().int().min(60).max(3600).default(60),
+  intervalSeconds: z.number().int().min(60).max(3600).default(300),
   timeoutMs: z.number().int().min(500).max(120_000).default(3000),
   isEnabled: z.boolean().default(true),
   checkSslErrors: z.boolean().default(true),
@@ -58,6 +58,13 @@ export const MonitorCheckBaseSchema = z.object({
   sslExpiryAlertDays: z.number().int().min(1).max(90).default(14),
   failureThreshold: z.number().int().min(1).max(10).default(3),
 });
+
+export const MONITOR_DEFAULTS = MonitorCheckBaseSchema.parse({}) as {
+  intervalSeconds: number;
+  timeoutMs: number;
+  failureThreshold: number;
+  sslExpiryAlertDays: number;
+};
 
 export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({
   url: z

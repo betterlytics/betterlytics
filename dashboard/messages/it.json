@@ -1138,6 +1138,11 @@
     "createCard": {
       "title": "Crea dashboard",
       "description": "Aggiungi una nuova dashboard"
+    },
+    "upgradeCard": {
+      "title": "Ti servono più dashboard?",
+      "description": "Pro supporta fino a 50 siti",
+      "cta": "Passa a Pro"
     }
   },
   "monitoring": {
@@ -1179,7 +1184,6 @@
     "labels": {
       "noData": "Nessun dato",
       "uptimeSuffix": "uptime",
-      "recommended": "consigliato",
       "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}",
       "hoursLeft": "{count, plural, one {{count}h rimanente} other {{count}h rimanenti}}",
       "daysLeftFull": "{count, plural, one {Scade tra {count} giorno} other {Scade tra {count} giorni}}",
@@ -1263,6 +1267,7 @@
     },
     "form": {
       "create": "Nuovo monitor",
+      "upgradeToCreate": "Upgrade per altri",
       "title": "Crea monitor",
       "description": "Monitora un endpoint per uptime, latenza e stato SSL.",
       "fields": {
@@ -1601,6 +1606,16 @@
         },
         "limitTooltip": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
       }
+    },
+    "slider": {
+      "recommended": "consigliato"
+    },
+    "proFeature": {
+      "badge": "PRO",
+      "upgradeRequired": "Passa a Pro per sbloccare questa funzione",
+      "intervalLocked": "Intervalli di monitoraggio più rapidi richiedono Pro",
+      "upgradeDescription": "Aggiorna il tuo piano per accedere alle funzionalità avanzate",
+      "upgrade": "Aggiorna"
     },
     "billing": {
       "navigation": {
@@ -2556,7 +2571,15 @@
   "validation": {
     "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
     "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
-    "monitorAlreadyExists": "Esiste già un monitor per questo URL"
+    "monitorAlreadyExists": "Esiste già un monitor per questo URL",
+    "capabilities": {
+      "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
+      "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
+      "minInterval": "Intervalli di monitoraggio più veloci richiedono un piano Professional",
+      "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
+      "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
+      "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional"
+    }
   },
   "banners": {
     "verifyEmail": {
