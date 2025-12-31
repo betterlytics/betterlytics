@@ -11,6 +11,7 @@ import {
   ExternalLink as ExternalLinkIcon,
   Gauge,
   Video,
+  Activity,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -82,7 +83,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
     { name: t('geography'), key: 'geography', href: '/geography', icon: <Globe size={18} /> },
     { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={18} /> },
     { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} />, hidden: isDemo },
-    { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
   ];
 
   const behaviorItems: SidebarItem[] = [
@@ -96,6 +96,17 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       icon: <Video size={18} />,
       hidden: !isFeatureEnabled('enableSessionReplay') || isDemo,
       hideOnMobile: true,
+    },
+  ];
+
+  const observabilityItems: SidebarItem[] = [
+    { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
+    {
+      name: t('monitoring'),
+      key: 'monitoring',
+      href: '/monitoring',
+      icon: <Activity size={18} />,
+      hidden: !isFeatureEnabled('enableUptimeMonitoring'),
     },
   ];
 
@@ -129,7 +140,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Analytics</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('categories.analytics')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {analyticsItems
@@ -149,7 +160,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Behavior</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('categories.behavior')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {behaviorItems
@@ -171,6 +182,34 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         </div>
 
                         {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
+                      </FilterPreservingLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>{t('categories.observability')}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {observabilityItems
+                .filter((item) => !item.hidden)
+                .map((item) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton asChild>
+                      <FilterPreservingLink
+                        href={item.href}
+                        highlightOnPage
+                        className='flex items-center justify-between'
+                      >
+                        <div className='flex items-center gap-2'>
+                          <span>{item.icon}</span>
+                          <span>{item.name}</span>
+                        </div>
+
+                        {item.key === 'monitoring' && <Badge variant='outline'>Beta</Badge>}
                       </FilterPreservingLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

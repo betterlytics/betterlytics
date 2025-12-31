@@ -12,6 +12,7 @@ export const featureFlags = {
   enableBilling: env.ENABLE_BILLING,
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
   enableBugReports: env.IS_CLOUD,
+  enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {

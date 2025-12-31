@@ -42,51 +42,51 @@ export function formatDuration(seconds: number): string {
   return parts.join(' ');
 }
 
-// Helper function to format time ago in a user-friendly way
-export function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+/**
+ * Formats elapsed time from a start date to now in a compact two-unit format.
+ * Examples: "2d 14h", "5h 32m", "45m", "< 1m"
+ */
+export function formatElapsedTime(startDate: Date): string {
+  const diffMs = Date.now() - startDate.getTime();
+  const totalMinutes = Math.max(0, Math.floor(diffMs / 60000));
+  const totalHours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalHours / 24);
 
-  if (diffDays > 0) {
-    return `${diffDays}d ago`;
-  } else if (diffHours > 0) {
-    return `${diffHours}h ago`;
-  } else if (diffMinutes > 0) {
-    return `${diffMinutes}m ago`;
-  } else {
-    return 'Recently';
+  if (days > 0) {
+    const hoursRemainder = totalHours % 24;
+    return hoursRemainder > 0 ? `${days}d ${hoursRemainder}h` : `${days}d`;
   }
+  if (totalHours > 0) {
+    const minutesRemainder = totalMinutes % 60;
+    return minutesRemainder > 0 ? `${totalHours}h ${minutesRemainder}m` : `${totalHours}h`;
+  }
+  if (totalMinutes > 0) {
+    return `${totalMinutes}m`;
+  }
+  return '< 1m';
+}
+
+/**
+ * Formats seconds as a compact single-unit duration string.
+ * Uses only the largest applicable unit without breakdown.
+ * Examples: 30 → "30s", 120 → "2m", 3600 → "1h", 86400 → "1d"
+ */
+export function formatCompactDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = seconds / 60;
+  if (minutes < 60) return `${minutes}m`;
+  const hours = minutes / 60;
+  if (hours < 24) return `${hours}h`;
+  const days = hours / 24;
+  return `${days}d`;
 }
 
 /**
  * Formats seconds as either full seconds (two decimals) or milliseconds when < 1 second.
  * Examples: 1.02 seconds, 1.20 seconds, 800 ms, 340 ms
  */
-export function formatShortSeconds(seconds: number): string {
-  if (!Number.isFinite(seconds)) return '-';
-  if (Math.abs(seconds) < 1) {
-    const ms = Math.round(seconds * 1000);
-    return `${ms} ms`;
-  }
-  return `${new Intl.NumberFormat(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(seconds)} seconds`;
-}
-
-/**
- * Formats milliseconds as a short human string, using seconds or ms as appropriate.
- */
-export function formatShortFromMilliseconds(milliseconds: number): string {
-  return formatShortSeconds(milliseconds / 1000);
-}
-
-// Compact duration formatters (short units: s/ms)
 export function formatCompactSeconds(seconds: number): string {
-  if (!Number.isFinite(seconds)) return '-';
+  if (!Number.isFinite(seconds)) return '—';
   if (Math.abs(seconds) < 1) {
     return `${Math.round(seconds * 1000)} ms`;
   }
@@ -96,7 +96,10 @@ export function formatCompactSeconds(seconds: number): string {
   }).format(seconds)} s`;
 }
 
-export function formatCompactFromMilliseconds(milliseconds: number): string {
+export function formatCompactFromMilliseconds(milliseconds: number | null | undefined): string {
+  if (milliseconds == null || typeof milliseconds !== 'number' || !Number.isFinite(milliseconds)) {
+    return '—';
+  }
   return formatCompactSeconds(milliseconds / 1000);
 }
 
@@ -124,6 +127,15 @@ export function formatDurationPrecise(ms: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}m ${seconds}s`;
+}
+
+export function formatTimeLeft(daysLeft: number | null): { value: string; unit: string } {
+  if (daysLeft == null) {
+    return { value: '—', unit: '' };
+  }
+  const roundedDays = Math.max(0, Math.round(daysLeft));
+  const unit = roundedDays === 1 ? 'day' : 'days';
+  return { value: `${roundedDays}`, unit };
 }
 
 // Formats a date/time to a locale-aware human-readable string

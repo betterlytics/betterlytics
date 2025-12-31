@@ -16,7 +16,7 @@ export default function BAMobileSidebarTrigger() {
   }, [pathname]);
 
   return (
-    <div className='bg-background fixed bottom-10 left-6 z-600 h-fit w-fit rounded-md'>
+    <div className='bg-background fixed bottom-10 left-6 z-49 h-fit w-fit rounded-md'>
       <Button variant='outline' hidden={openMobile} className={cn(!isMobile && 'hidden')} onClick={toggleSidebar}>
         <MenuIcon />
       </Button>

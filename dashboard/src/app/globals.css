@@ -46,6 +46,28 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
+
+  --animate-shake: shake 0.4s ease-in-out;
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
 }
 
 :root {
@@ -63,6 +85,14 @@
   --sankey-node-stroke: #3b82f6;
   --sankey-node-fill-muted: rgba(107, 142, 245, 0.2);
   --sankey-node-stroke-muted: rgba(59, 130, 246, 0.2);
+
+  /* Sankey link colors */
+  --sankey-link-stroke: rgba(100, 116, 139, 0.45);
+  --sankey-link-stroke-middle: rgba(100, 116, 139, 0.32);
+  --sankey-link-highlight: rgba(59, 130, 246, 0.85);
+  --sankey-link-highlight-middle: rgba(59, 130, 246, 0.6);
+  --sankey-link-muted: rgba(100, 116, 139, 0.2);
+  --sankey-link-muted-middle: rgba(100, 116, 139, 0.12);
 
   /* Sankey node cards */
   --sankey-card-bg: rgba(255, 255, 255, 0.92);
@@ -154,6 +184,14 @@
   --sankey-node-stroke: #1d4ed8;
   --sankey-node-fill-muted: rgba(71, 102, 229, 0.2);
   --sankey-node-stroke-muted: rgba(29, 78, 216, 0.2);
+
+  /* Sankey link colors */
+  --sankey-link-stroke: rgba(148, 163, 184, 0.38);
+  --sankey-link-stroke-middle: rgba(148, 163, 184, 0.27);
+  --sankey-link-highlight: rgba(96, 165, 250, 0.87);
+  --sankey-link-highlight-middle: rgba(96, 165, 250, 0.67);
+  --sankey-link-muted: rgba(148, 163, 184, 0.19);
+  --sankey-link-muted-middle: rgba(148, 163, 184, 0.12);
 
   /* Sankey node cards */
   --sankey-card-bg: rgba(30, 41, 59, 0.85);
@@ -269,6 +307,30 @@
     }
     100% {
       transform: translateX(-50%);
+    }
+  }
+
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-3px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(3px);
     }
   }
 }

@@ -1,47 +1,63 @@
 use axum::{
-    extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, response::IntoResponse, routing::{get, post}, Json, Router
+    Json, Router,
+    extract::{ConnectInfo, State},
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
+    routing::{get, post},
 };
 use std::sync::Arc;
-use std::{net::SocketAddr, net::IpAddr, str::FromStr};
+use std::{net::IpAddr, net::SocketAddr, str::FromStr};
 use tower_http::cors::CorsLayer;
-use tracing::{info, error, warn, debug};
+use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-mod config;
 mod analytics;
+mod bot_detection;
+mod campaign;
+mod clickhouse;
+mod config;
 mod db;
-mod processing;
-mod session;
+mod email;
 mod geoip;
 mod geoip_updater;
-mod bot_detection;
-mod referrer;
-mod outbound_link;
-mod url_utils;
-mod campaign;
-mod ua_parser;
 mod metrics;
-mod validation;
-mod storage;
+mod monitor;
+mod outbound_link;
+mod postgres;
+mod processing;
+mod referrer;
+mod session;
 mod session_replay;
 mod site_config;
+mod storage;
+mod ua_parser;
+mod url_utils;
+mod utils;
+mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
+use clickhouse::ClickHouseClient;
 use db::{Database, SharedDatabase};
-use processing::EventProcessor;
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
-use validation::{EventValidator, ValidationConfig};
+use postgres::PostgresPool;
+use processing::EventProcessor;
+use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
-use site_config::{RefreshConfig, SiteConfigCache, SiteConfigRepository, SiteConfigDataSource};
+use validation::{EventValidator, ValidationConfig};
 
 #[tokio::main]
 async fn main() {
     let config = Arc::new(config::Config::new());
 
+    let log_filter_spec = format!(
+        "{},tokio_postgres=info,hyper_util=info,rustls=info",
+        config.log_level
+    );
+
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(&config.log_level))
+        .with(tracing_subscriber::EnvFilter::new(log_filter_spec))
         .with(tracing_subscriber::fmt::layer())
         .init();
 
@@ -49,15 +65,22 @@ async fn main() {
 
     ua_parser::initialize(&config.ua_regexes_path);
 
-    let ip_addr = config.server_host.parse::<std::net::IpAddr>()
-        .map_err(|e| format!("Invalid server host IP address '{}': {}", config.server_host, e))
+    let ip_addr = config
+        .server_host
+        .parse::<std::net::IpAddr>()
+        .map_err(|e| {
+            format!(
+                "Invalid server host IP address '{}': {}",
+                config.server_host, e
+            )
+        })
         .expect("Failed to parse server host IP address");
-    
+
     let addr = SocketAddr::from((ip_addr, config.server_port));
     info!("Server starting on {}", addr);
 
-    let (updater, geoip_watch_rx) = GeoIpUpdater::new(config.clone())
-        .expect("Failed to create GeoIP updater");
+    let (updater, geoip_watch_rx) =
+        GeoIpUpdater::new(config.clone()).expect("Failed to create GeoIP updater");
     let updater = Arc::new(updater);
 
     let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx)
@@ -68,7 +91,12 @@ async fn main() {
     let validation_config = ValidationConfig::default();
     let validator = Arc::new(EventValidator::new(validation_config));
 
-    let db = Database::new(config.clone()).await.expect("Failed to initialize database");
+    let clickhouse = Arc::new(ClickHouseClient::new(&config));
+    info!("ClickHouse client initialized");
+
+    let db = Database::new(Arc::clone(&clickhouse), config.clone())
+        .await
+        .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
     let db = Arc::new(db);
 
@@ -86,32 +114,46 @@ async fn main() {
     let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
+    let site_config_pool = Arc::new(
+        PostgresPool::new(
+            &config.site_config_database_url,
+            "betterlytics_site_config",
+            5,
+        )
+        .await
+        .expect("Failed to create site-config PostgreSQL pool"),
+    );
     let site_config_repo: Arc<dyn SiteConfigDataSource> = Arc::new(
-        SiteConfigRepository::new(&config.site_config_database_url)
-            .await
-            .expect("Failed to initialize site-config repository"),
+        SiteConfigRepository::new(Arc::clone(&site_config_pool)),
     );
 
     let refresh_config = RefreshConfig::default();
 
-    let site_cfg_cache = SiteConfigCache::initialize(
-        site_config_repo,
-        refresh_config,
-        metrics_collector.clone(),
-    )
-    .await
-    .expect("Failed to init SiteConfigCache");
+    let site_cfg_cache =
+        SiteConfigCache::initialize(site_config_repo, refresh_config, metrics_collector.clone())
+            .await
+            .expect("Failed to init SiteConfigCache");
+
+    if config.enable_uptime_monitoring {
+        monitor::spawn_monitoring(
+            config.clone(),
+            Arc::clone(&clickhouse),
+            metrics_collector.clone(),
+        );
+    } else {
+        info!("uptime monitoring disabled by configuration");
+    }
 
     // Initialize optional S3 service for session replay storage
     let s3_service: Option<Arc<S3Service>> = match S3Service::from_config(config.clone()).await {
         Ok(Some(svc)) => {
             info!("S3 session storage enabled");
             Some(Arc::new(svc))
-        },
+        }
         Ok(None) => {
             info!("S3 session storage disabled");
             None
-        },
+        }
         Err(e) => {
             warn!("Failed to initialize S3 service: {}", e);
             None
@@ -136,24 +178,51 @@ async fn main() {
 
     if config.enable_session_replay {
         router = router
-            .route("/replay/presign/put", post(session_replay::presign_put_segment))
-            .route("/replay/finalize", post(session_replay::finalize_session_replay));
+            .route(
+                "/replay/presign/put",
+                post(session_replay::presign_put_segment),
+            )
+            .route(
+                "/replay/finalize",
+                post(session_replay::finalize_session_replay),
+            );
     } else {
         info!("Session replay endpoints disabled by configuration");
     }
 
     let app = router
-		.fallback(fallback_handler)
-        .with_state((db, processor, metrics_collector, validator, s3_service, site_cfg_cache.clone()))
-		.layer(CorsLayer::permissive());
+        .fallback(fallback_handler)
+        .with_state((
+            db,
+            processor,
+            metrics_collector,
+            validator,
+            s3_service,
+            site_cfg_cache.clone(),
+        ))
+        .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
-    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.unwrap();
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .unwrap();
 }
 
+
+
 async fn health_check(
-    State((db, _, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
+    State((db, _, _, _, _, _)): State<(
+        SharedDatabase,
+        Arc<EventProcessor>,
+        Option<Arc<MetricsCollector>>,
+        Arc<EventValidator>,
+        Option<Arc<S3Service>>,
+        Arc<SiteConfigCache>,
+    )>,
 ) -> Result<impl IntoResponse, String> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
@@ -168,37 +237,47 @@ async fn health_check(
 }
 
 async fn track_event(
-    State((_db, processor, metrics, validator, _s3, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
+    State((_db, processor, metrics, validator, _s3, site_cfg_cache)): State<(
+        SharedDatabase,
+        Arc<EventProcessor>,
+        Option<Arc<MetricsCollector>>,
+        Arc<EventValidator>,
+        Option<Arc<S3Service>>,
+        Arc<SiteConfigCache>,
+    )>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
     Json(raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
-    
+
     let ip_address = parse_ip(headers).unwrap_or(addr.ip()).to_string();
-    
+
     let validation_start = std::time::Instant::now();
 
     // Validate and sanitize event
-    let validated_event = match validator.validate_event(raw_event, ip_address.clone()).await {
+    let validated_event = match validator
+        .validate_event(raw_event, ip_address.clone())
+        .await
+    {
         Ok(validated) => validated,
         Err(e) => {
             debug!(reason = %validator.get_rejection_reason(&e), "validation failed");
             if let Some(metrics_collector) = &metrics {
                 metrics_collector.increment_events_rejected(&validator.get_rejection_reason(&e));
             }
-            
+
             warn!("Event validation failed: {}", e);
-            
+
             let status = match &e {
                 validation::ValidationError::PayloadTooLarge(_) => StatusCode::PAYLOAD_TOO_LARGE,
                 _ => StatusCode::BAD_REQUEST,
             };
-            
+
             return Err((status, e.to_string()));
         }
     };
-    
+
     if let Some(metrics_collector) = &metrics {
         metrics_collector.record_validation_duration(validation_start.elapsed());
     }
@@ -208,7 +287,8 @@ async fn track_event(
         &validated_event.raw.site_id,
         &validated_event.raw.url,
         &validated_event.ip_address,
-    ).await;
+    )
+    .await;
 
     if let Err(e) = site_policy_result {
         debug!(reason = %validator.get_rejection_reason(&e), "site-config validation failed");
@@ -226,7 +306,7 @@ async fn track_event(
         error!("Failed to process validated event: {}", e);
         return Ok(StatusCode::OK);
     }
-    
+
     if let Some(metrics_collector) = metrics {
         let processing_duration = start_time.elapsed();
         metrics_collector.increment_events_processed();
@@ -237,19 +317,27 @@ async fn track_event(
 }
 
 async fn metrics_handler(
-    State((_, _, metrics, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
+    State((_, _, metrics, _, _, _)): State<(
+        SharedDatabase,
+        Arc<EventProcessor>,
+        Option<Arc<MetricsCollector>>,
+        Arc<EventValidator>,
+        Option<Arc<S3Service>>,
+        Arc<SiteConfigCache>,
+    )>,
 ) -> impl IntoResponse {
     match metrics {
-        Some(metrics_collector) => {
-            match metrics_collector.export_metrics() {
-                Ok(metrics_str) => (StatusCode::OK, metrics_str),
-                Err(e) => {
-                    error!("Failed to export metrics: {}", e);
-                    (StatusCode::INTERNAL_SERVER_ERROR, "Failed to export metrics".to_string())
-                }
+        Some(metrics_collector) => match metrics_collector.export_metrics() {
+            Ok(metrics_str) => (StatusCode::OK, metrics_str),
+            Err(e) => {
+                error!("Failed to export metrics: {}", e);
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Failed to export metrics".to_string(),
+                )
             }
-        }
-        None => (StatusCode::NOT_FOUND, "Metrics disabled".to_string())
+        },
+        None => (StatusCode::NOT_FOUND, "Metrics disabled".to_string()),
     }
 }
 
@@ -277,4 +365,3 @@ pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
 async fn generate_site_id_handler() -> impl IntoResponse {
     Json(generate_site_id())
 }
-
