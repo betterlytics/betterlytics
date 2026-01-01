@@ -27,7 +27,7 @@ export default function DevicesChartsSection({
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   return (
-    <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
+    <div className='gap-section grid grid-cols-1 xl:grid-cols-8'>
       <Card variant='section' minHeight='chart' className='xl:col-span-5'>
         <CardHeader>
           <CardTitle>{t('deviceUsageTrend')}</CardTitle>

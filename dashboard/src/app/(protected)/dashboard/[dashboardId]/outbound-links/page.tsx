@@ -62,7 +62,7 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
         <DashboardFilters />
       </DashboardHeader>
 
-      <div className='grid grid-cols-1 gap-4 xl:grid-cols-3'>
+      <div className='gap-section grid grid-cols-1 xl:grid-cols-3'>
         <Suspense fallback={<ChartSkeleton />}>
           <OutboundLinksPieChart distributionPromise={outboundLinksDistributionPromise} />
         </Suspense>

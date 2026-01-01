@@ -46,6 +46,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
+  --spacing-section: 1rem;
 
   --animate-shake: shake 0.4s ease-in-out;
 

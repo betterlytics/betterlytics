@@ -74,7 +74,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
       </Suspense>
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <div className='gap-section grid grid-cols-1 md:grid-cols-2'>
             <ChartSkeleton />
             <ChartSkeleton />
           </div>

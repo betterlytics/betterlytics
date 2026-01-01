@@ -106,7 +106,7 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
   const skeletonRowCount = pageSize || DEFAULT_PAGE_SIZE;
 
   return (
-    <div className='space-y-4 pb-8 md:pb-0'>
+    <div className='space-y-section pb-8 md:pb-0'>
       {showTopPagination && (
         <CompactPaginationControls
           pageIndex={safePageIndex}

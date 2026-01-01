@@ -18,7 +18,7 @@ export default function DevicesTablesSection({ browserStatsPromise, osStatsPromi
   const t = useTranslations('components.devices.tables');
 
   return (
-    <div className='grid grid-cols-1 gap-3 xl:grid-cols-2'>
+    <div className='gap-section grid grid-cols-1 xl:grid-cols-2'>
       <Card variant='section' minHeight='chart'>
         <CardHeader>
           <CardTitle>{t('topOperatingSystems')}</CardTitle>
