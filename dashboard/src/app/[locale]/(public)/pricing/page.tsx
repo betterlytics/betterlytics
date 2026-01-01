@@ -6,7 +6,6 @@ import { PricingComponent } from '@/components/pricing/PricingComponent';
 import { FeatureComparisonTable } from '@/components/pricing/FeatureComparisonTable';
 import { CoreFeaturesSection } from '@/components/pricing/CoreFeaturesSection';
 import { BillingFAQGrid } from '@/app/(protected)/billing/BillingFAQGrid';
-import { CtaStrip } from '@/app/[locale]/(public)/(landing)/components/ctaStrip';
 import { getTranslations } from 'next-intl/server';
 import { CheckCircle } from 'lucide-react';
 
@@ -54,10 +53,6 @@ export default async function PricingPage() {
 
         <section className='py-16'>
           <BillingFAQGrid />
-        </section>
-
-        <section className='pb-20'>
-          <CtaStrip />
         </section>
       </div>
     </>
