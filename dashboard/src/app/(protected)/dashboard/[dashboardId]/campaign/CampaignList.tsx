@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Button } from '@/components/ui';
-import { Stack } from '@/components/layout';
+import { Stack, Inline } from '@/components/layout';
+import { ColumnHeader, Value, Caption } from '@/components/text';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
@@ -190,12 +191,12 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         onClick={onToggle}
       >
         <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
-        <div className='flex items-center gap-2'>
+        <Inline gap='list'>
           <div className='h-11 min-w-[150px] flex-1'>
             <CampaignSparkline data={campaign.sparkline} />
           </div>
           <CampaignToggleButton isExpanded={isExpanded} onToggle={onToggle} controlsId={detailsId} />
-        </div>
+        </Inline>
       </div>
 
       {/* Desktop header row */}
@@ -243,7 +244,9 @@ function CampaignHeaderTitle({ name, sessionsLabel }: CampaignHeaderTitleProps) 
   return (
     <div className='min-w-0'>
       <p className='truncate text-sm leading-tight font-semibold'>{name}</p>
-      <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>{sessionsLabel}</p>
+      <Caption className='mt-0.5 tabular-nums' as='p'>
+        {sessionsLabel}
+      </Caption>
     </div>
   );
 }
@@ -275,10 +278,8 @@ function CampaignToggleButton({ isExpanded, onToggle, controlsId }: CampaignTogg
 function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className={`flex flex-col justify-end ${className ?? ''}`}>
-      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide uppercase'>
-        {label}
-      </span>
-      <span className='text-foreground text-sm font-semibold tabular-nums'>{value}</span>
+      <ColumnHeader className='text-[10px] leading-tight'>{label}</ColumnHeader>
+      <Value size='sm'>{value}</Value>
     </div>
   );
 }
@@ -320,20 +321,20 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
           <div className='lg:hidden'>
             <div className='grid grid-cols-2 gap-x-4 gap-y-3 px-2'>
               <div className='space-y-0.5'>
-                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+                <ColumnHeader className='text-[10px]' as='p'>
                   {tRow('bounceRate')}
-                </p>
-                <p className='text-foreground text-sm font-semibold tabular-nums'>
+                </ColumnHeader>
+                <Value size='sm' as='p'>
                   {formatPercentage(summary.bounceRate)}
-                </p>
+                </Value>
               </div>
               <div className='space-y-0.5'>
-                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+                <ColumnHeader className='text-[10px]' as='p'>
                   {tRow('pagesPerSession')}
-                </p>
-                <p className='text-foreground text-sm font-semibold tabular-nums'>
+                </ColumnHeader>
+                <Value size='sm' as='p'>
                   {formatNumber(summary.pagesPerSession)}
-                </p>
+                </Value>
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { List, RowComponentProps } from 'react-window';
 import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
+import { Caption } from '@/components/text';
 
 type ListPanelProps = {
   title: string;
@@ -94,16 +95,16 @@ function FooterState({ isFetchingMore, hasNextPage }: { isFetchingMore?: boolean
   const t = useTranslations('components.sessionReplay.sessionList');
   if (isFetchingMore) {
     return (
-      <div className='text-muted-foreground flex items-center justify-center text-xs'>
+      <Caption className='flex items-center justify-center'>
         <Spinner size='sm' />
         <span className='ml-2'>{t('loadingMore')}</span>
-      </div>
+      </Caption>
     );
   }
   if (hasNextPage) {
-    return <div className='text-muted-foreground text-center text-xs'>{t('scrollToLoadMore')}</div>;
+    return <Caption className='text-center'>{t('scrollToLoadMore')}</Caption>;
   }
-  return <div className='text-muted-foreground/80 text-center text-xs'>{t('endOfList')}</div>;
+  return <Caption className='text-center opacity-80'>{t('endOfList')}</Caption>;
 }
 
 function RenderRow({ items, isFetchingMore, hasNextPage, index, style, ariaAttributes }: RenderItemProps) {

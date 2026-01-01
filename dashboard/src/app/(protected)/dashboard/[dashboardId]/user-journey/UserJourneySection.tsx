@@ -5,6 +5,7 @@ import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.acti
 import { Card, CardContent } from '@/components/ui';
 import UserJourneyChart from '@/app/(protected)/dashboard/[dashboardId]/user-journey/UserJourneyChart';
 import { useTranslations } from 'next-intl';
+import { Description, Caption } from '@/components/text';
 
 type UserJourneySectionProps = {
   userJourneyPromise: ReturnType<typeof fetchUserJourneyAction>;
@@ -20,8 +21,8 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
         <CardContent className='p-8'>
           <div className='flex h-[300px] items-center justify-center text-center'>
             <div>
-              <p className='text-muted-foreground mb-1'>{t('noUserJourneyData')}</p>
-              <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+              <Description className='mb-1'>{t('noUserJourneyData')}</Description>
+              <Caption className='opacity-70'>{t('adjustTimeRange')}</Caption>
             </div>
           </div>
         </CardContent>

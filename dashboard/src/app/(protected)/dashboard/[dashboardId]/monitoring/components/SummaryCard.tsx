@@ -2,6 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/text';
 import { type ReactNode } from 'react';
 
 type SummaryCardProps = {
@@ -32,7 +33,7 @@ export function SummaryCard({
       )}
     >
       <div className='flex items-center justify-between gap-2'>
-        <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{title}</p>
+        <Label>{title}</Label>
         {headerRight}
       </div>
       <div className={bodyClassName}>{children}</div>

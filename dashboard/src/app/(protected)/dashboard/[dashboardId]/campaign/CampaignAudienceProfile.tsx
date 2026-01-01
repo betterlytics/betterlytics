@@ -6,6 +6,7 @@ import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@
 import { getCountryName } from '@/utils/countryCodes';
 import { useTranslations } from 'next-intl';
 import { capitalizeFirstLetter } from '@/utils/formatters';
+import { Caption, ColumnHeader, Value } from '@/components/text';
 
 export type AudienceShare = {
   label: string;
@@ -35,11 +36,7 @@ const CampaignAudienceProfile = memo(
     );
 
     if (sections.length === 0) {
-      return (
-        <div className='text-muted-foreground flex items-center justify-center px-1 py-2 text-xs'>
-          {t('noData')}
-        </div>
-      );
+      return <Caption className='flex items-center justify-center px-1 py-2'>{t('noData')}</Caption>;
     }
 
     return (
@@ -48,9 +45,9 @@ const CampaignAudienceProfile = memo(
         <div className='grid grid-cols-2 gap-x-4 gap-y-3 pt-2.5 xl:grid-cols-4'>
           {sections.map((section) => (
             <div key={section.key} className='space-y-1.5'>
-              <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+              <ColumnHeader className='text-[10px]' as='p'>
                 {section.title}
-              </p>
+              </ColumnHeader>
               <div className='space-y-1'>
                 {section.items.map((item) => {
                   const { icon, label } = getAudienceIconAndLabel(section.key, item.label, locale);
@@ -63,7 +60,7 @@ const CampaignAudienceProfile = memo(
                         {icon}
                         <span className='block max-w-[7.5rem] truncate'>{label}</span>
                       </div>
-                      <span className='text-foreground ml-2 shrink-0 font-medium tabular-nums'>{item.value}</span>
+                      <Value className='ml-2 shrink-0 text-xs'>{item.value}</Value>
                     </div>
                   );
                 })}

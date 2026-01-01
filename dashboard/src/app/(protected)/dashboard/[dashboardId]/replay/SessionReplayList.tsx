@@ -14,6 +14,8 @@ import { formatDuration, formatRelativeTimeFromNow } from '@/utils/dateFormatter
 import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { InfoBadge } from './components/InfoBadge';
+import { Inline } from '@/components/layout';
+import { Caption } from '@/components/text';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -134,20 +136,20 @@ export function SessionReplayList({
   });
 
   const emptyState = isLoadingInitial ? (
-    <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
+    <Caption className='flex h-full items-center justify-center px-2'>
       <div className='flex flex-col items-center gap-1'>
         <Spinner size='sm' />
         <span>{t('loading')}</span>
       </div>
-    </div>
+    </Caption>
   ) : (
-    <div className='text-muted-foreground flex h-full items-center justify-center px-2 text-xs'>
+    <Caption className='flex h-full items-center justify-center px-2'>
       <div className='flex flex-col items-center text-center'>
         <ListVideo className='text-muted-foreground/70 mb-3 h-8 w-8' />
         <p className='font-medium'>{t('empty.title')}</p>
         <p className='mt-1 text-xs'>{t('empty.description')}</p>
       </div>
-    </div>
+    </Caption>
   );
 
   return (
@@ -155,7 +157,7 @@ export function SessionReplayList({
       title={t('header')}
       subtitle={t('subHeader', { count: filteredSessions.length })}
       headerRight={
-        <div className='flex items-center gap-2'>
+        <Inline gap='list'>
           <Input
             id='session-duration-filter'
             type='number'
@@ -167,7 +169,7 @@ export function SessionReplayList({
             inputMode='numeric'
             className='cursor-input h-8 w-36 !text-xs shadow-sm md:!text-xs'
           />
-        </div>
+        </Inline>
       }
       items={items}
       onReachEnd={onLoadMore}

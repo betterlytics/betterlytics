@@ -23,6 +23,8 @@ import { cn } from '@/lib/utils';
 import type { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { useTranslations } from 'next-intl';
+import { Inline } from '@/components/layout';
+import { Description } from '@/components/text';
 
 type TableEventRow = Awaited<ReturnType<typeof fetchCustomEventsOverviewAction>>[number];
 
@@ -99,7 +101,7 @@ export function EventsTable({ data }: EventsTableProps) {
         cell: ({ row }) => {
           const event = row.original;
           return (
-            <div className='flex items-center gap-3'>
+            <Inline gap='card'>
               <div className='flex h-4 w-4 items-center justify-center'>
                 {event.isExpanded ? (
                   <ChevronDown className='text-primary h-4 w-4' />
@@ -115,7 +117,7 @@ export function EventsTable({ data }: EventsTableProps) {
               >
                 {event.event_name}
               </span>
-            </div>
+            </Inline>
           );
         },
         accessorFn: (row) => row.current.event_name,
@@ -201,7 +203,7 @@ export function EventsTable({ data }: EventsTableProps) {
               <Activity className='text-primary h-8 w-8' />
             </div>
             <h3 className='text-foreground mb-3 text-lg font-semibold'>{t('noEvents')}</h3>
-            <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>{t('noEventsDesc')}</p>
+            <Description className='mx-auto max-w-sm leading-relaxed'>{t('noEventsDesc')}</Description>
           </div>
         </CardContent>
       </Card>
@@ -215,12 +217,12 @@ export function EventsTable({ data }: EventsTableProps) {
           <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
             <Activity className='text-primary h-4 w-4' />
           </div>
-          <div className='flex items-center gap-3'>
+          <Inline gap='card'>
             <span>{t('eventDetails')}</span>
             <Badge variant='secondary' className='text-xs font-normal'>
               {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}
             </Badge>
-          </div>
+          </Inline>
         </CardTitle>
       </CardHeader>
       <CardContent className='px-0'>

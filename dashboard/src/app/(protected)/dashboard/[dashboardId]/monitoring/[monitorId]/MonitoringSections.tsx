@@ -25,6 +25,8 @@ import { formatPercentage, formatTimeFromNow } from '@/utils/formatters';
 import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
 import { CardHeader, SectionCard, StatusDot, TimePeriodBadge } from '../components';
+import { Inline, Stack } from '@/components/layout';
+import { Caption, Description, Label } from '@/components/text';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return (
@@ -41,7 +43,7 @@ export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment
         {incidents.length === 0 ? (
           <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
             <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
-            <p className='text-muted-foreground mt-1 text-sm'>{t('incidents.emptyDescription')}</p>
+            <Description className='mt-1'>{t('incidents.emptyDescription')}</Description>
           </div>
         ) : (
           <div className='border-border/70 overflow-x-auto rounded-md border'>
@@ -172,7 +174,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
         title={resolvedTitle}
         badge={<TimePeriodBadge>{t('uptime.badge', { days: totalDays })}</TimePeriodBadge>}
       />
-      <div className='space-y-4'>
+      <Stack>
         <div ref={scrollContainerRef} className='overflow-x-auto'>
           <div className='grid auto-cols-[14px] grid-flow-col auto-rows-[14px] grid-rows-7 justify-start gap-[3px]'>
             {grid.map((cell) => {
@@ -203,20 +205,18 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 key={stat.label}
                 className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
               >
-                <span className='text-muted-foreground font-semibold tracking-wide'>
-                  {t('uptime.stats.label', { days: stat.windowDays })}
-                </span>
+                <Label className='text-sm'>{t('uptime.stats.label', { days: stat.windowDays })}</Label>
                 <div className='text-right'>
                   <div className={presentUptimeTone(stat.percent).theme.text}>
                     {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
                   </div>
-                  <div className='text-muted-foreground text-xs'>{downtimeLabel}</div>
+                  <Caption>{downtimeLabel}</Caption>
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
+      </Stack>
     </SectionCard>
   );
 }
@@ -233,10 +233,10 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
   return (
     <TableRow className='text-sm'>
       <TableCell>
-        <div className='flex items-center gap-2'>
+        <Inline gap='list'>
           <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
-        </div>
+        </Inline>
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{tReason(reasonKey)}</TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
@@ -258,10 +258,10 @@ function CheckRow({ check }: { check: MonitorResult }) {
   return (
     <TableRow className='text-sm'>
       <TableCell>
-        <div className='flex items-center gap-2'>
+        <Inline gap='list'>
           <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
-        </div>
+        </Inline>
       </TableCell>
       <TableCell className='text-muted-foreground w-[150px] text-xs whitespace-nowrap sm:text-sm'>
         {formatTimeFromNow(timestamp, locale)}

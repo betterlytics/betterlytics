@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
 import { Card } from '@/components/ui/card';
+import { ColumnHeader, Caption, Description } from '@/components/text';
 
 const MOCK_FUNNEL_STEPS = [
   { name: 'homepage', visitors: '2,847', percentage: 100 },
@@ -25,9 +26,9 @@ function SkeletonFunnelStep({
   return (
     <div className='flex flex-col'>
       <div className='border-border/30 border-b px-3 pt-2 pb-1.5'>
-        <p className='text-muted-foreground/60 text-[10px] font-medium tracking-wide uppercase'>
+        <ColumnHeader className='text-[10px] opacity-60' as='p'>
           {t('step')} {index + 1}
-        </p>
+        </ColumnHeader>
         <h4 className='text-foreground/70 truncate text-sm font-semibold'>{t(`steps.${step.name}` as any)}</h4>
       </div>
 
@@ -38,7 +39,7 @@ function SkeletonFunnelStep({
             style={{ height: `${step.percentage}%` }}
           />
           {!isLast && (
-            <div className='absolute right-0 bottom-0 h-full w-6 -translate-x-1/2 translate-x-full'>
+            <div className='absolute right-0 bottom-0 h-full w-6 translate-x-full'>
               <svg className='h-full w-full' preserveAspectRatio='none' viewBox='0 0 24 100'>
                 <path
                   d={`M 0 ${100 - step.percentage} L 24 ${100 - MOCK_FUNNEL_STEPS[index + 1].percentage} L 24 100 L 0 100 Z`}
@@ -51,9 +52,9 @@ function SkeletonFunnelStep({
       </div>
 
       <div className='flex flex-col items-center py-2'>
-        <p className='text-muted-foreground/60 text-[10px]'>{t('visitors')}</p>
+        <Caption className='opacity-60'>{t('visitors')}</Caption>
         <p className='text-foreground/70 text-sm font-semibold'>{step.visitors}</p>
-        <p className='text-muted-foreground/50 text-[10px]'>{step.percentage}%</p>
+        <Caption className='opacity-50'>{step.percentage}%</Caption>
       </div>
     </div>
   );
@@ -86,7 +87,7 @@ export function FunnelsEmptyState() {
       <div className='relative flex flex-1 flex-col justify-center space-y-6 sm:order-2 sm:flex-none sm:pt-8'>
         <div className='space-y-3 text-center'>
           <h2 className='text-2xl font-semibold tracking-tight'>{t('title')}</h2>
-          <p className='text-muted-foreground mx-auto max-w-md text-sm leading-relaxed'>{t('description')}</p>
+          <Description className='mx-auto max-w-md leading-relaxed'>{t('description')}</Description>
         </div>
         <div className='flex justify-center'>
           <CreateFunnelDialog triggerText={t('createButton')} triggerVariant='default' />

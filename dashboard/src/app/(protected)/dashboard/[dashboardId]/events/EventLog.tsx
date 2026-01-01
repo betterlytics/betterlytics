@@ -16,6 +16,8 @@ import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
 import { useTranslations } from 'next-intl';
 import { useInView } from '@/hooks/useInView';
+import { Inline } from '@/components/layout';
+import { Caption, Description } from '@/components/text';
 
 const DEFAULT_PAGE_SIZE = 25;
 const EVENTS_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
@@ -35,17 +37,21 @@ const EmptyState = ({ t }: { t: EventLogTranslation }) => (
     </div>
     <div className='text-center'>
       <p className='text-foreground text-sm font-medium'>{t('waiting')}</p>
-      <p className='text-muted-foreground mt-1 text-xs'>{t('realTimeDesc')}</p>
+      <Caption className='mt-1' as='p'>
+        {t('realTimeDesc')}
+      </Caption>
     </div>
   </div>
 );
 
 const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
   <div className='border-border/60 bg-muted/10 flex items-center justify-center border-t py-6'>
-    <div className='flex items-center gap-3'>
+    <Inline gap='card'>
       <Spinner size='sm' />
-      <span className='text-muted-foreground text-sm font-medium'>{t('loadingMore')}</span>
-    </div>
+      <Description as='span' className='font-medium'>
+        {t('loadingMore')}
+      </Description>
+    </Inline>
   </div>
 );
 

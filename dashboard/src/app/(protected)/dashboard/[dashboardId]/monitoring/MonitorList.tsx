@@ -18,6 +18,7 @@ import {
 } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { formatPercentage } from '@/utils/formatters';
 import { LiveIndicator } from '@/components/live-indicator';
+import { Description } from '@/components/text';
 import { PillBar } from './components/PillBar';
 import { MonitorStatusBadge } from './components/MonitorStatusBadge';
 import { MonitorActionMenu } from './components/MonitorActionMenu';
@@ -39,7 +40,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
             <Activity className='text-muted-foreground h-6 w-6' />
           </div>
           <h3 className='text-lg font-semibold'>{t('list.emptyTitle')}</h3>
-          <p className='text-muted-foreground text-sm'>{t('list.emptyDescription')}</p>
+          <Description>{t('list.emptyDescription')}</Description>
         </div>
       </Card>
     );

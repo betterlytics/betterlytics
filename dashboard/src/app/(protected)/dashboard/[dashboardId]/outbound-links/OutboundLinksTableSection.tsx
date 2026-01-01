@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Inline } from '@/components/layout';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
@@ -29,7 +30,7 @@ export default function OutboundLinksTableSection({
         accessorKey: 'outbound_link_url',
         header: t('destinationUrl'),
         cell: ({ row }) => (
-          <div className='flex items-center gap-2'>
+          <Inline gap='list'>
             <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
             <ExternalLink
               href={`https://${row.original.current.outbound_link_url}`}
@@ -39,7 +40,7 @@ export default function OutboundLinksTableSection({
             >
               {formatString(row.original.current.outbound_link_url)}
             </ExternalLink>
-          </div>
+          </Inline>
         ),
         accessorFn: (row) => row.current.outbound_link_url,
       },
