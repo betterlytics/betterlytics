@@ -173,9 +173,7 @@ export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
 export type IncidentState = z.infer<typeof IncidentStateSchema>;
 export type MonitorOperationalState = z.infer<typeof MonitorOperationalStateSchema>;
 
-export type HttpMethod = z.infer<typeof HttpMethodSchema>;
 export type StatusCodeValue = z.infer<typeof StatusCodeValueSchema>;
-export type RequestHeader = z.infer<typeof RequestHeaderSchema>;
 
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;
 export type MonitorCheckCreate = z.infer<typeof MonitorCheckCreateSchema>;

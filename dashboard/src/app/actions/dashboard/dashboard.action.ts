@@ -11,17 +11,14 @@ import {
 } from '@/repositories/postgres/dashboard.repository';
 import { User } from 'next-auth';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { getCapabilities, requireCapability } from '@/lib/billing/capabilityAccess';
-import { getTranslations } from 'next-intl/server';
+import { getCapabilities } from '@/lib/billing/capabilityAccess';
+import { dashboardValidator } from '@/lib/billing/validators';
 
 export const createDashboardAction = withUserAuth(async (user: User, domain: string): Promise<Dashboard> => {
-  const t = await getTranslations('validation');
   const caps = await getCapabilities();
   const currentDashboards = await findAllUserDashboards(user.id);
 
-  requireCapability(currentDashboards.length < caps.dashboards.maxDashboards, t('capabilities.dashboardLimit'));
-
-  console.log(currentDashboards.length, caps.dashboards.maxDashboards);
+  (await dashboardValidator(caps.dashboards)).dashboardLimit(currentDashboards.length).validate();
 
   return createNewDashboard(domain, user.id);
 });
